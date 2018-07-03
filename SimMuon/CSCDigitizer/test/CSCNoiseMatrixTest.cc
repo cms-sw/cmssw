@@ -6,6 +6,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -24,9 +25,9 @@ public:
     }
   }
 
-  virtual ~CSCNoiseMatrixTest() {}
+  ~CSCNoiseMatrixTest() override {}
   //virtual void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup)
-  virtual void analyze(const edm::Event& e, const edm::EventSetup&eventSetup)
+  void analyze(const edm::Event& e, const edm::EventSetup&eventSetup) override
   {
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());

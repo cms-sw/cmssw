@@ -127,7 +127,7 @@ EcalURecHitHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     // fill the proper hist
     TH1F* uRecHist = FEDsAndHists_[FEDid];
     TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(uRecHist==0)
+    if(uRecHist==nullptr)
     {
       initHists(FEDid);
       uRecHist = FEDsAndHists_[FEDid];
@@ -169,7 +169,7 @@ EcalURecHitHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     // fill the proper hist
     TH1F* uRecHist = FEDsAndHists_[FEDid];
     TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(uRecHist==0)
+    if(uRecHist==nullptr)
     {
       initHists(FEDid);
       uRecHist = FEDsAndHists_[FEDid];
@@ -202,7 +202,7 @@ void EcalURecHitHists::initHists(int FED)
   int numBins = (int)round(histRangeMax_-histRangeMin_)+1;
   TH1F* hist = new TH1F(name1.c_str(),title1.c_str(), numBins, histRangeMin_, histRangeMax_);
   FEDsAndHists_[FED] = hist;
-  FEDsAndHists_[FED]->SetDirectory(0);
+  FEDsAndHists_[FED]->SetDirectory(nullptr);
   
   title1 = "Jitter for ";
   title1.append(fedMap_->getSliceFromFed(FED));
@@ -210,7 +210,7 @@ void EcalURecHitHists::initHists(int FED)
   name1.append(intToString(FED));
   TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
   FEDsAndTimingHists_[FED] = timingHist;
-  FEDsAndTimingHists_[FED]->SetDirectory(0);
+  FEDsAndTimingHists_[FED]->SetDirectory(nullptr);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -239,7 +239,7 @@ EcalURecHitHists::endJob()
     FEDdir->cd();
 
     TH1F* hist = itr->second;
-    if(hist!=0)
+    if(hist!=nullptr)
       hist->Write();
     else
     {
@@ -247,7 +247,7 @@ EcalURecHitHists::endJob()
     }
     // Write out timing hist
     hist = FEDsAndTimingHists_[itr->first];
-    if(hist!=0)
+    if(hist!=nullptr)
       hist->Write();
     else
     {

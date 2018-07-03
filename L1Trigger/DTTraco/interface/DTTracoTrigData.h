@@ -47,7 +47,7 @@ class DTTracoTrigData : public DTTrigData {
   DTTracoTrigData(DTTracoId, int);
   
   //!  Destructor 
-  ~DTTracoTrigData() {}
+  ~DTTracoTrigData() override {}
 
   // Non-const methods
   
@@ -173,12 +173,12 @@ class DTTracoTrigData : public DTTrigData {
   }
   
   //! Return chamber identifier
-  DTChamberId ChamberId() const {
+  DTChamberId ChamberId() const override {
     return _tracoid.ChamberId(); 
   }
 
   //! print
-  void print() const;
+  void print() const override;
 
   //! Return parent TRACO identifier
   inline DTTracoId parentId() const {

@@ -1,0 +1,9 @@
+<use   name="DataFormats/GEMDigi"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/GEMGeometry"/>
+<export>
+  <lib   name="1"/>
+</export>

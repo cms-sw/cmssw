@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PrintGeom")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load('Geometry.CMSCommonData.cmsIdealGeometryXML_cfi')
+process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
+process.load('Geometry.HcalCommonData.hcalParameters_cfi')
+process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
 
 process.MessageLogger.destinations = cms.untracked.vstring("SensDet.txt")
 
@@ -12,7 +14,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load('SimGeneral.HepPDTESSource.pdt_cfi')
+process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
+process.load('GeneratorInterface.Core.generatorSmeared_cfi')
 
 process.source = cms.Source("EmptySource")
 
@@ -31,12 +35,14 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
-
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     generator = cms.PSet(
          initialSeed = cms.untracked.uint32(123456789),
          engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    VtxSmeared = cms.PSet(
+        engineName = cms.untracked.string('HepJamesRandom'),
+        initialSeed = cms.untracked.uint32(98765432)
     ),
     g4SimHits = cms.PSet(
          initialSeed = cms.untracked.uint32(11),
@@ -44,9 +50,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     )
 )
 
-process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load('SimG4Core.Application.g4SimHits_cfi')
 
-process.p1 = cms.Path(process.generator*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits)
 
 process.g4SimHits.UseMagneticField        = False
 process.g4SimHits.Physics.DefaultCutValue = 10. 

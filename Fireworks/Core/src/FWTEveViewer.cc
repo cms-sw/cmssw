@@ -20,9 +20,7 @@
 
 #include "TMath.h"
 #include "TGLIncludes.h"
-#define protected public
 #include "TGLFBO.h"
-#undef protected
 
 #include "Fireworks/Core/interface/FWTEveViewer.h"
 #include "Fireworks/Core/interface/FWTGLViewer.h"
@@ -40,7 +38,7 @@
 //
 FWTEveViewer::FWTEveViewer(const char* n, const char* t) :
    TEveViewer(n, t),
-   m_fwGlViewer(0)
+   m_fwGlViewer(nullptr)
 {}
 
 // FWTEveViewer::FWTEveViewer(const FWTEveViewer& rhs)
@@ -126,7 +124,7 @@ FWTGLViewer* FWTEveViewer::SpawnFWTGLViewer()
 
    fGLViewerFrame->MapWindow();
 
-   if (fEveFrame == 0)
+   if (fEveFrame == nullptr)
       PreUndock();
 
    return m_fwGlViewer;
@@ -137,13 +135,13 @@ FWTEveViewer::CaptureAndSaveImage(const TString& file, int height)
 {
    static const TString eh("FWTEveViewer::CaptureAndSaveImage");
 
-   TGLFBO *fbo = 0;
+   TGLFBO *fbo = nullptr;
    if (height == -1)
       fbo = m_fwGlViewer->MakeFbo();
    else
       fbo = m_fwGlViewer->MakeFboHeight(height);
 
-   if (fbo == 0)
+   if (fbo == nullptr)
    {
       ::Error(eh, "Returned FBO is 0.");
       m_prom = std::promise<int>();
@@ -152,15 +150,15 @@ FWTEveViewer::CaptureAndSaveImage(const TString& file, int height)
    }
 
    int ww, hh;
-   if (fbo->fIsRescaled)
+   if (fbo->GetIsRescaled())
    {
-      ww = TMath::Nint(fbo->fW * fbo->fWScale);
-      hh = TMath::Nint(fbo->fH * fbo->fHScale);
+      ww = TMath::Nint(fbo->GetW() * fbo->GetWScale());
+      hh = TMath::Nint(fbo->GetH() * fbo->GetHScale());
    }
    else
    {
-      ww = fbo->fW;
-      hh = fbo->fH;
+      ww = fbo->GetW();
+      hh = fbo->GetH();
    }
 
    fbo->SetAsReadBuffer();
@@ -174,7 +172,7 @@ FWTEveViewer::CaptureAndSaveImage(const TString& file, int height)
    glPixelStorei(GL_PACK_ALIGNMENT, 1);
    glReadPixels(0, 0, ww, hh, GL_RGB, GL_UNSIGNED_BYTE, &m_imgBuffer[0]);
 
-   if (m_thr == 0) spawn_image_thread();
+   if (m_thr == nullptr) spawn_image_thread();
 
    {
       std::unique_lock<std::mutex> lk(m_moo);
@@ -209,15 +207,15 @@ bool FWTEveViewer::SavePng(const TString& file, UChar_t* xx, int ww, int hh)
     * the library version is compatible with the one used at compile time,
     * in case we are using dynamically linked libraries.  REQUIRED.
     */
-   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, 0, 0);
-   if (png_ptr == NULL) {
+   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+   if (png_ptr == nullptr) {
       printf("Error creating png write struct\n");
       return false;
    }
 
    // Allocate/initialize the image information data.      REQUIRED
    info_ptr = png_create_info_struct(png_ptr);
-   if (info_ptr == NULL) {
+   if (info_ptr == nullptr) {
       printf("Error creating png info struct\n");
       png_destroy_write_struct(&png_ptr, &info_ptr);
       return false;

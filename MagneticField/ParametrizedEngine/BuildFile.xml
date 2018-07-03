@@ -2,7 +2,6 @@
 <!--use   name="FWCore/Framework"/-->
 <use   name="FWCore/ParameterSet"/>
 <use   name="MagneticField/Engine"/>
-<use   name="MagneticField/UniformEngine"/>
 <use   name="MagneticField/Records"/>
 <export>
   <lib   name="1"/>

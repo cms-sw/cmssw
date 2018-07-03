@@ -1,6 +1,4 @@
 <bin name="dumpDDExpandedView" file="dumpDDExpandedView.cpp">
- <use name="DetectorDescription/Algorithm"/>
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
  <use name="DetectorDescription/RegressionTest"/>
@@ -10,15 +8,12 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>
 <bin file="TestIntegration.cpp" name="DetectorDescriptionParserTE">
    <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/Parser/test run_testDoc.sh" />
    <use name="FWCore/Utilities"/>
 </bin>
 <bin file="testDoc.cpp">
-   <use name="DetectorDescription/Algorithm"/>
-   <use name="DetectorDescription/Base"/>
    <use name="DetectorDescription/Core"/>
    <use name="DetectorDescription/Parser"/>
    <use name="FWCore/MessageLogger"/>
@@ -27,11 +22,10 @@
    <use name="FWCore/PythonParameterSet"/>
    <use name="FWCore/ServiceRegistry"/>
    <use name="FWCore/Utilities"/>
-   <use name="boost_system"/>
+   <use name="Utilities/Xerces"/>
 </bin>
 
 <bin name="testmat" file="testmat.cpp">
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Parser"/>
  <use name="FWCore/MessageLogger"/>
  <use name="FWCore/ParameterSet"/>
@@ -39,11 +33,8 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>
 <bin name="dumpDDCompactView" file="dumpDDCompactView.cpp">
- <use name="DetectorDescription/Algorithm"/>
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
  <use name="DetectorDescription/RegressionTest"/>
@@ -53,16 +44,12 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>
 <bin name="testNew" file="testNew.cpp">
- <use name="DetectorDescription/Algorithm"/>
- <use name="DetectorDescription/Base"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
 </bin>
 <bin name="testDDCompactView" file="testDDCompactView.cpp">
- <use name="DetectorDescription/Algorithm"/>
  <use name="DetectorDescription/Core"/>
  <use name="DetectorDescription/Parser"/>
  <use name="FWCore/MessageLogger"/>
@@ -71,5 +58,4 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>

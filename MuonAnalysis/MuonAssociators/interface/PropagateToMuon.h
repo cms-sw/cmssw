@@ -22,12 +22,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-struct DetLayer; // #include "TrackingTools/DetLayers/interface/DetLayer.h" // forward declaration can suffice
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+class DetLayer;
 
 class PropagateToMuon {
     public:
@@ -69,6 +69,8 @@ class PropagateToMuon {
 
         /// for cosmics, some things change: the along-opposite is not in-out, nor the innermost/outermost states are in-out really
         bool cosmicPropagation_;
+
+	bool useMB2InOverlap_;
 
         // needed services for track propagation
         edm::ESHandle<MagneticField> magfield_;

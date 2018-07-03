@@ -6,8 +6,8 @@
 class MultiCandGenEvtSelector : public BaseHiGenEvtSelector {
  public:
    MultiCandGenEvtSelector(const edm::ParameterSet&);
-   virtual ~MultiCandGenEvtSelector(){;}
-   bool filter(HepMC::GenEvent *);
+   ~MultiCandGenEvtSelector() override{;}
+   bool filter(HepMC::GenEvent *) override;
 
    double ptMin_;
    double etaMax_;

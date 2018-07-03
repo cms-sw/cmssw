@@ -14,7 +14,7 @@
 // Created:     Sun Sep 16 14:52 CEST 2007
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <functional>
 #include <iterator>
@@ -37,11 +37,11 @@ class ProcSort : public VarProcessor {
 	ProcSort(const char *name,
 	         const Calibration::ProcSort *calib,
 	         const MVAComputer *computer);
-	virtual ~ProcSort() {}
+	~ProcSort() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:
@@ -49,7 +49,7 @@ class ProcSort : public VarProcessor {
 	bool		descending;
 };
 
-static ProcSort::Registry registry("ProcSort");
+ProcSort::Registry registry("ProcSort");
 
 ProcSort::ProcSort(const char *name,
                    const Calibration::ProcSort *calib,

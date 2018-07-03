@@ -27,12 +27,12 @@
 class InconsistentMuonPFCandidateFilter : public edm::EDFilter {
 public:
   explicit InconsistentMuonPFCandidateFilter(const edm::ParameterSet&);
-  ~InconsistentMuonPFCandidateFilter();
+  ~InconsistentMuonPFCandidateFilter() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -84,8 +84,7 @@ InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSe
 
   bool    foundMuon = false;
 
-  auto_ptr< reco::PFCandidateCollection >
-    pOutputCandidateCollection( new reco::PFCandidateCollection );
+  auto pOutputCandidateCollection = std::make_unique<reco::PFCandidateCollection>();
 
   for ( unsigned i=0; i<pfCandidates->size(); i++ ) {
 
@@ -118,11 +117,11 @@ InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSe
     }
   } // end loop over PF candidates
 
-  iEvent.put( pOutputCandidateCollection, "muons" );
+  iEvent.put(std::move(pOutputCandidateCollection), "muons");
 
   bool pass = !foundMuon;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 }

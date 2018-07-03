@@ -36,19 +36,19 @@ namespace edm
     template <class U> struct rebind { typedef debugging_allocator<U> other; };
 
 
-    debugging_allocator() throw() : dummy('x') { }
+    debugging_allocator() noexcept : dummy('x') { }
 
-    debugging_allocator(debugging_allocator const&) throw() : dummy('c') { }
+    debugging_allocator(debugging_allocator const&) noexcept : dummy('c') { }
 
-    template <class U> debugging_allocator(debugging_allocator<U> const&) throw() : dummy('u') { }
+    template <class U> debugging_allocator(debugging_allocator<U> const&) noexcept : dummy('u') { }
 
-    ~debugging_allocator() throw() { };
+    ~debugging_allocator() noexcept { };
 
     pointer address(reference value) const {return &value;}
 
     const_pointer address(const_reference value) const {return &value; }    
 
-    size_type max_size() const throw() { return std::numeric_limits<size_type>::max()/sizeof(T); }
+    size_type max_size() const noexcept { return std::numeric_limits<size_type>::max()/sizeof(T); }
 
     pointer allocate(size_type num, void const* hint = 0)
     {
@@ -69,10 +69,10 @@ namespace edm
 
   // instances of all specializations of this allocator are equal
   template <class X, class Y>
-  bool operator==  (debugging_allocator<X> const&, debugging_allocator<Y> const&) throw() { return true; }
+  bool operator==  (debugging_allocator<X> const&, debugging_allocator<Y> const&) noexcept { return true; }
 
   template <class X, class Y>
-  bool operator!=  (debugging_allocator<X> const&, debugging_allocator<Y> const&) throw() { return false; }
+  bool operator!=  (debugging_allocator<X> const&, debugging_allocator<Y> const&) noexcept { return false; }
 
 } //namespace edm
 

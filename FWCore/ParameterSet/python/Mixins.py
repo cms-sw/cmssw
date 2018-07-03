@@ -1,8 +1,10 @@
 import inspect
+import six
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
-    pass
+    def _isTaskComponent(self):
+        return False
 
 class PrintOptions(object):
     def __init__(self):
@@ -74,6 +76,22 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         if isinstance(other,_SimpleParameterTypeBase):
             return self._value != other._value
         return self._value != other
+    def __lt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value < other._value
+        return self._value < other
+    def __le__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value <= other._value
+        return self._value <= other
+    def __gt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value > other._value
+        return self._value > other
+    def __ge__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value >= other._value
+        return self._value >= other
 
 
 class UsingBlock(_SimpleParameterTypeBase):
@@ -98,7 +116,7 @@ class UsingBlock(_SimpleParameterTypeBase):
         #if value == '\0':
         #    value = ''
         parameterSet.addString(self.isTracked(), myname, value)
-    def dumpPython(self, options):
+    def dumpPython(self, options=PrintOptions()):
         if options.isCfg:
             return "process."+self.value()
         else:
@@ -188,7 +206,7 @@ class _Parameterizable(object):
         self._isModified = True
 
     def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+        for name,value in six.iteritems(parameters):
             self.__addParameter(name, value)
 
     def __setattr__(self,name,value):
@@ -335,24 +353,19 @@ class _TypedParameterizable(_Parameterizable):
         New parameters may be added by specify the exact type
         Modifying existing parameters can be done by just specifying the new
           value without having to specify the type.
+        A parameter may be removed from the clone using the value None.
+           #remove the parameter foo.fred
+           mod.toModify(foo, fred = None)
+        A parameter embedded within a PSet may be changed via a dictionary
+           #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
+           mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
         """
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
         if len(myparams) == 0 and len(params) and len(args):
             args.append(None)
-        if len(params):
-            #need to treat items both in params and myparams specially
-            for key,value in params.iteritems():
-                if key in myparams:                    
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key] =value
-                    else:
-                        myparams[key].setValue(value)
-                else:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key]=value
-                    else:
-                        self._Parameterizable__raiseBadSetAttr(key)
+        
+        _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
 
         returnValue.__init__(self.__type,*args,
                              **myparams)
@@ -469,7 +482,7 @@ class _Labelable(object):
         return str(self.__label)
     def dumpSequenceConfig(self):
         return str(self.__label)
-    def dumpSequencePython(self):
+    def dumpSequencePython(self, options=PrintOptions()):
         return 'process.'+str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
@@ -577,27 +590,25 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def dumpPython(self, options=PrintOptions()):
         result = self.pythonTypeName()+"("
         n = len(self)
+        if hasattr(self, "_nPerLine"):
+            nPerLine = self._nPerLine
+        else:
+            nPerLine = 5
+        if n>nPerLine: options.indent()
         if n>=256:
             #wrap in a tuple since they don't have a size constraint
             result+=" ("
-        indented = False
         for i, v in enumerate(self):
             if i == 0:
-                if hasattr(self, "_nPerLine"):
-                    nPerLine = self._nPerLine
-                else:
-                    nPerLine = 5
+                if n>nPerLine: result += '\n'+options.indentation()
             else:
-                if not indented:
-                    indented = True
-                    options.indent()
                 result += ', '
                 if i % nPerLine == 0:
                     result += '\n'+options.indentation()
             result += self.pythonValueForItem(v,options)
-        if indented:
+        if n>nPerLine:
             options.unindent()
-        #result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
+            result += '\n'+options.indentation()
         if n>=256:
             result +=' ) '
         result += ')'
@@ -614,6 +625,51 @@ def saveOrigin(obj, level):
     #obj._lineNumber = frame.lineno
     obj._filename = frame[0]
     obj._lineNumber = frame[1]
+
+def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
+    if len(newParams):
+        #need to treat items both in params and myparams specially
+        for key,value in six.iteritems(newParams):
+            if key in params:
+                if value is None:
+                    del params[key]
+                elif isinstance(value, dict):
+                    if isinstance(params[key],_Parameterizable):
+                        pset = params[key]
+                        p =pset.parameters_()
+                        oldkeys = set(p.keys())
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  ("%s.%s" if isinstance(key, str) else "%s[%s]")%(keyDepth,key))
+                        for k,v in six.iteritems(p):
+                            setattr(pset,k,v)
+                            oldkeys.discard(k)
+                        for k in oldkeys:
+                            delattr(pset,k)
+                    elif isinstance(params[key],_ValidatingParameterListBase):
+                        if any(not isinstance(k, int) for k in value.keys()):
+                            raise TypeError("Attempted to change a list using a dict whose keys are not integers")
+                        plist = params[key]
+                        if any((k < 0 or k >= len(plist)) for k in value.keys()):
+                            raise IndexError("Attempted to set an index which is not in the list")
+                        p = dict(enumerate(plist))
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  ("%s.%s" if isinstance(key, str) else "%s[%s]")%(keyDepth,key))
+                        for k,v in six.iteritems(p):
+                            plist[k] = v
+                    else:
+                        raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
+                elif isinstance(value,_ParameterTypeBase) or (isinstance(key, int)):
+                    params[key] = value
+                else:
+                    params[key].setValue(value)
+            else:
+                if isinstance(value,_ParameterTypeBase):
+                    params[key]=value
+                else:
+                    errorRaiser(key)
+
 
 if __name__ == "__main__":
 
@@ -681,13 +737,37 @@ if __name__ == "__main__":
             class __TestType(_SimpleParameterTypeBase):
                 def _isValid(self,value):
                     return True
-            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
-            b = a.clone(t=3, v=__TestType(4))
+            class __PSet(_ParameterTypeBase,_Parameterizable):
+                def __init__(self,*arg,**args):
+                    #need to call the inits separately
+                    _ParameterTypeBase.__init__(self)
+                    _Parameterizable.__init__(self,*arg,**args)
+            a = __Test("MyType",
+                       t=__TestType(1),
+                       u=__TestType(2),
+                       w = __TestType(3),
+                       x = __PSet(a = __TestType(4),
+                                  b = __TestType(6),
+                                  c = __PSet(gamma = __TestType(5))))
+            b = a.clone(t=3,
+                        v=__TestType(4),
+                        w= None,
+                        x = dict(a = 7,
+                                 c = dict(gamma = 8),
+                                 d = __TestType(9)))
+            c = a.clone(x = dict(a=None, c=None))
             self.assertEqual(a.t.value(),1)
             self.assertEqual(a.u.value(),2)
             self.assertEqual(b.t.value(),3)
             self.assertEqual(b.u.value(),2)
             self.assertEqual(b.v.value(),4)
+            self.assertEqual(b.x.a.value(),7)
+            self.assertEqual(b.x.b.value(),6)
+            self.assertEqual(b.x.c.gamma.value(),8)
+            self.assertEqual(b.x.d.value(),9)
+            self.assertEqual(hasattr(b,"w"), False)
+            self.assertEqual(hasattr(c.x,"a"), False)
+            self.assertEqual(hasattr(c.x,"c"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):

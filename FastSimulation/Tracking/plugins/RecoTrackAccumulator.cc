@@ -1,12 +1,12 @@
 #include "FastSimulation/Tracking/plugins/RecoTrackAccumulator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
-RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
   signalTracksTag(conf.getParameter<edm::InputTag>("signalTracks")),
   pileUpTracksTag(conf.getParameter<edm::InputTag>("pileUpTracks")),
   outputLabel(conf.getParameter<std::string>("outputLabel"))
@@ -26,9 +26,9 @@ RecoTrackAccumulator::~RecoTrackAccumulator() {
   
 void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
     
-  newTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
-  newHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
-  newTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+  newTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection);
+  newHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+  newTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
   
   // this is needed to get the ProductId of the TrackExtra and TrackingRecHit and Track collections
   rNewTracks=const_cast<edm::Event&>( e ).getRefBeforePut<reco::TrackCollection>(outputLabel);
@@ -42,15 +42,15 @@ void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const
 
 void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup, edm::StreamID const&) {
   if (e.bunchCrossing()==0) {
-    accumulateEvent( e, iSetup,pileUpTracksTag);
+      accumulateEvent( e, iSetup,pileUpTracksTag);
   }
 }
 
 void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& iSetup) {
   
-  e.put( newTracks_, outputLabel );
-  e.put( newHits_, outputLabel );
-  e.put( newTrackExtras_, outputLabel );
+  e.put(std::move(newTracks_), outputLabel );
+  e.put(std::move(newHits_), outputLabel );
+  e.put(std::move(newTrackExtras_), outputLabel );
 }
 
 
@@ -59,13 +59,22 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
   edm::Handle<reco::TrackCollection> tracks;
   edm::Handle<TrackingRecHitCollection> hits;
   edm::Handle<reco::TrackExtraCollection> trackExtras;
-  if(!(e.getByLabel(label, tracks) and e.getByLabel(label, hits) and e.getByLabel(label, trackExtras))){
-    edm::LogError ("RecoTrackAccumulator") << "Failed to find track, hit or trackExtra collections with inputTag " << label;
-    exit(1);
+  e.getByLabel(label, tracks);
+  e.getByLabel(label, hits);
+  e.getByLabel(label, trackExtras);
+  
+  if(! tracks.isValid())
+  {
+      throw cms::Exception ("RecoTrackAccumulator") << "Failed to find track collections with inputTag " << label << std::endl;
   }
-  if (tracks->size()==0)
-    return;
-
+  if(!hits.isValid())
+  {
+      throw cms::Exception ("RecoTrackAccumulator") << "Failed to find hit collections with inputTag " << label << std::endl;
+  }
+  if(!trackExtras.isValid())
+  {
+      throw cms::Exception ("RecoTrackAccumulator") << "Failed to find trackExtra collections with inputTag " << label << std::endl;
+  }
   
   for (size_t t = 0; t < tracks->size();++t){
     const reco::Track & track = (*tracks)[t];
@@ -92,5 +101,10 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
       newHits_->push_back( (*hits)[extra.recHit(i).key()] );
     }
     newExtra.setHits( rNewHits, firstTrackIndex, newHits_->size() - firstTrackIndex);
+    newExtra.setTrajParams(extra.trajParams(),extra.chi2sX5());
+    assert(newExtra.recHitsSize()==newExtra.trajParams().size());
   }
 }
+
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
+DEFINE_DIGI_ACCUMULATOR(RecoTrackAccumulator);

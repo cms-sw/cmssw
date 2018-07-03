@@ -42,6 +42,8 @@ FactorizedJetCorrectorCalculator::FactorizedJetCorrectorCalculator(const std::ve
       mLevels.push_back(kL2);
     else if (ss == "L3Absolute")
       mLevels.push_back(kL3);
+    else if (ss == "L2L3Residual")
+      mLevels.push_back(kL2L3Res);
     else if (ss == "L4EMF")
       mLevels.push_back(kL4);
     else if (ss == "L5Flavor")
@@ -52,6 +54,11 @@ FactorizedJetCorrectorCalculator::FactorizedJetCorrectorCalculator(const std::ve
       mLevels.push_back(kL7);
     else if (ss == "L1FastJet")
       mLevels.push_back(kL1fj);
+    else {
+      std::stringstream sserr;
+      sserr<<"unknown correction level "<<ss;
+      handleError("FactorizedJetCorrectorCalculator",sserr.str());
+    }
     mCorrectors.push_back(new SimpleJetCorrector(fParameters[i]));
     mBinTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().binVar()));
     mParTypes.push_back(mapping(mCorrectors[i]->parameters().definitions().parVar()));
@@ -82,6 +89,8 @@ void FactorizedJetCorrectorCalculator::initCorrectors(const std::string& fLevels
       mLevels.push_back(kL2);
     else if (tmp[i] == "L3Absolute")
       mLevels.push_back(kL3);
+    else if (tmp[i] == "L2L3Residual")
+      mLevels.push_back(kL2L3Res);
     else if (tmp[i] == "L4EMF")
       mLevels.push_back(kL4);
     else if (tmp[i] == "L5Flavor")

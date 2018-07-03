@@ -51,15 +51,15 @@ namespace l1t {
 class AMCDumpToRaw : public edm::EDProducer {
 public:
   explicit AMCDumpToRaw(const edm::ParameterSet&);
-  ~AMCDumpToRaw();
+  ~AMCDumpToRaw() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void readEvent(std::vector<uint32_t>& load32);
 
@@ -145,7 +145,7 @@ AMCDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("L1T") << "AMC13 size " << amc13.size();  
 
   // prepare the raw data collection
-  std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
   FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
   formatRaw(iEvent, amc13, fed_data);
@@ -153,7 +153,7 @@ AMCDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("L1T") << "Packing FED ID " << fedId_ << " size " << fed_data.size();
   
   // put the collection in the event
-  iEvent.put(raw_coll);  
+  iEvent.put(std::move(raw_coll));  
 
 }
 

@@ -21,7 +21,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
-#include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -77,6 +76,7 @@ private:
   std::map<std::string, std::shared_ptr<edm::ProcessConfiguration> > processConfigurations_;
 
   std::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<edm::EventPrincipal>    pEvent_;
 
   edm::EventID               eventID_;
@@ -161,7 +161,7 @@ void test_ep::setUp() {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
 
-    std::unique_ptr<edm::WrapperBase> product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+    std::unique_ptr<edm::WrapperBase> product = std::make_unique<WDP>(std::make_unique<PRODUCT_TYPE>());
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
@@ -175,8 +175,8 @@ void test_ep::setUp() {
 
     edm::BranchDescription const branchFromRegistry(it->second);
 
-    auto entryDescriptionPtr = std::make_shared<edm::Parentage>();
-    edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
+    std::vector<edm::BranchID> const ids;
+    edm::ProductProvenance prov(branchFromRegistry.branchID(), ids);
 
     std::shared_ptr<edm::ProcessConfiguration> process(processConfigurations_[tag]);
     assert(process);
@@ -184,14 +184,15 @@ void test_ep::setUp() {
     edm::Timestamp now(1234567UL);
     auto runAux = std::make_shared<edm::RunAuxiliary>(eventID_.run(), now, now);
     auto rp = std::make_shared<edm::RunPrincipal>(runAux, pProductRegistry_, *process, &historyAppender_,0);
-    auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, now, now);
-    auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pProductRegistry_, *process, &historyAppender_,0);
-    lbp->setRunPrincipal(rp);
+    edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
+    lbp_ = std::make_shared<edm::LuminosityBlockPrincipal>(pProductRegistry_, *process, &historyAppender_,0);
+    lbp_->setAux(lumiAux);
+    lbp_->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, thinnedAssociationsHelper, *process, &historyAppender_,edm::StreamID::invalidStreamID()));
     edm::ProcessHistoryRegistry phr;
     pEvent_->fillEventPrincipal(eventAux, phr);
-    pEvent_->setLuminosityBlockPrincipal(lbp);
+    pEvent_->setLuminosityBlockPrincipal(lbp_.get());
     pEvent_->put(branchFromRegistry, std::move(product), prov);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import sys
 import string
@@ -23,7 +24,7 @@ from Vispa.Main.RotatingIcon import RotatingIcon
 #from PreferencesEditor import PreferencesEditor
 import Vispa.__init__
 
-import Resources
+from . import Resources
 
 class Application(QApplication):
 
@@ -245,9 +246,9 @@ class Application(QApplication):
             except ImportError:
                 logging.warning('Application: cannot load plugin ' + di + ': ' + exception_traceback())
                 failedToLoad.append(di)
-            except PluginIgnoredException,e:
+            except PluginIgnoredException as e:
                 logging.info('Application: plugin ' + di + ' cannot be loaded and is ignored: ' + str(e))
-            except AttributeError,e:
+            except AttributeError as e:
                 logging.info('Application: plugin ' + di + ' is deactivated (define plugin in __init__.py to activate): ' + str(e))
                 
         for pluginName in self._loadablePlugins.keys():

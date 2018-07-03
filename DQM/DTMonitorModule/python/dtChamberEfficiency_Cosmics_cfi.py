@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 
-dtEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiency",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtEfficiencyMonitor = DQMEDAnalyzer('DTChamberEfficiency',
     MuonServiceProxy,
     debug = cms.untracked.bool(True),
     TrackCollection = cms.InputTag("cosmicMuons"),                                 
@@ -11,7 +12,6 @@ dtEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiency",
     theMinNrec = cms.double(20.),
     dt4DSegments = cms.InputTag("dt4DSegments"),
     theRPCRecHits = cms.InputTag("dummy"),
-    thegemRecHits = cms.InputTag("dummy"),
     cscSegments = cms.InputTag("dummy"),
     RPCLayers = cms.bool(False),
     NavigationType = cms.string("Direct")

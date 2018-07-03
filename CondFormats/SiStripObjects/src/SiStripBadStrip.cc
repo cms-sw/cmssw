@@ -56,9 +56,9 @@ void SiStripBadStrip::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
-void SiStripBadStrip::printSummary(std::stringstream & ss) const {
-  SiStripDetSummary summaryBadModules;
-  SiStripDetSummary summaryBadStrips;
+void SiStripBadStrip::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const {
+  SiStripDetSummary summaryBadModules{trackerTopo};
+  SiStripDetSummary summaryBadStrips{trackerTopo};
 
   // Loop on the vector<DetRegistry> and take the bad modules and bad strips
   Registry::const_iterator it = indexes.begin();
@@ -72,7 +72,7 @@ void SiStripBadStrip::printSummary(std::stringstream & ss) const {
   summaryBadStrips.print(ss, false);
 }
 
-void SiStripBadStrip::printDebug(std::stringstream & ss) const {
+void SiStripBadStrip::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const {
   ss << "Printing all bad strips for all DetIds" << std::endl;
   // Loop on the vector<DetRegistry> and take the bad modules and bad strips
   Registry::const_iterator it = indexes.begin();

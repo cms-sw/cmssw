@@ -14,7 +14,7 @@ public:
     virtual bool operator()(const reco::Candidate& input) const;
 
 private:
-    AnomalousTower();
+    AnomalousTower() = delete;
 
     const unsigned maxBadEcalCells;          // maximum number of bad ECAL cells
     const unsigned maxRecoveredEcalCells;    // maximum number of recovered ECAL cells

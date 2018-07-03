@@ -19,10 +19,10 @@
 class LHEFilter : public edm::EDFilter {
     public:
 	explicit LHEFilter(const edm::ParameterSet &params);
-	virtual ~LHEFilter();
+	~LHEFilter() override;
 
     protected:
-	virtual bool filter(edm::Event &event, const edm::EventSetup &es) override;
+	bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	edm::InputTag	sourceLabel;

@@ -19,7 +19,7 @@ class LMFSeqDat : public LMFUnique {
   LMFSeqDat(oracle::occi::Environment* env,
 	    oracle::occi::Connection* conn);
   LMFSeqDat(EcalDBConnection *c);
-  ~LMFSeqDat();
+  ~LMFSeqDat() override;
 
   // Methods for user data
   LMFSeqDat& setRunIOV(const RunIOV &iov);
@@ -48,7 +48,7 @@ class LMFSeqDat : public LMFUnique {
   int getVmin() const { return getInt("vmin"); }
   int getVmax() const { return getInt("vmax"); }
 
-  bool isValid() const ;
+  bool isValid() const override ;
   // Operators
   bool operator==(const LMFSeqDat &m) const
     {
@@ -84,22 +84,22 @@ class LMFSeqDat : public LMFUnique {
   void setVmax(int v) {
     setInt("vmax", v);
   }
-  std::string fetchIdSql(Statement *stmt);
-  std::string setByIDSql(Statement *stmt, int id);
-  std::string writeDBSql(Statement *stmt);
-  void getParameters(ResultSet *rset);
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  std::string writeDBSql(Statement *stmt) override;
+  void getParameters(ResultSet *rset) override;
 
-  void fetchParentIDs() throw(std::runtime_error);
+  void fetchParentIDs() noexcept(false) override;
   std::map<int, LMFSeqDat> fetchByRunIOV(const std::vector<std::string>& par, 
 					 std::string sql,
 					 std::string method) 
-    throw(std::runtime_error);
+    noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(int par, std::string sql,
 					 std::string method) 
-    throw(std::runtime_error);
+    noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(std::string sql,
 					 std::string method) 
-    throw(std::runtime_error);
+    noexcept(false);
 
 };
 

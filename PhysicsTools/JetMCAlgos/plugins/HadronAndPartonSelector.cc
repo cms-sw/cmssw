@@ -59,7 +59,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
+#include "CommonTools/CandUtils/interface/pdgIdUtils.h"
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
@@ -79,18 +79,20 @@ typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 class HadronAndPartonSelector : public edm::stream::EDProducer<> {
    public:
       explicit HadronAndPartonSelector(const edm::ParameterSet&);
-      ~HadronAndPartonSelector();
+      ~HadronAndPartonSelector() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
       const edm::EDGetTokenT<GenEventInfoProduct>         srcToken_;        // To get handronizer module type
       const edm::EDGetTokenT<reco::GenParticleCollection> particlesToken_;  // Input GenParticle collection
 
       std::string         partonMode_; // Parton selection mode
+      bool                fullChainPhysPartons_;
+      bool                partonSelectorSet_;
       PartonSelectorPtr   partonSelector_;
 };
 
@@ -105,7 +107,8 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
 
   srcToken_(mayConsume<GenEventInfoProduct>( iConfig.getParameter<edm::InputTag>("src") )),
   particlesToken_(consumes<reco::GenParticleCollection>( iConfig.getParameter<edm::InputTag>("particles") )),
-  partonMode_(iConfig.getParameter<std::string>("partonMode"))
+  partonMode_(iConfig.getParameter<std::string>("partonMode")),
+  fullChainPhysPartons_(iConfig.getParameter<bool>("fullChainPhysPartons"))
 
 {
    //register your products
@@ -114,6 +117,9 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
    produces<reco::GenParticleRefVector>( "algorithmicPartons" );
    produces<reco::GenParticleRefVector>( "physicsPartons" );
    produces<reco::GenParticleRefVector>( "leptons" );
+
+   partonSelectorSet_=false;
+   partonSelector_=nullptr;
 }
 
 
@@ -161,7 +167,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    }
 
    // set the parton selection mode (done only once per job)
-   if( !partonSelector_ )
+   if( !partonSelectorSet_ )
    {
      if ( partonMode_=="Undefined" )
        edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
@@ -192,16 +198,18 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      }
      else
        throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
+
+     partonSelectorSet_=true;
    }
 
    edm::Handle<reco::GenParticleCollection> particles;
    iEvent.getByToken(particlesToken_, particles);
 
-   std::auto_ptr<reco::GenParticleRefVector> bHadrons ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> cHadrons ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> partons  ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> physicsPartons  ( new reco::GenParticleRefVector );
-   std::auto_ptr<reco::GenParticleRefVector> leptons  ( new reco::GenParticleRefVector );
+   auto bHadrons = std::make_unique<reco::GenParticleRefVector>();
+   auto cHadrons = std::make_unique<reco::GenParticleRefVector>();
+   auto partons  = std::make_unique<reco::GenParticleRefVector>();
+   auto physicsPartons  = std::make_unique<reco::GenParticleRefVector>();
+   auto leptons  = std::make_unique<reco::GenParticleRefVector>();
 
    // loop over particles and select b and c hadrons and leptons
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
@@ -248,17 +256,20 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      partonSelector_->run(particles,partons);
      for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
      {
-       if( !(it->status()==3 || (( partonMode_=="Pythia8" ) && (it->status()==23)))) continue;
+      if(!fullChainPhysPartons_)
+      {
+         if( !(it->status()==3 || (( partonMode_=="Pythia8" ) && (it->status()==23)))) continue;
+      }
        if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
        physicsPartons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
      }
    }
 
-   iEvent.put( bHadrons, "bHadrons" );
-   iEvent.put( cHadrons, "cHadrons" );
-   iEvent.put( partons,  "algorithmicPartons" );
-   iEvent.put( physicsPartons,  "physicsPartons" );
-   iEvent.put( leptons,  "leptons" );
+   iEvent.put(std::move(bHadrons), "bHadrons" );
+   iEvent.put(std::move(cHadrons), "cHadrons" );
+   iEvent.put(std::move(partons),  "algorithmicPartons" );
+   iEvent.put(std::move(physicsPartons),  "physicsPartons" );
+   iEvent.put(std::move(leptons),  "leptons" );
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

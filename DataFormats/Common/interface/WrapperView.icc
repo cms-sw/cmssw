@@ -100,12 +100,10 @@ namespace edm {
       };
   }
 
-#ifndef __GCCXML__
   template<typename T>
   void DoFillView<T>::operator()(T const& obj, ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const {
     helpers::ViewFiller<T>::fill(obj, id, pointers, helpers);
   }
-#endif
 
   template<typename T>
   void DoSetPtr<T>::operator()(T const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr) const {

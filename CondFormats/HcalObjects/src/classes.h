@@ -24,7 +24,13 @@ namespace CondFormats_HcalObjects {
  
     HcalCalibrationQIEData mycalqie();
     std::vector<HcalCalibrationQIECoder> mycalqieVec;
- 
+
+    HcalQIETypes myqietype();
+    std::vector<HcalQIEType> myqietypevec;
+
+    HcalSiPMParameters mySiPMParameter();
+    std::vector<HcalSiPMParameter> mySiPMParametervec;
+
     HcalElectronicsMap mymap;
     std::vector<HcalElectronicsMap::PrecisionItem> mymap2;
     std::vector<HcalElectronicsMap::TriggerItem> mymap3;
@@ -57,12 +63,6 @@ namespace CondFormats_HcalObjects {
     std::vector<HcalLutMetadatum> myLutMetadatumVec;
     HcalLutMetadata::NonChannelData myLutNonChannelMetadata;
 
-    HcalCholeskyMatrices myCholeskys;
-    std::vector<HcalCholeskyMatrix> myCholeskysVec;
-
-    HcalCovarianceMatrices myCovariances;
-    std::vector<HcalCovarianceMatrix> myCovariancesVec;
-
     HcalDcsValues myDcsValues;
     std::vector<HcalDcsValue> myDcsValueVec;
 
@@ -85,6 +85,17 @@ namespace CondFormats_HcalObjects {
 
     HcalTimingParams myTimingParams;
     std::vector<HcalTimingParam> myTimingParamVec;
+ 
+    HcalFrontEndMap myfmap1;
+    std::vector<HcalFrontEndMap::PrecisionItem> myfmap2;
+ 
+    HcalSiPMCharacteristics mySiPMCharacteristics;
+    std::vector<HcalSiPMCharacteristics::PrecisionItem> mySiPMCharacteristicvec;
+ 
+    HcalTPParameters myTPParameters;
+
+    HcalTPChannelParameters myTPChannelParameters();
+    std::vector<HcalTPChannelParameter> myTPChannelParametervec;
 
     // OOT pileup correction objects
     std::map<std::string, AbsOOTPileupCorrection*> myInnerMap;
@@ -106,6 +117,9 @@ namespace CondFormats_HcalObjects {
     // HBHE negative energy filter
     std::vector<PiecewiseScalingPolynomial> myPiecewiseScalingPolynomialVec;
     HBHENegativeEFilter myHBHENegativeEFilter;
+
+    // Phase 1 HF algorithm configuration data
+    HFPhase1PMTParams myHFPhase1PMTParams;
   };
 }
 

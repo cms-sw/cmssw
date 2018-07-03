@@ -3,6 +3,7 @@
 #include <clang/StaticAnalyzer/Core/Checker.h>
 #include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
+#include "CmsException.h"
 
 namespace clangcms {
 

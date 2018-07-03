@@ -1,7 +1,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
@@ -34,28 +34,28 @@ CSCGeometry::~CSCGeometry(){
 
 
 void CSCGeometry::addChamber(CSCChamber* ch){
-  theChambers.push_back(ch);
+  theChambers.emplace_back(ch);
   addDet(ch);
 }
 
 
 void CSCGeometry::addLayer(CSCLayer* l) {
-  theDetUnits.push_back(l);
-  theLayers.push_back(l);
-  theDetTypes.push_back(l->chamber()->specs());
-  theDetUnitIds.push_back(l->geographicalId());
+  theDetUnits.emplace_back(l);
+  theLayers.emplace_back(l);
+  theDetTypes.emplace_back(l->chamber()->specs());
+  theDetUnitIds.emplace_back(l->geographicalId());
   addDet(l);
 }
 
 
 void CSCGeometry::addDetType(GeomDetType* type) {
-  theDetTypes.push_back(type);
+  theDetTypes.emplace_back(type);
 }
 
 
 void CSCGeometry::addDet(GeomDet* det){
-  theDets.push_back(det);  
-  theDetIds.push_back(det->geographicalId());
+  theDets.emplace_back(det);  
+  theDetIds.emplace_back(det->geographicalId());
   theMap.insert(CSCDetMap::value_type(det->geographicalId(),det));
 }
 
@@ -66,7 +66,7 @@ const CSCGeometry::DetTypeContainer& CSCGeometry::detTypes() const
 }
 
 
-const CSCGeometry::DetUnitContainer& CSCGeometry::detUnits() const
+const CSCGeometry::DetContainer& CSCGeometry::detUnits() const
 {
   return theDetUnits;
 }
@@ -90,16 +90,16 @@ const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const
 }
 
 
-const GeomDetUnit* CSCGeometry::idToDetUnit(DetId id) const
+const GeomDet* CSCGeometry::idToDetUnit(DetId id) const
 {
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 
 const GeomDet* CSCGeometry::idToDet(DetId id) const{
   CSCDetMap::const_iterator i = theMap.find(id);
   return (i != theMap.end()) ?
-    i->second : 0 ;
+    i->second : nullptr ;
 }
 
 
@@ -167,7 +167,7 @@ void CSCGeometry::queryModelling() const {
 }
 
 const CSCChamberSpecs* CSCGeometry::findSpecs( int iChamberType ) {
-  const CSCChamberSpecs* aSpecs = 0;
+  const CSCChamberSpecs* aSpecs = nullptr;
   CSCSpecsContainer::const_iterator it = specsContainer.find( iChamberType );
   if (  it != specsContainer.end() )  aSpecs = (*it).second;
   return aSpecs;

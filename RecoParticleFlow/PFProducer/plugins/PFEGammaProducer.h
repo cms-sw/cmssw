@@ -51,7 +51,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHelpers::HeavyObjectCache> > {
  public:
   explicit PFEGammaProducer(const edm::ParameterSet&, const pfEGHelpers::HeavyObjectCache* );
-  ~PFEGammaProducer();
+  ~PFEGammaProducer() override;
   
   static std::unique_ptr<pfEGHelpers::HeavyObjectCache> 
     initializeGlobalCache( const edm::ParameterSet& conf ) {
@@ -61,8 +61,8 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   static void globalEndJob(pfEGHelpers::HeavyObjectCache const* ) {
   }
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
 
  private:  
 
@@ -126,10 +126,10 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   
   reco::Vertex       primaryVertex_;
   
-  std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
-  std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
-  std::auto_ptr<reco::ConversionCollection>             singleLegConv_;
-  std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
+  std::unique_ptr<reco::PFCandidateCollection> egCandidates_;
+  std::unique_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::unique_ptr<reco::ConversionCollection> singleLegConv_;
+  std::unique_ptr<reco::SuperClusterCollection> sClusters_;  
 
   /// the unfiltered electron collection 
     

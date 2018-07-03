@@ -15,7 +15,6 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const Propagator& aPropaga
   theConvolutor(new FullConvolutionWithMaterial(aMEUpdator)),
   theMaterialLocation(atDestination)
 {
-  //   if ( propWithPathTimer1==0 )  defineTimer();
 }
 
 GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const GsfPropagatorAdapter& aGsfPropagator,
@@ -25,34 +24,11 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const GsfPropagatorAdapter
   theConvolutor(aConvolutor.clone()),
   theMaterialLocation(atDestination)
 {
-  //   if ( propWithPathTimer1==0 )  defineTimer();
 }
-
-// void
-// GsfPropagatorWithMaterial::defineTimer()
-// {
-//   if ( propWithPathTimer1==0 ) {
-//     propWithPathTimer1 =
-//       &(*TimingReport::current())[string("GsfPropagatorWithMaterial:toPlane")];
-//     propWithPathTimer2 =
-//       &(*TimingReport::current())[string("GsfPropagatorWithMaterial:toCylinder")];
-//     static SimpleConfigurable<bool> timeConf(false,"GsfPropagatorWithMaterial:activateTiming");
-//     if ( timeConf.value() ) {
-//       propWithPathTimer1->switchCPU(false);
-//       propWithPathTimer2->switchCPU(false);
-//     }
-//     else {
-//       propWithPathTimer1->switchOn(false);
-//       propWithPathTimer2->switchOn(false);
-//     }
-//   }
-// }
 
 std::pair<TrajectoryStateOnSurface,double>
 GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 					      const Plane& plane) const {
-  //   TimeMe t1(*propWithPathTimer1,false);
-  //
   // add material before propagation?
   //
   TrajectoryStateOnSurface stateAtSource;
@@ -75,8 +51,6 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
 std::pair<TrajectoryStateOnSurface,double>
 GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 					      const Cylinder& cylinder) const {
-  //   TimeMe t2(*propWithPathTimer2,false);
-  //
   // add material before propagation?
   //
   TrajectoryStateOnSurface stateAtSource;
@@ -167,5 +141,3 @@ GsfPropagatorWithMaterial::materialAtSource() const {
 					   propagationDirection()==alongMomentum);
 }
 
-// TimingReport::Item* GsfPropagatorWithMaterial::propWithPathTimer1(0);
-// TimingReport::Item* GsfPropagatorWithMaterial::propWithPathTimer2(0);

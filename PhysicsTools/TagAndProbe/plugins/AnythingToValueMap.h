@@ -23,9 +23,9 @@ namespace pat { namespace helper {
             adaptor_(iConfig,consumesCollector()) { 
                 produces< Map >(adaptor_.label());
             }
-      ~AnythingToValueMap() { }
+      ~AnythingToValueMap() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
     private:
       bool failSilently_;
@@ -47,11 +47,11 @@ void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEv
 
     adaptor_.run(*handle, ret);
 
-    std::auto_ptr<Map> map(new Map());
+    auto map = std::make_unique<Map>();
     MapFiller filler(*map);
     filler.insert(handle, ret.begin(), ret.end());
     filler.fill();
-    iEvent.put(map, adaptor_.label());
+    iEvent.put(std::move(map), adaptor_.label());
 }
 
   template<class Adaptor, class Collection = typename Adaptor::Collection, typename value_type = typename Adaptor::value_type> 
@@ -69,9 +69,9 @@ void AnythingToValueMap<Adaptor,Collection,value_type>::produce(edm::Event & iEv
                    produces< Map >(adaptors_.back().label());
                } 
             }
-      ~ManyThingsToValueMaps() { }
+      ~ManyThingsToValueMaps() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
     private:
       bool failSilently_;
@@ -92,11 +92,11 @@ void ManyThingsToValueMaps<Adaptor,Collection,value_type>::produce(edm::Event & 
     for (typename std::vector<Adaptor>::iterator it = adaptors_.begin(), ed = adaptors_.end(); it != ed; ++it) {
         ret.clear();
         if (it->run(iEvent, *handle, ret)) {
-            std::auto_ptr<Map> map(new Map());
+            auto map = std::make_unique<Map>();
             MapFiller filler(*map);
             filler.insert(handle, ret.begin(), ret.end());
             filler.fill();
-            iEvent.put(map, it->label());
+            iEvent.put(std::move(map), it->label());
         } else {
             if (!failSilently_) throw cms::Exception("ManyThingsToValueMaps") << "Error in adapter " << it->label() << "\n";
         }

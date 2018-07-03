@@ -12,7 +12,7 @@ class CalibCoeff
   public :
     //! ctor
     CalibCoeff (const double & value = 1., 
-                const bool & isGood = 0) ;
+                const bool & isGood = false) ;
     //! dtor
     ~CalibCoeff () ;
     

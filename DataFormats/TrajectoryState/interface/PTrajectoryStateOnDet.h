@@ -79,9 +79,9 @@ public:
 private:
 
   LocalTrajectoryParameters theLocalParameters;
-  float theLocalErrors[15];
-  float thePt;
-  unsigned int thePack;
+  float theLocalErrors[15] = {};
+  float thePt = 0;
+  unsigned int thePack = 0;
 
 };
 

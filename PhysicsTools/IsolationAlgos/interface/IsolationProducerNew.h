@@ -40,10 +40,10 @@ namespace reco {
     class IsolationProducer : public edm::EDProducer {
     public:
       IsolationProducer( const edm::ParameterSet & );
-      ~IsolationProducer();
+      ~IsolationProducer() override;
 
     private:
-      void produce( edm::Event&, const edm::EventSetup& );
+      void produce( edm::Event&, const edm::EventSetup& ) override;
       edm::EDGetTokenT<C1> srcToken_;
       edm::EDGetTokenT<C2> elementsToken_;
       Alg alg_;
@@ -73,8 +73,8 @@ namespace reco {
       Setup::init(alg_, es);
 
       ::helper::MasterCollection<C1> master(src, evt);
-      auto_ptr<OutputCollection> isolations(new OutputCollection);
-      if(src->size()!= 0) {
+      auto isolations = std::make_unique<OutputCollection>();
+      if(!src->empty()) {
 	typename OutputCollection::Filler filler(*isolations);
 	vector<double> iso(master.size(),-1);
 	size_t i = 0;
@@ -83,7 +83,7 @@ namespace reco {
 	filler.insert(master.get(), iso.begin(), iso.end());
 	filler.fill();
       }
-      evt.put( isolations );
+      evt.put(std::move(isolations) );
     }
 
   }

@@ -86,10 +86,10 @@ inline bool isFirst(HepMC::GenParticle *x){
 *******************************************************************************/
 int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, SimpleParticle &tau, SimpleParticle &tau2, std::vector<SimpleParticle> &tau_daughters, std::vector<SimpleParticle> &tau2_daughters)
 {
-  if(event==NULL) return 1;
+  if(event==nullptr) return 1;
 
   // Exctract particles from event
-  HepMC::GenParticle *hX=NULL, *hTau=NULL, *hTau2=NULL;
+  HepMC::GenParticle *hX=nullptr, *hTau=nullptr, *hTau2=nullptr;
 
   for(HepMC::GenEvent::particle_const_iterator it = event->particles_begin(); it!=event->particles_end(); ++it)
   {
@@ -109,7 +109,7 @@ int readParticlesFromHepMC(const HepMC::GenEvent *event, SimpleParticle &X, Simp
       HepMC::GenParticle *LhX=hX;
       if(!isFirst(hX)) continue;
       findLastSelf(LhX);
-      hTau = hTau2 = NULL;
+      hTau = hTau2 = nullptr;
 
       for(HepMC::GenVertex::particle_iterator it2 = LhX->end_vertex()->particles_begin(HepMC::children); it2!=LhX->end_vertex()->particles_end(HepMC::children); ++it2)
       {

@@ -28,7 +28,7 @@ class FP420RecoMain
 
   /// Runs the algorithm
   void run(edm::Handle<TrackCollectionFP420> &input,
-	   std::auto_ptr<RecoCollectionFP420> &toutput,
+	   RecoCollectionFP420 *toutput,
 	   double VtxX, double VtxY, double VtxZ
 	   );
 

@@ -19,7 +19,7 @@ class PFRecoTauDiscriminationByTauPolarization :
         booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
       }
 
-    ~PFRecoTauDiscriminationByTauPolarization(){}
+    ~PFRecoTauDiscriminationByTauPolarization() override{}
 
     void beginEvent(const Event&, const EventSetup&) override;
     double discriminate(const PFTauRef&) const override;

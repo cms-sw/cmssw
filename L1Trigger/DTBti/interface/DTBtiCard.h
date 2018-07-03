@@ -64,7 +64,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     DTBtiCard(DTTrigGeom *);
 
     /// Destructor 
-    ~DTBtiCard();
+    ~DTBtiCard() override;
 
     /// Clear all BTI stuff (map & cache)
     void clearCache();
@@ -84,9 +84,9 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     }
 
     /// NEWGEO Local position in chamber of a trigger-data object
-    LocalPoint localPosition(const DTTrigData*) const;
+    LocalPoint localPosition(const DTTrigData*) const override;
     /// NEWGEO Local direction in chamber of a trigger-data object
-    LocalVector localDirection(const DTTrigData*) const;
+    LocalVector localDirection(const DTTrigData*) const override;
 
     /// Returns the active BTI list in a given superlayer
     std::vector<DTBtiChip*> btiList(int);
@@ -97,6 +97,7 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
      */
     DTBtiTrig* storeTrigger(DTBtiTrigData);
 
+    using  BTICache::reconstruct;
     // run the trigger algorithm
     virtual void reconstruct(const DTDigiCollection dtDigis) { clearCache();loadBTI(dtDigis); runBTI(); }
  

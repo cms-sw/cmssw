@@ -24,6 +24,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
 
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
@@ -31,10 +32,11 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
      )
 
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("")
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
+                               dataLabel = cms.untracked.string(""),
+                               TkMapFileName = cms.untracked.string("")
+                               )
 
 process.p = cms.Path(process.reader)
 

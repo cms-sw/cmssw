@@ -22,9 +22,8 @@
 TotemT1NumberingScheme::TotemT1NumberingScheme(int i) {
 
   edm::LogInfo("ForwardSim") << " Creating TotemT1NumberingScheme";
-  SetCurrentDetectorPosition(i);
+  setCurrentDetectorPosition(i);
 }
 
 TotemT1NumberingScheme::~TotemT1NumberingScheme() {
-  edm::LogInfo("ForwardSim") << " Deleting TotemT1NumberingScheme";
 }

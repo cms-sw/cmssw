@@ -14,7 +14,7 @@ class TSLToyGen : public TObject {
 public :
 
   TSLToyGen( const TAbsFitParticle* bReco, const TAbsFitParticle* lepton, const TAbsFitParticle* X, const TAbsFitParticle* neutrino);
-  virtual ~TSLToyGen();
+  ~TSLToyGen() override;
   Bool_t doToyExperiments( Int_t nbExperiments = 1000 );
 
   TH1D* _histStatus;
@@ -92,6 +92,7 @@ private :
   Bool_t _withMPDGCons;
   Bool_t _doCheckConstraintsTruth;
 
+  ClassDefOverride(TSLToyGen, 0)
 };
 
 #endif

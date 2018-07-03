@@ -6,9 +6,11 @@ import FWCore.ParameterSet.Config as cms
 
 import EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi
 SiStripDigiToZSRaw = EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi.SiStripDigiToRaw.clone(
-    InputModuleLabel = 'siStripZeroSuppression',
-    InputDigiLabel = cms.string('VirginRaw'),
-    FedReadoutMode = cms.string('ZERO_SUPPRESSED')
+    InputDigis = cms.InputTag('siStripZeroSuppression', 'VirginRaw'),
+    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
+    PacketCode = cms.string('ZERO_SUPPRESSED'),
+    CopyBufferHeader = cms.bool(True),
+    RawDataTag = cms.InputTag('rawDataCollector')
     )
 
 SiStripRawDigiToVirginRaw = SiStripDigiToZSRaw.clone(

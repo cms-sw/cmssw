@@ -24,13 +24,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 //
 // class decleration
@@ -39,33 +38,33 @@ namespace edm {
   class HepMCProduct;
 }
 
-class PythiaFilter : public edm::EDFilter {
+class PythiaFilter : public edm::global::EDFilter<> {
    public:
       explicit PythiaFilter(const edm::ParameterSet&);
-      ~PythiaFilter();
+      ~PythiaFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
    private:
       // ----------member data ---------------------------
       
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       int particleID;
-       double minpcut;
-       double maxpcut;
-       double minptcut;
-       double maxptcut;
-       double minetacut;
-       double maxetacut;
-       double minrapcut;
-       double maxrapcut;
-       double minphicut;
-       double maxphicut;
+       const edm::EDGetTokenT<edm::HepMCProduct> token_;
+       const int particleID;
+       const double minpcut;
+       const double maxpcut;
+       const double minptcut;
+       const double maxptcut;
+       const double minetacut;
+       const double maxetacut;
+       const double minrapcut;
+       const double maxrapcut;
+       const double minphicut;
+       const double maxphicut;
 
-       double rapidity;
+       const int status; 
+       const int motherID;   
+       const int processID;    
 
-       int status; 
-       int motherID;   
-       int processID;    
+       const double betaBoost;
 };
 #endif

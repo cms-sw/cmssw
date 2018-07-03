@@ -112,10 +112,10 @@ SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const edm::Ev
 		else {
 			edm::LogInfo("DetUnit Info")<<" There are "<<pDD->detUnits().size()<<" detectors";
 		}
-		for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+		for( const auto& it : pDD->detUnits()) {
 			
-			if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
-				DetId detid=(*it)->geographicalId();
+			if( dynamic_cast<PixelGeomDetUnit const*>(it)!=0){
+				DetId detid=it->geographicalId();
 				
 				if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) &&
 					(detid.subdetId() == s_detid || s_detid == 0) ) {

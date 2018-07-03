@@ -2,8 +2,14 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "TFile.h"
 #include "TH2F.h"
@@ -166,7 +172,7 @@ namespace {
   };
 }
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0) { }
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(nullptr) { }
 
 void PFECALSuperClusterAlgo::
 setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
@@ -185,18 +191,32 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::Co
   if (useRegression_) {
     const edm::ParameterSet &regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
     
-    regr_.reset(new PFSCRegressionCalc(regconf));
-    regr_->varCalc()->setTokens(regconf,std::move(cc));  
+    regr_.reset(new SCEnergyCorrectorSemiParm());
+    regr_->setTokens(regconf, cc);  
   }
-  
+
+  if (isOOTCollection_) { // OOT photons only
+    inputTagBarrelRecHits_ =
+      cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("barrelRecHits"));
+    inputTagEndcapRecHits_ =
+      cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("endcapRecHits"));
+  }  
 }
 
 void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
  
   if (useRegression_) {
-    regr_->update(setup);
+    regr_->setEventSetup(setup);
   }
   
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
+  setup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  _pfEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
+
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
+  setup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  channelStatus_ = esChannelStatusHandle_.product();
+
 }
 
 
@@ -222,23 +242,27 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   
   //initialize regression for this event
   if (useRegression_) {
-    regr_->varCalc()->setEvent(iEvent);
+    regr_->setEvent(iEvent);
   }  
   
   // reset the system for running
-  superClustersEB_.reset(new reco::SuperClusterCollection);
+  superClustersEB_ = std::make_unique<reco::SuperClusterCollection>();
   _clustersEB.clear();
-  superClustersEE_.reset(new reco::SuperClusterCollection);    
+  superClustersEE_ = std::make_unique<reco::SuperClusterCollection>();
   _clustersEE.clear();  
   EEtoPS_ = &psclusters;
 
   //Select PF clusters available for the clustering
   for ( size_t i = 0; i < clusters.size(); ++i ){
     auto cluster = clusters.ptrAt(i);
-    LogDebug("PFClustering") 
+    LogDebug("PFClustering")
       << "Loading PFCluster i="<<cluster.key()
       <<" energy="<<cluster->energy()<<std::endl;
         
+    // protection for sim clusters
+    if( cluster->caloID().detectors() == 0 && 
+	cluster->hitsAndFractions().empty() ) continue;
+
     CalibratedClusterPtr calib_cluster(new CalibratedPFCluster(cluster));
     switch( cluster->layer() ) {
     case PFLayer::ECAL_BARREL:
@@ -246,11 +270,12 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
 	_clustersEB.push_back(calib_cluster);	
       }
       break;
-    case PFLayer::ECAL_ENDCAP:
+    case PFLayer::HGCAL:
+    case PFLayer::ECAL_ENDCAP:   
       if( calib_cluster->energy() > threshPFClusterEndcap_ ) {
 	_clustersEE.push_back(calib_cluster);
       }
-      break;
+      break;      
     default:
       break;
     }
@@ -260,7 +285,26 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   GreaterByEt greater;
   std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
   std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
-  
+
+  // set recHit collections for OOT photons
+  if (isOOTCollection_)
+  {
+    edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
+    iEvent.getByToken(inputTagBarrelRecHits_, barrelRecHitsHandle);
+    if (!barrelRecHitsHandle.isValid()) {
+      throw cms::Exception("PFECALSuperClusterAlgo") 
+	<< "If you use OOT photons, need to specify proper barrel rec hit collection";
+    }
+    barrelRecHits_ = barrelRecHitsHandle.product();
+
+    edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
+    iEvent.getByToken(inputTagEndcapRecHits_, endcapRecHitsHandle);
+    if (!endcapRecHitsHandle.isValid()) {
+      throw cms::Exception("PFECALSuperClusterAlgo") 
+	<< "If you use OOT photons, need to specify proper endcap rec hit collection";
+    }
+    endcapRecHits_ = endcapRecHitsHandle.product();
+  }
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -301,7 +345,9 @@ buildSuperCluster(CalibClusterPtr& seed,
 				 << superClustersEB_->size() + 1
 				 << " in the ECAL barrel!";
     break;
-  case PFLayer::ECAL_ENDCAP:    
+  case PFLayer::HGCAL:  
+  case PFLayer::ECAL_ENDCAP:  
+  
     IsClusteredWithSeed.phiwidthSuperCluster_ = phiwidthSuperClusterEndcap_; 
     IsClusteredWithSeed.etawidthSuperCluster_ = etawidthSuperClusterEndcap_;
     edm::LogInfo("PFClustering") << "Building SC number "  
@@ -346,6 +392,21 @@ buildSuperCluster(CalibClusterPtr& seed,
 	<< std::endl;
     }    
   }
+
+  if (not_clustered == clusters.begin()) {
+    if(dropUnseedable_){
+      clusters.erase(clusters.begin());
+      return;
+    }
+    else {
+      throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
+        << "Cluster is not seedable!" << std::endl 
+        << "\tNon-Clustered cluster: e = " << (*not_clustered)->energy_nocalib()
+        << " eta = " << (*not_clustered)->eta() << " phi = " << (*not_clustered)->phi()
+        << std::endl;
+    }
+  }
+
   // move the clustered clusters out of available cluster list
   // and into a temporary vector for building the SC  
   CalibratedClusterPtrVector clustered(clusters.begin(),not_clustered);
@@ -357,12 +418,15 @@ buildSuperCluster(CalibClusterPtr& seed,
     corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), 
     ePS1(0), ePS2(0), energyweight(0), energyweighttot(0);
   std::vector<double> ps1_energies, ps2_energies;
+  int condP1(1), condP2(1);
   for( auto& clus : clustered ) {    
     ePS1 = ePS2 = 0;
     energyweight = clus->energy_nocalib();
     bare_ptrs.push_back(clus->the_ptr().get());
     // update EE calibrated super cluster energies
     if( isEE ) {
+      ePS1 = ePS2 = 0;
+      condP1 = condP2 = 1;
       ps1_energies.clear();
       ps2_energies.clear();
       auto ee_key_val = 
@@ -373,23 +437,47 @@ buildSuperCluster(CalibClusterPtr& seed,
 					     sortByKey);      
       for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
 	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
+
+	auto const& recH_Frac = psclus->recHitFractions();
+
 	switch( psclus->layer() ) {
 	case PFLayer::PS1:
 	  ps1_energies.push_back(psclus->energy());
+	  for (auto const& recH : recH_Frac){
+            ESDetId strip1 = recH.recHitRef()->detId();
+	    if(strip1 != ESDetId(0)){
+	      ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
+	      // getStatusCode() == 1 => dead channel
+	      //apply correction if all recHits in dead region
+	      if(status_p1->getStatusCode() == 0) condP1 = 0; //active  
+	    }
+	  }
 	  break;
 	case PFLayer::PS2:
 	  ps2_energies.push_back(psclus->energy());
+	  for (auto const& recH : recH_Frac){
+            ESDetId strip2 = recH.recHitRef()->detId();
+	    if(strip2 != ESDetId(0)) {
+	      ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
+	      if(status_p2->getStatusCode() == 0) condP2 = 0;
+	    }
+	  }	  
 	  break;
 	default:
 	  break;
 	}
-      }      
+      }    
+      if(condP1 == 1) ePS1 = -1.;
+      if(condP2 == 1) ePS2 = -1.;  
       _pfEnergyCalibration->energyEm(*(clus->the_ptr()),
 				     ps1_energies,ps2_energies,
 				     ePS1,ePS2,
 				     applyCrackCorrections_);
     }
-    
+
+    if(ePS1 == -1.) ePS1 = 0;    
+    if(ePS2 == -1.) ePS2 = 0;    
+
     switch( _eweight ) {
     case kRaw: // energyweight is initialized to raw cluster energy
       break;
@@ -443,9 +531,9 @@ buildSuperCluster(CalibClusterPtr& seed,
       for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
 	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
 #ifdef EDM_ML_DEBUG
-	auto found_pscluster = std::find(new_sc.preshowerClustersBegin(),
+	auto found_pscluster = std::find_if(new_sc.preshowerClustersBegin(),
 					 new_sc.preshowerClustersEnd(),
-					 i_ps->second);
+					 [&i_ps](const auto& i) { return i.key() == i_ps->first;});
 	if( found_pscluster == new_sc.preshowerClustersEnd() ) {
 #endif	  
 	  new_sc.addPreshowerCluster(psclus);	  	  
@@ -470,9 +558,8 @@ buildSuperCluster(CalibClusterPtr& seed,
   new_sc.rawEnergy();
 
   //apply regression energy corrections
-  if( useRegression_ ) {    
-    double cor = regr_->getCorrection(new_sc);
-    new_sc.setEnergy(cor*new_sc.correctedEnergy());
+  if( useRegression_ ) {  
+    regr_->modifyObject(new_sc);
   }
   
   // save the super cluster to the appropriate list (if it passes the final
@@ -486,9 +573,20 @@ buildSuperCluster(CalibClusterPtr& seed,
   if ( scEtBS > threshSuperClusterEt_ ) {
     switch( seed->the_ptr()->layer() ) {
     case PFLayer::ECAL_BARREL:
+      if(isOOTCollection_) {
+	DetId seedId = new_sc.seed()->seed();
+	EcalRecHitCollection::const_iterator seedRecHit = barrelRecHits_->find(seedId);
+	if (!seedRecHit->checkFlag(EcalRecHit::kOutOfTime)) break;
+      }
       superClustersEB_->push_back(new_sc);
       break;
+    case PFLayer::HGCAL:
     case PFLayer::ECAL_ENDCAP:    
+      if(isOOTCollection_) {
+	DetId seedId = new_sc.seed()->seed();
+	EcalRecHitCollection::const_iterator seedRecHit = endcapRecHits_->find(seedId);
+	if (!seedRecHit->checkFlag(EcalRecHit::kOutOfTime)) break;
+      }
       superClustersEE_->push_back(new_sc);    
       break;
     default:

@@ -27,8 +27,7 @@ HLTTauPostProcessor::HLTTauPostProcessor(const edm::ParameterSet& ps):
   dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder"))
 {}
 
-HLTTauPostProcessor::~HLTTauPostProcessor()
-{}
+HLTTauPostProcessor::~HLTTauPostProcessor() = default;
 
 void HLTTauPostProcessor::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)
 {
@@ -38,7 +37,7 @@ void HLTTauPostProcessor::dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGette
   }
   iGetter.setCurrentFolder(dqmBaseFolder_);
   for(const std::string& subfolder: iGetter.getSubdirs()) {
-    std::size_t pos = subfolder.rfind("/");
+    std::size_t pos = subfolder.rfind('/');
     if(pos == std::string::npos)
       continue;
     ++pos; // position of first letter after /

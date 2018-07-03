@@ -24,15 +24,28 @@ class GetLumi
 
   enum SQRT_S{
     SQRT_S_7TeV,
-    SQRT_S_8TeV
+    SQRT_S_8TeV,
+    SQRT_S_13TeV
   };
 
   static const unsigned int NUM_BX = 3564;
   static constexpr double FREQ_ORBIT = 11246.; // Hz
   static constexpr double SECONDS_PER_LS = double(0x40000)/double(FREQ_ORBIT);
 
-  static constexpr double INELASTIC_XSEC_7TeV = 68.0; // mb
-  static constexpr double INELASTIC_XSEC_8TeV = 69.3; // mb
+  static constexpr double INELASTIC_XSEC_7TeV  = 68.0; // mb
+  static constexpr double INELASTIC_XSEC_8TeV  = 69.3; // mb
+  static constexpr double INELASTIC_XSEC_13TeV = 71.3; // mb from http://inspirehep.net/record/1447965/files/FSQ-15-005-pas.pdf
+
+  // from http://cmslxr.fnal.gov/source/DQM/PixelLumi/plugins/PixelLumiDQM.h
+  // Using all pixel clusters:
+  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24; //in cm^2
+  static constexpr double XSEC_PIXEL_CLUSTER_UNC = 0.17e-24;
+  
+  // Excluding the inner barrel layer.
+  static constexpr double rXSEC_PIXEL_CLUSTER = 9.4e-24; //in cm^2
+  static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.119e-24;
+  static constexpr double CM2_TO_NANOBARN = 1.0/1.e-33;
+  static const unsigned int lastBunchCrossing = 3564;
 
   GetLumi(const edm::ParameterSet&);
   GetLumi(const edm::InputTag&, double);

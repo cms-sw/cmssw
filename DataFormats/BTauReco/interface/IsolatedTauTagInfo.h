@@ -33,7 +33,7 @@ namespace reco {
     { }   
 
     //destructor
-    virtual ~IsolatedTauTagInfo() {}
+    ~IsolatedTauTagInfo() override {}
     
     //get the tracks from the jetTag
     const TrackRefVector allTracks() const { return tracks(); }
@@ -41,7 +41,7 @@ namespace reco {
     //get the selected tracks used to computed the isolation
     const TrackRefVector  selectedTracks() const {return selectedTracks_;}
     
-    virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
+    IsolatedTauTagInfo* clone() const override { return new IsolatedTauTagInfo( *this ); }
   
     // default discriminator: returns the value of the discriminator of the jet tag, i.e. the one computed with the parameters taken from the cfg file
     float discriminator() const { return m_discriminator; }

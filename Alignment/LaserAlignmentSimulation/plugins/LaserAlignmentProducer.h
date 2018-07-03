@@ -16,24 +16,24 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "HepMC/GenEvent.h"
 
 //
 // class decleration
 //
-class LaserAlignmentProducer : public edm::EDProducer {
+class LaserAlignmentProducer : public edm::one::EDProducer<> {
  public:
 	/// constructor
   explicit LaserAlignmentProducer(const edm::ParameterSet&);
 	/// destructor
-  ~LaserAlignmentProducer();
+  ~LaserAlignmentProducer() override;
 
   
  private:
 	/// produce the HepMCProduct
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   // the event format itself
   HepMC::GenEvent* theEvent;

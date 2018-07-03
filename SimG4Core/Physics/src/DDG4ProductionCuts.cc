@@ -1,13 +1,15 @@
 #include "SimG4Core/Physics/interface/DDG4ProductionCuts.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4ProductionCuts.hh"
 #include "G4RegionStore.hh"
 
 #include <algorithm>
 
-DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, const edm::ParameterSet & p) 
+DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, 
+                                       const edm::ParameterSet & p) 
   : map_(map), m_Verbosity(verb) {
   m_KeywordRegion =  "CMSCutsRegion";
   m_protonCut = p.getUntrackedParameter<bool>("CutsOnProton",true);  
@@ -77,9 +79,9 @@ void DDG4ProductionCuts::initialize() {
     std::string  regionName;
     unsigned int num= map_.toString(m_KeywordRegion,(*tit).second,regionName);
   
-    if (num != 1)
-      throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags.");
-
+    if (num != 1) {
+      throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
+    }
     G4Region * region = getRegion(regionName);
     region->AddRootLogicalVolume((*tit).first);
   
@@ -96,14 +98,14 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart,
   if ( m_Verbosity > 0 ) 
     LogDebug("Physics") <<" DDG4ProductionCuts: inside setProdCuts";
   
-  G4Region * region = 0;
+  G4Region * region = nullptr;
   
   std::string  regionName;
   unsigned int num= map_.toString(m_KeywordRegion,lpart,regionName);
   
-  if (num != 1) 
-    throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags.");
-  
+  if (num != 1) {
+    throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::setProdCuts: Problem with Region tags.");
+  }
   if ( m_Verbosity > 0 ) LogDebug("Physics") << "Using region " << regionName;
 
   region = getRegion(regionName);
@@ -118,15 +120,15 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart,
   double protoncut = 0.0;
   int temp =  map_.toDouble("ProdCutsForGamma",lpart,gammacut);
   if (temp != 1){
-    throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags: no/more than one ProdCutsForGamma.");
+    throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForGamma.");
   }
   temp =  map_.toDouble("ProdCutsForElectrons",lpart,electroncut);
   if (temp != 1){
-    throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags: no/more than one ProdCutsForElectrons.");
+    throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForElectrons.");
   }
   temp =  map_.toDouble("ProdCutsForPositrons",lpart,positroncut);
   if (temp != 1) {
-    throw SimG4Exception("DDG4ProductionCuts: Problem with Region tags: no/more than one ProdCutsForPositrons.");
+    throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
   }
   //
   // For the moment I assume all of the three are set
@@ -151,7 +153,7 @@ G4Region * DDG4ProductionCuts::getRegion(const std::string & regName) {
   return reg;
 }
 
- G4ProductionCuts * DDG4ProductionCuts::getProductionCuts( G4Region* reg ) {
+G4ProductionCuts * DDG4ProductionCuts::getProductionCuts( G4Region* reg ) {
 
   G4ProductionCuts * prodCuts = reg->GetProductionCuts();
   if( !prodCuts ) {

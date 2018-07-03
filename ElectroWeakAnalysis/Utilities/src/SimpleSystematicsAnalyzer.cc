@@ -6,10 +6,10 @@
 class SimpleSystematicsAnalyzer: public edm::EDFilter {
 public:
       SimpleSystematicsAnalyzer(const edm::ParameterSet& pset);
-      virtual ~SimpleSystematicsAnalyzer();
-      virtual bool filter(edm::Event &, const edm::EventSetup&) override;
-      virtual void beginJob() override ;
-      virtual void endJob() override ;
+      ~SimpleSystematicsAnalyzer() override;
+      bool filter(edm::Event &, const edm::EventSetup&) override;
+      void beginJob() override ;
+      void endJob() override ;
 private:
       std::string selectorPath_;
       std::vector<edm::InputTag> weightTags_;

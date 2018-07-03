@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -27,10 +28,17 @@ IPTCorrector::IPTCorrector(const edm::ParameterSet& config) :
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 }
 
+void IPTCorrector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("corTracksLabel",edm::InputTag("hltIter0PFlowCtfWithMaterialTracks"));
+  desc.add<edm::InputTag>("filterLabel",edm::InputTag("hltIsolPixelTrackL2Filter"));
+  desc.add<double>("associationCone",0.2);
+  descriptions.add("iptCorrector",desc);
+}
 
 void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup const&) const {
 
-  reco::IsolatedPixelTrackCandidateCollection * trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto trackCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
   edm::Handle<reco::TrackCollection> corTracks;
   theEvent.getByToken(tok_cor_,corTracks);
@@ -78,8 +86,7 @@ void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup 
   }
   
   // put the product in the event
-  std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);
-  theEvent.put(outCollection);
+  theEvent.put(std::move(trackCollection));
 
 
 }

@@ -30,6 +30,7 @@
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 
 // forward declarations
+class AlignableObjectId;
 
 class MuonAlignmentOutputXML {
 
@@ -46,12 +47,16 @@ class MuonAlignmentOutputXML {
       void write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const;
 
    private:
-      MuonAlignmentOutputXML(const MuonAlignmentOutputXML&); // stop default
+      MuonAlignmentOutputXML(const MuonAlignmentOutputXML&) = delete; // stop default
 
-      const MuonAlignmentOutputXML& operator=(const MuonAlignmentOutputXML&); // stop default
+      const MuonAlignmentOutputXML& operator=(const MuonAlignmentOutputXML&) = delete; // stop default
 
-      void writeComponents(align::Alignables &alignables, align::Alignables &ideals,
-			   std::map<align::ID, CLHEP::HepSymMatrix>& errors, std::ofstream &outputFile, bool DT) const;
+      void writeComponents(align::Alignables &alignables,
+                           align::Alignables &ideals,
+                           std::map<align::ID, CLHEP::HepSymMatrix>& errors,
+                           std::ofstream &outputFile,
+                           bool DT,
+                           const AlignableObjectId&) const;
 
       // ---------- member data --------------------------------
       std::string m_fileName;

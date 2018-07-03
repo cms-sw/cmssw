@@ -34,14 +34,14 @@
 class WMuNuProducer : public edm::EDProducer {
 public:
   WMuNuProducer(const edm::ParameterSet&);
-  ~WMuNuProducer();
+  ~WMuNuProducer() override;
 
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
@@ -132,7 +132,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
       if (muonCollectionSize<1) return;
 
-      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
+      unique_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
 
      // Fill Collection with n muons --> n W Candidates ordered by pt
@@ -156,7 +156,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
       std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);
 
-      ev.put(WMuNuCandidates);
+      ev.put(std::move(WMuNuCandidates));
 
 }
 

@@ -12,7 +12,7 @@ class FastMatchedTrackerRecHit : public FastTrackerRecHit{
 	: stereoHitFirst_(false)
 	{}
     
-    ~FastMatchedTrackerRecHit() {}
+    ~FastMatchedTrackerRecHit() override {}
     
     FastMatchedTrackerRecHit( const LocalPoint & pos, 
 			      const LocalError & err,
@@ -26,15 +26,15 @@ class FastMatchedTrackerRecHit : public FastTrackerRecHit{
 	, componentStereo_(rStereo)
     {};
     
-    virtual FastMatchedTrackerRecHit * clone() const {FastMatchedTrackerRecHit * p =  new FastMatchedTrackerRecHit( * this); p->load(); return p;}
+    FastMatchedTrackerRecHit * clone() const override {FastMatchedTrackerRecHit * p =  new FastMatchedTrackerRecHit( * this); p->load(); return p;}
 
-    size_t    nIds()                    const { return 2;}
-    int32_t   id(size_t i = 0)          const { return i==0 ? monoHit().id() : stereoHit().id(); }
-    int32_t   eventId(size_t i = 0)     const { return i==0 ? monoHit().eventId() : stereoHit().eventId(); }
+    size_t    nIds()                    const override { return 2;}
+    int32_t   id(size_t i = 0)          const override { return i==0 ? monoHit().id() : stereoHit().id(); }
+    int32_t   eventId(size_t i = 0)     const override { return i==0 ? monoHit().eventId() : stereoHit().eventId(); }
     
-    size_t    nSimTrackIds()            const { return componentMono_.nSimTrackIds() + componentStereo_.nSimTrackIds();}                             ///< see addSimTrackId(int32_t simTrackId)
-    int32_t   simTrackId(size_t i)      const { return i < componentMono_.nSimTrackIds() ? componentMono_.simTrackId(i) : componentStereo_.simTrackId(i-componentMono_.nSimTrackIds()); }
-    int32_t   simTrackEventId(size_t i) const { return i < componentMono_.nSimTrackIds() ? componentMono_.simTrackEventId(i) : componentStereo_.simTrackEventId(i-componentMono_.nSimTrackIds()); }
+    size_t    nSimTrackIds()            const override { return componentMono_.nSimTrackIds() + componentStereo_.nSimTrackIds();}                             ///< see addSimTrackId(int32_t simTrackId)
+    int32_t   simTrackId(size_t i)      const override { return i < componentMono_.nSimTrackIds() ? componentMono_.simTrackId(i) : componentStereo_.simTrackId(i-componentMono_.nSimTrackIds()); }
+    int32_t   simTrackEventId(size_t i) const override { return i < componentMono_.nSimTrackIds() ? componentMono_.simTrackEventId(i) : componentStereo_.simTrackEventId(i-componentMono_.nSimTrackIds()); }
     
     const FastSingleTrackerRecHit &   monoHit()                const { return componentMono_;}
     const FastSingleTrackerRecHit &   stereoHit()              const { return componentStereo_;}
@@ -43,9 +43,9 @@ class FastMatchedTrackerRecHit : public FastTrackerRecHit{
     
 
     void setStereoLayerFirst(bool stereoHitFirst = true){stereoHitFirst_ = stereoHitFirst;}
-    void setEventId(int32_t eventId){componentMono_.setEventId(eventId);componentStereo_.setEventId(eventId);}
+    void setEventId(int32_t eventId) override{componentMono_.setEventId(eventId);componentStereo_.setEventId(eventId);}
 
-    void setRecHitCombinationIndex(int32_t recHitCombinationIndex) {
+    void setRecHitCombinationIndex(int32_t recHitCombinationIndex) override {
 	FastTrackerRecHit::setRecHitCombinationIndex(recHitCombinationIndex);
 	componentMono_.setRecHitCombinationIndex(recHitCombinationIndex);
 	componentStereo_.setRecHitCombinationIndex(recHitCombinationIndex);

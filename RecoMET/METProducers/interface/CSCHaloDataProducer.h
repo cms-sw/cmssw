@@ -4,9 +4,9 @@
 /*
   [class]:  CSCHaloDataProducer
   [authors]: R. Remington, The University of Florida
-  [description]: EDProducer which runs the CSCHaloAlgo and stores the CSCHaloData object in the event  
+  [description]: EDProducer which runs the CSCHaloAlgo and stores the CSCHaloData object in the event
   [date]: October 15, 2009
-*/  
+*/
 
 
 //Standard C++ classes
@@ -110,7 +110,6 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -125,21 +124,23 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
+class MuonServiceProxy;
+
 namespace reco
 {
 class CSCHaloDataProducer : public edm::stream::EDProducer<> {
-    
+
   public:
     explicit CSCHaloDataProducer(const edm::ParameterSet&);
-    ~CSCHaloDataProducer();
-    
+    ~CSCHaloDataProducer() override;
+
   private:
-    
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     //CSCHaloAlgo
     CSCHaloAlgo CSCAlgo;
-    
+
     //Digi Level
     edm::InputTag IT_L1MuGMTReadout;
     edm::InputTag IT_ALCT;
@@ -154,6 +155,11 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     //RecHit Level
     edm::InputTag IT_CSCRecHit;
 
+    //Calo rechits
+    edm::InputTag IT_HBHErh;
+    edm::InputTag IT_ECALBrh;
+    edm::InputTag IT_ECALErh;
+
     //Higher Level Reco
     edm::InputTag IT_CosmicMuon;
     edm::InputTag IT_CSCSegment;
@@ -166,6 +172,9 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     edm::EDGetTokenT<reco::MuonCollection> muon_token_;
     edm::EDGetTokenT<CSCSegmentCollection> cscsegment_token_;
     edm::EDGetTokenT<CSCRecHit2DCollection> cscrechit_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbhereco_token_;
+    edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitsEB_token_;
+    edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitsEE_token_;
     edm::EDGetTokenT<CSCALCTDigiCollection> cscalct_token_;
     edm::EDGetTokenT<L1MuGMTReadoutCollection> l1mugmtro_token_;
     edm::EDGetTokenT<edm::TriggerResults> hltresult_token_;
@@ -173,4 +182,4 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
 }
 
 #endif
-  
+

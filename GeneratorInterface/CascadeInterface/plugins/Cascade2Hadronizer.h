@@ -26,7 +26,7 @@ namespace gen {
   public:
 
     Cascade2Hadronizer(edm::ParameterSet const& ps);
-    ~Cascade2Hadronizer();
+    ~Cascade2Hadronizer() override;
 
     bool readSettings(int);
     bool initializeForExternalPartons(); //-- initializer for the LHE input
@@ -50,8 +50,8 @@ namespace gen {
     
   private:
     
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
     static const std::vector<std::string> theSharedResources;
 

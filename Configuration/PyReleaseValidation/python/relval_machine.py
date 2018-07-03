@@ -3,6 +3,7 @@ import os
 import json
 import collections
 
+import six
 
 workflows = Matrix()
 steps = Steps()
@@ -36,10 +37,10 @@ def convert_keys_to_string(dictionary):
         Utility to help deal with unicode keys in dictionaries created from json requests.
         In order to pass dict to function as **kwarg we should transform key/value to str.
     """
-    if isinstance(dictionary, basestring):
+    if isinstance(dictionary, str):
         return str(dictionary)
     elif isinstance(dictionary, collections.Mapping):
-        return dict(map(convert_keys_to_string, dictionary.iteritems()))
+        return dict(map(convert_keys_to_string, six.iteritems(dictionary)))
     elif isinstance(dictionary, collections.Iterable):
         return type(dictionary)(map(convert_keys_to_string, dictionary))
     else:

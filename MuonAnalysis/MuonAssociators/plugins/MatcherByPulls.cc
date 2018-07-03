@@ -48,10 +48,10 @@ namespace pat {
     class MatcherByPulls : public edm::EDProducer {
         public:
             explicit MatcherByPulls(const edm::ParameterSet&);
-            ~MatcherByPulls();
+            ~MatcherByPulls() override;
 
         private:
-            virtual void produce(edm::Event&, const edm::EventSetup&) override;
+            void produce(edm::Event&, const edm::EventSetup&) override;
 
             /// The RECO objects
             edm::EDGetTokenT<edm::View<T> > srcToken_;
@@ -120,17 +120,17 @@ pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     typedef edm::Association<MCColl> MCAsso;
-    std::auto_ptr<MCAsso> matchesMap(new MCAsso(edm::RefProd<MCColl>(cands)));
+    std::unique_ptr<MCAsso> matchesMap(new MCAsso(edm::RefProd<MCColl>(cands)));
     MCAsso::Filler matchesFiller(*matchesMap);
     matchesFiller.insert(src, matches.begin(), matches.end());
     matchesFiller.fill();
-    iEvent.put(matchesMap);
+    iEvent.put(std::move(matchesMap));
 
-    std::auto_ptr<edm::ValueMap<float> > pullsMap(new edm::ValueMap<float>());
+    std::unique_ptr<edm::ValueMap<float> > pullsMap(new edm::ValueMap<float>());
     edm::ValueMap<float>::Filler pullsFiller(*pullsMap);
     pullsFiller.insert(src, pulls.begin(), pulls.end());
     pullsFiller.fill();
-    iEvent.put(pullsMap, "pulls");
+    iEvent.put(std::move(pullsMap), "pulls");
 }
 
 //define this as a plug-in

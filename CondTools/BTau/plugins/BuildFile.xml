@@ -1,0 +1,16 @@
+<export></export>
+<library   name="CondToolsBTauplugins" file="*.cc">
+  <use   name="CondFormats/PhysicsToolsObjects"/>
+  <use   name="CondFormats/BTauObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondTools/BTau"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="CondCore/PluginSystem"/>
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="PhysicsTools/CondLiteIO"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+</library>

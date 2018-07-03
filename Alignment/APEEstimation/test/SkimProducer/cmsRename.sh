@@ -1,5 +1,7 @@
 #!/bin/sh
 
+eos="/afs/cern.ch/project/eos/installation/cms/bin/eos.select"
+
 if [ ! $# == 1 ]; then
   echo "Usage: $0 sample"
   exit 1
@@ -36,12 +38,12 @@ declare -i counter=1
 inputFilename="${filebase}${filesuffix}"
 outputFilename="${filebase}${counter}${filesuffix}"
 
-cmsStageIn $inputFilename $tempFile
+xrdcp root://eoscms//eos/cms${inputFilename} $tempFile
 
 if [ ! -f $tempFile ] ; then echo "Last file reached: 0"; exit 0; fi
-cmsStageOut $tempFile $outputFilename
+xrdcp $tempFile root://eoscms//eos/cms${outputFilename}
 if [ $? -eq 0 ] ; then
-  cmsRm ${filebase}${filesuffix}
+  $eos rm ${filebase}${filesuffix}
 fi
 rm $tempFile
 
@@ -53,11 +55,11 @@ do
   inputFilename="${filebase}00${counter}${filesuffix}"
   outputFilename="${filebase}${counterIncrement}${filesuffix}"
   
-  cmsStageIn $inputFilename $tempFile
+  xrdcp root://eoscms//eos/cms${inputFilename} $tempFile
   if [ ! -f $tempFile ] ; then echo "Last file reached: ${counter}"; exit 0; fi
-  cmsStageOut $tempFile $outputFilename
+  xrdcp $tempFile root://eoscms//eos/cms${outputFilename}
   if [ $? -eq 0 ] ; then
-    cmsRm $inputFilename
+    $eos rm $inputFilename
   fi
   rm $tempFile
   
@@ -75,11 +77,11 @@ do
   inputFilename="${filebase}0${counterTen}${filesuffix}"
   outputFilename="${filebase}${counterTenIncrement}${filesuffix}"
   
-  cmsStageIn $inputFilename $tempFile
+  xrdcp root://eoscms//eos/cms${inputFilename} $tempFile
   if [ ! -f $tempFile ] ; then echo "Last file reached: ${counterTen}"; exit 0; fi
-  cmsStageOut $tempFile $outputFilename
+  xrdcp $tempFile root://eoscms//eos/cms${outputFilename}
   if [ $? -eq 0 ] ; then
-    cmsRm $inputFilename
+    $eos rm $inputFilename
   fi
   rm $tempFile
   

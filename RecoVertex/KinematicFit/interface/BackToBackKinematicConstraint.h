@@ -24,30 +24,30 @@ public:
 
  BackToBackKinematicConstraint() {}
  
- ~BackToBackKinematicConstraint() {}
+ ~BackToBackKinematicConstraint() override {}
 
 /**
  * Derivatives and value calculated at given expansion point
  * Vector should always be of size 14 (2 particles)
  */
-virtual std::pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const;
+std::pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const override;
 
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
+std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const override;
 
 /**
  * Derivatives and values calculated at expansion point, taken
  * at current state of input particles. Number of input particles
  * should be always equal to 2
  */
-virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const;
+std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const override;
 
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const;
+std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const override;
 
-virtual AlgebraicVector deviations(int nStates) const;
+AlgebraicVector deviations(int nStates) const override;
 
-virtual int numberOfEquations() const;
+int numberOfEquations() const override;
 
-virtual KinematicConstraint * clone() const;
+KinematicConstraint * clone() const override;
 
 private:
 

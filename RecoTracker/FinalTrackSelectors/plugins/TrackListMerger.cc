@@ -9,24 +9,24 @@
 //
 //
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-
-#include "trackAlgoPriorityOrder.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
   {
@@ -34,21 +34,21 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
 
     explicit TrackListMerger(const edm::ParameterSet& conf);
 
-    virtual ~TrackListMerger();
+    ~TrackListMerger() override;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
 
      using MVACollection = std::vector<float>;
      using QualityMaskCollection = std::vector<unsigned char>;
 
-    std::auto_ptr<reco::TrackCollection> outputTrks;
-    std::auto_ptr<reco::TrackExtraCollection> outputTrkExtras;
-    std::auto_ptr< TrackingRecHitCollection>  outputTrkHits;
-    std::auto_ptr< std::vector<Trajectory> > outputTrajs;
-    std::auto_ptr< TrajTrackAssociationCollection >  outputTTAss;
-    std::auto_ptr< TrajectorySeedCollection > outputSeeds;
+    std::unique_ptr<reco::TrackCollection> outputTrks;
+    std::unique_ptr<reco::TrackExtraCollection> outputTrkExtras;
+    std::unique_ptr<TrackingRecHitCollection>  outputTrkHits;
+    std::unique_ptr<std::vector<Trajectory> > outputTrajs;
+    std::unique_ptr<TrajTrackAssociationCollection >  outputTTAss;
+    std::unique_ptr<TrajectorySeedCollection > outputSeeds;
 
     reco::TrackRefProd refTrks;
     reco::TrackExtraRefProd refTrkExtras;
@@ -83,6 +83,8 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
                                 edm::EDGetTokenT<edm::ValueMap<int> >(), consumes<edm::ValueMap<float> >(mvatag));
     }
     std::vector<TkEDGetTokenss>      trackProducers_;
+
+    std::string priorityName_;
 
     double maxNormalizedChisq_;
     double minPT_;
@@ -124,7 +126,6 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -188,7 +189,7 @@ inline volatile unsigned long long rdtsc() {
 
 
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 
@@ -219,7 +220,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
   std::string qualityStr = conf.getParameter<std::string>("newQuality");
   
-  if (qualityStr != "") {
+  if (!qualityStr.empty()) {
     qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
   }
   else
@@ -295,6 +296,8 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   for (unsigned int i = 0; i < numTrkColl; ++i) {
     trackProducers_[i] = hasSelector_[i]>0 ? edTokens(trackProducerTags[i], selectors[i], mvaStores[i]) : edTokens(trackProducerTags[i], mvaStores[i]);
   }
+
+  priorityName_ = conf.getParameter<std::string>("trackAlgoPriorityOrder");
 }
 
 
@@ -311,6 +314,10 @@ TrackListMerger::~TrackListMerger() { }
 
     //    using namespace reco;
 
+    edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
+    es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+    auto const & trackAlgoPriorityOrder = *priorityH;
+
     // get Inputs
     // if 1 input list doesn't exist, make an empty list, issue a warning, and continue
     // this allows TrackListMerger to be used as a cleaner only if handed just one list
@@ -321,7 +328,7 @@ TrackListMerger::~TrackListMerger() { }
     std::vector<const reco::TrackCollection *> trackColls;
     std::vector<edm::Handle<reco::TrackCollection> > trackHandles(trackProducers_.size());
     for ( unsigned int i=0; i<trackProducers_.size(); i++) {
-      trackColls.push_back(0);
+      trackColls.push_back(nullptr);
       //edm::Handle<reco::TrackCollection> trackColl;
       e.getByToken(trackProducers_[i].tk, trackHandles[i]);
       if (trackHandles[i].isValid()) {
@@ -373,7 +380,7 @@ TrackListMerger::~TrackListMerger() { }
 	e.getByToken(trackProducers_[j].tsel, trackSelColl);
       }
 
-      if ( 0<tC1->size() ){
+      if ( !tC1->empty() ){
 	unsigned int iC=0;
 	for (reco::TrackCollection::const_iterator track=tC1->begin(); track!=tC1->end(); track++){
 	  i++;
@@ -427,7 +434,7 @@ TrackListMerger::~TrackListMerger() { }
     typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
     std::vector<std::vector<IHit>> rh1(ngood);  // "not an array" of vectors!
     //const TrackingRecHit*  fh1[ngood];  // first hit...
-    uint8_t algo[ngood];
+    reco::TrackBase::TrackAlgorithm algo[ngood];
     float score[ngood];
 
 
@@ -452,13 +459,13 @@ TrackListMerger::~TrackListMerger() { }
 	const TrackingRecHit* hit = (*it);
 	unsigned int id = hit->rawId() ;
 	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
-	if likely(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
+	if LIKELY(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
       }
       std::sort_heap(rh1[i].begin(),rh1[i].end(),compById);
     }
 
     //DL here
-    if likely(ngood>1 && collsSize>1)
+    if LIKELY(ngood>1 && collsSize>1)
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
       int saveSelected[rSize];
       bool notActive[collsSize];
@@ -515,7 +522,7 @@ TrackListMerger::~TrackListMerger() { }
 	  int noverlap=0;
 	  int firstoverlap=0;
 	  // check first hit  (should use REAL first hit?)
-	  if unlikely(allowFirstHitShare_ && rh1[k1][0].first==rh1[k2][0].first ) {
+	  if UNLIKELY(allowFirstHitShare_ && rh1[k1][0].first==rh1[k2][0].first ) {
 	      const TrackingRecHit*  it = rh1[k1][0].second;
 	      const TrackingRecHit*  jt = rh1[k2][0].second;
 	      if (share(it,jt,epsilon_)) firstoverlap=1;
@@ -555,7 +562,7 @@ TrackListMerger::~TrackListMerger() { }
              selected[jj]=0;
              selected[ii]=10+newQualityMask; // add 10 to avoid the case where mask = 1
              trkUpdated[ii]=true;
-       	     if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
+             if (trackAlgoPriorityOrder.priority(oriAlgo[jj]) < trackAlgoPriorityOrder.priority(oriAlgo[ii])) oriAlgo[ii] = oriAlgo[jj];
              algoMask[ii] |= algoMask[jj];
              algoMask[jj] = algoMask[ii];  // in case we keep discarded
          };
@@ -572,7 +579,7 @@ TrackListMerger::~TrackListMerger() { }
 	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) ==
 		  (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
 		//same quality, pick earlier algo
-		if (trackAlgoPriorityOrder[algo[k1]] <= trackAlgoPriorityOrder[algo[k2]]) {
+		if (trackAlgoPriorityOrder.priority(algo[k1]) <= trackAlgoPriorityOrder.priority(algo[k2])) {
                   seti(i,j);    
 		} else {
                   seti(j,i);    
@@ -603,7 +610,7 @@ TrackListMerger::~TrackListMerger() { }
 
 
 
-    std::auto_ptr<edm::ValueMap<float> > vmMVA = std::auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+    auto vmMVA = std::make_unique<edm::ValueMap<float>>();
     edm::ValueMap<float>::Filler fillerMVA(*vmMVA);
 
 
@@ -611,7 +618,7 @@ TrackListMerger::~TrackListMerger() { }
     // special case - if just doing the trkquals
     if (trkQualMod_) {
       unsigned int tSize=trackColls[0]->size();
-      std::auto_ptr<edm::ValueMap<int> > vm = std::auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+      auto vm = std::make_unique<edm::ValueMap<int>>();
       edm::ValueMap<int>::Filler filler(*vm);
 
       std::vector<int> finalQuals(tSize,-1); //default is unselected
@@ -630,7 +637,7 @@ TrackListMerger::~TrackListMerger() { }
       filler.insert(trackHandles[0], finalQuals.begin(),finalQuals.end());
       filler.fill();
 
-      e.put(vm);
+      e.put(std::move(vm));
       for (auto & q : finalQuals) q=std::max(q,0);
       auto quals = std::make_unique<QualityMaskCollection>(finalQuals.begin(),finalQuals.end());      
       e.put(std::move(quals),"QualityMasks");
@@ -645,7 +652,7 @@ TrackListMerger::~TrackListMerger() { }
       fillerMVA.insert(trackHandles[0],mvaVec.begin(),mvaVec.end());
       fillerMVA.fill();
       if ( copyMVA_) {
-	e.put(vmMVA,"MVAVals");
+	e.put(std::move(vmMVA),"MVAVals");
         auto mvas = std::make_unique<MVACollection>(mvaVec.begin(),mvaVec.end());
         e.put(std::move(mvas),"MVAValues");
       }
@@ -666,26 +673,26 @@ TrackListMerger::~TrackListMerger() { }
 
     std::vector<float> mvaVec;
 
-    outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
+    outputTrks = std::make_unique<reco::TrackCollection>();
     outputTrks->reserve(nToWrite);
     refTrks = e.getRefBeforePut<reco::TrackCollection>();
 
     if (copyExtras_) {
-      outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+      outputTrkExtras = std::make_unique<reco::TrackExtraCollection>();
       outputTrkExtras->reserve(nToWrite);
       refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
-      outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+      outputTrkHits   = std::make_unique<TrackingRecHitCollection>();
       outputTrkHits->reserve(nToWrite*25);
       refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
       if (makeReKeyedSeeds_){
-	outputSeeds = std::auto_ptr<TrajectorySeedCollection>(new TrajectorySeedCollection);
+	outputSeeds = std::make_unique<TrajectorySeedCollection>();
 	outputSeeds->reserve(nToWrite);
 	refTrajSeeds = e.getRefBeforePut<TrajectorySeedCollection>();
       }
     }
 
 
-    outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
+    outputTrajs = std::make_unique<std::vector<Trajectory>>();
     outputTrajs->reserve(rSize);
 
     for ( unsigned int i=0; i<rSize; i++) {
@@ -775,6 +782,8 @@ TrackListMerger::~TrackListMerger() { }
 	// fill TrackingRecHits
 	unsigned nh1=track->recHitsSize();
         tx.setHits(refTrkHits,outputTrkHits->size(),nh1);
+        tx.setTrajParams(track->extra()->trajParams(),track->extra()->chi2sX5());
+        assert(tx.trajParams().size()==tx.recHitsSize());
         for (auto hh = track->recHitsBegin(), eh=track->recHitsEnd(); hh!=eh; ++hh ) {
           outputTrkHits->push_back( (*hh)->clone() );
         }
@@ -787,7 +796,7 @@ TrackListMerger::~TrackListMerger() { }
     //Fill the trajectories, etc. for 1st collection
     refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
 
-    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection(refTrajs, refTrks));
+    outputTTAss = std::make_unique<TrajTrackAssociationCollection>(refTrajs, refTrks);
 
     for (unsigned int ti=0; ti<trackColls.size(); ti++) {
       edm::Handle< std::vector<Trajectory> >  hTraj1;
@@ -822,20 +831,20 @@ TrackListMerger::~TrackListMerger() { }
     fillerMVA.insert(outHandle,mvaVec.begin(),mvaVec.end());
     fillerMVA.fill();
 
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     if ( copyMVA_ ) {
-      e.put(vmMVA,"MVAVals");
+      e.put(std::move(vmMVA),"MVAVals");
       auto mvas = std::make_unique<MVACollection>(mvaVec.begin(),mvaVec.end());
       e.put(std::move(mvas),"MVAValues");
     }
     if (copyExtras_) {
-      e.put(outputTrkExtras);
-      e.put(outputTrkHits);
+      e.put(std::move(outputTrkExtras));
+      e.put(std::move(outputTrkHits));
       if (makeReKeyedSeeds_)
-	e.put(outputSeeds);
+	e.put(std::move(outputSeeds));
     }
-    e.put(outputTrajs);
-    e.put(outputTTAss);
+    e.put(std::move(outputTrajs));
+    e.put(std::move(outputTTAss));
     return;
 
   }//end produce

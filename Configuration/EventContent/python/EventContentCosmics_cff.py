@@ -49,6 +49,8 @@ from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
+from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
+from EventFilter.Utilities.Tcds_EventContent_cff import *
 from Configuration.EventContent.EventContent_cff import REGENEventContent,RESIMEventContent,REDIGIEventContent
 
 #not in Cosmics 
@@ -190,6 +192,8 @@ FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
@@ -209,6 +213,8 @@ RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+RECOEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
@@ -223,6 +229,8 @@ AODEventContent.outputCommands.extend(BeamSpotAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoVertexAOD.outputCommands)
 AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
 AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
+AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -295,6 +303,8 @@ FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)

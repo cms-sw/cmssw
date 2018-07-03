@@ -126,7 +126,7 @@ process.multiTrackValidator.UseAssociators = True
 #process.cutsRecoTracks.maxRapidity  = 1.0
 
 process.quickTrackAssociatorByHits.useClusterTPAssociation = True
-process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
 
 process.validation = cms.Sequence(
     process.tpClusterProducer *

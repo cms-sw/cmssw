@@ -6,7 +6,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
@@ -77,31 +76,17 @@ OniaPhotonConversionProducer:: OniaPhotonConversionProducer(const edm::Parameter
   convAlgo_ = StringToEnumValue<reco::Conversion::ConversionAlgorithm>(algo);
 
   std::vector<std::string> qual = ps.getParameter<std::vector<std::string> >("convQuality"); 
-  if( qual[0] != "" ) convQuality_ =StringToEnumValue<reco::Conversion::ConversionQuality>(qual);
+  if( !qual[0].empty() ) convQuality_ =StringToEnumValue<reco::Conversion::ConversionQuality>(qual);
 
   convSelectionCuts_ = ps.getParameter<std::string>("convSelection");
-  
+  convSelection_ = std::make_unique<StringCutObjectSelector<reco::Conversion>>(convSelectionCuts_);
   produces<pat::CompositeCandidateCollection>("conversions");
-
-  total_conversions = 0;
-  selection_fail = 0;
-  algo_fail = 0;
-  flag_fail = 0;
-  pizero_fail = 0;
-  duplicates = 0;
-  TkVtxC = 0;
-  CInnerHits = 0;
-  highpurity_count = 0;
-  final_conversion = 0;
-  store_conversion = 0;
 }
-
 
 void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup& esetup){
 
-  std::auto_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
-  std::auto_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
-  std::vector<int> flagCollection;   
+  std::unique_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
 
   edm::Handle<reco::VertexCollection> priVtxs;
   event.getByToken(thePVsToken_, priVtxs);
@@ -114,20 +99,15 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 
   const reco::PFCandidateCollection pfphotons = selectPFPhotons(*pfcandidates);  
 
-  StringCutObjectSelector<reco::Conversion> *convSelection_ = new StringCutObjectSelector<reco::Conversion>(convSelectionCuts_);
-
   for(reco::ConversionCollection::const_iterator conv = pConv->begin(); conv != pConv->end(); ++conv){
-    total_conversions++;
 
     if (! ( *convSelection_)(*conv)){
-	selection_fail++;	
 	continue; // selection string
     }
     if (convAlgo_ != 0 && conv->algo()!= convAlgo_){
-	algo_fail++;	
 	continue; // select algorithm
     }
-    if(convQuality_.size() > 0){
+    if(!convQuality_.empty()){
 	bool flagsok=true;
 	for (std::vector<int>::const_iterator flag = convQuality_.begin(); flag!=convQuality_.end(); ++flag){
 	reco::Conversion::ConversionQuality q = (reco::Conversion::ConversionQuality)(*flag);
@@ -137,72 +117,62 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
            }
         }
 	if (!flagsok){
-	   flag_fail++;
 	   continue;
         }
-     }
-     
-    bool flag1 = true;
-    bool flag2 = true;
-    bool flag3 = true;
-    bool flag4 = true;
+    }
+    outCollection->push_back(*conv);
+  }
+    
+  removeDuplicates(*outCollection);
+  
+  for (reco::ConversionCollection::const_iterator conv = outCollection->begin(); conv != outCollection->end(); ++conv){
+
+     bool flag1 = true;
+     bool flag2 = true;
+     bool flag3 = true;
+     bool flag4 = true;
 
     // The logic implies that by default this flags are true and if the check are not wanted conversions are saved.
     // If checks are required and failed then don't save the conversion.
 
-    bool flagTkVtxCompatibility  = true;
-    if (! checkTkVtxCompatibility(*conv,*priVtxs.product())) {
+     bool flagTkVtxCompatibility  = true;
+     if (! checkTkVtxCompatibility(*conv,*priVtxs.product())) {
        flagTkVtxCompatibility = false;
        if (wantTkVtxCompatibility_) {
-          TkVtxC++;
           flag1 = false;
        }
-    }
-    bool flagCompatibleInnerHits = false;
-    if (conv->tracks().size()==2) {
+     }
+     bool flagCompatibleInnerHits = false;
+     if (conv->tracks().size()==2) {
        reco::HitPattern hitPatA=conv->tracks().at(0)->hitPattern();
        reco::HitPattern hitPatB=conv->tracks().at(1)->hitPattern();
        if ( foundCompatibleInnerHits(hitPatA,hitPatB) && foundCompatibleInnerHits(hitPatB,hitPatA) ) flagCompatibleInnerHits = true;
-    }
-    if (wantCompatibleInnerHits_ && ! flagCompatibleInnerHits) {
-       CInnerHits++;
+     }
+     if (wantCompatibleInnerHits_ && ! flagCompatibleInnerHits) {
        flag2 = false;
-    }
-    bool flagHighpurity = true;
-    if (!HighpuritySubset(*conv,*priVtxs.product())) {
+     }
+     bool flagHighpurity = true;
+     if (!HighpuritySubset(*conv,*priVtxs.product())) {
        flagHighpurity = false;
        if (wantHighpurity_) {
-          highpurity_count++;
           flag3 = false;
        }
-    }
-    bool pizero_rejected = false;
-    bool large_pizero_window = CheckPi0(*conv, pfphotons, pizero_rejected);
-    if (pi0OnlineSwitch_ && pizero_rejected) {
-      pizero_fail++;
-      flag4 = false;
-    } 
+     }
+     bool pizero_rejected = false;
+     bool large_pizero_window = CheckPi0(*conv, pfphotons, pizero_rejected);
+     if (pi0OnlineSwitch_ && pizero_rejected) {
+       flag4 = false;
+     }
 
-    if (flag1 && flag2 && flag3 && flag4){
-        int flags = PackFlags(*conv,flagTkVtxCompatibility,flagCompatibleInnerHits,flagHighpurity,pizero_rejected,large_pizero_window);
-        flagCollection.push_back(flags);
-       	outCollection->push_back(*conv);
-	final_conversion++;
-    }
+     int flags = 0;
+     if (flag1 && flag2 && flag3 && flag4){
+        flags = PackFlags(*conv,flagTkVtxCompatibility,flagCompatibleInnerHits,flagHighpurity,pizero_rejected,large_pizero_window);
+        std::unique_ptr<pat::CompositeCandidate> pat_conv(makePhotonCandidate(*conv));
+        pat_conv->addUserInt("flags",flags);
+        patoutCollection->push_back(*pat_conv);
+     }
   }
-  removeDuplicates(*outCollection,flagCollection);
-  
-  int i = -1; 
-  for (reco::ConversionCollection::const_iterator conv = outCollection->begin(); conv != outCollection->end(); ++conv){
-     i++;
-     pat::CompositeCandidate *pat_conv = makePhotonCandidate(*conv);
-     pat_conv->addUserInt("flags",flagCollection.at(i));
-     patoutCollection->push_back(*pat_conv);
-  }
-  store_conversion += patoutCollection->size();
-  event.put(patoutCollection,"conversions");
-
-  delete convSelection_;
+  event.put(std::move(patoutCollection),"conversions");
 }
 
 int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool flagTkVtxCompatibility, 
@@ -238,7 +208,7 @@ int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv, bool f
 /** Put in out collection only those conversion candidates that are not sharing tracks.
     If sharing, keep the one with the best chi2.
  */
-void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c, std::vector<int> &f){
+void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& c){
   // first sort from high to low chi2 prob
   std::sort(c.begin(),c.end(),ConversionLessByChi2);
   int iter1 = 0;
@@ -248,8 +218,6 @@ void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& 
      int iter2 = iter1+1;
      while( iter2 < (int) c.size()) if(ConversionEqualByTrack( c[iter1], c[iter2] ) ){
         c.erase( c.begin() + iter2 );
-        f.erase( f.begin() + iter2 );
-	duplicates++;
         }else{
         iter2++;	// Increment index only if this element is no duplicate. 
 			// If it is duplicate check again the same index since the vector rearranged elements index after erasing
@@ -270,23 +238,24 @@ bool OniaPhotonConversionProducer::checkTkVtxCompatibility(const reco::Conversio
       double dz_= tk->dz(vtx.position());
       double dzError_=tk->dzError();
       dzError_=sqrt(dzError_*dzError_+vtx.covariance(2,2));
-
       if(fabs(dz_)/dzError_ > sigmaTkVtxComp_) continue;
-      
       idx[ik].push_back(std::pair<double,short>(fabs(dz_),count));
     }
-    if(idx[ik].size()==0) {return false;}
-    
-    std::stable_sort(idx[ik].begin(),idx[ik].end(),lt_);
+    if (idx[ik].empty()) return false;
+    if (idx[ik].size()>1) std::stable_sort(idx[ik].begin(),idx[ik].end(),lt_);
   }
-  if (idx[0][0].second==idx[1][0].second || idx[0][1].second==idx[1][0].second || idx[0][0].second==idx[1][1].second) return true;
+  if (ik!=1) return false;
+  if (idx[0][0].second==idx[1][0].second) return true;
+  if (idx[0].size()>1 && idx[0][1].second==idx[1][0].second) return true;
+  if (idx[1].size()>1 && idx[0][0].second==idx[1][1].second) return true;
+
   return false;
 }
 
 bool OniaPhotonConversionProducer::foundCompatibleInnerHits(const reco::HitPattern& hitPatA, const reco::HitPattern& hitPatB) {
   size_t count=0;
   uint32_t oldSubStr=0;
-  for (int i=0; i<hitPatA.numberOfHits(reco::HitPattern::HitCategory::TRACK_HITS) && count<2; i++) {
+  for (int i=0; i<hitPatA.numberOfAllHits(reco::HitPattern::HitCategory::TRACK_HITS) && count<2; i++) {
     uint32_t hitA = hitPatA.getHitPattern(reco::HitPattern::HitCategory::TRACK_HITS,i);
     if (!hitPatA.validHitFilter(hitA) || !hitPatA.trackerHitFilter(hitA)) continue;
     
@@ -384,23 +353,7 @@ reco::Candidate::LorentzVector OniaPhotonConversionProducer::convertVector(const
 }
 
 
-void OniaPhotonConversionProducer::endJob(){
-   std::cout << "############################" << std::endl;
-   std::cout << "Conversion Candidate producer report" << std::endl;
-   std::cout << "############################" << std::endl;
-   std::cout << "Total examined conversions: " << total_conversions << std::endl;
-   std::cout << "Selection fail candidates:  " << selection_fail << std::endl;
-   std::cout << "Algo fail candidates:       " << algo_fail << std::endl;
-   std::cout << "Quality fail candidates:    " << flag_fail << std::endl;
-   std::cout << "Pi0 fail:                   " << pizero_fail << std::endl;
-   std::cout << "Total duplicates found:     " << duplicates << std::endl;
-   std::cout << "Vertex compatibility fail:  " << TkVtxC << std::endl;
-   std::cout << "Compatible inner hits fail: " << CInnerHits << std::endl;
-   std::cout << "Highpurity Subset fail:     " << highpurity_count << std::endl;
-   std::cout << "############################" << std::endl;
-   std::cout << "Final number of conversions:  " << final_conversion << std::endl;
-   std::cout << "Stored number of conversions: " << store_conversion << std::endl;
-   std::cout << "############################" << std::endl;
+void OniaPhotonConversionProducer::endStream() {
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(OniaPhotonConversionProducer);

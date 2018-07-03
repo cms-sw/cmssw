@@ -4,7 +4,7 @@
  * Humboldt Foundations
  */
 #include "RecoTauTag/ImpactParameter/interface/ErrorMatrixPropagator.h"
-#include "math.h"
+#include <cmath>
 #include <iostream>
 
 using namespace tauImpactParameter;

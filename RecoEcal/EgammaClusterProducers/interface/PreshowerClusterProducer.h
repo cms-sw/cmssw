@@ -9,7 +9,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
@@ -26,9 +29,9 @@ class PreshowerClusterProducer : public edm::stream::EDProducer<> {
 
   explicit PreshowerClusterProducer (const edm::ParameterSet& ps);
 
-  ~PreshowerClusterProducer();
+  ~PreshowerClusterProducer() override;
 
-  virtual void produce( edm::Event& evt, const edm::EventSetup& es);
+  void produce( edm::Event& evt, const edm::EventSetup& es) override;
   void set(const edm::EventSetup& es);
 
  private:

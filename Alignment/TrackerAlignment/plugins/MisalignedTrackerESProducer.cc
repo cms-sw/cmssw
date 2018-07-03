@@ -12,7 +12,7 @@
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -24,7 +24,6 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 
 // C++
-#include <boost/shared_ptr.hpp>
 #include <memory>
 #include <algorithm>
 
@@ -43,10 +42,10 @@ public:
   MisalignedTrackerESProducer(const edm::ParameterSet & p);
   
   /// Destructor
-  virtual ~MisalignedTrackerESProducer(); 
+  ~MisalignedTrackerESProducer() override; 
   
   /// Produce the misaligned tracker geometry and store it
-  boost::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord& iRecord);
+  std::unique_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord& iRecord);
 
 private:
   const bool theSaveToDB; /// whether or not writing to DB
@@ -54,7 +53,6 @@ private:
   const edm::ParameterSet theScenario; /// misalignment scenario
   const std::string theAlignRecordName, theErrorRecordName;
   
-  boost::shared_ptr<TrackerGeometry> theTracker;
 };
 
 //__________________________________________________________________________________________________
@@ -81,7 +79,7 @@ MisalignedTrackerESProducer::~MisalignedTrackerESProducer() {}
 
 
 //__________________________________________________________________________________________________
-boost::shared_ptr<TrackerGeometry> 
+std::unique_ptr<TrackerGeometry> 
 MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 { 
   //Retrieve tracker topology from geometry
@@ -97,10 +95,10 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::ESHandle<PTrackerParameters> ptp;
   iRecord.getRecord<PTrackerParametersRcd>().get( ptp );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), *ptp ));
+  std::unique_ptr<TrackerGeometry> theTracker( trackerBuilder.build(&(*gD), *ptp, tTopo));
  
   // Create the alignable hierarchy
-  std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker), tTopo ) );
+  auto theAlignableTracker = std::make_unique<AlignableTracker>( &(*theTracker), tTopo );
 
   // Create misalignment scenario, apply to geometry
   TrackerScenarioBuilder scenarioBuilder( &(*theAlignableTracker) );

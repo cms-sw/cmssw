@@ -31,14 +31,14 @@ public:
   DTTrigProd(const edm::ParameterSet& pset);
 
   //! Destructor
-  ~DTTrigProd();
+  ~DTTrigProd() override;
 
   //! Create Trigger Units before starting event processing
   //void beginJob(const edm::EventSetup & iEventSetup);
   void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
   
   //! Producer: process every event and generates trigger data
-  void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup);
+  void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup) override;
   
 private:
 

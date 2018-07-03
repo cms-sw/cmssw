@@ -97,7 +97,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
                 CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
                 if (itCond != (conditionResultMaps[chipNumber]).end()) {
 
-                    if (0 == itCond->second) {
+                    if (nullptr == itCond->second) {
                         // it should never be happen, only valid conditions are in the maps
                         throw cms::Exception("FailModule") << "\nCondition "
                                 << (it->operand)

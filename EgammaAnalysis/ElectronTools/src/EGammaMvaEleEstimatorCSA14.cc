@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <zlib.h>
 #include "TMVA/MethodBase.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -22,7 +23,6 @@ fNMVABins(0)
 EGammaMvaEleEstimatorCSA14::~EGammaMvaEleEstimatorCSA14()
 {
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
-    if (fTMVAMethod[i]) delete fTMVAMethod[i];
     if (fTMVAReader[i]) delete fTMVAReader[i];
   }
 }
@@ -49,7 +49,6 @@ void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
   //clean up first
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
     if (fTMVAReader[i]) delete fTMVAReader[i];
-    if (fTMVAMethod[i]) delete fTMVAMethod[i];
   }
   fTMVAReader.clear();
   fTMVAMethod.clear();
@@ -259,14 +258,14 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
   }
 
   if ( (fMVAType != EGammaMvaEleEstimatorCSA14::kTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrigPhys14) ) {
-    std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" << std::endl;
+    std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" <<std::endl;
     return -9999;
   }
  
   bool validKF= false; 
   reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable());
-  validKF = (myTrackRef.isNonnull());  
+  validKF &= (myTrackRef.isNonnull());  
 
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
@@ -284,9 +283,9 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 
   // Pure ECAL -> shower shapes
   std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed())) ;
-  if (!isnan(vCov[0])) fMVAVar_see = sqrt (vCov[0]); //EleSigmaIEtaIEta
+  if (edm::isFinite(vCov[0])) fMVAVar_see = sqrt (vCov[0]); //EleSigmaIEtaIEta
   else fMVAVar_see = 0.;
-  if (!isnan(vCov[2])) fMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
+  if (edm::isFinite(vCov[2])) fMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
   else fMVAVar_spp = 0.;    
 
   fMVAVar_etawidth        =  ele.superCluster()->etaWidth();
@@ -352,8 +351,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 
 
   if(printDebug) {
-    std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << std::endl;
-    std::cout << " fbrem " <<  fMVAVar_fbrem  
+   std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+   std::cout << " fbrem " <<  fMVAVar_fbrem  
       	 << " kfchi2 " << fMVAVar_kfchi2  
 	 << " mykfhits " << fMVAVar_kfhits  
 	 << " gsfchi2 " << fMVAVar_gsfchi2  
@@ -373,8 +372,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 	 << " d0 " << fMVAVar_d0  
 	 << " ip3d " << fMVAVar_ip3d  
 	 << " eta " << fMVAVar_eta  
-	 << " pt " << fMVAVar_pt << std::endl;
-    std::cout << " ### MVA " << mva << std::endl;
+	 << " pt " << fMVAVar_pt <<std::endl;
+   std::cout << " ### MVA " << mva <<std::endl;
   }
 
 
@@ -393,14 +392,14 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     }
     
     if ( (fMVAType != EGammaMvaEleEstimatorCSA14::kTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrig) && (fMVAType != EGammaMvaEleEstimatorCSA14::kNonTrigPhys14) ) {
-        std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" << std::endl;
+        std::cout << "Error: This method should be called for kTrig or kNonTrig or kNonTrigPhys14 MVA only" <<std::endl;
         return -9999;
     }
     
     bool validKF= false;
     reco::TrackRef myTrackRef = ele.closestCtfTrackRef();
     validKF = (myTrackRef.isAvailable());
-    validKF = (myTrackRef.isNonnull());
+    validKF &= (myTrackRef.isNonnull());
     
     // Pure tracking variables
     fMVAVar_fbrem           =  ele.fbrem();
@@ -456,8 +455,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     
     
     if(printDebug) {
-        std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType << std::endl;
-        std::cout << " fbrem " <<  fMVAVar_fbrem
+       std::cout << " *** Inside the class fMethodname " << fMethodname << " fMVAType " << fMVAType <<std::endl;
+       std::cout << " fbrem " <<  fMVAVar_fbrem
         << " kfchi2 " << fMVAVar_kfchi2
         << " mykfhits " << fMVAVar_kfhits
         << " gsfchi2 " << fMVAVar_gsfchi2
@@ -475,8 +474,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
         << " IoEmIoP " << fMVAVar_IoEmIoP  
         << " eleEoPout " << fMVAVar_eleEoPout  
         << " eta " << fMVAVar_eta
-        << " pt " << fMVAVar_pt << std::endl;
-        std::cout << " ### MVA " << mva << std::endl;
+        << " pt " << fMVAVar_pt <<std::endl;
+       std::cout << " ### MVA " << mva <<std::endl;
     }
     
     
@@ -535,7 +534,11 @@ void EGammaMvaEleEstimatorCSA14::bindVariables() {
   
   
   // Needed for a bug in CMSSW_420, fixed in more recent CMSSW versions
+#ifndef STANDALONE
+  if(edm::isNotFinite(fMVAVar_spp))
+#else
   if(std::isnan(fMVAVar_spp))
+#endif
     fMVAVar_spp = 0.;	
   
   

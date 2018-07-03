@@ -56,7 +56,7 @@ void RPCWheelMap::addHit( int bx, int sec, int layer)
   // 0.....11
   int indx1 = bx + m_maxBxWindow;
   int indx2 = sec + indx1*m_maxSectors;
-  m_wheelMapBx[ indx2 ].set( layer-1, 1);
+  m_wheelMapBx[ indx2 ].set( layer-1, true);
   
 }
 

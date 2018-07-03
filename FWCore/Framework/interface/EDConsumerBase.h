@@ -22,9 +22,9 @@
 #include <map>
 #include <string>
 #include <vector>
-
+#include <array>
 // user include files
-#include "FWCore/Framework/interface/ProductHolderIndexAndSkipBit.h"
+#include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
@@ -32,7 +32,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/SoATuple.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
 
@@ -41,7 +41,7 @@
 
 namespace edm {
   class ModuleDescription;
-  class ProductHolderIndexHelper;
+  class ProductResolverIndexHelper;
   class ProductRegistry;
   class ConsumesCollector;
   template<typename T> class WillGetIfMatch;
@@ -50,19 +50,28 @@ namespace edm {
   {
     
   public:
-    EDConsumerBase() : frozen_(false) {}
-    virtual ~EDConsumerBase();
+    EDConsumerBase() : frozen_(false), containsCurrentProcessAlias_(false) {}
+    virtual ~EDConsumerBase() noexcept(false);
     
+    // disallow copying
+    EDConsumerBase(EDConsumerBase const&) = delete;
+    EDConsumerBase const& operator=(EDConsumerBase const&) = delete;
+    
+    // allow moving
+    EDConsumerBase(EDConsumerBase&&) = default;
+    EDConsumerBase& operator=(EDConsumerBase&&) = default;
+
     // ---------- const member functions ---------------------
-    ProductHolderIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
+    ProductResolverIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
+    ProductResolverIndexAndSkipBit uncheckedIndexFrom(EDGetToken) const;
 
-    void itemsToGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
-    void itemsMayGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
+    void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+    void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
-    std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const { return itemsToGetFromEvent_; }
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const { return itemsToGetFromBranch_[iType]; }
 
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
-    bool registeredToConsume(ProductHolderIndex, bool, BranchType) const;
+    bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
     
     ///\return true of TypeID corresponds to a type specified in a consumesMany call
     bool registeredToConsumeMany(TypeID const&, BranchType) const;
@@ -70,18 +79,19 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType,
-                      ProductHolderIndexHelper const&);
+                      ProductResolverIndexHelper const&,
+                      bool iPrefetchMayGet);
     
     typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
-    void modulesDependentUpon(const std::string& iProcessName,
-                              std::vector<const char*>& oModuleLabels) const;
-
     void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) const;
+
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
 
     std::vector<ConsumesInfo> consumesInfo() const;
 
@@ -137,10 +147,6 @@ namespace edm {
     }
 
   private:
-    EDConsumerBase(const EDConsumerBase&) = delete;
-    
-    const EDConsumerBase& operator=(const EDConsumerBase&) = delete;
-    
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
 
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;
@@ -153,12 +159,12 @@ namespace edm {
 
     struct TokenLookupInfo {
       TokenLookupInfo(edm::TypeID const& iID,
-                      ProductHolderIndex iIndex,
+                      ProductResolverIndex iIndex,
                       bool skipCurrentProcess,
                       BranchType iBranch):
         m_type(iID),m_index(iIndex, skipCurrentProcess), m_branchType(iBranch){}
       edm::TypeID m_type;
-      ProductHolderIndexAndSkipBit m_index;
+      ProductResolverIndexAndSkipBit m_index;
       BranchType m_branchType;
     };
 
@@ -182,9 +188,10 @@ namespace edm {
     // for each of the 3 labels needed to id the data
     std::vector<char> m_tokenLabels;
 
-    std::vector<ProductHolderIndexAndSkipBit> itemsToGetFromEvent_;
+    std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
 
     bool frozen_;
+    bool containsCurrentProcessAlias_;
   };
 }
 

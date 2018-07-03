@@ -11,8 +11,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -59,11 +59,11 @@ public:
   };
 
   explicit WZInterestingEventSelector(const edm::ParameterSet&);
-  ~WZInterestingEventSelector();
+  ~WZInterestingEventSelector() override;
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override; 
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override; 
   bool electronSelection( const GsfElectron* eleRef , const math::XYZPoint& bspotPosition);  
   // ----------member data ---------------------------
 
@@ -208,7 +208,7 @@ bool WZInterestingEventSelector::electronSelection( const GsfElectron* eleRef , 
       if (eleRef->hcalOverEcal()>ee_hoeCut_) return false;
     }
   
-  if (eleRef->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > missHitCut_) return false;
+  if (eleRef->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > missHitCut_) return false;
   
   return true;
 }
@@ -230,11 +230,11 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(offlineBSCollection_, pBeamSpot);
 
   const reco::BeamSpot *bspot = pBeamSpot.product();
-  math::XYZPoint bspotPosition = bspot->position();
+  const math::XYZPoint& bspotPosition = bspot->position();
 
   std::vector<const GsfElectron*> goodElectrons;  
   float ptMax=-999.;
-  const GsfElectron* ptMaxEle=0;
+  const GsfElectron* ptMaxEle=nullptr;
   for(reco::GsfElectronCollection::const_iterator myEle=gsfElectrons->begin();myEle!=gsfElectrons->end();++myEle)
     {
       //Apply a minimal isolated electron selection
@@ -271,7 +271,7 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
   //W filt: Retain event also event with at least 1 good ele and some met
-  if (goodElectrons.size()>=1 &&  (pfMET->begin()->et()>metCut_))
+  if (!goodElectrons.empty() &&  (pfMET->begin()->et()>metCut_))
     {
       //interestingEvents_.push_back(thisEvent);
       return true;

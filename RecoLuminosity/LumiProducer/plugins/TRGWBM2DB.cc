@@ -29,10 +29,10 @@ namespace lumi{
   public:
     const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS,totalrow=nsl*192
     explicit TRGWBM2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int runnumber) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~TRGWBM2DB();
+    unsigned long long retrieveData( unsigned int runnumber) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~TRGWBM2DB() override;
   private:
     std::string int2str(unsigned int t,unsigned int width);
     unsigned int str2int(const std::string& s);
@@ -519,7 +519,7 @@ namespace lumi{
       unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
      
       trglscount=0;    
-      coral::IBulkOperation* trgInserter=0; 
+      coral::IBulkOperation* trgInserter=nullptr; 
       unsigned int comittedls=0; 
       for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount ){
 	unsigned int cmslscount=trglscount+1;
@@ -587,13 +587,13 @@ namespace lumi{
 	++comittedls;
 	if(comittedls==TRGWBM2DB::COMMITLSINTERVAL){
 	  std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	  delete trgInserter; trgInserter=0;
+	  delete trgInserter; trgInserter=nullptr;
 	  lumisession->transaction().commit();
 	  comittedls=0;
 	  std::cout<<"\t committed "<<std::endl; 
 	}else if( trglscount==( totalcmsls-1) ){
 	  std::cout<<"\t committing at the end"<<std::endl; 
-	  delete trgInserter; trgInserter=0;
+	  delete trgInserter; trgInserter=nullptr;
 	  lumisession->transaction().commit();
 	  std::cout<<"\t done"<<std::endl; 
 	}

@@ -1,6 +1,7 @@
 #ifndef RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 #define RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include <numeric>
@@ -12,7 +13,7 @@ public:
     m_fraction = iConfig.getParameter<double>("fraction");
  }
 
- virtual std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits){
+ std::pair<float,float> dedx(const reco::DeDxHitCollection& Hits) override{
     int nTrunc = int( Hits.size()*m_fraction);
     double sumdedx = 0;
     for(size_t i=0;i + nTrunc <  Hits.size() ; i++){

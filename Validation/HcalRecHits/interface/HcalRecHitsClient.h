@@ -47,12 +47,10 @@ class HcalRecHitsClient : public DQMEDHarvester {
 
  public:
   explicit HcalRecHitsClient(const edm::ParameterSet& );
-  virtual ~HcalRecHitsClient();
+  ~HcalRecHitsClient() override;
 
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   
-  virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
-
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
 };

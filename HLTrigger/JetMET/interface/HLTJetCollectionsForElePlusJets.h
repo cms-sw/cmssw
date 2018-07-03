@@ -42,11 +42,11 @@ template<typename T>
 class HLTJetCollectionsForElePlusJets: public edm::stream::EDProducer<> {
   public:
     explicit HLTJetCollectionsForElePlusJets(const edm::ParameterSet&);
-    ~HLTJetCollectionsForElePlusJets();
+    ~HLTJetCollectionsForElePlusJets() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_theElectronToken;
     edm::EDGetTokenT<std::vector<T>> m_theJetToken;

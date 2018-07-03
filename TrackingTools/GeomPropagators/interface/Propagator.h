@@ -9,8 +9,6 @@
 #include <utility>
 #include <memory>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class Plane;
 class Cylinder;
 class Surface;
@@ -50,13 +48,11 @@ public:
   virtual ~Propagator();
 
 
-#ifndef CMS_NOCXX11
   template<typename STA, typename SUR>
  TrajectoryStateOnSurface
   propagate (STA const & state, SUR const & surface) const {
     return propagateWithPath(state,surface).first;
   }
-#endif
 
 public:
 
@@ -152,7 +148,7 @@ public:
    *  path lengt means "alongMomentum", an egeative sign means
    *  "oppositeToMomentum".
    */
-  virtual PropagationDirection propagationDirection() const GCC11_FINAL {
+  virtual PropagationDirection propagationDirection() const final {
     return theDir;
   }
 

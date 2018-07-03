@@ -3,10 +3,10 @@
 <use   name="boost"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="boost_serialization"/>
+<use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 
-<use   name="CondCore/ORA"/>
 <export>
   <lib   name="1"/>
 </export>

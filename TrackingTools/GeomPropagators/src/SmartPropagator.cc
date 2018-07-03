@@ -54,7 +54,7 @@ SmartPropagator::SmartPropagator(const Propagator& aTkProp, const Propagator& aG
 
 
 SmartPropagator::SmartPropagator(const SmartPropagator& aProp) :
-  Propagator(aProp.propagationDirection()), theTkProp(0), theGenProp(0) { 
+  Propagator(aProp.propagationDirection()), theTkProp(nullptr), theGenProp(nullptr) { 
     if (aProp.theTkProp)
       theTkProp=aProp.getTkPropagator()->clone();
     if (aProp.theGenProp)
@@ -153,7 +153,7 @@ bool SmartPropagator::insideTkVol(const FreeTrajectoryState& fts) const {
 
 bool SmartPropagator::insideTkVol(const Surface& surface) const {
 
-  GlobalPoint gp = surface.position();
+  const GlobalPoint& gp = surface.position();
  // LocalPoint lp = theTkVolume()->toLocal(gp);
 
  // return theTkVolume()->bounds().inside(lp);
@@ -176,7 +176,7 @@ bool SmartPropagator::insideTkVol( const BoundCylinder& cylin)  const {
 
 bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 
-  GlobalPoint gp = plane.position();
+  const GlobalPoint& gp = plane.position();
 //  LocalPoint lp = theTkVolume()->toLocal(gp);
 //  return theTkVolume()->bounds().inside(lp);
   return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );

@@ -31,12 +31,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -60,13 +54,7 @@
 
 namespace fireworks {
 
-static const double MICRON = 1./1000./10.;
-static const double PITCHX = 100*MICRON;
-static const double PITCHY = 150*MICRON;
-static const int BIG_PIX_PER_ROC_Y = 2;  // in y direction, cols
-static const int COLS_PER_ROC      = 52; // Num of Rows per ROC
-static const int ROWS_PER_ROC      = 80; // Num of cols per ROC
-static const int BIG_PIX_PER_ROC_X = 1;  // in x direction, rows
+static const double MICRON = 1./1000./1000.;
 
 // -- Si module names for printout
 static const std::string subdets[7] = { "UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
@@ -165,128 +153,105 @@ prepareTrack( const reco::Track& track,
    return trk;
 }
 
+//==============================================================================
+
 // Transform measurement to local coordinates in X dimension
 float
-pixelLocalX( const double mpx, const int nrows )
+pixelLocalX( const double mpx, const float* par )
 {
-  // Calculate the edge of the active sensor with respect to the center,
-  // that is simply the half-size.       
-  // Take into account large pixels
-  const double xoffset = -( nrows + BIG_PIX_PER_ROC_X * nrows / ROWS_PER_ROC ) / 2. * PITCHX;
-
-  // Measurement to local transformation for X coordinate
-  // X coordinate is in the ROC row number direction
-  // Copy from RectangularPixelTopology::localX implementation
-   int binoffx = int(mpx);             // truncate to int
-   double fractionX = mpx - binoffx;   // find the fraction
-   double local_PITCHX = PITCHX;       // defaultpitch
-   if( binoffx > 80 ) {                // ROC 1 - handles x on edge cluster
-      binoffx = binoffx + 2;
-   } else if( binoffx == 80 ) {        // ROC 1
-      binoffx = binoffx+1;
-      local_PITCHX = 2 * PITCHX;
-   } else if( binoffx == 79 ) {        // ROC 0
-      binoffx = binoffx + 0;
-      local_PITCHX = 2 * PITCHX;
-   } else if( binoffx >= 0 ) {         // ROC 0
-      binoffx = binoffx + 0;
+   float xoffset = 0;
+   float xpitch  = 0;
+   // std::cerr << "version pr0d " << fireworks::Context::getInstance()->getGeom()->getProducerVersion() << "\n";
+   if (fireworks::Context::getInstance() && fireworks::Context::getInstance()->getGeom()->getProducerVersion() < 1)
+   {
+      
+      static const int ROWS_PER_ROC      = 80; // Num of cols per ROC
+      static const int BIG_PIX_PER_ROC_X = 1;  // in x direction, rows
+      static const double PITCHX = 100*MICRON;
+      // Calculate the edge of the active sensor with respect to the center,
+      // that is simply the half-size.       
+      // Take into account large pixels
+      xpitch = PITCHX;
+      xoffset = -( par[0] + BIG_PIX_PER_ROC_X * par[0] / ROWS_PER_ROC ) / 2. * PITCHX;
+   }
+   else {
+      xpitch  = par[0];
+      xoffset = par[2]; 
    }
 
+   bool bigPixelsLayout = par[4];
+
+   int binoffx = int(mpx);             // truncate to int
+   double fractionX = mpx - binoffx;   // find the fraction
+   double local_xpitch = xpitch;       // defaultpitch
+   
+   if (bigPixelsLayout == 0) {
+      // Measurement to local transformation for X coordinate
+      // X coordinate is in the ROC row number direction
+      // Copy from RectangularPixelTopology::localX implementation
+      if( binoffx > 80 ) {                // ROC 1 - handles x on edge cluster
+         binoffx = binoffx + 2;
+      } else if( binoffx == 80 ) {        // ROC 1
+         binoffx = binoffx+1;
+         local_xpitch = 2 * xpitch;
+      } else if( binoffx == 79 ) {        // ROC 0
+         binoffx = binoffx + 0;
+         local_xpitch = 2 * xpitch;
+      } else if( binoffx >= 0 ) {         // ROC 0
+         binoffx = binoffx + 0;
+      }
+   }
+   
    // The final position in local coordinates
-   double lpX = double( binoffx * PITCHX ) + fractionX * local_PITCHX + xoffset;
+   double lpX = double( binoffx * xpitch ) + fractionX * local_xpitch + xoffset;
 
    return lpX;
 }
 
+//==============================================================================
+
+
 // Transform measurement to local coordinates in Y dimension
 float
-pixelLocalY( const double mpy, const int ncols )
+pixelLocalY( const double mpy, const float* par )
 {
-  // Calculate the edge of the active sensor with respect to the center,
-  // that is simply the half-size.       
-  // Take into account large pixels
-  double yoffset = -( ncols + BIG_PIX_PER_ROC_Y * ncols / COLS_PER_ROC ) / 2. * PITCHY;
+   float ypitch = 0;
+   float yoffset = 0;
+   if (fireworks::Context::getInstance() && fireworks::Context::getInstance()->getGeom()->getProducerVersion() < 1)
+   {
+      static const double PITCHY = 150*MICRON;
+      static const int BIG_PIX_PER_ROC_Y = 2;  // in y direction, cols
+      static const int COLS_PER_ROC      = 52; // Num of Rows per ROC
 
+      // Calculate the edge of the active sensor with respect to the center,
+      // that is simply the half-size.       
+      // Take into account large pixels
+      yoffset = -( par[1] + BIG_PIX_PER_ROC_Y * par[1] / COLS_PER_ROC ) / 2. * PITCHY;
+      ypitch = PITCHY;
+   }
+   else
+   {
+      ypitch  = par[1];
+      yoffset = par[3];
+   }
   // Measurement to local transformation for Y coordinate
   // Y is in the ROC column number direction
   // Copy from RectangularPixelTopology::localY implementation
   int binoffy = int( mpy );           // truncate to int
   double fractionY = mpy - binoffy;   // find the fraction
-  double local_PITCHY = PITCHY;       // defaultpitch
+  double local_pitchy = ypitch;       // defaultpitch
 
-  if( binoffy>416 ) {                 // ROC 8, not real ROC
-    binoffy = binoffy+17;
-  } else if( binoffy == 416 ) {       // ROC 8
-    binoffy = binoffy + 16;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 415 ) {       // ROC 7, last big pixel
-    binoffy = binoffy + 15;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 364 ) {        // ROC 7
-    binoffy = binoffy + 15;
-  } else if( binoffy == 364 ) {       // ROC 7
-    binoffy = binoffy + 14;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 363 ) {       // ROC 6
-    binoffy = binoffy + 13;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 312 ) {        // ROC 6
-    binoffy = binoffy + 13;
-  } else if( binoffy == 312 ) {       // ROC 6
-    binoffy = binoffy + 12;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 311 ) {       // ROC 5
-    binoffy = binoffy + 11;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 260 ) {        // ROC 5
-    binoffy = binoffy + 11;
-  } else if( binoffy == 260 ) {       // ROC 5
-    binoffy = binoffy + 10;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 259 ) {       // ROC 4
-    binoffy = binoffy + 9;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 208 ) {        // ROC 4
-    binoffy = binoffy + 9;
-  } else if(binoffy == 208 ) {        // ROC 4
-    binoffy = binoffy + 8;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 207 ) {       // ROC 3
-    binoffy = binoffy + 7;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 156 ) {        // ROC 3
-    binoffy = binoffy + 7;
-  } else if( binoffy == 156 ) {       // ROC 3
-    binoffy = binoffy + 6;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 155 ) {       // ROC 2
-    binoffy = binoffy + 5;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 104 ) {        // ROC 2
-    binoffy = binoffy + 5;
-  } else if( binoffy == 104 ) {       // ROC 2
-    binoffy = binoffy + 4;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 103 ) {       // ROC 1
-    binoffy = binoffy + 3;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 52 ) {         // ROC 1
-    binoffy = binoffy + 3;
-  } else if( binoffy == 52 ) {        // ROC 1
-    binoffy = binoffy + 2;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy == 51 ) {        // ROC 0
-    binoffy = binoffy + 1;
-    local_PITCHY = 2 * PITCHY;
-  } else if( binoffy > 0 ) {          // ROC 0
-    binoffy=binoffy + 1;
-  } else if( binoffy == 0 ) {         // ROC 0
-    binoffy = binoffy + 0;
-    local_PITCHY = 2 * PITCHY;
-  }
+
+   bool bigPixelsLayout = par[4];
+   if (bigPixelsLayout == 0) {
+      constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
+      auto const j = std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),binoffy);
+      if (*j==binoffy) local_pitchy  *= 2 ;
+      binoffy += (j-bigYIndeces);            
+   }
 
   // The final position in local coordinates
-  double lpY = double( binoffy * PITCHY ) + fractionY * local_PITCHY + yoffset;
+  double lpY = double( binoffy * ypitch ) + fractionY * local_pitchy + yoffset;
 
   return lpY;
 }
@@ -363,7 +328,7 @@ setupAddElement(TEveElement* el, TEveElement* parent, const FWEventItem* item, b
 
 const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* rechit )
 {
-   const SiStripCluster* cluster = 0;
+   const SiStripCluster* cluster = nullptr;
 
    if( const SiStripRecHit2D* hit2D = dynamic_cast<const SiStripRecHit2D*>( rechit ))
    {     
@@ -371,7 +336,7 @@ const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* re
       
 	 cluster = hit2D->cluster().get();
    }
-   if( cluster == 0 )
+   if( cluster == nullptr )
    {
      if( const SiStripRecHit1D* hit1D = dynamic_cast<const SiStripRecHit1D*>( rechit ))
      {
@@ -389,7 +354,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
    // master is true if the product is for proxy builder
    const FWGeometry *geom = iItem->getGeom();
 
-   const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
+   const edmNew::DetSetVector<SiStripCluster> * allClusters = nullptr;
    if( addNearbyClusters )
    {
       for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
@@ -440,7 +405,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 
       if( cluster )
       {
-         if( allClusters != 0 )
+         if( allClusters != nullptr )
          {
             const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rechit->geographicalId().rawId()];
 
@@ -504,7 +469,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
       }
       else if( !rechit->isValid() && ( rawid != 0 )) // lost hit
       {
-         if( allClusters != 0 )
+         if( allClusters != nullptr )
 	 {
             edmNew::DetSetVector<SiStripCluster>::const_iterator itds = allClusters->find( rawid );
             if( itds != allClusters->end())
@@ -552,7 +517,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 void
 pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t )
 {
-   const edmNew::DetSetVector<SiPixelCluster> * allClusters = 0;
+   const edmNew::DetSetVector<SiPixelCluster> * allClusters = nullptr;
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it)
    {
       if( typeid(**it) == typeid( SiPixelRecHit ))
@@ -567,7 +532,7 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
 	 }
       }
    }
-   if( allClusters == 0 ) return;
+   if( allClusters == nullptr ) return;
 
    const FWGeometry *geom = iItem.getGeom();
 
@@ -589,7 +554,7 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
       unsigned int subdet = (unsigned int)id.subdetId();
       if(( subdet != PixelSubdetector::PixelBarrel ) && ( subdet != PixelSubdetector::PixelEndcap )) continue;
 
-      const SiPixelCluster* hitCluster = 0;
+      const SiPixelCluster* hitCluster = nullptr;
       if( const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>( rh ))
 	 hitCluster = pixel->cluster().get();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());
@@ -662,10 +627,10 @@ pushPixelCluster( std::vector<TVector3> &pixelPoints, const FWGeometry &geom, De
    float lx = 0.;
    float ly = 0.;
    
-   int nrows = (int)pars[0];
-   int ncols = (int)pars[1];
-   lx = pixelLocalX( row, nrows );
-   ly = pixelLocalY( col, ncols );
+   // int nrows = (int)pars[0];
+   // int ncols = (int)pars[1];
+   lx = pixelLocalX( row, pars );
+   ly = pixelLocalY( col, pars );
 
    fwLog( fwlog::kDebug )
       << ", row: " << row << ", col: " << col 
@@ -697,38 +662,7 @@ info(const DetId& id) {
    switch ( id.det() ) {
     
       case DetId::Tracker:
-         switch ( id.subdetId() ) {
-            case StripSubdetector::TIB:
-	    {
-	       oss <<"TIB "<<TIBDetId(id).layer();
-	    }
-	    break;
-            case StripSubdetector::TOB:
-	    {
-	       oss <<"TOB "<<TOBDetId(id).layer();
-	    }
-	    break;
-            case StripSubdetector::TEC:
-	    {
-	       oss <<"TEC "<<TECDetId(id).wheel();
-	    }
-	    break;
-            case StripSubdetector::TID:
-	    {
-	       oss <<"TID "<<TIDDetId(id).wheel();
-	    }
-	    break;
-            case (int) PixelSubdetector::PixelBarrel:
-	    {
-	       oss <<"PixBarrel "<< PXBDetId(id).layer();
-	    }
-	    break;
-            case (int) PixelSubdetector::PixelEndcap:
-	    {
-	       oss <<"PixEndcap "<< PXBDetId(id).layer();
-	    }
-	    break;
-	 }
+         oss << fireworks::Context::getInstance()->getGeom()->getTrackerTopology()->print(id.rawId());
 	 break;
 
       case DetId::Muon:

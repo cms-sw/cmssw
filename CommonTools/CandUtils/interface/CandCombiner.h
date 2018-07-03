@@ -130,19 +130,19 @@ public:
 
 private:
   /// select a candidate
-  virtual bool select(const reco::Candidate & c) const {
+  bool select(const reco::Candidate & c) const override {
     return select_(c);
   } 
   /// select a candidate
-  virtual bool selectPair(const reco::Candidate & c1, const reco::Candidate & c2) const {
+  bool selectPair(const reco::Candidate & c1, const reco::Candidate & c2) const override {
     return selectPair_(c1, c2);
   } 
   /// set kinematics to reconstructed composite
-  virtual void setup(typename OutputCollection::value_type & c) const {
+  void setup(typename OutputCollection::value_type & c) const override {
     setup_.set(c);
   }
   /// add candidate daughter
-  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string name = "") const {
+  void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string name = "") const override {
     Cloner::addDaughter(cmp, c, name);
   }
   /// candidate selector

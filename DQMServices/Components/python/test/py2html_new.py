@@ -23,23 +23,23 @@ class visitor:
         self.t = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
         
     def enter(self, value):
-        if type(value) == cms.Sequence:
+        if isinstance(value, cms.Sequence):
             self.out.write('<ol><div class=sequence>%s</div>\n' % value.label())
             self.level_ +=1
             self.level[self.level_] = 0
         else:
-            if type(value) == cms.EDAnalyzer:
+            if isinstance(value, cms.EDAnalyzer):
                 self.out.write( '<li>EDAnalyzer ' )
-            elif type(value) == cms.EDProducer:
+            elif isinstance(value, cms.EDProducer):
                 self.out.write( '<li>EDProducer ' )
-            elif type(value) == cms.EDFilter:
+            elif isinstance(value, cms.EDFilter):
                 self.out.write( '<li>EDFilter ' )
             mem = self.dumpProducerOrFilter(value)
             for i in range(len(mem)):
                 self.t[i] += int(mem[i])
                 self.level[self.level_] += int(mem[i])
     def leave(self, value):
-        if type(value) == cms.Sequence:
+        if isinstance(value, cms.Sequence):
             self.out.write('(%s, %s, %s, %s, %s) %f [%f] - %s' % (prettyInt(self.t[0]),\
                                                                   prettyInt(self.t[1]),\
                                                                   prettyInt(self.t[2]),\

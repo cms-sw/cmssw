@@ -46,7 +46,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     verbosity_ = ( cfg.exists("verbosity") ) ?
       cfg.getParameter<int>("verbosity") : 0;
   }
-  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() {}
+  ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override {}
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
   {

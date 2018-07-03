@@ -38,8 +38,8 @@
 namespace edm {
 
   // Constructor
-  MixingModule::MixingModule(const edm::ParameterSet& ps_mix) :
-  BMixingModule(ps_mix),
+  MixingModule::MixingModule(const edm::ParameterSet& ps_mix, MixingCache::Config const* globalConf) :
+  BMixingModule(ps_mix, globalConf),
   inputTagPlayback_(),
   mixProdStep2_(ps_mix.getParameter<bool>("mixProdStep2")),
   mixProdStep1_(ps_mix.getParameter<bool>("mixProdStep1")),
@@ -65,6 +65,11 @@ namespace edm {
       inputTagPlayback_ = InputTag(labelPlayback, "", edm::InputTag::kSkipCurrentProcess);
       consumes<CrossingFramePlaybackInfoNew>(inputTagPlayback_);
     }
+    wrapLongTimes_ = false;
+    if (ps_mix.exists("WrapLongTimes")) {
+      wrapLongTimes_ = ps_mix.getParameter<bool>("WrapLongTimes");
+    }
+
 
     ParameterSet ps=ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
@@ -81,11 +86,11 @@ namespace edm {
 
           if (object=="SimTrack") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector(),wrapLongTimes_));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -98,13 +103,13 @@ namespace edm {
 
           } else if (object=="RecoTrack") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector(),wrapLongTimes_));
 	    // note: no crossing frame is foreseen to be used for this object type
 	    
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -112,11 +117,11 @@ namespace edm {
 
           } else if (object=="SimVertex") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector(),wrapLongTimes_));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -129,19 +134,25 @@ namespace edm {
 
           } else if (object=="HepMCProduct") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
-              workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
+              workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,tags));
               produces<CrossingFrame<HepMCProduct> >(label);
             }
 	    consumes<HepMCProduct>(tag);
 
             LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
             //            std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
+            for(size_t i = 1; i < tags.size(); ++i) { 
+              InputTag fallbackTag = tags[i];
+              std::string fallbackLabel;
+              branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),fallbackTag,fallbackLabel);
+              mayConsume<HepMCProduct>(fallbackTag);
+            }
 
           } else if (object=="PCaloHit") {
             std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
@@ -154,7 +165,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
-              adjustersObjects_.push_back(new Adjuster<std::vector<PCaloHit> >(tag, consumesCollector()));
+              adjustersObjects_.push_back(new Adjuster<std::vector<PCaloHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PCaloHit> >(label);
@@ -170,6 +181,8 @@ namespace edm {
             std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
             std::vector<std::string> crossingFrames=pset.getUntrackedParameter<std::vector<std::string> >("crossingFrames", std::vector<std::string>());
             sort_all(crossingFrames);
+            std::vector<std::string> pcrossingFrames=pset.getUntrackedParameter<std::vector<std::string> >("pcrossingFrames", std::vector<std::string>());
+            sort_all(pcrossingFrames);
             for (unsigned int ii=0;ii<subdets.size();++ii) {
               InputTag tag;
               if (tags.size()==1) tag=tags[0];
@@ -177,10 +190,14 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
-              adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector()));
+              adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
-                workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
+                bool makePCrossingFrame = binary_search_all(pcrossingFrames, tag.instance());
+                workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF, makePCrossingFrame));
                 produces<CrossingFrame<PSimHit> >(label);
+                if(makePCrossingFrame) {
+                  produces<PCrossingFrame<PSimHit> >(label);
+                }
                 consumes<std::vector<PSimHit> >(tag);
               }
 
@@ -213,9 +230,12 @@ namespace edm {
     std::vector<std::string> digiNames = digiPSet.getParameterNames();
     for(auto const& digiName : digiNames) {
         ParameterSet const& pset = digiPSet.getParameterSet(digiName);
-        std::auto_ptr<DigiAccumulatorMixMod> accumulator = std::auto_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
+	if(pset.existsAs<edm::InputTag>("HepMCProductLabel")) {
+	  consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCProductLabel"));
+	}
+        std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
         // Create appropriate DigiAccumulator
-        if(accumulator.get() != 0) {
+        if(accumulator.get() != nullptr) {
           digiAccumulators_.push_back(accumulator.release());
         }
     }
@@ -317,6 +337,7 @@ namespace edm {
       adjuster->doOffset(bunchSpace_, bunchCrossing, eventPrincipal, &moduleCallingContext, eventId, vertexOffset);
     }
     PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing);
+
     accumulateEvent(pep, setup, streamID);
 
     for (auto const& worker : workers_) {
@@ -368,6 +389,65 @@ namespace edm {
       source0->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_, e.streamID());
 
     }
+
+    // pre-populate Pileup information
+    // necessary for luminosity-dependent effects during hit accumulation
+
+    std::vector<int> numInteractionList;
+    std::vector<int> bunchCrossingList;
+    std::vector<float> TrueInteractionList;
+    std::vector<edm::EventID> eventInfoList; // will be empty if we pre-populate, but it's not used in digitizers
+
+    if(!playback_) {
+
+      //Makin' a list: Basically, we don't care about the "other" sources at this point.
+      for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+	bunchCrossingList.push_back(bunchCrossing);
+	if(!inputSources_[0] || !inputSources_[0]->doPileUp(0)) {
+	  numInteractionList.push_back(0);
+	  TrueInteractionList.push_back(0);
+	}
+	else {
+	  numInteractionList.push_back(PileupList[bunchCrossing-minBunch_]);
+	  TrueInteractionList.push_back((TrueNumInteractions_)[bunchCrossing-minBunch_]);
+	}
+      }
+    }
+    else{ // have to read PU information from playback info
+      for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
+	bunchCrossingList.push_back(bunchIdx);
+	for (size_t readSrcIdx=0; readSrcIdx<maxNbSources_; ++readSrcIdx) {
+                                                                      
+	  if(oldFormatPlayback) {
+	    std::vector<edm::EventID> const& playEventID = oldFormatPlaybackInfo_H->getStartEventId(readSrcIdx, bunchIdx);
+	    size_t numberOfEvents = playEventID.size();
+	    if(readSrcIdx == 0) {
+	      PileupList.push_back(numberOfEvents);
+	      TrueNumInteractions_.push_back(numberOfEvents);
+	      numInteractionList.push_back(numberOfEvents);
+	      TrueInteractionList.push_back(numberOfEvents);
+	    }
+	  } else {
+	    size_t numberOfEvents = playbackInfo_H->getNumberOfEvents(bunchIdx, readSrcIdx);
+	    if(readSrcIdx == 0) {
+	      PileupList.push_back(numberOfEvents);
+	      TrueNumInteractions_.push_back(numberOfEvents);
+	      numInteractionList.push_back(numberOfEvents);
+	      TrueInteractionList.push_back(numberOfEvents);
+	    }
+	  }
+	}
+      }
+    }
+
+    for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
+	(*accItr)->StorePileupInformation( bunchCrossingList,
+					   numInteractionList,
+					   TrueInteractionList,
+					   eventInfoList,
+					   bunchSpace_);
+    }
+
 
     //    for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
     //  std::cout << " bunch ID, Pileup, True " << bunchIdx << " " << PileupList[bunchIdx-minBunch_] << " " <<  TrueNumInteractions_[bunchIdx-minBunch_] << std::endl;
@@ -443,9 +523,8 @@ namespace edm {
         (*accItr)->finalizeBunchCrossing(e, setup, bunchIdx);
       }
     }
-    // Save playback information
 
-    std::vector<edm::EventID> eventInfoList;
+    // Save playback information
     for (auto const item : recordEventID) {
       eventInfoList.emplace_back(item.eventID());
     }
@@ -455,41 +534,16 @@ namespace edm {
 
     // Keep track of pileup accounting...
 
-    std::auto_ptr<PileupMixingContent> PileupMixing_;
 
-    std::vector<int> numInteractionList;
-    std::vector<int> bunchCrossingList;
-    std::vector<float> TrueInteractionList;
+    std::unique_ptr<PileupMixingContent> PileupMixing_;
 
-    //Makin' a list: Basically, we don't care about the "other" sources at this point.
-    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-      bunchCrossingList.push_back(bunchCrossing);
-      if(!inputSources_[0] || !inputSources_[0]->doPileUp(0)) {
-        numInteractionList.push_back(0);
-        TrueInteractionList.push_back(0);
-      }
-      else {
-        numInteractionList.push_back(PileupList[bunchCrossing-minBunch_]);
-        TrueInteractionList.push_back((TrueNumInteractions_)[bunchCrossing-minBunch_]);
-      }
-    }
-
-    for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
-      (*accItr)->StorePileupInformation( bunchCrossingList,
-					 numInteractionList,
-					 TrueInteractionList,
-					 eventInfoList,
-					 bunchSpace_);
-    }
-
-
-    PileupMixing_ = std::auto_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
+    PileupMixing_ = std::unique_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
                                                                                numInteractionList,
                                                                                TrueInteractionList,
 									       eventInfoList,
 									       bunchSpace_));
 
-    e.put(PileupMixing_);
+    e.put(std::move(PileupMixing_));
 
     // we have to do the ToF transformation for PSimHits once all pileup has been added
     for (unsigned int ii=0;ii<workers_.size();++ii) {
@@ -501,8 +555,8 @@ namespace edm {
   void MixingModule::put(edm::Event &e, const edm::EventSetup& setup) {
 
     if (playbackInfo_) {
-      std::auto_ptr<CrossingFramePlaybackInfoNew> pOut(playbackInfo_);
-      e.put(pOut);
+      std::unique_ptr<CrossingFramePlaybackInfoNew> pOut(playbackInfo_);
+      e.put(std::move(pOut));
     }
   }
 

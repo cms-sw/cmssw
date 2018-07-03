@@ -8,9 +8,9 @@
  * 
  */
 
-#include <FWCore/PluginManager/interface/PluginFactory.h>
-#include <RecoLocalMuon/GEMSegment/plugins/ME0SegmentAlgorithm.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentAlgorithmBase.h"
 
-typedef edmplugin::PluginFactory<ME0SegmentAlgorithm *(const edm::ParameterSet&)> ME0SegmentBuilderPluginFactory;
+typedef edmplugin::PluginFactory<ME0SegmentAlgorithmBase *(const edm::ParameterSet&)> ME0SegmentBuilderPluginFactory;
 
 #endif

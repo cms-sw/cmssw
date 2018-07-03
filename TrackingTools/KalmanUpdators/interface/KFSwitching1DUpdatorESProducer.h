@@ -11,15 +11,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/KFSwitching1DUpdator.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  KFSwitching1DUpdatorESProducer: public edm::ESProducer{
  public:
   KFSwitching1DUpdatorESProducer(const edm::ParameterSet & p);
-  virtual ~KFSwitching1DUpdatorESProducer(); 
-  boost::shared_ptr<TrajectoryStateUpdator> produce(const TrackingComponentsRecord &);
+  ~KFSwitching1DUpdatorESProducer() override; 
+  std::unique_ptr<TrajectoryStateUpdator> produce(const TrackingComponentsRecord &);
  private:
-  boost::shared_ptr<TrajectoryStateUpdator> _updator;
   edm::ParameterSet pset_;
 };
 

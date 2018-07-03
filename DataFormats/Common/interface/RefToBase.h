@@ -44,9 +44,7 @@ reference type.
 #include "DataFormats/Common/interface/RefHolder.h"
 
 #include <memory>
-#ifndef __GCCXML__
 #include <type_traits>
-#endif
 
 namespace edm {
   //--------------------------------------------------------------------
@@ -71,20 +69,21 @@ namespace edm {
 
     RefToBase();
     RefToBase(RefToBase const& other);
+    RefToBase(RefToBase && other) noexcept;
+    RefToBase & operator=(RefToBase && other) noexcept;
+
     template <typename C1, typename T1, typename F1>
     explicit RefToBase(Ref<C1, T1, F1> const& r);
     template <typename C>
     explicit RefToBase(RefProd<C> const& r);
     RefToBase(RefToBaseProd<T> const& r, size_t i);
     RefToBase(Handle<View<T> > const& handle, size_t i);
-#ifndef __GCCXML__
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
     RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>>);
-#endif
     RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
 
-    ~RefToBase();
+    ~RefToBase() noexcept;
 
     RefToBase& operator= (RefToBase const& rhs);
 
@@ -106,7 +105,7 @@ namespace edm {
 
     void swap(RefToBase& other);
 
-    std::auto_ptr<reftobase::RefHolderBase> holder() const;
+    std::unique_ptr<reftobase::RefHolderBase> holder() const;
 
     EDProductGetter const* productGetter() const;
 
@@ -133,14 +132,26 @@ namespace edm {
   template <class T>
   inline
   RefToBase<T>::RefToBase() :
-    holder_(0)
+    holder_(nullptr)
   { }
 
   template <class T>
   inline
   RefToBase<T>::RefToBase(RefToBase const& other) :
-    holder_(other.holder_  ? other.holder_->clone() : 0)
+    holder_(other.holder_  ? other.holder_->clone() : nullptr)
   { }
+
+  template <class T>
+  inline
+  RefToBase<T>::RefToBase(RefToBase && other) noexcept :
+    holder_(other.holder_) { other.holder_=nullptr;}
+
+  template <class T>
+  inline
+  RefToBase<T>& RefToBase<T>::operator=(RefToBase && other) noexcept {
+    delete holder_; holder_=other.holder_; other.holder_=nullptr; return *this;
+  }
+
 
   template <class T>
   template <typename C1, typename T1, typename F1>
@@ -156,7 +167,6 @@ namespace edm {
     holder_(new reftobase::Holder<T,RefProd<C> >(iRef))
   { }
 
-#ifndef __GCCXML__
   template <class T>
   template <typename T1>
   inline
@@ -178,7 +188,6 @@ namespace edm {
   RefToBase<T>::RefToBase(std::unique_ptr<reftobase::BaseHolder<value_type>> p):
     holder_(p.release())
   {}
-#endif
 
   template <class T>
   inline
@@ -188,7 +197,7 @@ namespace edm {
 
   template <class T>
   inline
-  RefToBase<T>::~RefToBase()
+  RefToBase<T>::~RefToBase() noexcept
   {
     delete holder_;
   }
@@ -240,14 +249,13 @@ namespace edm {
   size_t
   RefToBase<T>::key() const
   {
-    if ( holder_ == 0 )
+    if ( holder_ == nullptr )
 	Exception::throwThis(errors::InvalidReference,
 	  "attempting get key from  null RefToBase;\n"
 	  "You should check for nullity before calling key().");
     return  holder_->key();
   }
 
-#ifndef __GCCXML__
   namespace {
     // If the template parameters are classes or structs they should be
     // related by inheritance, otherwise they should be the same type.
@@ -312,7 +320,6 @@ namespace edm {
                          );
     return REF();
   }
-#endif
 
   /// Checks for null
   template <class T>
@@ -378,12 +385,12 @@ namespace edm {
   T const*
   RefToBase<T>::getPtrImpl() const
   {
-    return holder_ ? holder_->getPtr() : 0;
+    return holder_ ? holder_->getPtr() : nullptr;
   }
 
   template <class T>
-  std::auto_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
-    return holder_? holder_->holder() : std::auto_ptr<reftobase::RefHolderBase>();
+  std::unique_ptr<reftobase::RefHolderBase> RefToBase<T>::holder() const {
+    return holder_? holder_->holder() : std::unique_ptr<reftobase::RefHolderBase>();
   }
 
   // Free swap function

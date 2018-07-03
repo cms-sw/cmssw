@@ -25,9 +25,7 @@ DQMDcsInfoClient::DQMDcsInfoClient( const edm::ParameterSet& ps ) {
 }
 
 
-DQMDcsInfoClient::~DQMDcsInfoClient() {
-
-}
+DQMDcsInfoClient::~DQMDcsInfoClient() = default;
 
 void 
 DQMDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c) 
@@ -103,37 +101,37 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
   if (reportSummaryMap_) dbe_->removeElement(reportSummaryMap_->getName());
 
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
-                     "HV and GT vs Lumi", nlsmax, 1., nlsmax+1, 25, 0., 25.);
+                     "HV and GT vs Lumi", nlsmax, 0., nlsmax, 25, 0., 25.);
   unsigned int lastProcessedLS = *(--processedLS_.end());
   meProcessedLS_ = dbe_->book1D("ProcessedLS",
 				"Processed Lumisections",
 				lastProcessedLS+1,
 				0.,lastProcessedLS+1);
-  reportSummaryMap_->setBinLabel(1," CSC+",2);   
-  reportSummaryMap_->setBinLabel(2," CSC-",2);   
-  reportSummaryMap_->setBinLabel(3," DT0",2);    
-  reportSummaryMap_->setBinLabel(4," DT+",2);    
-  reportSummaryMap_->setBinLabel(5," DT-",2);    
-  reportSummaryMap_->setBinLabel(6," EB+",2);    
-  reportSummaryMap_->setBinLabel(7," EB-",2);    
-  reportSummaryMap_->setBinLabel(8," EE+",2);    
-  reportSummaryMap_->setBinLabel(9," EE-",2);    
-  reportSummaryMap_->setBinLabel(10,"ES+",2);    
-  reportSummaryMap_->setBinLabel(11,"ES-",2);   
-  reportSummaryMap_->setBinLabel(12,"HBHEa",2); 
-  reportSummaryMap_->setBinLabel(13,"HBHEb",2); 
-  reportSummaryMap_->setBinLabel(14,"HBHEc",2); 
-  reportSummaryMap_->setBinLabel(15,"HF",2);    
-  reportSummaryMap_->setBinLabel(16,"HO",2);    
-  reportSummaryMap_->setBinLabel(17,"BPIX",2);  
-  reportSummaryMap_->setBinLabel(18,"FPIX",2);  
-  reportSummaryMap_->setBinLabel(19,"RPC",2);   
-  reportSummaryMap_->setBinLabel(20,"TIBTID",2);
-  reportSummaryMap_->setBinLabel(21,"TOB",2);   
-  reportSummaryMap_->setBinLabel(22,"TECp",2);  
-  reportSummaryMap_->setBinLabel(23,"TECm",2);  
-  reportSummaryMap_->setBinLabel(24,"CASTOR",2);
-  reportSummaryMap_->setBinLabel(25,"PhysDecl",2);
+  reportSummaryMap_->setBinLabel( 1, "CSC+"    , 2);
+  reportSummaryMap_->setBinLabel( 2, "CSC-"    , 2);
+  reportSummaryMap_->setBinLabel( 3, "DT0"     , 2);
+  reportSummaryMap_->setBinLabel( 4, "DT+"     , 2);
+  reportSummaryMap_->setBinLabel( 5, "DT-"     , 2);
+  reportSummaryMap_->setBinLabel( 6, "EB+"     , 2);
+  reportSummaryMap_->setBinLabel( 7, "EB-"     , 2);
+  reportSummaryMap_->setBinLabel( 8, "EE+"     , 2);
+  reportSummaryMap_->setBinLabel( 9, "EE-"     , 2);
+  reportSummaryMap_->setBinLabel(10, "ES+"     , 2);
+  reportSummaryMap_->setBinLabel(11, "ES-"     , 2);
+  reportSummaryMap_->setBinLabel(12, "HBHEa"   , 2);
+  reportSummaryMap_->setBinLabel(13, "HBHEb"   , 2);
+  reportSummaryMap_->setBinLabel(14, "HBHEc"   , 2);
+  reportSummaryMap_->setBinLabel(15, "HF"      , 2);
+  reportSummaryMap_->setBinLabel(16, "HO"      , 2);
+  reportSummaryMap_->setBinLabel(17, "BPIX"    , 2);
+  reportSummaryMap_->setBinLabel(18, "FPIX"    , 2);
+  reportSummaryMap_->setBinLabel(19, "RPC"     , 2);
+  reportSummaryMap_->setBinLabel(20, "TIBTID"  , 2);
+  reportSummaryMap_->setBinLabel(21, "TOB"     , 2);
+  reportSummaryMap_->setBinLabel(22, "TECp"    , 2);
+  reportSummaryMap_->setBinLabel(23, "TECm"    , 2);
+  reportSummaryMap_->setBinLabel(24, "CASTOR"  , 2);
+  reportSummaryMap_->setBinLabel(25, "PhysDecl", 2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
 
   // fill

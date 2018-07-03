@@ -1,4 +1,5 @@
 <use   name="SimGeneral/MixingModule"/>
+<use   name="SimGeneral/PreMixingModule"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="FWCore/Framework"/>
@@ -13,6 +14,7 @@
 <use   name="SimGeneral/NoiseGenerators"/>
 <use   name="SimTracker/Common"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="RecoLocalTracker/SiPixelRecHits"/>
 <use   name="gsl"/>
 <use   name="clhep"/>
 <library   file="*.cc" name="SimTrackerSiPixelDigitizerPlugins">

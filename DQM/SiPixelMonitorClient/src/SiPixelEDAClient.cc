@@ -38,10 +38,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 #define BUF_SIZE 256
 
@@ -108,15 +108,15 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 
   if (sipixelInformationExtractor_) {
      delete sipixelInformationExtractor_;
-     sipixelInformationExtractor_ = 0;
+     sipixelInformationExtractor_ = nullptr;
   }
   if (sipixelActionExecutor_) {
      delete sipixelActionExecutor_;
-     sipixelActionExecutor_ = 0;
+     sipixelActionExecutor_ = nullptr;
   }
   if (sipixelDataQuality_) {
      delete sipixelDataQuality_;
-     sipixelDataQuality_ = 0;
+     sipixelDataQuality_ = nullptr;
   }
 
 //  cout<<"...leaving SiPixelEDAClient::~SiPixelEDAClient. "<<endl;
@@ -207,6 +207,8 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
 
+  if(Tier0Flag_) sipixelActionExecutor_->normaliseAvDigiOccVsLumi(iBooker,iGetter,nLumiSecs_);
+
   bool init=true;  
   if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
 
@@ -240,9 +242,14 @@ void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter 
 
     //sipixelActionExecutor_->createSummary(iBooker, iGetter, isUpgrade_);
 
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(iBooker,iGetter, isUpgrade_);
+    if(doHitEfficiency_) {
+      sipixelActionExecutor_->createEfficiency(iBooker,iGetter, isUpgrade_);
+      sipixelActionExecutor_->fillEfficiencySummary(iBooker, iGetter);
+    }
 
     sipixelActionExecutor_->createOccupancy(iBooker,iGetter);
+
+    if(Tier0Flag_) sipixelActionExecutor_->normaliseAvDigiOcc(iBooker,iGetter);
 
     iBooker.cd();
     iGetter.cd();

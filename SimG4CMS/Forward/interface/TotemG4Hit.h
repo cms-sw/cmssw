@@ -33,7 +33,7 @@
 
 #include "G4VHit.hh"
 #include "DataFormats/Math/interface/Point3D.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iostream>
 
 class TotemG4Hit : public G4VHit {
@@ -42,7 +42,7 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemG4Hit();
-  ~TotemG4Hit();
+  ~TotemG4Hit() override;
   TotemG4Hit(const TotemG4Hit &right);
 
   // ---------- operators ----------------------------------
@@ -50,8 +50,8 @@ public:
   int operator==(const TotemG4Hit &){return 0;}
 
   // ---------- member functions ---------------------------
-  void         Draw(){}
-  void         Print();
+  void         Draw() override{}
+  void         Print() override;
 
   math::XYZPoint   getEntry() const;
   void         setEntry(double x, double y, double z)      {entry.SetCoordinates(x,y,z);}

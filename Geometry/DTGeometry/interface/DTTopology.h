@@ -31,32 +31,32 @@ class DTTopology: public Topology {
   /// Constructor: number of first wire, total # of wires in the layer and their lenght
   DTTopology(int firstWire, int nChannels, float semilenght); 
 
-  virtual ~DTTopology() {}
+  ~DTTopology() override {}
   
   /// Conversion between measurement coordinates
   /// and local cartesian coordinates.
-  LocalPoint localPosition( const MeasurementPoint& ) const;
+  LocalPoint localPosition( const MeasurementPoint& ) const override;
 
   /// Conversion between measurement coordinates
   /// and local cartesian coordinates.
-  LocalError localError( const MeasurementPoint&, const MeasurementError& ) const;
+  LocalError localError( const MeasurementPoint&, const MeasurementError& ) const override;
 
   /// Conversion to the measurement frame.
   /// (Caveat: when converting the position of a rechit, there is no
   /// guarantee that the converted value can be interpreted as the cell
   /// where the hit belongs, see note on neighbouring cells in the class
   /// header.
-  MeasurementPoint measurementPosition( const LocalPoint&) const;
+  MeasurementPoint measurementPosition( const LocalPoint&) const override;
 
   /// Conversion to the measurement frame.
-  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const;
+  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const override;
 
   /// Return the wire number, starting from a LocalPoint.
   /// This method is deprecated: when converting the position of a rechit,
   /// there is no guarantee that the converted value can be
   /// interpreted as the cell where the hit belongs, see note on
   /// neighbouring cells in the class header.
-  int channel( const LocalPoint& p) const;
+  int channel( const LocalPoint& p) const override;
 
   /// Returns the x position in the layer of a given wire number.
   float wirePosition(int wireNumber) const;

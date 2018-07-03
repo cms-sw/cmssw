@@ -11,6 +11,7 @@
 
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -22,7 +23,7 @@ namespace edm {
 class EgammaHLTHybridClusterProducer : public edm::EDProducer  {
  public:
   EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTHybridClusterProducer();
+  ~EgammaHLTHybridClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

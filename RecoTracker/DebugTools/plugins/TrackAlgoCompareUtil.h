@@ -55,11 +55,11 @@ class TrackAlgoCompareUtil : public edm::global::EDProducer<>
  public:
    
   explicit TrackAlgoCompareUtil(const edm::ParameterSet&);
-  ~TrackAlgoCompareUtil();
+  ~TrackAlgoCompareUtil() override;
   
  private:
   
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const;
   void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const;

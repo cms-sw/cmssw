@@ -7,7 +7,7 @@
 #else
 #include "CastorCORData.h"
 #endif
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
@@ -17,12 +17,12 @@ using namespace std;
 const int CastorCORData::CHANNELS_PER_SPIGOT         = 36;
 const int CastorCORData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 
-CastorCORData::CastorCORData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
+CastorCORData::CastorCORData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(nullptr), m_ownData(nullptr) { }
 CastorCORData::CastorCORData(const unsigned short* data, int length) {
   adoptData(data,length);
-  m_ownData=0;
+  m_ownData=nullptr;
 }
-CastorCORData::CastorCORData(const CastorCORData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(0) { }
+CastorCORData::CastorCORData(const CastorCORData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(nullptr) { }
 
 CastorCORData::CastorCORData(int version_to_create) : m_formatVersion(version_to_create) {
   allocate(version_to_create);
@@ -39,7 +39,7 @@ void CastorCORData::allocate(int version_to_create) {
 }
 
 CastorCORData& CastorCORData::operator=(const CastorCORData& hd) {
-  if (m_ownData==0) {
+  if (m_ownData==nullptr) {
     m_formatVersion=hd.m_formatVersion;
     m_rawLength=hd.m_rawLength;
     m_rawConst=hd.m_rawConst;
@@ -100,8 +100,8 @@ void CastorCORData::determineStaticLengths(int& headerWords, int& trailerWords, 
 void CastorCORData::unpack(unsigned char* daq_lengths, unsigned short* daq_samples,
 			 unsigned char* tp_lengths, unsigned short* tp_samples) const {
 
-  if (daq_lengths!=0) memset(daq_lengths,0,CHANNELS_PER_SPIGOT);
-  if (tp_lengths!=0) memset(tp_lengths,0,1);
+  if (daq_lengths!=nullptr) memset(daq_lengths,0,CHANNELS_PER_SPIGOT);
+  if (tp_lengths!=nullptr) memset(tp_lengths,0,1);
 
   int tp_words_total = 0;
   int daq_words_total = 0;
@@ -113,7 +113,7 @@ void CastorCORData::unpack(unsigned char* daq_lengths, unsigned short* daq_sampl
   int wordPtr;
   const unsigned short* tpBase=m_rawConst+headerLen;
   // process the trigger primitive words
-  if (tp_lengths!=0) {
+  if (tp_lengths!=nullptr) {
     for (wordPtr=0; wordPtr<tp_words_total; wordPtr++) {
        tp_samples[tp_lengths[0]]=tpBase[wordPtr];
        tp_lengths[0]++;
@@ -126,7 +126,7 @@ void CastorCORData::unpack(unsigned char* daq_lengths, unsigned short* daq_sampl
   int lastCapid=0;
   int ts,dv;
   int tsamples = daq_words_total/24;
-  if (daq_lengths!=0) {
+  if (daq_lengths!=nullptr) {
 	for ( ts = 0; ts < tsamples; ts++ ) {
 		for (int j=0; j<12 ; j++) {
 			dat = daqBase[(ts*12+j)*2]<<16 | daqBase[(ts*12+j)*2+1];
@@ -164,7 +164,7 @@ void CastorCORData::pack(unsigned char* daq_lengths, unsigned short* daq_samples
 
   // trigger words
   unsigned short* ptr=m_ownData+headerLen;
-  if (tp_samples!=0 && tp_lengths!=0) {
+  if (tp_samples!=nullptr && tp_lengths!=nullptr) {
       for (isample=0; isample<tp_lengths[0] && isample<12; isample++) {
 	ptr[tp_words_total]=tp_samples[isample];
 	tp_words_total++;

@@ -28,7 +28,7 @@ int main (int argc, char** argv)
   static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
   static const edm::ServiceRegistry::Operate operate(services);
 
-  std::string connectionString("frontier://FrontierProd/CMS_COND_31X_RUN_INFO");
+  std::string connectionString("frontier://FrontierProd/CMS_CONDITIONS");
   std::cout <<"# Connecting with db in "<<connectionString<<std::endl;
   try{
     //*************

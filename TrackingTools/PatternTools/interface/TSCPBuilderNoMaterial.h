@@ -13,18 +13,18 @@
  * In case the propagation was not successful, this state can be invalid.
  */
 
-class TSCPBuilderNoMaterial GCC11_FINAL : 
+class TSCPBuilderNoMaterial final : 
   public TrajectoryStateClosestToPointBuilder
 {
 public: 
 
-  virtual ~TSCPBuilderNoMaterial(){}
+  ~TSCPBuilderNoMaterial() override{}
 
-  virtual TrajectoryStateClosestToPoint operator() 
-    (const FTS& originalFTS, const GlobalPoint& referencePoint) const;
+  TrajectoryStateClosestToPoint operator() 
+    (const FTS& originalFTS, const GlobalPoint& referencePoint) const override;
 
-  virtual TrajectoryStateClosestToPoint operator() 
-    (const TSOS& originalTSOS, const GlobalPoint& referencePoint) const;
+  TrajectoryStateClosestToPoint operator() 
+    (const TSOS& originalTSOS, const GlobalPoint& referencePoint) const override;
 
 private:
 

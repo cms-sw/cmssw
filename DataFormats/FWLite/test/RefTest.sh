@@ -3,7 +3,6 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
 
 rm -f goodDataFormatsFWLite.root good2DataFormatsFWLite.root emptyDataFormatsFWLite.root
 rm -f other_onlyDataFormatsFWLite.root good_delta5DataFormatsFWLite.root
@@ -20,5 +19,4 @@ cmsRun ${LOCAL_TEST_DIR}/PartialEventTest_cfg.py || die "cmsRun PartialEventTest
 echo RefTestCopyDrop_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/RefTestCopyDrop_cfg.py || die "cmsRun RefTestCopyDrop_cfg.py" $?
 
-popd
 exit 0

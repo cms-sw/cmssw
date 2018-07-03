@@ -1,7 +1,7 @@
 #ifndef CSCSPHeader_h
 #define CSCSPHeader_h
 
-#include <string.h> // memcpy
+#include <cstring> // memcpy
 
 class CSCSPHeader {
 private:

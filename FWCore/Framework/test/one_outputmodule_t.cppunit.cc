@@ -21,12 +21,13 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
-
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -87,7 +88,7 @@ private:
   edm::HistoryAppender historyAppender_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   std::shared_ptr<edm::RunPrincipal> m_rp;
-  std::shared_ptr<edm::ActivityRegistry> m_actReg;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg; // We do not use propagate_const because the registry itself is mutable.
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::WorkerParams m_params;
@@ -106,13 +107,13 @@ private:
     BasicOutputModule(edm::ParameterSet const& iPSet): edm::one::OutputModuleBase(iPSet),edm::one::OutputModule<>(iPSet){}
     unsigned int m_count = 0;
     
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
 
@@ -123,21 +124,21 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     RunOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::one::WatchRuns>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
     
-    void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)  override {
+    void beginRun(edm::RunForOutput const&)  override {
       ++m_count;
     }
 
-    void endRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)  override {
+    void endRun(edm::RunForOutput const&)  override {
       ++m_count;
     }
   };
@@ -148,22 +149,22 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     LumiOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::one::WatchLuminosityBlocks>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
-      ++m_count;
-    }
-    
-    
-    void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*)  override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
     
-    void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&)  override {
+      ++m_count;
+    }
+    
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
   };
@@ -172,13 +173,13 @@ private:
     using edm::one::OutputModuleBase::doPreallocate;
     FileOutputModule(edm::ParameterSet const& iPSet) : edm::one::OutputModuleBase(iPSet), edm::one::OutputModule<edm::WatchInputFiles>(iPSet) {}
     unsigned int m_count = 0;
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
     
@@ -199,13 +200,13 @@ private:
     }
     unsigned int m_count = 0;
     
-    void write(edm::EventPrincipal const&, edm::ModuleCallingContext const*) override {
+    void write(edm::EventForOutput const&) override {
       ++m_count;
     }
-    void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeRun(edm::RunForOutput const&) override {
       ++m_count;
     }
-    void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override {
+    void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override {
       ++m_count;
     }
     
@@ -215,6 +216,9 @@ private:
 };
 
 namespace {
+
+  edm::ActivityRegistry activityRegistry;
+
   struct ShadowStreamID {
     constexpr ShadowStreamID():value(0){}
     unsigned int value;
@@ -251,8 +255,9 @@ m_ep()
   edm::Timestamp now(1234567UL);
   auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
+  edm::LuminosityBlockAuxiliary lumiAux(m_rp->run(), 1, now, now);
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_,0));
+  m_lbp->setAux(lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
@@ -262,11 +267,11 @@ m_ep()
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
-  m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kGlobalOpenInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kGlobalOpenInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToOpenInputFile(fb);
   };
@@ -293,17 +298,29 @@ m_ep()
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_lbp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    iComm->writeLumi(*m_lbp, nullptr);
+    auto t = edm::make_empty_waiting_task();
+    t->increment_ref_count();
+    iComm->writeLumiAsync(edm::WaitingTaskHolder(t.get()), *m_lbp, nullptr, &activityRegistry);
+    t->wait_for_all();
+    if(t->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*t->exceptionPtr());
+    }
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_rp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    iComm->writeRun(*m_rp, nullptr);
+    auto t = edm::make_empty_waiting_task();
+    t->increment_ref_count();
+    iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry);
+    t->wait_for_all();
+    if(t->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*t->exceptionPtr());
+    }
   };
   
-  m_transToFunc[Trans::kGlobalCloseInputFile] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     edm::FileBlock fb;
     iBase->respondToCloseInputFile(fb);
   };
@@ -327,7 +344,7 @@ m_ep()
   proc_pset.addParameter<std::vector<std::string>>("@end_paths", endPaths);
 
   // Now create and setup the service
-  tnsptr_.reset(new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
+  tnsptr_.reset(new w_TNS(std::make_unique<TNS>(proc_pset)));
   
   serviceToken_ = edm::ServiceRegistry::createContaining(tnsptr_);
   
@@ -356,6 +373,7 @@ void
 testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod,m_desc,m_params.actions_};
+  w.beginJob();
   edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,&comm,keyVal.first,iExpect,keyVal.second);
@@ -369,7 +387,7 @@ void testOneOutputModule::basicTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<BasicOutputModule> testProd{ new BasicOutputModule(pset) };
+  auto testProd = std::make_shared<BasicOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
@@ -381,7 +399,7 @@ void testOneOutputModule::runTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<RunOutputModule> testProd{ new RunOutputModule(pset) };
+  auto testProd = std::make_shared<RunOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalEndRun});
@@ -393,7 +411,7 @@ void testOneOutputModule::lumiTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
   edm::ParameterSet pset;
-  std::shared_ptr<LumiOutputModule> testProd{ new LumiOutputModule(pset) };
+  auto testProd = std::make_shared<LumiOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});
@@ -405,7 +423,7 @@ void testOneOutputModule::fileTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::shared_ptr<FileOutputModule> testProd{ new FileOutputModule(pset) };
+  auto testProd = std::make_shared<FileOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalOpenInputFile, Trans::kEvent, Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun, Trans::kGlobalCloseInputFile});
@@ -417,7 +435,7 @@ void testOneOutputModule::resourceTest()
   edm::ServiceRegistry::Operate operate(serviceToken_);
   
   edm::ParameterSet pset;
-  std::shared_ptr<ResourceOutputModule> testProd{ new ResourceOutputModule(pset) };
+  auto testProd = std::make_shared<ResourceOutputModule>(pset);
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent,Trans::kGlobalEndLuminosityBlock, Trans::kGlobalEndRun});

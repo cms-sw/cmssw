@@ -3,6 +3,7 @@
  *  \author N. Amapane - CERN
  *
  *  \modified by R. Radogna & C. Calabria & A. Sharma
+ *  \modified by D. Nash
  */
 
 #include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
@@ -12,11 +13,13 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
+#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
 
 #include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
+#include <RecoMuon/DetLayers/src/MuonME0DetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -36,11 +39,11 @@ MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::Parame
 MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
 
 
-boost::shared_ptr<MuonDetLayerGeometry>
+std::unique_ptr<MuonDetLayerGeometry>
 MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
-  MuonDetLayerGeometry* muonDetLayerGeometry = new MuonDetLayerGeometry();
+  auto muonDetLayerGeometry = std::make_unique<MuonDetLayerGeometry>();
   
   // Build DT layers  
   edm::ESHandle<DTGeometry> dt;
@@ -66,7 +69,16 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   if (gem.isValid()) {
       muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
   } else {
-     LogInfo(metname) << "No GEM geometry is available.";
+    LogInfo(metname) << "No GEM geometry is available.";
+  }
+    
+  // Build ME0 layers
+  edm::ESHandle<ME0Geometry> me0;
+  record.getRecord<MuonGeometryRecord>().get(me0);
+  if (me0.isValid()) {
+    muonDetLayerGeometry->addME0Layers(MuonME0DetLayerGeometryBuilder::buildEndcapLayers(*me0));
+  } else {
+    LogDebug(metname) << "No ME0 geometry is available.";
   }
 
 
@@ -83,5 +95,5 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   // Sort layers properly
   muonDetLayerGeometry->sortLayers();
 
-  return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
+  return muonDetLayerGeometry;
 }

@@ -10,7 +10,7 @@
  */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,30 +23,22 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 
-class FakeTBEventHeaderProducer: public edm::EDProducer{
-
-  
- public:
+class FakeTBEventHeaderProducer: public edm::stream::EDProducer <>
+{  
+public:
   
   /// Constructor
-  FakeTBEventHeaderProducer(const edm::ParameterSet& ps);
+  explicit FakeTBEventHeaderProducer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~FakeTBEventHeaderProducer();
+  ~FakeTBEventHeaderProducer() override;
   
   /// Produce digis out of raw data
-  void produce(edm::Event & event, const edm::EventSetup& eventSetup);
+  void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;
   
-  // BeginJob
-  //void beginJob();
-  
-  // EndJob
-  //void endJob(void);
-  
-
 private:
 
-  std::string ecalTBInfoLabel_;
+  edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
 
 };
 

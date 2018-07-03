@@ -22,6 +22,8 @@
 
 #include <limits>
 
+#include "tbb/task_arena.h"
+
 namespace edm {
 
     /**
@@ -129,10 +131,7 @@ namespace edm {
     assert(inputTree != nullptr);
 
     // Do the split level and basket size match in the input and output?
-    for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
-      it != itEnd; ++it) {
-
-      TBranch* outputBranch = *it;
+    for(auto const& outputBranch : readBranches_) {
       if(outputBranch != nullptr) {
         TBranch* inputBranch = inputTree->GetBranch(outputBranch->GetName());
 
@@ -181,8 +180,8 @@ namespace edm {
     if(inputTree == nullptr) return false;
 
     // Do the sub-branches match in the input and output. Extra sub-branches in the input are OK for fast cloning, but not in the output.
-    for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
-      TBranchElement* outputBranch = dynamic_cast<TBranchElement*>(*it);
+    for(auto const& outputBr : readBranches_) {
+      TBranchElement* outputBranch = dynamic_cast<TBranchElement*>(outputBr);
       if(outputBranch != nullptr) {
         TBranchElement* inputBranch = dynamic_cast<TBranchElement*>(inputTree->GetBranch(outputBranch->GetName()));
         if(inputBranch != nullptr) {
@@ -199,8 +198,8 @@ namespace edm {
   }
 
   bool RootOutputTree::checkEntriesInReadBranches(Long64_t expectedNumberOfEntries) const {
-    for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
-      if((*it)->GetEntries() != expectedNumberOfEntries) {
+    for(auto const& readBranch : readBranches_) {
+      if(readBranch->GetEntries() != expectedNumberOfEntries) {
         return false;
       }
     }
@@ -216,23 +215,20 @@ namespace edm {
       std::map<Int_t, TBranch *> auxIndexes;
       bool mustRemoveSomeAuxs = false;
       if(!fastCloneAuxBranches_) {
-        for(std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
-             it != itEnd; ++it) {
-          int auxIndex = branches->IndexOf(*it);
+        for(auto const& auxBranch : auxBranches_) {
+          int auxIndex = branches->IndexOf(auxBranch);
           assert (auxIndex >= 0);
-          auxIndexes.insert(std::make_pair(auxIndex, *it));
+          auxIndexes.insert(std::make_pair(auxIndex, auxBranch));
           branches->RemoveAt(auxIndex);
         }
         mustRemoveSomeAuxs = true;
       }
 
       //Deal with any aux branches which can never be cloned
-      for(std::vector<TBranch *>::const_iterator it = unclonedAuxBranches_.begin(),
-           itEnd = unclonedAuxBranches_.end();
-           it != itEnd; ++it) {
-        int auxIndex = branches->IndexOf(*it);
+      for(auto const& auxBranch : unclonedAuxBranches_) {
+        int auxIndex = branches->IndexOf(auxBranch);
         assert (auxIndex >= 0);
-        auxIndexes.insert(std::make_pair(auxIndex, *it));
+        auxIndexes.insert(std::make_pair(auxIndex, auxBranch));
         branches->RemoveAt(auxIndex);
         mustRemoveSomeAuxs = true;
       }
@@ -259,18 +255,17 @@ namespace edm {
       rootHandler->ignoreWarningsWhileDoing([&cloner] { cloner.Exec(); });
 
       if(mustRemoveSomeAuxs) {
-        for(std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
-             it != itEnd; ++it) {
+        for(auto const& auxIndex : auxIndexes) {
           // Add the auxiliary branches back after fast copying the rest of the tree.
           Int_t last = branches->GetLast();
           if(last >= 0) {
             branches->AddAtAndExpand(branches->At(last), last+1);
-            for(Int_t ind = last-1; ind >= it->first; --ind) {
+            for(Int_t ind = last-1; ind >= auxIndex.first; --ind) {
               branches->AddAt(branches->At(ind), ind+1);
             };
-            branches->AddAt(it->second, it->first);
+            branches->AddAt(auxIndex.second, auxIndex.first);
           } else {
-            branches->Add(it->second);
+            branches->Add(auxIndex.second);
           }
         }
       }
@@ -280,6 +275,8 @@ namespace edm {
   void
   RootOutputTree::writeTTree(TTree* tree) {
     if(tree->GetNbranches() != 0) {
+      // This is required when Fill is called on individual branches
+      // in the TTree instead of calling Fill once for the entire TTree.
       tree->SetEntries(-1);
     }
     setRefCoreStreamer(true);
@@ -292,8 +289,8 @@ namespace edm {
   }
 
   void
-  RootOutputTree::writeTree() const {
-    writeTTree(tree_);
+  RootOutputTree::writeTree() {
+    writeTTree(tree());
   }
 
   void
@@ -304,12 +301,11 @@ namespace edm {
     if(currentlyFastCloning_) {
       fastCloneAuxBranches_ = canFastCloneAux;
       fastCloneTTree(tree, option);
-      for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
-          it != itEnd; ++it) {
-        if((*it)->GetEntries() == tree_->GetEntries()) {
-          clonedReadBranchNames_.insert(std::string((*it)->GetName()));
+      for(auto const& branch : readBranches_) {
+        if(branch->GetEntries() == tree_->GetEntries()) {
+          clonedReadBranchNames_.insert(std::string(branch->GetName()));
         } else {
-          unclonedReadBranches_.push_back(*it);
+          unclonedReadBranches_.push_back(branch);
         }
       }
       Service<JobReport> reportSvc;
@@ -318,14 +314,16 @@ namespace edm {
   }
 
   void
-  RootOutputTree::fillTree() const {
+  RootOutputTree::fillTree() {
     if(currentlyFastCloning_) {
       if(!fastCloneAuxBranches_)fillTTree(auxBranches_);
       fillTTree(unclonedAuxBranches_);
       fillTTree(producedBranches_);
       fillTTree(unclonedReadBranches_);
     } else {
-      tree_->Fill();
+      // Isolate the fill operation so that IMT doesn't grab other large tasks
+      // that could lead to PoolOutputModule stalling
+      tbb::this_task_arena::isolate( [&]{ tree_->Fill(); } );
     }
   }
 
@@ -368,7 +366,7 @@ namespace edm {
     producedBranches_.clear();
     readBranches_.clear();
     unclonedReadBranches_.clear();
-    tree_ = nullptr;
-    filePtr_.reset();
+    tree_ = nullptr; // propagate_const<T> has no reset() function
+    filePtr_ = nullptr; // propagate_const<T> has no reset() function
   }
 }

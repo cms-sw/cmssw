@@ -1,11 +1,10 @@
 #ifndef RecoTracker_CkfPattern_PrintoutHelper_h
 #define RecoTracker_CkfPattern_PrintoutHelper_h
 
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 
 class TrackerGeometry;
@@ -23,13 +22,17 @@ class PrintoutHelper{
 template<class Candidate>
 std::string PrintoutHelper::dumpCandidate( const Candidate & traj,bool showErrors ){
 
+  // does not work....
   LogDebug("PrintoutHelperError")<<"switching on error printout"<<(showErrors=true);
 
   std::stringstream buffer;
   if (!traj.measurements().empty()){
     const TrajectoryMeasurement & last = traj.lastMeasurement();
     
-    buffer<<"with: "<<traj.measurements().size()<<" measurements."<< traj.lostHits() << " lost, " << traj.foundHits()<<" found, chi2="<<traj.chiSquared()<<"\n";
+    buffer<<"with: "<<traj.measurements().size()<<" measurements."<< traj.lostHits() << " lost, " << traj.foundHits()<<" found, "
+          << traj.trailingFoundHits() << " trailing, " << traj.cccBadHits() << " badCC, "
+          << "chi2="<<traj.chiSquared() << ' '
+          << int(traj.nLoops())<<" loops\n";
     if (last.updatedState().isValid()) {
       const TrajectoryStateOnSurface & tsos = last.updatedState();
       if (showErrors)
@@ -64,12 +67,13 @@ std::string PrintoutHelper::dumpCandidate( const Candidate & traj,bool showError
 template< class collection > 
 std::string PrintoutHelper::dumpCandidates( collection & candidates) {
   std::stringstream buffer;
+  buffer	<< "\n____________________________\n";
   unsigned int ic=0;
-  typename collection::const_iterator traj=candidates.begin();
-  for (;traj!=candidates.end(); traj++) {  
-    buffer<<ic++<<"] ";
-    buffer<<PrintoutHelper::dumpCandidate(*traj);
+  for (auto const & traj : candidates) {  
+    buffer<<ic++<<"] " << (traj.isValid() ? "valid " : "invalid ");
+    buffer<<PrintoutHelper::dumpCandidate(traj);
   }
+ buffer << "\n____________________________\n";
   return buffer.str();
 }
 

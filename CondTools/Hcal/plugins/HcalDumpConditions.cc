@@ -31,7 +31,7 @@ September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
@@ -49,10 +49,10 @@ namespace edmtest
 
     explicit  HcalDumpConditions(int i) 
     { }
-    virtual ~ HcalDumpConditions() { }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    ~ HcalDumpConditions() override { }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-    template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo);
+    template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo, std::string label="");
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
     template<class S> void writeToFile(S* myS, const edm::Event& e, std::string name);
 
@@ -63,10 +63,11 @@ namespace edmtest
   
 
   template<class S, class SRcd>
-  void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo)
+  void HcalDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo, std::string label)
   {
     edm::ESHandle<S> p;
-    context.get<SRcd>().get(p);
+    if(!label.empty()) context.get<SRcd>().get(label, p);
+    else context.get<SRcd>().get(p);
     S* myobject = new S(*p.product());
     if( topo ) myobject->setTopo(topo);
     
@@ -105,8 +106,15 @@ namespace edmtest
    HcalDumpConditions::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
     edm::ESHandle<HcalTopology> topology ;
-    context.get<IdealGeometryRecord>().get( topology );
+    context.get<HcalRecNumberingRecord>().get( topology );
     const HcalTopology* topo=&(*topology);
+
+    edm::ESHandle<HcalDbService> pSetup;
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationsSet")) != mDumpRequest.end()
+     || std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationWidthsSet")) != mDumpRequest.end())
+    {
+      context.get<HcalDbRecord>().get( pSetup );
+    }
 
     using namespace edm::eventsetup;
     std::cout <<"HcalDumpConditions::analyze-> I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
@@ -114,18 +122,26 @@ namespace edmtest
     if (mDumpRequest.empty()) return;
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end())
       dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FrontEndMap")) != mDumpRequest.end())
+      dumpIt(new HcalFrontEndMap, new HcalFrontEndMapRcd, e,context,"FrontEndMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
       dumpIt(new HcalQIEData(&(*topology)), new HcalQIEDataRcd, e,context,"QIEData", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIETypes")) != mDumpRequest.end())
+      dumpIt(new HcalQIETypes(&(*topology)), new HcalQIETypesRcd, e,context,"QIETypes", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end())
       dumpIt(new HcalPedestals(&(*topology)), new HcalPedestalsRcd, e,context,"Pedestals", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())
       dumpIt(new HcalPedestalWidths(&(*topology)), new HcalPedestalWidthsRcd, e,context,"PedestalWidths", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestals")) != mDumpRequest.end())
+      dumpIt(new HcalPedestals(&(*topology)), new HcalPedestalsRcd, e,context,"EffectivePedestals", topo, "effective");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("EffectivePedestalWidths")) != mDumpRequest.end())
+      dumpIt(new HcalPedestalWidths(&(*topology)), new HcalPedestalWidthsRcd, e,context,"EffectivePedestalWidths", topo, "effective");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end())
       dumpIt(new HcalGains(&(*topology)), new HcalGainsRcd, e,context,"Gains", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end())
       dumpIt(new HcalGainWidths(&(*topology)), new HcalGainWidthsRcd, e,context,"GainWidths", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end())
-      dumpIt(new HcalChannelQuality(&(*topology)), new HcalChannelQualityRcd, e,context,"ChannelQuality", topo);
+      dumpIt(new HcalChannelQuality(&(*topology)), new HcalChannelQualityRcd, e,context,"ChannelQuality", topo, "withTopo");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end())
       dumpIt(new HcalRespCorrs(&(*topology)), new HcalRespCorrsRcd, e,context,"RespCorrs", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end())
@@ -146,8 +162,6 @@ namespace edmtest
       dumpIt(new HcalDcsValues, new HcalDcsRcd, e,context,"DcsValues");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsMap")) != mDumpRequest.end())
       dumpIt(new HcalDcsMap, new HcalDcsMapRcd, e,context,"DcsMap");
-    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CholeskyMatrices")) != mDumpRequest.end())
-      dumpIt(new HcalCholeskyMatrices(&(*topology)), new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
       dumpIt(new HcalRecoParams(&(*topology)), new HcalRecoParamsRcd, e,context,"RecoParams", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimingParams")) != mDumpRequest.end())
@@ -160,8 +174,23 @@ namespace edmtest
       dumpIt(new HcalMCParams(&(*topology)), new HcalMCParamsRcd, e,context,"MCParams", topo);
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FlagHFDigiTimeParams")) != mDumpRequest.end())
       dumpIt(new HcalFlagHFDigiTimeParams(&(*topology)), new HcalFlagHFDigiTimeParamsRcd, e,context,"FlagHFDigiTimeParams", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMParameters")) != mDumpRequest.end())
+      dumpIt(new HcalSiPMParameters(&(*topology)), new HcalSiPMParametersRcd, e,context,"SiPMParameters", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("SiPMCharacteristics")) != mDumpRequest.end())
+      dumpIt(new HcalSiPMCharacteristics, new HcalSiPMCharacteristicsRcd, e,context,"SiPMCharacteristics");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPChannelParameters")) != mDumpRequest.end())
+      dumpIt(new HcalTPChannelParameters(&(*topology)), new HcalTPChannelParametersRcd, e,context,"TPChannelParameters", topo);
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TPParameters")) != mDumpRequest.end())
+      dumpIt(new HcalTPParameters, new HcalTPParametersRcd, e,context,"TPParameters");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationsSet")) != mDumpRequest.end()){
+      const HcalCalibrationsSet* tmp = pSetup->getHcalCalibrationsSet();
+      writeToFile(tmp,e,"CalibrationsSet");
+    }
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationWidthsSet")) != mDumpRequest.end()){
+      const HcalCalibrationWidthsSet* tmp = pSetup->getHcalCalibrationWidthsSet();
+      writeToFile(tmp,e,"CalibrationWidthsSet");
+    }
 
-    
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);
 }

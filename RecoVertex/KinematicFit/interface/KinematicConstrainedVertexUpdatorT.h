@@ -1,13 +1,16 @@
 #ifndef KinematicConstrainedVertexUpdatorT_H
 #define KinematicConstrainedVertexUpdatorT_H
 
+#include <atomic>
+#include <cassert>
+#include <iostream>
+
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraintT.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicVertexFactory.h"
 #include "RecoVertex/KinematicFit/interface/VertexKinematicConstraintT.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
-#include<cassert>
-#include<iostream>
-#include <atomic>
+
 // the usual stupid counter
 namespace KineDebug3 {
   struct Count {
@@ -18,7 +21,7 @@ namespace KineDebug3 {
 
   };
   inline void count() {
-    [[cms::thread_safe]] static Count c;
+    CMS_THREAD_SAFE static Count c;
     ++c.n;
   }
 
@@ -91,7 +94,7 @@ KinematicConstrainedVertexUpdatorT< nTrk, nConstraint >::update(const ROOT::Math
 
   int vSize = lStates.size();
 
-  assert( nConstraint==0 || cs!=0);
+  assert( nConstraint==0 || cs!=nullptr);
   assert(vSize == nConstraint);
 
   const MagneticField* field=lStates.front().magneticField();

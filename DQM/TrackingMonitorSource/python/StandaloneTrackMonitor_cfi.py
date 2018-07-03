@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-standaloneTrackMonitor = cms.EDAnalyzer('StandaloneTrackMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+standaloneTrackMonitor = DQMEDAnalyzer('StandaloneTrackMonitor',
     moduleName        = cms.untracked.string("StandaloneTrackMonitor"),
     folderName        = cms.untracked.string("highPurityTracks"),
     vertexTag         = cms.untracked.InputTag("selectedPrimaryVertices"),

@@ -64,7 +64,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  MuonTrajectoryBuilder * trajectoryBuilder = 0;
+  MuonTrajectoryBuilder * trajectoryBuilder = nullptr;
   // instantiate the concrete trajectory builder in the Track Finder
 
   edm::ConsumesCollector  iC = consumesCollector();
@@ -181,6 +181,8 @@ void L2MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
             psd1.add<std::string>("Propagator", "hltESPFastSteppingHelixPropagatorAny");
             psd1.add<bool>("EnableGEMMeasurement", false);
             psd1.add<edm::InputTag>("GEMRecSegmentLabel", edm::InputTag("gemRecHits"));
+            psd1.add<bool>("EnableME0Measurement", false);
+            psd1.add<edm::InputTag>("ME0RecSegmentLabel", edm::InputTag("me0Segments"));
             psd1.add<bool>("EnableCSCMeasurement", true);
             psd0.add<edm::ParameterSetDescription>("FilterParameters", psd1);
         }
@@ -221,6 +223,8 @@ void L2MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
             psd1.add<std::string>("Propagator", "hltESPFastSteppingHelixPropagatorAny");
             psd1.add<bool>("EnableGEMMeasurement", false);
             psd1.add<edm::InputTag>("GEMRecSegmentLabel", edm::InputTag("gemRecHits"));
+            psd1.add<bool>("EnableME0Measurement", false);
+            psd1.add<edm::InputTag>("ME0RecSegmentLabel", edm::InputTag("me0Segments"));
             psd1.add<bool>("EnableCSCMeasurement", true);
             psd0.add<edm::ParameterSetDescription>("BWFilterParameters", psd1);
         }

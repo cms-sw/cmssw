@@ -4,7 +4,7 @@
 
 //#define LOCAL_DEBUG
 
-void MuonBaseNumber::addBase(LevelBaseNumber num){
+void MuonBaseNumber::addBase(const LevelBaseNumber& num){
   basenumber_type::iterator cur=sortedBaseNumber.begin();
   basenumber_type::iterator end=sortedBaseNumber.end();
 

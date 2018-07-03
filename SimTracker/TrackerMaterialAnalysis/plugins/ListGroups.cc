@@ -6,7 +6,7 @@
 
 #include "boost/format.hpp"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -56,6 +56,7 @@ bool dddGetStringRaw(const DDFilteredView & view, const std::string & name, std:
   return false;
 }
 
+/*
 static inline
 double dddGetDouble(const std::string & s, DDFilteredView const & view) {
   std::string value;
@@ -64,6 +65,7 @@ double dddGetDouble(const std::string & s, DDFilteredView const & view) {
   else
     return NAN;
 }
+*/
 
 static inline
 std::string dddGetString(const std::string & s, DDFilteredView const & view) {
@@ -80,11 +82,11 @@ std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
   return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
 }
 
-class ListGroups : public edm::EDAnalyzer
+class ListGroups : public edm::one::EDAnalyzer<>
 {
 public:
   ListGroups(const edm::ParameterSet &);
-  virtual ~ListGroups();
+  ~ListGroups() override;
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
@@ -129,12 +131,144 @@ ListGroups::~ListGroups() {
   for (auto plot : m_plots)
     delete plot;
 
-  if (m_groups.size())
+  if (!m_groups.empty())
     for (auto g : m_groups)
       delete g;
 }
 
-#include "ListGroupsMaterialDifference.h"
+void ListGroups::fillMaterialDifferences() {
+  m_diff["TrackerRecMaterialTIBLayer0_Z20"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk0_R60"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer1_Z80"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer4_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer2_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer0_Z70"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk0_R20"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer5_Z80"] = std::make_pair<float, float>(338.028085, 425.909863);
+  m_diff["TrackerRecMaterialPixelEndcapDisk1Fw_Outer"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk1_R20"] = std::make_pair<float, float>(19.426752, 17.294518);
+  m_diff["TrackerRecMaterialTOBLayer5_Z0"] = std::make_pair<float, float>(510.125226, 651.305054);
+  m_diff["TrackerRecMaterialTECDisk8"] = std::make_pair<float, float>(1098.073793, 778.542517);
+  m_diff["TrackerRecMaterialTIDDisk3_R24"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk4_R33"] = std::make_pair<float, float>(51.925713, 42.900250);
+  m_diff["TrackerRecMaterialTIBLayer1_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelEndcapDisk1Bw_Outer"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIDDisk2_R25"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIBLayer0_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer3_Z25"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIBLayer1_Z30"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIDDisk2_R40"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIBLayer2_Z40"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer1_Z20"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelEndcapDisk2Bw_Inner"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer0_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer3"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIBLayer3_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer3_Z80"] = std::make_pair<float, float>(118.048766, 116.983451);
+  m_diff["TrackerRecMaterialTOBLayer4_Z80"] = std::make_pair<float, float>(210.657923, 218.401623);
+  m_diff["TrackerRecMaterialTECDisk5_R33"] = std::make_pair<float, float>(69.556218, 54.695749);
+  m_diff["TrackerRecMaterialTOBLayer0_Z20"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIBLayer2_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk2_R20"] = std::make_pair<float, float>(43.042551, 39.124220);
+  m_diff["TrackerRecMaterialPixelEndcapDisk1Bw_Inner"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIDDisk1_R30"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk0_R50"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer5_Z25"] = std::make_pair<float, float>(308.073141, 389.306637);
+  m_diff["TrackerRecMaterialPixelEndcapDisk2Bw_Outer"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIBLayer3_Z50"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk3"] = std::make_pair<float, float>(40.109901, 34.382246);
+  m_diff["TrackerRecMaterialPixelBarrelLayer1"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer2_External"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelEndcapDisk2Fw_Inner"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk7_R40"] = std::make_pair<float, float>(219.144902, 162.590326);
+  m_diff["TrackerRecMaterialPixelEndcapDisk3Bw_Inner"] = std::make_pair<float, float>(594.908414, 558.979032);
+  m_diff["TrackerRecMaterialPixelEndcapDisk2Fw_Outer"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelEndcapDisk3Fw_Outer"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk6"] = std::make_pair<float, float>(85.692825, 67.990698);
+  m_diff["TrackerRecMaterialTOBLayer3_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer2"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer3_External"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelEndcapDisk3Fw_Inner"] = std::make_pair<float, float>(607.142137, 570.407286);
+  m_diff["TrackerRecMaterialTOBLayer2_Z25"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelEndcapDisk3Bw_Outer"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer0_External"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk0_R90"] = std::make_pair<float, float>(59.694180, 74.636115);
+  m_diff["TrackerRecMaterialTOBLayer1_Z0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIDDisk1_R0"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialPixelBarrelLayer1_External"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer4_Z25"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTOBLayer2_Z80"] = std::make_pair<float, float>(2.291492, 2.290657);
+  m_diff["TrackerRecMaterialPixelEndcapDisk1Fw_Inner"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTECDisk0_R40"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_diff["TrackerRecMaterialTIDDisk2_R30"] = std::make_pair<float, float>(0.000000, 0.000000);
+  m_values["TrackerRecMaterialTIBLayer0_Z20"] = std::make_pair<float, float>(0.076264, 0.000162);
+  m_values["TrackerRecMaterialTECDisk0_R60"] = std::make_pair<float, float>(0.199482, 0.000368);
+  m_values["TrackerRecMaterialTOBLayer1_Z80"] = std::make_pair<float, float>(0.075550, 0.000145);
+  m_values["TrackerRecMaterialTOBLayer4_Z0"] = std::make_pair<float, float>(0.014804, 0.000033);
+  m_values["TrackerRecMaterialTOBLayer2_Z0"] = std::make_pair<float, float>(0.014947, 0.000033);
+  m_values["TrackerRecMaterialTOBLayer0_Z70"] = std::make_pair<float, float>(0.104496, 0.000208);
+  m_values["TrackerRecMaterialTECDisk0_R20"] = std::make_pair<float, float>(0.177496, 0.000419);
+  m_values["TrackerRecMaterialTOBLayer5_Z80"] = std::make_pair<float, float>(0.095700, 0.000224);
+  m_values["TrackerRecMaterialPixelEndcapDisk1Fw_Outer"] = std::make_pair<float, float>(0.063054, 0.000139);
+  m_values["TrackerRecMaterialTECDisk1_R20"] = std::make_pair<float, float>(0.086704, 0.000189);
+  m_values["TrackerRecMaterialTOBLayer5_Z0"] = std::make_pair<float, float>(0.060576, 0.000155);
+  m_values["TrackerRecMaterialTECDisk8"] = std::make_pair<float, float>(0.329777, 0.000532);
+  m_values["TrackerRecMaterialTIDDisk3_R24"] = std::make_pair<float, float>(0.154447, 0.000366);
+  m_values["TrackerRecMaterialTECDisk4_R33"] = std::make_pair<float, float>(0.072594, 0.000158);
+  m_values["TrackerRecMaterialTIBLayer1_Z0"] = std::make_pair<float, float>(0.049604, 0.000102);
+  m_values["TrackerRecMaterialPixelEndcapDisk1Bw_Outer"] = std::make_pair<float, float>(0.065873, 0.000145);
+  m_values["TrackerRecMaterialTIDDisk2_R25"] = std::make_pair<float, float>(0.067206, 0.000166);
+  m_values["TrackerRecMaterialTIBLayer0_Z0"] = std::make_pair<float, float>(0.056395, 0.000125);
+  m_values["TrackerRecMaterialTOBLayer3_Z25"] = std::make_pair<float, float>(0.035290, 0.000071);
+  m_values["TrackerRecMaterialTIBLayer1_Z30"] = std::make_pair<float, float>(0.068299, 0.000137);
+  m_values["TrackerRecMaterialTIDDisk2_R40"] = std::make_pair<float, float>(0.143121, 0.000310);
+  m_values["TrackerRecMaterialTIBLayer2_Z40"] = std::make_pair<float, float>(0.077840, 0.000155);
+  m_values["TrackerRecMaterialTOBLayer1_Z20"] = std::make_pair<float, float>(0.051913, 0.000103);
+  m_values["TrackerRecMaterialPixelEndcapDisk2Bw_Inner"] = std::make_pair<float, float>(0.039093, 0.000090);
+  m_values["TrackerRecMaterialTOBLayer0_Z0"] = std::make_pair<float, float>(0.029002, 0.000069);
+  m_values["TrackerRecMaterialPixelBarrelLayer0"] = std::make_pair<float, float>(0.018043, 0.000038);
+  m_values["TrackerRecMaterialPixelBarrelLayer3"] = std::make_pair<float, float>(0.020661, 0.000042);
+  m_values["TrackerRecMaterialTIBLayer3_Z0"] = std::make_pair<float, float>(0.048101, 0.000110);
+  m_values["TrackerRecMaterialTOBLayer3_Z80"] = std::make_pair<float, float>(0.093979, 0.000181);
+  m_values["TrackerRecMaterialTOBLayer4_Z80"] = std::make_pair<float, float>(0.101240, 0.000203);
+  m_values["TrackerRecMaterialTECDisk5_R33"] = std::make_pair<float, float>(0.092564, 0.000201);
+  m_values["TrackerRecMaterialTOBLayer0_Z20"] = std::make_pair<float, float>(0.063558, 0.000138);
+  m_values["TrackerRecMaterialTIBLayer2_Z0"] = std::make_pair<float, float>(0.036854, 0.000078);
+  m_values["TrackerRecMaterialTECDisk2_R20"] = std::make_pair<float, float>(0.107900, 0.000237);
+  m_values["TrackerRecMaterialPixelEndcapDisk1Bw_Inner"] = std::make_pair<float, float>(0.039143, 0.000086);
+  m_values["TrackerRecMaterialTIDDisk1_R30"] = std::make_pair<float, float>(0.167774, 0.000321);
+  m_values["TrackerRecMaterialTECDisk0_R50"] = std::make_pair<float, float>(0.108277, 0.000255);
+  m_values["TrackerRecMaterialTOBLayer5_Z25"] = std::make_pair<float, float>(0.086612, 0.000209);
+  m_values["TrackerRecMaterialPixelEndcapDisk2Bw_Outer"] = std::make_pair<float, float>(0.070143, 0.000165);
+  m_values["TrackerRecMaterialTIBLayer3_Z50"] = std::make_pair<float, float>(0.063872, 0.000138);
+  m_values["TrackerRecMaterialTECDisk3"] = std::make_pair<float, float>(0.064126, 0.000139);
+  m_values["TrackerRecMaterialPixelBarrelLayer1"] = std::make_pair<float, float>(0.016379, 0.000028);
+  m_values["TrackerRecMaterialPixelBarrelLayer2_External"] = std::make_pair<float, float>(0.026687, 0.000046);
+  m_values["TrackerRecMaterialPixelEndcapDisk2Fw_Inner"] = std::make_pair<float, float>(0.039737, 0.000091);
+  m_values["TrackerRecMaterialTECDisk7_R40"] = std::make_pair<float, float>(0.126225, 0.000235);
+  m_values["TrackerRecMaterialPixelEndcapDisk3Bw_Inner"] = std::make_pair<float, float>(0.674984, 0.001356);
+  m_values["TrackerRecMaterialPixelEndcapDisk2Fw_Outer"] = std::make_pair<float, float>(0.065935, 0.000151);
+  m_values["TrackerRecMaterialPixelEndcapDisk3Fw_Outer"] = std::make_pair<float, float>(0.100139, 0.000205);
+  m_values["TrackerRecMaterialTECDisk6"] = std::make_pair<float, float>(0.078988, 0.000163);
+  m_values["TrackerRecMaterialTOBLayer3_Z0"] = std::make_pair<float, float>(0.015009, 0.000033);
+  m_values["TrackerRecMaterialPixelBarrelLayer2"] = std::make_pair<float, float>(0.017219, 0.000030);
+  m_values["TrackerRecMaterialPixelBarrelLayer3_External"] = std::make_pair<float, float>(0.036152, 0.000066);
+  m_values["TrackerRecMaterialPixelEndcapDisk3Fw_Inner"] = std::make_pair<float, float>(0.673782, 0.001357);
+  m_values["TrackerRecMaterialTOBLayer2_Z25"] = std::make_pair<float, float>(0.034917, 0.000069);
+  m_values["TrackerRecMaterialPixelEndcapDisk3Bw_Outer"] = std::make_pair<float, float>(0.100143, 0.000204);
+  m_values["TrackerRecMaterialPixelBarrelLayer0_External"] = std::make_pair<float, float>(0.031128, 0.000062);
+  m_values["TrackerRecMaterialTECDisk0_R90"] = std::make_pair<float, float>(0.309342, 0.000539);
+  m_values["TrackerRecMaterialTOBLayer1_Z0"] = std::make_pair<float, float>(0.023489, 0.000050);
+  m_values["TrackerRecMaterialTIDDisk1_R0"] = std::make_pair<float, float>(0.175180, 0.000349);
+  m_values["TrackerRecMaterialPixelBarrelLayer1_External"] = std::make_pair<float, float>(0.022508, 0.000036);
+  m_values["TrackerRecMaterialTOBLayer4_Z25"] = std::make_pair<float, float>(0.036056, 0.000073);
+  m_values["TrackerRecMaterialTOBLayer2_Z80"] = std::make_pair<float, float>(0.062072, 0.000117);
+  m_values["TrackerRecMaterialPixelEndcapDisk1Fw_Inner"] = std::make_pair<float, float>(0.039127, 0.000086);
+  m_values["TrackerRecMaterialTECDisk0_R40"] = std::make_pair<float, float>(0.084231, 0.000209);
+  m_values["TrackerRecMaterialTIDDisk2_R30"] = std::make_pair<float, float>(0.065109, 0.000143);
+
+}
 
 void ListGroups::fillGradient(void)
 {
@@ -153,7 +287,7 @@ void ListGroups::fillGradient(void)
   m_gradient.push_back(kBlue + 4); // Underflow lowest bin
   unsigned int ii = 0;
   for (unsigned int i = 0; i < steps; ++i, ++ii) {
-    new TColor(index + ii, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    new TColor(static_cast<Int_t>(index + ii), r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
     m_gradient.push_back(index + ii);
   }
 
@@ -165,46 +299,63 @@ void ListGroups::fillGradient(void)
   delta_g = (g2 - g1) / (steps - 1);
   delta_b = (b2 - b1) / (steps - 1);
   for (unsigned int i = 0; i < steps; ++i, ++ii) {
-    new TColor(index + ii, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    new TColor(static_cast<Int_t>(index + ii), r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
     m_gradient.push_back(index + ii);
   }
   m_gradient.push_back(kRed); // Overflow highest bin
 }
 
-void ListGroups::fillColor(void)
-{
+void ListGroups::fillColor(void) {
+  // With the introduction of the support for PhaseI and PhaseII detectors it
+  // became quite difficult to maintain a list of colors that is in sync with
+  // the real number of grouping used in the different scenarios. We therefore
+  // define some reasonable set and loop over it in case the number of grouping
+  // is larger than the number of colors.
+
   m_color.push_back(kBlack);          // unassigned
 
-  m_color.push_back(kAzure);          // PixelBarrelLayer0
+  m_color.push_back(kAzure);          // PixelBarrelLayer0_Z0
+  m_color.push_back(kAzure - 1);      // PixelBarrelLayer0_Z20
   m_color.push_back(kAzure + 1) ;     // Layer1_Z0
-  m_color.push_back(kAzure + 2) ;     // Layer1_Z10
-  m_color.push_back(kAzure + 3) ;     // Layer2_Z0
-  m_color.push_back(kAzure + 10);     // Layer2_Z15
+  m_color.push_back(kAzure + 2) ;     // Layer1_Z20
 
   m_color.push_back(kGreen);          // EndCapDisk1_R0
   m_color.push_back(kGreen + 2);      // EndcapDisk1_R11
   m_color.push_back(kGreen + 4);      // EndcapDisk1_R7
   m_color.push_back(kSpring + 9);     // EndcapDisk2_R0
   m_color.push_back(kSpring + 4);     // EndcapDisk2_R7
+  m_color.push_back(kSpring    );     // EndcapDisk2_R7
 
   m_color.push_back(kRed);            // TECDisk0_R20
   m_color.push_back(kRed + 2);        // TECDisk0_R40
   m_color.push_back(kRed - 7);        // TECDisk0_R50
   m_color.push_back(kRed - 5);        // TECDisk0_R60
   m_color.push_back(kRed - 10);       // TECDisk0_R90
+  m_color.push_back(kRed - 1);        // TECDisk1_Inner
+  m_color.push_back(kRed - 2);        // TECDisk1_Outer
   m_color.push_back(kRed - 3);        // TECDisk1_R20
-  m_color.push_back(kPink - 2);       // TECDisk2_R20
-  m_color.push_back(kPink + 9);       // TECDisk3
-  m_color.push_back(kMagenta - 2);    // TECDisk4_R33
-  m_color.push_back(kMagenta - 4);    // TECDisk5_R33
+  m_color.push_back(kPink - 2);       // TECDisk2_Inner
+  m_color.push_back(kPink - 3);       // TECDisk2_Outer
+  m_color.push_back(kPink - 4);       // TECDisk2_R20
+  m_color.push_back(kPink + 9);       // TECDisk3_Inner
+  m_color.push_back(kPink + 8);       // TECDisk3_Outer
+  m_color.push_back(kPink + 7);       // TECDisk3
+  m_color.push_back(kMagenta - 2);    // TECDisk4_Inner
+  m_color.push_back(kMagenta - 3);    // TECDisk4_Outer
+  m_color.push_back(kMagenta - 4);    // TECDisk4_R33
+  m_color.push_back(kMagenta - 5);    // TECDisk5_Inner
+  m_color.push_back(kMagenta - 6);    // TECDisk5_Outer
+  m_color.push_back(kMagenta - 7);    // TECDisk5_R33
   m_color.push_back(kRed);            // TECDisk6
   m_color.push_back(kMagenta - 9);    // TECDisk7_R40
   m_color.push_back(kViolet);         // TECDisk8
 
   m_color.push_back(kOrange + 9);     // TIBLayer0_Z0
   m_color.push_back(kOrange + 7);     // TIBLayer0_Z20
+  m_color.push_back(kOrange + 5);     // TIBLayer0_Z40
   m_color.push_back(kOrange - 2);     // TIBLayer1_Z0
   m_color.push_back(kOrange - 3);     // TIBLayer1_Z30
+  m_color.push_back(kOrange - 6);     // TIBLayer1_Z60
   m_color.push_back(kOrange + 4);     // TIBLayer2_Z0
   m_color.push_back(kOrange - 7);     // TIBLayer2_Z40
   m_color.push_back(kOrange);         // TIBLayer3_Z0
@@ -212,29 +363,38 @@ void ListGroups::fillColor(void)
 
   m_color.push_back(kViolet + 10);    // TIDDisk1_R0
   m_color.push_back(kViolet + 6);     // TIDDisk1_R30
+  m_color.push_back(kViolet + 3);     // TIDDisk1_R40
   m_color.push_back(kViolet - 7);     // TIDDisk2_R25
   m_color.push_back(kViolet - 1);     // TIDDisk2_R30
   m_color.push_back(kViolet + 9);     // TIDDisk2_R40
-  m_color.push_back(kViolet);         // TIDDisk3_R24
+  m_color.push_back(kViolet - 5);     // TIDDisk3_R24
+  m_color.push_back(kViolet - 3);     // TIDDisk3_R30
+  m_color.push_back(kViolet);         // TIDDisk3_R40
 
   m_color.push_back(kAzure    );    // TOBLayer0_Z0
   m_color.push_back(kAzure + 8);    // TOBLayer0_Z20
   m_color.push_back(kAzure + 2);    // TOBLayer0_Z70
+  m_color.push_back(kAzure + 4);    // TOBLayer0_Z80
   m_color.push_back(kCyan + 1);     // TOBLayer1_Z0
   m_color.push_back(kCyan - 9);     // TOBLayer1_Z20
   m_color.push_back(kCyan + 3);     // TOBLayer1_Z80
+  m_color.push_back(kCyan + 4);     // TOBLayer1_Z90
   m_color.push_back(kAzure    );    // TOBLayer2_Z0
   m_color.push_back(kAzure + 8);    // TOBLayer2_Z25
   m_color.push_back(kAzure + 2);    // TOBLayer2_Z80
+  m_color.push_back(kAzure + 5);    // TOBLayer2_Z90
   m_color.push_back(kCyan + 1);     // TOBLayer3_Z0
   m_color.push_back(kCyan - 9);     // TOBLayer3_Z25
   m_color.push_back(kCyan + 3);     // TOBLayer3_Z80
+  m_color.push_back(kCyan + 4);     // TOBLayer3_Z90
   m_color.push_back(kAzure    );    // TOBLayer4_Z0
   m_color.push_back(kAzure + 8);    // TOBLayer4_Z25
   m_color.push_back(kAzure + 2);    // TOBLayer4_Z80
+  m_color.push_back(kAzure + 5);    // TOBLayer4_Z90
   m_color.push_back(kCyan + 1);     // TOBLayer5_Z0
   m_color.push_back(kCyan - 9);     // TOBLayer5_Z25
   m_color.push_back(kCyan + 3);     // TOBLayer5_Z80
+  m_color.push_back(kCyan + 4);     // TOBLayer5_Z90
 }
 
 std::vector<std::pair<std::shared_ptr<TLine>, std::shared_ptr<TText> > >
@@ -297,6 +457,7 @@ ListGroups::overlayEtaReferences() {
 void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
   const double scale = 10.;
   std::vector<TText *> nukem_text;
+  static int markerStyles[10] = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kOpenCircle, kOpenSquare, kOpenTriangleUp, kOpenDiamond, kOpenCross, kFullStar};
 
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
@@ -337,8 +498,9 @@ void ListGroups::produceAndSaveSummaryPlot(const edm::EventSetup &setup) {
                   6000., -300., 300, 1200., 0., 120.)); // 10x10 points per cm2
     TH2F &current = *m_plots.back();
     current.SetMarkerColor(m_color[color_index]);
-    current.SetMarkerStyle( color_index%2 == 0 ? kFullCircle : kOpenCircle);
+    current.SetMarkerStyle(markerStyles[color_index%10]);
     current.SetMarkerSize(0.8);
+    current.SetLineWidth(1);
     for (auto element : g->elements()) {
       current.Fill(element.z(), element.perp());
       radlen->Fill(element.z(), element.perp(), m_values[g->name()].first);
@@ -420,11 +582,9 @@ void
 ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
-  DDFilteredView fv(*hDdd);
 
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDCompOp::not_equals);
-  fv.addFilter(filter);
+  DDSpecificsHasNamedValueFilter filter{"TrackingMaterialGroup"};
+  DDFilteredView fv(*hDdd,filter);
 
   while (fv.next()) {
     // print the group name and full hierarchy of all items
@@ -439,7 +599,10 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
 
     // DD3Vector and DDTranslation are the same type as math::XYZVector
     math::XYZVector position = fv.translation() / 10.;  // mm -> cm
-    std::cout << "\t" << position << std::endl;
+    std::cout << "\t(" << position.x()
+              << ", " << position.y()
+              << ", " << position.z() << ") "
+              << "[rho] " << position.Rho() << std::endl;
   };
   std::cout << std::endl;
 

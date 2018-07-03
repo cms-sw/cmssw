@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -39,9 +38,9 @@
 class RPCTriggerBxOrConfig : public edm::ESProducer {
    public:
       RPCTriggerBxOrConfig(const edm::ParameterSet&);
-      ~RPCTriggerBxOrConfig();
+      ~RPCTriggerBxOrConfig() override;
 
-      typedef std::auto_ptr<L1RPCBxOrConfig> ReturnType;
+      typedef std::unique_ptr<L1RPCBxOrConfig> ReturnType;
 
       ReturnType produce(const L1RPCBxOrConfigRcd&);
    private:
@@ -90,7 +89,7 @@ RPCTriggerBxOrConfig::ReturnType
 RPCTriggerBxOrConfig::produce(const L1RPCBxOrConfigRcd& iRecord)
 {
    using namespace edm::es;
-   std::auto_ptr<L1RPCBxOrConfig> pRPCTriggerBxOrConfig = std::auto_ptr<L1RPCBxOrConfig>( new L1RPCBxOrConfig() );
+   auto pRPCTriggerBxOrConfig = std::make_unique<L1RPCBxOrConfig>();
 
    if (m_firstBX > m_lastBX )
         throw cms::Exception("BadConfig") << " firstBX < m_lastBX  " << "\n";

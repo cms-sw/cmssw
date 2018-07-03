@@ -16,10 +16,10 @@ class ODTTCciConfig : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODTTCciConfig();
-  ~ODTTCciConfig();
+  ~ODTTCciConfig() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_TTCci_CONFIGURATION"; }
+  inline std::string getTable() override { return "ECAL_TTCci_CONFIGURATION"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -46,14 +46,14 @@ class ODTTCciConfig : public IODConfig {
 
   
  private:
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite()  noexcept(false) override;
+  void writeDB()       noexcept(false);
   void clear();
-  void fetchData(ODTTCciConfig * result)     throw(std::runtime_error);
-  int fetchID()  throw(std::runtime_error);
+  void fetchData(ODTTCciConfig * result)     noexcept(false);
+  int fetchID()  noexcept(false);
 
 
-  int fetchNextId() throw(std::runtime_error);
+  int fetchNextId() noexcept(false);
 
   // User data
   int m_ID;

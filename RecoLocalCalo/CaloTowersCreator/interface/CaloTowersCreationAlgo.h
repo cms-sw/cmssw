@@ -27,6 +27,7 @@
 
 
 #include <map>
+class CaloTowerTopology;
 class HcalTopology;
 class CaloGeometry;
 class CaloSubdetectorGeometry;
@@ -58,7 +59,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,				    
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, double HBthreshold1, double HBthreshold2,
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1, 
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2,
     double HF1threshold, double HF2threshold, 
@@ -71,7 +74,8 @@ public:
     double momHBDepth,
     double momHEDepth,
     double momEBDepth,
-    double momEEDepth
+    double momEEDepth,
+	int hcalPhase=0
     );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -80,7 +84,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, double HBthreshold1, double HBthreshold2,
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2, 
     double HF1threshold, double HF2threshold,
@@ -101,10 +107,11 @@ public:
     double momHBDepth,
     double momHEDepth,
     double momEBDepth,
-    double momEEDepth
+    double momEEDepth,
+	int hcalPhase=0
 );
   
-  void setGeometry(const CaloTowerConstituentsMap* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
+  void setGeometry(const CaloTowerTopology* cttopo, const CaloTowerConstituentsMap* ctmap, const HcalTopology* htopo, const CaloGeometry* geo);
 
   // pass the containers of channels status from the event record (stored in DB)
   // these are called in  CaloTowersCreator
@@ -247,7 +254,9 @@ private:
   
   double  theHcalThreshold;
 
-  double theHBthreshold, theHESthreshold,  theHEDthreshold; 
+  double theHBthreshold, theHBthreshold1, theHBthreshold2;
+  double theHESthreshold, theHESthreshold1; 
+  double theHEDthreshold, theHEDthreshold1; 
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
   double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;
   std::vector<double> theEBGrid, theEBWeights;
@@ -270,6 +279,7 @@ private:
   double theHOEScale;
   double theHF1EScale;
   double theHF2EScale;
+  const CaloTowerTopology* theTowerTopology;
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
   const CaloTowerConstituentsMap* theTowerConstituentsMap;
@@ -334,7 +344,8 @@ private:
   HcalDropChMap hcalDropChMap;
 
   // Number of bad Ecal channel in each tower
-  unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
+  //unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
+  std::vector<unsigned short> ecalBadChs;
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
@@ -346,9 +357,10 @@ private:
    
   edm::Handle<EcalRecHitCollection> theEbHandle;
   edm::Handle<EcalRecHitCollection> theEeHandle;
+  
+  int theHcalPhase;
 
-
-
+  std::vector<HcalDetId>          ids_;
 };
 
 #endif

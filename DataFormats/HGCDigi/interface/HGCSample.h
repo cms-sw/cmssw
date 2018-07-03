@@ -1,6 +1,7 @@
 #ifndef DIGIHGCAL_HGCSAMPLE_H
 #define DIGIHGCAL_HGCSAMPLE_H
 
+#include <iostream>
 #include <ostream>
 #include <boost/cstdint.hpp>
 
@@ -13,46 +14,72 @@ class HGCSample {
 
 public:
 
-  enum HGCSampleMasks {ADC_MASK=0x7fff, GAIN_MASK=0x1 };
-  enum HGCSamplePos   {ADC_POS=0      , GAIN_POS=15 };
+  enum HGCSampleMasks { kThreshMask = 0x1, kModeMask = 0x1, kToAMask = 0x3ff, kDataMask = 0xfff};
+  enum HGCSampleShifts{ kThreshShift = 31, kModeShift = 30, kToAShift = 13,   kDataShift = 0};
 
   /**
      @short CTOR
    */
-  HGCSample() : value_(0) { }
-  HGCSample(uint16_t value) : value_(value) { }
+ HGCSample() : value_(0), toaFired_(false) { }
+ HGCSample(uint32_t value) : value_(value), toaFired_(false) { }
+ HGCSample( const HGCSample& o ) : value_(o.value_), toaFired_(o.toaFired_) { }
 
   /**
      @short setters
    */
-  void setGain(uint16_t gain)           { setWord(gain,GAIN_MASK,GAIN_POS);               }
-  void setADC(uint16_t adc)             { setWord(adc,ADC_MASK,ADC_POS);                  }
-  void set(uint16_t gain, uint16_t adc) { setGain(gain);                     setADC(adc); }  
+  void setThreshold(bool thr)           { setWord(thr,  kThreshMask, kThreshShift); }
+  void setMode(bool mode)               { setWord(mode, kModeMask,   kModeShift);   }
+  void setToA(uint16_t toa)             { setWord(toa,  kToAMask,    kToAShift);    }
+  void setToAValid(bool toaFired)       { toaFired_ = toaFired;  }
+  void setData(uint16_t data)           { setWord(data, kDataMask,   kDataShift);   }
+  void set(bool thr, bool mode,uint16_t toa, uint16_t data) 
+  { 
+    toa = ( toa > kToAMask ? kToAMask : toa );
+    data = ( data > kDataMask ? kDataMask : data);
+
+    value_ = ( ( (uint32_t)thr  & kThreshMask ) << kThreshShift | 
+               ( (uint32_t)mode & kModeMask   ) << kModeShift   |
+               ( (uint32_t)toa  & kToAMask    ) << kToAShift    | 
+               ( (uint32_t)data & kDataMask   ) << kDataShift     );    
+  }  
+  void print(std::ostream &out=std::cout)
+  {
+    out << "THR: " << threshold() 
+	<< " Mode: " << mode() 
+	<< " ToA: " << toa() 
+	<< " Data: " << data() 
+	<< " Raw=0x" << std::hex << raw() << std::dec << std::endl;  
+  }
 
   /**
      @short getters
   */
-  uint16_t raw()  const { return value_; }
-  uint16_t gain() const { return ((value_ >> GAIN_POS) & GAIN_MASK); }
-  uint16_t adc()  const { return ((value_ >> ADC_POS) & ADC_MASK); }
-  uint16_t operator()() { return value_; }
+  uint32_t raw()  const      { return value_;                   }
+  bool threshold() const     { return ( (value_ >> kThreshShift) & kThreshMask );  }
+  bool mode() const          { return ( (value_ >> kModeShift)   & kModeMask   );  }
+  bool getToAValid() const   { return toaFired_;                }
+  uint32_t toa()  const      { return ( (value_ >> kToAShift)    & kToAMask    ); }
+  uint32_t data()  const     { return ( (value_ >> kDataShift)   & kDataMask   ); }
+  uint32_t operator()()      { return value_;                   }
   
 private:
 
   /**
      @short wrapper to reset words at a given position
    */
-  void setWord(uint16_t word, uint16_t mask, uint16_t pos)
+  void setWord(uint32_t word, uint32_t mask, uint32_t pos)
   {
+    if( word > mask ) word = mask; // deal with saturation
     //clear required bits
-    value_ &= ~((word & mask) << pos); 
+    const uint32_t masked_word = (word & mask) << pos;
+    value_ &= ~(masked_word); 
     //now set the new value
-    value_ |= ((word & mask) << pos);
+    value_ |= (masked_word);
   }
 
-  // the word
-  uint16_t value_;
-
+  // a 32-bit word
+  uint32_t value_;
+  bool toaFired_;
 };
 
   

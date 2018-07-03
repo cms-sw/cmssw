@@ -27,7 +27,7 @@ class TrainProcessor;
 class MVATrainer {
     public:
 	MVATrainer(const std::string &fileName, bool useXSLT = false,
-	           const char *styleSheet = 0);
+	           const char *styleSheet = nullptr);
 	~MVATrainer();
 
 	inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }
@@ -103,8 +103,8 @@ class MVATrainer {
 	Source					*input;
 	TrainProcessor				*output;
 
-	std::auto_ptr<TrainerMonitoring>	monitoring;
-	std::auto_ptr<XMLDocument>		xml;
+	std::unique_ptr<TrainerMonitoring>	monitoring;
+	std::unique_ptr<XMLDocument>		xml;
 	std::string				trainFileMask;
 	std::string				name;
 	bool					doAutoSave;

@@ -12,7 +12,7 @@
 //#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 
-l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsHelper* params) : params_(params)
 {
 }
 
@@ -36,7 +36,7 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   int diIsoPtMax=0;
   int triIsoPtMax=0;
   int quadIsoPtMax=0;
-  if(isoTaus->size()>0) {
+  if(!isoTaus->empty()) {
     isoPtMax= (*isoTaus).at(0).hwPt();
     if (isoTaus->size()>1) diIsoPtMax  = (*isoTaus).at(1).hwPt();
     if (isoTaus->size()>2) triIsoPtMax = (*isoTaus).at(2).hwPt();
@@ -90,12 +90,4 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   spares->setHwPt(raw);
 
   delete isoTaus;
-
-
-  const bool verbose = false;
-  if(verbose)
-  {
-    std::cout << "HF Ring Sums (Isolated Taus)" << std::endl;
-    std::cout << bitset<12>(spares->hwPt()).to_string() << std::endl;
-  }
 }

@@ -1,6 +1,7 @@
 <use   name="boost"/>
 <use   name="root"/>
 <use   name="clhep"/>
+<use   name="gsl"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="DataFormats/HcalDetId"/>

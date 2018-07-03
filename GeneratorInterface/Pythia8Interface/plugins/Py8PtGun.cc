@@ -1,4 +1,3 @@
-
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -11,7 +10,7 @@ class Py8PtGun : public Py8GunBase {
    public:
       
       Py8PtGun( edm::ParameterSet const& );
-      ~Py8PtGun() {}
+      ~Py8PtGun() override {}
 	 
       bool generatePartonsAndHadronize() override;
       const char* classname() const override;
@@ -30,8 +29,7 @@ class Py8PtGun : public Py8GunBase {
 // implementation 
 //
 Py8PtGun::Py8PtGun( edm::ParameterSet const& ps )
-   : Py8GunBase(ps) 
-{
+   : Py8GunBase(ps) {
 
    // ParameterSet defpset ;
    edm::ParameterSet pgun_params = 
@@ -49,8 +47,7 @@ bool Py8PtGun::generatePartonsAndHadronize()
 
    fMasterGen->event.reset();
    
-   for ( size_t i=0; i<fPartIDs.size(); i++ )
-   {
+   for ( size_t i=0; i<fPartIDs.size(); i++ ){
 
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
@@ -69,43 +66,47 @@ bool Py8PtGun::generatePartonsAndHadronize()
       double py = pt * sin(phi);
       double pz = pp * cos(the);
 
-      if ( !((fMasterGen->particleData).isParticle( particleID )) )
-      {
-         particleID = std::fabs(particleID) ;
+      if ( !((fMasterGen->particleData).isParticle( particleID )) ){
+         particleID = std::abs(particleID) ;
       }
-      if( 1<= fabs(particleID) && fabs(particleID) <= 6) // quarks
+      if( 1<= std::abs(particleID) && std::abs(particleID) <= 6) // quarks
 	(fMasterGen->event).append( particleID, 23, 101, 0, px, py, pz, ee, mass ); 
-      else if (fabs(particleID) == 21)                   // gluons
+      else if (std::abs(particleID) == 21)                   // gluons
 	(fMasterGen->event).append( 21, 23, 101, 102, px, py, pz, ee, mass );
-      else                                               // other
-	(fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
+                                                         // other
+      else {
+        (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
+        int eventSize = (fMasterGen->event).size()-1;
+        // -log(flat) = exponential distribution
+        double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+        (fMasterGen->event)[eventSize].tau( tauTmp );
+      }
       
 // Here also need to add anti-particle (if any)
 // otherwise just add a 2nd particle of the same type 
 // (for example, gamma)
 //
-      if ( fAddAntiParticle )
-      {
-	if( 1 <= fabs(particleID) && fabs(particleID) <= 6){ // quarks
+      if ( fAddAntiParticle ) {
+         if( 1 <= std::abs(particleID) && std::abs(particleID) <= 6){ // quarks
 	  (fMasterGen->event).append( -particleID, 23, 0, 101, -px, -py, -pz, ee, mass );
-	}
-	else if (fabs(particleID) == 21){                   // gluons
+         } else if (std::abs(particleID) == 21){                   // gluons
 	  (fMasterGen->event).append( 21, 23, 102, 101, -px, -py, -pz, ee, mass );
-	}
-	else if ( (fMasterGen->particleData).isParticle( -particleID ) )
-	  {
-	    (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
-	  }
-	else
-	  {
-	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
-	  }
+         } else {
+	   if ( (fMasterGen->particleData).isParticle( -particleID ) ) {
+	     (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
+	   } else {
+	     (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
+	   }
+	   int eventSize = (fMasterGen->event).size()-1;
+	   // -log(flat) = exponential distribution
+	   double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+	   (fMasterGen->event)[eventSize].tau( tauTmp );
+         }
       }
-
    }
-
    
    if ( !fMasterGen->next() ) return false;
+   evtGenDecay();
    
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );

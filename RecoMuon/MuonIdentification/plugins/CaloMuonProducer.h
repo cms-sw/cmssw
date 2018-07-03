@@ -23,10 +23,10 @@
 class CaloMuonProducer : public edm::stream::EDProducer<> {
  public:
    explicit CaloMuonProducer(const edm::ParameterSet&);
-   ~CaloMuonProducer();
+   ~CaloMuonProducer() override;
    
  private:
-   virtual void     produce( edm::Event&, const edm::EventSetup& ) override;
+   void     produce( edm::Event&, const edm::EventSetup& ) override;
    edm::InputTag inputCollection;
   edm::EDGetTokenT<reco::CaloMuonCollection > muonToken_;
 };

@@ -1,11 +1,15 @@
 #ifndef DDL_LogicalPart_H
 #define DDL_LogicalPart_H
 
+#include <map>
+#include <string>
+
 #include "DDXMLElement.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
-#include <string>
-#include <map>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLLogicalPart processes LogicalPart elements.
 /** @class DDLLogicalPart
@@ -27,19 +31,14 @@
  *
  */
 
-class DDLLogicalPart : public DDXMLElement
+class DDLLogicalPart final : public DDXMLElement
 {
 public:
 
-  /// Constructor
   DDLLogicalPart( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLLogicalPart( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 
 private:
   std::map <std::string, DDEnums::Category> catMap_; 

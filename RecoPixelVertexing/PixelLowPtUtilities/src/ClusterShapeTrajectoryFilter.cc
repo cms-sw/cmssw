@@ -78,22 +78,23 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
 
-        if(recHit != 0)
+        if(recHit != nullptr)
           return theFilter->isCompatible(*recHit, gdir, *theCache);
       }
       else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
       { // strip
-        if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != 0)
+        if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != nullptr)
         { // glued
           const SiStripMatchedRecHit2D* recHit =
             dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit);
 
-          if(recHit != 0)
+          if(recHit != nullptr)
           { 
             return (theFilter->isCompatible(recHit->monoHit()  , gdir) &&
                     theFilter->isCompatible(recHit->stereoHit(), gdir));
@@ -101,12 +102,12 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
         }
         else
         { // single
-          if(dynamic_cast<const SiStripRecHit2D *>(tRecHit) != 0)
+          if(dynamic_cast<const SiStripRecHit2D *>(tRecHit) != nullptr)
           { // normal
             const SiStripRecHit2D* recHit =
               dynamic_cast<const SiStripRecHit2D *>(tRecHit);
   
-            if(recHit != 0)
+            if(recHit != nullptr)
               return theFilter->isCompatible(*recHit, gdir);
           }
           else
@@ -114,7 +115,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             const ProjectedSiStripRecHit2D* recHit =
               dynamic_cast<const ProjectedSiStripRecHit2D *>(tRecHit);
  
-            if(recHit != 0)
+            if(recHit != nullptr)
               return theFilter->isCompatible(recHit->originalHit(), gdir);
           }
         }
@@ -130,7 +131,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
   (TempTrajectory& trajectory) const 
 {
   assert(theCache);
-  TempTrajectory::DataContainer tms = trajectory.measurements();
+  const TempTrajectory::DataContainer& tms = trajectory.measurements();
 
   for(TempTrajectory::DataContainer::const_iterator
        tm = tms.rbegin(); tm!= tms.rend(); --tm)
@@ -148,12 +149,13 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
 	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
 
-        if(recHit != 0)
+        if(recHit != nullptr)
           if(! theFilter->isCompatible(*recHit, gdir, *theCache))
           {
             LogTrace("TrajectFilter")
@@ -163,12 +165,12 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
       }
       else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
       { // strip
-        if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != 0)
+        if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != nullptr)
         { // glued
           const SiStripMatchedRecHit2D* recHit =
             dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit);
 
-          if(recHit != 0)
+          if(recHit != nullptr)
           { 
             if(! theFilter->isCompatible(recHit->monoHit(), gdir))
             {
@@ -187,12 +189,12 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
         }
         else
         { // single
-          if(dynamic_cast<const SiStripRecHit2D *>(tRecHit) != 0)
+          if(dynamic_cast<const SiStripRecHit2D *>(tRecHit) != nullptr)
           { // normal
             const SiStripRecHit2D* recHit =
               dynamic_cast<const SiStripRecHit2D *>(tRecHit);
   
-            if(recHit != 0)
+            if(recHit != nullptr)
               if(! theFilter->isCompatible(*recHit, gdir))
               {
                 LogTrace("TrajectFilter")
@@ -205,7 +207,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             const ProjectedSiStripRecHit2D* recHit =
               dynamic_cast<const ProjectedSiStripRecHit2D *>(tRecHit);
  
-            if(recHit != 0)
+            if(recHit != nullptr)
               if(! theFilter->isCompatible(recHit->originalHit(), gdir))
               {
                 LogTrace("TrajectFilter")

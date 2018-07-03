@@ -4,10 +4,7 @@
 #include <iomanip>
 #include <utility>
 
-#define private public
 #include "TPRegexp.h"
-#undef private
-
 #include "TEveManager.h"
 #include "TEveScene.h"
 #include "TEveElement.h"

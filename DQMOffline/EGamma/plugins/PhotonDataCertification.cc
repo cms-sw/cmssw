@@ -54,13 +54,13 @@ PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   reportSummaryMapTH2->GetXaxis()->SetBinLabel(3, "Total");
   reportSummaryMapTH2->GetYaxis()->SetBinLabel(1, "InvMassTest");
 
-  float EBResult = invMassZtest("Egamma/PhotonAnalyzer/InvMass/h_02_invMassIsoPhotonsEBarrel",
+  float EBResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_02_invMassIsoPhotonsEBarrel",
       "invMassIsolatedPhotonsEB", igetter);
 
-  float EEResult = invMassZtest("Egamma/PhotonAnalyzer/InvMass/h_03_invMassIsoPhotonsEEndcap",
+  float EEResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_03_invMassIsoPhotonsEEndcap",
       "invMassIsolatedPhotonsEE", igetter);
 
-  float AllResult = invMassZtest("Egamma/PhotonAnalyzer/InvMass/h_01_invMassAllIsolatedPhotons",
+  float AllResult = invMassZtest("Egamma/stdPhotonAnalyzer/InvMass/h_01_invMassAllIsolatedPhotons",
       "invMassAllIsolatedPhotons", igetter);
 
   if (verbose_) {
@@ -80,22 +80,23 @@ float PhotonDataCertification::invMassZtest(string path, TString name,
 
   float ZMass = 91.2;
   float ZWidth = 2.5;
-  MonitorElement *TestElem = 0;
+  MonitorElement *TestElem = nullptr;
   TestElem = igetter.get(path);
-  if (TestElem == 0) return 0;
+  if (TestElem == nullptr) return 0;
   TH1F *TestHist = TestElem->getTH1F();
-  if (TestHist == 0) return 0;
+  if (TestHist == nullptr) return 0;
+  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
   RooRealVar mass("mass","Mass_{2#gamma}", 0, 200,"GeV");
   RooRealVar mRes("M_{Z}", "Z Mass", ZMass, 70, 110);
   RooRealVar gamma("#Gamma", "#Gamma", ZWidth, 0, 10.0);
   RooBreitWigner BreitWigner("BreitWigner", "Breit-Wigner", mass, mRes, gamma);
   RooDataHist test(name, name, mass, TestHist);
 
-  BreitWigner.fitTo(test, RooFit::Range(80, 100));
+  BreitWigner.fitTo(test, RooFit::Range(80, 100),RooFit::PrintLevel(-1000));
 
-  if (abs(mRes.getValV() - ZMass) < ZWidth) {
+  if (std::abs(mRes.getValV() - ZMass) < ZWidth) {
     return 1.0;
-  } else if (abs(mRes.getValV() - ZMass) < gamma.getValV()) {
+  } else if (std::abs(mRes.getValV() - ZMass) < gamma.getValV()) {
     return 0.9;
   } else {
     return 0.0;

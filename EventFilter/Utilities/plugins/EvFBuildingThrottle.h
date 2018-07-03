@@ -7,8 +7,10 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sys/statvfs.h>
+#include <atomic>
 
 #include "boost/thread/thread.hpp"
 
@@ -79,7 +81,12 @@ namespace evf{
 	  std::cout << " building throttle on " << baseDir_ << " is " << fraction*100 << " %full " << std::endl;
 	  //edm::Service<EvFDaqDirector>()->writeDiskAndThrottleStat(fraction,highwater_,lowwater_);
 	  ::usleep(sleep_*1000);
+          if (edm::shutdown_flag) {
+	    std::cout << " Shutdown flag set: stop throttling" << std::endl;
+            break;
+          }
 	}
+        if (throttled_) lock_.unlock();
       }
       void start(){
 	assert(!m_thread);
@@ -95,7 +102,7 @@ namespace evf{
       
       double highWaterMark_;
       double lowWaterMark_;
-      volatile bool m_stoprequest;
+      std::atomic<bool> m_stoprequest;
       boost::shared_ptr<boost::thread> m_thread;
       boost::mutex lock_;
       std::string baseDir_;

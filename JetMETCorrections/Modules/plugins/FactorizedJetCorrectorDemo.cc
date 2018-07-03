@@ -29,13 +29,13 @@
 class FactorizedJetCorrectorDemo : public edm::EDAnalyzer {
 public:
   explicit FactorizedJetCorrectorDemo(const edm::ParameterSet&);
-  ~FactorizedJetCorrectorDemo();
+  ~FactorizedJetCorrectorDemo() override;
   typedef reco::Particle::LorentzVector LorentzVector;
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   std::string mJetCorService,mPayloadName,mUncertaintyTag,mUncertaintyFile;
   std::vector<std::string> mLevels;

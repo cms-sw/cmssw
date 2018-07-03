@@ -6,10 +6,11 @@ import copy
 import os
 import shutil
 import pickle
+import json
 import math
 from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
 
-from PhysicsTools.HeppyCore.framework.heppy import split
+from PhysicsTools.HeppyCore.framework.heppy_loop import split
 
 def batchScriptPADOVA( index, jobDir='./'):
    '''prepare the LSF version of the batch script, to run on LSF'''
@@ -31,7 +32,7 @@ echo 'copying job dir to worker'
 eval `scram runtime -sh`
 ls
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
@@ -64,7 +65,7 @@ eval `scramv1 runtime -sh`
 ls
 echo `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
@@ -76,36 +77,66 @@ def batchScriptCERN( jobDir, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
    
    dirCopy = """echo 'sending the logs back'  # will send also root files if copy failed
+rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $LS_SUBCWD
 if [ $? -ne 0 ]; then
    echo 'ERROR: problem copying job directory back'
 else
    echo 'job directory copy succeeded'
 fi"""
+
    if remoteDir=='':
       cpCmd=dirCopy
-   elif remoteDir.startswith("/pnfs/psi.ch"):
+   elif  remoteDir.startswith("root://eoscms.cern.ch//eos/cms/store/"):
        cpCmd="""echo 'sending root files to remote dir'
-export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH # Fabio's workaround to fix gfal-tools with CMSSW
-for f in Loop/mt2*.root
+export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH # 
+for f in Loop/*/tree*.root
 do
-   ff=`basename $f | cut -d . -f 1`
-   #d=`echo $f | cut -d / -f 2`
-   gfal-mkdir {srm}
-   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root"
-   gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
-   if [ $? -ne 0 ]; then
-      echo "ERROR: remote copy failed for file $ff"
-   else
+   rm Loop/cmsswPreProcessing.root
+   ff=`echo $f | cut -d/ -f2`
+   ff="${{ff}}_`basename $f | cut -d . -f 1`"
+   echo $f
+   echo $ff
+   export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
+   source $VO_CMS_SW_DIR/cmsset_default.sh
+   for try in `seq 1 3`; do
+      echo "Stageout try $try"
+      echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}"
+      /afs/cern.ch/project/eos/installation/pro/bin/eos.select mkdir {srm}
+      echo "/afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root"
+      /afs/cern.ch/project/eos/installation/pro/bin/eos.select cp `pwd`/$f {srm}/${{ff}}_{idx}.root
+      if [ $? -ne 0 ]; then
+         echo "ERROR: remote copy failed for file $ff"
+         continue
+      fi
       echo "remote copy succeeded"
-      rm Loop/$ff.root
-   fi
+      remsize=$(/afs/cern.ch/project/eos/installation/pro/bin/eos.select find --size {srm}/${{ff}}_{idx}.root | cut -d= -f3) 
+      locsize=$(cat `pwd`/$f | wc -c)
+      ok=$(($remsize==$locsize))
+      if [ $ok -ne 1 ]; then
+         echo "Problem with copy (file sizes don't match), will retry in 30s"
+         sleep 30
+         continue
+      fi
+      echo "everything ok"
+      rm $f
+      echo root://eoscms.cern.ch/{srm}/${{ff}}_{idx}.root > $f.url
+      break
+   done
 done
-#fi
-""".format(idx=jobDir[jobDir.find("_Chunk")+6:].strip("/"), srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")]) + dirCopy
+cp -r Loop/* $LS_SUBCWD
+if [ $? -ne 0 ]; then
+   echo 'ERROR: problem copying job directory back'
+else
+   echo 'job directory copy succeeded'
+fi
+""".format(
+          idx = jobDir[jobDir.find("_Chunk")+6:].strip("/") if '_Chunk' in jobDir else 'all',
+          srm = (""+remoteDir+jobDir[ jobDir.rfind("/") : (jobDir.find("_Chunk") if '_Chunk' in jobDir else len(jobDir)) ]).replace("root://eoscms.cern.ch/","")
+          )
    else:
        print "chosen location not supported yet: ", remoteDir
-       print 'path must start with "/pnfs/psi.ch"'
+       print 'path must start with /store/'
        sys.exit(1)
 
    script = """#!/bin/bash
@@ -124,7 +155,7 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 echo
 {copy}
 """.format(copy=cpCmd)
@@ -140,27 +171,32 @@ def batchScriptPSI( index, jobDir, remoteDir=''):
 
    if remoteDir=='':
        cpCmd="""echo 'sending the job directory back'
+rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $SUBMISIONDIR"""
    elif remoteDir.startswith("/pnfs/psi.ch"):
        cpCmd="""echo 'sending root files to remote dir'
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/dcap/ # Fabio's workaround to fix gfal-tools
-for f in Loop/treeProducerSusyFullHad/*.root
+for f in Loop/mt2*.root
 do
-echo $f
-ff=`basename $f | cut -d . -f 1`
-echo $ff
-gfal-mkdir {srm}
-echo "gfal-copy file:///`pwd`/Loop/treeProducerSusyFullHad/$file.root {srm}/${{ff}}_{idx}.root"
-gfal-copy file:///`pwd`/Loop/treeProducerSusyFullHad/$ff.root {srm}/${{ff}}_{idx}.root
+   ff=`basename $f | cut -d . -f 1`
+   #d=`echo $f | cut -d / -f 2`
+   gfal-mkdir {srm}
+   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root"
+   gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
+   if [ $? -ne 0 ]; then
+      echo "ERROR: remote copy failed for file $ff"
+   else
+      echo "remote copy succeeded"
+      rm Loop/$ff.root
+   fi
 done
-rm Loop/treeProducerSusyFullHad/*.root
-echo 'sending the logs back'
+rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $SUBMISIONDIR""".format(idx=index, srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")])
    else:
-       print "remote directory not supported yet: ", remoteDir
-       print 'path must start with "/pnfs/psi.ch"'
-       sys.exit(1)
-
+      print "remote directory not supported yet: ", remoteDir
+      print 'path must start with "/pnfs/psi.ch"'
+      sys.exit(1)
+      
 
    script = """#!/bin/bash
 shopt expand_aliases
@@ -208,8 +244,8 @@ cp -rf $SUBMISIONDIR .
 ls
 cd `find . -type d | grep /`
 echo 'running'
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 #python $CMSSW_BASE/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
-python {cmssw}/src/CMGTools/RootTools/python/fwlite/looper.py pycfg.py config.pck
 echo
 {copy}
 ###########################################################################
@@ -236,7 +272,7 @@ cd {cmssw}/src
 eval `scramv1 ru -sh`
 cd -
 echo 'running'
-python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./ && rm -r Loop
@@ -248,7 +284,8 @@ def batchScriptLocal(  remoteDir, index ):
 
    script = """#!/bin/bash
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck                   echo
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
+echo
 echo 'sending the job directory back'
 mv Loop/* ./
 """ 
@@ -269,7 +306,7 @@ class MyBatchManager( BatchManager ):
        storeDir = self.remoteOutputDir_.replace('/castor/cern.ch/cms','')
        mode = self.RunningMode(options.batch)
        if mode == 'LXPLUS':
-           scriptFile.write( batchScriptCERN( jobDir, storeDir) ) 
+           scriptFile.write( batchScriptCERN( jobDir, storeDir ) ) 
        elif mode == 'PSI':
            scriptFile.write( batchScriptPSI ( value, jobDir, storeDir ) ) # storeDir not implemented at the moment
        elif mode == 'LOCAL':
@@ -290,8 +327,11 @@ class MyBatchManager( BatchManager ):
        pickle.dump(  components[value] , cfgFile )
        # pickle.dump( cfo, cfgFile )
        cfgFile.close()
+       if hasattr(self,"heppyOptions_"):
+          optjsonfile = open(jobDir+'/options.json','w')
+          optjsonfile.write(json.dumps(self.heppyOptions_))
+          optjsonfile.close()
 
-      
 if __name__ == '__main__':
     batchManager = MyBatchManager()
     batchManager.parser_.usage="""
@@ -303,9 +343,19 @@ if __name__ == '__main__':
 
     options, args = batchManager.ParseOptions()
 
+    from PhysicsTools.HeppyCore.framework.heppy_loop import _heppyGlobalOptions
+    for opt in options.extraOptions:
+        if "=" in opt:
+            (key,val) = opt.split("=",1)
+            _heppyGlobalOptions[key] = val
+        else:
+            _heppyGlobalOptions[opt] = True
+    batchManager.heppyOptions_=_heppyGlobalOptions
+
     cfgFileName = args[0]
 
     handle = open(cfgFileName, 'r')
+    # import pdb; pdb.set_trace()
     cfo = imp.load_source("pycfg", cfgFileName, handle)
     config = cfo.config
     handle.close()

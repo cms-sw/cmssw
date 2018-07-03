@@ -30,7 +30,7 @@ HLTCaloJetIDProducer::HLTCaloJetIDProducer(const edm::ParameterSet& iConfig) :
 }
 
 // Destructor
-HLTCaloJetIDProducer::~HLTCaloJetIDProducer() {}
+HLTCaloJetIDProducer::~HLTCaloJetIDProducer() = default;
 
 // Fill descriptions
 void HLTCaloJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -57,33 +57,33 @@ void HLTCaloJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & des
 void HLTCaloJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::CaloJetCollection> result (new reco::CaloJetCollection());
+    std::unique_ptr<reco::CaloJetCollection> result (new reco::CaloJetCollection());
 
     edm::Handle<reco::CaloJetCollection> calojets;
     iEvent.getByToken(m_theCaloJetToken, calojets);
 
-    for (reco::CaloJetCollection::const_iterator j = calojets->begin(); j != calojets->end(); ++j) {
+    for (auto const & j : *calojets) {
         bool pass = false;
 
-        if (!(j->energy() > 0.))  continue;  // skip jets with zero or negative energy
+        if (!(j.energy() > 0.))  continue;  // skip jets with zero or negative energy
 
-        if (std::abs(j->eta()) >= 2.6) {
+        if (std::abs(j.eta()) >= 2.6) {
             pass = true;
 
         } else {
-            if (min_N90hits_ > 0)  jetIDHelper_.calculate(iEvent, *j);
-            if ((j->emEnergyFraction() >= min_EMF_) &&
-                (j->emEnergyFraction() <= max_EMF_) &&
-                (j->n90() >= min_N90_) &&
+	    if (min_N90hits_ > 0)  jetIDHelper_.calculate(iEvent, iSetup, j);
+            if ((j.emEnergyFraction() >= min_EMF_) &&
+                (j.emEnergyFraction() <= max_EMF_) &&
+                (j.n90() >= min_N90_) &&
                 ((min_N90hits_ <= 0) || (jetIDHelper_.n90Hits() >= min_N90hits_)) ) {
 
                 pass = true;
             }
         }
 
-        if (pass)  result->push_back(*j);
+        if (pass)  result->push_back(j);
     }
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

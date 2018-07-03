@@ -39,18 +39,18 @@ class TrackEfficiencyClient: public DQMEDHarvester
   TrackEfficiencyClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~TrackEfficiencyClient();
+  ~TrackEfficiencyClient() override;
 
  protected:
 
   /// BeginJob
-  void beginJob(void);
+  void beginJob(void) override;
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// EndJob
-  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) override;
 
  private:
 

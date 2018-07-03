@@ -77,7 +77,7 @@ Events={} #{ 'RelValZMM':'5000', 'RelValTTbar':'5000'}
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:
@@ -207,7 +207,7 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
                 sampleFile.close()
                 #print filenames
                 
-                if (Events.has_key(sample)!=True):
+                if ((sample in Events)!=True):
                     Nevents=defaultNevents
                 else:
                     Nevents=Events[sample]

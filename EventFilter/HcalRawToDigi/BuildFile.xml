@@ -4,6 +4,8 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="FWCore/Utilities"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="CalibFormats/CaloObjects"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

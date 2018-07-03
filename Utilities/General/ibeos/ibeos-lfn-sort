@@ -1,0 +1,24 @@
+#!/bin/bash
+IBEOS_FILES=""
+NON_IBEOS_FILES=""
+if [ -f ${LOCALRT}/ibeos_cache.txt ] ; then
+  while read LFN ; do
+    case $LFN in
+      /store/* )
+        if [ $(grep "^${LFN}$" ${LOCALRT}/ibeos_cache.txt | wc -l) -gt 0 ] ; then
+          IBEOS_FILES="$IBEOS_FILES $LFN"
+        else
+          NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN"
+        fi
+        ;;
+    esac
+  done
+else
+  while read LFN ; do
+    case $LFN in
+      /store/* ) NON_IBEOS_FILES="$NON_IBEOS_FILES $LFN" ;;
+    esac
+  done
+fi
+echo $(echo $IBEOS_FILES | tr ' ' '\n' | sort -u) $(echo $NON_IBEOS_FILES | tr ' ' '\n' | sort -u) | tr ' ' '\n' | grep '/store' | head -n 20
+

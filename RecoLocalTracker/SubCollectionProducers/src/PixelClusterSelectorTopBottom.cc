@@ -10,7 +10,7 @@ void PixelClusterSelectorTopBottom::produce( edm::StreamID, edm::Event& event, c
   setup.get<TrackerDigiGeometryRecord>().get( geom );
   const TrackerGeometry& theTracker( *geom );
   
-  std::auto_ptr<SiPixelClusterCollectionNew> output( new SiPixelClusterCollectionNew() );
+  auto output = std::make_unique<SiPixelClusterCollectionNew>();
 
   for (SiPixelClusterCollectionNew::const_iterator clustSet = input->begin(); clustSet!=input->end(); ++clustSet) {
     edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = clustSet->begin();
@@ -30,7 +30,7 @@ void PixelClusterSelectorTopBottom::produce( edm::StreamID, edm::Event& event, c
       }
     }
   }
-  event.put( output );  
+  event.put(std::move(output));  
 }
 
 DEFINE_FWK_MODULE( PixelClusterSelectorTopBottom );

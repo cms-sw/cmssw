@@ -5,9 +5,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
-#include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+//#include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondCore/CondDB/interface/Exception.h"
+//#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 
 #include "MyDataAnalyzer.h"
@@ -33,7 +33,6 @@ void MyDataAnalyzer::endJob(){
     return;
   }
   try{
-    mydbservice->setLogHeaderForRecord(m_record,"mynullsource","this is zhen's dummy test");
     std::string tag=mydbservice->tag(m_record);
     Pedestals* myped=new Pedestals;
     if( mydbservice->isNewTagRequest(m_record) ){

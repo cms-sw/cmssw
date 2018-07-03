@@ -1,4 +1,5 @@
 #include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 
 #include<cstdio>
@@ -12,19 +13,13 @@
 namespace {
 template <typename T> 
 inline T toPhi (T phi) { 
-  T result = phi;
-  while (result > T(M_PI)) result -= T(2*M_PI);
-  while (result <= -T(M_PI)) result += T(2*M_PI);
-  return result;
+  return reco::reduceRange(phi);
 }
 
 
 template <typename T> 
 inline T deltaPhi (T phi1, T phi2) { 
-  T result = phi1 - phi2;
-  while (result > T(M_PI)) result -= T(2*M_PI);
-  while (result <= -T(M_PI)) result += T(2*M_PI);
-  return result;
+  return reco::reduceRange(phi1 - phi2);
 }
 
 
@@ -150,21 +145,15 @@ void testIntPhi() {
 
   std::cout << "pi,  pi2,  pi4, p34 " << maxint << ' ' << pi2 << ' ' << pi4 << ' ' << pi34 << ' ' << pi2+pi4  << '\n';
   std::cout << "Maximum value for int: " << std::numeric_limits<int>::max() << '\n';
-  std::cout << "Maximum value for int+2: " << std::numeric_limits<int>::max()+2 << '\n';
   std::cout << "Maximum value for int+1 as LL: " << (long long)(std::numeric_limits<int>::max())+1LL << std::endl;
 
   std::cout << "Maximum value for short: " << std::numeric_limits<short>::max() << '\n';
-  std::cout << "Maximum value for short+2: " << short(std::numeric_limits<short>::max()+short(2)) << '\n';
   std::cout << "Maximum value for short+1 as int: " << (int)(std::numeric_limits<short>::max())+1 << std::endl;
-
 
   auto d = float(M_PI) -std::nextafter(float(M_PI),0.f);
   std::cout << "abs res at pi for float " << d << ' ' << phi2int(d) << std::endl;
   std::cout << "abs res at for int " << int2dphi(1) << std::endl;
   std::cout << "abs res at for short " << short2phi(1) << std::endl;
-
-
-  assert(-std::numeric_limits<int>::max() == (std::numeric_limits<int>::max()+2));
 
   assert(phiLess(0.f,2.f));
   assert(phiLess(6.f,0.f));

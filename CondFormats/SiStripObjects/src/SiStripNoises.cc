@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 
@@ -66,16 +66,11 @@ void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
 	}
 }
 
-#ifdef EDM_ML_DEBUG
-float SiStripNoises::getNoise(uint16_t strip, const Range& range) {
-	if (9*strip>=(range.second-range.first)*8){
+void SiStripNoises::verify(uint16_t strip, const Range& range) {
+	if (9*strip>=(range.second-range.first)*8)
 		throw cms::Exception("CorruptedData")
 			<< "[SiStripNoises::getNoise] looking for SiStripNoises for a strip out of range: strip " << strip;
-	}
-	return getNoiseFast(strip,range);
 }
-
-#endif
 
 void SiStripNoises::setData(float noise_, InputVector& v){
 	v.push_back((static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF)) ;
@@ -193,7 +188,7 @@ std::string SiStripNoises::print_short_as_binary(const short ch) const
 }
 */
 
-void SiStripNoises::printDebug(std::stringstream& ss) const{
+void SiStripNoises::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const{
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   uint16_t Nstrips;
   std::vector<float> vstripnoise;
@@ -220,9 +215,9 @@ void SiStripNoises::printDebug(std::stringstream& ss) const{
   }
 }
 
-void SiStripNoises::printSummary(std::stringstream& ss) const{
+void SiStripNoises::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const{
 
-  SiStripDetSummary summary;
+  SiStripDetSummary summary{trackerTopo};
 
   std::stringstream tempss;
 

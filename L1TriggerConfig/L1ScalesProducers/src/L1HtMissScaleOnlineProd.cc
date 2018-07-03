@@ -34,9 +34,9 @@ class L1HtMissScaleOnlineProd :
   public L1ConfigOnlineProdBase< L1HtMissScaleRcd, L1CaloEtScale > {
    public:
       L1HtMissScaleOnlineProd(const edm::ParameterSet&);
-      ~L1HtMissScaleOnlineProd();
+      ~L1HtMissScaleOnlineProd() override;
 
-  virtual boost::shared_ptr< L1CaloEtScale > newObject(
+  std::shared_ptr< L1CaloEtScale > newObject(
     const std::string& objectKey ) override ;
 
 
@@ -74,7 +74,7 @@ L1HtMissScaleOnlineProd::~L1HtMissScaleOnlineProd()
 
 }
 
-boost::shared_ptr< L1CaloEtScale >
+std::shared_ptr< L1CaloEtScale >
 L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
 {
   using namespace edm::es;
@@ -305,7 +305,7 @@ L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
      }
 
      // return object
-     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale( 0, 0x7f, rgnEtLsb, thresholds ) );
+     return std::make_shared<L1CaloEtScale>( 0, 0x7f, rgnEtLsb, thresholds );
 
 }
 

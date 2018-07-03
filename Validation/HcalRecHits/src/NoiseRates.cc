@@ -29,6 +29,9 @@ NoiseRates::NoiseRates(const edm::ParameterSet& iConfig)
 
   useAllHistos_  = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
 
+  //Hcal Noise Summary
+  noisetoken_ = consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"));
+
 }
   
   
@@ -70,6 +73,38 @@ void NoiseRates::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm:
   sprintf  (histo, "hRBXNHits" );
   hRBXNHits_ = ib.book1D(histo, histo, 73,-0.5,72.5);
 
+  //HcalNoiseSummary
+
+  sprintf (histo, "nNNumChannels");
+  nNNumChannels_ = ib.book1D(histo, histo, 100, 0, 100);
+  sprintf (histo, "nNSumE");
+  nNSumE_ = ib.book1D(histo, histo , 100, 0, 5000);
+  sprintf (histo, "nNSumEt");
+  nNSumEt_ = ib.book1D(histo, histo , 100, 0, 2000);
+
+  sprintf (histo, "sNNumChannels");
+  sNNumChannels_ = ib.book1D(histo, histo, 100, 0, 100);
+  sprintf (histo, "sNSumE");
+  sNSumE_ = ib.book1D(histo, histo , 100, 0, 5000);
+  sprintf (histo, "sNSumEt");
+  sNSumEt_ = ib.book1D(histo, histo , 100, 0, 2000);
+
+  sprintf (histo, "iNNumChannels");
+  iNNumChannels_ = ib.book1D(histo, histo, 100, 0, 100);
+  sprintf (histo, "iNSumE");
+  iNSumE_ = ib.book1D(histo, histo , 100, 0, 5000);
+  sprintf (histo, "iNSumEt");
+  iNSumEt_ = ib.book1D(histo, histo , 100, 0, 2000);
+
+  sprintf (histo, "hNoise_maxZeros");
+  hNoise_maxZeros_ = ib.book1D(histo, histo, 80, 0, 80);
+  sprintf (histo, "hNoise_maxHPDHits");
+  hNoise_maxHPDHits_ = ib.book1D(histo, histo, 20, 0, 20);
+  sprintf (histo, "hNoise_maxHPDNoOtherHits");
+  hNoise_maxHPDNoOtherHits_ = ib.book1D(histo, histo, 20, 0, 20);
+
+
+
 }
   
 // ------------ method called to for each event  ------------
@@ -89,6 +124,32 @@ NoiseRates::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
       << " could not find HcalNoiseRBXCollection named " << rbxCollName_ << ".\n";
     return;
   }
+
+  // get the Noise summary object
+  edm::Handle<HcalNoiseSummary> summary_h;
+  iEvent.getByToken(noisetoken_, summary_h);
+  if(!summary_h.isValid()) {
+    throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
+    return;
+  }
+  const HcalNoiseSummary summary = *summary_h;
+
+  //Fill the Noise Summary histograms
+  nNNumChannels_->Fill(summary.numNegativeNoiseChannels());
+  nNSumE_->Fill(summary.NegativeNoiseSumE());
+  nNSumEt_->Fill(summary.NegativeNoiseSumEt());
+
+  sNNumChannels_->Fill(summary.numSpikeNoiseChannels());
+  sNSumE_->Fill(summary.spikeNoiseSumE());
+  sNSumEt_->Fill(summary.spikeNoiseSumEt());
+
+  iNNumChannels_->Fill(summary.numIsolatedNoiseChannels());
+  iNSumE_->Fill(summary.isolatedNoiseSumE());
+  iNSumEt_->Fill(summary.isolatedNoiseSumEt());  
+
+  hNoise_maxZeros_->Fill(summary.maxZeros());
+  hNoise_maxHPDHits_->Fill(summary.maxHPDHits());
+  hNoise_maxHPDNoOtherHits_->Fill(summary.maxHPDNoOtherHits());
 
   // loop over the RBXs and fill the histograms
   for(reco::HcalNoiseRBXCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {

@@ -4,41 +4,49 @@
 
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet & iConfig) :
     prop_(iConfig),
-    preselectionCut_(iConfig.existsAs<std::string>("preselection") ? iConfig.getParameter<std::string>("preselection") : ""),
+    useStage2L1_(iConfig.existsAs<bool>("useStage2L1") ? iConfig.getParameter<bool>("useStage2L1") : false),
+    preselectionCut_((iConfig.existsAs<std::string>("preselection")) ? iConfig.getParameter<std::string>("preselection") : ""),
     deltaR2_(std::pow(iConfig.getParameter<double>("maxDeltaR"),2)),
     deltaPhi_(iConfig.existsAs<double>("maxDeltaPhi") ? iConfig.getParameter<double>("maxDeltaPhi") : 10),
     deltaEta_(iConfig.existsAs<double>("maxDeltaEta") ? iConfig.getParameter<double>("maxDeltaEta") : 10),
     l1PhiOffset_(iConfig.existsAs<double>("l1PhiOffset") ? iConfig.getParameter<double>("l1PhiOffset") : 0)
 {
-    bool reqPhi = iConfig.existsAs<bool>("sortByDeltaPhi") && iConfig.getParameter<bool>("sortByDeltaPhi");
-    bool reqEta = iConfig.existsAs<bool>("sortByDeltaEta") && iConfig.getParameter<bool>("sortByDeltaEta");
-    bool reqPt  = iConfig.existsAs<bool>("sortByPt")       && iConfig.getParameter<bool>("sortByPt");
+    bool reqQual = iConfig.existsAs<bool>("sortByQual")     && iConfig.getParameter<bool>("sortByQual");
+    bool reqPhi  = iConfig.existsAs<bool>("sortByDeltaPhi") && iConfig.getParameter<bool>("sortByDeltaPhi");
+    bool reqEta  = iConfig.existsAs<bool>("sortByDeltaEta") && iConfig.getParameter<bool>("sortByDeltaEta");
+    bool reqPt   = iConfig.existsAs<bool>("sortByPt")       && iConfig.getParameter<bool>("sortByPt");
     std::string sortBy = iConfig.existsAs<std::string>("sortBy") ? iConfig.getParameter<std::string>("sortBy") : "";
-    if (reqPhi + reqEta + reqPt > 1) throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set more than one 'sortBy<XXX>' parameter to True.\n";
+    if (reqPhi + reqEta + reqPt + reqQual > 1) throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set more than one 'sortBy<XXX>' parameter to True.\n";
     if (sortBy == "deltaPhi") { 
-        if (reqEta || reqPt) 
+        if (reqEta || reqPt || reqQual) 
             throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set sortBy = 'deltaPhi' and set also another 'sortBy<XXX>' parameter to True.\n";
         else reqPhi = true;
     }
     if (sortBy == "deltaEta") {
-	 if(reqPhi || reqPt)
+	 if(reqPhi || reqPt || reqQual)
             throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set sortBy = 'deltaEta' and set also another 'sortBy<XXX>' parameter to True.\n";
          else reqEta = true;
     }
     if (sortBy == "pt") {
-	 if(reqPhi || reqEta) 
+	 if(reqPhi || reqEta || reqQual) 
             throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set sortBy = 'pt' and set also another 'sortBy<XXX>' parameter to True.\n";
         else reqPt = true;
     }
+    if (sortBy == "quality") {
+	 if(reqPhi || reqEta || reqPt) 
+            throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set sortBy = 'quality' and set also another 'sortBy<XXX>' parameter to True.\n";
+        else reqQual = true;
+    }
     if (sortBy == "deltaR") {
-	 if(reqPhi || reqEta || reqPt)
+	 if(reqPhi || reqEta || reqPt || reqQual)
             throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set sortBy = 'deltaR' and set also another 'sortBy<XXX>' parameter to True.\n";
     }
     // so, if we're here there's no ambiguity in what the user may want. either everything is false, or exactly one req is true.
-    if      (reqEta) sortBy_ = SortByDeltaEta;
-    else if (reqPhi) sortBy_ = SortByDeltaPhi;
-    else if (reqPt)  sortBy_ = SortByPt;
-    else             sortBy_ = SortByDeltaR;
+    if      (reqEta)  sortBy_ = SortByDeltaEta;
+    else if (reqPhi)  sortBy_ = SortByDeltaPhi;
+    else if (reqQual) sortBy_ = SortByQual;
+    else if (reqPt)   sortBy_ = SortByPt;
+    else              sortBy_ = SortByDeltaR;
 }
 
 
@@ -67,6 +75,11 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const l1extra::L
 
 int
 L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1extra::L1MuonParticle> &l1s, float &deltaR, float &deltaPhi) const {
+    return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
+}
+
+int
+L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1t::Muon> &l1s, float &deltaR, float &deltaPhi) const {
     return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
 }
 

@@ -15,11 +15,11 @@ class TSGFromOrderedHits : public TrackerSeedGenerator {
 public:
   TSGFromOrderedHits(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
-  virtual ~TSGFromOrderedHits();
+  ~TSGFromOrderedHits() override;
 
 private:
-  virtual void run(TrajectorySeedCollection &seeds, 
-      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region);
+  void run(TrajectorySeedCollection &seeds, 
+      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) override;
 
 private:
   void init();

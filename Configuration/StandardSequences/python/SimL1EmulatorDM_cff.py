@@ -7,9 +7,23 @@ simDtTriggerPrimitiveDigis.digiTag = 'mixData'
 simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("mixData","MuonCSCComparatorDigisDM")
 simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("mixData","MuonCSCWireDigisDM")
 #
-#simRpcTriggerDigis.label = cms.InputTag("simMuonRPCDigis")
-simRpcTriggerDigis.label = 'mixData'
+#
 simRpcTechTrigDigis.RPCDigiLabel = 'mixData'
+#
 simHcalTechTrigDigis.ttpDigiCollection = "DMHcalTTPDigis"
-simRctDigis.hcalDigis=cms.VInputTag(cms.InputTag("DMHcalTriggerPrimitiveDigis"))
-simRctDigis.ecalDigis=cms.VInputTag(cms.InputTag("DMEcalTriggerPrimitiveDigis"))
+#
+hgcalTriggerPrimitiveDigiProducer.eeDigis.setModuleLabel("mixData")
+hgcalTriggerPrimitiveDigiProducer.fhDigis.setModuleLabel("mixData")
+hgcalTriggerPrimitiveDigiProducer.bhDigis.setModuleLabel("mixData")
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not stage2L1Trigger.isChosen():
+    simRpcTriggerDigis.label = 'mixData'
+    simRctDigis.hcalDigis=cms.VInputTag(cms.InputTag("DMHcalTriggerPrimitiveDigis"))   
+    simRctDigis.ecalDigis=cms.VInputTag(cms.InputTag("DMEcalTriggerPrimitiveDigis"))   
+else:
+    #seems likely that this code does not support 2015 MC...
+    simTwinMuxDigis.RPC_Source = cms.InputTag('mixData')
+    simOmtfDigis.srcRPC = cms.InputTag('mixData')
+    simCaloStage2Layer1Digis.ecalToken = cms.InputTag("DMEcalTriggerPrimitiveDigis")
+    simCaloStage2Layer1Digis.hcalToken = cms.InputTag("DMHcalTriggerPrimitiveDigis")

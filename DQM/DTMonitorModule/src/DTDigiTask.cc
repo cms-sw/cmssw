@@ -35,7 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -77,7 +77,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   inTimeHitsLowerBound = ps.getParameter<int>("inTimeHitsLowerBound");
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
-  maxTDCCounts = ps.getUntrackedParameter<int>("maxTDCCounts", 6400);
+  maxTTMounts = ps.getUntrackedParameter<int>("maxTTMounts", 6400);
 
   doAllHitsOccupancies = ps.getUntrackedParameter<bool>("doAllHitsOccupancies", true);
   doNoiseOccupancies = ps.getUntrackedParameter<bool>("doNoiseOccupancies", false);
@@ -266,13 +266,13 @@ void DTDigiTask::bookHistos(DQMStore::IBooker & ibooker, const DTSuperLayerId& d
 
     if (!readTTrigDB) {
       (digiHistos[histoTag])[dtSL.rawId()] =
-        ibooker.book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+        ibooker.book1D(histoName,histoTitle, maxTTMounts/timeBoxGranularity, 0, maxTTMounts);
       if(doLayerTimeBoxes) {      // Book TimeBoxes per layer
         for(int layer = 1; layer != 5; ++layer) {
           DTLayerId layerId(dtSL, layer);
           stringstream layerHistoName; layerHistoName << histoName << "_L" << layer;
           (digiHistos[histoTag])[layerId.rawId()] =
-            ibooker.book1D(layerHistoName.str(),layerHistoName.str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
+            ibooker.book1D(layerHistoName.str(),layerHistoName.str(), maxTTMounts/timeBoxGranularity, 0, maxTTMounts);
         }
       }
     }
@@ -328,7 +328,7 @@ void DTDigiTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh
   if (folder == "Occupancies")    {
 
     const DTChamber* dtchamber = muonGeom->chamber(dtCh);
-    const std::vector<const DTSuperLayer*> dtSupLylist = dtchamber->superLayers();
+    const std::vector<const DTSuperLayer*>& dtSupLylist = dtchamber->superLayers();
     std::vector<const DTSuperLayer*>::const_iterator suly = dtSupLylist.begin();
     std::vector<const DTSuperLayer*>::const_iterator sulyend = dtSupLylist.end();
 
@@ -525,7 +525,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
     // clear the map of # of digis per chamber: not needed anymore
     hitMap.clear();
 
-    if (syncNoisyChambers.size() != 0) {
+    if (!syncNoisyChambers.empty()) {
       LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "[DTDigiTask] Synch Noise in event: " << nevents;
       if(filterSyncNoise) LogVerbatim("DTDQM|DTMonitorModule|DTDigiTask") << "\tnoisy time-boxes and occupancy will not be filled!" << endl;
       syncNumTot++;
@@ -739,9 +739,6 @@ string DTDigiTask::topFolder() const {
 
 
 
-void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) {
-
-}
 
 void DTDigiTask::channelsMap(const DTChamberId &dtCh, string histoTag) {
 

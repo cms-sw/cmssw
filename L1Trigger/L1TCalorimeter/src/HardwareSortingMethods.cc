@@ -20,9 +20,19 @@ namespace l1t{
   {
     return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
   }
+
+  unsigned int pack16bits(int pt, int eta, int phi)
+  {
+    return( 0x8000 + ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
+  }
+
+  unsigned int pack16bitsEgammaSpecial(int pt, int eta, int phi)
+  {
+    return( 0x8000 + ((pt & 0x3f) << 9) + ((eta & 0xf)) + ((phi & 0x1f) << 4));
+  }
 }
 
-void print2DVector(std::vector<std::vector<l1t::L1Candidate> > myVector){
+void print2DVector(std::vector<std::vector<l1t::L1Candidate> > const& myVector){
   int nrows = myVector.size();
   int ncols = myVector[0].size();
   std::cout << std::endl;
@@ -37,7 +47,7 @@ void print2DVector(std::vector<std::vector<l1t::L1Candidate> > myVector){
   }
 }
 
-std::vector<l1t::L1Candidate> sort_array(std::vector<l1t::L1Candidate> inputArray){
+std::vector<l1t::L1Candidate> sort_array(std::vector<l1t::L1Candidate> const& inputArray){
   std::vector<l1t::L1Candidate> outputArray(inputArray.size());
   for(unsigned int i=0; i<inputArray.size(); i++){
     int rank=0;
@@ -49,7 +59,7 @@ std::vector<l1t::L1Candidate> sort_array(std::vector<l1t::L1Candidate> inputArra
   return outputArray;
 }
 
-std::vector<std::vector<l1t::L1Candidate> > presort(std::vector<std::vector<l1t::L1Candidate> > energies, int rows, int cols){
+std::vector<std::vector<l1t::L1Candidate> > presort(std::vector<std::vector<l1t::L1Candidate> > const& energies, int rows, int cols){
 
   int row_block_length = energies.size() / cols;
   if(energies.size() % cols != 0) row_block_length++;
@@ -91,7 +101,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort(std::vector<std::vector<l1t:
   return sorted_energies;
 }
 
-std::vector<std::vector<l1t::L1Candidate> > extract_sub_jet_energy_position_matrix(std::vector<std::vector<l1t::L1Candidate> > input_matrix, unsigned int row_i, unsigned int row_f, unsigned int col_i, unsigned int col_f){
+std::vector<std::vector<l1t::L1Candidate> > extract_sub_jet_energy_position_matrix(std::vector<std::vector<l1t::L1Candidate> > const& input_matrix, unsigned int row_i, unsigned int row_f, unsigned int col_i, unsigned int col_f){
   std::vector<std::vector<l1t::L1Candidate> > output_matrix(row_f-row_i+1,std::vector<l1t::L1Candidate>(col_f-col_i+1));
   l1t::L1Candidate dummyJet;
   dummyJet.setHwPt(0);
@@ -107,7 +117,7 @@ std::vector<std::vector<l1t::L1Candidate> > extract_sub_jet_energy_position_matr
   return output_matrix;
 }
 
-std::vector<std::vector<l1t::L1Candidate> > sort_matrix_rows(std::vector<std::vector<l1t::L1Candidate> > input_matrix){
+std::vector<std::vector<l1t::L1Candidate> > sort_matrix_rows(std::vector<std::vector<l1t::L1Candidate> > const& input_matrix){
   std::vector<std::vector<l1t::L1Candidate> > output_matrix( input_matrix.size(), std::vector<l1t::L1Candidate> (input_matrix[0].size()));
 
   for(unsigned int i=0; i<input_matrix.size(); i++){
@@ -121,7 +131,7 @@ std::vector<std::vector<l1t::L1Candidate> > sort_matrix_rows(std::vector<std::ve
   return output_matrix;
 }
 
-std::vector<std::vector<l1t::L1Candidate> > sort_by_row_in_groups(std::vector<std::vector<l1t::L1Candidate> > input_matrix, int group_size){
+std::vector<std::vector<l1t::L1Candidate> > sort_by_row_in_groups(std::vector<std::vector<l1t::L1Candidate> > const& input_matrix, int group_size){
   int n_groups = input_matrix.size()/group_size + (1 - input_matrix.size()/group_size*group_size/input_matrix.size()); //constants must make this an integer
   //std::vector<std::vector<l1t::L1Candidate> > output_matrix(input_matrix.size()+(input_matrix.size() % group_size), std::vector<l1t::L1Candidate> (input_matrix[0].size()));
   std::vector<std::vector<l1t::L1Candidate> > output_matrix(input_matrix.size()
@@ -141,7 +151,7 @@ std::vector<std::vector<l1t::L1Candidate> > sort_by_row_in_groups(std::vector<st
   return output_matrix;
 }
 
-std::vector<l1t::L1Candidate> array_from_row_sorted_matrix(std::vector<std::vector<l1t::L1Candidate> > input_matrix, unsigned int n_keep){
+std::vector<l1t::L1Candidate> array_from_row_sorted_matrix(std::vector<std::vector<l1t::L1Candidate> > const& input_matrix, unsigned int n_keep){
   std::vector<l1t::L1Candidate> output_array (n_keep*(n_keep+1)/2);
   unsigned int max_row = n_keep-1;
   unsigned int max_col = n_keep-1;
@@ -173,7 +183,7 @@ std::vector<l1t::L1Candidate> array_from_row_sorted_matrix(std::vector<std::vect
   return output_array;
 }
 
-std::vector<std::vector<l1t::L1Candidate> > super_sort_matrix_rows(std::vector<std::vector<l1t::L1Candidate> > input_matrix, unsigned int group_size, unsigned int n_keep){
+std::vector<std::vector<l1t::L1Candidate> > super_sort_matrix_rows(std::vector<std::vector<l1t::L1Candidate> > const& input_matrix, unsigned int group_size, unsigned int n_keep){
   unsigned int n_groups = input_matrix.size()/group_size + (1 - input_matrix.size()/group_size*group_size/input_matrix.size()); //constants must make this an integer
   std::vector<std::vector<l1t::L1Candidate> > output_matrix(n_groups, std::vector<l1t::L1Candidate>(n_keep));
 
@@ -199,7 +209,7 @@ std::vector<std::vector<l1t::L1Candidate> > super_sort_matrix_rows(std::vector<s
   return output_matrix;
 }
 
-std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Candidate> input_egamma, int rows, int cols){
+std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Candidate> const& input_egamma, int rows, int cols){
 
   int row_block_length = input_egamma.size() / cols;
   if(input_egamma.size() % cols != 0) row_block_length++;
@@ -247,6 +257,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Ca
 namespace l1t{
   void SortJets(std::vector<l1t::Jet> * input,
 		std::vector<l1t::Jet> * output){
+    //verbose = true;
     const int CENTRAL_ETA_SLICES = 14;
     const int N_PHI_GROUPS = 5;
     const int N_PRESORTED_ROWS_CENTRAL = CENTRAL_ETA_SLICES*N_PHI_GROUPS;
@@ -366,15 +377,15 @@ namespace l1t{
 
     for(unsigned int i = 0; i < 4; ++i)
     {
-      l1t::Jet *intjet = static_cast<l1t::Jet *>( &sorted_final_energies_matrix_sig[0][i] );
-      output->push_back(*intjet);
+      auto const& tmp = sorted_final_energies_matrix_sig[0][i];
+      output->emplace_back( tmp.p4(), tmp.hwPt(), tmp.hwEta(), tmp.hwPhi(), tmp.hwQual() );
     }
     for(unsigned int i = 0; i < 4; ++i)
     {
-      l1t::Jet *intjet = static_cast<l1t::Jet *>( &hf_sorted_final_merged_plus_minus_forward_energies_matrix_sig[0][i] );
-      intjet->setHwQual(intjet->hwQual() | 2);
-      output->push_back(*intjet);
+      auto const& tmp = hf_sorted_final_merged_plus_minus_forward_energies_matrix_sig[0][i];
+      output->emplace_back(tmp.p4(), tmp.hwPt(), tmp.hwEta(), tmp.hwPhi(), tmp.hwQual() | 2 );
     }
+    //verbose = false;
   }
 
   void SortEGammas(std::vector<l1t::EGamma> * input,
@@ -493,14 +504,13 @@ namespace l1t{
 
     for(unsigned int i = 0; i < 4; ++i)
     {
-      l1t::EGamma *ineg = static_cast<l1t::EGamma *>( &sorted_iso_egammas[i] );
-      ineg->setHwIso(1);
-      output->push_back(*ineg);
+      auto const& tmp = sorted_iso_egammas[i];
+      output->emplace_back(tmp.p4(), tmp.hwPt(), tmp.hwEta(), tmp.hwPhi(), tmp.hwQual(), 1 /*Iso*/);
     }
     for(unsigned int i = 0; i < 4; ++i)
     {
-      l1t::EGamma *ineg = static_cast<l1t::EGamma *>( &sorted_noniso_egammas[i] );
-      output->push_back(*ineg);
+      auto const& tmp =sorted_noniso_egammas[i];
+      output->emplace_back(tmp.p4(),tmp.hwPt(), tmp.hwEta(), tmp.hwPhi(), tmp.hwQual(), tmp.hwIso());
     }
   }
 
@@ -560,8 +570,8 @@ namespace l1t{
 
     for(unsigned int i = 0; i < 4; ++i)
     {
-      l1t::Tau *intjet = static_cast<l1t::Tau *>( &sorted_final_energies_matrix_sig[0][i] );
-      output->push_back(*intjet);
+      auto const& tmp = sorted_final_energies_matrix_sig[0][i];
+      output->emplace_back(tmp.p4(), tmp.hwPt(), tmp.hwEta(), tmp.hwPhi(), tmp.hwQual(), tmp.hwIso());
     }
   }
 }

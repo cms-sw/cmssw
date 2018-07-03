@@ -130,6 +130,31 @@ namespace sistrip {
     return os;
   }
 
+  std::ostream& operator<<(std::ostream& os, const FEDLegacyReadoutMode& value)
+  {
+    switch (value) {
+    case READOUT_MODE_LEGACY_SCOPE:                     os << "(L) Scope mode"; break;
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:           os << "(L) Virgin raw (real)"; break;
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:           os << "(L) Virgin raw (fake)"; break;
+    case READOUT_MODE_LEGACY_PROC_RAW_REAL:             os << "(L) Processed raw (real)"; break;
+    case READOUT_MODE_LEGACY_PROC_RAW_FAKE:             os << "(L) Processed raw (fake)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:      os << "(L) Zero suppressed (real)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:      os << "(L) Zero suppressed (fake)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL: os << "(L) Zero suppressed lite (real)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE: os << "(L) Zero suppressed lite (fake)"; break;
+    case READOUT_MODE_LEGACY_SPY:                       os << "(L) Spy channel"; break;
+    case READOUT_MODE_LEGACY_PREMIX_RAW:                os << "(L) PreMix raw"; break;
+    case READOUT_MODE_LEGACY_INVALID:                   os << "(L) Invalid"; break;
+    default:
+      os << "(L) Unrecognized";
+      os << " (";
+      printHexValue(value,os);
+      os << ")";
+      break;
+    }
+    return os;
+  }
+
   std::ostream& operator<<(std::ostream& os, const FEDReadoutMode& value)
   {
     switch (value) {
@@ -145,36 +170,44 @@ namespace sistrip {
     case READOUT_MODE_ZERO_SUPPRESSED:
       os << "Zero suppressed";
       break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+      os << "Zero suppressed (fake)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
       os << "Zero suppressed lite";
       break;
     case READOUT_MODE_SPY:
       os << "Spy channel";
+      break;
+    /*case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      os << "Zero suppressed CM Override";
+      break;*/
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      os << "Zero suppressed lite (8 bit, top-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, top-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      os << "Zero suppressed lite (8 bit, bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      os << "Zero suppressed lite (8 bit, top/bottom-stripped)";
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      os << "Zero suppressed lite CM Override (8 bit, top/bottom-stripped)";
       break;
     case READOUT_MODE_PREMIX_RAW:
       os << "PreMix raw";
       break;
     case READOUT_MODE_INVALID:
       os << "Invalid";
-      break;
-    default:
-      os << "Unrecognized";
-      os << " (";
-      printHexValue(value,os);
-      os << ")";
-      break;
-    }
-    return os;
-  }
-
-  std::ostream& operator<<(std::ostream& os, const FEDDataType& value)
-  {
-    switch (value) {
-    case DATA_TYPE_REAL:
-      os << "Real data";
-      break;
-    case DATA_TYPE_FAKE:
-      os << "Fake data";
       break;
     default:
       os << "Unrecognized";
@@ -362,10 +395,25 @@ namespace sistrip {
          (readoutModeString == "Zero suppressed") ) {
       return READOUT_MODE_ZERO_SUPPRESSED;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE") ||
-         (readoutModeString == "Zero suppressed lite") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED_LITE;
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8") ||
+         (readoutModeString == "Zero suppressed lite8") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8_TOPBOT") ||
+         (readoutModeString == "Zero suppressed lite8 TopBot") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+         (readoutModeString == "Zero suppressed lite8 BotBot") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE10") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE10") ||
+         (readoutModeString == "Zero suppressed lite10") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
     }
     if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
          (readoutModeString == "PREMIX_RAW") ||
@@ -380,25 +428,60 @@ namespace sistrip {
     //if it was none of the above then return invalid
     return READOUT_MODE_INVALID;
   }
-  
-  FEDDataType fedDataTypeFromString(const std::string& dataTypeString)
+  uint8_t packetCodeFromString(const std::string& packetCode, FEDReadoutMode mode)
   {
-    if ( (dataTypeString == "REAL") ||
-         (dataTypeString == "DATA_TYPE_REAL") ||
-         (dataTypeString == "Real data") ) {
-      return DATA_TYPE_REAL;
+    if ( mode == READOUT_MODE_ZERO_SUPPRESSED ) {
+      if        ( packetCode == "ZERO_SUPPRESSED" || packetCode == "Zero suppressed" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED;
+      } else if ( packetCode == "ZERO_SUPPRESSED10" || packetCode == "Zero suppressed 10" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED10;
+      } else if ( packetCode == "ZERO_SUPPRESSED8_BOTBOT" || packetCode == "Zero suppressed 8 BOTBOT" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT;
+      } else if ( packetCode == "ZERO_SUPPRESSED8_TOPBOT" || packetCode == "Zero suppressed 8 TOPBOT" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode ZERO_SUPPRESSED";
+
+      }
+    } else if ( mode == READOUT_MODE_VIRGIN_RAW ) {
+      if        ( packetCode == "VIRGIN_RAW" || packetCode == "Virgin raw" ) {
+        return PACKET_CODE_VIRGIN_RAW;
+      } else if ( packetCode == "VIRGIN_RAW10" || packetCode == "Virgin raw 10" ) {
+        return PACKET_CODE_VIRGIN_RAW10;
+      } else if ( packetCode == "VIRGIN_RAW8_BOTBOT" || packetCode == "Virgin raw 8 BOTBOT" ) {
+        return PACKET_CODE_VIRGIN_RAW8_BOTBOT;
+      } else if ( packetCode == "VIRGIN_RAW8_TOPBOT" || packetCode == "Virgin raw 8 TOPBOT" ) {
+        return PACKET_CODE_VIRGIN_RAW8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode VIRGIN_RAW";
+      }
+    } else if ( mode == READOUT_MODE_PROC_RAW ) {
+      if        ( packetCode == "PROC_RAW" || packetCode == "Processed raw" ) {
+        return PACKET_CODE_PROC_RAW;
+      } else if ( packetCode == "PROC_RAW10" || packetCode == "Processed raw 10" ) {
+        return PACKET_CODE_PROC_RAW10;
+      } else if ( packetCode == "PROC_RAW8_BOTBOT" || packetCode == "Processed raw 8 BOTBOT" ) {
+        return PACKET_CODE_PROC_RAW8_BOTBOT;
+      } else if ( packetCode == "PROC_RAW8_TOPBOT" || packetCode == "Processed raw 8 TOPBOT" ) {
+        return PACKET_CODE_PROC_RAW8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode PROC_RAW";
+      }
+    } else if ( mode == READOUT_MODE_SCOPE ) {
+      if ( packetCode == "SCOPE" || packetCode == "Scope"
+          || packetCode.empty() ) { // default
+        return PACKET_CODE_SCOPE;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode SCOPE";
+      }
+    } else {
+      if ( !packetCode.empty() ) {
+        throw cms::Exception("FEDBuffer") << "Packet codes are only needed for zero-suppressed (non-lite), virgin raw, processed raw and spy data. FEDReadoutMode=" << mode << " and packetCode='" << packetCode << "'";
+      }
+      return 0;
     }
-    if ( (dataTypeString == "FAKE") ||
-         (dataTypeString == "DATA_TYPE_FAKE") ||
-         (dataTypeString == "Fake data") ) {
-      return DATA_TYPE_FAKE;
-    }
-    //if it was none of the above then throw an exception (there is no invalid value for the data type since it is represented as a single bit in the buffer)
-    std::ostringstream ss;
-    ss << "Trying to convert to a FEDDataType from an invalid string: " << dataTypeString;
-    throw cms::Exception("FEDDataType") << ss.str();
   }
-  
+
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString)
   {
     if ( (daqEventTypeString == "PHYSICS") ||
@@ -653,6 +736,25 @@ namespace sistrip {
     else return HEADER_TYPE_INVALID;
   }
 
+  FEDLegacyReadoutMode TrackerSpecialHeader::legacyReadoutMode() const
+  {
+    const uint8_t eventTypeNibble = trackerEventTypeNibble();
+    const uint8_t mode = (eventTypeNibble & 0xF);
+    switch(mode) {
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
+    case READOUT_MODE_LEGACY_PROC_RAW_REAL:
+    case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+      return FEDLegacyReadoutMode(mode);
+    default:
+      return READOUT_MODE_LEGACY_INVALID;
+    }
+  }
+
   FEDReadoutMode TrackerSpecialHeader::readoutMode() const
   {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
@@ -662,29 +764,29 @@ namespace sistrip {
     if (eventTypeNibble == READOUT_MODE_PREMIX_RAW) return FEDReadoutMode(eventTypeNibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
-      const uint8_t mode = (eventTypeNibble & 0xE);
+      const uint8_t mode = (eventTypeNibble & 0xF);
       switch(mode) {
       case READOUT_MODE_VIRGIN_RAW:
       case READOUT_MODE_PROC_RAW:
       case READOUT_MODE_ZERO_SUPPRESSED:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+      case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
       case READOUT_MODE_SPY:
-	return FEDReadoutMode(mode);
+        return FEDReadoutMode(mode);
       default:
-	return READOUT_MODE_INVALID;
+        return READOUT_MODE_INVALID;
       }
-    }   
+    }
   }
 
-  FEDDataType TrackerSpecialHeader::dataType() const
-  {
-    const uint8_t eventTypeNibble = trackerEventTypeNibble();
-    //if it is scope mode then it is always real
-    if (eventTypeNibble == READOUT_MODE_SCOPE) return DATA_TYPE_REAL;
-    //in other modes it is the lowest order bit of event type nibble
-    else return FEDDataType(eventTypeNibble & 0x1);
-  }
-  
   TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat)
   {
     //check if order in buffer is different
@@ -737,18 +839,24 @@ namespace sistrip {
     case READOUT_MODE_SCOPE:
       //scope mode is always real
       setReadoutModeBits(readoutMode);
-      setDataTypeBit(true);
     case READOUT_MODE_VIRGIN_RAW:
     case READOUT_MODE_PROC_RAW:
-    case READOUT_MODE_ZERO_SUPPRESSED:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE:
     case READOUT_MODE_SPY:
+    case READOUT_MODE_ZERO_SUPPRESSED:
+    case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
       setReadoutModeBits(readoutMode);
       break;
     case READOUT_MODE_PREMIX_RAW:
       //special mode for simulation
       setReadoutModeBits(readoutMode);
-      setDataTypeBit(true);
       break;
     default:
       std::ostringstream ss;
@@ -757,23 +865,6 @@ namespace sistrip {
       throw cms::Exception("FEDBuffer") << ss.str();
     }
     return *this;
-  }
-  
-  TrackerSpecialHeader& TrackerSpecialHeader::setDataType(const FEDDataType dataType)
-  {
-    //if mode is scope then this bit can't be changed
-    if (readoutMode() == READOUT_MODE_SCOPE) return *this;
-    switch (dataType) {
-    case DATA_TYPE_REAL:
-    case DATA_TYPE_FAKE:
-      setDataTypeBit(dataType);
-      return *this;
-    default:
-      std::ostringstream ss;
-      ss << "Invalid data type: ";
-      printHex(&dataType,1,ss);
-      throw cms::Exception("FEDBuffer") << ss.str();
-    }
   }
   
   TrackerSpecialHeader& TrackerSpecialHeader::setAPVAddressErrorForFEUnit(const uint8_t internalFEUnitNum, const bool error)
@@ -801,7 +892,7 @@ namespace sistrip {
   }
   
   TrackerSpecialHeader::TrackerSpecialHeader(const FEDBufferFormat bufferFormat, const FEDReadoutMode readoutMode,
-                                             const FEDHeaderType headerType, const FEDDataType dataType,
+                                             const FEDHeaderType headerType,
                                              const uint8_t address, const uint8_t addressErrorRegister,
                                              const uint8_t feEnableRegister, const uint8_t feOverflowRegister,
                                              const FEDStatusRegister fedStatusRegister)
@@ -813,7 +904,6 @@ namespace sistrip {
     setBufferFormatByte(bufferFormat);
     setReadoutMode(readoutMode);
     setHeaderType(headerType);
-    setDataType(dataType);
     setAPVEAddress(address);
     setAPVEAddressErrorRegister(addressErrorRegister);
     setFEEnableRegister(feEnableRegister);
@@ -1057,6 +1147,18 @@ namespace sistrip {
   {
     return;
   }
+  void FEDAPVErrorHeader::setDAQRegister(const uint32_t daqRegister)
+  {
+    return;
+  }
+  void FEDAPVErrorHeader::setDAQRegister2(const uint32_t daqRegister2)
+  {
+    return;
+  }
+  void FEDAPVErrorHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister)
+  {
+    return;
+  }
   void FEDAPVErrorHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length)
   {
     return;
@@ -1192,6 +1294,12 @@ namespace sistrip {
   {
     set32BitWordAt(feWord(6)+10,daqRegister2);
   }
+
+  //used by DigiToRaw to copy reserved registers in internalFEUnit buffers 1 through 5
+  void FEDFullDebugHeader::set32BitReservedRegister(const uint8_t internalFEUnitNum, const uint32_t reservedRegister)
+  {
+    set32BitWordAt(feWord(internalFEUnitNum)+10,reservedRegister);
+  }
   
   void FEDFullDebugHeader::setFEUnitLength(const uint8_t internalFEUnitNum, const uint16_t length)
   {
@@ -1215,7 +1323,7 @@ namespace sistrip {
 
 
   FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
-    : channels_(FEDCH_PER_FED,FEDChannel(NULL,0,0)),
+    : channels_(FEDCH_PER_FED,FEDChannel(nullptr,0,0)),
       originalBuffer_(fedBuffer),
       bufferSize_(fedBufferSize)
   {
@@ -1227,7 +1335,7 @@ namespace sistrip {
       bufferSize_(fedBufferSize)
   {
     init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
-    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(NULL,0,0));
+    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(nullptr,0,0));
   }
   
   void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
@@ -1305,7 +1413,6 @@ namespace sistrip {
     os << "Source ID: " << daqSourceID() << std::endl;
     os << "Header type: " << headerType() << std::endl;
     os << "Readout mode: " << readoutMode() << std::endl;
-    os << "Data type: " << dataType() << std::endl;
     os << "DAQ event type: " << daqEventType() << std::endl;
     os << "TTS state: " << daqTTSState() << std::endl;
     os << "L1 ID: " << daqLvl1ID() << std::endl;

@@ -17,6 +17,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -117,25 +118,25 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
-  std::auto_ptr<const CaloSubdetectorTopology> topology;
+  std::unique_ptr<const CaloSubdetectorTopology> topology;
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
   es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
  
   geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  topology.reset(new EcalBarrelTopology(geoHandle));
+  topology = std::make_unique<EcalBarrelTopology>(geoHandle);
 
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLv.product(),false,
-			 std::vector<EcalEtaPhiRegion>());
+			 std::vector<RectangularEtaPhiRegion>());
 
   LogTrace("EcalClusters") << "Finished clustering - BasicClusterCollection returned to producer..." ;
 
-  // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
+  // create a unique_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
+  auto basicclusters_p = std::make_unique<reco::BasicClusterCollection>();
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
-  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p,basicclusterCollection_);
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(std::move(basicclusters_p),basicclusterCollection_);
 								       
   //Basic clusters now in the event.
   LogTrace("EcalClusters") << "Basic Clusters now put into event." ;
@@ -161,10 +162,10 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterPtrVector);
   LogTrace("EcalClusters") << "Found: " << superClusters.size() << " superclusters." ;
 
-  std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+  auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   
-  evt.put(superclusters_p, superclusterCollection_);
+  evt.put(std::move(superclusters_p), superclusterCollection_);
   LogTrace("EcalClusters") << "Hybrid Clusters (Basic/Super) added to the Event! :-)" ;
 
   

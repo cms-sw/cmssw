@@ -25,10 +25,9 @@ SiStripQualityFakeESSource::SiStripQualityFakeESSource(const edm::ParameterSet& 
 }
 
 
-std::auto_ptr<SiStripQuality> SiStripQualityFakeESSource::produce(const SiStripQualityRcd& iRecord)
+std::unique_ptr<SiStripQuality> SiStripQualityFakeESSource::produce(const SiStripQualityRcd& iRecord)
 {
-  std::auto_ptr<SiStripQuality> ptr(new SiStripQuality);
-  return ptr;
+  return std::make_unique<SiStripQuality>();
 }
 
 void SiStripQualityFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,

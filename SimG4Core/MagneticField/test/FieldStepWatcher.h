@@ -29,12 +29,12 @@ class FieldStepWatcher : public SimWatcher,
 
 public:
   FieldStepWatcher(edm::ParameterSet const & p);
-  ~FieldStepWatcher();
+  ~FieldStepWatcher() override;
 private:
-  void update(const BeginOfRun * );
-  void update(const BeginOfEvent * );
-  void update(const EndOfEvent * );
-  void update(const G4Step * );
+  void update(const BeginOfRun * ) override;
+  void update(const BeginOfEvent * ) override;
+  void update(const EndOfEvent * ) override;
+  void update(const G4Step * ) override;
   void findTouch(G4VPhysicalVolume * , int );
   int  findName(std::string);
 private:

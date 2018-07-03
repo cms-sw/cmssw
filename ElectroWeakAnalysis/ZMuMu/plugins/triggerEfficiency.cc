@@ -32,8 +32,8 @@ class testAnalyzer : public edm::EDAnalyzer {
 public:
   testAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   int SingleTrigger_ ,DoubleTrigger_ ,  NoTrigger_ , zmumuIncrement_ ;
   EDGetTokenT<vector<pat::Muon> > selectMuonToken_;
   EDGetTokenT<CandidateView> zMuMuToken_;

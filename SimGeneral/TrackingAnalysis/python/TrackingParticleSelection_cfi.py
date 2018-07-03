@@ -10,7 +10,7 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
     mergedBremsstrahlung = cms.bool(True),
     removeDeadModules = cms.bool(False),
  
-    HepMCDataLabels = cms.vstring('VtxSmeared', 
+    HepMCDataLabels = cms.vstring('generatorSmeared', 
         'generator', 
         'PythiaSource', 
         'source'
@@ -51,9 +51,22 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
         minRapidityTP = cms.double(-2.6),
         minHitTP = cms.int32(3),
         ptMinTP = cms.double(0.2),
+        ptMaxTP = cms.double(1e100),
         maxRapidityTP = cms.double(2.6),
         tipTP = cms.double(1000)
     )
 )
 
 trackingParticleSelection = cms.Sequence(mergedtruth)
+
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toModify(trackingParticleSelection, simHitCollections = dict(
+        muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonGEMHits"]))
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify(trackingParticleSelection, simHitCollections = dict(
+        muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonGEMHits"]))
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( trackingParticleSelection, simHitCollections = dict(
+        muon = trackingParticleSelection.simHitCollections.muon+["g4SimHitsMuonME0Hits"]))

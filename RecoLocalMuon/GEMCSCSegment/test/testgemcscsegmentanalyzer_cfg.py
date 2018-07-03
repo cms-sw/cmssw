@@ -3,10 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TestGEMCSCSegment")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-# process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-# process.load('Configuration.Geometry.GeometryExtended2019_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D1_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 # process.load("Geometry.GEMGeometry.gemGeometry_cfi")
 # process.load("Geometry.RPCGeometry.rpcGeometry_cfi")

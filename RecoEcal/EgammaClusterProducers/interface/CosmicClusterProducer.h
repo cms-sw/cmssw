@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_CosmicClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 #include <vector> //TEMP JHAUPT 4-27
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,9 +30,9 @@ class CosmicClusterProducer : public edm::stream::EDProducer<>
 
       CosmicClusterProducer(const edm::ParameterSet& ps);
 
-      ~CosmicClusterProducer();
+      ~CosmicClusterProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 

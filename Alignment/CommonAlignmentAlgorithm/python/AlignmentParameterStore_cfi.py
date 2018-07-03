@@ -8,7 +8,7 @@ AlignmentParameterStore = cms.PSet(
             MaxUpdates = cms.int32(5000)
         ),
         UseExtendedCorrelations = cms.untracked.bool(False),
-        TypeOfConstraints = cms.string('approximate_averaging'),
+        TypeOfConstraints = cms.string('hierarchy'),
     )
 )
 

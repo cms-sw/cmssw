@@ -10,8 +10,8 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
 
   SiTrivialDigitalConverter(float in, bool PreMix);
   
-  DigitalVecType    convert(const std::vector<float>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);
-  DigitalRawVecType convertRaw(const std::vector<float>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);  
+  DigitalVecType    convert(const std::vector<float>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid) override;
+  DigitalRawVecType convertRaw(const std::vector<float>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid) override;  
 
  private:
 

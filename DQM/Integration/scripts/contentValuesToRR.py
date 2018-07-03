@@ -80,7 +80,7 @@ if __name__ == "__main__":
       else:
         result = server.SummaryValuesWriter.write(run_number, dataset, json.dumps(values))
         print "RR: %d rows modified for run# %d dataset %s" % (result, run_number, dataset)
-    except xmlrpclib.Error, errstring:
+    except xmlrpclib.Error as errstring:
       print "ERROR", errstring
       sys.exit(3)
   

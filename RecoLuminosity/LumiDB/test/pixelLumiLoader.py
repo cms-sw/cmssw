@@ -45,7 +45,7 @@ def generateLumiLSdataForRun(lsdata,lumirundata,beamsta):
         instlumierror=0.0
         instlumiquality=0
         startorbit=(cmslsnum-1)*numorbit
-        if beamsta and beamsta.has_key(cmslsnum):
+        if beamsta and cmslsnum in beamsta:
             beamstatus=beamsta[cmslsnum]
         result[lumilsnum]=[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]
     return result
@@ -74,8 +74,7 @@ def parseInputFile(filename,singlerun=None):
     strresult=json.load(json_data)
     json_data.close()
     strruns=strresult.keys()
-    rs=[int(x) for x in strruns]
-    rs.sort()
+    rs=sorted([int(x) for x in strruns])
     print rs
     for runnum,perrundata in strresult.items():
         if singlerun:
@@ -158,7 +157,7 @@ if __name__ == "__main__":
         trgdataid=hfdataidinfo[1]
         hltdataid=hfdataidinfo[2]
         beamsta={}
-        if beamstatusdata.has_key(runnum):
+        if runnum in beamstatusdata:
             beamsta=beamstatusdata[runnum]
         alllumilsdata[runnum]=generateLumiLSdataForRun(perrundata,alllumirundata[runnum],beamsta)#lumirundata [datasource,nominalenergy,ncollidingbunches,starttime,stoptime,nls]
         pixellumirundata=alllumirundata[runnum]

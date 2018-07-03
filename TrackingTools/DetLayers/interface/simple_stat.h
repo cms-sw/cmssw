@@ -1,3 +1,7 @@
+#ifndef TrackingTools_DetLayers_simple_stat_h
+#define TrackingTools_DetLayers_simple_stat_h
+
+#include <algorithm>
 #include <numeric>
 #include <cmath>
 
@@ -32,3 +36,5 @@ double stat_RMS( const CONT & cont) {
   }
   else return 0.;
 }
+
+#endif // TrackingTools_DetLayers_simple_stat_h

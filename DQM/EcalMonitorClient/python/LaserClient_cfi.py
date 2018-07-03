@@ -7,13 +7,14 @@ from DQM.EcalMonitorTasks.LaserTask_cfi import ecalLaserTask
 forwardFactor = 0.5
 minChannelEntries = 3
 expectedAmplitude = [1700.0, 1300.0, 1700.0, 1700.0]
-toleranceAmplitude = 0.1
+toleranceAmplitudeLo = 0.1
+toleranceAmplitudeHi = 2.06
 toleranceAmpRMSRatio = 0.3
 expectedPNAmplitude = [800.0, 800.0, 800.0, 800.0]
 tolerancePNAmp = 0.1
 tolerancePNRMSRatio = 1.
-expectedTiming = [4.2, 4.2, 4.2, 4.2]
-toleranceTiming = 0.5
+expectedTiming = [4.2, 3.7, 4.2, 4.2]
+toleranceTiming = 1.0
 toleranceTimRMS = 0.4
 
 ecalLaserClient = cms.untracked.PSet(
@@ -21,7 +22,8 @@ ecalLaserClient = cms.untracked.PSet(
         forwardFactor = cms.untracked.double(forwardFactor),
         minChannelEntries = cms.untracked.int32(minChannelEntries),
         expectedAmplitude = cms.untracked.vdouble(expectedAmplitude),
-        toleranceAmplitude = cms.untracked.double(toleranceAmplitude),
+        toleranceAmplitudeLo = cms.untracked.double(toleranceAmplitudeLo),
+        toleranceAmplitudeHi = cms.untracked.double(toleranceAmplitudeHi),
         toleranceAmpRMSRatio = cms.untracked.double(toleranceAmpRMSRatio),
         expectedPNAmplitude = cms.untracked.vdouble(expectedPNAmplitude),
         tolerancePNAmp = cms.untracked.double(tolerancePNAmp),
@@ -34,7 +36,8 @@ ecalLaserClient = cms.untracked.PSet(
     sources = cms.untracked.PSet(
         Timing = ecalLaserTask.MEs.Timing,
         PNAmplitude = ecalLaserTask.MEs.PNAmplitude,
-        Amplitude = ecalLaserTask.MEs.Amplitude
+        Amplitude = ecalLaserTask.MEs.Amplitude,
+        CalibStatus = ecalLaserTask.MEs.CalibStatus
     ),
     MEs = cms.untracked.PSet(
         TimingRMS = cms.untracked.PSet(
@@ -60,9 +63,9 @@ ecalLaserClient = cms.untracked.PSet(
             ),
             otype = cms.untracked.string('SM'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(5.5),
+                high = cms.untracked.double(5.0),
                 nbins = cms.untracked.int32(100),
-                low = cms.untracked.double(3.5),
+                low = cms.untracked.double(3.0),
                 title = cms.untracked.string('time (clock)')
             ),
             btype = cms.untracked.string('User'),
@@ -115,7 +118,7 @@ ecalLaserClient = cms.untracked.PSet(
             ),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('SuperCrystal'),
-            description = cms.untracked.string('Summary of the laser data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedAmplitude)) + ' and ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedTiming)) + ' for lasers 1, 2, 3, and 4 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.'),
+            description = cms.untracked.string('Summary of the laser data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitudeLo) + ', or if mean / expected > ' + str(toleranceAmplitudeHi) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedAmplitude)) + ' and ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedTiming)) + ' for lasers 1, 2, 3, and 4 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.'),
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sLaserClient/%(prefix)sLT laser quality L%(wl)s %(sm)s'),
@@ -125,7 +128,7 @@ ecalLaserClient = cms.untracked.PSet(
             ),
             kind = cms.untracked.string('TH2F'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the laser data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitude) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedAmplitude)) + ' and ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedTiming)) + ' for lasers 1, 2, 3, and 4 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.'),
+            description = cms.untracked.string('Summary of the laser data quality. A channel is red either if mean / expected < ' + str(toleranceAmplitudeLo) + ', or if mean / expected > ' + str(toleranceAmplitudeHi) + ', or if RMS / expected > ' + str(toleranceAmpRMSRatio) +', or if RMS / expected > ' + str(toleranceAmpRMSRatio) + ', or if mean timing is off from expected by ' + str(toleranceTiming) + '. Expected amplitudes and timings are ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedAmplitude)) + ' and ' + ('%.1f, %.1f, %.1f, %.1f' % tuple(expectedTiming)) + ' for lasers 1, 2, 3, and 4 respectively. Channels with less than ' + str(minChannelEntries) + ' are not considered.'),
         ),
         AmplitudeRMS = cms.untracked.PSet(
             multi = cms.untracked.PSet(

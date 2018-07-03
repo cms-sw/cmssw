@@ -45,7 +45,7 @@ EcalEndcapGeometry::~EcalEndcapGeometry()
   {
     auto ptr = m_borderPtrVec.load(std::memory_order_acquire);
     for(auto& v: (*ptr)) {
-        if(v) delete v;
+        delete v;
         v = nullptr;
     }
     delete m_borderPtrVec.load() ;
@@ -87,8 +87,8 @@ EcalEndcapGeometry::initializeParms()
 
   for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
-     const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-     if( 0 != cell )
+     auto cell = cellGeomPtr(i);
+     if( nullptr != cell )
      {
 	const CCGFloat z ( cell->getPosition().z() ) ;
 	if(z>0.)
@@ -121,10 +121,10 @@ EcalEndcapGeometry::initializeParms()
   m_yhi[1] = -999 ;
   for( uint32_t i ( 0 ) ; i != m_cellVec.size() ; ++i )
   {
-     const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-     if( 0 != cell )
+     auto cell = cellGeomPtr(i);
+     if( nullptr != cell )
      {
-	const GlobalPoint p ( cell->getPosition()  ) ;
+	const GlobalPoint& p ( cell->getPosition()  ) ;
 	const CCGFloat z ( p.z() ) ;
 	const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
 	const CCGFloat x ( p.x()*zz/z ) ;
@@ -236,7 +236,7 @@ EcalEndcapGeometry::gId( float x,
 
 // Get closest cell, etc...
 DetId 
-EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const 
+EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 {
    try
    {
@@ -264,7 +264,7 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	 // compute the distance of the point with respect of the 4 crystal lateral planes
 
 	 
-	 if( 0 != getGeometry(mycellID) )
+	 if( nullptr != getGeometry(mycellID) )
 	 {
 	    const GlobalPoint& myPosition=getGeometry(mycellID)->getPosition();
 	 
@@ -349,7 +349,7 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 
 CaloSubdetectorGeometry::DetIdSet 
 EcalEndcapGeometry::getCells( const GlobalPoint& r, 
-			      double             dR ) const 
+			      double             dR ) const
 {
    CaloSubdetectorGeometry::DetIdSet dis ; // return object
    if( 0.000001 < dR )
@@ -411,7 +411,7 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 			if( EEDetId::validDetId( kx, ky, iz ) ) // reject invalid ids
 			{
 			  const EEDetId id ( kx, ky, iz ) ;
-			  const CaloCellGeometry* cell  = &m_cellVec[ id.denseIndex()];
+			  const CaloCellGeometry* cell(&m_cellVec[id.denseIndex()]);
 			  const float       eta  (cell->etaPos() ) ;
 			  const float       phi  (cell->phiPos() ) ;
 			  if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( id ) ;
@@ -432,7 +432,7 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
    OrderedListOfEBDetId* ptr ( nullptr ) ;
    auto ptrVec = m_borderPtrVec.load(std::memory_order_acquire);
    if(!ptrVec) {
-       if(0 != id.rawId() && 0 != getGeometry(id)) {
+       if(0 != id.rawId() && nullptr != getGeometry(id)) {
            const float phi(370.+getGeometry(id)->getPosition().phi().degrees());
            const int iPhi(1+int(phi)%360) ;
            const int iz(id.zside()) ;
@@ -462,7 +462,7 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
                olist[6]=EBDetId( iEta  , myPhi( jPhi+2 ) ) ;
                olist[7]=EBDetId( iEta  , myPhi( jPhi-2 ) ) ;
                olist[8]=EBDetId( iEtam2,        jPhi     ) ;
-               ptrVec->push_back( &olist ) ;
+               ptrVec->emplace_back( &olist ) ;
            }
            bool exchanged = m_borderPtrVec.compare_exchange_strong(expect, ptrVec, std::memory_order_acq_rel);
            if(!exchanged) delete ptrVec;
@@ -504,8 +504,8 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
       CCGFloat sum ( 0 ) ;
       for( unsigned int i ( 0 ) ; i != m_cellVec.size() ; ++i )
       {
-	 const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-	 if( 0 != cell )
+	 auto cell = cellGeomPtr(i);
+	 if( nullptr != cell )
 	 {
 	    sum += fabs( cell->getPosition().z() ) ;
 	 }
@@ -516,10 +516,18 @@ EcalEndcapGeometry::avgAbsZFrontFaceCenter() const
    return m_avgZ;
 }
 
-const CaloCellGeometry* 
-EcalEndcapGeometry::cellGeomPtr( uint32_t index ) const
+const CaloCellGeometry* EcalEndcapGeometry::getGeometryRawPtr(uint32_t index) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
+}
+
+bool EcalEndcapGeometry::present( const DetId& id ) const
 {
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+  if(id.det()==DetId::Ecal && id.subdetId()==EcalEndcap){
+    EEDetId eeId(id);
+    if(EEDetId::validDetId(eeId.ix(),eeId.iy(),eeId.zside())) return true;
+  }
+  return false;
 }

@@ -124,7 +124,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
-	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
+	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : nullptr),
 	comments(comments), counted(false), readAttemptCounter(0),
 	npLO_(-99), npNLO_(-99)
 {
@@ -133,7 +133,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
-	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	pdf(product.pdf() ? new PDF(*product.pdf()) : nullptr),
 	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0),
@@ -290,25 +290,25 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 		// current particle has a mother? --- Sorry, parent! We're PC.
 		if (mother1) {
 			mother1--;      // FORTRAN notation!
-		if (mother2)
-			mother2--;
-		else
-			mother2 = mother1;
+			if (mother2)
+				mother2--;
+			else
+				mother2 = mother1;
 
-		HepMC::GenParticle *in_par = genParticles.at(mother1);
-		HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
+			HepMC::GenParticle *in_par = genParticles.at(mother1);
+			HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
 
-		if (!current_vtx) {
-			current_vtx = new HepMC::GenVertex(
-					HepMC::FourVector(0, 0, 0, cTau));
+			if (!current_vtx) {
+				current_vtx = new HepMC::GenVertex(
+						HepMC::FourVector(0, 0, 0, cTau));
 
-			// add vertex to event
-			genVertices.push_back(current_vtx);
-		}
+				// add vertex to event
+				genVertices.push_back(current_vtx);
+			}
 
-		for(unsigned int j = mother1; j <= mother2; j++)	// set mother-daughter relations
-			if (!genParticles.at(j)->end_vertex())
-				current_vtx->add_particle_in(genParticles.at(j));
+			for(unsigned int j = mother1; j <= mother2; j++) // set mother-daughter relations
+				if (!genParticles.at(j)->end_vertex())
+					current_vtx->add_particle_in(genParticles.at(j));
 
 			// connect THIS outgoing particle to current vertex
 			current_vtx->add_particle_out(genParticles.at(i));
@@ -449,7 +449,7 @@ const HepMC::GenVertex *LHEEvent::findSignalVertex(
 				const HepMC::GenEvent *event, bool status3)
 {
 	double largestMass2 = -9.0e-30;
-	const HepMC::GenVertex *vertex = 0;
+	const HepMC::GenVertex *vertex = nullptr;
 	for(HepMC::GenEvent::vertex_const_iterator iter = event->vertices_begin();
 	    iter != event->vertices_end(); ++iter) {
 		if ((*iter)->particles_in_size() < 2)

@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliTempDat::CaliTempDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
 
   m_beta = 0;
   m_r25 = 0;
@@ -30,7 +30,7 @@ CaliTempDat::~CaliTempDat()
 
 
 void CaliTempDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -41,14 +41,14 @@ void CaliTempDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliTempDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliTempDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void CaliTempDat::writeDB(const EcalLogicID* ecid, const CaliTempDat* item, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,14 +70,14 @@ void CaliTempDat::writeDB(const EcalLogicID* ecid, const CaliTempDat* item, Cali
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliTempDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliTempDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void CaliTempDat::fetchData(std::map< EcalLogicID, CaliTempDat >* fillMap, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -102,12 +102,12 @@ void CaliTempDat::fetchData(std::map< EcalLogicID, CaliTempDat >* fillMap, CaliI
     std::pair< EcalLogicID, CaliTempDat > p;
     CaliTempDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
       dat.setBeta( rset->getFloat(7) );
       dat.setR25( rset->getFloat(8) );
@@ -118,12 +118,12 @@ void CaliTempDat::fetchData(std::map< EcalLogicID, CaliTempDat >* fillMap, CaliI
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliTempDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliTempDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 void CaliTempDat::writeArrayDB(const std::map< EcalLogicID, CaliTempDat >* data, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -215,6 +215,6 @@ void CaliTempDat::writeArrayDB(const std::map< EcalLogicID, CaliTempDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

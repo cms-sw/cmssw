@@ -241,7 +241,7 @@ Double_t TFitConstraintM::CalcMass(std::vector<TAbsFitParticle*>* List, Bool_t I
   TLorentzVector P(0., 0., 0., 0.);
   UInt_t Npart = List->size();
   for (unsigned int i=0;i<Npart;i++) {
-    const TLorentzVector* FourVec = 0;
+    const TLorentzVector* FourVec = nullptr;
     if (IniVal)
       FourVec = ((*List)[i])->getIni4Vec();
     else      

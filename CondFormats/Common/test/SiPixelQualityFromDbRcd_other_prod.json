@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelQuality_byPCL_other_v1": {}
+    }, 
+    "inputTag": "SiPixelQualityFromDbRcd_other", 
+    "since": null, 
+    "userText": "Tier0 PCL Upload for SiPixelQuality other"
+}

@@ -9,7 +9,7 @@ TrackProducer = cms.EDProducer("TrackProducer",
     Fitter = cms.string('KFFittingSmootherWithOutliersRejectionAndRK'),
     useHitsSplitting = cms.bool(False),
     alias = cms.untracked.string('ctfWithMaterialTracks'),
-    TrajectoryInEvent = cms.bool(True),
+    TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
@@ -27,5 +27,8 @@ TrackProducer = cms.EDProducer("TrackProducer",
     MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent'),                   
 )
 
-
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(TrackProducer, TTRHBuilder = 'WithTrackAngle') # FIXME
 

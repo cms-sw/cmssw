@@ -26,10 +26,10 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
 
   void TestPRegisterModule2::produce(Event& e, EventSetup const&)
   {
-     std::vector<edm::Provenance const*> plist;
-     e.getAllProvenance(plist);
+     std::vector<edm::StableProvenance const*> plist;
+     e.getAllStableProvenance(plist);
 
-     std::vector<edm::Provenance const*>::const_iterator pd = plist.begin();
+     std::vector<edm::StableProvenance const*>::const_iterator pd = plist.begin();
      
      CPPUNIT_ASSERT(0 !=plist.size());
      CPPUNIT_ASSERT(2 ==plist.size());
@@ -56,6 +56,5 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
      e.getByLabel("m2",stringp);
      CPPUNIT_ASSERT(stringp->name_=="m1");
 
-     std::unique_ptr<edmtest::DoubleProduct> product(new edmtest::DoubleProduct);
-     e.put(std::move(product));
+     e.put(std::make_unique<edmtest::DoubleProduct>());
   }

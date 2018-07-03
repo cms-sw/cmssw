@@ -39,6 +39,16 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     calculateWeights_ = pset.exists("ApplyDiscriminationByWeightedECALIsolation") ?
       pset.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation") : false;
 
+    // RIC: multiply neutral isolation by a flat factor.
+    //      Useful, for instance, to combine charged and neutral isolations
+    //      with different relative weights
+    weightGammas_ = pset.exists("WeightECALIsolation") ?
+      pset.getParameter<double>("WeightECALIsolation") : 1.0;
+
+    // RIC: allow to relax the isolation completely beyond a given tau pt
+    minPtForNoIso_ = pset.exists("minTauPtForNoIso") ?
+      pset.getParameter<double>("minTauPtForNoIso") : -99.;
+    
     applyOccupancyCut_ = pset.getParameter<bool>("applyOccupancyCut");
     maximumOccupancy_ = pset.getParameter<uint32_t>("maximumOccupancy");
 
@@ -184,14 +194,14 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       pset.getParameter<int>("verbosity") : 0;
   }
 
-  ~PFRecoTauDiscriminationByIsolation()
+  ~PFRecoTauDiscriminationByIsolation() override
   {
   }
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   double discriminate(const PFTauRef& pfTau) const override;
 
-  inline  double weightedSum(std::vector<PFCandidatePtr> inColl_, double eta, double phi) const {
+  inline  double weightedSum(const std::vector<PFCandidatePtr>& inColl_, double eta, double phi) const {
     double out = 1.0;
     for (auto const & inObj_ : inColl_){
       double sum = (inObj_->pt()*inObj_->pt())/(deltaR2(eta,phi,inObj_->eta(),inObj_->phi()));
@@ -215,6 +225,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   bool includeTracks_;
   bool includeGammas_;
   bool calculateWeights_;
+  double weightGammas_;
   bool applyOccupancyCut_;
   uint32_t maximumOccupancy_;
   bool applySumPtCut_;
@@ -223,6 +234,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   double maximumRelativeSumPt_;
   double offsetRelativeSumPt_;
   double customIsoCone_;
+  // RIC:
+  double minPtForNoIso_;
   
   bool applyPhotonPtSumOutsideSignalConeCut_;
   double maxAbsPhotonSumPt_outsideSignalCone_;
@@ -332,10 +345,10 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   std::vector<PFCandidatePtr> chPV_;
   isoCharged_.reserve(pfTau->isolationPFChargedHadrCands().size());
   isoNeutral_.reserve(pfTau->isolationPFGammaCands().size());
-  isoPU_.reserve(chargedPFCandidatesInEvent_.size());
+  isoPU_.reserve(std::min(100UL, chargedPFCandidatesInEvent_.size()));
   isoNeutralWeight_.reserve(pfTau->isolationPFGammaCands().size());
 
-  chPV_.reserve(chargedPFCandidatesInEvent_.size());
+  chPV_.reserve(std::min(50UL, chargedPFCandidatesInEvent_.size()));
 
   // Get the primary vertex associated to this tau
   reco::VertexRef pv = vertexAssociator_->associatedVertex(*pfTau);
@@ -428,8 +441,8 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
       }
       LogTrace("discriminate") << "After cone cuts: " << isoPU_.size() << " " << chPV_.size() ;
     } else {
-      isoPU_ = allPU;
-      chPV_ = allNPU;
+      isoPU_ = std::move(allPU);
+      chPV_ = std::move(allNPU);
     }
   }
 
@@ -553,7 +566,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
       neutralPt = 0.;
     }
 
-    totalPt = chargedPt + neutralPt;
+    totalPt = chargedPt + weightGammas_ * neutralPt;
     LogTrace("discriminate") << "totalPt = " << totalPt << " (cut = " << maximumSumPt_ << ")" ;
 
     failsSumPtCut = (totalPt > maximumSumPt_);
@@ -581,6 +594,12 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
     (applyRelativeSumPtCut_ && failsRelativeSumPtCut) ||
     (applyPhotonPtSumOutsideSignalConeCut_ && failsPhotonPtSumOutsideSignalConeCut);
 
+
+  if (pfTau->pt() > minPtForNoIso_ && minPtForNoIso_ > 0.){
+    return 1.;
+    LogDebug("discriminate") << "tau pt = " << pfTau->pt() <<  "\t  min cutoff pt = " << minPtForNoIso_ ;
+  }
+  
   // We did error checking in the constructor, so this is safe.
   if ( storeRawSumPt_ ) {
     return totalPt;

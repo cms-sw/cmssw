@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/LocalTag.h"
-#include <utility>
+#include<limits>
 
 class Plane;
 class TrajectoryStateOnSurface;
@@ -22,12 +22,20 @@ public:
 
   struct OpaquePayload { virtual ~OpaquePayload(){} int tag=0;};
 
-  typedef Vector2DBase< float, LocalTag>    Local2DVector;
+  using Local2DVector = Vector2DBase< float, LocalTag>;
+
+
+  MeasurementEstimator() {}
+  MeasurementEstimator(float maxSag, float minToll, float mpt) :
+     m_maxSagitta(maxSag),
+     m_minTolerance2(minToll*minToll),
+     m_minPt2ForHitRecoveryInGluedDet(mpt*mpt)
+     {}
 
   virtual ~MeasurementEstimator() {}
 
-  typedef std::pair<bool,double>     HitReturnType;
-  typedef bool                   SurfaceReturnType;
+  using HitReturnType     = std::pair<bool,double>;
+  using SurfaceReturnType = bool;
 
   /** Returns pair( true, value) if the TrajectoryStateOnSurface is compatible
    *  with the RecHit, and pair( false, value) if it is not compatible.
@@ -65,7 +73,22 @@ public:
    */
   virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const Plane& plane) const;
+			    const Plane& plane) const=0;
+
+  float maxSagitta() const { return m_maxSagitta;}
+  float	minTolerance2() const { return m_minTolerance2;}
+  float	minPt2ForHitRecoveryInGluedDet() const { return m_minPt2ForHitRecoveryInGluedDet;}
+
+private:
+  /*
+   *  why here? 
+   * MeasurementEstimator is the only configurable item that percolates down to geometry event by event (actually hit by hit) and not at initialization time
+   * It is therefore the natural candidate to collect all parameters that affect pattern-recongnition 
+   * and require to be controlled with higher granularity than job level (such as iteration by iteration)
+   */ 
+  float m_maxSagitta=-1.; // maximal sagitta for linear approximation
+  float m_minTolerance2=100.; // square of minimum tolerance ot be considered inside a detector
+  float m_minPt2ForHitRecoveryInGluedDet=std::numeric_limits<float>::max();  // 0.81 to mitigate wrong preAmpl setting
 };
 
 #endif // Tracker_MeasurementEstimator_H

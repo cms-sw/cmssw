@@ -65,13 +65,13 @@ reco::IsoDeposit::Veto EgammaTrackExtractor::veto(const reco::IsoDeposit::Direct
 
 IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Candidate & candTk) const
 {
-    static std::string metname = "EgammaIsolationAlgos|EgammaTrackExtractor";
+    static const std::string metname = "EgammaIsolationAlgos|EgammaTrackExtractor";
 
     reco::isodeposit::Direction candDir;
     double dzCut=0;
 
     reco::TrackBase::Point beamPoint(0,0, 0);
-    if (theBeamlineOption.compare("BeamSpotFromEvent") == 0){
+    if (theBeamlineOption == "BeamSpotFromEvent"){
         //pick beamSpot
         reco::BeamSpot beamSpot;
         edm::Handle<reco::BeamSpot> beamSpotH;

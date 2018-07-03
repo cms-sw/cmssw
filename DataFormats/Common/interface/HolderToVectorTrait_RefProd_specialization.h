@@ -28,9 +28,9 @@ namespace edm {
 
     template<typename T>
     struct RefProdHolderToVector {
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+      static  std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() {
         Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-        return std::auto_ptr<BaseVectorHolder<T> >();
+        return std::unique_ptr<BaseVectorHolder<T> >();
       }
     };
 
@@ -40,9 +40,9 @@ namespace edm {
     };
 
     struct RefProdRefHolderToRefVector {
-      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+      static std::unique_ptr<RefVectorHolderBase> makeVectorHolder() {
         Exception::throwThis(errors::InvalidReference, "attempting to make a BaseVectorHolder<T> from a RefProd<C>.\n");
-        return std::auto_ptr<RefVectorHolderBase>();
+        return std::unique_ptr<RefVectorHolderBase>();
       }
     };
 

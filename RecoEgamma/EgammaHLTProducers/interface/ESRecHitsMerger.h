@@ -22,10 +22,10 @@ class ESRecHitsMerger : public edm::EDProducer {
 
 public:
 	ESRecHitsMerger(const edm::ParameterSet& pset);
-	virtual ~ESRecHitsMerger();
-	void produce(edm::Event & e, const edm::EventSetup& c);
-	void beginJob(void);
-	void endJob(void);
+	~ESRecHitsMerger() override;
+	void produce(edm::Event & e, const edm::EventSetup& c) override;
+	void beginJob(void) override;
+	void endJob(void) override;
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

@@ -33,9 +33,9 @@ namespace pat {
     public:
 
       explicit PATVertexAssociationProducer(const edm::ParameterSet & iConfig);
-      ~PATVertexAssociationProducer();
+      ~PATVertexAssociationProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       typedef std::vector<edm::InputTag> VInputTag;
@@ -73,7 +73,7 @@ void PATVertexAssociationProducer::produce(edm::Event & iEvent, const edm::Event
   vertexing_.newEvent(iEvent, iSetup);
 
   // prepare room and tools for output
-  auto_ptr<VertexAssociationMap> result(new VertexAssociationMap());
+  auto result = std::make_unique<VertexAssociationMap>();
   VertexAssociationMap::Filler filler(*result);
   vector<pat::VertexAssociation> assos;
 
@@ -95,7 +95,7 @@ void PATVertexAssociationProducer::produce(edm::Event & iEvent, const edm::Event
   filler.fill();
 
   // put our produced stuff in the event
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 

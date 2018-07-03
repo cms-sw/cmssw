@@ -23,8 +23,8 @@ ElectronLimiter::ElectronLimiter(const edm::ParameterSet & p)
   fieldCheckFlag = false;
   killTrack = false;
 
-  fIonisation = 0;
-  particle = 0;
+  fIonisation = nullptr;
+  particle = nullptr;
 }
 
 ElectronLimiter::~ElectronLimiter() 

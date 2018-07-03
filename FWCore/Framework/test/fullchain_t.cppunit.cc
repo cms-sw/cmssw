@@ -16,11 +16,16 @@
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "cppunit/extensions/HelperMacros.h"
 
 using namespace edm;
 using namespace edm::eventsetup;
 using namespace edm::eventsetup::test;
+
+namespace {
+edm::ActivityRegistry activityRegistry;
+}
 
 class testfullChain: public CppUnit::TestFixture
 {
@@ -41,13 +46,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
 
 void testfullChain::getfromDataproxyproviderTest()
 {
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
 
-   boost::shared_ptr<DataProxyProvider> pProxyProv(new DummyProxyProvider);
+   std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DummyProxyProvider>();
    provider.add(pProxyProv);
    
-   boost::shared_ptr<DummyFinder> pFinder(new DummyFinder);
-   provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+   std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+   provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    const Timestamp time_1(1);
    const IOVSyncValue sync_1(time_1);

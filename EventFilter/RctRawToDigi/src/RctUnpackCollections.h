@@ -30,14 +30,14 @@ public:
 
 private:
 
-  RctUnpackCollections(const RctUnpackCollections&); ///< Copy ctor - deliberately not implemented!
-  RctUnpackCollections& operator=(const RctUnpackCollections&); ///< Assignment op - deliberately not implemented!  
+  RctUnpackCollections(const RctUnpackCollections&) = delete; ///< Copy ctor - deliberately not implemented!
+  RctUnpackCollections& operator=(const RctUnpackCollections&) = delete; ///< Assignment op - deliberately not implemented!  
 
   edm::Event& m_event;  ///< The event the collections will be put into on destruction of the RctUnpackCollections instance.
 
   // Collections for storing RCT input data.  
-  std::auto_ptr<L1CaloEmCollection> m_rctEm; ///< Input electrons.
-  std::auto_ptr<L1CaloRegionCollection> m_rctCalo; ///< Input calo regions.
+  std::unique_ptr<L1CaloEmCollection> m_rctEm; ///< Input electrons.
+  std::unique_ptr<L1CaloRegionCollection> m_rctCalo; ///< Input calo regions.
 
 };
 

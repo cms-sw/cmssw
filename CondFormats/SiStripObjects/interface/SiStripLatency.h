@@ -5,8 +5,10 @@
 
 #include <vector>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <sstream>
+
+class TrackerTopology;
 
 #define READMODEMASK 8
 
@@ -114,9 +116,9 @@ class SiStripLatency
   uint16_t singleMode() const;
 
   /// Prints the number of ranges as well as the value of singleLatency and singleMode
-  void printSummary(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
   /// Prints the full list of all ranges and corresponding values of latency and mode
-  void printDebug(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
   struct OrderByDetIdAndApv
   {

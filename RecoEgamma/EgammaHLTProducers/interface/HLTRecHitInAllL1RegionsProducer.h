@@ -22,8 +22,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
@@ -32,12 +32,17 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
+
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
@@ -47,7 +52,7 @@
 class L1RegionDataBase {
 public:
   virtual ~L1RegionDataBase(){}
-  virtual void getEtaPhiRegions(const edm::Event&,std::vector<EcalEtaPhiRegion>&,const L1CaloGeometry&)const=0;
+  virtual void getEtaPhiRegions(const edm::Event&,std::vector<RectangularEtaPhiRegion>&,const L1CaloGeometry&)const=0;
 };  
 
 template<typename T1> class L1RegionData : public L1RegionDataBase {
@@ -65,7 +70,13 @@ public:
     regionPhiMargin_(para.getParameter<double>("regionPhiMargin")),
     token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))){}
   
-  void getEtaPhiRegions(const edm::Event&,std::vector<EcalEtaPhiRegion>&,const L1CaloGeometry&)const override;
+  void getEtaPhiRegions(const edm::Event&,std::vector<RectangularEtaPhiRegion>&,const L1CaloGeometry&)const override;
+  template<typename T2>static typename T2::const_iterator beginIt(const T2& coll){return coll.begin();}
+  template<typename T2>static typename T2::const_iterator endIt(const T2& coll){return coll.end();}
+  template<typename T2>static typename BXVector<T2>::const_iterator beginIt(const BXVector<T2>& coll){return coll.begin(0);}
+  template<typename T2>static typename BXVector<T2>::const_iterator endIt(const BXVector<T2>& coll){return coll.end(0);}
+  
+
 };
 
 
@@ -78,7 +89,7 @@ class HLTRecHitInAllL1RegionsProducer : public edm::stream::EDProducer<> {
  public:
 
   HLTRecHitInAllL1RegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRecHitInAllL1RegionsProducer(){}
+  ~HLTRecHitInAllL1RegionsProducer() override{}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -127,6 +138,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::fillDescriptions(edm::Configur
   recHitLabels.push_back(edm::InputTag("hltESRegionalEgammaRecHit:EcalRecHitsES"));
   desc.add<std::vector<edm::InputTag>>("recHitLabels", recHitLabels);
   std::vector<edm::ParameterSet> l1InputRegions;
+  
   edm::ParameterSet emIsoPSet;
   emIsoPSet.addParameter<std::string>("type","L1EmParticle");
   emIsoPSet.addParameter<double>("minEt",5);
@@ -144,6 +156,28 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::fillDescriptions(edm::Configur
   emNonIsoPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltL1extraParticles:Isolated"));
   l1InputRegions.push_back(emNonIsoPSet);
   
+  // Why no Central Jets here? They are present in the python config, e.g. OnLine_HLT_GRun.py 
+  // SHarper: because these are the default parameters designed to reproduce the original (no jets) behaviour
+  //
+  edm::ParameterSet egPSet;
+  egPSet.addParameter<std::string>("type","EGamma");
+  egPSet.addParameter<double>("minEt",5);
+  egPSet.addParameter<double>("maxEt",999);
+  egPSet.addParameter<double>("regionEtaMargin",0.4);
+  egPSet.addParameter<double>("regionPhiMargin",0.5);
+  egPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltCaloStage2Digis"));
+  l1InputRegions.push_back(egPSet);
+  
+  edm::ParameterSet jetPSet;
+  jetPSet.addParameter<std::string>("type","EGamma");
+  jetPSet.addParameter<double>("minEt",200);
+  jetPSet.addParameter<double>("maxEt",999);
+  jetPSet.addParameter<double>("regionEtaMargin",0.4);
+  jetPSet.addParameter<double>("regionPhiMargin",0.5);
+  jetPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltCaloStage2Digis"));
+  l1InputRegions.push_back(jetPSet);
+  
+
   edm::ParameterSetDescription l1InputRegionDesc;
   l1InputRegionDesc.add<std::string>("type");
   l1InputRegionDesc.add<double>("minEt");
@@ -168,7 +202,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   setup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
   
-  std::vector<EcalEtaPhiRegion> regions;
+  std::vector<RectangularEtaPhiRegion> regions;
   std::for_each(l1RegionData_.begin(),l1RegionData_.end(),
 		[&event,&regions,l1CaloGeom](const std::unique_ptr<L1RegionDataBase>& input)
 		{input->getEtaPhiRegions(event,regions,*l1CaloGeom);}
@@ -183,17 +217,16 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
       continue;
     }
 
-    std::auto_ptr<RecHitCollectionType> filteredRecHits(new RecHitCollectionType);
+    auto filteredRecHits = std::make_unique<RecHitCollectionType>();
       
     if(!recHits->empty()){
       const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(recHits->front().id());
       if(!regions.empty()){
       
 	for(const RecHitType& recHit : *recHits){
-	  const CaloCellGeometry* recHitGeom = subDetGeom->getGeometry(recHit.id());
-	  GlobalPoint position = recHitGeom->getPosition();
+	  auto this_cell = subDetGeom->getGeometry(recHit.id());
 	  for(const auto& region : regions){
-	    if(region.inRegion(position)) {
+              if (region.inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 	      filteredRecHits->push_back(recHit);
 		break;
 	    }
@@ -202,7 +235,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
       }//end check of empty regions
     }//end check of empty rec-hits
     //   std::cout <<"putting fileter coll in "<<filteredRecHits->size()<<std::endl;
-    event.put(filteredRecHits,productLabels_[recHitCollNr]);
+    event.put(std::move(filteredRecHits),productLabels_[recHitCollNr]);
   }//end loop over all rec hit collections
 
 }
@@ -220,6 +253,14 @@ L1RegionDataBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionDat
     return new L1RegionData<l1extra::L1JetParticleCollection>(para,consumesColl);
   }else if(type=="L1MuonParticle"){
     return new L1RegionData<l1extra::L1MuonParticleCollection>(para,consumesColl);
+  }else if(type=="EGamma"){
+    return new L1RegionData<l1t::EGammaBxCollection>(para,consumesColl);
+  }else if(type=="Jet"){
+    return new L1RegionData<l1t::JetBxCollection>(para,consumesColl);
+  }else if(type=="Muon"){
+    return new L1RegionData<l1t::MuonBxCollection>(para,consumesColl);
+  }else if(type=="Tau"){
+    return new L1RegionData<l1t::TauBxCollection>(para,consumesColl);
   }else{
     //this is a major issue and could lead to rather subtle efficiency losses, so if its incorrectly configured, we're aborting the job!
     throw cms::Exception("InvalidConfig") << " type "<<type<<" is not recognised, this means the rec-hit you think you are keeping may not be and you should fix this error as it can lead to hard to find efficiency loses"<<std::endl;
@@ -228,28 +269,27 @@ L1RegionDataBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionDat
 }
 
 
-
 template<typename L1CollType>
-void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry&)const
+void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,std::vector<RectangularEtaPhiRegion>&regions,const L1CaloGeometry&)const
 {
   edm::Handle<L1CollType> l1Cands;
   event.getByToken(token_,l1Cands);
   
-  for(const auto& l1Cand : *l1Cands){
-    if(l1Cand.et() >= minEt_ && l1Cand.et() < maxEt_){
+  for(auto l1CandIt = beginIt(*l1Cands);l1CandIt!=endIt(*l1Cands);++l1CandIt){
+    if(l1CandIt->et() >= minEt_ && l1CandIt->et() < maxEt_){
       
-      double etaLow = l1Cand.eta() - regionEtaMargin_;
-      double etaHigh = l1Cand.eta() + regionEtaMargin_;
-      double phiLow = l1Cand.phi() - regionPhiMargin_;
-      double phiHigh = l1Cand.phi() + regionPhiMargin_;
+      double etaLow = l1CandIt->eta() - regionEtaMargin_;
+      double etaHigh = l1CandIt->eta() + regionEtaMargin_;
+      double phiLow = l1CandIt->phi() - regionPhiMargin_;
+      double phiHigh = l1CandIt->phi() + regionPhiMargin_;
       
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
     }
   }
 }
 
 template<>
-void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
+void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<RectangularEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
 {
   edm::Handle<l1extra::L1JetParticleCollection> l1Cands;
   event.getByToken(token_,l1Cands);
@@ -273,13 +313,13 @@ void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm:
       phiHigh += regionPhiMargin_;
 
       
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
     }
   }
 }
 
 template<>
-void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
+void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<RectangularEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
 {
   edm::Handle<l1extra::L1EmParticleCollection> l1Cands;
   event.getByToken(token_,l1Cands);
@@ -287,7 +327,7 @@ void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::
   for(const auto& l1Cand : *l1Cands){
     if(l1Cand.et() >= minEt_ && l1Cand.et() < maxEt_){
       
-       // Access the GCT hardware object corresponding to the L1Extra EM object.
+      // Access the GCT hardware object corresponding to the L1Extra EM object.
       int etaIndex = l1Cand.gctEmCand()->etaIndex();
       int phiIndex = l1Cand.gctEmCand()->phiIndex();
       
@@ -302,11 +342,10 @@ void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
       
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
     }
   }
 }
-
 
 
 

@@ -50,8 +50,8 @@ void DDTOBRodAlgo::initialize(const DDNumericArguments & nArgs,
 			<< " to be positioned " << sideRodX.size() 
 			<<" times at y = " << sideRodY[i] << " z = " 
 			<< sideRodZ[i] << " and x";
-    for (int j=0; j<(int)(sideRodX.size()); j++)
-      LogDebug("TOBGeom") << "\tsideRodX[" << i << "] = " << sideRodX[j];
+    for (double j : sideRodX)
+      LogDebug("TOBGeom") << "\tsideRodX[" << i << "] = " << j;
   }
 
   endRod1      = sArgs["EndRod1Name"];     

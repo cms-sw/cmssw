@@ -275,7 +275,7 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
                                                           tscbl.trackStateAtPCA().curvilinearError(), algo));
     theTrack->setQualityMask((*BeforeDAFTrack)->qualityMask());
 
-    AlgoProduct aProduct(theTraj.release(), std::make_pair(theTrack.release(), vtraj.direction()));
+    AlgoProduct aProduct{theTraj.release(), theTrack.release(), vtraj.direction(),0};
     algoResults.push_back(aProduct);
 
     return true;
@@ -289,7 +289,6 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const{
 
   int ngoodhits = 0;
-  Trajectory myTraj = traj;
   std::vector<TrajectoryMeasurement> vtm = traj.measurements();
 
   for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++){
@@ -427,7 +426,7 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
       TrajectoryMeasurement imeas = finalmeasurements.at(ihit);
       const TrackingRecHit* finalHit = imeas.recHit()->hit();
-      const TrackingRecHit* MaxWeightHit=0;
+      const TrackingRecHit* MaxWeightHit=nullptr;
       float maxweight = 0;
   
       const SiTrackerMultiRecHit* mrh = dynamic_cast<const SiTrackerMultiRecHit*>(finalHit);

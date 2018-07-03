@@ -15,11 +15,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <string>
 #include <vector>
 
-class TauDQMHistEffProducer : public edm::EDAnalyzer
+class TauDQMHistEffProducer : public DQMEDHarvester
 {
   struct cfgEntryPlot
   {
@@ -32,10 +33,8 @@ class TauDQMHistEffProducer : public edm::EDAnalyzer
 
  public:
   explicit TauDQMHistEffProducer(const edm::ParameterSet&);
-  virtual ~TauDQMHistEffProducer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
+  ~TauDQMHistEffProducer() override;
+  void dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget) override;
 
 private:
   std::vector<cfgEntryPlot> cfgEntryPlot_;

@@ -25,7 +25,7 @@ void readTag( const std::string& tag, Session& session, const boost::posix_time:
   } else {
     cond::Iov_t val = *iovIt;
     std::cout <<"#[0] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-    boost::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>( val.payloadId );
+    std::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>( val.payloadId );
     std::cout <<"#[0] payload="<<*pay0<<std::endl;
   }
   iovIt = proxy.find( 235 );
@@ -34,7 +34,7 @@ void readTag( const std::string& tag, Session& session, const boost::posix_time:
   } else {
     cond::Iov_t val = *iovIt;
     std::cout <<"#[1] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-    boost::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>( val.payloadId );
+    std::shared_ptr<std::string> pay0 = session.fetchPayload<std::string>( val.payloadId );
     std::cout <<"#[1] payload="<<*pay0<<std::endl;
   }
 }
@@ -46,7 +46,7 @@ int run( const std::string& connectionString ){
     std::cout <<"> Connecting with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     std::string pay0("Payload #0");
     std::string pay1("Payload #1");

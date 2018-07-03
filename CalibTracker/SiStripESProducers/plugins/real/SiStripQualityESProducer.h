@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -21,9 +20,9 @@
 class SiStripQualityESProducer : public edm::ESProducer {
  public:
   SiStripQualityESProducer(const edm::ParameterSet&);
-  ~SiStripQualityESProducer(){};
+  ~SiStripQualityESProducer() override{};
   
-  boost::shared_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
+  std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
    
  private:
 
@@ -34,7 +33,6 @@ class SiStripQualityESProducer : public edm::ESProducer {
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
 
-  boost::shared_ptr<SiStripQuality>  quality;
 };
 
 #endif

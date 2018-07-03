@@ -1,9 +1,11 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include<cassert>
 #include<cstdio>
+#include<iostream>
 
 typedef SiPixelCluster::PixelPos PiPos;
 typedef SiPixelCluster::Pixel Pixel;
+#define MAXSPAN 255
 
 template<int N>
 inline
@@ -43,8 +45,8 @@ bool verify(PiPos const (&pos)[N], bool ox, bool oy) {
  for (int i=0; i!=clus.size(); ++i) {
     auto const p = clus.pixel(i);
     auto const p2 = clus2.pixel(i);
-      ok &=  (pos[i].row()-cxmin>63) ? p.x==63+cxmin : p.x==pos[i].row(); 
-      ok &=  (pos[i].col()-cymin>63) ? p.y==63+cymin : p.y==pos[i].col();
+      ok &=  (pos[i].row()-cxmin>MAXSPAN) ? p.x==MAXSPAN+cxmin : p.x==pos[i].row(); 
+      ok &=  (pos[i].col()-cymin>MAXSPAN) ? p.y==MAXSPAN+cymin : p.y==pos[i].col();
       printf("%d,%d %d,%d %d,%d\n",pos[i].row(),pos[i].col(), p.x,p.y, p2.x,p2.y);
   }
 
@@ -55,14 +57,15 @@ bool verify(PiPos const (&pos)[N], bool ox, bool oy) {
 
 int main() {
 
+  std::cout << "size " << sizeof(SiPixelCluster) << std::endl;
 
   bool ok=true;
 
   PiPos const normal[] = { {3,3}, {3,4}, {3,5}, {5,4} ,{4,7}, {5,5} };
-  PiPos const bigX[] = { {3,3}, {3,60}, {3,5}, {161,4} ,{162,62}, {162,5} };
-  PiPos const bigY[] = { {3,3}, {3,100}, {3,5}, {61,234} ,{62,102}, {45,65} };
+  PiPos const bigX[] = { {3,3}, {3,60}, {3,5}, {161,4} ,{162,62}, {262,5} };
+  PiPos const bigY[] = { {3,3}, {3,100}, {3,5}, {61,264} ,{62,102}, {45,65} };
   PiPos const ylarge[] = { {3,352}, {3,352}, {3,400}, {20,400} ,{40,363}, {62,350} };
-  PiPos const huge[] = { {3,3}, {3,332}, {3,400}, {201,400} ,{212,323}, {122,350} };
+  PiPos const huge[] = { {3,3}, {3,332}, {3,400}, {201,400} ,{262,323}, {122,350} };
 
   ok &=verify(normal,false,false);
   assert(ok);

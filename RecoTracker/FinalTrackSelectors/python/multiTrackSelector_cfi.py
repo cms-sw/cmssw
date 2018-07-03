@@ -89,3 +89,7 @@ multiTrackSelector = cms.EDProducer("MultiTrackSelector",
                                tightMTS,
                                highpurityMTS)
  ) 
+from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
+trackingLowPU.toModify(multiTrackSelector,
+    vertices = "pixelVertices"
+)

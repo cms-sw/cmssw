@@ -24,6 +24,7 @@
 import sys, os, re, operator
 import optparse as opt
 from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname, EventContents
+from functools import reduce
 ################
 # Global variables
 #
@@ -440,7 +441,7 @@ def pythonFragment(step,cmsdriverOptions):
     
     if "--pileup" in cmsdriverOptions and not (step == "HLT" or step.startswith("RAW2DIGI")):
         return CustomiseFragment['DIGI-PILEUP']
-    elif CustomiseFragment.has_key(step):
+    elif step in CustomiseFragment:
         return CustomiseFragment[step] 
     else:
         #This is a safe default in any case,
@@ -653,7 +654,7 @@ def writeCommands(simcandles,
                 stepToWrite = stepToWrite.replace("HLT", "HLT:GRun")
             
             #Checking now if the current step matches the first of a composite step in userSteps
-            hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
+            hypMatch = [x for x in [x for x in userSteps if step == x.split("-")[0]] if "-" in x]
             if not len(hypMatch) == 0 :
                 hypsteps    = expandHyphens(hypMatch[0])
                 #print hypsteps
@@ -668,7 +669,7 @@ def writeCommands(simcandles,
                 else:
                     aftStep     = hypsteps[-1]
                 oneShotProf = True
-            if filter(lambda x: stepToWrite==x.split(":")[0],userSteps):
+            if [x for x in userSteps if stepToWrite==x.split(":")[0]]:
                 #print "Inside the filter if!"
                 #print stepToWrite
                 #Here we are assuming that the steps specified with : are not duplicate in the userSteps command:

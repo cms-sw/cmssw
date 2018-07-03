@@ -20,7 +20,7 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 typedef std::map<uint16_t, int16_t> DigiMap;
 typedef std::map<uint16_t, std::vector < int16_t> > RawDigiMap;

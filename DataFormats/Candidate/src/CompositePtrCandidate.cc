@@ -11,15 +11,15 @@ CompositePtrCandidate * CompositePtrCandidate::clone() const {
 }
 
 const Candidate * CompositePtrCandidate::daughter( size_type i ) const { 
-  return ( i < numberOfDaughters() ) ? & * dau[ i ] : 0; // i >= 0, since i is unsigned
+  return ( i < numberOfDaughters() ) ? & * dau[ i ] : nullptr; // i >= 0, since i is unsigned
 }
 
 const Candidate * CompositePtrCandidate::mother( size_type i ) const { 
-  return 0;
+  return nullptr;
 }
 
 Candidate * CompositePtrCandidate::daughter( size_type i ) { 
-  return 0;
+  return nullptr;
 }
 
 size_t CompositePtrCandidate::numberOfDaughters() const { 

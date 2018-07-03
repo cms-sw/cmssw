@@ -41,6 +41,10 @@ namespace edm {
   {
   }
 
+  AllowedLabelsDescription<ParameterSetDescription>::~AllowedLabelsDescription()
+  {
+  }
+
   ParameterDescriptionNode*
   AllowedLabelsDescription<ParameterSetDescription>::
   clone() const {
@@ -51,7 +55,7 @@ namespace edm {
   AllowedLabelsDescription<ParameterSetDescription>::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
 
     printNestedContentBase_(os, optional, dfh);
 
@@ -136,6 +140,10 @@ namespace edm {
   {
   }
 
+  AllowedLabelsDescription<std::vector<ParameterSet> >::~AllowedLabelsDescription()
+  {
+  }
+
   ParameterDescriptionNode*
   AllowedLabelsDescription<std::vector<ParameterSet> >::
   clone() const {
@@ -146,7 +154,7 @@ namespace edm {
   AllowedLabelsDescription<std::vector<ParameterSet> >::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
 
     printNestedContentBase_(os, optional, dfh);
 

@@ -11,8 +11,8 @@ class PatElectronEAIsoCorrectionProducer : public edm::EDProducer
 {
   public:
     explicit PatElectronEAIsoCorrectionProducer( const edm::ParameterSet& iConfig );
-    virtual ~PatElectronEAIsoCorrectionProducer() {};
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    ~PatElectronEAIsoCorrectionProducer() override {};
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   private:
     edm::EDGetTokenT< pat::ElectronCollection > patElectronsToken_;
@@ -33,7 +33,7 @@ void PatElectronEAIsoCorrectionProducer::produce( edm::Event& iEvent, const edm:
   edm::Handle<  edm::ValueMap< double > > eaIsolator;
   iEvent.getByToken( eaIsolatorToken_, eaIsolator );
 
-  std::auto_ptr< pat::ElectronCollection > updatedPatElectrons( new pat::ElectronCollection );
+  std::unique_ptr< pat::ElectronCollection > updatedPatElectrons( new pat::ElectronCollection );
 
   for ( size_t iElectron = 0; iElectron < patElectrons->size(); ++iElectron ) {
     pat::Electron* updatedPatElectron = patElectrons->at( iElectron ).clone();
@@ -42,7 +42,7 @@ void PatElectronEAIsoCorrectionProducer::produce( edm::Event& iEvent, const edm:
     updatedPatElectrons->push_back( *updatedPatElectron );
   }
 
-  iEvent.put( updatedPatElectrons );
+  iEvent.put(std::move(updatedPatElectrons));
 }
 
 

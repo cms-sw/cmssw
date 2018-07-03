@@ -21,7 +21,7 @@
 // system include files
 #include <memory>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 // user include files
 
@@ -46,13 +46,13 @@
 class SiStripElectronAnalyzer : public edm::EDAnalyzer {
    public:
       explicit SiStripElectronAnalyzer(const edm::ParameterSet&);
-      ~SiStripElectronAnalyzer();
+      ~SiStripElectronAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
       virtual void initNtuple ( void ) ;
-      virtual void endJob( void );
+      void endJob( void ) override;
 
    private:
       double unwrapPhi(double phi) const {

@@ -50,13 +50,13 @@
 class CastorClusterProducer : public edm::EDProducer {
    public:
       explicit CastorClusterProducer(const edm::ParameterSet&);
-      ~CastorClusterProducer();
+      ~CastorClusterProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       double phiangle (double testphi);
-      virtual void endJob() override ;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       typedef math::XYZPointD Point;
@@ -127,7 +127,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<CastorTowerCollection> InputTowers;
   iEvent.getByToken(tok_input_, InputTowers);
 
-  std::auto_ptr<CastorClusterCollection> OutputClustersfromClusterAlgo (new CastorClusterCollection);
+  auto OutputClustersfromClusterAlgo = std::make_unique<CastorClusterCollection>();
   
   // get and check input size
   int nTowers = InputTowers->size();
@@ -145,7 +145,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // build cluster from ClusterAlgo
   if (clusteralgo_ == true) {
     // code
-    iEvent.put(OutputClustersfromClusterAlgo);
+    iEvent.put(std::move(OutputClustersfromClusterAlgo));
   }
   
   }
@@ -158,9 +158,9 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	Handle<CastorTowerCollection> ctCollection;
 	iEvent.getByToken(tok_tower_,ctCollection);
 	
-	std::auto_ptr<CastorClusterCollection> OutputClustersfromBasicJets (new CastorClusterCollection);
+	auto OutputClustersfromBasicJets = std::make_unique<CastorClusterCollection>();
 	
-	if (bjCollection->size()==0) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
+	if (bjCollection->empty()) LogDebug("CastorClusterProducer")<< "Warning: You are trying to run the Cluster algorithm with 0 input basicjets.";
    
    	for (unsigned i=0; i< bjCollection->size();i++) {
    		const BasicJet* bj = &(*bjCollection)[i];
@@ -233,7 +233,7 @@ void CastorClusterProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		OutputClustersfromBasicJets->push_back(cc);
    	}
 	
-	iEvent.put(OutputClustersfromBasicJets);
+	iEvent.put(std::move(OutputClustersfromBasicJets));
   
   }
  

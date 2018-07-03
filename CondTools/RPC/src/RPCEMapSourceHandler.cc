@@ -1,6 +1,7 @@
 #include "CondTools/RPC/interface/RPCEMapSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 popcon::RPCEMapSourceHandler::RPCEMapSourceHandler(const edm::ParameterSet& ps) :
@@ -64,28 +65,23 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 
 void popcon::RPCEMapSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath)
 {
+  cond::persistency::ConnectionPool connection;
   std::cout << "RPCEMapConfigSourceHandler: connecting to " << connect << "..." << std::flush;
-  connection = new cond::DbConnection() ;
-//  session->configuration().setAuthenticationMethod(cond::XML);
-  connection->configuration().setAuthenticationPath( authPath ) ;
-  connection->configure();
-  session = new cond::DbSession(connection->createSession());
-  session->open(connect,true) ;
+  connection.setAuthenticationPath( authPath ) ;
+  connection.configure();
+  session = connection.createSession( connect,true );
   std::cout << "Done." << std::endl;
 }
 
 void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
 {
-  connection->close() ;
-  delete connection ;
-  session->close();
-  delete session ;
+  session.close();
 }
 
 void popcon::RPCEMapSourceHandler::readEMap1()
 {
-  session->transaction().start( true );
-  coral::ISchema& schema = session->nominalSchema();
+  session.transaction().start( true );
+  coral::ISchema& schema = session.nominalSchema();
   std::string condition="";
   coral::AttributeList conditionData;
 
@@ -206,10 +202,10 @@ void popcon::RPCEMapSourceHandler::readEMap1()
           int slength = theName.length();
           thisLB.theLinkBoardNumInLink=atoi((theName.substr(slength-1,1)).c_str());
           int wheel=atoi((theName.substr(6,1)).c_str());
-          std::string char1=(theName.substr(4,1)).c_str();
-          std::string char2=(theName.substr(slength-7,1)).c_str();
+          std::string char1=theName.substr(4,1);
+          std::string char2=theName.substr(slength-7,1);
           int num3=atoi((theName.substr(slength-6,1)).c_str());
-          std::string char4=(theName.substr(slength-5,1)).c_str();
+          std::string char4=theName.substr(slength-5,1);
           bool itsS1to9=(theName.substr(slength-11,1)=="S");
           int n1=10;
           int n2=1;
@@ -379,7 +375,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
 }
 
 int popcon::RPCEMapSourceHandler::Compare2EMaps(const Ref& _map1, RPCEMap* map2) {
-  Ref map1 = _map1;
+  const Ref& map1 = _map1;
   RPCReadOutMapping const* oldmap1 = map1->convert();
   RPCReadOutMapping const* oldmap2 = map2->convert();
   std::vector<const DccSpec *> dccs1 = oldmap1->dccList();

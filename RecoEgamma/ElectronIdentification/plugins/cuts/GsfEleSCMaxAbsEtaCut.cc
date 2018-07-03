@@ -7,18 +7,18 @@ public:
     CutApplicatorBase(c),
     _maxEta(c.getParameter<bool>("maxEta")) { }
   
-  result_type operator()(const reco::GsfElectronPtr& cand) const override final {
+  result_type operator()(const reco::GsfElectronPtr& cand) const final {
     const reco::SuperClusterRef& scref = cand->superCluster();
     return std::abs(scref->eta()) < _maxEta;
   }
   
-  double value(const reco::CandidatePtr& cand) const override final {
+  double value(const reco::CandidatePtr& cand) const final {
     reco::GsfElectronPtr ele(cand);
     const reco::SuperClusterRef& scref = ele->superCluster();
     return std::abs(scref->eta());
   }
 
-  CandidateType candidateType() const override final { 
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 

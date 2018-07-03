@@ -21,7 +21,6 @@
 // system include files
 #include <memory>
 // user include files
-#include "boost/shared_ptr.hpp"
 
 // forward declarations
 namespace edm {
@@ -32,6 +31,10 @@ namespace edm {
      template<typename FromT, typename ToT> void copyFromTo(FromT& iFrom,
                                                             ToT & iTo) {
        iTo = iFrom;
+     }
+
+     template<typename FromT, typename ToT> void copyFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
+       iTo = std::move(iFrom);
      }
 
      namespace produce { 
@@ -46,11 +49,11 @@ namespace edm {
          template< typename T> struct product_traits<T*> {
             typedef EndList<T*> type;
          };
-         template< typename T> struct product_traits<std::auto_ptr<T> > {
-            typedef EndList<std::auto_ptr<T> > type;
+         template< typename T> struct product_traits<std::unique_ptr<T> > {
+            typedef EndList<std::unique_ptr<T> > type;
          };
-         template< typename T> struct product_traits<boost::shared_ptr<T> > {
-            typedef EndList<boost::shared_ptr<T> > type;
+         template< typename T> struct product_traits<std::shared_ptr<T> > {
+            typedef EndList<std::shared_ptr<T> > type;
          };
          
          
@@ -78,8 +81,11 @@ namespace edm {
             iTo = iFrom;
          }
 
-         
-         
+         template<typename FromT, typename ToT> void copyFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
+           iTo = std::move(iFrom);
+         }
+
+
          template<typename ContainerT, typename EntryT, typename FindT> struct find_index_impl {
             typedef typename product_traits<ContainerT>::type container_type;
             enum { value = find_index_impl<typename container_type::head_type, typename container_type::tail_type,  FindT>::value + 1 };

@@ -40,11 +40,11 @@ void MVATrainerSave::analyze(const edm::Event& event,
 
 	edm::LogInfo("MVATrainerSave") << "Got the trained calibration data";
 
-	std::auto_ptr<Calibration::MVAComputer> calib(
+	std::unique_ptr<Calibration::MVAComputer> calib(
 						new Calibration::MVAComputer);
 	*calib = *toPutCalib;
 
-	this->calib = calib;
+	this->calib = std::move(calib);
 }
 
 void MVATrainerSave::endJob()
@@ -61,7 +61,7 @@ void MVATrainerSave::endJob()
 
 	dbService->createNewIOV<Calibration::MVAComputer>(
 		calib.release(), dbService->beginOfTime(),
-		dbService->endOfTime(), getRecordName().c_str());
+		dbService->endOfTime(), getRecordName());
 
 	saved = true;
 }

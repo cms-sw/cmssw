@@ -26,7 +26,7 @@
 class ThroughputServiceClient : public DQMEDHarvester {
 public:
   explicit ThroughputServiceClient(edm::ParameterSet const &);
-  ~ThroughputServiceClient();
+  ~ThroughputServiceClient() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -43,10 +43,6 @@ private:
 
 ThroughputServiceClient::ThroughputServiceClient(edm::ParameterSet const & config) :
   m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath" ) )
-{
-}
-
-ThroughputServiceClient::~ThroughputServiceClient()
 {
 }
 
@@ -71,7 +67,7 @@ ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::
     // the plots are in the main folder
     folders.push_back(m_dqm_path);
   } else {
-    static const boost::regex running_n_processes(".*/Running [0-9]+ processes");
+    static const boost::regex running_n_processes(".*/Running .*");
     booker.setCurrentFolder(m_dqm_path);
     std::vector<std::string> subdirs = getter.getSubdirs();
     for (auto const & subdir: subdirs) {
@@ -143,6 +139,6 @@ ThroughputServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descr
   descriptions.add("throughputServiceClient", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ThroughputServiceClient);

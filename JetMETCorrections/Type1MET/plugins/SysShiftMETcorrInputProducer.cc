@@ -11,8 +11,8 @@
 SysShiftMETcorrInputProducer::SysShiftMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
     useNvtx(false),
-    corrPx_(0),
-    corrPy_(0)
+    corrPx_(nullptr),
+    corrPy_(nullptr)
 {
   token_ = consumes<edm::View<reco::MET> >(cfg.getParameter<edm::InputTag>("src"));
   
@@ -66,12 +66,12 @@ void SysShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetu
     }
   //std::cout << " Nvtx = " << Nvtx << std::endl;
 
-  std::auto_ptr<CorrMETData> metCorr(new CorrMETData());
+  std::unique_ptr<CorrMETData> metCorr(new CorrMETData());
   metCorr->mex = -corrPx_->Eval(sumEt, Nvtx);
   metCorr->mey = -corrPy_->Eval(sumEt, Nvtx);
   //std::cout << "--> metCorr: Px = " << metCorr->mex << ", Py = " << metCorr->mey << std::endl;
   
-  evt.put(metCorr);
+  evt.put(std::move(metCorr));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

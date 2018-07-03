@@ -47,19 +47,16 @@ void testFormatTypeName::test()
   classToFriendly.push_back( Values("Aa<Bb<Cc,Dd>, Ee<Ff> >","Aa_9Bb_9Cc_3Dd_0_3_4Ee_9Ff_0_4_0"));
   classToFriendly.push_back( Values("Aa<Bb<Cc,Dd>, Ee<Ff,Gg> >","Aa_9Bb_9Cc_3Dd_0_3_4Ee_9Ff_3Gg_0_4_0"));
                                  
-  for(std::vector<Values>::iterator itInfo = classToFriendly.begin(),
-      itInfoEnd = classToFriendly.end();
-      itInfo != itInfoEnd;
-      ++itInfo) {
-    //std::cout <<itInfo->first<<std::endl;
-    if( itInfo->second != fwlite::format_type_to_mangled(itInfo->first) ) {
-      std::cout <<"class name: '"<<itInfo->first<<"' has wrong mangled name \n"
-      <<"expect: '"<<itInfo->second<<"' got: '"<<fwlite::format_type_to_mangled(itInfo->first)<<"'"<<std::endl;
+  for(auto const& item : classToFriendly) {
+    //std::cout << item.first << std::endl;
+    if(item.second != fwlite::format_type_to_mangled(item.first)) {
+      std::cout  << "class name: '" << item.first << "' has wrong mangled name \n"
+       << "expect: '" << item.second << "' got: '" << fwlite::format_type_to_mangled(item.first) << "'" << std::endl;
       CPPUNIT_ASSERT(0 && "expected mangled name does not match actual mangled name");
     }
-    if( itInfo->first != fwlite::unformat_mangled_to_type(itInfo->second) ) {
-      std::cout <<"mangled name: '"<<itInfo->second<<"' has wrong type name \n"
-      <<"expect: '"<<itInfo->first<<"' got: '"<<fwlite::unformat_mangled_to_type(itInfo->second)<<"'"<<std::endl;
+    if(item.first != fwlite::unformat_mangled_to_type(item.second)) {
+      std::cout  << "mangled name: '" << item.second << "' has wrong type name \n"
+       << "expect: '" << item.first << "' got: '" << fwlite::unformat_mangled_to_type(item.second) << "'" << std::endl;
       CPPUNIT_ASSERT(0 && "expected type name does not match actual type name");
     }
     

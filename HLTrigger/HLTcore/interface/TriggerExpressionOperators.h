@@ -14,7 +14,7 @@ public:
   { }
 
   // initialize the depending modules
-  void init(const Data & data) { 
+  void init(const Data & data) override { 
     m_arg->init(data);
   }
 
@@ -31,7 +31,7 @@ public:
   { }
 
   // initialize the depending modules
-  void init(const Data & data) { 
+  void init(const Data & data) override { 
     m_arg1->init(data);
     m_arg2->init(data);
   }
@@ -50,11 +50,11 @@ public:
     UnaryOperator(arg)
   { }
 
-  bool operator()(const Data & data) const {
+  bool operator()(const Data & data) const override {
     return not (*m_arg)(data);
   }
   
-  void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const override {
     out << "NOT ";
     m_arg->dump(out);
   }
@@ -66,14 +66,14 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const Data & data) const {
+  bool operator()(const Data & data) const override {
     // force the execution af both arguments, otherwise precalers won't work properly
     bool r1 = (*m_arg1)(data);
     bool r2 = (*m_arg2)(data);
     return r1 and r2;
   }
   
-  void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const override {
     m_arg1->dump(out);
     out << " AND ";
     m_arg2->dump(out);
@@ -86,14 +86,14 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const Data & data) const {
+  bool operator()(const Data & data) const override {
     // force the execution af both arguments, otherwise precalers won't work properly
     bool r1 = (*m_arg1)(data);
     bool r2 = (*m_arg2)(data);
     return r1 or r2;
   }
   
-  void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const override {
     m_arg1->dump(out);
     out << " OR ";
     m_arg2->dump(out);
@@ -106,14 +106,14 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const Data & data) const {
+  bool operator()(const Data & data) const override {
     // force the execution af both arguments, otherwise precalers won't work properly
     bool r1 = (*m_arg1)(data);
     bool r2 = (*m_arg2)(data);
     return r1 xor r2;
   }
   
-  void dump(std::ostream & out) const {
+  void dump(std::ostream & out) const override {
     m_arg1->dump(out);
     out << " XOR ";
     m_arg2->dump(out);

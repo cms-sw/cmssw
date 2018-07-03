@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_DataFrame_h
 #define DataFormats_Common_DataFrame_h
 
+class TestDataFrame;
 namespace edm {
 
   class DataFrameContainer;
@@ -21,9 +22,9 @@ namespace edm {
     typedef data_type const * const_iterator;
     
     
-    inline
-    DataFrame() : m_id(0), m_data(0), m_size(0){}
-    inline
+    constexpr inline
+    DataFrame() : m_id(0), m_data(nullptr), m_size(0){}
+    constexpr inline
     DataFrame(id_type i, data_type const * idata, size_type isize) :
       m_id(i), m_data(idata), m_size(isize) {}
     
@@ -33,37 +34,40 @@ namespace edm {
     inline
     void set(DataFrameContainer const & icont,
 	     size_type i);
-    inline
+    constexpr inline
     data_type & operator[](size_type i) {
       return data()[i];
     }
     
-    inline
+    constexpr inline
     data_type operator[](size_type i) const {
       return m_data[i];
     }
     
-    inline
+    constexpr inline
     iterator begin() { return data();}
 
-    inline
+    constexpr inline
     iterator end() { return data()+m_size;}
 
-    inline
+    constexpr inline
     const_iterator begin() const { return m_data;}
 
-    inline
+    constexpr inline
     const_iterator end() const { return m_data+m_size;}
 
 
-    inline
+    constexpr inline
     id_type id() const { return m_id;}
     
-    inline
+    constexpr inline
     size_type size() const { return m_size; }
     
   private:
-    data_type * data() {
+    //for testing
+    friend class ::TestDataFrame;
+
+    constexpr data_type * data() {
       return const_cast<data_type *>(m_data);
     }
     

@@ -21,21 +21,22 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 namespace pat {
 
   class PATPhotonSlimmer : public edm::stream::EDProducer<> {
     public:
       explicit PATPhotonSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATPhotonSlimmer() { }
+      ~PATPhotonSlimmer() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
 
     private:
       const edm::EDGetTokenT<edm::View<pat::Photon> > src_;
 
-      const StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+      const StringCutObjectSelector<pat::Photon> dropSuperClusters_, dropBasicClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_, dropSaturation_, dropRegressionData_;
 
       const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
       const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
@@ -56,6 +57,8 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
     dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
     dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
+    dropSaturation_(iConfig.getParameter<std::string>("dropSaturation")),
+    dropRegressionData_(iConfig.getParameter<std::string>("dropRegressionData")),
     reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
     pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
@@ -102,11 +105,12 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     }
     noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
-    auto_ptr<vector<pat::Photon> >  out(new vector<pat::Photon>());
+    auto out = std::make_unique<std::vector<pat::Photon>>();
     out->reserve(src->size());
 
     if( modifyPhoton_ ) { photonModifier_->setEvent(iEvent); }
     if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
+
 
     std::vector<unsigned int> keys;
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
@@ -120,6 +124,17 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
 	if (dropPreshowerClusters_(photon)) { photon.preshowerClusters_.clear(); }
 	if (dropSeedCluster_(photon)) { photon.seedCluster_.clear(); photon.embeddedSeedCluster_ = false; }
         if (dropRecHits_(photon)) { photon.recHits_ = EcalRecHitCollection(); photon.embeddedRecHits_ = false; }
+        if (dropSaturation_(photon)) { photon.setSaturationInfo(reco::Photon::SaturationInfo()); }
+        if (dropRegressionData_(photon)) {
+            photon.setEMax(0); photon.setE2nd(0); photon.setE3x3(0);
+            photon.setETop(0); photon.setEBottom(0); photon.setELeft(0); photon.setERight(0);
+            photon.setSee(0); photon.setSep(0); photon.setSpp(0);
+            photon.setMaxDR(0); photon.setMaxDRDPhi(0); photon.setMaxDRDEta(0); photon.setMaxDRRawEnergy(0);
+            photon.setSubClusRawE1(0); photon.setSubClusRawE2(0); photon.setSubClusRawE3(0);
+            photon.setSubClusDPhi1(0); photon.setSubClusDPhi2(0); photon.setSubClusDPhi3(0);
+            photon.setSubClusDEta1(0); photon.setSubClusDEta2(0); photon.setSubClusDEta3(0);
+            photon.setCryPhi(0); photon.setCryEta(0); photon.setIEta(0); photon.setIPhi(0);
+        }
 
         if (linkToPackedPF_) {
             //std::cout << " PAT  photon in  " << src.id() << " comes from " << photon.refToOrig_.id() << ", " << photon.refToOrig_.key() << std::endl;
@@ -152,9 +167,10 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
             photon.addUserFloat("r9_NoZS", r9);
             photon.addUserFloat("e1x5_over_e5x5_NoZS", e15o55);
         }
+
      }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

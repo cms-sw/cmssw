@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstdlib>
 #include <stdexcept>
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -17,7 +17,7 @@ EcalDBConnection::EcalDBConnection( string host,
 				    string user,
 				    string pass,
 				    int port )
-  throw(std::runtime_error)
+  noexcept(false)
 {
     stringstream ss;
   try {    
@@ -28,7 +28,7 @@ EcalDBConnection::EcalDBConnection( string host,
     stmt = conn->createStatement();
   } catch (SQLException &e) {
     cout<< ss.str() << endl;
-    throw(std::runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
+    throw(std::runtime_error(std::string("ERROR:  Connection Failed:  ") + getOraMessage(&e)));
   }
 
   this->host = host;
@@ -41,14 +41,14 @@ EcalDBConnection::EcalDBConnection( string host,
 EcalDBConnection::EcalDBConnection( string sid,
 				    string user,
 				    string pass )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {    
     env = Environment::createEnvironment(Environment::OBJECT);
     conn = env->createConnection(user, pass, sid);
     stmt = conn->createStatement();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
+    throw(std::runtime_error(std::string("ERROR:  Connection Failed:  ") + getOraMessage(&e)));
   }
 
   this->host = "";
@@ -58,13 +58,13 @@ EcalDBConnection::EcalDBConnection( string sid,
   this->port = port;
 }
 
-EcalDBConnection::~EcalDBConnection()  throw(std::runtime_error) {
+EcalDBConnection::~EcalDBConnection()  noexcept(false) {
   //Close database conection and terminate environment
   try {
     conn->terminateStatement(stmt);
     env->terminateConnection(conn);
     Environment::terminateEnvironment(env);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ERROR:  Destructor Failed:  " + e.getMessage() ));
+    throw(std::runtime_error(std::string("ERROR:  Destructor Failed:  ") + getOraMessage(&e)));
   }
 }

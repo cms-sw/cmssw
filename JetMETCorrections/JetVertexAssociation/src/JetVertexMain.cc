@@ -38,7 +38,7 @@ std::pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle
 
   TrackCollection::const_iterator track = tracks->begin ();
 
-  if (tracks->size() > 0 )   { 
+  if (!tracks->empty() )   { 
    for (; track != tracks->end (); track++) {
      double Vertex_Z = track->vz();
      double Vertex_Z_Error = track->dzError();

@@ -6,9 +6,6 @@
 //
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
 #include "MyTestData.h"
 //
 #include <fstream>
@@ -25,7 +22,7 @@ int run( const std::string& connectionString ){
     std::cout <<"> Connecting with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     MyTestData d0( 17 );
     MyTestData d1( 999 );
@@ -37,7 +34,7 @@ int run( const std::string& connectionString ){
 
     IOVEditor editor;
     if( !session.existsIov( "MyNewIOV" ) ){
-      editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
+      editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber, cond::SYNCH_OFFLINE ); 
       editor.setDescription("Test with MyTestData class");
       editor.insert( 1, p0 );
       editor.insert( 100, p1 );
@@ -56,6 +53,30 @@ int run( const std::string& connectionString ){
 
     session.transaction().commit();
     std::cout <<"> iov changes committed!..."<<std::endl;
+
+    session.transaction().start( false );
+    std::cout <<"## now trying to insert in the past..."<<std::endl;
+    try{
+      editor = session.editIov( "MyNewIOV" );
+      editor.insert( 200, p1 );
+      editor.insert( 300, p1 );
+      editor.insert( 50, p1 );
+      editor.flush();
+      std::cout <<"ERROR: forbidden insertion."<<std::endl;
+      session.transaction().commit();
+    } catch ( const cond::persistency::Exception& e ){
+      std::cout <<"Expected error: "<<e.what()<<std::endl;
+      session.transaction().rollback();
+    }
+    session.transaction().start( false );
+    editor = session.editIov( "StringData" );
+    editor.insert( 3000000, p3 );
+    editor.insert( 4000000, p3 );
+    editor.insert( 1500000, p3);
+    editor.flush();
+    std::cout <<"Insertion in the past completed."<<std::endl;
+    session.transaction().commit();
+
     ::sleep(2);
     session.transaction().start();
 
@@ -68,7 +89,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val = *iovIt;
       std::cout <<"#[0] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
       pay0->print();
       iovIt++;
     }
@@ -77,7 +98,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iovIt;
       std::cout <<"#[1] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
       pay1->print();
     }
     iovIt = proxy.find( 176 );
@@ -86,7 +107,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val = *iovIt;
       std::cout <<"#[2] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
       pay2->print();
       iovIt++;
     }
@@ -95,7 +116,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iovIt;
       std::cout <<"#[3] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
       pay3->print();
     }
 
@@ -106,7 +127,7 @@ int run( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iov2It;
       std::cout <<"#[4] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
+      std::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
       std::cout <<"#pay4="<<*pay4<<std::endl;
     }
     session.transaction().commit();
@@ -127,20 +148,7 @@ int main (int argc, char** argv)
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   std::string connectionString0("sqlite_file:cms_conditions_0.db");
-  std::cout <<"## Running with CondDBV2 format..."<<std::endl;
   ret = run( connectionString0 );
-  if( ret<0 ) return ret;
-  std::string connectionString1("sqlite_file:cms_conditions_ora.db");
-  {
-    cond::DbConnection oraConn;
-    cond::DbSession oraSess = oraConn.createSession();
-    oraSess.open( connectionString1 );
-    oraSess.transaction().start( false );
-    oraSess.createDatabase();
-    oraSess.transaction().commit();
-  }
-  std::cout <<"## Running with CondDBV1 format..."<<std::endl;
-  ret = run( connectionString1 );
   return ret;
 }
 

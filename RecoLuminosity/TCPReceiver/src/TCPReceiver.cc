@@ -127,7 +127,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	  
 	  SetupFDSets(fdsRead, fdsWrite, fdsExcept, -1, tcpSocket);
 	  
-	  if(select(tcpSocket+1, &fdsRead, 0, &fdsExcept, 0)> 0){
+	  if(select(tcpSocket+1, &fdsRead, nullptr, &fdsExcept, nullptr)> 0){
 	    
 	    if (FD_ISSET(tcpSocket, &fdsRead)) {
 	      
@@ -328,7 +328,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     localSection.hdr.sectionNumber = 120;
     
     timeval tvTemp;
-    gettimeofday(&tvTemp, NULL);
+    gettimeofday(&tvTemp, nullptr);
     localSection.hdr.timestamp = tvTemp.tv_sec;
     localSection.hdr.timestamp_micros = tvTemp.tv_usec;
 
@@ -398,7 +398,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 #endif
     int i, j, k;
 
-    srand(time(NULL));
+    srand(time(nullptr));
     localSection.hdr.runNumber     = 55; //(rand() % 100);
     localSection.hdr.startOrbit    = (rand() % 100);
     localSection.hdr.numOrbits     = (rand() % 100);

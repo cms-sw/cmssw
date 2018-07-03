@@ -22,9 +22,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
-#define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
-#undef private
 
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 
@@ -97,7 +95,7 @@ BOOST_AUTO_TEST_CASE( selectionmanager )
    
    fireworks::Context context(&cm,&sm,0,0,0);
    
-   boost::shared_ptr<FWItemAccessorBase> accessor( new TestAccessor(&fVector));
+   auto accessor = std::make_shared<TestAccessor>(&fVector);
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");
    
    FWEventItem item(&context, 0,accessor,pObj);

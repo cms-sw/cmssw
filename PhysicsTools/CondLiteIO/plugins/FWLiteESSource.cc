@@ -20,7 +20,6 @@
 #include <iostream>
 #include <memory>
 #include "TFile.h"
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
@@ -41,24 +40,24 @@
 // forward declarations
 namespace  {
    struct TypeID : public edm::TypeIDBase {
-      explicit TypeID(const type_info& iInfo): edm::TypeIDBase(iInfo) {}
+      explicit TypeID(const std::type_info& iInfo): edm::TypeIDBase(iInfo) {}
       TypeID() {}
       using TypeIDBase::typeInfo;
    };
    struct FWLiteESGenericHandle {
       FWLiteESGenericHandle(const TypeID& iType):
       m_type(iType),
-      m_data(0),
-      m_exception(0){}
+      m_data(nullptr),
+      m_exception(nullptr){}
       
       FWLiteESGenericHandle(const void* iData):
       m_type(),
       m_data(iData),
-      m_exception(0) {}
+      m_exception(nullptr) {}
 
       FWLiteESGenericHandle(cms::Exception* iException):
       m_type(),
-      m_data(0),
+      m_data(nullptr),
       m_exception(iException){}
       
       const std::type_info& typeInfo() const {
@@ -76,19 +75,19 @@ namespace  {
       m_type(iTypeID),
       m_record(iRecord){}
       
-      virtual const void* getImpl(const edm::eventsetup::EventSetupRecord&, const edm::eventsetup::DataKey& iKey) override {
+      const void* getImpl(const edm::eventsetup::EventSetupRecordImpl&, const edm::eventsetup::DataKey& iKey) override {
          assert(iKey.type() == m_type);
          
          FWLiteESGenericHandle h(m_type);
          m_record->get(h,iKey.name().value());
          
-         if(0!=h.m_exception) {
+         if(nullptr!=h.m_exception) {
             throw *(h.m_exception);
          }
          return h.m_data;
       }
       
-      virtual void invalidateCache() override {
+      void invalidateCache() override {
       }
       
    private:
@@ -101,31 +100,31 @@ class FWLiteESSource : public edm::eventsetup::DataProxyProvider, public edm::Ev
    
 public:
    FWLiteESSource(edm::ParameterSet const& iPS);
-   virtual ~FWLiteESSource();
+   ~FWLiteESSource() override;
    
    // ---------- const member functions ---------------------
    
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
+   void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
                             const edm::ValidityInterval& iInterval) override;
    
    
 private:
-   FWLiteESSource(const FWLiteESSource&); // stop default
+   FWLiteESSource(const FWLiteESSource&) = delete; // stop default
    
-   const FWLiteESSource& operator=(const FWLiteESSource&); // stop default
+   const FWLiteESSource& operator=(const FWLiteESSource&) = delete; // stop default
    
-   virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey ,
+   void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey ,
                                 KeyedProxies& aProxyList) override;
    
    
-   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& , 
                                edm::ValidityInterval&) override;
    
-   virtual void delaySettingRecords() override;
+   void delaySettingRecords() override;
    
    // ---------- member data --------------------------------
    std::auto_ptr<TFile> m_file;
@@ -206,7 +205,7 @@ FWLiteESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
       if(tt != HCTypeTag() ) {
          edm::eventsetup::DataKey dk(tt,edm::eventsetup::IdTags(it->second.c_str()));
          aProxyList.push_back(std::make_pair(dk,
-                                             boost::shared_ptr<edm::eventsetup::DataProxy>(new FWLiteProxy(TypeID(tt.value()),&rec))));
+                                             std::make_shared<FWLiteProxy>(TypeID(tt.value()),&rec)));
       } else {
          LogDebug("UnknownESType")<<"The type '"<<it->first<<"' is unknown in this job";
          std::cout <<"    *****FAILED*****"<<std::endl;

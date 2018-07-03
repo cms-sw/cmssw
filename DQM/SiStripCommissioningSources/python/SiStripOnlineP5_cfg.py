@@ -64,7 +64,6 @@ process.siStripQualityESProducer.UseEmptyRunInfo = cms.bool(True)
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet()
 # fake LA conditions
 process.load('CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi')
-process.load('CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi')
 # fake conditions for threshold
 process.load('CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi')
 process.load('CalibTracker.SiPixelESProducers.SiPixelFakeLorentzAngleESSource_cfi')

@@ -4,12 +4,14 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -21,6 +23,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
 
 #include "TError.h"
 
@@ -60,8 +63,8 @@ namespace {
   class EventProcessorWithSentry {
   public:
     explicit EventProcessorWithSentry() : ep_(nullptr), callEndJob_(false) {}
-    explicit EventProcessorWithSentry(std::auto_ptr<edm::EventProcessor> ep) :
-      ep_(ep),
+    explicit EventProcessorWithSentry(std::unique_ptr<edm::EventProcessor> ep) :
+      ep_(std::move(ep)),
       callEndJob_(false) {}
     ~EventProcessorWithSentry() {
       if(callEndJob_ && ep_.get()) {
@@ -77,6 +80,11 @@ namespace {
       }
       edm::clearMessageLog();
     }
+    EventProcessorWithSentry(EventProcessorWithSentry const&) = delete;
+    EventProcessorWithSentry const& operator=(EventProcessorWithSentry const&) = delete;
+    EventProcessorWithSentry(EventProcessorWithSentry&&) = default; // Allow Moving
+    EventProcessorWithSentry& operator=(EventProcessorWithSentry&&) = default; // Allow moving
+
     void on() {
       callEndJob_ = true;
     }
@@ -87,7 +95,7 @@ namespace {
       return ep_.get();
     }
   private:
-    std::auto_ptr<edm::EventProcessor> ep_;
+    std::unique_ptr<edm::EventProcessor> ep_;
     bool callEndJob_;
   };
   
@@ -108,22 +116,25 @@ namespace {
       //Allow TBB to decide how many threads. This is normally the number of CPUs in the machine.
       iNThreads = tbb::task_scheduler_init::default_num_threads();
     }
-    oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{static_cast<int>(iNThreads),iStackSize}};
-    edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
+    oPtr = std::make_unique<tbb::task_scheduler_init>(static_cast<int>(iNThreads),iStackSize);
 
     return iNThreads;
   }
 }
 
 int main(int argc, char* argv[]) {
+
+  edm::TimingServiceBase::jobStarted();
   
   int returnCode = 0;
   std::string context;
   bool alwaysAddContext = true;
   //Default to only use 1 thread. We define this early since plugin system or message logger
   // may be using TBB.
+  //NOTE: with new version of TBB (44_20160316oss) we can only construct 1 tbb::task_scheduler_init per job
+  // else we get a crash. So for now we can't have any services use tasks in their constructors.
   bool setNThreadsOnCommandLine = false;
-  std::unique_ptr<tbb::task_scheduler_init> tsiPtr{new tbb::task_scheduler_init{1}};
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
   std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
@@ -242,6 +253,10 @@ int main(int argc, char* argv[]) {
         }
         nThreadsOnCommandLine=setNThreads(nThreads,stackSize,tsiPtr);
       }
+      if(not tsiPtr) {
+        //If we haven't initialized TBB yet, do it here
+        tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads);
+      }
 
       if (!vm.count(kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
@@ -265,12 +280,12 @@ int main(int argc, char* argv[]) {
       } else if(vm.count(kEnableJobreportOpt)) {
         jobReportFile = "FrameworkJobReport.xml";
       }
-      jobReportStreamPtr = std::auto_ptr<std::ofstream>(jobReportFile.empty() ? 0 : new std::ofstream(jobReportFile.c_str()));
+      jobReportStreamPtr = jobReportFile.empty() ? nullptr : std::make_unique<std::ofstream>(jobReportFile.c_str());
 
       //NOTE: JobReport must have a lifetime shorter than jobReportStreamPtr so that when the JobReport destructor
       // is called jobReportStreamPtr is still valid
-      std::auto_ptr<edm::JobReport> jobRepPtr(new edm::JobReport(jobReportStreamPtr.get()));
-      jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(jobRepPtr));
+      auto jobRepPtr = std::make_unique<edm::JobReport>(jobReportStreamPtr.get());
+      jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(std::move(jobRepPtr)));
       edm::ServiceToken jobReportToken =
         edm::ServiceRegistry::createContaining(jobRep);
 
@@ -321,24 +336,10 @@ int main(int argc, char* argv[]) {
       }
 
       context = "Initializing default service configurations";
-      std::vector<std::string> defaultServices;
-      defaultServices.reserve(8);
-      defaultServices.push_back("MessageLogger");
-      defaultServices.push_back("InitRootHandlers");
-#ifdef linux
-      defaultServices.push_back("EnableFloatingPointExceptions");
-#endif
-      defaultServices.push_back("UnixSignalService");
-      defaultServices.push_back("AdaptorConfig");
-      defaultServices.push_back("SiteLocalConfigService");
-      defaultServices.push_back("StatisticsSenderService");
-      // This default is disabled pending widespread testing.  See conversation
-      // in PR #10056
-      //defaultServices.push_back("CondorStatusService");
 
       // Default parameters will be used for the default services
       // if they are not overridden from the configuration files.
-      processDesc->addServices(defaultServices);
+      processDesc->addServices(edm::defaultCmsRunServices());
 
       context = "Setting MessageLogger defaults";
       // Decide what mode of hardcoded MessageLogger defaults to use
@@ -348,22 +349,13 @@ int main(int argc, char* argv[]) {
       }
 
       context = "Constructing the EventProcessor";
-      std::auto_ptr<edm::EventProcessor>
-          procP(new
-                edm::EventProcessor(processDesc, jobReportToken,
-                                    edm::serviceregistry::kTokenOverrides));
-      EventProcessorWithSentry procTmp(procP);
-      proc = procTmp;
+      EventProcessorWithSentry procTmp(
+        std::make_unique<edm::EventProcessor>(processDesc, jobReportToken, edm::serviceregistry::kTokenOverrides));
+      proc = std::move(procTmp);
 
       alwaysAddContext = false;
       context = "Calling beginJob";
       proc->beginJob();
-
-      alwaysAddContext = true;
-      context = "Calling EventProcessor::forkProcess";
-      if (!proc->forkProcess(jobReportFile)) {
-        return 0;
-      }
 
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
@@ -392,7 +384,7 @@ int main(int argc, char* argv[]) {
       }
     }
     if (!ex.alreadyPrinted()) {
-      if (jobRep.get() != 0) {
+      if (jobRep.get() != nullptr) {
         edm::printCmsException(ex, &(jobRep->get()), returnCode);
       }
       else {

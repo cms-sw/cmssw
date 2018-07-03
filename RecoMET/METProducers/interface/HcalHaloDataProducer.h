@@ -35,6 +35,7 @@
 #include "RecoMET/METAlgorithms/interface/HcalHaloAlgo.h"
 //Included Classes (semi-alphabetical)
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -87,19 +88,25 @@ namespace reco
     
   public:
     explicit HcalHaloDataProducer(const edm::ParameterSet&);
-    ~HcalHaloDataProducer();
+    ~HcalHaloDataProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     //RecHit Level
     edm::InputTag IT_HBHERecHit;
     edm::InputTag IT_HORecHit;
     edm::InputTag IT_HFRecHit;
+    edm::InputTag IT_CaloTowers;
+    edm::InputTag IT_EBRecHit;
+    edm::InputTag IT_EERecHit;
 
+    edm::EDGetTokenT<EBRecHitCollection> ebrechit_token_;
+    edm::EDGetTokenT<EERecHitCollection> eerechit_token_;
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
+    edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
 
     float HBRecHitEnergyThreshold;
     float HERecHitEnergyThreshold;

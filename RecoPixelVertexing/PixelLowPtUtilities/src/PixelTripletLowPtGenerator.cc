@@ -20,7 +20,6 @@
 #undef Debug
 
 using namespace std;
-using namespace ctfseeding;
 
 /*****************************************************************************/
 PixelTripletLowPtGenerator::PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
@@ -46,7 +45,7 @@ PixelTripletLowPtGenerator::~PixelTripletLowPtGenerator() {}
 void PixelTripletLowPtGenerator::getTracker
   (const edm::EventSetup& es)
 {
-  if(theTracker == 0)
+  if(theTracker == nullptr)
   {
     // Get tracker geometry
     edm::ESHandle<TrackerGeometry> tracker;
@@ -77,7 +76,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
     OrderedHitTriplets & result,
     const edm::Event & ev,
     const edm::EventSetup& es,
-    SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+    const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
     const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
 
@@ -93,14 +92,14 @@ void PixelTripletLowPtGenerator::hitTriplets(
   OrderedHitPairs pairs; pairs.reserve(30000);
   thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
-  if (pairs.size() == 0) return;
+  if (pairs.empty()) return;
 
   int size = thirdLayers.size();
 
   // Set aliases
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size]; 
   for(int il=0; il<size; il++)
-    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
 
   // Get tracker
   getTracker(es);
@@ -207,6 +206,17 @@ void PixelTripletLowPtGenerator::hitTriplets(
   delete [] thirdHitMap;
 
   return;
+}
+void PixelTripletLowPtGenerator::hitTriplets(
+					   const TrackingRegion& region, 
+					   OrderedHitTriplets & result,
+					   const edm::EventSetup & es,
+					   const HitDoublets & doublets,
+					   const RecHitsSortedInPhi ** thirdHitMap,
+					   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+					   const int nThirdLayers)
+{
+  throw cms::Exception("Error")<<"PixelTripletLowPtGenerator::hitTriplets is not implemented \n";
 }
 
 

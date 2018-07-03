@@ -7,534 +7,220 @@
 //     Main analysis class for Hcal Test Beam 2006 Analysis
 //
 // Original Author:
-//         Created:  Tue May 16 10:14:34 CEST 2006
+//         Created:  19 November 2015
 //
   
-// system include files
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-
 // user include files
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Analysis.h"
-
-#include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
-#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
+#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
+#include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4SDManager.hh"
-#include "G4VProcess.hh"
-#include "G4HCofThisEvent.hh"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "globals.hh"
+#include "Randomize.hh"
 
+// system include files
+#include <iostream>
+#include <iomanip>
+
+//#define EDM_ML_DEBUG
 //
 // constructors and destructor
 //
 
-HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p): histo(0) {
+HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
 
-  edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB06Analysis");
-  names          = m_Anal.getParameter<std::vector<std::string> >("Names");
-  beamOffset     =-m_Anal.getParameter<double>("BeamPosition")*cm;
-  double fMinEta = m_Anal.getParameter<double>("MinEta");
-  double fMaxEta = m_Anal.getParameter<double>("MaxEta");
-  double fMinPhi = m_Anal.getParameter<double>("MinPhi");
-  double fMaxPhi = m_Anal.getParameter<double>("MaxPhi");
-  double beamEta = (fMaxEta+fMinEta)/2.;
-  double beamPhi = (fMaxPhi+fMinPhi)/2.;
-  double beamThet= 2*atan(exp(-beamEta));
-  if (beamPhi < 0) beamPhi += twopi;
-  iceta          = (int)(beamEta/0.087) + 1;
-  icphi          = (int)(fabs(beamPhi)/0.087) + 5;
-  if (icphi > 72) icphi -= 73;
+  usesResource("TFileService");
 
-  produces<PHcalTB06Info>();
+  m_ECAL = p.getParameter<bool>("ECAL");
+  if(m_ECAL) {
+    m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
+  }
+  m_HcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
+  m_BeamToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalTB06BeamHits"));
+  m_eta = p.getParameter<double>("MinEta");
+  m_phi = p.getParameter<double>("MinPhi");
+  m_ener= p.getParameter<double>("MinE");
+  m_PDG = p.getParameter<std::vector<int> >("PartID");
 
-  beamline_RM = new G4RotationMatrix;
-  beamline_RM->rotateZ(-beamPhi);
-  beamline_RM->rotateY(-beamThet);
- 
-  edm::LogInfo("HcalTBSim") << "HcalTB06:: Initialised as observer of BeginOf"
-			    << "Job/BeginOfRun/BeginOfEvent/G4Step/EndOfEvent"
-			    << " with Parameter values:\n \tbeamOffset = " 
-			    << beamOffset << "\ticeta = " << iceta 
-			    << "\ticphi = " << icphi << "\n\tbeamline_RM = "
-			    << *beamline_RM;
+  double minEta  = p.getParameter<double>("MinEta");
+  double maxEta  = p.getParameter<double>("MaxEta");
+  double minPhi  = p.getParameter<double>("MinPhi");
+  double maxPhi  = p.getParameter<double>("MaxPhi");
+  double beamEta = (maxEta+minEta)*0.5;
+  double beamPhi = (maxPhi+minPhi)*0.5;
+  if (beamPhi < 0) { beamPhi += twopi; }
 
-  init();
+  m_idxetaEcal = 13;
+  m_idxphiEcal = 13;
 
-  histo  = new HcalTB06Histo(m_Anal);
+  m_idxetaHcal   = (int)(beamEta/0.087) + 1;
+  m_idxphiHcal   = (int)(beamPhi/0.087) + 6;
+  if(m_idxphiHcal > 72) { m_idxphiHcal -= 73; }
+
+  edm::ParameterSet ptb = p.getParameter<edm::ParameterSet>("TestBeamAnalysis");
+  m_timeLimit = ptb.getParameter<double>("TimeLimit");
+  m_widthEcal = ptb.getParameter<double>("EcalWidth");
+  m_widthHcal = ptb.getParameter<double>("HcalWidth");
+  m_factEcal  = ptb.getParameter<double>("EcalFactor");
+  m_factHcal  = ptb.getParameter<double>("HcalFactor");
+  double eMIP = ptb.getParameter<double>("MIP");
+
+  edm::LogInfo("HcalTB06Analysis") 
+    << "Beam parameters: E(GeV)= " << m_ener
+    << " pdgID= " << m_PDG[0]
+    << "\n eta= " << m_eta 
+    << "  idx_etaEcal= " << m_idxetaEcal 
+    << "  idx_etaHcal= " << m_idxetaHcal 
+    << "  phi= " << m_phi 
+    << "  idx_phiEcal= " << m_idxphiEcal
+    << "  idx_phiHcal= " << m_idxphiHcal
+    << "\n        EcalFactor= " << m_factEcal
+    << "  EcalWidth= " << m_widthEcal << " GeV" 
+    << "\n        HcalFactor= " << m_factHcal
+    << "  HcalWidth= " << m_widthHcal << " GeV"
+    << "  MIP=       " << eMIP << " GeV"
+    << "\n        TimeLimit=  " << m_timeLimit << " ns" << "\n";
+  m_histo = new HcalTB06Histo(ptb);
 } 
    
 HcalTB06Analysis::~HcalTB06Analysis() {
+  delete m_histo;
+}
 
-  edm::LogInfo("HcalTBSim") << "\n -------->  Total number of selected entries"
-			    << " : " << count << "\nPointers:: Histo " <<histo;
-  if (histo)   {
-    delete histo;
-    histo  = 0;
+void HcalTB06Analysis::beginJob() {
+  edm::LogInfo("HcalTB06Analysis") <<" =====> Begin of Run";
+}
+
+void HcalTB06Analysis::endJob() {
+  edm::LogInfo("HcalTB06Analysis") 
+    << " =====> End of Run; Total number of events: " << count;
+}
+
+void HcalTB06Analysis::analyze(const edm::Event & evt, const edm::EventSetup&)
+{
+  ++count;
+
+  //Beam Information
+  m_histo->fillPrimary(m_ener, m_eta, m_phi);
+
+  edm::Handle<edm::PCaloHitContainer> Ecal;
+  edm::Handle<edm::PCaloHitContainer> Hcal;
+  edm::Handle<edm::PCaloHitContainer> Beam;
+  std::vector<double> eCalo(6,0), eTrig(7,0);
+
+  const std::vector<PCaloHit>* EcalHits = nullptr;
+  if(m_ECAL) { 
+    evt.getByToken(m_EcalToken, Ecal); 
+    EcalHits = Ecal.product();
   }
-}
+  evt.getByToken(m_HcalToken, Hcal);
+  const std::vector<PCaloHit>* HcalHits = Hcal.product();
+  evt.getByToken(m_BeamToken, Beam);
+  const std::vector<PCaloHit>* BeamHits = Beam.product();
 
-//
-// member functions
-//
+  // Total Energy
+  double eecals = 0.;
+  double ehcals = 0.;
 
-void HcalTB06Analysis::produce(edm::Event& e, const edm::EventSetup&) {
-
-  std::auto_ptr<PHcalTB06Info> product(new PHcalTB06Info);
-  fillEvent(*product);
-  e.put(product);
-}
-
-void HcalTB06Analysis::init() {
-
-  // counter 
-  count = 0;
-  evNum = 0;
-  clear();
-}
-
-void HcalTB06Analysis::update(const BeginOfRun * run) {
-
-  int irun = (*run)()->GetRunID();
-  edm::LogInfo("HcalTBSim") <<" =====> Begin of Run = " << irun;
- 
-}
-
-void HcalTB06Analysis::update(const BeginOfEvent * evt) {
- 
-  evNum = (*evt) ()->GetEventID ();
-  clear();
-  edm::LogInfo("HcalTBSim") << "HcalTB06Analysis: =====> Begin of event = "
-			    << evNum;
-}
-
-void HcalTB06Analysis::update(const G4Step * aStep) {
-
-  if (aStep != NULL) {
-    //Get Step properties
-    G4ThreeVector thePreStepPoint  = aStep->GetPreStepPoint()->GetPosition();
-    G4ThreeVector thePostStepPoint;
-
-    // Get Tracks properties
-    G4Track*      aTrack   = aStep->GetTrack();
-    int           trackID  = aTrack->GetTrackID();
-    int           parentID = aTrack->GetParentID();
-    G4ThreeVector position = aTrack->GetPosition();
-    G4ThreeVector momentum = aTrack->GetMomentum();
-    G4String      partType = aTrack->GetDefinition()->GetParticleType();
-    G4String      partSubType = aTrack->GetDefinition()->GetParticleSubType();
-    int    partPDGEncoding = aTrack->GetDefinition()->GetPDGEncoding();
-#ifdef ddebug
-    bool   isPDGStable = aTrack->GetDefinition()->GetPDGStable();
+  unsigned int ne = 0;
+  unsigned int nh = 0;
+  if(m_ECAL) {  
+    ne = EcalHits->size();
+    for (unsigned int i=0; i<ne; ++i) {
+      EBDetId ecalid((*EcalHits)[i].id());
+#ifdef EDM_ML_DEBUG
+      std::cout << "EB " << i << " " << ecalid.ieta() << ":" << m_idxetaEcal 
+		<< "   " << ecalid.iphi() << ":" << m_idxphiEcal << "   " 
+		<< (*EcalHits)[i].time() << ":" << m_timeLimit << "   " 
+		<< (*EcalHits)[i].energy() << std::endl;
 #endif
-    double pDGlifetime = aTrack->GetDefinition()->GetPDGLifeTime();
-    double gammaFactor = aStep->GetPreStepPoint()->GetGamma();
-
-    if (!pvFound) { //search for v1
-      double stepDeltaEnergy = aStep->GetDeltaEnergy ();
-      double kinEnergy = aTrack->GetKineticEnergy ();
-      
-      // look for DeltaE > 10% kinEnergy of particle, or particle death - Ek=0
-      if (trackID == 1 && parentID == 0 && 
-	  ((kinEnergy == 0.) || (fabs (stepDeltaEnergy / kinEnergy) > 0.1))) {
-	pvType = -1;
-	if (kinEnergy == 0.) {
-	  pvType = 0;
+      // 7x7 crystal selection
+      if(std::abs(m_idxetaEcal - ecalid.ieta()) <= 3 &&
+      	 std::abs(m_idxphiEcal - ecalid.iphi()) <= 3 &&
+	 (*EcalHits)[i].time() < m_timeLimit) {
+	eCalo[0] += (*EcalHits)[i].energy();
+      }
+    }
+    if(m_widthEcal > 0.0) {
+      eCalo[1] = G4RandGauss::shoot(0.0,m_widthEcal);
+    }
+    eecals = m_factEcal*(eCalo[0]+eCalo[1]);
+  }
+  if(HcalHits) {
+    nh = HcalHits->size();
+    for (unsigned int i=0; i<nh; ++i) {
+      HcalDetId hcalid((*HcalHits)[i].id());
+#ifdef EDM_ML_DEBUG
+      std::cout << "HC " << i << " " << hcalid.subdet() << "  " 
+		<< hcalid.ieta() << ":" << m_idxetaHcal << "   " 
+		<< hcalid.iphi() << ":" << m_idxphiHcal << "   " 
+		<< (*HcalHits)[i].time() << ":" << m_timeLimit << "   " 
+		<< (*HcalHits)[i].energy() << std::endl;
+#endif
+      // 3x3 towers selection
+      if(std::abs(m_idxetaHcal - hcalid.ieta()) <= 1 &&
+      	 std::abs(m_idxphiHcal - hcalid.iphi()) <= 1 &&
+	 (*HcalHits)[i].time() < m_timeLimit) {
+	if (hcalid.subdet() != HcalOuter) {
+	  eCalo[2] += (*HcalHits)[i].energy();
 	} else {
-	  if (fabs (stepDeltaEnergy / kinEnergy) > 0.1) pvType = 1;
+	  eCalo[4] += (*HcalHits)[i].energy();
 	}
-	pvFound    = true;
-	pvPosition = position;
-	pvMomentum = momentum;
-	// Rotated coord.system:
-	pvUVW      = (*beamline_RM)*(pvPosition);
+      }
+    }
+    if(m_widthHcal > 0.0) {
+      eCalo[3] = G4RandGauss::shoot(0.0,m_widthHcal);
+      eCalo[5] = G4RandGauss::shoot(0.0,m_widthHcal);
+    }
+    ehcals = m_factHcal*eCalo[2] + eCalo[3];
+  }
+  double etots = eecals + ehcals;
 
-	//Volume name requires some checks:
-	G4String thePostPVname = "NoName";
-	G4StepPoint * thePostPoint = aStep->GetPostStepPoint ();
-	if (thePostPoint) {
-	  thePostStepPoint = thePostPoint->GetPosition();
-	  G4VPhysicalVolume * thePostPV = thePostPoint->GetPhysicalVolume ();
-	  if (thePostPV) thePostPVname = thePostPV->GetName ();
-	}
-#ifdef ddebug
-	LogDebug("HcalTBSim") << "HcalTB06Analysis:: V1 found at: " 
-			      << thePostStepPoint << " G4VPhysicalVolume: " 
-			      << thePostPVname;
-#endif      
-	LogDebug("HcalTBSim") << "HcalTB06Analysis::fill_v1Pos: Primary Track "
-			      << "momentum: " << pvMomentum << " psoition " 
-			      << pvPosition << " u/v/w " << pvUVW;
-      }
-    } else { 
-      // watch for secondaries originating @v1, including the surviving primary
-      if ((trackID != 1 && parentID == 1 &&
-	   (aTrack->GetCurrentStepNumber () == 1) && 
-	   (thePreStepPoint == pvPosition)) || 
-	  (trackID == 1 && thePreStepPoint == pvPosition)) {
-#ifdef ddebug
-	LogDebug("HcalTBSim") << "HcalTB06Analysis::A secondary...  PDG:" 
-			      << partPDGEncoding << " TrackID:" << trackID
-			      << " ParentID:" << parentID << " stable: "  
-			      << isPDGStable << " Tau: " << pDGlifetime 
-			      << " cTauGamma=" 
-			      << c_light*pDGlifetime*gammaFactor*1000.
-			      << "um" << " GammaFactor: " << gammaFactor;
-#endif      
-	secTrackID.push_back(trackID);
-	secPartID.push_back(partPDGEncoding);
-	secMomentum.push_back(momentum);
-	secEkin.push_back(aTrack->GetKineticEnergy());
+  edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Etot(MeV)= " << etots 
+			    << "   E(Ecal)= " << eecals 
+			    << "   E(Hcal)= " << ehcals
+			    << "  Nhits(ECAL)= " << ne 
+			    << "  Nhits(HCAL)= " << nh;
+  m_histo->fillEdep(etots, eecals, ehcals); 
 
-	// Check for short-lived secondaries: cTauGamma<100um
-	double ctaugamma_um = c_light * pDGlifetime * gammaFactor * 1000.;
-	if ((ctaugamma_um>0.) && (ctaugamma_um<100.)) {//short-lived secondary
-	  shortLivedSecondaries.push_back(trackID);
-      } else {//normal secondary - enter into the V1-calorimetric tree
-	//          histos->fill_v1cSec (aTrack);
-      }
-      }
-      // Also watch for tertiary particles coming from 
-      // short-lived secondaries from V1
-      if (aTrack->GetCurrentStepNumber() == 1) {
-	if (shortLivedSecondaries.size() > 0) {
-	  int pid = parentID;
-	  std::vector<int>::iterator pos1= shortLivedSecondaries.begin();
-	  std::vector<int>::iterator pos2 = shortLivedSecondaries.end();
-	  std::vector<int>::iterator pos;
-	  for (pos = pos1; pos != pos2; pos++) {
-	    if (*pos == pid) {//ParentID is on the list of short-lived 
-	      // secondary 
-#ifdef ddebug
-	      LogDebug("HcalTBSim") << "HcalTB06Analysis:: A tertiary...  PDG:"
-				    << partPDGEncoding << " TrackID:" <<trackID
-				    << " ParentID:" << parentID << " stable: "
-				    << isPDGStable << " Tau: " << pDGlifetime
-				    << " cTauGamma=" 
-				    << c_light*pDGlifetime*gammaFactor*1000. 
-				    << "um GammaFactor: " << gammaFactor;
-#endif
-	    }
-	  }
+  if(BeamHits) {
+    for (unsigned int i=0; i<BeamHits->size(); ++i) {
+      unsigned int id = ((*BeamHits)[i].id());
+      int det, lay, ix, iy;
+      HcalTestBeamNumbering::unpackIndex(id,det,lay,ix,iy);
+      if ((det == 1) && ((*BeamHits)[i].time() < m_timeLimit)) {
+	if (lay > 0 && lay <= 4) {
+	  eTrig[lay-1] += (*BeamHits)[i].energy();
+	} else if (lay == 7 || lay == 8) {
+	  eTrig[lay-2] += (*BeamHits)[i].energy();
+	} else if (lay >= 11 && lay <= 14) {
+	  eTrig[4]     += (*BeamHits)[i].energy();
 	}
       }
     }
   }
+
+  edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Trigger Info: " 
+			    << eTrig[0] << ":" << eTrig[1] << ":" << eTrig[2]
+			    << ":" << eTrig[3] << ":" << eTrig[4] << ":" 
+			    << eTrig[5] << ":" << eTrig[6];
+
+  m_histo->fillTree(eCalo,eTrig);
 }
-
-void HcalTB06Analysis::update(const EndOfEvent * evt) {
-
-  count++;
-
-  //fill the buffer
-  LogDebug("HcalTBSim") << "HcalTB06Analysis::Fill event " 
-			<< (*evt)()->GetEventID();
-  fillBuffer (evt);
-  
-  //Final Analysis
-  LogDebug("HcalTBSim") << "HcalTB06Analysis::Final analysis";  
-  finalAnalysis();
-
-  int iEvt = (*evt)()->GetEventID();
-  if (iEvt < 10) 
-    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Event " << iEvt;
-  else if ((iEvt < 100) && (iEvt%10 == 0)) 
-    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Event " << iEvt;
-  else if ((iEvt < 1000) && (iEvt%100 == 0)) 
-    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Event " << iEvt;
-  else if ((iEvt < 10000) && (iEvt%1000 == 0)) 
-    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis:: Event " << iEvt;
-}
-
-void HcalTB06Analysis::fillBuffer(const EndOfEvent * evt) {
-
-  std::vector<CaloHit> hhits;
-  int                  idHC, j;
-  CaloG4HitCollection* theHC;
-  std::map<int,float,std::less<int> > primaries;
-  double               etot1=0, etot2=0;
-
-  // Look for the Hit Collection of HCal
-  G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
-  std::string sdName = names[0];
-  idHC  = G4SDManager::GetSDMpointer()->GetCollectionID(sdName);
-  theHC = (CaloG4HitCollection*) allHC->GetHC(idHC);
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Hit Collection for " << sdName
-			<< " of ID " << idHC << " is obtained at " << theHC;
-
-  if (idHC >= 0 && theHC > 0) {
-    hhits.reserve(theHC->entries());
-    for (j = 0; j < theHC->entries(); j++) {
-      CaloG4Hit* aHit = (*theHC)[j]; 
-      double e        = aHit->getEnergyDeposit()/GeV;
-      double time     = aHit->getTimeSlice();
-      math::XYZPoint pos  = aHit->getEntry();
-      unsigned int id = aHit->getUnitID();
-      double theta    = pos.theta();
-      double eta      = -log(tan(theta * 0.5));
-      double phi      = pos.phi();
-      CaloHit hit(2,1,e,eta,phi,time,id);
-      hhits.push_back(hit);
-      primaries[aHit->getTrackID()]+= e;
-      etot1 += e;
-#ifdef ddebug
-      LogDebug("HcalTBSim") << "HcalTB06Analysis:: Hcal Hit i/p " << j 
-			    << "  ID 0x" << std::hex << id << std::dec 
-			    << " time " << std::setw(6) << time << " theta "
-			    << std::setw(8) << theta << " eta " << std::setw(8)
-			    << eta << " phi " << std::setw(8) << phi << " e " 
-			    << std::setw(8) << e;
-#endif
-    }
-  }
-
-  // Add hits in the same channel within same time slice
-  std::vector<CaloHit>::iterator itr;
-  int nHit = hhits.size();
-  std::vector<CaloHit*> hits(nHit);
-  for (j = 0, itr = hhits.begin(); itr != hhits.end(); j++, itr++) {
-    hits[j] = &hhits[j];
-  }
-  sort(hits.begin(),hits.end(),CaloHitIdMore());
-  std::vector<CaloHit*>::iterator k1, k2;
-  int nhit = 0;
-  for (k1 = hits.begin(); k1 != hits.end(); k1++) {
-    int      det    = (**k1).det();
-    int      layer  = (**k1).layer();
-    double   ehit   = (**k1).e();
-    double   eta    = (**k1).eta();
-    double   phi    = (**k1).phi();
-    double   jitter = (**k1).t();
-    uint32_t unitID = (**k1).id();
-    int      jump  = 0;
-    for (k2 = k1+1; k2 != hits.end() && fabs(jitter-(**k2).t())<1 &&
-           unitID==(**k2).id(); k2++) {
-      ehit += (**k2).e();
-      jump++;
-    }
-    nhit++;
-    CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
-    hcalHitCache.push_back(hit);
-    etot2 += ehit;
-    k1    += jump;
-#ifdef ddebug
-    LogDebug("HcalTBSim") << "HcalTB06Analysis:: Hcal Hit store " << nhit 
-			  << "  ID 0x" << std::hex  << unitID  << std::dec 
-			  << " time " << std::setw(6) << jitter << " eta "
-			  << std::setw(8) << eta << " phi " << std::setw(8) 
-			  << phi  << " e " << std::setw(8) << ehit;
-#endif
-  }
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Stores " << nhit << " HCal hits"
-			<< " from " << nHit << " input hits E(Hcal) " << etot1 
-			<< " " << etot2;
-  
-  // Look for the Hit Collection of ECal
-  std::vector<CaloHit> ehits;
-  sdName= names[1];
-  idHC  = G4SDManager::GetSDMpointer()->GetCollectionID(sdName);
-  theHC = (CaloG4HitCollection*) allHC->GetHC(idHC);
-  etot1 = etot2 = 0;
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Hit Collection for " << sdName
-			<< " of ID " << idHC << " is obtained at " << theHC;
-  if (idHC >= 0 && theHC > 0) {
-    ehits.reserve(theHC->entries());
-    for (j = 0; j < theHC->entries(); j++) {
-      CaloG4Hit* aHit = (*theHC)[j]; 
-      double e        = aHit->getEnergyDeposit()/GeV;
-      double time     = aHit->getTimeSlice();
-      math::XYZPoint pos  = aHit->getEntry();
-      unsigned int id = aHit->getUnitID();
-      double theta    = pos.theta();
-      double eta      = -log(tan(theta * 0.5));
-      double phi      = pos.phi();
-      if (e < 0 || e > 100000.) e = 0;
-      CaloHit hit(1,0,e,eta,phi,time,id);
-      ehits.push_back(hit);
-      primaries[aHit->getTrackID()]+= e;
-      etot1 += e;
-#ifdef ddebug
-      LogDebug("HcalTBSim") << "HcalTB06Analysis:: Ecal Hit i/p " << j 
-			    << "  ID 0x" << std::hex << id  << std::dec 
-			    << " time " << std::setw(6) << time << " theta " 
-			    << std::setw(8) << theta  << " eta " <<std::setw(8)
-			    << eta  << " phi " << std::setw(8) << phi << " e "
-			    << std::setw(8) << e;
-#endif
-    }
-  }
-
-  // Add hits in the same channel within same time slice
-  nHit = ehits.size();
-  std::vector<CaloHit*> hite(nHit);
-  for (j = 0, itr = ehits.begin(); itr != ehits.end(); j++, itr++) {
-    hite[j] = &ehits[j];
-  }
-  sort(hite.begin(),hite.end(),CaloHitIdMore());
-  nhit = 0;
-  for (k1 = hite.begin(); k1 != hite.end(); k1++) {
-    int      det    = (**k1).det();
-    int      layer  = (**k1).layer();
-    double   ehit   = (**k1).e();
-    double   eta    = (**k1).eta();
-    double   phi    = (**k1).phi();
-    double   jitter = (**k1).t();
-    uint32_t unitID = (**k1).id();
-    int      jump  = 0;
-    for (k2 = k1+1; k2 != hite.end() && fabs(jitter-(**k2).t())<1 &&
-           unitID==(**k2).id(); k2++) {
-      ehit += (**k2).e();
-      jump++;
-    }
-    nhit++;
-    CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
-    ecalHitCache.push_back(hit);
-    etot2 += ehit;
-    k1    += jump;
-#ifdef ddebug
-    LogDebug("HcalTBSim") << "HcalTB06Analysis:: Ecal Hit store " << nhit
-			  << "  ID 0x" << std::hex << unitID  << std::dec 
-			  << " time " << std::setw(6) << jitter << " eta "
-			  << std::setw(8) << eta << " phi " << std::setw(8)
-			  << phi << " e " << std::setw(8) << ehit;
-#endif
-  }
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Stores " << nhit << " ECal hits"
-			<< " from " << nHit << " input hits E(Ecal) " << etot1 
-			<< " " << etot2;
-
-  // Find Primary info:
-  nPrimary    = (int)(primaries.size());
-  int trackID = 0;
-  G4PrimaryParticle* thePrim=0;
-  int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Event has " << nvertex 
-			<< " verteices";
-  if (nvertex<=0)
-    edm::LogInfo("HcalTBSim") << "HcalTB06Analysis::EndOfEvent ERROR: no "
-			      << "vertex found for event " << evNum;
-
-  for (int i = 0 ; i<nvertex; i++) {
-    G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-    if (avertex == 0) {
-      edm::LogInfo("HcalTBSim") << "HcalTB06Analysis::EndOfEvent ERR: pointer "
-				<< "to vertex = 0 for event " << evNum;
-    } else {
-      LogDebug("HcalTBSim") << "HcalTB06Analysis::Vertex number :" << i << " "
-			    << avertex->GetPosition();
-      int npart = avertex->GetNumberOfParticle();
-      if (npart == 0)
-	edm::LogWarning("HcalTBSim") << "HcalTB06Analysis::End Of Event ERR: "
-				     << "no primary!";
-      if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
-    }
-  }
-    
-  if (thePrim != 0) {
-    double px = thePrim->GetPx();
-    double py = thePrim->GetPy();
-    double pz = thePrim->GetPz();
-    double p  = std::sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
-    pInit     = p/GeV;
-    if (p==0) 
-      edm::LogWarning("HcalTBSim") << "HcalTB06Analysis:: EndOfEvent ERR: "
-				   << "primary has p=0 ";
-    else {
-      double costheta = pz/p;
-      double theta = acos(std::min(std::max(costheta,-1.),1.));
-      etaInit = -log(tan(theta/2));
-      if (px != 0 || py != 0) phiInit = atan2(py,px);  
-    }
-    particleType = thePrim->GetPDGcode();
-  } else 
-    edm::LogWarning("HcalTBSim") << "HcalTB06Analysis::EndOfEvent ERR: could "
-				 << "not find primary";
-
-}
-
-void HcalTB06Analysis::finalAnalysis() {
-
-  //Beam Information
-  histo->fillPrimary(pInit, etaInit, phiInit);
-
-  // Total Energy
-  eecals = ehcals = 0.;
-  for (unsigned int i=0; i<hcalHitCache.size(); i++) {
-    ehcals += hcalHitCache[i].e();
-  }
-  for (unsigned int i=0; i<ecalHitCache.size(); i++) {
-    eecals += ecalHitCache[i].e();
-  }
-  etots = eecals + ehcals;
-  LogDebug("HcalTBSim") << "HcalTB06Analysis:: Energy deposit at Sim Level "
-			<< "(Total) " << etots << " (ECal) " << eecals 
-			<< " (HCal) " << ehcals;
-  histo->fillEdep(etots, eecals, ehcals);
-}
-
-
-void HcalTB06Analysis::fillEvent (PHcalTB06Info& product) {
-
-  //Beam Information
-  product.setPrimary(nPrimary, particleType, pInit, etaInit, phiInit);
-
-  // Total Energy
-  product.setEdep(etots, eecals, ehcals);
-
-  //Energy deposits in the crystals and towers
-  for (unsigned int i=0; i<hcalHitCache.size(); i++) 
-    product.saveHit(hcalHitCache[i].id(), hcalHitCache[i].eta(),
-		    hcalHitCache[i].phi(), hcalHitCache[i].e(),
-		    hcalHitCache[i].t());
-  for (unsigned int i=0; i<ecalHitCache.size(); i++) 
-    product.saveHit(ecalHitCache[i].id(), ecalHitCache[i].eta(),
-		    ecalHitCache[i].phi(), ecalHitCache[i].e(),
-		    ecalHitCache[i].t());
-
-  //Vertex associated quantities
-  product.setVtxPrim(evNum, pvType, pvPosition.x(), pvPosition.y(), 
-		     pvPosition.z(), pvUVW.x(), pvUVW.y(), pvUVW.z(),
-		     pvMomentum.x(), pvMomentum.y(), pvMomentum.z());
-  for (unsigned int i = 0; i < secTrackID.size(); i++) {
-    product.setVtxSec(secTrackID[i], secPartID[i], secMomentum[i].x(),
-		      secMomentum[i].y(), secMomentum[i].z(), secEkin[i]);
-  }
-}
-
-void HcalTB06Analysis::clear() {
-
-  pvFound = false;
-  pvType  =-2;
-  pvPosition = G4ThreeVector();
-  pvMomentum = G4ThreeVector();
-  pvUVW      = G4ThreeVector();
-  secTrackID.clear();
-  secPartID.clear();
-  secMomentum.clear();
-  secEkin.clear();
-  shortLivedSecondaries.clear();
-
-  ecalHitCache.erase(ecalHitCache.begin(), ecalHitCache.end()); 
-  hcalHitCache.erase(hcalHitCache.begin(), hcalHitCache.end()); 
-  nPrimary = particleType = 0;
-  pInit = etaInit = phiInit = 0;
-}
- 
-DEFINE_SIMWATCHER (HcalTB06Analysis);

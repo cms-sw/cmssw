@@ -105,6 +105,13 @@ namespace cond {
       return proxy;
     }
 
+    bool Session::getIovRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+			    std::vector<std::tuple<cond::Time_t,cond::Hash> >& range ){
+      m_session->openIovDb();
+      boost::posix_time::ptime snapshotTime;
+      return m_session->iovSchema().iovTable().getRange( tag, begin, end, snapshotTime, range );
+    }
+
     IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, 
 				  cond::SynchronizationType synchronizationType ){
       m_session->openDb();
@@ -200,69 +207,18 @@ namespace cond {
       return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData, streamerInfoData );
     }
 
-    bool Session::isOraSession(){
-      return m_session->isOra();
-    }
-    
-    bool Session::checkMigrationLog( const std::string& sourceAccount, 
-				     const std::string& sourceTag, 
-				     std::string& destTag, 
-				     cond::MigrationStatus& status ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
-      //throwException( "Migration Log Table does not exist in this schema.","Session::checkMigrationLog");
-      return m_session->iovSchema().tagMigrationTable().select( sourceAccount, sourceTag, destTag, (int&)status );
-    }
-    
-    void Session::addToMigrationLog( const std::string& sourceAccount, 
-				     const std::string& sourceTag, 
-				     const std::string& destTag,
-				     cond::MigrationStatus status){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
-      m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag,  (int)status,
-					 boost::posix_time::microsec_clock::universal_time() );
+    RunInfoProxy Session::getRunInfo( cond::Time_t start, cond::Time_t end ){
+      if(!m_session->transaction.get()) 
+	throwException( "The transaction is not active.","Session::getRunInfo" );
+      RunInfoProxy proxy( m_session );
+      proxy.load( start, end );
+      return proxy;
     }
 
-    void Session::updateMigrationLog( const std::string& sourceAccount, 
-				      const std::string& sourceTag, 
-				      cond::MigrationStatus status){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().tagMigrationTable().exists() )
-	throwException( "Migration Log Table does not exist in this schema.","Session::updateMigrationLog");
-      m_session->iovSchema().tagMigrationTable().updateValidationCode( sourceAccount, sourceTag, (int)status );
-    }
-
-    bool Session::lookupMigratedPayload( const std::string& sourceAccount, 
-					 const std::string& sourceToken, 
-					 std::string& payloadId ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().payloadMigrationTable().exists() ) return false;
-      return m_session->iovSchema().payloadMigrationTable().select( sourceAccount, sourceToken, payloadId );
-    }
-
-    void Session::addMigratedPayload( const std::string& sourceAccount, 
-				      const std::string& sourceToken, 
-				      const std::string& payloadId ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().payloadMigrationTable().exists() ) m_session->iovSchema().payloadMigrationTable().create();
-      m_session->iovSchema().payloadMigrationTable().insert( sourceAccount, sourceToken, payloadId,
-							     boost::posix_time::microsec_clock::universal_time() );             
-    }
-
-    void Session::updateMigratedPayload( const std::string& sourceAccount, 
-					 const std::string& sourceToken, 
-					 const std::string& payloadId ){
-      m_session->openIovDb();
-      if(! m_session->iovSchema().payloadMigrationTable().exists() ) 
-	throwException( "Payload Migration Table does not exist in this schema.","Session::updateMigratedPayload");
-      m_session->iovSchema().payloadMigrationTable().update( sourceAccount, sourceToken, payloadId,
-							     boost::posix_time::microsec_clock::universal_time() );             
-    }
-
-    std::string Session::parsePoolToken( const std::string& poolToken ){
-      m_session->openIovDb();
-      return m_session->iovSchema().parsePoolToken( poolToken );
+    RunInfoEditor Session::editRunInfo(){
+      RunInfoEditor editor(m_session);
+      editor.init();
+      return editor;
     }
 
     std::string Session::connectionString(){

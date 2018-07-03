@@ -126,6 +126,9 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
                (DQMStore::SaveReferenceTag) saveReference_,
                saveReferenceQMin_,
                fileUpdate_ ? "UPDATE" : "RECREATE");
+
+    // save the JobReport
+    saveJobReport(filename);
   }
   else // save EventInfo folders for luminosity sections
   {
@@ -154,6 +157,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
       }
     }
   }
+
 }
 
 static void
@@ -232,7 +236,7 @@ DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::strin
     {
       dbe_->cd();
       std::vector<MonitorElement*> pNamesVector = dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName",lat::Regexp::Perl);
-      if (pNamesVector.size() > 0){
+      if (!pNamesVector.empty()){
         doSaveForOnline(dbe_, run, enableMultiThread_,
                         fileBaseName_ + systems[i] + suffix + child_ + ".root",
                         "", "^(Reference/)?([^/]+)", rewrite,
@@ -257,7 +261,7 @@ DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::strin
 
 
 boost::property_tree::ptree
-DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, evf::FastMonitoringService *fms)
+DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string& transferDestinationStr, const std::string& mergeTypeStr, evf::FastMonitoringService *fms)
 {
   namespace bpt = boost::property_tree;
   namespace bfs = boost::filesystem;
@@ -291,7 +295,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   }
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32, transferDestination, mergeType, hltErrorEvents;
 
   processedEvents.put("", nProcessed); // Processed events
   acceptedEvents.put("", nProcessed); // Accepted events, same as processed for our purposes
@@ -303,6 +307,8 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   inputFiles.put("", ""); // We do not care about input files!
   fileAdler32.put("", -1); // placeholder to match output json definition
   transferDestination.put("", transferDestinationStr); // SM Transfer destination field
+  mergeType.put("", mergeTypeStr); // Merging type for merger and transfer services
+  hltErrorEvents.put("", 0); // Error events
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -313,6 +319,8 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, c
   data.push_back(std::make_pair("", inputFiles));
   data.push_back(std::make_pair("", fileAdler32));
   data.push_back(std::make_pair("", transferDestination));
+  data.push_back(std::make_pair("", mergeType));
+  data.push_back(std::make_pair("", hltErrorEvents));
 
   pt.add_child("data", data);
 
@@ -383,8 +391,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
              lumi,
              (DQMStore::SaveReferenceTag) saveReference_,
              saveReferenceQMin_,
-             fileUpdate_ ? "UPDATE" : "RECREATE",
-             true);
+             fileUpdate_ ? "UPDATE" : "RECREATE");
     }
     else if (fileFormat == PB)
     {
@@ -392,8 +399,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
       dbe_->savePB(openHistoFilePathName,
         filterName_,
         enableMultiThread_ ? run : 0,
-        lumi,
-        true);
+        lumi);
     }
     else
       throw cms::Exception("DQMFileSaver")
@@ -405,7 +411,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
   }
 
   // Write the json file in the open directory.
-  bpt::ptree pt = fillJson(run, lumi, histoFilePathName, transferDestination_, fms_);
+  bpt::ptree pt = fillJson(run, lumi, histoFilePathName, transferDestination_, mergeType_, fms_);
   write_json(openJsonFilePathName, pt);
   rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
 }
@@ -643,6 +649,7 @@ DQMFileSaver::beginJob()
   if ((convention_ == FilterUnit) && (!fakeFilterUnitMode_))
   {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(stream_label_);
+    mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(stream_label_,evf::MergeTypePB);
   } 
 }
 
@@ -735,7 +742,7 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
     }
 
     // after saving per LS, delete the old LS global histograms.
-    dbe_->markForDeletion(enableMultiThread_ ? irun : 0, ilumi);
+    dbe_->deleteUnusedLumiHistograms(enableMultiThread_ ? irun : 0, ilumi);
   }
 }
 
@@ -809,7 +816,7 @@ DQMFileSaver::globalEndRun(const edm::Run & iRun, const edm::EventSetup &) const
 }
 
 void
-DQMFileSaver::endJob(void)
+DQMFileSaver::endJob()
 {
   if (saveAtJobEnd_)
     {
@@ -822,29 +829,4 @@ DQMFileSaver::endJob(void)
 	  << "Internal error.  Can only save files at the end of the"
 	  << " job in Offline mode.";
     }
-  
-  // save JobReport once per job
-  char suffix[64];
-  sprintf(suffix, "R%09d", irun_.load());
-  std::string filename = onlineOfflineFileName(fileBaseName_, suffix, workflow_, child_, fileFormat_);
-  saveJobReport(filename);
-}
-
-void
-DQMFileSaver::postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren)
-{
-  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
-  unsigned int digits = 0;
-  while (numberOfChildren != 0) {
-    ++digits;
-    numberOfChildren /= 10;
-  }
-  // protect against zero numberOfChildren
-  if (digits == 0) {
-    digits = 3;
-  }
-
-  char buffer[digits + 2];
-  snprintf(buffer, digits + 2, "_%0*d", digits, childIndex);
-  child_ = std::string(buffer);
 }

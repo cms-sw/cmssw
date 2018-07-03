@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #include <string>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
@@ -40,16 +40,16 @@ public:
    // first: the full details about the substitution
    // second: exactly what should be inserted into the expression to complete the option
    virtual void fillOptions(const char* iBegin, const char* iEnd,
-                            std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const = 0;
+                            std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const = 0;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
 
 private:
-   FWValidatorBase(const FWValidatorBase&); // stop default
+   FWValidatorBase(const FWValidatorBase&) = delete; // stop default
 
-   const FWValidatorBase& operator=(const FWValidatorBase&); // stop default
+   const FWValidatorBase& operator=(const FWValidatorBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

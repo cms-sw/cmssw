@@ -186,10 +186,12 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   
     if(recoMu->isGlobalMuon())
       TransTrack = theB->build(recoMu->globalTrack());
-    if((recoMu->isTrackerMuon() || recoMu->isRPCMuon()) && !(recoMu->isGlobalMuon()))
+    else if((recoMu->isTrackerMuon() || recoMu->isRPCMuon()))
       TransTrack = theB->build(recoMu->innerTrack());
-    if(recoMu->isStandAloneMuon() && !(recoMu->isGlobalMuon()))
+    else if(recoMu->isStandAloneMuon())
       TransTrack = theB->build(recoMu->outerTrack());
+    else
+      continue;
 
     TrajectoryStateOnSurface TSOS;
     TSOS = TransTrack.impactPointState();
@@ -202,13 +204,13 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
 	hoS9PointingMuDepEnergy_Glb->Fill(muEnergy.hoS9);
       }
       // TK muon
-      if(recoMu->isTrackerMuon() && !(recoMu->isGlobalMuon())){
+      else if(recoMu->isTrackerMuon()){
 	ecalS9PointingMuDepEnergy_Tk->Fill(muEnergy.emS9);
 	hcalS9PointingMuDepEnergy_Tk->Fill(muEnergy.hadS9);
 	hoS9PointingMuDepEnergy_Tk->Fill(muEnergy.hoS9);
       }
       // STA muon
-      if(recoMu->isStandAloneMuon() && !(recoMu->isGlobalMuon())){
+      else if(recoMu->isStandAloneMuon()){
 	ecalS9PointingMuDepEnergy_Sta->Fill(muEnergy.emS9);
 	hcalS9PointingMuDepEnergy_Sta->Fill(muEnergy.hadS9);
 	hoS9PointingMuDepEnergy_Sta->Fill(muEnergy.hoS9);

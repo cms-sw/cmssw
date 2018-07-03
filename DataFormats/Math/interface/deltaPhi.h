@@ -4,54 +4,48 @@
  *
  * Ported from original code in RecoJets 
  * by Fedor Ratnikov, FNAL
+ * stabilize range reduction
  */
 #include <cmath>
 
 namespace reco {
-
-  inline double deltaPhi(double phi1, double phi2) { 
-    double result = phi1 - phi2;
-    while (result > M_PI) result -= 2*M_PI;
-    while (result <= -M_PI) result += 2*M_PI;
-    return result;
+  
+  // reduce to [-pi,pi]
+  template<typename T>
+  constexpr T  reduceRange(T x) {
+   constexpr T o2pi = 1./(2.*M_PI);
+   if (std::abs(x) <= T(M_PI)) return x;
+   T n = std::round(x*o2pi);
+   return x - n*T(2.*M_PI);
   }
 
-  inline double deltaPhi(float phi1, double phi2) {
+  constexpr double deltaPhi(double phi1, double phi2) { 
+    return reduceRange(phi1 - phi2);
+  }
+
+  constexpr double deltaPhi(float phi1, double phi2) {
     return deltaPhi(static_cast<double>(phi1), phi2);
   }
   
-  inline double deltaPhi(double phi1, float phi2) {
+  constexpr double deltaPhi(double phi1, float phi2) {
     return deltaPhi(phi1, static_cast<double>(phi2));
   }
   
 
-  inline float deltaPhi(float phi1, float phi2) { 
-    float result = phi1 - phi2;
-    while (result > float(M_PI)) result -= float(2*M_PI);
-    while (result <= -float(M_PI)) result += float(2*M_PI);
-    return result;
+  constexpr float deltaPhi(float phi1, float phi2) { 
+      return reduceRange(phi1 - phi2);
   }
 
-  /*
-  inline double deltaPhi(float phi1, float phi2) {
-    return deltaPhi(static_cast<double>(phi1),
-		    static_cast<double>(phi2));
-  } 
-  */
 
   template<typename T1, typename T2>
-    inline double deltaPhi(T1& t1, T2 & t2) {
+    constexpr auto deltaPhi(T1 const & t1, T2 const & t2)->decltype(deltaPhi(t1.phi(), t2.phi())) {
     return deltaPhi(t1.phi(), t2.phi());
   }      
 
   template <typename T> 
-    inline T deltaPhi (T phi1, T phi2) { 
-    T result = phi1 - phi2;
-    while (result > M_PI) result -= 2*M_PI;
-    while (result <= -M_PI) result += 2*M_PI;
-    return result;
+    constexpr T deltaPhi (T phi1, T phi2) { 
+    return reduceRange(phi1 - phi2);
   }
-
 }
 
 // lovely!  VI
@@ -59,7 +53,8 @@ using reco::deltaPhi;
 
 template<typename T1, typename T2 = T1>
 struct DeltaPhi {
-  double operator()(const T1 & t1, const T2 & t2) const {
+  constexpr
+  auto operator()(const T1 & t1, const T2 & t2)->decltype(reco::deltaPhi(t1, t2)) const {
     return reco::deltaPhi(t1, t2);
   }
 };

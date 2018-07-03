@@ -60,8 +60,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 #endif
 
   // Create the output collections   
-  std::auto_ptr<GsfElectronCollection> pOutEle(new GsfElectronCollection);
-  std::auto_ptr<GsfElectronCoreCollection> pOutEleCore(new GsfElectronCoreCollection);
+  auto pOutEle = std::make_unique<GsfElectronCollection>();
+  auto pOutEleCore = std::make_unique<GsfElectronCoreCollection>();
 
   // Get SuperClusters in EB
   Handle<reco::SuperClusterCollection> superClusterEBHandle;
@@ -94,8 +94,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
     {
       float DeltaRMineleSCbarrel(0.15); //initial minDeltaR
       float DeltaRMineleSCendcap(0.15); 
-      const reco::SuperCluster* nearestSCbarrel=0;
-      const reco::SuperCluster* nearestSCendcap=0;
+      const reco::SuperCluster* nearestSCbarrel=nullptr;
+      const reco::SuperCluster* nearestSCendcap=nullptr;
       int iscRef=-1, iscRefendcap=-1;
       int iSC=0;
       
@@ -225,10 +225,10 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
   
   // put result into the Event
 
-  e.put(pOutEle);
-  e.put(pOutEleCore);
+  e.put(std::move(pOutEle));
+  e.put(std::move(pOutEleCore));
   
-  //  e.put(pOutNewEndcapSC);
+  //  e.put(std::move(pOutNewEndcapSC));
   
 }
 

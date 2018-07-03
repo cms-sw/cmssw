@@ -18,6 +18,7 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #        ,'PedestalWidths' 
 #        ,'Gains' 
 #        ,'QIEData' 
+#        ,'QIETypes' 
 #        ,'ElectronicsMap'
 #        ,'ChannelQuality' 
 #        ,'GainWidths' 
@@ -36,6 +37,13 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #    ,'LongRecoParams'
 #    ,'MCParams'
 #    ,'FlagHFDigiTimeParams'
+#    ,'SiPMParameters'
+#    ,'SiPMCharacteristics'
+#    ,'TPParameters'
+#    ,'TPChannelParameters'
+#    ,'FrontEndMap'
+#    ,'CalibrationsSet'
+#    ,'CalibrationWidthsSet'
         ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
@@ -68,6 +76,10 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #        cms.PSet(
 #            record = cms.string('HcalQIEDataRcd'),
 #            tag = cms.string('qie_normalmode_v6.01')
+#        ), 
+#        cms.PSet(
+#            record = cms.string('HcalQIETypesRcd'),
+#            tag = cms.string('qietypes_normalmode_v0.00')
 #        ), 
 #        cms.PSet(
 #            record = cms.string('HcalChannelQualityRcd'),
@@ -149,6 +161,10 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #             tag = cms.string('qie_normalmode_v5_mc')
 #             ), 
 #         cms.PSet(
+#             record = cms.string('HcalQIETypeRcd'),
+#             tag = cms.string('qietype_norma_v0_mc')
+#             ),
+#         cms.PSet(
 #             record = cms.string('HcalElectronicsMapRcd'),
 #             tag = cms.string('official_emap_v5_080208_mc')
 #             ),
@@ -169,6 +185,7 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 #        ,'PedestalWidths' 
 #        ,'Gains' 
 #        ,'QIEData' 
+#        ,'QIETypes' 
 #        ,'ElectronicsMap'
 #        ,'ChannelQuality' 
 #        ,'GainWidths' 
@@ -211,6 +228,10 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 #         cms.PSet(
 #             object = cms.string('QIEData'),
 #             file = cms.FileInPath('CondFormats/HcalObjects/data/qie_normalmode_v6_cand2_fakeZDC.txt')
+#         ), 
+#         cms.PSet(
+#             object = cms.string('QIETypes'),
+#             file = cms.FileInPath('CondFormats/HcalObjects/data/qietypes_normalmode_v0.txt')
 #         ), 
 #         cms.PSet(
 #             object = cms.string('ElectronicsMap'),

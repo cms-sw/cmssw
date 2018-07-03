@@ -1,4 +1,4 @@
-#ifndef EcalNoiseStorage_h
+#ifndef SimEcalNoiseStorage_h
 #define SimEcalNoiseStorage_h
 
 /** \class EcalNoiseStorage
@@ -37,7 +37,7 @@ namespace edm
     public:
 
       EcalNoiseStorage() {};
-      ~EcalNoiseStorage() {};
+      ~EcalNoiseStorage() override {};
 
      /** standard constructor*/
      // explicit EcalNoiseStorage();
@@ -45,11 +45,11 @@ namespace edm
       /**Default destructor*/
       //virtual ~EcalNoiseStorage();
 
-      void fillNoiseSignals() {};
+      void fillNoiseSignals() override {};
 
     private:
 
     };
 }//edm
 
-#endif
+#endif // SimEcalNoiseStorage_h

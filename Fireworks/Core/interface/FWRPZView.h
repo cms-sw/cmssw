@@ -41,29 +41,31 @@ class FWRPZView : public FWEveView
 {
 public:
    FWRPZView(TEveWindowSlot* iParent, FWViewType::EType);
-   virtual ~FWRPZView();
+   ~FWRPZView() override;
 
    // ---------- const member functions ---------------------
 
-   virtual void addTo(FWConfiguration&) const;
-   virtual void populateController(ViewerParameterGUI&) const;
-   virtual TEveCaloViz* getEveCalo() const;
+   void addTo(FWConfiguration&) const override;
+   void populateController(ViewerParameterGUI&) const override;
+   TEveCaloViz* getEveCalo() const override;
 
    // ---------- member functions ---------------------------
-   virtual void setContext(const fireworks::Context&);
-   virtual void setFrom(const FWConfiguration&);
-   virtual void voteCaloMaxVal();
+   void setContext(const fireworks::Context&) override;
+   void setFrom(const FWConfiguration&) override;
+   void voteCaloMaxVal() override;
 
-   virtual void eventBegin();
+   void eventBegin() override;
+   void eventEnd() override;
+   void setupEventCenter() override;
 
    //returns the new element created from this import
-   void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
+   void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=nullptr);
  
    void shiftOrigin(TEveVector& center);
    void resetOrigin();
 private:
-   FWRPZView(const FWRPZView&);    // stop default
-   const FWRPZView& operator=(const FWRPZView&);    // stop default 
+   FWRPZView(const FWRPZView&) = delete;    // stop default
+   const FWRPZView& operator=(const FWRPZView&) = delete;    // stop default 
 
    void doPreScaleDistortion();
    void doFishEyeDistortion();

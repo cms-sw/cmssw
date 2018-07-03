@@ -44,7 +44,7 @@ using namespace std;
 // Constructors --
 //----------------
 L1MuDTDataBuffer::L1MuDTDataBuffer(const L1MuDTSectorProcessor& sp) : 
-        m_sp(sp), m_tsphi(0) {
+        m_sp(sp), m_tsphi(nullptr) {
 
 
   m_tsphi = new TSPhivector(38);
@@ -76,7 +76,7 @@ void L1MuDTDataBuffer::reset() {
   while ( iter != m_tsphi->end() ) {
     if ( *iter) {
       delete *iter; 
-      *iter = 0;
+      *iter = nullptr;
     }
     iter++;
   }

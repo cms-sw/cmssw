@@ -54,7 +54,7 @@ TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg)
 
     typedef std::vector<std::string> vstring;
     vstring plotParameter = plotConfig.getParameter<vstring>("parameter");
-    if ( plotParameter.size() == 0 ) {
+    if ( plotParameter.empty() ) {
       cfgEntryPlot_.push_back(cfgEntryPlot(plotConfig));
     } else {
       std::string numerator = plotConfig.getParameter<std::string>("numerator");
@@ -82,22 +82,9 @@ TauDQMHistEffProducer::~TauDQMHistEffProducer()
 //--- nothing to be done yet
 }
 
-void TauDQMHistEffProducer::analyze(const edm::Event&, const edm::EventSetup&)
-{
-//--- nothing to be done yet
-}
-
-void TauDQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
+void TauDQMHistEffProducer::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget)
 {
   //std::cout << "<TauDQMHistEffProducer::endJob>:" << std::endl;
-
-//--- check that DQMStore service is available
-  if ( !edm::Service<DQMStore>().isAvailable() ) {
-    edm::LogError ("endJob") << " Failed to access dqmStore --> histograms will NOT be plotted !!";
-    return;
-  }
-
-  DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
   for ( std::vector<cfgEntryPlot>::const_iterator plot = cfgEntryPlot_.begin(); plot != cfgEntryPlot_.end(); ++plot ) {
     //std::cout << "plot->numerator_ = " << plot->numerator_ << std::endl;
@@ -105,20 +92,20 @@ void TauDQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
     separateHistogramFromDirectoryName(plot->numerator_, numeratorHistogramName, numeratorHistogramDirectory);
     //std::cout << "numeratorHistogramName = " << numeratorHistogramName << std::endl;
     //std::cout << "numeratorHistogramDirectory = " << numeratorHistogramDirectory << std::endl;
-    MonitorElement* meNumerator = dqmStore.get(std::string(numeratorHistogramDirectory).append(dqmSeparator).append(numeratorHistogramName));
+    MonitorElement* meNumerator = iget.get(std::string(numeratorHistogramDirectory).append(dqmSeparator).append(numeratorHistogramName));
     //std::cout << "meNumerator = " << meNumerator << std::endl;
-    TH1* histoNumerator = ( meNumerator != NULL ) ? meNumerator->getTH1() : NULL;
+    TH1* histoNumerator = ( meNumerator != nullptr ) ? meNumerator->getTH1() : nullptr;
     
     //std::cout << "plot->denominator_ = " << plot->denominator_ << std::endl;
     std::string denominatorHistogramName, denominatorHistogramDirectory;
     separateHistogramFromDirectoryName(plot->denominator_, denominatorHistogramName, denominatorHistogramDirectory);
     //std::cout << "denominatorHistogramName = " << denominatorHistogramName << std::endl;
     //std::cout << "denominatorHistogramDirectory = " << denominatorHistogramDirectory << std::endl;
-    MonitorElement* meDenominator = dqmStore.get(std::string(denominatorHistogramDirectory).append(dqmSeparator).append(denominatorHistogramName));
+    MonitorElement* meDenominator = iget.get(std::string(denominatorHistogramDirectory).append(dqmSeparator).append(denominatorHistogramName));
     //std::cout << "meDenominator = " << meDenominator << std::endl;
-    TH1* histoDenominator = ( meDenominator != NULL ) ? meDenominator->getTH1() : NULL;
+    TH1* histoDenominator = ( meDenominator != nullptr ) ? meDenominator->getTH1() : nullptr;
     
-    if ( histoNumerator != NULL && histoDenominator != NULL ) {
+    if ( histoNumerator != nullptr && histoDenominator != nullptr ) {
       if ( !histoNumerator->GetSumw2N() ) histoNumerator->Sumw2();
       //std::cout << " histoNumerator->GetName = " << histoNumerator->GetName() << std::endl;
       
@@ -128,15 +115,15 @@ void TauDQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
       std::string effHistogramName, effHistogramDirectory, dummy;
       separateHistogramFromDirectoryName(plot->efficiency_, effHistogramName, effHistogramDirectory);
       //if ( effHistogramDirectory == "" ) separateHistogramFromDirectoryName(numeratorHistogramName, dummy, effHistogramDirectory);
-      if ( effHistogramDirectory != "" ) 
+      if ( !effHistogramDirectory.empty() ) 
 	{
-	  if(dqmStore.dirExists(effHistogramDirectory))
-	    dqmStore.setCurrentFolder(effHistogramDirectory);
+	  if(iget.dirExists(effHistogramDirectory))
+	    ibook.setCurrentFolder(effHistogramDirectory);
 	  else
 	    std::cout<<"TauDQMHistEffProducer:: Directory: "<<effHistogramDirectory<<" does not exist!"<<std::endl;
 	}
       
-      MonitorElement* histoEfficiency = dqmStore.book1D(effHistogramName, effHistogramName, 
+      MonitorElement* histoEfficiency = ibook.book1D(effHistogramName, effHistogramName, 
 							histoNumerator->GetNbinsX(), histoNumerator->GetXaxis()->GetXmin(), histoNumerator->GetXaxis()->GetXmax());
       
       histoEfficiency->getTH1F()->Divide(histoNumerator, histoDenominator, 1., 1., "B");
@@ -151,8 +138,8 @@ void TauDQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
       */
     } else {
       edm::LogError("endRun") << " Failed to produce efficiency histogram = " << plot->efficiency_ << " !!";
-      if ( histoNumerator   == NULL ) edm::LogError("endRun") << "  numerator = " << plot->numerator_ << " does not exist.";
-      if ( histoDenominator == NULL ) edm::LogError("endRun") << "  denominator = " << plot->denominator_ << " does not exist.";
+      if ( histoNumerator   == nullptr ) edm::LogError("endRun") << "  numerator = " << plot->numerator_ << " does not exist.";
+      if ( histoDenominator == nullptr ) edm::LogError("endRun") << "  denominator = " << plot->denominator_ << " does not exist.";
     }
   }
 }

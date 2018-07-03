@@ -23,7 +23,7 @@ class IdealHelixParameters{
  public:
 
  IdealHelixParameters():
-  _magnField(0),_track(0),
+  _magnField(nullptr),_track(nullptr),
     _refPoint               (math::XYZVector(0,0,0)),
     _tangentPoint           (math::XYZVector(0,0,0)),
     _MomentumAtTangentPoint(math::XYZVector(0,0,0)){};

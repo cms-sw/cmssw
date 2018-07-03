@@ -8,6 +8,10 @@
 #ifndef DAFTrackProducerAlgorithm_h
 #define DAFTrackProducerAlgorithm_h
 
+
+#include "AlgoProductTraits.h"
+
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -29,14 +33,16 @@ namespace reco{
 	class Track;
 }
 
-class DAFTrackProducerAlgorithm {
+class DAFTrackProducerAlgorithm : public AlgoProductTraits<reco::Track> {
+public:
+  using Base = AlgoProductTraits<reco::Track>;
+  using TrackCollection = typename Base::TrackCollection;
+  using AlgoProductCollection = typename Base::AlgoProductCollection;
 
-   typedef std::pair<Trajectory*, std::pair<reco::Track*,PropagationDirection> > AlgoProduct;
-   typedef std::vector< AlgoProduct >  AlgoProductCollection;
-   typedef std::vector<TrajAnnealing> TrajAnnealingCollection;
-  
- public:
+  using TrajAnnealingCollection=std::vector<TrajAnnealing>;
 
+public:
+ 
   DAFTrackProducerAlgorithm(const edm::ParameterSet& conf);
   ~DAFTrackProducerAlgorithm() {}
   

@@ -39,7 +39,7 @@ class L1MuDTChambPhDigi {
   L1MuDTChambPhDigi();
 
   L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
-	int uphr, int uphb, int uqua, int utag, int ucnt );
+        int uphr, int uphb, int uqua, int utag, int ucnt, int urpc=-10);
 
   //  Destructor
   ~L1MuDTChambPhDigi();
@@ -54,6 +54,8 @@ class L1MuDTChambPhDigi {
   int code()        const;
   int Ts2Tag()      const;
   int BxCnt()       const;
+  int RpcBit()      const;
+  int UpDownTag()	const;
 
  private:
 
@@ -66,6 +68,7 @@ class L1MuDTChambPhDigi {
   int qualityCode;
   int Ts2TagCode;
   int BxCntCode;
+  int rpcBit;
 };
 
 #endif

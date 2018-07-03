@@ -39,10 +39,11 @@ class LHEReader {
 	unsigned int			curIndex;
 	std::vector<std::string>        weightsinconfig;
 
-	std::auto_ptr<Source>		curSource;
-	std::auto_ptr<XMLDocument>	curDoc;
+	std::unique_ptr<Source>		curSource;
+	std::unique_ptr<XMLDocument>	curDoc;
 	boost::shared_ptr<LHERunInfo>	curRunInfo;
-	std::auto_ptr<XMLHandler>	handler;
+	std::unique_ptr<XMLHandler>	handler;
+	std::shared_ptr<void>           platform;
 };
 
 } // namespace lhef

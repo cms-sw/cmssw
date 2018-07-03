@@ -25,11 +25,11 @@ public:
 
   explicit RawDataSelector(const edm::ParameterSet&);
 
-  ~RawDataSelector();
+  ~RawDataSelector() override;
 
 private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   RawDataFEDSelector * selector; 
 
@@ -69,10 +69,10 @@ void RawDataSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   // the filtered raw data collections
-  auto_ptr<FEDRawDataCollection> selectedRawData = selector->select(rawData, fedRange);
+  std::unique_ptr<FEDRawDataCollection> selectedRawData = selector->select(rawData, fedRange);
 
 
-  iEvent.put(selectedRawData);
+  iEvent.put(std::move(selectedRawData));
   
 }
 

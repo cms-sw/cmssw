@@ -8,6 +8,7 @@ combinedSecondaryVertexCommon = cms.PSet(
 	trackSelectionBlock,
 	trackFlip = cms.bool(False),
 	vertexFlip = cms.bool(False),
+	SoftLeptonFlip = cms.bool(False),
 	useTrackWeights = cms.bool(True),
 	pseudoMultiplicityMin = cms.uint32(2),
 	correctVertexMass = cms.bool(True),

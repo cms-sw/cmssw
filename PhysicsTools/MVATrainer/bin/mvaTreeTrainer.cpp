@@ -161,7 +161,7 @@ int main(int argc, char **argv)
 	srandom(1);
 
 	try {
-		std::auto_ptr<TreeTrainer> treeTrainer;
+		std::unique_ptr<TreeTrainer> treeTrainer;
 		std::vector<TTree*> trees;
 		unsigned int nTarget = 0;
 		for(int i = 2; i < argc; i++) {
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
 
 		treeTrainer->train(&trainer);
 
-		std::auto_ptr<Calibration::MVAComputer> calib(
+		std::unique_ptr<Calibration::MVAComputer> calib(
 						trainer.getCalibration());
 
 		MVAComputer::writeCalibration(args[1], calib.get());

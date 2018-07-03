@@ -31,14 +31,14 @@ class QcdPhotonsDQM : public DQMEDAnalyzer {
   QcdPhotonsDQM(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~QcdPhotonsDQM();
+  ~QcdPhotonsDQM() override;
 
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   // ----------member data ---------------------------

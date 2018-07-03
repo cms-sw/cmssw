@@ -108,15 +108,28 @@ HcalCondObjectContainer<Item>::initContainer(DetId fId) {
 
   if (fId.det()==DetId::Hcal) {
     switch (HcalSubdetector(fId.subdetId())) {
-    case(HcalBarrel) : for (unsigned int i=0; i<sizeFor(fId); i++) HBcontainer.push_back(emptyItem); break;
-    case(HcalEndcap) : for (unsigned int i=0; i<sizeFor(fId); i++) HEcontainer.push_back(emptyItem); break;
-    case(HcalOuter) : for (unsigned int i=0; i<sizeFor(fId); i++) HOcontainer.push_back(emptyItem); break;
-    case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
-    case(HcalTriggerTower) : for (unsigned int i=0; i<sizeFor(fId); i++) HTcontainer.push_back(emptyItem); break;
-    case(HcalOther) : if (extractOther(fId)==HcalCalibration) 
-	for (unsigned int i=0; i<sizeFor(fId); i++) CALIBcontainer.push_back(emptyItem); break;
-      break; 
-    default: break;
+      case HcalBarrel:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HBcontainer.push_back(emptyItem);
+        break;
+      case HcalEndcap:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HEcontainer.push_back(emptyItem);
+        break;
+      case HcalOuter:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HOcontainer.push_back(emptyItem);
+        break;
+      case HcalForward:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HFcontainer.push_back(emptyItem);
+        break;
+      case HcalTriggerTower:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HTcontainer.push_back(emptyItem);
+        break;
+      case HcalOther:
+        if (extractOther(fId) == HcalCalibration) {
+          for (unsigned int i = 0; i < sizeFor(fId); i++) CALIBcontainer.push_back(emptyItem);
+        }
+        break;
+      default:
+        break;
     }
   } else if (fId.det()==DetId::Calo) {
     if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
@@ -132,20 +145,31 @@ template<class Item> const Item*
 HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
   unsigned int index=indexFor(fId);
   
-  const Item* cell = NULL;
+  const Item* cell = nullptr;
 
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
       switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
-      case(HcalEndcap) : if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
-      case(HcalForward) : if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );   break; 
-      case(HcalOuter) : if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );    break;
-      case(HcalTriggerTower) : if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );    break;
-      case(HcalOther) : if (extractOther(fId)==HcalCalibration) 
-	  if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
-	break; 
-      default: break;
+	case HcalBarrel:
+	  if (index < HBcontainer.size()) cell = &(HBcontainer.at(index));
+	  break;
+	case HcalEndcap:
+	  if (index < HEcontainer.size()) cell = &(HEcontainer.at(index));
+	  break;
+	case HcalForward:
+	  if (index < HFcontainer.size()) cell = &(HFcontainer.at(index));
+	  break; 
+	case HcalOuter:
+	  if (index < HOcontainer.size()) cell = &(HOcontainer.at(index));
+	  break;
+	case HcalTriggerTower:
+	  if (index < HTcontainer.size()) cell = &(HTcontainer.at(index));
+	  break;
+	case HcalOther:
+	  if (extractOther(fId) == HcalCalibration && index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index)); 
+	  break; 
+	default:
+	  break;
       }
     } else if (fId.det()==DetId::Calo) {
       if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
@@ -166,7 +190,7 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
       throw cms::Exception ("Conditions mismatch") 
 	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
     } 
-    cell=0;
+    cell=nullptr;
   }
 
   return cell;
@@ -189,40 +213,52 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
   DetId fId(myItem.rawId());
   unsigned int index=indexFor(fId);
   
-  Item* cell = NULL;
+  Item* cell = nullptr;
 
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
       switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (!HBcontainer.size() ) initContainer(fId);
-      	if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
-      case(HcalEndcap) : if (!HEcontainer.size() ) initContainer(fId);
-      	if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
-      case(HcalForward) : if (!HFcontainer.size() ) initContainer(fId);
-      	if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  break;
-      case(HcalOuter) : if (!HOcontainer.size() ) initContainer(fId);
-      	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;
-      case(HcalTriggerTower) : if (!HTcontainer.size() ) initContainer(fId);
-      	if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );  break;  
-      case(HcalOther) : if (extractOther(fId)==HcalCalibration) {
-	  if (!CALIBcontainer.size() ) initContainer(fId);
-	  if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
-	}
-	break; 
-      default: break;
+	case HcalBarrel:
+	  if (HBcontainer.empty() ) initContainer(fId);
+	  if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );
+	  break;
+	case HcalEndcap:
+	  if (HEcontainer.empty() ) initContainer(fId);
+	  if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );
+	  break;
+	case HcalForward:
+	  if (HFcontainer.empty() ) initContainer(fId);
+	  if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );
+	  break;
+	case HcalOuter:
+	  if (HOcontainer.empty() ) initContainer(fId);
+	  if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );
+	  break;
+	case HcalTriggerTower:
+	  if (HTcontainer.empty() ) initContainer(fId);
+	  if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );
+	  break;  
+	case HcalOther:
+	  if (extractOther(fId)==HcalCalibration) {
+	    if (CALIBcontainer.empty() ) initContainer(fId);
+	    if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
+	  }
+	  break; 
+	default:
+	  break;
       }
     } else if (fId.det()==DetId::Calo) {
       if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
-	if (!CASTORcontainer.size() ) initContainer(fId);
+	if (CASTORcontainer.empty() ) initContainer(fId);
 	if (index < CASTORcontainer.size()) cell = &(CASTORcontainer.at(index) );
       } else if (fId.subdetId()==HcalZDCDetId::SubdetectorId) {	
-	if (!ZDCcontainer.size() ) initContainer(fId);
+	if (ZDCcontainer.empty() ) initContainer(fId);
 	if (index < ZDCcontainer.size()) cell = &(ZDCcontainer.at(index) );
       }
     }
   }
 
-  if (cell!=0) {
+  if (cell!=nullptr) {
     (*cell)=myItem;
     success=true;
   }

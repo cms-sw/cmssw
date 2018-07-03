@@ -34,12 +34,12 @@ Implementation:
 class ArbitraryLogError : public edm::EDAnalyzer {
 public:
   explicit ArbitraryLogError(const edm::ParameterSet&);
-  ~ArbitraryLogError();
+  ~ArbitraryLogError() override;
 
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   const std::string m_category;
   const bool        m_severity;
@@ -57,9 +57,7 @@ ArbitraryLogError::ArbitraryLogError(const edm::ParameterSet& config) :
 }
 
 // DTOR
-ArbitraryLogError::~ArbitraryLogError()
-{
-}
+ArbitraryLogError::~ArbitraryLogError() = default;
 
 
 // ------------ method called to for each event  ------------
@@ -86,6 +84,6 @@ void
 ArbitraryLogError::endJob() {
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(ArbitraryLogError);

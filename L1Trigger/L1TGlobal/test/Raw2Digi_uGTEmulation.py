@@ -132,7 +132,7 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_CaloSliceTest_2015.xml'
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
-process.emL1uGtFromGtInput = cms.EDProducer("l1t::GtProducer",
+process.emL1uGtFromGtInput = cms.EDProducer("L1TGlobalProducer",
     ProduceL1GtObjectMapRecord = cms.bool(False),
     AlgorithmTriggersUnmasked = cms.bool(False),
     EmulateBxInEvent = cms.int32(1),
@@ -146,7 +146,7 @@ process.emL1uGtFromGtInput = cms.EDProducer("l1t::GtProducer",
     Verbosity = cms.untracked.int32(5)
 )
 
-process.emL1uGtFromDemuxOutput = cms.EDProducer("l1t::GtProducer",
+process.emL1uGtFromDemuxOutput = cms.EDProducer("L1TGlobalProducer",
     ProduceL1GtObjectMapRecord = cms.bool(False),
     AlgorithmTriggersUnmasked = cms.bool(False),
     EmulateBxInEvent = cms.int32(1),

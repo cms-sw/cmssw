@@ -14,14 +14,12 @@
 // $Id$
 //
 //
-
-
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,32 +40,22 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-
-
 //
 // class declaration
 //
 
 typedef math::Error<5>::type CovarianceMatrix;
 
-class SeedToTrackProducer : public edm::EDProducer {
+class SeedToTrackProducer : public edm::one::EDProducer<> {
    public:
       explicit SeedToTrackProducer(const edm::ParameterSet&);
-      ~SeedToTrackProducer();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+      ~SeedToTrackProducer() override;
 
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
       virtual TrajectoryStateOnSurface seedTransientState(const TrajectorySeed&);
-      
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
       // ----------member data ---------------------------
     
     edm::EDGetTokenT<TrajectorySeedCollection> L2seedsTagT_;

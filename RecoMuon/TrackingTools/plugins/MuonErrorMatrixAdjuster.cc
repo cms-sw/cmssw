@@ -82,8 +82,8 @@ reco::Track MuonErrorMatrixAdjuster::makeTrack(const reco::Track & recotrack_ori
   //get the parameters of the track so I can reconstruct it
   double chi2 = recotrack_orig.chi2();
   double ndof = recotrack_orig.ndof();
-  math::XYZPoint refpos = recotrack_orig.referencePoint();
-  math::XYZVector mom = recotrack_orig.momentum();
+  const math::XYZPoint& refpos = recotrack_orig.referencePoint();
+  const math::XYZVector& mom = recotrack_orig.momentum();
   int charge = recotrack_orig.charge();
   
   reco::TrackBase::CovarianceMatrix covariance_matrix = fix_cov_matrix(recotrack_orig.covariance(),PCAstate.momentum());
@@ -106,12 +106,12 @@ reco::TrackExtra * MuonErrorMatrixAdjuster::makeTrackExtra(const reco::Track & r
   reco::TrackBase::CovarianceMatrix scale_matrix(recotrack.covariance());
   if (!divide(scale_matrix,recotrack_orig.covariance())){
     edm::LogError( theCategory)<<"original track error matrix has term ==0... skipping.";
-    return 0; }
+    return nullptr; }
   
   const reco::TrackExtraRef & trackExtra_orig = recotrack_orig.extra();
   if (trackExtra_orig.isNull()) {
     edm::LogError( theCategory)<<"original track has no track extra... skipping.";
-    return 0;}
+    return nullptr;}
 
   //copy the outer state. rescaling the error matrix
   reco::TrackBase::CovarianceMatrix outerCov(trackExtra_orig->outerStateCovariance());
@@ -182,9 +182,9 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   const TrackerTopology& ttopo = *httopo;
 
   //prepare the output collection
-  std::auto_ptr<reco::TrackCollection> Toutput(new reco::TrackCollection());
-  std::auto_ptr<TrackingRecHitCollection> TRHoutput(new TrackingRecHitCollection());
-  std::auto_ptr<reco::TrackExtraCollection> TEoutput(new reco::TrackExtraCollection());
+  auto Toutput = std::make_unique<reco::TrackCollection>();
+  auto TRHoutput = std::make_unique<TrackingRecHitCollection>();
+  auto TEoutput = std::make_unique<reco::TrackExtraCollection>();
   theRefprodTE = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
   theTEi=0;
   theRefprodRH =iEvent.getRefBeforePut<TrackingRecHitCollection>();
@@ -230,9 +230,9 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   LogDebug( theCategory)<<"writing: "<<Toutput->size()<<" corrected reco::Track to the event.";
   
-  iEvent.put(Toutput, theInstanceName);
-  iEvent.put(TEoutput);
-  iEvent.put(TRHoutput);
+  iEvent.put(std::move(Toutput), theInstanceName);
+  iEvent.put(std::move(TEoutput));
+  iEvent.put(std::move(TRHoutput));
 
 }
 

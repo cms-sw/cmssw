@@ -1,3 +1,10 @@
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include <vector>
+
 std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfElectronRef>& electrons,
 							const edm::Handle<trigger::TriggerEvent>& pHLT, const int filterId,
 							 const std::vector<double>& Cuts )

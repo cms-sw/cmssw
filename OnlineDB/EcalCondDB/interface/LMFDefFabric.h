@@ -28,7 +28,7 @@ class LMFDefFabric: public IDBObject {
   LMFDefFabric(oracle::occi::Environment* env,
 	       oracle::occi::Connection* conn);
   LMFDefFabric(EcalDBConnection *c);
-  ~LMFDefFabric();
+  ~LMFDefFabric() override;
   
   LMFColor getColor(std::string name) const;
   LMFColor getColor(int color_index) const;
@@ -46,7 +46,7 @@ class LMFDefFabric: public IDBObject {
   std::list<LMFTrigType> getTriggerTypes() const;
   std::list<LMFRunTag>   getRunTags() const;
 
-  void initialize() throw(std::runtime_error);
+  void initialize() noexcept(false);
   void debug();
   void noDebug();
 

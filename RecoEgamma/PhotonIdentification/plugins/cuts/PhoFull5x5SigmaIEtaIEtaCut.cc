@@ -5,11 +5,11 @@ class PhoFull5x5SigmaIEtaIEtaCut : public CutApplicatorBase {
 public:
   PhoFull5x5SigmaIEtaIEtaCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::PhotonPtr&) const override final;
+  result_type operator()(const reco::PhotonPtr&) const final;
 
-  double value(const reco::CandidatePtr& cand) const override final;
+  double value(const reco::CandidatePtr& cand) const final;
 
-  CandidateType candidateType() const override final { 
+  CandidateType candidateType() const final { 
     return PHOTON; 
   }
 

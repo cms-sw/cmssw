@@ -35,33 +35,33 @@ GctUnpackCollections::GctUnpackCollections(edm::Event& event):
 GctUnpackCollections::~GctUnpackCollections()
 {
   // GCT input collections
-  m_event.put(m_gctFibres);
-  m_event.put(m_rctEm);
-  m_event.put(m_rctCalo);
+  m_event.put(std::move(m_gctFibres));
+  m_event.put(std::move(m_rctEm));
+  m_event.put(std::move(m_rctCalo));
 
   // GCT internal collections
-  m_event.put(m_gctInternEm);
-  m_event.put(m_gctInternJets);
-  m_event.put(m_gctInternEtSums);
-  m_event.put(m_gctInternHFData);
-  m_event.put(m_gctInternHtMiss);
+  m_event.put(std::move(m_gctInternEm));
+  m_event.put(std::move(m_gctInternJets));
+  m_event.put(std::move(m_gctInternEtSums));
+  m_event.put(std::move(m_gctInternHFData));
+  m_event.put(std::move(m_gctInternHtMiss));
 
   // GCT output collections
-  m_event.put(m_gctIsoEm, "isoEm");
-  m_event.put(m_gctNonIsoEm, "nonIsoEm");
-  m_event.put(m_gctCenJets,"cenJets");
-  m_event.put(m_gctForJets,"forJets");
-  m_event.put(m_gctTauJets,"tauJets");
-  m_event.put(m_gctHfBitCounts);
-  m_event.put(m_gctHfRingEtSums);
-  m_event.put(m_gctEtTot);
-  m_event.put(m_gctEtHad);
-  m_event.put(m_gctEtMiss);
-  m_event.put(m_gctHtMiss);
-  m_event.put(m_gctJetCounts);  // Deprecated (empty collection still needed by GT)
+  m_event.put(std::move(m_gctIsoEm), "isoEm");
+  m_event.put(std::move(m_gctNonIsoEm), "nonIsoEm");
+  m_event.put(std::move(m_gctCenJets), "cenJets");
+  m_event.put(std::move(m_gctForJets), "forJets");
+  m_event.put(std::move(m_gctTauJets), "tauJets");
+  m_event.put(std::move(m_gctHfBitCounts));
+  m_event.put(std::move(m_gctHfRingEtSums));
+  m_event.put(std::move(m_gctEtTot));
+  m_event.put(std::move(m_gctEtHad));
+  m_event.put(std::move(m_gctEtMiss));
+  m_event.put(std::move(m_gctHtMiss));
+  m_event.put(std::move(m_gctJetCounts));  // Deprecated (empty collection still needed by GT)
   
   // Misc
-  m_event.put(m_errors);
+  m_event.put(std::move(m_errors));
 }
 
 std::ostream& operator<<(std::ostream& os, const GctUnpackCollections& rhs)

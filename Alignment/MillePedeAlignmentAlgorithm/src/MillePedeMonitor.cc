@@ -16,7 +16,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -43,7 +43,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 
 //__________________________________________________________________
 MillePedeMonitor::MillePedeMonitor(const TrackerTopology* tTopo, const char *rootFileName)
-  : myRootDir(0), myDeleteDir(false), trackerTopology(tTopo)
+  : myRootDir(nullptr), myDeleteDir(false), trackerTopology(tTopo)
 {
   myRootDir = TFile::Open(rootFileName, "recreate");
   myDeleteDir = true;
@@ -53,7 +53,7 @@ MillePedeMonitor::MillePedeMonitor(const TrackerTopology* tTopo, const char *roo
 
 //__________________________________________________________________
 MillePedeMonitor::MillePedeMonitor(TDirectory *rootDir, const TrackerTopology* tTopo) 
-  : myRootDir(0), myDeleteDir(false), trackerTopology(tTopo)
+  : myRootDir(nullptr), myDeleteDir(false), trackerTopology(tTopo)
 {
   //  cout << "MillePedeMonitor using input TDirectory" << endl;
 
@@ -658,7 +658,7 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   trackHists2D[iNhit17]->Fill(nhitinENDCAPplus,nhitinENDCAPminus);
 
   if (track->innerOk()) {
-    const reco::TrackBase::Point firstPoint(track->innerPosition());
+    const reco::TrackBase::Point& firstPoint(track->innerPosition());
     static const int iR1 = this->GetIndex(trackHists1D, "r1Track");
     trackHists1D[iR1]->Fill(firstPoint.Rho());
     const double rSigned1 = (firstPoint.y() > 0 ? firstPoint.Rho() : -firstPoint.Rho());
@@ -679,7 +679,7 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   }
 
   if (track->outerOk()) {
-    const reco::TrackBase::Point lastPoint(track->outerPosition());
+    const reco::TrackBase::Point& lastPoint(track->outerPosition());
     static const int iRlast = this->GetIndex(trackHists1D, "rLastTrack");
     trackHists1D[iRlast]->Fill(lastPoint.Rho());
     static const int iZlast = this->GetIndex(trackHists1D, "zLastTrack");
@@ -998,19 +998,11 @@ void MillePedeMonitor::fillResidualHitHists(const std::vector<TH1*> &hists, floa
   // call has the correct names (i.e. without subdet extension) and all later calls have the
   // same order of hists...
   
-  static const unsigned int maxNhit = 29;  // 0...29 foreseen in initialisation...
-  static int iResHit[maxNhit+1] = {-1};
-  static int iSigmaHit[maxNhit+1] = {-1};
-  static int iReduResHit[maxNhit+1] = {-1};
-  static int iAngleHit[maxNhit+1] = {-1};
-  if (iResHit[0] == -1) { // first event only...
-    for (unsigned int i = 0; i <= maxNhit; ++i) {
-      iResHit[i] = this->GetIndex(hists, Form("resid_%d", i));
-      iSigmaHit[i] = this->GetIndex(hists, Form("sigma_%d", i));
-      iReduResHit[i] = this->GetIndex(hists, Form("reduResid_%d", i));
-      iAngleHit[i] = this->GetIndex(hists, Form("angle_%d", i));
-    }
-  }
+  static constexpr unsigned int maxNhit = 29;  // 0...29 foreseen in initialisation...
+  static const auto iResHit     = indexArray1D<TH1,maxNhit+1>(hists, "resid_%d");
+  static const auto iSigmaHit   = indexArray1D<TH1,maxNhit+1>(hists, "sigma_%d");
+  static const auto iReduResHit = indexArray1D<TH1,maxNhit+1>(hists, "reduResid_%d");
+  static const auto iAngleHit   = indexArray1D<TH1,maxNhit+1>(hists, "angle_%d");
   if (nHit > maxNhit) nHit = maxNhit; // limit of hists
 
   hists[iResHit[nHit]]->Fill(residuum);
@@ -1031,19 +1023,10 @@ void MillePedeMonitor::fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, con
 
   static const int iF2f = this->GetIndex(myFrame2FrameHists2D, "frame2frame");
   static const int iF2fAbs = this->GetIndex(myFrame2FrameHists2D, "frame2frameAbs");
-  static int iF2fIjPhi[6][6], iF2fIjPhiLog[6][6], iF2fIjR[6][6], iF2fIjRLog[6][6];
-  static bool first = true;
-  if (first) {
-    for (unsigned int i = 0; i < 6; ++i) {
-      for (unsigned int j = 0; j < 6; ++j) {
-        iF2fIjPhi[i][j] = this->GetIndex(myFrame2FrameHists2D, Form("frame2framePhi%d%d", i, j));
-        iF2fIjPhiLog[i][j]=this->GetIndex(myFrame2FrameHists2D, Form("frame2framePhiLog%d%d",i,j));
-        iF2fIjR[i][j] = this->GetIndex(myFrame2FrameHists2D, Form("frame2frameR%d%d", i, j));
-        iF2fIjRLog[i][j]=this->GetIndex(myFrame2FrameHists2D, Form("frame2frameRLog%d%d",i,j));
-      }
-    }
-    first = false;
-  }
+  static const auto iF2fIjPhi    = indexArray2D<TH2,6>(myFrame2FrameHists2D, "frame2framePhi%d%d");
+  static const auto iF2fIjPhiLog = indexArray2D<TH2,6>(myFrame2FrameHists2D, "frame2framePhiLog%d%d");
+  static const auto iF2fIjR      = indexArray2D<TH2,6>(myFrame2FrameHists2D, "frame2frameR%d%d");
+  static const auto iF2fIjRLog   = indexArray2D<TH2,6>(myFrame2FrameHists2D, "frame2frameRLog%d%d");
   
   const double phi = aliDet->globalPosition().phi(); // after misalignment...
   const double r = aliDet->globalPosition().perp(); // after misalignment...

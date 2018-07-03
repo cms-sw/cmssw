@@ -26,13 +26,14 @@ class L1ValidatorHists {
     L1ValidatorHists();
     ~L1ValidatorHists();
 
-    void Book(DQMStore::IBooker &);
+    void Book(DQMStore::IBooker &, std::string dirname);
     void Write();
 
     int NEvents;
 
-    enum Type{ IsoEG, NonIsoEG, CenJet, ForJet, TauJet, Muon, Number };
-    std::string Name[6];
+    //enum Type{ IsoEG, NonIsoEG, CenJet, ForJet, TauJet, Muon, Number };
+    enum Type{ Egamma, Jet, Tau, Muon, Number };
+    std::string Name[4];
 
     // Each object has gen (pt, eta, phi, pdg), reco (pt, eta, phi, pdg)
     // split by pdg (CenJet, ETM, ETT, ForJet, HTM, HTT, IsoEG, Mu, NoIsoEG, TauJet): 10
@@ -52,11 +53,22 @@ class L1ValidatorHists {
     MonitorElement *N[Type::Number];
 
     MonitorElement *Eff_Pt[Type::Number];
+    MonitorElement *Eff_Pt_Denom[Type::Number];
+    MonitorElement *Eff_Pt_Nomin[Type::Number];
     MonitorElement *Eff_Eta[Type::Number];
+    MonitorElement *Eff_Eta_Denom[Type::Number];
+    MonitorElement *Eff_Eta_Nomin[Type::Number];
     MonitorElement *TurnOn_15[Type::Number];
+    MonitorElement *TurnOn_15_Denom[Type::Number];
+    MonitorElement *TurnOn_15_Nomin[Type::Number];
     MonitorElement *TurnOn_30[Type::Number];
+    MonitorElement *TurnOn_30_Denom[Type::Number];
+    MonitorElement *TurnOn_30_Nomin[Type::Number];
     MonitorElement *dR[Type::Number];
     MonitorElement *dPt[Type::Number];
+    MonitorElement *dR_vs_Pt[Type::Number];
+    MonitorElement *dPt_vs_Pt[Type::Number];
+
 
     // add the rest...
     //TH2F *ETM_Delta, *ETT_Delta, *HTM_Delta, *HTT_Delta;

@@ -24,7 +24,7 @@ namespace reco {
     class Matcher : public edm::EDProducer {
     public:
       Matcher(const edm::ParameterSet & cfg);
-      ~Matcher();
+      ~Matcher() override;
     private:
       typedef typename C1::value_type T1;
       typedef typename C2::value_type T2;
@@ -74,7 +74,7 @@ namespace reco {
       evt.getByToken(matchedToken_, matched);
       Handle<C1> cands;
       evt.getByToken(srcToken_, cands);
-      auto_ptr<MatchMap> matchMap(new MatchMap(matched));
+      unique_ptr<MatchMap> matchMap(new MatchMap(matched));
       size_t size = cands->size();
       if( size != 0 ) {
 	typename MatchMap::Filler filler(*matchMap);
@@ -90,7 +90,7 @@ namespace reco {
 	      if (dist < distMin_) v.push_back(make_pair(m, dist));
 	    }
 	  }
-	  if(v.size() > 0) {
+	  if(!v.empty()) {
 	    size_t idx = master.index(c);
 	    assert(idx < indices.size());
 	    indices[idx] = min_element(v.begin(), v.end(), helper::SortBySecond())->first;
@@ -99,7 +99,7 @@ namespace reco {
 	filler.insert(master.get(), indices.begin(), indices.end());
 	filler.fill();
       }
-      evt.put(matchMap);
+      evt.put(std::move(matchMap));
     }
 
   }

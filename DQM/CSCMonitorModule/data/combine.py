@@ -12,13 +12,12 @@ for h in f:
   a=h.strip().split()
   key=a[0].strip()
   name=a[1].strip()
-  if histos.has_key(key):
+  if key in histos:
     histos[key]=name
   else:
     missing[key]=name
 
-a=histos.keys()
-a.sort()
+a=sorted(histos.keys())
 for h in a:
   print h,
   if histos[h] != 0:

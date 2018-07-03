@@ -1,4 +1,3 @@
-import PhysicsTools.Heppy.loadlibs
 import ROOT 
 
 class ElectronMVAID:
@@ -14,7 +13,7 @@ class ElectronMVAID:
         if type == "TrigCSA14":     self.etype = self.estimator.kTrigCSA14;
         if type == "NonTrigCSA14":  self.etype = self.estimator.kNonTrigCSA14;
         if type == "NonTrigPhys14":  self.etype = self.estimator.kNonTrigPhys14;
-        if self.etype == -1: raise RuntimeError, "Unknown type %s" % type
+        if self.etype == -1: raise RuntimeError("Unknown type %s" % type)
         self._init = False
     def __call__(self,ele,vtx,rho,full5x5=False,debug=False):
         if not self._init:

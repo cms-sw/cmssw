@@ -28,6 +28,7 @@
 #include <vector>
 
 # include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 class ReadRepacker {
 
@@ -71,7 +72,7 @@ void reset(unsigned int nbuf); // Reset all the internal counters and arrays.  R
 std::vector<int>         m_idx_to_iopb;        // Mapping from idx in the input array to the iopb in the IO vector
 std::vector<int>         m_idx_to_iopb_offset; // Mapping from idx in the input array to the data offset in the results of the iopb.
 std::vector<IOPosBuffer> m_iov;                // Vector of IO for the storage system to perform.
-int                     *m_len;                // Pointed to the array of read sizes.
+edm::propagate_const<int*> m_len;              // Pointed to the array of read sizes.
 IOSize                   m_buffer_used;        // Bytes in the temporary buffer used.
 IOSize                   m_extra_bytes;        // Number of bytes read from storage that will be discarded.
 std::vector<char>        m_spare_buffer;       // The spare buffer; allocated if we cannot fit the I/O results into the ROOT buffer.

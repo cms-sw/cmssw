@@ -95,17 +95,16 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   set(es);
   const ESChannelStatus *channelStatus = esChannelStatus_.product();
   
-  const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  const CaloSubdetectorGeometry *& geometry_p = geometry;
+  const CaloSubdetectorGeometry *geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   
-  // create auto_ptr to a PreshowerClusterCollection
-  std::auto_ptr< reco::PreshowerClusterCollection > clusters_p1(new reco::PreshowerClusterCollection);
-  std::auto_ptr< reco::PreshowerClusterCollection > clusters_p2(new reco::PreshowerClusterCollection);
+  // create unique_ptr to a PreshowerClusterCollection
+  auto clusters_p1 = std::make_unique<reco::PreshowerClusterCollection>();
+  auto clusters_p2 = std::make_unique<reco::PreshowerClusterCollection>();
   // create new collection of corrected super clusters
-  std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
+  auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   
-  CaloSubdetectorTopology * topology_p=0;
-  if (geometry)
+  CaloSubdetectorTopology * topology_p=nullptr;
+  if (geometry_p)
     topology_p  = new EcalPreshowerTopology(geoHandle);
   
   // fetch the product (pSuperClusters)
@@ -155,7 +154,7 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
     int condP2 = 1;
     reco::CaloCluster_iterator bc_iter = it_super->clustersBegin();
     for ( ; bc_iter !=it_super->clustersEnd(); ++bc_iter ) {  
-      if (geometry) {
+      if (geometry_p) {
 	
 	// Get strip position at intersection point of the line EE - Vertex:
 	double X = (*bc_iter)->x();
@@ -247,13 +246,13 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   clusters_p1->assign(clusters1.begin(), clusters1.end());
   clusters_p2->assign(clusters2.begin(), clusters2.end());
   // put collection of preshower clusters to the event
-  evt.put( clusters_p1, preshClusterCollectionX_ );
-  evt.put( clusters_p2, preshClusterCollectionY_ );
+  evt.put(std::move(clusters_p1), preshClusterCollectionX_);
+  evt.put(std::move(clusters_p2), preshClusterCollectionY_);
   LogTrace("EcalClusters") << "Preshower clusters added to the event" ;
   
   // put collection of corrected super clusters to the event
   superclusters_p->assign(new_SC.begin(), new_SC.end());
-  evt.put(superclusters_p, assocSClusterCollection_);
+  evt.put(std::move(superclusters_p), assocSClusterCollection_);
   LogTrace("EcalClusters") << "Corrected SClusters added to the event" ;
   
   if (topology_p)
@@ -281,19 +280,19 @@ void PreshowerClusterProducer::set(const edm::EventSetup& es) {
   const ESEEIntercalibConstants *esEEInterCalib = esEEInterCalib_.product();
 
   // both planes work
-  gamma0_ = (ESGain == 1) ? esEEInterCalib->getGammaLow0() : esEEInterCalib->getGammaHigh0();
+  gamma0_ = (ESGain == 1) ? 0.02 : esEEInterCalib->getGammaHigh0();
   alpha0_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow0() : esEEInterCalib->getAlphaHigh0();
 
   // only first plane works 
-  gamma1_ = (ESGain == 1) ? esEEInterCalib->getGammaLow1() : esEEInterCalib->getGammaHigh1();
+  gamma1_ = (ESGain == 1) ? (0.02 * esEEInterCalib->getGammaLow1()) : esEEInterCalib->getGammaHigh1();
   alpha1_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow1() : esEEInterCalib->getAlphaHigh1();
 
   // only second plane works
-  gamma2_ = (ESGain == 1) ? esEEInterCalib->getGammaLow2() : esEEInterCalib->getGammaHigh2();
+  gamma2_ = (ESGain == 1) ? (0.02 * esEEInterCalib->getGammaLow2()) : esEEInterCalib->getGammaHigh2();
   alpha2_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow2() : esEEInterCalib->getAlphaHigh2();
 
   // both planes do not work
-  gamma3_ = (ESGain == 1) ? esEEInterCalib->getGammaLow3() : esEEInterCalib->getGammaHigh3();
+  gamma3_ = (ESGain == 1) ? 0.02 : esEEInterCalib->getGammaHigh3();
   alpha3_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow3() : esEEInterCalib->getAlphaHigh3();
 
   es.get<ESMissingEnergyCalibrationRcd>().get(esMissingECalib_);

@@ -50,7 +50,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle <reco::TrackCollection> tracks_h;
   iEvent.getByToken (tracksSrc_, tracks_h);
 
-  std::auto_ptr< std::vector<reco::TrackExtrapolation> > extrapolations( new std::vector<reco::TrackExtrapolation>() );
+  auto extrapolations = std::make_unique<std::vector<reco::TrackExtrapolation>>();
 
   // Get list of tracks we want to extrapolate
   std::vector <reco::TrackRef> goodTracks;
@@ -79,7 +79,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 							   vresultMom ) );
     }
   }
-  iEvent.put( extrapolations );
+  iEvent.put(std::move(extrapolations));
 }
 
 // -----------------------------------------------------------------------------

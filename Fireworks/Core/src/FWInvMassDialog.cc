@@ -42,8 +42,8 @@
 FWInvMassDialog::FWInvMassDialog(FWSelectionManager* sm) :
    TGMainFrame(gClient->GetRoot(), 470, 240),
    m_selectionMgr(sm),
-   m_text(0),
-   m_button(0)
+   m_text(nullptr),
+   m_button(nullptr)
 {
    SetWindowName("Invariant Mass Dialog");
    SetCleanup(kDeepCleanup);
@@ -150,7 +150,7 @@ void FWInvMassDialog::Calculate()
       reco::Candidate *rc = reinterpret_cast<reco::Candidate*>
          (model_class->DynamicCast(rc_class, model_data));
 
-      if (rc != 0)
+      if (rc != nullptr)
       {
          ok_p = true;
          v.SetXYZ(rc->px(), rc->py(), rc->pz());
@@ -160,7 +160,7 @@ void FWInvMassDialog::Calculate()
          reco::TrackBase *rtb = reinterpret_cast<reco::TrackBase*>
             (model_class->DynamicCast(rtb_class, model_data));
 
-         if (rtb != 0)
+         if (rtb != nullptr)
          {
             ok_p = true;
             v.SetXYZ(rtb->px(), rtb->py(), rtb->pz());

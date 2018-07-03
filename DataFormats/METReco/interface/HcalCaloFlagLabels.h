@@ -9,7 +9,7 @@
 // Use the HcalCaloFlagTool for full interpretation
 namespace HcalCaloFlagLabels
 {
-  //subdetector-specific bits defined here (bits 0-15)
+  //subdetector-specific bits defined here (bits 0-15, 27, 29-30)
   enum HBHEStatusFlag{HBHEHpdHitMultiplicity=0,
                       HBHEPulseShape=1,
 		      HSCP_R1R2=2,
@@ -18,13 +18,15 @@ namespace HcalCaloFlagLabels
 		      HSCP_ExpFit=5,
                       HBHETimingTrustBits=6, // 2-bit counter; not yet in use
                       HBHETimingShapedCutsBits=8, // 3-bit counter
-		      HBHENegativeNoise=27,
 		      HBHEIsolatedNoise=11,
 		      HBHEFlatNoise=12,
 		      HBHESpikeNoise=13,
 		      HBHETriangleNoise=14,
 		      HBHETS4TS5Noise=15,
-		      HBHEPulseFitBit=29
+		      HBHENegativeNoise=27,
+		      HBHEPulseFitBit=29,
+		      HBHEOOTPU=30
+
   };
 
   enum HFTimingTrustFlag{HFTimingTrustBits=6};
@@ -53,7 +55,6 @@ namespace HcalCaloFlagLabels
 		   // This bit is not yet in use (as of March 2012), but can be used to mark sim hits to which noise has been intentionally added
 		   AddedSimHcalNoise=28,
 		   // The following bits are all user-defined; reverse-order them so that UserDefinedBit0 will be the last removed
-		   UserDefinedBit1 = 30,
 		   UserDefinedBit0 = 31
 }; 
   

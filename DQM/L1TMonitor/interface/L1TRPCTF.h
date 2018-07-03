@@ -48,18 +48,17 @@ public:
  L1TRPCTF(const edm::ParameterSet& ps);
 
 // Destructor
- virtual ~L1TRPCTF();
+ ~L1TRPCTF() override;
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginJob
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
- virtual void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
- void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
+ void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 
 private:
@@ -82,8 +81,6 @@ private:
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
 
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
   
   std::set<unsigned long long int>  m_globBX;
   

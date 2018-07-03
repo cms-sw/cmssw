@@ -7,7 +7,7 @@ CSCTFObjectKeysOnlineProd::CSCTFObjectKeysOnlineProd( const edm::ParameterSet& i
     m_enablePtLut( iConfig.getParameter< bool >( "enablePtLut" ) )
 {}
 
-void CSCTFObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+void CSCTFObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
   std::string csctfKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kCSCTF ) ;
 

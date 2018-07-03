@@ -1,57 +1,59 @@
-/***************************************************************************
-                          testDoc.cpp  -  description
-                             -------------------
-    Author               : Michael Case
-    email                : case@ucdhep.ucdavis.edu
-
-    Last Updated         : Jan 9, 2004
- ***************************************************************************/
-
-#include <string>
-#include <vector>
+#include <cstdlib>
+#include <exception>
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Parser/src/StrX.h"
-
-#include "FWCore/PluginManager/interface/standard.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
+#include "xercesc/util/XMLException.hpp"
+#include "xercesc/util/XercesVersion.hpp"
+
+using namespace cms::xerces;
 
 class DDLTestDoc : public DDLDocumentProvider
 {
 public:
 
   DDLTestDoc( void );
-  virtual ~DDLTestDoc();
+  ~DDLTestDoc() override;
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >&  getFileList( void ) const;
+  const std::vector < std::string >&  getFileList( void ) const override;
 
   /// Return a list of urls as a vector of strings.
-  virtual const std::vector < std::string >&  getURLList( void ) const;
+  const std::vector < std::string >&  getURLList( void ) const override;
 
   /// Print out the list of files.
-  virtual void dumpFileList( void ) const;
+  void dumpFileList( void ) const override;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  virtual bool doValidation( void ) const;
+  bool doValidation( void ) const override;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation( void ) const;
+  std::string getSchemaLocation( void ) const override;
 
   /// ReadConfig
-  virtual int readConfig( const std::string& filename );
+  int readConfig( const std::string& filename ) override;
 
-  void push_back( std::string fileName, std::string url = std::string( "./" ));
+  void emplace_back( const std::string& fileName, const std::string& url = std::string( "./" ));
 
   void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
 
@@ -92,10 +94,10 @@ DDLTestDoc::getURLList( void ) const
 }
 
 void
-DDLTestDoc::push_back( std::string fileName, std::string url ) 
+DDLTestDoc::emplace_back( const std::string& fileName, const std::string& url ) 
 {
-  fnames_.push_back(fileName);
-  urls_.push_back(url);
+  fnames_.emplace_back(fileName);
+  urls_.emplace_back(url);
 }
 
 void
@@ -108,7 +110,7 @@ DDLTestDoc::doValidation( void ) const
 
 void
 DDLTestDoc::setSchemaLocation( std::string path )
-{ schemaLoc_ = path; }
+{ schemaLoc_ = std::move(path); }
 
 std::string
 DDLTestDoc::getSchemaLocation( void ) const
@@ -164,7 +166,7 @@ DDLTestDoc::readConfig( const std::string& filename )
   catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
 	      << "Exception message is: \n"
-	      << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
+	      << cStr(toCatch.getMessage()).ptr() << "\n" ;
     return 1;
   }
   catch (...)
@@ -310,6 +312,37 @@ testSolids( void )
   std::cout << "intsolid is an Intersection(Solid) of cone1 and cone2:" << std::endl;
   std::cout << DDSolid(DDName("intsolid", "testSolids")) << std::endl;
   std::cout << std::endl;
+  std::cout << "cuttubs is a Cut tubs solid:" << std::endl;
+  std::cout << DDSolid(DDName("cuttubs", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "extrudedpgon is an Extruded Polygone solid:" << std::endl;
+  std::cout << DDSolid(DDName("extrudedpgon", "testSolids")) << std::endl;
+  std::cout << std::endl;
+  std::cout << "verify parameters interface\nx: ";
+  DDExtrudedPolygon extrPgon(DDSolid(DDName("extrudedpgon", "testSolids")));
+  std::vector<double> x = extrPgon.xVec();
+  std::vector<double> y = extrPgon.yVec();
+  std::vector<double> z = extrPgon.zVec();
+  std::vector<double> zx = extrPgon.zxVec();
+  std::vector<double> zy = extrPgon.zyVec();
+  std::vector<double> zs = extrPgon.zscaleVec();
+  for( auto i : x )
+    std::cout << i << ", ";
+  std::cout << "\ny: ";
+  for( auto i : y )
+    std::cout << i << ", ";
+  std::cout << "\nz: ";
+  for( auto i : z )
+    std::cout << i << ", ";
+  std::cout << "\nzx: ";
+  for( auto i : zx )
+    std::cout << i << ", ";
+  std::cout << "\nzy: ";
+  for( auto i : zy )
+    std::cout << i << ", ";
+  std::cout << "\nz scale: ";
+  for( auto i : zs )
+    std::cout << i << ", ";
 }
 
 void
@@ -448,7 +481,7 @@ int main(int argc, char *argv[])
          DDLTestDoc dp;
          while (fname != "q") {
             std::cout << "about to try to process the file " << fname << std::endl;
-            dp.push_back(fname);
+            dp.emplace_back(fname);
             myP.parse(dp);
             std::cout << "next file name:" ;
             std::cin >> fname;

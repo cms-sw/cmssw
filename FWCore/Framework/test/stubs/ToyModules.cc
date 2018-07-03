@@ -69,10 +69,8 @@ namespace edmtest {
         assert(guts[i-1].id() > guts[i].id());
     }
 
-    std::unique_ptr<SCSimpleProduct> p(new SCSimpleProduct(guts));
-
     // Put the product into the Event, thus sorting it.
-    e.put(std::move(p));
+    e.put(std::make_unique<SCSimpleProduct>(guts));
   }
 
   //--------------------------------------------------------------------
@@ -105,27 +103,27 @@ namespace edmtest {
   OVSimpleProducer::produce(edm::Event& e,
                             edm::EventSetup const& /* unused */) {
     // Fill up a collection
-    std::unique_ptr<OVSimpleProduct> p(new OVSimpleProduct());
+    auto p = std::make_unique<OVSimpleProduct>();
 
     for(int i = 0; i < size_; ++i) {
-        std::auto_ptr<Simple> simple(new Simple());
+        auto simple = std::make_unique<Simple>();
         simple->key = size_ - i;
         simple->value = 1.5 * i;
-        p->push_back(simple);
+        p->push_back(std::move(simple));
     }
 
     // Put the product into the Event
     e.put(std::move(p));
 
     // Fill up a collection of SimpleDerived objects
-    std::unique_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
+    auto pd = std::make_unique<OVSimpleDerivedProduct>();
 
     for(int i = 0; i < size_; ++i) {
-        std::auto_ptr<SimpleDerived> simpleDerived(new SimpleDerived());
+        auto simpleDerived = std::make_unique<SimpleDerived>();
         simpleDerived->key = size_ - i;
         simpleDerived->value = 1.5 * i + 100.0;
         simpleDerived->dummy = 0.0;
-        pd->push_back(simpleDerived);
+        pd->push_back(std::move(simpleDerived));
     }
 
     // Put the product into the Event
@@ -160,7 +158,7 @@ namespace edmtest {
   VSimpleProducer::produce(edm::Event& e,
                            edm::EventSetup const& /* unused */) {
     // Fill up a collection
-    std::unique_ptr<VSimpleProduct> p(new VSimpleProduct());
+    auto p = std::make_unique<VSimpleProduct>();
 
     for(int i = 0; i < size_; ++i) {
         Simple simple;
@@ -199,7 +197,7 @@ namespace edmtest {
     edm::Handle<std::vector<edmtest::Simple> > vs;
     e.getByLabel(src_, vs);
     // Fill up a collection
-    std::unique_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
+    auto p = std::make_unique<AVSimpleProduct>(edm::RefProd<std::vector<edmtest::Simple>>(vs));
 
     for(unsigned int i = 0; i < vs->size(); ++i) {
         edmtest::Simple simple;
@@ -268,7 +266,7 @@ namespace edmtest {
       assert(guts[i-1].data > guts[i].data);
     }
 
-    std::unique_ptr<product_type> p(new product_type());
+    auto p = std::make_unique<product_type>();
     int n = 0;
     for(int id = 1; id<size_; ++id) {
       ++n;
@@ -341,7 +339,7 @@ namespace edmtest {
     typedef typename product_type::FastFiller detset;
     typedef typename detset::id_type       id_type;
 
-    std::unique_ptr<product_type> p(new product_type());
+    auto p = std::make_unique<product_type>();
     product_type& v = *p;
 
     unsigned int n = 0;
@@ -385,8 +383,7 @@ namespace edmtest {
     edm::Handle<IntProduct> parent;
     e.getByLabel(label_, parent);
 
-    std::unique_ptr<Prodigal> p(new Prodigal(parent->value));
-    e.put(std::move(p));
+    e.put(std::make_unique<Prodigal>(parent->value));
   }
 
 }

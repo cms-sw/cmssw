@@ -18,6 +18,7 @@
 
 
 /** A tag class for the GT/GMT schema and its specialties. */
+#include "L1TriggerConfig/GMTConfigProducers/interface/RecordHelper.h"
 class TGlobalTriggerGroup;
 
 /* Keep the default behaviour for most types. */

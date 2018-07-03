@@ -7,9 +7,10 @@
  \Author Rick Wilkinson
  */
 
-
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+
+class HcalTimeSlew;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -20,7 +21,7 @@ class HcalTimeSlewSim
 public:
   HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap, double minFCToDelay);
 
-  void delay(CaloSamples & samples, CLHEP::HepRandomEngine*) const;
+  void delay(CaloSamples & samples, CLHEP::HepRandomEngine*, const HcalTimeSlew* hcalTimeSlew_delay) const;
 
 private:
   double charge(const CaloSamples & samples) const;

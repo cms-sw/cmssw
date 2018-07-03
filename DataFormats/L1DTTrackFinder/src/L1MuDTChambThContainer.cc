@@ -80,7 +80,7 @@ int L1MuDTChambThContainer::bxSize(int step1, int step2) const {
 
 L1MuDTChambThDigi const* L1MuDTChambThContainer::chThetaSegm(int wheel, int stat, int sect, int step) const {
 
-  L1MuDTChambThDigi const* rT=0;
+  L1MuDTChambThDigi const* rT=nullptr;
 
   for ( The_iterator i  = theSegments.begin();
                      i != theSegments.end();

@@ -6,10 +6,7 @@
  *
  */
 
-//need to open a 'back door' to be able to setup the ServiceRegistry
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#undef private
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 
@@ -17,7 +14,7 @@
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 
-#include "boost/thread/thread.hpp"
+#include <thread>
 
 #include <atomic>
 
@@ -80,9 +77,9 @@ testServiceRegistry::externalServiceTest()
    edm::AssertHandler ah;
 
    {
-      std::auto_ptr<DummyService> dummyPtr(new DummyService);
+      auto dummyPtr = std::make_unique<DummyService>();
       dummyPtr->value_ = 2;
-      edm::ServiceToken token(edm::ServiceRegistry::createContaining(dummyPtr));
+      edm::ServiceToken token(edm::ServiceRegistry::createContaining(std::move(dummyPtr)));
       {         
          edm::ServiceRegistry::Operate operate(token);
          edm::Service<DummyService> dummy;
@@ -101,7 +98,7 @@ testServiceRegistry::externalServiceTest()
          pss.push_back(ps);
       
          edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(dummyPtr,
+         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(std::move(dummyPtr),
                                                                          token,
                                                                          edm::serviceregistry::kOverlapIsError));
          
@@ -114,8 +111,8 @@ testServiceRegistry::externalServiceTest()
    }
 
    {
-      std::auto_ptr<DummyService> dummyPtr(new DummyService);
-      auto wrapper = std::make_shared<edm::serviceregistry::ServiceWrapper<DummyService> >(dummyPtr);
+      auto dummyPtr = std::make_unique<DummyService>();
+      auto wrapper = std::make_shared<edm::serviceregistry::ServiceWrapper<DummyService> >(std::move(dummyPtr));
       edm::ServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
 
       wrapper->get().value_ = 2;
@@ -138,7 +135,7 @@ testServiceRegistry::externalServiceTest()
          pss.push_back(ps);
          
          edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(dummyPtr,
+         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(std::move(dummyPtr),
                                                                          token,
                                                                          edm::serviceregistry::kOverlapIsError));
          
@@ -275,7 +272,7 @@ testServiceRegistry::threadTest()
    UniqueRegistry::isUnique_ = false;
    void* value = &(edm::ServiceRegistry::instance());
    UniqueRegistry unique(value);
-   boost::thread testUniqueness(unique);
+   std::thread testUniqueness(unique);
    testUniqueness.join();
    CPPUNIT_ASSERT(UniqueRegistry::isUnique_);
 
@@ -298,7 +295,7 @@ testServiceRegistry::threadTest()
    bool exceptionWasThrown = false;
    
    PassServices passRun(token, succeededToPassServices, exceptionWasThrown);
-   boost::thread testPassing(passRun);
+   std::thread testPassing(passRun);
    testPassing.join();
    CPPUNIT_ASSERT(!exceptionWasThrown);
    CPPUNIT_ASSERT(succeededToPassServices);

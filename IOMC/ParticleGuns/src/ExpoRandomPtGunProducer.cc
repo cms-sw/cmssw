@@ -34,7 +34,7 @@ ExpoRandomPtGunProducer::ExpoRandomPtGunProducer(const ParameterSet& pset) :
 
    fMeanPt = pgun_params.getParameter<double>("MeanPt");
 
-   produces<HepMCProduct>();
+   produces<HepMCProduct>("unsmeared");
    produces<GenEventInfoProduct>();
 }
 
@@ -134,12 +134,12 @@ void ExpoRandomPtGunProducer::produce(Event &e, const EventSetup& es)
       fEvt->print() ;  
    }
 
-   auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+   unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
-   e.put(BProduct);
+   e.put(std::move(BProduct), "unsmeared");
 
-   auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-   e.put(genEventInfo);
+   unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+   e.put(std::move(genEventInfo));
     
    if ( fVerbosity > 0 )
    {

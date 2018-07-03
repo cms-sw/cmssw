@@ -31,8 +31,8 @@
 class L1TCaloParamsWriter : public edm::EDAnalyzer {
 public:
   explicit L1TCaloParamsWriter(const edm::ParameterSet&) {}
-  virtual  ~L1TCaloParamsWriter() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;  
+   ~L1TCaloParamsWriter() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;  
 
 };
 

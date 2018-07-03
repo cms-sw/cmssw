@@ -420,7 +420,7 @@ for str_key in DICT_keysRunSummaryTrigger.keys():
     
 # get run MagnetHistory info
 
-if Dict_wbmRunSummary.has_key(STR_runStart) and Dict_wbmRunSummary.has_key(STR_runEnd): # need run summary start and end time here
+if STR_runStart in Dict_wbmRunSummary and STR_runEnd in Dict_wbmRunSummary: # need run summary start and end time here
   Float_magneticField = Func_FillInfoMagnetHistory(Dict_wbmRunSummary[STR_runStart],Dict_wbmRunSummary[STR_runEnd])
   
 # print run MagnetHistory info
@@ -434,7 +434,7 @@ if Float_magneticField >= 0.0:
 # get run HLT info
 
 bool_hlt = False   
-if Dict_wbmRunSummary.has_key(STR_htlConfig): # need HLT config ID from run summary here
+if STR_htlConfig in Dict_wbmRunSummary: # need HLT config ID from run summary here
   bool_hlt = Func_FillInfoHlt()
 
 # print run HLT info

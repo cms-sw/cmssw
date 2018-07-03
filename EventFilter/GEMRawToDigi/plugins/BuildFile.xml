@@ -1,0 +1,9 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/GEMObjects"/>
+<use name="EventFilter/GEMRawToDigi"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="Utilities/StorageFactory"/>
+<use name="FWCore/Sources"/>
+<library   file="*.cc" name="EventFilterGEMRawToDigiPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

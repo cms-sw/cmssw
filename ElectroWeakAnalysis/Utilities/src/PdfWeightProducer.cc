@@ -21,12 +21,12 @@
 class PdfWeightProducer : public edm::EDProducer {
    public:
       explicit PdfWeightProducer(const edm::ParameterSet&);
-      ~PdfWeightProducer();
+      ~PdfWeightProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       std::string fixPOWHEG_;
       bool useFirstAsDefault_;
@@ -75,7 +75,7 @@ PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
             } else {
                   pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
             }
-            produces<std::vector<double> >(pdfShortNames_[k].data());
+            produces<std::vector<double> >(pdfShortNames_[k]);
       }
 }
 
@@ -144,7 +144,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
       // Put PDF weights in the event
       for (unsigned int k=1; k<=pdfSetNames_.size(); ++k) {
-            std::auto_ptr<std::vector<double> > weights (new std::vector<double>);
+            std::unique_ptr<std::vector<double> > weights (new std::vector<double>);
             unsigned int nweights = 1;
             if (LHAPDF::numberPDF(k)>1) nweights += LHAPDF::numberPDF(k);
             weights->reserve(nweights);
@@ -155,7 +155,7 @@ void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   double newpdf2 = LHAPDF::xfx(k, x2, Q, id2)/x2;
                   weights->push_back(newpdf1/pdf1*newpdf2/pdf2);
             }
-            iEvent.put(weights,pdfShortNames_[k-1]);
+            iEvent.put(std::move(weights),pdfShortNames_[k-1]);
       }
 }
 

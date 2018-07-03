@@ -72,12 +72,11 @@ L1CaloInputScalesProducer::~L1CaloInputScalesProducer()
 //
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<L1CaloEcalScale>
+std::shared_ptr<L1CaloEcalScale>
 L1CaloInputScalesProducer::produceEcalScale(const L1CaloEcalScaleRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1CaloEcalScale> pL1CaloEcalScale =
-     boost::shared_ptr<L1CaloEcalScale>( new L1CaloEcalScale ) ;
+   auto pL1CaloEcalScale = std::make_shared<L1CaloEcalScale>() ;
 
    std::vector< double >::const_iterator posItr =
      m_ecalEtThresholdsPosEta.begin() ;
@@ -104,12 +103,11 @@ L1CaloInputScalesProducer::produceEcalScale(const L1CaloEcalScaleRcd& iRecord)
 }
 
 // ------------ method called to produce the data  ------------
-boost::shared_ptr<L1CaloHcalScale>
+std::shared_ptr<L1CaloHcalScale>
 L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1CaloHcalScale> pL1CaloHcalScale =
-     boost::shared_ptr<L1CaloHcalScale>( new L1CaloHcalScale ) ;
+   auto pL1CaloHcalScale = std::make_shared<L1CaloHcalScale>() ;
 
    std::vector< double >::const_iterator posItr =
      m_hcalEtThresholdsPosEta.begin() ;

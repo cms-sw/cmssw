@@ -23,13 +23,13 @@ class TtSemiLepSignalSelMVAComputer : public edm::EDProducer {
  public:
 
   explicit TtSemiLepSignalSelMVAComputer(const edm::ParameterSet&);
-  ~TtSemiLepSignalSelMVAComputer();
+  ~TtSemiLepSignalSelMVAComputer() override;
 
  private:
 
-  virtual void beginJob();
-  virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
-  virtual void endJob();
+  void beginJob() override;
+  void produce(edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override;
 
   double DeltaPhi(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);
   double DeltaR(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2);

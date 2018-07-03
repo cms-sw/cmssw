@@ -20,52 +20,52 @@ namespace edm {
     ANDGroupDescription(ParameterDescriptionNode const& node_left,
                         ParameterDescriptionNode const& node_right);
 
-    ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+    ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                         ParameterDescriptionNode const& node_right);
 
     ANDGroupDescription(ParameterDescriptionNode const& node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
-    ANDGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                        std::auto_ptr<ParameterDescriptionNode> node_right);
+    ANDGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                        std::unique_ptr<ParameterDescriptionNode> node_right);
 
-    virtual ParameterDescriptionNode* clone() const {
+    ParameterDescriptionNode* clone() const override {
       return new ANDGroupDescription(*this);
     }
 
   private:
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const;
+    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
+                                    std::set<ParameterTypes> & parameterTypes,
+                                    std::set<ParameterTypes> & wildcardTypes) const override;
 
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const;
+    void validate_(ParameterSet & pset,
+                   std::set<std::string> & validatedLabels,
+                   bool optional) const override;
 
-    virtual void writeCfi_(std::ostream & os,
-                           bool & startWithComma,
-                           int indentation,
-                           bool & wroteSomething) const;
+    void writeCfi_(std::ostream & os,
+                   bool & startWithComma,
+                   int indentation,
+                   bool & wroteSomething) const override;
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh);
+    void print_(std::ostream & os,
+                bool optional,
+                bool writeToCfi,
+                DocFormatHelper & dfh) const override;
 
-    virtual bool hasNestedContent_() {
+    bool hasNestedContent_() const override {
       return true;
     }
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh);
+    void printNestedContent_(std::ostream & os,
+                             bool optional,
+                             DocFormatHelper & dfh) const override;
 
-    virtual bool exists_(ParameterSet const& pset) const;
+    bool exists_(ParameterSet const& pset) const override;
 
-    virtual bool partiallyExists_(ParameterSet const& pset) const;
+    bool partiallyExists_(ParameterSet const& pset) const override;
 
-    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
+    int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
 
     void throwIfDuplicateLabels(std::set<std::string> const& labelsLeft,

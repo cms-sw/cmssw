@@ -41,7 +41,7 @@ public:
    */
   const AlgebraicSymMatrix55 &weightMatrix(int & error) const
   {
-    if unlikely(!weightIsAvailable) calculateWeightMatrix();
+    if UNLIKELY(!weightIsAvailable) calculateWeightMatrix();
     error = inverseError;
     return thePerigeeWeight;
   }

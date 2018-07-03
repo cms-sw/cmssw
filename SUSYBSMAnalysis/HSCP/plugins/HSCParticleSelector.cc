@@ -16,12 +16,12 @@
 class HSCParticleSelector : public edm::EDFilter {
    public:
       explicit HSCParticleSelector(const edm::ParameterSet&);
-      ~HSCParticleSelector();
+      ~HSCParticleSelector() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<susybsm::HSCParticleCollection> sourceToken_;
 
@@ -73,7 +73,7 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
       // Output Collection
       susybsm::HSCParticleCollection* output = new susybsm::HSCParticleCollection;
-      std::auto_ptr<susybsm::HSCParticleCollection> result(output);
+      std::unique_ptr<susybsm::HSCParticleCollection> result(output);
 
       // cleanup the collection based on the input selection
       for(susybsm::HSCParticleCollection::iterator hscpcandidate = Source.begin(); hscpcandidate < Source.end(); ++hscpcandidate){
@@ -85,9 +85,9 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
          }
       }
 
-      bool filterResult = !Filter_ || (Filter_ && output->size()>=1);
+      bool filterResult = !Filter_ || (Filter_ && !output->empty());
 
-      iEvent.put(result);
+      iEvent.put(std::move(result));
 
       return filterResult;
 }

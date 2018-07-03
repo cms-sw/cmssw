@@ -6,7 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -31,10 +31,9 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
   edm::LogInfo("SiPixelPerformanceSummaryBuilder") << pDD->detUnits().size() <<" detectors" << std::endl;
 
-  for (TrackerGeometry::DetUnitContainer::const_iterator it=pDD->detUnits().begin(); 
-       it!=pDD->detUnits().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit const*>((*it))!=0) {
-      detectorModules_.push_back((*it)->geographicalId().rawId());
+  for ( const auto& it : pDD->detUnits()) {
+    if (dynamic_cast<PixelGeomDetUnit const*>(it)!=0) {
+      detectorModules_.push_back(it->geographicalId().rawId());
     }
   }
   edm::LogInfo("Modules") << "detectorModules_.size() = "<< detectorModules_.size();

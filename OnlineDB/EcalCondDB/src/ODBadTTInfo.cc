@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/ODBadTTInfo.h"
@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 ODBadTTInfo::ODBadTTInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
    m_ID=0;
    m_version=0;
@@ -33,7 +33,7 @@ ODBadTTInfo::~ODBadTTInfo()
 
 
 
-int ODBadTTInfo::fetchNextId()  throw(std::runtime_error) {
+int ODBadTTInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -50,13 +50,13 @@ int ODBadTTInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadTTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadTTInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
 
 void ODBadTTInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -74,7 +74,7 @@ void ODBadTTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadTTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadTTInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -95,7 +95,7 @@ void ODBadTTInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODBadTTInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -110,7 +110,7 @@ void ODBadTTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadTTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadTTInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -128,11 +128,11 @@ void ODBadTTInfo::writeDB()
 
 
 void ODBadTTInfo::fetchData(ODBadTTInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODBadTTInfo::fetchData(): no Id defined for this ODBadTTInfo "));
   }
 
@@ -143,7 +143,7 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  rec_id = :1 ");
       m_readStmt->setInt(1, result->getId());
-    } else if (result->getConfigTag()!="") {
+    } else if (!result->getConfigTag().empty()) {
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  tag=:1 AND version=:2 " );
       m_readStmt->setString(1, result->getConfigTag());
@@ -161,15 +161,15 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadTTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadTTInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
-int ODBadTTInfo::fetchID()    throw(std::runtime_error)
+int ODBadTTInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -195,7 +195,7 @@ int ODBadTTInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODBadTTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODBadTTInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

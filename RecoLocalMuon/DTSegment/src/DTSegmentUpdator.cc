@@ -106,7 +106,7 @@ void DTSegmentUpdator::update(DTRecSegment2D* seg, bool allow3par) const {
   GlobalVector dir = (theGeom->idToDet(seg->geographicalId()))->toGlobal(seg->localDirection());
 
   updateHits(seg,pos,dir);
-  fit(seg,allow3par,0);
+  fit(seg,allow3par,false);
 }
 
 void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
@@ -124,14 +124,14 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
   if(seg->hasPhi()) {
     if(seg->hasZed()) {
       if (fabs(seg->phiSegment()->t0())<intime_cut) {
-        fit(seg->phiSegment(),allow3par,1);
-        fit(seg->zSegment(),allow3par,1);      
+        fit(seg->phiSegment(),allow3par,true);
+        fit(seg->zSegment(),allow3par,true);      
       } else {
-        fit(seg->phiSegment(),allow3par,0);
-        fit(seg->zSegment(),allow3par,0);      
+        fit(seg->phiSegment(),allow3par,false);
+        fit(seg->zSegment(),allow3par,false);      
       }
-    } else fit(seg->phiSegment(),allow3par,0);
-  } else fit(seg->zSegment(),allow3par,0);
+    } else fit(seg->phiSegment(),allow3par,false);
+  } else fit(seg->zSegment(),allow3par,false);
  
   const DTChamber* theChamber = theGeom->chamber(seg->chamberId());
 

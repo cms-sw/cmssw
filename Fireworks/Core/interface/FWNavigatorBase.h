@@ -32,11 +32,11 @@ public:
    
 public:
    FWNavigatorBase(const CmsShowMainBase &);
-   virtual ~FWNavigatorBase();
+   ~FWNavigatorBase() override;
 
    //configuration management interface
-   virtual void addTo(FWConfiguration&) const = 0;
-   virtual void setFrom(const FWConfiguration&) = 0;
+   void addTo(FWConfiguration&) const override = 0;
+   void setFrom(const FWConfiguration&) override = 0;
 
    virtual void nextEvent() = 0;
    virtual void previousEvent() = 0;
@@ -56,8 +56,8 @@ public:
 
    sigc::signal<void> newEvent_;
 private:
-   FWNavigatorBase(const FWNavigatorBase&);    // stop default
-   const FWNavigatorBase& operator=(const FWNavigatorBase&);    // stop default
+   FWNavigatorBase(const FWNavigatorBase&) = delete;    // stop default
+   const FWNavigatorBase& operator=(const FWNavigatorBase&) = delete;    // stop default
    // ---------- member data --------------------------------
    // entry is an event index nubmer which runs from 0 to
    // #events or #selected_events depending on if we filter

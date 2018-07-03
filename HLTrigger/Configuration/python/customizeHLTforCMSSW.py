@@ -1,191 +1,198 @@
 import FWCore.ParameterSet.Config as cms
 
-# Update to replace old jet corrector mechanism
-from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
+# helper fuctions
+from HLTrigger.Configuration.common import *
 
-# Possibility to put different ring dependent cut on ADC (PR #9232)                                                              
-def customiseFor9232(process):
-    if hasattr(process,'hltEcalPhiSymFilter'):
-        if hasattr(process.hltEcalPhiSymFilter,'ampCut_barrel'):
-            delattr(process.hltEcalPhiSymFilter,'ampCut_barrel')
-        if hasattr(process.hltEcalPhiSymFilter,'ampCut_endcap'):
-            delattr(process.hltEcalPhiSymFilter,'ampCut_endcap')
+# add one customisation function per PR
+# - put the PR number into the name of the function
+# - add a short comment
+# for example:
+
+# CCCTF tuning
+# def customiseFor12718(process):
+#     for pset in process._Process__psets.values():
+#         if hasattr(pset,'ComponentType'):
+#             if (pset.ComponentType == 'CkfBaseTrajectoryFilter'):
+#                 if not hasattr(pset,'minGoodStripCharge'):
+#                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
+#     return process
+
+
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import _seedingThresholdsHEphase1, _thresholdsHEphase1
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import _thresholdsHEphase1 as _thresholdsHEphase1HCAL
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import _thresholdsHEphase1 as _thresholdsHEphase1Rec
+
+def customiseForUncollapsed(process):
+    for producer in producers_by_type(process, "PFClusterProducer"):
+        if producer.seedFinder.thresholdsByDetector[1].detector.value() == 'HCAL_ENDCAP':
+            producer.seedFinder.thresholdsByDetector[1].seedingThreshold              = _seedingThresholdsHEphase1
+            producer.initialClusteringStep.thresholdsByDetector[1].gatheringThreshold = _thresholdsHEphase1
+            producer.pfClusterBuilder.recHitEnergyNorms[1].recHitEnergyNorm           = _thresholdsHEphase1
+            producer.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector[1].logWeightDenominator = _thresholdsHEphase1
+            producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[1].logWeightDenominator = _thresholdsHEphase1
+
+    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
+        producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[1].logWeightDenominator = _thresholdsHEphase1HCAL
+    
+    for producer in producers_by_type(process, "PFRecHitProducer"):
+        if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
+            producer.producers[0].qualityTests[0].cuts[1].threshold = _thresholdsHEphase1Rec
+    
+    for producer in producers_by_type(process, "CaloTowersCreator"):
+        producer.HcalPhase     = cms.int32(1)
+        producer.HESThreshold1 = cms.double(0.1)
+        producer.HESThreshold  = cms.double(0.2)
+        producer.HEDThreshold1 = cms.double(0.1)
+        producer.HEDThreshold  = cms.double(0.2)
+
+
+    #remove collapser from sequence
+    process.hltHbhereco = process.hltHbhePhase1Reco.clone()
+    process.HLTDoLocalHcalSequence      = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
+    process.HLTStoppedHSCPLocalHcalReco = cms.Sequence( process.hltHcalDigis + process.hltHbhereco )
+
+
+    return process    
+
+
+def customiseFor21664_forMahiOn(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi   = cms.bool(True)
+        producer.algorithm.useM2     = cms.bool(False)
+        producer.algorithm.useM3     = cms.bool(False)
     return process
 
-# upgrade RecoTrackSelector to allow BTV-like cuts (PR #8679)
-def customiseFor8679(process):
-    if hasattr(process,'hltBSoftMuonMu5L3') :
-       delattr(process.hltBSoftMuonMu5L3,'min3DHit')
-       setattr(process.hltBSoftMuonMu5L3,'minLayer', cms.int32(0))
-       setattr(process.hltBSoftMuonMu5L3,'min3DLayer', cms.int32(0))
-       setattr(process.hltBSoftMuonMu5L3,'minPixelHit', cms.int32(0))
-       setattr(process.hltBSoftMuonMu5L3,'usePV', cms.bool(False))
-       setattr(process.hltBSoftMuonMu5L3,'vertexTag', cms.InputTag(''))
-    return process
+def customiseFor2017DtUnpacking(process):
+    """Adapt the HLT to run the legacy DT unpacking
+    for pre2018 data/MC workflows as the default"""
 
+    if hasattr(process,'hltMuonDTDigis'):
+        process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
+            useStandardFEDid = cms.bool( True ),
+            maxFEDid = cms.untracked.int32( 779 ),
+            inputLabel = cms.InputTag( "rawDataCollector" ),
+            minFEDid = cms.untracked.int32( 770 ),
+            dataType = cms.string( "DDU" ),
+            readOutParameters = cms.PSet(
+                localDAQ = cms.untracked.bool( False ),
+                debug = cms.untracked.bool( False ),
+                rosParameters = cms.PSet(
+                    localDAQ = cms.untracked.bool( False ),
+                    debug = cms.untracked.bool( False ),
+                    writeSC = cms.untracked.bool( True ),
+                    readDDUIDfromDDU = cms.untracked.bool( True ),
+                    readingDDU = cms.untracked.bool( True ),
+                    performDataIntegrityMonitor = cms.untracked.bool( False )
+                    ),
+                performDataIntegrityMonitor = cms.untracked.bool( False )
+                ),
+            dqmOnly = cms.bool( False )
+        )
 
-# Updating the config (PR #8356)
-def customiseFor8356(process):
-    MTRBPSet = cms.PSet(
-        Rescale_eta = cms.double( 3.0 ),
-        Rescale_phi = cms.double( 3.0 ),
-        Rescale_Dz = cms.double( 3.0 ),
-        EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
-        EtaR_UpperLimit_Par2 = cms.double( 0.15 ),
-        PhiR_UpperLimit_Par1 = cms.double( 0.6 ),
-        PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
-        UseVertex = cms.bool( False ),
-        Pt_fixed = cms.bool( False ),
-        Z_fixed = cms.bool( True ),
-        Phi_fixed = cms.bool( False ),
-        Eta_fixed = cms.bool( False ),
-        Pt_min = cms.double( 1.5 ),
-        Phi_min = cms.double( 0.1 ),
-        Eta_min = cms.double( 0.1 ),
-        DeltaZ = cms.double( 15.9 ),
-        DeltaR = cms.double( 0.2 ),
-        DeltaEta = cms.double( 0.2 ),
-        DeltaPhi = cms.double( 0.2 ),
-        maxRegions = cms.int32( 2 ),
-        precise = cms.bool( True ),
-        OnDemand = cms.int32( -1 ),
-        MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTracker" ),
-        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-        vertexCollection = cms.InputTag( "pixelVertices" ),
-        input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
-    )
-
-    def producers_by_type(process, type):
-    	return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
-
-    for l3MPModule in producers_by_type(process, 'L3MuonProducer'):
-	if hasattr(l3MPModule, 'GlbRefitterParameters'):
-            l3MPModule.GlbRefitterParameters.RefitFlag = cms.bool(True)
-        if hasattr(l3MPModule, 'L3TrajBuilderParameters'):
-            if hasattr(l3MPModule.L3TrajBuilderParameters, 'MuonTrackingRegionBuilder'):
-                l3MPModule.L3TrajBuilderParameters.MuonTrackingRegionBuilder = MTRBPSet
-
-    listL3seedingModule = ['hltL3TrajSeedIOHit','hltL3NoFiltersNoVtxTrajSeedIOHit','hltHIL3TrajSeedIOHit']
-    for l3IOTrajModule in listL3seedingModule:
-	if hasattr(process, l3IOTrajModule):
-	    if hasattr(getattr(process, l3IOTrajModule), 'MuonTrackingRegionBuilder'):
-                setattr(getattr(process, l3IOTrajModule), 'MuonTrackingRegionBuilder', MTRBPSet)
-
-    return process
-
-
-# Simplified TrackerTopologyEP config (PR #7966)
-def customiseFor7966(process):
-    if hasattr(process, 'trackerTopology'):
-        params = process.trackerTopology.parameterNames_()
-        for param in params:
-            delattr(process.trackerTopology, param)
-        setattr(process.trackerTopology, 'appendToDataLabel', cms.string(""))
-    if hasattr(process,'TrackerDigiGeometryESModule'):
-        if hasattr(process.TrackerDigiGeometryESModule,'trackerGeometryConstants'):
-            delattr(process.TrackerDigiGeometryESModule,'trackerGeometryConstants')
-    return process
-
-# Removal of 'upgradeGeometry' from TrackerDigiGeometryESModule (PR #7794)
-def customiseFor7794(process):
-    if hasattr(process, 'TrackerDigiGeometryESModule'):
-        if hasattr(process.TrackerDigiGeometryESModule, 'trackerGeometryConstants'):
-            if hasattr(process.TrackerDigiGeometryESModule.trackerGeometryConstants, 'upgradeGeometry'):
-                delattr(process.TrackerDigiGeometryESModule.trackerGeometryConstants, 'upgradeGeometry')
     return process
 
 
-# Removal of L1 Stage 1 unpacker configuration from config (PR #10087)
-def customiseFor10087(process):
-    if hasattr(process, 'hltCaloStage1Digis'):
-        if hasattr(process.hltCaloStage1Digis, 'FWId'):
-            delattr(process.hltCaloStage1Digis, 'FWId')
-        if hasattr(process.hltCaloStage1Digis, 'FedId'):
-            delattr(process.hltCaloStage1Digis, 'FedId')
+
+# particleFlowRechitECAL new default value "false" flag to be added
+def customiseForEcalTestPR22254Default(process):
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
     return process
 
-def customiseFor10234(process):
-    if hasattr(process, 'hltCaloStage1Digis'):
-        if hasattr(process.hltCaloStage1Digis, 'FWId'):
-            delattr(process.hltCaloStage1Digis, 'FWId')
-        if hasattr(process.hltCaloStage1Digis, 'FedId'):
-            delattr(process.hltCaloStage1Digis, 'FedId')
+
+
+# 
+# The three different set of thresholds will be used to study
+# possible new thresholds of pfrechits and effects on high level objects
+# The values proposed (A, B, C) are driven by expected noise levels
+#
+
+# Test thresholds for particleFlowRechitECAL   ~ 0.5 sigma
+def customiseForEcalTestPR22254thresholdA(process):
+    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+    from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_A
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_A.thresholds 
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
     return process
 
-# upgrade RecoTrackSelector to allow selection on originalAlgo (PR #10418)
-def customiseFor10418(process):
-    if hasattr(process,'hltBSoftMuonMu5L3') :
-       setattr(process.hltBSoftMuonMu5L3,'originalAlgorithm', cms.vstring())
-       setattr(process.hltBSoftMuonMu5L3,'algorithmMaskContains', cms.vstring())
+                   
+
+
+
+# Test thresholds for particleFlowRechitECAL   ~ 1 sigma
+def customiseForEcalTestPR22254thresholdB(process):
+    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+    from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_B
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_B.thresholds 
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
     return process
 
-# migrate RPCPointProducer to a global::EDProducer (PR #10927)
-def customiseFor10927(process):
-    if any(module.type_() is 'RPCPointProducer' for module in process.producers.itervalues()):
-        if not hasattr(process, 'CSCObjectMapESProducer'):
-            process.CSCObjectMapESProducer = cms.ESProducer( 'CSCObjectMapESProducer' )
-        if not hasattr(process, 'DTObjectMapESProducer'):
-            process.DTObjectMapESProducer = cms.ESProducer( 'DTObjectMapESProducer' )
+
+
+
+# Test thresholds for particleFlowRechitECAL   ~ 2 sigma
+def customiseForEcalTestPR22254thresholdC(process):
+    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+    from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_C
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_C.thresholds 
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
     return process
 
-# change RecoTrackRefSelector to stream::EDProducer (PR #10911)
-def customiseFor10911(process):
-    if hasattr(process,'hltBSoftMuonMu5L3'):
-        # Switch module type from EDFilter to EDProducer
-        process.hltBSoftMuonMu5L3 = cms.EDProducer("RecoTrackRefSelector", **process.hltBSoftMuonMu5L3.parameters_())
-    return process
 
-# Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
-def customiseFor11183(process):
-    def useMTEName(componentName):
-        if componentName in ["CandidateSeededTrackingRegionsProducer", "TrackingRegionsFromBeamSpotAndL2Tau"]:
-            return "whereToUseMeasurementTracker"
-        return "howToUseMeasurementTracker"
 
-    def replaceInPSet(pset, moduleLabel):
-        for paramName in pset.parameterNames_():
-            param = getattr(pset, paramName)
-            if isinstance(param, cms.PSet):
-                if hasattr(param, "ComponentName") and param.ComponentName.value() in ["CandidateSeededTrackingRegionsProducer", "TauRegionalPixelSeedGenerator"]:
-                    useMTE = useMTEName(param.ComponentName.value())
 
-                    if hasattr(param.RegionPSet, "measurementTrackerName"):
-                        param.RegionPSet.measurementTrackerName = cms.InputTag(param.RegionPSet.measurementTrackerName.value())
-                        if hasattr(param.RegionPSet, useMTE):
-                            raise Exception("Assumption of CandidateSeededTrackingRegionsProducer not having '%s' parameter failed" % useMTE)
-                        setattr(param.RegionPSet, useMTE, cms.string("ForSiStrips"))
-                    else:
-                        setattr(param.RegionPSet, useMTE, cms.string("Never"))
-                else:
-                    replaceInPSet(param, moduleLabel)
-            elif isinstance(param, cms.VPSet):
-                for element in param:
-                    replaceInPSet(element, moduleLabel)
-
-    for label, module in process.producers_().iteritems():
-        replaceInPSet(module, label)
-
-    return process
 
 # CMSSW version specific customizations
-def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
-    import os
-    cmsswVersion = os.environ['CMSSW_VERSION']
+def customizeHLTforCMSSW(process, menuType="GRun"):
 
-    if cmsswVersion >= "CMSSW_7_6":
-        process = customiseFor10418(process)
-        process = customiseFor10911(process)
-        process = customiseFor11183(process)
-    if cmsswVersion >= "CMSSW_7_5":
-        process = customiseFor10927(process)
-        process = customiseFor9232(process)
-        process = customiseFor8679(process)
-        process = customiseFor8356(process)
-        process = customiseFor7966(process)
-        process = customiseFor7794(process)
-        process = customiseFor10087(process)
-        process = customizeHLTforNewJetCorrectors(process)
-    if cmsswVersion >= "CMSSW_7_4":
-        process = customiseFor10234(process)
+    # add call to action function in proper order: newest last!
+    # process = customiseFor12718(process)
 
     return process

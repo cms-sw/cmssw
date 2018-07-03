@@ -97,20 +97,22 @@ bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other)
 {
   if (this->type() == other.type()) {
     const std::vector<double> otherParameters(other.parameters());
-    if (otherParameters.size() ==parameterSize() ) {
-      if (theParameters[k_ySplit()] == otherParameters[k_ySplit()]) {
+    if (otherParameters.size() == parameterSize()) {
+      if (fabs(theParameters[k_ySplit()]-otherParameters[k_ySplit()])<1e-5 || fabs(otherParameters[k_ySplit()])<1e-5 ) { // Second check in case it is really adding, either way DO NOT check equality directly
 	for (unsigned int i = 0; i != parameterSize()-1; ++i) {// -1 for ySplit
 	  // mean bows, delta shifts, delta angles and delta bows can simply be added up
 	  theParameters[i] += otherParameters[i];
 	}
 	return true;
       } else { // ySplit values are different!
-	LogDebug("Alignment") << "@SUB=TwoBowedSurfacesDeformation::add"
+	edm::LogError("Alignment") << "@SUB=TwoBowedSurfacesDeformation::add"
 			      << "Different ySplit: this " << theParameters[k_ySplit()]
 			      << ", to add " << otherParameters[k_ySplit()];
       }
     } // same size
   } // same type
+
+  edm::LogError("Alignment") << "@SUB=TwoBowedSurfacesDeformation::add" << "Types are different!";
 
   return false;
 }

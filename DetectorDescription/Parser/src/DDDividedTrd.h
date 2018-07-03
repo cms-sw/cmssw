@@ -1,73 +1,51 @@
-#ifndef DDDividedTrd_H
-#define DDDividedTrd_H//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationTrd*
-// ********************************************************************
+#ifndef DETECTOR_DESCRIPTION_PARSER_DD_DIVIDED_TRD_H
+#define DETECTOR_DESCRIPTION_PARSER_DD_DIVIDED_TRD_H
 
 #include "DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDDivision.h"
 
+class DDCompactView;
 class DDLogicalPart;
 class DDRotation;
 
-class DDDividedTrdX : public DDDividedGeometryObject
+class DDDividedTrdX final : public DDDividedGeometryObject
 { 
-  public:  // with description
-
-    DDDividedTrdX( const DDDivision& div, DDCompactView* cpv );
-
-    virtual ~DDDividedTrdX();
-
-    virtual void checkParametersValidity();
-
-    virtual double getMaxParameter() const;
-
-    virtual DDTranslation makeDDTranslation( const int copyNo) const;
-    
-    virtual DDRotation makeDDRotation(const int copyNo) const;
-    
-    virtual DDLogicalPart makeDDLogicalPart( const int copyNo) const;
+ public:
+  
+  DDDividedTrdX( const DDDivision& div, DDCompactView* cpv );
+  
+  void checkParametersValidity() override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
-
-class DDDividedTrdY : public DDDividedGeometryObject
+class DDDividedTrdY final : public DDDividedGeometryObject
 { 
-  public:  // with description
-
-    DDDividedTrdY( const DDDivision& div, DDCompactView* cpv );
-
-    virtual ~DDDividedTrdY();
-
-    virtual void checkParametersValidity();
-
-    virtual double getMaxParameter() const;
-
-    virtual DDTranslation makeDDTranslation( const int copyNo) const;
-    
-    virtual DDRotation makeDDRotation(const int copyNo) const;
-    
-    virtual DDLogicalPart makeDDLogicalPart( const int copyNo) const;
+ public:
+  
+  DDDividedTrdY( const DDDivision& div, DDCompactView* cpv );
+  
+  void checkParametersValidity() override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
+class DDDividedTrdZ final : public DDDividedGeometryObject
+{
+ public:
 
-class DDDividedTrdZ : public DDDividedGeometryObject
-{ 
-  public:  // with description
-
-    DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv );
-
-    virtual ~DDDividedTrdZ();
-
-    virtual void checkParametersValidity();
-
-    virtual double getMaxParameter() const;
-
-    virtual DDTranslation makeDDTranslation( const int copyNo) const;
-    
-    virtual DDRotation makeDDRotation(const int copyNo) const;
-    
-    virtual DDLogicalPart makeDDLogicalPart( const int copyNo) const;
-
+  DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv );
+  
+  void checkParametersValidity() override;
+  double getMaxParameter() const override;
+  DDTranslation makeDDTranslation( int copyNo ) const override;
+  DDRotation makeDDRotation( int copyNo ) const override;
+  DDLogicalPart makeDDLogicalPart( int copyNo ) const override;
 };
 
 #endif

@@ -1,5 +1,6 @@
 from copy import deepcopy
 import inspect
+import six
 
 ACTIVATE_INSPECTION=True
 
@@ -40,8 +41,8 @@ typ.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
 
 import FWCore.ParameterSet.Config as cms
 
-def new___init__(self,name):
-    self.old___init__(name)
+def new___init__(self,*l,**k):
+    self.old___init__(*l,**k)
     self.__dict__['_Process__history'] = []
     self.__dict__['_Process__enableRecording'] = 0
     self.__dict__['_Process__modifiedobjects'] = []
@@ -307,10 +308,10 @@ def new_dumpModifications(self, comments=True, process=True, module=False, seque
     for name, o in self.items_():
         modifications += self.recurseDumpModifications_(name, o)
     if not sequence:
-        modifications = filter(lambda x: not x['type'] == 'seq', modifications)
+        modifications = [x for x in modifications if not x['type'] == 'seq']
     checkpoint = self.__dict__['_Process__modifiedcheckpoint']
     if not checkpoint == None:
-        modifications = filter(lambda x: any([x['name'].startswith(check) for check in checkpoint]), modifications)
+        modifications = [x for x in modifications if any([x['name'].startswith(check) for check in checkpoint])]
     if module:
         value = False
         comments = False
@@ -378,7 +379,7 @@ def new_items_(self):
     items += self.moduleItems_()
     items += self.outputModules.items()
     items += self.sequences.items()
-    items += self.paths.iteritems()
+    items += six.iteritems(self.paths)
     items += self.endpaths.items()
     items += self.services.items()
     items += self.es_producers.items()
@@ -516,7 +517,10 @@ cms._ModuleSequenceType.copy = new__ModuleSequenceType_copy
 def new__ModuleSequenceType_replace(self, original, replacement):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':replacement._name_()})
+    if replacement is None:
+        self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':None})
+    else:
+        self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':replacement._name_()})
     return self.old_replace(original, replacement)
 cms._ModuleSequenceType.old_replace = cms._ModuleSequenceType.replace
 cms._ModuleSequenceType.replace = new__ModuleSequenceType_replace

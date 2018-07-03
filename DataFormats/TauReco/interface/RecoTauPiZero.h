@@ -57,7 +57,7 @@ class RecoTauPiZero : public CompositePtrCandidate {
     }
 
     /// destructor
-    ~RecoTauPiZero(){};
+    ~RecoTauPiZero() override{};
 
     /// Number of PFGamma constituents
     size_t numberOfGammas() const;

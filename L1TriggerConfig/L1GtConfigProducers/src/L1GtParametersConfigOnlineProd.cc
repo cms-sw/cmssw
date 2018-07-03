@@ -38,12 +38,11 @@ L1GtParametersConfigOnlineProd::~L1GtParametersConfigOnlineProd() {
 
 // public methods
 
-boost::shared_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(
+std::shared_ptr<L1GtParameters> L1GtParametersConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // shared pointer for L1GtParameters
-    boost::shared_ptr<L1GtParameters> pL1GtParameters = boost::shared_ptr<L1GtParameters>(
-            new L1GtParameters());
+    auto pL1GtParameters = std::make_shared<L1GtParameters>();
 
     // l1GtParameters: parameters in table GTFE_SETUP_FK
 

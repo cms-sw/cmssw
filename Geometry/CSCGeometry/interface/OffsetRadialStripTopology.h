@@ -25,7 +25,7 @@ public:
   OffsetRadialStripTopology( int numberOfStrips, float stripPhiPitch,
      float detectorHeight, float radialDistance, float stripOffset, float yCentre);
 
-  virtual ~OffsetRadialStripTopology(){};
+  ~OffsetRadialStripTopology() override{};
 
   /** Fraction of a strip offset of layer relative to
    *  symmetry axis (local y). (This is an _angular_ value)
@@ -34,7 +34,7 @@ public:
 
   /** LocalPoint for a given strip
    */
-  virtual LocalPoint localPosition(float strip) const {
+  LocalPoint localPosition(float strip) const override {
     // Pass through to base class since otherwise it is shadowed by the localPosition(const MP&).
     // Note that base class version is OK because it uses stripAngle() which is overridden in ORST!
     // Also note that xOfStrip from base class RST also works for ORST for the same reason.
@@ -58,12 +58,12 @@ public:
    * BEWARE! Neither coordinate may correspond to either local x or local y.<BR>
    * BEWARE! This involves ONLY strip-related measurements, not CSC wires!
    */
-  virtual LocalPoint localPosition(const MeasurementPoint&) const;
+  LocalPoint localPosition(const MeasurementPoint&) const override;
 
   /**
    * MeasurementPoint corresponding to given LocalPoint
    */
-  virtual MeasurementPoint measurementPosition( const LocalPoint& ) const;
+  MeasurementPoint measurementPosition( const LocalPoint& ) const override;
 
   /** Strip in which a given LocalPoint lies. This is a float which
    * represents the fractional strip position within the detector.<BR>
@@ -71,19 +71,19 @@ public:
    * detector or BELOW, and float(nstrips) if it falls at the extreme high
    * edge or ABOVE.
    */
-  virtual float strip(const LocalPoint&) const;
+  float strip(const LocalPoint&) const override;
 
   /**
    * Angle between strip and local y axis (measured clockwise from y axis)
    */
-  float stripAngle(float strip) const;
+  float stripAngle(float strip) const override;
 
   /**
    * Channel number corresponding to a strip or a LocalPoint.
    * Sometimes more than one strip is OR'ed into one channel.
    */
   virtual int channel(int strip) const = 0;
-  virtual int channel(const LocalPoint& lp) const = 0;
+  int channel(const LocalPoint& lp) const override = 0;
 
   friend std::ostream & operator<<(std::ostream &, const OffsetRadialStripTopology &);
 

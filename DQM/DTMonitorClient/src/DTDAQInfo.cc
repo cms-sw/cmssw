@@ -38,8 +38,8 @@ using namespace edm;
 
 DTDAQInfo::DTDAQInfo(const ParameterSet& pset) {
 
-  bookingdone = 0;
-
+  bookingdone = false;
+  checkUros = pset.getUntrackedParameter<bool>("checkUros",true);
 }
 
 DTDAQInfo::~DTDAQInfo() {}
@@ -74,73 +74,13 @@ DTDAQInfo::~DTDAQInfo() {}
     daqFractions[wheel] = ibooker.bookFloat(streams.str());
     daqFractions[wheel]->Fill(-1);
   }
-
-  //
-
-  // create a record key for RunInfoRcd
-  eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-
-  if(setup.find(recordKey) != 0) { 
-
-    //FR not sure that the lines below are still useful, we have just booked the histo!
-    // reset to 0
-    totalDAQFraction->Fill(0.);
-    daqFractions[-2]->Fill(0.);
-    daqFractions[-1]->Fill(0.);
-    daqFractions[-0]->Fill(0.);
-    daqFractions[1]->Fill(0.);
-    daqFractions[2]->Fill(0.);
-
-    daqMap->Reset();
-    //get fed summary information
-    ESHandle<RunInfo> sumFED;
-    setup.get<RunInfoRcd>().get(sumFED);    
-    vector<int> fedInIDs = sumFED->m_fed_in;   
-
-    // the range of DT feds
-    static int FEDIDmin = FEDNumbering::MINDTFEDID;
-    static int FEDIDMax = FEDNumbering::MAXDTFEDID;
-
-    // loop on all active feds
-    for(vector<int>::const_iterator fed = fedInIDs.begin();
-	fed != fedInIDs.end();
-	++fed) {
-      // check if the fed is in the DT range
-      if(!(*fed >= FEDIDmin && *fed <= FEDIDMax)) continue;
-
-      // check if the 12 channels are connected to any sector and fill the wheel percentage accordignly
-      int wheel = -99;
-      int sector = -99;
-      int dummy = -99;
-
-      for(int ros = 1; ros != 13; ++ros) {
-	if(!mapping->readOutToGeometry(*fed,ros,2,2,2,wheel,dummy,sector,dummy,dummy,dummy)) {
-	  LogTrace("DQM|DTMonitorClient|DTDAQInfo")
-	    << "FED: " << *fed << " Ch: " << ros << " wheel: " << wheel << " Sect: " << sector << endl;
-	  daqFractions[wheel]->Fill(daqFractions[wheel]->getFloatValue() + 1./12.);
-	  totalDAQFraction->Fill(totalDAQFraction->getFloatValue() + 1./60.);
-	  daqMap->Fill(sector,wheel);
-	}
-      }
-    }   
-  } else { 
-   
-    LogWarning("DQM|DTMonitorClient|DTDAQInfo") << "*** Warning: record key not found for RunInfoRcd" << endl;
-    totalDAQFraction->Fill(-1);               
-    for(int wheel = -2; wheel != 3; ++wheel) {
-      daqFractions[wheel]->Fill(-1);
-
-    }
-    return; 
-  }
-
-  }
-  bookingdone = 1; 
+  bookingdone = true; 
+  }  //booking done
 
   // create a record key for RunInfoRcd
   eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
-  if(setup.find(recordKey) != 0) { 
+  if(setup.find(recordKey) != nullptr) { 
     // reset to 0
     totalDAQFraction->Fill(0.);
     daqFractions[-2]->Fill(0.);
@@ -157,8 +97,12 @@ DTDAQInfo::~DTDAQInfo() {}
     vector<int> fedInIDs = sumFED->m_fed_in;   
 
     // the range of DT feds
-    static int FEDIDmin = FEDNumbering::MINDTFEDID;
-    static int FEDIDMax = FEDNumbering::MAXDTFEDID;
+    static const int FEDIDmin = FEDNumbering::MINDTFEDID;
+    static const int FEDIDMax = FEDNumbering::MAXDTFEDID; 
+    
+    //FIXME for uROS FEDIDs once mapping has been defined
+    if (checkUros) { LogTrace("DQM|DTMonitorClient|DTDAQInfo")
+            << "Checking uROS FEDs as Legacy FEDs"<< endl;}
 
     // loop on all active feds
     for(vector<int>::const_iterator fed = fedInIDs.begin();

@@ -101,14 +101,14 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
     float SL_shift 	= xBTI1_3 - xBTI1_1;
 
     _lutsCCB = new Lut(_card->config_luts(),n,SL_shift);
-    _luts = 0;
+    _luts = nullptr;
   }
   else
   //this is always the case with new DTConfig SV 15/I/2007
   //if( config()->trigSetupGeom()==0 ){
   {
-    _luts = 0;
-    _lutsCCB = 0;
+    _luts = nullptr;
+    _lutsCCB = nullptr;
   }
 /*
   //SV 21/V/03 for testbeam purpose: parameters from hardware setup
@@ -276,8 +276,8 @@ DTTracoChip::run() {
     }
 
     // skip if no cand. at this step
-    if(_innerCand[is-DTConfigTraco::NSTEPF].size()<1 &&
-       _outerCand[is-DTConfigTraco::NSTEPF].size()<1 ) 
+    if(_innerCand[is-DTConfigTraco::NSTEPF].empty() &&
+       _outerCand[is-DTConfigTraco::NSTEPF].empty() ) 
       continue;
 
     // Debugging...
@@ -335,7 +335,7 @@ DTTracoChip::run() {
       }
 
       // Skip to next step if no suitable candidates found
-      if(inner==0&&outer==0)
+      if(inner==nullptr&&outer==nullptr)
         break;
 
       // suppression of LTRIG on BTI close to selected HTRIG
@@ -384,7 +384,7 @@ DTTracoChip::run() {
     // Inhibit second track at previous bunch crossing
     if(config()->debug()==4)
       std::cout<<"Checking overlap I-II track..." <<std::endl;
-    if(_tracotrig[is-DTConfigTraco::NSTEPF].size()>0 && is>DTConfigTraco::NSTEPF
+    if(!_tracotrig[is-DTConfigTraco::NSTEPF].empty() && is>DTConfigTraco::NSTEPF
       && (_tracotrig[is-DTConfigTraco::NSTEPF])[0]->isFirst() ) {    //I track at bx
       if(nTrig(is-1)>0) {                                           //there is a track at bx-1
         if( !(trigger(is-1,1)->isFirst())  ||                       //trig 1 is II track
@@ -428,14 +428,14 @@ DTTracoChip::setFlag(int step, int ext) {
   if(ext==0){
     //this is the original: flags from card
     DTTracoChip* prevTraco = _card->getTRACO(_id.traco()-1);
-    if(prevTraco!=0){
+    if(prevTraco!=nullptr){
       if(prevTraco->edgeBTI(step,1,2))
         _flag[step-DTConfigTraco::NSTEPF].set(3);
       if(prevTraco->edgeBTI(step,2,2))
         _flag[step-DTConfigTraco::NSTEPF].set(5);
     }
     DTTracoChip* nextTraco = _card->getTRACO(_id.traco()+1);
-    if(nextTraco!=0){
+    if(nextTraco!=nullptr){
       if(nextTraco->edgeBTI(step,1,1))
         _flag[step-DTConfigTraco::NSTEPF].set(4);
       if(nextTraco->edgeBTI(step,2,1))
@@ -471,7 +471,7 @@ DTTracoCand*
 DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> & tclist) {
 
   // Return if no candidates
-  if(tclist.size()<1) return 0;
+  if(tclist.empty()) return nullptr;
 
   // stl function: sort in Ktc ascending or descending order according 
   // to user request comparing by default with user-defined <
@@ -509,7 +509,7 @@ DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> & tclist) {
 
   // return the best candidate
   int i=0;
-  DTTracoCand* bestltrig = 0;
+  DTTracoCand* bestltrig = nullptr;
   std::vector<DTTracoCand>::iterator p;
   for ( p = tclist.begin(); p < tclist.end(); ++p ) {
     i++;
@@ -521,7 +521,7 @@ DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> & tclist) {
       // check if preference to HTRIG is set and return first trigger
       if( !config()->prefHtrig(itk) ) return &(*p);
       if( (*p).BtiTrig()->code()==8 ) return &(*p);
-      if( bestltrig==0 ) bestltrig=&(*p);
+      if( bestltrig==nullptr ) bestltrig=&(*p);
     }
   }
   return bestltrig;
@@ -589,8 +589,8 @@ DTTracoChip::setPV(int itk, DTTracoCand* inner, DTTracoCand* outer) {
   //preview selector: the same as priority selector I !!
   // select which of the inner/outer segments should be used
 
-  DTTracoCand* candidate=0;  
-  if(inner!=0&&outer!=0) {
+  DTTracoCand* candidate=nullptr;  
+  if(inner!=nullptr&&outer!=nullptr) {
 //    if(config()->prefHtrig(itk)){   
 //    ---> BUG! selection is ALWAYS for H trigs
 //    ---> fixed by Sara Vanini 25/III/03
@@ -615,12 +615,12 @@ DTTracoChip::setPV(int itk, DTTracoCand* inner, DTTracoCand* outer) {
       }
     }
 */
-  } else if(inner==0&&outer!=0) {
+  } else if(inner==nullptr&&outer!=nullptr) {
     candidate=outer;
-  } else if(inner!=0&&outer==0) {
+  } else if(inner!=nullptr&&outer==nullptr) {
     candidate=inner;
   } else {
-    return 0; // no candidates 
+    return nullptr; // no candidates 
   }
 
   // create new trigger with this candidate
@@ -810,8 +810,8 @@ DTTracoChip::storeUncorr(DTTracoTrig* tctrig, DTTracoCand* inner, DTTracoCand* o
   // priority selector 
   // select which of the inner/outer segments should be used
   // allow re-use of other segment according to configuration
-  DTTracoCand* candidate=0;  
-  if(inner!=0&&outer!=0) {
+  DTTracoCand* candidate=nullptr;  
+  if(inner!=nullptr&&outer!=nullptr) {
 //    if(config()->prefHtrig(tkn)){  
 // --> BUG: selector I preference is ALWAYS for H trig
 // fixed by Sara Vanini - 25/III/03
@@ -841,9 +841,9 @@ DTTracoChip::storeUncorr(DTTracoTrig* tctrig, DTTracoCand* inner, DTTracoCand* o
       }
     }
 */
-  } else if(inner==0&&outer!=0) {
+  } else if(inner==nullptr&&outer!=nullptr) {
     candidate=outer;
-  } else if(inner!=0&&outer==0) {
+  } else if(inner!=nullptr&&outer==nullptr) {
     candidate=inner;
   } else {
     return 0; // no candidates 
@@ -1089,12 +1089,12 @@ DTTracoChip::trigger(int step, unsigned n) const {
   if(step<DTConfigTraco::NSTEPF||step>DTConfigTraco::NSTEPL){
     std::cout << "DTTracoChip::trigger: step out of range: " << step;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>_tracotrig[step-DTConfigTraco::NSTEPF].size()) {
     std::cout << "DTTracoChip::trigger: requested trigger doesn't exist: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   std::vector<DTTracoTrig*>::const_iterator p = 
     _tracotrig[step-DTConfigTraco::NSTEPF].begin()+n-1;
@@ -1178,7 +1178,7 @@ DTTracoChip::edgeBTI(int step, int io, int lr) const {
   //
   std::vector<DTTracoCand>::const_iterator p;
   if(io==1){
-    if(_innerCand[step-DTConfigTraco::NSTEPF].size()>0) {
+    if(!_innerCand[step-DTConfigTraco::NSTEPF].empty()) {
       // SV 24/IX/03 fix: only HTRIG accepted
       for(p=_innerCand[step-DTConfigTraco::NSTEPF].begin();
 	  p<_innerCand[step-DTConfigTraco::NSTEPF].end(); p++){
@@ -1189,7 +1189,7 @@ DTTracoChip::edgeBTI(int step, int io, int lr) const {
       }
     }
   } else {
-    if(_outerCand[step-DTConfigTraco::NSTEPF].size()>0) {
+    if(!_outerCand[step-DTConfigTraco::NSTEPF].empty()) {
       for(p=_outerCand[step-DTConfigTraco::NSTEPF].begin();
 	  p<_outerCand[step-DTConfigTraco::NSTEPF].end(); p++){
 	//SV: is the following correct???FIX if using _card to set _flag

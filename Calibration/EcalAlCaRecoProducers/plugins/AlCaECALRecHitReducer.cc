@@ -111,16 +111,16 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
   iEvent.getByToken(EESuperClusterToken_, EESCHandle);
  
   //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > miniEBRecHitCollection (new EBRecHitCollection) ;
-  std::auto_ptr< EERecHitCollection > miniEERecHitCollection (new EERecHitCollection) ;  
-  //  std::auto_ptr< ESRecHitCollection > miniESRecHitCollection (new ESRecHitCollection) ;  
+  auto miniEBRecHitCollection = std::make_unique<EBRecHitCollection>();
+  auto miniEERecHitCollection = std::make_unique<EERecHitCollection>();  
+  //  auto miniESRecHitCollection = std::make_unique<ESRecHitCollection>();  
   
   std::set<DetId> reducedRecHit_EBmap;
   std::set<DetId> reducedRecHit_EEmap;
   
   //  std::set< edm::Ref<reco::CaloCluster> > reducedCaloClusters_map;
   
-  std::auto_ptr< reco::CaloClusterCollection > reducedCaloClusterCollection (new reco::CaloClusterCollection);
+  auto reducedCaloClusterCollection = std::make_unique<reco::CaloClusterCollection>();
   
   //Photons:
 #ifdef shervin
@@ -200,10 +200,10 @@ AlCaECALRecHitReducer::produce (edm::Event& iEvent,
 
 
   //--------------------------------------- Put selected information in the event
-  iEvent.put( miniEBRecHitCollection,alcaBarrelHitsCollection_ );
-  iEvent.put( miniEERecHitCollection,alcaEndcapHitsCollection_ );     
-  //  iEvent.put( miniESRecHitCollection,alcaPreshowerHitsCollection_ );     
-  iEvent.put( reducedCaloClusterCollection, alcaCaloClusterCollection_);
+  iEvent.put(std::move(miniEBRecHitCollection),alcaBarrelHitsCollection_ );
+  iEvent.put(std::move(miniEERecHitCollection),alcaEndcapHitsCollection_ );     
+  //  iEvent.put(std::move(miniESRecHitCollection),alcaPreshowerHitsCollection_ );     
+  iEvent.put(std::move(reducedCaloClusterCollection), alcaCaloClusterCollection_);
 }
 
 void AlCaECALRecHitReducer::AddMiniRecHitCollection(const reco::SuperCluster& sc,

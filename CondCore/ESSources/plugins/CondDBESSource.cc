@@ -12,7 +12,6 @@
 //
 #include "CondDBESSource.h"
 
-#include "boost/shared_ptr.hpp"
 #include <boost/algorithm/string.hpp>
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Time.h"
@@ -51,7 +50,7 @@ namespace {
   class CondGetterFromESSource : public cond::persistency::CondGetter {
   public:
     CondGetterFromESSource(CondDBESSource::ProxyMap const & ip) : m_proxies(ip){}
-    virtual ~CondGetterFromESSource(){}
+    ~CondGetterFromESSource() override{}
 
     cond::persistency::IOVProxy get(std::string name) const override {
       CondDBESSource::ProxyMap::const_iterator p = m_proxies.find(name);
@@ -543,7 +542,7 @@ CondDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   }
 
   for (ProxyMap::const_iterator p=b;p!=e;++p) {  
-    if(0 != (*p).second.get()) {
+    if(nullptr != (*p).second.get()) {
       edm::eventsetup::TypeTag type =  (*p).second->type(); 
       edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags((*p).second->label().c_str()) );
       aProxyList.push_back(KeyedProxies::value_type(key,(*p).second->edmProxy()));

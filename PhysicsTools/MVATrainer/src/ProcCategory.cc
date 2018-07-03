@@ -39,10 +39,10 @@ class ProcCategory : public TrainProcessor {
 
 	ProcCategory(const char *name, const AtomicId *id,
 	             MVATrainer *trainer);
-	virtual ~ProcCategory();
+	~ProcCategory() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	typedef Calibration::ProcCategory::BinLimits BinLimits;
@@ -51,7 +51,7 @@ class ProcCategory : public TrainProcessor {
 	std::vector<BinLimits>	limits;
 };
 
-static ProcCategory::Registry registry("ProcCategory");
+ProcCategory::Registry registry("ProcCategory");
 
 ProcCategory::ProcCategory(const char *name, const AtomicId *id,
                            MVATrainer *trainer) :
@@ -63,7 +63,7 @@ ProcCategory::~ProcCategory()
 {
 }
 
-static void
+void
 fillRange(unsigned int n, int *matrix, unsigned int off,
           const unsigned int *strides,
           const std::pair<unsigned int, unsigned int> *ranges, int value)

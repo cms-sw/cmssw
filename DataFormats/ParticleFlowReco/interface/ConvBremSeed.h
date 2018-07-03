@@ -30,7 +30,7 @@ class ConvBremSeed: public TrajectorySeed
 
 
     ConvBremSeed(){} 
-    virtual ~ConvBremSeed() {}
+    ~ConvBremSeed() override {}
    
 
     /// Constructor from TrajectorySeed
@@ -43,7 +43,7 @@ class ConvBremSeed: public TrajectorySeed
     
 
 
-    ConvBremSeed * clone() const {return new ConvBremSeed( * this); }
+    ConvBremSeed * clone() const override {return new ConvBremSeed( * this); }
 
  private:
     

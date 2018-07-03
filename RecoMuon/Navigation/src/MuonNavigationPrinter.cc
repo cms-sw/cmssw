@@ -14,6 +14,8 @@
  *
  * Cesare Calabria:
  * GEMs implementation.
+ * David Nash:
+ * ME0s implementation.
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
@@ -39,7 +41,7 @@ using namespace std;
 #define PRINT(x) edm::LogInfo(x)
 #endif
 
-MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,   bool enableCSC, bool enableRPC, bool enableGEM) :
+MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,   bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0) :
   school(&sh) {
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl;
@@ -55,10 +57,13 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
 
   vector<const DetLayer*> backward;
-  if ( enableCSC & enableGEM & enableRPC ) backward = muonLayout->allBackwardLayers();
-  else if ( enableCSC & enableGEM & !enableRPC ) backward = muonLayout->allCscGemBackwardLayers(); // CSC + GEM
-  else if ( !enableCSC & enableGEM & !enableRPC ) backward = muonLayout->backwardGEMLayers(); //GEM only
-  else if ( enableCSC & !enableGEM & !enableRPC ) backward = muonLayout->backwardCSCLayers(); //CSC only
+
+  if ( enableCSC & enableGEM & enableRPC & enableME0) backward = muonLayout->allBackwardLayers();
+  else if ( enableCSC & enableGEM & !enableRPC & !enableME0) backward = muonLayout->allCscGemBackwardLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC & !enableME0 ) backward = muonLayout->backwardGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC & !enableME0 ) backward = muonLayout->backwardCSCLayers(); //CSC only
+  else if ( enableCSC & !enableGEM & !enableRPC & enableME0) backward = muonLayout->allCscME0BackwardLayers(); //CSC + ME0
+  else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) backward = muonLayout->backwardME0Layers(); //ME0 only
   else backward = muonLayout->allBackwardLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
@@ -66,10 +71,13 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
   vector<const DetLayer*> forward;
-  if ( enableCSC & enableGEM & enableRPC ) forward = muonLayout->allForwardLayers();
-  else if ( enableCSC & enableGEM & !enableRPC ) forward = muonLayout->allCscGemForwardLayers(); // CSC + GEM
-  else if ( !enableCSC & enableGEM & !enableRPC ) forward = muonLayout->forwardGEMLayers(); //GEM only
-  else if ( enableCSC & !enableGEM & !enableRPC ) forward = muonLayout->forwardCSCLayers(); //CSC only
+
+  if ( enableCSC & enableGEM & enableRPC & enableME0 ) forward = muonLayout->allForwardLayers();
+  else if ( enableCSC & enableGEM & !enableRPC & !enableME0) forward = muonLayout->allCscGemForwardLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC & !enableME0 ) forward = muonLayout->forwardGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC & !enableME0 ) forward = muonLayout->forwardCSCLayers(); //CSC only
+  else if ( enableCSC & !enableGEM & !enableRPC & enableME0) forward = muonLayout->allCscME0ForwardLayers(); //CSC + ME0
+  else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) forward = muonLayout->forwardME0Layers(); //ME0 only
   else forward = muonLayout->allForwardLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers" << std::endl;
@@ -85,7 +93,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 //  vector<ForwardDetLayer*>::const_iterator tkfiter;
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")<< "BARREL:" << std::endl;
-  vector<const BarrelDetLayer*> tkbarrel = tracker->barrelLayers();
+  const vector<const BarrelDetLayer*>& tkbarrel = tracker->barrelLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkbarrel.size()<<" Tk Barrel DetLayers" << std::endl;
 //  for ( tkiter = tkbarrel.begin(); tkiter != tkbarrel.end(); tkiter++ ) printLayer(*tkiter);
   vector<const DetLayer*> barrel = muonLayout->allBarrelLayers();
@@ -93,7 +101,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   for ( auto i : barrel ) printLayer(i);
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
-  vector<const ForwardDetLayer*> tkbackward = tracker->negForwardLayers();
+  const vector<const ForwardDetLayer*>& tkbackward = tracker->negForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkbackward.size()<<" Tk Backward DetLayers" << std::endl;
 ///  for ( tkfiter = tkbackward.begin(); tkfiter != tkbackward.end(); tkfiter++ ) printLayer(*tkfiter);
   vector<const DetLayer*> backward = muonLayout->allBackwardLayers();
@@ -101,7 +109,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   for (auto i : backward ) printLayer(i);
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
-  vector<const ForwardDetLayer*> tkforward =  tracker->posForwardLayers();
+  const vector<const ForwardDetLayer*>& tkforward =  tracker->posForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkforward.size()<<" Tk Forward DetLayers" << std::endl;
 //  for ( tkfiter = tkforward.begin(); tkfiter != tkforward.end(); tkfiter++ ) printLayer(*tkfiter);
 

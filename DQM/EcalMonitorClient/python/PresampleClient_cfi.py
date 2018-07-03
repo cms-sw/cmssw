@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalMonitorTasks.PresampleTask_cfi import ecalPresampleTask
+from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 
 minChannelEntries = 6
 expectedMean = 200.0
-toleranceMean = 25.0
+toleranceLow = 25.0
+toleranceHigh = 40.0
 toleranceRMS = 3.0
 toleranceRMSFwd = 6.0
 
@@ -12,12 +14,15 @@ ecalPresampleClient = cms.untracked.PSet(
     params = cms.untracked.PSet(
         minChannelEntries = cms.untracked.int32(minChannelEntries),
         expectedMean = cms.untracked.double(expectedMean),
-        toleranceMean = cms.untracked.double(toleranceMean),
+        toleranceLow = cms.untracked.double(toleranceLow),
+        toleranceHigh = cms.untracked.double(toleranceHigh),
         toleranceRMS = cms.untracked.double(toleranceRMS),
         toleranceRMSFwd = cms.untracked.double(toleranceRMSFwd)
     ),
     sources = cms.untracked.PSet(
-        Pedestal = ecalPresampleTask.MEs.Pedestal
+        Pedestal = ecalPresampleTask.MEs.Pedestal,
+        PedestalByLS = ecalPresampleTask.MEs.PedestalByLS,
+        ChStatus = ecalIntegrityClient.MEs.ChStatus
     ),
     MEs = cms.untracked.PSet(
         RMS = cms.untracked.PSet(
@@ -59,6 +64,16 @@ ecalPresampleClient = cms.untracked.PSet(
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the presample RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
+        RMSMapAllByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('RMS')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the presample RMS in this lumisection. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
         TrendMean = cms.untracked.PSet(
             path = cms.untracked.string('Ecal/Trends/PresampleClient %(prefix)s pedestal mean max - min'),
             kind = cms.untracked.string('TProfile'),
@@ -71,14 +86,14 @@ ecalPresampleClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the presample data quality. A channel is red if presample mean is off by ' + str(toleranceMean) + ' from ' + str(expectedMean) + ' or RMS is greater than ' + str(toleranceRMS) + '. RMS threshold is ' + str(toleranceRMSFwd) + ' in the forward region (|eta| > 2.1). Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of the presample data quality. A channel is red if presample mean is outside the range (' + str(expectedMean - toleranceLow) + ', ' + str(expectedMean + toleranceHigh) + '), or RMS is greater than ' + str(toleranceRMS) + '. RMS threshold is ' + str(toleranceRMSFwd) + ' in the forward region (|eta| > 2.1). Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal quality G12 %(sm)s'),
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('SM'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the presample data quality. A channel is red if presample mean is off by ' + str(toleranceMean) + ' from ' + str(expectedMean) + ' or RMS is greater than ' + str(toleranceRMS) + '. RMS threshold is ' + str(toleranceRMSFwd) + ' in the forward region (|eta| > 2.1). Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')            
+            description = cms.untracked.string('Summary of the presample data quality. A channel is red if presample mean is outside the range (' + str(expectedMean - toleranceLow) + ', ' + str(expectedMean + toleranceHigh) + '), or RMS is greater than ' + str(toleranceRMS) + '. RMS threshold is ' + str(toleranceRMSFwd) + ' in the forward region (|eta| > 2.1). Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         ErrorsSummary = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT pedestal quality errors summary G12'),

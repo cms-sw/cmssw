@@ -50,11 +50,11 @@
 class EcalDigiToRaw : public edm::EDProducer {
    public:
        EcalDigiToRaw(const edm::ParameterSet& pset);
-       virtual ~EcalDigiToRaw();
+       ~EcalDigiToRaw() override;
 
-      void beginJob();
-      void produce(edm::Event& e, const edm::EventSetup& c);
-      void endJob() ;
+      void beginJob() override;
+      void produce(edm::Event& e, const edm::EventSetup& c) override;
+      void endJob() override ;
 
       typedef long long Word64;
       typedef unsigned int Word32;

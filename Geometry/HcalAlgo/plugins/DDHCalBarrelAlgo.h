@@ -4,14 +4,14 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDHCalBarrelAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDHCalBarrelAlgo(); //const std::string & name);
-  virtual ~DDHCalBarrelAlgo();
+  ~DDHCalBarrelAlgo() override;
   
   //Get Methods
   std::string getGenMaterial()                const {return genMaterial;}
@@ -80,23 +80,23 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 protected:
 
   void constructGeneralVolume(DDCompactView& cpv);
-  void constructInsideSector(DDLogicalPart sector, DDCompactView& cpv);
-  void constructInsideLayers(DDLogicalPart laylog, std::string name, int id, 
+  void constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv);
+  void constructInsideLayers(const DDLogicalPart& laylog, const std::string& name, int id, 
 			     int nAbs, double rin, double d1, double alpha1, 
 			     double d2, double alpha2, double t1, double t2, DDCompactView& cpv);
-  DDLogicalPart constructSideLayer(DDLogicalPart laylog, std::string nm,
+  DDLogicalPart constructSideLayer(const DDLogicalPart& laylog, const std::string& nm,
 				   int nAbs, double rin, double alpha, DDCompactView& cpv);
-  DDLogicalPart constructMidLayer(DDLogicalPart laylog, std::string nm,
+  DDLogicalPart constructMidLayer(const DDLogicalPart& laylog, const std::string& nm,
 				  double rin, double alpha, DDCompactView& cpv);
-  void constructInsideDetectors(DDLogicalPart detector,
-				std::string name, int id, double dx, 
+  void constructInsideDetectors(const DDLogicalPart& detector,
+				const std::string& name, int id, double dx, 
 				double dy, double dz, int type, DDCompactView& cpv);
 
 private:

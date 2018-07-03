@@ -44,7 +44,25 @@ HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
             andOrDcs      = cms.bool( False ),
             errorReplyDcs = cms.bool( True ),
         )
-
+HLTSiStripMonitorCluster.TH2CStripVsCpixel = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(99999.5),
+        Nbinsy = cms.int32(170),
+        ymin   = cms.double(-0.5),
+        ymax   = cms.double(50999.5),
+        globalswitchon = cms.bool(True)
+        )
+HLTSiStripMonitorCluster.TH1NClusPx = cms.PSet(
+        Nbinsx = cms.int32(170),
+        xmax = cms.double(50999.5),
+        xmin = cms.double(-0.5)
+        )
+HLTSiStripMonitorCluster.TH1NClusStrip = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmax = cms.double(99999.5),
+        xmin = cms.double(-0.5)
+    )
 hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
   DoCosmics = cms.bool( False ),
   LoadTemplatesFromDB = cms.bool( True ),
@@ -120,7 +138,7 @@ hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('M
 hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(True)
 hltTrackRefitterForSiStripMonitorTrack.useHitsSplitting        = cms.bool(False)
 #hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter4Merged") # scenario 0
-hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter2Merged") # scenario 1
+hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltMergedTracks") # hltIter2Merged # scenario 1
 #hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBuilderAngleAndTemplate')
 hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBWithTrackAngle')
 
@@ -133,7 +151,6 @@ HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('hltSiStripRawToClusters
 HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
 HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
 HLTSiStripMonitorTrack.Mod_On            = cms.bool(False)
-
 sistripMonitorHLTsequence = cms.Sequence(
     HLTSiStripMonitorCluster
     * hltTrackRefitterForSiStripMonitorTrack

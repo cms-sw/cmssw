@@ -47,11 +47,11 @@ typedef reco::TrackBase::ParameterVector ParameterVector;
 class TrackParameterAnalyzer : public edm::EDAnalyzer {
    public:
       explicit TrackParameterAnalyzer(const edm::ParameterSet&);
-      ~TrackParameterAnalyzer();
+      ~TrackParameterAnalyzer() override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob();
-      virtual void endJob();
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void endJob() override;
 
    private:
        bool match(const ParameterVector  &a, const ParameterVector &b);

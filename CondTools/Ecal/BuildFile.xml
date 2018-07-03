@@ -1,4 +1,3 @@
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DataRecord"/>
@@ -17,6 +16,7 @@
 <use   name="OnlineDB/Oracle"/>
 <use   name="SimCalorimetry/EcalSelectiveReadoutProducers"/>
 <use   name="Geometry/EcalMapping"/>
+<use   name="CalibCalorimetry/EcalLaserCorrection"/>
 <use   name="root"/>
 <use   name="rootcore"/>
 <use   name="rootphysics"/>

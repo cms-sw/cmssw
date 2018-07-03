@@ -27,9 +27,9 @@ LeptonSelector::~LeptonSelector()
 
 bool LeptonSelector::operator() (const reco::SoftLeptonProperties &properties, bool use3d) const
 {
-  float sip = use3d ? properties.sip3d : properties.sip2d;
-  if ((isPositive() && sip <= 0.0) ||
-      (isNegative() && sip >= 0.0))
+  float sipsig = use3d ? properties.sip3dsig : properties.sip2dsig;
+  if ((isPositive() && sipsig <= 0.0) ||
+      (isNegative() && sipsig >= 0.0))
     return false;
 
   bool candSelection = (m_leptonId == reco::SoftLeptonProperties::Quality::btagLeptonCands);

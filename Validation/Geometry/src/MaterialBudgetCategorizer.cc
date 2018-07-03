@@ -131,9 +131,9 @@ void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName
   //  const G4MaterialTable* matTable = G4Material::GetMaterialTable();
   //  G4int matSize = matTable->size();
   
-  std::ifstream theMaterialFile(theMaterialFileName.c_str());
+  std::ifstream theMaterialFile(theMaterialFileName);
   if (!theMaterialFile) 
-    cms::Exception("LogicError") <<" File not found " << theMaterialFile;
+    cms::Exception("LogicError") <<" File not found " << theMaterialFileName;
   
   // fill everything as "other"
   float sup,sen,cab,col,ele,oth,air;

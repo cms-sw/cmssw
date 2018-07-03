@@ -15,7 +15,10 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
   ptMinMCMuon_ = mc.getUntrackedParameter<double>("ptMinMuon",2.);
   ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron",5.);
   m_PDG_   = mc.getUntrackedParameter<std::vector<int> >("BosonID");
+  etaMin = mc.getUntrackedParameter<double>("EtaMin",-2.5);
   etaMax = mc.getUntrackedParameter<double>("EtaMax",2.5);
+  phiMin = mc.getUntrackedParameter<double>("PhiMin",-3.15);
+  phiMax = mc.getUntrackedParameter<double>("PhiMax",3.15);
 
   produces<LorentzVectorCollection>("LeptonicTauLeptons");
   produces<LorentzVectorCollection>("LeptonicTauElectrons");
@@ -36,16 +39,16 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
   //All the code from HLTTauMCInfo is here :-) 
   
-  auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_OneProng(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_ThreeProng(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
-  auto_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
-  auto_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
+  unique_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_OneProng(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_ThreeProng(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
+  unique_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
+  unique_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
   
   edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(MC_, genParticles);
@@ -104,7 +107,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       //check if it is the last tau in decay/radiation chain
       GenParticleRefVector daugTaus;
       getGenDecayProducts(genRef, daugTaus, 0, 15);      
-      if( daugTaus.size()==0 )
+      if( daugTaus.empty() )
 	allTaus.push_back(genRef);
     }
   }
@@ -214,14 +217,14 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       //		  cout<< "So we have a: " << tauDecayMode <<endl;
       if(tauDecayMode == kElectron)
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCElectron_)){
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCElectron_)){
 	    product_Electrons->push_back(Visible_Taus);
 	    product_Leptons->push_back(Visible_Taus);
 	  }
 	}
       else if (tauDecayMode == kMuon)
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCMuon_)){
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCMuon_)){
 	    product_Muons->push_back(Visible_Taus);
 	    product_Leptons->push_back(Visible_Taus);
 	  }
@@ -230,7 +233,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	      tauDecayMode == kOneProng1pi0 || 
 	      tauDecayMode == kOneProng2pi0 ) 
 	{
-	  if ((abs(Visible_Taus.eta()) < etaMax) && (Visible_Taus.pt() > ptMinMCTau_)){
+	  if ((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax) && (Visible_Taus.pt() > ptMinMCTau_)){
 	    product_OneProng->push_back(Visible_Taus);
 	    product_OneAndThreeProng->push_back(Visible_Taus);
 	    product_Neutrina->push_back(Neutrino);
@@ -239,7 +242,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       else if (tauDecayMode == kThreeProng0pi0 || 
 	       tauDecayMode == kThreeProng1pi0 )
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
 	    product_ThreeProng->push_back(Visible_Taus);
 	    product_OneAndThreeProng->push_back(Visible_Taus);
 	    product_Neutrina->push_back(Neutrino);
@@ -247,23 +250,23 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	}
       else if (tauDecayMode == kOther)
 	{
-	  if((abs(Visible_Taus.eta())<etaMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
+	  if((Visible_Taus.eta()>etaMin&&Visible_Taus.eta()<etaMax&&Visible_Taus.phi()>phiMin&&Visible_Taus.phi()<phiMax)&&(Visible_Taus.pt()>ptMinMCTau_))  {
 	    product_Other->push_back(Visible_Taus);
 	  }
 	}
     }
   }
 
-  iEvent.put(product_Leptons,"LeptonicTauLeptons");
-  iEvent.put(product_Electrons,"LeptonicTauElectrons");
-  iEvent.put(product_Muons,"LeptonicTauMuons");
-  iEvent.put(product_OneProng,"HadronicTauOneProng");
-  iEvent.put(product_ThreeProng,"HadronicTauThreeProng");
-  iEvent.put(product_OneAndThreeProng,"HadronicTauOneAndThreeProng");
-  iEvent.put(product_Other, "TauOther");
-  iEvent.put(product_Neutrina,"Neutrina");
-  iEvent.put(product_MET,"MET"); 
-  iEvent.put(product_Mothers,"Mothers"); 
+  iEvent.put(std::move(product_Leptons), "LeptonicTauLeptons");
+  iEvent.put(std::move(product_Electrons), "LeptonicTauElectrons");
+  iEvent.put(std::move(product_Muons), "LeptonicTauMuons");
+  iEvent.put(std::move(product_OneProng), "HadronicTauOneProng");
+  iEvent.put(std::move(product_ThreeProng), "HadronicTauThreeProng");
+  iEvent.put(std::move(product_OneAndThreeProng), "HadronicTauOneAndThreeProng");
+  iEvent.put(std::move(product_Other), "TauOther");
+  iEvent.put(std::move(product_Neutrina), "Neutrina");
+  iEvent.put(std::move(product_MET), "MET"); 
+  iEvent.put(std::move(product_Mothers), "Mothers"); 
   
 }
 

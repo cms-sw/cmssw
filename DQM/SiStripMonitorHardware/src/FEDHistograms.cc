@@ -13,12 +13,12 @@ FEDHistograms::FEDHistograms()
 FEDHistograms::~FEDHistograms()
 {
 }
-  
+
 void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 			       std::ostringstream* pDebugStream
 			       )
 {
-  
+
   getConfigForHistogram(fedEventSize_,"FedEventSize",iConfig,pDebugStream);
   getConfigForHistogram(fedMaxEventSizevsTime_,"FedMaxEventSizevsTime",iConfig,pDebugStream);
 
@@ -29,7 +29,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(corruptBuffers_,"CorruptBuffers",iConfig,pDebugStream);
   getConfigForHistogram(badChannelStatusBits_,"BadChannelStatusBits",iConfig,pDebugStream);
   getConfigForHistogram(badActiveChannelStatusBits_,"BadActiveChannelStatusBits",iConfig,pDebugStream);
-  
+
   getConfigForHistogram(feOverflows_,"FEOverflows",iConfig,pDebugStream);
   getConfigForHistogram(feMissing_,"FEMissing",iConfig,pDebugStream);
   getConfigForHistogram(badMajorityAddresses_,"BadMajorityAddresses",iConfig,pDebugStream);
@@ -45,7 +45,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(invalidBuffers_,"InvalidBuffers",iConfig,pDebugStream);
   getConfigForHistogram(badDAQCRCs_,"BadDAQCRCs",iConfig,pDebugStream);
   getConfigForHistogram(badFEDCRCs_,"BadFEDCRCs",iConfig,pDebugStream);
-  
+
   getConfigForHistogram(feOverflowDetailed_,"FEOverflowsDetailed",iConfig,pDebugStream);
   getConfigForHistogram(feMissingDetailed_,"FEMissingDetailed",iConfig,pDebugStream);
   getConfigForHistogram(badMajorityAddressDetailed_,"BadMajorityAddressesDetailed",iConfig,pDebugStream);
@@ -54,7 +54,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(apvAddressErrorDetailed_,"APVAddressErrorBitsDetailed",iConfig,pDebugStream);
   getConfigForHistogram(unlockedDetailed_,"UnlockedBitsDetailed",iConfig,pDebugStream);
   getConfigForHistogram(outOfSyncDetailed_,"OOSBitsDetailed",iConfig,pDebugStream);
-  
+
   getConfigForHistogram(nFEDErrors_,"nFEDErrors",iConfig,pDebugStream);
   getConfigForHistogram(nFEDDAQProblems_,"nFEDDAQProblems",iConfig,pDebugStream);
   getConfigForHistogram(nFEDsWithFEProblems_,"nFEDsWithFEProblems",iConfig,pDebugStream);
@@ -66,6 +66,7 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram(nFEDsWithFEBadMajorityAddresses_,"nFEDsWithFEBadMajorityAddresses",iConfig,pDebugStream);
 
   getConfigForHistogram(nFEDErrorsvsTime_,"nFEDErrorsvsTime",iConfig,pDebugStream);
+  getConfigForHistogram(fedErrorsVsIdVsLumi_,"fedErrorsVsIdVsLumi",iConfig,pDebugStream);
   getConfigForHistogram(nFEDCorruptBuffersvsTime_,"nFEDCorruptBuffersvsTime",iConfig,pDebugStream);
   getConfigForHistogram(nFEDsWithFEProblemsvsTime_,"nFEDsWithFEProblemsvsTime",iConfig,pDebugStream);
 
@@ -108,10 +109,11 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram(fedIdVsApvId_,"FedIdVsApvId",iConfig,pDebugStream);
 
+  getConfigForHistogram(fedErrorsVsId_,"FedErrorsVsId",iConfig,pDebugStream);
 }
 
-void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
-					   const FEDErrors::ChannelCounters & chLevelCounters, 
+void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters,
+					   const FEDErrors::ChannelCounters & chLevelCounters,
 					   const unsigned int aMaxSize,
 					   const double aTime )
 {
@@ -138,7 +140,7 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
 
   fillHistogram(nTotalBadChannelsvsTime_,aTime,fedLevelCounters.nTotalBadChannels);
   fillHistogram(nTotalBadActiveChannelsvsTime_,aTime,fedLevelCounters.nTotalBadActiveChannels);
-  
+
   fillHistogram(nAPVStatusBit_,chLevelCounters.nAPVStatusBit);
   fillHistogram(nAPVError_,chLevelCounters.nAPVError);
   fillHistogram(nAPVAddressError_,chLevelCounters.nAPVAddressError);
@@ -153,9 +155,12 @@ void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLev
 
 }
 
-void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr, 
+void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
 				      const unsigned int aEvtSize,
-				      bool lFullDebug)
+				      bool lFullDebug,
+              const double aLumiSection,
+							unsigned int & NumBadChannels_perFEDID
+            )
 {
   const FEDErrors::FEDLevelErrors & lFedLevelErrors = aFedErr.getFEDLevelErrors();
   const unsigned int lFedId = aFedErr.fedID();
@@ -164,28 +169,74 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
 
   if (lFedLevelErrors.DataPresent) fillHistogram(dataPresent_,lFedId);
 
-  if (lFedLevelErrors.HasCabledChannels && lFedLevelErrors.DataMissing) fillHistogram(dataMissing_,lFedId);
-  
-  if (lFedLevelErrors.InvalidBuffers) fillHistogram(invalidBuffers_,lFedId);
-  else if (lFedLevelErrors.BadFEDCRCs) fillHistogram(badFEDCRCs_,lFedId);
-  else if (lFedLevelErrors.BadDAQCRCs) fillHistogram(badDAQCRCs_,lFedId);
-  else if (lFedLevelErrors.BadIDs) fillHistogram(badIDs_,lFedId);
-  else if (lFedLevelErrors.BadDAQPacket) fillHistogram(badDAQPacket_,lFedId);
-  else if (lFedLevelErrors.CorruptBuffer) fillHistogram(corruptBuffers_,lFedId);
+  if (lFedLevelErrors.HasCabledChannels && lFedLevelErrors.DataMissing) {
+    fillHistogram(dataMissing_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,1);
+  }
 
-  if (aFedErr.anyFEDErrors()) fillHistogram(anyFEDErrors_,lFedId);
-  if (lFedLevelErrors.HasCabledChannels && aFedErr.anyDAQProblems()) fillHistogram(anyDAQProblems_,lFedId);
-  if (aFedErr.anyFEProblems()) fillHistogram(anyFEProblems_,lFedId);
+  if (lFedLevelErrors.InvalidBuffers) {
+    fillHistogram(invalidBuffers_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,2);
+  }
+  else if (lFedLevelErrors.CorruptBuffer) {
+    fillHistogram(corruptBuffers_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,3);
+  }
+  else if (lFedLevelErrors.BadFEDCRCs) {
+    fillHistogram(badFEDCRCs_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,4);
+  }
+  else if (lFedLevelErrors.BadDAQCRCs) {
+    fillHistogram(badDAQCRCs_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,5);
+  }
+  else if (lFedLevelErrors.BadIDs) {
+    fillHistogram(badIDs_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,6);
+  }
+  else if (lFedLevelErrors.BadDAQPacket) {
+    fillHistogram(badDAQPacket_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,7);
+  }
 
-  if (lFedLevelErrors.FEsOverflow) fillHistogram(feOverflows_,lFedId);
-  if (lFedLevelErrors.FEsMissing) fillHistogram(feMissing_,lFedId);
-  if (lFedLevelErrors.FEsBadMajorityAddress) fillHistogram(badMajorityAddresses_,lFedId);
+  if (aFedErr.anyFEDErrors()) {
+    fillHistogram(anyFEDErrors_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,8);
+  }
 
-  if (lFedLevelErrors.BadChannelStatusBit) fillHistogram(badChannelStatusBits_,lFedId);
-  if (lFedLevelErrors.BadActiveChannelStatusBit) fillHistogram(badActiveChannelStatusBits_,lFedId);
+  if (lFedLevelErrors.HasCabledChannels && aFedErr.anyDAQProblems()) {
+    fillHistogram(anyDAQProblems_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,9);
+  }
+  if (aFedErr.anyFEProblems()) {
+    fillHistogram(anyFEProblems_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,10);
+  }
+
+  if (lFedLevelErrors.FEsOverflow) {
+    fillHistogram(feOverflows_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,11);
+  }
+  if (lFedLevelErrors.FEsMissing) {
+    fillHistogram(feMissing_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,12);
+  }
+  if (lFedLevelErrors.FEsBadMajorityAddress) {
+    fillHistogram(badMajorityAddresses_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,13);
+  }
+
+  if (lFedLevelErrors.BadChannelStatusBit) {
+    fillHistogram(badChannelStatusBits_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,14);
+  }
+  if (lFedLevelErrors.BadActiveChannelStatusBit) {
+    fillHistogram(badActiveChannelStatusBits_,lFedId);
+    fillHistogram(fedErrorsVsId_,lFedId,15);
+  }
 
   std::vector<FEDErrors::FELevelErrors> & lFeVec = aFedErr.getFELevelErrors();
-  
+
   for (unsigned int iFe(0); iFe<lFeVec.size(); iFe++){
     fillFEHistograms(lFedId,lFeVec[iFe],aFedErr.getEventProperties());
   }
@@ -200,13 +251,19 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
     fillAPVsHistograms(lFedId,lAPVVec[iApv],lFullDebug);
   }
 
+  double numChannelLevelErrors = 0;
+  if(fedErrorsVsIdVsLumi_.globalswitchon){
+		numChannelLevelErrors = double(lChVec.size());
+		fillHistogram2D(fedErrorsVsIdVsLumi_,aLumiSection,lFedId,numChannelLevelErrors);
+  }
+
 
 }
 
 
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
-void FEDHistograms::fillFEHistograms(const unsigned int aFedId, 
+void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
 				     const FEDErrors::FELevelErrors & aFeLevelErrors, const FEDErrors::EventProperties & aEventProp )
 {
   const unsigned short lFeId = aFeLevelErrors.FeID;
@@ -214,52 +271,52 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
   if ( (feOverflowDetailed_.enabled && aFeLevelErrors.Overflow) ||
        (badMajorityAddressDetailed_.enabled && aFeLevelErrors.BadMajorityAddress) ||
        (feMissingDetailed_.enabled && aFeLevelErrors.Missing)
-       ) 
+       )
     bookFEDHistograms(aFedId);
-  */  
+  */
   if (aFeLevelErrors.Overflow) fillHistogram(feOverflowDetailedMap_[aFedId],lFeId);
   else if (aFeLevelErrors.Missing) fillHistogram(feMissingDetailedMap_[aFedId],lFeId);
   else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailedMap_[aFedId],lFeId);
-  
+
 
   if (aFeLevelErrors.TimeDifference != 0) {
-    if (aFeLevelErrors.SubDetID == 2 || aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4) 
+    if (aFeLevelErrors.SubDetID == 2 || aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4)
       fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 5) 
+    else if (aFeLevelErrors.SubDetID == 5)
       fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 0) 
+    else if (aFeLevelErrors.SubDetID == 0)
       fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 1) 
+    else if (aFeLevelErrors.SubDetID == 1)
       fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
     fillHistogram(feTimeDiffvsDBX_,aEventProp.deltaBX,aFeLevelErrors.TimeDifference < 0 ? aFeLevelErrors.TimeDifference+192 : aFeLevelErrors.TimeDifference  );
     fillHistogram(apveAddress_,aFeLevelErrors.Apve);
-    fillHistogram(feMajAddress_,aFeLevelErrors.FeMaj);  
+    fillHistogram(feMajAddress_,aFeLevelErrors.FeMaj);
   }
 }
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
-void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId, 
-					   const FEDErrors::ChannelLevelErrors & aChErr, 
+void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId,
+					   const FEDErrors::ChannelLevelErrors & aChErr,
 					   bool fullDebug)
 {
   unsigned int lChId = aChErr.ChannelID;
   /*
   if ( (unlockedDetailed_.enabled && aChErr.Unlocked) ||
        (outOfSyncDetailed_.enabled && aChErr.OutOfSync)
-       ) 
+       )
     bookFEDHistograms(aFedId,fullDebug);
   */
   if (aChErr.Unlocked) {
     fillHistogram(unlockedDetailedMap_[aFedId],lChId);
   }
   if (aChErr.OutOfSync) {
-    fillHistogram(outOfSyncDetailedMap_[aFedId],lChId);    
+    fillHistogram(outOfSyncDetailedMap_[aFedId],lChId);
   }
 }
 
 
-void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId, 
-				       const FEDErrors::APVLevelErrors & aAPVErr, 
+void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId,
+				       const FEDErrors::APVLevelErrors & aAPVErr,
 				       bool fullDebug)
 {
   unsigned int lChId = aAPVErr.APVID;
@@ -323,7 +380,7 @@ MonitorElement * FEDHistograms::getFedvsAPVpointer()
   return fedIdVsApvId_.monitorEle;
 }
 
-void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::string topFolderName)
+void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker, const TkDetMap* tkDetMap, std::string topFolderName)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -369,6 +426,28 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 		  "APV-ID",
 		  "FED-ID");
 
+  book2DHistogram( ibooker , fedErrorsVsId_,"FEDErrorsVsId",
+		   "FED Errors vs ID",
+		   siStripFedIdMax-siStripFedIdMin+1,
+		   siStripFedIdMin,siStripFedIdMax+1,
+		   15,
+		   1,16, "FED ID" , "Error Type");
+  fedErrorsVsId_.monitorEle->setBinLabel(1, "Data Missing", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(2, "Invalid Buffers", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(3, "Corrupt Buffers", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(4, "Bad FED CRC", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(5, "Bad DAQ CRC", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(6, "Bad IDs", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(7, "Bad DAQ Packet", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(8, "Any FED Errors", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(9, "Any DAQ Problems", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(10, "Any FE Problems", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(11, "FE Overflows", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(12, "FE Missing", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(13, "FE Bad Maj Addr", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(14, "Bad Ch Stat Bit", 2);
+  fedErrorsVsId_.monitorEle->setBinLabel(15, "Bad Active Ch Stat Bit", 2);
+
   const std::string lBaseDir = ibooker.pwd();
 
   ibooker.setCurrentFolder(lBaseDir+"/FED");
@@ -392,7 +471,6 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 		"nFEDCorruptBuffers",
 		"Number of FEDs with corrupt buffers per event",
 		"# FEDs with corrupt buffer");
-
 
   ibooker.setCurrentFolder(lBaseDir+"/FED/VsId");
 
@@ -521,7 +599,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 		"Number of buffers with any FE unit problems",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
-  
+
   bookHistogram(ibooker , feOverflows_,"FEOverflows",
 		"Number of buffers with one or more FE overflow",
 		siStripFedIdMax-siStripFedIdMin+1,
@@ -541,7 +619,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 		"Number of buffers with one or more FE unit payload missing",
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
-  
+
 
   ibooker.setCurrentFolder(lBaseDir+"/Fiber");
 
@@ -587,11 +665,11 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
   bookHistogram(ibooker , medianAPV0_,"MedianAPV0",
 		"Median APV0",
 		"medianAPV0");
-  
+
   bookHistogram(ibooker , medianAPV1_,"MedianAPV1",
 		"Median APV1",
 		"MedianAPV1");
-  
+
   bookHistogram(ibooker , nAPVStatusBit_,
 		"nAPVStatusBit",
 		"Number of APVs with APVStatusBit error per event",
@@ -639,6 +717,18 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 	      );
 
   ibooker.setCurrentFolder(lBaseDir+"/Trends/FED");
+
+  if(fedErrorsVsIdVsLumi_.globalswitchon){
+    bookProfile2D( ibooker , fedErrorsVsIdVsLumi_,
+          "fedErrorsVsIdVsLumi",
+          "Total number of errors per FED ID per lumi section",
+          440,//# FED IDS
+          49.5,// Lowest FED ID
+          489.5,// Highest FED ID
+          "Lumi. Section",
+          "FED ID"
+          );
+        }
 
   bookProfile( ibooker , nFEDErrorsvsTime_,
 	      "nFEDErrorsvsTime",
@@ -739,9 +829,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker , std::st
 
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    tkmapFED_ = new TkHistoMap(topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
+    tkmapFED_ = std::make_unique<TkHistoMap>(tkDetMap, topFolderName,"TkHMap_FractionOfBadChannels",0.,true);
   }
-  else tkmapFED_ = 0;
+  else tkmapFED_ = nullptr;
 
 }
 
@@ -827,7 +917,7 @@ void FEDHistograms::bookAllFEDHistograms(DQMStore::IBooker & ibooker , bool full
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //book them
-  for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++) 
+  for (unsigned int iFed = siStripFedIdMin; iFed <= siStripFedIdMax; iFed++)
     bookFEDHistograms(ibooker , iFed, fullDebugMode);
 }
 
@@ -836,5 +926,5 @@ bool FEDHistograms::tkHistoMapEnabled(unsigned int aIndex){
 }
 
 TkHistoMap * FEDHistograms::tkHistoMapPointer(unsigned int aIndex){
-  return tkmapFED_;
+  return tkmapFED_.get();
 }

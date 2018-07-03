@@ -80,7 +80,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                 for option in self.options( "local"+section.title() ):
                     result[option] = self.get( "local"+section.title(),
                                                    option )
-        except ConfigParser.NoSectionError, section:
+        except ConfigParser.NoSectionError as section:
             msg = ("%s in configuration files. This section is mandatory."
                    %(str(section).replace(":", "", 1)))
             raise AllInOneError(msg)
@@ -91,7 +91,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for option in demandPars:
             try:
                 result[option] = self.get( section, option )
-            except ConfigParser.NoOptionError, globalSectionError:
+            except ConfigParser.NoOptionError as globalSectionError:
                 globalSection = str( globalSectionError ).split( "'" )[-2]
                 splittedSectionName = section.split( ":" )
                 if len( splittedSectionName ) > 1:
@@ -102,7 +102,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                 if self.has_section( localSection ):
                     try:
                         result[option] = self.get( localSection, option )
-                    except ConfigParser.NoOptionError, option:
+                    except ConfigParser.NoOptionError as option:
                         msg = ("%s. This option is mandatory."
                                %(str(option).replace(":", "", 1).replace(
                                     "section",
@@ -112,7 +112,11 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                     msg = ("%s. This option is mandatory."
                            %(str(globalSectionError).replace(":", "", 1)))
                     raise AllInOneError(msg)
-        result = self.__updateDict( result, section )
+        try:
+            result = self.__updateDict( result, section )
+        except AllInOneError:   #section doesn't exist
+            if demandPars:      #then there's at least one mandatory parameter, which means the section needs to be there
+                raise           #otherwise all the parameters are optional, so it's ok
         return result
 
     def getAlignments( self ):
@@ -121,6 +125,16 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             if "alignment:" in section:
                 alignments.append( Alignment( section.split( "alignment:" )[1],
                                               self ) )
+        names_after_cleaning = [alignment.name for alignment in alignments]
+        duplicates = [name
+                      for name, count
+                      in collections.Counter(names_after_cleaning).items()
+                      if count > 1]
+        if len(duplicates) > 0:
+            msg = "Duplicate alignment names after removing invalid characters: "
+            msg += ", ".join(duplicates) +"\n"
+            msg += "Please rename the alignments to avoid name clashes."
+            raise AllInOneError(msg)
         return alignments
 
     def getCompares( self ):
@@ -128,8 +142,10 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         for section in self.sections():
             if "compare:" in section:
                 self.checkInput(section,
-                                knownSimpleOptions = ["levels", "dbOutput",
-                                                      "jobmode", "3DSubdetector1", "3Dubdetector2", "3DTranslationalScaleFactor"])
+                                knownSimpleOptions = ["levels", "dbOutput","moduleList","modulesToPlot","useDefaultRange","plotOnlyGlobal","plotPng","makeProfilePlots",
+                                                      "dx_min","dx_max","dy_min","dy_max","dz_min","dz_max","dr_min","dr_max","rdphi_min","rdphi_max",
+                                                      "dalpha_min","dalpha_max","dbeta_min","dbeta_max","dgamma_min","dgamma_max",
+                                                      "jobmode", "3DSubdetector1", "3Dubdetector2", "3DTranslationalScaleFactor", "jobid"])
                 levels = self.get( section, "levels" )
                 dbOutput = self.get( section, "dbOutput" )
                 compares[section.split(":")[1]] = ( levels, dbOutput )
@@ -141,7 +157,6 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             "eosdir": "",
-            "email":"true"
             }
         self.checkInput("general", knownSimpleOptions = defaults.keys())
         general = self.getResultingSection( "general", defaultDict = defaults )
@@ -150,7 +165,15 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             self.add_section(internal_section)
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
+        if not self.has_option(internal_section, "scriptsdir"):
+            self.set(internal_section, "scriptsdir", None)
+            #replaceByMap will fail if this is not replaced (which it is in validateAlignments.py)
+
         general["workdir"] = self.get(internal_section, "workdir")
+        general["scriptsdir"] = self.get(internal_section, "scriptsdir")
+        for folder in "workdir", "datadir", "logdir", "eosdir":
+            general[folder] = os.path.expandvars(general[folder])
+
         return general
     
     def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[],
@@ -166,18 +189,28 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         - `knownKeywords`: List of allowed keywords in `section`.
         """
 
-        for option in self.options( section ):
-            if option in knownSimpleOptions:
-                continue
-            elif option.split()[0] in knownKeywords:
-                continue
-            elif option in ignoreOptions:
-                print ("Ignoring option '%s' in section '[%s]'."
-                       %(option, section))
-            else:
-                msg = ("Invalid or unknown parameter '%s' in section '%s'!"
-                       %(option, section))
-                raise AllInOneError(msg)
+        try:
+            for option in self.options( section ):
+                if option in knownSimpleOptions:
+                    continue
+                elif option.split()[0] in knownKeywords:
+                    continue
+                elif option in ignoreOptions:
+                    print ("Ignoring option '%s' in section '[%s]'."
+                           %(option, section))
+                else:
+                    msg = ("Invalid or unknown parameter '%s' in section '%s'!"
+                           %(option, section))
+                    raise AllInOneError(msg)
+        except ConfigParser.NoSectionError:
+            pass
+
+    def set(self, section, option, value=None):
+        try:
+            ConfigParser.ConfigParser.set(self, section, option, value)
+        except ConfigParser.NoSectionError:
+            self.add_section(section)
+            ConfigParser.ConfigParser.set(self, section, option, value)
 
     def items(self, section, raw=False, vars=None):
         if section == "validation":

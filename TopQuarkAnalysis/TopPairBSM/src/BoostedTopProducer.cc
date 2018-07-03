@@ -1,5 +1,5 @@
 #include "BoostedTopProducer.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include <string>
 #include <sstream>
@@ -101,7 +101,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------
    std::vector<pat::Muon>::const_iterator isolatedMuon     = muons.end();
    std::vector<pat::Muon>::const_iterator muon = muons.end();
-   bool nIsolatedMuons = 0;
+   unsigned int nIsolatedMuons = 0;
    std::vector<pat::Muon>::const_iterator muonIt = muons.begin(),
      muonEnd = muons.end();
    for (; muonIt != muonEnd; ++muonIt ) {
@@ -126,7 +126,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ----------------------
    std::vector<pat::Electron>::const_iterator isolatedElectron     = electrons.end();
    std::vector<pat::Electron>::const_iterator electron = electrons.end();
-   bool nIsolatedElectrons = 0;
+   unsigned int nIsolatedElectrons = 0;
    std::vector<pat::Electron>::const_iterator electronIt = electrons.begin(),
      electronEnd = electrons.end();
    for (; electronIt != electronEnd; ++electronIt ) {
@@ -183,7 +183,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Veto events with < 2 jets or no missing et
    // ----------------------
    if ( jets.size() < 2 ||
-	mets.size() == 0 ) {
+	mets.empty() ) {
      preselection = false;
    }
 
@@ -364,21 +364,10 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( debug ) cout << "Writing out" << endl;
      ttbarList.push_back( ttbar );
    }
-   std::auto_ptr<std::vector<reco::CompositeCandidate> > pTtbar ( new std::vector<reco::CompositeCandidate>(ttbarList) );
-   iEvent.put( pTtbar );
+   std::unique_ptr<std::vector<reco::CompositeCandidate> > pTtbar ( new std::vector<reco::CompositeCandidate>(ttbarList) );
+   iEvent.put(std::move(pTtbar));
 
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-BoostedTopProducer::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-BoostedTopProducer::endJob() {
 }
 
 double

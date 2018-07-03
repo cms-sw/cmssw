@@ -24,11 +24,13 @@ public:
   virtual void putInEvt(edm::Event&,
 			const Propagator* prop,
 			const MeasurementTracker* measTk,
-			std::auto_ptr<TrackingRecHitCollection>&,
-			std::auto_ptr<reco::TrackCollection>&,
-			std::auto_ptr<reco::TrackExtraCollection>&,
-			std::auto_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&, TransientTrackingRecHitBuilder const*,
+			std::unique_ptr<TrackingRecHitCollection>&,
+			std::unique_ptr<reco::TrackCollection>&,
+			std::unique_ptr<reco::TrackExtraCollection>&,
+			std::unique_ptr<std::vector<Trajectory> >&,
+			std::unique_ptr<std::vector<int> >&,
+			AlgoProductCollection&,
+			TransientTrackingRecHitBuilder const*,
                         const TrackerTopology *ttopo,
 			//allow to fill different tracks collections if necessary ::
 			//0: not needed

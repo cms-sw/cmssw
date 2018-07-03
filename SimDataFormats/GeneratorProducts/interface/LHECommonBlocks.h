@@ -123,8 +123,8 @@ class CommonBlocks {
 	}
 
     private:
-	CommonBlocks();
-	~CommonBlocks();
+	CommonBlocks() = delete;
+	~CommonBlocks() = delete;
 };
 
 } // namespace lhef

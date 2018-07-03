@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalwafer.xml" eval="true">
+  <Constant name="WaferW"    value="[hgcal:WaferW]"/>
+  <Constant name="WaferT"    value="0.10*mm"/>
+  <Constant name="CellNC"    value="11"/>
+  <Constant name="CellNF"    value="15"/>
+  <Constant name="CellWC"    value="[WaferW]/[CellNC]"/>
+  <Constant name="CellWF"    value="[WaferW]/[CellNF]"/>
+  <Constant name="tan30deg"  value="tan(30.0*deg)"/>
+  <Constant name="TypeWC"    value="2"/>
+  <Constant name="TypeWF"    value="1"/>
+  <Constant name="NBottomYC" value="-42"/>
+  <Constant name="NBottomYF" value="-56"/>
+  <Vector name="waferFine" type="numeric" nEntries="20">
+   3, 6, 9, 12, 15, 16, 15, 16, 15, 16, 15, 16, 15, 16, 15, 14, 11, 8, 5, 2
+  </Vector>
+  <Vector name="waferCoarse" type="numeric" nEntries="15">
+   2, 5, 8, 11, 12, 11, 12, 11, 12, 11, 12, 11, 8, 5, 2
+  </Vector>
+</ConstantsSection>
+
+<SolidSection label="hgcalwafer.xml">
+  <ExtrudedPolygon name="HGCalWafer">
+    <XYPoint x="[WaferW]/2"  y="[WaferW]*[tan30deg]/2" />
+    <XYPoint x="[WaferW]/2"  y="-[WaferW]*[tan30deg]/2"/>
+    <XYPoint x="0*fm"        y="-[WaferW]*[tan30deg]"  />
+    <XYPoint x="-[WaferW]/2" y="-[WaferW]*[tan30deg]/2"/>
+    <XYPoint x="-[WaferW]/2" y="[WaferW]*[tan30deg]/2" />
+    <XYPoint x="0*fm"        y="[WaferW]*[tan30deg] "  />
+    <ZXYSection z="-[WaferT]/2" x="0*fm" y="0*fm" scale="1.0"/>
+    <ZXYSection z="[WaferT]/2"  x="0*fm" y="0*fm" scale="1.0"/>
+  </ExtrudedPolygon>
+  <ExtrudedPolygon name="HGCalCellCoarse">
+    <XYPoint x="[CellWC]/2"  y="[CellWC]*[tan30deg]/2" />
+    <XYPoint x="[CellWC]/2"  y="-[CellWC]*[tan30deg]/2"/>
+    <XYPoint x="0*fm"        y="-[CellWC]*[tan30deg]"  />
+    <XYPoint x="-[CellWC]/2" y="-[CellWC]*[tan30deg]/2"/>
+    <XYPoint x="-[CellWC]/2" y="[CellWC]*[tan30deg]/2" />
+    <XYPoint x="0*fm"        y="[CellWC]*[tan30deg] "  />
+    <ZXYSection z="-[WaferT]/2" x="0*fm" y="0*fm" scale="1.0"/>
+    <ZXYSection z="[WaferT]/2"  x="0*fm" y="0*fm" scale="1.0"/>
+  </ExtrudedPolygon>
+  <ExtrudedPolygon name="HGCalCellCoarseHalf">
+    <XYPoint x="0*fm"        y="-[CellWC]*[tan30deg]"  />
+    <XYPoint x="-[CellWC]/2" y="-[CellWC]*[tan30deg]/2"/>
+    <XYPoint x="-[CellWC]/2" y="[CellWC]*[tan30deg]/2" />
+    <XYPoint x="0*fm"        y="[CellWC]*[tan30deg] "  />
+    <ZXYSection z="-[WaferT]/2" x="0*fm" y="0*fm" scale="1.0"/>
+    <ZXYSection z="[WaferT]/2"  x="0*fm" y="0*fm" scale="1.0"/>
+  </ExtrudedPolygon>
+  <ExtrudedPolygon name="HGCalCellFine">
+    <XYPoint x="[CellWF]/2"  y="[CellWF]*[tan30deg]/2" />
+    <XYPoint x="[CellWF]/2"  y="-[CellWF]*[tan30deg]/2"/>
+    <XYPoint x="0*fm"        y="-[CellWF]*[tan30deg]"  />
+    <XYPoint x="-[CellWF]/2" y="-[CellWF]*[tan30deg]/2"/>
+    <XYPoint x="-[CellWF]/2" y="[CellWF]*[tan30deg]/2" />
+    <XYPoint x="0*fm"        y="[CellWF]*[tan30deg] "  />
+    <ZXYSection z="-[WaferT]/2" x="0*fm" y="0*fm" scale="1.0"/>
+    <ZXYSection z="[WaferT]/2"  x="0*fm" y="0*fm" scale="1.0"/>
+  </ExtrudedPolygon>
+  <ExtrudedPolygon name="HGCalCellFineHalf">
+    <XYPoint x="0*fm"        y="-[CellWF]*[tan30deg]"  />
+    <XYPoint x="-[CellWF]/2" y="-[CellWF]*[tan30deg]/2"/>
+    <XYPoint x="-[CellWF]/2" y="[CellWF]*[tan30deg]/2" />
+    <XYPoint x="0*fm"        y="[CellWF]*[tan30deg] "  />
+    <ZXYSection z="-[WaferT]/2" x="0*fm" y="0*fm" scale="1.0"/>
+    <ZXYSection z="[WaferT]/2"  x="0*fm" y="0*fm" scale="1.0"/>
+  </ExtrudedPolygon>
+</SolidSection> 
+
+<LogicalPartSection label="hgcalwafer.xml">
+  <LogicalPart name="HGCalEEWaferCoarse" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEWaferCoarse" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEEWaferFine" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEWaferFine" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEECellCoarse" category="unspecified">
+    <rSolid name="HGCalCellCoarse"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellCoarse" category="unspecified">
+    <rSolid name="HGCalCellCoarse"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEECellCoarseHalf" category="unspecified">
+    <rSolid name="HGCalCellCoarseHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellCoarseHalf" category="unspecified">
+    <rSolid name="HGCalCellCoarseHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEECellFine" category="unspecified">
+    <rSolid name="HGCalCellFine"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellFine" category="unspecified">
+    <rSolid name="HGCalCellFine"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  
+  <LogicalPart name="HGCalEECellFineHalf" category="unspecified">
+    <rSolid name="HGCalCellFineHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellFineHalf" category="unspecified">
+    <rSolid name="HGCalCellFineHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalwafer.xml">
+  <Algorithm name="hgcal:DDHGCalWafer">
+    <rParent name="hgcalwafer:HGCalEEWaferCoarse"/>
+    <Numeric name="WaferSize" value="[WaferW]"/>
+    <Numeric name="CellType" value="[TypeWC]"/>
+    <Numeric name="NColumns" value="[CellNC]"/>
+    <Numeric name="NBottomY" value="[NBottomYC]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalEECellCoarse, HGCalEECellCoarseHalf</Vector>
+    <Vector name="NCellsRow" type="numeric" nEntries="15">
+      2, 5, 8, 11, 12, 11, 12, 11, 12, 11, 12, 11, 8, 5, 2
+    </Vector>
+    <Vector name="AngleEdges" type="numeric" nEntries="30">
+      240, 300, 240, 300, 240, 300, 240, 300, 180,  0,   0,   0,
+      180,   0,   0,   0, 180,   0,   0,   0, 180,  0, 120,  60,
+      120,  60, 120,  60, 120,  60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="30">
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    </Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer">
+    <rParent name="hgcalwafer:HGCalEEWaferFine"/>
+    <Numeric name="WaferSize" value="[WaferW]"/>
+    <Numeric name="CellType" value="[TypeWF]"/>
+    <Numeric name="NColumns" value="[CellNF]"/>
+    <Numeric name="NBottomY" value="[NBottomYF]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalEECellFine, HGCalEECellFineHalf</Vector>
+    <Vector name="NCellsRow" type="numeric" nEntries="20">
+      3, 6, 9, 12, 15, 16, 15, 16, 15, 16, 15, 16, 15, 16, 15, 14, 11, 8, 5, 2
+    </Vector>
+    <Vector name="AngleEdges" type="numeric" nEntries="40">
+      240, 300, 240, 300, 240, 300, 240, 300, 240, 300, 180,   0,   0,   0,
+      180,   0,   0,   0, 180,   0,   0,   0, 180,   0,   0,   0,
+      180,   0,   0,   0, 120,  60, 120,  60, 120,  60, 120,  60, 120,  60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="40">
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+      1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    </Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer">
+    <rParent name="hgcalwafer:HGCalHEWaferCoarse"/>
+    <Numeric name="WaferSize" value="[WaferW]"/>
+    <Numeric name="CellType" value="[TypeWC]"/>
+    <Numeric name="NColumns" value="[CellNC]"/>
+    <Numeric name="NBottomY" value="[NBottomYC]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalHECellCoarse, HGCalHECellCoarseHalf</Vector>
+    <Vector name="NCellsRow" type="numeric" nEntries="15">
+      2, 5, 8, 11, 12, 11, 12, 11, 12, 11, 12, 11, 8, 5, 2
+    </Vector>
+    <Vector name="AngleEdges" type="numeric" nEntries="30">
+      240, 300, 240, 300, 240, 300, 240, 300, 180,  0,   0,   0,
+      180,   0,   0,   0, 180,   0,   0,   0, 180,  0, 120,  60,
+      120,  60, 120,  60, 120,  60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="30">
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    </Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer">
+    <rParent name="hgcalwafer:HGCalHEWaferFine"/>
+    <Numeric name="WaferSize" value="[WaferW]"/>
+    <Numeric name="CellType" value="[TypeWF]"/>
+    <Numeric name="NColumns" value="[CellNF]"/>
+    <Numeric name="NBottomY" value="[NBottomYF]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalHECellFine, HGCalHECellFineHalf</Vector>
+    <Vector name="NCellsRow" type="numeric" nEntries="20">
+      3, 6, 9, 12, 15, 16, 15, 16, 15, 16, 15, 16, 15, 16, 15, 14, 11, 8, 5, 2
+    </Vector>
+    <Vector name="AngleEdges" type="numeric" nEntries="40">
+      240, 300, 240, 300, 240, 300, 240, 300, 240, 300, 180,   0,   0,   0,
+      180,   0,   0,   0, 180,   0,   0,   0, 180,   0,   0,   0,
+      180,   0,   0,   0, 120,  60, 120,  60, 120,  60, 120,  60, 120,  60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="40">
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,
+      1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    </Vector>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalwafer.xml" eval="true">
+  <SpecPar name="hgcal">
+    <PartSelector path="//HGCalEECell.*"/>
+    <PartSelector path="//HGCalHECell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

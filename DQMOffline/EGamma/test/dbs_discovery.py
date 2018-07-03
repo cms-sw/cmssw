@@ -24,11 +24,11 @@
 
 import httplib, urllib, urllib2, types, string, os, sys
 
-if not os.environ.has_key('DBS_RELEASE'):
+if 'DBS_RELEASE' not in os.environ:
   os.environ['DBS_RELEASE'] = "Any"
-if not os.environ.has_key('DBS_SAMPLE'):
+if 'DBS_SAMPLE' not in os.environ:
   os.environ['DBS_SAMPLE'] = "Any"
-if not os.environ.has_key('DBS_RUN'):
+if 'DBS_RUN' not in os.environ:
   os.environ['DBS_RUN'] = "Any"
 
 def common_search(dbs_tier):
@@ -73,7 +73,7 @@ def common_search(dbs_tier):
     try:
       response = urllib2.urlopen(req)
       data = response.read()
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
       if e.code==201:
         print e.headers       
         print e.msg
@@ -95,7 +95,7 @@ def search2():
   return common_search(os.environ['DBS_TIER_SECONDARY'])
 
 if __name__ == "__main__":
-  if not os.environ.has_key('DBS_TIER_SECONDARY'):
+  if 'DBS_TIER_SECONDARY' not in os.environ:
     os.environ['DBS_TIER_SECONDARY'] = ""
   if os.environ['DBS_TIER_SECONDARY'] == "":
     for file in search():

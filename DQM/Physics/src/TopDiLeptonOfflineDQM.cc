@@ -459,7 +459,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
   ------------------------------------------------------------
   */
 
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<
@@ -674,7 +674,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
              event.eventAuxiliary().event());
         fill("elecMuLogger_", 3.5, elecMuLogged_ + 0.5, isoMuons[0]->pt());
         fill("elecMuLogger_", 4.5, elecMuLogged_ + 0.5, isoElecs[0]->pt());
-        if (leadingJets.size() > 0)
+        if (!leadingJets.empty())
           fill("elecMuLogger_", 5.5, elecMuLogged_ + 0.5, leadingJets[0].pt());
         if (leadingJets.size() > 1)
           fill("elecMuLogger_", 6.5, elecMuLogged_ + 0.5, leadingJets[1].pt());
@@ -715,7 +715,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
              event.eventAuxiliary().event());
         fill("diMuonLogger_", 3.5, diMuonLogged_ + 0.5, isoMuons[0]->pt());
         fill("diMuonLogger_", 4.5, diMuonLogged_ + 0.5, isoMuons[1]->pt());
-        if (leadingJets.size() > 0)
+        if (!leadingJets.empty())
           fill("diMuonLogger_", 5.5, diMuonLogged_ + 0.5, leadingJets[0].pt());
         if (leadingJets.size() > 1)
           fill("diMuonLogger_", 6.5, diMuonLogged_ + 0.5, leadingJets[1].pt());
@@ -752,7 +752,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
              event.eventAuxiliary().event());
         fill("diElecLogger_", 3.5, diElecLogged_ + 0.5, isoElecs[0]->pt());
         fill("diElecLogger_", 4.5, diElecLogged_ + 0.5, isoElecs[1]->pt());
-        if (leadingJets.size() > 0)
+        if (!leadingJets.empty())
           fill("diElecLogger_", 5.5, diElecLogged_ + 0.5, leadingJets[0].pt());
         if (leadingJets.size() > 1)
           fill("diElecLogger_", 6.5, diElecLogged_ + 0.5, leadingJets[1].pt());
@@ -892,23 +892,23 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
       if (type == "empty") {
         selection_[key].second->fill(event, setup);
       }
-      if (type == "muons" && MuonStep != 0) {
+      if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
-      if (type == "elecs" && ElectronStep != 0) {
+      if (type == "elecs" && ElectronStep != nullptr) {
         if (ElectronStep->select(event, "electron")) {
           ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
       }
-      if (type == "jets" && JetSteps.size() != 0) {
+      if (type == "jets" && !JetSteps.empty()) {
         nJetSteps++;
-        if (JetSteps[nJetSteps] != NULL) {
+        if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -917,9 +917,9 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
         }
       }
 
-      if (type == "jets/pf" && PFJetSteps.size() != 0) {
+      if (type == "jets/pf" && !PFJetSteps.empty()) {
         nPFJetSteps++;
-        if (PFJetSteps[nPFJetSteps] != NULL) {
+        if (PFJetSteps[nPFJetSteps] != nullptr) {
           if (PFJetSteps[nPFJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -928,9 +928,9 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
         }
       }
 
-      if (type == "jets/calo" && CaloJetSteps.size() != 0) {
+      if (type == "jets/calo" && !CaloJetSteps.empty()) {
         nCaloJetSteps++;
-        if (CaloJetSteps[nCaloJetSteps] != NULL) {
+        if (CaloJetSteps[nCaloJetSteps] != nullptr) {
           if (CaloJetSteps[nCaloJetSteps]->select(event, setup)) {
             ++passed;
             selection_[key].second->fill(event, setup);
@@ -939,7 +939,7 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event,
         }
       }
 
-      if (type == "met" && METStep != 0) {
+      if (type == "met" && METStep != nullptr) {
         ++passed;
         if (METStep->select(event)) {
           selection_[key].second->fill(event, setup);

@@ -36,10 +36,26 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   }  
   
 
-  virtual ~HIMuonTrackingRegionProducer(){}
+  ~HIMuonTrackingRegionProducer() override{}
   
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<edm::InputTag>("MuonSrc", edm::InputTag(""));
+
+    edm::ParameterSetDescription descRegion;
+    MuonTrackingRegionBuilder::fillDescriptionsOffline(descRegion);
+    desc.add("MuonTrackingRegionBuilder", descRegion);
+
+    edm::ParameterSetDescription descService;
+    descService.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("ServiceParameters", descService);
+
+    descriptions.add("HiTrackingRegionEDProducer", desc);
+  }
+
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     // initialize output vector of tracking regions
     std::vector<std::unique_ptr<TrackingRegion> > result;

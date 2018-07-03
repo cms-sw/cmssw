@@ -7,9 +7,12 @@ _stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
 
 #_chsalgos_4x = cms.VPSet(full,   cutbased) 
 _chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
-_chsalgos_7x = cms.VPSet(full_74x_chs,cutbased)
+_chsalgos_74x = cms.VPSet(full_74x_chs,cutbased)
+_chsalgos_76x = cms.VPSet(full_76x_chs,cutbased)
+_chsalgos_80x = cms.VPSet(full_80x_chs,cutbased)
+_chsalgos_81x = cms.VPSet(full_81x_chs,cutbased)
 
-_stdalgos    = _chsalgos_7x
+_stdalgos    = _chsalgos_81x
 
 # Calculate+store variables and run MVAs
 pileupJetId = cms.EDProducer('PileupJetIdProducer',
@@ -37,4 +40,9 @@ pileupJetIdCalculator = pileupJetId.clone(
 pileupJetIdEvaluator = pileupJetId.clone(
     produceJetIds = cms.bool(False),
     jetids = cms.InputTag("pileupJetIdCalculator"),
+)
+
+pileUpJetIDTask = cms.Task(pileupJetId,
+                           pileupJetIdCalculator,
+                           pileupJetIdEvaluator
 )

@@ -15,16 +15,17 @@
 #include<cstdio>
 #include<sstream>
 #include<algorithm>
+#include <utility>
 
 namespace {
   // Used as a helper only in this file
   class HLTPath {
   public:
-    HLTPath(const std::string& name):
-      name_(name)
+    HLTPath(std::string  name):
+      name_(std::move(name))
     {}
 
-    typedef HLTTauDQMPath::FilterIndex FilterIndex;
+    using FilterIndex = HLTTauDQMPath::FilterIndex;
     typedef std::tuple<typename std::tuple_element<0, FilterIndex>::type,
                        typename std::tuple_element<1, FilterIndex>::type,
                        typename std::tuple_element<2, FilterIndex>::type,
@@ -43,7 +44,7 @@ namespace {
       // Ignore all "Selector"s, for ref-analysis keep only those with saveTags=True
       // Also record HLT2(Electron|Muon)(PF)?Tau module names
       LogTrace("HLTTauDQMOffline") << "Path " << name_ << ", list of all filters (preceded by the module index in the path)";
-      for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
+      for(auto iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
         if(HLTCP.moduleEDMType(*iLabel) != "EDFilter")
           continue;
         const std::string type = HLTCP.moduleType(*iLabel);
@@ -72,7 +73,7 @@ namespace {
           return std::get<kModuleIndex>(a) < idxb;
         };
 
-        std::vector<FilterIndexSave>::iterator found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx1, func);
+        auto found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx1, func);
         if(found == allInterestingFilters_.end() || std::get<kModuleIndex>(*found) != idx1)
           allInterestingFilters_.emplace(found, input1, type, idx1, HLTCP.saveTags(input1));
         found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx2, func);
@@ -211,8 +212,8 @@ namespace {
   };
   TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& moduleType, const std::string& pathName) {
     TauLeptonMultiplicity n;
-//std::cout << "check menu " << HLTCP.tableName() << std::endl;
-    if(moduleType == "HLTLevel1GTSeed") {
+    //std::cout << "check menu " << HLTCP.tableName() << std::endl;
+    if(moduleType == "HLTL1TSeed") {
       n.level = 1;
       if(filterName.find("Single") != std::string::npos) {
 	if(filterName.find("Mu") != std::string::npos) {
@@ -317,7 +318,7 @@ namespace {
       // ignore
     }
     else {
-      edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' in path '" << pathName << "' will be ignored for offline matching." << std::endl;
+      edm::LogInfo("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' in path '" << pathName << "' will be ignored for offline matching." << std::endl;
     }
     return n;
   }
@@ -348,10 +349,10 @@ namespace {
 }
 
 
-HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP):
-  hltProcess_(hltProcess),
+HLTTauDQMPath::HLTTauDQMPath(std::string  pathName, std::string  hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP):
+  hltProcess_(std::move(hltProcess)),
   doRefAnalysis_(doRefAnalysis),
-  pathName_(pathName),
+  pathName_(std::move(pathName)),
   pathIndex_(HLTCP.triggerIndex(pathName_)),
   lastFilterBeforeL2TauIndex_(0), lastL2TauFilterIndex_(0),
   lastFilterBeforeL3TauIndex_(0), lastL3TauFilterIndex_(0),
@@ -374,7 +375,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath: " << pathName_ << " no interesting filters found";
     return;
   }
-  isFirstL1Seed_ = HLTCP.moduleType(std::get<kName>(filterIndices_[0])) == "HLTLevel1GTSeed";
+  isFirstL1Seed_ = HLTCP.moduleType(std::get<kName>(filterIndices_[0])) == "HLTL1TSeed";
 #ifdef EDM_ML_DEBUG
   ss << "  Interesting filters (preceded by the module index in the path)";
 #endif
@@ -388,8 +389,8 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   filterMuonN_.reserve(filterIndices_.size());
   filterMET_.reserve(filterIndices_.size());
   filterLevel_.reserve(filterIndices_.size());
-  for(size_t i=0; i<filterIndices_.size(); ++i) {
-    const std::string& filterName = std::get<kName>(filterIndices_[i]);
+  for(auto & filterIndice : filterIndices_) {
+    const std::string& filterName = std::get<kName>(filterIndice);
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
     TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
@@ -399,7 +400,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     filterMET_.push_back(n.met);
     filterLevel_.push_back(n.level);
 
-#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG  
     ss << "\n    " << i << " " << std::get<kModuleIndex>(filterIndices_[i])
        << " " << filterName
        << " " << moduleType
@@ -531,7 +532,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   isValid_ = true;
 }
 
-HLTTauDQMPath::~HLTTauDQMPath() {}
+HLTTauDQMPath::~HLTTauDQMPath() = default;
 
 
 bool HLTTauDQMPath::fired(const edm::TriggerResults& triggerResults) const {
@@ -575,32 +576,30 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
 bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, HLTTauDQMOfflineObjects& matchedOfflineObjects) const {
   bool isL1 = (i==0 && isFirstL1Seed_);
   std::vector<bool> offlineMask;
-  if(filterLevel_[i] == 3 && filterTauN_[i] > 0) {
+  if(filterTauN_[i] > 0) {
     int matchedObjects = 0;
     offlineMask.resize(offlineObjects.taus.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
-      //std::cout << "trigger object id " << trgObj.id << std::endl;
-      if(! ((isL1 && (trgObj.id == trigger::TriggerL1TauJet || trgObj.id == trigger::TriggerL1CenJet))
-            || trgObj.id == trigger::TriggerTau) )
+      //std::cout << "trigger object id " << isL1 << " " << trgObj.id << " " << trigger::TriggerL1Tau << " "<< trigger::TriggerTau << std::endl;
+      if(! ((isL1 && trgObj.id == trigger::TriggerL1Tau) || trgObj.id == trigger::TriggerTau ) )
         continue;
       if(deltaRmatch(trgObj.object, offlineObjects.taus, dR, offlineMask, matchedOfflineObjects.taus)) {
         ++matchedObjects;
         matchedTriggerObjects.emplace_back(trgObj);
-      //std::cout << "trigger object DR match" << std::endl;
+        //std::cout << "trigger object DR match" << std::endl;
       }
     }
-////    if(matchedObjects < filterTauN_[i])
-    if(matchedObjects == 0)
+    if(matchedObjects < filterTauN_[i])
       return false;
   }
-  if(filterLevel_[i] == 3 && filterElectronN_[i] > 0) {
+  if(filterElectronN_[i] > 0) {
     int matchedObjects = 0;
     offlineMask.resize(offlineObjects.electrons.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
-      if(! ((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
+      if(! ((isL1 && (trgObj.id == trigger::TriggerL1EG))
             || trgObj.id == trigger::TriggerElectron || trgObj.id == trigger::TriggerPhoton) )
         continue;
       if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, offlineMask, matchedOfflineObjects.electrons)) {
@@ -611,7 +610,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     if(matchedObjects < filterElectronN_[i])
       return false;
   }
-  if(filterLevel_[i] == 3 && filterMuonN_[i] > 0) {
+  if(filterMuonN_[i] > 0) {
     int matchedObjects = 0;
     offlineMask.resize(offlineObjects.muons.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
@@ -633,7 +632,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     offlineMask.resize(offlineObjects.met.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
     for(const Object& trgObj: triggerObjects) {
-      if(! ((isL1 && trgObj.id == trigger::TriggerL1ETM)
+      if(! ((isL1 && (trgObj.id == trigger::TriggerL1ETM || trgObj.id == trigger::TriggerL1ETMHF))
             || trgObj.id == trigger::TriggerMET) )
         continue;
       ++matchedObjects;

@@ -136,7 +136,7 @@ class DTTPGParameters {
 
  private:
 
-  DTTPGParameters(DTTPGParameters const&);
+  DTTPGParameters(DTTPGParameters const&) = delete;
 
   std::string dataVersion;
   float nsPerCount;

@@ -31,59 +31,59 @@ EgammaObjects::EgammaObjects( const edm::ParameterSet& ps )
 
   rootFile_ = TFile::Open(ps.getParameter<std::string>("outputFile").c_str(),"RECREATE");
 
-  hist_EtaEfficiency_ = 0 ;
-  hist_EtaNumRecoOverNumTrue_ = 0 ;
-  hist_deltaEtaVsEt_ = 0 ;
-  hist_deltaEtaVsE_ = 0 ;
-  hist_deltaEtaVsEta_ = 0 ;
-  hist_deltaEtaVsPhi_ = 0 ;
-  hist_resolutionEtaVsEt_ = 0 ;
-  hist_resolutionEtaVsE_ = 0 ;
-  hist_resolutionEtaVsEta_ = 0 ;
-  hist_resolutionEtaVsPhi_ = 0 ;
+  hist_EtaEfficiency_ = nullptr ;
+  hist_EtaNumRecoOverNumTrue_ = nullptr ;
+  hist_deltaEtaVsEt_ = nullptr ;
+  hist_deltaEtaVsE_ = nullptr ;
+  hist_deltaEtaVsEta_ = nullptr ;
+  hist_deltaEtaVsPhi_ = nullptr ;
+  hist_resolutionEtaVsEt_ = nullptr ;
+  hist_resolutionEtaVsE_ = nullptr ;
+  hist_resolutionEtaVsEta_ = nullptr ;
+  hist_resolutionEtaVsPhi_ = nullptr ;
 
-  hist_Phi_ = 0 ;
-  hist_PhiOverTruth_ = 0 ;
-  hist_PhiEfficiency_ = 0 ;
-  hist_PhiNumRecoOverNumTrue_ = 0 ;
-  hist_deltaPhiVsEt_ = 0 ;
-  hist_deltaPhiVsE_ = 0 ;
-  hist_deltaPhiVsEta_ = 0 ;
-  hist_deltaPhiVsPhi_ = 0 ;
-  hist_resolutionPhiVsEt_ = 0 ;
-  hist_resolutionPhiVsE_ = 0 ;
-  hist_resolutionPhiVsEta_ = 0 ;
-  hist_resolutionPhiVsPhi_ = 0 ;
+  hist_Phi_ = nullptr ;
+  hist_PhiOverTruth_ = nullptr ;
+  hist_PhiEfficiency_ = nullptr ;
+  hist_PhiNumRecoOverNumTrue_ = nullptr ;
+  hist_deltaPhiVsEt_ = nullptr ;
+  hist_deltaPhiVsE_ = nullptr ;
+  hist_deltaPhiVsEta_ = nullptr ;
+  hist_deltaPhiVsPhi_ = nullptr ;
+  hist_resolutionPhiVsEt_ = nullptr ;
+  hist_resolutionPhiVsE_ = nullptr ;
+  hist_resolutionPhiVsEta_ = nullptr ;
+  hist_resolutionPhiVsPhi_ = nullptr ;
 
-  hist_All_recoMass_ = 0 ;
-  hist_BarrelOnly_recoMass_ = 0 ;
-  hist_EndcapOnly_recoMass_ = 0 ;
-  hist_Mixed_recoMass_ = 0 ;
+  hist_All_recoMass_ = nullptr ;
+  hist_BarrelOnly_recoMass_ = nullptr ;
+  hist_EndcapOnly_recoMass_ = nullptr ;
+  hist_Mixed_recoMass_ = nullptr ;
 
-  hist_recoMass_withBackgroud_NoEtCut_ = 0 ;
-  hist_recoMass_withBackgroud_5EtCut_ = 0 ;
-  hist_recoMass_withBackgroud_10EtCut_ = 0 ;
-  hist_recoMass_withBackgroud_20EtCut_ = 0 ;
+  hist_recoMass_withBackgroud_NoEtCut_ = nullptr ;
+  hist_recoMass_withBackgroud_5EtCut_ = nullptr ;
+  hist_recoMass_withBackgroud_10EtCut_ = nullptr ;
+  hist_recoMass_withBackgroud_20EtCut_ = nullptr ;
 
-  _TEMP_scatterPlot_EtOverTruthVsEt_ = 0 ;
-  _TEMP_scatterPlot_EtOverTruthVsE_ = 0 ;
-  _TEMP_scatterPlot_EtOverTruthVsEta_ = 0 ;
-  _TEMP_scatterPlot_EtOverTruthVsPhi_ = 0 ;
+  _TEMP_scatterPlot_EtOverTruthVsEt_ = nullptr ;
+  _TEMP_scatterPlot_EtOverTruthVsE_ = nullptr ;
+  _TEMP_scatterPlot_EtOverTruthVsEta_ = nullptr ;
+  _TEMP_scatterPlot_EtOverTruthVsPhi_ = nullptr ;
 
-  _TEMP_scatterPlot_EOverTruthVsEt_ = 0 ;
-  _TEMP_scatterPlot_EOverTruthVsE_ = 0 ;
-  _TEMP_scatterPlot_EOverTruthVsEta_ = 0 ;
-  _TEMP_scatterPlot_EOverTruthVsPhi_ = 0 ;
+  _TEMP_scatterPlot_EOverTruthVsEt_ = nullptr ;
+  _TEMP_scatterPlot_EOverTruthVsE_ = nullptr ;
+  _TEMP_scatterPlot_EOverTruthVsEta_ = nullptr ;
+  _TEMP_scatterPlot_EOverTruthVsPhi_ = nullptr ;
 
-  _TEMP_scatterPlot_deltaEtaVsEt_ = 0 ;
-  _TEMP_scatterPlot_deltaEtaVsE_ = 0 ;
-  _TEMP_scatterPlot_deltaEtaVsEta_ = 0 ;
-  _TEMP_scatterPlot_deltaEtaVsPhi_ = 0 ;
+  _TEMP_scatterPlot_deltaEtaVsEt_ = nullptr ;
+  _TEMP_scatterPlot_deltaEtaVsE_ = nullptr ;
+  _TEMP_scatterPlot_deltaEtaVsEta_ = nullptr ;
+  _TEMP_scatterPlot_deltaEtaVsPhi_ = nullptr ;
 
-  _TEMP_scatterPlot_deltaPhiVsEt_ = 0 ;
-  _TEMP_scatterPlot_deltaPhiVsE_ = 0 ;
-  _TEMP_scatterPlot_deltaPhiVsEta_ = 0 ;
-  _TEMP_scatterPlot_deltaPhiVsPhi_ = 0 ;
+  _TEMP_scatterPlot_deltaPhiVsEt_ = nullptr ;
+  _TEMP_scatterPlot_deltaPhiVsE_ = nullptr ;
+  _TEMP_scatterPlot_deltaPhiVsEta_ = nullptr ;
+  _TEMP_scatterPlot_deltaPhiVsPhi_ = nullptr ;
 
 }
 
@@ -715,25 +715,25 @@ void EgammaObjects::endJob()
 
 void EgammaObjects::getDeltaResHistosViaSlicing()
 {
-  _TEMP_scatterPlot_EtOverTruthVsEt_->FitSlicesY(0,1,hist_bins_Et_,10,"QRG3");
-  _TEMP_scatterPlot_EtOverTruthVsE_->FitSlicesY(0,1,hist_bins_E_,10,"QRG3");
-  _TEMP_scatterPlot_EtOverTruthVsEta_->FitSlicesY(0,1,hist_bins_Eta_,10,"QRG2");
-  _TEMP_scatterPlot_EtOverTruthVsPhi_->FitSlicesY(0,1,hist_bins_Phi_,10,"QRG2");
+  _TEMP_scatterPlot_EtOverTruthVsEt_->FitSlicesY(nullptr,1,hist_bins_Et_,10,"QRG3");
+  _TEMP_scatterPlot_EtOverTruthVsE_->FitSlicesY(nullptr,1,hist_bins_E_,10,"QRG3");
+  _TEMP_scatterPlot_EtOverTruthVsEta_->FitSlicesY(nullptr,1,hist_bins_Eta_,10,"QRG2");
+  _TEMP_scatterPlot_EtOverTruthVsPhi_->FitSlicesY(nullptr,1,hist_bins_Phi_,10,"QRG2");
 
-  _TEMP_scatterPlot_EOverTruthVsEt_->FitSlicesY(0,1,hist_bins_Et_,10,"QRG3");
-  _TEMP_scatterPlot_EOverTruthVsE_->FitSlicesY(0,1,hist_bins_E_,10,"QRG3");
-  _TEMP_scatterPlot_EOverTruthVsEta_->FitSlicesY(0,1,hist_bins_Eta_,10,"QRG2");
-  _TEMP_scatterPlot_EOverTruthVsPhi_->FitSlicesY(0,1,hist_bins_Phi_,10,"QRG2");
+  _TEMP_scatterPlot_EOverTruthVsEt_->FitSlicesY(nullptr,1,hist_bins_Et_,10,"QRG3");
+  _TEMP_scatterPlot_EOverTruthVsE_->FitSlicesY(nullptr,1,hist_bins_E_,10,"QRG3");
+  _TEMP_scatterPlot_EOverTruthVsEta_->FitSlicesY(nullptr,1,hist_bins_Eta_,10,"QRG2");
+  _TEMP_scatterPlot_EOverTruthVsPhi_->FitSlicesY(nullptr,1,hist_bins_Phi_,10,"QRG2");
 
-  _TEMP_scatterPlot_deltaEtaVsEt_->FitSlicesY(0,1,hist_bins_Et_,10,"QRG3");
-  _TEMP_scatterPlot_deltaEtaVsE_->FitSlicesY(0,1,hist_bins_E_,10,"QRG3");
-  _TEMP_scatterPlot_deltaEtaVsEta_->FitSlicesY(0,1,hist_bins_Eta_,10,"QRG2");
-  _TEMP_scatterPlot_deltaEtaVsPhi_->FitSlicesY(0,1,hist_bins_Phi_,10,"QRG2");
+  _TEMP_scatterPlot_deltaEtaVsEt_->FitSlicesY(nullptr,1,hist_bins_Et_,10,"QRG3");
+  _TEMP_scatterPlot_deltaEtaVsE_->FitSlicesY(nullptr,1,hist_bins_E_,10,"QRG3");
+  _TEMP_scatterPlot_deltaEtaVsEta_->FitSlicesY(nullptr,1,hist_bins_Eta_,10,"QRG2");
+  _TEMP_scatterPlot_deltaEtaVsPhi_->FitSlicesY(nullptr,1,hist_bins_Phi_,10,"QRG2");
 
-  _TEMP_scatterPlot_deltaPhiVsEt_->FitSlicesY(0,1,hist_bins_Et_,10,"QRG3");
-  _TEMP_scatterPlot_deltaPhiVsE_->FitSlicesY(0,1,hist_bins_E_,10,"QRG3");
-  _TEMP_scatterPlot_deltaPhiVsEta_->FitSlicesY(0,1,hist_bins_Eta_,10,"QRG2");
-  _TEMP_scatterPlot_deltaPhiVsPhi_->FitSlicesY(0,1,hist_bins_Phi_,10,"QRG2");
+  _TEMP_scatterPlot_deltaPhiVsEt_->FitSlicesY(nullptr,1,hist_bins_Et_,10,"QRG3");
+  _TEMP_scatterPlot_deltaPhiVsE_->FitSlicesY(nullptr,1,hist_bins_E_,10,"QRG3");
+  _TEMP_scatterPlot_deltaPhiVsEta_->FitSlicesY(nullptr,1,hist_bins_Eta_,10,"QRG2");
+  _TEMP_scatterPlot_deltaPhiVsPhi_->FitSlicesY(nullptr,1,hist_bins_Phi_,10,"QRG2");
 
   hist_EtOverTruthVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEt__1");
   hist_EtOverTruthVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsE__1");

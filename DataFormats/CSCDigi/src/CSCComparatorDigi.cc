@@ -3,7 +3,7 @@
  *
  * \author M.Schmitt, Northwestern
  */
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigi.h>
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <algorithm>
@@ -65,6 +65,18 @@ int CSCComparatorDigi::getTimeBin() const {
     tbit=tbit<<1;
   }
   return tbin;
+}
+
+// This definition is consistent with the one used in
+// the function CSCCLCTData::add() in EventFilter/CSCRawToDigi
+// The halfstrip counts from 0!
+int CSCComparatorDigi::getHalfStrip() const {
+  return (getStrip() - 1) * 2 + getComparator();
+}
+
+// Return the fractional half-strip
+float CSCComparatorDigi::getFractionalStrip() const {
+  return getStrip() + getComparator() * 0.5f - 0.75f;
 }
 
 std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {

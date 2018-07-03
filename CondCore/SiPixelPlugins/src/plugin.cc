@@ -10,8 +10,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
-#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
@@ -23,11 +21,19 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject38TRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject4TRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject0TRcd.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObject38TRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObject4TRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObject0TRcd.h"
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
@@ -61,6 +67,9 @@ REGISTER_PLUGIN(SiPixelTemplateDBObject38TRcd,SiPixelTemplateDBObject);
 REGISTER_PLUGIN(SiPixelTemplateDBObject4TRcd,SiPixelTemplateDBObject);
 REGISTER_PLUGIN(SiPixelTemplateDBObject0TRcd,SiPixelTemplateDBObject);
 REGISTER_PLUGIN(SiPixel2DTemplateDBObjectRcd,SiPixel2DTemplateDBObject);
+REGISTER_PLUGIN(SiPixel2DTemplateDBObject38TRcd,SiPixel2DTemplateDBObject);
+REGISTER_PLUGIN(SiPixel2DTemplateDBObject4TRcd,SiPixel2DTemplateDBObject);
+REGISTER_PLUGIN(SiPixel2DTemplateDBObject0TRcd,SiPixel2DTemplateDBObject);
 REGISTER_PLUGIN(SiPixelGenErrorDBObjectRcd,SiPixelGenErrorDBObject);
 
 REGISTER_PLUGIN(PixelCaenChannelIsOnRcd, PixelDCSObject<bool>);

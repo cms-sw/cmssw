@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-resolutionTest = cms.EDAnalyzer("DTResolutionTest",
+resolutionTest = DQMEDHarvester("DTResolutionTest",
     runningStandalone = cms.untracked.bool(True),
     diagnosticPrescale = cms.untracked.int32(1),
     calibModule = cms.untracked.bool(True),

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *

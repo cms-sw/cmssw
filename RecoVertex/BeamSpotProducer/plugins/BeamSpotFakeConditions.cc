@@ -8,8 +8,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include <TClass.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -26,9 +24,9 @@
 
 class BeamSpotFakeConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-	typedef boost::shared_ptr<BeamSpotObjects> ReturnType;
+	typedef std::unique_ptr<BeamSpotObjects> ReturnType;
 	BeamSpotFakeConditions(const edm::ParameterSet &params);
-	virtual ~BeamSpotFakeConditions();
+	~BeamSpotFakeConditions() override;
 	ReturnType produce(const BeamSpotObjectsRcd &record);
 private:
 	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,const edm::IOVSyncValue &syncValue,edm::ValidityInterval &oValidity) override;
@@ -114,7 +112,7 @@ BeamSpotFakeConditions::ReturnType
 BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 
-	BeamSpotObjects *adummy = new BeamSpotObjects();
+	ReturnType adummy = std::make_unique<BeamSpotObjects>();
 	
 	adummy->SetPosition( x, y , z );
 	adummy->SetSigmaZ( sigmaZ);
@@ -132,7 +130,7 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 	adummy->SetEmittanceY( emittanceY );
 	adummy->SetBetaStar( betastar);
 
-	return ReturnType(adummy);
+	return adummy;
 }
 
 void BeamSpotFakeConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,

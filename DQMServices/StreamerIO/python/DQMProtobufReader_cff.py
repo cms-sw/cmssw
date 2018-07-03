@@ -27,6 +27,12 @@ options.register('streamLabel',
                  VarParsing.VarParsing.varType.string,
                  "Stream label used in json discovery.")
 
+options.register('scanOnce',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Don't repeat file scans: use what was found during the initial scan. EOR file is ignored and the state is set to 'past end of run'.")
+
 options.register('delayMillis',
                  500, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -64,6 +70,7 @@ DQMProtobufReader = cms.Source("DQMProtobufReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string(options.streamLabel),
+    scanOnce = cms.untracked.bool(options.scanOnce),
     datafnPosition = cms.untracked.uint32(options.datafnPosition),
 
     delayMillis = cms.untracked.uint32(options.delayMillis),

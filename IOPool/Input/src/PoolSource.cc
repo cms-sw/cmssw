@@ -4,6 +4,7 @@
 #include "InputFile.h"
 #include "RootPrimaryFileSequence.h"
 #include "RootSecondaryFileSequence.h"
+#include "RunHelper.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
@@ -68,22 +69,36 @@ namespace edm {
       pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
     secondaryCatalog_(pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames", std::vector<std::string>()),
       pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
-    primaryFileSequence_(new RootPrimaryFileSequence(pset, *this, catalog_, desc.allocations_->numberOfStreams())),
-    secondaryFileSequence_(secondaryCatalog_.empty() ? nullptr :
-                           new RootSecondaryFileSequence(pset, *this, secondaryCatalog_, desc.allocations_->numberOfStreams())),
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
     secondaryEventPrincipals_(),
     branchIDsToReplace_(),
-    resourceSharedWithDelayedReaderPtr_(new SharedResourcesAcquirer{SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()})
+    nStreams_(desc.allocations_->numberOfStreams()),
+    skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles")),
+    bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck")),
+    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize")),
+    productSelectorRules_(pset, "inputCommands", "InputSource"),
+    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches")),
+    labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC")),
+    delayReadingEventProducts_(pset.getUntrackedParameter<bool>("delayReadingEventProducts")),
+    runHelper_(makeRunHelper(pset)),
+    resourceSharedWithDelayedReaderPtr_(),
+    // Note: primaryFileSequence_ and secondaryFileSequence_ need to be initialized last, because they use data members
+    // initialized previously in their own initialization.
+    primaryFileSequence_(new RootPrimaryFileSequence(pset, *this, catalog_)),
+    secondaryFileSequence_(secondaryCatalog_.empty() ? nullptr :
+                           new RootSecondaryFileSequence(pset, *this, secondaryCatalog_))
   {
+    auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
+    resourceSharedWithDelayedReaderPtr_ = std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
+    mutexSharedWithDelayedReader_ = resources.second;
+
     if (secondaryCatalog_.empty() && pset.getUntrackedParameter<bool>("needSecondaryFileNames", false)) {
       throw Exception(errors::Configuration, "PoolSource") << "'secondaryFileNames' must be specified\n";
     }
     if(secondaryFileSequence_) {
-      unsigned int nStreams = desc.allocations_->numberOfStreams();
-      secondaryEventPrincipals_.reserve(nStreams);
-      for(unsigned int index = 0; index < nStreams; ++index) {
+      secondaryEventPrincipals_.reserve(nStreams_);
+      for(unsigned int index = 0; index < nStreams_; ++index) {
         secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
                                                                   secondaryFileSequence_->fileBranchIDListHelper(),
                                                                   std::make_shared<ThinnedAssociationsHelper const>(),
@@ -95,42 +110,39 @@ namespace edm {
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
       std::set<BranchID> associationsFromSecondary;
-      typedef ProductRegistry::ProductList::const_iterator const_iterator;
-      typedef ProductRegistry::ProductList::iterator iterator;
       //this is the registry used by the 'outside' world and only has the primary file information in it at present
       ProductRegistry::ProductList& fullList = productRegistryUpdate().productListUpdator();
-      for(const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
-        if(it->second.present()) {
-          idsToReplace[it->second.branchType()].insert(it->second.branchID());
-          if(it->second.branchType() == InEvent &&
-             it->second.unwrappedType() == typeid(ThinnedAssociation)) {
-            associationsFromSecondary.insert(it->second.branchID());
+      for(auto const& item : secondary) {
+        if(item.second.present()) {
+          idsToReplace[item.second.branchType()].insert(item.second.branchID());
+          if(item.second.branchType() == InEvent &&
+             item.second.unwrappedType() == typeid(ThinnedAssociation)) {
+            associationsFromSecondary.insert(item.second.branchID());
           }
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
-          iterator itFound = fullList.find(it->first);
+          auto itFound = fullList.find(item.first);
           if(itFound != fullList.end()) {
             itFound->second.setDropped(false);
           }
         }
       }
-      for(const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
-        if(it->second.present()) {
-          idsToReplace[it->second.branchType()].erase(it->second.branchID());
-          associationsFromSecondary.erase(it->second.branchID());
+      for(auto const& item : primary) {
+        if(item.second.present()) {
+          idsToReplace[item.second.branchType()].erase(item.second.branchID());
+          associationsFromSecondary.erase(item.second.branchID());
         }
       }
       if(idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
-        secondaryFileSequence_.reset();
+        secondaryFileSequence_ = nullptr; // propagate_const<T> has no reset() function
       } else {
         for(int i = InEvent; i < NumBranchTypes; ++i) {
           branchIDsToReplace_[i].reserve(idsToReplace[i].size());
-          for(std::set<BranchID>::const_iterator it = idsToReplace[i].begin(), itEnd = idsToReplace[i].end();
-               it != itEnd; ++it) {
-            branchIDsToReplace_[i].push_back(*it);
+          for(auto const& id : idsToReplace[i]) {
+            branchIDsToReplace_[i].push_back(id);
           }
         }
+        secondaryFileSequence_->initAssociationsFromSecondary(associationsFromSecondary);
       }
-      secondaryFileSequence_->initAssociationsFromSecondary(associationsFromSecondary);
     }
   }
 
@@ -149,7 +161,7 @@ namespace edm {
     if(secondaryFileSequence_) {
       fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
-    return std::move(fb);
+    return fb;
   }
 
   void PoolSource::closeFile_() {
@@ -198,11 +210,12 @@ namespace edm {
       if(found) {
         std::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(lumiPrincipal.aux(), *secondaryAuxiliary);
-        secondaryLumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(secondaryAuxiliary,
+        secondaryLumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(
                                                                    secondaryFileSequence_->fileProductRegistry(),
                                                                    processConfiguration(),
                                                                    nullptr,
                                                                    lumiPrincipal.index());
+        secondaryLumiPrincipal_->setAux(*secondaryAuxiliary);
         secondaryFileSequence_->readLuminosityBlock_(*secondaryLumiPrincipal_);
         checkHistoryConsistency(lumiPrincipal, *secondaryLumiPrincipal_);
         lumiPrincipal.recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);
@@ -235,6 +248,9 @@ namespace edm {
           eventPrincipal.id() << " is not found in the secondary input files\n";
       }
     }
+    if(not delayReadingEventProducts_) {
+      eventPrincipal.readAllFromSourceAndMergeImmediately();
+    }
   }
 
   bool
@@ -259,17 +275,12 @@ namespace edm {
         }
       }
     }
-    return itemType;
+    return runHelper_->nextItemType(state(), itemType);
   }
 
-  void
-  PoolSource::preForkReleaseResources() {
-    primaryFileSequence_->closeFile_();
-  }
-  
-  SharedResourcesAcquirer*
-  PoolSource::resourceSharedWithDelayedReader_() const {
-    return resourceSharedWithDelayedReaderPtr_.get();
+  std::pair<SharedResourcesAcquirer*,std::recursive_mutex*>
+  PoolSource::resourceSharedWithDelayedReader_() {
+    return std::make_pair(resourceSharedWithDelayedReaderPtr_.get(), mutexSharedWithDelayedReader_.get());
   }
 
   // Rewind to before the first event that was read.
@@ -303,8 +314,23 @@ namespace edm {
     desc.addUntracked<bool>("needSecondaryFileNames", false)
         ->setComment("If True, 'secondaryFileNames' must be specified and be non-empty.");
     desc.addUntracked<std::string>("overrideCatalog", std::string());
+    desc.addUntracked<bool>("skipBadFiles", false)
+        ->setComment("True:  Ignore any missing or unopenable input file.\n"
+                     "False: Throw exception if missing or unopenable input file.");
+    desc.addUntracked<bool>("bypassVersionCheck", false)
+        ->setComment("True:  Bypass release version check.\n"
+                     "False: Throw exception if reading file in a release prior to the release in which the file was written.");
+    desc.addUntracked<int>("treeMaxVirtualSize", -1)
+        ->setComment("Size of ROOT TTree TBasket cache. Affects performance.");
+    desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
+        ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
+    desc.addUntracked<bool>("labelRawDataLikeMC", true)
+        ->setComment("If True: replace module label for raw data to match MC. Also use 'LHC' as process.");
+    desc.addUntracked<bool>("delayReadingEventProducts",true)->setComment("If True: do not read a data product from the file until it is requested. If False: all event data products are read upfront.");
+    ProductSelectorRules::fillDescription(desc, "inputCommands");
     InputSource::fillDescription(desc);
     RootPrimaryFileSequence::fillDescription(desc);
+    RunHelperBase::fillDescription(desc);
 
     descriptions.add("source", desc);
   }

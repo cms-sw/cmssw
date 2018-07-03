@@ -7,14 +7,14 @@ MedianCommonModeCalculator::MedianCommonModeCalculator() :
     //  theApvMask(mask_calc),
   alreadyUsedEvent(false)
 {
-  if (0) cout << "Constructing MedianCommonMode Calculator ..." << endl;
+  if (false) cout << "Constructing MedianCommonMode Calculator ..." << endl;
   //  cutToAvoidSignal = sig_cut;
 }
 //
 //  Destructor 
 //
 MedianCommonModeCalculator::~MedianCommonModeCalculator() {
-  if (0) cout << "Destructing TT6CommonModeCalculator " << endl;
+  if (false) cout << "Destructing TT6CommonModeCalculator " << endl;
 }
 //
 // Action :
@@ -26,7 +26,7 @@ ApvAnalysis::PedestalType MedianCommonModeCalculator::doIt
   ApvAnalysis::PedestalType out;
   calculateCommonMode(indat);
   int setNumber;
-  if(theCommonModeValues.size() >0) {
+  if(!theCommonModeValues.empty()) {
     for (unsigned int i=0; i<indat.size(); i++){
       setNumber = theTkCommonMode->topology().setOfStrip(i);
       out.push_back(indat[i] - theCommonModeValues[setNumber]);

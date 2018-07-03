@@ -1,5 +1,10 @@
 /*
- *
+
+ ######################## 
+ #  Hydjet1		#
+ #  version: 1.9 patch1 #
+ ########################
+
  * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
@@ -53,9 +58,10 @@ const std::vector<std::string> HydjetHadronizer::theSharedResources = { edm::Sha
 //_____________________________________________________________________
 HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
-    evt(0), 
+    evt(nullptr), 
     pset_(pset),
     abeamtarget_(pset.getParameter<double>("aBeamTarget")),
+    angularspecselector_(pset.getParameter<int>("angularSpectrumSelector")),
     bfixed_(pset.getParameter<double>("bFixed")),
     bmax_(pset.getParameter<double>("bMax")),
     bmin_(pset.getParameter<double>("bMin")),
@@ -138,7 +144,7 @@ void HydjetHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
     0,                                   // Nwounded_Nwounded_collisions
     hyfpar.bgen * nuclear_radius(),      // impact_parameter in [fm]
     phi0_,                                // event_plane_angle
-    0,                                   // eccentricity
+    0,//hypsi3.psi3,                                   // eccentricity
     hyjpar.sigin                         // sigma_inel_NN
   );
 
@@ -327,7 +333,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
                prod_vertex = prods[i];
                prod_vertex->add_particle_in(mother);
                evt->add_vertex(prod_vertex);
-               prods[i]=0; // mark to protect deletion
+               prods[i]=nullptr; // mark to protect deletion
             }
             prod_vertex->add_particle_out(part);
          }
@@ -389,6 +395,9 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
 
   // set inelastic nucleon-nucleon cross section
   hyjpar.sigin  = signn_;
+
+  // angular emitted gluon spectrum selection
+  pyqpar.ianglu = angularspecselector_;
 
   // number of active quark flavors in qgp
   pyqpar.nfu    = nquarkflavor_;
@@ -467,7 +476,7 @@ bool HydjetHadronizer::declareStableParticles(const std::vector<int>& _pdg )
 void HydjetHadronizer::rotateEvtPlane()
 {
   const double pi = 3.14159265358979;
-  phi0_ = 2.*pi*gen::pyr_(0) - pi;
+  phi0_ = 2.*pi*gen::pyr_(nullptr) - pi;
   sinphi0_ = sin(phi0_);
   cosphi0_ = cos(phi0_);
 }

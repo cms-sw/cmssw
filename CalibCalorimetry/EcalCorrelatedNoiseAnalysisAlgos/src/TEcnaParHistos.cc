@@ -50,7 +50,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDe
   pObjectManager->RegisterPointer("TEcnaParHistos", i_this);
 
   //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -58,7 +58,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDe
     {fEcal = (TEcnaParEcal*)iParEcal;}
 
   //............................ fEcalNumbering
-  fEcalNumbering = 0;
+  fEcalNumbering = nullptr;
   Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -143,8 +143,8 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
 {
  // Set Subdetector (EB or EE)
 
-  fEcal = 0;
-  if( pEcal == 0 )
+  fEcal = nullptr;
+  if( pEcal == nullptr )
     {fEcal = new TEcnaParEcal(SubDet.Data());     /*fCnew++*/ ;}
   else
     {fEcal = (TEcnaParEcal*)pEcal;}
@@ -153,8 +153,8 @@ void TEcnaParHistos::SetEcalSubDetector(const TString& SubDet,
   fFlagSubDet.Resize(MaxCar);
   fFlagSubDet = fEcal->GetEcalSubDetector();
 
-  fEcalNumbering = 0;
-  if( pEcalNumbering == 0 )
+  fEcalNumbering = nullptr;
+  if( pEcalNumbering == nullptr )
     {fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal);     /*fCnew++*/ ;}
   else
     {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
@@ -581,7 +581,7 @@ void TEcnaParHistos::SetViewHistoStyle(const TString& HistoType)
 // Set style parameters for histo view
 
   //......................... Palette
-  gStyle->SetPalette(1,0);  // default: rainbow spectrum
+  gStyle->SetPalette(1,nullptr);  // default: rainbow spectrum
 
   //............................... Date
   gStyle->SetOptDate(0);
@@ -1218,7 +1218,7 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString& comment)
     }
   else
     {
-      title_g1 = new TPaveText( 0, 0, 0, 0);  title_g1=0;  fCnewRoot++;
+      title_g1 = new TPaveText( 0, 0, 0, 0);  title_g1=nullptr;  fCnewRoot++;
     }
   return title_g1;
 }
@@ -1229,7 +1229,7 @@ TPaveText* TEcnaParHistos::SetPaveAnalysisRun(const TString& ana_type,  const In
 {
 // Analysis name + Nb of samples + run number comment
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   
   //...................... Pave Analysis name/run number (bottom_left_box)
   Double_t pav_bot_left_xgauche = BoxLeftX("bottom_left_box");
@@ -1253,31 +1253,29 @@ TPaveText* TEcnaParHistos::SetPaveAnalysisRun(const TString& ana_type,  const In
   if( nb_col == "TwoCol")
     {
       cTextPaveSize = 0.035; com_bot_left->SetTextSize(cTextPaveSize);
-      sprintf(f_in, "Run:  %d                  Samples:   1 - %d", run_number, nb_of_samples);   
+      snprintf(f_in, fgMaxCar, "Run:  %d                  Samples:   1 - %d", run_number, nb_of_samples);   
       com_bot_left->AddText(f_in);
       cTextPaveSize = 0.035; com_bot_left->SetTextSize(cTextPaveSize);
-      sprintf(f_in, "Type: %-20s", run_type.Data());  
+      snprintf(f_in, fgMaxCar, "Type: %-20s", run_type.Data());  
       com_bot_left->AddText(f_in);
-      sprintf(f_in, "Analysis: %-10s         Evts range: %d - %d ", ana_type.Data(), first_evt, last_evt);
+      snprintf(f_in, fgMaxCar, "Analysis: %-10s         Evts range: %d - %d ", ana_type.Data(), first_evt, last_evt);
       com_bot_left->AddText(f_in);   
     }
   else
     {
       cTextPaveSize    = 0.0225;  com_bot_left->SetTextSize(cTextPaveSize);
-      sprintf(f_in, "Run:  %d ", run_number);  
+      snprintf(f_in, fgMaxCar, "Run:  %d ", run_number);  
       com_bot_left->AddText(f_in);
-      sprintf(f_in, "Type: %-20s", run_type.Data());  
+      snprintf(f_in, fgMaxCar, "Type: %-20s", run_type.Data());  
       com_bot_left->AddText(f_in);
-      sprintf(f_in, "Analysis: %-10s ", ana_type.Data());
+      snprintf(f_in, fgMaxCar, "Analysis: %-10s ", ana_type.Data());
       com_bot_left->AddText(f_in);
       Int_t un = 1; 
-      sprintf(f_in, "Samples:    %d - %d", un, nb_of_samples);
+      snprintf(f_in, fgMaxCar, "Samples:    %d - %d", un, nb_of_samples);
       com_bot_left->AddText(f_in);
-      sprintf(f_in, "Evts range: %d - %d", first_evt, last_evt);
+      snprintf(f_in, fgMaxCar, "Evts range: %d - %d", first_evt, last_evt);
       com_bot_left->AddText(f_in);
     }
-
-  delete [] f_in;                                           fCdelete++;
   
   return com_bot_left;
 }
@@ -1288,7 +1286,7 @@ TPaveText* TEcnaParHistos::SetPaveNbOfEvts(const Int_t& nb_of_evts,
 {
 // Number of events box
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   
   //...................... Pave number of events (bottom_right_box)
 
@@ -1312,23 +1310,21 @@ TPaveText* TEcnaParHistos::SetPaveNbOfEvts(const Int_t& nb_of_evts,
   if( nb_col == "TwoCol")
     {
       cTextPaveSize = 0.0325; com_bot_right->SetTextSize(cTextPaveSize);
-      sprintf(f_in, "First evt: %s              %8d events ", start_date.Data(), nb_of_evts);
+      snprintf(f_in, fgMaxCar, "First evt: %s              %8d events ", start_date.Data(), nb_of_evts);
       com_bot_right->AddText(f_in);  
-      sprintf(f_in, "Last  evt: %s ",  stop_date.Data());
+      snprintf(f_in, fgMaxCar, "Last  evt: %s ",  stop_date.Data());
       com_bot_right->AddText(f_in);
     }
   else
     {
       cTextPaveSize = 0.0225; com_bot_right->SetTextSize(cTextPaveSize);
-      sprintf(f_in, "%d events", nb_of_evts);
+      snprintf(f_in, fgMaxCar, "%d events", nb_of_evts);
       com_bot_right->AddText(f_in);     
-      sprintf(f_in, "First evt: %s ", start_date.Data());
+      snprintf(f_in, fgMaxCar, "First evt: %s ", start_date.Data());
       com_bot_right->AddText(f_in);      
-      sprintf(f_in, "Last  evt: %s ",  stop_date.Data());
+      snprintf(f_in, fgMaxCar, "Last  evt: %s ",  stop_date.Data());
       com_bot_right->AddText(f_in);
     }
-  
-  delete [] f_in;                                           fCdelete++;
   
   return com_bot_right;
 }
@@ -1339,7 +1335,7 @@ TPaveText* TEcnaParHistos::SetPaveEvolNbOfEvtsAna(const TString& ana_type,      
 {
 // Analysis name + run number comment
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   
   //...................... Pave Analysis name/run number (bottom_left_box)
   Double_t pav_bot_left_xgauche = BoxLeftX("bottom_left_box");
@@ -1369,15 +1365,13 @@ TPaveText* TEcnaParHistos::SetPaveEvolNbOfEvtsAna(const TString& ana_type,      
 
   TString analysis_name    = ana_type.Data();
 
-  sprintf(f_in, "Analysis:   %s", analysis_name.Data());
+  snprintf(f_in, fgMaxCar, "Analysis:   %s", analysis_name.Data());
   com_bot_left->AddText(f_in);
-  sprintf(f_in, "Samples:    1 - %d", nb_of_samples);
+  snprintf(f_in, fgMaxCar, "Samples:    1 - %d", nb_of_samples);
   com_bot_left->AddText(f_in);
-  sprintf(f_in, "Evts range: %d - %d ", first_req_evt, last_req_evt);
+  snprintf(f_in, fgMaxCar, "Evts range: %d - %d ", first_req_evt, last_req_evt);
   com_bot_left->AddText(f_in);
 
-  delete [] f_in;                                           fCdelete++;
-  
   return com_bot_left;
 }
 
@@ -1387,7 +1381,7 @@ TPaveText* TEcnaParHistos::SetPaveEvolRuns(const Int_t&  start_evol_run, const T
 {
 // First and last run of the list of runs
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
 
   //...................... Pave first and last runs (bottom_right_box)
   Double_t pav_border_xgauche = BoxLeftX("bottom_right_box_evol");
@@ -1422,26 +1416,24 @@ TPaveText* TEcnaParHistos::SetPaveEvolRuns(const Int_t&  start_evol_run, const T
   if( !( (HistoType == "Evol"     && opt_plot == "SAME n") ||
 	 (HistoType == "EvolProj" && opt_plot == "SAME n") ) )
     {
-      sprintf(f_in, "First run: %d", start_evol_run);
+      snprintf(f_in, fgMaxCar, "First run: %d", start_evol_run);
       pav_evol_runs->AddText(f_in);
-      sprintf(f_in, "(%s) ", start_evol_date.Data());
+      snprintf(f_in, fgMaxCar, "(%s) ", start_evol_date.Data());
       pav_evol_runs->AddText(f_in);
-      sprintf(f_in, "Last run:  %d", stop_evol_run);
+      snprintf(f_in, fgMaxCar, "Last run:  %d", stop_evol_run);
       pav_evol_runs->AddText(f_in);
-      sprintf(f_in, "(%s) ", stop_evol_date.Data());
+      snprintf(f_in, fgMaxCar, "(%s) ", stop_evol_date.Data());
       pav_evol_runs->AddText(f_in);
     }
 
   if( (HistoType == "Evol"     && opt_plot == "SAME n") ||
       (HistoType == "EvolProj" && opt_plot == "SAME n") )
     {
-      sprintf(f_in, "First run: %d (%s) ", start_evol_run, start_evol_date.Data());
+      snprintf(f_in, fgMaxCar, "First run: %d (%s) ", start_evol_run, start_evol_date.Data());
       pav_evol_runs->AddText(f_in);
-      sprintf(f_in, "Last run:  %d (%s)", stop_evol_run, stop_evol_date.Data());
+      snprintf(f_in, fgMaxCar, "Last run:  %d (%s)", stop_evol_run, stop_evol_date.Data());
       pav_evol_runs->AddText(f_in);
     }
-
-  delete [] f_in;                                           fCdelete++;
   
   return pav_evol_runs;
 }
@@ -1491,7 +1483,7 @@ TPaveText* TEcnaParHistos::SetOptionSamePaveBorder(const TString& chopt, const T
 //===========================================================================
 TPaveText* TEcnaParHistos::SetPaveStas()
 {
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   //.................................. DEFAULT OPTION: "standard"   
   Double_t pav_top_left_xgauche = BoxLeftX("top_left_box_SM");
   Double_t pav_top_left_xdroite = BoxRightX("top_left_box_SM");
@@ -1510,12 +1502,10 @@ TPaveText* TEcnaParHistos::SetPaveStas()
   Float_t cTextPaveSize   = 0.04; com_top_left->SetTextSize(cTextPaveSize);
   Int_t   cTextBorderSize = 1;    com_top_left->SetBorderSize(cTextBorderSize);
 
-  if ( fFlagSubDet == "EB"){sprintf(f_in, "EB");}
-  if ( fFlagSubDet == "EE"){sprintf(f_in, "EE");}
+  if ( fFlagSubDet == "EB"){ snprintf(f_in, fgMaxCar, "EB");}
+  if ( fFlagSubDet == "EE"){ snprintf(f_in, fgMaxCar, "EE");}
 
   com_top_left->AddText(f_in);
-  
-  delete [] f_in;                                           fCdelete++;
   
   return com_top_left;
 }
@@ -1525,7 +1515,7 @@ TPaveText* TEcnaParHistos::SetPaveSM(const TString& chopt, const Int_t& SM_numbe
 {
 // Pave for Super-module plots
   
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
 
   //.................................. DEFAULT OPTION: "standard"   
   Double_t pav_top_left_xgauche = BoxLeftX("top_left_box_SM");
@@ -1580,15 +1570,13 @@ TPaveText* TEcnaParHistos::SetPaveSM(const TString& chopt, const Int_t& SM_numbe
   if( chopt == "standard" || chopt == "standSM" || chopt == "standStex" || chopt == "standGH")
     {
       Int_t sm_nb = SM_number;
-      if( EB_type == "EB+" ){sprintf(f_in, "EB+%d", sm_nb);}
+      if( EB_type == "EB+" ){ snprintf(f_in, fgMaxCar, "EB+%d", sm_nb);}
       if( EB_type == "EB-" )
 	{sm_nb = -SM_number+fEcal->MaxSMInEB()/2;
-	sprintf(f_in, "EB%d (SM%d)", sm_nb, SM_number);}
+	snprintf(f_in, fgMaxCar, "EB%d (SM%d)", sm_nb, SM_number);}
       com_top_left->AddText(f_in);
     }
 
-  delete [] f_in;                                           fCdelete++;
-  
   return com_top_left;
 }
 
@@ -1596,7 +1584,7 @@ TPaveText* TEcnaParHistos::SetPaveTower(const Int_t& SMtower_X)
 {
 // Tower comment
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   //...................... Pave tower/crystal(channel)/sample (top_right_box)
   Double_t pav_top_mid_xgauche = BoxLeftX("top_mid_box_EB");
   Double_t pav_top_mid_xdroite = BoxRightX("top_mid_box_EB");
@@ -1614,11 +1602,9 @@ TPaveText* TEcnaParHistos::SetPaveTower(const Int_t& SMtower_X)
   Float_t cTextPaveSize  = 0.03;  com_top_mid->SetTextSize(cTextPaveSize);
   Int_t   cTextBorderSize = 1;    com_top_mid->SetBorderSize(cTextBorderSize);
 	  
-  sprintf(f_in, " Tower: %d ", SMtower_X);
+  snprintf(f_in, fgMaxCar, " Tower: %d ", SMtower_X);
   com_top_mid->AddText(f_in);
   
-  delete [] f_in;                                           fCdelete++;
-
   return com_top_mid;
 }
 
@@ -1626,7 +1612,7 @@ TPaveText* TEcnaParHistos::SetPaveTowersXY(const Int_t& SMtower_X, const Int_t& 
 {
 // Towers X and Y for (TowEcha,TowEcha) cov or cor matrix
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   //...................... Pave tower/TowEcha(channel)/sample (top_right_box)
   Double_t pav_top_mid_xgauche = BoxLeftX("top_mid_box_EB");
   Double_t pav_top_mid_xdroite = BoxRightX("top_mid_box_EB");
@@ -1644,12 +1630,10 @@ TPaveText* TEcnaParHistos::SetPaveTowersXY(const Int_t& SMtower_X, const Int_t& 
   Float_t cTextPaveSize  = 0.03; com_top_mid->SetTextSize(cTextPaveSize);
   Int_t   cTextBorderSize = 1;   com_top_mid->SetBorderSize(cTextBorderSize);
 		  
-  sprintf(f_in, " Tower X: %d ", SMtower_X);
+  snprintf(f_in, fgMaxCar, " Tower X: %d ", SMtower_X);
   com_top_mid->AddText(f_in);
-  sprintf(f_in, " Tower Y: %d ", SMtower_Y);
+  snprintf(f_in, fgMaxCar, " Tower Y: %d ", SMtower_Y);
   com_top_mid->AddText(f_in);  
-
-  delete [] f_in;                                           fCdelete++;
 
   return com_top_mid;
 }
@@ -1669,7 +1653,7 @@ TPaveText* TEcnaParHistos::SetPaveCrystal(const Int_t& StexCrys, const Int_t& St
 {
 // Tower + StinEcha comment. StexCrys range: [1,max]
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   //...................... Pave tower/StinEcha(channel)/sample (top_right_box)
 
   Double_t pav_top_right_xgauche = BoxLeftX("top_right_box_EB");
@@ -1699,34 +1683,32 @@ TPaveText* TEcnaParHistos::SetPaveCrystal(const Int_t& StexCrys, const Int_t& St
   if( fFlagSubDet == "EB" )
     {
       if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{sprintf(f_in, "Channel: %d ", StinEcha);}      // EB => range = [0,24]
+	{ snprintf(f_in, fgMaxCar, "Channel: %d ", StinEcha); }      // EB => range = [0,24]
       if( arg_AlreadyRead == 1 && flag_all_samples == 1 )
-	{sprintf(f_in, "Channel: 0 to %d", fEcal->MaxCrysInStin()-1 );}
+	{ snprintf(f_in, fgMaxCar, "Channel: 0 to %d", fEcal->MaxCrysInStin()-1 ); }
       com_top_right->AddText(f_in);
       if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{sprintf(f_in, "Crystal in SM: %d ", StexCrys);
-	  com_top_right->AddText(f_in);}
+	{ snprintf(f_in, fgMaxCar, "Crystal in SM: %d ", StexCrys);
+	  com_top_right->AddText(f_in); }
     }
 
   if( fFlagSubDet == "EE" )
     {
       Int_t StinEchap = StinEcha+1;
       if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
-	{sprintf(f_in, "Xtal in SC: %d ", StinEchap);} // EE => range = [1,25]
+	{ snprintf(f_in, fgMaxCar, "Xtal in SC: %d ", StinEchap); } // EE => range = [1,25]
       if( arg_AlreadyRead == 1 && flag_all_samples == 1 )
-	{sprintf(f_in, "Xtal in SC: 1 to %d", fEcal->MaxCrysInStin());}
+	{ snprintf(f_in, fgMaxCar, "Xtal in SC: 1 to %d", fEcal->MaxCrysInStin()); }
       com_top_right->AddText(f_in);
       if( arg_AlreadyRead == 0 || (arg_AlreadyRead == 1 && flag_all_samples == 0 ) )
 	{
 	  Int_t IX_Dee_crys = StexCrys/fEcal->MaxCrysIYInDee() + 1;
 	  Int_t IY_Dee_crys = StexCrys%fEcal->MaxCrysIYInDee();
 	  if( IY_Dee_crys == 0 ){IX_Dee_crys--; IY_Dee_crys = fEcal->MaxCrysIYInDee();}     
-	  sprintf(f_in, "(IX,IY)[Xtal]=(%d,%d)", IX_Dee_crys, IY_Dee_crys);
+	  snprintf(f_in, fgMaxCar, "(IX,IY)[Xtal]=(%d,%d)", IX_Dee_crys, IY_Dee_crys);
 	  com_top_right->AddText(f_in);
 	}
     }
-
-  delete [] f_in;                                           fCdelete++;
 
   return com_top_right;	
 }
@@ -1736,7 +1718,7 @@ TPaveText* TEcnaParHistos::SetPaveCrystalSample(const Int_t& StexCrys, const Int
 {
 // Tower + StinEcha + sample comment
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   //...................... Pave tower/StinEcha(channel)/sample (top_right_box)
   Double_t pav_top_right_xgauche = BoxLeftX("top_right_box_EB");
   Double_t pav_top_right_xdroite = BoxRightX("top_right_box_EB");
@@ -1765,29 +1747,27 @@ TPaveText* TEcnaParHistos::SetPaveCrystalSample(const Int_t& StexCrys, const Int
 
   if( fFlagSubDet == "EB" )
     {
-      sprintf(f_in, " Channel: %d ", StinEcha);
+      snprintf(f_in, fgMaxCar, " Channel: %d ", StinEcha);
       com_top_right->AddText(f_in); 
-      sprintf(f_in, " Crystal in SM: %d ", StexCrys);
+      snprintf(f_in, fgMaxCar, " Crystal in SM: %d ", StexCrys);
       com_top_right->AddText(f_in);
     }
 
   if( fFlagSubDet == "EE" )
     {
       Int_t StinEchap = StinEcha+1;
-      sprintf(f_in, " Channel: %d ", StinEchap);    // EE => range = [1,25]
+      snprintf(f_in, fgMaxCar, " Channel: %d ", StinEchap);    // EE => range = [1,25]
       com_top_right->AddText(f_in); 
       Int_t IX_Dee_crys = StexCrys/fEcal->MaxCrysIYInDee() + 1;
       Int_t IY_Dee_crys = StexCrys%fEcal->MaxCrysIYInDee();
       if( IY_Dee_crys == 0 ){IX_Dee_crys--; IY_Dee_crys = fEcal->MaxCrysIYInDee();}
-      sprintf(f_in, "(IX,IY)[Xtal]=(%d,%d)", IX_Dee_crys, IY_Dee_crys);
+      snprintf(f_in, fgMaxCar, "(IX,IY)[Xtal]=(%d,%d)", IX_Dee_crys, IY_Dee_crys);
       com_top_right->AddText(f_in);
     }
 
   Int_t iSample_p = iSample+1;
-  sprintf(f_in, " Sample: %d ", iSample_p);
+  snprintf(f_in, fgMaxCar, " Sample: %d ", iSample_p);
   com_top_right->AddText(f_in);
-
-  delete [] f_in;                                           fCdelete++;
 
   return com_top_right;
 }
@@ -1823,7 +1803,7 @@ TPaveText* TEcnaParHistos::SetPaveLVRB(const Int_t& SMNumber, const Int_t& SMtow
 
   if(fEcalNumbering->GetTowerLvrbType(SMtower) == "top")
     {
-      TText *t3 = 0;
+      TText *t3 = nullptr;
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB+")
 	{t3 =  com_bot_mid->AddText("       <=== LVRB       ");}
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-")
@@ -1833,7 +1813,7 @@ TPaveText* TEcnaParHistos::SetPaveLVRB(const Int_t& SMNumber, const Int_t& SMtow
   
   if(fEcalNumbering->GetTowerLvrbType(SMtower) == "bottom")
     {
-      TText *t4 = 0;
+      TText *t4 = nullptr;
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB+")
 	{t4 = com_bot_mid->AddText("        LVRB ===>       ");}
       if(fEcalNumbering->GetSMHalfBarrel(SMNumber) == "EB-")
@@ -1869,7 +1849,7 @@ TPaveText* TEcnaParHistos::SetPaveDee(const TString& chopt,   const Int_t&  DeeN
 {
 // Dee pav. Called only once.
   
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
 
   //.................................. DEFAULT OPTION: "standard"   
   Double_t pav_top_left_xgauche = BoxLeftX("top_left_box_EE");
@@ -1922,19 +1902,17 @@ TPaveText* TEcnaParHistos::SetPaveDee(const TString& chopt,   const Int_t&  DeeN
   
   if( chopt == "standard" )
     {
-      sprintf(f_in, " Dee: %d", DeeNumber);
+      snprintf(f_in, fgMaxCar, " Dee: %d", DeeNumber);
       com_top_left->AddText(f_in);
-      sprintf(f_in, " (%s)", DeeType.Data());
+      snprintf(f_in, fgMaxCar, " (%s)", DeeType.Data());
       com_top_left->AddText(f_in);
     }
   
   if( chopt == "standDee" || chopt == "standStex" || chopt == "standGH" )
     {
-      sprintf(f_in, " Dee: %d  (%s) ", DeeNumber, DeeType.Data());
+      snprintf(f_in, fgMaxCar, " Dee: %d  (%s) ", DeeNumber, DeeType.Data());
       com_top_left->AddText(f_in);
     }
-  
-  delete [] f_in;                                           fCdelete++;
   
   return com_top_left;
 }
@@ -1943,7 +1921,7 @@ TPaveText* TEcnaParHistos::SetPaveSC(const Int_t& DeeSC_X, const Int_t& DeeNumbe
 {
 // SC comment
   
-  char* f_in = new char[fgMaxCar];                     fCnew++;
+  char f_in[fgMaxCar];
   //...................... Pave SC/crystal(channel)/sample (top_right_box)
   Double_t pav_top_mid_xgauche = BoxLeftX("top_mid_box_EE");
   Double_t pav_top_mid_xdroite = BoxRightX("top_mid_box_EE");
@@ -1961,17 +1939,16 @@ TPaveText* TEcnaParHistos::SetPaveSC(const Int_t& DeeSC_X, const Int_t& DeeNumbe
   Float_t cTextPaveSize  = 0.03;  com_top_mid->SetTextSize(cTextPaveSize);
   Int_t   cTextBorderSize = 1;    com_top_mid->SetBorderSize(cTextBorderSize);
 
-  sprintf(f_in, "Sector: S%d, SC: %d",
+  snprintf(f_in, fgMaxCar, "Sector: S%d, SC: %d",
 	  fEcalNumbering->GetDSFrom1DeeSCEcna(DeeNumber, DeeSC_X),
 	  fEcalNumbering->GetDSSCFrom1DeeSCEcna(DeeNumber, DeeSC_X));
   com_top_mid->AddText(f_in);
-  sprintf(f_in, "SC for const.: %d",
+  snprintf(f_in, fgMaxCar, "SC for const.: %d",
 	  fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(DeeNumber,DeeSC_X));
   com_top_mid->AddText(f_in); 
-  sprintf(f_in, "Quadrant: %s",
+  snprintf(f_in, fgMaxCar, "Quadrant: %s",
     fEcalNumbering->GetSCQuadFrom1DeeSCEcna(DeeSC_X).Data());
    com_top_mid->AddText(f_in); 
-  delete [] f_in;                                     fCdelete++;
 
   return com_top_mid;
 }
@@ -1980,7 +1957,7 @@ TPaveText* TEcnaParHistos::SetPaveSCsXY(const Int_t& DeeSC_X, const Int_t& DeeSC
 {
 // SCs X and Y for (SCEcha,SCEcha) cov or cor matrix
 
-  char* f_in = new char[fgMaxCar];                           fCnew++;
+  char f_in[fgMaxCar];
   //...................... Pave SC/SCEcha(channel)/sample (top_right_box)
   Double_t pav_top_mid_xgauche = BoxLeftX("top_mid_box_EE");
   Double_t pav_top_mid_xdroite = BoxRightX("top_mid_box_EE");
@@ -1998,12 +1975,10 @@ TPaveText* TEcnaParHistos::SetPaveSCsXY(const Int_t& DeeSC_X, const Int_t& DeeSC
   Float_t cTextPaveSize  = 0.03; com_top_mid->SetTextSize(cTextPaveSize);
   Int_t   cTextBorderSize = 1;   com_top_mid->SetBorderSize(cTextBorderSize);
 
-  sprintf(f_in, "SC X: %d", DeeSC_X);
+  snprintf(f_in, fgMaxCar, "SC X: %d", DeeSC_X);
   com_top_mid->AddText(f_in);
-  sprintf(f_in, "SC Y: %d", DeeSC_Y);
+  snprintf(f_in, fgMaxCar, "SC Y: %d", DeeSC_Y);
   com_top_mid->AddText(f_in);  
-
-  delete [] f_in;                                           fCdelete++;
 
   return com_top_mid;
 }
@@ -2063,7 +2038,7 @@ TPaveText* TEcnaParHistos::SetPaveCxyz(const Int_t& DeeNumber)
 
 TPaveText* TEcnaParHistos::SetPaveStex(const TString& chopt, const Int_t& StexNumber)
 {
-  TPaveText* pav_text = 0;
+  TPaveText* pav_text = nullptr;
 
   if( StexNumber > 0 )
     {
@@ -2085,7 +2060,7 @@ TPaveText* TEcnaParHistos::SetPaveStex(const TString& chopt, const Int_t& StexNu
 
 TPaveText* TEcnaParHistos::SetPaveStin(const Int_t& StinNumber, const Int_t& StexNumber)
 {
-  TPaveText* pav_text = 0;
+  TPaveText* pav_text = nullptr;
   if ( fFlagSubDet == "EB"){pav_text = SetPaveTower(StinNumber);}
   if ( fFlagSubDet == "EE"){pav_text = SetPaveSC(StinNumber, StexNumber);}
   return pav_text;
@@ -2093,7 +2068,7 @@ TPaveText* TEcnaParHistos::SetPaveStin(const Int_t& StinNumber, const Int_t& Ste
 
 TPaveText* TEcnaParHistos::SetPaveStinsXY(const Int_t& StexStin_X, const Int_t& StexStin_Y) 
 {
-  TPaveText* pav_text = 0;
+  TPaveText* pav_text = nullptr;
   if ( fFlagSubDet == "EB"){pav_text = SetPaveTowersXY(StexStin_X, StexStin_Y);}
   if ( fFlagSubDet == "EE"){pav_text = SetPaveSCsXY(StexStin_X, StexStin_Y);}
   return pav_text;

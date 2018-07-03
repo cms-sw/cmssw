@@ -36,8 +36,8 @@ class ContentHandler(handler.ContentHandler):
     # what to do when you get to a <startelement>
     def startElement(self, tag, attrib):
         attrib = dict(attrib.items())
-        if "rawId" in attrib: raise Exception, "Please use \"rawIds = false\""
-        if "aa" in attrib: raise Exception, "Please use \"survey = false\""
+        if "rawId" in attrib: raise Exception("Please use \"rawIds = false\"")
+        if "aa" in attrib: raise Exception("Please use \"survey = false\"")
 
         # <DT...>: print wheel/station/sector/superlayer/layer
         if tag[0:2] == "DT":

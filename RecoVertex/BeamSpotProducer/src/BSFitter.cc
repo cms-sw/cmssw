@@ -34,6 +34,7 @@ ________________________________________________________________**/
 #include "TDecompBK.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TMinuitMinimizer.h"
 
 using namespace ROOT::Minuit2;
 
@@ -41,10 +42,17 @@ using namespace ROOT::Minuit2;
 //_____________________________________________________________________
 BSFitter::BSFitter() {
 	fbeamtype = reco::BeamSpot::Unknown;
+
+ 	//In order to make fitting ROOT histograms thread safe
+ 	// one must call this undocumented function
+	TMinuitMinimizer::UseStaticMinuit(false);
 }
 
 //_____________________________________________________________________
 BSFitter::BSFitter( const std:: vector< BSTrkParameters > &BSvector ) {
+ 	//In order to make fitting ROOT histograms thread safe
+ 	// one must call this undocumented function
+ 	TMinuitMinimizer::UseStaticMinuit(false);
 
 	ffit_type = "default";
 	ffit_variable = "default";
@@ -99,12 +107,12 @@ BSFitter::~BSFitter()
 //______________________________________________________________________
 reco::BeamSpot BSFitter::Fit() {
 
-	return this->Fit(0);
+	return this->Fit(nullptr);
 
 }
 
 //______________________________________________________________________
-reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
+reco::BeamSpot BSFitter::Fit(double *inipar = nullptr) {
 	fbeamtype = reco::BeamSpot::Unknown;
 	if ( ffit_variable == "z" ) {
 
@@ -361,8 +369,9 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	}
 
 	//Use our own copy for thread safety
-	TF1 fgaus("fgaus","gaus");
-	h1z->Fit(&fgaus,"QLM0");
+        // also do not add to global list of functions
+	TF1 fgaus("fgaus","gaus",0.,1.,TF1::EAddToList::kNo);
+	h1z->Fit(&fgaus,"QLMN0 SERIAL");
 	//std::cout << "fitted "<< std::endl;
 
 	//std::cout << "got function" << std::endl;
@@ -568,10 +577,11 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//std::cout<< " d0-phi fit done." << std::endl;
 
 	//Use our own copy for thread safety
-	TF1 fgaus("fgaus","gaus");
+        // also do not add to global list of functions
+	TF1 fgaus("fgaus","gaus",0.,1.,TF1::EAddToList::kNo);
 	//returns 0 if OK
 	//auto status = h1z->Fit(&fgaus,"QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
-	auto status = h1z->Fit(&fgaus,"QL0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
+	auto status = h1z->Fit(&fgaus,"QLN0 SERIAL","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
 
 	//std::cout << "fitted "<< std::endl;
 

@@ -13,7 +13,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "../interface/MonitorXMLParser.h"
+#include "DQM/EcalMonitorDbModule/interface/MonitorXMLParser.h"
 
 MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 
@@ -391,7 +391,7 @@ void MonitorXMLParser::handleElement( xercesc::DOMElement* element ){
 
 // - - - - - - - - - - - - - - - - - - -
 
-void MonitorXMLParser::load() throw( std::runtime_error ) {
+void MonitorXMLParser::load() noexcept(false) {
 
   parser_->setValidationScheme( xercesc::XercesDOMParser::Val_Never );
   parser_->setDoNamespaces( false );
@@ -406,7 +406,7 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
 
     xercesc::DOMElement* dbe = xmlDoc->getDocumentElement();
 
-    if( NULL == dbe ){
+    if( nullptr == dbe ){
       throw( std::runtime_error( "empty XML document" ) ) ;
     }
 
@@ -417,7 +417,7 @@ void MonitorXMLParser::load() throw( std::runtime_error ) {
 
       for( XMLSize_t ix = 0 ; ix < nodeCount ; ++ix ){
 	xercesc::DOMNode* currentNode = children->item( ix );
-	if( NULL == currentNode ){
+	if( nullptr == currentNode ){
 	  // null node...
 	  continue;
 	}

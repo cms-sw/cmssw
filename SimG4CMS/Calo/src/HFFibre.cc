@@ -13,25 +13,23 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
+#include <sstream>
 
 //#define DebugLog
 
-HFFibre::HFFibre(std::string & name, const DDCompactView & cpv, 
-		 edm::ParameterSet const & p) {
+HFFibre::HFFibre(const std::string & name, const DDCompactView & cpv, 
+                 edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre           = c_light*(m_HF.getParameter<double>("CFibre"));
   
   edm::LogInfo("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre
-			   << " m/ns";
+                           << " m/ns";
 
   std::string attribute = "Volume"; 
   std::string value     = "HF";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDCompOp::equals);
-  DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
+  DDFilteredView fv1(cpv,filter1);
   bool dodet = fv1.firstChild();
 
   if (dodet) {
@@ -40,10 +38,12 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
     // Attenuation length
     nBinAtt      = -1;
     attL         = getDDDArray("attl",sv,nBinAtt);
-    edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL ";
-    for (int it=0; it<nBinAtt; it++) 
-      edm::LogInfo("HFShower") << "HFFibre: attL[" << it << "] = " 
-			       << attL[it]*cm << "(1/cm)";
+    std::stringstream ss1;
+    for (int it=0; it<nBinAtt; it++) {
+      if(it/10*10 == it) { ss1 << "\n"; }
+      ss1 << "  " << attL[it]*cm;
+    }
+    edm::LogInfo("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
 
     // Limits on Lambda
     int nb   = 2;
@@ -51,65 +51,48 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
     lambLim[0] = static_cast<int>(nvec[0]);
     lambLim[1] = static_cast<int>(nvec[1]);
     edm::LogInfo("HFShower") << "HFFibre: Limits on lambda " << lambLim[0]
-			     << " and " << lambLim[1];
+                             << " and " << lambLim[1];
 
     // Fibre Lengths
     nb       = 0;
     longFL   = getDDDArray("LongFL",sv,nb);
-    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Long Fibre Length";
-    for (int it=0; it<nb; it++) 
-      edm::LogInfo("HFShower") << "HFFibre: longFL[" << it << "] = " 
-			       << longFL[it]/cm << " cm";
-    nb       = 0;
+    std::stringstream ss2;
+    for (int it=0; it<nb; it++) {
+      if(it/10*10 == it) { ss2 << "\n"; }
+      ss2 << "  " << longFL[it]/cm;
+    }
+    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Long Fibre Length(cm):" << ss2.str();
+    nb = 0;
     shortFL   = getDDDArray("ShortFL",sv,nb);
-    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Short Fibre Length";
-    for (int it=0; it<nb; it++) 
-      edm::LogInfo("HFShower") << "HFFibre: shortFL[" << it << "] = " 
-			       << shortFL[it]/cm << " cm";
+    std::stringstream ss3;
+    for (int it=0; it<nb; it++) {
+      if(it/10*10 == it) { ss3 << "\n"; }
+      ss3 << "  " << shortFL[it]/cm;
+    } 
+    edm::LogInfo("HFShower") << "HFFibre: " << nb << " Short Fibre Length(cm):" << ss3.str();
   } else {
     edm::LogError("HFShower") << "HFFibre: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFFibre")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-
-  // Now geometry parameters
-  attribute = "ReadOutName";
-  value     = name;
-  DDSpecificsFilter filter2;
-  DDValue           ddv2(attribute,value,0);
-  filter2.setCriteria(ddv2,DDCompOp::equals);
-  DDFilteredView fv2(cpv);
-  fv2.addFilter(filter2);
-  dodet     = fv2.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv2.mergedSpecifics());
-
-    //Special Geometry parameters
-    int nb    = -1;
-    gpar      = getDDDArray("gparHF",sv,nb);
-    edm::LogInfo("HFShower") << "HFFibre: " << nb <<" gpar (cm)";
-    for (int i=0; i<nb; i++)
-      edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
-			       << gpar[i]/cm << " cm";
-
-    nBinR     = -1;
-    radius    = getDDDArray("rTable",sv,nBinR);
-    edm::LogInfo("HFShower") << "HFFibre: " << nBinR <<" rTable (cm)";
-    for (int i=0; i<nBinR; i++)
-      edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "
-			       << radius[i]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFFibre: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
+                              << " view for " << attribute << " matching "
+                              << name;
     throw cms::Exception("Unknown", "HFFibre")
       << "cannot match " << attribute << " to " << name <<"\n";
   }
 }
 
-HFFibre::~HFFibre() {}
+void HFFibre::initRun(const HcalDDDSimConstants* hcons) {
+
+  // Now geometry parameters
+  gpar      = hcons->getGparHF();
+  radius    = hcons->getRTableHF();
+
+  nBinR     = (int)(radius.size());
+  std::stringstream sss;
+  for (int i=0; i<nBinR; ++i) {
+    if(i/10*10 == i) { sss << "\n"; }
+    sss << "  " << radius[i]/cm;
+  }
+  edm::LogInfo("HFShower") << "HFFibre: " << radius.size() <<" rTable(cm):" << sss.str();
+}
 
 double HFFibre::attLength(double lambda) {
 
@@ -123,8 +106,8 @@ double HFFibre::attLength(double lambda) {
   double att = attL[j];
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibre::attLength for Lambda " << lambda
-			   << " index " << i  << " " << j << " Att. Length " 
-			   << att;
+                           << " index " << i  << " " << j << " Att. Length " 
+                           << att;
 #endif
   return att;
 }
@@ -135,8 +118,8 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   double time   = zFibre/cFibre;
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibre::tShift for point " << point
-			   << " ( depth = " << depth <<", traversed length = " 
-			   << zFibre/cm  << " cm) = " << time/ns << " ns";
+                           << " ( depth = " << depth <<", traversed length = " 
+                           << zFibre/cm  << " cm) = " << time/ns << " ns";
 #endif
   return time;
 }
@@ -170,21 +153,21 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
 
 #ifdef DebugLog
   edm::LogInfo("HFShower") << "HFFibre::zShift for point " << point
-			   << " (R = " << hR/cm << " cm, Index = " << ieta 
-			   << ", depth = " << depth << ", Fibre Length = " 
-			   << length/cm       << " cm = " << zFibre/cm  
-			   << " cm)";
+                           << " (R = " << hR/cm << " cm, Index = " << ieta 
+                           << ", depth = " << depth << ", Fibre Length = " 
+                           << length/cm       << " cm = " << zFibre/cm  
+                           << " cm)";
 #endif
   return zFibre;
 }
 
 std::vector<double> HFFibre::getDDDArray(const std::string & str, 
-					 const DDsvalues_type & sv, 
-					 int & nmin) {
+                                         const DDsvalues_type & sv, 
+                                         int & nmin) {
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFFibre:getDDDArray called for " << str 
-		       << " with nMin " << nmin;
+                       << " with nMin " << nmin;
 #endif
   DDValue value(str);
   if (DDfetch(&sv,value)) {
@@ -195,18 +178,18 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-	edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
-				  << nval << " < " << nmin << " ==> illegal";
-	throw cms::Exception("Unknown", "HFFibre")
-	  << "nval < nmin for array " << str <<"\n";
+        edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
+                                  << nval << " < " << nmin << " ==> illegal";
+        throw cms::Exception("Unknown", "HFFibre")
+          << "nval < nmin for array " << str <<"\n";
       }
     } else {
       if (nval < 1 && nmin != 0) {
-	edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
-				  << nval << " < 1 ==> illegal (nmin=" 
-				  << nmin << ")";
-	throw cms::Exception("Unknown", "HFFibre")
-	  << "nval < 1 for array " << str <<"\n";
+        edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " 
+                                  << nval << " < 1 ==> illegal (nmin=" 
+                                  << nmin << ")";
+        throw cms::Exception("Unknown", "HFFibre")
+          << "nval < 1 for array " << str <<"\n";
       }
     }
     nmin = nval;
@@ -215,7 +198,7 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
     if (nmin != 0) {
       edm::LogError("HFShower") << "HFFibre : cannot get array " << str;
       throw cms::Exception("Unknown", "HFFibre")
-	<< "cannot get array " << str <<"\n";
+        << "cannot get array " << str <<"\n";
     } else {
       std::vector<double> fvec;
       return fvec;

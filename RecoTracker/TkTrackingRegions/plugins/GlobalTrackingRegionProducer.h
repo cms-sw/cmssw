@@ -4,6 +4,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class GlobalTrackingRegionProducer : public TrackingRegionProducer {
@@ -25,9 +27,28 @@ public:
     theOrigin = GlobalPoint(xPos,yPos,zPos);
   }   
 
-  virtual ~GlobalTrackingRegionProducer(){}
+  ~GlobalTrackingRegionProducer() override{}
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override {
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<bool>("precise", true);
+    desc.add<bool>("useMultipleScattering", false);
+    desc.add<double>("originHalfLength", 21.2);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("originXPos", 0.0);
+    desc.add<double>("originYPos", 0.0);
+    desc.add<double>("originZPos", 0.0);
+    desc.add<double>("ptMin", 0.9);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("globalTrackingRegion", descRegion);
+  }
+
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override {
     std::vector<std::unique_ptr<TrackingRegion> > result;
     result.push_back( 
         std::make_unique<GlobalTrackingRegion>( thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );

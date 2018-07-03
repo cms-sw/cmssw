@@ -41,13 +41,13 @@ public:
   DTSummaryClients(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTSummaryClients();
+  ~DTSummaryClients() override;
 
 protected:
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 private:
 

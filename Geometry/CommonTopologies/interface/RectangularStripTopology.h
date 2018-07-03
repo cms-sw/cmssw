@@ -8,45 +8,47 @@
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
-class RectangularStripTopology GCC11_FINAL : public StripTopology {
+class RectangularStripTopology final : public StripTopology {
 public:
 
   RectangularStripTopology(int nstrips, float pitch, float detlength);
 
-  virtual LocalPoint localPosition(float strip) const;
+  using StripTopology::localPosition;
+  LocalPoint localPosition(float strip) const override;
 
-  virtual LocalPoint localPosition(const MeasurementPoint&) const;
+  LocalPoint localPosition(const MeasurementPoint&) const override;
+
+  using StripTopology::localError; 
+  LocalError 
+  localError(float strip, float stripErr2) const override;
   
-  virtual LocalError 
-  localError(float strip, float stripErr2) const;
+  LocalError 
+  localError(const MeasurementPoint&, const MeasurementError&) const override;
   
-  virtual LocalError 
-  localError(const MeasurementPoint&, const MeasurementError&) const;
-  
-  virtual float strip(const LocalPoint&) const;
+  float strip(const LocalPoint&) const override;
 
   // the number of strip span by the segment between the two points..
-  virtual float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const ; 
+  float coveredStrips(const LocalPoint& lp1, const LocalPoint& lp2)  const override ; 
 
 
-  virtual MeasurementPoint measurementPosition(const LocalPoint&) const;
+  MeasurementPoint measurementPosition(const LocalPoint&) const override;
     
-  virtual MeasurementError 
-  measurementError(const LocalPoint&, const LocalError&) const;
+  MeasurementError 
+  measurementError(const LocalPoint&, const LocalError&) const override;
 
-  virtual int channel(const LocalPoint& lp) const {  return std::min(int(strip(lp)),theNumberOfStrips-1); }
+  int channel(const LocalPoint& lp) const override {  return std::min(int(strip(lp)),theNumberOfStrips-1); }
 
-  virtual float pitch() const { return thePitch; }
+  float pitch() const override { return thePitch; }
 
-  virtual float localPitch(const LocalPoint&) const { return thePitch;}
+  float localPitch(const LocalPoint&) const override { return thePitch;}
   
-  virtual float stripAngle(float strip) const {  return 0;}
+  float stripAngle(float strip) const override {  return 0;}
 
-  virtual int nstrips() const { return theNumberOfStrips;}
+  int nstrips() const override { return theNumberOfStrips;}
 
-  virtual float stripLength() const {return theStripLength;}
+  float stripLength() const override {return theStripLength;}
 
-  virtual float localStripLength(const LocalPoint& /*aLP*/) const {
+  float localStripLength(const LocalPoint& /*aLP*/) const override {
     return stripLength();
   }
 

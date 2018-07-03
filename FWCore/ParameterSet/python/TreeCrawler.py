@@ -25,6 +25,7 @@
 
 import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
+import six
 
 def packageNameFromFilename(name):
     return ".".join(name.replace("python/","").replace(".py","").split("/")[-3:])
@@ -120,7 +121,8 @@ class mymf(modulefinder.ModuleFinder):
         if r is not None:
             self._depgraph.setdefault(self._last_caller.__name__,{})[r.__name__] = 1
         return r
-    def load_module(self, fqname, fp, pathname, (suffix, mode, type)):
+    def load_module(self, fqname, fp, pathname, aux_info):
+        (suffix, mode, type) = aux_info
         r = modulefinder.ModuleFinder.load_module(self, fqname, fp, pathname, (suffix, mode, type))
         if r is not None:
             self._types[r.__name__] = type
@@ -265,13 +267,13 @@ def transformIntoGraph(depgraph,toplevel):
     packageDict[toplevel] = Package(toplevel, top = True) 
 
     # create package objects
-    for key, value in depgraph.iteritems():
+    for key, value in six.iteritems(depgraph):
         if key.count(".") == 2 and key != toplevel: 
             packageDict[key] = Package(key)
         for name in value.keys():
             if name.count(".") == 2: packageDict[name] = Package(name)
     # now create dependencies
-    for key, value in depgraph.iteritems():
+    for key, value in six.iteritems(depgraph):
         if key.count(".") == 2 or key == toplevel:
             package = packageDict[key]
             package.dependencies = [packageDict[name] for name in value.keys() if name.count(".") == 2]

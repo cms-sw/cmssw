@@ -19,7 +19,7 @@ Implementation:
 // system include files
 #include <memory>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <cmath>
 
 // user include files
@@ -158,12 +158,12 @@ namespace hi {
 class EvtPlaneProducer : public edm::stream::EDProducer<> {
 public:
   explicit EvtPlaneProducer(const edm::ParameterSet&);
-  ~EvtPlaneProducer();
+  ~EvtPlaneProducer() override;
 
 private:
   GenPlane *rp[NumEPNames];
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
@@ -254,7 +254,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig):
 
   produces<reco::EvtPlaneCollection>();
   for(int i = 0; i<NumEPNames; i++ ) {
-    rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
+    rp[i] = new GenPlane(EPNames[i],EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
   }
   for(int i = 0; i<NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();
@@ -425,7 +425,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     double vzErr2 =0.0, vxyErr=0.0;
     math::XYZPoint vtxPoint(0.0,0.0,0.0);
-    if(vertex_.isValid() && vertex_->size()>0) {
+    if(vertex_.isValid() && !vertex_->empty()) {
 	    vtxPoint=vertex_->begin()->position();
 	    vzErr2= (vertex_->begin()->zError())*(vertex_->begin()->zError());
 	    vxyErr=vertex_->begin()->xError() * vertex_->begin()->yError();
@@ -490,7 +490,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } //end for
     }
 
-    std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
+    auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
 
     double ang=-10;
     double sv = 0;
@@ -510,7 +510,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       evtplaneOutput->back().addLevel(3, 0., svNoWgt, cvNoWgt);
     }
 
-    iEvent.put(evtplaneOutput);
+    iEvent.put(std::move(evtplaneOutput));
 }
 
 //define this as a plug-in

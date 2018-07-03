@@ -50,7 +50,7 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   //Histogram init  
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j) 
-      hTiming_[i][j] = 0;
+      hTiming_[i][j] = nullptr;
 
   htESP_ = new TH1F("htESP", "Timing ES+", 81, -20.5, 20.5);
   htESM_ = new TH1F("htESM", "Timing ES-", 81, -20.5, 20.5);

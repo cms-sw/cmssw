@@ -208,7 +208,7 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
     //apply basic pre-selection cuts to remove the conversions with obviously displaced tracks which will anyways be
     //removed from the analysis by the hit pattern or impact parameter requirements
     if (iele->pt() < elePtMin_) continue;
-    if (iele->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > eleExpectedHitsInnerMax_) continue;
+    if (iele->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > eleExpectedHitsInnerMax_) continue;
     if ( std::abs(iele->gsfTrack()->dxy(thevtx.position())) > eleD0Max_ ) continue;
 
     //fill information for all electrons

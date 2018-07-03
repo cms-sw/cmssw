@@ -61,10 +61,9 @@ TruncatedPyramid::TruncatedPyramid( const CornersVec& corn ,
 TruncatedPyramid::~TruncatedPyramid() 
 {}
 
-const GlobalPoint 
-TruncatedPyramid::getPosition( CCGFloat depth ) const 
+GlobalPoint TruncatedPyramid::getPosition( CCGFloat depth ) const
 {
-   return CaloCellGeometry::getPosition() + depth*m_axis ;
+  return CaloCellGeometry::getPosition() + depth*m_axis ;
 }
 
 CCGFloat 
@@ -121,7 +120,7 @@ TruncatedPyramid::getTransform( Tr3D& tr, Pt3DVec* lptr ) const
    const double dz ( param()[0] ) ;
 
    Pt3D  lFront ;
-   assert( 0 != param() ) ;
+   assert( nullptr != param() ) ;
    std::vector<Pt3D > lc( 8, Pt3D(0,0,0) ) ;
    if( 11.2 > dz )
    {
@@ -179,7 +178,7 @@ TruncatedPyramid::getTransform( Tr3D& tr, Pt3DVec* lptr ) const
    tr = Tr3D( dlFront , dlBack , dlOne ,
 	      dgFront , dgBack , dgOne    ) ;
 
-   if( 0 != lptr ) (*lptr) = lc ;
+   if( nullptr != lptr ) (*lptr) = lc ;
 }
 
 void
@@ -247,7 +246,7 @@ TruncatedPyramid::localCorners( Pt3DVec&        lc  ,
 				const CCGFloat* pv  ,
 				Pt3D&           ref   )
 {
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    assert( 8 == lc.size() ) ;
 
    const CCGFloat dz ( pv[0] ) ;

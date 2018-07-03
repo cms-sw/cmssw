@@ -3,6 +3,7 @@
 import optparse
 import re
 from pprint import pprint
+import six
 
 commentRE = re.compile (r'#.*$')
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
             listOfFiles.append( options.prefix + name )
 
     if not listOfFiles:
-        raise RuntimeError, "You have not provided any files"
+        raise RuntimeError("You have not provided any files")
 
     events = Events (listOfFiles)
 
@@ -59,11 +60,11 @@ if __name__ == "__main__":
             if pileup.getBunchCrossing() == options.bx:
                 break
             if pileup == pileups[-1] and len(pileups)>1 :
-                raise RuntimeError, "Requested BX not found in file"
+                raise RuntimeError("Requested BX not found in file")
 
         num = pileup.getPU_NumInteractions()
         total += 1
-        if not countDict.has_key (num):
+        if num not in countDict:
             countDict[num] = 1
         else:
             countDict[num] += 1
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     print "normalized:"
 
     renormDict = {}
-    for key, count in countDict.iteritems():
+    for key, count in six.iteritems(countDict):
         renormDict[key] = count / total
     pprint (renormDict)
     

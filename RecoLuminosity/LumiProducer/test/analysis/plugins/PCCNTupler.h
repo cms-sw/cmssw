@@ -27,14 +27,13 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "TObject.h"
 #include "TH1F.h"
-
-
-using namespace reco;
 
 class TObject;
 class TTree;
@@ -64,12 +63,15 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >  pixelToken;
     edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
     edm::EDGetTokenT<std::vector< PileupSummaryInfo> > pileUpToken;
-    
+    edm::EDGetTokenT<reco::CaloJetCollection>  hltjetsToken_;
+    float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
+    int nhjetcal;
+
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPixelClusterLabel;
     edm::InputTag   fPileUpInfoLabel;
   
-    static const int MAX_VERTICES=200;
+    static const int MAX_VERTICES=300;
 
     // saving events per LS, LN or event
     std::string saveType = "LumiSect"; // LumiSect or LumiNib or Event
@@ -96,6 +98,9 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     
     bool includeVertexInformation;
     bool includePixels;
+    bool includeJets;
+    bool splitByBX;
+    bool pixelPhase2Geometry;
 
     int nPU;
     int nVtx;

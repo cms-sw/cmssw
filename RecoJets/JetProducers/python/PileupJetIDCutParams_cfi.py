@@ -1,6 +1,81 @@
 import FWCore.ParameterSet.Config as cms
 
 ###########################################################
+## Working points for the 81X training (completed in 80X with variable fixes)
+###########################################################
+full_81x_chs_wp  = cms.PSet(
+    #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
+
+    #Tight Id            
+    Pt010_Tight    = cms.vdouble( 0.69, -0.35, -0.26, -0.21),
+    Pt1020_Tight   = cms.vdouble( 0.69, -0.35, -0.26, -0.21),
+    Pt2030_Tight   = cms.vdouble( 0.69, -0.35, -0.26, -0.21),
+    Pt3050_Tight   = cms.vdouble( 0.86, -0.10, -0.05, -0.01),
+
+    #Medium Id
+    Pt010_Medium   = cms.vdouble( 0.18, -0.55, -0.42, -0.36),
+    Pt1020_Medium  = cms.vdouble( 0.18, -0.55, -0.42, -0.36),
+    Pt2030_Medium  = cms.vdouble( 0.18, -0.55, -0.42, -0.36),
+    Pt3050_Medium  = cms.vdouble( 0.61, -0.35, -0.23, -0.17),
+
+    #Loose Id
+    Pt010_Loose    = cms.vdouble(-0.97, -0.68, -0.53, -0.47),
+    Pt1020_Loose   = cms.vdouble(-0.97, -0.68, -0.53, -0.47),
+    Pt2030_Loose   = cms.vdouble(-0.97, -0.68, -0.53, -0.47),
+    Pt3050_Loose   = cms.vdouble(-0.89, -0.52, -0.38, -0.30)
+)
+
+###########################################################
+## Working points for the 80X training
+###########################################################
+full_80x_chs_wp  = cms.PSet(
+    #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
+
+    #Tight Id            
+    Pt010_Tight    = cms.vdouble( 0.26, -0.34, -0.24, -0.26),
+    Pt1020_Tight   = cms.vdouble( 0.26, -0.34, -0.24, -0.26),
+    Pt2030_Tight   = cms.vdouble( 0.26, -0.34, -0.24, -0.26),
+    Pt3050_Tight   = cms.vdouble( 0.62, -0.21, -0.07, -0.03),
+
+    #Medium Id
+    Pt010_Medium   = cms.vdouble(-0.49, -0.53, -0.44, -0.42),
+    Pt1020_Medium  = cms.vdouble(-0.49, -0.53, -0.44, -0.42),
+    Pt2030_Medium  = cms.vdouble(-0.49, -0.53, -0.44, -0.42),
+    Pt3050_Medium  = cms.vdouble(-0.06, -0.42, -0.3 , -0.23),
+
+    #Loose Id
+    Pt010_Loose    = cms.vdouble(-0.96, -0.64, -0.56, -0.54),
+    Pt1020_Loose   = cms.vdouble(-0.96, -0.64, -0.56, -0.54),
+    Pt2030_Loose   = cms.vdouble(-0.96, -0.64, -0.56, -0.54),
+    Pt3050_Loose   = cms.vdouble(-0.92, -0.56, -0.44, -0.39)
+)
+
+###########################################################
+## Working points for the 76X training
+###########################################################
+full_76x_chs_wp  = cms.PSet(
+    #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
+    
+    #Tight Id            
+    Pt010_Tight    = cms.vdouble(0.09,-0.37,-0.24,-0.21),
+    Pt1020_Tight   = cms.vdouble(0.09,-0.37,-0.24,-0.21),
+    Pt2030_Tight   = cms.vdouble(0.09,-0.37,-0.24,-0.21),
+    Pt3050_Tight   = cms.vdouble(0.52,-0.19,-0.06,-0.03),
+
+    #Medium Id
+    Pt010_Medium   = cms.vdouble(-0.58,-0.52,-0.40,-0.36),
+    Pt1020_Medium  = cms.vdouble(-0.58,-0.52,-0.40,-0.36),
+    Pt2030_Medium  = cms.vdouble(-0.58,-0.52,-0.40,-0.36),
+    Pt3050_Medium  = cms.vdouble(-0.20,-0.39,-0.24,-0.19),
+
+    #Loose Id
+    Pt010_Loose    = cms.vdouble(-0.96,-0.62,-0.53,-0.49),
+    Pt1020_Loose   = cms.vdouble(-0.96,-0.62,-0.53,-0.49),
+    Pt2030_Loose   = cms.vdouble(-0.96,-0.62,-0.53,-0.49),
+    Pt3050_Loose   = cms.vdouble(-0.93,-0.52,-0.39,-0.31)   
+)
+
+###########################################################
 ## Working points for the 74X training
 ###########################################################
 full_74x_chs_wp  = cms.PSet(

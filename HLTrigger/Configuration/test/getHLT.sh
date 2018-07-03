@@ -1,9 +1,10 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_7_4_0/HLT"              # no explicit version, take te most recent
-TARGET="/dev/CMSSW_7_4_0/\$TABLE"          # no explicit version, take te most recent
-TABLES="GRun HIon PIon 50nsGRun LowPU 25nsLowPU"     # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_10_1_0/HLT"             # no explicit version, take the most recent
+TARGET="/dev/CMSSW_10_1_0/\$TABLE"         # no explicit version, take the most recent
+
+TABLES="GRun HIon PIon PRef"               # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -43,7 +44,7 @@ function getConfigForCVS() {
   log "  dumping HLT cffs for $NAME from $CONFIG"
 
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
+  hltGetConfiguration --cff --data $CONFIG --type $NAME > HLT_${NAME}_cff.py
 }
 
 function getContentForCVS() {
@@ -51,7 +52,7 @@ function getContentForCVS() {
 
   log "  dumping EventContet"
   $GETCONTENT $CONFIG
-  rm -f hltOutput*_cff.py*
+  rm -f hltOutput*_cff.py* hltScouting_cff.py*
 }
 
 function getDatasetsForCVS() {
@@ -59,7 +60,7 @@ function getDatasetsForCVS() {
   local TARGET="$2"
 
   log "  dumping Primary Dataset"
-  $GETDATASETS $CONFIG $TARGET
+  $GETDATASETS $CONFIG > $TARGET
 }
 
 function getConfigForOnline() {
@@ -85,9 +86,9 @@ function getConfigForOnline() {
   log "  dumping full HLT for $NAME from $CONFIG"
   # override L1 menus
   if [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_$NAME.py
   fi
 
 }
@@ -98,11 +99,14 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
+echo "Extracting cff python dumps"
 FILES=$(eval echo HLT_FULL_cff.py HLT_{$TABLES_}_cff.py HLTrigger_Datasets_{$TABLES_}_cff.py HLTrigger_EventContent_cff.py )
 rm -f $FILES
 getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   getConfigForCVS $(eval echo $TARGET) $TABLE
   getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_${TABLE}_cff.py
 done
@@ -113,10 +117,13 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
+echo "Extracting full configuration dumps"
 FILES=$(eval echo OnLine_HLT_FULL.py OnLine_HLT_{$TABLES_}.py)
 rm -f $FILES
 getConfigForOnline $MASTER FULL
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done
 log "Done"

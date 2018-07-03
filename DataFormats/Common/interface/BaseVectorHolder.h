@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
+#include <stddef.h>
 #include <memory>
 
 namespace edm {
@@ -51,12 +52,12 @@ namespace edm {
 
       struct const_iterator : public std::iterator <std::random_access_iterator_tag, RefToBase<T> >{
         typedef base_ref_type value_type;
-        typedef std::auto_ptr<value_type> pointer;
+        typedef std::unique_ptr<value_type> pointer;
         typedef std::ptrdiff_t difference_type;
 
-        const_iterator() : i(0) { }
+        const_iterator() : i(nullptr) { }
         const_iterator(const_iterator_imp* it) : i(it) { }
-        const_iterator(const_iterator const& it) : i(it.isValid() ? it.i->clone() : 0) { }
+        const_iterator(const_iterator const& it) : i(it.isValid() ? it.i->clone() : nullptr) { }
         ~const_iterator() { delete i; }
         const_iterator& operator=(const_iterator const& it) {
           if(this == &it) {
@@ -137,8 +138,8 @@ namespace edm {
           i->decrease(d);
           return *this;
         }
-        bool isValid() const { return i != 0; }
-        bool isInvalid() const { return i == 0; }
+        bool isValid() const { return i != nullptr; }
+        bool isInvalid() const { return i == nullptr; }
 
         void throwInvalidReference(bool iIsInvalid, char const* iWhy) const {
           if (iIsInvalid) {
@@ -153,7 +154,7 @@ namespace edm {
       virtual const_iterator begin() const = 0;
       virtual const_iterator end() const = 0;
       virtual void push_back(BaseHolder<T> const*) = 0;
-      virtual std::auto_ptr<RefVectorHolderBase> vectorHolder() const = 0;
+      virtual std::unique_ptr<RefVectorHolderBase> vectorHolder() const = 0;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.

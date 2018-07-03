@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -43,12 +42,12 @@ public:
     L1GtTriggerMaskVetoAlgoTrigTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMaskVetoAlgoTrigTrivialProducer();
+    ~L1GtTriggerMaskVetoAlgoTrigTrivialProducer() override;
 
 
     /// public methods
 
-    boost::shared_ptr<L1GtTriggerMask> produceTriggerMask(
+    std::shared_ptr<L1GtTriggerMask> produceTriggerMask(
         const L1GtTriggerMaskVetoAlgoTrigRcd&);
 
 private:

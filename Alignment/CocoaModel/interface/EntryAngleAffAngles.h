@@ -17,13 +17,13 @@ class EntryAngleAffAngles : public EntryAngle
 {
 public:
   EntryAngleAffAngles( const ALIstring& type );
-  ~EntryAngleAffAngles(){};
+  ~EntryAngleAffAngles() override{};
 
   virtual void FillName( const ALIstring& name );
-  virtual void displace( ALIdouble disp );
-  virtual void displaceOriginal( ALIdouble disp );
-  virtual void displaceOriginalOriginal( ALIdouble disp );
-  virtual ALIdouble valueDisplaced() const;
+  void displace( ALIdouble disp ) override;
+  void displaceOriginal( ALIdouble disp ) override;
+  void displaceOriginalOriginal( ALIdouble disp ) override;
+  ALIdouble valueDisplaced() const override;
   ALIdouble checkDiff( const CLHEP::Hep3Vector& axis, const CLHEP::Hep3Vector& axisOrig,const std::vector<double>& localrot, const std::vector<double>& localrotorig ) const;
 };
 

@@ -33,24 +33,24 @@ class AlignableDetOrUnitPtr
 
   /// Constructor from AlignableBeamSpot* (non-explicit: for automatic conversions)
   inline AlignableDetOrUnitPtr(AlignableBeamSpot *aliBeamSpot)
-    : theAliBeamSpot(aliBeamSpot), theAliDet(0), theAliDetUnit(0) {}
+    : theAliBeamSpot(aliBeamSpot), theAliDet(nullptr), theAliDetUnit(nullptr) {}
 
   /// Constructor from AlignableDet* (non-explicit: for automatic conversions)
   inline AlignableDetOrUnitPtr(AlignableDet *aliDet)
-    : theAliBeamSpot(0), theAliDet(aliDet), theAliDetUnit(0) {}
+    : theAliBeamSpot(nullptr), theAliDet(aliDet), theAliDetUnit(nullptr) {}
 
   /// Constructor from AlignableDetUnit* (non-explicit: for automatic conversions)
   inline AlignableDetOrUnitPtr(AlignableDetUnit *aliDetUnit) 
-    : theAliBeamSpot(0), theAliDet(0), theAliDetUnit(aliDetUnit) {}
+    : theAliBeamSpot(nullptr), theAliDet(nullptr), theAliDetUnit(aliDetUnit) {}
   /// Non-virtual destructor: do not use as base class
   inline ~AlignableDetOrUnitPtr() {}
 
   inline AlignableDetOrUnitPtr& operator = (AlignableBeamSpot* aliBeamSpot) {
-    theAliBeamSpot = aliBeamSpot; theAliDet = 0; theAliDetUnit = 0; return *this;}
+    theAliBeamSpot = aliBeamSpot; theAliDet = nullptr; theAliDetUnit = nullptr; return *this;}
   inline AlignableDetOrUnitPtr& operator = (AlignableDet* aliDet) {
-    theAliBeamSpot = 0; theAliDet = aliDet; theAliDetUnit = 0; return *this;}
+    theAliBeamSpot = nullptr; theAliDet = aliDet; theAliDetUnit = nullptr; return *this;}
   inline AlignableDetOrUnitPtr& operator = (AlignableDetUnit* aliDetUnit) {
-    theAliBeamSpot = 0; theAliDet = 0; theAliDetUnit = aliDetUnit; return *this;}
+    theAliBeamSpot = nullptr; theAliDet = nullptr; theAliDetUnit = aliDetUnit; return *this;}
   // Default operator= and default copy constructor are fine, no need to code them here.
 
   // conversions to Alignable* etc.

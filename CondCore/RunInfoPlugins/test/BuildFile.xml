@@ -1,0 +1,8 @@
+<use   name="CondCore/CondDB"/>
+<use   name="CondCore/Utilities"/>
+<use   name="CondFormats/Common"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<bin   
+   file="testRunInfoPayloadInspector.cpp" name="testRunInfoPayloadInspector">
+</bin>

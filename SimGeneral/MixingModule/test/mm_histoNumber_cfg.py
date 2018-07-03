@@ -52,7 +52,6 @@ process.mix.input.type = 'histo'
 process.mix.input.nbPileupEvents = cms.PSet(
     fileName = cms.untracked.string('histrandom.root'),
     histoName = cms.untracked.string('h1f'),
-    seed = cms.untracked.int32(54321)
 )
 
 process.mix.input.fileNames = cms.untracked.vstring(

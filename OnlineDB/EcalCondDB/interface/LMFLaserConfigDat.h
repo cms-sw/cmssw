@@ -36,7 +36,7 @@ class LMFLaserConfigDat : public LMFDat {
     m_keys["LSR_DELAY_1"] = 6;
     m_keys["LSR_DELAY_2"] = 7;
   }
-  ~LMFLaserConfigDat() {}
+  ~LMFLaserConfigDat() override {}
 
   LMFLaserConfigDat& setWavelength(EcalLogicID &id, int w) {
     LMFDat::setData(id, "WAVELENGTH", w);

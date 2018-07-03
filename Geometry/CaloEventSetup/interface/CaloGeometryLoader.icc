@@ -22,9 +22,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDScope.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -37,23 +35,14 @@ const double
 CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 
 template <class T>
-CaloGeometryLoader<T>::CaloGeometryLoader() 
+CaloGeometryLoader<T>::CaloGeometryLoader() :
+m_filter(DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
+                                                "EcalSensitiveDetector",
+				                0                        )},
+         DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
+   				                T::hitString(),
+				                0              )})
 {
-   m_filter.setCriteria( DDValue( "SensitiveDetector",
-				  "EcalSensitiveDetector",
-				  0                        ),
-			 DDCompOp::equals,
-			 DDLogOp::AND,
-			 true,
-			 true                               ) ;
-
-   m_filter.setCriteria( DDValue( "ReadOutName",
-				  T::hitString(),
-				  0                  ),
-			 DDCompOp::equals,
-			 DDLogOp::AND,
-			 true,
-			 true                       ) ;
 }
 
 template <class T>
@@ -79,8 +68,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 				     const Alignments*     alignments ,
 				     const Alignments*     globals      )
 {
-   DDFilteredView fv0 ( *cpv ) ;
-   fv0.addFilter( m_filter ) ;
+   DDFilteredView fv0 ( *cpv, m_filter ) ;
 
    fillNamedParams( fv0, geom ) ;
 
@@ -88,8 +76,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
    geom->allocatePar( T::k_NumberOfParametersPerShape*T::k_NumberOfShapes,
 		      T::k_NumberOfParametersPerShape ) ;
 
-   DDFilteredView fv( *cpv ) ;
-   fv.addFilter( m_filter ) ;
+   DDFilteredView fv( *cpv, m_filter ) ;
  
    unsigned int counter ( 0 ) ;
    for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
@@ -119,22 +106,22 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 
       const unsigned int which ( geom->alignmentTransformIndexLocal( id ) ) ;
 
-      assert( 0 == alignments ||
+      assert( nullptr == alignments ||
 	      which < alignments->m_align.size() ) ;
 
-      const AlignTransform* at ( 0 == alignments ? 0 :
+      const AlignTransform* at ( nullptr == alignments ? nullptr :
 				 &alignments->m_align[ which ] ) ;
 
-      assert( 0 == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
+      assert( nullptr == at || ( geom->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == which ) ) ;
 
       const unsigned int gIndex ( geom->alignmentTransformIndexGlobal( id ) ) ;
 
-      const AlignTransform* globalT ( 0 == globals ? 0 :
+      const AlignTransform* globalT ( nullptr == globals ? nullptr :
 				      ( globals->m_align.size() > gIndex ? 
-					&globals->m_align[ gIndex ] : 0 ) ) ;
+					&globals->m_align[ gIndex ] : nullptr ) ) ;
 
-      const HepGeom::Transform3D atr ( 0 == at ? ht3d :
-				 ( 0 == globalT ? at->transform()*ht3d :
+      const HepGeom::Transform3D atr ( nullptr == at ? ht3d :
+				 ( nullptr == globalT ? at->transform()*ht3d :
 				   at->transform()*globalT->transform()*ht3d ) ) ;
 
       fillGeom( geom, parameters, atr, id ) ;

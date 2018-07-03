@@ -81,6 +81,7 @@ namespace pat {
       edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;      
       
       bool addPFClusterIso_;
+      bool addPuppiIsolation_;
       edm::EDGetTokenT<edm::ValueMap<float> > ecalPFClusterIsoT_;
       edm::EDGetTokenT<edm::ValueMap<float> > hcalPFClusterIsoT_;
 
@@ -123,12 +124,17 @@ namespace pat {
       std::vector<edm::EDGetTokenT<edm::ValueMap<Bool_t> > > photIDTokens_;
 
       bool useUserData_;
+      //PUPPI isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
       pat::PATUserDataHelper<pat::Photon>      userDataHelper_;
       
       const CaloTopology * ecalTopology_;
       const CaloGeometry * ecalGeometry_;
       EcalClusterLocal ecl_;
 
+      bool saveRegressionData_;
 
   };
 
@@ -177,6 +183,9 @@ void pat::PATPhotonProducer::readIsolationLabels( const edm::ParameterSet & iCon
        labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
       }
     }
+    
+    tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
+    
   }
 	tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
 }

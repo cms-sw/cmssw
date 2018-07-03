@@ -20,7 +20,7 @@ SiStripHashedDetIdESProducer::~SiStripHashedDetIdESProducer() {}
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripHashedDetId> SiStripHashedDetIdESProducer::produce( const SiStripHashedDetIdRcd& rcd ) {
+std::unique_ptr<SiStripHashedDetId> SiStripHashedDetIdESProducer::produce( const SiStripHashedDetIdRcd& rcd ) {
 
   // Retrieve geometry
   edm::ESHandle<TrackerGeometry> geom;
@@ -48,7 +48,7 @@ std::auto_ptr<SiStripHashedDetId> SiStripHashedDetIdESProducer::produce( const S
     << " DetId hash map: " << std::endl
     << *hash;
   
-  return std::auto_ptr<SiStripHashedDetId>( hash );
+  return std::unique_ptr<SiStripHashedDetId>( hash );
 
 }
 

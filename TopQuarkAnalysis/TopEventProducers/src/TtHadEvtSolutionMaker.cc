@@ -278,13 +278,13 @@ void TtHadEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup &
     }
     //store the vector of solutions to the event
 
-    std::auto_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
   }else {     //end loop jet/MET found
     std::cout<<"No calibrated solutions built, because only "<<jets->size()<<" were present";
 
-    std::auto_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<TtHadEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
   }
 }
 

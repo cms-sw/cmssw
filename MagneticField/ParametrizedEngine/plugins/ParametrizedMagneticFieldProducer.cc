@@ -28,7 +28,7 @@ ParametrizedMagneticFieldProducer::ParametrizedMagneticFieldProducer(const edm::
 ParametrizedMagneticFieldProducer::~ParametrizedMagneticFieldProducer(){}
 
 
-std::auto_ptr<MagneticField>
+std::unique_ptr<MagneticField>
 ParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iRecord)
 {
   string version = pset.getParameter<string>("version");

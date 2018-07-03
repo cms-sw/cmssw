@@ -29,7 +29,7 @@ public:
     covToAnyNumberAll_ ( ps.getParameter<bool>("ForceCovarianceAll") ),
     covAnyNumber_ ( ps.getParameter<double>("Covariance") ) {}
 
-  ~CSCCondSegFit() {}
+  ~CSCCondSegFit() override {}
 
   // The fit - override base class version with this version
   // which passes in bool flags for up to two extra conditioning passes

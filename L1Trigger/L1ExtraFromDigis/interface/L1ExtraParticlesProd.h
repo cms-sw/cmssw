@@ -41,10 +41,10 @@ class L1CaloGeometry ;
 class L1ExtraParticlesProd : public edm::stream::EDProducer<> {
    public:
       explicit L1ExtraParticlesProd(const edm::ParameterSet&);
-      ~L1ExtraParticlesProd();
+      ~L1ExtraParticlesProd() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       //      math::XYZTLorentzVector gctLorentzVector( const double& et,
       math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,

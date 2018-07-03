@@ -76,7 +76,7 @@ public:
     produces<CColl>();
   }
   /// destructor
-  ~CandidateProducer() { }
+  ~CandidateProducer() override { }
 
 private:
   /// begin job (first run)
@@ -92,8 +92,8 @@ private:
     evt.getByToken(srcToken_, src);
     Init::init(selector_, evt, es);
     ::helper::MasterCollection<TColl> master(src, evt);
-    std::auto_ptr<CColl> cands(new CColl);
-    if(src->size()!= 0) {
+    std::unique_ptr<CColl> cands(new CColl);
+    if(!src->empty()) {
       size_t size = src->size();
       cands->reserve(size);
       for(size_t idx = 0; idx != size; ++ idx) {
@@ -101,7 +101,7 @@ private:
 	  Creator::create(master.index(idx), *cands, master, converter_);
       }
     }
-    evt.put(cands);
+    evt.put(std::move(cands));
   }
   /// label of source collection and tag
   edm::EDGetTokenT<TColl> srcToken_;

@@ -2,21 +2,31 @@
 #define DataFormats_Common_DetSetVectorNew_h
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-// #include "DataFormats/Common/interface/DetSet.h"  // to get det_id_type
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/traits.h"
 
-#include <boost/iterator_adaptors.hpp>
+
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
-#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#if !defined(__ROOTCLING__)
+#define DSVN_USE_ATOMIC
+// #warning using atomic
+#endif
 
-#include<vector>
+#include <atomic>
+#include <memory>
+#include <vector>
 #include <cassert>
+
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <utility>
+
+class TestDetSet;
 
 namespace edm { namespace refhelper { template<typename T> struct FindForNewDetSetVector; } }
 
@@ -28,44 +38,130 @@ namespace edmNew {
 
   namespace dslv {
     template< typename T> class LazyGetter;
+
   }
 
   /* transient component of DetSetVector
-   * for pure conviniency of dictioanary declaration
+   * for pure conviniency of dictionary declaration
    */
   namespace dstvdetails {
+
+    void errorFilling();
+    void notSafe();
+    void errorIdExists(det_id_type iid);
+    void throw_range(det_id_type iid);
+
     struct DetSetVectorTrans {
-      DetSetVectorTrans(): filling(false){}
-      bool filling;
-      boost::any getter;
-
-
-      void swap(DetSetVectorTrans& rh) {
-	std::swap(filling,rh.filling);
-	std::swap(getter,rh.getter);
-      }
-
       typedef unsigned int size_type; // for persistency
       typedef unsigned int id_type;
 
+      DetSetVectorTrans(): m_filling(false), m_dataSize(0){}
+      DetSetVectorTrans& operator=(const DetSetVectorTrans&) = delete;
+
+      DetSetVectorTrans(const DetSetVectorTrans& rh): // can't be default because of atomics
+        m_filling(false) {
+        // better no one is filling...
+        assert(rh.m_filling==false);
+        m_getter = rh.m_getter;
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.load());
+#else
+        m_dataSize = rh.m_dataSize;
+#endif
+      }
+
+      DetSetVectorTrans(DetSetVectorTrans&& rh): // can't be default because of atomics
+        m_filling(false) {
+        // better no one is filling...
+        assert(rh.m_filling==false);
+        m_getter = std::move(rh.m_getter);
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
+#else
+        m_dataSize = std::move(rh.m_dataSize);
+#endif
+      }
+      DetSetVectorTrans& operator=(DetSetVectorTrans&& rh) {  // can't be default because of atomics
+        // better no one is filling...
+        assert(m_filling==false); assert(rh.m_filling==false);
+        m_getter = std::move(rh.m_getter);
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
+#else
+        m_dataSize = std::move(rh.m_dataSize);
+#endif
+        return *this;
+      }
+      mutable std::atomic<bool> m_filling;
+      boost::any m_getter;
+#ifdef DSVN_USE_ATOMIC
+      mutable std::atomic<size_type> m_dataSize;
+#else
+      mutable size_type m_dataSize;
+#endif
+
+      void swap(DetSetVectorTrans& rh) {
+        // better no one is filling...
+        assert(m_filling==false); assert(rh.m_filling==false);	
+        //	std::swap(m_filling,rh.m_filling);
+        std::swap(m_getter,rh.m_getter);
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
+#else
+        std::swap(m_dataSize,rh.m_dataSize);
+#endif
+      }
+
+
       struct Item {
-	Item(id_type i=0, int io=-1, size_type is=0) : id(i), offset(io), size(is){}
-	bool isValid() const { return offset>=0;}
-	id_type id;
-	int offset;
-	size_type size;
-	bool operator<(Item const &rh) const { return id<rh.id;}
-	operator id_type() const { return id;}
+
+        Item(id_type i=0, int io=-1, size_type is=0) : id(i), offset(io), size(is){}
+
+        Item(Item const & rh)  noexcept :
+        id(rh.id),offset(int(rh.offset)),size(rh.size) {
+        }
+        Item & operator=(Item const & rh) noexcept {
+          id=rh.id;offset=int(rh.offset);size=rh.size; return *this;
+        }
+        Item(Item&& rh)  noexcept :
+        id(std::move(rh.id)),offset(int(rh.offset)),size(std::move(rh.size)) {
+        }
+        Item & operator=(Item&& rh) noexcept {
+          id=std::move(rh.id);offset=int(rh.offset);size=std::move(rh.size); return *this;
+        }
+
+        id_type id;
+#ifdef DSVN_USE_ATOMIC
+        mutable std::atomic<int> offset;
+        bool initialize() const {
+         int expected = -1;
+         return offset.compare_exchange_strong(expected,-2);
+        }
+#else
+        mutable int offset;
+#endif
+        CMS_THREAD_GUARD(offset) mutable size_type size;
+
+        bool uninitialized() const { return (-1)==offset;}
+        bool initializing() const { return (-2)==offset;}
+        bool isValid() const { return offset>=0;}
+        bool operator<(Item const &rh) const { return id<rh.id;}
+        operator id_type() const { return id;}
       };
+
+#ifdef DSVN_USE_ATOMIC
+      bool ready() const {
+        bool expected=false;
+        if (!m_filling.compare_exchange_strong(expected,true))  errorFilling();
+        return true;
+      }
+#else
+      bool ready() const {return true;}
+#endif
 
     };
 
-    void errorFilling();
-    void errorIdExists(det_id_type iid);
-    void throw_range(det_id_type iid);
     inline void throwCapacityExausted() { throw CapacityExaustedException();}
-
-
    }
 
   /** an optitimized container that linearized a "map of vector".
@@ -108,17 +204,17 @@ namespace edmNew {
     struct IterHelp {
       typedef DetSet result_type;
       //      IterHelp() : v(0),update(true){}
-      IterHelp() : v(0),update(false){}
-      IterHelp(DetSetVector<T> const & iv, bool iup) : v(&iv), update(iup){}
+      IterHelp() : m_v(nullptr),m_update(false){}
+      IterHelp(DetSetVector<T> const & iv, bool iup) : m_v(&iv), m_update(iup){}
       
       result_type & operator()(Item const& item) const {
-	detset.set(*v,item,update);
-	return detset;
+        m_detset.set(*m_v,item,m_update);
+        return m_detset;
       } 
     private:
-      DetSetVector<T> const * v;
-      mutable result_type detset;
-      bool update;
+      DetSetVector<T> const * m_v;
+      mutable result_type m_detset;
+      bool m_update;
     };
     
     typedef boost::transform_iterator<IterHelp,const_IdIter> const_iterator;
@@ -133,88 +229,203 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type id_type;
       typedef typename DetSetVector<T>::size_type size_type;
 
-      FastFiller(DetSetVector<T> & iv, id_type id, bool isaveEmpty=false) : 
-	v(iv), item(v.push_back(id)), saveEmpty(isaveEmpty) {
-	if (v.filling) dstvdetails::errorFilling();
-	v.filling=true;
+      // here just to make the compiler happy
+      static DetSetVector<T>::Item & dummy() {
+        assert(false);
+	static  DetSetVector<T>::Item d; return d;
       }
+      FastFiller(DetSetVector<T> & iv, id_type id, bool isaveEmpty=false) : 
+      m_v(iv), m_item(m_v.ready()? m_v.push_back(id): dummy()),m_saveEmpty(isaveEmpty) {
+        if (m_v.onDemand()) dstvdetails::notSafe();
+      }
+
       FastFiller(DetSetVector<T> & iv, typename DetSetVector<T>::Item & it, bool isaveEmpty=false) : 
-	v(iv), item(it), saveEmpty(isaveEmpty) {
-	if (v.filling) dstvdetails::errorFilling();
-	v.filling=true;
+      m_v(iv), m_item(it), m_saveEmpty(isaveEmpty) {
+        if (m_v.onDemand()) dstvdetails::notSafe();
+        if(m_v.ready()) m_item.offset = int(m_v.m_data.size());
+
       }
       ~FastFiller() {
-	if (!saveEmpty && item.size==0) {
-	  v.pop_back(item.id);
-	}
-	v.filling=false;
+        if (!m_saveEmpty && m_item.size==0) {
+          m_v.pop_back(m_item.id);
+        }
+        assert(m_v.m_filling==true);
+        m_v.m_filling=false;
+
       }
       
+      
       void abort() {
-	v.pop_back(item.id);
-	saveEmpty=true; // avoid mess in destructor
+        m_v.pop_back(m_item.id);
+        m_saveEmpty=true; // avoid mess in destructor
       }
 
       void checkCapacityExausted() const {
-        if (v.onDemand()   && v.m_data.size()==v.m_data.capacity()) dstvdetails::throwCapacityExausted();
+        if (m_v.onDemand()   && m_v.m_data.size()==m_v.m_data.capacity()) dstvdetails::throwCapacityExausted();
       }
 
       void checkCapacityExausted(size_type s) const {
-        if (v.onDemand()   && v.m_data.size()+s>v.m_data.capacity()) dstvdetails::throwCapacityExausted();
+        if (m_v.onDemand()   && m_v.m_data.size()+s>m_v.m_data.capacity()) dstvdetails::throwCapacityExausted();
       }
 
 
       void reserve(size_type s) {
-        if (item.offset+s <= v.m_data.capacity()) return;
-        if (v.onDemand()) dstvdetails::throwCapacityExausted();	
-	v.m_data.reserve(item.offset+s);
+        if (m_item.offset+s <= m_v.m_data.capacity()) return;
+        if (m_v.onDemand()) dstvdetails::throwCapacityExausted();
+        m_v.m_data.reserve(m_item.offset+s);
       }
       
       
       void resize(size_type s) {
         checkCapacityExausted(s);
-	v.m_data.resize(item.offset+s);
-	item.size=s;
+        m_v.m_data.resize(m_item.offset+s);
+        m_v.m_dataSize = m_v.m_data.size();
+        m_item.size=s;
       }
 
-      id_type id() const { return item.id;}
-      size_type size() const { return item.size;}
-      bool empty() const { return item.size==0;}
+      id_type id() const { return m_item.id;}
+      size_type size() const { return m_item.size;}
+      bool empty() const { return m_item.size==0;}
 
       data_type & operator[](size_type i) {
-	return 	v.m_data[item.offset+i];
+        return 	m_v.m_data[m_item.offset+i];
       }
-      DataIter begin() { return v.m_data.begin()+ item.offset;}
-      DataIter end() { return v.m_data.end();}
+      DataIter begin() { return m_v.m_data.begin()+ m_item.offset;}
+      DataIter end() { return begin()+size();}
 
       void push_back(data_type const & d) {
         checkCapacityExausted();
-	v.m_data.push_back(d);
-	item.size++;
+        m_v.m_data.push_back(d);
+        ++m_v.m_dataSize;
+        m_item.size++;
       }
-#ifndef CMS_NOCXX11
       void push_back(data_type && d) {
         checkCapacityExausted();
-        v.m_data.push_back(std::move(d));
-        item.size++;
+        m_v.m_data.push_back(std::move(d));
+        ++m_v.m_dataSize;
+        m_item.size++;
       }
-#endif
 
-      data_type & back() { return v.m_data.back();}
+      data_type & back() { return m_v.m_data.back();}
       
     private:
-      DetSetVector<T> & v;
-      typename DetSetVector<T>::Item & item;
-      bool saveEmpty;
+      //for testing
+      friend class ::TestDetSet;
+      
+      DetSetVector<T> & m_v;
+      typename DetSetVector<T>::Item & m_item;
+      bool m_saveEmpty;
     };
+
+    /* fill on demand a given  DetSet
+     */
+    class TSFastFiller {
+    public:
+      typedef typename DetSetVector<T>::data_type value_type;
+      typedef typename DetSetVector<T>::id_type key_type;
+      typedef typename DetSetVector<T>::id_type id_type;
+      typedef typename DetSetVector<T>::size_type size_type;
+
+#ifdef DSVN_USE_ATOMIC
+      // here just to make the compiler happy
+      static DetSetVector<T>::Item const& dummy() {
+        assert(false);
+        static  DetSetVector<T>::Item const d; return d;
+      }
+      // this constructor is not supposed to be used in Concurrent mode
+      TSFastFiller(DetSetVector<T> & iv, id_type id) :
+        m_v(iv), m_item(m_v.ready()? iv.push_back(id): dummy()) { assert(m_v.m_filling==true); m_v.m_filling = false;}
+
+      TSFastFiller(DetSetVector<T> const& iv, typename DetSetVector<T>::Item const& it) :
+      m_v(iv), m_item(it) {
+
+      }
+      ~TSFastFiller() {
+        bool expected=false;
+        while (!m_v.m_filling.compare_exchange_weak(expected,true))  { expected=false; nanosleep(nullptr,nullptr);}
+        int offset = m_v.m_data.size();
+        if (m_v.onDemand() && full()) {
+          m_v.m_filling = false;
+          dstvdetails::throwCapacityExausted();
+        }
+        std::move(m_lv.begin(), m_lv.end(), std::back_inserter(m_v.m_data));
+        m_item.size=m_lv.size();
+        m_item.offset = offset;
+
+        m_v.m_dataSize = m_v.m_data.size();
+        assert(m_v.m_filling==true);
+        m_v.m_filling = false;
+      }
+      
+#endif
+      
+     bool full() const {
+        int offset = m_v.m_dataSize;
+        return m_v.m_data.capacity()<offset+m_lv.size();
+     }
+
+      void abort() {
+        m_lv.clear();
+      }
+
+      void reserve(size_type s) {
+        m_lv.reserve(s);
+      }
+
+      void resize(size_type s) {
+        m_lv.resize(s);
+      }
+
+      id_type id() const { return m_item.id;}
+      size_type size() const { return m_lv.size();}
+      bool empty() const { return m_lv.empty();}
+
+      data_type & operator[](size_type i) {
+        return 	m_lv[i];
+      }
+      DataIter begin() { return m_lv.begin();}
+      DataIter end() { return m_lv.end();}
+
+      void push_back(data_type const & d) {
+        m_lv.push_back(d);
+      }
+      void push_back(data_type && d) {
+        m_lv.push_back(std::move(d));
+      }
+
+      data_type & back() { return m_lv.back();}
+      
+    private:
+      //for testing
+      friend class ::TestDetSet;
+
+      std::vector<T> m_lv;
+      DetSetVector<T> const& m_v;
+      typename DetSetVector<T>::Item const& m_item;
+    };
+
+
+
     friend class FastFiller;
+    friend class TSFastFiller;
+    friend class edmNew::DetSet<T>;
 
     class FindForDetSetVector : public std::binary_function<const edmNew::DetSetVector<T>&, unsigned int, const T*> {
     public:
-        typedef FindForDetSetVector self;
-        typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) {
-            return &(iContainer.m_data[iIndex]);
-        }
+      typedef FindForDetSetVector self;
+      typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex)
+#ifdef DSVN_USE_ATOMIC
+      {
+        bool expected=false;
+        while (!iContainer.m_filling.compare_exchange_weak(expected,true,std::memory_order_acq_rel))  { expected=false; nanosleep(nullptr,nullptr);}
+        typename self::result_type item =  &(iContainer.m_data[iIndex]);
+        assert(iContainer.m_filling==true);
+        iContainer.m_filling = false;
+        return item;
+      }
+#else
+      ;
+#endif
     };
     friend class FindForDetSetVector;
 
@@ -228,9 +439,20 @@ namespace edmNew {
     ~DetSetVector() {
       // delete content if T is pointer...
     }
-    
 
-    bool onDemand() const { return !getter.empty();}
+    // default or delete is the same...
+    DetSetVector& operator=(const DetSetVector&) = delete;
+    // Implement copy constructor because of a (possibly temporary)
+    // need in heterogeneous framework prototyping. In general this
+    // class is still supposed to be non-copyable, so to prevent
+    // accidental copying the assignment operator is left deleted.
+    DetSetVector(const DetSetVector&) = default;
+    DetSetVector(DetSetVector&&) = default;
+    DetSetVector& operator=(DetSetVector&&) = default;
+
+    bool onDemand() const { return !m_getter.empty();}
+
+
 
     void swap(DetSetVector & rh) {
       DetSetVectorTrans::swap(rh);
@@ -250,15 +472,19 @@ namespace edmNew {
     }
     
     void shrink_to_fit() {
-#ifndef CMS_NOCXX11
+      clean();   
       m_ids.shrink_to_fit();
       m_data.shrink_to_fit();
-#endif
     }
 
     void resize(size_t isize, size_t dsize) {
       m_ids.resize(isize);
       m_data.resize(dsize);
+      m_dataSize = m_data.size();
+    }
+
+    void clean() {
+      m_ids.erase(std::remove_if(m_ids.begin(),m_ids.end(),[](Item const& m){ return 0==m.size;}),m_ids.end());
     }
     
     // FIXME not sure what the best way to add one cell to cont
@@ -266,12 +492,14 @@ namespace edmNew {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
       std::copy(idata,idata+isize,m_data.begin()+item.offset);
+      m_dataSize = m_data.size();
       return DetSet(*this,item,false);
     }
     //make space for it
     DetSet insert(id_type iid, size_type isize) {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
+      m_dataSize = m_data.size();
       return DetSet(*this,item,false);
     }
 
@@ -285,10 +513,12 @@ namespace edmNew {
       const_IdIter p = findItem(iid);
       if (p==m_ids.end()) return; //bha!
       // sanity checks...  (shall we throw or assert?)
-      if ((*p).size>0&& (*p).offset>-1 && 
-	  m_data.size()==(*p).offset+(*p).size)
-	m_data.resize((*p).offset);
-      m_ids.erase( m_ids.begin()+(p-m_ids.begin()));
+      if ( (*p).isValid() && (*p).size>0 && 
+          m_data.size()==(*p).offset+(*p).size) {
+        m_data.resize((*p).offset);
+        m_dataSize = m_data.size();
+      }
+      m_ids.erase(m_ids.begin()+(p-m_ids.begin()));
     }
 
   private:
@@ -299,7 +529,7 @@ namespace edmNew {
 				  m_ids.end(),
 				  it);
       if (p!=m_ids.end() && !(it<*p)) dstvdetails::errorIdExists(iid);
-      return *m_ids.insert(p,it);
+      return *m_ids.insert(p,std::move(it));
     }
 
 
@@ -315,7 +545,7 @@ namespace edmNew {
         
     bool isValid(id_type i) const {
       const_IdIter p = findItem(i);
-      return p!=m_ids.end() && (*p).offset!=-1;
+      return p!=m_ids.end() && (*p).isValid();
     }
 
     /*
@@ -338,14 +568,14 @@ namespace edmNew {
     const_iterator find(id_type i, bool update=false) const {
       const_IdIter p = findItem(i);
       return (p==m_ids.end()) ? end() :
-	boost::make_transform_iterator(p,
+      boost::make_transform_iterator(p,
 				       IterHelp(*this,update));
     }
 
     // slow interface
     const_IdIter findItem(id_type i) const {
       std::pair<const_IdIter,const_IdIter> p =
-	std::equal_range(m_ids.begin(),m_ids.end(),Item(i));
+      std::equal_range(m_ids.begin(),m_ids.end(),Item(i));
       return (p.first!=p.second) ? p.first : m_ids.end();
     }
     
@@ -367,7 +597,7 @@ namespace edmNew {
       //    Range equal_range(id_type i, CMP cmp, bool update=true) const {
     Range equal_range(id_type i, CMP cmp, bool update=false) const {
       std::pair<const_IdIter,const_IdIter> p =
-	std::equal_range(m_ids.begin(),m_ids.end(),i,cmp);
+      std::equal_range(m_ids.begin(),m_ids.end(),i,cmp);
       return  Range(boost::make_transform_iterator(p.first,IterHelp(*this,update)),
 		    boost::make_transform_iterator(p.second,IterHelp(*this,update))
 		    );
@@ -378,7 +608,7 @@ namespace edmNew {
     bool empty() const { return m_ids.empty();}
 
 
-    size_type dataSize() const { return m_data.size(); }
+    size_type dataSize() const { return onDemand()? size_type(m_dataSize) : size_type(m_data.size()); }
     
     size_type size() const { return m_ids.size();}
     
@@ -408,27 +638,23 @@ namespace edmNew {
     DataContainer const & data() const { return  m_data;}
 
 
-    void update(Item const & item) const {
-      const_cast<self*>(this)->updateImpl(const_cast<Item&>(item));
-    }
-   
     //Used by ROOT storage
     CMS_CLASS_VERSION(10)
 
   private:
+    //for testing
+    friend class ::TestDetSet;
 
-    void updateImpl(Item & item);
+    void update(Item const & item) const;
     
-  private:
     // subdetector id (as returned by  DetId::subdetId())
     int m_subdetId;
-    
     
     // Workaround for ROOT 6 bug.
     // ROOT6 has a problem with this IdContainer typedef
     //IdContainer m_ids;
     std::vector<Trans::Item> m_ids;
-    DataContainer m_data;
+    CMS_THREAD_GUARD(dstvdetails::DetSetVectorTrans::m_filling) mutable DataContainer m_data;
     
   };
   
@@ -437,61 +663,63 @@ namespace edmNew {
     class LazyGetter {
     public:
       virtual ~LazyGetter() {}
-      virtual void fill(typename DetSetVector<T>::FastFiller&) = 0;
+      virtual void fill(typename DetSetVector<T>::TSFastFiller&) = 0;
     };
   }
   
-    
 
   template<typename T>
   inline DetSetVector<T>::DetSetVector(std::shared_ptr<Getter> iGetter, 
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
-    getter=iGetter;
+    m_getter=iGetter;
 
     m_ids.reserve(iDets.size());
     det_id_type sanityCheck = 0;
     for(std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-	itDetId != itDetIdEnd;
-	++itDetId) {
+        itDetId != itDetIdEnd;
+        ++itDetId) {
       assert(sanityCheck < *itDetId && "vector of det_id_type was not ordered");
       sanityCheck = *itDetId;
       m_ids.push_back(*itDetId);
     }
   }
 
+#ifdef DSVN_USE_ATOMIC
   template<typename T>
-  inline void DetSetVector<T>::updateImpl(Item & item)  {
-    // no getter or already updated
-    if (getter.empty()) assert(item.offset>=0);
-    if (item.offset!=-1 || getter.empty() ) return;
-    item.offset = int(m_data.size());
-    FastFiller ff(*this,item,true);
-    (*boost::any_cast<std::shared_ptr<Getter> >(&getter))->fill(ff);
+  inline void DetSetVector<T>::update(const Item & item) const {
+    // no m_getter or already updated
+    if (m_getter.empty()) { assert(item.isValid()); return;}
+    if (item.initialize() ){
+      assert(item.initializing()); 
+      {
+        TSFastFiller ff(*this,item);
+        (*boost::any_cast<std::shared_ptr<Getter> >(&m_getter))->fill(ff);
+      }
+      assert(item.isValid());
+    }
   }
-
-
+#endif
  
   
+#ifdef DSVN_USE_ATOMIC
   template<typename T>
   inline void DetSet<T>::set(DetSetVector<T> const & icont,
 			     typename Container::Item const & item, bool update) {
-    if (update) {
-      icont.update(item);
-      assert(item.offset>=0);
-    }
-    m_id=item.id; 
+    // if an item is being updated we wait
+    if (update) icont.update(item);
+    while(item.initializing()) nanosleep(nullptr,nullptr);
     m_data=&icont.data();
+    m_id=item.id; 
     m_offset = item.offset; 
     m_size=item.size;
   }
-  
+#endif
 }
 
 #include "DataFormats/Common/interface/Ref.h"
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <type_traits>
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 namespace edm {
@@ -525,16 +753,19 @@ namespace edm {
 namespace edmNew {
    //helper function to make it easier to create a edm::Ref to a new DSV
   template<class HandleT>
+  // inline
   edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefTo(const HandleT& iHandle,
              typename HandleT::element_type::value_type::const_iterator itIter) {
-    BOOST_MPL_ASSERT((boost::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >));
-    typename HandleT::element_type::size_type index = (itIter - &*iHandle->data().begin()); 
+    static_assert(std::is_same<typename HandleT::element_type, DetSetVector<typename HandleT::element_type::value_type::value_type> >::value, "Handle and DetSetVector do not have compatible types.");
+    auto index = itIter - &iHandle->data().front(); 
     return edm::Ref<typename HandleT::element_type,
 	       typename HandleT::element_type::value_type::value_type>
-	      (iHandle,index);
+	      (iHandle.id(), &(*itIter), index);
   }
 }
+
+
 
 #include "DataFormats/Common/interface/ContainerMaskTraits.h"
 
@@ -551,5 +782,9 @@ namespace edm {
    };
 }
 
+#ifdef  DSVN_USE_ATOMIC
+#undef  DSVN_USE_ATOMIC
 #endif
-  
+
+#endif
+

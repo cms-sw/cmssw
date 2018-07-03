@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-#include <stdio.h>                     //C
+#include <cstdio>                     //C
 
 #include "ECALParserException.h"      //DATA DECODER
 #include "DCCEventBlock.h"
@@ -49,7 +49,7 @@ public :
   /**
      Parse data from a buffer
   */
-  void parseBuffer( uint32_t * buffer, uint32_t bufferSize, bool singleEvent = false);
+  void parseBuffer( const uint32_t * buffer, uint32_t bufferSize, bool singleEvent = false);
 
   /**
      Get method for DCCTBDataMapper
@@ -60,7 +60,7 @@ public :
      Check if EVENT LENGTH is coeherent and if BOE/EOE are correctly written
      returns 3 bits code with the error found + event length
   */
-  std::pair<uint32_t,uint32_t> checkEventLength(uint32_t * pointerToEvent, uint32_t bytesToEnd, bool singleEvent = false);
+  std::pair<uint32_t,uint32_t> checkEventLength(const uint32_t * pointerToEvent, uint32_t bytesToEnd, bool singleEvent = false);
   
   /**
      Get methods for parser parameters;
@@ -108,7 +108,7 @@ public :
   /**
    * Get method for events
    */
-  std::vector< std::pair< uint32_t, std::pair<uint32_t *, uint32_t> > > events();
+  std::vector< std::pair< uint32_t, std::pair<const uint32_t *, uint32_t> > > events();
 
 
   /**
@@ -128,7 +128,7 @@ public :
   /**
    * Retrieves a pointer to the data buffer
    */
-  uint32_t *getBuffer() { return buffer_;}
+  const uint32_t *getBuffer() { return buffer_;}
   
   /**
      Class destructor
@@ -142,7 +142,7 @@ public :
 protected :
   void computeBlockSizes();
 
-  uint32_t *buffer_;                //data buffer
+  const uint32_t *buffer_;                //data buffer
   uint32_t bufferSize_;             //buffer size
 
   uint32_t srpBlockSize_;           //SR block size
@@ -155,7 +155,7 @@ protected :
   std::vector<DCCTBEventBlock *> dccEvents_;
   
   // std::pair< errorMask, std::pair< pointer to event, event size (number of DW)> >
-  std::vector< std::pair< uint32_t, std::pair<uint32_t *, uint32_t> > > events_;
+  std::vector< std::pair< uint32_t, std::pair<const uint32_t *, uint32_t> > > events_;
   
   bool parseInternalData_;          //parse internal data flag
   bool debug_;                      //debug flag
@@ -198,7 +198,7 @@ inline uint32_t DCCTBDataParser::tccBlockSize()        { return tccBlockSize_; }
 inline bool DCCTBDataParser::debug()                          { return debug_;     }
 inline std::vector<DCCTBEventBlock *> &DCCTBDataParser::dccEvents()  { return dccEvents_;    }
 inline std::map<std::string,uint32_t> &DCCTBDataParser::errorCounters()    { return errors_;       }
-inline std::vector< std::pair< uint32_t, std::pair<uint32_t *, uint32_t> > > DCCTBDataParser::events() { return events_;   }
+inline std::vector< std::pair< uint32_t, std::pair<const uint32_t *, uint32_t> > > DCCTBDataParser::events() { return events_;   }
 
 
 #endif

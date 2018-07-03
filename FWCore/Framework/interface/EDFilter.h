@@ -21,7 +21,7 @@ These products should be informational products about the filter decision.
 
 #include <string>
 #include <vector>
-#include <mutex>
+#include <array>
 
 namespace edm {
   namespace maker {
@@ -33,6 +33,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
@@ -41,7 +42,7 @@ namespace edm {
     typedef EDFilter ModuleType;
     
     EDFilter();
-    virtual ~EDFilter();
+    ~EDFilter() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static void prevalidate(ConfigurationDescriptions& );
@@ -51,25 +52,33 @@ namespace edm {
     // Warning: the returned moduleDescription will be invalid during construction
     ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-  private:    
-    bool doEvent(EventPrincipal& ep, EventSetup const& c,
+    static bool wantsGlobalRuns() {return true;}
+    static bool wantsGlobalLuminosityBlocks() {return true;}
+    static bool wantsStreamRuns() {return false;}
+    static bool wantsStreamLuminosityBlocks() {return false;};
+
+    SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
+    SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+  private:
+    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
+    //Needed by WorkerT but not supported
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();    
-    void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const* mcc);
-    void doEndRun(RunPrincipal& rp, EventSetup const& c,
+    void doEndRun(RunPrincipal const& rp, EventSetup const& c,
                   ModuleCallingContext const* mcc);
-    void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const* mcc);
-    void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                               ModuleCallingContext const* mcc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     void doRegisterThinnedAssociations(ProductRegistry const&,
                                        ThinnedAssociationsHelper&) { }
 
@@ -78,6 +87,10 @@ namespace edm {
     }
 
     std::string workerType() const {return "WorkerT<EDFilter>";}
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     virtual bool filter(Event&, EventSetup const&) = 0;
     virtual void beginJob(){}
@@ -89,16 +102,18 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
     virtual void respondToOpenInputFile(FileBlock const&) {}
     virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void preForkReleaseResources() {}
-    virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
-     
+
+    bool hasAcquire() const { return false; }
+    bool hasAccumulator() const { return false; }
+
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
+    SerialTaskQueue runQueue_;
+    SerialTaskQueue luminosityBlockQueue_;
     ParentageID previousParentageId_;
   };
 }

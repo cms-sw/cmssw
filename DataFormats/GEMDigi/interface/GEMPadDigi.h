@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class GEMPadDigi{
@@ -21,7 +21,9 @@ public:
   bool operator==(const GEMPadDigi& digi) const;
   bool operator!=(const GEMPadDigi& digi) const;
   bool operator<(const GEMPadDigi& digi) const;
+  bool isValid() const;
 
+  // return the pad number. counts from 1.
   int pad() const { return pad_; }
   int bx() const { return bx_; }
 
@@ -29,7 +31,7 @@ public:
 
 private:
   uint16_t pad_;
-  int32_t  bx_; 
+  int16_t  bx_; 
 };
 
 std::ostream & operator<<(std::ostream & o, const GEMPadDigi& digi);

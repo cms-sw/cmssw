@@ -49,10 +49,10 @@
 class MCVerticesWeight : public edm::global::EDFilter<> {
    public:
       explicit MCVerticesWeight(const edm::ParameterSet&);
-      ~MCVerticesWeight();
+      ~MCVerticesWeight() override;
 
    private:
-      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 
@@ -139,9 +139,9 @@ MCVerticesWeight::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
      
    }
    
-   std::auto_ptr<double> weight(new double(computed_weight));
+   std::unique_ptr<double> weight(new double(computed_weight));
    
-   iEvent.put(weight);
+   iEvent.put(std::move(weight));
    
    //
    

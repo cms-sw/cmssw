@@ -7,8 +7,8 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
@@ -66,7 +66,7 @@ void DDHCalTBZposAlgo::execute(DDCompactView& cpv) {
   if (itilt != 0) {
     std::string rotstr = "R";
     if (tiltdeg < 100) rotstr = "R0"; 
-    rotstr = rotstr + dbl_to_string(tiltdeg);
+    rotstr = rotstr + std::to_string(tiltdeg);
     rot    = DDRotation(DDName(rotstr, idNameSpace)); 
     if (!rot) {
       LogDebug("HCalGeom") << "DDHCalAngular test: Creating a new rotation "

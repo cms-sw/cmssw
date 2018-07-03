@@ -22,7 +22,7 @@
 # include <sstream>
 # include <iomanip>
 # include <cassert>
-# include <stdint.h>
+# include <cstdint>
 
 # ifndef DQM_ROOT_METHODS
 #  define DQM_ROOT_METHODS 1
@@ -63,8 +63,6 @@ public:
     DQM_KIND_TPROFILE2D = DQMNet::DQM_PROP_TYPE_TPROF2D
   };
 
-  typedef std::vector<QReport>::const_iterator QReportIterator;
-
 private:
   DQMNet::CoreObject    data_;       //< Core object information.
   Scalar                scalar_;     //< Current scalar value.
@@ -77,24 +75,22 @@ private:
   MonitorElement *initialise(Kind kind, TH1 *rootobj);
   MonitorElement *initialise(Kind kind, const std::string &value);
   void globalize() {
-    data_.streamId = 0;
     data_.moduleId = 0;
   }
-  void setLumi(uint32_t ls) {data_.lumi = ls;}
+  void setLumi(uint32_t ls) {
+    data_.lumi = ls;
+  }
 
 public:
-  MonitorElement(void);
-  MonitorElement(const std::string *path,
-                 const std::string &name,
-                 uint32_t run = 0,
-                 uint32_t streamId = 0,
-                 uint32_t moduleId = 0);
+  MonitorElement();
+  MonitorElement(const std::string *path, const std::string &name);
+  MonitorElement(const std::string *path, const std::string &name, uint32_t run, uint32_t moduleId);
   MonitorElement(const MonitorElement &, MonitorElementNoCloneTag);
   MonitorElement(const MonitorElement &);
   MonitorElement(MonitorElement &&);
   MonitorElement &operator=(const MonitorElement &) = delete;
   MonitorElement &operator=(MonitorElement &&) = delete;
-  ~MonitorElement(void);
+  ~MonitorElement();
 
   /// Compare monitor elements, for ordering in sets.
   bool operator<(const MonitorElement &x) const
@@ -106,23 +102,23 @@ public:
   static bool CheckBinLabels(const TAxis* a1, const TAxis * a2);
 
   /// Get the type of the monitor element.
-  Kind kind(void) const
+  Kind kind() const
     { return Kind(data_.flags & DQMNet::DQM_PROP_TYPE_MASK); }
 
   /// Get the object flags.
-  uint32_t flags(void) const
+  uint32_t flags() const
     { return data_.flags; }
 
   /// get name of ME
-  const std::string &getName(void) const
+  const std::string &getName() const
     { return data_.objname; }
 
   /// get pathname of parent folder
-  const std::string &getPathname(void) const
+  const std::string &getPathname() const
     { return *data_.dirname; }
 
   /// get full name of ME including Pathname
-  const std::string getFullname(void) const
+  const std::string getFullname() const
     {
       std::string path;
       path.reserve(data_.dirname->size() + data_.objname.size() + 2);
@@ -134,11 +130,11 @@ public:
     }
 
   /// true if ME was updated in last monitoring cycle
-  bool wasUpdated(void) const
+  bool wasUpdated() const
     { return data_.flags & DQMNet::DQM_PROP_NEW; }
 
   /// Mark the object updated.
-  void update(void)
+  void update()
     { data_.flags |= DQMNet::DQM_PROP_NEW; }
 
   /// specify whether ME should be reset at end of monitoring cycle (default:false);
@@ -147,16 +143,16 @@ public:
     { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
   /// true if ME is meant to be stored for each luminosity section
-  bool getLumiFlag(void) const
+  bool getLumiFlag() const
     { return data_.flags & DQMNet::DQM_PROP_LUMI; }
 
   /// this ME is meant to be stored for each luminosity section
-  void setLumiFlag(void)
+  void setLumiFlag()
     { data_.flags |= DQMNet::DQM_PROP_LUMI; }
 
   /// this ME is meant to be an efficiency plot that must not be
   /// normalized when drawn in the DQM GUI.
-  void setEfficiencyFlag(void)
+  void setEfficiencyFlag()
     { data_.flags |= DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
   // A static assert to check that T actually fits in
@@ -186,51 +182,51 @@ public:
   void Fill(double x, double y, double zw);
   void Fill(double x, double y, double z, double w);
   void ShiftFillLast(double y, double ye = 0., int32_t xscale = 1);
-  void Reset(void);
+  void Reset();
 
-  std::string valueString(void) const;
-  std::string tagString(void) const;
-  std::string tagLabelString(void) const;
-  std::string effLabelString(void) const;
+  std::string valueString() const;
+  std::string tagString() const;
+  std::string tagLabelString() const;
+  std::string effLabelString() const;
   std::string qualityTagString(const DQMNet::QValue &qv) const;
   void packScalarData(std::string &into, const char *prefix) const;
   void packQualityData(std::string &into) const;
 
   /// true if at least of one of the quality tests returned an error
-  bool hasError(void) const
+  bool hasError() const
     { return data_.flags & DQMNet::DQM_PROP_REPORT_ERROR; }
 
   /// true if at least of one of the quality tests returned a warning
-  bool hasWarning(void) const
+  bool hasWarning() const
     { return data_.flags & DQMNet::DQM_PROP_REPORT_WARN; }
 
   /// true if at least of one of the tests returned some other (non-ok) status
-  bool hasOtherReport(void) const
+  bool hasOtherReport() const
     { return data_.flags & DQMNet::DQM_PROP_REPORT_OTHER; }
 
     /// true if the plot has been marked as an efficiency plot, which
     /// will not be normalized when rendered within the DQM GUI.
-  bool isEfficiency(void) const
+  bool isEfficiency() const
     { return data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT; }
 
   /// get QReport corresponding to <qtname> (null pointer if QReport does not exist)
   const QReport *getQReport(const std::string &qtname) const;
 
   /// get map of QReports
-  std::vector<QReport *> getQReports(void) const;
+  std::vector<QReport *> getQReports() const;
 
   /// get warnings from last set of quality tests
-  std::vector<QReport *> getQWarnings(void) const;
+  std::vector<QReport *> getQWarnings() const;
 
   /// get errors from last set of quality tests
-  std::vector<QReport *> getQErrors(void) const;
+  std::vector<QReport *> getQErrors() const;
 
   /// get "other" (i.e. non-error, non-warning, non-"ok") QReports
   /// from last set of quality tests
-  std::vector<QReport *> getQOthers(void) const;
+  std::vector<QReport *> getQOthers() const;
 
   /// run all quality tests
-  void runQTests(void);
+  void runQTests();
 
 private:
   void doFill(int64_t x);
@@ -243,25 +239,25 @@ public:
   double getMeanError(int axis = 1) const;
   double getRMS(int axis = 1) const;
   double getRMSError(int axis = 1) const;
-  int getNbinsX(void) const;
-  int getNbinsY(void) const;
-  int getNbinsZ(void) const;
+  int getNbinsX() const;
+  int getNbinsY() const;
+  int getNbinsZ() const;
   double getBinContent(int binx) const;
   double getBinContent(int binx, int biny) const;
   double getBinContent(int binx, int biny, int binz) const;
   double getBinError(int binx) const;
   double getBinError(int binx, int biny) const;
   double getBinError(int binx, int biny, int binz) const;
-  double getEntries(void) const;
+  double getEntries() const;
   double getBinEntries(int bin) const;
 
 private:
-  double getYmin(void) const;
-  double getYmax(void) const;
+  double getYmin() const;
+  double getYmax() const;
 
 public:
   std::string getAxisTitle(int axis = 1) const;
-  std::string getTitle(void) const;
+  std::string getTitle() const;
   void setBinContent(int binx, double content);
   void setBinContent(int binx, int biny, double content);
   void setBinContent(int binx, int biny, int binz, double content);
@@ -285,29 +281,29 @@ public:
 
 private:
   /// whether soft-reset is enabled; default is false
-  bool isSoftResetEnabled(void) const
-    { return refvalue_ != 0; }
+  bool isSoftResetEnabled() const
+    { return refvalue_ != nullptr; }
 
   /// whether ME contents should be accumulated over multiple monitoring periods; default: false
-  bool isAccumulateEnabled(void) const
+  bool isAccumulateEnabled() const
     { return data_.flags & DQMNet::DQM_PROP_ACCUMULATE; }
 
   /// true if ME is marked for deletion
-  bool markedToDelete(void) const
+  bool markedToDelete() const
     { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
 
   /// Mark the object for deletion.
   /// NB: make sure that the following method is not called simultaneously for the same ME
-  void markToDelete(void)
+  void markToDelete()
     { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
 
 private:
   /// reset "was updated" flag
-  void resetUpdate(void)
+  void resetUpdate()
     { data_.flags &= ~DQMNet::DQM_PROP_NEW; }
 
   /// true if ME should be reset at end of monitoring cycle
-  bool resetMe(void) const
+  bool resetMe() const
     { return data_.flags & DQMNet::DQM_PROP_RESET; }
 
   /// if true, will accumulate ME contents (over many periods)
@@ -319,9 +315,9 @@ private:
 
   // ------------ Operations for MEs that are normally never reset ---------
 public:
-  void softReset(void);
+  void softReset();
 private:
-  void disableSoftReset(void);
+  void disableSoftReset();
   void addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1, float c2);
   void addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, float c1, float c2);
   void copyFunctions(TH1 *from, TH1 *to);
@@ -332,52 +328,52 @@ private:
   void getQReport(bool create, const std::string &qtname, QReport *&qr, DQMNet::QValue *&qv);
   void addQReport(const DQMNet::QValue &desc, QCriterion *qc);
   void addQReport(QCriterion *qc);
-  void updateQReportStats(void);
+  void updateQReportStats();
 
 public:
-  TObject *getRootObject(void) const;
-  TH1 *getTH1(void) const;
-  TH1F *getTH1F(void) const;
-  TH1S *getTH1S(void) const;
-  TH1D *getTH1D(void) const;
-  TH2F *getTH2F(void) const;
-  TH2S *getTH2S(void) const;
-  TH2D *getTH2D(void) const;
-  TH3F *getTH3F(void) const;
-  TProfile *getTProfile(void) const;
-  TProfile2D *getTProfile2D(void) const;
+  TObject *getRootObject() const;
+  TH1 *getTH1() const;
+  TH1F *getTH1F() const;
+  TH1S *getTH1S() const;
+  TH1D *getTH1D() const;
+  TH2F *getTH2F() const;
+  TH2S *getTH2S() const;
+  TH2D *getTH2D() const;
+  TH3F *getTH3F() const;
+  TProfile *getTProfile() const;
+  TProfile2D *getTProfile2D() const;
 
-  TObject *getRefRootObject(void) const;
-  TH1 *getRefTH1(void) const;
-  TH1F *getRefTH1F(void) const;
-  TH1S *getRefTH1S(void) const;
-  TH1D *getRefTH1D(void) const;
-  TH2F *getRefTH2F(void) const;
-  TH2S *getRefTH2S(void) const;
-  TH2D *getRefTH2D(void) const;
-  TH3F *getRefTH3F(void) const;
-  TProfile *getRefTProfile(void) const;
-  TProfile2D *getRefTProfile2D(void) const;
+  TObject *getRefRootObject() const;
+  TH1 *getRefTH1() const;
+  TH1F *getRefTH1F() const;
+  TH1S *getRefTH1S() const;
+  TH1D *getRefTH1D() const;
+  TH2F *getRefTH2F() const;
+  TH2S *getRefTH2S() const;
+  TH2D *getRefTH2D() const;
+  TH3F *getRefTH3F() const;
+  TProfile *getRefTProfile() const;
+  TProfile2D *getRefTProfile2D() const;
 
-  int64_t getIntValue(void) const
+  int64_t getIntValue() const
     {
       assert(kind() == DQM_KIND_INT);
       return scalar_.num;
     }
 
-  double getFloatValue(void) const
+  double getFloatValue() const
     {
       assert(kind() == DQM_KIND_REAL);
       return scalar_.real;
     }
 
-  const std::string &getStringValue(void) const
+  const std::string &getStringValue() const
     {
       assert(kind() == DQM_KIND_STRING);
       return scalar_.str;
     }
 
-  DQMNet::TagList getTags(void) const // DEPRECATED
+  DQMNet::TagList getTags() const // DEPRECATED
     {
       DQMNet::TagList tags;
       if (data_.flags & DQMNet::DQM_PROP_TAGGED)
@@ -385,13 +381,12 @@ public:
       return tags;
     }
 
-  const uint32_t getTag(void) const
+  const uint32_t getTag() const
     { return data_.tag; }
 
-  const uint32_t run(void) const {return data_.run;}
-  const uint32_t lumi(void) const {return data_.lumi;}
-  const uint32_t streamId(void) const {return data_.streamId;}
-  const uint32_t moduleId(void) const {return data_.moduleId;}
+  const uint32_t run() const {return data_.run;}
+  const uint32_t lumi() const {return data_.lumi;}
+  const uint32_t moduleId() const {return data_.moduleId;}
 };
 
 #endif // DQMSERVICES_CORE_MONITOR_ELEMENT_H

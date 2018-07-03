@@ -12,7 +12,7 @@ namespace reco {
       CaloRecHitCandidateProducer( const edm::ParameterSet & cfg ) :
 	srcToken_( consumes<HitCollection>( cfg.template getParameter<edm::InputTag>( "src" ) ) ) { }
       /// destructor
-      ~CaloRecHitCandidateProducer() { }
+      ~CaloRecHitCandidateProducer() override { }
 
     private:
       /// process one event
@@ -37,7 +37,7 @@ namespace reco {
       using namespace std;
       Handle<HitCollection> hits;
       evt.getByToken( srcToken_, hits );
-      auto_ptr<CandidateCollection> cands( new CandidateCollection );
+      unique_ptr<CandidateCollection> cands( new CandidateCollection );
       size_t size = hits->size();
       cands->reserve( size );
       for( size_t idx = 0; idx != size; ++ idx ) {
@@ -50,7 +50,7 @@ namespace reco {
 	c->setCaloRecHit( RefToBase<CaloRecHit>( Ref<HitCollection>( hits, idx ) ) );
 	cands->push_back( c );
       }
-      evt.put( cands );
+      evt.put(std::move(cands));
     }
 
   }

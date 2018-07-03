@@ -106,24 +106,26 @@ namespace {
 
 /*****************************************************************************/
 LowPtClusterShapeSeedComparitor::LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps, edm::ConsumesCollector& iC):
-  thePixelClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
+  thePixelClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
+  theShapeFilterLabel_(ps.getParameter<std::string>("clusterShapeHitFilter"))
 {}
 
 /*****************************************************************************/
 void LowPtClusterShapeSeedComparitor::init(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theShapeFilter);
+  es.get<CkfComponentsRecord>().get(theShapeFilterLabel_, theShapeFilter);
   es.get<TrackerTopologyRcd>().get(theTTopo);
 
   e.getByToken(thePixelClusterShapeCacheToken, thePixelClusterShapeCache);
 }
 
-bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits, const TrackingRegion &) const
+bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits) const
 //(const reco::Track* track, const vector<const TrackingRecHit *> & recHits) const
 {
   assert(hits.size()==3);
 
   const ClusterShapeHitFilter * filter = theShapeFilter.product();
-  assert(filter != 0 && "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called");
+  if(filter == nullptr)
+    throw cms::Exception("LogicError") << "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called";
 
    // Get global positions
    GlobalPoint  globalPoss[3];

@@ -21,9 +21,9 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
   
  public:
   explicit HLTHcalMETNoiseCleaner(const edm::ParameterSet&);
-  ~HLTHcalMETNoiseCleaner();
+  ~HLTHcalMETNoiseCleaner() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::EDGetTokenT<reco::CaloMETCollection> m_theCaloMetToken;
@@ -59,7 +59,7 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
 
   // helper function to compare noise data energies
   struct noisedatacomp {
-    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) {
+    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const{
       return t1.energy()>t2.energy();
     }
   };

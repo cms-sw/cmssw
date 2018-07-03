@@ -36,7 +36,7 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
  public:
   explicit RecoTauDiscriminantCutMultiplexer(const edm::ParameterSet& pset);
 
-  ~RecoTauDiscriminantCutMultiplexer();
+  ~RecoTauDiscriminantCutMultiplexer() override;
   double discriminate(const reco::PFTauRef&) const override;
   void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   
@@ -173,7 +173,7 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
     } else if ( mappingEntry->existsAs<std::string>("cut") ) {
       cut->cutName_ = mappingEntry->getParameter<std::string>("cut");
       std::string cutVariable_string = mappingEntry->getParameter<std::string>("variable");
-      cut->cutVariable_.reset( new StringObjectFunction<reco::PFTau>(cutVariable_string.data()) );
+      cut->cutVariable_.reset( new StringObjectFunction<reco::PFTau>(cutVariable_string) );
       cut->mode_ = DiscriminantCutEntry::kVariableCut;
     } else {
       throw cms::Exception("RecoTauDiscriminantCutMultiplexer") 
@@ -204,7 +204,7 @@ void RecoTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const 
 	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
       } else {
 	auto temp = loadTFormulaFromDB(es, mvaOutputNormalizationName_, Form("%s_mvaOutput_normalization", moduleLabel_.data()), verbosity_);
-	mvaOutput_normalization_.reset(temp.release());
+	mvaOutput_normalization_ = std::move(temp);
       }
     }
     for ( DiscriminantCutMap::iterator cut = cuts_.begin();

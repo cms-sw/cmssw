@@ -13,7 +13,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class ClusterizerUnitTesterESProducer: public edm::ESProducer {
   typedef edm::ParameterSet PSet;
@@ -22,9 +22,9 @@ class ClusterizerUnitTesterESProducer: public edm::ESProducer {
  public:
   ClusterizerUnitTesterESProducer(const PSet&);
   ~ClusterizerUnitTesterESProducer(){}
-  boost::shared_ptr<SiStripGain> produceGainRcd(const SiStripGainRcd&) { return gain;}
-  boost::shared_ptr<SiStripNoises> produceNoisesRcd(const SiStripNoisesRcd&) { return noises;}
-  boost::shared_ptr<SiStripQuality> produceQualityRcd(const SiStripQualityRcd&) {return quality;}
+  std::shared_ptr<SiStripGain> produceGainRcd(const SiStripGainRcd&) { return gain;}
+  std::shared_ptr<SiStripNoises> produceNoisesRcd(const SiStripNoisesRcd&) { return noises;}
+  std::shared_ptr<SiStripQuality> produceQualityRcd(const SiStripQualityRcd&) {return quality;}
  private:
   
   void extractNoiseGainQuality(const PSet&);
@@ -33,9 +33,9 @@ class ClusterizerUnitTesterESProducer: public edm::ESProducer {
   void setNoises(uint32_t, std::vector<std::pair<uint16_t,float> >&);
   void setGains( uint32_t, std::vector<std::pair<uint16_t,float> >&);
 
-  boost::shared_ptr<SiStripApvGain> apvGain;
-  boost::shared_ptr<SiStripGain> gain;
-  boost::shared_ptr<SiStripNoises>  noises;
-  boost::shared_ptr<SiStripQuality> quality;
+  std::shared_ptr<SiStripApvGain> apvGain;
+  std::shared_ptr<SiStripGain> gain;
+  std::shared_ptr<SiStripNoises>  noises;
+  std::shared_ptr<SiStripQuality> quality;
 };
 #endif

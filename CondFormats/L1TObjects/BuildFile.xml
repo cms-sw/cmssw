@@ -13,3 +13,5 @@
 <export>
   <lib   name="1"/>
 </export>
+
+<flags LDFLAGS="-lXMLIO"/>

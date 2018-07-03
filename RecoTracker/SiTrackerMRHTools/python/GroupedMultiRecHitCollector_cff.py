@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import copy
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 # Chi2MeasurementEstimatorESProducer
 RelaxedChi2 = copy.deepcopy(Chi2MeasurementEstimator)
 RelaxedChi2.ComponentName = 'RelaxedChi2'

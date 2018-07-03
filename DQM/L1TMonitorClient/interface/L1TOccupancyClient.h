@@ -35,13 +35,13 @@ class L1TOccupancyClient: public DQMEDHarvester {
     L1TOccupancyClient(const edm::ParameterSet& ps);
   
     /// Destructor
-    virtual ~L1TOccupancyClient();
+    ~L1TOccupancyClient() override;
  
   protected:
     
     void dqmEndJob  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
     void book   (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
-    void dqmEndLuminosityBlock  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);       // DQM Client Diagnostic
+    void dqmEndLuminosityBlock  (DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) override;       // DQM Client Diagnostic
   
     //DQM test routines
     double xySymmetry(const edm::ParameterSet& ps, 

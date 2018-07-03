@@ -39,9 +39,7 @@ HLTEventAnalyzerAOD::HLTEventAnalyzerAOD(const edm::ParameterSet& ps) :
 
 }
 
-HLTEventAnalyzerAOD::~HLTEventAnalyzerAOD()
-{
-}
+HLTEventAnalyzerAOD::~HLTEventAnalyzerAOD() = default;
 
 //
 // member functions
@@ -175,7 +173,7 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::Ev
        << endl
        << "prescales L1T: " << prescalesInDetail.first.size() <<  message.str()
        << endl
-       << "prescale  HLT: " << prescalesInDetail.second
+       << " prescale HLT: " << prescalesInDetail.second
        << endl;
 
   // modules on this trigger path

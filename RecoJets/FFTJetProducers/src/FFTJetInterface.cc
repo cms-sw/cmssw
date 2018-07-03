@@ -106,7 +106,7 @@ void FFTJetInterface::discretizeEnergyFlow()
     g.reset();
 
     const unsigned nInputs = eventData.size();
-    const VectorLike* inp = nInputs ? &eventData[0] : 0;
+    const VectorLike* inp = nInputs ? &eventData[0] : nullptr;
     for (unsigned i=0; i<nInputs; ++i)
     {
         const VectorLike& item(inp[i]);

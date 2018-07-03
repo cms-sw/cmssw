@@ -43,7 +43,7 @@ public:
   // specialize given recort to this type
   RecordCD(const DataRecord & rec) : DataRecord(rec) {}
 
-  virtual ~RecordCD() {}
+  ~RecordCD() override {}
 
   static bool matchType(const DataRecord & record) {
     return ( (record.data() >> CD_TYPE_SHIFT) < CD_TYPE_LESSTHENFLAG);

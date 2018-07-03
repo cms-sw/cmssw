@@ -1,35 +1,33 @@
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="FWCore/Framework"/>
-<use   name="DataFormats/Common"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="clhep"/>
-<use   name="boost"/>
-<use   name="root"/>
-<use   name="DataFormats/L1GlobalTrigger"/>
-<use   name="CondFormats/L1TObjects"/>
-<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
-<use   name="CommonTools/UtilAlgos"/>
-<use   name="Geometry/Records"/>
-<use   name="DataFormats/DetId"/>
-# for tracks
-<use   name="TrackingTools/TrajectoryState"/>
-<use   name="TrackingTools/TrackFitters"/>
-<use   name="TrackingTools/TransientTrack"/>
-<use   name="DataFormats/VertexReco"/>
-# for lumi
-<use   name="DataFormats/Luminosity"/>
-<use   name="RecoLuminosity/LumiProducer"/>
-#
-<flags   EDM_PLUGIN="1"/>
-<library   file="ReadPixClusters.cc" name="ReadPixClusters">
+<use name="boost"/>
+<use name="clhep"/>
+<use name="root"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CondFormats/L1TObjects"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/L1GlobalTrigger"/>
+<use name="DataFormats/Luminosity"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use name="RecoLuminosity/LumiProducer"/>
+<use name="TrackingTools/TrackFitters"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrack"/>
+
+<library file="ReadPixClusters.cc" name="ReadPixClusters">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<flags   EDM_PLUGIN="1"/>
-<library   file="TestClusters.cc" name="TestClusters">
+<library file="TestClusters.cc" name="TestClusters">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<flags   EDM_PLUGIN="1"/>
-<library   file="TestWithTracks.cc" name="TestWithTracks">
+<library file="TestWithTracks.cc" name="TestWithTracks">
+  <flags EDM_PLUGIN="1"/>
 </library>
-<flags   EDM_PLUGIN="1"/>
-<library   file="Triplet.cc" name="Triplet">
+<library file="Triplet.cc" name="Triplet">
+  <flags EDM_PLUGIN="1"/>
 </library>

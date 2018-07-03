@@ -24,6 +24,11 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              # RecHit Level
                              CSCRecHitLabel = cms.InputTag("csc2DRecHits"),
                              
+                             # Calo rec hits
+                             HBHErhLabel = cms.InputTag("hbhereco"),
+                             ECALBrhLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                             ECALErhLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+                             
                              # Higher Level Reco
                              CSCSegmentLabel= cms.InputTag("cscSegments"),
                              CosmicMuonLabel= cms.InputTag("muonsFromCosmics"),
@@ -72,7 +77,7 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              # MLR
                              # Default values for identifying CSCSegments that are halo-like
                              MaxSegmentRDiff = cms.double(10.0),
-                             MaxSegmentPhiDiff = cms.double(0.35),
+                             MaxSegmentPhiDiff = cms.double(0.1),
                              MaxSegmentTheta = cms.double(0.7)
                              # End MLR
                              )

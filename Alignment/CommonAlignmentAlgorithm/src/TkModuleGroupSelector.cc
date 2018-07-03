@@ -93,11 +93,11 @@ bool TkModuleGroupSelector::createGroup(
   firstId_.push_back(Id);
   runRange_.push_back(range);
   for(std::list<Alignable*>::const_iterator it = selected_alis.begin();
-      it != selected_alis.end(); it++) {
+      it != selected_alis.end(); ++it) {
     this->fillDetIdMap((*it)->id(), firstId_.size()-1);
     modules_selected = true;
   }
-  if(refrun > 0 && range.size() > 0) { //FIXME: last condition not really needed?
+  if(refrun > 0 && !range.empty()) { //FIXME: last condition not really needed?
     Id += range.size() - 1;
     nparameters_ += range.size() - 1;
   } else {
@@ -176,17 +176,16 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
     selector.clear();
     selector.addSelections((*pset).getParameter<edm::ParameterSet> ("levels"));
 
-    const std::vector<Alignable*> &alis = selector.selectedAlignables();
+    const auto& alis = selector.selectedAlignables();
     std::list<Alignable*> selected_alis;
-    for(std::vector<Alignable*>::const_iterator it = alis.begin(); it != alis.end(); ++it) {
-      const std::vector<Alignable*> &aliDaughts = (*it)->deepComponents();
-      for (std::vector<Alignable*>::const_iterator iD = aliDaughts.begin();
-           iD != aliDaughts.end(); ++iD) {
-        if((*iD)->alignableObjectId() == align::AlignableDetUnit || (*iD)->alignableObjectId() == align::AlignableDet) {
+    for(const auto& it: alis) {
+      const auto& aliDaughts = it->deepComponents();
+      for (const auto& iD: aliDaughts) {
+        if(iD->alignableObjectId() == align::AlignableDetUnit || iD->alignableObjectId() == align::AlignableDet) {
           if(split) {
-            modules_selected = this->createGroup(Id, range, std::list<Alignable*>(1,(*iD)), refrun);
+            modules_selected = this->createGroup(Id, range, std::list<Alignable*>(1,iD), refrun);
           } else {
-            selected_alis.push_back((*iD));
+            selected_alis.push_back(iD);
           }
         }
       }
@@ -218,7 +217,7 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
 
   //copy local set into the global vector of run boundaries
   for(std::set<edm::RunNumber_t>::const_iterator itRun = localRunRange.begin();
-      itRun != localRunRange.end(); itRun++) {
+      itRun != localRunRange.end(); ++itRun) {
     globalRunRange_.push_back((*itRun));
   }
 }
@@ -255,7 +254,7 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
   bool sel = false;
   for(std::vector<int>::const_iterator itSubDets = subdetids_.begin();
       itSubDets != subdetids_.end();
-      itSubDets++) {
+      ++itSubDets) {
     if (temp_id.det() == DetId::Tracker && temp_id.subdetId() == (*itSubDets)) {
       sel = true;
       break;

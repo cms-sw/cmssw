@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="trackerpatchpannel.xml" eval="true">
+  <Constant name="zero" value="0.0*fm"/>
+  <!--Pixel patch pannel sandwiched layers-->
+  <Constant name="PIXSandwichLayerRin" value="215*mm"/>
+  <Constant name="PIXSandwichLayerRout" value="625*mm"/>
+  <Constant name="PIXSandwichLayerRout2" value="1063*mm"/>
+  <Constant name="PIXPatchpanelWidth1" value="10*deg"/>
+  <Constant name="PIXPatchpanelPhi" value="-100*deg"/>
+  <!--Pixel patch pannel sandwiched layers: total thickness-->
+  <Constant name="Thick" value="[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]+[PIXSandwichLayer4Thick]"/>
+  <Constant name="PIXSandwichLayer1Thick" value="0.2*mm"/>
+  <Constant name="PIXSandwichLayer2Thick" value="11.0*mm"/>
+  <Constant name="PIXSandwichLayer3Thick" value="0.5*mm"/>
+  <Constant name="PIXSandwichLayer4Thick" value="0.3*mm"/>
+  <!--Pixel patch pannel sandwiched layers: outside bulkhead (>z)-->
+  <Constant name="BulkheadAllThick" value="[BHThick]+[BHDiskThick]+[BHCoversThick]"/>
+  <Constant name="BHThick" value="89*mm"/>
+  <Constant name="BHDiskThick" value="5*mm"/>
+  <Constant name="BHCoversThick" value="1.1*mm"/>
+  <Constant name="PIXSandwichLayersZ" value="[tob:Zv3]+[BulkheadAllThick]+0.5*[Thick]"/>
+ </ConstantsSection>
+ <SolidSection label="trackerpatchpannel.xml">
+   <Tubs name="TrackerPatchPannel" rMin="[PIXSandwichLayerRin]" rMax="[PIXSandwichLayerRout2]" dz="0.5*[Thick]" startPhi="0*deg" deltaPhi="360*deg"/>
+   <Tubs name="PIXSandwichLayer1" rMin="[PIXSandwichLayerRin]" rMax="[PIXSandwichLayerRout]" dz="0.5*[PIXSandwichLayer1Thick]" startPhi="0*deg" deltaPhi="360*deg"/>
+   <Tubs name="PIXSandwichLayer2" rMin="[PIXSandwichLayerRin]" rMax="[PIXSandwichLayerRout]" dz="0.5*[PIXSandwichLayer2Thick]" startPhi="0*deg" deltaPhi="360*deg"/>
+   <Tubs name="PIXSandwichLayer3" rMin="[PIXSandwichLayerRin]" rMax="[PIXSandwichLayerRout]" dz="0.5*[PIXSandwichLayer3Thick]" startPhi="0*deg" deltaPhi="360*deg"/>
+   <Tubs name="PIXSandwichLayer4" rMin="[PIXSandwichLayerRin]" rMax="[PIXSandwichLayerRout]" dz="0.5*[PIXSandwichLayer4Thick]" startPhi="0*deg" deltaPhi="360*deg"/>
+   <Tubs name="PIXSandwichLayer1outer" rMin="[PIXSandwichLayerRout]" rMax="[PIXSandwichLayerRout2]" dz="0.5*[PIXSandwichLayer1Thick]" startPhi="-2*[PIXPatchpanelWidth1]" deltaPhi="2*[PIXPatchpanelWidth1]"/> 
+   <Tubs name="PIXSandwichLayer2outer" rMin="[PIXSandwichLayerRout]" rMax="[PIXSandwichLayerRout2]" dz="0.5*[PIXSandwichLayer2Thick]" startPhi="-2*[PIXPatchpanelWidth1]" deltaPhi="2*[PIXPatchpanelWidth1]"/> 
+   <Tubs name="PIXSandwichLayer3outer" rMin="[PIXSandwichLayerRout]" rMax="[PIXSandwichLayerRout2]" dz="0.5*[PIXSandwichLayer3Thick]" startPhi="-2*[PIXPatchpanelWidth1]" deltaPhi="2*[PIXPatchpanelWidth1]"/> 
+   <Tubs name="PIXSandwichLayer4outer" rMin="[PIXSandwichLayerRout]" rMax="[PIXSandwichLayerRout2]" dz="0.5*[PIXSandwichLayer4Thick]" startPhi="-2*[PIXPatchpanelWidth1]" deltaPhi="2*[PIXPatchpanelWidth1]"/> 
+ </SolidSection>
+ <LogicalPartSection label="trackerpatchpannel.xml">
+  <LogicalPart name="TrackerPatchPannel" category="unspecified">
+   <rSolid name="trackerpatchpannel:TrackerPatchPannel"/>
+   <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer1" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer1"/>
+   <rMaterial name="trackermaterial:T_G10"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer1outer" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer1outer"/>
+   <rMaterial name="trackermaterial:T_G10"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer2" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer2"/>
+   <rMaterial name="trackermaterial:T_Rohacell"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer2outer" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer2outer"/>
+   <rMaterial name="trackermaterial:T_Rohacell"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer3" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer3"/>
+   <rMaterial name="trackermaterial:T_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer3outer" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer3outer"/>
+   <rMaterial name="trackermaterial:T_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer4" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer4"/>
+   <rMaterial name="trackermaterial:Tpatch_PN"/>
+   </LogicalPart>
+  <LogicalPart name="PIXSandwichLayer4outer" category="unspecified">
+   <rSolid name="trackerpatchpannel:PIXSandwichLayer4outer"/>
+   <rMaterial name="trackermaterial:Tpatch_PN"/>
+   </LogicalPart>
+ </LogicalPartSection>
+ <PosPartSection label="trackerpatchpannel.xml">
+  <PosPart copyNumber="1">
+   <rParent name="tracker:Tracker"/>
+   <rChild name="trackerpatchpannel:TrackerPatchPannel"/>
+   <Translation x="[zero]" y="[zero]" z="[PIXSandwichLayersZ]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="tracker:Tracker"/>
+   <rChild name="trackerpatchpannel:TrackerPatchPannel"/>
+   <Translation x="[zero]" y="[zero]" z="-[PIXSandwichLayersZ]"/>
+   <rRotation name="tracker:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+    <rChild name="trackerpatchpannel:PIXSandwichLayer1"/>
+    <Translation x="[zero]" y="[zero]" z="-0.5*[Thick]+0.5*[PIXSandwichLayer1Thick]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+    <rChild name="trackerpatchpannel:PIXSandwichLayer2"/>
+    <Translation x="[zero]" y="[zero]" z="-0.5*[Thick]+[PIXSandwichLayer1Thick]+0.5*[PIXSandwichLayer2Thick]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+    <rChild name="trackerpatchpannel:PIXSandwichLayer3"/>
+    <Translation x="[zero]" y="[zero]" z="-0.5*[Thick]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+0.5*[PIXSandwichLayer3Thick]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+    <rChild name="trackerpatchpannel:PIXSandwichLayer4"/>
+    <Translation x="[zero]" y="[zero]" z="-0.5*[Thick]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]+0.5*[PIXSandwichLayer4Thick]"/>
+  </PosPart>
+ </PosPartSection>
+ <Algorithm name="track:DDTrackerAngular">
+   <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+   <String  name="ChildName" value="trackerpatchpannel:PIXSandwichLayer1outer"/>
+   <Numeric name="N" value="2"/>
+   <Numeric name="StartCopyNo" value="1"/>
+   <Numeric name="IncrCopyNo" value="1"/>
+   <Numeric name="RangeAngle" value="360*deg"/>
+   <Numeric name="StartAngle" value="-[PIXPatchpanelPhi]"/>
+   <Numeric name="Radius" value="[zero]"/>
+   <Vector  name="Center" type="numeric" nEntries="3">
+   0, 0, (-0.5*[Thick]+0.5*[PIXSandwichLayer1Thick]) </Vector>
+ </Algorithm>
+ <Algorithm name="track:DDTrackerAngular">
+   <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+   <String  name="ChildName" value="trackerpatchpannel:PIXSandwichLayer2outer"/>
+   <Numeric name="N" value="2"/>
+   <Numeric name="StartCopyNo" value="1"/>
+   <Numeric name="IncrCopyNo" value="1"/>
+   <Numeric name="RangeAngle" value="360*deg"/>
+   <Numeric name="StartAngle" value="-[PIXPatchpanelPhi]"/>
+   <Numeric name="Radius" value="[zero]"/>
+   <Vector  name="Center" type="numeric" nEntries="3">
+   0, 0, (-0.5*[Thick]+[PIXSandwichLayer1Thick]+0.5*[PIXSandwichLayer2Thick]) </Vector>
+ </Algorithm>
+ <Algorithm name="track:DDTrackerAngular">
+   <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+   <String  name="ChildName" value="trackerpatchpannel:PIXSandwichLayer3outer"/>
+   <Numeric name="N" value="2"/>
+   <Numeric name="StartCopyNo" value="1"/>
+   <Numeric name="IncrCopyNo" value="1"/>
+   <Numeric name="RangeAngle" value="360*deg"/>
+   <Numeric name="StartAngle" value="-[PIXPatchpanelPhi]"/>
+   <Numeric name="Radius" value="[zero]"/>
+   <Vector  name="Center" type="numeric" nEntries="3">
+   0, 0, (-0.5*[Thick]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+0.5*[PIXSandwichLayer3Thick]) </Vector>
+ </Algorithm>
+ <Algorithm name="track:DDTrackerAngular">
+   <rParent name="trackerpatchpannel:TrackerPatchPannel"/>
+   <String  name="ChildName" value="trackerpatchpannel:PIXSandwichLayer4outer"/>
+   <Numeric name="N" value="2"/>
+   <Numeric name="StartCopyNo" value="1"/>
+   <Numeric name="IncrCopyNo" value="1"/>
+   <Numeric name="RangeAngle" value="360*deg"/>
+   <Numeric name="StartAngle" value="-[PIXPatchpanelPhi]"/>
+   <Numeric name="Radius" value="[zero]"/>
+   <Vector  name="Center" type="numeric" nEntries="3">
+   0, 0, (-0.5*[Thick]+[PIXSandwichLayer1Thick]+[PIXSandwichLayer2Thick]+[PIXSandwichLayer3Thick]+0.5*[PIXSandwichLayer4Thick]) </Vector>
+ </Algorithm>
+</DDDefinition>

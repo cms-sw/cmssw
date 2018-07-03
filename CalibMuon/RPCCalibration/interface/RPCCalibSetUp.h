@@ -13,7 +13,7 @@
 #include <iostream>
 #include<cstring>
 #include<string>
-#include<stdlib.h>
+#include<cstdlib>
 #include <utility>
 
 class RPCDigitizer;

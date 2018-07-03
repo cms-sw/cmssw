@@ -21,9 +21,9 @@ class GlobalCosmicMuonProducer : public edm::stream::EDProducer<> {
 public:
   explicit GlobalCosmicMuonProducer(const edm::ParameterSet&);
 
-   ~GlobalCosmicMuonProducer();
+   ~GlobalCosmicMuonProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;

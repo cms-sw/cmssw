@@ -14,4 +14,11 @@
   <class name="std::vector<HcalTestHistoClass::Layer>"/>
   <class name="std::vector<HcalTestHistoClass::Hit>"/>
   <class name="std::vector<HcalTestHistoClass::QIE>"/>
+
+  <class name="ParticleFlux" ClassVersion="13">
+   <version ClassVersion="13" checksum="2329907515"/>
+  </class>
+  <class name="edm::Wrapper<ParticleFlux>"/>
+  <class name="ParticleFlux::flux"/>
+  <class name="std::vector<ParticleFlux::flux>"/>
 </lcgdict>

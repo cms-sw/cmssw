@@ -63,10 +63,7 @@ EgHLTOfflineSummaryClient::EgHLTOfflineSummaryClient(const edm::ParameterSet& iC
 }
 
 
-EgHLTOfflineSummaryClient::~EgHLTOfflineSummaryClient()
-{ 
- 
-}
+EgHLTOfflineSummaryClient::~EgHLTOfflineSummaryClient() = default;
 
 void EgHLTOfflineSummaryClient::beginJob()
 {
@@ -141,8 +138,8 @@ void EgHLTOfflineSummaryClient::runClient_()
   MonitorElement* hltEleSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Electron");
   MonitorElement* hltPhoSumBit = dbe_->get("HLT/EventInfo/reportSummaryContents/HLT_Photon");
   dbe_->setCurrentFolder("HLT/EventInfo/reportSummaryContents/");
-  if(hltEleSumBit==NULL) hltEleSumBit = dbe_->bookFloat("HLT_Electron");
-  if(hltPhoSumBit==NULL) hltPhoSumBit = dbe_->bookFloat("HLT_Photon");
+  if(hltEleSumBit==nullptr) hltEleSumBit = dbe_->bookFloat("HLT_Electron");
+  if(hltPhoSumBit==nullptr) hltPhoSumBit = dbe_->bookFloat("HLT_Photon");
 
   
   float eleSumBit=1.;
@@ -169,13 +166,13 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
 {
   splitStrings.clear();
   splitStrings.reserve(stringsToSplit.size());
-  for(size_t stringNr=0;stringNr<stringsToSplit.size();stringNr++){
+  for(auto const & stringNr : stringsToSplit){
     std::vector<std::string> tempSplitStrings;
-    boost::split(tempSplitStrings,stringsToSplit[stringNr],boost::is_any_of(std::string(":")));
+    boost::split(tempSplitStrings,stringNr,boost::is_any_of(std::string(":")));
     if(tempSplitStrings.size()==2){
       splitStrings.push_back(std::make_pair(tempSplitStrings[0],tempSplitStrings[1]));
     }else{
-      edm::LogWarning("EgHLTOfflineSummaryClient") <<" Error : entry "<<stringsToSplit[stringNr]<<" is not of form A:B, ignoring (ie this quailty test isnt being included in the sumamry hist) ";
+      edm::LogWarning("EgHLTOfflineSummaryClient") <<" Error : entry "<<stringNr<<" is not of form A:B, ignoring (ie this quailty test isnt being included in the sumamry hist) ";
     }
   }
 }
@@ -185,8 +182,8 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
 MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_()
 {
   MonitorElement* egHLTSumHist = dbe_->get(dirName_+"/"+egHLTSumHistName_);
-  if(egHLTSumHist==NULL){
-    TH2F* hist = new TH2F(egHLTSumHistName_.c_str(),"E/g HLT Offline Summary",egHLTSumHistXBins_.size(),0.,1.,egHLTFiltersToMon_.size(),0.,1.);
+  if(egHLTSumHist==nullptr){
+    auto* hist = new TH2F(egHLTSumHistName_.c_str(),"E/g HLT Offline Summary",egHLTSumHistXBins_.size(),0.,1.,egHLTFiltersToMon_.size(),0.,1.);
     for(size_t xBinNr=0;xBinNr<egHLTSumHistXBins_.size();xBinNr++){
       hist->GetXaxis()->SetBinLabel(xBinNr+1,egHLTSumHistXBins_[xBinNr].name.c_str());
     }
@@ -223,8 +220,8 @@ MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_()
 void EgHLTOfflineSummaryClient::getEgHLTFiltersToMon_(std::vector<std::string>& filterNames)const
 { 
   std::set<std::string> filterNameSet;
-  for(size_t i=0;i<eleHLTFilterNames_.size();i++) filterNameSet.insert(eleHLTFilterNames_[i]);
-  for(size_t i=0;i<phoHLTFilterNames_.size();i++) filterNameSet.insert(phoHLTFilterNames_[i]);
+  for(auto const & eleHLTFilterName : eleHLTFilterNames_) filterNameSet.insert(eleHLTFilterName);
+  for(auto const & phoHLTFilterName : phoHLTFilterNames_) filterNameSet.insert(phoHLTFilterName);
  
   //right all the triggers are inserted once and only once in the set, convert to vector
   //very lazy, create a new vector so can use the constructor and then use swap to transfer
@@ -237,15 +234,15 @@ int EgHLTOfflineSummaryClient::getQTestResults_(const std::string& filterName,co
 {
   int nrFail =0;
   int nrQTests=0;
-  for(size_t patternNr=0;patternNr<patterns.size();patternNr++){
-    std::vector<MonitorElement*> monElems = dbe_->getMatchingContents(dirName_+"/"+filterName+patterns[patternNr]);
+  for(auto const & pattern : patterns){
+    std::vector<MonitorElement*> monElems = dbe_->getMatchingContents(dirName_+"/"+filterName+pattern);
     // std::cout <<"mon elem "<<dirName_+"/"+filterName+patterns[patternNr]<<"nr monElems "<<monElems.size()<<std::endl;
-    for(size_t monElemNr=0;monElemNr<monElems.size();monElemNr++){
+    for(auto & monElem : monElems){
      
-      std::vector<QReport*> qTests = monElems[monElemNr]->getQReports();
+      std::vector<QReport*> qTests = monElem->getQReports();
       nrQTests+=qTests.size();
       //  std::cout <<monElems[monElemNr]->getName()<<" "<<monElems[monElemNr]->hasError()<<" nr test "<<qTests.size()<<std::endl;
-      if(monElems[monElemNr]->hasError()) nrFail++;
+      if(monElem->hasError()) nrFail++;
     }
   }
   if(nrQTests==0) return -1;

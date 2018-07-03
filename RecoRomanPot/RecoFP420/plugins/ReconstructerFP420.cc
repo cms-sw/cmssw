@@ -179,7 +179,7 @@ namespace cms
        
     
     // Step C: create empty output collection
-    std::auto_ptr<RecoCollectionFP420> toutput(new RecoCollectionFP420);
+    auto toutput = std::make_unique<RecoCollectionFP420>();
     
     
     
@@ -207,16 +207,16 @@ namespace cms
     
     //                                RUN now:                                                                                 !!!!!!     
     //   startFP420RecoMain_.run(input, toutput);
-    sFP420RecoMain_->run(input, toutput, VtxX, VtxY, VtxZ);
+    sFP420RecoMain_->run(input, toutput.get(), VtxX, VtxY, VtxZ);
     // std::cout <<"=======           ReconstructerFP420:                    end of produce     " << endl;
     
 	// Step D: write output to file
     if (verbosity > 0) {
-      std::cout << "ReconstructerFP420: iEvent.put(toutput)" << std::endl;
+      std::cout << "ReconstructerFP420: iEvent.put(std::move(toutput)" << std::endl;
     }
-	iEvent.put(toutput);
+	iEvent.put(std::move(toutput));
     if (verbosity > 0) {
-      std::cout << "ReconstructerFP420: iEvent.put(toutput) DONE" << std::endl;
+      std::cout << "ReconstructerFP420: iEvent.put(std::move(toutput) DONE" << std::endl;
     }
   }//produce
   

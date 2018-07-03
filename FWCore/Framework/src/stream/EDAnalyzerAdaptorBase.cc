@@ -74,6 +74,7 @@ EDAnalyzerAdaptorBase::doPreallocate(PreallocationConfiguration const& iPrealloc
   m_streamModules.resize(iPrealloc.numberOfStreams(),
                          static_cast<stream::EDAnalyzerBase*>(nullptr));
   setupStreamModules();
+  preallocLumis(iPrealloc.numberOfLuminosityBlocks());
 }
 
 void
@@ -84,40 +85,34 @@ EDAnalyzerAdaptorBase::registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*
 }
 
 void
-EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
+EDAnalyzerAdaptorBase::itemsToGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
   assert(not m_streamModules.empty());
   m_streamModules[0]->itemsToGet(iType,iIndices);
 }
 void
-EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
+EDAnalyzerAdaptorBase::itemsMayGet(BranchType iType, std::vector<ProductResolverIndexAndSkipBit>& iIndices) const {
   assert(not m_streamModules.empty());
   m_streamModules[0]->itemsMayGet(iType,iIndices);  
 }
 
-std::vector<edm::ProductHolderIndexAndSkipBit> const&
-EDAnalyzerAdaptorBase::itemsToGetFromEvent() const {
+std::vector<edm::ProductResolverIndexAndSkipBit> const&
+EDAnalyzerAdaptorBase::itemsToGetFrom(BranchType iType) const {
   assert(not m_streamModules.empty());
-  return m_streamModules[0]->itemsToGetFromEvent();  
+  return m_streamModules[0]->itemsToGetFrom(iType);
 }
 
 void
 EDAnalyzerAdaptorBase::updateLookup(BranchType iType,
-                                    ProductHolderIndexHelper const& iHelper) {
+                                    ProductResolverIndexHelper const& iHelper,
+                                    bool iPrefetchMayGet) {
   for(auto mod: m_streamModules) {
-    mod->updateLookup(iType,iHelper);
+    mod->updateLookup(iType,iHelper,iPrefetchMayGet);
   }
 }
 
 const edm::EDConsumerBase*
 EDAnalyzerAdaptorBase::consumer() const {
   return m_streamModules[0];
-}
-
-void
-EDAnalyzerAdaptorBase::modulesDependentUpon(const std::string& iProcessName,
-                                            std::vector<const char*>& oModuleLabels) const {
-  assert(not m_streamModules.empty());
-  return m_streamModules[0]->modulesDependentUpon(iProcessName, oModuleLabels);
 }
 
 void
@@ -129,6 +124,13 @@ EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescrip
   return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
 }
 
+void
+EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
+  for(auto mod: m_streamModules) {
+    mod->convertCurrentProcessAlias(processName);
+  }
+}
+
 std::vector<edm::ConsumesInfo>
 EDAnalyzerAdaptorBase::consumesInfo() const {
   assert(not m_streamModules.empty());
@@ -136,7 +138,7 @@ EDAnalyzerAdaptorBase::consumesInfo() const {
 }
 
 bool
-EDAnalyzerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+EDAnalyzerAdaptorBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                                ActivityRegistry* act,
                                ModuleCallingContext const* mcc) {
   assert(ep.streamID()<m_streamModules.size());
@@ -163,14 +165,14 @@ EDAnalyzerAdaptorBase::doEndStream(StreamID id) {
 
 void
 EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
-                                        RunPrincipal& rp,
+                                        RunPrincipal const& rp,
                                         EventSetup const& c,
                                         ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
   setupRun(mod, rp.index());
   
-  Run r(rp, moduleDescription_, mcc);
+  Run r(rp, moduleDescription_, mcc, false);
   r.setConsumer(mod);
   mod->beginRun(r, c);
 
@@ -178,12 +180,12 @@ EDAnalyzerAdaptorBase::doStreamBeginRun(StreamID id,
 
 void
 EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
-                    RunPrincipal& rp,
+                    RunPrincipal const& rp,
                     EventSetup const& c,
                     ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
-  Run r(rp, moduleDescription_, mcc);
+  Run r(rp, moduleDescription_, mcc, true);
   r.setConsumer(mod);
   mod->endRun(r, c);
   streamEndRunSummary(mod,r,c);
@@ -191,24 +193,24 @@ EDAnalyzerAdaptorBase::doStreamEndRun(StreamID id,
 
 void
 EDAnalyzerAdaptorBase::doStreamBeginLuminosityBlock(StreamID id,
-                                                    LuminosityBlockPrincipal& lbp,
+                                                    LuminosityBlockPrincipal const& lbp,
                                                     EventSetup const& c,
                                                     ModuleCallingContext const* mcc) {
   auto mod = m_streamModules[id];
   setupLuminosityBlock(mod,lbp.index());
   
-  LuminosityBlock lb(lbp, moduleDescription_, mcc);
+  LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
   lb.setConsumer(mod);
   mod->beginLuminosityBlock(lb, c);
 }
 void
 EDAnalyzerAdaptorBase::doStreamEndLuminosityBlock(StreamID id,
-                                LuminosityBlockPrincipal& lbp,
+                                LuminosityBlockPrincipal const& lbp,
                                 EventSetup const& c,
                                 ModuleCallingContext const* mcc)
 {
   auto mod = m_streamModules[id];
-  LuminosityBlock lb(lbp, moduleDescription_, mcc);
+  LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
   lb.setConsumer(mod);
   mod->endLuminosityBlock(lb, c);
   streamEndLuminosityBlockSummary(mod,lb, c);
@@ -219,20 +221,6 @@ void
 EDAnalyzerAdaptorBase::doRespondToOpenInputFile(FileBlock const&){}
 void
 EDAnalyzerAdaptorBase::doRespondToCloseInputFile(FileBlock const&){}
-void
-EDAnalyzerAdaptorBase::doPreForkReleaseResources()
-{
-  for(auto mod: m_streamModules) {
-    mod->preForkReleaseResources();
-  }
-}
-void
-EDAnalyzerAdaptorBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren)
-{
-  for(auto mod: m_streamModules) {
-    mod->postForkReacquireResources(iChildIndex,iNumberOfChildren);
-  }
-}
 
 void
 EDAnalyzerAdaptorBase::setModuleDescriptionPtr(EDAnalyzerBase* m) {

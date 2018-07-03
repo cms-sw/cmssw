@@ -26,7 +26,6 @@ namespace edm {
 
   class HistoryAppender;
   class ModuleCallingContext;
-  class UnscheduledHandler;
 
   class RunPrincipal : public Principal {
   public:
@@ -38,10 +37,11 @@ namespace edm {
         std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int iRunIndex);
-    ~RunPrincipal() {}
+        unsigned int iRunIndex,
+        bool isForPrimaryProcess=true);
+    ~RunPrincipal() override {}
 
-    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
+    void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
 
     /** Multiple Runs may be processed simultaneously. The
      return value can be used to identify a particular Run.
@@ -86,35 +86,20 @@ namespace edm {
       return aux_->mergeAuxiliary(aux);
     }
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
-
     void put(
         BranchDescription const& bd,
-        std::unique_ptr<WrapperBase> edp);
+        std::unique_ptr<WrapperBase> edp) const;
 
-    void readImmediate() const;
-
-    void setComplete() {
-      complete_ = true;
-    }
+    void put(ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp) const;
 
   private:
 
-    virtual bool isComplete_() const override {return complete_;}
+    unsigned int transitionIndex_() const override;
 
-    virtual bool unscheduledFill(std::string const&,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const*) const override {return false;}
-
-    virtual unsigned int transitionIndex_() const override;
-
-    void resolveProductImmediate(ProductHolderBase const& phb) const;
-
-    std::shared_ptr<RunAuxiliary> aux_;
+    edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
-
-    bool complete_;
   };
 }
 #endif

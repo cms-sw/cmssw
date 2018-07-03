@@ -29,7 +29,7 @@ public :
   */
   DCCTBTCCBlock(DCCTBEventBlock * dccBlock,
 	      DCCTBDataParser * parser, 
-	      uint32_t * buffer, 
+              const uint32_t * buffer, 
 	      uint32_t numbBytes, 
 	      uint32_t wordsToEnd,
 	      uint32_t wordEventOffset,
@@ -50,6 +50,7 @@ protected :
   /**
      Adds a new TCC block
   */
+  using DCCTBBlockPrototype::increment;
   void  increment(uint32_t numb);
   
   /**

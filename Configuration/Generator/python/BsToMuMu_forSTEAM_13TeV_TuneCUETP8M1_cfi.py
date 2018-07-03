@@ -11,30 +11,35 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(0),
                          ExternalDecays = cms.PSet(
-        EvtGen130 = cms.untracked.PSet(
-            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
-            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-            user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
-            list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
-            operates_on_particles = cms.vint32()
-            ),
-        parameterSets = cms.vstring('EvtGen130')
-        ),
-                         PythiaParameters = cms.PSet(
-        pythia8CommonSettingsBlock,
-        pythia8CUEP8M1SettingsBlock,
-        processParameters = cms.vstring(            
-            'HardQCD:gg2bbbar = on ',
-            'HardQCD:qqbar2bbbar = on ',
-            'HardQCD:hardbbbar = on',
-            'PhaseSpace:pTHatMin = 20.',
-            ),
-        parameterSets = cms.vstring('pythia8CommonSettings',
+                         #using alternative name for decayer
+                         EvtGen1 = cms.untracked.PSet(
+	                    #uses latest evt and decay tables from evtgen 1.6
+                            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2014_NOLONGLIFE.DEC'),
+                            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt_2014.pdl'),
+                            convertPythiaCodes = cms.untracked.bool(False),
+                            #here we will use the user.dec store in the release
+                            user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
+                            list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
+                            operates_on_particles = cms.vint32()
+                         ),
+                         parameterSets = cms.vstring('EvtGen1')
+                        ),
+                        PythiaParameters = cms.PSet(
+                           pythia8CommonSettingsBlock,
+                           pythia8CUEP8M1SettingsBlock,
+                           processParameters = cms.vstring(            
+                              #filter of a b-quark before hadronizing, and use a better data-like process
+                              'PTFilter:filter = on',
+                              'PTFilter:quarkToFilter = 5',
+                              'PTFilter:scaleToFilter = 1.0',
+                              'SoftQCD:nonDiffractive = on',
+                           ),
+                           parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
                                     'processParameters',
-                                    )
-        )
-                         )
+                           )
+                        )
+)
 
 generator.PythiaParameters.processParameters.extend(EvtGenExtraParticles)
 

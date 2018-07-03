@@ -19,9 +19,9 @@ namespace pat {
   class PATMETSlimmer : public edm::global::EDProducer<> {
   public:
     explicit PATMETSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATMETSlimmer() { }
+    ~PATMETSlimmer() override { }
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
     
   private:
     class OneMETShift {
@@ -65,6 +65,8 @@ pat::PATMETSlimmer::PATMETSlimmer(const edm::ParameterSet & iConfig) :
   maybeReadShifts( iConfig, "tXYUncForT1Smear", pat::MET::TXYForT1Smear );
   maybeReadShifts( iConfig, "tXYUncForT01Smear", pat::MET::TXYForT01Smear );
   maybeReadShifts( iConfig, "caloMET", pat::MET::Calo );
+  maybeReadShifts( iConfig, "chsMET", pat::MET::Chs );
+  maybeReadShifts( iConfig, "trkMET", pat::MET::Trk );
 
   produces<std::vector<pat::MET> >();
 }
@@ -87,6 +89,8 @@ void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, cons
 	  shifts_.push_back(OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::PhotonEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::PhotonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::TauEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
@@ -115,12 +119,14 @@ pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pa
         case pat::MET::NoShift  : snprintf(buff, 1023, baseTagStr.c_str(), "");   break;
         case pat::MET::JetEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetEnUp");   break;
         case pat::MET::JetEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetEnDown"); break;
-        case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), isSmeared?"JetResUp":"");   break;
-        case pat::MET::JetResDown: snprintf(buff, 1023, baseTagStr.c_str(), isSmeared?"JetResDown":""); break;
+        case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetResUp");   break;
+        case pat::MET::JetResDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetResDown"); break;
         case pat::MET::MuonEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnUp");   break;
         case pat::MET::MuonEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnDown"); break;
         case pat::MET::ElectronEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "ElectronEnUp");   break;
         case pat::MET::ElectronEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "ElectronEnDown"); break;
+        case pat::MET::PhotonEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "PhotonEnUp");   break;
+        case pat::MET::PhotonEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "PhotonEnDown"); break;
         case pat::MET::TauEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "TauEnUp");   break;
         case pat::MET::TauEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "TauEnDown"); break;
         case pat::MET::UnclusteredEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "UnclusteredEnUp");   break;
@@ -140,14 +146,14 @@ pat::PATMETSlimmer::produce(edm::StreamID, edm::Event & iEvent, const edm::Event
     iEvent.getByToken(src_, src);
     if (src->size() != 1) throw cms::Exception("CorruptData", "More than one MET in the collection");
 
-    auto_ptr<vector<pat::MET> >  out(new vector<pat::MET>(1, src->front()));
+    auto out = std::make_unique<std::vector<pat::MET>>(1, src->front());
     pat::MET & met = out->back();
 
     for (const OneMETShift &shift : shifts_) {
         shift.readAndSet(iEvent, met);
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 
 }
 

@@ -40,28 +40,28 @@ EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {
   // verbosity...
   verbose_ = config.getUntrackedParameter<bool>("verbose", false);
     
-  meETBxib_ = 0;
-  meETBampltdc_ = 0;
-  meETBShape_ = 0;
-  meETBhodoX_ = 0;
-  meETBhodoY_ = 0;
-  meETBe1x1_ = 0;
-  meETBe3x3_ = 0;
-  meETBe5x5_ = 0;
-  meETBe1e9_ = 0;
-  meETBe1e25_ = 0;
-  meETBe9e25_ = 0;
-  meETBe1x1_center_ = 0;
-  meETBe3x3_center_ = 0;
-  meETBe5x5_center_ = 0;
-  meETBe1vsX_ = 0;
-  meETBe1vsY_ = 0;
-  meETBe1e9vsX_ = 0;
-  meETBe1e9vsY_ = 0;
-  meETBe1e25vsX_ = 0;
-  meETBe1e25vsY_ = 0;
-  meETBe9e25vsX_ = 0;
-  meETBe9e25vsY_ = 0;
+  meETBxib_ = nullptr;
+  meETBampltdc_ = nullptr;
+  meETBShape_ = nullptr;
+  meETBhodoX_ = nullptr;
+  meETBhodoY_ = nullptr;
+  meETBe1x1_ = nullptr;
+  meETBe3x3_ = nullptr;
+  meETBe5x5_ = nullptr;
+  meETBe1e9_ = nullptr;
+  meETBe1e25_ = nullptr;
+  meETBe9e25_ = nullptr;
+  meETBe1x1_center_ = nullptr;
+  meETBe3x3_center_ = nullptr;
+  meETBe5x5_center_ = nullptr;
+  meETBe1vsX_ = nullptr;
+  meETBe1vsY_ = nullptr;
+  meETBe1e9vsX_ = nullptr;
+  meETBe1e9vsY_ = nullptr;
+  meETBe1e25vsX_ = nullptr;
+  meETBe1e25vsY_ = nullptr;
+  meETBe9e25vsX_ = nullptr;
+  meETBe9e25vsY_ = nullptr;
 
 }
 
@@ -126,7 +126,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   using namespace cms;
 
   // digis
-  const EBDigiCollection* theDigis=0;
+  const EBDigiCollection* theDigis=nullptr;
   Handle<EBDigiCollection> pdigis;
   event.getByToken(digi_Token_, pdigis);
   if(pdigis.isValid()){
@@ -138,7 +138,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   }
 
   // rechits
-  const EBUncalibratedRecHitCollection* theHits=0;  
+  const EBUncalibratedRecHitCollection* theHits=nullptr;  
   Handle<EBUncalibratedRecHitCollection> phits;
   event.getByToken(hit_Token_, phits);
   if(phits.isValid()){
@@ -150,7 +150,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   }
 
   // hodoscopes
-  const EcalTBHodoscopeRecInfo* theHodo=0;  
+  const EcalTBHodoscopeRecInfo* theHodo=nullptr;  
   Handle<EcalTBHodoscopeRecInfo> pHodo;
   event.getByToken(hodoRec_Token_, pHodo);
   if(pHodo.isValid()){ 
@@ -162,7 +162,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   }
   
   // tdc
-  const EcalTBTDCRecInfo* theTDC=0;
+  const EcalTBTDCRecInfo* theTDC=nullptr;
   Handle<EcalTBTDCRecInfo> pTDC;
   event.getByToken(tdcRec_Token_, pTDC);
   if(pTDC.isValid()){
@@ -174,7 +174,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   }
 
   // event header
-  const EcalTBEventHeader* evtHeader=0;
+  const EcalTBEventHeader* evtHeader=nullptr;
   Handle<EcalTBEventHeader> pEventHeader;
   event.getByToken(eventHeader_Token_ , pEventHeader);
   if(pEventHeader.isValid()){

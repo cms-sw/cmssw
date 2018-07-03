@@ -58,7 +58,7 @@ class DTBtiTrig : public DTTrigData {
   DTBtiTrig(DTBtiChip*, DTBtiTrigData);
   
   //! Destructor 
-  ~DTBtiTrig();
+  ~DTBtiTrig() override;
 
   //! Set the parent DTBtiChip
   inline void setParent(DTBtiChip* parent) { 
@@ -104,12 +104,12 @@ class DTBtiTrig : public DTTrigData {
   // Const methods
 
   //! Return chamber identifier
-  inline DTChamberId ChamberId() const {
+  inline DTChamberId ChamberId() const override {
     return _data.ChamberId(); 
   }
 
   //! Print
-  inline void print() const { 
+  inline void print() const override { 
     _data.print();
   }
 

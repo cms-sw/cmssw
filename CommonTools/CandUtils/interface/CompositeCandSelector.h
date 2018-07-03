@@ -14,12 +14,12 @@ public:
         << ", while CompositeCandSelector "
         << "requires " << nDau << " daughters.\n";
     const T1 * dau1 = dynamic_cast<const T1 *>(cmp.daughter(0));
-    if(dau1 == 0)  
+    if(dau1 == nullptr)  
       throw edm::Exception(edm::errors::InvalidReference)
         << "candidate's first daughter is not of the type required "
         << "by CompositeCandSelector.\n";
     const T2 * dau2 = dynamic_cast<const T2 *>(cmp.daughter(1));
-    if(dau2 == 0)  
+    if(dau2 == nullptr)  
       throw edm::Exception(edm::errors::InvalidReference)
         << "candidate's second daughter is not of the type required "
         << "by CompositeCandSelector.\n";

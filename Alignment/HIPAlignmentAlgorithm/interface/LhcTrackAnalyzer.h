@@ -37,7 +37,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 
 
@@ -57,12 +57,12 @@ class LhcTrackAnalyzer : public edm::EDAnalyzer {
 
  public:
   explicit LhcTrackAnalyzer(const edm::ParameterSet&);
-  ~LhcTrackAnalyzer();
+  ~LhcTrackAnalyzer() override;
 
  private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
   edm::InputTag  TrackCollectionTag_;

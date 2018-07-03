@@ -1,11 +1,9 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackMVAClassifier.h"
 
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include<cassert>
 
@@ -14,8 +12,7 @@ void TrackMVAClassifierBase::fill( edm::ParameterSetDescription& desc) {
   desc.add<edm::InputTag>("src",edm::InputTag());
   desc.add<edm::InputTag>("beamspot",edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("vertices",edm::InputTag("firstStepPrimaryVertices"));
-  desc.add<std::string>("GBRForestLabel",std::string());
-  desc.add<std::string>("GBRForestFileName",std::string());
+  desc.add<bool>("ignoreVertices",false);
   // default cuts for "cut based classification"
   std::vector<double> cuts = {-.7, 0.1, .7};
   desc.add<std::vector<double>>("qualityCuts", cuts);
@@ -25,12 +22,10 @@ void TrackMVAClassifierBase::fill( edm::ParameterSetDescription& desc) {
 TrackMVAClassifierBase::~TrackMVAClassifierBase(){}
 
 TrackMVAClassifierBase::TrackMVAClassifierBase( const edm::ParameterSet & cfg ) :
-  src_( consumes<reco::TrackCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
-  beamspot_( consumes<reco::BeamSpot>( cfg.getParameter<edm::InputTag>( "beamspot" ) ) ),
-  vertices_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" ))),
-  forestLabel_(cfg.getParameter<std::string>("GBRForestLabel")),
-  dbFileName_(cfg.getParameter<std::string>("GBRForestFileName")),
-  useForestFromDB_( (!forestLabel_.empty()) & dbFileName_.empty()) {
+  src_     ( consumes<reco::TrackCollection>   (cfg.getParameter<edm::InputTag>( "src" ))      ),
+  beamspot_( consumes<reco::BeamSpot>          (cfg.getParameter<edm::InputTag>( "beamspot" )) ),
+  vertices_( mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>( "vertices" )) ),
+  ignoreVertices_( cfg.getParameter<bool>( "ignoreVertices" ) ) {
 
   auto const & qv  = cfg.getParameter<std::vector<double>>("qualityCuts");
   assert(qv.size()==3);
@@ -48,29 +43,28 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   evt.getByToken(src_, hSrcTrack );
   auto const & tracks(*hSrcTrack);
 
-    // looking for the beam spot
+  // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
   evt.getByToken(beamspot_, hBsp);
 
-	
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
   evt.getByToken(vertices_, hVtx);
 
-  GBRForest const * forest = forest_.get();
-  if(useForestFromDB_){
-    edm::ESHandle<GBRForest> forestHandle;
-    es.get<GBRWrapperRcd>().get(forestLabel_,forestHandle);
-    forest = forestHandle.product();
-  }
+  initEvent(es);
 
   // products
-  auto mvas = std::make_unique<MVACollection>(tracks.size(),-99.f);
+  auto mvas  = std::make_unique<MVACollection>(tracks.size(),-99.f);
   auto quals = std::make_unique<QualityMaskCollection>(tracks.size(),0);
 
-  
-  
-  computeMVA(tracks,*hBsp,*hVtx,forest,*mvas);
+  if ( hVtx.isValid() && !ignoreVertices_ ) {
+    computeMVA(tracks,*hBsp,*hVtx,*mvas);
+  } else {
+    if ( !ignoreVertices_ ) 
+      edm::LogWarning("TrackMVAClassifierBase") << "ignoreVertices is set to False in the configuration, but the vertex collection is not valid"; 
+    std::vector<reco::Vertex> vertices;
+    computeMVA(tracks,*hBsp,vertices,*mvas);
+  }    
   assert((*mvas).size()==tracks.size());
 
   unsigned int k=0;
@@ -88,13 +82,3 @@ void TrackMVAClassifierBase::produce(edm::Event& evt, const edm::EventSetup& es 
   evt.put(std::move(quals),"QualityMasks");
   
 }
-
-
-#include <TFile.h>
-void TrackMVAClassifierBase::beginStream(edm::StreamID) {
-  if(!dbFileName_.empty()){
-     TFile gbrfile(dbFileName_.c_str());
-     forest_.reset((GBRForest*)gbrfile.Get(forestLabel_.c_str()));
-  }
-}
-

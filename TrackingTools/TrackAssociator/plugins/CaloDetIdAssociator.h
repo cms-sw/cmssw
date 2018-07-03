@@ -31,39 +31,39 @@
 
 class CaloDetIdAssociator: public DetIdAssociator{
  public:
-   CaloDetIdAssociator():DetIdAssociator(72, 70 ,0.087),geometry_(0){};
+   CaloDetIdAssociator():DetIdAssociator(72, 70 ,0.087),geometry_(nullptr){};
    CaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0){};
+     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(nullptr){};
 
    CaloDetIdAssociator(const edm::ParameterSet& pSet)
-     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0){};
+     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(nullptr){};
    
    virtual void setGeometry(const CaloGeometry* ptr) { geometry_ = ptr; };
 
-   virtual void setGeometry(const DetIdAssociatorRecord& iRecord) override;
+   void setGeometry(const DetIdAssociatorRecord& iRecord) override;
 
-   virtual const GeomDet* getGeomDet(const DetId& id) const override { return 0; };
+   const GeomDet* getGeomDet(const DetId& id) const override { return nullptr; };
 
-   virtual const char* name() const override { return "CaloTowers"; }
+   const char* name() const override { return "CaloTowers"; }
 
  protected:
-   virtual void check_setup() const override;
+   void check_setup() const override;
    
-   virtual GlobalPoint getPosition(const DetId& id) const override;
+   GlobalPoint getPosition(const DetId& id) const override;
    
-   virtual void getValidDetIds( unsigned int subDetectorIndex, std::vector<DetId>& ) const override;
+   void getValidDetIds( unsigned int subDetectorIndex, std::vector<DetId>& ) const override;
    
-   virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
+   std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 
-   virtual bool insideElement(const GlobalPoint& point, const DetId& id) const override{
+   bool insideElement(const GlobalPoint& point, const DetId& id) const override{
       return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 
-   virtual bool crossedElement(const GlobalPoint&, 
+   bool crossedElement(const GlobalPoint&, 
 			       const GlobalPoint&, 
 			       const DetId& id,
 			       const double tolerance = -1,
-			       const SteppingHelixStateInfo* = 0 ) const override;
+			       const SteppingHelixStateInfo* = nullptr ) const override;
    const CaloGeometry* geometry_;
    std::vector<GlobalPoint> dummy_;
 };

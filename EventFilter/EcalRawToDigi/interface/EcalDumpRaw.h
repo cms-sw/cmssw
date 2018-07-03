@@ -11,11 +11,13 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 //#include "pgras/PGUtilities/interface/PGHisto.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 /**
@@ -29,14 +31,14 @@
  * Author: Ph. Gras CEA/IRFU Saclay
  *
  */
-class EcalDumpRaw : public edm::EDAnalyzer {
+class EcalDumpRaw : public edm::stream::EDAnalyzer<>{
   //ctors
 public:
   explicit EcalDumpRaw(const edm::ParameterSet&);
-  ~EcalDumpRaw();
+  ~EcalDumpRaw() override;
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void analyzeEB(const edm::Event&, const edm::EventSetup&) const;
   void analyzeEE(const edm::Event&, const edm::EventSetup&) const;
@@ -149,8 +151,6 @@ private:
   bool orbit0Set_;
   int bx_;
   int l1a_;
-  int l1amin_;
-  int l1amax_;
   int simpleTrigType_;
   int detailedTrigType_;
   //  PGHisto histo_;
@@ -184,6 +184,8 @@ private:
   int iTcc_;
   edm::InputTag fedRawDataCollectionTag_;
   edm::InputTag l1AcceptBunchCrossingCollectionTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> fedRawDataCollectionToken_;
+  edm::EDGetTokenT<L1AcceptBunchCrossingCollection> l1AcceptBunchCrossingCollectionToken_;
 };
 
 #endif //ECALDUMPRAW_H not defined

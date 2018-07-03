@@ -1,5 +1,5 @@
 # This file contains Effective Area constants for 
-# computing pile-up corrections for the photons isolation
+# computing pile-up corrections for the neutral hadron isolation
 # for a photon object.
 #
 # |eta| min   |eta| max   effective area

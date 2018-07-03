@@ -17,7 +17,7 @@
 
 #include <iostream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -36,16 +36,16 @@ class DCCEBSRPBlock : public DCCSRPBlock{
 
     DCCEBSRPBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
     
-    void updateCollectors();
+    void updateCollectors() override;
 	 
 	 
   protected :
   
-    void addSRFlagToCollection();
+    void addSRFlagToCollection() override;
 	 
-    bool checkSrpIdAndNumbSRFlags();
+    bool checkSrpIdAndNumbSRFlags() override;
     
-    std::auto_ptr<EBSrFlagCollection>  * ebSrFlagsDigis_;
+    std::unique_ptr<EBSrFlagCollection>  * ebSrFlagsDigis_;
     
     EcalTrigTowerDetId * pTTDetId_;
 		

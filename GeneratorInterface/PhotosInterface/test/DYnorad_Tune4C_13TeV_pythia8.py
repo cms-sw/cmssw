@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(3000)
 )
 
 # Input source
@@ -66,17 +66,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
-    ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-            UseTauolaPolarization = cms.bool(True),
-            InputCards = cms.PSet(
-                mdtau = cms.int32(0),
-                pjak2 = cms.int32(3),
-                pjak1 = cms.int32(3)
-            )
-        ),
-        parameterSets = cms.vstring('Tauola')
-    ),
     UseExternalGenerators = cms.untracked.bool(True),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1),

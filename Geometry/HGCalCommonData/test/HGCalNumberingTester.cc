@@ -13,7 +13,6 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Mon 2014/03/21
-// $Id: HGCalNumberingTester.cc,v 1.0 2014/032/21 14:06:07 sunanda Exp $
 //
 //
 
@@ -22,6 +21,8 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,20 +41,50 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
-#include "CoralBase/Exception.h"
-
-class HGCalNumberingTester : public edm::one::EDAnalyzer<>
-{
+class HGCalNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalNumberingTester( const edm::ParameterSet& );
-  ~HGCalNumberingTester();
+  ~HGCalNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+private:
+  std::string         nameSense_, nameDetector_;
+  std::vector<double> positionX_, positionY_;
+  int                 increment_, detType_;
+  bool                reco_;
 };
 
-HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& ) {}
+HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& iC) {
+  nameSense_    = iC.getParameter<std::string>("NameSense");
+  nameDetector_ = iC.getParameter<std::string>("NameDevice");
+  positionX_    = iC.getParameter<std::vector<double> >("LocalPositionX");
+  positionY_    = iC.getParameter<std::vector<double> >("LocalPositionY");
+  increment_    = iC.getParameter<int>("Increment");
+  detType_      = iC.getParameter<int>("DetType");
+  reco_         = iC.getParameter<bool>("Reco");
+  std::string unit("mm");
+  if (reco_) {
+    for (unsigned int k=0; k<positionX_.size(); ++k) {
+      positionX_[k] /= CLHEP::cm; 
+      positionY_[k] /= CLHEP::cm; 
+    }
+    unit = "cm";
+  } else {
+    for (unsigned int k=0; k<positionX_.size(); ++k) {
+      positionX_[k] /= CLHEP::mm;
+      positionY_[k] /= CLHEP::mm;
+    }
+  }
+  std::cout << "Test numbering for " << nameDetector_ <<" using constants of "
+	    << nameSense_ << " at " << positionX_.size() << " local positions "
+	    << "for every " << increment_ << " layers for DetType " 
+	    << detType_ << " and  RecoFlag " << reco_ << std::endl;
+  for (unsigned int k=0; k<positionX_.size(); ++k) 
+    std::cout << "Position[" << k << "] " << positionX_[k] << " " << unit
+	      << ", " << positionY_[k] << " " << unit << std::endl;
+}
 
 HGCalNumberingTester::~HGCalNumberingTester() {}
 
@@ -62,109 +93,109 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
   
   edm::ESHandle<HGCalDDDConstants> pHGNDC;
 
-  iSetup.get<IdealGeometryRecord>().get("HGCalEESensitive",pHGNDC);
-  const HGCalDDDConstants hgeedc(*pHGNDC);
-  std::cout << "EE Layers = " << hgeedc.layers(false) << " Sectors = " 
-	    << hgeedc.sectors() << std::endl;
-  std::pair<int,int> kxy, lxy;
+  iSetup.get<IdealGeometryRecord>().get(nameSense_,pHGNDC);
+  const HGCalDDDConstants hgdc(*pHGNDC);
+  std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) 
+	    << " Sectors = " << hgdc.sectors() << " Minimum Slope = "
+	    << hgdc.minSlope() << std::endl;
+  if (detType_ != 0) {
+    std::cout << "Minimum Wafer # " << hgdc.waferMin() << " Mamximum Wafer # "
+	      << hgdc.waferMax() << " Wafer counts " << hgdc.waferCount(0)
+	      << ":" << hgdc.waferCount(1) << std::endl;
+    for (unsigned int i=0; i<hgdc.layers(true); ++i) 
+      std::cout << "Layer " << i+1 << " Wafers " << hgdc.wafers(i+1,0) << ":"
+		<< hgdc.wafers(i+1,1) << ":" << hgdc.wafers(i+1,2) <<std::endl;
+  }
+  std::cout << std::endl << std::endl;
   std::pair<float,float> xy;
-  float localx(5.0), localy(5.0);
-  for (unsigned int i=0; i<hgeedc.layers(false); ++i) {
-    kxy = hgeedc.assignCell(localx,localy,i+1,0,false);
-    xy  = hgeedc.locateCell(kxy.second,i+1,kxy.first,false);
-    lxy = hgeedc.assignCell(xy.first,xy.second,i+1,0,false);
-    std::cout << "Input: (" << localx << "," << localy << "," << i+1 
-	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
-	      << " final (" << lxy.first << ", " << lxy.second << ")"
-	      << std::endl;
-    kxy = hgeedc.assignCell(-localx,-localy,i+1,0,false);
-    xy  = hgeedc.locateCell(kxy.second,i+1,kxy.first,false);
-    lxy = hgeedc.assignCell(xy.first,xy.second,i+1,0,false);
-    std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
-	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
-	      << " final (" << lxy.first << ", " << lxy.second << ")" 
-	      << std::endl;
-    std::vector<int> ncells = hgeedc.numberCells(i+1,false);
-    std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";
-    int ntot(0);
-    for (unsigned int k=0; k<ncells.size(); ++k) {
-      ntot += ncells[k];
-      std::cout << "Row " << k << " with " << ncells[k] << " cells\n";
+  std::string        flg;
+  int   subsec(0);
+  int   loff = hgdc.firstLayer();
+  for (unsigned int k=0; k<positionX_.size(); ++k) {
+    float localx(positionX_[k]), localy(positionY_[k]);
+    for (unsigned int i=0; i<hgdc.layers(reco_); ++i) {
+      if (detType_ == 1) {
+	std::pair<int,int> kxy, lxy;
+	kxy = hgdc.assignCell(localx,localy,i+loff,subsec,reco_);
+	xy  = hgdc.locateCell(kxy.second,i+loff,kxy.first,reco_);
+	lxy = hgdc.assignCell(xy.first,xy.second,i+loff,0,reco_);
+	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	std::cout << "Input: (" << localx << "," << localy << "," << i+loff
+		  << ", " << subsec << "), assignCell o/p (" << kxy.first 
+		  << ", " << kxy.second << ") locateCell o/p (" << xy.first 
+		  << ", " << xy.second << ")," << " final (" << lxy.first 
+		  << ", " << lxy.second << ")" << flg << std::endl;
+	kxy = hgdc.assignCell(-localx,-localy,i+loff,subsec,reco_);
+	xy  = hgdc.locateCell(kxy.second,i+loff,kxy.first,reco_);
+	lxy = hgdc.assignCell(xy.first,xy.second,i+loff,0,reco_);
+	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+loff
+		  << ", " << subsec << "), assignCell o/p (" << kxy.first 
+		  << ", " << kxy.second << ") locateCell o/p (" << xy.first
+		  << ", " << xy.second << ")," << " final (" << lxy.first 
+		  << ", " << lxy.second << ")" << flg << std::endl;
+      } else if (detType_ == 0) {
+	std::array<int,3> kxy, lxy;
+	double zpos = hgdc.waferZ(i+loff,reco_);
+	kxy = hgdc.assignCellTrap(localx,localy,zpos,i+loff,reco_);
+	xy  = hgdc.locateCellTrap(i+loff,kxy[0],kxy[1],reco_);
+	lxy = hgdc.assignCellTrap(xy.first,xy.second,zpos,i+loff,reco_);
+	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	std::cout << "Input: (" << localx << "," << localy << "," << zpos
+		  << ", " << i+loff << "), assignCell o/p (" << kxy[0] << ":" 
+		  << kxy[1] << ":" << kxy[2] << ") locateCell o/p (" 
+		  << xy.first << ", " << xy.second << ")," << " final (" 
+		  << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ")" << flg 
+		  << std::endl;
+	kxy = hgdc.assignCellTrap(-localx,-localy,zpos,i+loff,reco_);
+	xy  = hgdc.locateCellTrap(i+loff,kxy[0],kxy[1],reco_);
+	lxy = hgdc.assignCellTrap(xy.first,xy.second,zpos,i+loff,reco_);
+	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	std::cout << "Input: (" <<-localx << "," <<-localy << "," << zpos
+		  << ", " << i+loff << "), assignCell o/p (" << kxy[0] << ":" 
+		  << kxy[1] << ":" << kxy[2] << ") locateCell o/p (" 
+		  << xy.first << ", " << xy.second << ")," << " final (" 
+		  << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ")" << flg 
+		  << std::endl;
+      } else {
+	std::array<int,5> kxy, lxy;
+	kxy = hgdc.assignCellHex(localx,localy,i+loff,reco_);
+	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_,true);
+	lxy = hgdc.assignCellHex(xy.first,xy.second,i+loff,reco_);
+	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	std::cout << "Input: (" << localx << "," << localy << ", " << i+loff 
+		  << "), assignCell o/p (" << kxy[0] << ":" << kxy[1] 
+		  << ":" << kxy[2] << ":" << kxy[3] << ":" << kxy[4]
+		  << ") locateCell o/p (" << xy.first << ", " << xy.second 
+		  << ")," << " final ("  << lxy[0] << ":" << lxy[1] << ":" 
+		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ")" << flg 
+		  << std::endl;
+	kxy = hgdc.assignCellHex(-localx,-localy,i+loff,reco_);
+	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_,true);
+	lxy = hgdc.assignCellHex(xy.first,xy.second,i+loff,reco_);
+	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	std::cout << "Input: (" <<-localx << "," <<-localy << ", " << i+loff 
+		  << "), assignCell o/p (" << kxy[0] << ":" << kxy[1] 
+		  << ":" << kxy[2] << ":" << kxy[3] << ":" << kxy[4]
+		  << ") locateCell o/p (" << xy.first << ", " << xy.second 
+		  << ")," << " final ("  << lxy[0] << ":" << lxy[1] << ":" 
+		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ")" << flg 
+		  << std::endl;
+      }
+      if (k == 0 && i==0 && detType_ == 1) {
+	std::vector<int> ncells = hgdc.numberCells(i+1,reco_);
+	std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows"
+		  << std::endl;
+	int ntot(0);
+	for (unsigned int k=0; k<ncells.size(); ++k) {
+	  ntot += ncells[k];
+	  std::cout << "Row " << k << " with " << ncells[k] << " cells\n";
+	}
+	std::cout << "Total Cells " << ntot << ":" << hgdc.maxCells(i+1,reco_)
+		  << std::endl;
+      }
+      i += increment_;
     }
-    std::cout << "Total Cells " << ntot << ":" << hgeedc.maxCells(i+1,false) 
-	      << std::endl;
-    i += 19;
-  }
-
-  iSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",pHGNDC);
-  const HGCalDDDConstants hghesidc(*pHGNDC);
-  std::cout << "HE Silicon Layers = " << hghesidc.layers(false) 
-	    << " Sectors = " << hghesidc.sectors() << std::endl;
-  for (unsigned int i=0; i<hghesidc.layers(false); ++i) {
-    kxy = hghesidc.assignCell(localx,localy,i+1,0,false);
-    xy  = hghesidc.locateCell(kxy.second,i+1,kxy.first,false);
-    lxy = hghesidc.assignCell(xy.first,xy.second,i+1,0,false);
-    std::cout << "Input: (" << localx << "," << localy << "," << i+1 
-	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
-	      << " final (" << lxy.first << ", " << lxy.second << ")" 
-	      << std::endl;
-    kxy = hghesidc.assignCell(-localx,-localy,i+1,0,false);
-    xy  = hghesidc.locateCell(kxy.second,i+1,kxy.first,false);
-    lxy = hghesidc.assignCell(xy.first,xy.second,i+1,0,false);
-    std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
-	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
-	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")," 
-	      << " final (" << lxy.first << ", " << lxy.second << ")" 
-	      << std::endl;
-    std::vector<int> ncells = hghesidc.numberCells(i+1,false);
-    std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";
-    int ntot(0);
-    for (unsigned int k=0; k<ncells.size(); ++k) {
-      ntot += ncells[k];
-      std::cout << "Row " << k << " with " << ncells[k] << " cells\n";
-    }
-    std::cout << "Total Cells " << ntot << ":" << hghesidc.maxCells(i+1,false) 
-	      << std::endl;
-    i += 9;
-  }
-
-  iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",pHGNDC);
-  const HGCalDDDConstants hghescdc(*pHGNDC);
-  std::cout << "HE Scintillator Layers = " << hghescdc.layers(false) 
-	    << " Sectors = " << hghescdc.sectors() << std::endl;
-  std::vector<HGCalDDDConstants::hgtrap>::const_iterator itr = hghescdc.getFirstModule(false);
-  int subsec = ((itr->alpha) > 0) ? 1 : 0;
-  for (unsigned int i=0; i<hghescdc.layers(false); ++i) {
-    kxy = hghescdc.assignCell(localx,localy,i+1,subsec,false);
-    xy  = hghescdc.locateCell(kxy.second,i+1,kxy.first,false);
-    lxy = hghescdc.assignCell(xy.first,xy.second,i+1,0,false);
-    std::cout << "Input: (" << localx << "," << localy << "," << i+1 
-	      << "," << subsec << "), assignCell o/p (" << kxy.first << ", " 
-	      << kxy.second  << ") loatCell o/p (" << xy.first << ", " 
-	      << xy.second << "), final (" << lxy.first << ", " << lxy.second 
-	      << ")" << std::endl;
-    kxy = hghescdc.assignCell(-localx,-localy,i+1,subsec,false);
-    xy  = hghescdc.locateCell(kxy.second,i+1,kxy.first,false);
-    lxy = hghescdc.assignCell(xy.first,xy.second,i+1,0,false);
-    std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
-	      << "," << subsec << "), assignCell o/p (" << kxy.first << ", " 
-	      << kxy.second  << ") loatCell o/p (" << xy.first << ", " 
-	      << xy.second << "), final (" << lxy.first << ", " << lxy.second 
-	      << ")"  << std::endl;
-    std::vector<int> ncells = hghescdc.numberCells(i+1,false);
-    std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";
-    int ntot(0);
-    for (unsigned int k=0; k<ncells.size(); ++k) {
-      ntot += ncells[k];
-      std::cout << "Row " << k << " with " << ncells[k] << " cells\n";
-    }
-    std::cout << "Total Cells " << ntot << ":" << hghescdc.maxCells(i+1,false) 
-	      << std::endl;
-    i += 10;
-    subsec = 1-subsec;
   }
 }
 

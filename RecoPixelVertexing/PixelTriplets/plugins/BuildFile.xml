@@ -1,6 +1,7 @@
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoPixelVertexing/PixelTriplets"/>
 <use   name="RecoTracker/TkSeedingLayers"/>
+<use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <library   file="*.cc" name="RecoPixelVertexingPixelTripletsPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -20,24 +20,27 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 class TestCompareDDSpecsDumpFiles
-  : public edm::EDAnalyzer
+  : public edm::one::EDAnalyzer<>
 {
 public:
   explicit TestCompareDDSpecsDumpFiles( const edm::ParameterSet& );
-  ~TestCompareDDSpecsDumpFiles( void );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  ~TestCompareDDSpecsDumpFiles( void ) override;
+  
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
   std::string clean( const std::string& in );
   std::string merge( const std::list<std::string>& list );
-  std::string fillAndSort( tokenizer::iterator start, tokenizer::iterator end, std::list<std::string>& list );
-  std::string preFill( tokenizer::iterator it, std::list<std::string>& list );
+  std::string fillAndSort( const tokenizer::iterator& start, const tokenizer::iterator& end, std::list<std::string>& list );
+  std::string preFill( const tokenizer::iterator& it, std::list<std::string>& list );
 
   std::string fname1_;
   std::string fname2_;
@@ -88,7 +91,7 @@ TestCompareDDSpecsDumpFiles::clean( const std::string& in )
 }
 
 std::string
-TestCompareDDSpecsDumpFiles::preFill( tokenizer::iterator it, std::list<std::string>& list )
+TestCompareDDSpecsDumpFiles::preFill( const tokenizer::iterator& it, std::list<std::string>& list )
 {
   boost::char_separator<char> space( " " );
 
@@ -97,7 +100,7 @@ TestCompareDDSpecsDumpFiles::preFill( tokenizer::iterator it, std::list<std::str
   std::string str( *it );
   str.erase( 0, ( *fit ).size());
   boost::trim( str );
-  list.push_back( clean( str ));
+  list.emplace_back( clean( str ));
 
   return *fit;
 }
@@ -106,9 +109,9 @@ std::string
 TestCompareDDSpecsDumpFiles::merge( const std::list<std::string>& list )
 {
   std::string str( "" );
-  for( std::list<std::string>::const_iterator it = list.begin(); it != list.end(); ++it )
+  for(const auto & it : list)
   {
-    str.append( *it );
+    str.append( it );
     str.append("|");
   }
 
@@ -116,11 +119,11 @@ TestCompareDDSpecsDumpFiles::merge( const std::list<std::string>& list )
 }
 
 std::string
-TestCompareDDSpecsDumpFiles::fillAndSort( tokenizer::iterator start, tokenizer::iterator end, std::list<std::string>& list )
+TestCompareDDSpecsDumpFiles::fillAndSort( const tokenizer::iterator& start, const tokenizer::iterator& end, std::list<std::string>& list )
 {
   for( tokenizer::iterator it = start; it != end; ++it )
   {
-    list.push_back( clean( *it ));
+    list.emplace_back( clean( *it ));
   }     
   list.sort();
 

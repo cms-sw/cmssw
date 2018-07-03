@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h"
@@ -54,7 +54,7 @@ TString ME::color[ME::iSizeC] = {
   "Blue", "Green", "Red", "IRed", "LED1", "LED2" 
 };
 
-std::vector<MEChannel*> ME::_trees = std::vector<MEChannel*>(4,(MEChannel*)0); 
+std::vector<MEChannel*> ME::_trees = std::vector<MEChannel*>(4,(MEChannel*)nullptr); 
 
 bool ME::useElectronicNumbering = false;
 
@@ -441,7 +441,7 @@ MEChannel*
 ME::regTree( int ireg )
 {
   assert( ireg>=iEEM && ireg<=iEEP );
-  if( _trees[ireg]!=0 ) return _trees[ireg];
+  if( _trees[ireg]!=nullptr ) return _trees[ireg];
 
   int iEcalRegion_      = ireg;
   int iSector_          = 0;
@@ -449,8 +449,8 @@ ME::regTree( int ireg )
   int iLMModule_        = 0;
   int iSuperCrystal_    = 0;
   int iCrystal_         = 0;
-  MEChannel* leaf_(0);
-  MEChannel* tree_(0);
+  MEChannel* leaf_(nullptr);
+  MEChannel* tree_(nullptr);
 
   if( iEcalRegion_==iEBM || iEcalRegion_==iEBP )
     {
@@ -458,11 +458,11 @@ ME::regTree( int ireg )
 	{
 	  iSector_ = isect;
 	  if( iEcalRegion_==iEBM ) iSector_+=18; 
-	  if( _trees[iEcalRegion_]==0 )
+	  if( _trees[iEcalRegion_]==nullptr )
 	    {
 	      //	      std::cout << "Building the tree of crystals -- " 
 	      //		   << ME::region[iEcalRegion_];  
-	      _trees[iEcalRegion_] = new MEChannel( 0, 0, iEcalRegion_, 0 ); 
+	      _trees[iEcalRegion_] = new MEChannel( 0, 0, iEcalRegion_, nullptr ); 
 	    }
 	  tree_=_trees[iEcalRegion_]; 
 	  for( int iX=0; iX<17; iX++ )
@@ -506,11 +506,11 @@ ME::regTree( int ireg )
     {
       int iz=1;
       if( iEcalRegion_==iEEM ) iz=-1;
-      if( _trees[iEcalRegion_]==0 )
+      if( _trees[iEcalRegion_]==nullptr )
 	{
 	  //	  std::cout << "Building the tree of crystals -- " 
 	  //	       << ME::region[iEcalRegion_];  
-	  _trees[iEcalRegion_] = new MEChannel( 0, 0, iEcalRegion_, 0 ); 
+	  _trees[iEcalRegion_] = new MEChannel( 0, 0, iEcalRegion_, nullptr ); 
 	}
       tree_=_trees[iEcalRegion_]; 
 

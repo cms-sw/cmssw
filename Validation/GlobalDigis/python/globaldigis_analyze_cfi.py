@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+globaldigisanalyze = DQMEDAnalyzer('GlobalDigisAnalyzer',
     hitsProducer = cms.string('g4SimHits'),
     MuCSCStripSrc = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
     MuDTSrc = cms.InputTag("simMuonDTDigis"),
@@ -30,5 +31,10 @@ globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
     HCalDigi = cms.InputTag("simHcalDigis")
 )
 
-
-
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(globaldigisanalyze,
+    MuCSCStripSrc = "mixData:MuonCSCStripDigisDM",
+    MuCSCWireSrc = "mixData:MuonCSCWireDigisDM",
+    MuDTSrc = "mixData",
+    MuRPCSrc = "mixData",
+)

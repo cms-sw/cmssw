@@ -19,84 +19,84 @@ class BTagDifferentialPlot {
 
   enum ConstVarType {constPT, constETA };
 
-  BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable, const std::string & tagName, const unsigned int& mc) ;
+  BTagDifferentialPlot(double bEff, const ConstVarType& constVariable, const std::string & tagName, unsigned int mc);
 
-  ~BTagDifferentialPlot () ;
+  ~BTagDifferentialPlot();
 
-  void addBinPlotter ( JetTagPlotter * aPlotter ) { theBinPlotters.push_back ( aPlotter ) ; }
+  void addBinPlotter(std::shared_ptr<JetTagPlotter> aPlotter) { theBinPlotters.push_back(aPlotter); }
 
-  void process (DQMStore::IBooker & ibook) ;
+  void process(DQMStore::IBooker & ibook);
 
 
   void epsPlot(const std::string & name);
 
   void psPlot(const std::string & name);
 
-  void plot (TCanvas & theCanvas) ;
+  void plot(TCanvas & theCanvas);
 
   void plot(const std::string & name, const std::string & ext);
 
-//   void print () const ;
+//   void print() const;
 
-  TH1F * getDifferentialHistoB_d    () { return theDifferentialHistoB_d ->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_u    () { return theDifferentialHistoB_u ->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_s    () { return theDifferentialHistoB_s ->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_c    () { return theDifferentialHistoB_c ->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_b    () { return theDifferentialHistoB_b ->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_g    () { return theDifferentialHistoB_g ->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_ni   () { return theDifferentialHistoB_ni->getTH1F()   ; }
-  TH1F * getDifferentialHistoB_dus  () { return theDifferentialHistoB_dus->getTH1F()  ; }
-  TH1F * getDifferentialHistoB_dusg () { return theDifferentialHistoB_dusg->getTH1F() ; }
-  TH1F * getDifferentialHistoB_pu   () { return theDifferentialHistoB_pu->getTH1F()   ; }
+  TH1F * getDifferentialHistoB_d   () { return theDifferentialHistoB_d ->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_u   () { return theDifferentialHistoB_u ->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_s   () { return theDifferentialHistoB_s ->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_c   () { return theDifferentialHistoB_c ->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_b   () { return theDifferentialHistoB_b ->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_g   () { return theDifferentialHistoB_g ->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_ni  () { return theDifferentialHistoB_ni->getTH1F()  ; }
+  TH1F * getDifferentialHistoB_dus () { return theDifferentialHistoB_dus->getTH1F() ; }
+  TH1F * getDifferentialHistoB_dusg() { return theDifferentialHistoB_dusg->getTH1F(); }
+  TH1F * getDifferentialHistoB_pu  () { return theDifferentialHistoB_pu->getTH1F()  ; }
   
  private:
   
-  void setVariableName () ;
+  void setVariableName();
   
-  void bookHisto (DQMStore::IBooker & ibook) ;
+  void bookHisto(DQMStore::IBooker & ibook);
 
 
-  void fillHisto () ;
+  void fillHisto();
   std::pair<double, double> getMistag(const double& fixedBEfficiency, TH1F * effPurHist);
 
 
-  // the fixed b-efficiency (later: allow more than one) for which the misids have to be plotted
-  double fixedBEfficiency ;
+  // the fixed b-efficiency(later: allow more than one) for which the misids have to be plotted
+  double fixedBEfficiency;
   
   // flag if processing should be skipped
-  bool noProcessing ;
+  bool noProcessing;
   bool processed;
 
   ConstVarType constVar;
   // the name for the variable with constant value
-  std::string constVariableName ;
-  // the name of the variable to be plotted on the x-axis (e.g. "eta", "pt")
-  std::string diffVariableName ;
+  std::string constVariableName;
+  // the name of the variable to be plotted on the x-axis(e.g. "eta", "pt")
+  std::string diffVariableName;
 
-  // value of the constant variable (lower/upper edge of interval)
-  std::pair<double,double> constVariableValue ;
+  // value of the constant variable(lower/upper edge of interval)
+  std::pair<double,double> constVariableValue;
 
   // the common name to describe histograms
-  std::string commonName ;
+  std::string commonName;
 
   // the input
-  std::vector<JetTagPlotter *> theBinPlotters ;
+  std::vector<std::shared_ptr<JetTagPlotter>> theBinPlotters;
 
   // the histo to create/fill
-  MonitorElement * theDifferentialHistoB_d    ;
-  MonitorElement * theDifferentialHistoB_u    ;
-  MonitorElement * theDifferentialHistoB_s    ;
-  MonitorElement * theDifferentialHistoB_c    ;
-  MonitorElement * theDifferentialHistoB_b    ;
-  MonitorElement * theDifferentialHistoB_g    ;
-  MonitorElement * theDifferentialHistoB_ni   ;
-  MonitorElement * theDifferentialHistoB_dus  ;
-  MonitorElement * theDifferentialHistoB_dusg ;
-  MonitorElement * theDifferentialHistoB_pu   ;
+  MonitorElement * theDifferentialHistoB_d   ;
+  MonitorElement * theDifferentialHistoB_u   ;
+  MonitorElement * theDifferentialHistoB_s   ;
+  MonitorElement * theDifferentialHistoB_c   ;
+  MonitorElement * theDifferentialHistoB_b   ;
+  MonitorElement * theDifferentialHistoB_g   ;
+  MonitorElement * theDifferentialHistoB_ni  ;
+  MonitorElement * theDifferentialHistoB_dus ;
+  MonitorElement * theDifferentialHistoB_dusg;
+  MonitorElement * theDifferentialHistoB_pu  ;
 
   //flavour histograms choice
   unsigned int mcPlots_;
-} ;
+};
 
 
 #endif

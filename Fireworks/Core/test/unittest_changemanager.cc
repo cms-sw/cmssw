@@ -19,9 +19,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
-#define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
-#undef private
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -91,7 +89,7 @@ BOOST_AUTO_TEST_CASE( changemanager )
    
    fireworks::Context context(&cm,0,0,0,0);
    
-   boost::shared_ptr<FWItemAccessorBase> accessor( new TestAccessor(&fVector));
+   auto accessor = std::make_shared<TestAccessor>(&fVector);
    FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");
    
    FWEventItem item(&context, 0,accessor,pObj);

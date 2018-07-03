@@ -90,8 +90,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHits;
         Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHits;
 
-        const EBUncalibratedRecHitCollection*  ebUncalibRecHits = 0;
-        const EEUncalibratedRecHitCollection*  eeUncalibRecHits = 0; 
+        const EBUncalibratedRecHitCollection*  ebUncalibRecHits = nullptr;
+        const EEUncalibratedRecHitCollection*  eeUncalibRecHits = nullptr; 
 
         // get the barrel uncalib rechit collection
        
@@ -106,8 +106,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits: " << eeUncalibRecHits->size();
        
         // collection of rechits to put in the event
-        std::auto_ptr< EBRecHitCollection > ebRecHits( new EBRecHitCollection );
-        std::auto_ptr< EERecHitCollection > eeRecHits( new EERecHitCollection );
+        auto ebRecHits = std::make_unique<EBRecHitCollection>();
+        auto eeRecHits = std::make_unique<EERecHitCollection>();
 
         worker_->set(es);
 
@@ -141,7 +141,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EBDetId> > pEBDetId;
-                const std::set<EBDetId> * detIds = 0;
+                const std::set<EBDetId> * detIds = nullptr;
 		evt.getByToken( ebDetIdToBeRecoveredToken_, pEBDetId);
 		detIds = pEBDetId.product();
                        
@@ -178,7 +178,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEEIsolatedChannels_ || recoverEEVFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EEDetId> > pEEDetId;
-                const std::set<EEDetId> * detIds = 0;
+                const std::set<EEDetId> * detIds = nullptr;
                
 		evt.getByToken( eeDetIdToBeRecoveredToken_, pEEDetId);
 		detIds = pEEDetId.product();
@@ -214,7 +214,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEBFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EcalTrigTowerDetId> > pEBFEId;
-                const std::set<EcalTrigTowerDetId> * ttIds = 0;
+                const std::set<EcalTrigTowerDetId> * ttIds = nullptr;
                
 		evt.getByToken( ebFEToBeRecoveredToken_, pEBFEId);
 		ttIds = pEBFEId.product();
@@ -234,7 +234,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         if ( recoverEEFE_ || killDeadChannels_ )
         {
                 edm::Handle< std::set<EcalScDetId> > pEEFEId;
-                const std::set<EcalScDetId> * scIds = 0;
+                const std::set<EcalScDetId> * scIds = nullptr;
             
 		evt.getByToken( eeFEToBeRecoveredToken_, pEEFEId);
 		scIds = pEEFEId.product();
@@ -267,8 +267,8 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << ebRecHits->size();
         LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << eeRecHits->size();
 
-        evt.put( ebRecHits, ebRechitCollection_ );
-        evt.put( eeRecHits, eeRechitCollection_ );
+        evt.put(std::move(ebRecHits), ebRechitCollection_);
+        evt.put(std::move(eeRecHits), eeRechitCollection_);
 }
 
 void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -390,6 +390,7 @@ void EcalRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("EELaserMAX",8.0);
   desc.add<double>("logWarningEtThreshold_EB_FE",50);
   desc.add<bool>("recoverEEIsolatedChannels",false);
+  desc.add<bool>("skipTimeCalib",false);
   descriptions.add("ecalRecHit",desc);
 }
 

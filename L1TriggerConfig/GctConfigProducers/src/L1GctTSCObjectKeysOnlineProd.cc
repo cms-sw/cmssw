@@ -5,14 +5,14 @@ class L1GctTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       L1GctTSCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
          : L1ObjectKeysOnlineProdBase( iConfig ) {}
-      ~L1GctTSCObjectKeysOnlineProd() {}
+      ~L1GctTSCObjectKeysOnlineProd() override {}
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType pL1TriggerKey ) override ;
    private:
 };
 
 void
-L1GctTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+L1GctTSCObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
       // kMYSUBSYSTEM = kCSCTF, kDTTF, kRPC, kGMT, kRCT, kGCT, kGT, or kTSP0
       // subsystemKey = TRIGGERSUP_CONF.{CSCTF_KEY, DTTF_KEY, RPC_KEY, GMT_KEY, RCT_KEY, GCT_KEY, GT_KEY}

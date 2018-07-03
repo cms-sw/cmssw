@@ -8,10 +8,13 @@
 class EmDQMPostProcessor : public DQMEDHarvester {
  public:
   EmDQMPostProcessor(const edm::ParameterSet& pset);
-  ~EmDQMPostProcessor() {};
+  ~EmDQMPostProcessor() override{};
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
   TProfile* dividehistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");
+
+  TH2F* dividehistos2D(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");
 
  private:
   
@@ -31,7 +34,7 @@ class EmDQMPostProcessor : public DQMEDHarvester {
       whether the corresponding MonitorElement is non-null.
       @return null if the MonitorElement is null */
   TH1F *getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath);
-
+  TH2F *get2DHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath);
   std::string subDir_;
   
   /** dataset with which these histograms were produced.

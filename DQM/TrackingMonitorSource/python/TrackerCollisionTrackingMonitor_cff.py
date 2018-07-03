@@ -1,29 +1,35 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *
+
 # Clone for TrackingMonitor for all PDs but MinBias ###
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 TrackerCollisionTrackMonCommon = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackerCollisionTrackMonCommon.andOr         = cms.bool( False )
-TrackerCollisionTrackMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionTrackMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionTrackMonCommon.andOrDcs      = cms.bool( False )
-TrackerCollisionTrackMonCommon.errorReplyDcs = cms.bool( True )
+TrackerCollisionTrackMonCommon.genericTriggerEventPSet = genericTriggerEventFlag4fullTracker
 TrackerCollisionTrackMonCommon.setLabel("TrackerCollisionTrackMonCommon")
 
-# Clone for TrackingMonitor for MinBias ###
+# Clone for TrackingMonitor for ZeroBias ###
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 TrackerCollisionTrackMonMB = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackerCollisionTrackMonMB.andOr                = cms.bool( False )
-TrackerCollisionTrackMonMB.dcsInputTag          = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionTrackMonMB.dcsPartitions        = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionTrackMonMB.andOrDcs             = cms.bool( False )
-TrackerCollisionTrackMonMB.errorReplyDcs        = cms.bool( True )
-TrackerCollisionTrackMonMB.dbLabel              = cms.string("SiStripDQMTrigger")
-TrackerCollisionTrackMonMB.hltInputTag          = cms.InputTag( "TriggerResults::HLT" )
-TrackerCollisionTrackMonMB.hltPaths             = cms.vstring("HLT_ZeroBias_*")
-TrackerCollisionTrackMonMB.hltDBKey             = cms.string("Tracker_MB")
-TrackerCollisionTrackMonMB.errorReplyHlt        = cms.bool( False )
-TrackerCollisionTrackMonMB.andOrHlt             = cms.bool(True)
-TrackerCollisionTrackMonMB.doPrimaryVertexPlots = cms.bool(True)
+TrackerCollisionTrackMonMB.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTdb
+TrackerCollisionTrackMonMB.doPrimaryVertexPlots    = cms.bool(True)
 TrackerCollisionTrackMonMB.setLabel("TrackerCollisionTrackMonMB")
+
+# Clone for TrackingMonitor for ZeroBias, no hip, no OOT pu (1st collision after abort gap) ###
+TrackerCollisionTrackMonZBnoHIPnoOOT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+TrackerCollisionTrackMonZBnoHIPnoOOT.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTnoHIPnoOOTdb
+TrackerCollisionTrackMonZBnoHIPnoOOT.doPrimaryVertexPlots    = cms.bool(True)
+TrackerCollisionTrackMonZBnoHIPnoOOT.setLabel("TrackerCollisionTrackMonZBnoHIPnoOOT")
+
+# Clone for TrackingMonitor for ZeroBias, hip, no OOT pu (1st collision in train) ###
+TrackerCollisionTrackMonZBHIPnoOOT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+TrackerCollisionTrackMonZBHIPnoOOT.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTHIPnoOOTdb
+TrackerCollisionTrackMonZBHIPnoOOT.doPrimaryVertexPlots    = cms.bool(True)
+TrackerCollisionTrackMonZBHIPnoOOT.setLabel("TrackerCollisionTrackMonZBHIPnoOOT")
+
+# Clone for TrackingMonitor for ZeroBias, hip, OOT pu (1st collision after train) ###
+TrackerCollisionTrackMonZBHIPOOT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+TrackerCollisionTrackMonZBHIPOOT.genericTriggerEventPSet = genericTriggerEventFlag4fullTrackerAndHLTHIPOOTdb
+TrackerCollisionTrackMonZBHIPOOT.doPrimaryVertexPlots    = cms.bool(True)
+TrackerCollisionTrackMonZBHIPOOT.setLabel("TrackerCollisionTrackMonZBHIPOOT")
 

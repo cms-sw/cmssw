@@ -2,7 +2,7 @@
 #define ECALTESTDEVDB_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Exception.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
@@ -40,10 +40,10 @@ namespace edm {
 class  EcalTestDevDB : public edm::EDAnalyzer {
  public:
   explicit  EcalTestDevDB(const edm::ParameterSet& iConfig );
-  ~EcalTestDevDB();
+  ~EcalTestDevDB() override;
 
 
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
   EcalPedestals* generateEcalPedestals();
   EcalADCToGeVConstant* generateEcalADCToGeVConstant();

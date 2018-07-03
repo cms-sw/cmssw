@@ -322,7 +322,7 @@ namespace fftjetcms {
                 << std::endl;
 
         // to check whether the largest level equals the size of scale vector
-        const double* sc_not_ad = scsize2 ? &(*scaleSetIfNotAdaptive)[0] : 0;
+        const double* sc_not_ad = scsize2 ? &(*scaleSetIfNotAdaptive)[0] : nullptr;
 
         unsigned templevel = n ? nodes[0].originalLevel() : 1;
         for (unsigned i=0; i<n; ++i)

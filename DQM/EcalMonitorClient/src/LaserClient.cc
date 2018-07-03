@@ -1,4 +1,4 @@
-#include "../interface/LaserClient.h"
+#include "DQM/EcalMonitorClient/interface/LaserClient.h"
 
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 
@@ -18,7 +18,8 @@ namespace ecaldqm
     wlToME_(),
     minChannelEntries_(0),
     expectedAmplitude_(0),
-    toleranceAmplitude_(0.),
+    toleranceAmplitudeLo_(0.),
+    toleranceAmplitudeHi_(0.),
     toleranceAmpRMSRatio_(0.),
     expectedTiming_(0),
     toleranceTiming_(0.),
@@ -34,7 +35,8 @@ namespace ecaldqm
   LaserClient::setParams(edm::ParameterSet const& _params)
   {
     minChannelEntries_ = _params.getUntrackedParameter<int>("minChannelEntries");
-    toleranceAmplitude_ = _params.getUntrackedParameter<double>("toleranceAmplitude");
+    toleranceAmplitudeLo_ = _params.getUntrackedParameter<double>("toleranceAmplitudeLo");
+    toleranceAmplitudeHi_ = _params.getUntrackedParameter<double>("toleranceAmplitudeHi");
     toleranceAmpRMSRatio_ = _params.getUntrackedParameter<double>("toleranceAmpRMSRatio");
     toleranceTiming_ = _params.getUntrackedParameter<double>("toleranceTiming");
     toleranceTimRMS_ = _params.getUntrackedParameter<double>("toleranceTimRMS");
@@ -100,6 +102,7 @@ namespace ecaldqm
     MESetMulti const& sAmplitude(static_cast<MESetMulti const&>(sources_.at("Amplitude")));
     MESetMulti const& sTiming(static_cast<MESetMulti const&>(sources_.at("Timing")));
     MESetMulti const& sPNAmplitude(static_cast<MESetMulti const&>(sources_.at("PNAmplitude")));
+    MESet const& sCalibStatus(static_cast<MESet const&>(sources_.at("CalibStatus")));
 
     for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       meQuality.use(wlItr->second);
@@ -119,6 +122,9 @@ namespace ecaldqm
 
       MESet::const_iterator tItr(sTiming);
       MESet::const_iterator aItr(sAmplitude);
+ 
+      int wl(wlItr->first-1);
+      bool enabled(wl < 0? false: sCalibStatus.getBinContent(wl) > 0 ? true: false);
       for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
         DetId id(qItr->getId());
@@ -130,7 +136,7 @@ namespace ecaldqm
         float aEntries(aItr->getBinEntries());
 
         if(aEntries < minChannelEntries_){
-          qItr->setBinContent(doMask ? kMUnknown : kUnknown);
+          qItr->setBinContent(enabled ? (doMask ? kMUnknown : kUnknown) : kMUnknown);
           continue;
         }
 
@@ -156,8 +162,10 @@ namespace ecaldqm
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
         if(isForward(id)) intensity /= forwardFactor_;
 
-        if(intensity < toleranceAmplitude_ || aRms > aMean * toleranceAmpRMSRatio_ ||
-           abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
+        if(intensity < toleranceAmplitudeLo_
+            || intensity > toleranceAmplitudeHi_
+            || aRms > aMean * toleranceAmpRMSRatio_
+            || std::abs(tMean - expectedTiming_[wlItr->second]) > toleranceTiming_ /*|| tRms > toleranceTimRMS_*/)
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);

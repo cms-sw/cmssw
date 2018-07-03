@@ -144,7 +144,7 @@ void L1MuGMTMipIsoAU::run() {
 void L1MuGMTMipIsoAU::reset() {
 
   for ( int i = 0; i < 8; i++ ) {  
-    m_muons[i] = 0;
+    m_muons[i] = nullptr;
     m_MIP[i] = false;
     m_ISO[i] = false;
   }

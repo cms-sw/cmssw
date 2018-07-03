@@ -13,7 +13,8 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('HLTObjectMonitor'
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.demo = DQMEDAnalyzer('HLTObjectMonitor'
 )
 
 

@@ -142,18 +142,18 @@ void JVFJetIdProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     jetIdFlags.push_back(jetIdFlag);
   }
  
-  std::auto_ptr<edm::ValueMap<double> > jetIdDiscriminants_ptr(new edm::ValueMap<double>());
+  auto jetIdDiscriminants_ptr = std::make_unique<edm::ValueMap<double>>();
   edm::ValueMap<double>::Filler jetIdDiscriminantFiller(*jetIdDiscriminants_ptr);
   jetIdDiscriminantFiller.insert(jets, jetIdDiscriminants.begin(), jetIdDiscriminants.end());
   jetIdDiscriminantFiller.fill();
  
-  std::auto_ptr<edm::ValueMap<int> > jetIdFlags_ptr(new edm::ValueMap<int>());
+  auto jetIdFlags_ptr = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler jetIdFlagFiller(*jetIdFlags_ptr);
   jetIdFlagFiller.insert(jets, jetIdFlags.begin(), jetIdFlags.end());
   jetIdFlagFiller.fill();
 
-  evt.put(jetIdDiscriminants_ptr, "Discriminant");
-  evt.put(jetIdFlags_ptr, "Id");
+  evt.put(std::move(jetIdDiscriminants_ptr), "Discriminant");
+  evt.put(std::move(jetIdFlags_ptr), "Id");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

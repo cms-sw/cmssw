@@ -27,6 +27,13 @@ SiStripClusterValidator::SiStripClusterValidator(const edm::ParameterSet& conf)
      << "\""
      << std::endl;
   header_ = ss.str();
+  if (dsvnew_) {
+    consumes< edmNew::DetSetVector<SiStripCluster> >( collection1Tag_ );
+    consumes< edmNew::DetSetVector<SiStripCluster> >( collection2Tag_ );
+  } else {
+    consumes< edm::DetSetVector<SiStripCluster> >( collection1Tag_ );
+    consumes< edm::DetSetVector<SiStripCluster> >( collection2Tag_ );
+  }
 }
 
 SiStripClusterValidator::~SiStripClusterValidator()

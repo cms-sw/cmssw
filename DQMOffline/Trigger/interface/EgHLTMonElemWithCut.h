@@ -26,11 +26,11 @@ namespace egHLT {
   template<class T> class MonElemWithCutBase {
     
   private:
-    MonElemWithCutBase(const MonElemWithCutBase& rhs){}
+    MonElemWithCutBase(const MonElemWithCutBase& rhs)= default;
     MonElemWithCutBase& operator=(const MonElemWithCutBase& rhs){return *this;}
   public:
-    MonElemWithCutBase(){}
-    virtual ~MonElemWithCutBase(){}
+    MonElemWithCutBase()= default;
+    virtual ~MonElemWithCutBase()= default;
     
     virtual void fill(const T& obj,const OffEvt& evt ,float weight)=0;
     
@@ -57,9 +57,9 @@ namespace egHLT {
 		   varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const,const EgHLTDQMCut<T>* cut=NULL):
       monElemMgr_(new MonElemManager2D<T,varTypeX,varTypeY>(iBooker,name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY)),
       cut_(cut){}
-    ~MonElemWithCut();
+    ~MonElemWithCut() override;
     
-    void fill(const T& obj,const OffEvt& evt,float weight);
+    void fill(const T& obj,const OffEvt& evt,float weight) override;
     
   };
   
@@ -73,7 +73,7 @@ namespace egHLT {
   template<class T,typename varTypeX,typename varTypeY> 
   void MonElemWithCut<T,varTypeX,varTypeY>::fill(const T& obj,const OffEvt& evt,float weight)
   {
-    if(cut_==NULL || cut_->pass(obj,evt)) monElemMgr_->fill(obj,weight);
+    if(cut_==nullptr || cut_->pass(obj,evt)) monElemMgr_->fill(obj,weight);
   }
   
 }

@@ -304,11 +304,11 @@ std::set< std::string > PixelPortcardMap::portcards(const PixelDetectorConfig* d
 {
 	std::set< std::string > returnThis;
 
-	if(detconfig != 0){
+	if(detconfig != nullptr){
 	
 	  //still done done in an awkward way, but this avoids an
           //double nested loop that we had in the first implementation
-	  const std::vector <PixelModuleName> moduleList=detconfig->getModuleList();
+	  const std::vector <PixelModuleName>& moduleList=detconfig->getModuleList();
 	  std::set< std::string > moduleNames;
 	  for(std::vector <PixelModuleName>::const_iterator it=moduleList.begin(), it_end=moduleList.end(); it!=it_end; ++it){
 	    moduleNames.insert(it->modulename());

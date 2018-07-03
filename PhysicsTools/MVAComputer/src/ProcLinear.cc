@@ -29,11 +29,11 @@ class ProcLinear : public VarProcessor {
 	ProcLinear(const char *name,
 	           const Calibration::ProcLinear *calib,
 	           const MVAComputer *computer);
-	virtual ~ProcLinear() {}
+	~ProcLinear() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:
@@ -41,7 +41,7 @@ class ProcLinear : public VarProcessor {
 	double			offset;
 };
 
-static ProcLinear::Registry registry("ProcLinear");
+ProcLinear::Registry registry("ProcLinear");
 
 ProcLinear::ProcLinear(const char *name,
                        const Calibration::ProcLinear *calib,

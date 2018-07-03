@@ -23,6 +23,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripFedCablingFakeESSource_cfi")
 process.siStripFedCabling.PopulateAllFeds=cms.bool(False)
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripFedCablingDummyDBWriter_cfi")

@@ -1,4 +1,6 @@
+import collections
 from ROOT import TChain
+import six
 
 class Event(object):
     '''Event class.
@@ -16,7 +18,7 @@ class Event(object):
     #TODO: provide a clear interface for access control (put, get, del products) - we should keep track of the name and id of the analyzer.
     '''
 
-    def __init__(self, iEv, input_data, setup, eventWeight=1 ):
+    def __init__(self, iEv, input_data=None, setup=None, eventWeight=1 ):
         self.iEv = iEv
         self.input = input_data
         self.setup = setup
@@ -26,12 +28,13 @@ class Event(object):
         header = '{type}: {iEv}'.format( type=self.__class__.__name__,
                                          iEv = self.iEv)
         varlines = []
-        for var,value in sorted(vars(self).iteritems()):
+        for var,value in sorted(vars(six.iteritems(self))):
             tmp = value
             # check for recursivity
             recursive = False
-            if hasattr(value, '__getitem__'):
-                if (len(value)>0 and value[0].__class__ == value.__class__):
+            if hasattr(value, '__getitem__') and \
+               not isinstance(value, collections.Mapping) and \
+               (len(value)>0 and value[0].__class__ == value.__class__):
                     recursive = True
             if hasattr(value, '__contains__') and \
                    not isinstance(value, (str,unicode)) and \

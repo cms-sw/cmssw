@@ -29,10 +29,13 @@ unfold(const SiStripCluster& clus, const float x) {
     for(unsigned i=0; i<(N+1)/2; i++) {
       for(unsigned j=i; j<N-i; j++) {
 	const float Cij = inverse(i+1,j+1);
-	Q[i+1] += Cij * STATS(q[  j  ]) ;  if( i!=j)   
-	Q[j+1] += Cij * STATS(q[  i  ]) ;  if( N!=i+j+1) {
-	Q[N-i] += Cij * STATS(q[N-j-1]) ;  if( i!=j)
-	Q[N-j] += Cij * STATS(q[N-i-1]) ;
+	Q[i+1] += Cij * STATS(q[  j  ]) ;
+        if( i!=j)   
+	  Q[j+1] += Cij * STATS(q[  i  ]) ;
+        if( N!=i+j+1) {
+	  Q[N-i] += Cij * STATS(q[N-j-1]) ;
+          if( i!=j)
+	    Q[N-j] += Cij * STATS(q[N-i-1]) ;
 	}
       }
     }

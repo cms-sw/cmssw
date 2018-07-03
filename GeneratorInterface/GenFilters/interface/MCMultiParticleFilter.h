@@ -30,6 +30,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
 //
 // class declaration
@@ -38,22 +41,24 @@
 class MCMultiParticleFilter : public edm::EDFilter {
  public:
   explicit MCMultiParticleFilter(const edm::ParameterSet&);
-  ~MCMultiParticleFilter();
+  ~MCMultiParticleFilter() override;
   
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   
   edm::InputTag src_;              // input tag
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   int numRequired_;                // number of particles required to pass filter
   bool acceptMore_;                // if true (default), accept numRequired or more.
                                    // if false, accept events with exactly equal to numRequired.
   std::vector<int> particleID_;    // vector of particle IDs to look for
-  // the three next variables can either be a vector of length 1 (in which case the same
+  // the four next variables can either be a vector of length 1 (in which case the same
   // value is used for all particle IDs) or of length equal to the length of ParticleID (in which
   // case the corresponding value is used for each).
+  std::vector<int> motherID_;      // mother ID of particles (optional)
   std::vector<double> ptMin_;      // minimum Pt of particles
   std::vector<double> etaMax_;     // maximum fabs(eta) of particles
   std::vector<int> status_;        // status of particles

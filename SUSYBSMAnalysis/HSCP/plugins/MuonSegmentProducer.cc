@@ -48,12 +48,12 @@
 class MuonSegmentProducer : public edm::EDProducer {
 public:
   explicit MuonSegmentProducer(const edm::ParameterSet&);
-  ~MuonSegmentProducer();
+  ~MuonSegmentProducer() override;
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   edm::EDGetTokenT< CSCSegmentCollection > m_cscSegmentToken;
   edm::EDGetTokenT< DTRecSegment4DCollection > m_dtSegmentToken;
@@ -90,7 +90,7 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   using namespace susybsm;
 
   susybsm::MuonSegmentCollection* segments = new susybsm::MuonSegmentCollection;
-  std::auto_ptr<susybsm::MuonSegmentCollection> resultSeg(segments);
+  std::unique_ptr<susybsm::MuonSegmentCollection> resultSeg(segments);
 
   edm::ESHandle<DTGeometry> dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
@@ -126,7 +126,7 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     segments->push_back(muonSegment);
   }
 
-  edm::OrphanHandle<susybsm::MuonSegmentCollection> putHandleSeg = iEvent.put(resultSeg);
+  edm::OrphanHandle<susybsm::MuonSegmentCollection> putHandleSeg = iEvent.put(std::move(resultSeg));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

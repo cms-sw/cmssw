@@ -22,27 +22,50 @@ class PixelTripletHLTGenerator : public HitTripletGeneratorFromPairAndLayers {
 typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
 public:
+  PixelTripletHLTGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): PixelTripletHLTGenerator(cfg, iC) {}
   PixelTripletHLTGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~PixelTripletHLTGenerator();
+  ~PixelTripletHLTGenerator() override;
 
-  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static const char *fillDescriptionsLabel() { return "pixelTripletHLT"; }
+
+  void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
                             const edm::Event & ev, const edm::EventSetup& es,
-                            SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                            const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
                             const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
 
-private:
-  bool checkPhiInRange(float phi, float phi1, float phi2) const;
-  std::pair<float,float> mergePhiRanges(
-      const std::pair<float,float> &r1, const std::pair<float,float> &r2) const; 
+  void hitTriplets(const TrackingRegion& region, OrderedHitTriplets& trs,
+                   const edm::Event& ev, const edm::EventSetup& es,
+                   const HitDoublets& doublets,
+                   const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                   std::vector<int> *tripletLastLayerIndex,
+                   LayerCacheType& layerCache);
+
+    void hitTriplets(
+	const TrackingRegion& region, 
+	OrderedHitTriplets & result,
+	const edm::EventSetup & es,
+	const HitDoublets & doublets,
+	const RecHitsSortedInPhi ** thirdHitMap,
+	const std::vector<const DetLayer *> & thirdLayerDetLayer,
+	const int nThirdLayers)override;
+
+  void hitTriplets(const TrackingRegion& region, OrderedHitTriplets & result,
+                   const edm::EventSetup & es,
+                   const HitDoublets & doublets,
+                   const RecHitsSortedInPhi ** thirdHitMap,
+                   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+                   const int nThirdLayers,
+                   std::vector<int> *tripletLastLayerIndex);
 
 private:
-  bool useFixedPreFiltering;
-  float extraHitRZtolerance;
-  float extraHitRPhitolerance;
-  bool useMScat;
-  bool useBend;
-  float dphi;
+  const bool useFixedPreFiltering;
+  const float extraHitRZtolerance;
+  const float extraHitRPhitolerance;
+  const bool useMScat;
+  const bool useBend;
+  const float dphi;
   std::unique_ptr<SeedComparitor> theComparitor;
 
 };

@@ -60,7 +60,7 @@ class TrackHelixVertexFitter{
      if(Par==x0 || Par==y0 || Par==z0) return Par;
      return Par+Particle*(NFreeTrackPar-NFreeVertexPar);
    }
-   static void parSizeInfo(const TVectorT<double>& inpar, int& np, int& parsize,bool hasextras=0);
+   static void parSizeInfo(const TVectorT<double>& inpar, int& np, int& parsize,bool hasextras=false);
 
    std::vector<TrackParticle> particles_;
    TVectorT<double> val_;

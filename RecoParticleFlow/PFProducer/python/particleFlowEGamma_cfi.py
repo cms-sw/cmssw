@@ -176,6 +176,7 @@ particleFlowEGamma = cms.EDProducer("PFEGammaProducer",
 
     # ECAL/HCAL PF cluster calibration : take it from global tag ?
     useCalibrationsFromDB = cms.bool(True),
+    calibrationsLabel = cms.string(''),
 
     # calibration parameters for HF:
     calibHF_use = cms.bool(False),

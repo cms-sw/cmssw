@@ -6,9 +6,9 @@
  *  \author Vadim Khotilovich
  */
 
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
-#include <DataFormats/GEMDigi/interface/GEMPadDigi.h>
-#include <DataFormats/MuonData/interface/MuonDigiCollection.h>
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
+#include "DataFormats/MuonData/interface/MuonDigiCollection.h"
 
 typedef MuonDigiCollection<GEMDetId, GEMPadDigi> GEMPadDigiCollection;
 

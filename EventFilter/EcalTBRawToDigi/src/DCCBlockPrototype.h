@@ -13,7 +13,7 @@
 #include <set>
 #include <iostream>
 #include <iomanip>
-#include <stdint.h>
+#include <cstdint>
 
 class DCCTBDataParser;
 class DCCTBDataField;
@@ -27,7 +27,7 @@ class DCCTBBlockPrototype{
 		DCCTBBlockPrototype(
 			DCCTBDataParser * parser, 
 			std::string name, 
-			uint32_t* buffer,
+			const uint32_t* buffer,
 			uint32_t numbBytes, 
 			uint32_t wordsToEndOfEvent, 
 			uint32_t wordEventOffset = 0 
@@ -70,8 +70,8 @@ class DCCTBBlockPrototype{
 		
 		std::string formatString(std::string myString,uint32_t minPositions);
 		
-		uint32_t * dataP_;
-		uint32_t * beginOfBuffer_;
+		const uint32_t * dataP_;
+		const uint32_t * beginOfBuffer_;
 		
 		uint32_t blockSize_;
 		uint32_t wordCounter_;

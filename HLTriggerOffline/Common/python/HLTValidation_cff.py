@@ -13,7 +13,11 @@ from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
-from HLTriggerOffline.Btag.HltBtagValidationFastSim_cff import  *
+from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
+from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
+# HCAL
+from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
+from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -26,14 +30,24 @@ from DQMOffline.Trigger.HLTMonTau_cfi import *
  
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
-hltassociation = cms.Sequence( egammaSelectors
-                               +ExoticaValidationProdSeq )
-
-
-hltvalidation = cms.Sequence(
+hltassociation = cms.Sequence(
     hltMultiTrackValidation
     +hltMultiPVValidation
-    +HLTMuonVal
+    +egammaSelectors
+    +ExoticaValidationProdSeq
+    +hltMultiTrackValidationGsfTracks
+    +hltMultiTrackValidationMuonTracks
+    )
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
+hltvalidationCommon = cms.Sequence(
+    hcalMonitoringSequence
+)
+hltvalidationWithMC    = cms.Sequence(
+    HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
     +topHLTriggerOfflineDQM
@@ -45,47 +59,41 @@ hltvalidation = cms.Sequence(
     +ExoticaValidationSequence
     +b2gHLTriggerValidation
     +SMPValidationSequence
-    +hltbtagValidationSequence
-    )
-
-
-# additional producer sequence prior to hltvalidation_fastsim
-# to evacuate producers from the EndPath
-hltassociation_fastsim = cms.Sequence(
-    HLTMuonAss_FastSim
-  + egammaSelectors
-  + hltTauRef
+    +hltbtagValidationSequence #too noisy for now
+    +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
+)
+hltvalidationWithData  = cms.Sequence(
 )
 
-hltvalidation_fastsim = cms.Sequence(
-     HLTMuonVal_FastSim
-    +HLTTauValFS
-    +egammaValidationSequenceFS
-    +topHLTriggerOfflineDQM
-    +topHLTriggerValidation
-    +heavyFlavorValidationSequence
-    +HLTJetMETValSeq
-    #+HLTAlCaVal_FastSim
-    +HLTSusyExoValSeq_FastSim
-    +HiggsValidationSequence
-    +b2gHLTriggerValidation
-    +SMPValidationSequence
-    +hltbtagValidationSequenceFastSim
-    )
+hltvalidation = cms.Sequence(
+    hltvalidationCommon *
+    hltvalidationWithMC *
+    hltvalidationWithData
+)
+
+# some hlt collections have no direct fastsim equivalent
+# remove the dependent modules for now
+# probably it would be rather easy to add or fake these collections
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(hltassociation, hltassociation.copyAndExclude([
+    hltMultiTrackValidation,
+    hltMultiPVValidation,
+    hltMultiTrackValidationGsfTracks,
+    hltMultiTrackValidationMuonTracks,
+]))
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(hltvalidation, hltvalidation.copyAndExclude([HiggsValidationSequence]))
+
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal
   +heavyFlavorValidationSequence
   +HLTSusyExoValSeq
  #+HiggsValidationSequence
- )
-
-hltvalidation_preprod_fastsim = cms.Sequence(
- HLTTauVal
- +heavyFlavorValidationSequence
- +HLTSusyExoValSeq_FastSim
-#+HiggsValidationSequence
-)
+  )
 
 hltvalidation_prod = cms.Sequence(
   )
@@ -99,3 +107,5 @@ hltvalidation_withDQM = cms.Sequence(
     hltvalidation
     +trigdqm_forValidation
     )
+
+    

@@ -60,6 +60,7 @@ process.lumi = cms.EDAnalyzer(
     sampleType                   = cms.untracked.string('DATA'), # MC, DATA
     includeVertexInformation     = cms.untracked.bool(False),
     includePixels                = cms.untracked.bool(True),
+    splitByBX                    = cms.untracked.bool(True),
     L1GTReadoutRecordLabel       = cms.untracked.InputTag('gtDigis'), 
     hltL1GtObjectMap             = cms.untracked.InputTag('hltL1GtObjectMap'), 
     HLTResultsLabel              = cms.untracked.InputTag('TriggerResults::HLT')
@@ -78,4 +79,5 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles) 
 readFiles.extend([
+'/store/data/Run2015C/AlCaLumiPixels/ALCARECO/LumiPixels-PromptReco-v1/000/253/684/00000/5C6B6D62-BB3E-E511-943E-02163E01431C.root',
 '/store/data/Run2015B/AlCaLumiPixels/ALCARECO/LumiPixels-PromptReco-v1/000/251/497/00000/28D83B84-E428-E511-8F44-02163E0138B3.root',])

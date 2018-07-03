@@ -57,10 +57,10 @@
 class TTbar_Kinematics : public DQMEDAnalyzer {
    public:
       explicit TTbar_Kinematics(const edm::ParameterSet&);
-      ~TTbar_Kinematics();
+      ~TTbar_Kinematics() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 
    private:

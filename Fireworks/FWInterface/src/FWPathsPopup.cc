@@ -38,12 +38,12 @@ FWPathsPopup::windowIsClosing()
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 400, 600),
-     m_info(0),
+     m_info(nullptr),
      m_looper(looper),
      m_hasChanges(false),
-     m_moduleLabel(0),
-     m_moduleName(0),
-     m_apply(0),
+     m_moduleLabel(nullptr),
+     m_moduleName(nullptr),
+     m_apply(nullptr),
      m_psTable(new FWPSetTableManager()),
      m_guiManager(guiManager)
 {
@@ -205,7 +205,7 @@ FWPathsPopup::postEvent(edm::Event const &event)
 
    if (triggerResults.isValid())
    {
-      edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+      const edm::TriggerNames& triggerNames = event.triggerNames(*triggerResults);
      
       for (size_t i = 0, e = triggerResults->size(); i != e; ++i)
       {

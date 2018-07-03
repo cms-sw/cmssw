@@ -17,16 +17,16 @@ public :
   TFitParticleEtThetaPhi(const TString &name, const TString &title, 
 	       TLorentzVector* pini,
 	       const TMatrixD* theCovMatrix);
-  virtual ~TFitParticleEtThetaPhi();
-  virtual TAbsFitParticle* clone( const TString& newname = "" ) const;
+  ~TFitParticleEtThetaPhi() override;
+  TAbsFitParticle* clone( const TString& newname = "" ) const override;
 
   // returns derivative dP/dy with P=(p,E) and y=(et, theta, phi) 
   // the free parameters of the fit. The columns of the matrix contain 
   // (dP/d(et), dP/d(theta), dP/d(phi)).
-  virtual TMatrixD* getDerivative();
-  virtual TMatrixD* transform(const TLorentzVector& vec);
-  virtual void setIni4Vec(const TLorentzVector* pini);
-  virtual TLorentzVector* calc4Vec( const TMatrixD* params );
+  TMatrixD* getDerivative() override;
+  TMatrixD* transform(const TLorentzVector& vec) override;
+  void setIni4Vec(const TLorentzVector* pini) override;
+  TLorentzVector* calc4Vec( const TMatrixD* params ) override;
 
 protected :
 
@@ -34,7 +34,8 @@ protected :
 
 
 private:
-  
+
+  ClassDefOverride(TFitParticleEtThetaPhi, 0)
 };
 
 #endif

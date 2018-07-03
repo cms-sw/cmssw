@@ -64,6 +64,10 @@ public:
   bool operator==(const PCaloHit &d) const 
   { return (myEnergy == d.myEnergy && detId == d.detId); }
 
+  static const int kEcalDepthIdMask = 0x3;
+  static const int kEcalDepthMask   = 0x1FFF;
+  static const int kEcalDepthOffset = 3;
+  static const int kEcalDepthRefz   = 0X4;
 
 protected: 
   float myEnergy;

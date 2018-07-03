@@ -23,7 +23,7 @@ public:
   OptOSource();
   OptOSource(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOSource(){ };
+  ~OptOSource() override{ };
 
 
 #ifdef COCOA_VIS
@@ -32,8 +32,8 @@ public:
 #endif
 
   //---------- Propagate light for measurement meas
-  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
-  void constructSolidShape();
+  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  void constructSolidShape() override;
 
 
 };

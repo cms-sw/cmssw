@@ -41,8 +41,8 @@ namespace edm {
 
   private:
     std::string initialMessage_;
-    std::auto_ptr<cms::Exception> firstException_;
-    std::auto_ptr<cms::Exception> accumulatedExceptions_;
+    std::unique_ptr<cms::Exception> firstException_;
+    std::unique_ptr<cms::Exception> accumulatedExceptions_;
     int nExceptions_;
   };
 }

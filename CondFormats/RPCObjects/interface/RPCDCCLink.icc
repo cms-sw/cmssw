@@ -1,0 +1,180 @@
+#ifndef CondFormats_RPCObjects_RPCDCCLink_icc
+#define CondFormats_RPCObjects_RPCDCCLink_icc
+
+#include "CondFormats/RPCObjects/interface/RPCDCCLink.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
+inline std::uint32_t RPCDCCLink::getId() const
+{
+    return id_;
+}
+
+inline RPCDCCLink::operator std::uint32_t() const
+{
+    return id_;
+}
+
+inline bool RPCDCCLink::matches(RPCDCCLink const & rhs) const
+{
+    return ((id_ & rhs.getMask()) == (getMask() & rhs.id_));
+}
+
+inline void RPCDCCLink::setId(std::uint32_t const & id)
+{
+    id_ = id;
+}
+
+inline void RPCDCCLink::reset()
+{
+    id_ = 0x0;
+}
+
+// Field Getters
+inline int RPCDCCLink::getFED() const
+{
+    return bf_get(min_fed_, mask_fed_, pos_fed_);
+}
+
+inline int RPCDCCLink::getDCCInput() const
+{
+    return bf_get(min_dccinput_, mask_dccinput_, pos_dccinput_);
+}
+
+inline int RPCDCCLink::getTBInput() const
+{
+    return bf_get(min_tbinput_, mask_tbinput_, pos_tbinput_);
+}
+
+// Field Setters
+inline RPCDCCLink & RPCDCCLink::setFED(int fed)
+{
+    return bf_set(min_fed_, max_fed_, mask_fed_, pos_fed_, fed);
+}
+
+inline RPCDCCLink & RPCDCCLink::setDCCInput(int dccinput)
+{
+    return bf_set(min_dccinput_, max_dccinput_, mask_dccinput_, pos_dccinput_, dccinput);
+}
+
+inline RPCDCCLink & RPCDCCLink::setTBInput(int tbinput)
+{
+    return bf_set(min_tbinput_, max_tbinput_, mask_tbinput_, pos_tbinput_, tbinput);
+}
+
+inline bool RPCDCCLink::operator<(RPCDCCLink const & rhs) const
+{
+    return (id_ < rhs.id_);
+}
+
+inline bool RPCDCCLink::operator==(RPCDCCLink const & rhs) const
+{
+    return (id_ == rhs.id_);
+}
+
+inline bool RPCDCCLink::operator!=(RPCDCCLink const & rhs) const
+{
+    return (id_ != rhs.id_);
+}
+
+inline bool RPCDCCLink::operator<(std::uint32_t const & rhs) const
+{
+    return (id_ < rhs);
+}
+
+inline bool RPCDCCLink::operator==(std::uint32_t const & rhs) const
+{
+    return (id_ == rhs);
+}
+
+inline bool RPCDCCLink::operator!=(std::uint32_t const & rhs) const
+{
+    return (id_ != rhs);
+}
+
+inline RPCDCCLink & RPCDCCLink::operator++()
+{
+    int value(0);
+    if ((value = getTBInput()) != wildcard_) {
+        if (value < max_tbinput_)
+            return setTBInput(value + 1);
+        setTBInput(min_tbinput_);
+    }
+    if ((value = getDCCInput()) != wildcard_) {
+        if (value < max_dccinput_)
+            return setDCCInput(value + 1);
+        setDCCInput(min_dccinput_);
+    }
+    if ((value = getFED()) != wildcard_) {
+        if (value < max_fed_)
+            return setFED(value + 1);
+        setFED(min_fed_);
+    }
+    return *this;
+}
+
+inline RPCDCCLink RPCDCCLink::operator++(int)
+{
+    RPCDCCLink _value(*this);
+    ++(*this);
+    return _value;
+}
+
+inline RPCDCCLink & RPCDCCLink::operator--()
+{
+    int value(0);
+    if ((value = getTBInput()) != wildcard_) {
+        if (value > min_tbinput_)
+            return setTBInput(value - 1);
+        setTBInput(max_tbinput_);
+    }
+    if ((value = getDCCInput()) != wildcard_) {
+        if (value > min_dccinput_)
+            return setDCCInput(value - 1);
+        setDCCInput(max_dccinput_);
+    }
+    if ((value = getFED()) != wildcard_) {
+        if (value > min_fed_)
+            return setFED(value - 1);
+        setFED(max_fed_);
+    }
+    return *this;
+}
+
+inline RPCDCCLink RPCDCCLink::operator--(int)
+{
+    RPCDCCLink _value(*this);
+    --(*this);
+    return _value;
+}
+
+inline int RPCDCCLink::bf_get(int const min, std::uint32_t const mask, int const pos) const
+{
+    std::uint32_t value(id_ & mask);
+    if (value == 0)
+        return wildcard_;
+    return min + (int)(value >> pos) - 1;
+}
+
+inline RPCDCCLink & RPCDCCLink::bf_set(int const min, int const max, std::uint32_t const mask, int const pos, int const value)
+{
+    if (value >= min && value <= max) {
+        id_ &= ~mask;
+        id_ |= (((std::uint32_t)(value - min + 1) << pos) & mask);
+    } else if (value == wildcard_)
+        id_ &= ~mask;
+    else
+        throw cms::Exception("OutOfRange")
+            << "Out-of-range input for RPCDCCLink::bf_set, position " << pos << ": " << value;
+    return *this;
+}
+
+inline std::ostream &  RPCDCCLink::bf_stream(std::ostream & ostream, int const min, std::uint32_t const mask, int const pos) const
+{
+    std::uint32_t value(id_ & mask);
+    if (value == 0)
+        return (ostream << '*');
+    return (ostream << (min + (int)(value >> pos) - 1));
+}
+
+#endif // CondFormats_RPCObjects_RPCDCCLink_icc

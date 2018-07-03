@@ -19,7 +19,7 @@ class AsciiNeutronReader : public NeutronReader
 public:
   AsciiNeutronReader(std::string fileNameBase);
 
-  virtual void  readNextEvent(int chamberType, edm::PSimHitContainer & result);
+  void  readNextEvent(int chamberType, edm::PSimHitContainer & result) override;
 
 private:
 

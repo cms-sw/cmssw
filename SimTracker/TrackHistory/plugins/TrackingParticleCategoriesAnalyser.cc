@@ -26,11 +26,11 @@ class TrackingParticleCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one:
 public:
 
     explicit TrackingParticleCategoriesAnalyzer(const edm::ParameterSet&);
-    ~TrackingParticleCategoriesAnalyzer();
+    ~TrackingParticleCategoriesAnalyzer() override;
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     // Member data
 

@@ -10,7 +10,7 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,10 +29,10 @@ namespace pat {
   class PATGenCandsFromSimTracksProducer : public edm::stream::EDProducer<> {
   public:
     explicit PATGenCandsFromSimTracksProducer(const edm::ParameterSet&);
-    ~PATGenCandsFromSimTracksProducer() {}
+    ~PATGenCandsFromSimTracksProducer() override {}
     
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     bool firstEvent_;
     edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
@@ -153,7 +153,7 @@ PATGenCandsFromSimTracksProducer::findGeantMother(const SimTrack &tk, const Glob
            }
        }
    }
-   return 0;
+   return nullptr;
 }
 
 edm::Ref<reco::GenParticleCollection>
@@ -162,7 +162,7 @@ PATGenCandsFromSimTracksProducer::findRef(const SimTrack &tk, GlobalContext &g) 
     const SimTrack * simMother = findGeantMother(tk, g);
 
     edm::Ref<reco::GenParticleCollection> motherRef;
-    if (simMother != 0) motherRef = findRef(*simMother,g);
+    if (simMother != nullptr) motherRef = findRef(*simMother,g);
 
     if (writeAncestors_) {
         // If writing ancestors, I need to serialize myself, and then to return a ref to me
@@ -209,7 +209,7 @@ reco::GenParticle
 PATGenCandsFromSimTracksProducer::makeGenParticle_(const SimTrack &tk, const edm::Ref<reco::GenParticleCollection> & mother, const GlobalContext &g) const {
     // Make up a GenParticleCandidate from the GEANT track info.
     int charge = static_cast<int>(tk.charge());
-    Particle::LorentzVector p4 = tk.momentum();
+    const Particle::LorentzVector& p4 = tk.momentum();
     Particle::Point vtx; // = (0,0,0) by default
     if (!tk.noVertex()) vtx = g.simvtxs[tk.vertIndex()].position();
     GenParticle gp(charge, p4, vtx, tk.type(), setStatus_, true);
@@ -246,7 +246,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
   event.getByToken(simTracksToken_, simtracks);
 
   // Need to check that SimTrackContainer is sorted; otherwise, copy and sort :-(
-  std::auto_ptr<SimTrackContainer> simtracksTmp;
+  std::unique_ptr<SimTrackContainer> simtracksTmp;
   const SimTrackContainer * simtracksSorted = &* simtracks;
   if (makeMotherLink_ || writeAncestors_) {
       if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
@@ -273,7 +273,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
 
   // make the output collection
-  auto_ptr<GenParticleCollection> cands(new GenParticleCollection);
+  auto cands = std::make_unique<GenParticleCollection>();
   edm::RefProd<GenParticleCollection> refprod = event.getRefBeforePut<GenParticleCollection>();
 
   GlobalContext globals(*simtracksSorted, *simvertices, gens, genBarcodes, barcodesAreSorted, *cands, refprod);
@@ -297,14 +297,14 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
 
       if (!motherPdgIds_.empty()) {
            const SimTrack *motherSimTk = findGeantMother(*isimtrk, globals);
-           if (motherSimTk == 0) continue;
+           if (motherSimTk == nullptr) continue;
            if (motherPdgIds_.find(std::abs(motherSimTk->type())) == motherPdgIds_.end()) continue;
       }
 
       if (makeMotherLink_ || writeAncestors_) {
           Ref<GenParticleCollection> motherRef;
           const SimTrack * mother = findGeantMother(*isimtrk, globals);
-          if (mother != 0) motherRef = findRef(*mother, globals);
+          if (mother != nullptr) motherRef = findRef(*mother, globals);
           if (motherRef.isNonnull()) genp.addMother(motherRef);
       }
 
@@ -312,7 +312,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event& event,
   }
 
   // Write to the Event, and get back a handle (which can be useful for debugging)
-  edm::OrphanHandle<reco::GenParticleCollection> orphans = event.put(cands);
+  edm::OrphanHandle<reco::GenParticleCollection> orphans = event.put(std::move(cands));
 
 #ifdef DEBUG_PATGenCandsFromSimTracksProducer
   std::cout << "Produced a list of " << orphans->size() << " genParticles." << std::endl;

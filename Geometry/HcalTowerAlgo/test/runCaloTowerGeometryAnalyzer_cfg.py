@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 process = cms.Process("CaloTowerGeometryTest")
 

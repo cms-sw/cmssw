@@ -19,13 +19,13 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
     jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
     if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
       << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-    edm::LogWarning("ShiftedPFCandidateProducerForPFNoPUMEt")
+    edm::LogInfo("ShiftedPFCandidateProducerForPFNoPUMEt")
       << "Reading JEC parameters = " << jetCorrUncertaintyTag_
       << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;
-    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
+    jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
     jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
   } else {
-    edm::LogWarning("ShiftedPFCandidateProducerForPFNoPUMEt")
+    edm::LogInfo("ShiftedPFCandidateProducerForPFNoPUMEt")
       << "Reading JEC parameters = " << jetCorrUncertaintyTag_
       << " from DB/SQLlite file." << std::endl;
     jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
@@ -71,7 +71,7 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
       jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
     }
 
-  std::auto_ptr<reco::PFCandidateCollection> shiftedPFCandidates(new reco::PFCandidateCollection);
+  auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
   for ( reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
 	originalPFCandidate != originalPFCandidates->end(); ++originalPFCandidate ) {
@@ -106,7 +106,7 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
     shiftedPFCandidates->push_back(shiftedPFCandidate);
   }
 
-  evt.put(shiftedPFCandidates);
+  evt.put(std::move(shiftedPFCandidates));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <string.h> // bzero
+#include <cstring> // bzero
 
 class CSCVDMBHeaderFormat  {
 public:

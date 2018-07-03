@@ -31,9 +31,9 @@
 
   public:
     EcalFloatCondObjectContainerHandler(const edm::ParameterSet & ps);
-    virtual ~EcalFloatCondObjectContainerHandler();
-    virtual void getNewObjects();
-    virtual std::string id() const ;
+    ~EcalFloatCondObjectContainerHandler() override;
+    void getNewObjects() override;
+    std::string id() const override ;
 
   private:
 

@@ -1,7 +1,6 @@
 <library   file="fake/*.cc" name="CalibTrackerSiStripFakeESProducersPlugins">
   <use   name="CalibTracker/SiStripESProducers"/>
   <use   name="CondCore/DBOutputService"/>
-  <use   name="CondCore/DBCommon"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="real/*.cc" name="CalibTrackerSiStripRealESProducersPlugins">
@@ -17,9 +16,5 @@
 <library   file="DBWriter/*.cc" name="CalibTrackerSiStripESProducersDBWriterPlugins">
   <use   name="CalibTracker/SiStripESProducers"/>
   <use   name="CondCore/DBOutputService"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="services/*.cc" name="CalibTrackerSiStripESProducersServicesPlugins">
-  <use   name="CalibTracker/SiStripESProducers"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

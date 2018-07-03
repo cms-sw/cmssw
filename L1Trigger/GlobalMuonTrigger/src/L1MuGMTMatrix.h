@@ -110,11 +110,11 @@ L1MuGMTMatrix<T>::L1MuGMTMatrix(int r, int c) : r_size(r), c_size(c) {
 
    p = new T*[r];
 
-   assert(p != 0);
+   assert(p != nullptr);
 
    for (int i = 0; i < r; i++) {
      p[i] = new T[c];
-     assert(p[i] != 0);
+     assert(p[i] != nullptr);
    }
 
 }
@@ -127,11 +127,11 @@ L1MuGMTMatrix<T>::L1MuGMTMatrix(const L1MuGMTMatrix<T>& mat) : r_size(mat.r_size
 
    p = new T*[r_size];
 
-   assert(p != 0);
+   assert(p != nullptr);
 
    for (int i = 0; i < r_size; i++) {
      p[i] = new T[c_size];
-     assert(p[i] != 0);
+     assert(p[i] != nullptr);
      for (int j = 0; j < c_size; j++) p[i][j] = mat.p[i][j];
    }
 

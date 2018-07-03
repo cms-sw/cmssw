@@ -63,12 +63,12 @@
 class TrackerToMuonPropagator : public edm::EDProducer {
    public:
       explicit TrackerToMuonPropagator(const edm::ParameterSet&);
-      ~TrackerToMuonPropagator();
+      ~TrackerToMuonPropagator() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -99,7 +99,7 @@ TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfi
    if (m_refitTracker) {
       m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
    }
-   else m_trackTransformer = NULL;
+   else m_trackTransformer = nullptr;
   
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
@@ -154,7 +154,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    MuonTransientTrackingRecHitBuilder muonTransBuilder;
 
    // Create a collection of Trajectories, to put in the Event
-   std::auto_ptr<std::vector<Trajectory> > trajectoryCollection(new std::vector<Trajectory>);
+   auto trajectoryCollection = std::make_unique<std::vector<Trajectory>>();
 
    // Remember which trajectory is associated with which track
    std::map<edm::Ref<std::vector<Trajectory> >::key_type, edm::Ref<reco::TrackCollection>::key_type> reference_map;
@@ -230,7 +230,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       } // end loop over standAloneMuon hits
 	 
       // if it has any successful extrapolations, make them into a Trajectory
-      if (muonHits.size() > 0) {
+      if (!muonHits.empty()) {
 	 PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(tracker_tsos, outerDetId.rawId());
 	 TrajectorySeed trajectorySeed(PTraj, muonHits, alongMomentum);
 	 Trajectory trajectory(trajectorySeed, alongMomentum);
@@ -254,10 +254,10 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    unsigned int numTrajectories = trajectoryCollection->size();
 
    // insert the trajectories into the Event
-   edm::OrphanHandle<std::vector<Trajectory> > ohTrajs = iEvent.put(trajectoryCollection);
+   edm::OrphanHandle<std::vector<Trajectory> > ohTrajs = iEvent.put(std::move(trajectoryCollection));
 
    // create the trajectory <-> track association map
-   std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection());
+   auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
 
    for (trajCounter = 0;  trajCounter < numTrajectories;  trajCounter++) {
       edm::Ref<reco::TrackCollection>::key_type trackCounter = reference_map[trajCounter];
@@ -265,7 +265,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(ohTrajs, trajCounter), edm::Ref<reco::TrackCollection>(globalMuonTracks, trackCounter));
    }
    // and put it in the Event, also
-   iEvent.put(trajTrackMap);
+   iEvent.put(std::move(trajTrackMap));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

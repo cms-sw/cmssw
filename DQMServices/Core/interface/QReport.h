@@ -13,28 +13,28 @@ class QReport
 {
 public:
   /// get test status (see Core/interface/QTestStatus.h)
-  int getStatus(void) const
+  int getStatus() const
     { return qvalue_->code; }
 
   /// get test result i.e. prob value
-  float getQTresult(void) const
+  float getQTresult() const
     { return qvalue_->qtresult; }
 
   /// get message attached to test
-  const std::string &getMessage(void) const
+  const std::string &getMessage() const
     { return qvalue_->message; }
 
   /// get name of quality test
-  const std::string &getQRName(void) const
+  const std::string &getQRName() const
     { return qvalue_->qtname; }
 
   /// get vector of channels that failed test
   /// (not relevant for all quality tests!)
-  const std::vector<DQMChannel> &getBadChannels(void) const
+  const std::vector<DQMChannel> &getBadChannels() const
     { return badChannels_; }
 
   /// get QCriterion
-  const QCriterion *getQCriterion(void) const
+  const QCriterion *getQCriterion() const
     { return qcriterion_; }
 
 private:

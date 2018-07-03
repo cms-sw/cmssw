@@ -21,3 +21,6 @@ secondaryVertexTagInfos = cms.EDProducer("SecondaryVertexProducer",
         extSVDeltaRToJet    = cms.double(0.3)
 
 )
+
+secondaryVertexTagInfos.trackSelection.pixelHitsMin = cms.uint32(2)
+secondaryVertexTagInfos.trackSelection.totalHitsMin = cms.uint32(8)

@@ -51,8 +51,8 @@ L1RCTInputProducer::L1RCTInputProducer(const edm::ParameterSet& conf) :
 
 L1RCTInputProducer::~L1RCTInputProducer()
 {
-  if(rct != 0) delete rct;
-  if(rctLookupTables != 0) delete rctLookupTables;
+  if(rct != nullptr) delete rct;
+  if(rctLookupTables != nullptr) delete rctLookupTables;
 }
 
 
@@ -102,19 +102,19 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
 
   // Stuff to create
 
-  std::auto_ptr<std::vector<unsigned short> > 
+  std::unique_ptr<std::vector<unsigned short> > 
     rctCrate(new std::vector<unsigned short>);
-  std::auto_ptr<std::vector<unsigned short> > 
+  std::unique_ptr<std::vector<unsigned short> > 
     rctCard(new std::vector<unsigned short>);
-  std::auto_ptr<std::vector<unsigned short> > 
+  std::unique_ptr<std::vector<unsigned short> > 
     rctTower(new std::vector<unsigned short>);
-  std::auto_ptr<std::vector<unsigned int> > 
+  std::unique_ptr<std::vector<unsigned int> > 
     rctEGammaET(new std::vector<unsigned int>);
-  std::auto_ptr<std::vector<bool> > rctHoEFGVetoBit(new std::vector<bool>);
-  std::auto_ptr<std::vector<unsigned int> > 
+  std::unique_ptr<std::vector<bool> > rctHoEFGVetoBit(new std::vector<bool>);
+  std::unique_ptr<std::vector<unsigned int> > 
     rctJetMETET(new std::vector<unsigned int>);
-  std::auto_ptr<std::vector<bool> > rctTowerActivityBit(new std::vector<bool>);
-  std::auto_ptr<std::vector<bool> > rctTowerMIPBit(new std::vector<bool>);
+  std::unique_ptr<std::vector<bool> > rctTowerActivityBit(new std::vector<bool>);
+  std::unique_ptr<std::vector<bool> > rctTowerMIPBit(new std::vector<bool>);
   
   for(int crate = 0; crate < 18; crate++) {
     for(int card = 0; card < 7; card++) {
@@ -141,18 +141,18 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
 	  rctHoEFGVetoBit->push_back(hOeFGVetoBit);
 	  rctJetMETET->push_back(jetMETETCode);
 	  rctTowerActivityBit->push_back(activityBit);
-	  rctTowerMIPBit->push_back(0); // FIXME: MIP bit is not yet defined
+	  rctTowerMIPBit->push_back(false); // FIXME: MIP bit is not yet defined
 	}
       }
     }
   }
 
-  std::auto_ptr<std::vector<unsigned short> > 
+  std::unique_ptr<std::vector<unsigned short> > 
     rctHFCrate(new std::vector<unsigned short>);
-  std::auto_ptr<std::vector<unsigned short> > 
+  std::unique_ptr<std::vector<unsigned short> > 
     rctHFRegion(new std::vector<unsigned short>);
-  std::auto_ptr<std::vector<unsigned int> > rctHFET(new std::vector<unsigned int>);
-  std::auto_ptr<std::vector<bool> > rctHFFG(new std::vector<bool>);
+  std::unique_ptr<std::vector<unsigned int> > rctHFET(new std::vector<unsigned int>);
+  std::unique_ptr<std::vector<bool> > rctHFFG(new std::vector<bool>);
   for(int crate = 0; crate < 18; crate++) {
     for(int hfRegion = 0; hfRegion < 8; hfRegion++) {
       unsigned short hfCompressedET = rct->hfCompressedET(crate, hfRegion);
@@ -162,23 +162,23 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
 	rctHFCrate->push_back(crate);
 	rctHFRegion->push_back(hfRegion);
 	rctHFET->push_back(hfETCode);
-	rctHFFG->push_back(0); // FIXME: HF FG is not yet defined
+	rctHFFG->push_back(false); // FIXME: HF FG is not yet defined
       }
     }
   }
 
   //putting stuff back into event
-  event.put(rctCrate, "rctCrate");
-  event.put(rctCard, "rctCard");
-  event.put(rctTower, "rctTower");
-  event.put(rctEGammaET, "rctEGammaET");
-  event.put(rctHoEFGVetoBit, "rctHoEFGVetoBit");
-  event.put(rctJetMETET, "rctJetMETET");
-  event.put(rctTowerActivityBit, "rctTowerActivityBit");
-  event.put(rctTowerMIPBit, "rctTowerMIPBit");
-  event.put(rctHFCrate, "rctHFCrate");
-  event.put(rctHFRegion, "rctHFRegion");
-  event.put(rctHFET, "rctHFET");
-  event.put(rctHFFG, "rctHFFG");
+  event.put(std::move(rctCrate), "rctCrate");
+  event.put(std::move(rctCard), "rctCard");
+  event.put(std::move(rctTower), "rctTower");
+  event.put(std::move(rctEGammaET), "rctEGammaET");
+  event.put(std::move(rctHoEFGVetoBit), "rctHoEFGVetoBit");
+  event.put(std::move(rctJetMETET), "rctJetMETET");
+  event.put(std::move(rctTowerActivityBit), "rctTowerActivityBit");
+  event.put(std::move(rctTowerMIPBit), "rctTowerMIPBit");
+  event.put(std::move(rctHFCrate), "rctHFCrate");
+  event.put(std::move(rctHFRegion), "rctHFRegion");
+  event.put(std::move(rctHFET), "rctHFET");
+  event.put(std::move(rctHFFG), "rctHFFG");
 
 }

@@ -6,6 +6,7 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/DetId"/>
+<use   name="CommonTools/CandAlgos"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/EgammaCandidates"/>

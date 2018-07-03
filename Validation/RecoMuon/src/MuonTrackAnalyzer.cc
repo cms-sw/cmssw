@@ -110,35 +110,35 @@ void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     dirName.replace(dirName.find("Tracks"),6,"");
   }
   std::replace(dirName.begin(), dirName.end(), ':', '_');
-  ibooker.setCurrentFolder(dirName.c_str());
+  ibooker.setCurrentFolder(dirName);
   
   //ibooker.goUp();
   std::string simName = dirName;
   simName+="/SimTracks";
-  hSimTracks = new HTrackVariables(ibooker,simName.c_str(),"SimTracks"); 
+  hSimTracks = new HTrackVariables(ibooker,simName,"SimTracks"); 
 
   ibooker.cd();
-  ibooker.setCurrentFolder(dirName.c_str());
+  ibooker.setCurrentFolder(dirName);
 
   // Create the root file
   //theFile = new TFile(theRootFileName.c_str(), "RECREATE");
 
   if(doSeedsAnalysis){
     ibooker.cd();
-    ibooker.setCurrentFolder(dirName.c_str());
-    hRecoSeedInner = new HTrack(ibooker,dirName.c_str(),"RecoSeed","Inner");
-    hRecoSeedPCA = new HTrack(ibooker,dirName.c_str(),"RecoSeed","PCA");
+    ibooker.setCurrentFolder(dirName);
+    hRecoSeedInner = new HTrack(ibooker,dirName,"RecoSeed","Inner");
+    hRecoSeedPCA = new HTrack(ibooker,dirName,"RecoSeed","PCA");
   }
   
   if(doTracksAnalysis){
     ibooker.cd();
-    ibooker.setCurrentFolder(dirName.c_str());    
-    hRecoTracksPCA = new HTrack(ibooker,dirName.c_str(),"RecoTracks","PCA"); 
-    hRecoTracksInner = new HTrack(ibooker,dirName.c_str(),"RecoTracks","Inner"); 
-    hRecoTracksOuter = new HTrack(ibooker,dirName.c_str(),"RecoTracks","Outer"); 
+    ibooker.setCurrentFolder(dirName);    
+    hRecoTracksPCA = new HTrack(ibooker,dirName,"RecoTracks","PCA"); 
+    hRecoTracksInner = new HTrack(ibooker,dirName,"RecoTracks","Inner"); 
+    hRecoTracksOuter = new HTrack(ibooker,dirName,"RecoTracks","Outer"); 
 
     ibooker.cd();
-    ibooker.setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName);
     
     // General Histos
 
@@ -189,7 +189,7 @@ void MuonTrackAnalyzer::endRun(DQMStore::IBooker & ibooker) {
     double eff = hRecoSeedInner->computeEfficiency(hSimTracks,ibooker);
     LogInfo("MuonTrackAnalyzer")<<" *Seed Efficiency* = "<< eff <<"%";
   }
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  if ( !out.empty() && dbe_ ) dbe_->save(out);
 }
 void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
@@ -254,7 +254,7 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
   LogTrace("MuonTrackAnalyzer")<<"Reconstructed tracks: " << tracks->size() << endl;
   hNumberOfTracks->Fill(tracks->size());
   
-  if(tracks->size()) numberOfRecTracks++;
+  if(!tracks->empty()) numberOfRecTracks++;
   
   // Loop over the Rec tracks
   for(reco::TrackCollection::const_iterator t = tracks->begin(); t != tracks->end(); ++t) {
@@ -508,7 +508,7 @@ TrajectoryStateOnSurface MuonTrackAnalyzer::getSeedTSOS(const TrajectorySeed& se
   detLayers = theService->muonNavigationSchool()->compatibleLayers(*initialLayer, *initialState.freeState(),detLayerOrder);
   
   TrajectoryStateOnSurface result = initialState;
-  if(detLayers.size()){
+  if(!detLayers.empty()){
     const DetLayer* finalLayer = detLayers.back();
     const TrajectoryStateOnSurface propagatedState = theService->propagator(theSeedPropagatorName)->propagate(initialState, finalLayer->surface());
     if(propagatedState.isValid())

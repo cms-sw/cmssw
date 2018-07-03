@@ -49,7 +49,7 @@ public:
   DTResolutionTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTResolutionTest();
+  ~DTResolutionTest() override;
 
 protected:
 
@@ -67,7 +67,7 @@ protected:
   std::string getMEName2D(const DTSuperLayerId & slID);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 
 private:

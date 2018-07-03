@@ -1,16 +1,16 @@
-#include <math.h>
+#include <cmath>
 #include "TH1D.h"
 #include "TProfile2D.h"
 
 TH1D* projectProfile2DAlongX(TProfile2D* prof2d) {
 
-  TH1D* res=0;
+  TH1D* res=nullptr;
 
   if(prof2d) {
     char name[200];
     sprintf(name,"%s_proj",prof2d->GetName());
     res = new TH1D(name,prof2d->GetTitle(),prof2d->GetNbinsY(),prof2d->GetYaxis()->GetXmin(),prof2d->GetYaxis()->GetXmax());
-    res->SetDirectory(0);
+    res->SetDirectory(nullptr);
     res->Sumw2();
     for(int iy=1;iy<prof2d->GetNbinsY()+1;++iy) {
       double sum=0.;
@@ -37,13 +37,13 @@ TH1D* projectProfile2DAlongX(TProfile2D* prof2d) {
 
 TH1D* projectProfile2DAlongY(TProfile2D* prof2d) {
 
-  TH1D* res=0;
+  TH1D* res=nullptr;
 
   if(prof2d) {
     char name[200];
     sprintf(name,"%s_proj",prof2d->GetName());
     res = new TH1D(name,prof2d->GetTitle(),prof2d->GetNbinsX(),prof2d->GetXaxis()->GetXmin(),prof2d->GetXaxis()->GetXmax());
-    res->SetDirectory(0);
+    res->SetDirectory(nullptr);
     res->Sumw2();
     for(int ix=1;ix<prof2d->GetNbinsX()+1;++ix) {
       double sum=0.;

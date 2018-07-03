@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Use this object to modify parameters specifically for Run 2
-from Configuration.StandardSequences.Eras import eras
 
 #### PF CLUSTER HO ####
 
@@ -106,4 +105,5 @@ def _modifyParticleFlowClusterHOForRun2( object ) :
     object.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
 
 # Call the function above to modify particleFlowClusterHO only if the run2 era is active
-eras.run2_common.toModify( particleFlowClusterHO, func=_modifyParticleFlowClusterHOForRun2 )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( particleFlowClusterHO, func=_modifyParticleFlowClusterHOForRun2 )

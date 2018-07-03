@@ -7,6 +7,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -35,6 +37,8 @@
 #include "fastjet/tools/MassDropTagger.hh"
 #include "fastjet/contrib/SoftDrop.hh"
 #include "fastjet/tools/JetMedianBackgroundEstimator.hh"
+#include "fastjet/tools/GridMedianBackgroundEstimator.hh"
+#include "fastjet/tools/Subtractor.hh"
 #include "fastjet/contrib/ConstituentSubtractor.hh"
 #include "RecoJets/JetAlgorithms/interface/CMSBoostedTauSeedingAlgorithm.h"
 
@@ -46,6 +50,7 @@
 //#include <fstream>
 
 using namespace std;
+using namespace edm;
 
 
 
@@ -54,168 +59,110 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
-  : VirtualJetProducer( iConfig ),
-    useMassDropTagger_(false),
-    useFiltering_(false),
-    useDynamicFiltering_(false),
-    useTrimming_(false),
-    usePruning_(false),
-    useCMSBoostedTauSeedingAlgorithm_(false),
-    useKtPruning_(false),
-    useConstituentSubtraction_(false),
-    useSoftDrop_(false),
-    muCut_(-1.0),
-    yCut_(-1.0),
-    rFilt_(-1.0),
-    rFiltFactor_(-1.0),
-    nFilt_(-1),
-    trimPtFracMin_(-1.0),
-    zCut_(-1.0),
-    RcutFactor_(-1.0),
-    csRho_EtaMax_(-1.0),
-    csRParam_(-1.0),
-    beta_(-1.0),
-    R0_(-1.0)
+FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig):
+	VirtualJetProducer( iConfig )
 {
+	useOnlyVertexTracks_ = iConfig.getParameter<bool>("UseOnlyVertexTracks");
+	useOnlyOnePV_ 	= iConfig.getParameter<bool>("UseOnlyOnePV");
+	dzTrVtxMax_          = iConfig.getParameter<double>("DzTrVtxMax");
+	dxyTrVtxMax_          = iConfig.getParameter<double>("DxyTrVtxMax");
+	minVtxNdof_ = iConfig.getParameter<int>("MinVtxNdof");
+	maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
 
-  if ( iConfig.exists("UseOnlyVertexTracks") )
-    useOnlyVertexTracks_ = iConfig.getParameter<bool>("UseOnlyVertexTracks");
-  else 
-    useOnlyVertexTracks_ = false;
+	useMassDropTagger_ = iConfig.getParameter<bool>("useMassDropTagger");
+	muCut_ = iConfig.getParameter<double>("muCut");
+	yCut_ = iConfig.getParameter<double>("yCut");
+
+	useFiltering_ = iConfig.getParameter<bool>("useFiltering");
+	rFilt_ = iConfig.getParameter<double>("rFilt");
+	nFilt_ = iConfig.getParameter<int>("nFilt");
+	useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
+        if ( useDynamicFiltering_ ) rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
+	rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
+
+	useTrimming_ = iConfig.getParameter<bool>("useTrimming");
+	trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
+
+	usePruning_ = iConfig.getParameter<bool>("usePruning");
+	zCut_ = iConfig.getParameter<double>("zcut");
+	RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
+	nFilt_ = iConfig.getParameter<int>("nFilt");
+	useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
+
+	useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
+	subjetPtMin_ = iConfig.getParameter<double>("subjetPtMin");
+	muMin_ = iConfig.getParameter<double>("muMin");
+	muMax_ = iConfig.getParameter<double>("muMax");
+	yMin_ = iConfig.getParameter<double>("yMin");
+	yMax_ = iConfig.getParameter<double>("yMax");
+	dRMin_ = iConfig.getParameter<double>("dRMin");
+	dRMax_ = iConfig.getParameter<double>("dRMax");
+	maxDepth_ = iConfig.getParameter<int>("maxDepth");
+
+
+	useConstituentSubtraction_ = iConfig.getParameter<bool>("useConstituentSubtraction");
+	csRho_EtaMax_ = iConfig.getParameter<double>("csRho_EtaMax");
+	csRParam_ = iConfig.getParameter<double>("csRParam");
+
+	useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
+	zCut_ = iConfig.getParameter<double>("zcut");
+	beta_ = iConfig.getParameter<double>("beta");
+	R0_ = iConfig.getParameter<double>("R0");
+
+	correctShape_ = iConfig.getParameter<bool>("correctShape");
+	gridMaxRapidity_ = iConfig.getParameter<double>("gridMaxRapidity");
+	gridSpacing_ = iConfig.getParameter<double>("gridSpacing");
+
+	input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(iConfig.getParameter<edm::InputTag>("src"));
+
+	if ( useFiltering_ ||
+			useTrimming_ ||
+			usePruning_ ||
+			useMassDropTagger_ ||
+			useCMSBoostedTauSeedingAlgorithm_ ||
+			useConstituentSubtraction_ ||
+			useSoftDrop_ ||
+			correctShape_
+	   ) useExplicitGhosts_ = true;
+
+	////// adding exceptions
+	
+	if ( ( useMassDropTagger_ ) && ( ( muCut_ == -1 ) || ( yCut_ == -1 ) ) ) 
+		throw cms::Exception("useMassDropTagger") << "Parameters muCut and/or yCut for Mass Drop are not defined." << std::endl;
+	
+	if ( ( useFiltering_ ) && ( ( rFilt_ == -1 ) || ( nFilt_ == -1 ) ) ) {
+		throw cms::Exception("useFiltering") << "Parameters rFilt and/or nFilt for Filtering are not defined." << std::endl;
+		if ( ( useDynamicFiltering_ ) && ( rFiltFactor_ == -1 ) ) 
+			throw cms::Exception("useDynamicFiltering") << "Parameters rFiltFactor for DynamicFiltering is not defined." << std::endl;
+	}
+
+	if ( ( useTrimming_ ) && ( ( rFilt_ == -1 ) || ( trimPtFracMin_ == -1 ) ) ) 
+		throw cms::Exception("useTrimming") << "Parameters rFilt and/or trimPtFracMin for Trimming are not defined." << std::endl;
+	
+	if ( ( usePruning_ ) && ( ( zCut_ == -1 ) || ( RcutFactor_ == -1 )  || ( nFilt_ == -1 )) ) 
+		throw cms::Exception("usePruning") << "Parameters zCut and/or RcutFactor and/or nFilt for Pruning are not defined." << std::endl;
+	
+	if ( ( useCMSBoostedTauSeedingAlgorithm_ ) && ( ( subjetPtMin_ == -1 ) || ( maxDepth_ == -1 ) ||
+				( muMin_ == -1 )  || ( muMax_ == -1 ) ||
+				( yMin_ == -1 )  || ( yMax_ == -1 ) ||
+				( dRMin_ == -1 )  || ( dRMax_ == -1 ) ) )
+		throw cms::Exception("useCMSBoostedTauSeedingAlgorithm") << "Parameters subjetPtMin, muMin, muMax, yMin, yMax, dRmin, dRmax, maxDepth for CMSBoostedTauSeedingAlgorithm are not defined." << std::endl;
+
+	if ( useConstituentSubtraction_ && ( fjAreaDefinition_.get() == nullptr ) ) 
+		throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
+
+	if ( ( useConstituentSubtraction_ ) && ( ( csRho_EtaMax_ == -1 ) || ( csRParam_ == -1 ) ) ) 
+		throw cms::Exception("useConstituentSubtraction") << "Parameters csRho_EtaMax and/or csRParam for ConstituentSubtraction are not defined." << std::endl;
+	
+	if ( useSoftDrop_ && usePruning_ ) 
+		throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;  
+
+	if ( ( useSoftDrop_ ) && ( ( zCut_ == -1 ) || ( beta_ == -1 )  || ( R0_ == -1 )) ) 
+		throw cms::Exception("useSoftDrop") << "Parameters zCut and/or beta and/or R0 for SoftDrop are not defined." << std::endl;
+	
+	if ( ( correctShape_ ) && ( ( gridMaxRapidity_ == -1 ) || ( gridSpacing_ == -1 )) ) 
+		throw cms::Exception("correctShape") << "Parameters gridMaxRapidity and/or gridSpacing for SoftDrop are not defined." << std::endl;
   
-  if ( iConfig.exists("UseOnlyOnePV") )
-    useOnlyOnePV_        = iConfig.getParameter<bool>("UseOnlyOnePV");
-  else
-    useOnlyOnePV_ = false;
-
-  if ( iConfig.exists("DzTrVtxMax") )
-    dzTrVtxMax_          = iConfig.getParameter<double>("DzTrVtxMax");
-  else
-    dzTrVtxMax_ = 999999.;
-  if ( iConfig.exists("DxyTrVtxMax") )
-    dxyTrVtxMax_          = iConfig.getParameter<double>("DxyTrVtxMax");
-  else
-    dxyTrVtxMax_ = 999999.;
-  if ( iConfig.exists("MinVtxNdof") )
-    minVtxNdof_ = iConfig.getParameter<int>("MinVtxNdof");
-  else
-    minVtxNdof_ = 5;
-  if ( iConfig.exists("MaxVtxZ") )
-    maxVtxZ_ = iConfig.getParameter<double>("MaxVtxZ");
-  else
-    maxVtxZ_ = 15;
-
-
-  if ( iConfig.exists("useFiltering") ||
-       iConfig.exists("useTrimming") ||
-       iConfig.exists("usePruning") ||
-       iConfig.exists("useMassDropTagger") ||
-       iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ||
-       iConfig.exists("useConstituentSubtraction") ||
-       iConfig.exists("useSoftDrop")
-       ) {
-    useMassDropTagger_=false;
-    useFiltering_=false;
-    useDynamicFiltering_=false;
-    useTrimming_=false;
-    usePruning_=false;
-    useCMSBoostedTauSeedingAlgorithm_=false;
-    useKtPruning_=false;
-    useConstituentSubtraction_=false;
-    useSoftDrop_ = false;
-    rFilt_=-1.0;
-    rFiltFactor_=-1.0;
-    nFilt_=-1;
-    trimPtFracMin_=-1.0;
-    zCut_=-1.0;
-    RcutFactor_=-1.0;
-    muCut_=-1.0;
-    yCut_=-1.0;
-    subjetPtMin_ = -1.0;
-    muMin_ = -1.0;
-    muMax_ = -1.0;
-    yMin_ = -1.0;
-    yMax_ = -1.0;
-    dRMin_ = -1.0;
-    dRMax_ = -1.0;
-    maxDepth_ = -1;
-    csRho_EtaMax_ = -1.0;
-    csRParam_ = -1.0;
-    beta_ = -1.0;
-    R0_ = -1.0;
-    useExplicitGhosts_ = true;
-
-    if ( iConfig.exists("useMassDropTagger") ) {
-      useMassDropTagger_ = iConfig.getParameter<bool>("useMassDropTagger");
-      muCut_ = iConfig.getParameter<double>("muCut");
-      yCut_ = iConfig.getParameter<double>("yCut");
-    }
-
-    if ( iConfig.exists("useFiltering") ) {
-      useFiltering_ = iConfig.getParameter<bool>("useFiltering");
-      rFilt_ = iConfig.getParameter<double>("rFilt");
-      nFilt_ = iConfig.getParameter<int>("nFilt");
-      if ( iConfig.exists("useDynamicFiltering") ) {
-        useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
-        rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
-        if ( useDynamicFiltering_ )
-          rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
-      }
-    }
-  
-    if ( iConfig.exists("useTrimming") ) {
-      useTrimming_ = iConfig.getParameter<bool>("useTrimming");
-      rFilt_ = iConfig.getParameter<double>("rFilt");
-      trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
-    }
-
-    if ( iConfig.exists("usePruning") ) {
-      usePruning_ = iConfig.getParameter<bool>("usePruning");
-      zCut_ = iConfig.getParameter<double>("zcut");
-      RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
-      nFilt_ = iConfig.getParameter<int>("nFilt");
-      if ( iConfig.exists("useKtPruning") )
-        useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
-    }
-
-    if ( iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
-      useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
-      subjetPtMin_ = iConfig.getParameter<double>("subjetPtMin");
-      muMin_ = iConfig.getParameter<double>("muMin");
-      muMax_ = iConfig.getParameter<double>("muMax");
-      yMin_ = iConfig.getParameter<double>("yMin");
-      yMax_ = iConfig.getParameter<double>("yMax");
-      dRMin_ = iConfig.getParameter<double>("dRMin");
-      dRMax_ = iConfig.getParameter<double>("dRMax");
-      maxDepth_ = iConfig.getParameter<int>("maxDepth");
-    }
-
-    if ( iConfig.exists("useConstituentSubtraction") ) {
-
-      if ( fjAreaDefinition_.get() == 0 ) {
-	throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
-      }
-
-      useConstituentSubtraction_ = iConfig.getParameter<bool>("useConstituentSubtraction");
-      csRho_EtaMax_ = iConfig.getParameter<double>("csRho_EtaMax");
-      csRParam_ = iConfig.getParameter<double>("csRParam");
-    }
-
-    if ( iConfig.exists("useSoftDrop") ) {
-      if ( usePruning_ ) {   /// Can't use these together
-	throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;
-      }
-      useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
-      zCut_ = iConfig.getParameter<double>("zcut");
-      beta_ = iConfig.getParameter<double>("beta");
-      R0_ = iConfig.getParameter<double>("R0");
-    }
-
-  }
-
-  input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
-
 }
 
 
@@ -271,7 +218,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
     edm::Handle<reco::VertexCollection> pvCollection;
     iEvent.getByToken(input_vertex_token_, pvCollection);
     // define the overall output jet container
-    std::auto_ptr<std::vector<reco::TrackJet> > jets(new std::vector<reco::TrackJet>() );
+    auto jets = std::make_unique<std::vector<reco::TrackJet>>();
 
     // loop over the good vertices, clustering for each vertex separately
     for (reco::VertexCollection::const_iterator itVtx = pvCollection->begin(); itVtx != pvCollection->end(); ++itVtx) {
@@ -371,7 +318,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 
     // put the jets in the collection
     LogDebug("FastjetTrackJetProducer") << "Put " << jets->size() << " jets in the event.\n";
-    iEvent.put(jets);
+    iEvent.put(std::move(jets));
 
     // Clear the work vectors so that memory is free for other modules.
     // Use the trick of swapping with an empty vector so that the memory
@@ -430,8 +377,6 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       bge_rho = unique_ptr<fastjet::JetMedianBackgroundEstimator> (new  fastjet::JetMedianBackgroundEstimator(rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_) );
       bge_rho->set_particles(fjInputs_);
       fastjet::contrib::ConstituentSubtractor * constituentSubtractor = new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
-      // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-      constituentSubtractor->use_common_bge_for_rho_and_rhom(true); // for massless input particles it does not make any difference (rho_m is always zero)
 
       transformers.push_back( transformer_ptr(constituentSubtractor) );
     };
@@ -473,6 +418,16 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       transformers.push_back( transformer_ptr(sd) );
     }
 
+    unique_ptr<fastjet::Subtractor> subtractor;
+    unique_ptr<fastjet::GridMedianBackgroundEstimator> bge_rho_grid;
+    if ( correctShape_ ) {
+      bge_rho_grid = unique_ptr<fastjet::GridMedianBackgroundEstimator> (new  fastjet::GridMedianBackgroundEstimator(gridMaxRapidity_, gridSpacing_) );
+      bge_rho_grid->set_particles(fjInputs_);
+      subtractor = unique_ptr<fastjet::Subtractor>( new fastjet::Subtractor(  bge_rho_grid.get()) );
+      subtractor->set_use_rho_m();
+      //subtractor->use_common_bge_for_rho_and_rhom(true);
+    }
+
 
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
 	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
@@ -488,6 +443,10 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 	}
       }
 
+      if ( correctShape_ ) {
+	transformedJet = (*subtractor)(transformedJet);
+      }
+
       if ( passed ) {
 	fjJets_.push_back( transformedJet );
       }
@@ -496,7 +455,64 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 
 }
 
+//______________________________________________________________________________
+void FastjetJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
+	edm::ParameterSetDescription descFastjetJetProducer;
+	////// From FastjetJetProducer
+	fillDescriptionsFromFastJetProducer(descFastjetJetProducer);
+	///// From VirtualJetProducer
+	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(descFastjetJetProducer);
+        ////
+	descFastjetJetProducer.add<string>("jetCollInstanceName", ""	);
+	descFastjetJetProducer.add<bool> ("sumRecHits", false);
+
+	/////////////////////
+	descriptions.add("FastjetJetProducer",descFastjetJetProducer);
+
+}
+
+void FastjetJetProducer::fillDescriptionsFromFastJetProducer(edm::ParameterSetDescription& desc)
+{
+	desc.add<bool>("useMassDropTagger",     false);
+	desc.add<bool>("useFiltering",	        false);
+	desc.add<bool>("useDynamicFiltering",	false);
+	desc.add<bool>("useTrimming",	false);
+	desc.add<bool>("usePruning",	false);
+	desc.add<bool>("useCMSBoostedTauSeedingAlgorithm", false);
+	desc.add<bool>("useKtPruning",	false);
+	desc.add<bool>("useConstituentSubtraction", false);
+	desc.add<bool>("useSoftDrop",	false);
+	desc.add<bool>("correctShape",	false);
+	desc.add<bool>("UseOnlyVertexTracks",	false);
+	desc.add<bool>("UseOnlyOnePV",	false);
+	desc.add<double>("muCut",	-1.0);
+	desc.add<double>("yCut",	-1.0);
+	desc.add<double>("rFilt",	-1.0);
+	desc.add<double>("rFiltFactor",	-1.0);
+	desc.add<double>("trimPtFracMin",-1.0);
+	desc.add<double>("zcut",	-1.0);
+	desc.add<double>("rcut_factor",	-1.0);
+	desc.add<double>("csRho_EtaMax",-1.0);
+	desc.add<double>("csRParam",	-1.0);
+	desc.add<double>("beta",	-1.0);
+	desc.add<double>("R0",	-1.0);
+	desc.add<double>("gridMaxRapidity",	-1.0); // For fixed-grid rho
+	desc.add<double>("gridSpacing",	-1.0);  // For fixed-grid rho
+	desc.add<double>("DzTrVtxMax",	999999.);  
+	desc.add<double>("DxyTrVtxMax",	999999.);  
+	desc.add<double>("MaxVtxZ",	15.0);  
+	desc.add<double>("subjetPtMin",	-1.0);
+	desc.add<double>("muMin",	-1.0);
+	desc.add<double>("muMax",	-1.0);
+	desc.add<double>("yMin",	-1.0);
+	desc.add<double>("yMax",	-1.0);
+	desc.add<double>("dRMin",	-1.0);
+	desc.add<double>("dRMax",	-1.0);
+	desc.add<int>("maxDepth",	-1);
+	desc.add<int>("nFilt",       	-1);
+	desc.add<int>("MinVtxNdof",	5);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // define as cmssw plugin

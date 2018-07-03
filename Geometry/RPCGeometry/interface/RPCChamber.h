@@ -21,13 +21,13 @@ public:
   /// Constructor
   RPCChamber(RPCDetId id, const ReferenceCountingPointer<BoundPlane>& plane);
   /// Destructor
-  virtual ~RPCChamber();
+  ~RPCChamber() override;
 
   /// Return the RPCChamberId of this chamber
   RPCDetId id() const;
 
   // Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::RPCBarrel;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::RPCBarrel;}
 
   /// equal if the id is the same
   bool operator==(const RPCChamber& ch) const;
@@ -36,10 +36,10 @@ public:
   void add(RPCRoll* rl);
 
   /// Return the rolls in the chamber
-  virtual std::vector< const GeomDet*> components() const;
+  std::vector< const GeomDet*> components() const override;
 
   /// Return the sub-component (roll) with a given id in this chamber
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const override;
 
   /// Return the Roll corresponding to the given id 
   const RPCRoll* roll(RPCDetId id) const;

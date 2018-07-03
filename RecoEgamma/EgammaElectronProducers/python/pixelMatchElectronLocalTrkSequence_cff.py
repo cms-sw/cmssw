@@ -19,9 +19,9 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 # broken down to the different components so to configure the Chi2MeasurementEstimatorESProducer
 #include "RecoTracker/CkfPattern/data/CkfTrackCandidates.cff"
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
-from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import *
+from TrackingTools.TrackFitters.KFFittingSmoother_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *

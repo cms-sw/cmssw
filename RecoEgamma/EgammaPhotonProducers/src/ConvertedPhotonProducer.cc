@@ -45,9 +45,9 @@
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
   conf_(config), 
-  theTrackPairFinder_(0), 
-  theVertexFinder_(0), 
-  theLikelihoodCalc_(0)
+  theTrackPairFinder_(nullptr), 
+  theVertexFinder_(nullptr), 
+  theLikelihoodCalc_(nullptr)
 {
 
 
@@ -167,10 +167,10 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   //
   // Converted photon candidates
   reco::ConversionCollection outputConvPhotonCollection;
-  std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
+  auto outputConvPhotonCollection_p = std::make_unique<reco::ConversionCollection>();
   // Converted photon candidates
   reco::ConversionCollection cleanedConversionCollection;
-  std::auto_ptr<reco::ConversionCollection> cleanedConversionCollection_p(new reco::ConversionCollection);
+  auto cleanedConversionCollection_p = std::make_unique<reco::ConversionCollection>();
 
   
   // Get the Super Cluster collection in the Barrel
@@ -298,7 +298,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // put the product in the event
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
   //LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event    converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
-  const edm::OrphanHandle<reco::ConversionCollection> conversionHandle= theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  const edm::OrphanHandle<reco::ConversionCollection> conversionHandle= theEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
 
 
   // Loop over barrel and endcap SC collections and fill the  photon collection
@@ -311,7 +311,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 						
 
   cleanedConversionCollection_p->assign(cleanedConversionCollection.begin(),cleanedConversionCollection.end());   
-  theEvent.put( cleanedConversionCollection_p, CleanedConvertedPhotonCollection_);
+  theEvent.put(std::move(cleanedConversionCollection_p), CleanedConvertedPhotonCollection_);
 
   
 }
@@ -372,7 +372,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy() );
     
     int nFound=0;    
-    if ( allPairs.size() ) {
+    if ( !allPairs.empty() ) {
 
       nFound=0;
 
@@ -586,7 +586,7 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
 					      reco::ConversionCollection & outputConversionCollection) {
 
 
-  reco::Conversion* newCandidate=0;
+  reco::Conversion* newCandidate=nullptr;
   for(unsigned int lSC=0; lSC < scHandle->size(); lSC++) {
     
     // get pointer to SC

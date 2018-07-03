@@ -116,8 +116,8 @@ class DTTSCand {
     inline int isLH() const { return _tctrig->pvCorr() && _tctrig->pvCode()==8; }
  
     /// Return if LL
-    inline int isLL() const { return _tctrig->pvCorr() && !_tctrig->pvCode()==8 &&
-                                                          !_tctrig->pvCode()==80; }  
+    inline int isLL() const { return _tctrig->pvCorr() && !(_tctrig->pvCode()==8) &&
+                                                          !(_tctrig->pvCode()==80); }
     /// Return if H inner
     inline int isH0() const { return !_tctrig->pvCorr() && _tctrig->pvCode()==80; }
  

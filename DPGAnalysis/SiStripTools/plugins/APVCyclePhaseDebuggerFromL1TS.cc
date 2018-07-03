@@ -60,13 +60,13 @@
 class APVCyclePhaseDebuggerFromL1TS : public edm::EDAnalyzer {
 public:
   explicit APVCyclePhaseDebuggerFromL1TS(const edm::ParameterSet&);
-  ~APVCyclePhaseDebuggerFromL1TS();
+  ~APVCyclePhaseDebuggerFromL1TS() override;
   
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
 
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 
@@ -114,7 +114,7 @@ APVCyclePhaseDebuggerFromL1TS::APVCyclePhaseDebuggerFromL1TS(const edm::Paramete
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
   m_rhm(consumesCollector()),
-  _hsize(0),_hlresync(0),_hlOC0(0),_hlTE(0),_hlstart(0),_hlEC0(0),_hlHR(0),_hdlec0lresync(0),_hdlresynclHR(0),
+  _hsize(nullptr),_hlresync(nullptr),_hlOC0(nullptr),_hlTE(nullptr),_hlstart(nullptr),_hlEC0(nullptr),_hlHR(nullptr),_hdlec0lresync(nullptr),_hdlresynclHR(nullptr),
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
   _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
 {
@@ -213,7 +213,7 @@ APVCyclePhaseDebuggerFromL1TS::analyze(const edm::Event& iEvent, const edm::Even
 
   // offset computation
 
-  if(l1ts->size()>0) {
+  if(!l1ts->empty()) {
 
     if(_hlresync && *_hlresync) (*_hlresync)->Fill((*l1ts)[0].lastResync());
     if(_hlOC0 && *_hlOC0) (*_hlOC0)->Fill((*l1ts)[0].lastOrbitCounter0());

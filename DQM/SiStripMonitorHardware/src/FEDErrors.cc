@@ -26,7 +26,7 @@ FEDErrors::~FEDErrors()
 void FEDErrors::initialiseLumiBlock() {
   lumiErr_.nTotal.clear();
   lumiErr_.nErrors.clear();
-  //6 subdetectors: 
+  //6 subdetectors:
   //TECB,TECF,TIB,TIDB,TIDF,TOB
   lumiErr_.nTotal.resize(6,0);
   lumiErr_.nErrors.resize(6,0);
@@ -61,8 +61,8 @@ void FEDErrors::initialiseEvent() {
   lChCounter_.nAPVError = 0;
   lChCounter_.nAPVAddressError = 0;
 
-  feCounter_.nFEOverflows = 0; 
-  feCounter_.nFEBadMajorityAddresses = 0; 
+  feCounter_.nFEOverflows = 0;
+  feCounter_.nFEBadMajorityAddresses = 0;
   feCounter_.nFEMissing = 0;
 
   fedErrors_.HasCabledChannels = false;
@@ -113,10 +113,10 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
     detid_.resize(sistrip::FEDCH_PER_FED,0);
     nChInModule_.resize(sistrip::FEDCH_PER_FED,0);
 
-    for (unsigned int iCh = 0; 
-	 iCh < sistrip::FEDCH_PER_FED; 
+    for (unsigned int iCh = 0;
+	 iCh < sistrip::FEDCH_PER_FED;
 	 iCh++) {
-    
+
       const FedChannelConnection & lConnection = aCabling->fedConnection(fedID_,iCh);
       connected_[iCh] = lConnection.isConnected();
       detid_[iCh] = lConnection.detId();
@@ -124,7 +124,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 
       unsigned short lFeNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
       unsigned int lDetid = detid_[iCh];
-    
+
       if (lDetid && lDetid != sistrip::invalid32_ && connected_[iCh]) {
 	unsigned int lSubid = 6;
 	// 3=TIB, 4=TID, 5=TOB, 6=TEC (TECB here)
@@ -135,7 +135,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 
 	case 4:
 	  {
-	    
+
 	    if (tTopo->tidSide(lDetid) == 2) lSubid = 4; //TIDF
 	    else lSubid = 3; //TIDB
 	    break;
@@ -147,7 +147,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 
 	case 6:
 	  {
-	    
+
 	    if (tTopo->tecSide(lDetid) == 2) lSubid = 1; //TECF
 	    else lSubid = 0; //TECB
 	    break;
@@ -160,15 +160,15 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	}
 	subDetId_[lFeNumber] = lSubid;
 	//if (iCh%12==0) std::cout << fedID_ << " " << lFeNumber << " " << subDetId_[lFeNumber] << std::endl;
-	
+
       }
     }
 
 
-    feCounter_.nFEOverflows = 0; 
-    feCounter_.nFEBadMajorityAddresses = 0; 
+    feCounter_.nFEOverflows = 0;
+    feCounter_.nFEBadMajorityAddresses = 0;
     feCounter_.nFEMissing = 0;
-    
+
     fedErrors_.HasCabledChannels = false;
     fedErrors_.DataPresent = false;
     fedErrors_.DataMissing = false;
@@ -183,13 +183,13 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
     fedErrors_.FEsBadMajorityAddress = false;
     fedErrors_.BadChannelStatusBit = false;
     fedErrors_.BadActiveChannelStatusBit = false;
-    
+
     feErrors_.clear();
-    
+
     chErrorsDetailed_.clear();
-    
+
     apvErrors_.clear();
-    
+
     chErrors_.clear();
   }
 }
@@ -198,8 +198,8 @@ bool FEDErrors::checkDataPresent(const FEDRawData& aFedData)
 {
 
   if (!aFedData.size() || !aFedData.data()) {
-    for (unsigned int iCh = 0; 
-	 iCh < sistrip::FEDCH_PER_FED; 
+    for (unsigned int iCh = 0;
+	 iCh < sistrip::FEDCH_PER_FED;
 	 iCh++) {
       if (connected_[iCh]){
 	fedErrors_.HasCabledChannels = true;
@@ -212,8 +212,8 @@ bool FEDErrors::checkDataPresent(const FEDRawData& aFedData)
     return false;
   } else {
     fedErrors_.DataPresent = true;
-    for (unsigned int iCh = 0; 
-	 iCh < sistrip::FEDCH_PER_FED; 
+    for (unsigned int iCh = 0;
+	 iCh < sistrip::FEDCH_PER_FED;
 	 iCh++) {
       if (connected_[iCh]){
 	fedErrors_.HasCabledChannels = true;
@@ -260,7 +260,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
   if (!bufferBase->checkSourceIDs() || !bufferBase->checkNoUnexpectedSourceID()) {
     fedErrors_.BadIDs = true;
     return false;
-  } 
+  }
   //if so then do DAQ header/trailer checks
   //if these fail then buffer may be incomplete and checking contents doesn't make sense
   else if (!bufferBase->doDAQHeaderAndTrailerChecks()) {
@@ -271,8 +271,8 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
 
   //now do checks on header
   //check that tracker special header is consistent
-  if ( !(bufferBase->checkBufferFormat() && 
-	 bufferBase->checkHeaderType() && 
+  if ( !(bufferBase->checkBufferFormat() &&
+	 bufferBase->checkHeaderType() &&
 	 bufferBase->checkReadoutMode()) ) {
     failUnpackerFEDCheck_ = true;
     fedErrors_.InvalidBuffers = true;
@@ -281,7 +281,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
   }
 
   //FE unit overflows
-  if (!bufferBase->checkNoFEOverflows()) { 
+  if (!bufferBase->checkNoFEOverflows()) {
     failUnpackerFEDCheck_ = true;
     fedErrors_.FEsOverflow = true;
     //do not return false if debug printout of the buffer done below...
@@ -289,7 +289,7 @@ bool FEDErrors::fillFatalFEDErrors(const FEDRawData& aFedData,
   }
 
   return true;
-  
+
 }
 
 bool FEDErrors::fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer)
@@ -319,17 +319,17 @@ float FEDErrors::fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
       lIsConnected = lConnection.isConnected();
     }
     else lIsConnected = connected_[iCh];
-      
+
     if (!lIsConnected) continue;
     lTotChans++;
-    if (!aBuffer->channelGood(iCh)) lBadChans++;
+    if (!aBuffer->channelGood(iCh, true)) lBadChans++;
   }
 
   return static_cast<float>(lBadChans*1.0/lTotChans);
 }
 
 
-bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData, 
+bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 			      bool & aFullDebug,
 			      const unsigned int aPrintDebug,
 			      unsigned int & aCounterMonitoring,
@@ -358,8 +358,8 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 
     bool lCorruptCheck = fillCorruptBuffer(buffer.get());
     if (aPrintDebug>1 && !lCorruptCheck) {
-      edm::LogWarning("SiStripMonitorHardware") 
-	<< "CorruptBuffer check failed for FED " << fedID_ 
+      edm::LogWarning("SiStripMonitorHardware")
+	<< "CorruptBuffer check failed for FED " << fedID_
 	<< std::endl
 	<< " -- buffer->checkChannelLengthsMatchBufferLength() = " << buffer->checkChannelLengthsMatchBufferLength()
 	<< std::endl
@@ -372,9 +372,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
     //corruptBuffer concerns the payload: header info should still be reliable...
     //so analyze FE and channels to fill histograms.
 
-    //fe check... 
+    //fe check...
     fillFEErrors(buffer.get(),aDoFEMaj,aFeMajFrac);
-    
+
     //channel checks
     fillChannelErrors(buffer.get(),
 		      aFullDebug,
@@ -388,19 +388,19 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 
   }
 
-   
+
   if (printDebug() && aPrintDebug>2) {
-    const sistrip::FEDBufferBase* debugBuffer = NULL;
+    const sistrip::FEDBufferBase* debugBuffer = nullptr;
 
     if (buffer.get()) debugBuffer = buffer.get();
     //else if (bufferBase.get()) debugBuffer = bufferBase.get();
     if (debugBuffer) {
       std::vector<FEDErrors::APVLevelErrors> & lChVec = getAPVLevelErrors();
       std::ostringstream debugStream;
-      if (lChVec.size()) {
+      if (!lChVec.empty()) {
 	std::sort(lChVec.begin(),lChVec.end());
         debugStream << "[FEDErrors] Cabled channels which had errors: ";
-	
+
         for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
           print(lChVec[iBadCh],debugStream);
         }
@@ -418,7 +418,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
       edm::LogVerbatim("SiStripMonitorHardware") << debugStream.str();
     }
   }
- 
+
   return !(anyFEDErrors());
 }
 
@@ -430,10 +430,10 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
   bool foundBadMajority = false;
   bool foundMissing = false;
   for (unsigned int iFE = 0; iFE < sistrip::FEUNITS_PER_FED; iFE++) {
-    
+
     FEDErrors::FELevelErrors lFeErr;
     lFeErr.FeID = iFE;
-    lFeErr.SubDetID = subDetId_[iFE]; 
+    lFeErr.SubDetID = subDetId_[iFE];
     lFeErr.Overflow = false;
     lFeErr.Missing = false;
     lFeErr.BadMajorityAddress = false;
@@ -469,10 +469,10 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
       //}
       continue;
     }
-    //two independent checks for the majority address of a FE: 
-    //first is done inside the FED, 
+    //two independent checks for the majority address of a FE:
+    //first is done inside the FED,
     //second is comparing explicitely the FE majAddress with the APVe address.
-    //!aBuffer->checkFEUnitAPVAddresses(): for all FE's.... 
+    //!aBuffer->checkFEUnitAPVAddresses(): for all FE's....
     //want to do it only for this FE... do it directly with the time difference.
     if (aBuffer->majorityAddressErrorForFEUnit(iFE)){
       lFeErr.BadMajorityAddress = true;
@@ -490,14 +490,14 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
     // 	std::cout << "FED " << fedID_ << ", iFE = " << iFE << std::endl
     // 		<< " -- aBuffer->apveAddress() = " << static_cast<unsigned int>(aBuffer->apveAddress())
     // // 		<< ", debugHeader = " << debugHeader
-    // // 		<< ", header->feGood(iFE) = " << aBuffer->feGood(iFE) 
+    // // 		<< ", header->feGood(iFE) = " << aBuffer->feGood(iFE)
     //  		<< ", debugHeader->feUnitMajorityAddress(iFE) " << static_cast<unsigned int>(debugHeader->feUnitMajorityAddress(iFE))
     //  		<< std::endl
     //  		<< " -- timeLoc(feUnitMajAddr) = "
     //  		<< static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)))
     //  		<< ", timeLoc(apveAddr) = "
-    //  		<< static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress())) 
-    // // 		<< ", aBuffer->checkFEUnitAPVAddresses() = " 
+    //  		<< static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress()))
+    // // 		<< ", aBuffer->checkFEUnitAPVAddresses() = "
     // // 		<< aBuffer->checkFEUnitAPVAddresses()
     //  		<< std::endl;
     // 	std::cout << "My checks = "
@@ -511,7 +511,7 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
     // 	//   std::cout << "aBuffer->checkFEUnitAPVAddresses() = " << aBuffer->checkFEUnitAPVAddresses() << std::endl;
     //   }
     // }
-      
+
     lFeErr.Apve = aBuffer->apveAddress();
 
     if (debugHeader){
@@ -537,13 +537,13 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
 	//FEDAddressConversion::timeLocation(const uint8_t aPipelineAddress)
       }
     }
-     
+
     if (foundBadMajority || lFeErr.TimeDifference != 0){
       addBadFE(lFeErr);
 
 
  //      LogDebug("SiStripMonitorHardware") << " -- Problem found with FE maj address :" << std::endl
-// 					 << " --- FED = " << fedID_ 
+// 					 << " --- FED = " << fedID_
 // 					 << ", iFE = " << iFE << std::endl
 // 					 << " --- aBuffer->apveAddress() = " << static_cast<unsigned int>(aBuffer->apveAddress())
 // 					 << std::endl
@@ -552,7 +552,7 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
 // 					 << static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)))<< std::endl
 // 					 << " --- timeLoc(apveAddr) = "
 // 					 << static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress())) << std::endl
-// 					 << " --- aBuffer->checkFEUnitAPVAddresses() = " 
+// 					 << " --- aBuffer->checkFEUnitAPVAddresses() = "
 // 					 << aBuffer->checkFEUnitAPVAddresses()
 // 					 << std::endl;
 
@@ -564,7 +564,7 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
   return !(foundOverflow || foundMissing || foundBadMajority);
 }
 
-bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer, 
+bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 				  bool & aFullDebug,
 				  const unsigned int aPrintDebug,
 				  unsigned int & aCounterMonitoring,
@@ -583,13 +583,13 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
   bool lMedValid = aBuffer->readoutMode() == sistrip::READOUT_MODE_ZERO_SUPPRESSED;
 
-  //this method is not called if there was anyFEDerrors(), 
+  //this method is not called if there was anyFEDerrors(),
   //so only corruptBuffer+FE check are useful.
   bool lPassedMonitoringFEDcheck = !fedErrors_.CorruptBuffer;
-  
+
   for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {//loop on channels
 
-    bool lFailUnpackerChannelCheck = (!aBuffer->channelGood(iCh) && connected_[iCh]) || failUnpackerFEDCheck_;
+    bool lFailUnpackerChannelCheck = (!aBuffer->channelGood(iCh, true) && connected_[iCh]) || failUnpackerFEDCheck_;
     bool lFailMonitoringChannelCheck = !lPassedMonitoringFEDcheck && connected_[iCh];
 
 
@@ -624,12 +624,12 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
 	if (debugHeader) {
 	  lStatus = debugHeader->getChannelStatus(iCh);
-	  apvBad[0] = 
-	    !(lStatus & sistrip::CHANNEL_STATUS_LOCKED) || 
+	  apvBad[0] =
+	    !(lStatus & sistrip::CHANNEL_STATUS_LOCKED) ||
 	    !(lStatus & sistrip::CHANNEL_STATUS_IN_SYNC) ||
 	    !(lStatus & sistrip::CHANNEL_STATUS_APV0_ADDRESS_GOOD) ||
 	    !(lStatus & sistrip::CHANNEL_STATUS_APV0_NO_ERROR_BIT);
-	  apvBad[1] = 
+	  apvBad[1] =
 	    !(lStatus & sistrip::CHANNEL_STATUS_LOCKED) ||
 	    !(lStatus & sistrip::CHANNEL_STATUS_IN_SYNC) ||
 	    !(lStatus & sistrip::CHANNEL_STATUS_APV1_ADDRESS_GOOD) ||
@@ -660,9 +660,9 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
 	//std::ostringstream lMode;
 	//lMode << aBuffer->readoutMode();
-	
+
 	bool lFirst = true;
-	
+
 	for (unsigned int iAPV = 0; iAPV < 2; iAPV++) {//loop on APVs
 
 	  FEDErrors::APVLevelErrors lAPVErr;
@@ -695,7 +695,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 	  }
 
 	  if ( lAPVErr.APVStatusBit ||
-	       lAPVErr.APVError || 
+	       lAPVErr.APVError ||
 	       lAPVErr.APVAddressError
 	       ) addBadAPV(lAPVErr, lFirst);
 	}//loop on APVs
@@ -707,16 +707,16 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck && connected_[iCh]){
       if (aPrintDebug>1) {
 	std::ostringstream debugStream;
-	debugStream << "[FEDErrors] ------ WARNING: FED " << fedID_ << ", channel " << iCh 
-		    << ", isConnected = " << connected_[iCh] << std::endl 
+	debugStream << "[FEDErrors] ------ WARNING: FED " << fedID_ << ", channel " << iCh
+		    << ", isConnected = " << connected_[iCh] << std::endl
 		    << "[FEDErrors] --------- Monitoring Channel check " ;
 	if (lFailMonitoringChannelCheck) debugStream << "failed." << std::endl;
 	else debugStream << "passed." << std::endl ;
 	debugStream << "[FEDErrors] --------- Unpacker Channel check " ;
 	if (lFailUnpackerChannelCheck) debugStream << "failed." << std::endl;
 	else debugStream << "passed." << std::endl;
-	debugStream << "[FEDErrors] --------- fegood = " 
-		    << aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT)) 
+	debugStream << "[FEDErrors] --------- fegood = "
+		    << aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT))
 		    << std::endl
 		    << "[FEDErrors] --------- unpacker FED check = " << failUnpackerFEDCheck_ << std::endl;
 	edm::LogError("SiStripMonitorHardware") << debugStream.str();
@@ -729,7 +729,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     if (lMedValid && !foundError && lPassedMonitoringFEDcheck && aDoMeds) {
       //get CM values
       const sistrip::FEDChannel & lChannel = aBuffer->channel(iCh);
- 
+
       HistogramBase::fillHistogram(aMedianHist0,
 				   lChannel.cmMedian(0));
       HistogramBase::fillHistogram(aMedianHist1,
@@ -746,7 +746,8 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 				   TkHistoMap *aTkMapPointer,
 				   MonitorElement *aFedIdVsApvId,
 				   unsigned int & aNBadChannels,
-				   unsigned int & aNBadActiveChannels)
+				   unsigned int & aNBadActiveChannels,
+           unsigned int & aNBadChannels_perFEDID)
 {
 
   uint32_t lPrevId = 0;
@@ -755,10 +756,10 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
   bool hasBeenProcessed = false;
   bool lFailFED = failMonitoringFEDCheck();
 
-  for (unsigned int iCh = 0; 
-       iCh < sistrip::FEDCH_PER_FED; 
+  for (unsigned int iCh = 0;
+       iCh < sistrip::FEDCH_PER_FED;
        iCh++) {//loop on channels
-    
+
     if (!connected_[iCh]) continue;
     if (!detid_[iCh] || detid_[iCh] == sistrip::invalid32_) continue;
 
@@ -768,7 +769,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     }
 
     unsigned int feNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
-	
+
     bool isBadFE = false;
     bool isMissingFE = false;
     //feErrors vector of FE 0 - 7, each FE has channels 0 -11, 12 .. - ,... - 96
@@ -800,13 +801,13 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 	if (apvErrors_[badApv].IsActive) isActiveChan = true;
       }
       if (apvErrors_[badApv].APVID == 2 * iCh ) isBadApv1 = true;
-      if (apvErrors_[badApv].APVID == 2 * iCh + 1 ) 
+      if (apvErrors_[badApv].APVID == 2 * iCh + 1 )
 	{
 	  isBadApv2 = true;
 	  break;
 	}
     }
-    
+
 
     if (detid_[iCh] == lPrevId){
       if (hasBeenProcessed) hasBeenProcessed = false;
@@ -830,10 +831,11 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     if ( lHasErr ) {
       nBad++;
       aNBadChannels++;
+      aNBadChannels_perFEDID = aNBadChannels_perFEDID+1;
       //define as active channel if channel locked AND not from an unlocked FE.
       if ((isBadChan && isActiveChan) || lFailFED || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
-      if ( isBadApv1 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh , fedID_ ) ; 
-      if ( isBadApv2 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh + 1 , fedID_ ) ; 
+      if ( isBadApv1 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh , fedID_ ) ;
+      if ( isBadApv2 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh + 1 , fedID_ ) ;
     }
 
 
@@ -858,11 +860,11 @@ void FEDErrors::fillEventProperties(long long dbx) {
 
 void FEDErrors::incrementLumiErrors(const bool hasError,
 				    const unsigned int aSubDet){
-  if (!lumiErr_.nTotal.size()) return;
+  if (lumiErr_.nTotal.empty()) return;
   if (aSubDet >= lumiErr_.nTotal.size()) {
-    edm::LogError("SiStripMonitorHardware") << " -- FED " << fedID_ 
+    edm::LogError("SiStripMonitorHardware") << " -- FED " << fedID_
 					    << ", invalid subdetid : " << aSubDet
-					    << ", size of lumiErr : " 
+					    << ", size of lumiErr : "
 					    << lumiErr_.nTotal.size()
 					    << std::endl;
   }
@@ -888,7 +890,7 @@ void FEDErrors::processDet(const uint32_t aPrevId,
 
   //tkHistoMap takes a uint & as argument
   uint32_t lDetid = aPrevId;
-  if (aPrevTot != 0 && doTkHistoMap && aTkMapPointer) 
+  if (aPrevTot != 0 && doTkHistoMap && aTkMapPointer)
     HistogramBase::fillTkHistoMap(aTkMapPointer,lDetid,static_cast<float>(nBad)/aPrevTot);
 
   nBad=0;
@@ -897,7 +899,7 @@ void FEDErrors::processDet(const uint32_t aPrevId,
 
 const bool FEDErrors::failMonitoringFEDCheck()
 {
-  return ( anyFEDErrors() || 
+  return ( anyFEDErrors() ||
 	   fedErrors_.CorruptBuffer
 	   );
 }
@@ -926,12 +928,12 @@ const bool FEDErrors::anyFEDErrors()
 
 const bool FEDErrors::anyFEProblems()
 {
-  return ( fedErrors_.FEsOverflow || 
-	   fedErrors_.FEsMissing || 
+  return ( fedErrors_.FEsOverflow ||
+	   fedErrors_.FEsMissing ||
 	   fedErrors_.FEsBadMajorityAddress
 	   );
 }
- 
+
 const bool FEDErrors::printDebug()
 {
   return ( anyFEDErrors()  ||
@@ -966,12 +968,12 @@ FEDErrors::FEDLevelErrors & FEDErrors::getFEDLevelErrors()
 {
   return fedErrors_;
 }
-  
+
 FEDErrors::EventProperties & FEDErrors::getEventProperties()
 {
   return eventProp_;
 }
-  
+
 std::vector<FEDErrors::FELevelErrors> & FEDErrors::getFELevelErrors()
 {
   return feErrors_;
@@ -1083,7 +1085,7 @@ void FEDErrors::incrementFEDCounters()
 
 void FEDErrors::incrementChannelCounters(const FEDErrors::ChannelLevelErrors & aChannel)
 {
-  if (aChannel.Unlocked && aChannel.Connected) lChCounter_.nUnlocked++; 
+  if (aChannel.Unlocked && aChannel.Connected) lChCounter_.nUnlocked++;
   if (aChannel.OutOfSync && aChannel.Connected) lChCounter_.nOutOfSync++;
   if (!aChannel.Connected) lChCounter_.nNotConnected++;
 }
@@ -1091,9 +1093,9 @@ void FEDErrors::incrementChannelCounters(const FEDErrors::ChannelLevelErrors & a
 void FEDErrors::incrementAPVCounters(const FEDErrors::APVLevelErrors & aAPV)
 {
   if (aAPV.Connected && aAPV.IsActive){
-    if (aAPV.APVStatusBit) lChCounter_.nAPVStatusBit++; 
-    if (aAPV.APVAddressError) lChCounter_.nAPVAddressError++; 
-    if (aAPV.APVError) lChCounter_.nAPVError++; 
+    if (aAPV.APVStatusBit) lChCounter_.nAPVStatusBit++;
+    if (aAPV.APVAddressError) lChCounter_.nAPVAddressError++;
+    if (aAPV.APVError) lChCounter_.nAPVError++;
   }
 }
 
@@ -1130,10 +1132,10 @@ void FEDErrors::print(const FEDErrors::FEDCounters & aFEDCounter, std::ostream &
       << "[FEDErrors]======== nTotalBadChannels = " << aFEDCounter.nTotalBadChannels << std::endl
       << "[FEDErrors]======== nTotalBadActiveChannels = " << aFEDCounter.nTotalBadActiveChannels << std::endl
       << "[FEDErrors]============================================" << std::endl;
-    
+
 
 }
-  
+
 void FEDErrors::print(const FEDErrors::FECounters & aFECounter, std::ostream & aOs)
 {
 
@@ -1145,7 +1147,7 @@ void FEDErrors::print(const FEDErrors::FECounters & aFECounter, std::ostream & a
       << "[FEDErrors]======== nFEBadMajorityAddresses = " << aFECounter.nFEBadMajorityAddresses << std::endl
       << "[FEDErrors]======== nFEMissing = " << aFECounter.nFEMissing << std::endl
       << "[FEDErrors]============================================" << std::endl;
-    
+
 
 }
 
@@ -1219,5 +1221,3 @@ void FEDErrors::print(const FEDErrors::APVLevelErrors & aErr, std::ostream & aOs
       << "[FEDErrors]============ APVAddressError = " << aErr.APVAddressError << std::endl
       << "[FEDErrors]=================================================" << std::endl;
 }
-
-

@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorDefault_cfi import Chi2MeasurementEstimatorDefault as _Chi2MeasurementEstimatorDefault
+Chi2MeasurementEstimator = _Chi2MeasurementEstimatorDefault.clone()
+_tracker_apv_vfp30_2016.toModify(Chi2MeasurementEstimator, MinPtForHitRecoveryInGluedDet=0.9)

@@ -5,7 +5,7 @@ logErrorFilter = cms.EDFilter("LogErrorFilter",
                               atLeastOneError = cms.bool(True),
                               atLeastOneWarning = cms.bool(True),
                               useThresholdsPerKind = cms.bool(False),
-                              avoidCategories = cms.vstring()
+                              avoidCategories = cms.vstring('MemoryCheck')
                               )
 
 logErrorSkimFilter = cms.EDFilter("LogErrorFilter",
@@ -13,8 +13,8 @@ logErrorSkimFilter = cms.EDFilter("LogErrorFilter",
                               atLeastOneError = cms.bool(True),
                               atLeastOneWarning = cms.bool(True),
                               useThresholdsPerKind = cms.bool(True),
-                              maxErrorKindsPerLumi = cms.uint32(3),    
-                              maxWarningKindsPerLumi = cms.uint32(3),    
-                              avoidCategories = cms.vstring()
+                              maxErrorKindsPerLumi = cms.uint32(1),    
+                              maxWarningKindsPerLumi = cms.uint32(1),    
+                              avoidCategories = cms.vstring('MemoryCheck')
                               )
 

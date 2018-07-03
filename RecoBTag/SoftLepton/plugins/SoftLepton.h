@@ -51,7 +51,7 @@ class TransientTrackBuilder;
 class SoftLepton : public edm::stream::EDProducer<> {
 public:
   explicit SoftLepton(const edm::ParameterSet& iConfig);
-  ~SoftLepton();
+  ~SoftLepton() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   struct TrackCompare :
@@ -93,7 +93,7 @@ protected:
   );
 
 private:
-  virtual void produce(edm::Event & event, const edm::EventSetup & setup);
+  void produce(edm::Event & event, const edm::EventSetup & setup) override;
 
   // configuration
   const edm::InputTag                                           m_jets;

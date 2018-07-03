@@ -26,7 +26,6 @@
 
 
 #include "FWCore/MessageService/interface/ELstatistics.h"
-#include "FWCore/MessageService/interface/ELdestControl.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
@@ -152,13 +151,6 @@ ELstatistics::~ELstatistics()  {
 // Methods invoked by the ELadministrator
 // ----------------------------------------------------------------------
 
-ELstatistics *
-ELstatistics::clone() const  {
-
-  return  new ELstatistics( *this );
-
-}  // clone()
-
 static  std::string summarizeContext(const std::string& c)
   {
     if ( c.substr (0,4) != "Run:" ) return c;
@@ -225,10 +217,6 @@ bool  ELstatistics::log( const edm::ErrorObj & msg )  {
 
 }  // log()
 
-
-// ----------------------------------------------------------------------
-// Methods invoked through the ELdestControl handle
-// ----------------------------------------------------------------------
 
 void  ELstatistics::clearSummary()  {
 
@@ -406,14 +394,6 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 }  // formSummary()
 
 
-void  ELstatistics::summary( ELdestControl & dest, const ELstring & title )  {
-
-  dest.summarization( title, formSummary(stats) );
-  updatedStats = false;
-
-}  // summary()
-
-
 void  ELstatistics::summary( std::ostream & os, const ELstring & title )  {
 
   os << title << std::endl << formSummary(stats) << std::flush;
@@ -421,23 +401,16 @@ void  ELstatistics::summary( std::ostream & os, const ELstring & title )  {
 
 }  // summary()
 
-void  ELstatistics::summary( )  {
+void  ELstatistics::summary(unsigned long overfullWaitCount )  {
 
   termStream << "\n=============================================\n\n"
-  	     << "MessageLogger Summary" << std::endl << formSummary(stats) 
-             << std::flush;
+  	     << "MessageLogger Summary" << std::endl
+         << formSummary(stats) <<std::endl
+         << "dropped waiting message count "<<overfullWaitCount
+         << std::endl << std::flush;
   updatedStats = false;
 
 }  // summary()
-
-
-void  ELstatistics::summary( ELstring & s, const ELstring & title )  {
-
-  s = title + '\n' + formSummary(stats);
-  updatedStats = false;
-
-}  // summary()
-
 
 void  ELstatistics::noTerminationSummary()  { printAtTermination = false; }
 

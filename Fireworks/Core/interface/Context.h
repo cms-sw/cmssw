@@ -98,6 +98,8 @@ public:
 
    // ---------- static member  ---------------------------
 
+   static Context* getInstance();
+
    static float  caloR1(bool offset = true);
    static float  caloR2(bool offset = true);
    static float  caloZ1(bool offset = true);
@@ -108,8 +110,8 @@ public:
    static double caloMaxEta();
 
 private:
-   Context(const Context&); // stop default
-   const Context& operator=(const Context&); // stop default
+   Context(const Context&) = delete; // stop default
+   const Context& operator=(const Context&) = delete; // stop default
 
    // ---------- member data --------------------------------
    FWModelChangeManager *m_changeManager;
@@ -136,6 +138,8 @@ private:
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;
+
+   static Context* s_fwContext;
 
    // calo data
    static const float s_caloTransEta;

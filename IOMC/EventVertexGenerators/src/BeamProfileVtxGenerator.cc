@@ -86,7 +86,7 @@ BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {
 
 
 //Hep3Vector * BeamProfileVtxGenerator::newVertex() {
-HepMC::FourVector* BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+HepMC::FourVector BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
   double aX, aY;
   if (ffile) {
     double r1 = engine->flat();
@@ -157,15 +157,11 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* en
      yp = pv.y() ;
      zp = pv.z() ;
   }
-  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  //fVertex->set(xp, yp, zp);
-  if (fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(xp, yp, zp, fTimeOffset );
 
   LogDebug("VertexGenerator") << "BeamProfileVtxGenerator: Vertex created "
 			      << "at (" << xp << ", " << yp << ", "
 			      << zp << ", " << fTimeOffset << ")";
-  return fVertex;
+  return HepMC::FourVector(xp, yp, zp, fTimeOffset );;
 }
 
 void BeamProfileVtxGenerator::sigmaX(double s) { 

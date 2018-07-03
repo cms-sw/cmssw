@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,9 +17,9 @@ class EgammaHLTTimeCleanedRechitProducer : public edm::EDProducer {
  public:
   
   EgammaHLTTimeCleanedRechitProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTTimeCleanedRechitProducer();
+  ~EgammaHLTTimeCleanedRechitProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

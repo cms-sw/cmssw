@@ -134,18 +134,18 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) :
 L1GtTrigReport::~L1GtTrigReport() {
 
     for (ItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
-        if (*itEntry != 0) {
+        if (*itEntry != nullptr) {
             delete *itEntry;
-            *itEntry = 0;
+            *itEntry = nullptr;
         }
     }
 
     m_entryList.clear();
 
     for (ItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
-        if (*itEntry != 0) {
+        if (*itEntry != nullptr) {
             delete *itEntry;
-            *itEntry = 0;
+            *itEntry = nullptr;
         }
     }
 
@@ -648,7 +648,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
             //std::string ttName = itAlgo->first;
             //int ttBitNumber = ( itAlgo->second ).algoBitNumber();
-            std::string ttName = boost::lexical_cast<std::string>(iTechTrig);
+            std::string ttName = std::to_string(iTechTrig);
             int ttBitNumber = iTechTrig;
 
             int prescaleFactor = prescaleFactorsTechTrig.at(ttBitNumber);

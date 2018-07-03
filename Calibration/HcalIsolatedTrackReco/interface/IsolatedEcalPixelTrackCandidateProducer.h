@@ -21,18 +21,25 @@ class IsolatedEcalPixelTrackCandidateProducer : public edm::global::EDProducer<>
 
 public:
   explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet&);
-  ~IsolatedEcalPixelTrackCandidateProducer();
+  ~IsolatedEcalPixelTrackCandidateProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   const edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
   const edm::EDGetTokenT<EcalRecHitCollection> tok_eb;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigcand;
   const double coneSizeEta0_;
   const double coneSizeEta1_;
-  const double hitCountEthr_;
-  const double hitEthr_;
+  const double hitCountEthrEB_;
+  const double hitEthrEB_;
+  const double fachitCountEE_;
+  const double hitEthrEE0_;
+  const double hitEthrEE1_;
+  const double hitEthrEE2_;
+  const double hitEthrEE3_;
 };
 
 #endif

@@ -21,7 +21,7 @@ bachtis@hep.wisc.edu
 class HLTTauCertifier : public DQMEDHarvester {
 public:
   HLTTauCertifier( const edm::ParameterSet& );
-  ~HLTTauCertifier();
+  ~HLTTauCertifier() override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 

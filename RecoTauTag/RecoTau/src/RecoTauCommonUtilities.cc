@@ -41,11 +41,12 @@ std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet,
 
 std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet,
     const std::vector<int>& particleIds, bool sort) {
+  PFCandPtrs&& pfCands = jet.getPFConstituents();
   PFCandPtrs output;
   // Get each desired candidate type, unsorted for now
   for(std::vector<int>::const_iterator particleId = particleIds.begin();
       particleId != particleIds.end(); ++particleId) {
-    PFCandPtrs selectedPFCands = pfCandidates(jet, *particleId, false);
+    PFCandPtrs&& selectedPFCands = filterPFCandidates(pfCands.begin(), pfCands.end(), *particleId, false);
     output.insert(output.end(), selectedPFCands.begin(), selectedPFCands.end());
   }
   if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());
@@ -58,10 +59,11 @@ std::vector<reco::PFCandidatePtr> pfGammas(const reco::PFJet& jet, bool sort) {
 
 std::vector<reco::PFCandidatePtr> pfChargedCands(const reco::PFJet& jet,
                                                  bool sort) {
+  PFCandPtrs&& pfCands = jet.getPFConstituents();
   PFCandPtrs output;
-  PFCandPtrs mus = pfCandidates(jet, reco::PFCandidate::mu, false);
-  PFCandPtrs es = pfCandidates(jet, reco::PFCandidate::e, false);
-  PFCandPtrs chs = pfCandidates(jet, reco::PFCandidate::h, false);
+  PFCandPtrs&& mus = filterPFCandidates(pfCands.begin(), pfCands.end(), reco::PFCandidate::mu, false);
+  PFCandPtrs&& es = filterPFCandidates(pfCands.begin(), pfCands.end(), reco::PFCandidate::e, false);
+  PFCandPtrs&& chs = filterPFCandidates(pfCands.begin(), pfCands.end(), reco::PFCandidate::h, false);
   output.reserve(mus.size() + es.size() + chs.size());
   output.insert(output.end(), mus.begin(), mus.end());
   output.insert(output.end(), es.begin(), es.end());

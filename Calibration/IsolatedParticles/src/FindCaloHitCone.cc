@@ -1,6 +1,8 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/FindCaloHitCone.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include <iostream>
 
 namespace spr {
@@ -18,11 +20,11 @@ namespace spr {
     
       if (j->id().subdetId() == EcalEndcap) {
 	EEDetId EEid = EEDetId(j->id());
-	const GlobalPoint rechitPoint = geo->getPosition(EEid);
+	const GlobalPoint & rechitPoint = geo->getPosition(EEid);
 	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
       } else if (j->id().subdetId() == EcalBarrel) {
 	EBDetId EBid = EBDetId(j->id());
-	const GlobalPoint rechitPoint = geo->getPosition(EBid);
+	const GlobalPoint & rechitPoint = geo->getPosition(EBid);
 	if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
       }
 
@@ -40,8 +42,8 @@ namespace spr {
     // region: 1.479-2*0.087 < trkEta < 1.479+2*0.087
   
     bool doBarrel=false, doEndcap=false;
-    if ( std::abs(point1.eta()) < 1.653) doBarrel=true; // 1.479+2*0.087
-    if ( std::abs(point1.eta()) > 1.305) doEndcap=true; // 1.479-2*0.087    
+    if ( std::abs(point1.eta()) < (spr::etaBEEcal+2*spr::deltaEta)) doBarrel=true; // 1.479+2*0.087
+    if ( std::abs(point1.eta()) > (spr::etaBEEcal-2*spr::deltaEta)) doEndcap=true; // 1.479-2*0.087    
   
     if (doBarrel) {  
       for (EcalRecHitCollection::const_iterator j=barrelhits->begin(); 
@@ -50,7 +52,7 @@ namespace spr {
 	bool keepHit = false;
 	if (j->id().subdetId() == EcalBarrel) {
 	  EBDetId EBid = EBDetId(j->id());
-	  const GlobalPoint rechitPoint = geo->getPosition(EBid);
+	  const GlobalPoint & rechitPoint = geo->getPosition(EBid);
 	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Endcap RecHits in Barrel Collection!?" 
@@ -69,7 +71,7 @@ namespace spr {
       
 	if (j->id().subdetId() == EcalEndcap) {
 	  EEDetId EEid = EEDetId(j->id());
-	  const GlobalPoint rechitPoint = geo->getPosition(EEid);
+	  const GlobalPoint & rechitPoint = geo->getPosition(EEid);
 	  if (spr::getDistInPlaneTrackDir(point1, trackMom, rechitPoint, debug) < dR) keepHit = true;
 	} else {
 	  std::cout << "PROBLEM : Barrel RecHits in Endcap Collection!?" 
@@ -91,7 +93,8 @@ namespace spr {
     for (HBHERecHitCollection::const_iterator j=hits->begin(); 
 	 j!=hits->end(); j++) {   
       DetId detId(j->id());
-      const GlobalPoint rechitPoint = geo->getPosition(detId);
+      const GlobalPoint rechitPoint = 
+	(static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) hit.push_back(j);
     }  
     return hit;
@@ -104,7 +107,8 @@ namespace spr {
     edm::PCaloHitContainer::const_iterator ihit;
     for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
       DetId detId(ihit->id());
-      const GlobalPoint rechitPoint = geo->getPosition(detId);
+      const GlobalPoint rechitPoint = (detId.det() == DetId::Hcal) ? 
+	(static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : geo->getPosition(detId);
       if (spr::getDistInPlaneTrackDir(hpoint1, trackMom, rechitPoint, debug) < dR) {
 	hit.push_back(ihit);
       }

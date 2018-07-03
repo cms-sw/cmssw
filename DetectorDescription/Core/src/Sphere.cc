@@ -1,9 +1,14 @@
 #include "DetectorDescription/Core/src/Sphere.h"
-#include <DataFormats/GeometryVector/interface/Pi.h>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <cmath>
 #include <ostream>
+#include <vector>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 DDI::Sphere::Sphere(double innerRadius,
 		    double outerRadius,
@@ -11,14 +16,14 @@ DDI::Sphere::Sphere(double innerRadius,
 		    double deltaPhi,
 		    double startTheta,
 		    double deltaTheta)
- : Solid(ddsphere)	  
+  : Solid(DDSolidShape::ddsphere)	  
 {
-  p_.push_back(innerRadius);
-  p_.push_back(outerRadius);
-  p_.push_back(startPhi);
-  p_.push_back(deltaPhi);
-  p_.push_back(startTheta);
-  p_.push_back(deltaTheta);
+  p_.emplace_back(innerRadius);
+  p_.emplace_back(outerRadius);
+  p_.emplace_back(startPhi);
+  p_.emplace_back(deltaPhi);
+  p_.emplace_back(startTheta);
+  p_.emplace_back(deltaTheta);
 }	 
 
 

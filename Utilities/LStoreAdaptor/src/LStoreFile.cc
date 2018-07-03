@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <dlfcn.h>
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 
 
@@ -16,20 +16,20 @@
 pthread_mutex_t LStoreFile::m_dlopen_lock = PTHREAD_MUTEX_INITIALIZER;
 
 LStoreFile::LStoreFile (void)
-  : m_fd (0),
+  : m_fd (nullptr),
     m_close (false),
     m_name(),
-    m_library_handle(0),
+    m_library_handle(nullptr),
     m_is_loaded(false),
-    redd_init(0),
-    redd_read(0),
-    redd_close(0),
-    redd_lseek(0),
-    redd_open(0),
-    redd_write(0),
-    redd_term(0),
-    redd_errno(0),
-    redd_strerror(0)
+    redd_init(nullptr),
+    redd_read(nullptr),
+    redd_close(nullptr),
+    redd_lseek(nullptr),
+    redd_open(nullptr),
+    redd_write(nullptr),
+    redd_term(nullptr),
+    redd_errno(nullptr),
+    redd_strerror(nullptr)
 {
 	loadLibrary();	
 }
@@ -38,17 +38,17 @@ LStoreFile::LStoreFile (void * fd)
   : m_fd (fd),
     m_close (true),
     m_name(),
-    m_library_handle(0),
+    m_library_handle(nullptr),
     m_is_loaded(false),
-    redd_init(0),
-    redd_read(0),
-    redd_close(0),
-    redd_lseek(0),
-    redd_open(0),
-    redd_write(0),
-    redd_term(0),
-    redd_errno(0),
-    redd_strerror(0)
+    redd_init(nullptr),
+    redd_read(nullptr),
+    redd_close(nullptr),
+    redd_lseek(nullptr),
+    redd_open(nullptr),
+    redd_write(nullptr),
+    redd_term(nullptr),
+    redd_errno(nullptr),
+    redd_strerror(nullptr)
 {
 	loadLibrary();	
 }
@@ -56,7 +56,7 @@ LStoreFile::LStoreFile (void * fd)
 LStoreFile::LStoreFile (const char *name,
     	    int flags /* = IOFlags::OpenRead */,
     	    int perms /* = 066 */ )
-  : m_fd (NULL),
+  : m_fd (nullptr),
     m_close (false),
 	m_is_loaded(false)
 {   loadLibrary();
@@ -65,7 +65,7 @@ LStoreFile::LStoreFile (const char *name,
 LStoreFile::LStoreFile (const std::string &name,
     	    int flags /* = IOFlags::OpenRead*/, 
     	    int perms /* = 066 */)
-  : m_fd (NULL),
+  : m_fd (nullptr),
     m_close (false),
 	m_is_loaded(false)
 {   loadLibrary();
@@ -108,12 +108,12 @@ void LStoreFile::loadLibrary() {
 
 	m_library_handle =
 	     dlopen("libreddnet.so", RTLD_LAZY);
-	if (m_library_handle == NULL) {
+	if (m_library_handle == nullptr) {
 		throw cms::Exception("LStoreFile::loadLibrary()")
 			<< "Can't dlopen() LStore libraries: " << dlerror();
 	}
 
-	char * retval = NULL;
+	char * retval = nullptr;
 	// Explicitly state the size of these values, keeps weird 64/32 bit stuff away
 	REDD_LOAD_SYMBOL( redd_init, int32_t(*)()); 
 	REDD_LOAD_SYMBOL( redd_read, int64_t(*)(void *, char*, int64_t));
@@ -146,7 +146,7 @@ void LStoreFile::closeLibrary() {
 					<< "Error in redd_term: " << (*redd_strerror)();
 			}
 		}
-		if ( m_library_handle != NULL ) {
+		if ( m_library_handle != nullptr ) {
 			if ( dlclose( m_library_handle ) ) {
 				throw cms::Exception("LStoreFile::closeLibrary()")
 					<< "Error on dlclose(): " << dlerror();
@@ -195,7 +195,7 @@ LStoreFile::open (const char *name,
                   int perms /* = 066 */)
 {
   // Actual open
-  if ((name == 0) || (*name == 0))
+  if ((name == nullptr) || (*name == 0))
     throw cms::Exception("LStoreFile::open()")
       << "Cannot open a file without a name";
 
@@ -204,7 +204,7 @@ LStoreFile::open (const char *name,
       << "Must open file '" << name << "' at least for read or write";
 
   // If I am already open, close old file first
-  if (m_fd != NULL && m_close)
+  if (m_fd != nullptr && m_close)
     close ();
 
   // Translate our flags to system flags
@@ -232,8 +232,8 @@ LStoreFile::open (const char *name,
   if (flags & IOFlags::OpenTruncate)
     openflags |= O_TRUNC;
 
-  void * newfd = NULL;
-  if ((newfd = (*redd_open) (name, openflags, perms)) == NULL)
+  void * newfd = nullptr;
+  if ((newfd = (*redd_open) (name, openflags, perms)) == nullptr)
     throw cms::Exception("LStoreFile::open()")
       << "redd_open(name='" << name
       << "', flags=0x" << std::hex << openflags
@@ -252,7 +252,7 @@ LStoreFile::open (const char *name,
 void
 LStoreFile::close (void)
 {
-  if (m_fd == NULL)
+  if (m_fd == nullptr)
   {
     edm::LogError("LStoreFileError")
       << "LStoreFile::close(name='" << m_name
@@ -268,7 +268,7 @@ LStoreFile::close (void)
       << "' (redd_errno=" << (*redd_errno)() << ")";
 
   m_close = false;
-  m_fd = NULL;
+  m_fd = nullptr;
 
   // Caused hang.  Will be added back after problem is fixed.
   // edm::LogInfo("LStoreFileInfo") << "Closed " << m_name;
@@ -277,11 +277,11 @@ LStoreFile::close (void)
 void
 LStoreFile::abort (void)
 {
-  if (m_fd != NULL)
+  if (m_fd != nullptr)
     (*redd_close) (m_fd);
 
   m_close = false;
-  m_fd = NULL;
+  m_fd = nullptr;
 }
 
 
@@ -325,7 +325,7 @@ LStoreFile::write (const void *from, IOSize n)
 IOOffset
 LStoreFile::position (IOOffset offset, Relative whence /* = SET */)
 {
-  if (m_fd == NULL)
+  if (m_fd == nullptr)
     throw cms::Exception("LStoreFile::position()")
       << "LStoreFile::position() called on a closed file";
   if (whence != CURRENT && whence != SET && whence != END)

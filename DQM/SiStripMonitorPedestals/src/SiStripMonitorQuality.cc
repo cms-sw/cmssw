@@ -59,11 +59,6 @@ SiStripMonitorQuality::~SiStripMonitorQuality()
 					  << " Destructing....... ";     
 }
 //
-// -- Begin Job
-//
-void SiStripMonitorQuality::beginJob() {
-}
-//
 void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup){
 
   unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();  
@@ -208,7 +203,7 @@ void SiStripMonitorQuality::endJob(void){
 MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet, const TrackerTopology* tTopo){
 
   std::map<uint32_t, MonitorElement* >::iterator pos = QualityMEs.find(idet);
-  MonitorElement* det_me = NULL;
+  MonitorElement* det_me = nullptr;
   if (pos != QualityMEs.end()) {
     det_me = pos->second;
     det_me->Reset();

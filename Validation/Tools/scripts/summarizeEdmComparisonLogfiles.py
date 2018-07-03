@@ -5,6 +5,7 @@ import os
 from glob import glob
 import re
 import pprint
+import six
 import commands
 countRE = re.compile (r'^count_(\w+)')
 avoid = ['index', 'print']
@@ -17,7 +18,7 @@ def summaryOK (summary):
     compared = summary.get('eventsCompared', -1)
     if len( summary.keys()) != 2:
         retval = False
-    for key,value in summary.iteritems():
+    for key,value in six.iteritems(summary):
         if countRE.search(key):
             count = value
     return (retval, {'count':count, 'compared':compared})
@@ -78,7 +79,7 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
     if not 1 <= len (args) <= 2:
-        raise RuntimeError, "Must give directory and log file prefix"
+        raise RuntimeError("Must give directory and log file prefix")
     logfilePrefix = percentRE.sub ('*', args[0])
     if logfilePrefix[-1] != '*':
         logfilePrefix += '*'
@@ -146,14 +147,14 @@ if __name__ == "__main__":
             if success1RE.search (line) or success2RE.search(line):
                 success = True
                 continue
-            for key, regex in problemDict.iteritems():
+            for key, regex in six.iteritems(problemDict):
                 #print "considering %s for %s" % (key, line)
                 if regex.search(line):
                     if key in problemSet:
                         continue
                     problemSet.add (key)
                     problems.setdefault(log,[]).append(key)
-                    if not problemTypes.has_key(key):
+                    if key not in problemTypes:
                         problemTypes[key] = 1
                     else:
                         problemTypes[key] += 1
@@ -175,7 +176,7 @@ if __name__ == "__main__":
         else:
             if ok[0]:
                 weird += 1
-        if not problems.has_key (log) and not ok[0]:
+        if log not in problems and not ok[0]:
             if not ok[0] and summary:
                 key = 'mismatch'                
                 problems[log] = pprint.pformat (summary, indent=4)
@@ -196,12 +197,12 @@ if __name__ == "__main__":
                 problems[log] = ['other','ran:%s' % ran,
                                   'success:%s' % success]
                 key = 'other'
-            if not problemTypes.has_key(key):
+            if key not in problemTypes:
                 problemTypes[key] = 1
             else:
                 problemTypes[key] += 1
     mismatches = problemTypes.get('mismatch', 0)
-    if problemTypes.has_key ('mismatch'):
+    if 'mismatch' in problemTypes:
         del problemTypes['mismatch']
     print "total:      ", len (files)
     print "success:    ", succeeded
@@ -209,7 +210,7 @@ if __name__ == "__main__":
     print "weird:      ", weird
     print "Tool issue types:"
     total = 0
-    for key, value in sorted (problemTypes.iteritems()):
+    for key, value in sorted (six.iteritems(problemTypes)):
         print "  %-15s: %4d" % (key, value)
         total += value
     print " ", '-'*13, " : ----"
@@ -219,7 +220,7 @@ if __name__ == "__main__":
     
     if not options.counts:
         print "\nDetailed Problems list:"
-        for key, problemList in sorted (problems.iteritems()):
+        for key, problemList in sorted (six.iteritems(problems)):
             if options.problem and problemList[0] != options.problem:
                 continue
             if options.mismatch and not isinstance (problemList, str):
@@ -234,5 +235,5 @@ if __name__ == "__main__":
         if not options.problem and not options.mismatch:
             print "\n", '='*78, '\n'
             print "Success list:"
-            for key, successesList in sorted (successes.iteritems()):
+            for key, successesList in sorted (six.iteritems(successes)):
                 print "   %s:\n   %s\n" % (key, successesList)

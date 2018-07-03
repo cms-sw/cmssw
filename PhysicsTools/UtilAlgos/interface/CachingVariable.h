@@ -10,7 +10,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
+#include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
 
 namespace edm {
   class EventSetup;
@@ -155,9 +155,9 @@ class ComputedVariable : public CachingVariable {
   ComputedVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC );
   ComputedVariable(const std::string & M, std::string & N, edm::ParameterSet & P, const VariableComputer * c, edm::ConsumesCollector& iC) :
     CachingVariable(M,N,P,iC), myComputer(c){}
-  virtual ~ComputedVariable(){};
+  ~ComputedVariable() override{};
 
-  virtual evalType eval(const edm::Event & iEvent) const {
+  evalType eval(const edm::Event & iEvent) const override {
     if (myComputer->notSeenThisEventAlready(iEvent))
       myComputer->compute(iEvent);
     return cache_;
@@ -169,9 +169,9 @@ class ComputedVariable : public CachingVariable {
 class VariableComputerTest : public VariableComputer {
  public:
   VariableComputerTest(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) ;
-  ~VariableComputerTest(){};
+  ~VariableComputerTest() override{};
 
-  void compute(const edm::Event & iEvent) const;
+  void compute(const edm::Event & iEvent) const override;
 };
 
 class Splitter : public CachingVariable {
@@ -180,7 +180,7 @@ class Splitter : public CachingVariable {
     CachingVariable(method,n,iConfig,iC) {}
 
   //purely virtual here
-  virtual CachingVariable::evalType eval(const edm::Event & iEvent) const =0;
+  CachingVariable::evalType eval(const edm::Event & iEvent) const override =0;
 
   unsigned int maxIndex() const { return maxSlots()-1;}
 
@@ -244,10 +244,10 @@ class VarSplitter : public Splitter{
     arg.m[arg.n]=this;
   }
 
-  CachingVariable::evalType eval(const edm::Event & iEvent) const;
+  CachingVariable::evalType eval(const edm::Event & iEvent) const override;
 
   //redefine the maximum number of slots
-  unsigned int maxSlots() const{
+  unsigned int maxSlots() const override{
     unsigned int s=slots_.size()-1;
     if (useUnderFlow_) s++;
     if (useOverFlow_) s++;
@@ -260,23 +260,11 @@ class VarSplitter : public Splitter{
   std::vector<double> slots_;
 };
 
-template <typename Object> class sortByStringFunction  {
- public:
-  sortByStringFunction(StringObjectFunction<Object> * f) : f_(f){}
-  ~sortByStringFunction(){}
-
-  bool operator() (const Object * o1, const Object * o2) {
-    return (*f_)(*o1) > (*f_)(*o2);
-  }
- private:
-  StringObjectFunction<Object> * f_;
-};
-
 template <typename Object, const char * label>
 class ExpressionVariable : public CachingVariable {
  public:
   ExpressionVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
-    CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig,iC) , f_(0), forder_(0) {
+    CachingVariable(std::string(label)+"ExpressionVariable",arg.n,arg.iConfig,iC) , f_(nullptr), forder_(nullptr) {
     srcTag_=edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig);
     src_=iC.consumes<edm::View<Object> >(srcTag_);
     //old style constructor
@@ -292,13 +280,13 @@ class ExpressionVariable : public CachingVariable {
 	std::string order=arg.iConfig.getParameter<std::string>("order");
 	forder_ = new StringObjectFunction<Object>(order);
 	ss<<" after sorting according to: "<<order;
-      }else forder_ =0;
+      }else forder_ =nullptr;
 
       if (arg.iConfig.exists("selection")){
 	std::string selection=arg.iConfig.getParameter<std::string>("selection");
 	selector_ = new StringCutObjectSelector<Object>(selection);
 	ss<<" and selecting only: "<<selection;
-      }else selector_=0;
+      }else selector_=nullptr;
 
 
 
@@ -380,13 +368,13 @@ class ExpressionVariable : public CachingVariable {
       // we cannot add it to the map, otherwise, it would be considered for eventV ntupler
     }
   }
-  ~ExpressionVariable(){
+  ~ExpressionVariable() override{
     if (f_) delete f_;
     if (forder_) delete forder_;
     if (selector_) delete selector_;
   }
 
-  CachingVariable::evalType eval(const edm::Event & iEvent) const {
+  CachingVariable::evalType eval(const edm::Event & iEvent) const override {
     if (!f_) {
       edm::LogError(method())<<" no parser attached.";
       return std::make_pair(false,0);
@@ -490,7 +478,7 @@ public:
       Calculator calc;
       return calc(*o.lhs,*o.rhs);
     }
-    CachingVariable::evalType eval(const edm::Event & iEvent) const {
+    CachingVariable::evalType eval(const edm::Event & iEvent) const override {
       getObject o=objects(iEvent);
       if (!o.test) return std::make_pair(false,0);
       return std::make_pair(true,calculate(o));
@@ -516,10 +504,10 @@ class VariablePower : public CachingVariable {
     addDescriptionLine(ss.str());
     arg.m[arg.n]=this;
   }
-  ~VariablePower(){}
+  ~VariablePower() override{}
 
  //concrete calculation of the variable
-  CachingVariable::evalType eval(const edm::Event & iEvent) const;
+  CachingVariable::evalType eval(const edm::Event & iEvent) const override;
 
  private:
   double power_;
@@ -533,7 +521,7 @@ class SimpleValueVariable : public CachingVariable {
   SimpleValueVariable(const CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
     CachingVariable("SimpleValueVariable",arg.n,arg.iConfig,iC),
     src_(iC.consumes<TYPE>(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig))) { arg.m[arg.n]=this;}
-  CachingVariable::evalType eval(const edm::Event & iEvent) const{
+  CachingVariable::evalType eval(const edm::Event & iEvent) const override{
     edm::Handle<TYPE> value;
     try{    iEvent.getByToken(src_,value);   }
     catch(...){ return std::make_pair(false,0); }
@@ -551,7 +539,7 @@ class SimpleValueVectorVariable : public CachingVariable {
     CachingVariable("SimpleValueVectorVariable",arg.n,arg.iConfig,iC),
     src_(iC.consumes<TYPE>(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig))),
     index_(arg.iConfig.getParameter<unsigned int>("index")) { arg.m[arg.n]=this;}
-  CachingVariable::evalType eval(const edm::Event & iEvent) const{
+  CachingVariable::evalType eval(const edm::Event & iEvent) const override{
     edm::Handle<std::vector<TYPE> > values;
     try { iEvent.getByToken(src_,values);}
     catch(...){ return std::make_pair(false,0); }

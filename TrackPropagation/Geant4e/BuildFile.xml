@@ -1,6 +1,5 @@
 <use   name="root"/>
 <use   name="geant4"/>
-<use   name="boost"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="TrackingTools/GeomPropagators"/>

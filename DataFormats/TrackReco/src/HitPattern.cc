@@ -1,17 +1,15 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
+#include "FWCore/Utilities/interface/Likely.h"
+
 
 #include<bitset>
 
@@ -121,7 +119,16 @@ namespace {
               layer = ((gemid.station()-1)<<2);
               layer |= abs(gemid.layer()-1);
             }
-            break;
+	    break;
+	    case MuonSubdetId::ME0:
+	      {
+		ME0DetId me0id(id.rawId());
+		//layer = ((me0id.roll()-1)<<1) + abs(me0id.layer()-1);
+		//layer = ((me0id.roll()-1)<<1) + abs(me0id.layer());
+		//Only layer information that is meaningful is in the roll/etapartition
+		layer = (me0id.roll());
+	      }
+	      break;
             }
         }
         return layer;
@@ -168,7 +175,11 @@ uint16_t HitPattern::encode(uint16_t det, uint16_t subdet, uint16_t layer, uint1
     pattern |= (side & SideMask) << SideOffset;
 
     TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
-                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing : hitType;
+                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing 
+                                          : ( 
+                                             (hitType == TrackingRecHit::inactive_inner ||
+                                              hitType == TrackingRecHit::inactive_outer) ? TrackingRecHit::inactive
+                                            :hitType);
 
     pattern |= (patternHitType & HitTypeMask) << HitTypeOffset;
 
@@ -183,7 +194,7 @@ bool HitPattern::appendHit(const TrackingRecHit &hit, const TrackerTopology& tto
 bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
     //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
+    if UNLIKELY((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
@@ -195,7 +206,7 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const 
 bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
 {
     //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
+    if UNLIKELY((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
@@ -208,7 +219,7 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         // 0 != beginT || 0 != endT => we already have hits of T type
         // so we already have hits of T in the vector and we don't want to
         // mess them with T' hits.
-        if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
+        if UNLIKELY(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
             cms::Exception("HitPattern")
                     << "TRACK_HITS"
                     << " were stored on this object before hits of some other category were inserted "
@@ -220,8 +231,9 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         }
         return insertTrackHit(pattern);
         break;
+    case TrackingRecHit::inactive_inner:
     case TrackingRecHit::missing_inner:
-        if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
+        if UNLIKELY(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
             cms::Exception("HitPattern")
                     << "MISSING_INNER_HITS"
                     << " were stored on this object before hits of some other category were inserted "
@@ -233,8 +245,9 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         }
         return insertExpectedInnerHit(pattern);
         break;
+    case TrackingRecHit::inactive_outer:
     case TrackingRecHit::missing_outer:
-        if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
+        if UNLIKELY(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
             cms::Exception("HitPattern")
                     << "MISSING_OUTER_HITS"
                     << " were stored on this object before hits of some other category were inserted "
@@ -257,11 +270,11 @@ bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t ster
 
 bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
     //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
+    if UNLIKELY((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
-    if unlikely(id.det() != DetId::Muon) {
+    if UNLIKELY(id.det() != DetId::Muon) {
         throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
     }
 
@@ -272,7 +285,7 @@ bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
 {
-    if unlikely((position < 0 || position >= hitCount)) {
+    if UNLIKELY((position < 0 || position >= hitCount)) {
         return HitPattern::EMPTY_PATTERN;
     }
     /*
@@ -312,29 +325,20 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     }
 }
 
-bool HitPattern::hasValidHitInFirstPixelBarrel() const
+
+bool HitPattern::hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector det, uint16_t layer) const
 {
-    for (int i = beginTrackHits; i < endTrackHits; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 1)
-                && validHitFilter(pattern)) {
-            return true;
-        }
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    bool pixelHitFilter = ( (det==1 && pixelBarrelHitFilter(pattern)) ||
+			    (det==2 && pixelEndcapHitFilter(pattern)) );
+    if (pixelHitFilter && (getLayer(pattern) == layer) && validHitFilter(pattern)) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
-bool HitPattern::hasValidHitInFirstPixelEndcap() const
-{
-    for (int i = beginTrackHits; i < endTrackHits; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 1)
-                && validHitFilter(pattern)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
 {
@@ -500,7 +504,7 @@ int HitPattern::pixelLayersWithMeasurement() const {
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if unlikely(!trackerHitFilter(pattern)) continue;
+     if UNLIKELY(!trackerHitFilter(pattern)) continue;
      if (pattern>minStripWord) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
@@ -519,7 +523,7 @@ int HitPattern::trackerLayersWithMeasurement() const {
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if unlikely(!trackerHitFilter(pattern)) continue;
+     if UNLIKELY(!trackerHitFilter(pattern)) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
      pattern = (pattern-minTrackerWord) >> LayerOffset;
@@ -536,7 +540,7 @@ int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const {
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if unlikely(!trackerHitFilter(pattern)) continue;
+     if UNLIKELY(!trackerHitFilter(pattern)) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      pattern = (pattern-minTrackerWord) >> LayerOffset;
      // assert(pattern<128);
@@ -690,69 +694,69 @@ int HitPattern::stripTECLayersWithoutMeasurement(HitCategory category) const
 }
 
 
-int HitPattern::pixelBarrelLayersTotallyOffOrBad() const
+int HitPattern::pixelBarrelLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelEndcapLayersTotallyOffOrBad() const
+int HitPattern::pixelEndcapLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     uint16_t NPixForward = 3;
     for (uint16_t layer = 1; layer <= NPixForward; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIBLayersTotallyOffOrBad() const
+int HitPattern::stripTIBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 4; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIDLayersTotallyOffOrBad() const
+int HitPattern::stripTIDLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 3; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTOBLayersTotallyOffOrBad() const
+int HitPattern::stripTOBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
 
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTECLayersTotallyOffOrBad() const
+int HitPattern::stripTECLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 9; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
@@ -847,12 +851,14 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
         } else if (muonRPCHitFilter(pattern)) {
             stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel")
                    << ", layer " << getRPCLayer(pattern);
-       } else if (muonGEMHitFilter(pattern)) {
+        } else if (muonGEMHitFilter(pattern)) {
             stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") 
                    << ", station " << getGEMStation(pattern);
-        } else {
-            stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
-                   << getSubStructure(pattern);
+	} else if (muonME0HitFilter(pattern)) { 
+   	    stream << "\tme0 ";
+	} else {
+	  stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
+		 << getSubStructure(pattern);
         }
     } else {
         stream << "\tlayer " << getLayer(pattern);
@@ -864,14 +870,14 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
 void HitPattern::print(HitCategory category, std::ostream &stream) const
 {
     stream << "HitPattern" << std::endl;
-    for (int i = 0; i < numberOfHits(category); ++i) {
+    for (int i = 0; i < numberOfAllHits(category); ++i) {
         printHitPattern(category, i, stream);
     }
     std::ios_base::fmtflags flags = stream.flags();
     stream.setf(std::ios_base::hex, std::ios_base::basefield);
     stream.setf(std::ios_base::showbase);
 
-    for (int i = 0; i < this->numberOfHits(category); ++i) {
+    for (int i = 0; i < this->numberOfAllHits(category); ++i) {
         stream << getHitPattern(category, i) << std::endl;
     }
 
@@ -1011,7 +1017,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
     // empty index.
     // unlikely, because it will happen only when inserting
     // the first hit of this type
-    if unlikely((0 == beginTrackHits && 0 == endTrackHits)) {
+    if UNLIKELY((0 == beginTrackHits && 0 == endTrackHits)) {
         beginTrackHits = hitCount;
         // before the first hit of this type is inserted, there are no hits
         endTrackHits = beginTrackHits;
@@ -1025,7 +1031,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
 
 bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
 {
-    if unlikely((0 == beginInner && 0 == endInner)) {
+    if UNLIKELY((0 == beginInner && 0 == endInner)) {
         beginInner = hitCount;
         endInner = beginInner;
     }
@@ -1038,7 +1044,7 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
 
 bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
 {
-    if unlikely((0 == beginOuter && 0 == endOuter)) {
+    if UNLIKELY((0 == beginOuter && 0 == endOuter)) {
         beginOuter = hitCount;
         endOuter = beginOuter;
     }

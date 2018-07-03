@@ -2,10 +2,12 @@
 # define TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H
 
 # include <vector>
+# include <memory>
 
 # include "TFile.h"
 
 # include "Utilities/StorageFactory/interface/IOPosBuffer.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 
 class Storage;
@@ -51,9 +53,11 @@ private:
 
   Bool_t                ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf);
 
+  void                  releaseStorage() {get_underlying_safe(storage_).release();}
+
   TStorageFactoryFile(void);
 
-  Storage		*storage_;		//< Real underlying storage
+  edm::propagate_const<std::unique_ptr<Storage>> storage_; //< Real underlying storage
 };
 
 #endif // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H

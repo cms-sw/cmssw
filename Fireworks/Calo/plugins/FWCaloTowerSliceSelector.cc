@@ -19,7 +19,7 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 
 FWCaloTowerSliceSelector::FWCaloTowerSliceSelector(TH2F* h, const FWEventItem* i):
@@ -34,9 +34,9 @@ FWCaloTowerSliceSelector::~FWCaloTowerSliceSelector()
 void
 FWCaloTowerSliceSelector::getItemEntryEtaPhi(int itemIdx, float& eta, float& phi) const
 {
-    const CaloTowerCollection* towers=0;
+    const CaloTowerCollection* towers=nullptr;
     m_item->get(towers);
-    assert(0!=towers);
+    assert(nullptr!=towers);
     CaloTowerCollection::const_iterator tower = towers->begin();
     std::advance(tower, itemIdx);
 

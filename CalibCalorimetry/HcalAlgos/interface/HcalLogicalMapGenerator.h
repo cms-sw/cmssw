@@ -84,7 +84,6 @@ class HcalLogicalMapGenerator {
 
     std::string rbx, slbin, slbin2, slnam;
     std::string det,  fpga, rctnam, letter;
-    char tempbuff[30];
   
     int hbhecrate[NHBHECR];
     int hfcrate[NHFCR];

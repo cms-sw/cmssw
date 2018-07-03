@@ -103,18 +103,14 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
        dphiCandMap.insert(recoEcalCandRef, dEtaDPhi.second);
      }//end loop over reco ecal candidates
 
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> detaCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(detaCandMap));
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dphiCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(dphiCandMap));
-    iEvent.put(detaCandMapForEvent, "Deta" );
-    iEvent.put(dphiCandMapForEvent, "Dphi" );
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(detaCandMap), "Deta" );
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(dphiCandMap), "Dphi" );
 
   }//end if between electrons or reco ecal candidates
 
   if(!useSCRefs_){
-    std::auto_ptr<reco::ElectronIsolationMap> detMap(new reco::ElectronIsolationMap(detaMap));
-    std::auto_ptr<reco::ElectronIsolationMap> dphMap(new reco::ElectronIsolationMap(dphiMap));
-    iEvent.put(detMap, "Deta" );
-    iEvent.put(dphMap, "Dphi" );
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(detaMap), "Deta" );
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(dphiMap), "Dphi" );
   }
 }
 

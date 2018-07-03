@@ -1,4 +1,4 @@
-#include "../interface/DQWorkerClient.h"
+#include "DQM/EcalMonitorClient/interface/DQWorkerClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/StatusManager.h"
@@ -20,14 +20,8 @@ namespace ecaldqm
     sources_(),
     qualitySummaries_(),
     hasLumiPlots_(false),
-    statusManager_(0)
+    statusManager_(nullptr)
   {
-    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
-      if(mItr->second->getLumiFlag()){
-        hasLumiPlots_ = true;
-        break;
-      }
-    }
   }
 
   /*static*/
@@ -43,6 +37,25 @@ namespace ecaldqm
     sourceParameters.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, false, sourceNodeParameters));
     _desc.addUntracked("sources", sourceParameters);
   }
+
+
+  void
+  DQWorkerClient::setME(edm::ParameterSet const& _ps)
+  {
+    DQWorker::setME(_ps);
+
+    // Flags the Client ME to run as lumibased:
+    // In offline mode will save the ME client at the end of the LS
+    // See: EcalDQMonitorClient::dqmEndLuminosityBlock
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      if(mItr->second->getLumiFlag()){
+        hasLumiPlots_ = true;
+        break;
+      }
+    }
+
+  }
+
 
   void
   DQWorkerClient::setSource(edm::ParameterSet const& _params)
@@ -124,6 +137,11 @@ namespace ecaldqm
     for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
       MESet* meset(mItr->second);
 
+      // Protects Trend-type Client MEs from being reset at the end of the LS
+      // See: EcalDQMonitorClient::runWorkers 
+      if(meset->getBinType() == ecaldqm::binning::kTrend)
+        continue;
+
       if(qualitySummaries_.find(mItr->first) != qualitySummaries_.end()){
         MESetMulti* multi(dynamic_cast<MESetMulti*>(meset));
         if(multi){
@@ -167,7 +185,7 @@ namespace ecaldqm
         cryIds = scConstituents(EcalScDetId(towerId));
       }
 
-      if(cryIds.size() == 0) return;
+      if(cryIds.empty()) return;
 
       float mean(0.);
       float nValid(0.);

@@ -31,7 +31,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -47,12 +47,12 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
   //typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsProdHistStripper(const edm::ParameterSet&);
-  virtual ~GlobalHitsProdHistStripper();
-  virtual void beginJob( void );
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  ~GlobalHitsProdHistStripper() override;
+  void beginJob( void ) override;
+  void endJob() override;  
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   
  private:
 

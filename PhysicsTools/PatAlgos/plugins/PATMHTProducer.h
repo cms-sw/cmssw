@@ -64,10 +64,10 @@ namespace pat {
   class PATMHTProducer : public edm::stream::EDProducer<> {
   public:
     explicit PATMHTProducer(const edm::ParameterSet&);
-    ~PATMHTProducer();
+    ~PATMHTProducer() override;
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     double getJets(edm::Event&, const edm::EventSetup&);
     double getElectrons(edm::Event&, const edm::EventSetup&);

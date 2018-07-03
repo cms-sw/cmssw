@@ -67,7 +67,7 @@ typedef std::vector<L1MuRegionalCand> L1MuRegionalCandCollection;
 #include "TFile.h"
 #include "TTree.h"
 #include <cstdlib>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <memory>

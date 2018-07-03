@@ -7,6 +7,7 @@ Class representing Output (Streamer) file.
 */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include <memory>
 #include <iosfwd>
 #include <string>
@@ -41,7 +42,7 @@ class OutputFile
      uint32 adlera_;
      uint32 adlerb_;
 
-     std::shared_ptr<std::ofstream> ost_;
+     edm::propagate_const<std::shared_ptr<std::ofstream>> ost_;
      std::string filename_; 
   };
 

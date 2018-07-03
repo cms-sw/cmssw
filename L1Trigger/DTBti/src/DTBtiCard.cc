@@ -380,7 +380,7 @@ DTBtiCard::runBTI() {
 
     // run DTBtiChip algorithm on all non-empty BTI
     for(int sl=1;sl<=3;sl++){
-      if(_btimap[sl-1].size()>0){
+      if(!_btimap[sl-1].empty()){
         BTI_iter pbti;
         for(pbti=_btimap[sl-1].begin(); pbti!=_btimap[sl-1].end(); pbti++) {
 	    DTBtiChip* bti = (*pbti).second; 
@@ -405,7 +405,7 @@ DTBtiCard::runBTI() {
 DTBtiChip* 
 DTBtiCard::activeGetBTI(int sl, int n){
 
-  DTBtiChip* bti=0;
+  DTBtiChip* bti=nullptr;
   //check if BTi is out of range before all
   if( n<1 || n>geom()->nCell(sl) ){
     if(debug()){
@@ -458,11 +458,11 @@ DTBtiCard::getBTI(int sl, int n) const {
     std::cout << "DTBtiCard::getBTI :";
     std::cout << " invalid superlayer number: " << sl;
     std::cout << " 0 returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   BTI_const_iter pbti = _btimap[sl-1].find(n);
   if( pbti==_btimap[sl-1].end() ){ 
-    return 0;
+    return nullptr;
   }
   return (*pbti).second;
 }
@@ -493,7 +493,7 @@ DTBtiCard::storeTrigger(DTBtiTrigData td) {
   DTBtiId btiid = td.parentId();
   if(!(btiid.wheel()==wheel() &&
        btiid.sector()==sector() &&
-       btiid.station()==station()) ) return 0;
+       btiid.station()==station()) ) return nullptr;
   std::cout << "DTBtiCard::trigger: trigger not belonging to this card! ";
   std::cout << "card=(" << wheel() << "," << station() << "," << sector() << ") ";
   std::cout << "trig=(" << btiid.wheel() << "," << btiid.station() << "," 
@@ -684,7 +684,7 @@ DTBtiCard::config_bti(DTBtiId& btiid) const
 	      << "," << btiid.superlayer()
 	      << "," << btiid.bti()
 	      << ") not found, return 0" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   return const_cast<DTConfigBti*>(&(*biter).second);

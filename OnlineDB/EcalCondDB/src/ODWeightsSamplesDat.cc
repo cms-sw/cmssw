@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODWeightsSamplesDat::ODWeightsSamplesDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_fed = 0;
 
@@ -31,7 +31,7 @@ void ODWeightsSamplesDat::clear() {
 }
 
 void ODWeightsSamplesDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -40,14 +40,14 @@ void ODWeightsSamplesDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, sample_id, weight_number ) "
 			"VALUES (:1, :2, :3, :4 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODWeightsSamplesDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODWeightsSamplesDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void ODWeightsSamplesDat::writeDB(const ODWeightsSamplesDat* item, ODFEWeightsInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -59,14 +59,14 @@ void ODWeightsSamplesDat::writeDB(const ODWeightsSamplesDat* item, ODFEWeightsIn
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODWeightsSamplesDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODWeightsSamplesDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void ODWeightsSamplesDat::fetchData(std::vector< ODWeightsSamplesDat >* p, ODFEWeightsInfo* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -95,13 +95,13 @@ void ODWeightsSamplesDat::fetchData(std::vector< ODWeightsSamplesDat >* p, ODFEW
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODWeightsSamplesDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 
 void ODWeightsSamplesDat::fetchData(ODWeightsSamplesDat * p)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -117,14 +117,14 @@ void ODWeightsSamplesDat::fetchData(ODWeightsSamplesDat * p)
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODWeightsSamplesDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODWeightsSamplesDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 //  ************************************************************************   // 
 
 void ODWeightsSamplesDat::writeArrayDB(const std::vector< ODWeightsSamplesDat >& data, ODFEWeightsInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 
@@ -182,6 +182,6 @@ void ODWeightsSamplesDat::writeArrayDB(const std::vector< ODWeightsSamplesDat >&
     delete [] z_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODWeightsSamplesDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODWeightsSamplesDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

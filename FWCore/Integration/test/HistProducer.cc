@@ -16,10 +16,9 @@ namespace edmtest {
   // Functions that gets called by framework every event
   void HistProducer::produce(edm::Event& e, edm::EventSetup const&) {
 
-    std::unique_ptr<TH1F> result(new TH1F);  //Empty
-    e.put(std::move(result));
-    //std::auto_ptr<ThingWithHist> result2(new ThingWithHist);  //Empty
-    //e.put(result2);
+    //Empty Histograms
+    e.put(std::make_unique<TH1F>());
+    //e.put(std::make_unique<ThingWithHist>());
   }
 
 }

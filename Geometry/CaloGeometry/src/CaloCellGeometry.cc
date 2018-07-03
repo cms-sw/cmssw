@@ -19,7 +19,7 @@ const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 CaloCellGeometry::CaloCellGeometry() :
    m_refPoint ( 0., 0., 0. ),
    m_corners  (  ) ,
-   m_parms    ( (CCGFloat*) 0 ), m_eta(0), m_phi(0) 
+   m_parms    ( (CCGFloat*) nullptr )
 {}
 
 
@@ -34,7 +34,7 @@ CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
    m_refPoint ( gp  ),
    m_corners  ( mgr ),
    m_parms    ( par ),
-   m_eta(gp.eta()), m_phi(gp.phi())
+   m_rep(gp.perp(),gp.eta(),gp.barePhi())
 {}
 
 CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
@@ -44,7 +44,7 @@ CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
 		0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ), 
    m_corners  ( cv ),
    m_parms    ( par ),
-   m_eta( m_refPoint.eta()), m_phi(m_refPoint.phi())
+   m_rep( m_refPoint.perp(), m_refPoint.eta(), m_refPoint.barePhi())
 {}
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) 
@@ -74,7 +74,7 @@ CaloCellGeometry::getTransform( Tr3D& tr , Pt3DVec* lptr ) const
    const DPt3D dgFront ( p.x(), p.y(), p.z() ) ;
 
    Pt3D lFront ;
-   assert( 0 != param() ) ;
+   assert( nullptr != param() ) ;
    Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
    vocalCorners( lc, param(), lFront ) ;
 
@@ -112,7 +112,7 @@ CaloCellGeometry::getTransform( Tr3D& tr , Pt3DVec* lptr ) const
    tr = Tr3D( dlFront , dlBack , dlOne ,
 	      dgFront , dgBack , dgOne    ) ;
 
-   if( 0 != lptr ) (*lptr) = lc ;
+   if( nullptr != lptr ) (*lptr) = lc ;
 }
 
 const float* 
@@ -120,7 +120,7 @@ CaloCellGeometry::checkParmPtr(
    const std::vector<float>&   vv  ,
    CaloCellGeometry::ParVecVec& pvv  )
 {
-   const float* pP ( 0 ) ;
+   const float* pP ( nullptr ) ;
 
    for( unsigned int ii ( 0 ) ; ii != pvv.size() ; ++ii )
    {
@@ -150,9 +150,9 @@ CaloCellGeometry::getParmPtr(
 {
    const float* pP ( checkParmPtr( vv, pvv ) ) ;
 
-   if( 0 == pP )
+   if( nullptr == pP )
    {
-      pvv.push_back( ParVec( mgr ) ) ;
+      pvv.emplace_back( ParVec( mgr ) ) ;
       ParVec& back ( pvv.back() ) ;
       for( unsigned int i ( 0 ) ; i != vv.size() ; ++i )
       {

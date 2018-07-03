@@ -8,9 +8,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
-#include "EventFilter/FEDInterface/interface/fed_header.h"
-#include "EventFilter/FEDInterface/interface/fed_trailer.h"
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
@@ -20,7 +18,7 @@
 
 #include <cmath>
 #include <sys/time.h>
-#include <string.h>
+#include <cstring>
 
 
 using namespace std;
@@ -43,7 +41,6 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
 {
   // mean = pset.getParameter<float>("mean");
   produces<FEDRawDataCollection>();
-  frb.setEPProcessId(getpid());
 }
 
 //______________________________________________________________________________
@@ -95,9 +92,9 @@ int DaqFakeReader::fillRawData(Event& e,
 	       eID, *data, meansize, width);
 
       timeval now;
-      gettimeofday(&now,0);
+      gettimeofday(&now,nullptr);
       fillGTPFED(eID, *data,&now);
-      fillFED1023(eID,*data,&now);
+      //TODO: write fake TCDS FED filler
     }
   return 1;
 }
@@ -105,10 +102,10 @@ int DaqFakeReader::fillRawData(Event& e,
 void DaqFakeReader::produce(Event&e, EventSetup const&es){
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  FEDRawDataCollection *fedcoll = 0;
+  FEDRawDataCollection *fedcoll = nullptr;
   fillRawData(e,fedcoll);
-  std::auto_ptr<FEDRawDataCollection> bare_product(fedcoll);
-  e.put(bare_product);
+  std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
+  e.put(std::move(bare_product));
 }
 
 
@@ -173,13 +170,13 @@ void DaqFakeReader::fillGTPFED(EventID& eID,
                   0,        // Evt_stat
                   0);       // TTS bits
 
-  unsigned char * pOffset = feddata.data() + sizeof(fedh_t);
+  unsigned char * pOffset = feddata.data() + FEDHeader::length;
   //fill in event ID
   *( (uint32_t*)(pOffset + evf::evtn::EVM_BOARDID_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) = evf::evtn::EVM_BOARDID_VALUE << evf::evtn::EVM_BOARDID_SHIFT;
-  *( (uint32_t*)(pOffset + sizeof(fedh_t) + (9*2 + evf::evtn::EVM_TCS_TRIGNR_OFFSET) * evf::evtn::SLINK_WORD_SIZE / 2))  = eID.event();
+  *( (uint32_t*)(pOffset + FEDHeader::length + (9*2 + evf::evtn::EVM_TCS_TRIGNR_OFFSET) * evf::evtn::SLINK_WORD_SIZE / 2))  = eID.event();
   //fill in timestamp
   *( (uint32_t*) (pOffset + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2)) = now->tv_sec;
-  *( (uint32_t*) (pOffset + sizeof(fedh_t) + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2 + evf::evtn::SLINK_HALFWORD_SIZE)) = now->tv_usec;
+  *( (uint32_t*) (pOffset + FEDHeader::length + evf::evtn::EVM_GTFE_BSTGPS_OFFSET * evf::evtn::SLINK_WORD_SIZE / 2 + evf::evtn::SLINK_HALFWORD_SIZE)) = now->tv_usec;
 
   //*( (uint16_t*) (pOffset + (evtn::EVM_GTFE_BLOCK*2 + evtn::EVM_TCS_LSBLNR_OFFSET)*evtn::SLINK_HALFWORD_SIZE)) = (unsigned short)fakeLs_-1;
 
@@ -187,19 +184,6 @@ void DaqFakeReader::fillGTPFED(EventID& eID,
 
 }
 
-
-void DaqFakeReader::fillFED1023(EventID& eID,
-				FEDRawDataCollection& data,timeval *now)
-{
-  FEDRawData& feddata = data.FEDData(frb.fedId());
-  // Allocate space for header+trailer+payload
-  feddata.resize(frb.size()); 
-  frb.putHeader(eID.event(),0);
-  if(eID.event()%modulo_error_events==0) frb.setDAQDiaWord1(1ll); else frb.setDAQDiaWord1(0ll);
-  frb.setRBTimeStamp(((uint64_t) (now->tv_sec) << 32) + (uint64_t) (now->tv_usec));
-  frb.putTrailer();
-  memcpy(feddata.data(),frb.getPayload(),frb.size());
-}
 
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE)
 {

@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace HepMC {
   class IO_BaseClass;
@@ -53,9 +54,12 @@ class HepMCFileReader {
   static HepMCFileReader *instance();
 
   private:
+  HepMC::IO_BaseClass const* input() const {return get_underlying_safe(input_);}
+  HepMC::IO_BaseClass*& input() {return get_underlying_safe(input_);}
+
   // current  HepMC evt
-  HepMC::GenEvent *evt_;
-  HepMC::IO_BaseClass *input_;
+  edm::propagate_const<HepMC::GenEvent*> evt_;
+  edm::propagate_const<HepMC::IO_BaseClass*> input_;
 
   static HepMCFileReader *instance_;
 
@@ -72,7 +76,7 @@ class HepMCFileReader {
 
 bool HepMCFileReader::isInitialized() const
 {
-  return input_ != 0;
+  return input_ != nullptr;
 }
 
 #endif

@@ -23,9 +23,9 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include "TF1.h"
 
 using namespace edm;

@@ -40,19 +40,21 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "CoralBase/Exception.h"
-
 class HGCGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCGeometryTester( const edm::ParameterSet& );
-  ~HGCGeometryTester();
+  ~HGCGeometryTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
+private:
+  bool square;
 };
 
-HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& ) {}
+HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& iC) {
+  square = iC.getUntrackedParameter<bool>("SquareType",true);
+}
 
 HGCGeometryTester::~HGCGeometryTester() {}
 
@@ -79,10 +81,17 @@ void HGCGeometryTester::analyze( const edm::Event& iEvent,
       if (svPars.find(name) == svPars.end()) {
 	//print half height and widths for the trapezoid
 	std::vector<double> solidPar=eview.logicalPart().solid().parameters();
-	svPars[name] = std::pair<double,double>(solidPar[3],
-						0.5*(solidPar[4]+solidPar[5]));
-	std::cout << name << " Layer " << layer << " " << solidPar[3] 
-		  << " " << solidPar[4] << " " << solidPar[5] << std::endl;
+	if (square) {
+	  svPars[name] = std::pair<double,double>(solidPar[3],
+						  0.5*(solidPar[4]+solidPar[5]));
+	  std::cout << name << " Layer " << layer << " " << solidPar[3] 
+		    << " " << solidPar[4] << " " << solidPar[5] << std::endl;
+	} else {
+	  svPars[name] = std::pair<double,double>(solidPar[0],
+						  0.5*(solidPar[2]-solidPar[1]));
+	  std::cout << name << " Layer " << layer << " " << solidPar[0] 
+		    << " " << solidPar[1] << " " << solidPar[2] << std::endl;
+	}
       }
     }
   }while(eview.next() );

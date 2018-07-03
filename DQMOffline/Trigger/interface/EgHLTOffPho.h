@@ -85,7 +85,7 @@ public:
     OffPho(const reco::Photon& pho,const ClusShapeData& shapeData,const IsolData& isolData,const HLTData& hltData):
       pho_(&pho),clusShapeData_(shapeData),isolData_(isolData),hltData_(hltData),
       cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
-    ~OffPho(){}
+    ~OffPho()= default;
     
     //modifiers  
     void setCutCode(int code){cutCode_=code;}

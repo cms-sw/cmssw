@@ -5,16 +5,15 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-
 
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 #include "CondTools/Ecal/interface/EcalPulseShapesXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
-
 
 using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
@@ -119,33 +118,33 @@ int  EcalPulseShapesXMLTranslator::readXML(const std::string& filename,
 int EcalPulseShapesXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
 					  const EcalPulseShapes& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
 
 std::string EcalPulseShapesXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalPulseShapes& record){
 
-  cms::concurrency::xercesInitialize();
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
+  
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
 
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-  DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(PulseShapes_tag).c_str(), doctype );
-
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
+    impl->createDocument( nullptr, cms::xerces::uStr(PulseShapes_tag.c_str()).ptr(), doctype );
     
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
-  if (!record.barrelItems().size()) return std::string();
+  if (record.barrelItems().empty()) return std::string();
   for(int cellid = EBDetId::MIN_HASH;
       cellid < EBDetId::kSizeForDenseIndexing;
       ++cellid) {
@@ -171,7 +170,7 @@ std::string EcalPulseShapesXMLTranslator::dumpXML(const EcalCondHeader& header,c
 
   }
 
-  if (!record.endcapItems().size()) return std::string();
+  if (record.endcapItems().empty()) return std::string();
   for(int cellid = 0;
 	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid) {
@@ -199,7 +198,10 @@ std::string EcalPulseShapesXMLTranslator::dumpXML(const EcalCondHeader& header,c
 
   }
 
-  std::string dump= toNative(writer->writeToString(*root)); 
-  doc->release(); 
+  std::string dump = cms::xerces::toString(writer->writeToString( root )); 
+  doc->release();
+  doctype->release();
+  writer->release();
+
   return dump;
 }

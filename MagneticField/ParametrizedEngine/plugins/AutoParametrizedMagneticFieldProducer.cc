@@ -30,9 +30,9 @@ namespace magneticfield{
   {
   public:
     AutoParametrizedMagneticFieldProducer(const edm::ParameterSet&);
-    ~AutoParametrizedMagneticFieldProducer(){}
+    ~AutoParametrizedMagneticFieldProducer() override{}
     
-    std::auto_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
 
     int closerNominaCurrent(float current);
     edm::ParameterSet pset;
@@ -49,7 +49,7 @@ AutoParametrizedMagneticFieldProducer::AutoParametrizedMagneticFieldProducer(con
   //  nominalLabels  ={"3.8T","0T","2T", "3T", "3.5T", "3.8T", "4T"};
 }
 
-std::auto_ptr<MagneticField>
+std::unique_ptr<MagneticField>
 AutoParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iRecord)
 {
   string version = pset.getParameter<string>("version");

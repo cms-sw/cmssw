@@ -55,18 +55,17 @@ public:
     L1TGT(const edm::ParameterSet& ps);
 
     // destructor
-    virtual ~L1TGT();
+    ~L1TGT() override;
 
 protected:
 
     //virtual void beginJob();
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end section
-    virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+    void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
 
 private:
@@ -155,9 +154,6 @@ private:
 
     MonitorElement* m_monOrbitNrDiffTcsFdlEvm;
     MonitorElement* m_monLsNrDiffTcsFdlEvm;
-    MonitorElement* runId_;
-    MonitorElement* lumisecId_;
-    MonitorElement* runStartTimeStamp_;
     // maximum difference in orbit number, luminosity number
     // histogram range: -(MaxOrbitNrDiffTcsFdlEvm+1), (MaxOrbitNrDiffTcsFdlEvm+1)
     //   if value is greater than the maximum difference, fill an entry in the last but one bin

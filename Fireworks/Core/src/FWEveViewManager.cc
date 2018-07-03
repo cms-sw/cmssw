@@ -16,14 +16,7 @@
 
 
 // user include files
-
-// For optimized redraw of Eve views
-#define protected public
-#define private   public
 #include "TEveManager.h"
-#undef private
-#undef protected
-
 #include "TEveSelection.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
@@ -41,6 +34,7 @@
 #include "Fireworks/Core/interface/FWInteractionList.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 
 // PB
@@ -231,7 +225,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       std::string builderName = info.m_name;
       int builderViewBit =  info.m_viewBit;
       
-      FWProxyBuilderBase* builder = 0;
+      FWProxyBuilderBase* builder = nullptr;
       try
       {
          builder = FWProxyBuilderFactory::get()->create(builderName);
@@ -248,7 +242,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       // 2.
       // printf("FWEveViewManager::makeProxyBuilderFor NEW builder %s \n", builderName.c_str());
       
-      boost::shared_ptr<FWProxyBuilderBase> pB(builder);
+      std::shared_ptr<FWProxyBuilderBase> pB(builder);
       builder->setItem(iItem);
       iItem->changed_.connect(boost::bind(&FWEveViewManager::modelChanges,this,_1));
       iItem->goingToBeDestroyed_.connect(boost::bind(&FWEveViewManager::removeItem,this,_1));
@@ -261,7 +255,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
       {
          typedef std::map<const FWEventItem*, FWInteractionList*>::iterator Iterator;
          std::pair<Iterator, bool> t = m_interactionLists.insert(std::make_pair(iItem,
-                                                                                (FWInteractionList*)0));
+                                                                                (FWInteractionList*)nullptr));
 
          if (t.second == true)
             t.first->second = new FWInteractionList(iItem);
@@ -292,7 +286,7 @@ FWEveViewManager::newItem(const FWEventItem* iItem)
          }
          else 
          {
-            TEveElementList* product = builder->createProduct(type, 0);
+            TEveElementList* product = builder->createProduct(type, nullptr);
          
             for (size_t i = 0, e = m_views[viewType].size(); i != e; ++i)
                addElements(iItem, m_views[viewType][i].get(), viewType, product);
@@ -317,7 +311,7 @@ FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::string& viewName
       }
    }
 
-   boost::shared_ptr<FWEveView> view;
+   std::shared_ptr<FWEveView> view;
    switch(type)
    {
       case FWViewType::k3D:
@@ -345,12 +339,12 @@ FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::string& viewName
          break;
    }
 
-   m_views[type].push_back(boost::shared_ptr<FWEveView> (view));
+   m_views[type].push_back(std::shared_ptr<FWEveView> (view));
    return finishViewCreate(m_views[type].back());
 }
 
 FWEveView*
-FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
+FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view)
 {
    // printf("new view %s added \n", view->typeName().c_str());
    gEve->DisableRedraw();
@@ -607,7 +601,7 @@ FWEveViewManager::setContext(const fireworks::Context* x)
 {
    FWViewManagerBase::setContext(x);
    x->commonPrefs()->getEnergyScale()->parameterChanged_.connect(boost::bind(&FWEveViewManager::globalEnergyScaleChanged,this));
-
+   x->commonPrefs()->eventCenterChanged_.connect(boost::bind(&FWEveViewManager::eventCenterChanged,this));
 }
 
 void
@@ -627,6 +621,19 @@ FWEveViewManager::globalEnergyScaleChanged()
 }
 
 void
+FWEveViewManager::eventCenterChanged()
+{
+   for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
+      {
+	(*i)->setupEventCenter();
+      }
+   }
+
+}
+
+void
 FWEveViewManager::colorsChanged()
 {
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
@@ -642,7 +649,7 @@ FWEveViewManager::eventBegin()
 {
    // Prevent registration of redraw timer, full redraw is done in
    // FWEveViewManager::eventEnd().
-   gEve->fTimerActive = kTRUE;
+   gEve->EnforceTimerActive(kTRUE);
    gEve->DisableRedraw();
 
    context().resetMaxEtAndEnergy();
@@ -672,7 +679,7 @@ FWEveViewManager::eventEnd()
    {
       TEveElement::List_t scenes;
       Long64_t   key, value;
-      TExMapIter stamped_elements(gEve->fStampedElements);
+      TExMapIter stamped_elements(gEve->PtrToStampedElements());
       while (stamped_elements.Next(key, value))
       {
          TEveElement *el = reinterpret_cast<TEveElement*>(key);
@@ -685,7 +692,7 @@ FWEveViewManager::eventEnd()
    }
 
    // Process changes in scenes.
-   gEve->fScenes->ProcessSceneChanges(gEve->fDropLogicals, gEve->fStampedElements);
+   gEve->GetScenes()->ProcessSceneChanges(kFALSE, gEve->PtrToStampedElements());
 
    // To synchronize buffer swapping set swap_on_render to false.
    // Note that this costs 25-40% extra time with 4 views, depending on V-sync settings.
@@ -709,11 +716,11 @@ FWEveViewManager::eventEnd()
       }
    }
 
-   gEve->fViewers->RepaintChangedViewers(gEve->fResetCameras, gEve->fDropLogicals);
+   gEve->GetViewers()->RepaintChangedViewers(kFALSE, kFALSE);
 
    {
       Long64_t   key, value;
-      TExMapIter stamped_elements(gEve->fStampedElements);
+      TExMapIter stamped_elements(gEve->PtrToStampedElements());
       while (stamped_elements.Next(key, value))
       {
          TEveElement *el = reinterpret_cast<TEveElement*>(key);
@@ -724,15 +731,12 @@ FWEveViewManager::eventEnd()
          el->ClearStamps();
       }
    }
-   gEve->fStampedElements->Delete();
+   gEve->PtrToStampedElements()->Delete();
 
    gEve->GetListTree()->ClearViewPort(); // Fix this when several list-trees can be added.
 
-   gEve->fResetCameras = kFALSE;
-   gEve->fDropLogicals = kFALSE;
-
    gEve->EnableRedraw();
-   gEve->fTimerActive = kFALSE;
+   gEve->EnforceTimerActive(kFALSE);
 }
 
 //______________________________________________________________________________
@@ -742,13 +746,13 @@ FWEveViewManager::eventEnd()
 FWFromEveSelectorBase *getSelector(TEveElement *iElement)
 {
    if (!iElement)
-      return 0;
+      return nullptr;
 
    //std::cout <<"  non null"<<std::endl;
    void* userData = iElement->GetUserData();
    //std::cout <<"  user data "<<userData<<std::endl;
    if (!userData)
-      return 0;
+      return nullptr;
 
    //std::cout <<"    have userData"<<std::endl;
    //std::cout <<"      calo"<<std::endl;
@@ -814,11 +818,11 @@ FWEveViewManager::supportedTypesAndRepresentations() const
          info.classType(name, isSimple);
          if(isSimple) 
          {
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
+            returnValue.add(std::make_shared<FWSimpleRepresentationChecker>(name, it->first,bitPackedViews,representsSubPart, FFOnly) );
          }
          else
          {
-            returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWEDProductRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
+            returnValue.add(std::make_shared<FWEDProductRepresentationChecker>(name, it->first,bitPackedViews,representsSubPart, FFOnly) );
          }
       }
    }
@@ -832,7 +836,7 @@ FWEveViewManager::haveViewForBit(int bit) const
 {
    for (int t = 0; t < FWViewType::kTypeSize; ++t)
    {
-      if ((bit & (1 << t)) && m_views[t].size())
+      if ((bit & (1 << t)) && !m_views[t].empty())
          return true;
    }
    // printf("have %d view for bit %d \n", haveView, bit);

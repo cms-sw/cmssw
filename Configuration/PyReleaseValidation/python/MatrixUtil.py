@@ -47,17 +47,21 @@ def expandLsInterval(lumis):
     return range(lumis[0],(lumis[1]+1))
 
 from DPGAnalysis.Skims.golden_json_2015 import * 
-jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_246908-XXXXXX_13TeV_PromptReco_Collisions15_JSON.txt")
+jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_50ns_JSON.txt")
+jsonFile2016 = findFileInPath("DPGAnalysis/Skims/data/Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt")
 
 import json
 with open(jsonFile2015) as data_file:
-    data_json = json.load(data_file)
+    data_json2015 = json.load(data_file)
+
+with open(jsonFile2016) as data_file:
+    data_json2016 = json.load(data_file)
 
 # return a portion of the 2015 golden json
 # LS for a full run by default; otherwise a subset of which you determined the size
-def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
+def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
     # print "maxNum is %s"%(maxNum)
-    if type(list_runs[0]) !=int:
+    if not isinstance(list_runs[0], int):
         print "ERROR: list_runs must be a list of intergers"
         return None
     local_dict = {}
@@ -67,6 +71,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
         if str(run) in l_json.keys():
             # print "run %s is there"%(run)
             runNumber = run
+            # print "Doing lumi-section selection for run %s: "%(run)
             for LSsegment in l_json[str(run)] :
                 # print LSsegment
                 ls_count += (LSsegment[-1] - LSsegment[0] + 1)
@@ -80,7 +85,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
                 # print "total LS so far  %s    -   grow %s"%(ls_count,local_dict)
             #local_dict[runNumber] = [1,2,3]
         else:
-            print "run %s is NOT there\n\n"%(run)
+            print "run %s is NOT present in json %s\n\n"%(run, l_json)
         # print "++    %s"%(local_dict)
 
     if ( len(local_dict.keys()) > 0 ) :
@@ -96,7 +101,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
 
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
         self.run = run
         self.ls = ls
         self.files = files
@@ -107,24 +112,30 @@ class InputInfo(object):
         self.split = split
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
+        self.dataSetParent = dataSetParent
         
-    def das(self, das_options):
+    def das(self, das_options, dataset):
         if len(self.run) is not 0 or self.ls:
-            # take at most 5 queries, to avoid sinking das
-
-            # do  if you have LS queries
-            # command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
-            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
+            queries = self.queries(dataset)[:3]
+            if len(self.run) != 0:
+              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
+            else:
+              lumis = self.lumis()
+              commands = []
+              while queries:
+                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+              command = ";".join(commands)
             command = "({0})".format(command)
         else:
-            command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
+            command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        command += " | sort -u"
-        return command
+        from os import getenv
+        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+        return command + " | sort -u"
 
     def lumiRanges(self):
         if len(self.run) != 0:
@@ -133,9 +144,18 @@ class InputInfo(object):
             return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
 
-    def queries(self):
+    def lumis(self):
+      query_lumis = []
+      if self.ls:
+        for run in self.ls.keys():
+          run_lumis = []
+          for rng in self.ls[run]: run_lumis.append(str(rng[0])+","+str(rng[1]))
+          query_lumis.append(":".join(run_lumis))
+      return query_lumis
+
+    def queries(self, dataset):
         query_by = "block" if self.ib_block else "dataset"
-        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+        query_source = "{0}#{1}".format(dataset, self.ib_block) if self.ib_block else dataset
 
         if self.ls :
             the_queries = []
@@ -158,8 +178,10 @@ class InputInfo(object):
 
         if len(self.run) is not 0:
             return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
+            #return ["file {0}={1} run={2} ".format(query_by, query_source, query_run) for query_run in self.run]
         else:
             return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
+            #return ["file {0}={1} ".format(query_by, query_source)]
 
     def __str__(self):
         if self.ib_block:

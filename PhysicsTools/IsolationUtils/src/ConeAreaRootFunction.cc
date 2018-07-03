@@ -73,7 +73,7 @@ void ConeAreaRootFunction::SetParameterConeArea(double coneArea)
   coneArea_ = coneArea;
 }
 
-void ConeAreaRootFunction::SetParameters(double* param)
+void ConeAreaRootFunction::SetParameters(const double* param)
 {
   if ( debugLevel_ > 0 ) {
     edm::LogVerbatim("") << "<ConeAreaRootFunction::SetParameters>:" << std::endl

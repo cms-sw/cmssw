@@ -1,9 +1,19 @@
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-DDConstant::DDConstant() : DDBase<DDName,double*>() { }
+#include <string>
+#include <utility>
+#include <vector>
 
-DDConstant::DDConstant(const DDName & name) : DDBase<DDName,double*>() 
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+DDConstant::DDConstant()
+  : DDBase<DDName,double*>()
+{ }
+
+DDConstant::DDConstant(const DDName & name)
+  : DDBase<DDName, double*>() 
 {
   prep_ = StoreT::instance().create(name);
 }
@@ -27,9 +37,8 @@ std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
 }
 
 void
-DDConstant::createConstantsFromEvaluator( void )
+DDConstant::createConstantsFromEvaluator( ClhepEvaluator& eval )
 {
-  auto& eval = ExprEvalSingleton::instance();
   const auto& vars = eval.variables();
   const auto& vals = eval.values();
   if( vars.size() != vals.size()) {

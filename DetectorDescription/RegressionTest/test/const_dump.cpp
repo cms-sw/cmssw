@@ -1,13 +1,19 @@
+#include <cstdlib>
+#include <exception>
 #include <iostream>
-#include <fstream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 namespace DD { } using namespace DD;
@@ -55,7 +61,6 @@ int main(int argc, char *argv[])
     DDErrorDetection ed(cpv);
     ed.report( cpv, std::cout);
 
-    DDConstant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
     DDConstant::iterator<DDConstant> cit(DDConstant::begin()), ced(DDConstant::end());
     for(; cit != ced; ++cit) {
       cout << *cit << endl;
@@ -69,8 +74,8 @@ int main(int argc, char *argv[])
 	std::cout << vit->toString() << std::endl;
 	const std::vector<double>& tv = *vit;
 	std::cout << "size: " << tv.size() << std::endl;
-	for (size_t i=0; i < tv.size(); ++i) {
-	  std::cout << tv[i] << "\t";
+	for (double i : tv) {
+	  std::cout << i << "\t";
 	}
 	std::cout << std::endl;
       }

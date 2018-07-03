@@ -9,12 +9,8 @@
 #define __EcalDCSTowerStatusXMLTranslator_h_
 
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
 
 class EcalDCSTowerStatusXMLTranslator {
 
@@ -27,7 +23,8 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalDCSTowerStatus& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalDCSTowerStatus& record);
 

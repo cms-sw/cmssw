@@ -56,7 +56,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnerg
       }
     }
   
-  if(m_plusWheelFpga == 0)
+  if(m_plusWheelFpga == nullptr)
     {
       m_setupOk = false;
       if (m_verbose) {
@@ -65,7 +65,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnerg
 	  << "Plus Wheel Fpga pointer has not been set!\n";
       }
     }
-  if(m_minusWheelFpga == 0)
+  if(m_minusWheelFpga == nullptr)
     {
       m_setupOk = false;
       if (m_verbose) {
@@ -74,7 +74,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnerg
 	  << "Minus Wheel Fpga pointer has not been set!\n";
       }
     }
-  if(m_plusWheelJetFpga == 0)
+  if(m_plusWheelJetFpga == nullptr)
     {
       m_setupOk = false;
       if (m_verbose) {
@@ -83,7 +83,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnerg
 	  << "Plus Wheel Jet Fpga pointer has not been set!\n";
       }
     }
-  if(m_minusWheelJetFpga == 0)
+  if(m_minusWheelJetFpga == nullptr)
     {
       m_setupOk = false;
       if (m_verbose) {
@@ -113,7 +113,7 @@ L1GctGlobalEnergyAlgos::L1GctGlobalEnergyAlgos(const std::vector<L1GctWheelEnerg
 
 L1GctGlobalEnergyAlgos::~L1GctGlobalEnergyAlgos()
 {
-  if (m_hfSumProcessor != 0) {
+  if (m_hfSumProcessor != nullptr) {
     delete m_hfSumProcessor;
   }
 }
@@ -323,7 +323,7 @@ void L1GctGlobalEnergyAlgos::setHtMissScale(const L1CaloEtScale* const scale)
 //
 bool L1GctGlobalEnergyAlgos::setupOk() const { 
   return (m_setupOk && 
-	  m_hfSumProcessor != 0 &&
+	  m_hfSumProcessor != nullptr &&
 	  m_hfSumProcessor->setupOk()); 
 }
 

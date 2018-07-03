@@ -19,16 +19,21 @@ class DummyLHEAnalyzer : public EDAnalyzer {
 private: 
   bool dumpLHE_;
   bool checkPDG_;
+  bool dumpHeader_;
 public:
-  explicit DummyLHEAnalyzer( const ParameterSet & cfg ) : 
-    src_( cfg.getParameter<InputTag>( "src" ) )
+  explicit DummyLHEAnalyzer( const ParameterSet & cfg ) :
+    dumpHeader_( cfg.getUntrackedParameter<bool>("dumpHeader",false) ),
+    src_( cfg.getParameter<InputTag>( "src" ) ),
+    tokenLHERunInfo_(consumes<LHERunInfoProduct,edm::InRun>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) ),
+    tokenLHEEvent_(consumes<LHEEventProduct>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) )
   {
   }
 private:
   void analyze( const Event & iEvent, const EventSetup & iSetup ) override {
 
-    Handle<LHEEventProduct> evt;
-    iEvent.getByLabel( src_, evt );
+    edm::Handle<LHEEventProduct> evt;
+    //iEvent.getByLabel(src_, evt);
+    iEvent.getByToken(tokenLHEEvent_, evt);
 
     const lhef::HEPEUP hepeup_ = evt->hepeup();
 
@@ -70,13 +75,12 @@ private:
 
   }
 
-  /*
-  void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override {
-
+  void endRun(edm::Run const& iRun, edm::EventSetup const& es) override {
 
     Handle<LHERunInfoProduct> run;
-    iRun.getByLabel( src_, run );
-    
+    //iRun.getByLabel( src_, run );
+    iRun.getByToken( tokenLHERunInfo_, run );
+
     const lhef::HEPRUP thisHeprup_ = run->heprup();
 
     std::cout << "HEPRUP \n" << std::endl;
@@ -103,10 +107,22 @@ private:
     }
     std::cout << " " << std::endl;
 
+    if(dumpHeader_) {
+      std::cout <<" HEADER "<<std::endl;
+      for(auto it = run->headers_begin(); it != run->headers_end(); ++it) {
+        std::cout <<"tag: '"<<it->tag()<<"'"<<std::endl;
+        for(auto const& l : it->lines()) {
+          std::cout<<"   "<<l<<std::endl;
+        }
+      }
+    }
+
   }
-  */
 
   InputTag src_;
+  edm::EDGetTokenT<LHERunInfoProduct> tokenLHERunInfo_;
+  edm::EDGetTokenT<LHEEventProduct> tokenLHEEvent_;
+
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

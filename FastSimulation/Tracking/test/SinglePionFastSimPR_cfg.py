@@ -27,15 +27,13 @@ process.source = cms.Source("EmptySource")
 # Other statements
 process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator
 process.famosPileUp.PileUpSimulator.averageNumber = 0
-process.famosSimHits.SimulateCalorimetry = False
-process.famosSimHits.SimulateTracking = True
-process.famosSimHits.ActivateDecays.comEnergy = 10000
+process.fastSimProducer.SimulateCalorimetry = False
 process.simulation = cms.Sequence(process.simulationWithFamos)
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
 # set correct vertex smearing
 process.Early10TeVCollisionVtxSmearingParameters.type = cms.string("BetaFunc")
-process.famosSimHits.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
+process.fastSimProducer.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingParameters
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 

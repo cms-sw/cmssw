@@ -40,6 +40,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 // C++
@@ -77,7 +79,7 @@ MuonSeedGenerator::~MuonSeedGenerator(){
 void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup)
 {
   // create the pointer to the Seed container
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
@@ -111,7 +113,15 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   theSeedCleaner->clean(*output);
 
-  event.put(output);
+  event.put(std::move(output));
 }
 
   
+void MuonSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+   edm::ParameterSetDescription desc;
+   desc.setAllowAnything();
+   desc.add<bool>("EnableDTMeasurement",true);
+   desc.add<bool>("EnableCSCMeasurement",true);
+   desc.add<bool>("EnableME0Measurement",false);
+   descriptions.add("produceMuons", desc);
+}

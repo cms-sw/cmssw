@@ -8,6 +8,7 @@
 
 #include "CmsSupport.h"
 #include <iostream>
+#include <utility>
 
 namespace clangcms {
 
@@ -29,16 +30,16 @@ void FiniteMathChecker::checkPreStmt(const clang::CallExpr *CE, clang::ento::Che
   if (!II->isStr("isnan") && !II->isStr("isinf")) 
     return;
 
-  clang::ento::ExplodedNode *N = ctx.generateSink();
+  clang::ento::ExplodedNode *N = ctx.generateErrorNode();
   if (!N)
     return;
 
   if (!BT)
     BT.reset(new clang::ento::BugType(this,"std::isnan / std::isinf does not work when fast-math is used. Please use edm::isNotFinite from 'FWCore/Utilities/interface/isNotFinite.h'", "fastmath plugin"));
 
-  clang::ento::BugReport *report = new clang::ento::BugReport(*BT, BT->getName(), N);
+  std::unique_ptr<clang::ento::BugReport> report = llvm::make_unique<clang::ento::BugReport>(*BT, BT->getName(), N);
   report->addRange(Callee->getSourceRange());
-  ctx.emitReport(report);
+  ctx.emitReport(std::move(report));
 }
 }
 

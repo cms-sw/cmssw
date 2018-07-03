@@ -745,7 +745,7 @@ testNuclearInteractions::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::cout << "Number of event analysed/NU "
 	      << totalNEvt << " / " << totalNU << std::endl; 
 
-  std::auto_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
+  std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
   //  std::cout << "Fill full event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fullSimTracks;

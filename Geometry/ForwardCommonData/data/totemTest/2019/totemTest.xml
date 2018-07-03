@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="totemTest.xml" eval="true">
+  <Constant name="TotemT1Z1"    value="9.00*m"/>
+  <Constant name="TotemT1Z2"    value="10.49*m"/>
+  <Constant name="zDiff01"      value="([cms:TotemMuonZ1]-[cms:TotemBeamZ1])"/>
+  <Constant name="zDiff11"      value="([TotemT1Z1]-[cms:TotemBeamZ1])"/>
+  <Constant name="rinDiff1"     value="([forward:TotemT1Rin1]-[cms:TotemBeamR3])"/>
+  <Constant name="routDiff1"    value="([cms:TotemMuonR1]-[forward:TotemT1Rout1])"/>
+  <Constant name="TotemT1Rin1"  value="[cms:TotemBeamR3]+([rinDiff1]*[zDiff11]/[zDiff01])"/>
+  <Constant name="TotemT1Rout1" value="[forward:TotemT1Rout1]+([routDiff1]*[zDiff11]/[zDiff01])"/>
+  <Constant name="zDiff02"      value="([cms:TotemMuonZ2]-[cms:TotemMuonZ1])"/>
+  <Constant name="zDiff12"      value="([TotemT1Z2]-[cms:TotemMuonZ1])"/>
+  <Constant name="rinDiff2"     value="([forward:TotemT1Rin2]-[forward:TotemT1Rin1])"/>
+  <Constant name="TotemT1Rin2"  value="[cms:TotemBeamR3]+([rinDiff2]*[zDiff12]/[zDiff02])"/>
+  <Constant name="TotemT1Rout2" value="[cms:TotemMuonR2]"/>
+  <Constant name="TotemT2Z1"    value="14.865*m"/>
+  <Constant name="TotemT2Z2"    value="15.345*m"/>
+</ConstantsSection>
+
+<SolidSection label="totemTest.xml">
+  <Polycone name="TotemT1Part1" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:MuonBeamZ1]"    rMin="[cms:TotemBeamR1]"     rMax="[cms:MuonBeamR2]"/>
+    <ZSection z="[cms:TotemBeamZ1]"   rMin="[cms:TotemBeamR2]"     rMax="[forward:TotemT1Rout1]"/>
+    <ZSection z="[cms:TotemBeamZ1]"   rMin="[cms:TotemBeamR3]"     rMax="[forward:TotemT1Rout1]"/>
+    <ZSection z="[TotemT1Z1]"         rMin="[TotemT1Rin1]"         rMax="[TotemT1Rout1]"/>
+  </Polycone>
+  <Polycone name="TotemT1Part2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[TotemT1Z1]"         rMin="[TotemT1Rin1]"         rMax="[TotemT1Rout1]"/>
+    <ZSection z="[cms:TotemMuonZ1]"   rMin="[forward:TotemT1Rin1]" rMax="[cms:TotemMuonR1]"/>
+    <ZSection z="[cms:TotemMuonZ1]"   rMin="[forward:TotemT1Rin1]" rMax="[cms:TotemMuonR2]"/>
+    <ZSection z="[TotemT1Z2]"         rMin="[TotemT1Rin2]"         rMax="[TotemT1Rout2]"/>
+  </Polycone>
+  <Polycone name="TotemT1Part3" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[TotemT1Z2]"         rMin="[TotemT1Rin2]"         rMax="[TotemT1Rout2]"/>
+    <ZSection z="[cms:TotemMuonZ2]"   rMin="[forward:TotemT1Rin2]" rMax="[cms:TotemMuonR2]"/>
+  </Polycone>
+  <Polycone name="TotemT2Part1" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:TotemBeamZ3]"   rMin="[cms:TotemBeamR4]"     rMax="[cms:TotemBeamR5]"/>
+    <ZSection z="[TotemT2Z1]"         rMin="[cms:TotemBeamR4]"     rMax="[cms:TotemBeamR5]"/>
+  </Polycone>
+  <Polycone name="TotemT2Part2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[TotemT2Z1]"         rMin="[cms:TotemBeamR4]"     rMax="[cms:TotemBeamR5]"/>
+    <ZSection z="[TotemT2Z2]"         rMin="[cms:TotemBeamR4]"     rMax="[cms:TotemBeamR5]"/>
+  </Polycone>
+  <Polycone name="TotemT2Part3" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[TotemT2Z2]"         rMin="[cms:TotemBeamR4]"     rMax="[cms:TotemBeamR5]"/>
+    <ZSection z="[cms:TotemBeamZ4]"   rMin="[cms:TotemBeamR4]"     rMax="[cms:TotemBeamR5]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="totemTest.xml">
+  <LogicalPart name="TotemT1Part1" category="unspecified">
+    <rSolid name="TotemT1Part1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT1Part2" category="unspecified">
+    <rSolid name="TotemT1Part2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT1Part3" category="unspecified">
+    <rSolid name="TotemT1Part3"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2Part1" category="unspecified">
+    <rSolid name="TotemT2Part1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2Part2" category="unspecified">
+    <rSolid name="TotemT2Part2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2Part3" category="unspecified">
+    <rSolid name="TotemT2Part3"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="totemTest.xml">
+  <PosPart copyNumber="1">
+    <rParent name="forward:TotemT1"/>
+    <rChild name="totemTest:TotemT1Part1"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="forward:TotemT1"/>
+    <rChild name="totemTest:TotemT1Part2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="forward:TotemT1"/>
+    <rChild name="totemTest:TotemT1Part3"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="forward:TotemT2"/>
+    <rChild name="totemTest:TotemT2Part1"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="forward:TotemT2"/>
+    <rChild name="totemTest:TotemT2Part2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="forward:TotemT2"/>
+    <rChild name="totemTest:TotemT2Part3"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

@@ -24,6 +24,7 @@ enumerators and the returned values of the above methods are summarized in the t
 | `TEC` | `TEC` | `TEC` | `false` | `true` | `false` | `true` |
 | `PixelPhase1Barrel` | `P1PXB` | `PixelBarrel` | `true` | `false` | `true` | `false` |
 | `PixelPhase1EndCap` | `P1PXEC` | `PixelEndcap` | `true` | `false` | `false` | `true` |
+| `PixelPhase2Barrel` | `P2PXB` | `PixelBarrel` | `true` | `false` | `true` | `false` |
 | `PixelPhase2EndCap` | `P2PXEC` | `PixelEndcap` | `true` | `false` | `false` | `true` |
 | `OTPhase2Barrel` | `P2OTB` | `TOB` | `true` | `false` | `true` | `false` |
 | `OTPhase2EndCap` | `P2OTEC` | `TID` | `true` | `false` | `false` | `true` |
@@ -62,10 +63,44 @@ of these methods for the three scenarios available so far are described in the t
  
 | `DetId::subDetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
 |--------|--------|-------|
-| 1 | `GeomDetEnumerators::P1PXB` | 4 |
+| 1 | `GeomDetEnumerators::P2PXB` | 4 |
 | 2 | `GeomDetEnumerators::P2PXEC` | 10 |
 | 3 | `GeomDetEnumerators::invalidDet` | 0 |
 | 4 | `GeomDetEnumerators::P2OTEC` | 5 |
 | 5 | `GeomDetEnumerators::P2OTB` | 6 |
 | 6 | `GeomDetEnumerators::invalidDet` | 0 |
  
+* ModuleTypes in  in `TrackerGeometry` class
+
+The `TrackerGeometry` class updated to keep module type information with the highest `DetId` of that type
+so that using `DetId` one can access the type. The `ModuleType` is contructed directly from the names defined in the
+`Geometry` xml definitions 
+
+Following types are used
+
+| `TrackerGeometry::ModuleType` | `Description` |
+|--------|-------|
+| TrackerGeometry::UNKNOWN| Undefined            |                 
+| TrackerGeometry::PXB    | Pixel Bar            |
+| TrackerGeometry::PXF    | Pixel For            |
+| TrackerGeometry::IB1    | IB1                  |
+| TrackerGeometry::IB2    | IB2                  |
+| TrackerGeometry::OB1    | OB1                  |
+| TrackerGeometry::OB2    | OB2                  |
+| TrackerGeometry::W1A    | W1A                  |
+| TrackerGeometry::W2A    | W2A                  |
+| TrackerGeometry::W3A    | W3A                  |
+| TrackerGeometry::W1B    | W1B                  |
+| TrackerGeometry::W2B    | W2B                  |
+| TrackerGeometry::W3B    | W3B                  |
+| TrackerGeometry::W4     | W4                   |
+| TrackerGeometry::W5     | W5                   |
+| TrackerGeometry::W6     | W6                   |
+| TrackerGeometry::W7     | W7                   |
+| TrackerGeometry::Ph1PXB | Phase 1 Pixel Barrel |
+| TrackerGeometry::Ph1PXF | Phase 1 Pixel Endcap |
+| TrackerGeometry::Ph2PXB | Phase 2 Pixel Barrel |
+| TrackerGeometry::Ph2PXF | Phase 2 Pixel Barrel |
+| TrackerGeometry::Ph2PSP | Phase 2 MacroPixel,PS|
+| TrackerGeometry::Ph2PSS | Phase 2 Strip, PS    |
+| TrackerGeometry::Ph2SS  | Phase2 2S            |

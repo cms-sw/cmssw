@@ -5,10 +5,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <iomanip>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 #include <TEfficiency.h>
 
@@ -141,7 +141,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       }
 
       TH1F* basehist = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + baseName);
-      if (basehist == NULL)
+      if (basehist == nullptr)
 	{
 	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (ibooker.pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'";
           pop = true;
@@ -225,7 +225,10 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       std::vector<std::string> varNames; 
       varNames.push_back("et");
       varNames.push_back("eta"); 
-      if (!noPhiPlots) varNames.push_back("phi"); 
+
+      if(!noPhiPlots){ varNames.push_back("phi");
+                       }   
+      varNames.push_back("etaphi");       
 
       std::string filterName;
       std::string filterName2;
@@ -234,7 +237,6 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 
       // Get the L1 over gen filter first
       filterName2= total->GetXaxis()->GetBinLabel(1);
-	
       //loop over variables (eta/phi/et)
       for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
 	
@@ -245,9 +247,11 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 	else
 	  genName   = ibooker.pwd() + "/gen_" + *var ;
 
-	// Create the efficiency plot
-	if(!dividehistos(ibooker,igetter,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs "+*var +*postfix))
-	  break;
+         if((*var).find("etaphi") != std::string::npos)
+           {
+             if(!dividehistos2D(ibooker,igetter,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs "+*var +*postfix))break;   
+            }else if(!dividehistos(ibooker,igetter,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs "+*var +*postfix))
+                   break;
       } // loop over variables
     
       // get the filter names from the bin-labels of the master-histogram
@@ -267,13 +271,19 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 	      genName = ibooker.pwd() + "/reco_" + *var;
 	    else
 	      genName = ibooker.pwd() + "/gen_" + *var;
-
-	    if(!dividehistos(ibooker,igetter,numName,genName,"final_eff_vs_"+*var,*var,"Efficiency Compared to " + shortReferenceName + " vs "+*var))
+              
+           if((*var).find("etaphi") != std::string::npos)
+             {
+              if(!dividehistos2D(ibooker,igetter,numName,genName,"final_eff_vs_"+*var,*var,"Efficiency Compared to " + shortReferenceName + " vs "+*var))break;
+             }else if(!dividehistos(ibooker,igetter,numName,genName,"final_eff_vs_"+*var,*var,"Efficiency Compared to " + shortReferenceName + " vs "+*var))
 	      break;
 	  }
 
-	  if(!dividehistos(ibooker,igetter,numName,denomName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"efficiency_"+filterName2+"_vs_"+*var + *postfix))
-	    break;
+          if((*var).find("etaphi") != std::string::npos)
+             {
+               if(!dividehistos2D(ibooker,igetter,numName,denomName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"efficiency_"+filterName2+"_vs_"+*var + *postfix))break;          
+             }else if(!dividehistos(ibooker,igetter,numName,denomName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"efficiency_"+filterName2+"_vs_"+*var + *postfix))
+	      break;
 
 	} // loop over variables
       } // loop over monitoring modules within path
@@ -323,15 +333,15 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore
   //std::cout << denomName << std::endl;
   TH1F* denom = getHistogram(ibooker,igetter, denomName);
 
-  if (num == NULL)
+  if (num == nullptr)
     edm::LogWarning("EmDQMPostProcessor") << "numerator histogram " << numName << " does not exist";
 
-  if (denom == NULL)
+  if (denom == nullptr)
     edm::LogWarning("EmDQMPostProcessor") << "denominator histogram " << denomName << " does not exist";
 
   // Check if histograms actually exist
 
-  if(!num || !denom) return 0;
+  if(num ==nullptr || denom == nullptr) return nullptr;
 
   MonitorElement* meOut = ibooker.bookProfile(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),0.,1.2);
   meOut->setEfficiencyFlag();
@@ -356,17 +366,48 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore
 
   return out;
 }
-
 //----------------------------------------------------------------------
+TH2F* EmDQMPostProcessor::dividehistos2D(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& numName, const std::string& denomName, const std::string& outName,const std::string& label,const std::string& titel){
+  //std::cout << numName <<std::endl;
+  TH2F* num = get2DHistogram(ibooker,igetter,numName);
+  //std::cout << denomName << std::endl;
+  TH2F* denom = get2DHistogram(ibooker,igetter, denomName);
+  if (num == nullptr)
+    edm::LogWarning("EmDQMPostProcessor") << "2D numerator histogram " << numName << " does not exist";
 
-TH1F *
-EmDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath)
-{
+  if (denom == nullptr)
+    edm::LogWarning("EmDQMPostProcessor") << "2D denominator histogram " << denomName << " does not exist";
+
+  // Check if histograms actually exist
+  if(num == nullptr || denom == nullptr) return nullptr;
+
+  MonitorElement* meOut = ibooker.book2D(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),num->GetYaxis()->GetNbins(),num->GetYaxis()->GetXmin(),num->GetYaxis()->GetXmax());
+  TH2F* out= meOut->getTH2F();
+  out->Add(num);
+  out->Divide(denom);
+  out->GetXaxis()->SetTitle(label.c_str());
+  out->SetYTitle("#phi");
+  out->SetXTitle("#eta");
+  out->SetOption("COLZ");
+  out->SetStats(kFALSE);
+
+  return out;
+}
+//--------------------
+TH1F *EmDQMPostProcessor::getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath){
   MonitorElement *monElement = igetter.get(histoPath);
-  if (monElement != NULL)
+  if (monElement != nullptr)
     return monElement->getTH1F();
   else
-    return NULL;
+    return nullptr;
+}
+//----------------------------------------------------------------------
+TH2F *EmDQMPostProcessor::get2DHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath){
+  MonitorElement *monElement = igetter.get(histoPath);
+  if (monElement != nullptr)
+    return monElement->getTH2F();
+  else
+    return nullptr;
 }
 
 //----------------------------------------------------------------------

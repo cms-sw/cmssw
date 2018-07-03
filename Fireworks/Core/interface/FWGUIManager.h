@@ -21,7 +21,6 @@
 // system include files
 #include <map>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
@@ -108,12 +107,12 @@ public:
                 const FWViewManagerManager* iVMMgr,
                 FWNavigatorBase* navigator);
 
-   virtual ~FWGUIManager();
+   ~FWGUIManager() override;
    void     evePreTerminate();
    
    //configuration management interface
-   void addTo(FWConfiguration&) const;
-   void setFrom(const FWConfiguration&);
+   void addTo(FWConfiguration&) const override;
+   void setFrom(const FWConfiguration&) override;
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
    void initEmpty();
 
@@ -153,7 +152,8 @@ public:
    
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
-   static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
+   fireworks::Context*  getContext() { return m_context; }
+   static TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
    
    // ---------- member functions ---------------------------
    //have to use the portable syntax else the reflex code will not build
@@ -161,7 +161,7 @@ public:
                             ViewBuildFunctor& iBuilder);
    
    
-   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = 0);
+   ViewMap_i createView(const std::string& iName, TEveWindowSlot* slot = nullptr);
    void newViewSlot(const std::string& iName);
    
    void connectSubviewAreaSignals(FWGUISubviewArea*);
@@ -219,8 +219,8 @@ public:
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
    
 private:
-   FWGUIManager(const FWGUIManager&);    // stop default
-   const FWGUIManager& operator=(const FWGUIManager&);    // stop default
+   FWGUIManager(const FWGUIManager&) = delete;    // stop default
+   const FWGUIManager& operator=(const FWGUIManager&) = delete;    // stop default
       
    TEveWindow* getSwapCandidate();
    

@@ -1,5 +1,5 @@
-#ifndef Validation_DTSegment2DSLPhi_H
-#define Validation_DTSegment2DSLPhi_H
+#ifndef Validation_DTRecHits_DTSegment2DSLPhiQuality_h
+#define Validation_DTRecHits_DTSegment2DSLPhiQuality_h
 
 /** \class DTSegment2DSLPhiQuality
  *  Basic analyzer class which accesses 2D DTSegments reconstructed with both SL Phi
@@ -8,19 +8,15 @@
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "Histograms.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TStyle.h"
-#include <vector>
 #include <map>
 #include <string>
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include <vector>
 
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace edm {
   class ParameterSet;
@@ -28,54 +24,42 @@ namespace edm {
   class EventSetup;
 }
 
-class TFile;
+class HRes2DHit;
+class HEff2DHit;
+namespace dtsegment2dsl {
+  struct Histograms;
+}
 
-class DTSegment2DSLPhiQuality : public edm::EDAnalyzer {
+class DTSegment2DSLPhiQuality : public DQMGlobalEDAnalyzer<dtsegment2dsl::Histograms> {
 public:
   /// Constructor
   DTSegment2DSLPhiQuality(const edm::ParameterSet& pset);
 
-  /// Destructor
-  virtual ~DTSegment2DSLPhiQuality();
-
-  // Operations
+private:
+  /// Book the DQM plots
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, dtsegment2dsl::Histograms &) const override;
 
   /// Perform the real analysis
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, dtsegment2dsl::Histograms const&) const override;
 
-  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
-
-  // Write the histos to file
-  void endJob();
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					   edm::EventSetup const& c);
-
-
-protected:
-
-private: 
-
-  // The file which will store the histos
-  //TFile *theFile;
-  // Switch for debug output
-  bool debug;
-  // Root file name
-  std::string rootFileName;
-  //Labels to read from event
-  edm::InputTag simHitLabel;
-  edm::InputTag segment4DLabel;
+private:
+  // Labels to read from event
+  edm::InputTag simHitLabel_;
+  edm::InputTag segment4DLabel_;
   edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
   edm::EDGetTokenT<DTRecSegment4DCollection> segment4DToken_;
-  //Sigma resolution on position
-  double sigmaResPos;
-  //Sigma resolution on angle
-  double sigmaResAngle;
 
-  HRes2DHit *h2DHitSuperPhi;
-  HEff2DHit *h2DHitEff_SuperPhi;
-  DQMStore* dbe_;
-  bool doall;
-  bool local;
-  //  TStyle * mystyle;
+  // Sigma resolution on position
+  double sigmaResPos_;
+
+  // Sigma resolution on angle
+  double sigmaResAngle_;
+
+  bool doall_;
+  bool local_;
+
+  // Switch for debug output
+  bool debug_;
 };
-#endif
+
+#endif // Validation_DTRecHits_DTSegment2DSLPhiQuality_h

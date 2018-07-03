@@ -7,7 +7,7 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include <math.h>
+#include <cmath>
 
 //#include <iostream>
 

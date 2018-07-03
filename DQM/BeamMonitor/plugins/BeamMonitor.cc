@@ -32,31 +32,42 @@ V00-03-25
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>
+#include <ctime>
 
 using namespace std;
 using namespace edm;
 
-const char * BeamMonitor::formatFitTime( const time_t & t )  {
+void BeamMonitor::formatFitTime(char *ts, const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  static char ts[] = "yyyy-Mm-dd hh:mm:ss";
+  //tm * ptm;
+  //ptm = gmtime ( &t );
+  //int year = ptm->tm_year;
+ 
+  //get correct year from ctime
+  time_t currentTime;
+  struct tm *localTime;
+  time( &currentTime );                   // Get the current time
+  localTime = localtime( &currentTime );  // Convert the current time to the local time
+  int year   = localTime->tm_year + 1900;
+
   tm * ptm;
   ptm = gmtime ( &t );
-  int year = ptm->tm_year;
+
  //check if year is ok
  if (year <= 37) year += 2000;                                                        
  if (year >= 70 && year <= 137) year += 1900;                                         
              
   if (year < 1995){                                                                   
         edm::LogError("BadTimeStamp") << "year reported is " << year <<" !!"<<std::endl;
-        year = 2015; //overwritten later by BeamFitter.cc for fits but needed here for TH1
-        edm::LogError("BadTimeStamp") << "Resetting to " <<year<<std::endl;
+        //year = 2015; //overwritten later by BeamFitter.cc for fits but needed here for TH1
+        //edm::LogError("BadTimeStamp") << "Resetting to " <<year<<std::endl;
       } 
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 
@@ -64,8 +75,6 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
   unsigned int b = strlen(ts);
   while (ts[--b] == ' ') {ts[b] = 0;}
 #endif
-  return ts;
-
 }
 
 #define buffTime (23)
@@ -430,7 +439,8 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   ftimestamp = r.beginTime().value();
   tmpTime = ftimestamp >> 32;
   startTime = refTime =  tmpTime;
-  const char* eventTime = formatFitTime(tmpTime);
+  char eventTime[64];
+  formatFitTime(eventTime, tmpTime);
   std::cout << "TimeOffset = " << eventTime << std::endl;
   TDatime da(eventTime);
   if (debug_) {
@@ -494,11 +504,12 @@ if(nthlumi > nextlumi_){
      map<int, std::time_t>::iterator itbstime=mapBeginBSTime.begin();
      map<int, std::time_t>::iterator itpvtime=mapBeginPVTime.begin();
 
+    if(processed_){// otherwise if false then LS range of fit get messed up because we don't remove trk/pvs but we remove LS begin value . This prevent it as it happened if LS is there but no event are processed for some reason
      mapBeginBSLS.erase(itbs);
      mapBeginPVLS.erase(itpv);
      mapBeginBSTime.erase(itbstime);
      mapBeginPVTime.erase(itpvtime);
-
+     } 
             /*//not sure if want this or not ??
             map<int, int>::iterator itgapb=mapBeginBSLS.begin();
             map<int, int>::iterator itgape=mapBeginBSLS.end(); itgape--;
@@ -608,7 +619,7 @@ void BeamMonitor::analyze(const Event& iEvent,
   if(iEvent.getByToken(hltSrc_, triggerResults)){
      const edm::TriggerNames & trigNames = iEvent.triggerNames(*triggerResults); 
       for (unsigned int i=0; i< triggerResults->size(); i++){
-           std::string trigName = trigNames.triggerName(i);
+           const std::string& trigName = trigNames.triggerName(i);
 
          if(JetTrigPass) continue;
 
@@ -1025,7 +1036,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
    //---Fix for Cut Flow Table for Running average in a same way//the previous code  has problem for resetting!!!
    mapLSCF[countLumi_] = *theBeamFitter->getCutFlow();
-   if(StartAverage_ && mapLSCF.size()){
+   if(StartAverage_ && !mapLSCF.empty()){
      const TH1F& cutFlowToSubtract = mapLSCF.begin()->second;
      // Subtract the last cut flow from all of the others.
      std::map<int, TH1F>::iterator cf = mapLSCF.begin();
@@ -1379,7 +1390,8 @@ void BeamMonitor::endJob(const LuminosityBlock& lumiSeg,
 
 //--------------------------------------------------------
 void BeamMonitor::scrollTH1(TH1 * h, time_t ref) {
-  const char* offsetTime = formatFitTime(ref);
+  char offsetTime[64];
+  formatFitTime(offsetTime, ref);
   TDatime da(offsetTime);
   if (lastNZbin > 0) {
     double val = h->GetBinContent(lastNZbin);

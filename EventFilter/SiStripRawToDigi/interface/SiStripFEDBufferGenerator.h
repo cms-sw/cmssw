@@ -32,7 +32,7 @@ namespace sistrip {
         //get the 10bit value to be used for raw modes
         uint16_t getSample(const uint16_t sampleNumber) const;
         //get the 8 bit value to be used for ZS modes, converting it as the FED does if specified in constructor
-        uint8_t get8BitSample(const uint16_t sampleNumber) const;
+        uint8_t get8BitSample(const uint16_t sampleNumber, uint16_t nBotBitsToDrop) const;
         uint16_t get10BitSample(const uint16_t sampleNumber) const;
         void setSample(const uint16_t sampleNumber, const uint16_t adcValue);
         //setting value directly is equivalent to get and set Sample but without length check
@@ -82,21 +82,21 @@ namespace sistrip {
       //If a channel is disabled then it is considered to have all zeros in the data but will be present in the data
       FEDBufferPayloadCreator(const std::vector<bool>& enabledFEUnits, const std::vector<bool>& enabledChannels);
       //create the payload for a particular mode
-      FEDBufferPayload createPayload(const FEDReadoutMode mode, const FEDStripData& data) const;
-      FEDBufferPayload operator () (const FEDReadoutMode mode, const FEDStripData& data) const;
+      FEDBufferPayload createPayload(FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const;
+      FEDBufferPayload operator () (FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const;
     private:
       //fill vector with channel data
-      void fillChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDReadoutMode mode,
+      void fillChannelBuffer(std::vector<uint8_t>* channelBuffer, FEDReadoutMode mode, uint8_t packetCode,
                              const FEDStripData::ChannelData& data, const bool channelEnabled) const;
       //fill the vector with channel data for raw mode
       void fillRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode,
                                 const FEDStripData::ChannelData& data, const bool channelEnabled, const bool reorderData) const;
       //fill the vector with channel data for zero suppressed modes
-      void fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
-      void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
-       void fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
+      void fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
+      void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled, const FEDReadoutMode mode) const;
+      void fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
      //add the ZS cluster data for the channel to the end of the vector
-      void fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
+      void fillClusterData(std::vector<uint8_t>* channelBuffer, uint8_t packetCode, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const;
       void fillClusterDataPreMixMode(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
       std::vector<bool> feUnitsEnabled_;
       std::vector<bool> channelsEnabled_;
@@ -113,8 +113,7 @@ namespace sistrip {
                          const FEDReadoutMode readoutMode = READOUT_MODE_ZERO_SUPPRESSED,
                          const FEDHeaderType headerType = HEADER_TYPE_FULL_DEBUG,
                          const FEDBufferFormat bufferFormat = BUFFER_FORMAT_OLD_SLINK,
-                         const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS,
-                         const FEDDataType dataType = DATA_TYPE_FAKE);
+                         const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
       //methods to get and set the defaults
       uint32_t getL1ID() const;
       uint16_t getBXID() const;
@@ -122,14 +121,12 @@ namespace sistrip {
       FEDHeaderType getHeaderType() const;
       FEDBufferFormat getBufferFormat() const;
       FEDDAQEventType getDAQEventType() const;
-      FEDDataType getFEDDataType() const;
       FEDBufferGenerator& setL1ID(const uint32_t newL1ID);
       FEDBufferGenerator& setBXID(const uint16_t newBXID);
       FEDBufferGenerator& setReadoutMode(const FEDReadoutMode newReadoutMode);
       FEDBufferGenerator& setHeaderType(const FEDHeaderType newHeaderType);
       FEDBufferGenerator& setBufferFormat(const FEDBufferFormat newBufferFormat);
       FEDBufferGenerator& setDAQEventType(const FEDDAQEventType newDAQEventType);
-      FEDBufferGenerator& setFEDDataType(const FEDDataType newFEDDataType);
       //disabled FE units produce no data at all
       //disabled channels have headers but data is all zeros (raw modes) or have no clusters (ZS)
       bool getFEUnitEnabled(const uint8_t internalFEUnitNumber) const;
@@ -149,7 +146,8 @@ namespace sistrip {
       //FEDRawData object will be resized to fit buffer and filled
       void generateBuffer(FEDRawData* rawDataObject,
                           const FEDStripData& data,
-                          const uint16_t sourceID) const;
+                          uint16_t sourceID,
+                          uint8_t packetCode) const;
     private:
       //method to fill buffer at pointer from pre generated components (only the length and CRC will be changed)
       //at least bufferSizeInBytes(feHeader,payload) must have already been allocated
@@ -234,11 +232,13 @@ namespace sistrip {
     return data_[sampleNumber];
   }
   
-  inline uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber) const
+  inline uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber, uint16_t nBotBitsToDrop) const
   {
-    if (dataIs8Bit_) return (0xFF & getSample(sampleNumber));
+    uint16_t sample = getSample(sampleNumber) >> nBotBitsToDrop;
+    if (dataIs8Bit_) {
+      return (0xFF & sample);
+    }
     else {
-      const uint16_t sample = getSample(sampleNumber);
       if (sample < 0xFE) return sample;
       else if (sample == 0x3FF) return 0xFF;
       else return 0xFE;
@@ -293,9 +293,9 @@ namespace sistrip {
       channelsEnabled_(channelsEnabled)
     {}
   
-  inline FEDBufferPayload FEDBufferPayloadCreator::operator () (const FEDReadoutMode mode, const FEDStripData& data) const
+  inline FEDBufferPayload FEDBufferPayloadCreator::operator () (FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const
     {
-      return createPayload(mode,data);
+      return createPayload(mode, packetCode, data);
     }
   
   //FEDBufferGenerator
@@ -328,11 +328,6 @@ namespace sistrip {
   inline FEDDAQEventType FEDBufferGenerator::getDAQEventType() const
     {
       return defaultDAQHeader_.eventType();
-    }
-  
-  inline FEDDataType FEDBufferGenerator::getFEDDataType() const
-    {
-      return defaultTrackerSpecialHeader_.dataType();
     }
   
   inline FEDBufferGenerator& FEDBufferGenerator::setL1ID(const uint32_t newL1ID)
@@ -368,12 +363,6 @@ namespace sistrip {
   inline FEDBufferGenerator& FEDBufferGenerator::setDAQEventType(const FEDDAQEventType newDAQEventType)
     {
       defaultDAQHeader_.setEventType(newDAQEventType);
-      return *this;
-    }
-  
-  inline FEDBufferGenerator& FEDBufferGenerator::setFEDDataType(const FEDDataType newFEDDataType)
-    {
-      defaultTrackerSpecialHeader_.setDataType(newFEDDataType);
       return *this;
     }
   

@@ -14,7 +14,7 @@
 MuonChamberResidual::MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                          AlignableNavigator *navigator, 
                                          DetId chamberId,
-                                         const AlignableDetOrUnitPtr& chamberAlignable):
+                                         AlignableDetOrUnitPtr chamberAlignable):
     m_globalGeometry(globalGeometry)
   , m_navigator(navigator)
   , m_chamberId(chamberId)
@@ -36,6 +36,8 @@ MuonChamberResidual::MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> g
   , m_segdydz(-999.)
   , m_segx(-999.)
   , m_segy(-999.)
+  , m_ChambW(-999)
+  , m_Chambl(-999)
 {}
 
 

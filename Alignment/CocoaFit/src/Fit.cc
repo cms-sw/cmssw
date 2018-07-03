@@ -8,7 +8,7 @@
 
 #include <cstdlib>
 #include <iomanip>
-#include <cmath>
+#include <cmath>  // among others include also floating-point std::abs functions
 #include <ctime>
 #include <set>
 
@@ -38,7 +38,7 @@
 #include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
 
  
-Fit* Fit::instance = 0;
+Fit* Fit::instance = nullptr;
 
 ALIMatrix* Fit::AMatrix;
 ALIMatrix* Fit::AtMatrix;
@@ -110,7 +110,7 @@ void Fit::startFit()
     NTmgr->BookNtuple();
   }
 
-  ALIUtils::setFirstTime( 1 );
+  ALIUtils::setFirstTime( true );
 
   WriteVisualisationFiles();
 
@@ -148,30 +148,30 @@ void Fit::startFit()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 {
-  if( Model::getFittedEntriesReader() != 0 ) Model::getFittedEntriesReader()->readFittedEntriesFromFile();
+  if( Model::getFittedEntriesReader() != nullptr ) Model::getFittedEntriesReader()->readFittedEntriesFromFile();
 
   //----- Reset coordinates to those read at the start
   std::vector< OpticalObject* >::iterator voite;
-  for( voite = Model::OptOList().begin(); voite !=  Model::OptOList().end(); voite++ ) {
+  for( voite = Model::OptOList().begin(); voite !=  Model::OptOList().end(); ++voite ) {
     (*voite)->resetOriginalOriginalCoordinates();
   }
   
   //----- Reset entries displacements to 0.
   std::vector< Entry* >::iterator veite;
-  for( veite = Model::EntryList().begin(); veite !=  Model::EntryList().end(); veite++ ) {    
+  for( veite = Model::EntryList().begin(); veite !=  Model::EntryList().end(); ++veite ) {    
     (*veite)->resetValueDisplacementByFitting();
   }
   
   
-  ALIbool lastEvent = 0;
+  ALIbool lastEvent = false;
   
   //-    DeviationsFromFileSensor2D::setApply( 1 );
   
   //m  ALIbool moreDataSets = Model::readMeasurementsFromFile( Measurement::only1Date, Measurement::only1Time );
   
   //----- Check if there are more data sets
-  ALIbool moreDataSets = 1;
-  if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
+  ALIbool moreDataSets = true;
+  if(CocoaDaqReader::GetDaqReader() != nullptr) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
   
   if(ALIUtils::debug >= 5)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ More Data Sets to be processed: " << moreDataSets << std::endl;
   
@@ -300,10 +300,10 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     
     //---- If no measurement file, break after looping once
     //-      std::cout << " Measurement::measurementsFileName() " << Measurement::measurementsFileName() << " Measurement::measurementsFileName()" <<std::endl;
-    if( CocoaDaqReader::GetDaqReader() == 0 ) {
+    if( CocoaDaqReader::GetDaqReader() == nullptr ) {
       //m    if( Measurement::measurementsFileName() == "" ) {
   if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : only one measurement " << nEvent << std::endl;
-      lastEvent = 1;
+      lastEvent = true;
       return !lastEvent;
     }
     
@@ -311,19 +311,19 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     if( Measurement::only1 ) {
       if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : 'Measurement::only1'  is set" << std::endl;
 
-      lastEvent = 1;
+      lastEvent = true;
       return !lastEvent;
     }
 
     if(GlobalOptionMgr::getInstance()->GlobalOptions()["maxEvents"] <= nEvent ){
       if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : 'Number of events exhausted " << nEvent << std::endl;
 
-      lastEvent = 1;
+      lastEvent = true;
       return !lastEvent;
     }
 
   } else {
-    lastEvent = 1;
+    lastEvent = true;
     if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ??no more data sets' " << nEvent << std::endl;
     return !lastEvent;
   }
@@ -372,7 +372,7 @@ void Fit::setFittableEntries()
 
   int No_entry_to_fit = 0;
   for ( vecite = Model::EntryList().begin();
-       vecite != Model::EntryList().end(); vecite++ ) {  
+       vecite != Model::EntryList().end(); ++vecite ) {  
 
     // Number the parameters that are going to be fitted
       if ( (*vecite)->quality() >= theMinimumEntryQuality ) {
@@ -398,7 +398,7 @@ FitQuality Fit::fitParameters( const double daFactor )
 
   //---- Get chi2 of first iteration
   if( Model::getCocoaStatus() == COCOA_FirstIterationInEvent ) {
-    thePreviousIterationFitQuality = GetSChi2( 0 );
+    thePreviousIterationFitQuality = GetSChi2( false );
 
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
     if (gomgr->GlobalOptions()[ ALIstring("stopAfter1stIteration") ] == 1) {
@@ -504,7 +504,7 @@ void Fit::PropagateErrors()
   if(ALIUtils::debug >= 0) std::cout << "TIME:MAT_MULTIPLIED : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
-  if( ALIUtils::getFirstTime() == 1) ALIUtils::setFirstTime( 0 );
+  if( ALIUtils::getFirstTime() == 1) ALIUtils::setFirstTime( false );
 
 }
 
@@ -517,19 +517,19 @@ void Fit::calculateSimulatedMeasurementsWithOriginalValues()
   //  if( ALIUtils::debug >= 4) OpticalObjectMgr::getInstance()->dumpOptOs();
 
   //---------- Set DeviationsFromFileSensor2D::apply true
-  DeviationsFromFileSensor2D::setApply( 1 );
+  DeviationsFromFileSensor2D::setApply( true );
 
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::calculateSimulatedMeasurementsWithOriginalValues" <<std::endl;
   //---------- Loop Measurements
   std::vector< Measurement* >::const_iterator vmcite;
-  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
+  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite) {
     //----- Calculate Simulated Value Original
     (*vmcite)->calculateOriginalSimulatedValue();
   }
 
   //---------- Set DeviationsFromFileSensor2D::apply false
   // It cannot be applied when calculating derivatives, because after a displacement the laser could hit another square in matrix and then cause a big step in the derivative
-  DeviationsFromFileSensor2D::setApply( 0 );
+  DeviationsFromFileSensor2D::setApply( false );
 
 }
 
@@ -561,7 +561,7 @@ void Fit::CreateMatrices()
   ALIint NoMeas = 0;
   std::vector< Measurement* >::const_iterator vmcite;
   for ( vmcite = Model::MeasurementList().begin();
-    vmcite != Model::MeasurementList().end(); vmcite++ ) {
+    vmcite != Model::MeasurementList().end(); ++vmcite ) {
     NoMeas += (*vmcite)->dim();
   }
   if( ALIUtils::debug >= 9) std::cout << "NOMEAS" << NoMeas << std::endl;
@@ -576,7 +576,7 @@ void Fit::CreateMatrices()
     if( ALIUtils::debug >= 5 ) std::cout << " Count number of 'cal'ibrated parameters " << std::endl;
     std::vector< Entry* >::iterator veite;
     for ( veite = Model::EntryList().begin();
-          veite != Model::EntryList().end(); veite++ ) {
+          veite != Model::EntryList().end(); ++veite ) {
       if ( (*veite)->quality() == 1 ) nEnt_cal++; 
       noent++;
       if( ALIUtils::debug >= 6) {
@@ -590,7 +590,7 @@ void Fit::CreateMatrices()
   ALIint NoParamFit = 0;
   std::vector<Entry*>::const_iterator vecite;    
   for ( vecite = Model::EntryList().begin();  
-	vecite != Model::EntryList().end(); vecite++) { 
+	vecite != Model::EntryList().end(); ++vecite) { 
     if ( (*vecite)->quality() >= theMinimumEntryQuality ) {
       NoParamFit++;
       if( ALIUtils::debug >= 99) std::cout <<(*vecite)->quality() << (*vecite)->OptOCurrent()->name() << (*vecite)->name() << "NoParamFit" << NoParamFit << std::endl;
@@ -633,7 +633,7 @@ void Fit::FillMatricesWithMeasurements()
   std::vector<Measurement*>::const_iterator vmcite;
   std::vector<Entry*>::const_iterator vecite;
   for ( vmcite = Model::MeasurementList().begin();
-	vmcite != Model::MeasurementList().end(); vmcite++) {
+	vmcite != Model::MeasurementList().end(); ++vmcite) {
     if( ALIUtils::debug >= 5 ) std::cout << "FillMatricesWithMeasurements: measurement " << (*vmcite)->name() << " # entries affecting " <<(*vmcite)->affectingEntryList().size() << std::endl;
 
     //-------- Array of derivatives with respect to entries
@@ -645,7 +645,7 @@ void Fit::FillMatricesWithMeasurements()
     //------ Loop only Entries affecting this Measurement
     //-std::cout << "number affecting entries: " << (*vmcite)->affectingEntryList().size() << std::endl;
     for ( vecite = (*vmcite)->affectingEntryList().begin();  
-	  vecite != (*vmcite)->affectingEntryList().end(); vecite++) { 
+	  vecite != (*vmcite)->affectingEntryList().end(); ++vecite) { 
       //-------- If good quality, get derivative of measurement with respect to this Entry
       if ( (*vecite)->quality() >= theMinimumEntryQuality ) {
 	if ( ALIUtils::debug >= 4) {
@@ -714,7 +714,7 @@ void Fit::FillMatricesWithCalibratedParameters()
   ALIint NolinMes = 0;
   std::vector<Measurement*>::const_iterator vmcite;
   for ( vmcite = Model::MeasurementList().begin();
-       vmcite != Model::MeasurementList().end(); vmcite++) {
+       vmcite != Model::MeasurementList().end(); ++vmcite) {
       NolinMes += (*vmcite)->dim();
   }
   if(ALIUtils::debug>=4) std::cout << "@@FillMatricesWithCalibratedParameters" << std::endl;
@@ -723,7 +723,7 @@ void Fit::FillMatricesWithCalibratedParameters()
   ALIint nEntcal = 0;
   //---------- Loop entries 
   for ( vecite = Model::EntryList().begin();
-	vecite != Model::EntryList().end(); vecite++ ) {
+	vecite != Model::EntryList().end(); ++vecite ) {
 //                  (= No parameters to be fitted - No parameters 'unk' )
     //-    std::cout << "entry" << (*veite) << std::endl;
     //----- Take entries of quality = 'cal' 
@@ -870,7 +870,7 @@ void Fit::multiplyMatrices()
   ALIint nEnt = 0;
   ALIint nEntUnk = 0;
   for ( vecite = Model::EntryList().begin();
-    vecite != Model::EntryList().end(); vecite++ ) {
+    vecite != Model::EntryList().end(); ++vecite ) {
 //------------------ Number of parameters 'cal' 
 //                  (= No parameters to be fitted - No parameters 'unk' )
     if( (*vecite)->quality() >= theMinimumEntryQuality ){
@@ -901,7 +901,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::getFitQuality" << std::endl;
 
-  double fit_quality = GetSChi2(1);
+  double fit_quality = GetSChi2(true);
 
   //---------- Calculate DS = Variable to recognize convergence (distance to minimum)
   ALIMatrix* DatMatrix = new ALIMatrix( *DaMatrix );
@@ -932,7 +932,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   //  delete yfMatrix; //op
 
   ALIdouble fit_quality_cut = (*DSMat)(0,0);  
-  //-  ALIdouble fit_quality_cut =fabs( (*DSMat)(0,0) );  
+  //-  ALIdouble fit_quality_cut =std::abs( (*DSMat)(0,0) );
   delete DSMat;
   if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
   if( ALIUtils::report >= 2 ) {
@@ -961,7 +961,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 
   //----- Chi2 is smaller, check if we make another iteration    
   } else {
-    ALIdouble rel_fit_quality = fabs(thePreviousIterationFitQuality - fit_quality)/fit_quality;
+    ALIdouble rel_fit_quality = std::abs(thePreviousIterationFitQuality - fit_quality)/fit_quality;
    //----- Small chi2 change: end
     if( (fit_quality_cut < theFitQualityCut || rel_fit_quality < theRelativeFitQualityCut ) && canBeGood ) {
       if(ALIUtils::debug >= 2) std::cout << "$$ Fit::getFitQuality good " << fit_quality_cut << " <? " << theFitQualityCut 
@@ -1001,7 +1001,7 @@ ALIdouble Fit::GetSChi2( ALIbool useDa )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::GetSChi2  useDa= " << useDa << std::endl;
 
-  ALIMatrix* SMat = 0;
+  ALIMatrix* SMat = nullptr;
   if( useDa ){
     //----- Calculate variables to check quality of this set of parameters
     
@@ -1080,7 +1080,7 @@ void Fit::addDaMatrixToEntries()
   ALIint nEnt = 0;
   std::vector<Entry*>::const_iterator vecite; 
   for ( vecite = Model::EntryList().begin();
-    vecite != Model::EntryList().end(); vecite++ ) {
+    vecite != Model::EntryList().end(); ++vecite ) {
 //------------------ Number of parameters 'cal' 
 //                  (= No parameters to be fitted - No parameters 'unk' )
     //-   std::cout << "qual" << (*vecite)->quality() << theMinimumEntryQuality << std::endl;
@@ -1124,7 +1124,7 @@ void Fit::substractLastDisplacementToEntries( const ALIdouble factor )
   }
 
   std::vector<Entry*>::const_iterator vecite; 
-  for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); vecite++ ) {
+  for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); ++vecite ) {
     if ( (*vecite)->quality() >= theMinimumEntryQuality ){
       //--     (*vecite)->addFittedDisplacementToValue( -(*DaMatrix)(nEnt,0) );!!! it is not substracting the new value of DaMatrix, but substracting the value that was added last iteration, with which the new value of DaMatrix has been calculated for this iteration
 
@@ -1172,7 +1172,7 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors, ALIbool pr
   //  const Entry* entry;
   int ii, siz;
   std::vector< OpticalObject* >::const_iterator vocite;
-  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); vocite++ ) {
+  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite ) {
     if( (*vocite)->type() == ALIstring("system") ) continue;
 
     fileout << " %%%% Optical Object: " << (*vocite)->longName() << std::endl;
@@ -1231,7 +1231,7 @@ void Fit::dumpFittedValuesInAllAncestorFrames( ALIFileOut& fileout, ALIbool prin
   //---------- Iterate over OptO list
   std::vector< Entry* > entries;
   std::vector< OpticalObject* >::const_iterator vocite;
-  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); vocite++ ) {
+  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite ) {
     if( (*vocite)->type() == ALIstring("system") ) continue;
 
     fileout << " %%%% Optical Object: " << (*vocite)->longName() << std::endl;
@@ -1303,7 +1303,13 @@ double Fit::getEntryValue( const Entry* entry )
   double entryvalue;
   if( entry->type() == "angles") {
     if(ALIUtils::debug >= 2 ) std::cout << "WARNING valueDisplacementByFitting has no sense for angles "  << std::endl;
-    entryvalue = -999;
+
+    // commenting out the following line as it is a dead assignment due to the
+    // subsequent assignment below
+    // -> silence static analyzer warnings, but leaving the commented line in
+    //    case someone wants to actively use this code again
+
+    // entryvalue = -999;
   }
   entryvalue = ( entry->value() + entry->valueDisplacementByFitting() ) / entry->OutputValueDimensionFactor();
   return entryvalue;
@@ -1348,7 +1354,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, double ent
 
     if( ALIUtils::report >= 2) {
       float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
-      if( fabs(dif) < 1.E-9 ) dif = 0.;
+      if( std::abs(dif) < 1.E-9 ) dif = 0.;
       fileout << " DIFF= " << dif;
       // << " == " << ( entry->value() + entry->valueDisplacementByFitting() )  / dimv - entryvalue << " @@ " << ( entry->value() + entry->valueDisplacementByFitting() ) / dimv << " @@ " <<  entryvalue;
     } else {
@@ -1373,7 +1379,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
   std::vector< Entry* >::iterator veite1, veite2;
   std::string E1, E2;
   for ( veite1 = Model::EntryList().begin();
-	veite1 != Model::EntryList().end(); veite1++ ) {
+	veite1 != Model::EntryList().end(); ++veite1 ) {
     if( (*veite1)->quality() == 0 ) {
       continue;
     } else if( (*veite1)->quality() == 1 ) {
@@ -1384,7 +1390,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
     i1 = (*veite1)->fitPos();
 
     for ( veite2 = veite1+1;
-	veite2 != Model::EntryList().end(); veite2++ ) {
+	veite2 != Model::EntryList().end(); ++veite2 ) {
       i2 = (*veite2)->fitPos(); 
       if( (*veite2)->quality() == 0 ) {
 	continue;
@@ -1396,7 +1402,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
       ALIdouble corr = AtWAMatrix->Mat()->me[i1][i2];
       ALIdouble corrf = corr / sqrt(AtWAMatrix->Mat()->me[i1][i1])
 	  / sqrt(AtWAMatrix->Mat()->me[i2][i2]);
-      if (fabs(corrf) >= minCorrel ) {
+      if (std::abs(corrf) >= minCorrel ) {
         if(ALIUtils::debug >= 0) {
 	  std::cout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
 	}
@@ -1444,7 +1450,7 @@ ALIint Fit::findEntryFitPosition( const ALIstring& opto_name, const ALIstring& e
   //-  std::cout << "OPTO = " << opto->name() << std::endl;
   std::vector<Entry*>::const_iterator vecite;
   for (vecite = opto->CoordinateEntryList().begin(); 
-       vecite < opto->CoordinateEntryList().end(); vecite++) {
+       vecite < opto->CoordinateEntryList().end(); ++vecite) {
     //-    std::cout << "ENTRYLIST" << (*vecite)->name() << std::endl;
     if ((*vecite)->name() == entry_name ) {
       //-  std::cout << "FOUND " << std::endl;
@@ -1452,7 +1458,7 @@ ALIint Fit::findEntryFitPosition( const ALIstring& opto_name, const ALIstring& e
     }
   }
   for (vecite = opto->ExtraEntryList().begin(); 
-       vecite < opto->ExtraEntryList().end(); vecite++) {
+       vecite < opto->ExtraEntryList().end(); ++vecite) {
     //-    std::cout << "ENTRYLIST" << (*vecite)->name() << std::endl;
     if ((*vecite)->name() == entry_name ) {
       //- std::cout << "FOUND " << std::endl;
@@ -1478,7 +1484,7 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
 
   //----- Calculate the chi2 of measurements
   std::vector< Measurement* >::const_iterator vmcite;
-  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
+  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite) {
     //--- Calculate Simulated Value Original
     for ( ALIuint ii = 0; ii < ALIuint((*vmcite)->dim()); ii++ ){
       nMeas++;
@@ -1493,7 +1499,7 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
   //----- Calculate the chi2 of calibrated parameters
   std::vector< Entry* >::iterator veite;
   for ( veite = Model::EntryList().begin();
-	veite != Model::EntryList().end(); veite++ ) {
+	veite != Model::EntryList().end(); ++veite ) {
     if ( (*veite)->quality() == 2 ) nUnk++;
     if ( (*veite)->quality() == 1 ) {
       double c2 = (*veite)->valueDisplacementByFitting() / (*veite)->sigma();
@@ -1544,12 +1550,12 @@ void Fit::CheckIfFitPossible()
   ALIint NolinMes = 0;
   std::vector<Measurement*>::const_iterator vmcite;
   for ( vmcite = Model::MeasurementList().begin();
-        vmcite != Model::MeasurementList().end(); vmcite++) {
+        vmcite != Model::MeasurementList().end(); ++vmcite) {
     NolinMes += (*vmcite)->dim();
   }
   
   std::vector< Entry* >::const_iterator vecite;
-  for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); vecite++ ) {
+  for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); ++vecite ) {
     if( ALIUtils::debug >= 4 ) std::cout << "Fit::CheckIfFitPossible looping for entry " << (*vecite)->longName() << std::endl;
     if ( (*vecite)->quality() == 2 ) {
       ALIint nCol =  (*vecite)->fitPos();
@@ -1559,7 +1565,7 @@ void Fit::CheckIfFitPossible()
       for( ALIint ii = 0; ii < NolinMes; ii++ ) {
         if( ALIUtils::debug >= 5 ) std::cout << " Derivative= (" << ii << "," << nCol << ") = " << (*AMatrix)(ii,nCol)  << std::endl;
 
-        if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
+        if( std::abs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
           if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
           noDepend = FALSE;
           break;
@@ -1579,10 +1585,10 @@ void Fit::CheckIfFitPossible()
   ALIdouble derivPrec = ALI_DBL_MIN;
   //---------- Loop entries 
   for ( vecite1 = Model::EntryList().begin();
-	vecite1 != Model::EntryList().end(); vecite1++ ) {
+	vecite1 != Model::EntryList().end(); ++vecite1 ) {
     if( (*vecite1)->quality() == 2 ) {
-      vecite2 = vecite1; vecite2++;
-      for ( ;vecite2 != Model::EntryList().end(); vecite2++ ) {
+      vecite2 = vecite1; ++vecite2;
+      for ( ;vecite2 != Model::EntryList().end(); ++vecite2 ) {
 	if( (*vecite2)->quality() == 2 ) { 
 	  ALIint fitpos1 =  (*vecite1)->fitPos();
 	  ALIint fitpos2 =  (*vecite2)->fitPos();
@@ -1591,8 +1597,8 @@ void Fit::CheckIfFitPossible()
           ALIbool isProp = TRUE;
 	  for( ALIint ii = 0; ii < nLin; ii++ ) {
 	    if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (*AMatrix)(ii,fitpos1) << " ?= " << (*AMatrix)(ii,fitpos2) << std::endl;
-            if( fabs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
-	      if( fabs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
+            if( std::abs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
+	      if( std::abs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
 		isProp = FALSE;
 		break;
 	      }
@@ -1626,8 +1632,8 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
   ALIuint biggestColumn = 0;
   ALIdouble biggest = 0.;
   for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
-    if( fabs((*AMatrix)(measNo,ii)) > biggest ) {
-      biggest = fabs((*AMatrix)(measNo,ii));
+    if( std::abs((*AMatrix)(measNo,ii)) > biggest ) {
+      biggest = std::abs((*AMatrix)(measNo,ii));
       biggestColumn = ii;
     }
     columnsEqualSave.insert(ii); 
@@ -1641,7 +1647,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
     // check if ratio of each column to 'biggestColumn' is the same as for the N measurement
     for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
       div = (*AMatrix)(measNo,ii)/(*AMatrix)(measNo,biggestColumn);
-      if( fabs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && fabs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
+      if( std::abs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && std::abs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns = " << ii << " in " << measNo << " & " << jj << std::endl;
       } else {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns != " << ii << " in " << measNo << " & " << jj << std::endl;
@@ -1653,7 +1659,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
       }  
     }
     // check if not all columns have been deleted from columnsEqual
-    if( columnsEqual.size() != 0 ) {
+    if( !columnsEqual.empty() ) {
       if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother " <<  measNo << " = " << jj << std::endl;
       measProp = jj;
       break;
@@ -1672,7 +1678,7 @@ std::string Fit::GetMeasurementName( int imeas )
   std::cout << " imeas " << imeas << std::endl;
   int Aline = 0;  
   std::vector< Measurement* >::const_iterator vmcite;
-  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
+  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); ++vmcite) {
     for ( ALIuint jj = 0; jj < ALIuint((*vmcite)->dim()); jj++) {
       if( Aline == imeas ) {
 	char ctmp[20];

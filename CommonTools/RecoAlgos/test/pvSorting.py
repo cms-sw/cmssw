@@ -12,14 +12,14 @@ process.source = cms.Source("PoolSource",
 #   skipEvents=cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
 #'root://xrootd.ba.infn.it//store/mc/RunIISpring15DR74/WprimeToWZToLLQQ_M-4000_TuneCUETP8M1_13TeV-pythia8/AODSIM/Asympt25ns_MCRUN2_74_V9-v1/10000/126A3AFB-9607-E511-A527-90B11C12EA74.root'
-    'root://xrootd.ba.infn.it//store/mc/RunIISpring15DR74/WprimeToMuNu_M-5800_TuneCUETP8M1_13TeV-pythia8/AODSIM/Asympt50ns_MCRUN2_74_V9A-v2/10000/580F0D5E-760C-E511-A9D6-047D7B881D62.root'
+    'file:///afs/cern.ch/user/a/arizzi/workspace/444C11E2-EAB2-E611-B3D4-B083FED14CE0.root'
 #     'file:../../../00387B2C-4A1C-E511-A4E0-0026189438B3.root'
     )
 )
 
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("Configuration.EventContent.EventContent_cff")
 process.out = cms.OutputModule(
     "PoolOutputModule",

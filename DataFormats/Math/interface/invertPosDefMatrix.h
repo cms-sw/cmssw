@@ -4,8 +4,7 @@
 #define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 #include "Math/CholeskyDecomp.h"
-// #include "DataFormats/Math/interface/CholeskyDecomp.h"
-#include "SIMDVec.h"
+#include<type_traits>
 
 template<typename T,unsigned int N>
 inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & m) {
@@ -18,6 +17,46 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
   return true;
 
 }
+
+template<typename PDM2>
+void fastInvertPDM2(PDM2&mm) {
+  auto m = mm.Array();
+
+  constexpr typename std::remove_reference<decltype(m[0])>::type one = 1.;
+  auto c0 = one/m[0];
+  auto c1 = m[1]*m[1]* c0;
+  auto c2 = one/(m[2] - c1);
+
+  auto li21 = c1 * c0 * c2;
+  m[0] = li21 + c0;
+  m[1] = - m[1]*c0*c2;
+  m[2] = c2;
+}
+
+template<>
+inline bool invertPosDefMatrix<double,1>(ROOT::Math::SMatrix<double,1,1,ROOT::Math::MatRepSym<double,1> > & m) {
+  m(0,0) = 1./m(0,0); 
+  return true;
+}
+template<>
+inline bool invertPosDefMatrix<float,1>(ROOT::Math::SMatrix<float,1,1,ROOT::Math::MatRepSym<float,1> > & m) {
+  m(0,0) = 1.f/m(0,0);
+  return true;
+}
+
+
+template<>
+inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
+  fastInvertPDM2(m); 
+  return true;
+}
+template<>
+inline bool invertPosDefMatrix<float,2>(ROOT::Math::SMatrix<float,2,2,ROOT::Math::MatRepSym<float,2> > & m) {
+  fastInvertPDM2(m); 
+  return true;
+}
+
+
 
 template<typename T,unsigned int N>
 inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > const & mIn,
@@ -32,89 +71,5 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
   return true;
 
 }
-
-
-// here for a test
-#ifdef NEVER
-// #if defined(USE_EXTVECT)
-
-namespace mathSSE {
-  struct M2 {
-    using Vec=Vec4<double>;
-    // the matrix is shuffed
-    Vec mm[2];
-
-    double m00() const { return mm[0][0];}
-    double m01() const { return mm[0][1];}
-    double m11() const { return mm[1][0];}
-    double m10() const { return mm[1][1];}
-
-    double & m00() { return mm[0][0];}
-    double & m01() { return mm[0][1];}
-    double & m11() { return mm[1][0];}
-    double & m10() { return mm[1][1];}
-    
-
-    // load shuffled
-    inline M2(double i00, double i01, double i10, double i11) {
-      m00()=i00; m01()=i01; m11()=i11; m10()=i10; }
-
-    Vec & r0() { return mm[0]; }
-    Vec & r1() { return mm[1]; }
-    
-    Vec const & r0() const { return mm[0]; }
-    Vec const & r1() const { return mm[1]; }
-    
-    
-    // assume second row is already shuffled
-    inline bool invert() {
-      Vec tmp = r1();
-      // mult and sub
-      Vec det  = r0()*tmp;
-      Vec det2{det[1],det[0]};
-      // det  and -det 
-      det -= det2;
-      // m0 /det, m1/-det -> m3, m2
-      r1() = r0()/det;
-      // m3/det, m2/-det -> m0 m1
-      r0() = tmp/det;
-      return (0.!=det[0]);
-    } 
-  
-  };
-}
-
-template<>
-inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & m) {
-  mathSSE::M2 mm(m.Array()[0], m.Array()[1], m.Array()[1], m.Array()[2]);
-
-  bool ok = mm.invert();
-  if (ok) {
-    m.Array()[0] = mm.m00();
-    m.Array()[1] = mm.m01();
-    m.Array()[2] = mm.m11();
-  }
-  return ok;
-}
-
-template<>
-inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > const & mIn,
-				  ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > & mOut) {
- 
-  mathSSE::M2 mm(mIn.Array()[0], mIn.Array()[1], mIn.Array()[1], mIn.Array()[2]);
-
-  bool ok = mm.invert();
-  mOut.Array()[0] = mm.m00();
-  mOut.Array()[1] = mm.m01();
-  mOut.Array()[2] = mm.m11();
-
-  return ok;
-}
-
-
-
-
-#endif
-
 
 #endif

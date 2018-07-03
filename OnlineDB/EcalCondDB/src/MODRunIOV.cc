@@ -11,7 +11,7 @@ using namespace oracle::occi;
 
 MODRunIOV::MODRunIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_runIOV = RunIOV();
   m_subRunNum = 0;
@@ -99,7 +99,7 @@ Tm MODRunIOV::getSubRunEnd() const
 
 
 int MODRunIOV::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -145,7 +145,7 @@ int MODRunIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODRunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODRunIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -154,7 +154,7 @@ int MODRunIOV::fetchID()
 
 
 void MODRunIOV::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -186,14 +186,14 @@ void MODRunIOV::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("MODRunIOV::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("MODRunIOV::setByID:  ")+getOraMessage(&e)));
    }
 }
 
 
 
 int MODRunIOV::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -231,7 +231,7 @@ int MODRunIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODRunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODRunIOV::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -245,7 +245,7 @@ int MODRunIOV::writeDB()
 
 
 void MODRunIOV::fetchParentIDs( int* runIOVID)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // get the RunIOV
   m_runIOV.setConnection(m_env, m_conn);
@@ -260,7 +260,7 @@ void MODRunIOV::fetchParentIDs( int* runIOVID)
 
 
 void MODRunIOV::setByRun( RunIOV* runiov, subrun_t subrun)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -298,7 +298,7 @@ void MODRunIOV::setByRun( RunIOV* runiov, subrun_t subrun)
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODRunIOV::setByRun:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODRunIOV::setByRun:  ")+getOraMessage(&e)));
   }
   
 }

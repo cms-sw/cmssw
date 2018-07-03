@@ -30,7 +30,6 @@
  * Authors :  Evan Friis (UC Davis), Simone Gennai (SNS)
  */
 
-// #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,6 +40,9 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
@@ -60,19 +62,18 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
     // derived!  classes must call the parameterset constructor.
     TauDiscriminationProducerBase();
 
-    virtual ~TauDiscriminationProducerBase(){}
+    ~TauDiscriminationProducerBase() override {}
 
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // called at the beginning of every event - override if necessary.
-    virtual void beginEvent(const edm::Event& evt,
-                            const edm::EventSetup& evtSetup) {}
+    virtual void beginEvent(const edm::Event&, const edm::EventSetup&) {}
 
     // abstract functions implemented in derived classes.
     virtual double discriminate(const TauRef& tau) const = 0;
 
     // called at the end of event processing - override if necessary.
-    virtual void endEvent(edm::Event& evt) {}
+    virtual void endEvent(edm::Event&) {}
 
     struct TauDiscInfo {
       edm::InputTag label;
@@ -108,8 +109,11 @@ class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
 // define our implementations
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator>
   PFTauDiscriminationProducerBase;
+typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>
+  PATTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator>
   CaloTauDiscriminationProducerBase;
+
 
 /// helper function retrieve the correct cfi getter string (ie PFTauProducer)
 //for this tau type
@@ -118,6 +122,6 @@ template<class TauType> std::string getProducerString()
   // this generic one shoudl never be called.
   // these are specialized in TauDiscriminationProducerBase.cc
   throw cms::Exception("TauDiscriminationProducerBase")
-      << "Unsupported TauType used.  You must use either PFTau or CaloTaus.";
+      << "Unsupported TauType used. You must use either PFTau, PATTau or CaloTaus.";
 }
 #endif

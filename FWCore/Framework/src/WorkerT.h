@@ -8,10 +8,10 @@ WorkerT: Code common to all workers.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -22,11 +22,10 @@ namespace edm {
 
   class ModuleCallingContext;
   class ModuleDescription;
-  class ProductHolderIndexAndSkipBit;
+  class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-
-  UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
+  class WaitingTaskWithArenaHolder;
 
   template<typename T>
   class WorkerT : public Worker {
@@ -37,37 +36,47 @@ namespace edm {
             ModuleDescription const&,
             ExceptionToActionTable const* actions);
 
-    virtual ~WorkerT();
+    ~WorkerT() override;
 
     void setModule( std::shared_ptr<T> iModule) {
       module_ = iModule;
       resetModuleDescription(&(module_->moduleDescription()));
     }
     
-    virtual Types moduleType() const override;
+    Types moduleType() const override;
+    
+    bool wantsGlobalRuns() const final;
+    bool wantsGlobalLuminosityBlocks() const final;
+    bool wantsStreamRuns() const final;
+    bool wantsStreamLuminosityBlocks() const final;
 
-    virtual void updateLookup(BranchType iBranchType,
-                              ProductHolderIndexHelper const&) override;
+    SerialTaskQueue* globalRunsQueue() final;
+    SerialTaskQueue* globalLuminosityBlocksQueue() final;
 
+
+    void updateLookup(BranchType iBranchType,
+                              ProductResolverIndexHelper const&) override;
+    void resolvePutIndicies(BranchType iBranchType,
+                                    std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const& iIndicies) override;
 
     template<typename D>
     void callWorkerBeginStream(D, StreamID);
     template<typename D>
     void callWorkerEndStream(D, StreamID);
     template<typename D>
-    void callWorkerStreamBegin(D, StreamID id, RunPrincipal& rp,
+    void callWorkerStreamBegin(D, StreamID id, RunPrincipal const& rp,
                                EventSetup const& c,
                                ModuleCallingContext const* mcc);
     template<typename D>
-    void callWorkerStreamEnd(D, StreamID id, RunPrincipal& rp,
+    void callWorkerStreamEnd(D, StreamID id, RunPrincipal const& rp,
                              EventSetup const& c,
                              ModuleCallingContext const* mcc);
     template<typename D>
-    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal& rp,
+    void callWorkerStreamBegin(D, StreamID id, LuminosityBlockPrincipal const& rp,
                                EventSetup const& c,
                                ModuleCallingContext const* mcc);
     template<typename D>
-    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal& rp,
+    void callWorkerStreamEnd(D, StreamID id, LuminosityBlockPrincipal const& rp,
                              EventSetup const& c,
                              ModuleCallingContext const* mcc);
     
@@ -76,64 +85,85 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDo(EventPrincipal& ep, EventSetup const& c,
+    bool implDo(EventPrincipal const& ep, EventSetup const& c,
                         ModuleCallingContext const* mcc) override;
-    virtual bool implDoPrePrefetchSelection(StreamID id,
-                                            EventPrincipal& ep,
+
+    void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
+    bool implNeedToRunSelection() const final;
+
+    void implDoAcquire(EventPrincipal const& ep, EventSetup const& c,
+                       ModuleCallingContext const* mcc,
+                       WaitingTaskWithArenaHolder& holder) final;
+
+    bool implDoPrePrefetchSelection(StreamID id,
+                                            EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) override;
-    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+    bool implDoBegin(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
+    bool implDoStreamBegin(StreamID id, RunPrincipal const& rp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamEnd(StreamID id, RunPrincipal& rp, EventSetup const& c,
+    bool implDoStreamEnd(StreamID id, RunPrincipal const& rp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) override;
-    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+    bool implDoEnd(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) override;
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    bool implDoBegin(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                              ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    bool implDoStreamBegin(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) override;
-    virtual bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    bool implDoStreamEnd(StreamID id, LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) override;
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    bool implDoEnd(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                            ModuleCallingContext const* mcc) override;
-    virtual void implBeginJob() override;
-    virtual void implEndJob() override;
-    virtual void implBeginStream(StreamID) override;
-    virtual void implEndStream(StreamID) override;
-    virtual void implRespondToOpenInputFile(FileBlock const& fb) override;
-    virtual void implRespondToCloseInputFile(FileBlock const& fb) override;
-    virtual void implPreForkReleaseResources() override;
-    virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
-                                               unsigned int iNumberOfChildren) override;
-    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
-    virtual std::string workerType() const override;
+    void implBeginJob() override;
+    void implEndJob() override;
+    void implBeginStream(StreamID) override;
+    void implEndStream(StreamID) override;
+    void implRespondToOpenInputFile(FileBlock const& fb) override;
+    void implRespondToCloseInputFile(FileBlock const& fb) override;
+    void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
+    std::string workerType() const override;
+    TaskQueueAdaptor serializeRunModule() override;
 
-    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const override {
-      module_->modulesDependentUpon(module_->moduleDescription().processName(),oModuleLabels);
-    }
 
-    virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
                                                  ProductRegistry const& preg,
                                                  std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
       module_->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, module_->moduleDescription().processName());
     }
 
-    virtual std::vector<ConsumesInfo> consumesInfo() const override {
+    void convertCurrentProcessAlias(std::string const& processName) override {
+      module_->convertCurrentProcessAlias(processName);
+    }
+
+    std::vector<ConsumesInfo> consumesInfo() const override {
       return module_->consumesInfo();
     }
 
-    virtual void itemsToGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {
+    void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);
     }
 
-    virtual void itemsMayGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {
+    void itemsMayGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsMayGet(branchType, indexes);
     }
 
-    virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const final { return module_->itemsToGetFrom(iType); }
+    
+    std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
 
-    std::shared_ptr<T> module_;
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override {
+      module_->preActionBeforeRunEventAsync(iTask,iModuleCallingContext,iPrincipal);
+    }
+
+    bool hasAcquire() const override {
+      return module_->hasAcquire();
+    }
+
+    bool hasAccumulator() const override {
+      return module_->hasAccumulator();
+    }
+
+    edm::propagate_const<std::shared_ptr<T>> module_;
   };
 
 }

@@ -1,6 +1,9 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
+#include "FWCore/Utilities/interface/CPUServiceBase.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -9,17 +12,21 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
+#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <spawn.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cmath>
 #include <chrono>
 #include <sstream>
 #include <atomic>
 #include <string>
+#include <set>
 
 namespace edm {
 
@@ -41,7 +48,8 @@ namespace edm {
 
             bool isChirpSupported();
             template<typename T> bool updateChirp(const std::string &key_suffix, const T &value);
-            bool updateChirp(std::string const &key, std::string const &value);
+            bool updateChirpQuoted(const std::string &key_suffix, const std::string &value);
+            bool updateChirpImpl(std::string const &key, std::string const &value);
             inline void update();
             void firstUpdate();
             void lastUpdate();
@@ -248,6 +256,14 @@ CondorStatusService::firstUpdate()
     updateChirp("MaxEvents", "-1");
     updateChirp("MaxLumis", "-1");
     updateChirp("Done", "false");
+
+    edm::Service<edm::CPUServiceBase> cpusvc;
+    std::string models;
+    double avgSpeed;
+    if (cpusvc.isAvailable() && cpusvc->cpuInfo(models, avgSpeed)) {
+        updateChirpQuoted("CPUModels", models);
+        updateChirp("CPUSpeed", avgSpeed);
+    }
 }
 
 
@@ -257,6 +273,10 @@ CondorStatusService::lastUpdate()
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     updateImpl(now - m_lastUpdate);
     updateChirp("Done", "true");
+    edm::Service<edm::CPUServiceBase> cpusvc;
+    if (!cpusvc.isAvailable()) {
+        std::cout << "At post, CPU service is NOT available.\n";
+    }
 }
 
 
@@ -291,6 +311,11 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     time_t jobTime = now-m_beginJob;
 
+    edm::Service<edm::TimingServiceBase> timingsvc;
+    if (timingsvc.isAvailable()) {
+        updateChirp("TotalCPU", timingsvc->getTotalCPU());
+    }
+
     updateChirp("LastUpdate", now);
 
     if (!m_events || (m_events > m_lastEventCount))
@@ -313,8 +338,23 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
         updateChirp("EventRate", m_rate);
     }
 
+    // If Xrootd was used, pull the statistics from there.
+    edm::Service<XrdAdaptor::XrdStatisticsService> xrdsvc;
+    if (xrdsvc.isAvailable()) {
+        for (auto const &iter : xrdsvc->condorUpdate()) {
+            std::string site = iter.first;
+            site.erase(std::remove_if(site.begin(), site.end(),
+                       [](char x){return !isalnum(x) && (x != '_');}),
+                       site.end());
+            auto & iostats = iter.second;
+            updateChirp("IOSite_" + site + "_ReadBytes", iostats.bytesRead);
+            updateChirp("IOSite_" + site + "_ReadTimeMS",
+                        std::chrono::duration_cast<std::chrono::milliseconds>(iostats.transferTime).count());
+        }
+    }
+
     // Update storage account information
-    StorageAccount::StorageStatsSentry stats = StorageAccount::summaryLocked();
+    auto const& stats = StorageAccount::summary();
     uint64_t readOps = 0;
     uint64_t readVOps = 0;
     uint64_t readSegs = 0;
@@ -322,30 +362,31 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     uint64_t readTimeTotal = 0;
     uint64_t writeBytes = 0;
     uint64_t writeTimeTotal = 0;
-    for (const auto & storage : *stats)
+    const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+    for (const auto & storage : stats)
     {
         // StorageAccount records statistics for both the TFile layer and the
         // StorageFactory layer.  However, the StorageFactory statistics tend to
         // be more accurate as various backends may alter the incoming read requests
         // (such as when lazy-download is used).
-        if (storage.first == "tstoragefile") {continue;}
-        for (const auto & counter : *(storage.second))
+        if (storage.first == token.value()) {continue;}
+        for (const auto & counter : storage.second)
         {
-            if (counter.first == "read")
+            if (counter.first == static_cast<int>(StorageAccount::Operation::read))
             {
                 readOps += counter.second.successes;
                 readSegs++;
                 readBytes += counter.second.amount;
                 readTimeTotal += counter.second.timeTotal;
             }
-            else if (counter.first == "readv")
+            else if (counter.first == static_cast<int>(StorageAccount::Operation::readv))
             {
                 readVOps += counter.second.successes;
                 readSegs += counter.second.vector_count;
                 readBytes += counter.second.amount;
                 readTimeTotal += counter.second.timeTotal;
             }
-            else if ((counter.first == "write") || (counter.first == "writev"))
+            else if ((counter.first == static_cast<int>(StorageAccount::Operation::write)) || (counter.first == static_cast<int>(StorageAccount::Operation::writev)))
             {
                 writeBytes += counter.second.amount;
                 writeTimeTotal += counter.second.timeTotal;
@@ -366,12 +407,23 @@ template<typename T> bool
 CondorStatusService::updateChirp(const std::string &key_suffix, const T &value)
 {
     std::stringstream ss; ss << value;
-    return updateChirp(key_suffix, ss.str());
+    return updateChirpImpl(key_suffix, ss.str());
+}
+
+bool
+CondorStatusService::updateChirpQuoted(const std::string &key_suffix, const std::string &value)
+{
+    std::string value_copy = value;
+    // Remove double-quotes or the \ character (as it has special escaping semantics in ClassAds).
+    // Make sure we have ASCII characters.
+    // Otherwise, remainder is allowed (including tabs, newlines, single-quotes).
+    value_copy.erase(remove_if(value_copy.begin(), value_copy.end(), [](const char &c) {return !isascii(c) || (c == '"') || (c == '\\');}), value_copy.end());
+    return updateChirpImpl(key_suffix, "\"" + value_copy + "\"");
 }
 
 
 bool
-CondorStatusService::updateChirp(const std::string &key_suffix, const std::string &value)
+CondorStatusService::updateChirpImpl(const std::string &key_suffix, const std::string &value)
 {
     std::stringstream ss; ss << "ChirpCMSSW" << m_tag << key_suffix;
     std::string key = ss.str();
@@ -393,8 +445,8 @@ CondorStatusService::updateChirp(const std::string &key_suffix, const std::strin
     argv.push_back(set_job_attr.c_str());
     argv.push_back(key.c_str());
     argv.push_back(value.c_str());
-    argv.push_back(NULL);
-    int status = posix_spawnp(&pid, "condor_chirp", &file_actions, NULL, const_cast<char* const*>(&argv[0]), environ);
+    argv.push_back(nullptr);
+    int status = posix_spawnp(&pid, "condor_chirp", &file_actions, nullptr, const_cast<char* const*>(&argv[0]), environ);
     close(devnull_fd);
     posix_spawn_file_actions_destroy(&file_actions);
     if (status)

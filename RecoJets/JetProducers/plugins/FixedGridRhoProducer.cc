@@ -30,8 +30,7 @@ void FixedGridRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    algo = new FixedGridEnergyDensity(pfColl.product());
 
    double result = algo->fixedGridRho(myEtaRegion);
-   std::auto_ptr<double> output(new double(result));
-   iEvent.put(output);
+   iEvent.put(std::make_unique<double>(result));
 
    delete algo;
  

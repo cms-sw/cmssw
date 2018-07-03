@@ -29,14 +29,9 @@ selection is constructed by:
 # PiZeroProducers
 
 pfJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
-
 pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
-pfTauPFJets08Region = recoTauAK4PFJets08Region.clone()
-pfTauPFJets08Region.src = cms.InputTag("ak4PFJets")
 pfTauPFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
-pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
-pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
 pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
@@ -47,7 +42,6 @@ pfTausProducer = hpsPFTauProducer.clone()
 pfTausCombiner = combinatoricRecoTaus.clone()
 pfTausCombiner.jetSrc= cms.InputTag("ak4PFJets")
 pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
-pfTausCombiner.jetRegionSrc='pfTauPFJets08Region'
 pfTausCombiner.chargedHadronSrc='pfTauPFJetsRecoTauChargedHadrons'
 pfTausCombiner.modifiers[3].pfTauTagInfoSrc=cms.InputTag("pfTauTagInfoProducer")
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
@@ -127,7 +121,6 @@ pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVer
 
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
-    pfTauPFJets08Region +
     pfTauPileUpVertices +
     pfTauTagInfoProducer
 )

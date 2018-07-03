@@ -2,7 +2,7 @@
 #define DetPositioner_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 /* A base class for classes which modify the positions/orientations of GeomDets.
  * The derived classes can call the methods moveGeomDet, rotateGeomDet, setGeomDetPosition,

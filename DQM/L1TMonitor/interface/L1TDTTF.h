@@ -36,16 +36,15 @@ class L1TDTTF : public DQMEDAnalyzer {
   L1TDTTF(const edm::ParameterSet& ps);
 
   // Destructor
-  virtual ~L1TDTTF();
+  ~L1TDTTF() override;
 
  protected:
   // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // BeginJob
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
  private:
 
@@ -91,8 +90,7 @@ class L1TDTTF : public DQMEDAnalyzer {
   MonitorElement* dttf_gmt_match;
   MonitorElement* dttf_gmt_missed;
   MonitorElement* dttf_gmt_ghost;
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
+  
   // MonitorElement* dttf_gmt_ghost_phys;
 
   int nev_; // Number of events processed

@@ -19,7 +19,7 @@
 std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks)
 {
   GlobalPoint vtx(0,0,tr->vertex().z());
-  reco::Track::Vector p = tr->momentum();
+  const reco::Track::Vector& p = tr->momentum();
   GlobalVector mom( p.x(), p.y(), p.z() );
   return findIsoTracks(mom,vtx,isoTracks,true);
 }
@@ -29,7 +29,7 @@ std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Trac
 { 
   // Just to insure consistency with no-vertex-code
   GlobalPoint vtx(0,0,zvtx.z());
-  reco::Track::Vector p = tr->momentum();
+  const reco::Track::Vector& p = tr->momentum();
   GlobalVector mom( p.x(), p.y(), p.z() );
   return findIsoTracks(mom,vtx,isoTracks,true);
 }
@@ -37,7 +37,7 @@ std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Trac
 std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track * const tr, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
 {
   GlobalPoint vtx(0,0,tr->vertex().z());
-  reco::Track::Vector p = tr->momentum();
+  const reco::Track::Vector& p = tr->momentum();
   GlobalVector mom( p.x(), p.y(), p.z() );
   return findIsoTracksWithoutEle(mom,vtx,allEle,isoTracks);
 }

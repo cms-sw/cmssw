@@ -81,7 +81,7 @@ HLTJetHbbFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 template<typename T> float HLTJetHbbFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
   float minDr = 0.1; //matching jet tag with jet
   float tmpCSV = -20 ;
-  for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
+  for (auto jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
     float tmpDr = reco::deltaR(*jet,*(jetb->first));
     if (tmpDr < minDr) {
       minDr = tmpDr ;
@@ -139,10 +139,10 @@ HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,tr
   double etajet2 = -99.;
 
   //looping through sets of jets
-  for (typename TCollection::const_iterator jet1=jets->begin(); (jet1!=jets->end()); ++jet1) {
+  for (auto jet1=jets->begin(); (jet1!=jets->end()); ++jet1) {
     tag1 = findCSV(jet1, *jetTags);
     ++nJet;
-    for (typename TCollection::const_iterator jet2=(jet1+1); (jet2!=jets->end()); ++jet2) {
+    for (auto jet2=(jet1+1); (jet2!=jets->end()); ++jet2) {
       tag2 = findCSV(jet2, *jetTags);
 
       ejet1   = jet1->energy();
@@ -185,14 +185,14 @@ HLTJetHbbFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup,tr
 		filterproduct.addObject(triggerType_,ref2);
 	      
 		//create METCollection for storing csv tag1 and tag2 results
-		std::auto_ptr<reco::METCollection> csvObject(new reco::METCollection());
+		std::unique_ptr<reco::METCollection> csvObject(new reco::METCollection());
 		reco::MET::LorentzVector csvP4(tag1,tag2,0,0);
 		reco::MET::Point vtx(0,0,0);
 		reco::MET csvTags(csvP4, vtx);
 		csvObject->push_back(csvTags);
 		edm::RefProd<reco::METCollection > ref_before_put = event.getRefBeforePut<reco::METCollection >();
 		//put the METCollection into the event (necessary because of how addCollectionTag works...)
-		event.put(csvObject);
+		event.put(std::move(csvObject));
 		edm::Ref<reco::METCollection> csvRef(ref_before_put, 0);
 		if (saveTags()) filterproduct.addCollectionTag(edm::InputTag( *moduleLabel()));
 		filterproduct.addObject(trigger::TriggerMET, csvRef); //give it the ID of a MET object

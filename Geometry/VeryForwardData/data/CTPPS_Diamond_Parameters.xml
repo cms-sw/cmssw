@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<!-- E.g. for the first plane
+      _________________    ___________________    __________________________    _____________________________     ^
+    *|    PATTERN 1    |**|    Pattern 2      |**|          Pattern 3       |**|            Pattern 4        |*  /|\
+    *| _______________ |**| ________   ______ |**| ______   ____   ___   __ |**| _____   ____   ___   __   _ |*   |
+    *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
+    *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
+    *||       s       ||**||    s   |*|   s  ||**||   s  |*|  s |*| s |*|s ||**||  s  |*| s  |*| s |*|s |*|s||*   |
+    *||       t       ||**||    t   |*|   t  ||**||   t  |*|  t |*| t |*|t ||**||  t  |*| t  |*| t |*|t |*|t||*   |
+    *||       r       ||**||    r   |*|   r  ||**||   r  |*|  r |*| r |*|r ||**||  r  |*| r  |*| r |*|r |*|r||*   | Y
+    *||       i       ||**||    i   |*|   i  ||**||   i  |*|  i |*| i |*|i ||**||  i  |*| i  |*| i |*|i |*|i||*   |
+    *||       p       ||**||    p   |*|   p  ||**||   p  |*|  p |*| p |*|p ||**||  p  |*| p  |*| p |*|p |*|p||*   |
+    *||       1       ||**||    1   |*|   2  ||**||   1  |*|  2 |*| 3 |*|4 ||**||  1  |*| 2  |*| 3 |*|4 |*|5||*   |
+    *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
+    *||       4       ||**||    2   |*|   1  ||**||   1  |*|  1 |*| 0 |*|0 ||**||  1  |*| 0  |*| 0 |*|0 |*|0||*   |
+    *||       .       ||**||    .   |*|   .  ||**||   .  |*|  . |*| . |*|. ||**||  .  |*| .  |*| . |*|. |*|.||*   |
+    *||       2       ||**||    3   |*|   7  ||**||   1  |*|  0 |*| 9 |*|8 ||**||  0  |*| 8  |*| 7 |*|6 |*|5||*   |
+    *||       0       ||**||    5   |*|   5  ||**||   6  |*|  2 |*| 1 |*|1 ||**||  0  |*| 5  |*| 5 |*|5 |*|5||*   |
+    *||_______________||**||________|*|______||**||______|*|____|*|___|*|__||**||_____|*|____|*|___|*|__|*|_||*   |
+    *|                 |**|                   |**|                          |**|                             |*   |
+                                                                                                                  |
+    /_____________________________________________________________________________________________________________|
+    \                                                      X
+-->
+
+  <ConstantsSection label="CTPPS_Diamond_Parameters.xml" eval="true">
+
+    <!-- Diamonds -->
+    <Constant name="Diamond_dx" value="4.50*mm"/>
+    <Constant name="Diamond_dy" value="4.50*mm"/>
+    <Constant name="Diamond_dz" value="0.50*mm"/>
+
+    <!-- Metalized Layers -->
+    <Constant name="Gold_thick" value="150e-9*m"/>
+    <Constant name="Chromium_thick" value="50e-9*m"/>
+    <Constant name="Metalized_thick" value="2*[Gold_thick]+[Chromium_thick]"/>
+    <Constant name="UnMet_Edge" value="0.15*mm"/>
+    <Constant name="UnMet_gap" value="0.10*mm"/>
+    <Constant name="Plane_gap" value="12.0*mm"/>
+
+    <!-- Detector Pixels -->
+    <Constant name="Str_dy" value="4.20*mm"/>
+    <Constant name="Str_dz" value="[Metalized_thick]"/>
+
+    <Constant name="Pat1_Str1_dx" value="4.20*mm"/>
+    <Constant name="Pat2_Str1_dx" value="2.35*mm"/>
+    <Constant name="Pat2_Str2_dx" value="1.75*mm"/>
+    <Constant name="Pat3_Str1_dx" value="1.16*mm"/>
+    <Constant name="Pat3_Str2_dx" value="1.02*mm"/>
+    <Constant name="Pat3_Str3_dx" value="0.91*mm"/>
+    <Constant name="Pat3_Str4_dx" value="0.81*mm"/>
+    <Constant name="Pat4_Str1_dx" value="1.00*mm"/>
+    <Constant name="Pat4_Str2_dx" value="0.85*mm"/>
+    <Constant name="Pat4_Str3_dx" value="0.75*mm"/>
+    <Constant name="Pat4_Str4_dx" value="0.65*mm"/>
+    <Constant name="Pat4_Str5_dx" value="0.55*mm"/>
+
+    <!-- Detector Planes -->
+    <Constant name="Plane_dx" value="4*[Diamond_dx]"/>
+    <Constant name="Plane_dy" value="[Diamond_dy]"/>
+    <Constant name="Plane_dz" value="[Str_dz]+[Diamond_dz]+[PCB_thick]"/>
+
+    <!-- Diamond Detector Box -->
+    <Constant name="PCB_dx" value="135*mm"/>
+    <Constant name="PCB_dy" value="100*mm"/> <!-- arbitrary (as for now) -->
+    <Constant name="PCB_thick" value="1.20*mm"/>
+    <Constant name="PCB_extend_dx" value="3*mm"/>
+    <Constant name="PCB_extend_dy1" value="15*mm"/>
+    <Constant name="PCB_extend_dy2" value="19*mm"/>
+
+    <Constant name="Main_Box_dz" value="[Plane_dz]*4+[Plane_gap]*3"/>
+  </ConstantsSection>
+
+</DDDefinition>

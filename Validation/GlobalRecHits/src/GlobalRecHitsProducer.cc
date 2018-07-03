@@ -6,6 +6,7 @@
  */
 
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -166,8 +167,8 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -216,7 +217,7 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalRecHit> pOut(new PGlobalRecHit);
+  std::unique_ptr<PGlobalRecHit> pOut(new PGlobalRecHit);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
@@ -233,7 +234,7 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
   storeMuon(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }
@@ -283,10 +284,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
       << "Unable to find cal barrel crossingFrame in event!";
     return;
   }
-  //std::auto_ptr<MixCollection<PCaloHit> >
+  //std::unique_ptr<MixCollection<PCaloHit> >
   //  barrelHits(new MixCollection<PCaloHit>
   //	       (crossingFrame.product(), barrelHitsName));
-  std::auto_ptr<MixCollection<PCaloHit> >
+  std::unique_ptr<MixCollection<PCaloHit> >
     barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
 
   // keep track of sum of simhit energy in each crystal
@@ -355,10 +356,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
       << "Unable to find cal endcap crossingFrame in event!";
     return;
   }
-  //std::auto_ptr<MixCollection<PCaloHit> >
+  //std::unique_ptr<MixCollection<PCaloHit> >
   //  endcapHits(new MixCollection<PCaloHit>
   //	       (crossingFrame.product(), endcapHitsName));
-  std::auto_ptr<MixCollection<PCaloHit> >
+  std::unique_ptr<MixCollection<PCaloHit> >
     endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
 
   // keep track of sum of simhit energy in each crystal
@@ -419,10 +420,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
       << "Unable to find cal preshower crossingFrame in event!";
     return;
   }
-  //std::auto_ptr<MixCollection<PCaloHit> >
+  //std::unique_ptr<MixCollection<PCaloHit> >
   //  preshowerHits(new MixCollection<PCaloHit>
   //	       (crossingFrame.product(), preshowerHitsName));
-  std::auto_ptr<MixCollection<PCaloHit> >
+  std::unique_ptr<MixCollection<PCaloHit> >
     preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
 
   // keep track of sum of simhit energy in each crystal
@@ -589,6 +590,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
     return;
   } 
   std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
+  const CaloGeometry* geo = geometry.product();
      
   int iHB = 0;
   int iHE = 0; 
@@ -602,10 +604,10 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
       
       if (cell.subdet() == sdHcalBrl) {
 	
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 	if ( (jhbhe->energy()) > maxHBEnergy ) {
 	  maxHBEnergy = jhbhe->energy();
 	  maxHBPhi = fPhi;
@@ -617,10 +619,10 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	
       if (cell.subdet() == sdHcalEC) {
 	
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 	if ( (jhbhe->energy()) > maxHEEnergy ) {
 	  maxHEEnergy = jhbhe->energy();
 	  maxHEPhi = fPhi;
@@ -638,10 +640,10 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHB;
 
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 
 	float deltaphi = maxHBPhi - fPhi;
 	if (fPhi > maxHBPhi) { deltaphi = fPhi - maxHBPhi;}
@@ -658,10 +660,10 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHE;
 
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 
 	float deltaphi = maxHEPhi - fPhi;
 	if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}
@@ -710,8 +712,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
       
       if (cell.subdet() == sdHcalFwd) {
 	
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
 	if ( (jhf->energy()) > maxHFEnergy ) {
@@ -731,8 +732,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHF;
 
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
 
@@ -778,8 +778,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHO;
 
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
 
@@ -2170,7 +2169,7 @@ GlobalRecHitsProducer::findBestRecHit(const DTLayer* layer,
 				      const std::vector<type>& recHits,
 				      const float simHitDist) {
   float res = 99999;
-  const type* theBestRecHit = 0;
+  const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
   for(typename std::vector<type>::const_iterator recHit = recHits.begin();
       recHit != recHits.end();
@@ -2226,7 +2225,7 @@ int GlobalRecHitsProducer::compute(const DTGeometry *dtGeom,
     
     // Look for a mu hit in the cell
     const PSimHit* muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
-    if (muSimHit==0) {
+    if (muSimHit==nullptr) {
       continue; // Skip this cell
     }
 

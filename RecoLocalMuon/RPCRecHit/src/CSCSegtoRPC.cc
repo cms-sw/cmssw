@@ -26,7 +26,7 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection * allCSCSegments, const edm:
 
   if(debug) std::cout<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
 
-  _ThePoints.reset(new RPCRecHitCollection());
+  _ThePoints = std::make_unique<RPCRecHitCollection>();
 
   if(allCSCSegments->size()==0){
     if(debug) std::cout<<"CSC 0 segments skiping event"<<std::endl;
@@ -100,7 +100,7 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection * allCSCSegments, const edm:
 
 	  if(rpcRing!=1&&rpcStation!=4){//They don't exist!
 	  
-	    assert(rollsForThisCSC.size()>=1);
+	    assert(!rollsForThisCSC.empty());
 
 	    if(debug) std::cout<<"CSC \t \t Loop over all the rolls asociated to this CSC"<<std::endl;	    
 	    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){

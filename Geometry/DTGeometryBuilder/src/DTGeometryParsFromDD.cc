@@ -43,18 +43,10 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
 
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonBarrelDT";
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the Muon DTs
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,  // name & value of a variable 
-		     DDCompOp::matches,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
   buildGeometry(fview, muonConstants, rig);
   //cout << "RecoIdealGeometry " << rig.size() << endl;
 }
@@ -121,7 +113,7 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
 
   // Chamber specific parameter (size) 
   vector<double> par;
-  par.push_back(DTChamberTag);
+  par.emplace_back(DTChamberTag);
   vector<double> size= extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
@@ -148,7 +140,7 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
 
   // Slayer specific parameter (size)
   vector<double> par;
-  par.push_back(DTSuperLayerTag);
+  par.emplace_back(DTSuperLayerTag);
   vector<double> size= extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
@@ -171,7 +163,7 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
 
   // Layer specific parameter (size)
   vector<double> par;
-  par.push_back(DTLayerTag);
+  par.emplace_back(DTLayerTag);
   vector<double> size= extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
@@ -186,9 +178,9 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   }
   vector<double> sensSize= extractParameters(fv);
   //int lastWire=fv.copyno();
-  par.push_back(firstWire);
-  par.push_back(WCounter);
-  par.push_back(sensSize[1]);
+  par.emplace_back(firstWire);
+  par.emplace_back(WCounter);
+  par.emplace_back(sensSize[1]);
   fv.parent();
 
   PosRotPair posRot(plane(fv));
@@ -200,10 +192,10 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
 vector<double> 
 DTGeometryParsFromDD::extractParameters(DDFilteredView& fv) const {
   vector<double> par;
-  if (fv.logicalPart().solid().shape() != ddbox) {
+  if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
-    while (A.shape() != ddbox) {
+    while (A.shape() != DDSolidShape::ddbox) {
       DDBooleanSolid bs(A);
       A = bs.solidA();
     }
@@ -230,7 +222,7 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
   //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
   //  DDRotationMatrix tmp = fv.rotation();
-  DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
+  const DDRotationMatrix& rotation = fv.rotation();//REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x,y,z);
 //   std::cout << "INVERSE rotation by its own operator: "<< fv.rotation() << std::endl;

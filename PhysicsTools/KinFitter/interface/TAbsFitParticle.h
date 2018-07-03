@@ -12,7 +12,7 @@ public :
 
   TAbsFitParticle();
   TAbsFitParticle(const TString &name, const TString &title);
-  virtual ~TAbsFitParticle();
+  ~TAbsFitParticle() override;
   virtual TAbsFitParticle* clone( const TString& newname = "" ) const = 0;
 
   // returns derivative dP/dy with P=(p,E) and y=(par1, par2, par3, ...) 

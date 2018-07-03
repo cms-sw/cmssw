@@ -21,10 +21,10 @@ namespace lumi{
   class CMSRunSummaryDummy2DB : public DataPipe{
   public:
     CMSRunSummaryDummy2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~CMSRunSummaryDummy2DB();
+    unsigned long long retrieveData( unsigned int ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~CMSRunSummaryDummy2DB() override;
   };//cl CMSRunSummaryDummy2DB
   //
   //implementation

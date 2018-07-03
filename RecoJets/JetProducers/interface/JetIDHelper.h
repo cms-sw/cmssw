@@ -4,13 +4,14 @@
 #include <atomic>
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -32,7 +33,7 @@ namespace reco {
       void initValues ();
 
       // interface
-      void calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg = 0 );
+      void calculate( const edm::Event& event, const edm::EventSetup& setup, const reco::CaloJet &jet, const int iDbg = 0 );
 
       // member access
       
@@ -74,7 +75,8 @@ namespace reco {
 
      
       // helper functions
-      void classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
+      void classifyJetComponents( const edm::Event& event, const edm::EventSetup& setup,
+				  const reco::CaloJet &jet, 
 				  std::vector< double > &energies,
 				  std::vector< double > &subdet_energies,
 				  std::vector< double > &Ecal_energies, std::vector< double > &Hcal_energies, 
@@ -99,11 +101,10 @@ namespace reco {
 	HFneg, HEneg, HBneg, HBpos, HEpos, HFpos };
       
       int HBHE_oddness( int iEta, int depth );
-      Region HBHE_region( int iEta, int depth );
+      Region HBHE_region( uint32_t );
       // tower-based. -1 means can't figure it out
       int HBHE_oddness( int iEta );
       Region region( int iEta );
-      
 
       double fHPD_;
       double fRBX_;

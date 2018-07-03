@@ -32,20 +32,20 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
   //Histogram init  
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j) {
-      hRecOCC_[i][j] = 0;
-      hRecNHit_[i][j] = 0;
-      hEng_[i][j] = 0;
-      hEvEng_[i][j] = 0;
-      hEnDensity_[i][i] = 0;
-      hGoodRecNHit_[i][j] = 0;
+      hRecOCC_[i][j] = nullptr;
+      hRecNHit_[i][j] = nullptr;
+      hEng_[i][j] = nullptr;
+      hEvEng_[i][j] = nullptr;
+      hEnDensity_[i][i] = nullptr;
+      hGoodRecNHit_[i][j] = nullptr;
 
-      hSelEng_[i][j] = 0;
-      hSelOCC_[i][j] = 0;
-      hSelEnDensity_[i][j] = 0;
+      hSelEng_[i][j] = nullptr;
+      hSelOCC_[i][j] = nullptr;
+      hSelEnDensity_[i][j] = nullptr;
     }
   
   for (int i = 0; i<2; ++i) 
-    hE1E2_[i]=0;
+    hE1E2_[i]=nullptr;
 }
 
 void

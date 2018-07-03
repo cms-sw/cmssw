@@ -105,7 +105,7 @@ void __class__::begin(TList*& toWorkers)
 // The argument 'fromWorkers' contains the accumulated output of all Workers
 void __class__::terminate(TList& fromWorkers) {
   using namespace std;
-  std::auto_ptr<TCanvas> canvas( new TCanvas() );
+  auto canvas = std::make_unique<TCanvas>();
 //  {
 //    TObject* hist = fromWorkers.FindObject(kA);
 //    if(0!=hist) {

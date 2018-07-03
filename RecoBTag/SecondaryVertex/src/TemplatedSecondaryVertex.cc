@@ -25,6 +25,33 @@ return reco::Vertex(Vertex::Point(vertex()), err, vertexChi2(), vertexNdof(),num
 TemplatedSecondaryVertex<reco::Vertex>::operator reco::Vertex() {
 return reco::Vertex(this);
 }*/
+template <>
+Measurement1D
+TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate>::computeDist1d(const Vertex &pv, const VertexCompositePtrCandidate &sv,
+                               const GlobalVector &direction, bool withPVError)
+{
+        typedef ROOT::Math::SVector<double, 3> SVector1;
+        typedef ROOT::Math::SMatrix<double, 3, 3,
+                        ROOT::Math::MatRepSym<double, 3> > SMatrixSym1;
+        CovarianceMatrix covariance;
+        sv.fillVertexCovariance(covariance);
+        SMatrixSym1 cov = covariance;
+        if (withPVError)
+                cov += pv.covariance();
+        SVector1 vector(0,0,sv.vertex().Z() - pv.position().Z());
+        
+        double dist = ROOT::Math::Mag(vector);
+        double error = ROOT::Math::Similarity(cov, vector);
+        if (error > 0.0 && dist > 1.0e-9)
+                error = std::sqrt(error) / dist; 
+        else
+                error = -1.0;
+        if ((vector[0] * direction.x() +
+             vector[1] * direction.y() +
+             vector[2] * direction.z()) < 0.0)
+                dist = -dist;
+        return Measurement1D(dist, error);                      
+}
 
 template <>
 Measurement1D
@@ -43,7 +70,6 @@ TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate>::computeDist2d(const
 
 	SVector2 vector(sv.vertex().X() - pv.position().X(),
 	                sv.vertex().Y() - pv.position().Y());
-
 	double dist = ROOT::Math::Mag(vector);
 	double error = ROOT::Math::Similarity(cov, vector);
 	if (error > 0.0 && dist > 1.0e-9)
@@ -89,6 +115,36 @@ TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate>::computeDist3d(const
 		dist = -dist;
 
 	return Measurement1D(dist, error);
+}
+
+template <>
+Measurement1D
+TemplatedSecondaryVertex<reco::Vertex>::computeDist1d(const Vertex &pv, const Vertex &sv,
+                               const GlobalVector &direction, bool withPVError)
+{
+        typedef ROOT::Math::SVector<double, 3> SVector1;
+        typedef ROOT::Math::SMatrix<double, 3, 3,
+                        ROOT::Math::MatRepSym<double, 3> > SMatrixSym1;
+
+        SMatrixSym1 cov = sv.covariance();
+        if (withPVError)
+                cov += pv.covariance(); 
+
+        SVector1 vector(0.0,0.0,sv.position().Z() - pv.position().Z());
+
+        double dist = ROOT::Math::Mag(vector);
+        double error = ROOT::Math::Similarity(cov, vector);
+        if (error > 0.0 && dist > 1.0e-9)
+                error = std::sqrt(error) / dist;
+        else
+                error = -1.0;
+
+        if ((vector[0] * direction.x() +
+             vector[1] * direction.y() +
+             vector[2] * direction.z()) < 0.0)
+                dist = -dist;
+
+        return Measurement1D(dist, error);
 }
 
 

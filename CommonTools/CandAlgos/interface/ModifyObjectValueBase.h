@@ -26,25 +26,46 @@ class ModifyObjectValueBase {
   virtual void setEventContent(const edm::EventSetup&) {}
   virtual void setConsumes(edm::ConsumesCollector&) {}
   
+  virtual void modifyObject(reco::GsfElectron&) const { 
+    throw cms::Exception("InvalidConfiguration") 
+      << name_ << " is not configured to handle reco::GsfElectrons!"; 
+  }
+  virtual void modifyObject(reco::Photon&)   const { 
+    throw cms::Exception("InvalidConfiguration") 
+      << name_ << " is not configured to handle reco::Photons!"; 
+  }
+  virtual void modifyObject(reco::Muon&)     const { 
+    throw cms::Exception("InvalidConfiguration") 
+      << name_ << " is not configured to handle reco::Muons!"; 
+  }
+  virtual void modifyObject(reco::BaseTau&)      const { 
+    throw cms::Exception("InvalidConfiguration") 
+      << name_ << " is not configured to handle reco::Taus!"; 
+  }
+  virtual void modifyObject(reco::Jet&)      const { 
+    throw cms::Exception("InvalidConfiguration") 
+      << name_ << " is not configured to handle reco::Jets!"; 
+  }
+  // pat modifiers
   virtual void modifyObject(pat::Electron&) const { 
     throw cms::Exception("InvalidConfiguration") 
-      << name_ << " is not configured to handle electrons!"; 
+      << name_ << " is not configured to handle pat::Electrons!"; 
   }
   virtual void modifyObject(pat::Photon&)   const { 
     throw cms::Exception("InvalidConfiguration") 
-      << name_ << " is not configured to handle photons!"; 
+      << name_ << " is not configured to handle pat::Photons!"; 
   }
   virtual void modifyObject(pat::Muon&)     const { 
     throw cms::Exception("InvalidConfiguration") 
-      << name_ << " is not configured to handle muons!"; 
+      << name_ << " is not configured to handle pat::Muons!"; 
   }
   virtual void modifyObject(pat::Tau&)      const { 
     throw cms::Exception("InvalidConfiguration") 
-      << name_ << " is not configured to handle taus!"; 
+      << name_ << " is not configured to handle pat::Taus!"; 
   }
   virtual void modifyObject(pat::Jet&)      const { 
     throw cms::Exception("InvalidConfiguration") 
-      << name_ << " is not configured to handle jets!"; 
+      << name_ << " is not configured to handle pat::Jets!"; 
   }
 
   const std::string& name() const { return name_; }

@@ -153,7 +153,7 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.g4SimHits.UseMagneticField = cms.bool(False)
 process.g4SimHits.Physics.DefaultCutValue = 1.
 process.g4SimHits.NonBeamEvent = cms.bool(True)
-process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
+process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
 process.g4SimHits.Generator.ApplyPCuts = cms.bool(False)
 process.g4SimHits.Generator.ApplyEtaCuts = cms.bool(True)
 process.g4SimHits.Generator.ApplyPhiCuts = cms.bool(False)
@@ -179,7 +179,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 process.SimEcalTBG4Object = cms.EDProducer("EcalTBMCInfoProducer",
     process.common_beam_direction_parameters,
     CrystalMapFile = cms.FileInPath('Geometry/EcalTestBeam/data/BarrelSM1CrystalCenterElectron120GeV.dat'),
-    moduleLabelVtx = cms.untracked.string('generator')
+    moduleLabelVtx = cms.untracked.string('generatorSmeared')
 )
 
 # Test Beam ECAL hodoscope raw data simulation
@@ -276,7 +276,7 @@ process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
                                                        ,'BeamProfileVtxGenerator'
                                                        )
 
-#process.MessageLogger.debugModule = cms.untracked.vstring('g4SimHits','VtxSmeared')
+#process.MessageLogger.debugModule = cms.untracked.vstring('g4SimHits','generatorSmeared')
 
 #Configuring the G4msg.log output
 process.MessageLogger.G4msg =  cms.untracked.PSet(

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_Hybrid.xml">
+<!--
+    Detector
+       a
+    ________
+    |      |
+    |      |b
+    |      |
+    |      |
+    ========
+
+       Top
+       /\
+     a/  \b
+     /    \
+Left/      \Right
+    \      /
+    c\    /d
+      ====
+
+Sizes and fiducial positions are taken from Eric's drawings, rev. TOTEM v2-A3.
+-->
+        <Constant name="RP_Det_Edge_Length" value="22.276*mm"/>
+        <Constant name="RP_Det_Size_a" value="36.07*mm"/>
+        <Constant name="RP_Det_Size_b" value="36.07*mm"/>
+        <Constant name="RP_Det_Fid_Top_a" value="0.301*mm"/>
+        <Constant name="RP_Det_Fid_Top_b" value="1.0275*mm"/>
+        <Constant name="RP_Det_Fid_Left_a" value="0.301*mm"/>
+        <Constant name="RP_Det_Fid_Left_c" value="0.2985*mm"/>
+        <Constant name="RP_Det_Fid_Right_b" value="1.0275*mm"/>
+        <Constant name="RP_Det_Fid_Right_d" value="1.0255*mm"/>
+        <Constant name="xT" value="[RP_Det_Size_a]/2-[RP_Det_Fid_Top_b]"/>
+        <Constant name="yT" value="[RP_Det_Size_b]/2-[RP_Det_Fid_Top_a]"/>
+        <Constant name="xL" value="-[RP_Det_Size_a]/2+[RP_Det_Fid_Left_c]"/>
+        <Constant name="yL" value="[RP_Det_Size_b]/2-[RP_Det_Fid_Left_a]"/>
+        <Constant name="xR" value="[RP_Det_Size_a]/2-[RP_Det_Fid_Right_b]"/>
+        <Constant name="yR" value="-[RP_Det_Size_b]/2+[RP_Det_Fid_Right_d]"/>
+<!--
+displacement of the intersection of fiducial-guided lines wrt the geometric centre
+calculated as a solution of the linear system consisting of the equation of the
+line going through left and right fiducials and the distance to the middle
+between left and right fiducials, i.e.:
+(y-yL)(xR-xL)-(yR-yL)(x-xL)=0
+sqrt((xR-x)^2+(yR-y)^2)=0.5*sqrt((xR-xL)^2+(yR-yL)^2)
+-->
+        <Constant name="RP_Det_dx_0" value="([RP_Det_Fid_Left_c]-[RP_Det_Fid_Right_b])/2"/>
+<!-- RP_Det_dx = -0.3645 -->
+        <Constant name="RP_Det_dy_0" value="([RP_Det_Fid_Right_d]-[RP_Det_Fid_Left_a])/2"/>
+<!-- RP_Det_dy = 0.362 -->
+        <Constant name="RP_Det_dx" value="([RP_Det_dx_0]-[RP_Det_dy_0])/sqrt(2)"/>
+<!-- -0.514 -->
+        <Constant name="RP_Det_dy" value="([RP_Det_dx_0]+[RP_Det_dy_0])/sqrt(2)"/>
+<!-- -0.016 -->
+        <Constant name="RP_Det_Thickness" value="0.3*mm"/>
+        <Constant name="RP_Det_Edge_to_Center" value="abs([RP_Det_dx_0]+[RP_Det_dy_0]-[RP_Det_Size_a]+[RP_Det_Edge_Length]/sqrt(2))/sqrt(2)"/>
+<!-- RP_Det_Edge_to_Center = 14.369 -->
+        
+        <Constant name="RP_Ref_Hole_Radius" value="5/2*mm"/>
+        <Constant name="RP_Front_Frame_Hole_Bottom_diagonal" value="80*mm"/>
+        <Constant name="RP_Front_Frame_Hole_Bottom_size" value="[RP_Front_Frame_Hole_Bottom_diagonal]*sqrt(2)*0.5"/>
+        <Constant name="RP_Front_Frame_Leg_x" value="5*mm"/>
+        <Constant name="RP_Front_Frame_Leg_y" value="3.2*mm"/>
+        <Constant name="RP_Front_Frame_Leg_Thin_y" value="1.6*mm"/>
+        <Constant name="RP_Front_Frame_Leg_Thin_z" value="0.45*mm"/>
+        <Constant name="RP_Front_Frame_Leg_Base_y" value="[RP_Front_Frame_Leg_y]-[RP_Front_Frame_Leg_Thin_y]"/>
+        <Constant name="RP_Front_Frame_X" value="118*mm"/> <!-- without positioning struts (2mm left, 3mm right) -->
+        <Constant name="RP_Front_Frame_Y_full" value="80.2*mm"/> <!-- with positioning "legs" -->
+        <Constant name="RP_Front_Frame_Y" value="[RP_Front_Frame_Y_full]-[RP_Front_Frame_Leg_y]"/> <!-- without positioning "legs" -->
+        <Constant name="RP_Front_Frame_Z" value="1*mm"/>
+        <Constant name="RP_Front_Frame_Ref_x" value="11.5*mm"/>
+        <Constant name="RP_Front_Frame_Ref_y" value="44.2*mm"/>
+        <Constant name="RP_Front_Frame_Ref_Hole_Dist" value="101*mm"/>
+        <Constant name="RP_Front_Frame_Ref_Hole_dy" value="-[RP_Front_Frame_Y]/2-[RP_Front_Frame_Leg_y]+[RP_Front_Frame_Ref_y]"/>
+        <Constant name="RP_Barrette_Thick_x" value="13*mm"/>
+        <Constant name="RP_Barrette_Thin_x" value="23*mm-[RP_Barrette_Thick_x]"/>
+        <Constant name="RP_Barrette_y" value="78*mm"/>
+        <Constant name="RP_Barrette_Thick_z" value="4.5*mm"/>
+        <Constant name="RP_Barrette_Thin_z" value="0.8*mm"/>
+        <Constant name="RP_Barrette_Ref_y" value="42*mm"/>
+        <Constant name="RP_Barrette_Ref_Hole_dx" value="-[RP_Barrette_Thick_x]/2+8.5*mm"/>
+        <Constant name="RP_Barrette_Ref_Hole_dy" value="-[RP_Barrette_y]/2+[RP_Barrette_Ref_y]"/>
+        <Constant name="RP_PCB_x" value="90*mm"/>
+        <Constant name="RP_PCB_y" value="78*mm"/>
+        <Constant name="RP_PCB_z" value="1.25*mm"/>
+        <Constant name="RP_PCB_Hole_Size" value="30*mm"/>
+        <Constant name="RP_PCB_Hole_dy" value="10.42*mm"/>
+        
+    </ConstantsSection>
+    
+    <SolidSection label="RP_Hybrid.xml">
+        <Box dx="[RP_Front_Frame_X]/2" dy="[RP_Front_Frame_Y]/2" dz="[RP_Front_Frame_Z]/2" name="RP_Front_Frame_1"/>
+        <Box dx="[RP_Front_Frame_Hole_Bottom_size]/2" dy="[RP_Front_Frame_Hole_Bottom_size]/2" dz="[RP_Front_Frame_Z]" name="RP_Hole_1"/>
+        <Box dx="[RP_Front_Frame_Leg_x]/2" dy="[RP_Front_Frame_Leg_Base_y]/2" dz="[RP_Front_Frame_Z]/2" name="RP_Front_Frame_Leg_Base"/>
+        <Trd1 dx1="2/2*mm" dx2="5/2*mm" dy1="[RP_Front_Frame_Leg_Thin_z]/2" dy2="[RP_Front_Frame_Leg_Thin_z]/2" dz="[RP_Front_Frame_Leg_Thin_y]/2" name="RP_Front_Frame_Leg_Strut"/>
+        <Tubs rMin="0*mm" rMax="[RP_Ref_Hole_Radius]" dz="[RP_Front_Frame_Z]" startPhi="0*deg" deltaPhi="360*deg" name="RP_Front_Frame_Ref_Hole"/>
+        <UnionSolid name="RP_Front_Frame_Leg">
+            <rSolid name="RP_Front_Frame_Leg_Base"/>
+            <rSolid name="RP_Front_Frame_Leg_Strut"/>
+            <rRotation name="RP_Transformations:RP_x_90_rot"/>
+            <Translation x="0*mm" y="-[RP_Front_Frame_Leg_Base_y]/2-[RP_Front_Frame_Leg_Thin_y]/2" z="-[RP_Front_Frame_Z]/2+[RP_Front_Frame_Leg_Thin_z]/2"/>
+        </UnionSolid>
+        <SubtractionSolid name="RP_Front_Frame_2">
+            <rSolid name="RP_Front_Frame_1"/>
+            <rSolid name="RP_Hole_1"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="0*mm" y="-[RP_Front_Frame_Y]/2" z="0*mm" />
+        </SubtractionSolid>
+        <UnionSolid name="RP_Front_Frame_3a">
+            <rSolid name="RP_Front_Frame_2"/>
+            <rSolid name="RP_Front_Frame_Leg"/>
+            <Translation x="-[RP_Front_Frame_Hole_Bottom_diagonal]/2-[RP_Front_Frame_Leg_x]/2" y="-[RP_Front_Frame_Y]/2-[RP_Front_Frame_Leg_Base_y]/2" z="0*mm"/>
+        </UnionSolid>
+        <UnionSolid name="RP_Front_Frame_3b">
+            <rSolid name="RP_Front_Frame_3a"/>
+            <rSolid name="RP_Front_Frame_Leg"/>
+            <Translation x="[RP_Front_Frame_Hole_Bottom_diagonal]/2+[RP_Front_Frame_Leg_x]/2" y="-[RP_Front_Frame_Y]/2-[RP_Front_Frame_Leg_Base_y]/2" z="0*mm"/>
+        </UnionSolid>
+        <SubtractionSolid name="RP_Front_Frame_3h_Right">
+            <rSolid name="RP_Front_Frame_3b"/>
+            <rSolid name="RP_Front_Frame_Ref_Hole"/>
+            <Translation x="[RP_Front_Frame_Ref_Hole_Dist]/2" y="[RP_Front_Frame_Ref_Hole_dy]" z="0*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_Front_Frame_3h">
+            <rSolid name="RP_Front_Frame_3h_Right"/>
+            <rSolid name="RP_Front_Frame_Ref_Hole"/>
+            <Translation x="-[RP_Front_Frame_Ref_Hole_Dist]/2" y="[RP_Front_Frame_Ref_Hole_dy]" z="0*mm"/>
+        </SubtractionSolid>
+        <Trd1 dx1="3/2*mm" dx2="3*(1+2*tan((90-10)*deg))/2*mm" dy1="[RP_Front_Frame_Z]/2" dy2="[RP_Front_Frame_Z]/2" dz="3/2*mm" name="RP_Front_Frame_Right_Strut_base"/>
+        <!-- the box below is intentionally two times thicker to avoid visualisation errors due to lack of precision -->
+        <Box dx="3*tan((90-10)*deg)/2*mm" dy="[RP_Front_Frame_Z]" dz="3/2*mm" name="RP_Front_Frame_Right_Strut_cut"/>
+        <SubtractionSolid name="RP_Front_Frame_Right_Strut">
+            <rSolid name="RP_Front_Frame_Right_Strut_base"/>
+            <rSolid name="RP_Front_Frame_Right_Strut_cut"/>
+            <Translation x="3*(1+tan((90-10)*deg))/2*mm" y="0*mm" z="0*mm"/>
+        </SubtractionSolid>
+        <UnionSolid name="RP_Front_Frame_3">
+            <rSolid name="RP_Front_Frame_3h"/>
+            <rSolid name="RP_Front_Frame_Right_Strut"/>
+            <rRotation name="RP_Transformations:RP_y_270_z_90_rot"/>
+            <Translation x="[RP_Front_Frame_X]/2+3/2*mm" y="[RP_Front_Frame_Ref_Hole_dy]+3/2*mm" z="0*mm"/>
+        </UnionSolid>
+        <UnionSolid name="RP_Back_Frame_3">
+            <rSolid name="RP_Front_Frame_3h"/>
+            <rSolid name="RP_Front_Frame_Right_Strut"/>
+            <rRotation name="RP_Transformations:RP_y_90_z_90_rot"/>
+            <Translation x="-([RP_Front_Frame_X]/2+3/2*mm)" y="[RP_Front_Frame_Ref_Hole_dy]+3/2*mm" z="0*mm"/>
+        </UnionSolid>
+
+        <Box dx="[RP_Barrette_Thick_x]/2" dy="[RP_Barrette_y]/2" dz="[RP_Barrette_Thick_z]/2" name="RP_Barrette_Thick_Base"/>
+        <Box dx="[RP_Barrette_Thin_x]/2"  dy="[RP_Barrette_y]/2" dz="[RP_Barrette_Thin_z]/2" name="RP_Barrette_Thin_Base"/>
+        <Tubs rMin="0*mm" rMax="[RP_Ref_Hole_Radius]" dz="[RP_Barrette_Thick_z]" startPhi="0*deg" deltaPhi="360*deg" name="RP_Barrette_Ref_Hole"/>
+        <Box dx="9/2*mm" dy="6/2*mm" dz="[RP_Barrette_Thick_z]/2" name="RP_Barrette_Bottom_Cut"/>
+        <UnionSolid name="RP_Barrette_Base_Left">
+            <rSolid name="RP_Barrette_Thick_Base"/>
+            <rSolid name="RP_Barrette_Thin_Base"/>
+            <Translation x="[RP_Barrette_Thick_x]/2+[RP_Barrette_Thin_x]/2" y="0*mm" z="[RP_Barrette_Thick_z]/2-[RP_Barrette_Thin_z]/2"/>
+        </UnionSolid>
+        <SubtractionSolid name="RP_Barrette_Left_1">
+            <rSolid name="RP_Barrette_Base_Left"/>
+            <rSolid name="RP_Barrette_Ref_Hole"/>
+            <Translation x="[RP_Barrette_Ref_Hole_dx]" y="[RP_Barrette_Ref_Hole_dy]" z="0*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_Barrette_Left">
+            <rSolid name="RP_Barrette_Left_1"/>
+            <rSolid name="RP_Barrette_Bottom_Cut"/>
+            <Translation x="-[RP_Barrette_Thick_x]/2+9/2*mm" y="-[RP_Barrette_y]/2+6/2*mm" z="0*mm"/>
+        </SubtractionSolid>
+
+        <UnionSolid name="RP_Barrette_Base_Right">
+            <rSolid name="RP_Barrette_Thick_Base"/>
+            <rSolid name="RP_Barrette_Thin_Base"/>
+            <Translation x="-([RP_Barrette_Thick_x]/2+[RP_Barrette_Thin_x]/2)" y="0*mm" z="[RP_Barrette_Thick_z]/2-[RP_Barrette_Thin_z]/2"/>
+        </UnionSolid>
+        <SubtractionSolid name="RP_Barrette_Right_1">
+            <rSolid name="RP_Barrette_Base_Right"/>
+            <rSolid name="RP_Barrette_Ref_Hole"/>
+            <Translation x="-[RP_Barrette_Ref_Hole_dx]" y="[RP_Barrette_Ref_Hole_dy]" z="0*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_Barrette_Right">
+            <rSolid name="RP_Barrette_Right_1"/>
+            <rSolid name="RP_Barrette_Bottom_Cut"/>
+            <Translation x="[RP_Barrette_Thick_x]/2-9/2*mm" y="[RP_Barrette_y]/2-6/2*mm" z="0*mm"/>
+        </SubtractionSolid>
+
+        <Box dx="[RP_PCB_x]/2" dy="[RP_PCB_y]/2" dz="[RP_PCB_z]/2" name="RP_PCB_1"/>
+        <Box dx="[RP_PCB_Hole_Size]/2" dy="[RP_PCB_Hole_Size]/2" dz="[RP_PCB_z]" name="RP_PCB_Hole"/>
+        <SubtractionSolid name="RP_PCB">
+            <rSolid name="RP_PCB_1"/>
+            <rSolid name="RP_PCB_Hole"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="0*mm" y="-[RP_PCB_y]/2+[RP_PCB_Hole_dy]" z="0*mm"/>
+        </SubtractionSolid>
+        <Box dx="[RP_Det_Size_a]/2" dy="[RP_Det_Size_b]/2" dz="[RP_Det_Thickness]/2" name="RP_Silicon_Detector_1"/>
+        <Box dx="[RP_Det_Edge_Length]/2" dy="[RP_Det_Edge_Length]/2" dz="[RP_Det_Thickness]" name="RP_Silicon_Det_Edge_Cut"/>
+        <SubtractionSolid name="RP_Silicon_Detector">
+            <rSolid name="RP_Silicon_Detector_1"/>
+            <rSolid name="RP_Silicon_Det_Edge_Cut"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="-[RP_Det_Size_a]/2" y="-[RP_Det_Size_b]/2" z="0*mm"/>
+        </SubtractionSolid>
+    </SolidSection>
+    
+    <LogicalPartSection label="RP_Hybrid.xml">
+        <LogicalPart name="RP_Front_Frame_3">
+            <rSolid name="RP_Front_Frame_3"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_Back_Frame_3">
+            <rSolid name="RP_Back_Frame_3"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_Barrette_Left">
+            <rSolid name="RP_Barrette_Left"/>
+            <rMaterial name="RP_Materials:CE7"/>
+        </LogicalPart>
+        <LogicalPart name="RP_Barrette_Right">
+            <rSolid name="RP_Barrette_Right"/>
+            <rMaterial name="RP_Materials:CE7"/>
+        </LogicalPart>
+        <LogicalPart name="RP_PCB">
+            <rSolid name="RP_PCB"/>
+            <rMaterial name="RP_Materials:PCB"/>
+        </LogicalPart>
+        <LogicalPart name="RP_Silicon_Detector">
+            <rSolid name="RP_Silicon_Detector"/>
+            <rMaterial name="RP_Materials:Silicon"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    
+    <!--PosPartSection label="RP_Hybrid.xml">
+        <PosPart copyNumber="0">
+            <rParent name="RP_Box:RP_box_primary_vacuum"/>
+            <rChild name="RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_180_y_rot"/>
+        </PosPart>
+    </PosPartSection-->
+    
+</DDDefinition>

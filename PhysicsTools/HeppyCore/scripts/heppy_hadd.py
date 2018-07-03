@@ -6,6 +6,9 @@ import os
 import pprint
 import pickle
 import shutil
+import six
+
+MAX_ARG_STRLEN = 131072
 
 def haddPck(file, odir, idirs):
     '''add pck files in directories idirs to a directory outdir.
@@ -36,7 +39,7 @@ def haddPck(file, odir, idirs):
     txtFile.close()
     
 
-def hadd(file, odir, idirs):
+def hadd(file, odir, idirs, appx=''):
     if file.endswith('.pck'):
         try:
             haddPck( file, odir, idirs)
@@ -46,13 +49,25 @@ def hadd(file, odir, idirs):
     elif not file.endswith('.root'):
         return
     haddCmd = ['hadd']
-    haddCmd.append( file.replace( idirs[0], odir ) )
+    haddCmd.append( file.replace( idirs[0], odir ).replace('.root', appx+'.root') )
     for dir in idirs:
         haddCmd.append( file.replace( idirs[0], dir ) )
     # import pdb; pdb.set_trace()
     cmd = ' '.join(haddCmd)
     print cmd
-    os.system(cmd)
+    if len(cmd) > MAX_ARG_STRLEN:
+        print 'Command longer than maximum unix string length; dividing into 2'
+        hadd(file, odir, idirs[:len(idirs)/2], '1')
+        hadd(file.replace(idirs[0], idirs[len(idirs)/2]), odir, idirs[len(idirs)/2:], '2')
+        haddCmd = ['hadd']
+        haddCmd.append( file.replace( idirs[0], odir ).replace('.root', appx+'.root') )
+        haddCmd.append( file.replace( idirs[0], odir ).replace('.root', '1.root') )
+        haddCmd.append( file.replace( idirs[0], odir ).replace('.root', '2.root') )
+        cmd = ' '.join(haddCmd)
+        print 'Running merge cmd:', cmd
+        os.system(cmd)
+    else:
+        os.system(cmd)
 
 
 def haddRec(odir, idirs):
@@ -98,7 +113,7 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
     if len(chunks)==0:
         print 'warning: no chunk found.'
         return
-    for comp, cchunks in chunks.iteritems():
+    for comp, cchunks in six.iteritems(chunks):
         odir = odir_cmd+'/'+'/'.join( [idir, comp] )
         print odir, cchunks
         if removeDestDir:
@@ -111,7 +126,7 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
             shutil.rmtree(chunkDir)
         os.mkdir(chunkDir)
         print chunks
-        for comp, chunks in chunks.iteritems():
+        for comp, chunks in six.iteritems(chunks):
             for chunk in chunks:
                 shutil.move(chunk, chunkDir)
         

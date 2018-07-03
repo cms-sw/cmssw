@@ -14,7 +14,7 @@ def customiseSimL1EmulatorForStage1(process):
 
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
 
-    process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
+    #process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     process.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
     process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 
@@ -148,18 +148,6 @@ def customiseSimL1EmulatorForPostLS1_25ns(process):
 # -> no L1 Menu added here
 # -> common post LS1 customizations not called here
 def customiseSimL1EmulatorForPostLS1_Additional_HI(process):
-    # set the Stage 1 heavy ions-specific parameters
-    # all of these should eventually end up in a GT
-    if hasattr(process,'RCTConfigProducers'):
-        process.RCTConfigProducers.eicIsolationThreshold = cms.uint32(7)
-        process.RCTConfigProducers.hOeCut = cms.double(999)
-        process.RCTConfigProducers.eMinForHoECut = cms.double(999)
-        process.RCTConfigProducers.eMaxForHoECut = cms.double(999)
-        process.RCTConfigProducers.hMinForHoECut = cms.double(999)
-        process.RCTConfigProducers.eMinForFGCut = cms.double(999)
-    if hasattr(process,'caloStage1Params'):     
-        process.caloStage1Params.jetSeedThreshold = cms.double(0.)
-        process.caloStage1Params.regionPUSType = cms.string("zeroWall")
     if hasattr(process,'caloConfig'):
         process.caloConfig.fwVersionLayer2 = cms.uint32(1)
     return process

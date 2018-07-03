@@ -66,9 +66,9 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const L1RCTParameters* r = rctParameters.product();
   lookupTables_->setRCTParameters(r);
 
-  std::auto_ptr<EcalTrigPrimDigiCollection>
+  std::unique_ptr<EcalTrigPrimDigiCollection>
     ecalTPs(new EcalTrigPrimDigiCollection());
-  std::auto_ptr<HcalTrigPrimDigiCollection> 
+  std::unique_ptr<HcalTrigPrimDigiCollection> 
     hcalTPs(new HcalTrigPrimDigiCollection());
   ecalTPs->reserve(56*72); 
   hcalTPs->reserve(56*72+18*8);  // includes HF
@@ -97,13 +97,13 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  //	    {
 	  //	      oldVersion_ = true;
 	  //	    }
-	  if((junk_counter == 11) && (junk.compare("1-32") == 0))
+	  if((junk_counter == 11) && (junk == "1-32"))
 	    {
 	      oldVersion_ = true;
 	    }
 	  junk_counter++;
 	}
-      while (junk.compare("LUTOut") != 0);
+      while (junk != "LUTOut");
       std::cout << "Skipped file header" << std::endl;
       if (oldVersion_) {std::cout << "oldVersion_ TRUE (tower 1-32)" << std::endl;}
       else {std::cout << "oldVersion_ FALSE (tower 0-31)" << std::endl;}
@@ -204,13 +204,13 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      HcalTriggerPrimitiveDigi
 		hfDigi(HcalTrigTowerDetId(hfIEta, hfIPhi));
 	      hfDigi.setSize(1);
-	      hfDigi.setSample(0, HcalTriggerPrimitiveSample(0,0,0,0));
+	      hfDigi.setSample(0, HcalTriggerPrimitiveSample(0,false,0,0));
 	      hcalTPs->push_back(hfDigi);
 	    }
 	}
     }
-  iEvent.put(ecalTPs);
-  iEvent.put(hcalTPs);
+  iEvent.put(std::move(ecalTPs));
+  iEvent.put(std::move(hcalTPs));
   
   nEvent_++;
   //std::cout << "Produce done" << std::endl;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import sys, os
 import argparse
 from extend_argparse import *
 
@@ -17,7 +17,6 @@ formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth
 
 parser = argparse.ArgumentParser(
   description       = 'Extract an HLT configuration (or fragment thereof) from the ConfDB database.''',
-  epilog            = 'Note: using "--online", overriding the GlobalTag or the L1 menu is meaingful only in a full, self-contained dump. A cff file does not provide the modules to be overriden.''',
   argument_default  = argparse.SUPPRESS,
   formatter_class   = formatter,
   add_help          = False )
@@ -30,7 +29,7 @@ parser.add_argument('menu',
                     action  = 'store',
                     type    = options.ConnectionHLTMenu,
                     metavar = 'MENU',
-                    help    = 'HLT menu to dump from the database. Supported formats are:\n- [hltdev:]/path/to/configuration[/Vn]\n- orcoff:/path/to/configuration[/Vn]\n- run:runnumber\nThe possible databases are "hltdev" (default, used for offline development) and "orcoff" (used for online menus). If no version is specified, the latest one is automatically used.\nIf "run:" is used instead, the actual HLT menu for the given run number is looked up and used.' )
+                    help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2}/]{offline|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible database schemas are "v1" and "v2" (default).\nThe possible databases are "offline" (default, used for offline development), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.' )
 
 # options
 parser.add_argument('--process',
@@ -66,20 +65,15 @@ parser.add_argument('--l1Xml',
                     default = defaults.l1Xml,
                     metavar = 'MENU',
                     help    = 'Override the L1 menu, using the given Xml file. %(metavar)s should have the format "L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
-parser.add_argument('--l1skim',
-                    dest    = 'l1skim',
-                    action  = 'store_true',
-                    default = defaults.l1skim,
-                    help    = 'Add py config snippet to use new L1 skim files produced using the new L1, and ignoring the old L1.\nThe default behaviour is to not add this snippet' )
 parser.add_argument('--l1-emulator',
                     dest    = 'emulator',
                     action  = 'store',
                     metavar = 'EMULATOR',
                     nargs   = '?',
-                    choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'stage1,gt', 'all' ],
+                    choices = [ 'Full', 'FullMC', 'Full2015Data', 'uGT' ],
                     default = defaults.emulator,
-                    const   = 'gt',
-                    help    = 'Run the L1 emulator. Possible sub-options are:\n- "gt": run only the GT emulator. Trigger primitives, GMT and GCT are taken from the data\n- "gct,gt": emulate calo primitives, RCT, GCT and GT. Muon primitives and GMT are taken from the data\n- "gmt,gt": emulate muon primitives, GMT and GT. Calo primitives, RCT and GCT are taken from the data\n- "gmt,gct,gt", "gct,gmt,gt", "all": run the whole L1 run1 emulator.\n- "stage1,gt": run the 2015 calo and muon emulators along with GT emulator.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
+                    const   = 'Full',
+                    help    = 'Run the Full stage-2 L1T emulator.' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--prescale',
@@ -103,6 +97,20 @@ parser.add_argument('--open',
                     action  = 'store_true',
                     default = defaults.open,
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (overrides "--prescale" and implies "--prescale none")' )
+parser.add_argument('--eras',
+                    dest    = 'eras',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.eras,
+                    metavar = 'ERAS',
+                    help    = 'Select the defined Eras in HLT configuration (e.g. phase1Pixel)' )
+parser.add_argument('--customise',
+                    dest    = 'customise',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.customise,
+                    metavar = 'CUSTOMISE',
+                    help    = 'Apply the user-defined customization functions using the format HLTrigger/Configuration/customizeHLTTrackingForPhaseI2017.customizeHLTForPFTrackingPhaseI2017' )
 parser.add_argument('--error-events',
                     dest    = 'errortype',
                     action  = 'store_true',
@@ -146,6 +154,13 @@ parser.add_argument('--max-events',
                     default = defaults.events,
                     metavar = 'EVENTS',
                     help    = 'Run on EVENTS events (-1 for unlimited)' )
+parser.add_argument('--setup',
+                    dest    = 'setup',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.setup,
+                    metavar = 'STORE',
+                    help    = 'If set, download setup_cff from the specified configuration and load it.' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
@@ -185,7 +200,7 @@ group.add_argument('--full',
                     action  = 'store_false',
                     default = not defaults.fragment,
                     help    = 'Generate a full configuration file, with minimal modifications (default)' )
-group.add_argument('--cff',
+group.add_argument('--fragment', '--cff',
                     dest    = 'fragment',
                     action  = 'store_true',
                     default = defaults.fragment,
@@ -193,23 +208,25 @@ group.add_argument('--cff',
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--online',
-                    dest    = 'online',
+                    dest    = 'unused',
                     action  = 'store_true',
-                    default = defaults.online,
-                    help    = 'Generate a configuration file suitable for running online (use the online compliant connection string)' )
+                    help    = 'Ignored' )
 group.add_argument('--offline',
-                    dest    = 'online',
-                    action  = 'store_false',
-                    default = not defaults.online,
-                    help    = 'Generate a configuration file suitable for running offline (override the connection string) (default)' )
+                    dest    = 'unused',
+                    action  = 'store_true',
+                    help    = 'Ignored' )
 
 # redefine "--help" to be the last option, and use a customized message
 parser.add_argument('--help',
                     action  = 'help',
                     help    = 'Show this help message and exit' )
 
-
-
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())
+
+cmdArgs = sys.argv
+cmdArgs[0] = os.path.basename(sys.argv[0])
+cmdLine = ' '.join(cmdArgs)
+print '# ' + cmdLine
+print
 print confdb.HLTProcess(config).dump()

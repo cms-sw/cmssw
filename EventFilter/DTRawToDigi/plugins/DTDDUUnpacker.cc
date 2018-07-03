@@ -7,7 +7,6 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/DTDigi/interface/DTDDUWords.h"
-#include "DataFormats/DTDigi/interface/DTControlData.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h"
@@ -34,8 +33,8 @@ DTDDUUnpacker::~DTDDUUnpacker() {
 void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 				     int dduID,
 				     edm::ESHandle<DTReadOutMapping>& mapping,
-				     std::auto_ptr<DTDigiCollection>& detectorProduct,
-				     std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
+				     std::unique_ptr<DTDigiCollection>& detectorProduct,
+				     std::unique_ptr<DTLocalTriggerCollection>& triggerProduct,
 				     uint16_t rosList) {
 
   // Definitions
@@ -66,8 +65,8 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   FEDTrailer dduTrailer(index8 + datasize - 1*wordSize_64);
 
   if (dduTrailer.check()) {
-    if(debug) cout << "[DTDDUUnpacker] FED Trailer. Lenght of the DT event: "
-		   << dduTrailer.lenght() << endl;
+    if(debug) cout << "[DTDDUUnpacker] FED Trailer. Length of the DT event: "
+		   << dduTrailer.fragmentLength() << endl;
   } else {
     LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Trailer, FED ID: "
 					    << dduID << endl;

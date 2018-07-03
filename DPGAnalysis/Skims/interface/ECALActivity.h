@@ -33,10 +33,10 @@
 class ECALActivity : public edm::EDFilter {
 public:
   explicit ECALActivity( const edm::ParameterSet & );
-  ~ECALActivity();
+  ~ECALActivity() override;
   
 private:
-  virtual bool filter ( edm::Event &, const edm::EventSetup&) override;
+  bool filter ( edm::Event &, const edm::EventSetup&) override;
   
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;

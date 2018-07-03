@@ -1493,14 +1493,14 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
   chamberTypes["ME3/2"] = 7.5;
   chamberTypes["ME4/1"] = 8.5;
 
-  if(theSeg.size()){
+  if(!theSeg.empty()){
     std::map <int , GlobalPoint> extrapolatedPoint;
     std::map <int , GlobalPoint>::iterator it;
     const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
     // Pick which chamber with which segment to test
     for(size_t nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];
-      std::pair <CSCDetId, CSCSegment> * thisSegment = 0;
+      std::pair <CSCDetId, CSCSegment> * thisSegment = nullptr;
       for(size_t iSeg =0;iSeg<theSeg.size();++iSeg ){
         if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
           if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
@@ -2195,7 +2195,6 @@ int CSCValidation::getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId i
 void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn, 
                               const CSCStripDigiCollection&   strpcltn,
                               const CSCRecHit2DCollection& rechitcltn) {
-     float y;
      int channel=0,mult,wire,layer,idlayer,idchamber,ring;
      int wire_strip_rechit_present;
      std::string name,title,endcapstr;
@@ -2395,7 +2394,6 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                  int hvsgmtnmb=m_wire_hvsegm[chambertype][wire];
                  int nmbofhvsegm=nmbhvsegm[chambertype-1];
                  int location= (layer-1)*nmbofhvsegm+hvsgmtnmb;
-                 float x=location;
                 
                  ss<<"gas_gain_rechit_adc_3_3_sum_location_ME_"<<idchamber;
                  name=ss.str(); ss.str("");
@@ -2406,9 +2404,9 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                  ss<<"Gas Gain Rechit ADC3X3 Sum ME"<<endcapstr<<
                    id.station()<<"/"<<ring<<"/"<<id.chamber();
                  title=ss.str(); ss.str("");
-                 x=location;
-                 y=adc_3_3_sum;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),30,1.0,31.0,50,0.0,2000.0,"GasGain");
+                 float x=location;
+                 float y=adc_3_3_sum;
+                 histos->fill2DHist(x,y,name,title,30,1.0,31.0,50,0.0,2000.0,"GasGain");
 
                  /*
                    std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
@@ -2472,7 +2470,7 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
              name=ss.str(); ss.str("");
              ss<<"Time Bin vs AFEB Occupancy ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
              title=ss.str(); ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
+             histos->fill2DHist(x,y,name,title,42,1.,43.,16,0.,16.,"AFEBTiming");
 
              // Number of anode wire group time bin vs afeb for each CSC
              x=afeb;
@@ -2482,7 +2480,7 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
              ss<<"Number of Time Bins vs AFEB ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
              title=ss.str(); 
              ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
+             histos->fill2DHist(x,y,name,title,42,1.,43.,16,0.,16.,"AFEBTiming");
              
           }     // end of digis loop in layer
        } // end of wire collection loop
@@ -2543,7 +2541,7 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
              ss<<"Comparator Time Bin vs CFEB Occupancy ME"<<endcap<<
                  id.station()<<"/"<< id.ring()<<"/"<< id.chamber();             
              title=ss.str(); ss.str("");
-             histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,16,0.,16.,"CompTiming");
+             histos->fill2DHist(x,y,name,title,5,1.,6.,16,0.,16.,"CompTiming");
 
          }     // end of digis loop in layer
        } // end of collection loop
@@ -2583,57 +2581,57 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
               float adcmax=0.0;
  
               for(unsigned int i=0;i<recIt->nStrips();i++) 
-		for(unsigned int j=0;j<recIt->nTimeBins();j++)
-		  if(recIt->adcs(i,j)>adcmax) {
-		    adcmax=recIt->adcs(i,j); 
-		    binmx=j;
-		  }
+                for(unsigned int j=0;j<recIt->nTimeBins();j++)
+                  if(recIt->adcs(i,j)>adcmax) {
+                    adcmax=recIt->adcs(i,j); 
+                    binmx=j;
+                  }
 
-	      adc_3_3_sum=0.0;
-	      //well, this really only works for 3 strips in readout - not sure the right fix for general case
-              for(unsigned int i=0;i<recIt->nStrips();i++) 
-		for(unsigned int j=binmx-1;j<=binmx+1;j++) 
-		  adc_3_3_sum+=recIt->adcs(i,j);
-
-
-                // ADC weighted time bin
-                if(adc_3_3_sum > 100.0) {
-                  
-
-		  int centerStrip=recIt->channels(1); //take central from 3 strips;
-                // temporary fix
-                  int flag=0;
-                  if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
-                // end of temporary fix
-                  if(flag==0) {
-                  adc_3_3_wtbin=(*recIt).tpeak()/50;   //getTiming(strpcltn, id, centerStrip);
-                  idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
-                                              // become strips 65-80 ME1/1 !!!
-                  /*
-                  if(id.station()==1 && (id.ring()==1 || id.ring()==4))
-                  std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
-                      "      "<<centerStrip<<
-                         " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
-                  */      
-                 ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
-                 name=ss.str(); ss.str("");
-
-                 std::string endcapstr;
-                 if(id.endcap() == 1) endcapstr = "+";
-                 if(id.endcap() == 2) endcapstr = "-";
-                 ring=id.ring(); if(id.ring()==4) ring=1;
-                 ss<<"ADC 3X3 Weighted Time Bin vs CFEB Occupancy ME"
-                   <<endcapstr<<id.station()<<"/"<<ring<<"/"<<id.chamber();
-                 title=ss.str(); ss.str("");
-
-                 cfeb=(centerStrip-1)/16+1;
-                 x=cfeb; y=adc_3_3_wtbin;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,80,-8.,8.,"ADCTiming");                                     
-                 } // end of if flag==0
-                } // end of if (adc_3_3_sum > 100.0)
+               adc_3_3_sum=0.0;
+               //well, this really only works for 3 strips in readout - not sure the right fix for general case
+               for(unsigned int i=0;i<recIt->nStrips();i++) 
+                  for(unsigned int j=binmx-1;j<=binmx+1;j++) 
+                       adc_3_3_sum+=recIt->adcs(i,j);
+      
+      
+                  // ADC weighted time bin
+               if(adc_3_3_sum > 100.0) {
+                           
+      
+                 int centerStrip=recIt->channels(1); //take central from 3 strips;
+                 // temporary fix
+                 int flag=0;
+                 if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
+                 // end of temporary fix
+                 if(flag==0) {
+                      adc_3_3_wtbin=(*recIt).tpeak()/50;   //getTiming(strpcltn, id, centerStrip);
+                      idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
+                                                  // become strips 65-80 ME1/1 !!!
+                      /*
+                      if(id.station()==1 && (id.ring()==1 || id.ring()==4))
+                      std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
+                          "      "<<centerStrip<<
+                             " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
+                      */      
+                     ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
+                     name=ss.str(); ss.str("");
+      
+                     std::string endcapstr;
+                     if(id.endcap() == 1) endcapstr = "+";
+                     if(id.endcap() == 2) endcapstr = "-";
+                     ring=id.ring(); if(id.ring()==4) ring=1;
+                     ss<<"ADC 3X3 Weighted Time Bin vs CFEB Occupancy ME"
+                       <<endcapstr<<id.station()<<"/"<<ring<<"/"<<id.chamber();
+                     title=ss.str(); ss.str("");
+      
+                     cfeb=(centerStrip-1)/16+1;
+                     x=cfeb; y=adc_3_3_wtbin;
+                     histos->fill2DHist(x,y,name,title,5,1.,6.,80,-8.,8.,"ADCTiming");                                     
+                     } // end of if flag==0
+                 } // end of if (adc_3_3_sum > 100.0)
             } // end of if if(m_strip.size()==3
-       } // end of the  pass thru CSCRecHit2DCollection
-     }  // end of if (rechitcltn.begin() != rechitcltn.end())
+        } // end of the  pass thru CSCRecHit2DCollection
+    }  // end of if (rechitcltn.begin() != rechitcltn.end())
 }
 
 //---------------------------------------------------------------------------------------
@@ -2879,15 +2877,15 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
     unsigned long length =  fedData.size();
     
     if (length>=32){ ///if fed has data then unpack it
-      CSCDCCExaminer* examiner = NULL;
+      CSCDCCExaminer* examiner = nullptr;
       std::stringstream examiner_out, examiner_err;
       goodEvent = true;
       ///examine event for integrity
       //CSCDCCExaminer examiner;
       examiner = new CSCDCCExaminer();
-      if( examinerMask&0x40000 ) examiner->crcCFEB(1);
-      if( examinerMask&0x8000  ) examiner->crcTMB (1);
-      if( examinerMask&0x0400  ) examiner->crcALCT(1);
+      if( examinerMask&0x40000 ) examiner->crcCFEB(true);
+      if( examinerMask&0x8000  ) examiner->crcTMB (true);
+      if( examinerMask&0x0400  ) examiner->crcALCT(true);
       examiner->setMask(examinerMask);
       const short unsigned int *data = (short unsigned int *)fedData.data();
      
@@ -3012,7 +3010,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   	  } // end CSCData loop
   	} // end ddu data loop
       } // end if goodEvent
-      if (examiner!=NULL) delete examiner;
+      if (examiner!=nullptr) delete examiner;
     }// end if non-zero fed data
   } // end DCC loop for NON-REFERENCE
 

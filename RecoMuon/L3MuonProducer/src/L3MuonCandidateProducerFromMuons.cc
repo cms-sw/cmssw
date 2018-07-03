@@ -1,7 +1,7 @@
 /**  \class L3MuonCandidateProducerFromMuons
  * 
- *   This class takes the tracker muons (which are reco::Muons) 
- *   and creates the correspondent reco::RecoChargedCandidate.
+ *   This class takes reco::Muons and creates
+ *   the correspondent reco::RecoChargedCandidate.
  *
  */
 
@@ -49,7 +49,7 @@ L3MuonCandidateProducerFromMuons::~L3MuonCandidateProducerFromMuons(){
 void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const EventSetup& eventSetup) const {
   // Create a RecoChargedCandidate collection
   LogTrace(category)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
 
   // Take the L3 container
   LogTrace(category)<<" Taking the L3/GLB muons: "<<m_L3CollectionLabel.label();
@@ -60,8 +60,10 @@ void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const Eve
     LogError(category) << muons.whyFailed()->what();
   } else { 
     for (unsigned int i=0; i<muons->size(); i++) {
-      TrackRef tkref = (*muons)[i].innerTrack();
-
+      
+      // avoids crashing in case the muon is SA only. 
+      TrackRef tkref = ((*muons)[i].innerTrack().isNonnull())? (*muons)[i].innerTrack() : (*muons)[i].muonBestTrack();
+      
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
       Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
@@ -77,5 +79,5 @@ void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const Eve
       candidates->push_back(cand);
     }
   }
-  event.put(candidates);
+  event.put(std::move(candidates));
 }

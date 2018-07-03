@@ -53,7 +53,7 @@ SuperClusterImporter::SuperClusterImporter(const edm::ParameterSet& conf,
     _maxHoverE(conf.getParameter<double>("maximumHoverE")),
     _pTbyPass(conf.getParameter<double>("minPTforBypass")),
     _minSCPt(conf.getParameter<double>("minSuperClusterPt")),
-    _hadTower((EgammaHadTower*)NULL),
+    _hadTower(nullptr),
     _superClustersArePF(conf.getParameter<bool>("superClustersArePF")) {  
 }
 
@@ -82,7 +82,7 @@ importToBlock( const edm::Event& e,
   // add eb superclusters
   auto bsc = eb_scs->cbegin();
   auto esc = eb_scs->cend();
-  reco::PFBlockElementSuperCluster* scbe = NULL;
+  reco::PFBlockElementSuperCluster* scbe = nullptr;
   reco::SuperClusterRef scref;
   for( auto sc = bsc; sc != esc; ++sc ) {
     scref = reco::SuperClusterRef(eb_scs,std::distance(bsc,sc));

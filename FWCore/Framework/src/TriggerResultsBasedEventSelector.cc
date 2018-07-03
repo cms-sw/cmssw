@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -83,13 +84,14 @@ namespace edm
     bool configureEventSelector(edm::ParameterSet const& iPSet,
                                 std::string const& iProcessName,
                                 std::vector<std::string> const& iAllTriggerNames,
-                                edm::detail::TriggerResultsBasedEventSelector& oSelector) {
+                                edm::detail::TriggerResultsBasedEventSelector& oSelector,
+                                edm::ConsumesCollector&& iC) {
       // If selectevents is an emtpy ParameterSet, then we are to write
       // all events, or one which contains a vstrig 'SelectEvents' that
       // is empty, we are to write all events. We have no need for any
       // EventSelectors.
       if(iPSet.empty()) {
-        oSelector.setupDefault(iAllTriggerNames);
+        oSelector.setupDefault();
         return true;
       }
 
@@ -97,7 +99,7 @@ namespace edm
       iPSet.getParameter<std::vector<std::string> >("SelectEvents");
 
       if(path_specs.empty()) {
-        oSelector.setupDefault(iAllTriggerNames);
+        oSelector.setupDefault();
         return true;
       }
 
@@ -107,7 +109,7 @@ namespace edm
       for(size_t i = 0; i < path_specs.size(); ++i) {
         parse_path_spec(path_specs[i], parsed_paths[i]);
       }
-      oSelector.setup(parsed_paths, iAllTriggerNames, iProcessName);
+      oSelector.setup(parsed_paths, iAllTriggerNames, iProcessName, std::move(iC));
 
       return false;
     }
@@ -115,23 +117,20 @@ namespace edm
     // typedef detail::NamedEventSelector NES;
 
     TriggerResultsBasedEventSelector::TriggerResultsBasedEventSelector() :
-      selectors_()
+      selectors_(),
+      wantAllEvents_(false)
     { }
 
     void
-    TriggerResultsBasedEventSelector::setupDefault(std::vector<std::string> const& triggernames) {
-
-      // Set up one NamedEventSelector, with default configuration
-      std::vector<std::string> paths;
-      EventSelector es(paths, triggernames);
-      selectors_.emplace_back("", es);
-      //selectors_.push_back(NES("", EventSelector("",triggernames)));
+    TriggerResultsBasedEventSelector::setupDefault() {
+      wantAllEvents_ = true;
     }
 
     void
     TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& path_specs,
                           std::vector<std::string> const& triggernames,
-                          const std::string& process_name) {
+                          std::string const& process_name,
+                          ConsumesCollector&& iC) {
       // paths_for_process maps each PROCESS names to a sequence of
       // PATH names
       std::map<std::string, std::vector<std::string> > paths_for_process;
@@ -150,27 +149,24 @@ namespace edm
         // For the current process we know the trigger names
         // from the configuration file
         if (path.first == process_name) {
-          selectors_.emplace_back(path.first, EventSelector(path.second, triggernames));
+          selectors_.emplace_back(path.first, EventSelector(path.second, triggernames), std::move(iC));
         } else {
           // For previous processes we do not know the trigger
           // names yet.
-          selectors_.emplace_back(path.first, EventSelector(path.second));
+          selectors_.emplace_back(path.first, EventSelector(path.second), std::move(iC));
         }
       }
     }
 
     bool
-    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev, ModuleCallingContext const* mcc) {
+    TriggerResultsBasedEventSelector::wantEvent(EventForOutput const& ev) {
+      if(wantAllEvents_) {
+        return true;
+      }
       for(auto& selector : selectors_) {
-        edm::BasicHandle h = ev.getByLabel(PRODUCT_TYPE,
-                                          s_TrigResultsType,
-                                          selector.inputTag(),
-                                          nullptr,
-                                          nullptr,
-                                          mcc);
-        handle_t product;
-        convert_handle(std::move(h), product);
-        bool match = selector.match(*product);
+        Handle<TriggerResults> handle;
+        ev.getByToken<TriggerResults>(selector.token(), handle);
+        bool match = selector.match(*handle);
         if(match) {
           return true;
         }

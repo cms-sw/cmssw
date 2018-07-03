@@ -1,9 +1,9 @@
-#ifndef AMC13_SPEC__h
-#define AMC13_SPEC__h
+#ifndef EventFilter_L1TRawToDigi_AMC13_SPEC__h
+#define EventFilter_L1TRawToDigi_AMC13_SPEC__h
 
 #include <memory>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 #include "AMCSpec.h"
 
@@ -73,8 +73,8 @@ namespace amc13 {
          unsigned int blocks() const;
          unsigned int size() const;
 
-         void add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load);
-         bool parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc=false);
+         void add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user=0);
+         bool parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc=false, bool mtf7_mode=false);
          bool write(const edm::Event& ev, unsigned char * ptr, unsigned int skip, unsigned int size) const;
 
          inline std::vector<amc::Packet> payload() const { return payload_; };

@@ -1,5 +1,5 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
-
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -18,11 +18,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // constructor
-SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connectionString(connectionString), m_session(), debug_(debug)
+SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connectionString(connectionString), m_authPath( authenticationPath ), m_session(), debug_(debug)
 {
   std::cout << "Building coral interface" << std::endl;
-  m_connection.configuration().setAuthenticationPath(authenticationPath);
-  m_connection.configure();
   initialize();
 }
 
@@ -34,10 +32,12 @@ SiStripCoralIface::~SiStripCoralIface() {
 
 // open DB connection
 void  SiStripCoralIface::initialize() {
-  m_session = m_connection.createSession();
-  m_session.open(m_connectionString);
+  cond::persistency::ConnectionPool connection;
+  connection.setAuthenticationPath(m_authPath);
+  connection.configure();
+  m_session = connection.createSession(m_connectionString);
   try {
-    m_transaction.reset( new cond::DbScopedTransaction(m_session) );
+    m_transaction.reset( new cond::persistency::TransactionScope(m_session.transaction()) );
     m_transaction->start(true);
     LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] Database connection opened"; 
   }
@@ -51,7 +51,7 @@ void  SiStripCoralIface::initialize() {
 void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate, 
 				std::vector<float> &vec_actualValue, std::vector<std::string> &vec_dpname)
 {
-  std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   std::string condition;
 
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] table to be accessed: " << queryType;
@@ -63,7 +63,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
     query->addToOrderList("FWCAENCHANNEL.CHANGE_DATE");
     query->addToTableList("FWCAENCHANNEL");
     query->addToTableList("DP_NAME2ID");
-    condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.id AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.ACTUAL_STATUS IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.dpname like '%easyBoard%')";
+    condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.ACTUAL_STATUS IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
   } else if (queryType == "LASTVALUE") {
     query->addToOutputList("DCSLASTVALUE_VOLTAGE.CHANGE_DATE","CHANGE_DATE");
     query->addToOutputList("DCSLASTVALUE_VOLTAGE.ACTUAL_VMON","ACTUAL_VMON");
@@ -71,7 +71,7 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
     query->addToOrderList("DCSLASTVALUE_VOLTAGE.CHANGE_DATE");
     query->addToTableList("DCSLASTVALUE_VOLTAGE");
     query->addToTableList("DP_NAME2ID");
-    condition = "DCSLASTVALUE_VOLTAGE.DPID = DP_NAME2ID.id AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE<=:tmax AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE>=:tmin AND DCSLASTVALUE_VOLTAGE.ACTUAL_VMON IS NOT NULL AND (DP_NAME2ID.dpname like '%easyBoard%')";
+    condition = "DCSLASTVALUE_VOLTAGE.DPID = DP_NAME2ID.ID AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE<=:tmax AND DCSLASTVALUE_VOLTAGE.CHANGE_DATE>=:tmin AND DCSLASTVALUE_VOLTAGE.ACTUAL_VMON IS NOT NULL AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
   }
 
   coral::AttributeList conditionData;
@@ -111,14 +111,14 @@ void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& s
   }
   cursor.close();
   if (debug_) std::cout<<"[SiStripCoralIface::"<<__func__<<"] Finished dumping query results, "<< numberRow<<" rows were retrieved from PVSS Cond DB (both Pixel and Strip CAEN supplies)"<<std::endl;
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+  edm::LogInfo("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }
 
 // access the channel settings in the status change table
 void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate,
 					std::vector<float> &vec_settings, std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
-  std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   query->addToOutputList("FWCAENCHANNEL.CHANGE_DATE","CHANGE_DATE");
   query->addToOutputList("FWCAENCHANNEL.SETTINGS_V0","VSET");
   query->addToOutputList("FWCAENCHANNEL.DPID","DPID");
@@ -126,7 +126,7 @@ void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const
   query->addToOrderList("FWCAENCHANNEL.CHANGE_DATE");
   query->addToTableList("FWCAENCHANNEL");
   query->addToTableList("DP_NAME2ID");
-  std::string condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.id AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.SETTINGS_V0 IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.dpname like '%easyBoard%')";
+  std::string condition = "FWCAENCHANNEL.DPID = DP_NAME2ID.ID AND FWCAENCHANNEL.CHANGE_DATE<=:tmax AND FWCAENCHANNEL.SETTINGS_V0 IS NOT NULL AND FWCAENCHANNEL.CHANGE_DATE >=:tmin AND (DP_NAME2ID.DPNAME like '%easyBoard%')";
 
   coral::AttributeList conditionData;
   conditionData.extend<coral::TimeStamp>( "tmax" );
@@ -152,17 +152,17 @@ void SiStripCoralIface::doSettingsQuery(const coral::TimeStamp& startTime, const
     vec_dpname.push_back(id_name);
   }
   cursor.close();
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+  edm::LogInfo("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }
 
 void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
-  std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   query->addToOutputList("DP_NAME2ID.DPNAME","DPNAME");
   query->addToOutputList("DP_NAME2ID.ID","DPID");
   query->addToTableList("DP_NAME2ID");
 
-  std::string condition = "DP_NAME2ID.dpname like '%easyBoard%' ";
+  std::string condition = "DP_NAME2ID.DPNAME like '%easyBoard%' ";
   query->setCondition( condition, coral::AttributeList() );
 
   query->setMemoryCacheSize( 100 );
@@ -177,5 +177,5 @@ void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::v
     vec_dpname.push_back(id_name);
   }
   cursor.close();
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
+  edm::LogInfo("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] " << numberRow << " rows retrieved from PVSS Cond DB";
 }

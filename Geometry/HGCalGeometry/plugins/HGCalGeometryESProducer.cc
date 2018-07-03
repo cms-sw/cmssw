@@ -18,19 +18,19 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 //
 // class decleration
@@ -40,9 +40,9 @@ class HGCalGeometryESProducer : public edm::ESProducer {
 
 public:
   HGCalGeometryESProducer( const edm::ParameterSet& iP );
-  virtual ~HGCalGeometryESProducer() ;
+  ~HGCalGeometryESProducer() override ;
 
-  typedef boost::shared_ptr<HGCalGeometry> ReturnType;
+  typedef std::shared_ptr<HGCalGeometry> ReturnType;
 
   ReturnType produce(const IdealGeometryRecord&);
 
@@ -55,8 +55,8 @@ private:
 HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfig) {
 
   name_     = iConfig.getUntrackedParameter<std::string>("Name");
-#ifdef DebugLog
-  std::cout <<"constructing HGCalGeometry for " << name_ << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") <<"constructing HGCalGeometry for " << name_ << std::endl;
 #endif
   setWhatProduced(this, name_);
 }
@@ -75,12 +75,13 @@ HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
 
   edm::ESHandle<HGCalTopology> topo;
   iRecord.get(name_,topo);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Create HGCalGeometry (*topo) with " 
+				  << topo.isValid();
+#endif
 
   HGCalGeometryLoader builder;
   ReturnType ct(builder.build(*topo));
-#ifdef DebugLog
-  std::cout << "Create HGCalGeometry (*topo)" << std::endl;
-#endif
   return ct ;
 }
 

@@ -61,7 +61,7 @@ class EdmDataAccessorTestCase(unittest.TestCase):
 #        self.assertEqual(countDaughterRelations(accessor),3)
 #        self.assertEqual(int(float(accessor.propertyValue(accessor.children(accessor.children(accessor.topLevelObjects()[0])[0])[2],"Mass"))),92)
 
-        accessor.next()
+        next(accessor)
         self.assertEqual(accessor.eventNumber(),2)
 #        self.assertEqual(int(float(accessor.propertyValue(accessor.children(accessor.children(accessor.topLevelObjects()[0])[0])[2],"Mass"))),96)
 

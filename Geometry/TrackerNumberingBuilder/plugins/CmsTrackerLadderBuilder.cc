@@ -16,16 +16,17 @@ void CmsTrackerLadderBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g
 void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
-  if (comp.front()->type()==GeometricDet::DetUnit) 
-    std::sort(comp.begin(),comp.end(),LessZ());
-  else
-   edm::LogError("CmsTrackerLadderBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
-  
+  //sorting for PhaseI & PhaseII pixel ladder modules
+  //sorting also for PhaseII outer tracker rod modules
+  std::sort(comp.begin(),comp.end(),LessZ());
  
   for(uint32_t i=0; i<comp.size();i++){
     det->component(i)->setGeographicalID(i+1);
+  }
+
+  if (comp.empty() ){
+   edm::LogError("CmsTrackerLadderBuilder") << "Where are the OT Phase2/ pixel barrel modules modules?";
   } 
- 
 
 }
 

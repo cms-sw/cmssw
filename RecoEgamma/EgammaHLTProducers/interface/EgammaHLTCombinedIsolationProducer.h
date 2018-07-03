@@ -30,7 +30,7 @@ namespace edm {
 class EgammaHLTCombinedIsolationProducer : public edm::EDProducer {
 public:
   explicit EgammaHLTCombinedIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTCombinedIsolationProducer();
+  ~EgammaHLTCombinedIsolationProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;

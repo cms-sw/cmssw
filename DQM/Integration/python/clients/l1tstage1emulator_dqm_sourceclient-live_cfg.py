@@ -36,8 +36,9 @@ process.dqmSaver.tag = 'L1TEMUStage1'
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
-# Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+# Condition for lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
@@ -52,7 +53,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # L1 data - emulator sequences 
 process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")    
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    
-process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
+#process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
 
 #-------------------------------------
 # paths & schedule for L1 emulator DQM
@@ -67,10 +68,10 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
-if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#else:
+#    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonitor)
@@ -78,6 +79,10 @@ process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonit
 # for RCT at P5, read FED vector from OMDS
 #process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
+
+process.stage1UnpackerPath = cms.Path(process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
+process.caloStage1LegacyFormatDigis.bxMin = cms.int32(-2)
+process.caloStage1LegacyFormatDigis.bxMax = cms.int32(2)
 
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
@@ -89,8 +94,9 @@ process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
+                                process.stage1UnpackerPath,
                                 process.l1HwValEmulatorMonitorPath,
-                                #process.l1EmulatorMonitorClientPath,
+                                process.l1EmulatorMonitorClientPath,
                                 process.l1EmulatorMonitorEndPath)
 
 #---------------------------------------------
@@ -113,13 +119,13 @@ process.L1HardwareValidation.remove(process.deDt)
 #process.l1compare.COMPARE_COLLS = [0, 0, 1, 1,  0, 1, 0, 0, 1, 0, 1, 0]
 #
 
-process.l1compareforstage1.COMPARE_COLLS = [
-        0,  0,  0,  1,   0,  0,  0,  0,  0,  0,  0, 0
-        ]
+#process.l1compareforstage1.COMPARE_COLLS = [
+#        0,  0,  0,  1,   0,  0,  0,  0,  0,  0,  0, 0
+#        ]
 
-process.l1demonstage1.COMPARE_COLLS = [
-        0,  0,  0,  1,   0,  0,  0,  0,  0,  0,  0, 0
-        ]
+#process.l1demonstage1.COMPARE_COLLS = [
+#        0,  0,  0,  1,   0,  0,  0,  0,  0,  0,  0, 0
+#        ]
       #ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
 
 
@@ -130,15 +136,15 @@ process.l1demonstage1.COMPARE_COLLS = [
 # process.l1ExpertDataVsEmulator.remove(process.l1GtHwValidation)
 #
 
-process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
+#process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
 
-process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
+#process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
-process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMUStage1')
+process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMU')
 
-process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMUStage1/Stage1Layer2expert')
+process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2expert')
 
-process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMUStage1/GTexpert")
+process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMU/GTexpert")
 
 #
 # remove a module / sequence from l1EmulatorMonitorClient

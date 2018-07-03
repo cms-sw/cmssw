@@ -22,6 +22,13 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # H/E
     applyHOverECut = cms.bool(True),
     hOverEConeSize = cms.double(0.15),
+    # H/E equivalent for HGCal
+    allowHGCal = cms.bool(False),
+    HGCalConfig = cms.PSet(
+        HGCEEInput = cms.InputTag('HGCalRecHit:HGCEERecHits'),
+        HGCFHInput = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),
+        HGCBHInput = cms.InputTag('HGCalRecHit:HGCHEBRecHits')
+        ),
     #maxHOverE = cms.double(0.1),
     maxHOverEBarrel = cms.double(0.15),
     maxHOverEEndcaps = cms.double(0.15),
@@ -74,3 +81,5 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(ecalDrivenElectronSeedsParameters, SCEtCut = 15.0)

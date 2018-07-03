@@ -26,7 +26,7 @@ public:
   RPCFEDIntegrity(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~RPCFEDIntegrity();
+  ~RPCFEDIntegrity() override;
 
   
     
@@ -34,7 +34,7 @@ public:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Analyze  
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c) override;
   
     
  private:

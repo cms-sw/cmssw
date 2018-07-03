@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_MVAComputer_TreeReader_h
 #define PhysicsTools_MVAComputer_TreeReader_h
 
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 #include <string>
 #include <vector>
@@ -57,7 +57,7 @@ class TreeReader {
 	static const double	kOptVal;
 
 	struct Bool {
-		inline Bool() : value(0) {}
+		inline Bool() : value(false) {}
 		inline operator Bool_t() const { return value; }
 		Bool_t	value;
 	};
@@ -67,7 +67,7 @@ class TreeReader {
 		Value() {}
 		Value(int index, bool multiple, bool optional, char type) :
 			index(index), optional(optional), multiple(multiple),
-			optVal(TreeReader::kOptVal), type(type), ptr(0) {}
+			optVal(TreeReader::kOptVal), type(type), ptr(nullptr) {}
 		~Value() {}
 
 		void setOpt(bool opt, double optVal)

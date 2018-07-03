@@ -118,7 +118,7 @@ const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId
     cache = (*res);
     return &((*res).second);
   } else {
-    return 0;
+    return nullptr;
   }
 }
   
@@ -128,7 +128,7 @@ const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId
 // constants available for a particluar wire
 float DTCalibrationMap::getField(DTWireId wireId, int field) const {
   const CalibConsts* cals = getConsts(wireId);
-  if (cals == 0) {
+  if (cals == nullptr) {
     throw cms::Exception("NoCalibConsts") << "DTCalibrationMap:" << endl
 						<< "No parameters for wire: " << wireId << endl
 						<< "Check the " << calibConstFileName << " file!" << endl;
@@ -213,7 +213,7 @@ void DTCalibrationMap::addCell(Key theKey, const CalibConsts& calibConst) {
 void DTCalibrationMap::writeConsts(const string& outputFileName) const {
   ofstream out(outputFileName.c_str());
   for(map<Key,CalibConsts>::const_iterator iter = theMap.begin();
-      iter != theMap.end() ; iter++) {
+      iter != theMap.end() ; ++iter) {
     
     out << (*iter).first.wheel() << ' '
       << (*iter).first.station() << ' '

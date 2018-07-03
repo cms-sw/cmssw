@@ -11,3 +11,25 @@ ak4PFJets = cms.EDProducer(
     rParam       = cms.double(0.4)
     )
 
+
+ak4PFJetsCHS = ak4PFJets.clone(
+    src = cms.InputTag("pfNoPileUpJME")
+    )
+
+ak4PFJetsPuppi = ak4PFJets.clone(
+    src = cms.InputTag("puppi")
+    )
+
+ak4PFJetsSK = ak4PFJets.clone(
+    src = cms.InputTag("softKiller"),
+    useExplicitGhosts = cms.bool(True)
+    )
+
+ak4PFJetsCS = ak4PFJets.clone(
+    useConstituentSubtraction = cms.bool(True),
+    csRParam = cms.double(0.4),
+    csRho_EtaMax = ak4PFJets.Rho_EtaMax,   # Just use the same eta for both C.S. and rho by default
+    useExplicitGhosts = cms.bool(True),
+    doAreaFastjet = cms.bool(True),
+    jetPtMin = cms.double(100.0)
+    )

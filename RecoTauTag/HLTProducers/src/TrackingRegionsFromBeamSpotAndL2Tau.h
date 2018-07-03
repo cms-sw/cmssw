@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -54,10 +55,33 @@ public:
     }
   }
   
-  virtual ~TrackingRegionsFromBeamSpotAndL2Tau() {}
+  ~TrackingRegionsFromBeamSpotAndL2Tau() override {}
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
+    desc.add<double>("ptMin", 5.0);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("originHalfLength", 24.0);
+    desc.add<double>("deltaEta", 0.3);
+    desc.add<double>("deltaPhi", 0.3);
+    desc.add<edm::InputTag>("JetSrc", edm::InputTag("hltFilterL2EtCutDoublePFIsoTau25Trk5"));
+    desc.add<double>("JetMinPt", 25.0);
+    desc.add<double>("JetMaxEta", 2.1);
+    desc.add<int>("JetMaxN", 10);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    desc.add<bool>("precise", true);
+    desc.add<std::string>("howToUseMeasurementTracker", "Never");
+    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag("MeasurementTrackerEvent"));
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("trackingRegionsFromBeamSpotAndL2Tau", descRegion);
+  }
+
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
     std::vector<std::unique_ptr<TrackingRegion> > result;
 

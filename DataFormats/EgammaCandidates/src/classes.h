@@ -83,13 +83,13 @@ namespace DataFormats_EgammaCandidates {
 
     reco::Photon::FiducialFlags pff ;
     reco::Photon::ShowerShape pss ;
+    reco::Photon::SaturationInfo psi ;
     reco::Photon::IsolationVariables piv ;
     reco::Photon::PflowIsolationVariables ppfiv ;
     reco::Photon::PflowIDVariables ppfid ;
     reco::Photon::MIPVariables pmv ;
     reco::Photon::EnergyCorrections pec ;
-
-
+    
     reco::ElectronCollection v2;
     edm::Wrapper<reco::ElectronCollection> w2;
     edm::Ref<reco::ElectronCollection> r2;
@@ -123,6 +123,7 @@ namespace DataFormats_EgammaCandidates {
     reco::GsfElectron::ClosestCtfTrack gecct ;
     reco::GsfElectron::FiducialFlags geff ;
     reco::GsfElectron::ShowerShape gess ;
+    reco::GsfElectron::SaturationInfo gesi ;
     reco::GsfElectron::IsolationVariables geiv ;
     reco::GsfElectron::ConversionRejection gecr ;
     reco::GsfElectron::Corrections gec ;
@@ -132,7 +133,7 @@ namespace DataFormats_EgammaCandidates {
     reco::GsfElectron::MvaOutput gemo ;
     reco::GsfElectron::ClassificationVariables gecv ;
     reco::GsfElectron::PixelMatchVariables gepmv ;
-
+    
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;
     edm::RefToBaseProd<reco::GsfElectron> rtbpg;

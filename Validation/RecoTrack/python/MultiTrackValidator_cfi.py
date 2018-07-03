@@ -34,6 +34,8 @@ multiTrackValidator = cms.EDAnalyzer(
     ### sim input configuration ###
     label_tp_effic = cms.InputTag("mix","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mix","MergedTrackTruth"),
+    label_tp_effic_refvector = cms.bool(False),
+    label_tp_fake_refvector = cms.bool(False),
     label_tv = cms.InputTag("mix","MergedTrackTruth"),
     label_pileupinfo = cms.InputTag("addPileupInfo"),
     sim = cms.VInputTag(
@@ -54,9 +56,16 @@ multiTrackValidator = cms.EDAnalyzer(
     # parametersDefiner = cms.string('CosmicParametersDefinerForTP'),     # cosmics tracks
     simHitTpMapTag = cms.InputTag("simHitTPAssocProducer"),               # needed by CosmicParametersDefinerForTP
 
+    label_tp_nlayers = cms.InputTag("trackingParticleNumberOfLayersProducer", "trackerLayers"),
+    label_tp_npixellayers = cms.InputTag("trackingParticleNumberOfLayersProducer", "pixelLayers"),
+    label_tp_nstripstereolayers = cms.InputTag("trackingParticleNumberOfLayersProducer", "stripStereoLayers"),
+
     ### reco input configuration ###
     label = cms.VInputTag(cms.InputTag("generalTracks")),
     beamSpot = cms.InputTag("offlineBeamSpot"),
+
+    ### selection MVA
+    mvaLabels = cms.untracked.PSet(),
 
     ### dE/dx configuration ###
     dEdx1Tag = cms.InputTag("dedxHarmonic2"),
@@ -75,6 +84,8 @@ multiTrackValidator = cms.EDAnalyzer(
     label_vertex = cms.untracked.InputTag("offlinePrimaryVertices"),
     vertexAssociator = cms.untracked.InputTag("VertexAssociatorByPositionAndTracks"),
 
+    simPVMaxZ = cms.untracked.double(-1),
+
     ### Allow switching off particular histograms
     doSummaryPlots = cms.untracked.bool(True),
     doSimPlots = cms.untracked.bool(True),
@@ -82,9 +93,19 @@ multiTrackValidator = cms.EDAnalyzer(
     doRecoTrackPlots = cms.untracked.bool(True),
     dodEdxPlots = cms.untracked.bool(False),
     doPVAssociationPlots = cms.untracked.bool(False), # do plots that require true PV, if True, label_vertex and vertexAssociator are read
+    doSeedPlots = cms.untracked.bool(False), # input comes from TrackFromSeedProducer
+    doMVAPlots = cms.untracked.bool(False), # needs input from track MVA selectors
+
+    ### do resolution plots only for these labels (or all if empty)
+    doResolutionPlotsForLabels = cms.VInputTag(),
 )
 
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
-    multiTrackValidator.sim = [cms.InputTag('famosSimHits','TrackerHits')]
-    
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(multiTrackValidator, sim = ['fastSimProducer:TrackerHits'])
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(multiTrackValidator,
+    label_tp_effic = "mixData:MergedTrackTruth",
+    label_tp_fake = "mixData:MergedTrackTruth",
+    label_tv = "mixData:MergedTrackTruth",
+)

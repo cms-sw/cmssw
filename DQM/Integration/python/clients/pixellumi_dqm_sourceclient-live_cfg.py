@@ -31,7 +31,7 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "PixelLumi"
 process.dqmSaver.tag = "PixelLumi"
 
-process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*")
+process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
 #process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 #if (process.runType.getRunType() == process.runType.hi_run):
 #    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
@@ -55,8 +55,9 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #-------------------------------------------------
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-# Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+# Condition for lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------
 #  Reconstruction Modules
@@ -83,6 +84,10 @@ process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
     process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+
+    process.source.SelectEvents = cms.untracked.vstring('HLT_HIL1MinimumBiasHF2AND*')
+
+
 #    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(
 #        SelectEvents = cms.vstring('HLT_HI*'))
 

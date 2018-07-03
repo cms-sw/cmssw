@@ -4,6 +4,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="boost"/>
 <use   name="openssl"/>
+<use   name="tbb"/>
 <flags   cppflags="-D_FILE_OFFSET_BITS=64"/>
 <export>
   <lib   name="1"/>

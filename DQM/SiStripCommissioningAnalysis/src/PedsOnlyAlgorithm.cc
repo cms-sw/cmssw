@@ -15,8 +15,8 @@ using namespace sistrip;
 // 
 PedsOnlyAlgorithm::PedsOnlyAlgorithm( const edm::ParameterSet & pset, PedsOnlyAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    hPeds_(0,""),
-    hNoise_(0,"")
+    hPeds_(nullptr,""),
+    hNoise_(nullptr,"")
 {}
 
 // ----------------------------------------------------------------------------
@@ -137,8 +137,7 @@ void PedsOnlyAlgorithm::analyse() {
     // Iterate through strips of APV
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
 
-      static uint16_t strip;
-      strip = iapv*128 + istr;
+      uint16_t strip = iapv*128 + istr;
 
       // Pedestals 
       if ( peds_histo ) {

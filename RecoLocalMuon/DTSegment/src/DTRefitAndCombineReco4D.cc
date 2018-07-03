@@ -96,15 +96,15 @@ DTRefitAndCombineReco4D::reconstruct(){
   bool hasZed=false;
 
   // has this chamber the Z-superlayer?
-  if (theSegments2DTheta.size()){
-    hasZed = theSegments2DTheta.size()>0;
+  if (!theSegments2DTheta.empty()){
+    hasZed = !theSegments2DTheta.empty();
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
     if (debug) cout << "No Theta SL" << endl;
   }
 
   // Now I want to build the concrete DTRecSegment4D.
-  if (resultPhi.size()) {
+  if (!resultPhi.empty()) {
     for (vector<DTChamberRecSegment2D>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
       
@@ -125,7 +125,7 @@ DTRefitAndCombineReco4D::reconstruct(){
 	  //<<
 
           /// 4d segment: I have the pos along the wire => further update!
-          theUpdator->update(newSeg,0,1);
+          theUpdator->update(newSeg,false,true);
           if (debug) cout << "Created a 4D seg " << endl;
 	  result.push_back(newSeg);
         }
@@ -186,7 +186,7 @@ vector<DTChamberRecSegment2D> DTRefitAndCombineReco4D::refitSuperSegments(){
       DTChamberRecSegment2D superPhi(chId,recHitsSeg2DPhi1); 
       
       // refit it!
-      theUpdator->fit(&superPhi,0,0);
+      theUpdator->fit(&superPhi,false,false);
       
       // cut on the chi^2
       if (superPhi.chi2() > theMaxChi2forPhi)

@@ -94,12 +94,12 @@ process.caloStage2Digis.InputLabel = cms.InputTag('stage2Raw')
 
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
+process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis","CaloTower")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
+process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis","EGamma")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis","Tau")
+process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis","Jet")
+process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis","EtSum")
 
 # Path and EndPath definitions
 process.path = cms.Path(

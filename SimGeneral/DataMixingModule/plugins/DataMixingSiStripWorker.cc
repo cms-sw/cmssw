@@ -204,11 +204,11 @@ namespace edm
 
     // make new digi collection
     
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > MySiStripDigis(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );
+    std::unique_ptr< edm::DetSetVector<SiStripDigi> > MySiStripDigis(new edm::DetSetVector<SiStripDigi>(vSiStripDigi) );
 
     // put collection
 
-    e.put( MySiStripDigis, SiStripDigiCollectionDM_ );
+    e.put(std::move(MySiStripDigis), SiStripDigiCollectionDM_ );
 
     // clear local storage for this event
     SiHitStorage_.clear();

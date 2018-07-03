@@ -4,6 +4,7 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 #include <string>
@@ -26,16 +27,16 @@ namespace edm
   public:  
     explicit StreamerInputModule(ParameterSet const& pset,
                  InputSourceDescription const& desc);
-    virtual ~StreamerInputModule();
+    ~StreamerInputModule() override;
   private:
-    virtual void genuineCloseFile() override {
+    void genuineCloseFile() override {
       if(pr_.get() != nullptr) pr_->closeFile();
     }
 
-    virtual bool checkNextEvent();
+    bool checkNextEvent() override;
 
     //ProductRegistry const* prod_reg_;
-    std::auto_ptr<Producer> pr_; 
+    edm::propagate_const<std::unique_ptr<Producer>> pr_;
   }; //end-of-class-def
 
   template <typename Producer>
@@ -65,7 +66,7 @@ namespace edm
         InitMsgView const* header = pr_->getHeader();
         deserializeAndMergeWithRegistry(*header, true);
     } 
-    if (eview == 0) {
+    if (eview == nullptr) {
         return  false;
     }
     deserializeEvent(*eview);

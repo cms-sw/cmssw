@@ -14,7 +14,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 // user include files
@@ -34,9 +33,9 @@
 class L1MuGMTScalesProducer : public edm::ESProducer {
 public:
   L1MuGMTScalesProducer(const edm::ParameterSet&);
-  ~L1MuGMTScalesProducer();
+  ~L1MuGMTScalesProducer() override;
   
-  std::auto_ptr<L1MuGMTScales> produceL1MuGMTScales(const L1MuGMTScalesRcd&);
+  std::unique_ptr<L1MuGMTScales> produceL1MuGMTScales(const L1MuGMTScalesRcd&);
 
 private:
   // ----------member data ---------------------------

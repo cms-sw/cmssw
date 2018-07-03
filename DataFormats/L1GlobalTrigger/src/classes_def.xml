@@ -48,7 +48,8 @@
   </class>
   <class name="edm::Wrapper<L1GlobalTriggerEvmReadoutRecord>" splitLevel="0"/>
 
-  <class name="L1GlobalTriggerObjectMap" ClassVersion="10">
+  <class name="L1GlobalTriggerObjectMap" ClassVersion="11">
+   <version ClassVersion="11" checksum="3562485483"/>
    <version ClassVersion="10" checksum="744814082"/>
   </class>
   <class name="edm::Wrapper<L1GlobalTriggerObjectMap>" splitLevel="0"/>

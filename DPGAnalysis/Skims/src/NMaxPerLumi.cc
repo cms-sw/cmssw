@@ -37,12 +37,12 @@
 class NMaxPerLumi : public edm::EDFilter {
    public:
       explicit NMaxPerLumi(const edm::ParameterSet&);
-      ~NMaxPerLumi();
+      ~NMaxPerLumi() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
   // ----------member data ---------------------------
   std::map< unsigned int , std::map < unsigned int, unsigned int > > counters;

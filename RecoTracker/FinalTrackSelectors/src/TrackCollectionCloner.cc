@@ -1,5 +1,10 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackCollectionCloner.h"
 
+void 
+TrackCollectionCloner::fill(edm::ParameterSetDescription& desc) {
+  desc.addUntracked<bool>("copyExtras",      true);
+  desc.addUntracked<bool>("copyTrajectories",false);  
+}
 
 TrackCollectionCloner::Producer::Producer(edm::Event& ievt, TrackCollectionCloner const & cloner) :
   copyExtras_(cloner.copyExtras_), copyTrajectories_(cloner.copyTrajectories_), evt(ievt)  {
@@ -64,6 +69,8 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     tx.setResiduals(trk.residuals());
     auto nh1=trk.recHitsSize();
     tx.setHits(rHits,selHits_->size(),nh1);
+    tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
+    assert(tx.trajParams().size()==tx.recHitsSize());
     // TrackingRecHits
     for( auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
       selHits_->push_back( (*hit)->clone() );

@@ -93,9 +93,9 @@ protected:
    FWColorManager& colorManager() const;
 
 private:
-   FWViewManagerBase(const FWViewManagerBase&);    // stop default
+   FWViewManagerBase(const FWViewManagerBase&) = delete;    // stop default
 
-   const FWViewManagerBase& operator=(const FWViewManagerBase&);    // stop default
+   const FWViewManagerBase& operator=(const FWViewManagerBase&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    const fireworks::Context*   m_context;

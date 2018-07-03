@@ -11,13 +11,13 @@
 #include "TMVA/IMethod.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 
 class TMVAEvaluator {
 
   public:
     TMVAEvaluator();
-    ~TMVAEvaluator();
 
     void initialize(const std::string & options, const std::string & method, const std::string & weightFile,
                     const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useGBRForest=false, bool useAdaBoost=false);
@@ -33,16 +33,14 @@ class TMVAEvaluator {
     bool mIsInitialized;
     bool mUsingGBRForest;
     bool mUseAdaBoost;
-    bool mReleaseAtEnd;
 
     std::string mMethod;
     mutable std::mutex m_mutex;
-    [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVA::Reader> mReader;
-    std::unique_ptr<TMVA::IMethod> mIMethod;
-    std::unique_ptr<const GBRForest> mGBRForest;
+    CMS_THREAD_GUARD(m_mutex) std::unique_ptr<TMVA::Reader> mReader;
+    std::shared_ptr<const GBRForest> mGBRForest;
 
-    [[cms::thread_guard("m_mutex")]] mutable std::map<std::string,std::pair<size_t,float>> mVariables;
-    [[cms::thread_guard("m_mutex")]] mutable std::map<std::string,std::pair<size_t,float>> mSpectators;
+    CMS_THREAD_GUARD(m_mutex) mutable std::map<std::string,std::pair<size_t,float>> mVariables;
+    CMS_THREAD_GUARD(m_mutex) mutable std::map<std::string,std::pair<size_t,float>> mSpectators;
 };
 
 #endif // CommonTools_Utils_TMVAEvaluator_h

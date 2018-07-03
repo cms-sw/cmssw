@@ -6,6 +6,8 @@
 <use   name="CalibTracker/SiStripCommon"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/RunInfo"/>
 <library   file="*.cc" name="CalibTrackerSiStripCommonPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

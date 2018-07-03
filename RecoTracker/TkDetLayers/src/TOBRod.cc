@@ -233,7 +233,7 @@ void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      vector<DetGroup>& result,
 			      bool checkClosest) const
 {
-  GlobalPoint gCrossingPos = crossing.position();
+  const GlobalPoint& gCrossingPos = crossing.position();
 
   const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
  

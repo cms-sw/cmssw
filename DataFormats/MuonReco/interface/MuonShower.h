@@ -1,6 +1,8 @@
 #ifndef MuonReco_MuonShower_h
 #define MuonReco_MuonShower_h
 
+#include <vector>
+
 namespace reco {
     struct MuonShower {
 

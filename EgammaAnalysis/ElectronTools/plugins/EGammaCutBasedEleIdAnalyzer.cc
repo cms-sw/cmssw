@@ -54,21 +54,21 @@ class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
 
 
         explicit EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet&);
-        ~EGammaCutBasedEleIdAnalyzer();
+        ~EGammaCutBasedEleIdAnalyzer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget;
 
 
     private:
-        virtual void beginJob() ;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        void beginJob() override ;
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
+        void endJob() override ;
 
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+        void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        void endRun(edm::Run const&, edm::EventSetup const&) override;
+        void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
         // ----------member data ---------------------------
 

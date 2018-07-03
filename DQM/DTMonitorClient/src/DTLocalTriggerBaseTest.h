@@ -47,21 +47,21 @@ public:
   DTLocalTriggerBaseTest() {};
   
   /// Destructor
-  virtual ~DTLocalTriggerBaseTest();
+  ~DTLocalTriggerBaseTest() override;
 
 
 protected:
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context);
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) override;
 
   /// Perform client diagnostic in online
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   /// Perform client diagnostic in offline
-  void endRun(edm::Run const& run, edm::EventSetup const& context);
+  void endRun(edm::Run const& run, edm::EventSetup const& context) override;
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// Perform client analysis
   virtual void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &) = 0;
@@ -94,7 +94,7 @@ protected:
   std::string getMEName(std::string histoTag, std::string subfolder, int wh);
   
   /// Get top folder name
-  inline std::string & topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; } ;
+  inline std::string & topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; } ;
   
   /// Get message logger name
   inline std::string category() { return "DTDQM|DTMonitorClient|" + testName + "Test"; } ;
@@ -112,7 +112,7 @@ protected:
   std::string sourceFolder;
   edm::ParameterSet parameters;
   bool runOnline;
-  std::string baseFolderDCC;
+  std::string baseFolderTM;
   std::string baseFolderDDU;
   std::string trigSource;
   std::string hwSource;
@@ -126,7 +126,7 @@ protected:
 
 template <class T>
 T* DTLocalTriggerBaseTest::getHisto(MonitorElement* me) {
-  return me ? dynamic_cast<T*>(me->getRootObject()) : 0;
+  return me ? dynamic_cast<T*>(me->getRootObject()) : nullptr;
 }
 
 #endif

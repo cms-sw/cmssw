@@ -16,4 +16,5 @@ cd ${LOCALRT}/tmp/
 touch check-end
 sort -u < class-checker.txt.unsorted | grep -e"^data class">class-checker.txt
 sort -u < function-checker.txt.unsorted >function-statics-db.txt
+cat constcast-checker.txt.unsorted constcastaway-checker.txt.unsorted mutablemember-checker.txt.unsorted | sort -u >const-checker.txt
 rm *.txt.unsorted

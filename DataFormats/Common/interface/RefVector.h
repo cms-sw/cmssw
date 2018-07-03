@@ -19,7 +19,6 @@ RefVector: A template for a vector of interproduct references.
 #include "DataFormats/Common/interface/RefVectorTraits.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -52,16 +51,25 @@ namespace edm {
     /// Default constructor needed for reading from persistent
     /// store. Not for direct use.
     RefVector() : refVector_() {}
+    ~RefVector() = default;
+
     RefVector(RefVector const& rh) : refVector_(rh.refVector_){}
-#if defined(__GXX_EXPERIMENTAL_CXX0X__)
     RefVector(RefVector && rh)  noexcept : refVector_(std::move(rh.refVector_)){}
-#endif
+
+    RefVector& operator=(RefVector const& rhs);
+    RefVector& operator=(RefVector  && rhs)  noexcept {
+      refVector_ = std::move(rhs.refVector_);
+      return *this;
+    }
+
+
 
     RefVector(ProductID const& iId) : refVector_(iId) {}
     /// Add a Ref<C, T> to the RefVector
     void push_back(value_type const& ref) {
       refVector_.pushBack(ref.refCore(), ref.key());
     }
+    
 
     /// Retrieve an element of the RefVector
     value_type const operator[](size_type idx) const {
@@ -69,7 +77,7 @@ namespace edm {
       key_type const& key = refVector_.keys()[idx];
       void const* memberPointer = refVector_.cachedMemberPointer(idx);
       if(memberPointer) {
-        RefCore newCore(core);
+        RefCore newCore(core); // NOLINT
         newCore.setProductPtr(memberPointer);
         return value_type(newCore, key);
       }
@@ -82,7 +90,7 @@ namespace edm {
       key_type const& key = refVector_.keys().at(idx);
       void const* memberPointer = refVector_.cachedMemberPointer(idx);
       if(memberPointer) {
-        RefCore newCore(core);
+        RefCore newCore(core); // NOLINT
         newCore.setProductPtr(memberPointer);
         return value_type(newCore, key);
       }
@@ -141,14 +149,6 @@ namespace edm {
     /// Swap two vectors.
     void swap(RefVector<C, T, F> & other)  noexcept;
 
-    /// Copy assignment.
-    RefVector& operator=(RefVector const& rhs);
-#if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVector& operator=(RefVector  && rhs)  noexcept { 
-      refVector_ = std::move(rhs.refVector_);
-      return *this;
-    }
-#endif
     /// Checks if product is in memory.
     bool hasProductCache() const {return refVector_.refCore().productPtr() != 0;}
 
@@ -187,7 +187,6 @@ namespace edm {
     a.swap(b);
   }
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename C, typename T, typename F>
   void
   RefVector<C,T,F>::fillView(ProductID const&,
@@ -199,12 +198,11 @@ namespace edm {
 
     size_type key = 0;
     for(const_iterator i=begin(), e=end(); i!=e; ++i, ++key) {
-      member_type const* address = i->isNull() ? 0 : &**i;
+      member_type const* address = i->isNull() ? nullptr : &**i;
       pointers.push_back(address);
       helpers.emplace_back(i->id(),i->key());
     }
   }
-#endif
 
   template<typename C, typename T, typename F>
   inline

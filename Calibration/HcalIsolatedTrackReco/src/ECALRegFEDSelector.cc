@@ -3,6 +3,7 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
 {
@@ -11,7 +12,7 @@ ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
   
   tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
 
-  ec_mapping = new EcalElectronicsMapping();
+  ec_mapping = std::make_unique<EcalElectronicsMapping>();
 
   produces<FEDRawDataCollection>();
   produces<EcalListOfFEDS>();
@@ -35,9 +36,9 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       fedSaved[p]=false;
     }
 
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
 
-  std::auto_ptr<EcalListOfFEDS> fedList(new EcalListOfFEDS);  
+  auto fedList = std::make_unique<EcalListOfFEDS>();
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
   iEvent.getByToken(tok_seed_,trigSeedTrks);
@@ -55,7 +56,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       double etaObj_=isoPixTrackRefs[p]->track()->eta();
       double phiObj_=isoPixTrackRefs[p]->track()->phi();
 
-      EcalEtaPhiRegion ecEtaPhi(etaObj_-delta_,etaObj_+delta_,phiObj_-delta_,phiObj_+delta_);
+      RectangularEtaPhiRegion ecEtaPhi(etaObj_-delta_,etaObj_+delta_,phiObj_-delta_,phiObj_+delta_);
       
       const std::vector<int> EC_FED_IDs=ec_mapping->GetListofFEDs(ecEtaPhi);
       
@@ -107,8 +108,8 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
     }
 
-  iEvent.put(producedData);  
-  iEvent.put(fedList);
+  iEvent.put(std::move(producedData));
+  iEvent.put(std::move(fedList));
   
 }
 

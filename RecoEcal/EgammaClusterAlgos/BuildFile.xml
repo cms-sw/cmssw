@@ -3,6 +3,8 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
+<use   name="CondFormats/ESObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>

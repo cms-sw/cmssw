@@ -11,7 +11,7 @@
 #include "TSystem.h"
 #include "TROOT.h"
 #include "TEnv.h"
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -70,33 +70,34 @@ public:
 #endif
 
 ClassImp(TStorageFactoryFile)
-static StorageAccount::Counter *s_statsCtor = 0;
-static StorageAccount::Counter *s_statsOpen = 0;
-static StorageAccount::Counter *s_statsClose = 0;
-static StorageAccount::Counter *s_statsFlush = 0;
-static StorageAccount::Counter *s_statsStat = 0;
-static StorageAccount::Counter *s_statsSeek = 0;
-static StorageAccount::Counter *s_statsRead = 0;
-static StorageAccount::Counter *s_statsCRead = 0;
-static StorageAccount::Counter *s_statsCPrefetch = 0;
-static StorageAccount::Counter *s_statsARead = 0;
-static StorageAccount::Counter *s_statsXRead = 0;
-static StorageAccount::Counter *s_statsWrite = 0;
-static StorageAccount::Counter *s_statsCWrite = 0;
-static StorageAccount::Counter *s_statsXWrite = 0;
+static StorageAccount::Counter *s_statsCtor = nullptr;
+static StorageAccount::Counter *s_statsOpen = nullptr;
+static StorageAccount::Counter *s_statsClose = nullptr;
+static StorageAccount::Counter *s_statsFlush = nullptr;
+static StorageAccount::Counter *s_statsStat = nullptr;
+static StorageAccount::Counter *s_statsSeek = nullptr;
+static StorageAccount::Counter *s_statsRead = nullptr;
+static StorageAccount::Counter *s_statsCRead = nullptr;
+static StorageAccount::Counter *s_statsCPrefetch = nullptr;
+static StorageAccount::Counter *s_statsARead = nullptr;
+static StorageAccount::Counter *s_statsXRead = nullptr;
+static StorageAccount::Counter *s_statsWrite = nullptr;
+static StorageAccount::Counter *s_statsCWrite = nullptr;
+static StorageAccount::Counter *s_statsXWrite = nullptr;
 
 
 static inline StorageAccount::Counter &
-storageCounter(StorageAccount::Counter *&c, const char *label)
+storageCounter(StorageAccount::Counter *&c, StorageAccount::Operation operation)
 {
-  if (! c) c = &StorageAccount::counter("tstoragefile", label);
+  static const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+  if (! c) c = &StorageAccount::counter(token, operation);
   return *c;
 }
 
 TStorageFactoryFile::TStorageFactoryFile(void)
-  : storage_(0)
+  : storage_()
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsCtor, "construct"));
+  StorageAccount::Stamp stats(storageCounter(s_statsCtor, StorageAccount::Operation::construct));
   stats.tick(0);
 }
 
@@ -111,7 +112,7 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          Int_t netopt,
                                          Bool_t parallelopen /* = kFALSE */)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    storage_(0)
+    storage_()
 {
   try {
     Initialize(path, option);
@@ -125,7 +126,7 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          const char *ftitle /* = "" */,
                                          Int_t compress /* = 1 */)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    storage_(0)
+    storage_()
 {
   try {
     Initialize(path, option);
@@ -138,7 +139,7 @@ void
 TStorageFactoryFile::Initialize(const char *path,
                                 Option_t *option /* = "" */)
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsCtor, "construct"));
+  StorageAccount::Stamp stats(storageCounter(s_statsCtor, StorageAccount::Operation::construct));
 
   // Enable AsyncReading.
   // This was the default for 5.27, but turned off by default for 5.32.
@@ -206,7 +207,7 @@ TStorageFactoryFile::Initialize(const char *path,
     if (statsService.isAvailable()) {
       statsService->setSize(storage_->size());
     }
-  } catch (edm::Exception e) {
+  } catch (edm::Exception const& e) {
     if (e.categoryCode() != edm::errors::NotFound) {
       throw;
     }
@@ -224,7 +225,6 @@ TStorageFactoryFile::Initialize(const char *path,
 TStorageFactoryFile::~TStorageFactoryFile(void)
 {
   Close();
-  delete storage_;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   // cache, "readu" indicates how much we failed to read from the
   // cache (excluding those recursive reads), and "readx" counts
   // the amount actually passed to read from the storage object.
-  StorageAccount::Stamp stats(storageCounter(s_statsRead, "read"));
+  StorageAccount::Stamp stats(storageCounter(s_statsRead, StorageAccount::Operation::read));
 
   // If we have a cache, read from there first.  This returns 0
   // if the block hasn't been prefetched, 1 if it was in cache,
@@ -275,12 +275,13 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
     Bool_t   async = c->IsAsyncReading();
 
     StorageAccount::Stamp cstats(async
-                                 ? storageCounter(s_statsCPrefetch, "readPrefetchToCache")
-                                 : storageCounter(s_statsCRead, "readViaCache"));
+                                 ? storageCounter(s_statsCPrefetch, StorageAccount::Operation::readPrefetchToCache)
+                                 : storageCounter(s_statsCRead, StorageAccount::Operation::readViaCache));
 
-    Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
+    Int_t st = ReadBufferViaCache(async ? nullptr : buf, len);
 
     if (st == 2) {
+      Error("ReadBuffer","ReadBufferViaCache failed. Asked to read nBytes: %d from offset: %lld with file size: %lld",len, here, GetSize());
       return kTRUE;
     }
 
@@ -300,10 +301,13 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   // if (! st) storage_->caching(true, -1, s_readahead);
 
   // A real read
-  StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "readActual"));
+  StorageAccount::Stamp xstats(storageCounter(s_statsXRead, StorageAccount::Operation::readActual));
   IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
+  if(n < static_cast<IOSize>(len)) {
+    Error("ReadBuffer", "read from Storage::xread returned %ld. Asked to read n bytes: %d from offset: %lld with file size: %lld",n, len, GetRelOffset(), GetSize());
+  }
   return n ? kFALSE : kTRUE;
 }
 
@@ -323,13 +327,13 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     return kTRUE;
   }
 
-  StorageAccount::Stamp stats(storageCounter(s_statsARead, "readAsync"));
+  StorageAccount::Stamp stats(storageCounter(s_statsARead, StorageAccount::Operation::readAsync));
 
   // If asynchronous reading is disabled, bail out now, regardless
   // whether the underlying storage supports prefetching.  If it is
   // forced on, pretend it's on, even if the storage doesn't support
   // it, as this turns off the caching in ROOT's side.
-  StorageFactory *f = StorageFactory::get();
+  const StorageFactory *f = StorageFactory::get();
 
   // Verify that we never using async reads in app-only mode
   if (f->cacheHint() == StorageFactory::CACHE_HINT_APPLICATION)
@@ -345,7 +349,7 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     ;
   }
 
-  IOPosBuffer iov(off, (void *) 0, len ? len : PREFETCH_PROBE_LENGTH);
+  IOPosBuffer iov(off, (void *) nullptr, len ? len : PREFETCH_PROBE_LENGTH);
   if (storage_->prefetch(&iov, 1))
   {
     stats.tick(len);
@@ -406,10 +410,11 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
     IOSize io_buffer_used = repacker.bufferUsed();
 
     // Issue readv, then unpack buffers.
-    StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "readActual"));
+    StorageAccount::Stamp xstats(storageCounter(s_statsXRead, StorageAccount::Operation::readActual));
     std::vector<IOPosBuffer> &iov = repacker.iov();
     IOSize result = storage_->readv(&iov[0], iov.size());
     if (result != io_buffer_used) {
+      Error("ReadBuffersSync","Storage::readv returned different size result=%ld expected=%ld",result,io_buffer_used);
       return kTRUE;
     }
     xstats.tick(io_buffer_used);
@@ -454,7 +459,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   // optimization itself.
 
   // Read from underlying storage.
-  void* const nobuf = 0;
+  void* const nobuf = nullptr;
   Int_t total = 0;
   std::vector<IOPosBuffer> iov;
   iov.reserve(nbuf);
@@ -466,14 +471,20 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
 
   // Null buffer means asynchronous reads into I/O system's cache.
   bool success;
-  StorageAccount::Stamp astats(storageCounter(s_statsARead, "readAsync"));
+  StorageAccount::Stamp astats(storageCounter(s_statsARead, StorageAccount::Operation::readAsync));
   // Synchronise low-level cache with the supposed cache in TFile.
   // storage_->caching(true, -1, 0);
   success = storage_->prefetch(&iov[0], nbuf);
   astats.tick(total);
 
   // If it didn't suceeed, pass down to the base class.
-  return success ? kFALSE : TFile::ReadBuffers(buf, pos, len, nbuf);
+  if(not success) {
+    if(TFile::ReadBuffers(buf, pos, len, nbuf)) {
+      Error("ReadBuffers", "call to TFile::ReadBuffers failed after prefetch already failed.");
+      return kTRUE;
+    }
+  }
+  return kFALSE;
 }
 
 Bool_t
@@ -498,8 +509,8 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
     return kTRUE;
   }
 
-  StorageAccount::Stamp stats(storageCounter(s_statsWrite, "write"));
-  StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, "writeViaCache"));
+  StorageAccount::Stamp stats(storageCounter(s_statsWrite, StorageAccount::Operation::write));
+  StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, StorageAccount::Operation::writeViaCache));
 
   // Try first writing via a cache, and if that's not possible, directly.
   Int_t st;
@@ -508,7 +519,7 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
   case 0:
     // Actual write.
     {
-      StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, "writeActual"));
+      StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, StorageAccount::Operation::writeActual));
       IOSize n = storage_->xwrite(buf, len);
       xstats.tick(n);
       stats.tick(n);
@@ -542,13 +553,11 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
 Int_t
 TStorageFactoryFile::SysOpen(const char *pathname, Int_t flags, UInt_t /* mode */)
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsOpen, "open"));
+  StorageAccount::Stamp stats(storageCounter(s_statsOpen, StorageAccount::Operation::open));
 
   if (storage_)
   {
     storage_->close();
-    delete storage_;
-    storage_ = 0;
   }
 
   int                      openFlags = IOFlags::OpenRead;
@@ -575,13 +584,12 @@ TStorageFactoryFile::SysOpen(const char *pathname, Int_t flags, UInt_t /* mode *
 Int_t
 TStorageFactoryFile::SysClose(Int_t /* fd */)
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsClose, "close"));
+  StorageAccount::Stamp stats(storageCounter(s_statsClose, StorageAccount::Operation::close));
 
   if (storage_)
   {
     storage_->close();
-    delete storage_;
-    storage_ = 0;
+    releaseStorage();
   }
 
   stats.tick();
@@ -591,7 +599,7 @@ TStorageFactoryFile::SysClose(Int_t /* fd */)
 Long64_t
 TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whence)
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsSeek, "seek"));
+  StorageAccount::Stamp stats(storageCounter(s_statsSeek, StorageAccount::Operation::seek));
   Storage::Relative rel = (whence == SEEK_SET ? Storage::SET
                                : whence == SEEK_CUR ? Storage::CURRENT
                                : Storage::END);
@@ -604,7 +612,7 @@ TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whence)
 Int_t
 TStorageFactoryFile::SysSync(Int_t /* fd */)
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsFlush, "flush"));
+  StorageAccount::Stamp stats(storageCounter(s_statsFlush, StorageAccount::Operation::flush));
   storage_->flush();
   stats.tick();
   return 0;
@@ -614,7 +622,7 @@ Int_t
 TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size,
                              Long_t *flags, Long_t *modtime)
 {
-  StorageAccount::Stamp stats(storageCounter(s_statsStat, "stat"));
+  StorageAccount::Stamp stats(storageCounter(s_statsStat, StorageAccount::Operation::stat));
   // FIXME: Most of this is unsupported or makes no sense with Storage
   *id = ::Hash(fRealName);
   *size = storage_->size();

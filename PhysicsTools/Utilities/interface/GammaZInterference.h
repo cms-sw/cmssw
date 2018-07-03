@@ -2,6 +2,7 @@
 #define PhysicsTools_Utilities_GammaZInterference_h
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <boost/shared_ptr.hpp>
+#include <cmath>
 
 namespace funct {
 

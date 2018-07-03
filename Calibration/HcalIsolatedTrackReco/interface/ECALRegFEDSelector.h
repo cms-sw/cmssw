@@ -24,15 +24,14 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
 class ECALRegFEDSelector : public edm::EDProducer {
  public:
   ECALRegFEDSelector(const edm::ParameterSet&);
-  ~ECALRegFEDSelector();
-  const EcalElectronicsMapping* ec_mapping;
+  ~ECALRegFEDSelector() override;
+  std::unique_ptr<const EcalElectronicsMapping> ec_mapping;
 
   double delta_;
   bool fedSaved[1200];
@@ -41,9 +40,9 @@ class ECALRegFEDSelector : public edm::EDProducer {
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
   
  private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
 };
 

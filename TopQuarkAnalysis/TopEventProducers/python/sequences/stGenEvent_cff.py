@@ -7,5 +7,9 @@ from TopQuarkAnalysis.TopEventProducers.producers.TopInitSubset_cfi import *
 from TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi import *
 from TopQuarkAnalysis.TopEventProducers.producers.StGenEvtProducer_cfi import *
 
-makeGenEvt = cms.Sequence(initSubset*decaySubset*genEvtSingleTop)
-
+makeGenEvtTask = cms.Task(
+    initSubset,
+    decaySubset,
+    genEvtSingleTop
+)
+makeGenEvt = cms.Sequence(makeGenEvtTask)

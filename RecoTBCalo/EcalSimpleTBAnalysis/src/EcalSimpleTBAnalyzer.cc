@@ -220,7 +220,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
 
    Handle<EBDigiCollection> pdigis;
-   const EBDigiCollection* digis=0;
+   const EBDigiCollection* digis=nullptr;
    //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( digiProducer_, digiCollection_,pdigis);
    if ( pdigis.isValid() ) {
@@ -232,7 +232,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
    // fetch the digis and compute signal amplitude
    Handle<EBUncalibratedRecHitCollection> phits;
-   const EBUncalibratedRecHitCollection* hits=0;
+   const EBUncalibratedRecHitCollection* hits=nullptr;
    //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hitProducer_, hitCollection_,phits);
    if (phits.isValid()) {
@@ -243,7 +243,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    }
 
    Handle<EcalTBHodoscopeRecInfo> pHodo;
-   const EcalTBHodoscopeRecInfo* recHodo=0;
+   const EcalTBHodoscopeRecInfo* recHodo=nullptr;
    //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
    if ( pHodo.isValid() ) {
@@ -253,7 +253,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    }
 
    Handle<EcalTBTDCRecInfo> pTDC;
-   const EcalTBTDCRecInfo* recTDC=0;
+   const EcalTBTDCRecInfo* recTDC=nullptr;
    //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
    if ( pTDC.isValid() ) {
@@ -263,7 +263,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    }
 
    Handle<EcalTBEventHeader> pEventHeader;
-   const EcalTBEventHeader* evtHeader=0;
+   const EcalTBEventHeader* evtHeader=nullptr;
    //std::cout << "EcalSimpleTBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
    if ( pEventHeader.isValid() ) {
@@ -284,7 +284,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    if (!evtHeader)
      return;
 
-   if (hits->size() == 0)
+   if (hits->empty())
      return;
 
    if (evtHeader->tableIsMoving())

@@ -153,7 +153,7 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   std::vector<DetId> channels = fObject.getAllChannels ();
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
 
     HcalPedestalWidth item(*channel);
     for (int iCapId = 1; iCapId <= 4; iCapId++) {
@@ -176,7 +176,7 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   std::vector<DetId> channels = fObject.getAllChannels ();
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     DetId chId = *channel;
     const float* values = fObject.getValues (chId)->getValues ();
     const HcalPedestalWidth* errors = fError.getValues (chId);
@@ -207,7 +207,7 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
 
   HcalGainWidths widths(fObject.topo());
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin (); channel !=  channels.end (); channel++) 
+  for (std::vector<DetId>::iterator channel = channels.begin (); channel !=  channels.end (); ++channel) 
     {
       HcalGainWidth item(*channel,dummyErrors[0],dummyErrors[1],dummyErrors[2],dummyErrors[3]);
       widths.addValues(item);
@@ -228,7 +228,7 @@ bool HcalDbXml::dumpObject (std::ostream& fOutput,
   std::vector<DetId> channels = fObject.getAllChannels ();
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     DetId chId = *channel;
     const float* values = fObject.getValues (chId)->getValues ();
     const float* errors = fError.getValues (chId)->getValues ();

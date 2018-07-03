@@ -32,7 +32,7 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector & iC) :
   initialised(false) {
 
   dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
-  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("source"));
+  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("rawDataCollector"));
 }
 //
 // -- Destructor
@@ -51,7 +51,7 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   //  e.getByLabel("scalersRawToDigi", dcsStatus);
   e.getByToken(dcsStatusToken_, dcsStatus);
   if ( trackerAbsent || !dcsStatus.isValid())  return retVal;
-  if ((*dcsStatus).size() == 0) return retVal;
+  if ((*dcsStatus).empty()) return retVal;
 
   statusTIBTID = true;
   statusTOB    = true;

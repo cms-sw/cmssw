@@ -180,6 +180,7 @@ process.source = cms.Source("EmptyIOVSource",
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -342,10 +343,12 @@ if options.CablingMon == True:
 
     process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
-    process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-                                  TkMapFileName = cms.untracked.string(''),
-                                  dataLabel = cms.untracked.string('')
-                                  )
+
+    from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+    process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                                 TkMapFileName = cms.untracked.string(''),
+                                 dataLabel = cms.untracked.string('')
+                                 )
     
     process.reader = cms.EDAnalyzer("SiStripFedCablingReader")
     

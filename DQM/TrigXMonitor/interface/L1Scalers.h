@@ -8,25 +8,29 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+
 #define MAX_LUMI_SEG 2000
 #define MAX_LUMI_BIN 400
 
 class L1Scalers : public DQMEDAnalyzer {
  public:
   L1Scalers(const edm::ParameterSet &ps);
-  virtual ~L1Scalers(){};
+  ~L1Scalers() override{};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  void analyze(const edm::Event &e, const edm::EventSetup &c);
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:
   void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                          const edm::EventSetup &c);
+                          const edm::EventSetup &c) override;
 
  private:
   int nev_;  // Number of events processed
 
   bool verbose_;
-  edm::InputTag l1GtDataSource_;  // L1 Scalers
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> l1GtDataSource_;  // L1 Scalers
+  edm::EDGetTokenT<L1MuGMTReadoutCollection> l1GmtDataSource_;  // L1 Scalers
 
   bool denomIsTech_;
   unsigned int denomBit_;

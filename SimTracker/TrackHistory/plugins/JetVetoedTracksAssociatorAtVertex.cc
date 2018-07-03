@@ -25,8 +25,8 @@ class JetVetoedTracksAssociatorAtVertex : public edm::stream::EDProducer<>
 {
 public:
     JetVetoedTracksAssociatorAtVertex(const edm::ParameterSet&);
-    virtual ~JetVetoedTracksAssociatorAtVertex();
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    ~JetVetoedTracksAssociatorAtVertex() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 private:
     edm::EDGetTokenT<edm::View<reco::Jet>> mJets;
     edm::EDGetTokenT<reco::TrackCollection> mTracks;
@@ -55,7 +55,7 @@ void JetVetoedTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::E
     edm::Handle <reco::TrackCollection> tracks_h;
     fEvent.getByToken (mTracks, tracks_h);
 
-    std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
+    std::unique_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
 
     // format inputs
     std::vector <edm::RefToBase<reco::Jet> > allJets;
@@ -67,7 +67,7 @@ void JetVetoedTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::E
     // run algo
     mAssociator.produce (&*jetTracks, allJets, allTracks, classifier);
     // store output
-    fEvent.put (jetTracks);
+    fEvent.put(std::move(jetTracks));
 }
 
 DEFINE_FWK_MODULE(JetVetoedTracksAssociatorAtVertex);

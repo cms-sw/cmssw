@@ -16,7 +16,7 @@
 TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet, StMeasurementConditionSet & conditions ) : 
   MeasurementDet (gdet), index_(-1), theDetConditions(&conditions)
   {
-    if (dynamic_cast<const StripGeomDetUnit*>(gdet) == 0) {
+    if (dynamic_cast<const StripGeomDetUnit*>(gdet) == nullptr) {
       throw MeasurementDetException( "TkStripMeasurementDet constructed with a GeomDet which is not a StripGeomDetUnit");
     }
   }
@@ -24,12 +24,12 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet, StMeasurement
 
 // fast check if the det contains any useful cluster
 bool TkStripMeasurementDet::empty(const MeasurementTrackerEvent & data) const {
-  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return true;
+  if UNLIKELY( (!isActive(data)) || isEmpty(data.stripData())) return true;
 
     const detset & detSet = data.stripData().detSet(index()); 
     for ( auto ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
       if (isMasked(*ci)) continue;
-      SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+      SiStripClusterRef  cluster = detSet.makeRefTo( data.stripData().handle(), ci); 
       if (accept(cluster, data.stripClustersToSkip()))
 	return false;
     }
@@ -41,13 +41,13 @@ TkStripMeasurementDet::RecHitContainer
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const
 {
   RecHitContainer result;
-  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return result;
+  if UNLIKELY( (!isActive(data)) || isEmpty(data.stripData())) return result;
     const detset & detSet = data.stripData().detSet(index()); 
     result.reserve(detSet.size());
     for ( new_const_iterator ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
       if (isMasked(*ci)) continue;
       // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-      SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+      SiStripClusterRef  cluster = detSet.makeRefTo( data.stripData().handle(), ci); 
       if (accept(cluster, data.stripClustersToSkip()))
 	result.push_back( buildRecHit( cluster, ts));
       else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<cluster.key();
@@ -61,11 +61,13 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
 bool TkStripMeasurementDet::recHits(SimpleHitContainer & result,  
 				    const TrajectoryStateOnSurface& stateOnThisDet, 
 				    const MeasurementEstimator& est, const MeasurementTrackerEvent & data) const {
-  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
+  if UNLIKELY( (!isActive(data)) || isEmpty(data.stripData())) return false;
   auto oldSize = result.size();
   
   int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
-  const detset & detSet = data.stripData().detSet(index()); 
+  const detset & detSet = data.stripData().detSet(index());
+  auto const & cpepar = cpe()->getAlgoParam(specificGeomDet(),stateOnThisDet.localParameters());
+
   auto rightCluster = 
     std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.firstStrip() > utraj; });
   
@@ -75,17 +77,19 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer & result,
     // there are hits on the left of the utraj
     auto leftCluster = rightCluster;
     while ( --leftCluster >=  detSet.begin()) {
-      SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), leftCluster ); 
-      bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), tmp);
+      SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), leftCluster); 
+      bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), tmp);
       if(!isCompatible) break; // exit loop on first incompatible hit
-      for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h))); tmp.clear();								
+      for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h)));
+      tmp.clear();								
     }
   }
   for ( ; rightCluster != detSet.end(); rightCluster++) {
-    SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), rightCluster ); 
-    bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), tmp);
+    SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), rightCluster); 
+    bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), tmp);
     if(!isCompatible) break; // exit loop on first incompatible hit
-    for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h))); tmp.clear();
+    for (auto && h: tmp) result.push_back(new SiStripRecHit2D(std::move(h))); 
+    tmp.clear();
   }
   
   return result.size()>oldSize;
@@ -97,12 +101,14 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer & result,
 bool TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, 
 					   const MeasurementTrackerEvent & data,
 					   std::vector<SiStripRecHit2D> &result) const  {
-  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
+  if UNLIKELY( (!isActive(data)) || isEmpty(data.stripData())) return false;
 
   auto oldSize = result.size();
 
   int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
-  const detset & detSet = data.stripData().detSet(index()); 
+  const detset & detSet = data.stripData().detSet(index());
+  auto const & cpepar = cpe()->getAlgoParam(specificGeomDet(),stateOnThisDet.localParameters());
+  
   auto rightCluster = 
     std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.firstStrip() > utraj; });
   
@@ -110,14 +116,14 @@ bool TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& state
     // there are hits on the left of the utraj
     auto leftCluster = rightCluster;
     while ( --leftCluster >=  detSet.begin()) {
-      SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), leftCluster ); 
-      bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result);
+      SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), leftCluster); 
+      bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), result);
       if(!isCompatible) break; // exit loop on first incompatible hit
     }
   }
   for ( ; rightCluster != detSet.end(); rightCluster++) {
-    SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), rightCluster ); 
-    bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result);
+    SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), rightCluster); 
+    bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), result);
     if(!isCompatible) break; // exit loop on first incompatible hit
   }
   
@@ -129,9 +135,10 @@ bool TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& state
 bool
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, 
 				RecHitContainer & result, std::vector<float> & diffs ) const {
-  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
+  if UNLIKELY( (!isActive(data)) || isEmpty(data.stripData())) return false;
 
   auto oldSize = result.size();
+  auto const & cpepar = cpe()->getAlgoParam(specificGeomDet(),stateOnThisDet.localParameters());
 
   int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
  
@@ -143,14 +150,14 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, 
       // there are hits on the left of the utraj
       auto leftCluster = rightCluster;
       while ( --leftCluster >=  detSet.begin()) {
-	SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), leftCluster ); 
-	bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result, diffs);
+	SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), leftCluster); 
+	bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), result, diffs);
 	if(!isCompatible) break; // exit loop on first incompatible hit
       }
     }
     for ( ; rightCluster != detSet.end(); rightCluster++) {
-      SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), rightCluster ); 
-      bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result,diffs);
+      SiStripClusterRef clusterref = detSet.makeRefTo( data.stripData().handle(), rightCluster); 
+      bool isCompatible = filteredRecHits(clusterref, cpepar, stateOnThisDet, est, data.stripClustersToSkip(), result,diffs);
       if(!isCompatible) break; // exit loop on first incompatible hit
     }
     
@@ -207,16 +214,17 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, const 
 {
   if (isEmpty(data.stripData()) || !isActive(data)) return;
 
-    const detset & detSet = data.stripData().detSet(index()); 
-    result.reserve(detSet.size());
-    for ( new_const_iterator ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
-      if (isMasked(*ci)) continue;
-      // for ( ClusterIterator ci=theClusterRange.first; ci != theClusterRange.second; ci++) {
-      SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
-      if (accept(cluster, data.stripClustersToSkip()))
-	buildSimpleRecHit( cluster, ts,result);
-      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<cluster.key();
+    const detset & detSet = data.stripData().detSet(index());
+    unInitDynArray(AClusters::value_type,detSet.size(),clusters);
+    assert(clusters.empty());
+    for (auto const & ci : detSet) {
+      if (isMasked(ci)) continue;
+      if (accept(detSet.makeKeyOf(&ci), data.stripClustersToSkip()))
+	clusters.push_back(&ci);
+      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<detSet.makeKeyOf(&ci);
     }
+    if (!clusters.empty()) buildSimpleRecHits(clusters, data, detSet, ts,result);
+ 
 }
 
 
@@ -232,14 +240,14 @@ TkStripMeasurementDet::hitRange( const TrajectoryStateOnSurface& ts, const Measu
 }
 
 void TkStripMeasurementDet::advance(TkStripRecHitIter & hi ) const {
-    while (!hi.empty()) {
-      auto ci = hi.clusterI;
-      auto const & data = *hi.data;
-      if (isMasked(*ci)) continue;
-      SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
-      if (accept(cluster, data.stripClustersToSkip())) return;
-      ++hi.clusterI;
-    }
+  while (!hi.empty()) {
+    auto ci = hi.clusterI;
+    auto const & data = *hi.data;
+    if (isMasked(*ci)) continue;
+    SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+    if (accept(cluster, data.stripClustersToSkip())) return;
+    ++hi.clusterI;
+  }
 }
 
 SiStripRecHit2D TkStripMeasurementDet::hit(TkStripRecHitIter const & hi ) const {
@@ -248,9 +256,9 @@ SiStripRecHit2D TkStripMeasurementDet::hit(TkStripRecHitIter const & hi ) const 
   auto const & data = *hi.data;
   auto const & ltp = *hi.tsos;
   
-    SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
-    LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-    return SiStripRecHit2D(lv.first,lv.second, gdu, cluster);
+  SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+  LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
+  return SiStripRecHit2D(lv.first,lv.second, gdu, cluster);
 }
 
 bool

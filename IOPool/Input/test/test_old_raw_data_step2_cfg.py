@@ -16,5 +16,5 @@ process.eca= cms.EDAnalyzer("EventContentAnalyzer",
    listContent = cms.untracked.bool(False)
 )
 
-process.p = cms.Path(process.eca)
+process.p = cms.EndPath(process.eca)
 

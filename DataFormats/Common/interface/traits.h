@@ -11,7 +11,6 @@ Definition of traits templates used in the EDM.
 #include <deque>
 #include <limits>
 #include <list>
-#include <map>
 #include <set>
 #include <string>
 #include <utility>

@@ -34,11 +34,11 @@ class PatBJetVertexAnalyzer : public edm::EDAnalyzer  {
     public:
 	/// constructor and destructor
 	PatBJetVertexAnalyzer(const edm::ParameterSet &params);
-	~PatBJetVertexAnalyzer();
+	~PatBJetVertexAnalyzer() override;
 
 	// virtual methods called from base class EDAnalyzer
-	virtual void beginJob() override;
-	virtual void analyze(const edm::Event &event, const edm::EventSetup &es) override;
+	void beginJob() override;
+	void analyze(const edm::Event &event, const edm::EventSetup &es) override;
 
     private:
 	// configuration parameters
@@ -221,7 +221,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
 
 		// the precomputed direction with respect to the primary vertex
-		GlobalVector dir = svTagInfo.flightDirection(0);
+		const GlobalVector& dir = svTagInfo.flightDirection(0);
 
 		// unfortunately CMSSW hsa all kinds of vectors,
 		// and sometimes we need to convert them *sigh*

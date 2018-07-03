@@ -1,28 +1,33 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <cmath>
+#include <iostream>
 
-static const double tzero[3]= {23.960177, 13.307784, 9.109694};
-static const double slope[3] = {-3.178648,  -1.556668, -1.075824 };
-static const double tmax[3] = {16.00, 10.00, 6.25 };
-static const double cap = 6.0;
-static const double tspar0[2] = {10.2627, 9.27638};
-static const double tspar1[2] = {-2.41281,-2.05585};
-
-double HcalTimeSlew::delay(double fC, BiasSetting bias) {
-  double rawDelay=tzero[bias]+slope[bias]*log(fC);
-  return (rawDelay<0)?(0):((rawDelay>tmax[bias])?(tmax[bias]):(rawDelay));			   
+void HcalTimeSlew::addM2ParameterSet(double tzero, double slope, double tmax){
+  parametersM2_.emplace_back(tzero,slope,tmax);
 }
 
-double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, double par0, double par1) {
+void HcalTimeSlew::addM3ParameterSet(double cap, double tspar0, double tspar1, double tspar2, double tspar0_siPM, double tspar1_siPM, double tspar2_siPM){
+  parametersM3_.emplace_back(cap, tspar0, tspar1, tspar2, tspar0_siPM, tspar1_siPM, tspar2_siPM);
+}
 
-  if (source==TestStand) {
+// Used by M2/Simulation
+double HcalTimeSlew::delay(double fC, BiasSetting bias) const {  
+  double rawDelay = parametersM2_[bias].tzero + parametersM2_[bias].slope*log(fC);
+  return (rawDelay < 0)?(0):((rawDelay > parametersM2_[bias].tmax)?(parametersM2_[bias].tmax):(rawDelay));
+}
+
+// Used by M3
+double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, bool isHPD) const {
+  double rawDelay = 0.0;
+  if(source == TestStand){
     return HcalTimeSlew::delay(fC, bias);
   }
-  else if (source==InputPars) {
-    return std::min(cap, par0 + par1*log(fC));
+  else if(isHPD){
+    rawDelay = std::fmin( parametersM3_[source].cap, 
+			  parametersM3_[source].tspar0+parametersM3_[source].tspar1*log(fC+parametersM3_[source].tspar2 ));
   }
-  else if (source==Data || source==MC){
-    return std::min(cap,tspar0[source-1]+tspar1[source-1]*log(fC));
+  else{
+    rawDelay = parametersM3_[source].cap+parametersM3_[source].tspar0_siPM;  
   }
-  return 0;
+  return rawDelay;
 }

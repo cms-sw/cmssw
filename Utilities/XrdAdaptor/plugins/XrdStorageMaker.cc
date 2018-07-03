@@ -1,6 +1,8 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
@@ -11,23 +13,30 @@
 #include "XrdCl/XrdClDefaultEnv.hh"
 #include "XrdNet/XrdNetUtils.hh"
 
+#include <atomic>
+#include <mutex>
+
 class MakerResponseHandler : public XrdCl::ResponseHandler
 {
 public:
-    virtual void HandleResponse( XrdCl::XRootDStatus *status,
-                                 XrdCl::AnyObject    *response )
+    void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response ) override
     {
-        if (response) delete response;
+        // Note: Prepare call has a response object.
+        delete response;
+        delete status;
     }
 
 };
 
-class XrdStorageMaker : public StorageMaker
+class XrdStorageMaker final : public StorageMaker
 {
 public:
   static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
 
-  XrdStorageMaker()
+  XrdStorageMaker():
+  m_lastDebugLevel(1),//so that 0 will trigger change
+  m_lastTimeout(0)
   {
     // When CMSSW loads, both XrdCl and XrdClient end up being loaded
     // (ROOT loads XrdClient).  XrdClient forces IPv4-only.  Accordingly,
@@ -40,16 +49,20 @@ public:
     }
     XrdNetUtils::SetAuto(XrdNetUtils::prefAuto);
     setTimeout(XRD_DEFAULT_TIMEOUT);
+    setDebugLevel(0);
   }
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual Storage *open (const std::string &proto,
+  std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
-			 int mode) override
+			 int mode,
+       const AuxSettings& aux) const override
   {
-
-    StorageFactory *f = StorageFactory::get();
+    setDebugLevel(aux.debugLevel);
+    setTimeout(aux.timeout);
+    
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -60,23 +73,36 @@ public:
       mode |=  IOFlags::OpenUnbuffered;
 
     std::string fullpath(proto + ":" + path);
-    Storage *file = new XrdFile (fullpath, mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<XrdFile>(fullpath, mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
-  virtual void stagein (const std::string &proto, const std::string &path) override
+  void stagein (const std::string &proto, const std::string &path,
+                        const AuxSettings& aux) const override
   {
+    setDebugLevel(aux.debugLevel);
+    setTimeout(aux.timeout);
+
     std::string fullpath(proto + ":" + path);
     XrdCl::URL url(fullpath);
     XrdCl::FileSystem fs(url);
     std::vector<std::string> fileList; fileList.push_back(url.GetPath());
-    fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
+    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
+    if (!status.IsOK())
+    {
+        edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '"
+                                        << status.ToStr() << "' (errNo = " << status.errNo << ")";
+    }
   }
 
-  virtual bool check (const std::string &proto,
+  bool check (const std::string &proto,
 		      const std::string &path,
-		      IOOffset *size = 0) override
+          const AuxSettings& aux,
+		      IOOffset *size = nullptr) const override
   {
+    setDebugLevel(aux.debugLevel);
+    setTimeout(aux.timeout);
+
     std::string fullpath(proto + ":" + path);
     XrdCl::URL url(fullpath);
     XrdCl::FileSystem fs(url);
@@ -91,8 +117,18 @@ public:
     return true;
   }
 
-  virtual void setDebugLevel (unsigned int level) override
+  void setDebugLevel (unsigned int level) const
   {
+    auto oldLevel = m_lastDebugLevel.load();
+    if(level == oldLevel) {
+      return;
+    }
+    std::lock_guard<std::mutex> guard(m_envMutex);
+    if(oldLevel != m_lastDebugLevel) {
+      //another thread just changed this value
+      return;
+    }
+    
     // 'Error' is way too low of debug level - we have interest
     // in warning in the default
     switch (level)
@@ -118,11 +154,24 @@ public:
         ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
         throw ex;
     }
+    m_lastDebugLevel = level;
   }
 
-  virtual void setTimeout(unsigned int timeout) override
+  void setTimeout(unsigned int timeout) const
   {
     timeout = timeout ? timeout : XRD_DEFAULT_TIMEOUT;
+
+    auto oldTimeout = m_lastTimeout.load();
+    if (oldTimeout == timeout) {
+      return;
+    }
+    
+    std::lock_guard<std::mutex> guard(m_envMutex);
+    if (oldTimeout != m_lastTimeout) {
+      //Another thread beat us to changing the value
+      return;
+    }
+    
     XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
     if (env)
     {
@@ -136,10 +185,14 @@ public:
       env->PutInt("ConnectionWindow", timeout/6+1);
       env->PutInt("ConnectionRetry", 2);
     }
+    m_lastTimeout = timeout;
   }
 
 private:
-  MakerResponseHandler m_null_handler;
+  CMS_THREAD_SAFE mutable MakerResponseHandler m_null_handler;
+  mutable std::mutex m_envMutex;
+  mutable std::atomic<unsigned int> m_lastDebugLevel;
+  mutable std::atomic<unsigned int> m_lastTimeout;
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, XrdStorageMaker, "root");

@@ -49,11 +49,11 @@ class AlCaECALRecHitReducer : public edm::EDProducer {
  public:
   //! ctor
   explicit AlCaECALRecHitReducer(const edm::ParameterSet&);
-  ~AlCaECALRecHitReducer();
+  ~AlCaECALRecHitReducer() override;
   
   
   //! producer
-  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void produce(edm::Event &, const edm::EventSetup&) override;
   
  private:
   // ----------member data ---------------------------

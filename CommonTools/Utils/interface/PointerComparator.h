@@ -19,9 +19,9 @@ struct PointerComparator {
   typedef typename C::second_argument_type second_argument_type;
     bool operator()( const first_argument_type * t1, const second_argument_type * t2 ) const {
       if ( t1 == 0 || t2 == 0 )
-	throw edm::Exception( edm::errors::NullPointerError )
-	  << "PointerComparator: passed null pointer."; 
-	return cmp( *t1, *t2 );
+        throw edm::Exception( edm::errors::NullPointerError )
+           << "PointerComparator: passed null pointer."; 
+      return cmp( *t1, *t2 );
     }
   C cmp;
 };

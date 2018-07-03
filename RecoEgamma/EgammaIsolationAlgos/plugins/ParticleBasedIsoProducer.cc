@@ -187,26 +187,24 @@ void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSet
 
 
 
-  std::auto_ptr<edm::ValueMap<std::vector<reco::PFCandidateRef>> >  
-    phoToPFCandIsoMap_p(new edm::ValueMap<std::vector<reco::PFCandidateRef>>());
+  auto phoToPFCandIsoMap_p = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   edm::ValueMap<std::vector<reco::PFCandidateRef>>::Filler 
     fillerPhotons(*phoToPFCandIsoMap_p);
   
   //// fill the isolation value map for photons
   fillerPhotons.insert(photonHandle,pfCandIsoPairVecPho.begin(),pfCandIsoPairVecPho.end());
   fillerPhotons.fill(); 
-  theEvent.put(phoToPFCandIsoMap_p,valueMapPhoPFCandIso_);
+  theEvent.put(std::move(phoToPFCandIsoMap_p),valueMapPhoPFCandIso_);
 
 
-  std::auto_ptr<edm::ValueMap<std::vector<reco::PFCandidateRef>> >  
-    eleToPFCandIsoMap_p(new edm::ValueMap<std::vector<reco::PFCandidateRef>>());
+  auto eleToPFCandIsoMap_p = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   edm::ValueMap<std::vector<reco::PFCandidateRef>>::Filler 
     fillerElectrons(*eleToPFCandIsoMap_p);
   
   //// fill the isolation value map for electrons 
   fillerElectrons.insert(electronHandle,pfCandIsoPairVecEle.begin(),pfCandIsoPairVecEle.end());
   fillerElectrons.fill(); 
-  theEvent.put(eleToPFCandIsoMap_p,valueMapElePFCandIso_);
+  theEvent.put(std::move(eleToPFCandIsoMap_p),valueMapElePFCandIso_);
 
 
 

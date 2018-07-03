@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 #HB HE HO rec hits
@@ -33,13 +32,11 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
                       name = cms.string("PFRecHitQTestHCALThresholdVsDepth"),
                       cuts = cms.VPSet(
                              cms.PSet(
-                                 depth = cms.int32(1),
-                                 threshold = cms.double(1.2)),
-                             cms.PSet(
-                                 depth = cms.int32(2),
-                                 threshold = cms.double(1.8))
+                                 depth = cms.vint32(1,2),
+                                 threshold = cms.vdouble(1.2,1.8),
+                                 detectorEnum = cms.int32(4))
                       )
-                  )   
+                  )
                       
           )
     )             

@@ -36,6 +36,8 @@
 #include "DataFormats/METReco/interface/SigInputObj.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateECAL.h"
+#include "DataFormats/METReco/interface/HaloClusterCandidateHCAL.h"
 
 #include <vector>
 namespace DataFormats_METReco {
@@ -79,6 +81,7 @@ namespace DataFormats_METReco {
     edm::Wrapper<reco::PFMETCollection> dummy19;
     edm::Wrapper< std::vector<reco::PFMET> > dummy20;
     std::vector<reco::PFMET> dummy21;
+    std::vector<edm::Ref<std::vector<reco::PFMET> > > dummy211;
     edm::reftobase::Holder<reco::Candidate,reco::PFMETRef> rtb4;
 
     reco::PFClusterMETRef r5;
@@ -134,6 +137,16 @@ namespace DataFormats_METReco {
 
     std::vector<Point3DBase<float,GlobalTag> > x7;
     edm::Wrapper<std::vector<Point3DBase<float,GlobalTag> > > w8;
+
+    reco::HaloClusterCandidateECAL x9;
+    edm::Wrapper<reco::HaloClusterCandidateECAL> w9;
+    std::vector<reco::HaloClusterCandidateECAL> v9;
+    std::vector<reco::HaloClusterCandidateECAL>::iterator it9;
+
+    reco::HaloClusterCandidateHCAL x10;
+    edm::Wrapper<reco::HaloClusterCandidateHCAL> w10;
+    std::vector<reco::HaloClusterCandidateHCAL> v10;
+    std::vector<reco::HaloClusterCandidateHCAL>::iterator it10;
 
     edm::Ptr<reco::MET> ptr_m;
     edm::PtrVector<reco::MET> ptrv_m;

@@ -42,11 +42,11 @@ Implementation:
 class dso_hidden TrackCandidateTopBottomHitFilter final : public edm::stream::EDProducer<> {
 public:
   explicit TrackCandidateTopBottomHitFilter(const edm::ParameterSet&);
-  ~TrackCandidateTopBottomHitFilter();
+  ~TrackCandidateTopBottomHitFilter() override;
 
 private:
-  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<TrackCandidateCollection> label;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName;
@@ -76,7 +76,7 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
 
   Handle<TrackCandidateCollection> pIn;
   iEvent.getByToken(label,pIn);
-  std::auto_ptr<TrackCandidateCollection> pOut(new TrackCandidateCollection);
+  auto pOut = std::make_unique<TrackCandidateCollection>();
   for (TrackCandidateCollection::const_iterator it=pIn->begin(); it!=pIn->end();++it) {
     PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
     TrackCandidate::range oldhits = it->recHits();
@@ -94,7 +94,7 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
       pOut->push_back(newTC);
     }
   }
-  iEvent.put(pOut);
+  iEvent.put(std::move(pOut));
 }
 
 void TrackCandidateTopBottomHitFilter::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {

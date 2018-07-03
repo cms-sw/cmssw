@@ -15,7 +15,7 @@ class FWGUIValidatingTextEntry;
 class FWGUIEventSelector : public TGHorizontalFrame {
 public:
    FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList);
-   virtual ~FWGUIEventSelector();
+   ~FWGUIEventSelector() override;
 
    void deleteCallback();
    void enableCallback(bool);
@@ -48,7 +48,7 @@ private:
    TGComboBox*               m_combo;
    FWHLTValidator*           m_validator;
 
-   ClassDef(FWGUIEventSelector, 0); // Manager for EVE windows.
+   ClassDefOverride(FWGUIEventSelector, 0); // Manager for EVE windows.
 };
 
 #endif

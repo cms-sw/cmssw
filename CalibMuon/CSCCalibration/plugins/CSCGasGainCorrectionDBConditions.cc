@@ -1,5 +1,4 @@
 #include <memory>
-#include "boost/shared_ptr.hpp"
 #include <fstream>
 
 #include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
@@ -13,7 +12,6 @@ CSCGasGainCorrectionDBConditions::CSCGasGainCorrectionDBConditions(const edm::Pa
   // data is being produced
   isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
   dataCorrFileName= iConfig.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt");
-  cndbGasGainCorr = prefillDBGasGainCorrection(isForMC,dataCorrFileName);
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCGasGainCorrectionDBConditions::produceDBGasGainCorrection);
   findingRecord<CSCDBGasGainCorrectionRcd>();
@@ -27,7 +25,6 @@ CSCGasGainCorrectionDBConditions::~CSCGasGainCorrectionDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbGasGainCorr;
 }
 
 
@@ -40,8 +37,7 @@ CSCGasGainCorrectionDBConditions::ReturnType
 CSCGasGainCorrectionDBConditions::produceDBGasGainCorrection(const CSCDBGasGainCorrectionRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBGasGainCorrection* mydata=new CSCDBGasGainCorrection( *cndbGasGainCorr );
-  return mydata;
+ return CSCGasGainCorrectionDBConditions::ReturnType( prefillDBGasGainCorrection(isForMC,dataCorrFileName));
   
 }
 

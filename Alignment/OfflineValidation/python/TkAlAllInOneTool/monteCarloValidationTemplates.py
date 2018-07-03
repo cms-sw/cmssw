@@ -18,10 +18,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
-### conditions
-process.load("Alignment.OfflineValidation.GlobalTag_cff")
-process.GlobalTag.globaltag = '.oO[GlobalTag]Oo.'
-process.es_prefer_GlobalTag = cms.ESPrefer("PoolDBESSource", "GlobalTag")
+.oO[LoadGlobalTagTemplate]Oo.
 
 .oO[condLoad]Oo.
 

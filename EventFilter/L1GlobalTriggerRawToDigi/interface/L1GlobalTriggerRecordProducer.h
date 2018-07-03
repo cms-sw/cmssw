@@ -28,6 +28,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
 // forward declarations
 class L1GtTriggerMask;
 
@@ -41,11 +43,11 @@ public:
     explicit L1GlobalTriggerRecordProducer(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GlobalTriggerRecordProducer();
+    ~L1GlobalTriggerRecordProducer() override;
 
 private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     
@@ -64,7 +66,7 @@ private:
 private:
 
     /// InputTag for the L1 Global Trigger DAQ readout record
-    edm::InputTag m_l1GtReadoutRecordTag;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtReadoutRecordTag;
 
 };
 

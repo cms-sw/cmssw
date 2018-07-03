@@ -59,15 +59,16 @@ ModuleChanger::~ModuleChanger()
 // member functions
 //
 
-//
-// const member functions
-//
 bool 
 ModuleChanger::changeModule(const std::string& iLabel,
-                            const ParameterSet& iPSet) const
+                            const ParameterSet& iPSet)
 {
    return schedule_->changeModule(iLabel,iPSet, *registry_);
 }
+
+//
+// const member functions
+//
 
 //
 // static member functions

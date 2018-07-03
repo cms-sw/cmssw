@@ -145,14 +145,14 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector);
 
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create a unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (detector == reco::CaloID::DET_ECAL_BARREL) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   delete topology_p;
 }

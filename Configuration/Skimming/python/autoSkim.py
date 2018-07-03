@@ -2,26 +2,28 @@ autoSkim = {
  'BTagCSV' : 'LogError+LogErrorMonitor',
  'BTagMu' : 'LogError+LogErrorMonitor',
  'HTMHT' : 'LogError+LogErrorMonitor',
- 'JetHT' : 'HighMET+LogError+LogErrorMonitor',
+ 'JetHT' : 'JetHTJetPlusHOFilter+LogError+LogErrorMonitor',
  'DisplacedJet' : 'LogError+LogErrorMonitor',
- 'MET' : 'LogError+LogErrorMonitor',
+ 'MET' : 'HighMET+EXOMONOPOLE+LogError+LogErrorMonitor',
  'SingleElectron' : 'LogError+LogErrorMonitor',
- 'SinglePhoton' : 'LogError+LogErrorMonitor',
+ 'SinglePhoton' : 'SinglePhotonJetPlusHOFilter+EXOMONOPOLE+LogError+LogErrorMonitor',
  'DoubleEG' : 'ZElectron+LogError+LogErrorMonitor',
  'Tau' : 'LogError+LogErrorMonitor',
- 'SingleMuon' : 'ZMu+MuTau+LogError+LogErrorMonitor',
+ 'SingleMuon' : 'MuonPOGSkim+ZMu+MuTau+LogError+LogErrorMonitor',
  'DoubleMuon' : 'LogError+LogErrorMonitor',
  'MuonEG' : 'TopMuEG+LogError+LogErrorMonitor',
- 'DoubleMuonLowMass' : 'LogError+LogErrorMonitor',
- 'MuOnia' : 'LogError+LogErrorMonitor',
- 'Charmonium' : 'LogError+LogErrorMonitor',
- 'NoBPTX' : 'LogError+LogErrorMonitor',
+ 'DoubleMuonLowMass' : 'BPHSkim+LogError+LogErrorMonitor',
+ 'MuOnia' : 'BPHSkim+LogError+LogErrorMonitor',
+ 'Charmonium' : 'MuonPOGJPsiSkim+BPHSkim+LogError+LogErrorMonitor',
+ 'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
  'HcalHPDNoise' : 'LogError+LogErrorMonitor',
  'HcalNZS' : 'LogError+LogErrorMonitor',
  'HLTPhysics' : 'LogError+LogErrorMonitor',
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
- 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor'
+ 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
+
+ 
 }
 
 autoSkimRunI = {

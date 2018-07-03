@@ -31,13 +31,13 @@ class EventCountProducer : public edm::one::EDProducer<edm::one::WatchLuminosity
                                                        edm::EndLuminosityBlockProducer> {
 public:
   explicit EventCountProducer(const edm::ParameterSet&);
-  ~EventCountProducer();
+  ~EventCountProducer() override;
 
 private:
-  virtual void produce(edm::Event &, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
+  void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup&) override;
       
   // ----------member data ---------------------------
 
@@ -53,7 +53,7 @@ using namespace std;
 
 
 EventCountProducer::EventCountProducer(const edm::ParameterSet& iConfig){
-  produces<edm::MergeableCounter, edm::InLumi>();
+  produces<edm::MergeableCounter, edm::Transition::EndLuminosityBlock>();
 }
 
 
@@ -81,9 +81,9 @@ void
 EventCountProducer::endLuminosityBlockProduce(LuminosityBlock & theLuminosityBlock, const EventSetup & theSetup) {
   LogTrace("EventCounting") << "endLumi: adding " << eventsProcessedInLumi_ << " events" << endl;
 
-  auto_ptr<edm::MergeableCounter> numEventsPtr(new edm::MergeableCounter);
+  unique_ptr<edm::MergeableCounter> numEventsPtr(new edm::MergeableCounter);
   numEventsPtr->value = eventsProcessedInLumi_;
-  theLuminosityBlock.put(numEventsPtr);
+  theLuminosityBlock.put(std::move(numEventsPtr));
 
   return;
 }

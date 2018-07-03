@@ -24,7 +24,7 @@ class SiPixelLayoutParser : public DQMParserBase {
   SiPixelLayoutParser();
   
   // Destructor
-  ~SiPixelLayoutParser();
+  ~SiPixelLayoutParser() override;
 
   // Get list of Layouts for ME groups
   bool getAllLayouts(std::map< std::string, std::vector<std::string> >& me_names);

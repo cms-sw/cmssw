@@ -92,7 +92,7 @@ namespace edm {
          }
 
          TypeSet tokenTypes;
-         if(0 != iToken.manager_.get()) {
+         if(nullptr != iToken.manager_.get()) {
             for(Type2Service::iterator itType = iToken.manager_->type2Service_.begin(),
                 itTypeEnd = iToken.manager_->type2Service_.end();
                 itType != itTypeEnd;
@@ -239,7 +239,7 @@ namespace edm {
               ++itParam) {
             std::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
 
-            if(0 == base.get()) {
+            if(nullptr == base.get()) {
                throw Exception(errors::Configuration, "Service")
                << "could not find a service named "
                << itParam->getParameter<std::string>("@service_type")
@@ -268,6 +268,39 @@ namespace edm {
       }
 
       void
+      ServicesManager::createServiceFor(MakerHolder const& iMaker) {
+         std::string serviceType = iMaker.pset_->getParameter<std::string>("@service_type");
+         std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
+                                                                   ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
+         ConfigurationDescriptions descriptions(filler->baseType(), serviceType);
+         filler->fill(descriptions);
+         
+         try {
+            convertException::wrap([&]() {
+               descriptions.validate(*(iMaker.pset_), serviceType);
+            });
+         }
+         catch (cms::Exception & iException) {
+            std::ostringstream ost;
+            ost << "Validating configuration of service of type " << serviceType;
+            iException.addContext(ost.str());
+            throw;
+         }
+         try {
+            convertException::wrap([&]() {
+               // This creates the service
+               iMaker.add(*this);
+            });
+         }
+         catch (cms::Exception & iException) {
+            std::ostringstream ost;
+            ost << "Constructing service of type " << serviceType;
+            iException.addContext(ost.str());
+            throw;
+         }
+      }
+     
+      void
       ServicesManager::createServices() {
 
          //create a shared_ptr of 'this' that will not delete us
@@ -291,40 +324,11 @@ namespace edm {
            // Check to make sure this maker is still there.  They are deleted
            // sometimes and that is OK.
            if(itMaker != type2Maker_->end()) {
-
-             std::string serviceType = itMaker->second.pset_->getParameter<std::string>("@service_type");
-             std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
-               ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
-             ConfigurationDescriptions descriptions(filler->baseType());
-             filler->fill(descriptions);
-
-             try {
-               convertException::wrap([&]() {
-                 descriptions.validate(*(itMaker->second.pset_), serviceType);
-               });
-             }
-             catch (cms::Exception & iException) {
-               std::ostringstream ost;
-               ost << "Validating configuration of service of type " << serviceType;
-               iException.addContext(ost.str());
-               throw;
-             }
-             try {
-               convertException::wrap([&]() {
-                 // This creates the service
-                 itMaker->second.add(*this);
-               });
-             }
-             catch (cms::Exception & iException) {
-               std::ostringstream ost;
-               ost << "Constructing service of type " << serviceType;
-               iException.addContext(ost.str());
-               throw;
-             }
+              createServiceFor(itMaker->second);
            }
          }
          //No longer need the makers
-         type2Maker_.reset();
+         type2Maker_ = nullptr; // propagate_const<T> has no reset() function
       }
       //
       // const member functions

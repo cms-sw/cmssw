@@ -36,12 +36,12 @@ public:
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) ;
+                               edm::ValidityInterval& ) override ;
   
    private:
-  virtual std::auto_ptr<CentralityTable> produceTable( const HeavyIonRcd& );
+  virtual std::unique_ptr<CentralityTable> produceTable( const HeavyIonRcd& );
   void printBin(const CentralityTable::CBin*);
 
   // ----------member data ---------------------------
@@ -71,10 +71,10 @@ HiTrivialConditionRetriever::HiTrivialConditionRetriever(const edm::ParameterSet
   inputFileName_ = iConfig.getParameter<string>("inputFile");
 }
 
-std::auto_ptr<CentralityTable> 
+std::unique_ptr<CentralityTable>
 HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
 
-  std::auto_ptr<CentralityTable> CT(new CentralityTable()) ;
+  auto CT = std::make_unique<CentralityTable>();
 
   // Get values from text file
   ifstream in( edm::FileInPath(inputFileName_).fullPath().c_str() );
@@ -82,7 +82,7 @@ HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
 
   int i = 0;
   while ( getline( in, line ) ) {
-    if ( !line.size() || line[0]=='#' ) { continue; }
+    if ( line.empty() || line[0]=='#' ) { continue; }
     CentralityTable::CBin thisBin;
     CT->m_table.push_back(thisBin);
     istringstream ss(line);
@@ -98,7 +98,7 @@ HiTrivialConditionRetriever::produceTable( const HeavyIonRcd& ){
     i++;
   }
 
-  return CT; 
+  return std::move(CT);
 }
 
 void HiTrivialConditionRetriever::printBin(const CentralityTable::CBin* thisBin){

@@ -85,7 +85,7 @@ namespace edm
 
    Handle< EBDigiCollection > pEBDigis;
 
-   const EBDigiCollection*  EBDigis = 0;
+   const EBDigiCollection*  EBDigis = nullptr;
 
    if(e.getByToken(EBDigiToken_, pEBDigis) ){
      EBDigis = pEBDigis.product(); // get a ptr to the product
@@ -114,7 +114,7 @@ namespace edm
 
    Handle< EEDigiCollection > pEEDigis;
 
-   const EEDigiCollection*  EEDigis = 0;
+   const EEDigiCollection*  EEDigis = nullptr;
 
    
    if(e.getByToken(EEDigiToken_, pEEDigis) ){
@@ -143,7 +143,7 @@ namespace edm
 
    Handle< ESDigiCollection > pESDigis;
 
-   const ESDigiCollection*  ESDigis = 0;
+   const ESDigiCollection*  ESDigis = nullptr;
 
    
    if(e.getByToken( ESDigiToken_, pESDigis) ){
@@ -264,9 +264,9 @@ namespace edm
   void DataMixingEMDigiWorker::putEM(edm::Event &e, const edm::EventSetup& ES) {
 
     // collection of digis to put in the event
-    std::auto_ptr< EBDigiCollection > EBdigis( new EBDigiCollection );
-    std::auto_ptr< EEDigiCollection > EEdigis( new EEDigiCollection );
-    std::auto_ptr< ESDigiCollection > ESdigis( new ESDigiCollection );
+    std::unique_ptr< EBDigiCollection > EBdigis( new EBDigiCollection );
+    std::unique_ptr< EEDigiCollection > EEdigis( new EEDigiCollection );
+    std::unique_ptr< ESDigiCollection > ESdigis( new ESDigiCollection );
 
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
@@ -468,8 +468,8 @@ namespace edm
           }
 	     
 
-	  // add values
-	  adc_sum = adc_new + adc_old;
+         // add values, but don't count pedestals twice
+         adc_sum = adc_new + adc_old - (int) round (pedeStals[gain_consensus-1]);
 	  
 	  // if the sum saturates this gain, switch
 	  if (adc_sum> 4096) {
@@ -578,9 +578,9 @@ namespace edm
     LogInfo("DataMixingEMDigiWorker") << "total # EE Merged digis: " << EEdigis->size() ;
     LogInfo("DataMixingEMDigiWorker") << "total # ES Merged digis: " << ESdigis->size() ;
 
-    e.put( EBdigis, EBDigiCollectionDM_ );
-    e.put( EEdigis, EEDigiCollectionDM_ );
-    e.put( ESdigis, ESDigiCollectionDM_ );
+    e.put(std::move(EBdigis), EBDigiCollectionDM_ );
+    e.put(std::move(EEdigis), EEDigiCollectionDM_ );
+    e.put(std::move(ESdigis), ESDigiCollectionDM_ );
     
     // clear local storage after this event
 

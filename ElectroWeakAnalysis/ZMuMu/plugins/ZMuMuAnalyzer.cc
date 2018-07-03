@@ -41,8 +41,8 @@ class ZMuMuAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuMuAnalyzer(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
 
   OverlapChecker overlap_;
   EDGetTokenT<CandidateCollection> zMuMuToken_;

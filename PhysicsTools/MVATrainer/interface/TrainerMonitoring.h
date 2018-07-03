@@ -6,7 +6,6 @@
 #include <memory>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/or.hpp>
@@ -139,7 +138,7 @@ class TrainerMonitoring {
 		inline void reg(const std::string &name, T *object);
 
 		TDirectory						*dir;
-		std::map<std::string, boost::shared_ptr<Object> >	data;
+		std::map<std::string, std::shared_ptr<Object> >	data;
 	};
 
 	Module *book(const std::string &name);
@@ -163,9 +162,9 @@ class TrainerMonitoring {
 	    public:
 		RootObject(const std::string &name, T *object) :
 			Object(name), object(object) {}
-		virtual ~RootObject() {}
+		~RootObject() override {}
 
-		virtual void write(TDirectory *dir)
+		void write(TDirectory *dir) override
 		{
 			dir->WriteObjectAny(object.get(),
 			                    TClass::GetClass(typeid(T)),
@@ -173,12 +172,12 @@ class TrainerMonitoring {
 		}
 
 	    private:
-		std::auto_ptr<T>	object;
+		std::unique_ptr<T>	object;
 	};
 
     private:
-	std::auto_ptr<TFile>					rootFile;
-	std::map<std::string, boost::shared_ptr<Module> >	modules;
+	std::unique_ptr<TFile>					rootFile;
+	std::map<std::string, std::shared_ptr<Module> >	modules;
 };
 
 namespace helper {
@@ -188,7 +187,7 @@ namespace helper {
 
 	template<typename T>
 	void trainerMonitoringRootClear(T *object, const boost::mpl::true_&)
-	{ object->SetDirectory(0); }
+	{ object->SetDirectory(nullptr); }
 }
 
 template<typename T>

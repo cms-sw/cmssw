@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDTIDModulePosAlgo.h"
@@ -260,7 +259,7 @@ void DDTIDModulePosAlgo::execute(DDCompactView& cpv) {
       thetax = 90.*CLHEP::deg+thetaz;
       double thetadeg = thetax/CLHEP::deg;
       if (thetadeg != 0) {
-	std::string arotstr = DDSplit(sidSpacersName).first+dbl_to_string(thetadeg*10.);
+	std::string arotstr = DDSplit(sidSpacersName).first + std::to_string(thetadeg*10.);
 	rot = DDrot(DDName(arotstr,  DDSplit(sidSpacersName).second), thetax, 
 		    phix, thetay, phiy, thetaz, phiz);
       }

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
+from functools import reduce
 #Documentation needs to follow... but for now just know that
 #a template file for cmsPerfClient.py -f option is BencmarkCfg.py in Validation/Performance/python dir.
 PROG_NAME = os.path.basename(sys.argv[0])
@@ -23,59 +24,59 @@ def optionparse():
     def _isValidPerfCmdsDef(alist):
         out = True
         for item in alist:
-            isdict = type(item) == type({})
+            isdict = isinstance(item, type({}))
             out = out and isdict
             if isdict:
                 for key in item:
                     out = out and key in validPerfSuitKeys
                     if   key == "cpus":
-                        out = out and type(item[key]) == type("") #has to be a string not a list!
+                        out = out and isinstance(item[key], type("")) #has to be a string not a list!
                     elif key == "cores":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "castordir":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "perfsuitedir":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "TimeSizeEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "TimeSizeCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "CallgrindEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "CallgrindCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "IgProfEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "IgProfCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "MemcheckEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "MemcheckCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "cmsScimark":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "cmsScimarkLarge":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "cmsdriverOptions":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "stepOptions":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "quicktest":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "profilers":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "prevrel":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "isAllCandles":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "candles":
-                        out = out and type(item[key]) == type("")#has to be a string not a list!
+                        out = out and isinstance(item[key], type(""))#has to be a string not a list!
                     elif key == "bypasshlt":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "runonspare":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "logfile":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
         return out
 
     parser = opt.OptionParser(usage=("""%s [Options]""" % PROG_NAME))
@@ -154,15 +155,15 @@ def optionparse():
                 try:
                     execfile(cmdfile)
                     cmsperf_cmds.append(listperfsuitekeywords)
-                except (SyntaxError), detail:
+                except (SyntaxError) as detail:
                     parser.error("ERROR: %s must be a valid python file" % cmdfile)
                     sys.exit()
-                except (NameError), detail:
+                except (NameError) as detail:
                     parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program: %s" % (cmdfile,str(detail)))
                     sys.exit()
                 except :
                     raise
-                if not type(cmsperf_cmds[-1]) == type([]):
+                if not isinstance(cmsperf_cmds[-1], type([])):
                     parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 2" % cmdfile)
                     sys.exit()
                 if not _isValidPerfCmdsDef(cmsperf_cmds[-1]):
@@ -229,13 +230,13 @@ def request_benchmark(perfcmds,shost,sport):
     try:
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
         return server.request_benchmark(perfcmds)
-    except socket.error, detail:
+    except socket.error as detail:
         print "ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail
-    except xml.parsers.expat.ExpatError, detail:
+    except xml.parsers.expat.ExpatError as detail:
         print "ERROR: XML-RPC could not be parsed:", detail
-    except xmlrpclib.ProtocolError, detail:
+    except xmlrpclib.ProtocolError as detail:
         print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
-    except exceptions, detail:
+    except exceptions as detail:
         print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
         print detail
 
@@ -259,7 +260,7 @@ class Worker(threading.Thread):
             print "data is %s"%data
             print "Puttin it in the queue as (%s,%s)"%(self.__host,data)
             self.__queue.put((self.__host, data))
-        except (exceptions.Exception, xmlrpclib.Fault), detail:
+        except (exceptions.Exception, xmlrpclib.Fault) as detail:
             print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
             print detail
             sys.stdout.flush()

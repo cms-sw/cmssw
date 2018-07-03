@@ -14,7 +14,7 @@
 class HBHENegativeFlagSetter
 {
 public:
-    inline HBHENegativeFlagSetter() : filter_(0) {}
+    inline HBHENegativeFlagSetter() : filter_(nullptr) {}
 
     inline void configFilter(const HBHENegativeEFilter* f) {filter_ = f;}
 

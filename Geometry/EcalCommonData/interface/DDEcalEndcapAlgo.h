@@ -4,10 +4,9 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
@@ -33,14 +32,14 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
 
       //Constructor and Destructor
       DDEcalEndcapAlgo();
-      virtual ~DDEcalEndcapAlgo();
+      ~DDEcalEndcapAlgo() override;
 
       void initialize(const DDNumericArguments      & nArgs,
 		      const DDVectorArguments       & vArgs,
 		      const DDMapArguments          & mArgs,
 		      const DDStringArguments       & sArgs,
-		      const DDStringVectorArguments & vsArgs);
-      void execute(DDCompactView& cpv);
+		      const DDStringVectorArguments & vsArgs) override;
+      void execute(DDCompactView& cpv) override;
 
       //  New methods for SC geometry
       void EEPositionCRs( const DDName&        pName,
@@ -111,9 +110,9 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
       double                     eePFFifth()     const { return m_PFfifth ; }
       double                     eePF45()        const { return m_PF45 ; }
 
-      DDName  envName( unsigned int i )    const { return ddname( m_envName + int_to_string(i)  ) ; }
-      DDName  alvName( unsigned int i )    const { return ddname( m_alvName + int_to_string(i)  ) ; }
-      DDName  intName( unsigned int i )    const { return ddname( m_intName + int_to_string(i)  ) ; }
+      DDName  envName( unsigned int i )    const { return ddname( m_envName + std::to_string(i)  ) ; }
+      DDName  alvName( unsigned int i )    const { return ddname( m_alvName + std::to_string(i)  ) ; }
+      DDName  intName( unsigned int i )    const { return ddname( m_intName + std::to_string(i)  ) ; }
       DDName                     cryName()    const { return ddname( m_cryName ) ; }
 
       DDName                     addTmp( DDName aName ) const { return ddname( aName.name() + "Tmp" ) ; }

@@ -37,7 +37,7 @@ class DoodadESProducer : public edm::ESProducer {
       DoodadESProducer(edm::ParameterSet const&);
       ~DoodadESProducer();
 
-      typedef std::auto_ptr<Doodad> ReturnType;
+      typedef std::unique_ptr<Doodad> ReturnType;
 
       ReturnType produce(GadgetRcd const&);
    private:
@@ -83,7 +83,7 @@ DoodadESProducer::produce(GadgetRcd const& /*iRecord*/) {
 
    using namespace edmtest;
 
-   std::auto_ptr<Doodad> pDoodad(new Doodad) ;
+   auto pDoodad = std::make_unique<Doodad>();
 
    pDoodad->a = 1;
 

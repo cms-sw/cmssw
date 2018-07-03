@@ -1,19 +1,25 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 process.load("RecoMuon.MuonIdentification.Identification.cutBasedMuonId_MuonPOG_V0_cff")
 process.load("RecoMuon.MuonIsolation.muonPFIsolationCitk_cff")
+patAlgosToolsTask.add(process.muonIsolationTask)
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-switchOnVIDMuonIdProducer(process, DataFormat.AOD)
+switchOnVIDMuonIdProducer(process, DataFormat.AOD, patAlgosToolsTask)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_loose)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_medium)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_tight)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_soft)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_highpt)
+process.muoMuonIDs.physicsObjectSrc = "patMuons"
+process.muonPFNoPileUpIsolation.srcToIsolate = "patMuons"
+process.muonPFPileUpIsolation.srcToIsolate = "patMuons"
 
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM

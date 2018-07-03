@@ -10,8 +10,8 @@
 template <unsigned int N>
 class DummyVertexSmoother : public VertexSmoother<N> {
 public:
-  CachingVertex<N> smooth(const CachingVertex<N> & ) const;
-  DummyVertexSmoother * clone() const;
+  CachingVertex<N> smooth(const CachingVertex<N> & ) const override;
+  DummyVertexSmoother * clone() const override;
 };
 
 #endif

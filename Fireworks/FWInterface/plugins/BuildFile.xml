@@ -7,7 +7,7 @@
  <use name="SimDataFormats/TrackingHit"/>
  <use name="SimDataFormats/CaloHit"/>
  <use name="SimDataFormats/Vertex"/>
- <use name="SimDataFormats/TrackingAnalysis"/  >
+ <use name="SimDataFormats/TrackingAnalysis"/>
  <use name="SimGeneral/TrackingAnalysis"/>
 <use name="rootcore"/>
 <lib name="Geom"/>

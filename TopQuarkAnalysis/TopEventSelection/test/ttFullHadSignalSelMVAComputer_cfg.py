@@ -67,7 +67,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -78,22 +77,32 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 process.load("TopQuarkAnalysis.TopEventSelection.TtFullHadSignalSelMVAComputer_cff")
+process.task.add(process.findTtFullHadSignalSelMVA)
 
 ## jet count filter
 process.load("PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi")
+process.task.add(process.countPatJets)
 
 ## setup jet selection collection
+# This configuration is broken because countLayer1Jets is not defined anywhere
 process.leadingJetSelection = process.countLayer1Jets.clone(src = 'selectedLayer1Jets',
                                                             minNumber = 6
                                                             )
 
 ## path1
 process.p = cms.Path(process.leadingJetSelection *
-                     process.findTtFullHadSignalSelMVA
+                     process.findTtFullHadSignalSelMVA,
+                     process.task
                      )
 
 ## output module
@@ -107,4 +116,3 @@ process.out = cms.OutputModule(
 )
 ## output path
 process.outpath = cms.EndPath(process.out)
-

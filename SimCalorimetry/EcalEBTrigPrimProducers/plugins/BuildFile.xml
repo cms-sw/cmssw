@@ -1,0 +1,4 @@
+<use   name="SimCalorimetry/EcalEBTrigPrimProducers"/>
+<library   file="*.cc" name="SimCalorimetryEcalEBTrigPrimProducersPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

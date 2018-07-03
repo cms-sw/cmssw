@@ -21,13 +21,13 @@ class FP420G4Hit : public G4VHit {
 public:
   
   FP420G4Hit();
-  ~FP420G4Hit();
+  ~FP420G4Hit() override;
   FP420G4Hit(const FP420G4Hit &right);
   const FP420G4Hit& operator=(const FP420G4Hit &right);
   int operator==(const FP420G4Hit &){return 0;}
   
-  void         Draw(){}
-  void         Print();
+  void         Draw() override{}
+  void         Print() override;
   
 public:
   

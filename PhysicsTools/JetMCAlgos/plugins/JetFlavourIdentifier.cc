@@ -36,7 +36,7 @@
 //=======================================================================
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -83,7 +83,7 @@ namespace reco { namespace modules {
 //--------------------------------------------------------------------------
 //
 //--------------------------------------------------------------------------
-class JetFlavourIdentifier : public edm::EDProducer
+class JetFlavourIdentifier : public edm::global::EDProducer<>
 {
   public:
   enum DEFINITION_T { PHYSICS=0, ALGO, NEAREST_STATUS2, NEAREST_STATUS3, HEAVIEST,
@@ -91,22 +91,20 @@ class JetFlavourIdentifier : public edm::EDProducer
 		      NULL_DEF};
 
     JetFlavourIdentifier( const edm::ParameterSet & );
-    ~JetFlavourIdentifier();
+    ~JetFlavourIdentifier() override;
 
   private:
-    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
-    JetFlavour::Leptons findLeptons(const GenParticleRef &);
-    std::vector<const reco::Candidate*> findCandidates(const reco::Candidate*, int);
-    void fillLeptons(const std::vector<const reco::Candidate*> &, JetFlavour::Leptons &, int, int);
+    JetFlavour::Leptons findLeptons(const GenParticleRef &) const;
+    std::vector<const reco::Candidate*> findCandidates(const reco::Candidate*, int, math::XYZTLorentzVector const&  thePartonLV) const;
+    void fillLeptons(const std::vector<const reco::Candidate*> &, JetFlavour::Leptons &, int, int, math::XYZTLorentzVector const&  thePartonLV) const;
     static int heaviestFlavour(int);
 
-    Handle<JetMatchedPartonsCollection> theTagByRef;
     EDGetTokenT<JetMatchedPartonsCollection> sourceByReferToken_;
     bool physDefinition;
     bool leptonInfo_;
     DEFINITION_T definition;
-    math::XYZTLorentzVector thePartonLV;
 
 };
 } }
@@ -139,9 +137,10 @@ JetFlavourIdentifier::~JetFlavourIdentifier()
 
 // ------------ method called to produce the data  ------------
 
-void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
+void JetFlavourIdentifier::produce( StreamID, Event& iEvent, const EventSetup& iEs ) const
 {
   // Get the JetMatchedPartons
+  Handle<JetMatchedPartonsCollection> theTagByRef;
   iEvent.getByToken (sourceByReferToken_, theTagByRef);
 
   // Create a JetFlavourMatchingCollection
@@ -152,7 +151,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
   } else {
     jfmc = new JetFlavourMatchingCollection();
   }
-  auto_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
+  std::unique_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
 
   // Loop over the matched partons and see which match.
   for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
@@ -172,7 +171,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
     // get the partons based on which definition to use.
     switch (definition) {
       case PHYSICS: {
-        const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
+        const GenParticleRef& aPartPhy = aMatch.physicsDefinitionParton();
         if (aPartPhy.isNonnull()) {
 	        thePartonLorentzVector = aPartPhy.get()->p4();
 	        thePartonVertex        = aPartPhy.get()->vertex();
@@ -182,7 +181,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
         break;
       }
       case ALGO: {
-        const GenParticleRef aPartAlg = aMatch.algoDefinitionParton();
+        const GenParticleRef& aPartAlg = aMatch.algoDefinitionParton();
         if (aPartAlg.isNonnull()) {
 	        thePartonLorentzVector = aPartAlg.get()->p4();
 	        thePartonVertex        = aPartAlg.get()->vertex();
@@ -192,7 +191,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
         break;
       }
       case NEAREST_STATUS2 : {
-        const GenParticleRef aPartN2 = aMatch.nearest_status2();
+        const GenParticleRef& aPartN2 = aMatch.nearest_status2();
         if (aPartN2.isNonnull()) {
 	        thePartonLorentzVector = aPartN2.get()->p4();
 	        thePartonVertex        = aPartN2.get()->vertex();
@@ -202,7 +201,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
         break;
       }
       case NEAREST_STATUS3: {
-        const GenParticleRef aPartN3 = aMatch.nearest_status3();
+        const GenParticleRef& aPartN3 = aMatch.nearest_status3();
         if (aPartN3.isNonnull()) {
 	        thePartonLorentzVector = aPartN3.get()->p4();
 	        thePartonVertex        = aPartN3.get()->vertex();
@@ -224,7 +223,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
       // Default case is backwards-compatible
       default:{
         if (physDefinition) {
-          const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
+          const GenParticleRef& aPartPhy = aMatch.physicsDefinitionParton();
 	  if (aPartPhy.isNonnull()) {
             thePartonLorentzVector = aPartPhy.get()->p4();
             thePartonVertex        = aPartPhy.get()->vertex();
@@ -232,7 +231,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
             if (leptonInfo_) theLeptons = findLeptons(aPartPhy);
           }
         } else {
-          const GenParticleRef aPartAlg = aMatch.algoDefinitionParton();
+          const GenParticleRef& aPartAlg = aMatch.algoDefinitionParton();
           if (aPartAlg.isNonnull()) {
             thePartonLorentzVector = aPartAlg.get()->p4();
             thePartonVertex        = aPartAlg.get()->vertex();
@@ -248,7 +247,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
 
     if (thePartonFlavour == 0) {
       if (physDefinition) {
-        const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton();
+        const GenParticleRef& aPartPhy = aMatch.physicsDefinitionParton();
         if (aPartPhy.isNonnull()) {
           thePartonLorentzVector = aPartPhy.get()->p4();
           thePartonVertex        = aPartPhy.get()->vertex();
@@ -256,7 +255,7 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
           if (leptonInfo_) theLeptons = findLeptons(aPartPhy);
         }
       } else {
-        const GenParticleRef aPartAlg = aMatch.algoDefinitionParton();
+        const GenParticleRef& aPartAlg = aMatch.algoDefinitionParton();
         if (aPartAlg.isNonnull()) {
           thePartonLorentzVector = aPartAlg.get()->p4();
           thePartonVertex        = aPartAlg.get()->vertex();
@@ -278,15 +277,15 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
 
 
   // Put the object into the event.
-  iEvent.put(  jetFlavMatching );
+  iEvent.put(std::move(jetFlavMatching));
 
 }
 
-JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &parton)
+JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &parton) const
 {
   JetFlavour::Leptons theLeptons;
 
-  thePartonLV = parton->p4();
+  auto const& thePartonLV = parton->p4();
 
   ///first daughter of the parton should be an MC particle (pdgId==92,93)
   const reco::Candidate *mcstring = parton->daughter(0);
@@ -294,17 +293,17 @@ JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &part
 //  std::cout << "parton DeltaR: " << DeltaR(thePartonLV, parton->p4()) << std::endl;
 
   ///lookup particles with parton flavour and weak decay
-  std::vector<const reco::Candidate*> candidates = findCandidates(mcstring, partonFlavour);
+  std::vector<const reco::Candidate*> candidates = findCandidates(mcstring, partonFlavour, parton->p4());
 //  std::cout << "Candidates are:" << std::endl;
 //  for(unsigned int j = 0; j < candidates.size(); j++) std::cout << "   --> " << candidates[j]->pdgId() << std::endl;
 
   ///count leptons of candidates
-  fillLeptons(candidates, theLeptons, 1, partonFlavour);
+  fillLeptons(candidates, theLeptons, 1, partonFlavour, thePartonLV);
 
   return theLeptons;
 }
 
-std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const reco::Candidate *cand, int partonFlavour)
+std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const reco::Candidate *cand, int partonFlavour, math::XYZTLorentzVector const& thePartonLV) const
 {
   std::vector<const reco::Candidate*> cands;
   if(!cand) return cands;
@@ -323,7 +322,7 @@ std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const r
       if (flavour == partonFlavour ||
           (flavour >= 10 && partonFlavour >= 10)) {
 //        std::cout << "<------- " << std::endl;
-        std::vector<const reco::Candidate*> newcands = findCandidates(cand->daughter(i), partonFlavour);
+        std::vector<const reco::Candidate*> newcands = findCandidates(cand->daughter(i), partonFlavour, thePartonLV);
 //        std::cout << " ------->" << std::endl;
         std::copy(newcands.begin(), newcands.end(), std::back_inserter(cands));
       }
@@ -340,7 +339,7 @@ std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const r
   return cands;
 }
 
-void JetFlavourIdentifier::fillLeptons(const std::vector<const reco::Candidate*> &cands, JetFlavour::Leptons &leptons, int rank, int flavour)
+void JetFlavourIdentifier::fillLeptons(const std::vector<const reco::Candidate*> &cands, JetFlavour::Leptons &leptons, int rank, int flavour, math::XYZTLorentzVector const& thePartonLV) const
 {
   for(unsigned int j = 0; j < cands.size(); j++) {
     for(unsigned int i = 0; i < cands[j]->numberOfDaughters(); i++) {
@@ -360,9 +359,9 @@ void JetFlavourIdentifier::fillLeptons(const std::vector<const reco::Candidate*>
         int heaviest = heaviestFlavour(pdgId);
         int heaviest_ = heaviest < 10 ? heaviest : 0;
         if (!heaviest || (flavour < 4 ? (heaviest_ < 4) : (heaviest >= 4))) {
-          std::vector<const reco::Candidate*> newcands = findCandidates(cands[j]->daughter(i), heaviest);
+          std::vector<const reco::Candidate*> newcands = findCandidates(cands[j]->daughter(i), heaviest, thePartonLV);
           if (pdgId <= 110) newcands.push_back(cands[j]->daughter(i));
-          fillLeptons(newcands, leptons, rank * 10, std::max(heaviest_, flavour));
+          fillLeptons(newcands, leptons, rank * 10, std::max(heaviest_, flavour), thePartonLV);
         }
       }
     }

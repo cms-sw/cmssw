@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="forward.xml" eval="true">
+  <Constant name="TotemT1Rin1" value="15.41*cm"/>
+  <Constant name="TotemT1Rin2" value="15.90*cm"/>
+  <Constant name="TotemT1Rout1" value="81.40*cm"/>
+</ConstantsSection>
+
+<SolidSection label="forward.xml">
+  <Polycone name="TotemT1" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:MuonBeamZ1]" rMin="[cms:TotemBeamR1]" rMax="[cms:MuonBeamR2]"/>
+    <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:TotemBeamR2]" rMax="[TotemT1Rout1]"/>
+    <ZSection z="[cms:TotemBeamZ1]" rMin="[cms:TotemBeamR3]" rMax="[TotemT1Rout1]"/>
+    <ZSection z="[cms:TotemMuonZ1]" rMin="[TotemT1Rin1]" rMax="[cms:TotemMuonR1]"/>
+    <ZSection z="[cms:TotemMuonZ1]" rMin="[TotemT1Rin1]" rMax="[cms:TotemMuonR2]"/>
+    <ZSection z="[cms:TotemMuonZ2]" rMin="[TotemT1Rin2]" rMax="[cms:TotemMuonR2]"/>
+  </Polycone>
+  <Polycone name="TotemT2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:TotemBeamZ3]" rMin="[cms:TotemBeamR4]" rMax="[cms:TotemBeamR5]"/>
+    <ZSection z="[cms:TotemBeamZ4]" rMin="[cms:TotemBeamR4]" rMax="[cms:TotemBeamR5]"/>
+  </Polycone>
+  <Polycone name="BCML2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:TotemBeamZ2]" rMin="[cms:TotemBeamR4]" rMax="[cms:TotemBeamR5]"/>
+    <ZSection z="[cms:TotemBeamZ3]" rMin="[cms:TotemBeamR4]" rMax="[cms:TotemBeamR5]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="forward.xml">
+  <LogicalPart name="TotemT1" category="unspecified">
+    <rSolid name="TotemT1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="TotemT2" category="unspecified">
+    <rSolid name="TotemT2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="BCML2" category="unspecified">
+    <rSolid name="BCML2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="forward.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="forward:TotemT1"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="cms:CMSE"/>
+    <rChild name="forward:TotemT1"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="forward:TotemT2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="cms:CMSE"/>
+    <rChild name="forward:TotemT2"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="forward:BCML2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="cms:CMSE"/>
+    <rChild name="forward:BCML2"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

@@ -92,7 +92,7 @@ void L3MuonCandidateProducer::produce(StreamID, Event& event, const EventSetup& 
 
   // Create a RecoChargedCandidate collection
   LogTrace(category)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
   LogDebug(category) << " size = " << tracks->size();
   for (unsigned int i=0; i<tracks->size(); i++) {
     TrackRef inRef(tracks,i);
@@ -150,7 +150,7 @@ void L3MuonCandidateProducer::produce(StreamID, Event& event, const EventSetup& 
     candidates->push_back(cand);
   }
 
-  event.put(candidates);
+  event.put(std::move(candidates));
 
   LogTrace(category)<<" Event loaded"
                    <<"================================";

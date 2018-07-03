@@ -24,12 +24,12 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 // forward declarations
 
 // class declaration
-class EnergySumTemplate : public GtCondition
+class EnergySumTemplate : public GlobalCondition
 {
 
 public:
@@ -47,7 +47,7 @@ public:
     EnergySumTemplate(const EnergySumTemplate&);
 
     // destructor
-    virtual ~EnergySumTemplate();
+    ~EnergySumTemplate() override;
 
     // assign operator
     EnergySumTemplate& operator=(const EnergySumTemplate&);
@@ -57,13 +57,14 @@ public:
     /// typedef for a single object template
     struct ObjectParameter
     {
-      unsigned int etThreshold;
+      unsigned int etLowThreshold;
+      unsigned int etHighThreshold;
       bool energyOverflow;
 
-      unsigned int phiWindowLower;
-      unsigned int phiWindowUpper;
-      unsigned int phiWindowVetoLower;
-      unsigned int phiWindowVetoUpper;
+      unsigned int phiWindow1Lower;
+      unsigned int phiWindow1Upper;
+      unsigned int phiWindow2Lower;
+      unsigned int phiWindow2Upper;
 
       // two words used only for ETM (ETM phi has 72 bins - two 64-bits words)
       // one word used for HTM
@@ -81,7 +82,7 @@ public:
     void setConditionParameter(const std::vector<ObjectParameter>&);
 
     /// print the condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const EnergySumTemplate&);

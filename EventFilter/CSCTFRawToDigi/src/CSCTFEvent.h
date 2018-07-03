@@ -29,7 +29,7 @@ public:
         return retval;
     }
 
-	unsigned int unpack(const unsigned short *buf, unsigned int length) throw() ;
+	unsigned int unpack(const unsigned short *buf, unsigned int length);
 
 	CSCTFEvent(void){}
 };

@@ -15,24 +15,24 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class KFSwitching1DUpdator GCC11_FINAL : public TrajectoryStateUpdator {
+class KFSwitching1DUpdator final : public TrajectoryStateUpdator {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;
   
 public:
 
-  KFSwitching1DUpdator(const edm::ParameterSet * pset=0) : theDoEndCap(false) {
+  KFSwitching1DUpdator(const edm::ParameterSet * pset=nullptr) : theDoEndCap(false) {
     if (pset){
       theDoEndCap=pset->getParameter<bool>("doEndCap");
     }
   }
-  ~KFSwitching1DUpdator() {}
+  ~KFSwitching1DUpdator() override {}
 
   /// update with a hit
-  virtual TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const;
+  TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const override;
 
-  virtual KFSwitching1DUpdator * clone() const 
+  KFSwitching1DUpdator * clone() const override 
   {
     return new KFSwitching1DUpdator(*this);
   }

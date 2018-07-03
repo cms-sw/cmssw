@@ -16,47 +16,21 @@
 #include "G4Track.hh"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include <sstream>
 
 //#define DebugLog
 
-HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
-			 edm::ParameterSet const & p) : cherenkov(0) {
+HFShowerPMT::HFShowerPMT(const std::string & name, const DDCompactView & cpv,
+                         edm::ParameterSet const & p) : cherenkov(nullptr) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter0;
-  DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDCompOp::equals);
-  DDFilteredView fv0(cpv);
-  fv0.addFilter(filter0);
-  if (fv0.firstChild()) {
-    DDsvalues_type sv0(fv0.mergedSpecifics());
-
-    //Special Geometry parameters
-    rTable   = getDDDArray("rTable",sv0);
-    edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
-			     << " rTable (cm)";
-    for (unsigned int ig=0; ig<rTable.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
-			       << rTable[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerPMT: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << value;
-    throw cms::Exception("Unknown", "HFShowerPMT")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-
-  attribute = "Volume";
-  value     = "HFPMT";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDCompOp::equals);
-  DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
+  //Special Geometry parameters
+  std::string attribute = "Volume";
+  std::string value     = "HFPMT";
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
+  DDFilteredView fv1(cpv,filter1);
   if (fv1.firstChild()) {
     DDsvalues_type sv1(fv1.mergedSpecifics());
     std::vector<double> neta;
@@ -65,7 +39,7 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
       int index = static_cast<int>(neta[ii]);
       int ir=-1, ifib=-1;
       if (index >= 0) {
-	ir   = index/10; ifib = index%10;
+        ir   = index/10; ifib = index%10;
       }
       pmtR1.push_back(ir);
       pmtFib1.push_back(ifib);
@@ -75,23 +49,26 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
       int index = static_cast<int>(neta[ii]);
       int ir=-1, ifib=-1;
       if (index >= 0) {
-	ir   = index/10; ifib = index%10;
+        ir   = index/10; ifib = index%10;
       }
       pmtR2.push_back(ir);
       pmtFib2.push_back(ifib);
     }
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "HFShowerPMT: gets the Index matches for "
-			     << neta.size() << " PMTs";
-    for (unsigned int ii=0; ii<neta.size(); ii++) 
+                             << neta.size() << " PMTs";
+    for (unsigned int ii=0; ii<neta.size(); ii++) {
       edm::LogInfo("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = "
-			       << pmtR1[ii] << " fibreR[" << ii << "] = "
-			       << pmtFib1[ii] << " rIndexL[" << ii << "] = "
-			       << pmtR2[ii] << " fibreL[" << ii << "] = "
-			       << pmtFib2[ii];
+                               << pmtR1[ii] << " fibreR[" << ii << "] = "
+                               << pmtFib1[ii] << " rIndexL[" << ii << "] = "
+                               << pmtR2[ii] << " fibreL[" << ii << "] = "
+                               << pmtFib2[ii];
+    }
+#endif
   } else {
     edm::LogWarning("HFShower") << "HFShowerPMT: cannot get filtered "
-				<< " view for " << attribute << " matching "
-				<< value;
+                                << " view for " << attribute << " matching "
+                                << value;
   }
 
   cherenkov = new HFCherenkov(m_HF);
@@ -101,7 +78,20 @@ HFShowerPMT::~HFShowerPMT() {
   if (cherenkov) delete cherenkov;
 }
 
-double HFShowerPMT::getHits(G4Step * aStep) {
+void HFShowerPMT::initRun(const HcalDDDSimConstants* hcons) {
+
+  // Special Geometry parameters
+  rTable = hcons->getRTableHF();
+  std::stringstream sss;
+  for (unsigned int ig=0; ig<rTable.size(); ++ig) {
+    if(ig/10*10 == ig) { sss << "\n"; }
+    sss << "  " << rTable[ig]/cm;
+  }
+  edm::LogInfo("HFShowerPMT") << "HFShowerPMT: " << rTable.size() 
+                              << " rTable(cm):" << sss.str();
+}
+
+double HFShowerPMT::getHits(const G4Step * aStep) {
 
   indexR = indexF = -1;
 
@@ -120,9 +110,9 @@ double HFShowerPMT::getHits(G4Step * aStep) {
 #ifdef DebugLog
   double edep = aStep->GetTotalEnergyDeposit();
   LogDebug("HFShower") << "HFShowerPMT: Box " << boxNo << " PMT "
-		       << pmtNo << " Mapped Indices " << indexR << ", "
-		       << indexF << " Edeposit " << edep/MeV << " MeV; PE "
-		       << edep*pePerGeV/GeV;
+                       << pmtNo << " Mapped Indices " << indexR << ", "
+                       << indexF << " Edeposit " << edep/MeV << " MeV; PE "
+                       << edep*pePerGeV/GeV;
 #endif
 
   double photons = 0;
@@ -135,12 +125,12 @@ double HFShowerPMT::getHits(G4Step * aStep) {
     G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->
       GetTopTransform().TransformAxis(pDir);
     photons = cherenkov->computeNPEinPMT(particleDef, beta, localMom.x(),
-					 localMom.y(), localMom.z(), stepl);
+                                         localMom.y(), localMom.z(), stepl);
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT::getHits: for particle " 
-		       << particleDef->GetParticleName() << " Step " << stepl
-		       << " Beta " << beta << " Direction " << pDir
-		       << " Local " << localMom << " p.e. " << photons;
+                       << particleDef->GetParticleName() << " Step " << stepl
+                       << " Beta " << beta << " Direction " << pDir
+                       << " Local " << localMom << " p.e. " << photons;
 #endif 
 
   }
@@ -155,18 +145,18 @@ double HFShowerPMT::getRadius() {
 #ifdef DebugLog
   else
     LogDebug("HFShower") << "HFShowerPMT::getRadius: R " << indexR
-			 << " F " << indexF;
+                         << " F " << indexF;
 #endif
   if (indexF == 2)  r =-r;
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT: Radius (" << indexR << "/" << indexF 
-		       << ") " << r;
+                       << ") " << r;
 #endif
   return r;
 }
 
 std::vector<double> HFShowerPMT::getDDDArray(const std::string & str, 
-					     const DDsvalues_type & sv) {
+                                             const DDsvalues_type & sv) {
 
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerPMT:getDDDArray called for " << str;
@@ -180,9 +170,9 @@ std::vector<double> HFShowerPMT::getDDDArray(const std::string & str,
     int nval = fvec.size();
     if (nval < 2) {
       edm::LogError("HFShower") << "HFShowerPMT: # of " << str 
-				<< " bins " << nval << " < 2 ==> illegal";
+                                << " bins " << nval << " < 2 ==> illegal";
       throw cms::Exception("Unknown", "HFShowerPMT")
-	<< "nval < 2 for array " << str << "\n";
+        << "nval < 2 for array " << str << "\n";
     }
 
     return fvec;

@@ -242,7 +242,7 @@ std::vector<int> RPCLogCone::getLogStripDigisIdxs(int logPlane, unsigned int log
 
 
 bool RPCLogCone::isPlaneFired(int logPlane) const {
-  if(m_LogPlanesVec[logPlane].size() == 0)
+  if(m_LogPlanesVec[logPlane].empty())
     return false; 
   else
     return true;  

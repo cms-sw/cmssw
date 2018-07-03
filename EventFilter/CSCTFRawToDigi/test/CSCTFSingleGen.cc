@@ -70,8 +70,8 @@ CSCTFSingleGen::~CSCTFSingleGen(){
 void CSCTFSingleGen::produce(edm::Event& e, const edm::EventSetup& c){
 
   // create the collection of CSC wire and strip digis as well as of DT stubs, which we receive from DTTF
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
-  //  std::auto_ptr<CSCTriggerContainer<csctf::TrackStub> > dtProduct(new CSCTriggerContainer<csctf::TrackStub>);
+  auto LCTProduct = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  //  auto dtProduct = std::make_unique<CSCTriggerContainer<csctf::TrackStub>>();
 
 
   for(unsigned int tbin=6; tbin<7; tbin++){
@@ -129,8 +129,8 @@ void CSCTFSingleGen::produce(edm::Event& e, const edm::EventSetup& c){
   strip++;
 
 
-  //e.put(dtProduct,"DT");
-  e.put(LCTProduct); // put processed lcts into the event.
+  //e.put(std::move(dtProduct),"DT");
+  e.put(std::move(LCTProduct)); // put processed lcts into the event.
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(CSCTFSingleGen);

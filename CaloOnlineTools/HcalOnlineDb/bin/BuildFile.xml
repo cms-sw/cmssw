@@ -1,0 +1,7 @@
+<use name="root"/>
+<use name="PhysicsTools/FWLite"/>
+<use name="CaloOnlineTools/HcalOnlineDb"/>
+<environment>
+  <bin file="hcalLUT.cc"></bin>
+</environment>
+

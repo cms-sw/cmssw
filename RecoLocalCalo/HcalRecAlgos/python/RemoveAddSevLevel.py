@@ -42,7 +42,7 @@ def PrintLevels(SLComp):
     return
 
 
-def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10):
+def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10,verbose=True):
     ''' Adds specified flag to severity level computer using specified severity level.
         If flag already exists at another severity level, it is removed from that level.
         '''
@@ -58,7 +58,7 @@ def AddFlag(sevLevelComputer,flag="UserDefinedBit0",severity=10):
             allowedflags.append(j)
             
     #print "Allowed flags = ",allowedflags
-    if flag not in allowedflags:
+    if flag not in allowedflags and verbose:
         print "\n\n"
         for j in range(0,3):
             print "###################################################"

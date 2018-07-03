@@ -37,7 +37,7 @@ def parseInputFile(ifilename):
             normbitCountStr=row[2].strip()
             normbitPrescStr=row[3].strip()
             perlsdata.append( (int(cmslsnumStr),int(normbitCountStr),int(normbitPrescStr)) )
-    except Exception,e:
+    except Exception as e:
         raise RuntimeError(str(e))
     return perlsdata
 def main(*args):

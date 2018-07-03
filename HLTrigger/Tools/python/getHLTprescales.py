@@ -55,14 +55,14 @@ stderr.write("Querying ConfDB for prescales for path %s...\n" % (path));
 jsout = {}
 for run in runs:
     key = runKeys[run]
-    if not prescaleTable.has_key(key):
+    if key not in prescaleTable:
         prescaleTable[key] = getPrescalesFromKey(key)
     psfactor = 1
     absent=0
     if len(prescaleTable[key]) == 0:
 	psfactor = 0
     else:
-    	if MapIndex.has_key(run):
+    	if run in MapIndex:
 		index = int(MapIndex[run])
 		psfactor = prescaleTable[key][index]
     	else:

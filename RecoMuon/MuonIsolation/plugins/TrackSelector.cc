@@ -9,17 +9,17 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
 {
   static const std::string metname = "MuonIsolation|TrackSelector";
   result_type result;
-  for (input_type::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
+  for (auto const& tk: tracks) {
 
-//     float tZ = it->vz();
-//     float tD0 = fabs(it->d0());
-//     float tD0Cor = fabs(it->dxy(thePars.beamPoint));
-//     float tEta = it->eta();
-//     float tPhi = it->phi();
-//     unsigned int tHits = it->numberOfValidHits();
-//     float tChi2Ndof = it->normalizedChi2();
-//     float tChi2Prob = ChiSquaredProbability(it->chi2(), it->ndof());
-//     float tPt = it->pt();
+//     float tZ = tk.vz();
+//     float tD0 = fabs(tk.d0());
+//     float tD0Cor = fabs(tk.dxy(thePars.beamPoint));
+//     float tEta = tk.eta();
+//     float tPhi = tk.phi();
+//     unsigned int tHits = tk.numberOfValidHits();
+//     float tChi2Ndof = tk.normalizedChi2();
+//     float tChi2Prob = ChiSquaredProbability(tk.chi2(), tk.ndof());
+//     float tPt = tk.pt();
 
 //     LogTrace(metname)<<"Tk vz: "<<tZ
 // 		     <<",  d0: "<<tD0
@@ -35,13 +35,13 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
     //! someone will have some fun reading the log if Debug is on
     //! the biggest reason is the numberOfValidHits call (the rest are not as costly)
 
-    float tZ = it->vz(); 
-    float tPt = it->pt();
-    float tD0 = fabs(it->d0());  
-    float tD0Cor = fabs(it->dxy(thePars.beamPoint));
-    float tEta = it->eta();
-    float tPhi = it->phi();
-    float tChi2Ndof = it->normalizedChi2();
+    float tZ = tk.vz(); 
+    float tPt = tk.pt();
+    float tD0 = fabs(tk.d0());  
+    float tD0Cor = fabs(tk.dxy(thePars.beamPoint));
+    float tEta = tk.eta();
+    float tPhi = tk.phi();
+    float tChi2Ndof = tk.normalizedChi2();
     LogTrace(metname)<<"Tk vz: "<<tZ
 		     <<",  pt: "<<tPt
 		     <<",  d0: "<<tD0
@@ -59,20 +59,20 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
 
     //! skip if min Hits == 0; assumes any track has at least one valid hit
     if (thePars.nHitsMin > 0 ){
-      unsigned int tHits = it->numberOfValidHits();
+      unsigned int tHits = tk.numberOfValidHits();
       LogTrace(metname)<<", nHits: "<<tHits;
       if ( tHits < thePars.nHitsMin ) continue;
     }
 
     //! similarly here
     if(thePars.chi2ProbMin > 0){
-      float tChi2Prob = ChiSquaredProbability(it->chi2(), it->ndof());
+      float tChi2Prob = ChiSquaredProbability(tk.chi2(), tk.ndof());
       LogTrace(metname)<<", chi2Prob: "<<tChi2Prob<<std::endl;
       if ( tChi2Prob < thePars.chi2ProbMin ) continue;
     }
 
     LogTrace(metname)<<" ..... accepted"<<std::endl;
-    result.push_back(&*it);
+    result.push_back(&tk);
   } 
   return result;
 }

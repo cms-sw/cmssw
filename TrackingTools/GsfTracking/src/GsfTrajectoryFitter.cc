@@ -2,16 +2,14 @@
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-// #include "CommonDet/BasicDet/interface/Det.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
-// #include "Utilities/Notification/interface/Verbose.h"
-// #include "Utilities/Notification/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+
+#include "TrackingTools/TrackFitters/interface/DebugHelpers.h"
 
 
 GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
@@ -26,8 +24,6 @@ GsfTrajectoryFitter::GsfTrajectoryFitter(const Propagator& aPropagator,
   theGeometry(detLayerGeometry)
 {
   if(!theGeometry) theGeometry = &dummyGeometry;
-  //   static SimpleConfigurable<bool> timeConf(false,"GsfTrajectoryFitter:activateTiming");
-  //   theTiming = timeConf.value();
 }
 
 GsfTrajectoryFitter::~GsfTrajectoryFitter() {
@@ -60,22 +56,13 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 				    const TrajectoryStateOnSurface& firstPredTsos,
 				    fitType) const {
 
-  //   static TimingReport::Item* propTimer =
-  //     &(*TimingReport::current())[string("GsfTrajectoryFitter:propagation")];
-  //   propTimer->switchCPU(false);
-  //   if ( !theTiming )  propTimer->switchOn(false);
-  //   static TimingReport::Item* updateTimer =
-  //     &(*TimingReport::current())[string("GsfTrajectoryFitter:update")];
-  //   updateTimer->switchCPU(false);
-  //   if ( !theTiming )  updateTimer->switchOn(false);
-
   if(hits.empty()) return Trajectory();
 
   Trajectory myTraj(aSeed, propagator()->propagationDirection());
 
   TSOS predTsos(firstPredTsos);
   if(!predTsos.isValid()) {
-    edm::LogInfo("GsfTrajectoryFitter") 
+    edm::LogInfo("GsfTrackFitters")
       << "GsfTrajectoryFitter: predicted tsos of first measurement not valid!";
     return Trajectory();
   } 
@@ -87,8 +74,8 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
      assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
      assert( (!(ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(ihit.get())));
      auto preciseHit = theHitCloner->makeShared(ihit,predTsos);
+     dump(*preciseHit,1,"GsfTrackFitters");
     {
-      //       TimeMe t(*updateTimer,false);
       currTsos = updator()->update(predTsos, *preciseHit);
     }
     if (!predTsos.isValid() || !currTsos.isValid()){
@@ -103,36 +90,22 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       edm::LogError("InvalidState")<<"first invalid hit";
       return Trajectory();
     }
-    myTraj.push(TM(predTsos, *hits.begin(),0., theGeometry->idToLayer((*hits.begin())->geographicalId()) ));
+    myTraj.push(TM(predTsos, hits.front(),0., theGeometry->idToLayer((hits.front())->geographicalId()) ));
   }
   
+  int hitcounter = 1;
   for(RecHitContainer::const_iterator ihit = hits.begin() + 1; 
-      ihit != hits.end(); ihit++) {    
+      ihit != hits.end(); ihit++) {
+        ++hitcounter;
+    
     //
     // temporary protection copied from KFTrajectoryFitter.
     //
-    if ((**ihit).isValid() == false && (**ihit).det() == 0) {
-      LogDebug("GsfTrajectoryFitter") << " Error: invalid hit with no GeomDet attached .... skipping";
+    if ((**ihit).isValid() == false && (**ihit).det() == nullptr) {
+      LogDebug("GsfTrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
 
-    //!!! no invalid hits on cylinders anymore??
-    //     //
-    //     // check type of surface in case of invalid hit
-    //     // (in this version only propagations to planes are
-    //     // supported for multi trajectory states)
-    //     //
-    //     if ( !(**ihit).isValid() ) {
-    //       const BoundPlane* plane = 
-    // 	dynamic_cast<const BoundPlane*>(&(**ihit).det().surface());
-    //       //
-    //       // no plane: insert invalid measurement
-    //       //
-    //       if ( plane==0 ) {
-    // 	myTraj.push(TM(TrajectoryStateOnSurface(),&(**ihit)));
-    // 	continue;
-    //       }
-    //     }
     {
       //       TimeMe t(*propTimer,false);
       predTsos = propagator()->propagate(currTsos,
@@ -140,13 +113,13 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
     if(!predTsos.isValid()) {
       if ( myTraj.foundHits()>=3 ) {
-	edm::LogInfo("GsfTrajectoryFitter") 
+	edm::LogInfo("GsfTrackFitters") 
 	  << "GsfTrajectoryFitter: predicted tsos not valid! \n"
 	  << "Returning trajectory with " << myTraj.foundHits() << " found hits.";
 	return myTraj;
       }
       else {
-      edm::LogInfo("GsfTrajectoryFitter") 
+      edm::LogInfo("GsfTrackFitters") 
 	<< "GsfTrajectoryFitter: predicted tsos not valid after " << myTraj.foundHits()
 	<< " hits, discarding candidate!";
 	return Trajectory();
@@ -156,28 +129,30 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     
     if((**ihit).isValid()) {
       //update
-       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
-       assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
-       auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
-      {
-	// 	TimeMe t(*updateTimer,false);
-	currTsos = updator()->update(predTsos, *preciseHit);
-      }
+      assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
+      assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
+      auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
+      dump(*preciseHit,hitcounter,"GsfTrackFitters");
+      currTsos = updator()->update(predTsos, *preciseHit);     
       if (!predTsos.isValid() || !currTsos.isValid()){
 	edm::LogError("InvalidState")<<"inside hit";
 	return Trajectory();
       }
+      auto chi2=estimator()->estimate(predTsos, *preciseHit).second;
       myTraj.push(TM(predTsos, currTsos, preciseHit,
-		     estimator()->estimate(predTsos, *preciseHit).second,
+		     chi2,
 		     theGeometry->idToLayer(preciseHit->geographicalId() )));
+      LogDebug("GsfTrackFitters") << "added measurement with chi2 " << chi2;
     } else {
       currTsos = predTsos;
       if (!predTsos.isValid()){
-      edm::LogError("InvalidState")<<"inside invalid hit";
-      return Trajectory();
+        edm::LogError("InvalidState")<<"inside invalid hit";
+        return Trajectory();
       }
       myTraj.push(TM(predTsos, *ihit,0., theGeometry->idToLayer( (*ihit)->geographicalId()) ));
     }
+    dump(predTsos,"predTsos","GsfTrackFitters");
+    dump(currTsos,"currTsos","GsfTrackFitters");
   }
   return myTraj;
 }

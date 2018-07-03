@@ -84,7 +84,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   const std::string metname = "Muon|RecoMuon|L2MuonSeedGenerator";
   MuonPatternRecoDumper debug;
 
-  auto_ptr<L2MuonTrajectorySeedCollection> output(new L2MuonTrajectorySeedCollection());
+  auto output = std::make_unique<L2MuonTrajectorySeedCollection>();
   
   // Muon particles and GMT readout collection
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
@@ -171,7 +171,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     // Update the services
     theService->update(iSetup);
 
-    const DetLayer *detLayer = 0;
+    const DetLayer *detLayer = nullptr;
     float radius = 0.;
   
     CLHEP::Hep3Vector vec(0.,1.,0.);
@@ -254,7 +254,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	detsWithStates = detLayer->compatibleDets(tsos, 
 						  *theService->propagator(thePropagatorName), 
 						  *theEstimator);   
-      if (detsWithStates.size()){
+      if (!detsWithStates.empty()){
 
 	TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
 	const GeomDet *newTSOSDet = detsWithStates.front().first;
@@ -284,7 +284,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	    const TrajectorySeed *assoOffseed = 
 	      associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS);
 
-	    if(assoOffseed!=0) {
+	    if(assoOffseed!=nullptr) {
 	      PTrajectoryStateOnDet const & seedTSOS = assoOffseed->startingState();
 	      TrajectorySeed::const_iterator 
 		tsci  = assoOffseed->recHits().first,
@@ -315,7 +315,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
   
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 
 
@@ -328,7 +328,7 @@ const TrajectorySeed* L2MuonSeedGenerator::associateOfflineSeedToL1( edm::Handle
   MuonPatternRecoDumper debugtmp;
 
   edm::View<TrajectorySeed>::const_iterator offseed, endOffseed = offseeds->end();
-  const TrajectorySeed *selOffseed = 0;
+  const TrajectorySeed *selOffseed = nullptr;
   double bestDr = 99999.;
   unsigned int nOffseed(0);
   int lastOffseed(-1);

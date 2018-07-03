@@ -1,0 +1,1 @@
+0 */2 * * * /bin/sh /data/O2O/scripts/runTimeBasedO2O.sh >/dev/null 2>&1 

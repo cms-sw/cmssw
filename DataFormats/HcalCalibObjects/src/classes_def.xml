@@ -1,12 +1,6 @@
 <lcgdict>
-  <class name="HEDarkening" ClassVersion="0">
-   <version ClassVersion="0" checksum="3959036241"/>
-  </class>
-  <class name="HFRecalibration" ClassVersion="0">
-   <version ClassVersion="0" checksum="526251233"/>
-  </class>
-  <class name="HOCalibVariables" ClassVersion="10">
-   <version ClassVersion="10" checksum="2625437100"/>
+  <class name="HOCalibVariables" ClassVersion="16">
+   <version ClassVersion="16" checksum="2161587371"/>
   </class>
   <class name="std::vector<HOCalibVariables>"/>
   <class name="edm::Wrapper<std::vector<HOCalibVariables> >"/>

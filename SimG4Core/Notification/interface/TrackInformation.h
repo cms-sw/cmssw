@@ -8,7 +8,7 @@
 class TrackInformation : public G4VUserTrackInformation {
 
 public:
-  virtual ~TrackInformation() {}
+  ~TrackInformation() override {}
   inline void * operator new(size_t);
   inline void   operator delete(void * TrackInformation);
 
@@ -58,7 +58,7 @@ public:
   void setCastorHitPID(const int pid) { hasCastorHit_=true; castorHitPID_ = pid; }
   int getCastorHitPID() const { return castorHitPID_; }
 
-  virtual void Print() const;
+  void Print() const override;
 private:
   bool   storeTrack_;    
   bool   isPrimary_;

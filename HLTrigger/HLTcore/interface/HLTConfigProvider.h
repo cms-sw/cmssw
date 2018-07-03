@@ -150,6 +150,12 @@ class HLTConfigProvider {
     return hltConfigData_->saveTags(module);
   }
 
+
+  /// L1T type (0=unknown, 1=legacy/stage-1 or 2=stage-2)
+  unsigned int l1tType() const {
+    return hltConfigData_->l1tType();
+  }
+
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths
   const std::vector<std::vector<std::pair<bool,std::string> > >& hltL1GTSeeds() const {
@@ -162,6 +168,20 @@ class HLTConfigProvider {
   /// HLTLevel1GTSeed modules for trigger path with index i
   const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(unsigned int trigger) const {
     return hltConfigData_->hltL1GTSeeds(trigger);
+  }
+
+  /// HLTL1TSeed module
+  /// HLTL1TSeed modules for all trigger paths
+  const std::vector<std::vector<std::string> >& hltL1TSeeds() const {
+    return hltConfigData_->hltL1TSeeds();
+  }
+  /// HLTL1TSeed modules for trigger path with name
+  const std::vector<std::string>& hltL1TSeeds(const std::string& trigger) const {
+    return hltConfigData_->hltL1TSeeds(trigger);
+  }
+  /// HLTL1TSeed modules for trigger path with index i
+  const std::vector<std::string>& hltL1TSeeds(unsigned int trigger) const {
+    return hltConfigData_->hltL1TSeeds(trigger);
   }
 
 

@@ -79,7 +79,7 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
 
 void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+  auto result = std::make_unique<TrajectorySeedCollection>();
   Handle<reco::TrackCollection> trks;
   ev.getByToken(theInputCollectionTag, trks);
 
@@ -142,12 +142,12 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 
 	edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
 	SeedFromConsecutiveHitsCreator seedCreator(seedCreatorPSet);
-	seedCreator.init(region, es, 0);
+	seedCreator.init(region, es, nullptr);
 	seedCreator.makeSeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ));
       }
     }
   } 
 
-  ev.put(result);
+  ev.put(std::move(result));
 }
 

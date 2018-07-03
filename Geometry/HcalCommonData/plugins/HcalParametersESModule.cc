@@ -10,15 +10,15 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
  
 
 class  HcalParametersESModule : public edm::ESProducer {
 public:
   HcalParametersESModule( const edm::ParameterSet & );
-  ~HcalParametersESModule( void );
+  ~HcalParametersESModule( void ) override;
   
-  typedef boost::shared_ptr<HcalParameters> ReturnType;
+  typedef std::shared_ptr<HcalParameters> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   
@@ -40,8 +40,8 @@ void HcalParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & 
 
 HcalParametersESModule::ReturnType
 HcalParametersESModule::produce( const HcalParametersRcd& iRecord ) {
-  //edm::LogInfo("HcalParametersESModule")
-  std::cout <<  "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)" << std::endl;
+  edm::LogInfo("HcalESModule")
+    <<  "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   

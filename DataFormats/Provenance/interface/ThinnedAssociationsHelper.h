@@ -59,9 +59,10 @@ namespace edm {
 
     void requireMatch(ThinnedAssociationBranches const& input) const;
 
-    void updateFromInput(ThinnedAssociationsHelper const&,
-                         bool isSecondaryFile,
-                         std::vector<BranchID> const& associationsFromSecondary);
+    void updateFromPrimaryInput(ThinnedAssociationsHelper const&);
+
+    void updateFromSecondaryInput(ThinnedAssociationsHelper const&,
+                                  std::vector<BranchID> const& associationsFromSecondary);
 
     void updateFromParentProcess(ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                                  std::map<BranchID, bool> const& keepAssociation,

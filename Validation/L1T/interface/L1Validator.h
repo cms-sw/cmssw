@@ -36,7 +36,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Common/interface/Provenance.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <DataFormats/HepMCCandidate/interface/GenParticleFwd.h>
 #include <DataFormats/L1Trigger/interface/L1EmParticle.h>
@@ -47,6 +49,12 @@
 #include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
 #include <DataFormats/L1Trigger/interface/L1EtMissParticle.h>
 #include <DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h>
+#include <DataFormats/L1Trigger/interface/Muon.h>
+#include <DataFormats/L1Trigger/interface/EGamma.h>
+#include <DataFormats/L1Trigger/interface/Tau.h>
+#include <DataFormats/L1Trigger/interface/Jet.h>
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
@@ -60,7 +68,7 @@
 class L1Validator : public DQMEDAnalyzer {
   public:
     explicit L1Validator(const edm::ParameterSet&);
-    ~L1Validator();
+    ~L1Validator() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -74,14 +82,13 @@ class L1Validator : public DQMEDAnalyzer {
     std::string _fileName;
 
     edm::EDGetTokenT<reco::GenParticleCollection> _GenSource;
-    edm::EDGetTokenT<l1extra::L1EmParticleCollection> _L1ExtraIsoEGSource;
-    edm::EDGetTokenT<l1extra::L1EmParticleCollection> _L1ExtraNonIsoEGSource;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1ExtraCenJetSource;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1ExtraForJetSource;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1ExtraTauJetSource;
-    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> _L1ExtraMuonSource;
-    //edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> _L1ExtraMETSource;
-
+    edm::EDGetTokenT<l1t::MuonBxCollection> _L1MuonBXSource;
+    edm::EDGetTokenT<l1t::EGammaBxCollection> _L1EGammaBXSource;
+    edm::EDGetTokenT<l1t::TauBxCollection> _L1TauBXSource;
+    edm::EDGetTokenT<l1t::JetBxCollection> _L1JetBXSource;
+    edm::EDGetTokenT<GenEventInfoProduct>         _srcToken;
+    edm::EDGetTokenT<reco::GenJetCollection> _L1GenJetSource;
+  
     L1ValidatorHists _Hists;
 
     //---------------helper functions------------------

@@ -18,7 +18,7 @@ ConverterTester::ConverterTester(const edm::ParameterSet& iPSet)
       << "===============================\n";
   }
  
-  dbe = 0;
+  dbe = nullptr;
   dbe = edm::Service<DQMStore>().operator->();
  
   count = 0;
@@ -31,15 +31,15 @@ void ConverterTester::beginJob()
 {
 
   if(dbe){
-    meTestString = 0;
-    meTestInt = 0;
-    meTestFloat = 0;
-    meTestTH1FN = 0;
-    meTestTH1FD = 0;
-    meTestTH2F = 0;
-    meTestTH3F = 0;
-    meTestProfile1 = 0;
-    meTestProfile2 = 0;
+    meTestString = nullptr;
+    meTestInt = nullptr;
+    meTestFloat = nullptr;
+    meTestTH1FN = nullptr;
+    meTestTH1FD = nullptr;
+    meTestTH2F = nullptr;
+    meTestTH3F = nullptr;
+    meTestProfile1 = nullptr;
+    meTestProfile2 = nullptr;
     Random = new TRandom3();
     
     dbe->setCurrentFolder("ConverterTest/String");

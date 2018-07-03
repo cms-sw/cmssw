@@ -9,6 +9,7 @@ OutALCARECOHcalCalNoise_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_HcalNoiseProd_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
 	'keep edmTriggerResults_*_*_HLT'
 )
 )

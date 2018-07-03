@@ -20,18 +20,18 @@
 class CSCBadChambersConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCBadChambersConditions(const edm::ParameterSet&);
-  ~CSCBadChambersConditions();
+  ~CSCBadChambersConditions() override;
   
 
   inline static CSCBadChambers *  prefillBadChambers();
 
-  typedef const  CSCBadChambers * ReturnType;
+  typedef std::unique_ptr<CSCBadChambers> ReturnType;
   
   ReturnType produceBadChambers(const CSCBadChambersRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCBadChambers *cndbBadChambers ;
 
 };

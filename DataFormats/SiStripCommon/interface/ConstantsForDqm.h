@@ -58,6 +58,9 @@ namespace sistrip {
 
     static const char clusterCharge_[]     = "ClusterCharge";
     static const char occupancy_[]         = "Occupancy";
+
+    // ---------- DaqScopeMode -----
+    static const char scopeModeFrame_[] = "DaqScopeFrame";
     
   }
   

@@ -10,12 +10,13 @@
 #include <iostream>
 #include <fstream>
 
-//using std::cout;
-//using std::endl;
- 
-RunAction::RunAction(const edm::ParameterSet& p, SimRunInterface* rm) 
-   : m_runInterface(rm), 
-     m_stopFile(p.getParameter<std::string>("StopFile")), m_timer(0) 
+RunAction::RunAction(const edm::ParameterSet& p, SimRunInterface* rm, bool master) 
+  : m_runInterface(rm), 
+    m_stopFile(p.getParameter<std::string>("StopFile")),
+    m_timer(nullptr), m_isMaster(master)
+{}
+
+RunAction::~RunAction()
 {}
 
 void RunAction::BeginOfRunAction(const G4Run * aRun)
@@ -29,7 +30,7 @@ void RunAction::BeginOfRunAction(const G4Run * aRun)
   BeginOfRun r(aRun);
   m_beginOfRunSignal(&r);
   /*
-  if (isMaster) {
+  if (m_isMaster) {
     m_timer = new G4Timer();
     m_timer->Start();
   }

@@ -11,6 +11,7 @@
 namespace edm {
   class ParameterSet;
   class Event;
+  class EventSetup;
 }
 class EventWithHistory;
 

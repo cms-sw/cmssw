@@ -12,27 +12,16 @@
 void CmsTrackerOTRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
   CmsDetConstruction theCmsDetConstruction;
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s,&fv))){
-  case GeometricDet::DetUnit:
-           theCmsDetConstruction.buildComponent(fv,g,s);
-    break;
-  default:
-    edm::LogError("CmsTrackerOTRingBuilder")<<" ERROR - I was expecting a Plaq, I got a "<<ExtractStringFromDDD::getString(s,&fv);
-    ;
-  }  
+  theCmsDetConstruction.buildComponent(fv,g,s);
+
 }
 
 void CmsTrackerOTRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
- GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
- if (comp.front()->type()==GeometricDet::DetUnit){ 
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
-   TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
-   stable_sort(comp.begin(), comp.end() ,PhiSortNP());
-   
- }
- else
-   edm::LogError("CmsTrackerOTRingBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
+  //increasing phi taking into account the sub-modules
+  TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModule());
 
   for(uint32_t i=0; i<comp.size();i++){
     det->component(i)->setGeographicalID(i+1);

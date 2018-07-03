@@ -6,18 +6,18 @@
 class InsideBoundsMeasurementEstimator : public MeasurementEstimator {
 public:
 
-  virtual bool estimate( const TrajectoryStateOnSurface& ts, 
-			 const Plane& plane) const;
+  bool estimate( const TrajectoryStateOnSurface& ts, 
+			 const Plane& plane) const override;
 
   std::pair<bool,double> 
     estimate(const TrajectoryStateOnSurface& tsos,
-	     const TrackingRecHit& aRecHit) const; 
+	     const TrackingRecHit& aRecHit) const override; 
 
-  virtual Local2DVector 
+  Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const Plane& plane) const;
+			    const Plane& plane) const override;
 
-  virtual MeasurementEstimator* clone() const {
+  MeasurementEstimator* clone() const override {
     return new InsideBoundsMeasurementEstimator( *this);
   }
 

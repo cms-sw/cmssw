@@ -35,12 +35,12 @@ class EcalEleCalibLooper : public edm::EDLooper {
     //! ctor
     explicit EcalEleCalibLooper(const edm::ParameterSet&);
     //! dtor
-    ~EcalEleCalibLooper();
-    void beginOfJob() ;
-    void endOfJob();
-    void startingNewLoop(unsigned int) ;
-    Status duringLoop(const edm::Event&, const edm::EventSetup&) ;
-    Status endOfLoop(const edm::EventSetup&,unsigned int iCounter) ;
+    ~EcalEleCalibLooper() override;
+    void beginOfJob() override ;
+    void endOfJob() override;
+    void startingNewLoop(unsigned int) override ;
+    Status duringLoop(const edm::Event&, const edm::EventSetup&) override ;
+    Status endOfLoop(const edm::EventSetup&,unsigned int iCounter) override ;
     
 
   private:

@@ -114,7 +114,6 @@ namespace edmtest
   ViewAnalyzer::analyze(StreamID,
                         Event const& e,
                         EventSetup const& /* unused */) const {
-    assert(e.size() > 0);
 
     tester<std::vector<int> >::call(this, e, "intvec");
     tester<std::list<int> >::call(this, e, "intlist");

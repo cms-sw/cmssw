@@ -28,13 +28,13 @@ class ProcCount : public VarProcessor {
 	ProcCount(const char *name,
 	          const Calibration::ProcCount *calib,
 	          const MVAComputer *computer);
-	virtual ~ProcCount() {}
+	~ProcCount() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
 };
 
-static ProcCount::Registry registry("ProcCount");
+ProcCount::Registry registry("ProcCount");
 
 ProcCount::ProcCount(const char *name,
                           const Calibration::ProcCount *calib,

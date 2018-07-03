@@ -16,11 +16,11 @@ class csccableread
   /**
    * Constructor for csccableread
    */
-  csccableread () throw (oracle::occi::SQLException);
+  csccableread () noexcept(false);
   /**
    * Destructor for cscmap
    */
-  ~csccableread () throw (oracle::occi::SQLException);
+  ~csccableread () noexcept(false);
 
 void cable_read (int chamber_index, std::string *chamber_label,
      float *cfeb_length, std::string *cfeb_rev, float *alct_length,

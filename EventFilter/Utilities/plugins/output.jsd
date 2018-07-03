@@ -44,6 +44,11 @@
          "name" : "TransferDestination",
          "operation" : "same",
          "type" : "string"
+      },
+      {
+         "name" : "HLTErrorEvents",
+         "operation" : "sum",
+         "type" : "integer"
       }
 
    ]

@@ -34,7 +34,7 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
 							     unsigned int outer,
 							     LayerCacheType* layerCache,
 							     unsigned int max)
-  : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max)
+  : theLayerCache(layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max)
 {
 }
 
@@ -86,32 +86,43 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   }
 }
 
-
 HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region,
-						    const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers) {
+                                                     const edm::Event & iEvent, const edm::EventSetup& iSetup, const Layer& innerLayer, const Layer& outerLayer,
+                                                     LayerCacheType& layerCache) {
 
-  typedef OrderedHitPair::InnerRecHit InnerHit;
-  typedef OrderedHitPair::OuterRecHit OuterHit;
-  typedef RecHitsSortedInPhi::Hit Hit;
-
-  Layer innerLayerObj = innerLayer(layers);
-  Layer outerLayerObj = outerLayer(layers);
-
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, iEvent, iSetup);
+  const RecHitsSortedInPhi & innerHitsMap = layerCache(innerLayer, region, iSetup);
   if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
 
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, iEvent, iSetup);
+  const RecHitsSortedInPhi& outerHitsMap = layerCache(outerLayer, region, iSetup);
   if (outerHitsMap.empty()) return HitDoublets(innerHitsMap,outerHitsMap);
-
   HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
+  doublets(region,
+	   *innerLayer.detLayer(),*outerLayer.detLayer(),
+	   innerHitsMap,outerHitsMap,iSetup,theMaxElement,result);
+  
+  return result;
 
-  InnerDeltaPhi deltaPhi(*outerLayerObj.detLayer(), *innerLayerObj.detLayer(), region, iSetup);
+}
+
+void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
+						    const DetLayer & innerHitDetLayer,
+						    const DetLayer & outerHitDetLayer,
+						    const RecHitsSortedInPhi & innerHitsMap,
+						    const RecHitsSortedInPhi & outerHitsMap,
+						    const edm::EventSetup& iSetup,
+						    const unsigned int theMaxElement,
+						    HitDoublets & result){
+
+  //  HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
+  typedef RecHitsSortedInPhi::Hit Hit;
+  InnerDeltaPhi deltaPhi(outerHitDetLayer, innerHitDetLayer, region, iSetup);
 
   // std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << outerLayer.detLayer()->seqNum() << std::endl;
 
   // constexpr float nSigmaRZ = std::sqrt(12.f);
   constexpr float nSigmaPhi = 3.f;
   for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) {
+    if (!deltaPhi.prefilter(outerHitsMap.x[io],outerHitsMap.y[io])) continue;
     Hit const & ohit =  outerHitsMap.theHits[io].hit();
     PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.x[io],
 					      outerHitsMap.y[io],
@@ -121,7 +132,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(innerLayerObj.detLayer(), ohit, iSetup, outerLayerObj.detLayer(), 
+    const HitRZCompatibility *checkRZ = region.checkRZ(&innerHitDetLayer, ohit, iSetup, &outerHitDetLayer, 
 						       outerHitsMap.rv(io),outerHitsMap.z[io],
 						       outerHitsMap.isBarrel ? outerHitsMap.du[io] :  outerHitsMap.dv[io],
 						       outerHitsMap.isBarrel ? outerHitsMap.dv[io] :  outerHitsMap.du[io]
@@ -157,7 +168,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 	  result.clear();
 	  edm::LogError("TooManyPairs")<<"number of pairs exceed maximum, no pairs produced";
 	  delete checkRZ;
-	  return result;
+	  return;
 	}
         result.add(b+i,io);
       }
@@ -166,5 +177,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   }
   LogDebug("HitPairGeneratorFromLayerPair")<<" total number of pairs provided back: "<<result.size();
   result.shrink_to_fit();
-  return result;
+
 }
+
+

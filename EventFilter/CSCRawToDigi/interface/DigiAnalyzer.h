@@ -27,7 +27,7 @@
 class DigiAnalyzer : public edm::EDAnalyzer {
 public:
   explicit DigiAnalyzer(edm::ParameterSet const& conf);
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
 
 private:
 

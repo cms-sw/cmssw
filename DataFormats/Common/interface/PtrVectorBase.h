@@ -35,14 +35,10 @@ namespace edm {
     typedef unsigned long key_type;
     typedef key_type size_type;
 
-    explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = 0,
-                           EDProductGetter const* prodGetter = 0)
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    explicit PtrVectorBase(ProductID const& productID, void const* prodPtr = nullptr,
+                           EDProductGetter const* prodGetter = nullptr)
     :
       core_(productID, prodPtr, prodGetter, false), indicies_(), cachedItems_(nullptr) {}
-#else
-    ;
-#endif
     
     PtrVectorBase( const PtrVectorBase&);
 
@@ -82,11 +78,7 @@ namespace edm {
 
     /// Clear the PtrVector
     void clear()
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     { core_ = RefCore(); indicies_.clear(); if(cachedItems_) { delete cachedItems_.load(); cachedItems_.store(nullptr); } }
-#else
-    ;
-#endif
   
     bool operator==(PtrVectorBase const& iRHS) const;
     // ---------- static member functions --------------------
@@ -101,7 +93,7 @@ namespace edm {
     bool isTransient() const {return core_.isTransient();}
 
     void const* product() const {
-      return 0;
+      return nullptr;
     }
 
   protected:
@@ -160,13 +152,13 @@ namespace edm {
     //virtual std::type_info const& typeInfo() const = 0;
     virtual std::type_info const& typeInfo() const {
       assert(false);
-      return *reinterpret_cast<const std::type_info*>(0);
+      return typeid(void);
     }
     
     //returns false if the cache is not yet set
     bool checkCachedItems() const;
     
-    PtrVectorBase& operator=(const PtrVectorBase&);
+    PtrVectorBase& operator=(const PtrVectorBase&) = delete;
 
     //Used when we need an iterator but cache is not yet set
     static const std::vector<void const*>& emptyCache();
@@ -174,11 +166,7 @@ namespace edm {
     // ---------- member data --------------------------------
     RefCore core_;
     std::vector<key_type> indicies_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<std::vector<void const*>*> cachedItems_; //! transient
-#else
-    mutable std::vector<void const*>* cachedItems_;               //!transient
-#endif
 
   };
 }

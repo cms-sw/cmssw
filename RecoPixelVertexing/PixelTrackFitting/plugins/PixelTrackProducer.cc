@@ -5,7 +5,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -30,14 +33,13 @@ PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
 
 PixelTrackProducer::~PixelTrackProducer() { }
 
-void PixelTrackProducer::endRun(const edm::Run &run, const edm::EventSetup& es)
-{ 
-  theReconstruction.halt();
-}
+void PixelTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
 
-void PixelTrackProducer::beginRun(const edm::Run &run, const edm::EventSetup& es)
-{
-  theReconstruction.init(es);
+  desc.add<std::string>("passLabel", "pixelTracks"); // What is this? It is not used anywhere in this code.
+  PixelTrackReconstruction::fillDescriptions(desc);
+
+  descriptions.add("pixelTracks", desc);
 }
 
 void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
@@ -56,9 +58,9 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 
 void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWithHits, const TrackerTopology& ttopo)
 {
-  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection());
-  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection());
-  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection());
+  auto tracks = std::make_unique<reco::TrackCollection>();
+  auto recHits = std::make_unique<TrackingRecHitCollection>();
+  auto trackExtras = std::make_unique<reco::TrackExtraCollection>();
 
   int cc = 0, nTracks = tracksWithHits.size();
 
@@ -80,7 +82,7 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackingRecHit in the event" << "\n";
-  edm::OrphanHandle <TrackingRecHitCollection> ohRH = ev.put( recHits );
+  edm::OrphanHandle <TrackingRecHitCollection> ohRH = ev.put(std::move(recHits));
 
   edm::RefProd<TrackingRecHitCollection> hitCollProd(ohRH);
   for (int k = 0; k < nTracks; k++)
@@ -91,11 +93,15 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
     unsigned int nHits = tracks->at(k).numberOfValidHits();
     theTrackExtra.setHits(hitCollProd, cc, nHits);
     cc +=nHits;
+    AlgebraicVector5 v = AlgebraicVector5(0,0,0,0,0);
+    reco::TrackExtra::TrajParams trajParams(nHits,LocalTrajectoryParameters(v,1.));
+    reco::TrackExtra::Chi2sFive chi2s(nHits,0);
+    theTrackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
     trackExtras->push_back(theTrackExtra);
   }
 
   LogDebug("TrackProducer") << "put the collection of TrackExtra in the event" << "\n";
-  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = ev.put(trackExtras);
+  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = ev.put(std::move(trackExtras));
 
   for (int k = 0; k < nTracks; k++)
   {
@@ -103,6 +109,6 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
     (tracks->at(k)).setExtra(theTrackExtraRef);
   }
 
-  ev.put(tracks);
+  ev.put(std::move(tracks));
 
 }

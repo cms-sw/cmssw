@@ -1,0 +1,14 @@
+<run-settings id="uGT">
+  <context id="uGtProcessor">
+    <param id="vetoMask" type="table">
+      <columns>algo, veto</columns>
+      <types>string, uint</types>
+      <rows>
+      <!-- Default veto mask value is 1 -->
+        <row>ALL, 0</row> <!-- mandatory row: set defaults -->
+        <row>L1_ZeroBias, 1</row>
+      </rows>
+    </param>
+  </context>
+</run-settings>
+

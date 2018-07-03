@@ -1,12 +1,13 @@
 #include "DetectorDescription/Core/interface/DDNumberingScheme.h"
+
+#include <ostream>
+#include <utility>
+
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDNumberingScheme::~DDNumberingScheme() {}
-
 
 DDDefaultNumberingScheme::DDDefaultNumberingScheme(const DDExpandedView & ex)
 { 
@@ -26,7 +27,7 @@ DDDefaultNumberingScheme::DDDefaultNumberingScheme(const DDExpandedView & ex)
   int count = 0;
   while (go) {
     std::pair<m_it,bool> res = path2id_.insert(std::make_pair(e.navPos(),count));
-    id2path_.push_back(res.first);
+    id2path_.emplace_back(res.first);
     ++count;
     go = e.next();
   }
@@ -45,7 +46,7 @@ DDDefaultNumberingScheme::DDDefaultNumberingScheme(const DDFilteredView & fv)
   int count = 0;
   while (go) {
     std::pair<m_it,bool> res = path2id_.insert(std::make_pair(f.navPos(),count));
-    id2path_.push_back(res.first);
+    id2path_.emplace_back(res.first);
     ++count;
     go = f.next();
   }

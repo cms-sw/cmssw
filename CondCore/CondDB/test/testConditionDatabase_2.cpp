@@ -41,7 +41,7 @@ int run( const std::string& connectionString ){
     std::cout <<"> Connecting with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     std::string pay0("Payload #0");
     std::string pay1("Payload #1");

@@ -1,7 +1,7 @@
 #include <EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h>
 #include <DataFormats/DTDigi/interface/DTDDUWords.h>
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 using namespace edm;
@@ -173,7 +173,7 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
    
   
    
-   NWords += 6;
+
 
    words.push_back(0);
    words.push_back(0);   

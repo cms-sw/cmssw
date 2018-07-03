@@ -1,21 +1,22 @@
-#include <cmath>
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <Math/AxisAngle.h>
-
-#include <sstream>
-#include <cstdlib>
+#include <cstdio>
 #include <atomic>
+#include <cmath>
+#include <sstream>
+#include <string>
 
-// Message logger.
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/Store.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//static DDRotationMatrix GLOBAL_UNIT;
-
-//DDBase<DDName,DDRotationMatrix*>::StoreT::pointer_type 
-//  DDBase<DDName,DDRotationMatrix*>::StoreT::instance_ = 0;
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/AxisAngle.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
 
 std::ostream & operator<<(std::ostream & os, const DDRotation & r)
 {
@@ -28,7 +29,6 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
       os << "t=" << ra.Axis().Theta()/deg << "deg "
          << "p=" << ra.Axis().Phi()/deg << "deg "
 	 << "a=" << ra.Angle()/deg << "deg"; 
-      DCOUT_V('R', rm);
     }
     else {
       os << "* rotation not defined * ";  
@@ -53,7 +53,7 @@ DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
   char buf[64];
   snprintf(buf, 64, "%s%i", baseName, countBlank++);
   prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
-  //  std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
+  // std::cout << "making a BLANK " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 
@@ -79,7 +79,7 @@ DDRotation::DDRotation(DDRotationMatrix * rot)
   char buf[64];
   snprintf(buf, 64, "DdNoNa%i", countNN++);
   prep_ = StoreT::instance().create(DDName(buf, "DdNoNa"), rot);
-  //  std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
+  // std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 // void DDRotation::clear()
@@ -90,9 +90,13 @@ DDRotation::DDRotation(DDRotationMatrix * rot)
 DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
-   //DCOUT('c', "DDrot: new rotation " << ddname);
-   //if (rot) rot->invert();
    return DDRotation(ddname, rot);
+}
+
+std::unique_ptr<DDRotation> DDrotPtr(const DDName & ddname, DDRotationMatrix * rot)
+{
+   // memory of rot goes sto DDRotationImpl!!
+  return std::make_unique<DDRotation>(ddname, rot);
 }
  
 // makes sure that the DDRotationMatrix constructed is right-handed and orthogonal.
@@ -125,8 +129,6 @@ DDRotation DDrot(const DDName & ddname,
 DDRotation DDrotReflect(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
-   //DCOUT('c', "DDrot: new rotation " << ddname);
-//    if (rot) rot->invert();
    return DDRotation(ddname, rot);
 }
 
@@ -154,10 +156,7 @@ DDRotation DDrotReflect(const DDName & ddname,
 						x.y(),y.y(),z.y(),
 						x.z(),y.z(),z.z());
 
-   //DCOUT('c', "DDrotReflect: new reflection " << ddname);
-   //rot->invert();
    return DDRotation(ddname, rot);  
-   				  		   		  			 
 }		
 
 

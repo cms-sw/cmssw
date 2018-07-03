@@ -6,7 +6,9 @@ import FWCore.ParameterSet.Config as cms
 #
 selectedPatJets = cms.EDFilter("PATJetSelector",
     src = cms.InputTag("patJets"),
-    cut = cms.string("")
+    cut = cms.string(""),    
+    cutLoose = cms.string(""),
+    nLoose = cms.uint32(0),
 )
 
 

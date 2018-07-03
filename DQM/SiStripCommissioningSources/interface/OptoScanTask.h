@@ -12,14 +12,14 @@ class OptoScanTask : public CommissioningTask {
   public:
 
     OptoScanTask( DQMStore * dqm, const FedChannelConnection & conn );
-    virtual ~OptoScanTask();
+    ~OptoScanTask() override;
 
   private:
 
-    virtual void book();
-    virtual void fill( const SiStripEventSummary & summary,
-                       const edm::DetSet<SiStripRawDigi> & digis );
-    virtual void update();
+    void book() override;
+    void fill( const SiStripEventSummary & summary,
+                       const edm::DetSet<SiStripRawDigi> & digis ) override;
+    void update() override;
     void locateTicks( const edm::DetSet<SiStripRawDigi> & scope_mode_data,
                       std::pair<float,float> & digital_range, 
                       std::vector<float> & baseline,

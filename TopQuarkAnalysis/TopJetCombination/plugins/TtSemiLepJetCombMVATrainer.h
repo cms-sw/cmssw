@@ -10,6 +10,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
@@ -27,13 +31,13 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
  public:
 
   explicit TtSemiLepJetCombMVATrainer(const edm::ParameterSet&);
-  ~TtSemiLepJetCombMVATrainer();
+  ~TtSemiLepJetCombMVATrainer() override;
 
  private:
 
-  virtual void beginJob();
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
+  void endJob() override;
 
   WDecay::LeptonType readLeptonType(const std::string& str);
 

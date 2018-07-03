@@ -30,7 +30,7 @@ void PixelPSimHitSelector::select(PSimHitCollection & selection, edm::Event cons
     }
 
     // Create a mix collection from the different psimhit collections
-    std::auto_ptr<MixCollection<PSimHit> > pSimHits( new MixCollection<PSimHit>(cfPSimHitProductPointers) );
+    std::unique_ptr<MixCollection<PSimHit> > pSimHits( new MixCollection<PSimHit>(cfPSimHitProductPointers) );
 
     // Accessing dead pixel modules from DB:
     edm::ESHandle<SiPixelQuality> siPixelBadModule;

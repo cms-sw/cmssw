@@ -39,12 +39,12 @@ class Benchmark{
   };
 
   Benchmark(Mode mode = DEFAULT) : 
-    dir_(0), mode_(mode), 
+    dir_(nullptr), mode_(mode), 
     ptMin_(0), ptMax_(10e10), 
     etaMin_(-10), etaMax_(10), 
     phiMin_(-10), phiMax_(10) {}
 
-  virtual ~Benchmark();
+  virtual ~Benchmark() noexcept(false);
 
   void setParameters( Mode mode) { mode_ = mode;}
   

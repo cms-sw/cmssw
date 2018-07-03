@@ -37,19 +37,31 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+
 // GEDPhotonProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 
  public:
 
   GEDPhotonProducer (const edm::ParameterSet& ps);
-  ~GEDPhotonProducer();
+  ~GEDPhotonProducer() override;
 
-  virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override final;
-  virtual void endRun(edm::Run const&,  edm::EventSetup const&) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  void beginRun (edm::Run const& r, edm::EventSetup const & es) final;
+  void endRun(edm::Run const&,  edm::EventSetup const&) final;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
+  class RecoStepInfo {
+  public:
+    enum FlagBits{kOOT=0x1,kFinal=0x2};
+    explicit RecoStepInfo(const std::string& recoStep);
+    
+    bool isOOT()const{return flags_&kOOT;}
+    bool isFinal()const{return flags_&kFinal;}
+  private:
+    unsigned int flags_;
+  };
+
 
   void fillPhotonCollection(edm::Event& evt,
 			    edm::EventSetup const & es,
@@ -57,8 +69,9 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
                             const CaloTopology *topology,
 			    const EcalRecHitCollection* ecalBarrelHits,
 			    const EcalRecHitCollection* ecalEndcapHits,
+                            const EcalRecHitCollection* preshowerHits,
 			    const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-			    reco::VertexCollection& pvVertices,
+			    const reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);
 
@@ -71,7 +84,13 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 			   edm::ValueMap<reco::PhotonRef>  pfEGCandToPhotonMap,
 			   edm::Handle< reco::VertexCollection >&  pvVertices,
 			   reco::PhotonCollection & outputCollection,
-			   int& iSC);
+			   int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons,
+			   const edm::Handle<edm::ValueMap<float>>& neutralHadrons, 
+			   const edm::Handle<edm::ValueMap<float>>& photons,
+			   const edm::Handle<edm::ValueMap<float>>& pfEcalClusters,
+			   const edm::Handle<edm::ValueMap<float>>& pfHcalClusters);
+   
+
 
 
  // std::string PhotonCoreCollection_;
@@ -82,19 +101,24 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
  edm::EDGetTokenT<reco::PhotonCollection> photonProducerT_;
  edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
  edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+ edm::EDGetTokenT<EcalRecHitCollection> preshowerHits_;
  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
+ //for isolation with map-based veto
+ edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken;
+  //photon isolation sums
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationTokenCITK_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationTokenCITK_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationTokenCITK_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoPFECALClusIsolationToken_; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoPFHCALClusIsolationToken_; 
  
-
   std::string conversionProducer_;
   std::string conversionCollection_;
   std::string valueMapPFCandPhoton_;
 
-
-
-  PFPhotonIsolationCalculator* thePFBasedIsolationCalculator_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
   //AA
@@ -115,7 +139,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
   bool   runMIPTagger_;
 
   bool validConversions_;
-  std::string reconstructionStep_;
+  RecoStepInfo recoStep_;
 
   bool usePrimaryVertex_;
   edm::ParameterSet conf_;

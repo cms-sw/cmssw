@@ -1,34 +1,34 @@
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 
 #include <string>
-#include <cmath>
 #include <iomanip> // for setw() etc.
 #include <vector>
 
-class CSCGeometryOfStrips : public edm::EDAnalyzer {
+class CSCGeometryOfStrips : public edm::one::EDAnalyzer<> {
 
-   public:
+public:
  
-     explicit CSCGeometryOfStrips( const edm::ParameterSet& );
-      ~CSCGeometryOfStrips();
+  explicit CSCGeometryOfStrips( const edm::ParameterSet& );
+  ~CSCGeometryOfStrips() override;
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
- 
-      const std::string& myName() { return myName_;}
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
+  
+  const std::string& myName() { return myName_;}
 
-   private: 
+private: 
 
-      const int dashedLineWidth_;
-      const std::string dashedLine_;
-      const std::string myName_;
+  const int dashedLineWidth_;
+  const std::string dashedLine_;
+  const std::string myName_;
 };
 
 CSCGeometryOfStrips::CSCGeometryOfStrips( const edm::ParameterSet& iConfig )
@@ -67,10 +67,10 @@ void
    int icount = 0;
 
    // Check the DetUnits
-   for( CSCGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it ){
+   for(auto it : pDD->detUnits()){
      // Do we really have a CSC layer?
 
-     auto layer = dynamic_cast<CSCLayer const*>( *it );
+     auto layer = dynamic_cast<CSCLayer const*>( it );
      
       if( layer ) {
         ++icount;

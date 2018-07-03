@@ -15,7 +15,7 @@ CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix
 
 
 CSCStripConditions::CSCStripConditions()
-  : theNoisifier(0)
+  : theNoisifier(nullptr)
  {}
 
 

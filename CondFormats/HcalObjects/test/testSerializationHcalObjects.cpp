@@ -1,6 +1,6 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/HcalObjects/src/headers.h"
 
 int main()
 {
@@ -8,8 +8,6 @@ int main()
     //testSerialization<HcalCalibrationQIEData>(); no default constructor
     testSerialization<HcalChannelQuality>();
     testSerialization<HcalChannelStatus>();
-    testSerialization<HcalCholeskyMatrices>();
-    testSerialization<HcalCholeskyMatrix>();
     /* no default constructor
     testSerialization<HcalCondObjectContainer<HcalCalibrationQIECoder>>();
     testSerialization<HcalCondObjectContainer<HcalChannelStatus>>();
@@ -34,8 +32,6 @@ int main()
     testSerialization<HcalCondObjectContainer<HcalZSThreshold>>();
     */
     //testSerialization<HcalCondObjectContainerBase>(); protected constructor
-    testSerialization<HcalCovarianceMatrices>();
-    testSerialization<HcalCovarianceMatrix>();
     testSerialization<HcalDcsMap>();
     testSerialization<HcalDcsMap::Item>();
     testSerialization<HcalDcsValue>();
@@ -70,6 +66,8 @@ int main()
     testSerialization<HcalPedestals>();
     testSerialization<HcalQIECoder>();
     testSerialization<HcalQIEData>();
+    testSerialization<HcalQIEType>();
+    testSerialization<HcalQIETypes>();
     testSerialization<HcalRecoParam>();
     testSerialization<HcalRecoParams>();
     testSerialization<HcalRespCorr>();
@@ -96,6 +94,7 @@ int main()
     testSerialization<std::pair<std::string, std::vector<HcalPedestal>>>();
     testSerialization<std::pair<std::string, std::vector<HcalPedestalWidth>>>();
     testSerialization<std::pair<std::string, std::vector<HcalQIECoder>>>();
+    testSerialization<std::pair<std::string, std::vector<HcalQIEType>>>();
     testSerialization<std::pair<std::string, std::vector<HcalRecoParam>>>();
     testSerialization<std::pair<std::string, std::vector<HcalRespCorr>>>();
     testSerialization<std::pair<std::string, std::vector<HcalTimeCorr>>>();
@@ -104,8 +103,6 @@ int main()
     testSerialization<std::pair<std::string, std::vector<HcalZSThreshold>>>();
     testSerialization<std::vector<HcalCalibrationQIECoder>>();
     testSerialization<std::vector<HcalChannelStatus>>();
-    testSerialization<std::vector<HcalCholeskyMatrix>>();
-    testSerialization<std::vector<HcalCovarianceMatrix>>();
     testSerialization<std::vector<HcalDcsMap::Item>>();
     testSerialization<std::vector<HcalDcsValue>>();
     testSerialization<std::vector<HcalElectronicsMap::PrecisionItem>>();
@@ -123,6 +120,7 @@ int main()
     testSerialization<std::vector<HcalPedestal>>();
     testSerialization<std::vector<HcalPedestalWidth>>();
     testSerialization<std::vector<HcalQIECoder>>();
+    testSerialization<std::vector<HcalQIEType>>();
     testSerialization<std::vector<HcalRecoParam>>();
     testSerialization<std::vector<HcalRespCorr>>();
     testSerialization<std::vector<HcalTimeCorr>>();
@@ -144,6 +142,7 @@ int main()
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPedestal>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPedestalWidth>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalQIECoder>>>>();
+    testSerialization<std::vector<std::pair<std::string, std::vector<HcalQIEType>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalRecoParam>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalRespCorr>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalTimeCorr>>>>();

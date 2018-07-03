@@ -48,13 +48,13 @@
 class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
    public:
       explicit B2GSingleLeptonHLTValidation(const edm::ParameterSet&);
-      ~B2GSingleLeptonHLTValidation();
+      ~B2GSingleLeptonHLTValidation() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       /// deduce monitorPath from label, the label is expected
       /// to be of type 'selectionPath:monitorPath'

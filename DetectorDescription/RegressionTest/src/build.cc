@@ -1,25 +1,28 @@
-
 #include <cmath>
 #include <iostream>
-#include <fstream>
+#include <string>
 #include <vector>
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-#include <Math/RotationZ.h>
-#include <Math/AxisAngle.h>
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/AxisAngle.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
+#include "Math/GenVector/RotationZ.h"
 
 using namespace std;
 
@@ -34,8 +37,7 @@ File elements.xml:
   Material(elem) Nitrogen
   Material(elem) Oxygen  
 */
-void regressionTest_setup() {
-   ClhepEvaluator & eval = ExprEvalSingleton::instance();
+void regressionTest_setup(ClhepEvaluator& eval) {
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -108,7 +110,7 @@ void regressionTest_setup() {
   File: first.xml
   
 */ 
-void regressionTest_first( ) {
+void regressionTest_first(ClhepEvaluator& eval ) {
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
@@ -116,7 +118,6 @@ void regressionTest_first( ) {
   
   cout << "main::about to set configuration" << endl;
   
-  ClhepEvaluator & eval = ExprEvalSingleton::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -208,7 +209,7 @@ void output(string filename)
        << "  " << exv.logicalPart().solid() << endl
        << "  " << exv.translation() << endl;
     os << "  " << ra.Axis() << ra.Angle()/deg << endl;
-    tvec.push_back(exv.translation());   
+    tvec.emplace_back(exv.translation());   
     loop = exv.next();
   }
   

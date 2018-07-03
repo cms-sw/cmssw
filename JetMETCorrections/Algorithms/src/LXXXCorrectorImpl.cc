@@ -38,6 +38,8 @@ LXXXCorrectorImplMaker::make(edm::Event const&, edm::EventSetup const& fSetup)
 	level = 5;
       else if (levelName == "L7Parton")
 	level = 7;
+      else if (levelName == "L2L3Residual")
+        level = 8;
       else
 	throw cms::Exception("LXXXCorrectorImpl")<<" unknown correction level "<<levelName;
     });

@@ -40,7 +40,28 @@ sed -i '{s/Extended/Ideal/g}' geometryrun2xmlwriter.py
 sed -i '{s/\/ge/\/gi/g}' geometryrun2xmlwriter.py
 cmsRun geometryrun2xmlwriter.py
 sed -i '{s/Ideal2015/Extended2015ZeroMaterial/g}' geometryrun2xmlwriter.py
-sed -i '{s/\/gi/\/gez/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gi/\/gz/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/ZeroMaterial/CastorMeasured/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gz/\/gc/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/CastorMeasured/CastorSystMinus/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gc/\/gm/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/CastorSystMinus/CastorSystPlus/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gm/\/gp/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/CastorSystPlus/FlatMinus05Percent/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gp/\/gfm05/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/FlatMinus05Percent/FlatMinus10Percent/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gfm05/\/gfm10/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/FlatMinus10Percent/FlatPlus05Percent/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gfm10/\/gfp05/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
+sed -i '{s/FlatPlus05Percent/FlatPlus10Percent/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gfp05/\/gfp10/g}' geometryrun2xmlwriter.py
 cmsRun geometryrun2xmlwriter.py
 
 # Read the one big XML file and output a record to the
@@ -57,7 +78,28 @@ sed -i '{s/Extended/Ideal/g}' xmlgeometryrun2writer.py
 sed -i '{s/\/ge/\/gi/g}' xmlgeometryrun2writer.py
 cmsRun xmlgeometryrun2writer.py
 sed -i '{s/Ideal2015/Extended2015ZeroMaterial/g}' xmlgeometryrun2writer.py
-sed -i '{s/\/gi/\/gez/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gi/\/gz/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/ZeroMaterial/CastorMeasured/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gz/\/gc/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/CastorMeasured/CastorSystMinus/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gc/\/gm/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/CastorSystMinus/CastorSystPlus/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gm/\/gp/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/CastorSystPlus/FlatMinus05Percent/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gp/\/gfm05/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/FlatMinus05Percent/FlatMinus10Percent/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gfm05/\/gfm10/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/FlatMinus10Percent/FlatPlus05Percent/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gfm10/\/gfp05/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/FlatPlus05Percent/FlatPlus10Percent/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gfp05/\/gfp10/g}' xmlgeometryrun2writer.py
 cmsRun xmlgeometryrun2writer.py
 
 # All the database objects were written into one database

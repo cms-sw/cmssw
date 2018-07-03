@@ -65,7 +65,7 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
 
 try:
   os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
-except Exception, ex:
+except Exception as ex:
   print str(ex)
   pass
 

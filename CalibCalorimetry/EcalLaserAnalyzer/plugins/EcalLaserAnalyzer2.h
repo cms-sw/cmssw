@@ -47,12 +47,12 @@ class EcalLaserAnalyzer2: public edm::EDAnalyzer{
  public:
   
   explicit EcalLaserAnalyzer2(const edm::ParameterSet& iConfig);  
-  ~EcalLaserAnalyzer2();
+  ~EcalLaserAnalyzer2() override;
   
   
-  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
+  void beginJob() override;
+  void endJob() override;
   
   void setGeomEB(int etaG, int phiG, int module, int tower, int strip, int xtal, 
 		 int apdRefTT, int channel, int lmr);

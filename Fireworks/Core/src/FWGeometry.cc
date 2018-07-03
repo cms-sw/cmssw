@@ -10,13 +10,17 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+
+// AMT deprication of tracker specific DetIds
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+
 #include <iostream>
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
 
-FWGeometry::FWGeometry( void )
+FWGeometry::FWGeometry( void ):m_producerVersion(0)
 {}
 
 FWGeometry::~FWGeometry( void )
@@ -37,7 +41,7 @@ FWGeometry::findFile( const char* fileName )
        {
            TObjString* path = (TObjString*)tokens->At( i );
            searchPath += ":";
-           searchPath += path->GetString();
+           searchPath += static_cast<const char *>(path->GetString());
            if (gSystem->Getenv("CMSSW_VERSION"))
                searchPath += "/Fireworks/Geometry/data/";
        }
@@ -45,7 +49,7 @@ FWGeometry::findFile( const char* fileName )
 
    TString fn = fileName;
    const char* fp = gSystem->FindFile(searchPath.c_str(), fn, kFileExists);
-   return fp ? TFile::Open( fp) : 0;
+   return fp ? TFile::Open( fp) : nullptr;
 }
 
 void
@@ -71,11 +75,11 @@ FWGeometry::loadMap( const char* fileName )
    Float_t shape[5];
    Float_t translation[3];
    Float_t matrix[9];
-   bool loadPoints = tree->GetBranch( "points" ) != 0;
-   bool loadParameters = tree->GetBranch( "topology" ) != 0;
-   bool loadShape = tree->GetBranch( "shape" ) != 0;
-   bool loadTranslation = tree->GetBranch( "translation" ) != 0;
-   bool loadMatrix = tree->GetBranch( "matrix" ) != 0;
+   bool loadPoints = tree->GetBranch( "points" ) != nullptr;
+   bool loadParameters = tree->GetBranch( "topology" ) != nullptr;
+   bool loadShape = tree->GetBranch( "shape" ) != nullptr;
+   bool loadTranslation = tree->GetBranch( "translation" ) != nullptr;
+   bool loadMatrix = tree->GetBranch( "matrix" ) != nullptr;
    tree->SetBranchAddress( "id", &id );
    if( loadPoints )
       tree->SetBranchAddress( "points", &points );
@@ -127,14 +131,27 @@ FWGeometry::loadMap( const char* fileName )
    m_versionInfo.productionTag  = static_cast<TNamed*>(file->Get( "tag" ));
    m_versionInfo.cmsswVersion   = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
    m_versionInfo.extraDetectors = static_cast<TObjArray*>(file->Get( "ExtraDetectors" ));
-  
+
+   
    TString path = file->GetPath();
    if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
 
    if (m_versionInfo.productionTag)
-      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n",  tree->GetName(),  m_versionInfo.productionTag->GetName(), path.Data());  
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n",  tree->GetName(),  m_versionInfo.productionTag->GetTitle(), path.Data());  
    else 
       fwLog( fwlog::kInfo ) << Form("Load %s from %s\n",  tree->GetName(), path.Data());  
+
+
+   TNamed* producerInfo = static_cast<TNamed*>(file->Get( "PRODUCER_VERSION" ));
+   if (producerInfo) {
+      m_producerVersion = atoi(producerInfo->GetTitle());
+   }
+
+   TNamed* ttopology = static_cast<TNamed*>(file->Get( "TrackerTopology" ));
+   if (ttopology) {
+      std::string xml = ttopology->GetTitle();
+      m_trackerTopology = std::unique_ptr<TrackerTopology>(new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
+   }
 
    file->Close();
 }
@@ -175,7 +192,7 @@ FWGeometry::getMatrix( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -215,7 +232,7 @@ FWGeometry::getShape( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geoemtry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else 
    {
@@ -227,7 +244,7 @@ TGeoShape*
 FWGeometry::getShape( const GeomDetInfo& info ) const 
 {
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
-   TGeoShape* geoShape = 0;
+   TGeoShape* geoShape = nullptr;
    if( info.shape[0] == 1 ) 
    {
       geoShape = new TGeoTrap(
@@ -256,7 +273,7 @@ FWGeometry::getEveShape( unsigned int id  ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geoemtry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -284,7 +301,7 @@ FWGeometry::getCorners( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -300,7 +317,7 @@ FWGeometry::getParameters( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {
@@ -316,7 +333,7 @@ FWGeometry::getShapePars( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
-      return 0;
+      return nullptr;
    }
    else
    {

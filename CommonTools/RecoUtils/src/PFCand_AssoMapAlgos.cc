@@ -177,12 +177,12 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 /* create the vertex to pf candidate association map                                 */
 /*************************************************************************************/
 
-std::auto_ptr<PFCandToVertexAssMap>
+std::unique_ptr<PFCandToVertexAssMap>
 PFCand_AssoMapAlgos::SortPFCandAssociationMap(PFCandToVertexAssMap* pfcvertexassInput,
                                               edm::EDProductGetter const* getter)
 {
 	//create a new PFCandVertexAssMap for the Output which will be sorted
-	auto_ptr<PFCandToVertexAssMap> pfcvertexassOutput(new PFCandToVertexAssMap(getter) );
+	unique_ptr<PFCandToVertexAssMap> pfcvertexassOutput(new PFCandToVertexAssMap(getter) );
 
 	//Create and fill a vector of pairs of vertex and the summed (pT)**2 of the pfcandidates associated to the vertex
 	VertexPtsumVector vertexptsumvector;
@@ -214,7 +214,7 @@ PFCand_AssoMapAlgos::SortPFCandAssociationMap(PFCandToVertexAssMap* pfcvertexass
 
 	}
 
-	while (vertexptsumvector.size()!=0){
+	while (!vertexptsumvector.empty()){
 
 	  VertexRef vertexref_highestpT;
 	  float highestpT = 0.;

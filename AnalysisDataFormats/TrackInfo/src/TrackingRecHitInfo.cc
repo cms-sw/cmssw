@@ -36,5 +36,5 @@ const PTrajectoryStateOnDet * TrackingRecHitInfo::stateOnDet(StateType statetype
   TrackingStates::const_iterator state=states_.find(statetype);
   if(state!=states_.end())return state->second.stateOnDet();
   else edm::LogError("TrackInfo")<<"This rechit does not exist";
-  return 0;
+  return nullptr;
 }

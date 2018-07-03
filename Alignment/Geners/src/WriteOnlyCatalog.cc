@@ -33,7 +33,7 @@ namespace gs {
         }
         else
         {
-            delete lastEntry_.release();
+            lastEntry_ = nullptr;
             return 0ULL;
         }
     }

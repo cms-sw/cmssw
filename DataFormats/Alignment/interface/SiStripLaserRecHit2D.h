@@ -14,12 +14,12 @@ class SiStripLaserRecHit2D : public RecHit2DLocalPos {
 public:
 
   SiStripLaserRecHit2D(): RecHit2DLocalPos(0) {}
-  ~SiStripLaserRecHit2D() {}
+  ~SiStripLaserRecHit2D() override {}
   SiStripLaserRecHit2D( const LocalPoint& p, const LocalError& e, const SiStripDetId& id ) : RecHit2DLocalPos( id ), position( p ), error( e ) { detId = id; }
 
-  virtual LocalPoint localPosition() const { return position; }
-  virtual LocalError localPositionError() const { return error; }
-  virtual SiStripLaserRecHit2D* clone() const { return new SiStripLaserRecHit2D( *this ); }
+  LocalPoint localPosition() const override { return position; }
+  LocalError localPositionError() const override { return error; }
+  SiStripLaserRecHit2D* clone() const override { return new SiStripLaserRecHit2D( *this ); }
 
   const SiStripDetId& getDetId( void ) const { return detId; }
 

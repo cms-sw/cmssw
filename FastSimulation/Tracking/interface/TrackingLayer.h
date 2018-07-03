@@ -92,6 +92,11 @@ class TrackingLayer
             return _eqfct(*this, layer);
         }
         
+        inline bool operator!=(const TrackingLayer& layer) const
+        {
+            return not _eqfct(*this, layer);
+        }
+        
         inline bool operator<(const TrackingLayer& layer) const
         {
             return _hashfct(*this)<_hashfct(layer);

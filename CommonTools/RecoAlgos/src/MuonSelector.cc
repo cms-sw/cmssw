@@ -200,19 +200,19 @@ namespace helper
     MuonCollectionStoreManager::
     put( edm::Event & evt ) {
       edm::OrphanHandle<reco::MuonCollection> h;
-      h = evt.put( selMuons_ , "SelectedMuons");
-      evt.put( selTracks_ , "TrackerOnly");
-      evt.put( selTracksExtras_ , "TrackerOnly");
-      evt.put( selTracksHits_ ,"TrackerOnly");
-      evt.put( selGlobalMuonTracks_,"GlobalMuon" );
-      evt.put( selGlobalMuonTracksExtras_ ,"GlobalMuon");
-      evt.put( selGlobalMuonTracksHits_,"GlobalMuon" );
-      evt.put( selStandAloneTracks_ ,"StandAlone");
-      evt.put( selStandAloneTracksExtras_ ,"StandAlone");
-      evt.put( selStandAloneTracksHits_ ,"StandAlone");
+      h = evt.put(std::move(selMuons_), "SelectedMuons");
+      evt.put(std::move(selTracks_), "TrackerOnly");
+      evt.put(std::move(selTracksExtras_), "TrackerOnly");
+      evt.put(std::move(selTracksHits_),"TrackerOnly");
+      evt.put(std::move(selGlobalMuonTracks_),"GlobalMuon" );
+      evt.put(std::move(selGlobalMuonTracksExtras_),"GlobalMuon");
+      evt.put(std::move(selGlobalMuonTracksHits_),"GlobalMuon" );
+      evt.put(std::move(selStandAloneTracks_),"StandAlone");
+      evt.put(std::move(selStandAloneTracksExtras_),"StandAlone");
+      evt.put(std::move(selStandAloneTracksHits_),"StandAlone");
       if (cloneClusters()) {
-          evt.put( selStripClusters_ );
-          evt.put( selPixelClusters_ );
+          evt.put(std::move(selStripClusters_));
+          evt.put(std::move(selPixelClusters_));
       }
       return h; 
      

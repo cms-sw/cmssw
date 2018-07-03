@@ -26,9 +26,9 @@ public:
   // construction/destruction
   //
   explicit CMSInsideOutJetProducer(const edm::ParameterSet& iConfig);
-  virtual ~CMSInsideOutJetProducer();
+  ~CMSInsideOutJetProducer() override;
 
-  virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+  void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
 
   
 protected:
@@ -37,7 +37,7 @@ protected:
   // member functions
   //
 
-  virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+  void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   CMSInsideOutAlgorithm alg_;
 };

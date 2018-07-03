@@ -17,7 +17,7 @@
 // system include files
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,14 +35,14 @@
 // class declaration
 //
 
-class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
+class EcalTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit EcalTrigPrimAnalyzer(const edm::ParameterSet&);
-      ~EcalTrigPrimAnalyzer();
+      ~EcalTrigPrimAnalyzer() override;
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
    private:
 
   // for histos of nr of hits

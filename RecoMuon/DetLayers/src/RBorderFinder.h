@@ -13,6 +13,7 @@
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <TrackingTools/DetLayers/interface/ForwardDetRing.h>
 #include <TrackingTools/DetLayers/interface/simple_stat.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
@@ -35,7 +36,7 @@ public:
     for ( int i = 0; i < theNbins; i++ ) {
       disks[i] = 
 	dynamic_cast<const BoundDisk*> (&(theDets[i]->surface()));
-      if (disks[i]==0) {
+      if (disks[i]==nullptr) {
 	throw cms::Exception("UnexpectedState") << "RBorderFinder: implemented for BoundDisks only";
       }
     }

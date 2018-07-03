@@ -27,7 +27,7 @@
 #include <vector>
 
 EcalUncalibRecHitWorkerMaxSample::EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps, edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass( ps ,c)
+  EcalUncalibRecHitWorkerRunOneDigiBase( ps ,c)
 {
 }
 
@@ -45,9 +45,9 @@ EcalUncalibRecHitWorkerMaxSample::run( const edm::Event & evt,
         DetId detid(itdg->id());
 
         if ( detid.subdetId() == EcalBarrel ) {
-                result.push_back( ebAlgo_.makeRecHit(*itdg, 0, 0, 0, 0 ) );
+                result.push_back( ebAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr ) );
         } else {
-                result.push_back( eeAlgo_.makeRecHit(*itdg, 0, 0, 0, 0 ) );
+                result.push_back( eeAlgo_.makeRecHit(*itdg, nullptr, nullptr, nullptr, nullptr ) );
         }
 
         return true;
@@ -57,7 +57,7 @@ edm::ParameterSetDescription
 EcalUncalibRecHitWorkerMaxSample::getAlgoDescription() {
 
   edm::ParameterSetDescription psd;
-  return psd;//.addNode(std::auto_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
+  return psd;//.addNode(std::unique_ptr<edm::ParameterDescriptionNode>(new edm::EmptyGroupDescription()));
 }
 
 

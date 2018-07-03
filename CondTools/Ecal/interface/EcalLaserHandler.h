@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -56,13 +56,13 @@ namespace popcon
   {
     
   public:
-    void getNewObjects();
+    void getNewObjects() override;
     double diff(float x, float old_x);
-    ~EcalLaserHandler(); 
+    ~EcalLaserHandler() override; 
     EcalLaserHandler(edm::ParameterSet const & ); 
     
     EcalCondDBInterface* econn;
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
     void notifyProblems(const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &old,
 			const EcalLaserAPDPNRatios::EcalLaserAPDPNpair &current,
 			int hashedIndex, const std::string &reason);

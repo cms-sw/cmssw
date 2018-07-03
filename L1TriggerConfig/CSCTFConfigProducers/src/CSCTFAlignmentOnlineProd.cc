@@ -1,6 +1,6 @@
 #include "L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFAlignmentOnlineProd.h"
 
-boost::shared_ptr< L1MuCSCTFAlignment >
+std::shared_ptr< L1MuCSCTFAlignment >
 CSCTFAlignmentOnlineProd::newObject( const std::string& objectKey )
 {
    // Execute SQL queries to get data from OMDS (using key) and make C++ object
@@ -35,7 +35,7 @@ CSCTFAlignmentOnlineProd::newObject( const std::string& objectKey )
    if( results.queryFailed() ) // check if query was successful
    {
       edm::LogError( "L1-O2O" ) << "Problem with CSCTF_ALIGN_PARAM query." ;
-      return boost::shared_ptr< L1MuCSCTFAlignment >( new L1MuCSCTFAlignment( ) ) ;
+      return std::make_shared<L1MuCSCTFAlignment>() ;
    }
 
 // oracle doesn't support double so some tweaks
@@ -66,7 +66,7 @@ CSCTFAlignmentOnlineProd::newObject( const std::string& objectKey )
 	edm::LogInfo( "algn_par queried" ) << par_align[i] ;
 	par_align_double[i]=par_align[i] ;
    }
-   return boost::shared_ptr< L1MuCSCTFAlignment >( new L1MuCSCTFAlignment(par_align_double) ) ;
+   return std::make_shared<L1MuCSCTFAlignment>(par_align_double) ;
 }
 
 

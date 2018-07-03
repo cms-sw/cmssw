@@ -77,6 +77,21 @@ MVA_WP80 = EleMVA_6Categories_WP(
     cutCategory5 =  0.726311  # EE        
     )
 
+### WP tuned for HZZ analysis with very high efficiency (about 98%)
+idNameLoose = "mvaEleID-Spring15-25ns-nonTrig-V1-wpLoose"
+MVA_WPLoose = EleMVA_6Categories_WP(
+    idName = idNameLoose,
+    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+    cutCategory0 =  -0.265, # EB1 low pt
+    cutCategory1 =  -0.556, # EB2 low pt
+    cutCategory2 =  -0.551, # EE low pt
+    cutCategory3 =  -0.072, # EB1
+    cutCategory4 =  -0.286, # EB2
+    cutCategory5 =  -0.267  # EE
+    )
+
+
 #
 # Finally, set up VID configuration for all cuts
 #
@@ -93,8 +108,10 @@ mvaEleID_Spring15_25ns_nonTrig_V1_producer_config = cms.PSet(
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V1
     )
 # Create the VPset's for VID cuts
-mvaEleID_Spring15_25ns_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
-mvaEleID_Spring15_25ns_nonTrig_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
+mvaEleID_Spring15_25ns_nonTrig_V1_wpLoose = configureVIDMVAEleID_V1( MVA_WPLoose )
+mvaEleID_Spring15_25ns_nonTrig_V1_wp90    = configureVIDMVAEleID_V1( MVA_WP90 )
+mvaEleID_Spring15_25ns_nonTrig_V1_wp80    = configureVIDMVAEleID_V1( MVA_WP80 )
+
 
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -103,10 +120,13 @@ mvaEleID_Spring15_25ns_nonTrig_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
+central_id_registry.register(mvaEleID_Spring15_25ns_nonTrig_V1_wpLoose.idName,
+                             '99ff36834c4342110d84ea2350a1229c')
 central_id_registry.register(mvaEleID_Spring15_25ns_nonTrig_V1_wp90.idName,
                              'ac4fdc160eefe9eae7338601c02ed4bb')
 central_id_registry.register(mvaEleID_Spring15_25ns_nonTrig_V1_wp80.idName,
                              '113c47ceaea0fa687b8bd6d880eb4957')
 
-mvaEleID_Spring15_25ns_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
-mvaEleID_Spring15_25ns_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Spring15_25ns_nonTrig_V1_wpLoose.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Spring15_25ns_nonTrig_V1_wp90.isPOGApproved    = cms.untracked.bool(True)
+mvaEleID_Spring15_25ns_nonTrig_V1_wp80.isPOGApproved    = cms.untracked.bool(True)

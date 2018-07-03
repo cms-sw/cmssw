@@ -1,6 +1,9 @@
 #!/bin/sh
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended2015dev.db -t XMLFILE_Geometry_TagXX_Extended2015dev_mc -i XMLFILE_Geometry_TagXX_Extended2015dev_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileIdeal2015dev.db -t XMLFILE_Geometry_TagXX_Ideal2015dev_mc -i XMLFILE_Geometry_TagXX_Ideal2015dev_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtendedCastorMeasured2015dev.db -t XMLFILE_Geometry_TagXX_ExtendedCastorMeasured2015dev_mc -i XMLFILE_Geometry_TagXX_ExtendedCastorMeasured2015dev_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtendedCastorSystMinus2015dev.db -t XMLFILE_Geometry_TagXX_ExtendedCastorSystMinus2015dev_mc -i XMLFILE_Geometry_TagXX_ExtendedCastorSystMinus2015dev_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtendedCastorSystPlus2015dev.db -t XMLFILE_Geometry_TagXX_ExtendedCastorSystPlus2015dev_mc -i XMLFILE_Geometry_TagXX_ExtendedCastorSystPlus2015dev_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry2015dev_TagXX -i TKRECO_Geometry2015dev_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKExtra_Geometry.db -t TKExtra_Geometry2015dev_TagXX -i TKExtra_Geometry2015dev_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKParameters_Geometry.db -t TKParameters_Geometry2015dev_TagXX -i TKParameters_Geometry2015dev_TagXX

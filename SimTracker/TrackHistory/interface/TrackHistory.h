@@ -63,6 +63,16 @@ public:
     {
         return recotrack_;
     }
+    
+    // return the TrackingParticle to which the Track was matched
+    const std::pair<TrackingParticleRef, double>  getMatchedTrackingParticle() const
+    {
+    	std::pair<TrackingParticleRef, double> result;
+    	result.first = trackingParticle_;
+    	result.second = quality_;
+    	
+    	return result;
+    }
 
     double quality() const
     {
@@ -86,6 +96,8 @@ private:
     edm::InputTag trackAssociator_;
 
     reco::TrackBaseRef recotrack_;
+    
+    TrackingParticleRef trackingParticle_;
 
     reco::RecoToSimCollection recoToSim_;
 

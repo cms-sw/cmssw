@@ -742,7 +742,7 @@ void PrimaryVertexPlots(const char* fullname,const char* module, const char* pos
     }
 
   }
-  if(runs.size()) {
+  if(!runs.empty()) {
     std::string plotfilename;
     
     plotfilename = outtrunk;

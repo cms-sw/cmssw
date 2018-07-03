@@ -51,13 +51,13 @@ namespace edm {
     /// default contructor
     AnalyzerWrapper(const edm::ParameterSet& cfg);
     /// default destructor
-    virtual ~AnalyzerWrapper(){};
+    ~AnalyzerWrapper() override{};
     /// everything which has to be done before the event loop
-    virtual void beginJob() { analyzer_->beginJob(); }
+    void beginJob() override { analyzer_->beginJob(); }
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    virtual void analyze(edm::Event const & event, const edm::EventSetup& eventSetup){ analyzer_->analyze(event); }
+    void analyze(edm::Event const & event, const edm::EventSetup& eventSetup) override{ analyzer_->analyze(event); }
     /// everything which has to be done after the event loop
-    virtual void endJob() { analyzer_->endJob(); }
+    void endJob() override { analyzer_->endJob(); }
 
   protected:
     /// shared pointer to analysis class of type BasicAnalyzer

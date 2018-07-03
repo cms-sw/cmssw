@@ -18,7 +18,7 @@ FWMagField::FWMagField() :
    m_reverse(true),
    m_simpleModel(false),
 
-   m_guessValHist(0),
+   m_guessValHist(nullptr),
    m_numberOfFieldIsOnEstimates(0),
    m_numberOfFieldEstimates(0),
    m_updateFieldEstimate(true),
@@ -26,7 +26,7 @@ FWMagField::FWMagField() :
 {
    m_guessValHist = new TH1F("FieldEstimations", "Field estimations from tracks and muons",
                              200, -4.5, 4.5);
-   m_guessValHist->SetDirectory(0);
+   m_guessValHist->SetDirectory(nullptr);
 }
 
 FWMagField::~FWMagField()
@@ -199,7 +199,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
          edm::Handle< std::vector<DcsStatus> > dcsStatus;
          event->getByLabel(dcsTag, dcsStatus);
          
-         if (dcsStatus.isValid() && dcsStatus->size())
+         if (dcsStatus.isValid() && !dcsStatus->empty())
          {
             float sum = 0;
             for (std::vector<DcsStatus>::const_iterator i = dcsStatus->begin(); i <  dcsStatus->end(); ++i)

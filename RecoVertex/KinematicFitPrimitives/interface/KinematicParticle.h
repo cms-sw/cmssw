@@ -34,7 +34,7 @@ public:
  */  
  KinematicParticle(){}
  
- virtual ~KinematicParticle();
+ ~KinematicParticle() override;
 							   
 /**
  * Comparison by contents operators
@@ -82,7 +82,7 @@ public:
  * implemented by used for every specific type of KinematicParticle
  */ 
  virtual ReferenceCountingPointer<KinematicParticle> refittedParticle(const KinematicState& state,
-                               float chi2, float ndf, KinematicConstraint * cons = 0) const = 0;
+                               float chi2, float ndf, KinematicConstraint * cons = nullptr) const = 0;
 			       
 /**
  * Method returning LinearizedTrackState of the particle needed for

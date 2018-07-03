@@ -26,7 +26,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
 
 
@@ -61,12 +60,12 @@ class CmsShowMain : public CmsShowMainBase
 {
 public:
    CmsShowMain(int argc, char *argv[]);
-   virtual ~CmsShowMain();
+   ~CmsShowMain() override;
    void resetInitialization();
    void openData();
    void appendData();
    void openDataViaURL();
-   virtual void quit();
+   void quit() override;
    void doExit();
 
    //  void writeConfigurationFile(const std::string& iFileName) const;
@@ -83,7 +82,7 @@ public:
    void fileChangedSlot(const TFile *file);
 
 protected:
-   virtual void eventChangedImp();
+   void eventChangedImp() override;
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
@@ -95,10 +94,10 @@ private:
    void connectSocket();
    void setLoadedAnyInputFileAfterStartup();
 
-   virtual void autoLoadNewEvent();
-   virtual void checkPosition();
-   virtual void stopPlaying();
-    virtual void checkKeyBindingsOnPLayEventsStateChanged();
+   void autoLoadNewEvent() override;
+   void checkPosition() override;
+   void stopPlaying() override;
+    void checkKeyBindingsOnPLayEventsStateChanged() override;
 
    void reachedEnd();
    void reachedBeginning();

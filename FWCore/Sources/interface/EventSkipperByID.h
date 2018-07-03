@@ -23,7 +23,7 @@ namespace edm {
     bool skippingEvents() const {return skippingEvents_;}
     bool somethingToSkip() const {return somethingToSkip_;}
     static
-    std::auto_ptr<EventSkipperByID>create(ParameterSet const& pset);
+    std::unique_ptr<EventSkipperByID>create(ParameterSet const& pset);
     static void fillDescription(ParameterSetDescription & desc);
 
   private:

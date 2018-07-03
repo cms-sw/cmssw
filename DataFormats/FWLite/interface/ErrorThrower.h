@@ -18,7 +18,6 @@
 //         Created:  Tue Sep 23 09:58:07 EDT 2008
 //
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 
@@ -53,5 +52,4 @@ namespace  fwlite {
    };
 
 }
-#endif
 #endif

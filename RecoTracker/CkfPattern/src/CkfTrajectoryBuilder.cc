@@ -142,13 +142,15 @@ CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed, CkfTrajectoryBuil
     }
   */
 
-  buildTrajectories(seed, result,nullptr);
+  unsigned int tmp;
+  buildTrajectories(seed, result, tmp, nullptr);
 }
 
 TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&seed,
 							TrajectoryContainer &result,
+							unsigned int& nCandPerSeed,
 							const TrajectoryFilter*) const {
-  if (theMeasurementTracker == 0) {
+  if (theMeasurementTracker == nullptr) {
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized CkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  
@@ -156,7 +158,7 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&see
   
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
-  limitedCandidates(seed, startingTraj, result);
+  nCandPerSeed = limitedCandidates(seed, startingTraj, result);
   
   return startingTraj;
 
@@ -168,21 +170,23 @@ TempTrajectory CkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed&see
   // analyseResult(result);
 }
 
-void CkfTrajectoryBuilder::
+unsigned int CkfTrajectoryBuilder::
 limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj,
 		   TrajectoryContainer& result) const
 {
   TempTrajectoryContainer candidates;
   candidates.push_back( startingTraj);
   boost::shared_ptr<const TrajectorySeed>  sharedSeed(new TrajectorySeed(seed));
-  limitedCandidates(sharedSeed, candidates,result);
+  return limitedCandidates(sharedSeed, candidates,result);
 }
 
-void CkfTrajectoryBuilder::
+unsigned int CkfTrajectoryBuilder::
 limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates,
 		   TrajectoryContainer& result) const
 {
   unsigned int nIter=1;
+  unsigned int nCands=0; // ignore startingTraj
+  unsigned int prevNewCandSize=0;
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
   newCand.reserve(2*theMaxCand);
 
@@ -204,11 +208,11 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       if(!analyzeMeasurementsDebugger(*traj,meas,
 				      theMeasurementTracker,
 				      forwardPropagator(*sharedSeed),theEstimator,
-				      theTTRHBuilder)) return;
+				      theTTRHBuilder)) return nCands;
       // ---
 
       if ( meas.empty()) {
-	if ( qualityFilter( *traj)) addToResult(sharedSeed, *traj, result);
+	addToResult(sharedSeed, *traj, result);
       }
       else {
 	std::vector<TM>::const_iterator last;
@@ -228,12 +232,17 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	    newCand.push_back(std::move(newTraj));  std::push_heap(newCand.begin(),newCand.end(),trajCandLess);
 	  }
 	  else {
-	    if ( qualityFilter(newTraj))  addToResult(sharedSeed, newTraj, result);
+	    addToResult(sharedSeed, newTraj, result);
 	    //// don't know yet
 	  }
 	}
       }
 
+      // account only new candidates, i.e.
+      // - 1 candidate -> 1 candidate, don't increase count
+      // - 1 candidate -> 2 candidates, increase count by 1
+      nCands += newCand.size() - prevNewCandSize;
+      prevNewCandSize = newCand.size();
 
       /*
       auto trajVal = [&](TempTrajectory const & a) {
@@ -298,6 +307,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 			   <<PrintoutHelper::dumpCandidates(candidates);
 
   }
+  return nCands;
 }
 
 
@@ -338,7 +348,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 
     TSOS stateToUse = stateAndLayers.first;
     //Added protection before asking for the lastLayer on the trajectory
-    if unlikely (!traj.empty() && (*il)==traj.lastLayer()) {
+    if UNLIKELY (!traj.empty() && (*il)==traj.lastLayer()) {
 	LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
 	//self navigation case
 	// go to a middle point first

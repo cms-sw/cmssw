@@ -36,6 +36,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<std::vector<int> >() ;
   produces<TrajTrackAssociationCollection>();
 
 }
@@ -47,10 +48,12 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<std::vector<int> >           outputIndecesInputColl(new std::vector<int>);
+
 
   //
   //declare and get stuff to be retrieved from ES
@@ -85,7 +88,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   }
   
   //put everything in the event
-  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults, theBuilder.product(), httopo.product());
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, outputIndecesInputColl, algoResults, theBuilder.product(), httopo.product());
   LogDebug("TrackProducer") << "end" << "\n";
 }
 
@@ -128,8 +131,8 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
     catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw; }
   }
   ttks.reserve(algoResults.size());  
-  for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator.product()->magneticField() ));
+  for (auto & prod : algoResults){
+    ttks.push_back( reco::TransientTrack(*(prod.track),thePropagator.product()->magneticField() ));
   }
 
   LogDebug("TrackProducer") << "end" << "\n";

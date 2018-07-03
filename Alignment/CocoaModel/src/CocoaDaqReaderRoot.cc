@@ -1,4 +1,4 @@
-#include "../interface/CocoaDaqReaderRoot.h"
+#include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 #include "TFile.h" 
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
@@ -8,6 +8,7 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 #include <iostream>
+#include <string>
 
 #include "TClonesArray.h"
 
@@ -20,7 +21,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   theFile = new TFile(m_inFileName.c_str()); 
   if( !theTree ) {
     std::cerr << " CocoaDaqReaderRoot TTree file not found " << m_inFileName << std::endl;
-    std::exception();
+    throw std::exception();
   }
   
   // Read TTree named "CocoaDaq" in memory.  !! SHOULD BE CALLED Alignment_Cocoa
@@ -29,7 +30,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   
   if( !theTree ) {
     std::cerr << " CocoaDaqReaderRoot TTree in file " << m_inFileName << " should be called 'CocoaDaq' " << std::endl;
-    std::exception();
+    throw std::exception();
   }
   TBranch *branch = theTree->GetBranch("Alignment_Cocoa");
 
@@ -72,7 +73,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   nb = theTree->GetEntry(nev);  // read in entire event
  
   if ( ALIUtils::debug >= 3) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
-  if( nb == 0 ) return 0; //end of file reached??
+  if( nb == 0 ) return false; //end of file reached??
 
   // Every n events, dump one to screen
   int n = 1;
@@ -118,7 +119,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   
   BuildMeasurementsFromOptAlign( measList );
   
-  return 1;
+  return true;
   
 }
 
@@ -128,7 +129,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPosition2D( AliDaqPos
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "SENSOR2D";
-  meas.name_ = pos2D->GetID();
+  meas.name_ = std::string(pos2D->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 2; jj++ ){
@@ -160,7 +161,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPositionCOPS( AliDaqP
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "COPS";
-  meas.name_ = posCOPS->GetID();
+  meas.name_ = std::string(posCOPS->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 4; jj++ ){
@@ -205,7 +206,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromTilt( AliDaqTilt* til
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "TILTMETER";
-  meas.name_ = tilt->GetID();
+  meas.name_ = std::string(tilt->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 2; jj++ ){
@@ -232,7 +233,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist( AliDaqDistance*
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "DISTANCEMETER";
-  meas.name_ = dist->GetID();
+  meas.name_ = std::string(dist->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 2; jj++ ){
@@ -271,7 +272,7 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlign
 
   //--- Loop to Measurements in Model and check for corresponding measurement in ROOT
   std::vector< Measurement* >::const_iterator vmcite;
-  for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
+  for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); ++vmcite ) {
     ALIint fcolon = (*vmcite)->name().find(':');
     ALIstring oname = (*vmcite)->name();
     oname = oname.substr(fcolon+1,oname.length());

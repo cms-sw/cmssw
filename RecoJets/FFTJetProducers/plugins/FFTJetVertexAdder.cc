@@ -46,7 +46,7 @@ class FFTJetVertexAdder : public edm::EDProducer
 {
 public:
     explicit FFTJetVertexAdder(const edm::ParameterSet&);
-    ~FFTJetVertexAdder();
+    ~FFTJetVertexAdder() override;
 
 protected:
     // methods
@@ -55,9 +55,9 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetVertexAdder();
-    FFTJetVertexAdder(const FFTJetVertexAdder&);
-    FFTJetVertexAdder& operator=(const FFTJetVertexAdder&);
+    FFTJetVertexAdder() = delete;
+    FFTJetVertexAdder(const FFTJetVertexAdder&) = delete;
+    FFTJetVertexAdder& operator=(const FFTJetVertexAdder&) = delete;
 
     const edm::InputTag beamSpotLabel;
     const edm::InputTag existingVerticesLabel;
@@ -130,7 +130,7 @@ void FFTJetVertexAdder::produce(
     CLHEP::RandGauss rGauss(rng->getEngine(iEvent.streamID()));
 
     // get PFCandidates
-    std::auto_ptr<reco::VertexCollection> pOutput(new reco::VertexCollection);
+    auto pOutput = std::make_unique<reco::VertexCollection>();
 
     double xmean = fixedX;
     double ymean = fixedY;
@@ -193,7 +193,7 @@ void FFTJetVertexAdder::produce(
             pOutput->push_back(*iv);
     }
 
-    iEvent.put(pOutput, outputLabel);
+    iEvent.put(std::move(pOutput), outputLabel);
 }
 
 

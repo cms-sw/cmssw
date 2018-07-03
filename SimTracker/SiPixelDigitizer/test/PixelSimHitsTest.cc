@@ -36,7 +36,7 @@ New det-id.
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // my includes
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -50,7 +50,6 @@ New det-id.
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 
@@ -77,10 +76,10 @@ class PixelSimHitsTest : public edm::EDAnalyzer {
 
 public:
   explicit PixelSimHitsTest(const edm::ParameterSet&);
-  ~PixelSimHitsTest();
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(); 
+  ~PixelSimHitsTest() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override; 
 
 private:
   // ----------member data ---------------------------

@@ -4,6 +4,7 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.analyzers.core.autovars import *
 from PhysicsTools.Heppy.analyzers.objects.autophobj  import *
 
+import six
 
 class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
@@ -25,11 +26,11 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         self.globalObjects = {}
         self.globalVariables = []
         if hasattr(cfg_ana,"collections"):
-                self.collections=cfg_ana.collections
+                self.collections.update(cfg_ana.collections)
         if hasattr(cfg_ana,"globalObjects"):
-                self.globalObjects=cfg_ana.globalObjects
+                self.globalObjects.update(cfg_ana.globalObjects)
         if hasattr(cfg_ana,"globalVariables"):
-                self.globalVariables=cfg_ana.globalVariables
+                self.globalVariables=cfg_ana.globalVariables[:]
 
     def beginLoop(self, setup) :
         super(AutoFillTreeProducer, self).beginLoop(setup)
@@ -38,33 +39,36 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         super(AutoFillTreeProducer, self).declareHandles()
 #        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
         self.mchandles['GenInfo'] = AutoHandle( ('generator','',''), 'GenEventInfoProduct' )
-        for k,v in self.collections.iteritems():
-            if type(v) == tuple and isinstance(v[0], AutoHandle):
+        for k,v in six.iteritems(self.collections):
+            if isinstance(v, tuple) and isinstance(v[0], AutoHandle):
                 self.handles[k] = v[0]
 
     def declareCoreVariables(self, tr, isMC):
         """Here we declare the variables that we always want and that are hard-coded"""
         tr.var('run', int, storageType="i")
         tr.var('lumi', int, storageType="i")
-        tr.var('evt', int, storageType="i")
+        tr.var('evt', int, storageType="l")
         tr.var('isData', int)
 
  #       self.triggerBitCheckers = []
  #       if hasattr(self.cfg_ana, 'triggerBits'):
- #           for T, TL in self.cfg_ana.triggerBits.iteritems():
+ #           for T, TL in six.iteritems(self.cfg_ana.triggerBits):
  #               trigVec = ROOT.vector(ROOT.string)()
  #               for TP in TL:
  #                   trigVec.push_back(TP)
  #               tr.var( 'HLT_'+T, int )
 #                self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
- 
+
+        if not isMC:
+            tr.var('intLumi', int, storageType="i")
+
         if isMC:
             ## cross section
             tr.var('xsec', float)
             ## PU weights
             tr.var("puWeight")
             ## number of true interactions
-            tr.var("nTrueInt",int)
+            tr.var("nTrueInt")
             ## generator weight
             tr.var("genWeight")
             ## PDF weights
@@ -93,10 +97,10 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         for v in self.globalVariables:
             v.makeBranch(tree, isMC)
-        for o in self.globalObjects.itervalues(): 
+        for o in six.itervalues(self.globalObjects): 
             o.makeBranches(tree, isMC)
-        for c in self.collections.itervalues():
-            if type(c) == tuple: c = c[-1]
+        for c in six.itervalues(self.collections):
+            if isinstance(c, tuple): c = c[-1]
             if self.scalar:
                 c.makeBranchesScalar(tree, isMC)
             else:
@@ -113,13 +117,16 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 #       for T,TC in self.triggerBitCheckers:
 #           tr.fill("HLT_"+T, TC.check(event.object(), triggerResults))
 
+        if not isMC:
+            tr.fill('intLumi', getattr(self.cfg_comp,'intLumi',1.0))
+
         if isMC:
             ## xsection, if available
             tr.fill('xsec', getattr(self.cfg_comp,'xSection',1.0))
             ## PU weights, check if a PU analyzer actually filled it
             if hasattr(event,"nPU"):
                     tr.fill("nTrueInt", event.nPU)
-                    tr.fill("puWeight", event.eventWeight)
+                    tr.fill("puWeight", event.puWeight)
             else :
                     tr.fill("nTrueInt", -1)
                     tr.fill("puWeight", 1.0)
@@ -129,7 +136,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             if hasattr(event,"pdfWeights") :
               for (pdf,nvals) in self.pdfWeights:
                 if len(event.pdfWeights[pdf]) != nvals:
-                    raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf])
+                    raise RuntimeError("PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf]))
                 if self.scalar:
                     for i,w in enumerate(event.pdfWeights[pdf]):
                         tr.fill('pdfWeight_%s_%d' % (pdf,i), w)
@@ -153,12 +160,12 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             if not isMC and v.mcOnly: continue
             v.fillBranch(self.tree, event, isMC)
 
-        for on, o in self.globalObjects.iteritems(): 
+        for on, o in six.iteritems(self.globalObjects): 
             if not isMC and o.mcOnly: continue
             o.fillBranches(self.tree, getattr(event, on), isMC)
 
-        for cn, c in self.collections.iteritems():
-            if type(c) == tuple and isinstance(c[0], AutoHandle):
+        for cn, c in six.iteritems(self.collections):
+            if isinstance(c, tuple) and isinstance(c[0], AutoHandle):
                 if not isMC and c[-1].mcOnly: continue
                 objects = self.handles[cn].product()
                 setattr(event, cn, [objects[i] for i in xrange(objects.size())])

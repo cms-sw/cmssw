@@ -1,8 +1,8 @@
 #!/bin/sh
 
-py=`mktemp --tmpdir=. make_db_XXXXXXXXXX.py`
+#py=`mktemp --tmpdir=. make_db_XXXXXXXXXX.py`
 
-trap "rm -f \"$py\"" 1 2 3 15
+#trap "rm -f \"$py\"" 1 2 3 15
 
 o="./output.db"
 v="00"
@@ -10,6 +10,8 @@ v="00"
 #eval `scramv1 runtime -sh`
 rm -f "$o"
 for f in ue_calibrations_pf_mc.txt ue_calibrations_calo_mc.txt ue_calibrations_pf_data.txt ue_calibrations_calo_data.txt; do
+    py=`mktemp --tmpdir=. make_db_XXXXXXXXXX.py`
+    trap "rm -f \"$py\"" 1 2 3 15
     e="unknown"
     d="unknown"
     case "$f" in

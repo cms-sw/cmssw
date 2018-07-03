@@ -24,7 +24,7 @@ class RPCPointProducer : public edm::global::EDProducer<> {
       explicit RPCPointProducer(const edm::ParameterSet&);
 
    private:
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       const edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
       const edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;

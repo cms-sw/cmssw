@@ -3,6 +3,7 @@
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 
 
@@ -16,7 +17,7 @@ class EcalCondHandler:
     xmlFileSource_(ps.getUntrackedParameter<std::string>("xmlFile")),
     since_(ps.getUntrackedParameter<long long>("since")){}
 
-  virtual void getNewObjects(){
+  void getNewObjects() override{
 
     EcalCondHeader   header;
     Payload * payload = new Payload;
@@ -25,7 +26,7 @@ class EcalCondHandler:
 		          	    std::make_pair(payload,since_));
   }
 
-  virtual std::string id() const {return std::string("dummy");}
+  std::string id() const override {return std::string("dummy");}
 
  private:
   

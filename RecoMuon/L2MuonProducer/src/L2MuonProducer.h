@@ -38,10 +38,10 @@ class L2MuonProducer : public edm::stream::EDProducer<> {
   L2MuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~L2MuonProducer(); 
+  ~L2MuonProducer() override; 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);   
  private:
 

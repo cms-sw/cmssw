@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include <vector>
@@ -31,9 +32,14 @@
 
 class ShallowTree : public edm::EDAnalyzer {
 private:    
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{}
+
+	template <class T> 
+	void eat(edm::BranchDescription const* desc) {
+		consumes<T>(edm::InputTag(desc->moduleLabel(), desc->productInstanceName()));
+	}
 
   class BranchConnector {
   public:
@@ -44,22 +50,21 @@ private:
   template <class T>
   class TypedBranchConnector : public BranchConnector {
   private:
-    std::string ml;   //module label
+    std::string ml;  //module label
     std::string pin;  //product instance name
     T object_;
     T* object_ptr_;
   public:
     TypedBranchConnector(edm::BranchDescription const*, std::string, TTree*);
-    void connect(const edm::Event&);
+    void connect(const edm::Event&) override;
   };
 
-  edm::Service<TFileService> fs;
-  TTree * tree;
-  std::vector<BranchConnector*> connectors;
-  edm::ParameterSet pset;
+  edm::Service<TFileService> fs_;
+  TTree * tree_;
+  std::vector<BranchConnector*> connectors_;
 
 public:
-  explicit ShallowTree(const edm::ParameterSet& iConfig) : pset(iConfig) {}
+  explicit ShallowTree(const edm::ParameterSet& iConfig);// : pset(iConfig) {}
   
   enum LEAFTYPE {BOOL=1,  BOOL_V,          
 		 SHORT,   SHORT_V,           U_SHORT, U_SHORT_V,       

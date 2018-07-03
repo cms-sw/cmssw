@@ -22,9 +22,9 @@ class CandIsoDepositProducer : public edm::stream::EDProducer<> {
 public:
   CandIsoDepositProducer(const edm::ParameterSet&);
 
-  virtual ~CandIsoDepositProducer();
+  ~CandIsoDepositProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   inline const reco::Track *extractTrack(const reco::Candidate &cand, reco::Track *dummyStorage) const;

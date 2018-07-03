@@ -3,7 +3,7 @@
 
 #include <map>
 
-class SiStripDetId;
+class DetId;
 
 class SiStripTKNumbers {
 
@@ -11,16 +11,16 @@ class SiStripTKNumbers {
 
   SiStripTKNumbers();
 
-  int  nmodules(const SiStripDetId& detid) const;
+  int  nmodules(const DetId& detid) const;
   int  nmodules(const int id) const;
 
-  int  nfibres(const SiStripDetId& detid) const;
+  int  nfibres(const DetId& detid) const;
   int  nfibres(const int id) const;
 
-  int  napvs(const SiStripDetId& detid) const;
+  int  napvs(const DetId& detid) const;
   int  napvs(const int id) const;
 
-  int  nstrips(const SiStripDetId& detid) const;
+  int  nstrips(const DetId& detid) const;
   int  nstrips(const int id) const;
   
  private:

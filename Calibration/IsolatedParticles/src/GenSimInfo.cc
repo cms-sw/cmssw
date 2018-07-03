@@ -6,81 +6,107 @@
 
 #include<iostream>
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
   void eGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, genSimInfo & info, bool debug) {
     
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugEcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
   void eGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugEcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
   void eGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, genSimInfo & info, bool debug) {
     
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugEcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
   void eGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "eGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, dR, trackMom, geo, caloTopology, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugEcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
   void hGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const HcalTopology* topology, int ieta, int iphi, genSimInfo & info, bool includeHO, bool debug) {
     
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
-
+#endif
     std::vector<DetId> dets;
     dets.push_back(coreDet);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugHcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
   void hGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO, bool debug) {
     
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugHcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
   void hGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const HcalTopology* topology, int ieta, int iphi, genSimInfo & info, bool includeHO, bool debug) {
     
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
-
+#endif
     std::vector<DetId> dets;
     dets.push_back(coreDet);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugHcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
   void hGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO, bool debug) {
     
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "hGenSimInfo:: For track " << trkItr->momentum().R() << "/" << trkItr->momentum().eta() << "/" << trkItr->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixHCALIds(coreDet, geo, topology, dR, trackMom, includeHO, false);
+#ifdef EDM_ML_DEBUG
     if (debug) spr::debugHcalDets(0, vdets);
+#endif
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
@@ -108,6 +134,7 @@ namespace spr{
         if (!isolat) spr::cGenSimInfo(charge, pdgid, p, info, debug);
       }
     }
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "Isolation variables: isChargedIso :" << info.isChargedIso 
 		<< " maxNearP " << info.maxNearP << " Energy e/mu/g/ch/nh "
@@ -117,6 +144,7 @@ namespace spr{
 		<< info.cHadronEne_[1] << "," << info.cHadronEne_[2] 
 		<< std::endl;
     }
+#endif
   }
 
   void cGenSimInfo(std::vector<DetId>& vdets, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug) {
@@ -144,6 +172,7 @@ namespace spr{
       }
     }
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "Isolation variables: isChargedIso :" << info.isChargedIso 
 		<< " maxNearP " << info.maxNearP << " Energy e/mu/g/ch/nh "
@@ -153,9 +182,11 @@ namespace spr{
 		<< info.cHadronEne_[1] << "," << info.cHadronEne_[2] 
 		<< std::endl;
     }
+#endif
   }
 
-  void cGenSimInfo(int charge, int pdgid, double p, spr::genSimInfo & info, bool debug) {
+  void cGenSimInfo(int charge, int pdgid, double p, spr::genSimInfo& info, 
+		   bool ) {
 
     if      (pdgid==22 ) info.photonEne  += p;
     else if (pdgid==11)  info.eleEne     += p;

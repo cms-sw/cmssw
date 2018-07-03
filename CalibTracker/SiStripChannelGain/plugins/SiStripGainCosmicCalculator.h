@@ -25,12 +25,12 @@ class TrackerTopology;
 class SiStripGainCosmicCalculator : public ConditionDBWriter<SiStripApvGain> {
 public:
   explicit SiStripGainCosmicCalculator(const edm::ParameterSet&);
-  ~SiStripGainCosmicCalculator();
+  ~SiStripGainCosmicCalculator() override;
 private:
-  void algoAnalyze(const edm::Event &, const edm::EventSetup &);
-  void algoBeginJob(const edm::EventSetup&);
-  void algoEndJob();
-  SiStripApvGain * getNewObject();
+  void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
+  void algoBeginJob(const edm::EventSetup&) override;
+  void algoEndJob() override;
+  SiStripApvGain * getNewObject() override;
 private:
   std::pair<double,double> getPeakOfLandau( TH1F * inputHisto );
   double moduleWidth(const uint32_t detid, const edm::EventSetup* iSetup);

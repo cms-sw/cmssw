@@ -27,7 +27,7 @@
 
 using namespace edm;
 
-TestSuite::TestSuite(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), bunchcr_(iConfig.getParameter<int>("BunchNr")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")),  dbe_(0),
+TestSuite::TestSuite(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), bunchcr_(iConfig.getParameter<int>("BunchNr")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")),  dbe_(nullptr),
                                                         cfTrackToken_(consumes<CrossingFrame<SimTrack> > (
                                                             iConfig.getParameter<edm::InputTag>("cfTrackTag"))),
                                                         cfVertexToken_(consumes<CrossingFrame<SimTrack> > (
@@ -60,7 +60,7 @@ void TestSuite::beginJob() {
 }
 
 void TestSuite::endJob() {
-  if (filename_.size() != 0 && dbe_ ) dbe_->save(filename_);
+  if (!filename_.empty() && dbe_ ) dbe_->save(filename_);
 }
 
 

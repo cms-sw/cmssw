@@ -237,6 +237,9 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   setBookIndex(200) ;
   h1_mee = bookH1(iBooker, "mee","ele pairs invariant mass", nbinmee, meemin, meemax,"m_{ee} (GeV/c^{2})");
   h1_mee_os = bookH1(iBooker, "mee_os","ele pairs invariant mass, opposite sign", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
+  h1_mee_os_bb = bookH1(iBooker, "mee_os_bb","ele pairs invariant mass, opposite sign, barrel-barrel", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
+  h1_mee_os_ee = bookH1(iBooker, "mee_os_ee","ele pairs invariant mass, opposite sign, endcap-endcap", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
+  h1_mee_os_eb = bookH1(iBooker, "mee_os_eb","ele pairs invariant mass, opposite sign, barrel-endcap", nbinmee, meemin, meemax,"m_{e^{+}e^{-}} (GeV/c^{2})");
 
   //===========================
   // histos for matching and matched matched objects
@@ -321,7 +324,15 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 	float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
         h1_mee->Fill(invMass) ;
         if ( ( (gsfIter->charge())*(gsfIter2->charge()) )<0. )
-	  { h1_mee_os->Fill(invMass) ; }
+	  {
+            h1_mee_os->Fill(invMass) ;
+            if (gsfIter->isEB() && gsfIter2->isEB())
+              h1_mee_os_bb->Fill(invMass);
+            else if (gsfIter->isEE() && gsfIter2->isEE())
+              h1_mee_os_ee->Fill(invMass);
+            else
+              h1_mee_os_eb->Fill(invMass);
+          }
       }
     
     // basic quantities

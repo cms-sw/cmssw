@@ -16,6 +16,8 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
 class DataScouting(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _DataScouting_
 
@@ -40,7 +42,7 @@ class DataScouting(Scenario):
         dictIO(options,args)        
         options.conditions = gtNameAndConnect(globalTag, args)
                 
-        process = cms.Process('DataScouting')
+        process = cms.Process('DataScouting', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
@@ -64,7 +66,7 @@ class DataScouting(Scenario):
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = dqmIOSource(args)
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()

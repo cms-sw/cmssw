@@ -4,13 +4,13 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescriptionFiller
-// 
+//
 /**\class ParameterSetDescriptionFiller ParameterSetDescriptionFiller.h FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h
 
  Description: A concrete ParameterSetDescription filler which calls a static function of the template argument
 
  Usage:
-    This is an ParameterSetDescription filler adapter class which calls the 
+    This is an ParameterSetDescription filler adapter class which calls the
 
 void fillDescription(edm::ParameterSetDescription&)
 
@@ -24,24 +24,9 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 
 #include <type_traits>
 #include <string>
-#include <boost/mpl/if.hpp>
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
-#include "FWCore/Framework/interface/one/EDFilter.h"
-#include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/stream/EDFilter.h"
-#include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/global/EDFilter.h"
 
 namespace edm {
   template< typename T>
@@ -50,51 +35,24 @@ namespace edm {
   public:
     ParameterSetDescriptionFiller() {}
 
-    virtual void fill(ConfigurationDescriptions & descriptions) const {
+    void fill(ConfigurationDescriptions & descriptions) const override {
       T::fillDescriptions(descriptions);
       T::prevalidate(descriptions);
     }
 
-    virtual const std::string& baseType() const {
+    const std::string& baseType() const override {
       return T::baseType();
     }
 
-    virtual const std::string& extendedBaseType() const {
-      if (std::is_base_of<edm::EDAnalyzer, T>::value)
-        return kExtendedBaseForEDAnalyzer;
-      if (std::is_base_of<edm::EDProducer, T>::value)
-        return kExtendedBaseForEDProducer;
-      if (std::is_base_of<edm::EDFilter, T>::value)
-        return kExtendedBaseForEDFilter;
-      if (std::is_base_of<edm::OutputModule, T>::value)
-        return kExtendedBaseForOutputModule;
-      if (std::is_base_of<edm::one::EDAnalyzerBase, T>::value)
-        return kExtendedBaseForOneEDAnalyzer;
-      if (std::is_base_of<edm::one::EDProducerBase, T>::value)
-        return kExtendedBaseForOneEDProducer;
-      if (std::is_base_of<edm::one::EDFilterBase, T>::value)
-        return kExtendedBaseForOneEDFilter;
-      if (std::is_base_of<edm::one::OutputModuleBase, T>::value)
-        return kExtendedBaseForOneOutputModule;
-      if (std::is_base_of<edm::stream::EDAnalyzerBase, T>::value)
-        return kExtendedBaseForStreamEDAnalyzer;
-      if (std::is_base_of<edm::stream::EDProducerBase, T>::value)
-        return kExtendedBaseForStreamEDProducer;
-      if (std::is_base_of<edm::stream::EDFilterBase, T>::value)
-        return kExtendedBaseForStreamEDFilter;
-      if (std::is_base_of<edm::global::EDAnalyzerBase, T>::value)
-        return kExtendedBaseForGlobalEDAnalyzer;
-      if (std::is_base_of<edm::global::EDProducerBase, T>::value)
-        return kExtendedBaseForGlobalEDProducer;
-      if (std::is_base_of<edm::global::EDFilterBase, T>::value)
-        return kExtendedBaseForGlobalEDFilter;
-
-      return kEmpty;
+    const std::string& extendedBaseType() const override {
+      const T* type = nullptr;
+      return ParameterSetDescriptionFillerBase::extendedBaseType(type);
     }
 
   private:
-    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&); // stop default
-    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&); // stop default
+    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&) = delete; // stop default
+    const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&) = delete; // stop default
+    
   };
 
   // We need a special version of this class for Services because there is
@@ -107,8 +65,8 @@ namespace edm {
 
   namespace fillDetails {
 
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
+    using no_tag = std::false_type; // type indicating FALSE
+    using yes_tag = std::true_type; // type indicating TRUE
 
     template <typename T, void (*)(ConfigurationDescriptions &)>  struct fillDescriptions_function;
     template <typename T> no_tag  has_fillDescriptions_helper(...);
@@ -116,8 +74,8 @@ namespace edm {
 
     template<typename T>
     struct has_fillDescriptions_function {
-      static bool const value =
-        sizeof(has_fillDescriptions_helper<T>(0)) == sizeof(yes_tag);
+      static constexpr bool value =
+      std::is_same<decltype(has_fillDescriptions_helper<T>(nullptr)),yes_tag>::value;
     };
 
     template <typename T>
@@ -135,24 +93,24 @@ namespace edm {
         descriptions.addDefault(desc);
       }
     };
-    
+
     template <typename T, void (*)(ConfigurationDescriptions &)>  struct prevalidate_function;
     template <typename T> no_tag  has_prevalidate_helper(...);
     template <typename T> yes_tag has_prevalidate_helper(fillDescriptions_function<T, &T::prevalidate> * dummy);
-    
+
     template<typename T>
     struct has_prevalidate_function {
-      static bool const value =
-      sizeof(has_prevalidate_helper<T>(0)) == sizeof(yes_tag);
+      static constexpr bool value =
+      std::is_same<decltype(has_prevalidate_helper<T>(nullptr)),yes_tag>::value;
     };
-    
+
     template <typename T>
     struct DoPrevalidate {
       void operator()(ConfigurationDescriptions & descriptions) {
         T::prevalidate(descriptions);
       }
     };
-    
+
     template <typename T>
     struct DoNothing {
       void operator()(ConfigurationDescriptions & descriptions) {
@@ -163,7 +121,7 @@ namespace edm {
 
   // Not needed at the moment
   //void prevalidateService(ConfigurationDescriptions &);
-  
+
   template< typename T>
   class DescriptionFillerForServices : public ParameterSetDescriptionFillerBase
   {
@@ -172,21 +130,21 @@ namespace edm {
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
-    virtual void fill(ConfigurationDescriptions & descriptions) const {
-      typename boost::mpl::if_c<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                                edm::fillDetails::DoFillDescriptions<T>,
-                                edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
+    void fill(ConfigurationDescriptions & descriptions) const override {
+      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                         edm::fillDetails::DoFillDescriptions<T>,
+                         edm::fillDetails::DoFillAsUnknown<T>> fill_descriptions;
       fill_descriptions(descriptions);
       //we don't have a need for prevalidation of services at the moment, so this is a placeholder
       // Probably the best package to declare this in would be FWCore/ServiceRegistry
       //prevalidateService(descriptions);
     }
 
-    virtual const std::string& baseType() const {
+    const std::string& baseType() const override {
       return kBaseForService;
     }
 
-    virtual const std::string& extendedBaseType() const {
+    const std::string& extendedBaseType() const override {
       return kEmpty;
     }
 
@@ -204,29 +162,29 @@ namespace edm {
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
-    virtual void fill(ConfigurationDescriptions & descriptions) const {
-      typename boost::mpl::if_c<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                                edm::fillDetails::DoFillDescriptions<T>,
-                                edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
+    void fill(ConfigurationDescriptions & descriptions) const override {
+      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                         edm::fillDetails::DoFillDescriptions<T>,
+                         edm::fillDetails::DoFillAsUnknown<T>> fill_descriptions;
       fill_descriptions(descriptions);
-      
-      typename boost::mpl::if_c<edm::fillDetails::has_prevalidate_function<T>::value,
-      edm::fillDetails::DoPrevalidate<T>,
-      edm::fillDetails::DoNothing<T> >::type prevalidate;
+
+      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
+                         edm::fillDetails::DoPrevalidate<T>,
+                         edm::fillDetails::DoNothing<T>> prevalidate;
       prevalidate(descriptions);
     }
 
-    virtual const std::string& baseType() const {
+    const std::string& baseType() const override {
       return kBaseForESSource;
     }
 
-    virtual const std::string& extendedBaseType() const {
+    const std::string& extendedBaseType() const override {
       return kEmpty;
     }
 
   private:
-    DescriptionFillerForESSources(const DescriptionFillerForESSources&); // stop default
-    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&); // stop default
+    DescriptionFillerForESSources(const DescriptionFillerForESSources&) = delete; // stop default
+    const DescriptionFillerForESSources& operator=(const DescriptionFillerForESSources&) = delete; // stop default
   };
 
   template<typename T>
@@ -237,29 +195,29 @@ namespace edm {
 
     // If T has a fillDescriptions function then just call that, otherwise
     // put in an "unknown description" as a default.
-    virtual void fill(ConfigurationDescriptions & descriptions) const {
-      typename boost::mpl::if_c<edm::fillDetails::has_fillDescriptions_function<T>::value,
-                                edm::fillDetails::DoFillDescriptions<T>,
-                                edm::fillDetails::DoFillAsUnknown<T> >::type fill_descriptions;
+    void fill(ConfigurationDescriptions & descriptions) const override {
+      std::conditional_t<edm::fillDetails::has_fillDescriptions_function<T>::value,
+                         edm::fillDetails::DoFillDescriptions<T>,
+                         edm::fillDetails::DoFillAsUnknown<T>> fill_descriptions;
       fill_descriptions(descriptions);
-      
-      typename boost::mpl::if_c<edm::fillDetails::has_prevalidate_function<T>::value,
-      edm::fillDetails::DoPrevalidate<T>,
-      edm::fillDetails::DoNothing<T> >::type prevalidate;
+
+      std::conditional_t<edm::fillDetails::has_prevalidate_function<T>::value,
+                         edm::fillDetails::DoPrevalidate<T>,
+                         edm::fillDetails::DoNothing<T>> prevalidate;
       prevalidate(descriptions);
     }
 
-    virtual const std::string& baseType() const {
+    const std::string& baseType() const override {
       return kBaseForESProducer;
     }
 
-    virtual const std::string& extendedBaseType() const {
+    const std::string& extendedBaseType() const override {
       return kEmpty;
     }
 
   private:
-    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&); // stop default
-    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&); // stop default
+    DescriptionFillerForESProducers(const DescriptionFillerForESProducers&) = delete; // stop default
+    const DescriptionFillerForESProducers& operator=(const DescriptionFillerForESProducers&) = delete; // stop default
   };
 }
 #endif

@@ -18,7 +18,7 @@ extern "C" {
 class Herwig6Instance : public FortranInstance {
     public:
 	Herwig6Instance();
-	virtual ~Herwig6Instance();
+	~Herwig6Instance() override;
 
 	// passes a configuration parameter
 	bool give(const std::string &line);

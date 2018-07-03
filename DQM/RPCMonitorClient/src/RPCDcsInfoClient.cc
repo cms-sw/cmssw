@@ -49,7 +49,6 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   ibooker.setCurrentFolder(dcsinfofolder_ );
 
   unsigned int nlsmax = DCS.size();
-  if (nlsmax > 900 ) nlsmax = 900;
    
   std::string meName = dcsinfofolder_ + "/rpcHVStatus";
   MonitorElement* rpcHVStatus = ibooker.book2D("rpcHVStatus","RPC HV Status", nlsmax, 1., nlsmax+1, 1, 0.5, 1.5);

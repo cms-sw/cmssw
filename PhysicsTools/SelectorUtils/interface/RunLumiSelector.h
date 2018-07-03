@@ -40,7 +40,7 @@ public:
     retInternal_ = getBitTemplate();
   }
 
-  bool operator() ( edm::EventBase const & ev,  pat::strbitset & ret ) {
+  bool operator() ( edm::EventBase const & ev,  pat::strbitset & ret ) override {
 
     if ( !ignoreCut("RunLumi") ) {
       bool goodLumi = false;

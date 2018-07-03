@@ -1,7 +1,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
 // ######################################################################
-// ###                           CustomParticle                          ###
+// ###                           CustomParticle                       ###
 // ######################################################################
 
 CustomParticle::CustomParticle(

@@ -24,7 +24,7 @@
    
    edm::HepMCProduct EvtProd ;
    TBranch* bhepmc =
-      tevt->GetBranch( "edmHepMCProduct_generator__GEN.obj") ;
+      tevt->GetBranch( "edmHepMCProduct_VtxSmeared__GEN.obj") ;
 
    bhepmc->SetAddress( & EvtProd ) ;
    

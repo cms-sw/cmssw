@@ -32,7 +32,7 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet & iConfig) :
 }
 
 // Destructor
-HLTMhtProducer::~HLTMhtProducer() {}
+HLTMhtProducer::~HLTMhtProducer() = default;
 
 // Fill descriptions
 void HLTMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -52,7 +52,7 @@ void HLTMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::METCollection> result(new reco::METCollection());
+    std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
     edm::Handle<reco::JetView> jets;
     iEvent.getByToken(m_theJetToken, jets);
@@ -64,7 +64,7 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     int nj = 0;
     double sumet = 0., mhx = 0., mhy = 0.;
 
-    if (jets->size() > 0) {
+    if (!jets->empty()) {
         for(reco::JetView::const_iterator j = jets->begin(); j != jets->end(); ++j) {
             double pt = usePt_ ? j->pt() : j->et();
             double eta = j->eta();
@@ -82,10 +82,10 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
 
     if (excludePFMuons_) {
-        for (reco::PFCandidateCollection::const_iterator j = pfCandidates->begin(); j != pfCandidates->end(); ++j) {
-            if (std::abs(j->pdgId()) == 13) {
-                mhx += j->px();
-                mhy += j->py();
+        for (auto const & j : *pfCandidates) {
+            if (std::abs(j.pdgId()) == 13) {
+                mhx += j.px();
+                mhy += j.py();
             }
         }
     }
@@ -98,5 +98,5 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     result->push_back(mht);
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

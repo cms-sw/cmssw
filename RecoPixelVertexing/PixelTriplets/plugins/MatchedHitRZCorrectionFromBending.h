@@ -10,7 +10,7 @@ class TrackerTopology;
 
 class MatchedHitRZCorrectionFromBending {
   public:
-    MatchedHitRZCorrectionFromBending() : rFixup(0), zFixup(0) {}
+    MatchedHitRZCorrectionFromBending() : rFixup(nullptr), zFixup(nullptr) {}
     MatchedHitRZCorrectionFromBending(DetId detId, const TrackerTopology *tTopo );
     MatchedHitRZCorrectionFromBending(const DetLayer *layer, const TrackerTopology *tTopo);
 

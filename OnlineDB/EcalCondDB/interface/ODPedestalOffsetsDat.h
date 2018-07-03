@@ -12,10 +12,10 @@ class ODPedestalOffsetsDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODPedestalOffsetsDat();
-  ~ODPedestalOffsetsDat();
+  ~ODPedestalOffsetsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "PEDESTAL_OFFSETS_DAT"; }
+  inline std::string getTable() override { return "PEDESTAL_OFFSETS_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -44,17 +44,17 @@ class ODPedestalOffsetsDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::vector< ODPedestalOffsetsDat >& data, ODFEPedestalOffsetInfo* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::vector< ODPedestalOffsetsDat >* fillMap, ODFEPedestalOffsetInfo* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_sm;

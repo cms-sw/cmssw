@@ -8,6 +8,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/EcalAlgo"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="clhep"/>
 <use   name="rootmath"/>
 <export>

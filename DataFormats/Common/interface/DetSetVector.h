@@ -39,12 +39,8 @@ behavior (usually a core dump).
 #include <iterator>
 #include <vector>
 
+#include <type_traits>
 #include "boost/concept_check.hpp"
-#include "boost/mpl/if.hpp"
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-#else
-#include "boost/bind.hpp"
-#endif
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -87,10 +83,10 @@ namespace edm {
   // T is defined to inherit from DoNotSortUponInsertion).
 
   template <class T>
-  class DetSetVector : 
-    public boost::mpl::if_c<boost::is_base_of<edm::DoNotSortUponInsertion, T>::value,
+  class DetSetVector :
+    public std::conditional_t<std::is_base_of<edm::DoNotSortUponInsertion, T>::value,
 			    edm::DoNotSortUponInsertion,
-			    Other>::type
+			    Other>
   {
     /// DetSetVector requires that T objects can be compared with
     /// operator<.
@@ -382,28 +378,20 @@ namespace edm {
   {
     std::transform(this->begin(), this->end(),
 		   std::back_inserter(result),
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 		   std::bind(&DetSet<T>::id,std::placeholders::_1));
-#else
-		   boost::bind(&DetSet<T>::id,_1));
-#endif
   }
 
   template <class T>
   inline
   void
   DetSetVector<T>::post_insert() {
-#ifndef CMS_NOCXX11
     _sets.shrink_to_fit();
-#endif
     if (_alreadySorted) return; 
     typename collection_type::iterator i = _sets.begin();
     typename collection_type::iterator e = _sets.end();
     // For each DetSet...
     for (; i != e; ++i) {
-#ifndef CMS_NOCXX11
       i->data.shrink_to_fit();
-#endif
       // sort the Detset pointed to by
       std::sort(i->data.begin(), i->data.end());
     }
@@ -480,6 +468,7 @@ namespace edm {
    //helper function to make it easier to create a edm::Ref
 
   template<class HandleT>
+  inline
   Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefTo(const HandleT& iHandle,
              det_id_type iDetID,
@@ -502,6 +491,7 @@ namespace edm {
   }
 
   template<class HandleT>
+  inline
   Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
   makeRefToDetSetVector(const HandleT& iHandle,
              det_id_type iDetID,

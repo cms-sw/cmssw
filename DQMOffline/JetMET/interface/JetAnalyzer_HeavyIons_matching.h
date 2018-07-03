@@ -84,7 +84,7 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
  public:
 
   explicit JetAnalyzer_HeavyIons_matching (const edm::ParameterSet&);
-  virtual ~JetAnalyzer_HeavyIons_matching();
+  ~JetAnalyzer_HeavyIons_matching() override;
   
   void analyze(const edm::Event&, const edm::EventSetup&) override; 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -125,6 +125,12 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
   MonitorElement * mNeutralEmEnergy_Jet1_unmatched;
   MonitorElement * mChargedMuEnergy_Jet1_unmatched;
 
+  MonitorElement * mChargedHadEnergyFraction_Jet1_unmatched;
+  MonitorElement * mNeutralHadEnergyFraction_Jet1_unmatched;
+  MonitorElement * mPhotonEnergyFraction_Jet1_unmatched;
+  MonitorElement * mElectronEnergyFraction_Jet1_unmatched;
+  MonitorElement * mMuonEnergyFraction_Jet1_unmatched;
+  
   MonitorElement * mHadEnergy_Jet2_unmatched;
   MonitorElement * mEmEnergy_Jet2_unmatched;
   MonitorElement * mChargedHadronEnergy_Jet2_unmatched;
@@ -133,6 +139,13 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
   MonitorElement * mNeutralEmEnergy_Jet2_unmatched;
   MonitorElement * mChargedMuEnergy_Jet2_unmatched;
 
+  MonitorElement * mChargedHadEnergyFraction_Jet2_unmatched;
+  MonitorElement * mNeutralHadEnergyFraction_Jet2_unmatched;
+  MonitorElement * mPhotonEnergyFraction_Jet2_unmatched;
+  MonitorElement * mElectronEnergyFraction_Jet2_unmatched;
+  MonitorElement * mMuonEnergyFraction_Jet2_unmatched;
+
+  
   struct MyJet{
     int   id;
     float pt;
@@ -145,7 +158,7 @@ class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
 
   struct CompareMatchedJets {
     //! A-B jet match
-    bool operator()(const ABJetPair &A1, const ABJetPair &A2){
+    bool operator()(const ABJetPair &A1, const ABJetPair &A2) const{
       MyJet jet1_pair1 = A1.first; //! Jet1 1st pair
       MyJet jet2_pair1 = A1.second; //! Jet2 1st pair
       MyJet jet1_pair2 = A2.first; //! Jet1 2nd pair

@@ -31,13 +31,12 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
   
   edm::LogInfo("SiStripQualityESProducer") << "ctor" << std::endl;
 
-  quality.reset(new SiStripQuality());
 }
 
 
-boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
+std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
 {
-  
+  auto quality = std::make_unique<SiStripQuality>();  
   edm::LogInfo("SiStripQualityESProducer") << "produce called" << std::endl;
 
   quality->clear();
@@ -66,6 +65,9 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
 
     if (recordName=="SiStripBadModuleRcd"){
       iRecord.getRecord<SiStripBadModuleRcd>().get(tagName,obj); 
+      quality->add( obj.product() );
+    } else if (recordName=="SiStripBadModuleFedErrRcd"){
+      iRecord.getRecord<SiStripBadModuleFedErrRcd>().get(tagName,obj); 
       quality->add( obj.product() );
     } else if (recordName=="SiStripBadFiberRcd"){
       iRecord.getRecord<SiStripBadFiberRcd>().get(tagName,obj); 

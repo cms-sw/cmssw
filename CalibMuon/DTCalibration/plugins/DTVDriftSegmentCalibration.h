@@ -24,12 +24,12 @@ public:
   // Constructor
   DTVDriftSegmentCalibration(const edm::ParameterSet& pset);
   // Destructor
-  virtual ~DTVDriftSegmentCalibration();
+  ~DTVDriftSegmentCalibration() override;
 
-  void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void endJob();
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void endJob() override;
   
 private:
   typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMapTH1F;

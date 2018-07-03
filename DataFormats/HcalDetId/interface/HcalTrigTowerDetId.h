@@ -13,6 +13,15 @@ Cell id for an Calo Trigger tower
 */
 class HcalTrigTowerDetId : public DetId {
 public:
+  static const int kHcalPhiMask       = 0x7F;
+  static const int kHcalEtaOffset     = 7;
+  static const int kHcalEtaMask       = 0x3F;
+  static const int kHcalZsideMask     = 0x2000;
+  static const int kHcalDepthOffset   = 14;
+  static const int kHcalDepthMask     = 0x7;
+  static const int kHcalVersOffset    = 17;
+  static const int kHcalVersMask      = 0x7;
+ public:
    /** Constructor of a null id */
   HcalTrigTowerDetId();
   /** Constructor from a raw value */
@@ -37,17 +46,17 @@ public:
   /// get the subdetector
   HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }
   /// get the z-side of the tower (1/-1)
-  int zside() const { return (id_&0x2000)?(1):(-1); }
+  int zside() const { return (id_&kHcalZsideMask)?(1):(-1); }
   /// get the absolute value of the tower ieta
-  int ietaAbs() const { return (id_>>7)&0x3f; }
+  int ietaAbs() const { return (id_>>kHcalEtaOffset)&kHcalEtaMask; }
   /// get the tower ieta
   int ieta() const { return zside()*ietaAbs(); }
   /// get the tower iphi
-  int iphi() const { return id_&0x7F; }
+  int iphi() const { return id_&kHcalPhiMask; }
   /// get the depth (zero for LHC Run 1, may be nonzero for later runs)
-  int depth() const { return (id_>>14)&0x7; }
+  int depth() const { return (id_>>kHcalDepthOffset)&kHcalDepthMask; }
   /// get the version code for the trigger tower
-  int version() const { return (id_>>17)&0x7; }
+  int version() const { return (id_>>kHcalVersOffset)&kHcalVersMask; }
 
   static const HcalTrigTowerDetId Undefined;
 

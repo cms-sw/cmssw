@@ -1,5 +1,4 @@
-#include "PGeometricDetBuilder.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,29 +6,27 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
-#include <string>
 #include <vector>
 
-PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig)
+class PGeometricDetBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
-}
-
-PGeometricDetBuilder::~PGeometricDetBuilder()
-{
-}
+public:
+  
+  PGeometricDetBuilder( const edm::ParameterSet& ) {}
+  
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+private:
+  void putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev );
+};
 
 void
 PGeometricDetBuilder::beginRun( const edm::Run&, edm::EventSetup const& es) 
@@ -56,42 +53,42 @@ PGeometricDetBuilder::beginRun( const edm::Run&, edm::EventSetup const& es)
   for (; git!= egit; ++git) {  // one level below "tracker"
     putOne(*git, pgd, lev);
     std::vector<const GeometricDet*> inone = (*git)->components();
-    if ( inone.size() == 0 )  ++count;
+    if ( inone.empty() )  ++count;
     std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
     std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
     ++lev;
     for (; git2 != egit2; ++git2) { // level 2
       putOne(*git2, pgd, lev);
       std::vector<const GeometricDet*> intwo= (*git2)->components();
-      if ( intwo.size() == 0 )  ++count;
+      if ( intwo.empty() )  ++count;
       std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
       std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
       ++lev;
       for (; git3 != egit3; ++git3) { // level 3
 	putOne(*git3, pgd, lev);
 	std::vector<const GeometricDet*> inthree= (*git3)->components();
-	if ( inthree.size() == 0 )  ++count;
+	if ( inthree.empty() )  ++count;
 	std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
 	std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
 	++lev;
 	for (; git4 != egit4; ++git4) { //level 4
 	  putOne(*git4, pgd, lev);
 	  std::vector<const GeometricDet*> infour= (*git4)->components();
-	  if ( infour.size() == 0 )  ++count;
+	  if ( infour.empty() )  ++count;
 	  std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
 	  std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
 	  ++lev;
 	  for (; git5 != egit5; ++git5) { // level 5
 	    putOne(*git5, pgd, lev);
 	    std::vector<const GeometricDet*> infive= (*git5)->components();
-	    if ( infive.size() == 0 )  ++count;
+	    if ( infive.empty() )  ++count;
 	    std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
 	    std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
 	    ++lev;
 	    for (; git6 != egit6; ++git6) { //level 6
 	      putOne(*git6, pgd, lev);
 	      std::vector<const GeometricDet*> insix= (*git6)->components();
-	      if ( insix.size() == 0 )  ++count;
+	      if ( insix.empty() )  ++count;
 	    } // level 6
 	    --lev;
 	  } // level 5
@@ -114,8 +111,8 @@ PGeometricDetBuilder::beginRun( const edm::Run&, edm::EventSetup const& es)
 void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev ) {
 
   PGeometricDet::Item item;
-  DDTranslation tran = gd->translation();
-  DDRotationMatrix rot = gd->rotation();
+  const DDTranslation& tran = gd->translation();
+  const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name           = gd->name().name();
@@ -135,9 +132,9 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
   item._a31            = x.Z();
   item._a32            = y.Z();
   item._a33            = z.Z();
-  item._shape          = gd->shape();
+  item._shape          = static_cast<int>(gd->shape());
   item._type           = gd->type();
-  if(gd->shape()==1){
+  if(gd->shape()==DDSolidShape::ddbox){
     item._params0=gd->params()[0];
     item._params1=gd->params()[1];
     item._params2=gd->params()[2];
@@ -149,7 +146,7 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
     item._params8=0;
     item._params9=0;
     item._params10=0;
-  }else if(gd->shape()==3){
+  }else if(gd->shape()==DDSolidShape::ddtrap){
     item._params0=gd->params()[0];
     item._params1=gd->params()[1];
     item._params2=gd->params()[2];
@@ -206,3 +203,4 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
   pgd->pgeomdets_.push_back ( item );
 }
 
+DEFINE_FWK_MODULE(PGeometricDetBuilder);

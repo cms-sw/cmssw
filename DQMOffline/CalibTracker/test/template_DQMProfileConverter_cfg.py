@@ -34,9 +34,11 @@ process.b = cms.ESSource("PoolDBESSource",
     connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_21X_STRIP')
 )
 
-process.TkDetMap = cms.Service("TkDetMap")
-
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+# load TrackerTopology (needed for TkDetMap and TkHistoMap)
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 

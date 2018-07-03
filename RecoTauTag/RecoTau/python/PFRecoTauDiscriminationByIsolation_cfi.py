@@ -15,6 +15,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     ApplyDiscriminationByECALIsolation = cms.bool(True), # use PFGammas when isolating
     ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFChargedHadr when isolating
     ApplyDiscriminationByWeightedECALIsolation = cms.bool(False), #do not use pileup weighting of neutral deposits by default
+    WeightECALIsolation = cms.double(1.), # apply a flat, overall weight to ECAL isolation. Useful to combine charged and neutral isolations with different relative weights. Default 1. 
 
     applyOccupancyCut = cms.bool(True), # apply a cut on number of isolation objects
     maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
@@ -26,6 +27,8 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     relativeSumPtCut = cms.double(0.0),
     relativeSumPtOffset = cms.double(0.0),
 
+    minTauPtForNoIso = cms.double(-99.), # minimum tau pt at which the isolation is completely relaxed. If negative, this is disabled
+    
     applyPhotonPtSumOutsideSignalConeCut = cms.bool(False),
     maxAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9),
     maxRelPhotonSumPt_outsideSignalCone = cms.double(0.10),

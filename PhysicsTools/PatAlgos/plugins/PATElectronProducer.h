@@ -56,9 +56,9 @@ namespace pat {
     public:
 
       explicit PATElectronProducer(const edm::ParameterSet & iConfig);
-      ~PATElectronProducer();
+      ~PATElectronProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -80,6 +80,11 @@ namespace pat {
       bool                addGenMatch_;
       bool                embedGenMatch_;
       const bool          embedRecHits_;
+      // for mini-iso calculation
+      edm::EDGetTokenT<pat::PackedCandidateCollection>  pcToken_;
+      bool computeMiniIso_;
+      std::vector<double> miniIsoParamsE_;
+      std::vector<double> miniIsoParamsB_;
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;
 
@@ -87,17 +92,21 @@ namespace pat {
 
       /// pflow specific
       const bool          useParticleFlow_;
+      const bool          usePfCandidateMultiMap_;
       const edm::EDGetTokenT<reco::PFCandidateCollection> pfElecToken_;
       const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > pfCandidateMapToken_;
+      const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > pfCandidateMultiMapToken_;
       const bool          embedPFCandidate_;
 
       /// mva input variables
+      const bool addMVAVariables_;
       const edm::InputTag reducedBarrelRecHitCollection_;
       const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
       const edm::InputTag reducedEndcapRecHitCollection_;
       const edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
       
       const bool addPFClusterIso_;
+      const bool addPuppiIsolation_;
       const edm::EDGetTokenT<edm::ValueMap<float> > ecalPFClusterIsoT_;
       const edm::EDGetTokenT<edm::ValueMap<float> > hcalPFClusterIsoT_;
 
@@ -128,6 +137,9 @@ namespace pat {
 			  const GenAssociations& genMatches,
 			  const IsoDepositMaps& deposits,
 			  const IsolationValueMaps& isolationValues ) const;
+
+      // set the mini-isolation variables
+      void setElectronMiniIso(pat::Electron& anElectron, const pat::PackedCandidateCollection *pc);
 
     // embed various impact parameters with errors
     // embed high level selection
@@ -173,6 +185,14 @@ namespace pat {
       pat::helper::KinResolutionsLoader resolutionLoader_;
 
       const bool useUserData_;
+      //PUPPI isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
+      //PUPPINoLeptons isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
       pat::PATUserDataHelper<pat::Electron>      userDataHelper_;
 
       const CaloTopology * ecalTopology_;

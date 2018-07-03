@@ -52,7 +52,7 @@ class AbstractFitter{
     nBackgroundPass("nBackgroundPass","nBackgroundPass",0.,1e10),
     category("category","category"),
     simPdf("simPdf","simPdf",category),
-    data(0),
+    data(nullptr),
     verbose(verbose_)
   {
     //turn on/off default messaging of roofit
@@ -63,7 +63,7 @@ class AbstractFitter{
     category.defineType("pass");
     category.defineType("fail");
   };
-  virtual ~AbstractFitter(){};
+  virtual ~AbstractFitter()= default;;
   void setup(double expectedMean_, double massLow, double massHigh, double expectedSigma_){
     expectedMean = expectedMean_;
     expectedSigma = expectedSigma_;
@@ -87,7 +87,7 @@ class AbstractFitter{
     delete frame;
   }
 
-  TString calculateEfficiency(TH3 *pass, TH3 *all, int massDimension, TProfile2D* &eff, TProfile2D* &effChi2, TString plotName=""){
+  TString calculateEfficiency(TH3 *pass, TH3 *all, int massDimension, TProfile2D* &eff, TProfile2D* &effChi2, const TString& plotName=""){
     //sort out the TAxis
     TAxis *par1Axis, *par2Axis, *massAxis;
     int par1C, par2C, massC;
@@ -142,7 +142,7 @@ class AbstractFitter{
     TH1D* all1D = (massAxis->GetXbins()->GetSize()==0) ?
       new TH1D("all1D","all1D",massAxis->GetNbins(),massAxis->GetXmin(),massAxis->GetXmax()):
       new TH1D("all1D","all1D",massAxis->GetNbins(),massAxis->GetXbins()->GetArray()); 
-    TH1D* pass1D = (TH1D *)all1D->Clone("pass1D");
+    auto* pass1D = (TH1D *)all1D->Clone("pass1D");
 
     //for each parameter bin fit the mass distributions
     for(int par1=1; par1<=par1Axis->GetNbins(); par1++){
@@ -169,7 +169,7 @@ class AbstractFitter{
     return "";//OK
   }
 
-  TString calculateEfficiency(TH2 *pass, TH2 *all, int massDimension, TProfile* &eff, TProfile* &effChi2, TString plotName=""){
+  TString calculateEfficiency(TH2 *pass, TH2 *all, int massDimension, TProfile* &eff, TProfile* &effChi2, const TString& plotName=""){
     //sort out the TAxis
     TAxis *par1Axis, *massAxis;
     int par1C, massC;
@@ -210,7 +210,7 @@ class AbstractFitter{
     TH1D * all1D = (massAxis->GetXbins()->GetSize()==0) ?
       new TH1D("all1D","all1D",massAxis->GetNbins(),massAxis->GetXmin(),massAxis->GetXmax()):
       new TH1D("all1D","all1D",massAxis->GetNbins(),massAxis->GetXbins()->GetArray()); 
-    TH1D * pass1D = (TH1D *)all1D->Clone("pass1D");
+    auto * pass1D = (TH1D *)all1D->Clone("pass1D");
 
     //for each parameter bin fit the mass distributions
     for(int par1=1; par1<=par1Axis->GetNbins(); par1++){
@@ -260,8 +260,8 @@ class GaussianPlusLinearFitter: public AbstractFitter{
     simPdf.addPdf(pdfFail,"fail");
     simPdf.addPdf(pdfPass,"pass");
   };
-  ~GaussianPlusLinearFitter(){};
-  void fit(TH1* pass, TH1* all){
+  ~GaussianPlusLinearFitter() override= default;;
+  void fit(TH1* pass, TH1* all) override{
     using namespace RooFit;
     all->Add(pass,-1);
     TH1* &fail = all;
@@ -324,7 +324,7 @@ class VoigtianPlusExponentialFitter: public AbstractFitter{
     simPdf.addPdf(pdfFail,"fail");
     simPdf.addPdf(pdfPass,"pass");
   };
-  ~VoigtianPlusExponentialFitter(){};
+  ~VoigtianPlusExponentialFitter() override= default;;
   void setup(double expectedMean_, double massLow, double massHigh, double expectedSigma_, double width_){
     expectedMean = expectedMean_;
     expectedSigma = expectedSigma_;
@@ -332,7 +332,7 @@ class VoigtianPlusExponentialFitter: public AbstractFitter{
     mean.setRange(massLow,massHigh);
     width.setVal(width_);
   }
-  void fit(TH1* pass, TH1* all){
+  void fit(TH1* pass, TH1* all) override{
     using namespace RooFit;
     all->Add(pass,-1);
     TH1* &fail = all;

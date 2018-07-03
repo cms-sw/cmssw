@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,21 +37,27 @@
 #include <iostream>
 #include <fstream>
 
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 //
 // class decleration
 //
 namespace edm
 {
-class TestMixedSource : public edm::EDAnalyzer {
+  class TestMixedSource : public edm::one::EDAnalyzer<> {
    public:
       explicit TestMixedSource(const edm::ParameterSet&);
-      ~TestMixedSource();
-
+      ~TestMixedSource() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       std::ofstream outputFile;
@@ -80,7 +86,6 @@ class TestMixedSource : public edm::EDAnalyzer {
     edm::EDGetTokenT<CrossingFrame<SimTrack>> SimTrackToken_;
     edm::EDGetTokenT<CrossingFrame<SimVertex>> SimVertexToken_;
     edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> HepMCToken_;
-
 
 };
 }//edm

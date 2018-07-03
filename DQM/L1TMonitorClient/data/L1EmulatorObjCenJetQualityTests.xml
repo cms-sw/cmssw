@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/CenJet/CenJetErrorFlag">
+    <LINK name="*Stage1Layer2expert/CenJet/CenJetErrorFlag">
         <TestName activate="true">L1EmulatorCenJetGctErrorFlagQT</TestName>
     </LINK>
 

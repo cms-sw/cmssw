@@ -16,13 +16,16 @@
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
 #include "CondCore/CondDB/interface/GTEditor.h"
+#include "CondCore/CondDB/interface/RunInfoProxy.h"
+#include "CondCore/CondDB/interface/RunInfoEditor.h"
 #include "CondCore/CondDB/interface/Binary.h"
 #include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Types.h"
 #include "CondCore/CondDB/interface/Utils.h"
 // 
+//#include <vector>
+//#include <tuple>
 // temporarely
-#include <boost/shared_ptr.hpp>
 
 // TO BE REMOVED AFTER THE TRANSITION
 namespace coral {
@@ -98,17 +101,22 @@ namespace cond {
       // 
       bool existsIov( const std::string& tag );
       
+      // retrieves an IOV range. Peforms a query at every call.
+      bool getIovRange( const std::string& tag, 
+			cond::Time_t begin, cond::Time_t end, 
+			std::vector<std::tuple<cond::Time_t,cond::Hash> >& range );
+
       // create a non-existing iov sequence with the specified tag.
       // the type is required for consistency with the referenced payloads.    
       // fixme: add creation time - required for the migration
       template <typename T>
       IOVEditor createIov( const std::string& tag, 
 			   cond::TimeType timeType, 
-			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+			   cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
       IOVEditor createIov( const std::string& payloadType, 
 			   const std::string& tag, 
 			   cond::TimeType timeType,
-			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+			   cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
 
       IOVEditor createIov( const std::string& payloadType, 
 			   const std::string& tag, 
@@ -118,21 +126,24 @@ namespace cond {
 
       IOVEditor createIovForPayload( const Hash& payloadHash, 
 				     const std::string& tag, cond::TimeType timeType,
-				     cond::SynchronizationType synchronizationType=cond::OFFLINE );
+				     cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
 
       void clearIov( const std::string& tag );
       
       // update an existing iov sequence with the specified tag.
       // timeType and payloadType can't be modified.
       IOVEditor editIov( const std::string& tag );
-      
+
       // functions to store a payload in the database. return the identifier of the item in the db. 
       template <typename T> cond::Hash storePayload( const T& payload, 
 						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
-      template <typename T> boost::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
+
+      template <typename T> std::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
       
-      // low-level function to access the payload data as a blob. mainly used for the data migration and testing.
-      // the version for ROOT 
+      cond::Hash storePayloadData( const std::string& payloadObjectType,
+                                   const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
+                                   const boost::posix_time::ptime& creationTime );
+
       bool fetchPayloadData( const cond::Hash& payloadHash, 
 			     std::string& payloadType, 
 			     cond::Binary& payloadData,
@@ -151,43 +162,19 @@ namespace cond {
       GTProxy readGlobalTag( const std::string& name, 
 			     const std::string& preFix, 
 			     const std::string& postFix  );
+
+      // runinfo read only access
+      RunInfoProxy getRunInfo( cond::Time_t start, cond::Time_t end );
+
+      // runinfo write access
+      RunInfoEditor editRunInfo();
     public:
       
-      bool checkMigrationLog( const std::string& sourceAccount, 
-			      const std::string& sourceTag, 
-			      std::string& destinationTag,
-			      cond::MigrationStatus& status );
-      void addToMigrationLog( const std::string& sourceAccount, 
-			      const std::string& sourceTag, 
-			      const std::string& destinationTag,
-			      cond::MigrationStatus status);
-      void updateMigrationLog( const std::string& sourceAccount, 
-			       const std::string& sourceTag, 
-			       cond::MigrationStatus status);
-
-      bool lookupMigratedPayload( const std::string& sourceAccount, 
-				  const std::string& sourceToken, 
-				  std::string& payloadId );
-      void addMigratedPayload( const std::string& sourceAccount, 
-			       const std::string& sourceToken, 
-			       const std::string& payloadId );
-      void updateMigratedPayload( const std::string& sourceAccount, 
-				  const std::string& sourceToken, 
-				  const std::string& payloadId );
-      std::string parsePoolToken( const std::string& poolToken );
-
       std::string connectionString();
 
       coral::ISessionProxy& coralSession();
       // TO BE REMOVED in the long term. The new code will use coralSession().
       coral::ISchema& nominalSchema();
-      
-      bool isOraSession(); 
-
-    private:
-      cond::Hash storePayloadData( const std::string& payloadObjectType, 
-				   const std::pair<Binary,Binary>& payloadAndStreamerInfoData, 
-				   const boost::posix_time::ptime& creationTime );
       
     private:
       
@@ -204,24 +191,37 @@ namespace cond {
       std::string payloadObjectType = cond::demangledName(typeid(payload));
       cond::Hash ret; 
       try{
-	ret = storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
+	ret = storePayloadData( payloadObjectType, serialize( payload ), creationTime ); 
       } catch ( const cond::persistency::Exception& e ){
 	std::string em(e.what());
 	throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload"); 	
       }
       return ret;
     }
+
+    template <> inline cond::Hash Session::storePayload<std::string>( const std::string& payload, const boost::posix_time::ptime& creationTime ){
+
+      std::string payloadObjectType("std::string");
+      cond::Hash ret;
+      try{
+        ret = storePayloadData( payloadObjectType, serialize( payload ), creationTime );
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+        throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload");
+      }
+      return ret;
+    }
     
-    template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
+    template <typename T> inline std::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
       cond::Binary payloadData;
       cond::Binary streamerInfoData;
       std::string payloadType;
       if(! fetchPayloadData( payloadHash, payloadType, payloadData, streamerInfoData ) ) 
 	throwException( "Payload with id "+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      boost::shared_ptr<T> ret;
+      std::shared_ptr<T> ret;
       try{ 
-	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData, isOraSession() );
+	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData );
       } catch ( const cond::persistency::Exception& e ){
 	std::string em(e.what());
 	throwException( "Payload of type "+payloadType+" with id "+payloadHash+" could not be loaded. "+em,"Session::fetchPayload"); 

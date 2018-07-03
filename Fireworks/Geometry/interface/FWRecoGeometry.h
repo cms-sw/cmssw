@@ -3,6 +3,8 @@
 
 # include "Fireworks/Core/interface/FWRecoGeom.h"
 #include "TObjArray.h"
+
+#include <string>
 class FWRecoGeometry
 {
 public:
@@ -14,6 +16,7 @@ public:
 
   FWRecoGeom::InfoMap idToName;
   TObjArray extraDet;
+  std::string trackerTopologyXML;
 };
 
 #endif // GEOMETRY_FWRECO_GEOMETRY_H

@@ -108,7 +108,7 @@ void TAbsFitParticle::reset() {
 
   _parameters = _iniparameters;  
   _pcurr = _pini;
-  setCovMatrixFit( 0 );
+  setCovMatrixFit( nullptr );
   _pull.ResizeTo(_nPar, 1);
   _pull.Zero();
 
@@ -118,7 +118,7 @@ void TAbsFitParticle::setCovMatrix(const TMatrixD* theCovMatrix) {
   // Set the measured covariance matrix
 
   _covMatrix.ResizeTo(_nPar, _nPar);
-  if(theCovMatrix==0) {
+  if(theCovMatrix==nullptr) {
     _covMatrix.Zero();
   } else if (theCovMatrix->GetNcols() ==_nPar && theCovMatrix->GetNrows() ==_nPar) {
     _covMatrix = (*theCovMatrix);
@@ -135,7 +135,7 @@ void TAbsFitParticle::setCovMatrixFit(const TMatrixD* theCovMatrixFit) {
   // Set the fitted covariance matrix
 
   _covMatrixFit.ResizeTo(_nPar, _nPar);
-  if(theCovMatrixFit==0) {
+  if(theCovMatrixFit==nullptr) {
     _covMatrixFit.Zero();
   } else if (theCovMatrixFit->GetNcols() ==_nPar && theCovMatrixFit->GetNrows() ==_nPar) {
     _covMatrixFit = (*theCovMatrixFit);
@@ -201,7 +201,7 @@ void TAbsFitParticle::applycorr(TMatrixD* corrMatrix) {
 }
 
 void TAbsFitParticle::setParIni(const TMatrixD* parini) {
-  if (parini == 0) return;
+  if (parini == nullptr) return;
   else if( parini->GetNrows() == _iniparameters.GetNrows()
 	   && parini->GetNcols() == _iniparameters.GetNcols() )
     _iniparameters = (*parini) ;

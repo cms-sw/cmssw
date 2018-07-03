@@ -15,7 +15,7 @@ class IsolationComputer {
             selfVetoNone=0, selfVetoAll=1, selfVetoFirst=2
         };
         /// Initialize with the list of packed candidates (note: clears also all vetos)
-        void setPackedCandidates(const std::vector<pat::PackedCandidate> & all, int fromPV_thresh=1, float dz_thresh=9999., bool also_leptons=false) ;
+        void setPackedCandidates(const std::vector<pat::PackedCandidate> & all, int fromPV_thresh=1, float dz_thresh=9999., float dxy_thresh=9999., bool also_leptons=false) ;
 
 
         /// veto footprint from this candidate, for the isolation of all candidates and also for calculation of neutral weights (if used)

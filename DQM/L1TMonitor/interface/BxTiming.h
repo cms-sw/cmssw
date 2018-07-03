@@ -36,13 +36,13 @@ class BxTiming : public DQMEDAnalyzer {
  public:
 
   explicit BxTiming(const edm::ParameterSet&);
-  ~BxTiming();
+  ~BxTiming() override;
 
  protected:
 
-  virtual void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
   
  private:
 
@@ -107,10 +107,7 @@ class BxTiming : public DQMEDAnalyzer {
 
   MonitorElement* hBxOccyGtTrigType[nttype_]; // gt bx occupancy per trigger type
   MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
-  MonitorElement* eventId_;
-  MonitorElement* runStartTimeStamp_;
+
 
 };
 

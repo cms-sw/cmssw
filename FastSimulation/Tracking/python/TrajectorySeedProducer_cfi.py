@@ -4,12 +4,24 @@ import RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi
 
 trajectorySeedProducer = cms.EDProducer(
     "TrajectorySeedProducer",
+    trackingRegions = cms.InputTag(""),
     SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi.SeedFromConsecutiveHitsCreator.clone(
         TTRHBuilder = cms.string("WithoutRefit")),
-    minLayersCrossed = cms.uint32(0),
     recHitCombinations = cms.InputTag("fastMatchedTrackerRecHitCombinations"),
-    layerList = cms.vstring(),
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
+    seedFinderSelector = cms.PSet(
+        measurementTracker = cms.string(""),
+        layerList = cms.vstring(),
+        #new parameters for phase1 seeding
+        BPix = cms.PSet(
+            TTRHBuilder = cms.string(''),
+            HitProducer = cms.string(''),
+            ),
+        FPix = cms.PSet(
+            TTRHBuilder = cms.string(''),
+            HitProducer = cms.string(''),
+            ),
+        layerPairs = cms.vuint32()
+        )
     )
 
 

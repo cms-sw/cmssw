@@ -62,7 +62,7 @@ void EcalTBHodoscopeRawInfoDumper::analyze(const edm::Event& e, const edm::Event
 {
   // Get input
    edm::Handle<EcalTBHodoscopeRawInfo> ecalRawHodoscope;  
-   const EcalTBHodoscopeRawInfo* hodoscopeRawInfo = 0;
+   const EcalTBHodoscopeRawInfo* hodoscopeRawInfo = nullptr;
    //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
    e.getByLabel( rawInfoProducer_, ecalRawHodoscope);
    if (!ecalRawHodoscope.isValid()) {

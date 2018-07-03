@@ -33,14 +33,14 @@ namespace edm {
       produces< std::vector<T> > ();
     }
 
-    ~ProductFromFwdPtrProducer() {}
+    ~ProductFromFwdPtrProducer() override {}
 
-  virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override {
+  void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override {
 
       edm::Handle< std::vector<edm::FwdPtr<T> > > hSrc;
       iEvent.getByToken( srcToken_, hSrc );
 
-      std::auto_ptr< std::vector<T> > pOutput ( new std::vector<T> );
+      std::unique_ptr< std::vector<T> > pOutput ( new std::vector<T> );
 
       for ( typename std::vector< edm::FwdPtr<T> >::const_iterator ibegin = hSrc->begin(),
 	      iend = hSrc->end(),
@@ -51,7 +51,7 @@ namespace edm {
       }
 
 
-      iEvent.put( pOutput );
+      iEvent.put(std::move(pOutput));
     }
 
   protected :

@@ -12,28 +12,24 @@ class FEConfigWeightDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigWeightDat();
-  ~FEConfigWeightDat();
+  ~FEConfigWeightDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_WEIGHT_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_WEIGHT_DAT"; }
 
   inline void setWeightGroupId(int x) { m_group_id = x; }
   inline int getWeightGroupId() const { return m_group_id; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigWeightDat* item, FEConfigWeightInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigWeightDat* item, FEConfigWeightInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigWeightDat>* data, FEConfigWeightInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigWeightDat>* data, FEConfigWeightInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigWeightDat >* fillMap, FEConfigWeightInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigWeightDat >* fillMap, FEConfigWeightInfo* iconf) noexcept(false);
 
   // User data
   int m_group_id;

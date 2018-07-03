@@ -52,7 +52,7 @@ bool reco::TauMassTagInfo::calculateTrkP4(double matching_cone,
   const RefVector<TrackCollection> signalTracks = 
                  isolatedTau->tracksInCone(momentum,signal_cone,1.0);
 //  if (signalTracks.size() == 0 || signalTracks.size()%2 == 0) return false;
-  if (signalTracks.size() == 0) return false;
+  if (signalTracks.empty()) return false;
 
   double px_inv = 0.0;
   double py_inv = 0.0;

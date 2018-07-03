@@ -7,7 +7,8 @@ process.load("Geometry.MuonCommonData.testMFXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
+process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 

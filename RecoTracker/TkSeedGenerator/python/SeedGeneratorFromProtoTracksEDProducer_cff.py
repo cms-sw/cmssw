@@ -12,7 +12,7 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 pixelTTRHBuilderWithoutAngle = copy.deepcopy(ttrhbwr)
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks
 from RecoTracker.TkSeedGenerator.SeedGeneratorFromProtoTracksEDProducer_cfi import *
 pixelTTRHBuilderWithoutAngle.StripCPE = 'Fake'
 pixelTTRHBuilderWithoutAngle.ComponentName = 'PixelTTRHBuilderWithoutAngle'

@@ -8,7 +8,7 @@
 
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 #include "Alignment/CommonAlignmentParametrization/interface/BowedSurfaceAlignmentDerivatives.h"
-#include <math.h>
+#include <cmath>
 
 AlgebraicMatrix 
 BowedSurfaceAlignmentDerivatives::operator()(const TrajectoryStateOnSurface &tsos,

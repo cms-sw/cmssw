@@ -15,7 +15,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -33,9 +32,9 @@ class EcalShowerContainmentCorrectionsESProducer : public edm::ESProducer {
 
    public:
       EcalShowerContainmentCorrectionsESProducer(const edm::ParameterSet&);
-     ~EcalShowerContainmentCorrectionsESProducer();
+     ~EcalShowerContainmentCorrectionsESProducer() override;
 
-      typedef std::auto_ptr<EcalShowerContainmentCorrections> ReturnType;
+      typedef std::unique_ptr<EcalShowerContainmentCorrections> ReturnType;
 
       ReturnType produce(const EcalShowerContainmentCorrectionsRcd&);
    private:
@@ -64,7 +63,7 @@ EcalShowerContainmentCorrectionsESProducer::produce(const EcalShowerContainmentC
    using namespace edm::es;
    using namespace std;
 
-   auto_ptr<EcalShowerContainmentCorrections> pEcalShowerContainmentCorrections(new EcalShowerContainmentCorrections) ;
+   auto pEcalShowerContainmentCorrections = std::make_unique<EcalShowerContainmentCorrections>();
    int sm=1; // in testbeam data sw believes we always are on sm01
 
    // where is the n of xtals per sm coded ?

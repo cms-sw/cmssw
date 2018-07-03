@@ -6,11 +6,10 @@ Table Of Contents
 3. Axis Label
 4. Axis Limits
 5. Place Legend
-6. TDR Style
 ***********************************/
 
-#include <vector>
 #include "trackSplitPlot.h"
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //===================
 //0. Track Split Plot
@@ -18,8 +17,16 @@ Table Of Contents
 
 TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,TString yvar,
                         Bool_t relative,Bool_t resolution,Bool_t pull,
-                        TString saveas)
+                        TString saveas, ostream& summaryfile)
 {
+    if (TkAlStyle::status() == NO_STATUS)
+        TkAlStyle::set(INTERNAL);
+    TString legendOptions = TkAlStyle::legendoptions;
+    legendOptions.ReplaceAll("all","meanerror,rmserror").ToLower();
+    if (outliercut < 0)
+        outliercut = -1;
+    gStyle->SetMarkerSize(1.5);
+    setupcolors();
     stufftodelete->SetOwner(true);
     cout << xvar << " " << yvar << endl;
     if (xvar == "" && yvar == "")
@@ -35,43 +42,6 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 
     const Int_t n = nFiles;
 
-    setTDRStyle();
-    gStyle->SetOptStat(0);        //for histograms, the mean and rms are included in the legend if nFiles >= 2
-                                  //if nFiles == 1, there is no legend, so they're in the statbox
-    if ((type == Histogram || type == OrgHistogram) && nFiles == 1)
-        gStyle->SetOptStat(1110);
-    //for a scatterplot, this is needed to show the z axis scale
-    //for non-pull histograms or when run number is on the x axis, this is needed so that 10^-? on the right is not cut off
-    if (type == ScatterPlot || (type == Histogram && !pull) || xvar == "runNumber")
-    {
-        gStyle->SetCanvasDefW(678);
-        gStyle->SetPadRightMargin(0.115);
-    }
-    else
-    {
-        gStyle->SetCanvasDefW(600);
-        gStyle->SetPadRightMargin(0.04);
-    }
-
-    Bool_t nHits = (xvar[0] == 'n' && xvar[1] == 'H' && xvar[2] == 'i'    //This includes nHits, nHitsTIB, etc.
-                                   && xvar[3] == 't' && xvar[4] == 's');
-
-    Int_t nBinsScatterPlotx = binsScatterPlotx;
-    Int_t nBinsScatterPloty = binsScatterPloty;
-    Int_t nBinsHistogram = binsHistogram;
-    Int_t nBinsProfileResolution = binsProfileResolution;
-    if (xvar == "runNumber")
-    {
-        nBinsProfileResolution = runNumberBins;
-        nBinsHistogram = runNumberBins;
-    }
-    if (nHits)
-    {
-        nBinsHistogram = (int)(findMax(nFiles,files,xvar,'x') - findMin(nFiles,files,xvar,'x') + 1.1);     //in case it's .99999
-        nBinsScatterPlotx = nBinsHistogram;
-        nBinsProfileResolution = nBinsHistogram;
-    }
-
     vector<TH1*> p;
     Int_t lengths[n];
 
@@ -81,7 +51,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     TString xvariable = sx.str();
     TString xvariable2 = "";
     if (xvar == "runNumber") xvariable = "runNumber";
-    if (nHits)
+    if (xvar.BeginsWith("nHits"))
     {
         xvariable  = xvar;
         xvariable2 = xvar;
@@ -114,14 +84,16 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     sigmaorgvariable = ssigmaorg.str();
 
 
-    Double_t xmin = -1,xmax = 1,ymin = -1,ymax = 1;
+    Double_t xmin = -1, xmax = 1, ymin = -1, ymax = 1, xbins = -1, ybins;
     if (type == Profile || type == ScatterPlot || type == OrgHistogram || type == Resolution)
-        axislimits(nFiles,files,xvar,'x',relative,pull,xmin,xmax);
+        axislimits(nFiles,files,xvar,'x',relative,pull,xmin,xmax,xbins);
     if (type == Profile || type == ScatterPlot || type == Histogram || type == Resolution)
-        axislimits(nFiles,files,yvar,'y',relative,pull,ymin,ymax);
+        axislimits(nFiles,files,yvar,'y',relative,pull,ymin,ymax,ybins);
 
     std::vector<TString> meansrmss(n);
-    Bool_t  used[n];        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
+    std::vector<double> means(n);
+    std::vector<double> rmss(n);
+    std::vector<bool> used(n);        //a file is not "used" if it's MC data and the x variable is run number, or if the filename is blank
 
     for (Int_t i = 0; i < n; i++)
     {
@@ -133,24 +105,43 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         vector<TH1F*> q;
 
         if (type == ScatterPlot)
-            p.push_back(new TH2F(id,"",nBinsScatterPlotx,xmin,xmax,nBinsScatterPloty,ymin,ymax));
+            p.push_back(new TH2F(id,"",xbins,xmin,xmax,ybins,ymin,ymax));
         if (type == Histogram)
-            p.push_back(new TH1F(id,"",nBinsHistogram,ymin,ymax));
+            p.push_back(new TH1F(id,"",ybins,ymin,ymax));
         if (type == OrgHistogram)
-            p.push_back(new TH1F(id,"",nBinsHistogram,xmin,xmax));
+            p.push_back(new TH1F(id,"",xbins,xmin,xmax));
         if (type == Resolution || type == Profile)
         {
-            p.push_back(new TH1F(id,"",nBinsProfileResolution,xmin,xmax));
-            for (Int_t j = 0; j < nBinsProfileResolution; j++)
+            p.push_back(new TH1F(id,"",xbins,xmin,xmax));
+            for (Int_t j = 0; j < xbins; j++)
             {
 
                 stringstream sid2;
                 sid2 << "q" << i << j;
                 TString id2 = sid2.str();
-                q.push_back(new TH1F(id2,"",nBinsHistogram,ymin,ymax));
+                q.push_back(new TH1F(id2,"",1000,ymin*10,ymax*10));
 
             }
         }
+
+        p[i]->SetLineColor(colors[i]);
+        if (type == Resolution || type == Profile)
+        {
+            p[i]->SetMarkerStyle(styles[i] / 100);
+            p[i]->SetMarkerColor(colors[i]);
+            p[i]->SetLineStyle(styles[i] % 100);
+        }
+        else
+        {
+            if (styles[i] >= 100)
+            {
+                p[i]->SetMarkerStyle(styles[i] / 100);
+                p[i]->SetMarkerColor(colors[i]);
+                p[i]->Sumw2();
+            }
+            p[i]->SetLineStyle(styles[i] % 100);
+        }
+
         stufftodelete->Add(p[i]);
         p[i]->SetBit(kCanDelete,true);
 
@@ -176,16 +167,19 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                                                   sigmaorg = 0;
         Int_t xint = 0, xint2 = 0;
         Int_t runNumber = 0;
+        double pt1 = 0, maxpt1 = 0;
 
         if (!relative && !pull && (yvar == "dz" || yvar == "dxy"))
             rel = 1e-4;                                     //it's in cm but we want it in um, so divide by 1e-4
+        if (!relative && !pull && (yvar == "phi" || yvar == "theta" || yvar == "qoverpt"))
+            rel = 1e-3;                                     //make the axis labels manageable
 
         tree->SetBranchAddress("runNumber",&runNumber);
         if (type == Profile || type == ScatterPlot || type == Resolution || type == OrgHistogram)
         {
             if (xvar == "runNumber")
                 tree->SetBranchAddress(xvariable,&xint);
-            else if (nHits)
+            else if (xvar.BeginsWith("nHits"))
             {
                 tree->SetBranchAddress(xvariable,&xint);
                 tree->SetBranchAddress(xvariable2,&xint2);
@@ -212,6 +206,11 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         if (relative && pull)
             tree->SetBranchAddress(sigmaorgvariable,&sigmaorg);
+        if (xvar == "pt" || yvar == "pt" || xvar == "qoverpt" || yvar == "qoverpt") {
+            tree->SetBranchAddress("pt1_spl", &pt1);
+        } else {
+            maxpt1 = 999;
+        }
 
         Int_t notincluded = 0;                              //this counts the number that aren't in the right run range.
                                                             //it's subtracted from lengths[i] in order to normalize the histograms
@@ -219,7 +218,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         for (Int_t j = 0; j<lengths[i]; j++)
         {
             tree->GetEntry(j);
-            if (xvar == "runNumber" || nHits)
+            if (xvar == "runNumber" || xvar.BeginsWith("nHits"))
                 x = xint;
             if (xvar == "runNumber")
                 runNumber = x;
@@ -241,6 +240,8 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 error = sqrt(sigma1 * sigma1 + sigma2 * sigma2);   // = sqrt(2) if !pull; this divides by sqrt(2) to get the error in 1 track
             y /= (rel * error);
 
+            if (pt1 > maxpt1) maxpt1 = pt1;
+
             if (ymin <= y && y < ymax && xmin <= x && x < xmax)
             {
                 if (type == Histogram)
@@ -258,7 +259,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                     p[i]->Fill(x);
             }
 
-            if (nHits)
+            if (xvar.BeginsWith("nHits"))
             {
                 x = xint2;
                 if (ymin <= y && y < ymax && xmin <= x && x < xmax)
@@ -295,20 +296,87 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         lengths[i] -= notincluded;
 
+        if (maxpt1 < 6) { //0T
+            used[i] = false;
+            p[i]->SetLineColor(kWhite);
+            p[i]->SetMarkerColor(kWhite);
+            for (unsigned int j = 0; j < q.size(); j++)
+                delete q[j];
+            continue;
+        }
+
         meansrmss[i] = "";
         if (type == Histogram || type == OrgHistogram)
         {
-            cout << "Average = " << p[i]->GetMean() << endl;
-            cout << "RMS     = " << p[i]->GetRMS()  << endl;
             stringstream meanrms;
             meanrms.precision(3);
-            meanrms << "#mu=" << p[i]->GetMean() << ", #sigma=" << p[i]->GetRMS();
+
+            double average = -1e99;
+            double rms = -1e99;
+
+            TString var = (type == Histogram ? yvar : xvar);
+            char axis = (type == Histogram ? 'y' : 'x');
+            TString varunits = "";
+            if (!relative && !pull)
+                varunits = units(var, axis);
+            if (legendOptions.Contains("mean"))
+            {
+                if (outliercut < 0)
+                    average = p[i]->GetMean();
+                else
+                    average = findAverage(files[i], var, axis, relative, pull);
+                cout << "Average = " << average;
+                meanrms << "#mu = " << average;
+                means[i] = average;
+                if (legendOptions.Contains("meanerror"))
+                {
+                    if (outliercut < 0)
+                        rms = p[i]->GetRMS();
+                    else
+                        rms = findRMS(files[i], var, axis, relative, pull);
+                    meanrms << " #pm " << rms/TMath::Sqrt(lengths[i]*abs(outliercut));
+                    cout << " +/- " << rms/TMath::Sqrt(lengths[i]*abs(outliercut));
+                }
+                if (varunits != "")
+                {
+                    meanrms << " " << varunits;
+                    cout << " " << varunits;
+                }
+                cout << endl;
+                if (legendOptions.Contains("rms"))
+                    meanrms << ", ";
+            }
+            if (legendOptions.Contains("rms"))
+            {
+                if (rms<-1e98)
+                {
+                    if (outliercut < 0)
+                        rms = p[i]->GetRMS();
+                    else
+                        rms = findRMS(files[i], var, axis, relative, pull);
+                }
+                cout << "RMS     = " << rms;
+                meanrms << "rms = " << rms;
+                rmss[i] = rms;
+                if (legendOptions.Contains("rmserror"))
+                {
+                    //https://root.cern.ch/root/html/src/TH1.cxx.html#7076
+                    meanrms << " #pm " << rms/TMath::Sqrt(2*lengths[i]*abs(outliercut));
+                    cout << " +/- " << rms/TMath::Sqrt(2*lengths[i]*abs(outliercut));
+                }
+                if (varunits != "")
+                {
+                    meanrms << " " << varunits;
+                    cout << " " << varunits;
+                }
+                cout << endl;
+            }
             meansrmss[i] = meanrms.str();
         }
 
         if (type == Resolution)
         {
-            for (Int_t j = 0; j < nBinsProfileResolution; j++)
+            for (Int_t j = 0; j < xbins; j++)
             {
                 p[i]->SetBinContent(j+1,q[j]->GetRMS());
                 p[i]->SetBinError  (j+1,q[j]->GetRMSError());
@@ -318,7 +386,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 
         if (type == Profile)
         {
-            for (Int_t j = 0; j < nBinsProfileResolution; j++)
+            for (Int_t j = 0; j < xbins; j++)
             {
                 p[i]->SetBinContent(j+1,q[j]->GetMean());
                 p[i]->SetBinError  (j+1,q[j]->GetMeanError());
@@ -327,18 +395,48 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
 
         setAxisLabels(p[i],type,xvar,yvar,relative,pull);
+    }
 
-        p[i]->SetLineColor(colors[i]);
-        p[i]->SetLineStyle(styles[i]);
-        if (type == Resolution || type == Profile)
-        {
-            p[i]->SetMarkerColor(colors[i]);
-            p[i]->SetMarkerStyle(20+i);
+    if (type == Histogram && !pull && any_of(begin(used), end(used), identity<bool>)) {
+        if (legendOptions.Contains("mean")) {
+            summaryfile << "   mu_Delta" << yvar;
+            if (relative) summaryfile << "/" << yvar;
+            if (pull)     summaryfile << "_pull";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << plainunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "latexname=$\\mu_{" << latexlabel(yvar, 'y', relative, resolution, pull) << "}$";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << latexunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "format={:.3g}\t"
+                        << "latexformat=${:.3g}$";
+            for (int i = 0; i < n; i++) {
+                if (used[i]) {
+                    summaryfile << "\t" << means[i];
+                } else {
+                    summaryfile << "\t" << nan("");
+                }
+            }
+            summaryfile << "\n";
         }
-        else
-        {
-            p[i]->SetMarkerColor(kWhite);
-            p[i]->SetMarkerStyle(1);
+        if (legendOptions.Contains("rms")) {
+            summaryfile << "sigma_Delta" << yvar;
+            if (relative) summaryfile << "/" << yvar;
+            if (pull)     summaryfile << "_pull";
+            if (!pull && !relative && plainunits(yvar, 'y') != "") summaryfile << " (" << plainunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "latexname=$\\sigma_{" << latexlabel(yvar, 'y', relative, resolution, pull) << "}$";
+            if (!pull && !relative && latexunits(yvar, 'y') != "") summaryfile << " (" << latexunits(yvar, 'y') << ")";
+            summaryfile << "\t"
+                        << "format={:.3g}\t"
+                        << "latexformat=${:.3g}$";
+            for (int i = 0; i < n; i++) {
+                if (used[i]) {
+                    summaryfile << "\t" << rmss[i];
+                } else {
+                    summaryfile << "\t" << nan("");
+                }
+            }
+            summaryfile << "\n";
         }
     }
 
@@ -424,24 +522,30 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 maxp->SetBinContent(i,TMath::Max(maxp->GetBinContent(i),p[j]->GetBinContent(i)));
             }
         }
+        maxp->SetMarkerStyle(0);
         maxp->SetMinimum(0);
-        maxp->Draw();
+        maxp->Draw("");
         if (xvar == "runNumber")
         {
             maxp->GetXaxis()->SetNdivisions(505);
-            maxp->Draw();
+            maxp->Draw("");
         }
     }
 
-    TLegend *legend = new TLegend(.6,.7,.9,.9,"","br");
+    int nEntries = 0;
+    for (int i = 0; i < n; i++)
+        if (used[i])
+            nEntries++;
+    double width = 0.5;
+    if (type == Histogram || type == OrgHistogram)
+        width *= 2;
+    TLegend *legend = TkAlStyle::legend(nEntries, width);
+    legend->SetTextSize(0);
+    if (type == Histogram || type == OrgHistogram)
+        legend->SetNColumns(2);
     stufftodelete->Add(legend);
     legend->SetBit(kCanDelete,true);
-    if (n == 1 && !used[0])
-    {
-        deleteCanvas(c1);
-        stufftodelete->Clear();
-        return 0;
-    }
+
     for (Int_t i = 0; i < n; i++)
     {
         if (!used[i])
@@ -456,40 +560,41 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         else if (type == Histogram || type == OrgHistogram)
         {
-            p[i]->Draw("same");
-            legend->AddEntry(p[i],names[i],"l");
+            if (styles[i] >= 100)
+            {
+                p[i]->Draw("same P0E");
+                legend->AddEntry(p[i],names[i],"pl");
+            }
+            else
+            {
+                p[i]->Draw("same hist");
+                legend->AddEntry(p[i],names[i],"l");
+            }
             legend->AddEntry((TObject*)0,meansrmss[i],"");
         }
     }
-    if (n>=2)
+    if (legend->GetListOfPrimitives()->At(0) == 0)
     {
-        if (legend->GetListOfPrimitives()->At(0) == 0)
-        {
-            stufftodelete->Clear();
-            deleteCanvas(c1);
-            return 0;
-        }
-
-
-        c1->Update();
-        Double_t x1min  = .98*gPad->GetUxmin() + .02*gPad->GetUxmax();
-        Double_t x2max  = .02*gPad->GetUxmin() + .98*gPad->GetUxmax();
-        Double_t y1min  = .98*gPad->GetUymin() + .02*gPad->GetUymax();
-        Double_t y2max  = .02*gPad->GetUymin() + .98*gPad->GetUymax();
-        Double_t width  = .4*(x2max-x1min);
-        Double_t height = (1./20)*legend->GetListOfPrimitives()->GetEntries()*(y2max-y1min);
-        if (type == Histogram || type == OrgHistogram)
-        {
-            width *= 2;
-            height /= 2;
-            legend->SetNColumns(2);
-        }
-        Double_t newy2max = placeLegend(legend,width,height,x1min,y1min,x2max,y2max);
-        maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(),(newy2max-.02*gPad->GetUymin())/.98);
-
-        legend->SetFillStyle(0);
-        legend->Draw();
+        stufftodelete->Clear();
+        deleteCanvas(c1);
+        return 0;
     }
+
+    c1->Update();
+    legend->Draw();
+
+    double legendfraction = legend->GetY2() - legend->GetY1(); //apparently GetY1 and GetY2 give NDC coordinates.  This is not a mistake on my part
+    double padheight = gPad->GetUymax() - gPad->GetUymin();
+    //legendfraction = legendheight / padheight = newlegendheight / newpadheight
+    //newpadheight = padheight + x
+    //newlegendheight = newpadheight - padheight = x so it doesn't cover anything
+    //==>legendfraction = x/(padheight+x)
+    /* ==> */ double x = padheight*legendfraction / (1-legendfraction) * 1.5; //1.5 to give extra room
+    maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(), gPad->GetUymax() + x);
+
+    TkAlStyle::drawStandardTitle();
+
+    c1->Update();
 
     if (saveas != "")
         saveplot(c1,saveas);
@@ -501,9 +606,9 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
 //make a 1D histogram of Delta_yvar
 
 TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString var,
-                        Bool_t relative,Bool_t pull,TString saveas)
+                        Bool_t relative,Bool_t pull,TString saveas, ostream& summaryfile)
 {
-    return trackSplitPlot(nFiles,files,names,"",var,relative,false,pull,saveas);
+    return trackSplitPlot(nFiles,files,names,"",var,relative,false,pull,saveas,summaryfile);
 }
 
 
@@ -512,7 +617,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString var,
 
 TCanvas *trackSplitPlot(TString file,TString xvar,TString yvar,Bool_t profile,
                         Bool_t relative,Bool_t resolution,Bool_t pull,
-                        TString saveas)
+                        TString saveas, ostream& summaryfile)
 {
     Int_t nFiles = 0;
     if (profile)                       //it interprets nFiles < 1 as 1 file, make a scatterplot
@@ -520,39 +625,20 @@ TCanvas *trackSplitPlot(TString file,TString xvar,TString yvar,Bool_t profile,
     TString *files = &file;
     TString name = "";
     TString *names = &name;
-    return trackSplitPlot(nFiles,files,names,xvar,yvar,relative,resolution,pull,saveas);
+    return trackSplitPlot(nFiles,files,names,xvar,yvar,relative,resolution,pull,saveas,summaryfile);
 }
 
 //make a 1D histogram of Delta_yvar
 
 TCanvas *trackSplitPlot(TString file,TString var,
                         Bool_t relative,Bool_t pull,
-                        TString saveas)
+                        TString saveas, ostream& summaryfile)
 {
     Int_t nFiles = 1;
     TString *files = &file;
     TString name = "";
     TString *names = &name;
-    return trackSplitPlot(nFiles,files,names,var,relative,pull,saveas);
-}
-
-void placeholder(TString saveas,Bool_t wide)
-{
-    setTDRStyle();
-    if (wide)
-        gStyle->SetCanvasDefW(678);
-    else
-        gStyle->SetCanvasDefW(600);
-    TText line1(.5,.6,"This is a placeholder so that when there are");
-    TText line2(.5,.4,"4 plots per line it lines up nicely");
-    line1.SetTextAlign(22);
-    line2.SetTextAlign(22);
-    TCanvas *c1 = TCanvas::MakeDefCanvas();
-    line1.Draw();
-    line2.Draw();
-    if (saveas != "")
-        saveplot(c1,saveas);
-    deleteCanvas(c1);
+    return trackSplitPlot(nFiles,files,names,var,relative,pull,saveas,summaryfile);
 }
 
 void saveplot(TCanvas *c1,TString saveas)
@@ -591,6 +677,22 @@ void deleteCanvas(TObject *canvas)
     delete c1;
 }
 
+void setupcolors()
+{
+    if (colorsset) return;
+    colorsset = true;
+    colors.clear();
+    styles.clear();
+    Color_t array[15] = {1,2,3,4,6,7,8,9,
+                         kYellow+3,kOrange+10,kPink-2,kTeal+9,kAzure-8,kViolet-6,kSpring-1};
+    for (int i = 0; i < 15; i++)
+    {
+        colors.push_back(array[i]);
+        styles.push_back(1);       //Set the default to 1
+                                   //This is to be consistent with the other validation
+    }
+}
+
 //This makes a plot, of Delta_yvar vs. runNumber, zoomed in to between firstrun and lastrun.
 //Each bin contains 1 run.
 //Before interpreting the results, make sure to look at the histogram of run number (using yvar = "")
@@ -603,15 +705,11 @@ void runNumberZoomed(Int_t nFiles,TString *files,TString *names,TString yvar,
 {
     Int_t tempminrun = minrun;
     Int_t tempmaxrun = maxrun;
-    Int_t tempbins = runNumberBins;
     minrun = firstRun;
     maxrun = lastRun;
-    runNumberBins = (int)(findMax(nFiles,files,"runNumber",'x')
-                        - findMin(nFiles,files,"runNumber",'x') + 1.001);
     trackSplitPlot(nFiles,files,names,"runNumber",yvar,relative,resolution,pull,saveas);
     minrun = tempminrun;
     maxrun = tempmaxrun;
-    runNumberBins = tempbins;
 }
 
 //==========================
@@ -625,7 +723,7 @@ void runNumberZoomed(Int_t nFiles,TString *files,TString *names,TString yvar,
 // (2) if xvar != "", it will fit the profile/resolution to a function.  If parameter > 0, it will plot the parameter given by parameter as
 //     a function of the misalignment.  parametername is used as the y axis label.  You can put a semicolon in parametername
 //     to separate the name from the units.  Functionname describes the funciton, and is put in brackets in the y axis label.
-//     For example, to fit to Delta_pt = [0]*(eta_org-[1]), you could use functionname = "#Deltap_{T} = A(#eta_{org}-B)",
+//     For example, to fit to Delta_pt = [0]*(eta_org-[1]), you could use functionname = "#Deltap_{T} = A(#eta-B)",
 //     parameter = 0, and parametername = "A;GeV".
 // (3) if parameter < 0, it will draw the profile/resolution along with the fitted functions.
 //     The parameter of interest is still indicated by parameter, which is transformed to -parameter - 1.
@@ -660,22 +758,16 @@ void misalignmentDependence(TCanvas *c1old,
     //const int n = list->GetEntries() - 2 - (xvar == "");
     const int n = nFiles;
 
-    setTDRStyle();
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
     gStyle->SetFitFormat("5.4g");
     gStyle->SetFuncColor(2);
     gStyle->SetFuncStyle(1);
     gStyle->SetFuncWidth(1);
-    if (!drawfits)
-    {
-        gStyle->SetCanvasDefW(678);
-        gStyle->SetPadRightMargin(0.115);
-    }
 
     TH1 **p = new TH1*[n];
     TF1 **f = new TF1*[n];
-    Bool_t used[n];
+    bool used[n];
     for (Int_t i = 0; i < n; i++)
     {
         stringstream s0;
@@ -1059,17 +1151,17 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->SetParameter(0,6e-4);
             nParameters = 2;
             Int_t tempParameters[2] = {0,2};
-            TString tempParameterNames[2] = {"A","B"};
+            TString tempParameterNames[2] = {"A;mrad","B"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Delta#phi=-Acos(#phi_{org}+B)";
+            functionname = "#Delta#phi=-Acos(#phi+B)";
         }
         if (xvar == "theta" && yvar == "theta" && !resolution && pull)
         {
             f = new TF1("line","-[0]*(x+[1])");
             f->FixParameter(1,-pi/2);
             parametername = "A";
-            functionname = "#Delta#theta/#delta(#Delta#theta)=-A(#theta_{org}-#pi/2)";
+            functionname = "#Delta#theta/#delta(#Delta#theta)=-A(#theta-#pi/2)";
             parameter = 0;
         }
         if (xvar == "theta" && yvar == "theta" && !resolution && !pull)
@@ -1077,8 +1169,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("sine","[0]*sin([1]*x+[2])");
             f->FixParameter(1,2);
             f->FixParameter(2,0);
-            parametername = "A";
-            functionname = "#Delta#theta=-Asin(2#theta_{org})";
+            parametername = "A;mrad";
+            functionname = "#Delta#theta=-Asin(2#theta)";
             parameter = 0;
         }
     }
@@ -1100,8 +1192,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
 
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Deltad_{xy}=-Asin(2#phi_{org}+B)";
-            //functionname = "#Deltad_{xy}=-Asin(2#phi_{org}+B)+C";
+            functionname = "#Deltad_{xy}=-Asin(2#phi+B)";
+            //functionname = "#Deltad_{xy}=-Asin(2#phi+B)+C";
         }
         if (xvar == "phi" && yvar == "dxy" && !resolution && pull)
         {
@@ -1120,8 +1212,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             parameters = tempParameters;
             parameternames = tempParameterNames;
 
-            functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=-Asin(2#phi_{org}+B)";
-            //functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=-Asin(2#phi_{org}+B)+C";
+            functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=-Asin(2#phi+B)";
+            //functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=-Asin(2#phi+B)+C";
         }
 
         if (xvar == "theta" && yvar == "dz" && !resolution && !pull)
@@ -1129,7 +1221,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,pi/2);
             parametername = "A;#mum";
-            functionname = "#Deltad_{z}=-A(#theta_{org}-#pi/2)";
+            functionname = "#Deltad_{z}=-A(#theta-#pi/2)";
             parameter = 0;
         }
         /*
@@ -1140,7 +1232,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(2,-pi/2);
             f->FixParameter(1,1);
             parametername = "A";
-            functionname = "#Deltad_{z}/#delta(#Deltad_{z})=Acos(#theta_{org})";
+            functionname = "#Deltad_{z}/#delta(#Deltad_{z})=Acos(#theta)";
             parameter = 0;
         }
         */
@@ -1148,8 +1240,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
         {
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,0);
-            parametername = "A;cm^{-1}";
-            functionname = "#Delta#phi=-A(d_{xy})_{org}";
+            parametername = "A;mrad/cm";
+            functionname = "#Delta#phi=-A(d_{xy})";
             parameter = 0;
         }
         if (xvar == "dxy" && yvar == "phi" && !resolution && pull)
@@ -1157,7 +1249,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f = new TF1("line","-[0]*(x-[1])");
             f->FixParameter(1,0);
             parametername = "A;cm^{-1}";
-            functionname = "#Delta#phi/#delta(#Delta#phi)=-A(d_{xy})_{org}";
+            functionname = "#Delta#phi/#delta(#Delta#phi)=-A(d_{xy})";
             parameter = 0;
         }
     }
@@ -1169,10 +1261,10 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(1,2);
             nParameters = 3;
             Int_t tempParameters[3] = {0,2,3};
-            TString tempParameterNames[3] = {"A","B","C"};
+            TString tempParameterNames[3] = {"A;mrad","B","C;mrad"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#sigma(#Delta#theta)=Asin(2#phi_{org}+B)+C";
+            functionname = "#sigma(#Delta#theta)=Asin(2#phi+B)+C";
         }
         if (xvar == "phi" && yvar == "eta" && resolution && !pull)
         {
@@ -1180,10 +1272,10 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(1,2);
             nParameters = 3;
             Int_t tempParameters[3] = {0,2,3};
-            TString tempParameterNames[3] = {"A","B","C"};
+            TString tempParameterNames[3] = {"A;mrad","B","C;mrad"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#sigma(#Delta#eta)=Asin(2#phi_{org}+B)+C";
+            functionname = "#sigma(#Delta#eta)=Asin(2#phi+B)+C";
         }
         if (xvar == "phi" && yvar == "theta" && resolution && pull)
         {
@@ -1194,7 +1286,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             TString tempParameterNames[3] = {"A","B","C"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#sigma(#Delta#theta/#delta(#Delta#theta))=Asin(2#phi_{org}+B)+C";
+            functionname = "#sigma(#Delta#theta/#delta(#Delta#theta))=Asin(2#phi+B)+C";
         }
         if (xvar == "phi" && yvar == "eta" && resolution && pull)
         {
@@ -1205,7 +1297,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             TString tempParameterNames[3] = {"A","B","C"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#sigma(#Delta#eta/#delta(#Delta#eta))=Asin(2#phi_{org}+B)+C";
+            functionname = "#sigma(#Delta#eta/#delta(#Delta#eta))=Asin(2#phi+B)+C";
         }
         if (xvar == "phi" && yvar == "dz" && !resolution && !pull)
         {
@@ -1220,8 +1312,8 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             TString tempParameterNames[3] = {"A;#mum","B","C"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Deltad_{z}=Atanh(B(#phi_{org}+C))";
-            //functionname = "#Deltad_{z}=A(tanh(B(#phi_{org}+C)) + tanh(B(#pi-#phi_{org}-C)) - 1";
+            functionname = "#Deltad_{z}=Atanh(B(#phi+C))";
+            //functionname = "#Deltad_{z}=A(tanh(B(#phi+C)) + tanh(B(#pi-#phi-C)) - 1";
         }
     }
     if (misalignment == "layerRot")
@@ -1237,10 +1329,10 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(3,0);
             nParameters = 2;
             Int_t tempParameters[2] = {0,1};
-            TString tempParameterNames[2] = {"A;e/GeV","B;GeV/e"};
+            TString tempParameterNames[2] = {"A;10^{-3}e/GeV","B;GeV/e"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Delta(q/p_{T})=Asech(B(q/p_{T})_{org})";
+            functionname = "#Delta(q/p_{T})=Asech(B(q/p_{T}))";
         }
     }
     if (misalignment == "telescope")
@@ -1255,10 +1347,10 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             f->FixParameter(3,0);
             nParameters = 2;
             Int_t tempParameters[2] = {0,1};
-            TString tempParameterNames[2] = {"A","B"};
+            TString tempParameterNames[2] = {"A;mrad","B"};
             parameters = tempParameters;
             parameternames = tempParameterNames;
-            functionname = "#Delta#theta=Aexp(-(B(#theta_{org}-#pi/2))^{2})";
+            functionname = "#Delta#theta=Aexp(-(B(#theta-#pi/2))^{2})";
         }
     }
     if (functionname == "") return false;
@@ -1345,6 +1437,13 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
 
     TString directorytomake = directory;
     gSystem->mkdir(directorytomake,true);
+
+    ofstream summaryfile(directorytomake+"/TrackSplittingValidationSummary.txt");
+    for (int i = 0; i < nFiles; i++) {
+        summaryfile << "\t" << TString(names[i]).ReplaceAll("#", "\\");
+    }
+    summaryfile << "\tformat={}\tlatexformat={}\n";
+
     if (misalignment != "")
     {
         directorytomake.Append("/fits");
@@ -1410,7 +1509,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                 if (pull) pullstring = "pull.";
 
                 TString xvarstring = xvariables[x];
-                if (xvariables[x] != "runNumber" && xvariables[x] != "nHits" && xvariables[x] != "") xvarstring.Append("_org");
+                if (xvariables[x] != "runNumber" && !xvariables[x].BeginsWith("nHits") && xvariables[x] != "") xvarstring.Append("_org");
                 if (xvariables[x] != "" && yvariables[y] != "") xvarstring.Append(".");
 
                 TString yvarstring = yvariables[y];
@@ -1453,7 +1552,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                 if (xvariables[x] != "" && yvariables[y] != "")
                 {
                     //make profile
-                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i]);
+                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i],summaryfile);
                     if (misalignmentDependence(c1,nFiles,names,misalignment,values,phases,xvariables[x],yvariables[y],
                                                true,relativearray[y],false,(bool)pull,s[i+2]))
                     {
@@ -1468,7 +1567,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                         delete (TFile*)gROOT->GetListOfFiles()->Last();
 
                     //make resolution plot
-                    TCanvas *c2 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],true ,(bool)pull,s[i+1]);
+                    TCanvas *c2 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],true ,(bool)pull,s[i+1],summaryfile);
                     if (misalignmentDependence(c2,nFiles,names,misalignment,values,phases,xvariables[x],yvariables[y],
                                                true,relativearray[y],true,(bool)pull,s[i+3]))
                     {
@@ -1485,7 +1584,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                 else
                 {
                     //make histogram
-                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i]);
+                    TCanvas *c1 = trackSplitPlot(nFiles,files,names,xvariables[x],yvariables[y],relativearray[y],false,(bool)pull,s[i],summaryfile);
                     if (misalignmentDependence(c1,nFiles,names,misalignment,values,phases,xvariables[x],yvariables[y],
                                                true,relativearray[y],false,(bool)pull,s[i+2]))
                     {
@@ -1512,10 +1611,11 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory, Boo
 
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory,Bool_t matrix[xsize][ysize])
 {
+    setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
-    setTDRStyle();
     vector<Color_t> tempcolors = colors;
     vector<Style_t> tempstyles = styles;
     for (int i = 0; i < n; i++)
@@ -1591,10 +1691,11 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory,
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory,
                TString xvar,TString yvar)
 {
+    setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
-    setTDRStyle();
     vector<Color_t> tempcolors = colors;
     vector<Style_t> tempstyles = styles;
     for (int i = 0; i < n; i++)
@@ -1648,10 +1749,11 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory)
 
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory)
 {
+    setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
-    setTDRStyle();
     vector<Color_t> tempcolors = colors;
     vector<Style_t> tempstyles = styles;
     for (int i = 0; i < n; i++)
@@ -1704,7 +1806,7 @@ TString fancyname(TString variable)
     else if (variable == "theta")
         return "#theta";
     else if (variable == "qoverpt")
-        return "(q/p_{T})";
+        return "q/p_{T}";
     else if (variable == "runNumber")
         return "run number";
     else if (variable == "dxy" || variable == "dz")
@@ -1726,14 +1828,58 @@ TString units(TString variable,Char_t axis)
             return "cm";
     }
     if (variable == "qoverpt")
-        return "e/GeV";
+    {
+        if (axis == 'y')
+            return "#times10^{-3}e/GeV";   //e/TeV is not particularly intuitive
+        if (axis == 'x')
+            return "e/GeV";
+    }
+    if (axis == 'y' && (variable == "phi" || variable == "theta"))
+        return "mrad";
     return "";
 }
 
+TString plainunits(TString variable, char axis) {
+    TString result = units(variable, axis);
+    result.ReplaceAll("#mu", "u");
+    result.ReplaceAll("#times10^{-3}", "* 1e-3 ");
+    return result;
+}
+
+TString latexunits(TString variable, char axis) {
+    TString result = units(variable, axis);
+    result.ReplaceAll("#", "\\").ReplaceAll("{", "{{").ReplaceAll("}", "}}")
+          .ReplaceAll("\\mum", "$\\mu$m")
+          .ReplaceAll("\\times10^{{-3}}", "$\\times10^{{-3}}$");
+    return result;
+}
 
 //this gives the full axis label, including units.  It can handle any combination of relative, resolution, and pull.
 TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolution, Bool_t pull)
 {
+    if (axis == 'X' || axis == 'Y')
+    {
+        double min, max, bins;
+        axislimits(0,0,variable,tolower(axis),relative,pull,min,max,bins);
+
+        if (variable.BeginsWith("nHits"))
+            return "fraction of tracks";
+        if (variable == "runNumber")
+            return "number of tracks";
+
+        stringstream s;
+        s << "fraction of tracks / " << (max-min)/bins;
+        if (!pull && !relative)
+        {
+            TString varunits = units(variable, tolower(axis));
+            if (varunits != "")
+                s << " " << varunits;
+        }
+        TString result = s.str();
+        result.ReplaceAll(" #times","#times");
+        return result;
+    }
+
     stringstream s;
     if (resolution && axis == 'y')
         s << "#sigma(";
@@ -1747,17 +1893,13 @@ TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolut
             s << "(";
         s << fancyname(variable);
     }
-    Bool_t nHits = (variable[0] == 'n' && variable[1] == 'H' && variable[2] == 'i'
-                                       && variable[3] == 't' && variable[4] == 's');
-    if (relative || (axis == 'x' && variable != "runNumber" && !nHits))
-        s << "_{org}";
     if (axis == 'y')
     {
         if (pull)
         {
             s << " / #delta(#Delta" << fancyname(variable);
             if (relative)
-                s << " / " << fancyname(variable) << "_{org}";
+                s << " / " << fancyname(variable);
             s << ")";
         }
         else
@@ -1774,7 +1916,14 @@ TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolut
     if (((!relative && !pull) || axis == 'x') && units(variable,axis) != "")
         s << " (" << units(variable,axis) << ")";
     TString result = s.str();
-    result.ReplaceAll("d_{xy}_{org}","(d_{xy})_{org}").ReplaceAll("d_{z}_{org}","(d_{z})_{org}").ReplaceAll("p_{T}_{org}","(p_{T})_{org}");
+    result.ReplaceAll("#Deltaq/p_{T}","#Delta(q/p_{T})");
+    return result;
+}
+
+TString latexlabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolution, Bool_t pull) {
+    TString result = axislabel(variable, axis, relative, resolution, pull);
+    result.ReplaceAll(" ("+units(variable, axis)+")", "");
+    result.ReplaceAll("#", "\\").ReplaceAll("\\Delta", "\\Delta ");
     return result;
 }
 
@@ -1785,6 +1934,10 @@ void setAxisLabels(TH1 *p, PlotType type,TString xvar,TString yvar,Bool_t relati
     if (type == ScatterPlot || type == Profile || type == Resolution || type == OrgHistogram)
         p->SetXTitle(axislabel(xvar,'x'));
 
+    if (type == Histogram)
+        p->SetYTitle(axislabel(yvar,'Y',relative,false,pull));
+    if (type == OrgHistogram)
+        p->SetYTitle(axislabel(xvar,'X',relative,false,pull));
     if (type == ScatterPlot || type == Profile)
         p->SetYTitle(axislabel(yvar,'y',relative,false,pull));
     if (type == Resolution)
@@ -1798,6 +1951,10 @@ void setAxisLabels(TMultiGraph *p, PlotType type,TString xvar,TString yvar,Bool_
     if (type == ScatterPlot || type == Profile || type == Resolution || type == OrgHistogram)
         p->GetXaxis()->SetTitle(axislabel(xvar,'x'));
 
+    if (type == Histogram)
+        p->GetYaxis()->SetTitle(axislabel(yvar,'Y',relative,false,pull));
+    if (type == OrgHistogram)
+        p->GetYaxis()->SetTitle(axislabel(xvar,'X',relative,false,pull));
     if (type == ScatterPlot || type == Profile)
         p->GetYaxis()->SetTitle(axislabel(yvar,'y',relative,false,pull));
     if (type == Resolution)
@@ -1830,7 +1987,7 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
              sigma1 = 1,         //if pull, the error for split track 1 goes in sigma1 and the error for split track 2 goes in sigma2.
              sigma2 = 1,         //x is divided by sqrt(sigma1^2+sigma2^2).  If !pull && axis == 'y', this divides by sqrt(2)
              sigmaorg = 0;       // because we want the error in one track.  sigmaorg is used when relative && pull
-    Int_t xint = 0, xint2 = 0;   //xint is used for run number and nHits.  xint2 is used for nhits because each event has 2 values.
+    Int_t xint = 0, xint2 = 0;   //xint is used for run number and nHits.  xint2 is used for nHits because each event has 2 values.
 
     Int_t runNumber = 0;         //this is used to make sure the run number is between minrun and maxrun
 
@@ -1841,25 +1998,19 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
     }
 
     Double_t totallength = 0;
+    vector<double> xvect;
     Double_t result = 0;
     if (what == Minimum) result = 1e100;
     if (what == Maximum) result = -1e100;
-
-    Double_t average = 0;
-    if (what == RMS)
-        average = findStatistic(Average,nFiles,files,var,axis,relative,pull);
-
-    Bool_t nHits = (var[0] == 'n' && var[1] == 'H' && var[2] == 'i'    //includes nHits, nHitsTIB, etc.
-                                  && var[3] == 't' && var[4] == 's');
 
     stringstream sx,srel,ssigma1,ssigma2,ssigmaorg;
 
     if (axis == 'y')
         sx << "Delta_";
     sx << var;
-    if (axis == 'x' && var != "runNumber" && !nHits)
+    if (axis == 'x' && var != "runNumber" && !var.BeginsWith("nHits"))
         sx << "_org";
-    if (axis == 'x' && nHits)
+    if (axis == 'x' && var.BeginsWith("nHits"))
         sx << "1_spl";
     TString variable = sx.str(),
             variable2 = variable;
@@ -1886,6 +2037,8 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
 
     if (!relative && !pull && (variable == "Delta_dxy" || variable == "Delta_dz"))
         rel = 1e-4;                                           //it's in cm but we want um
+    if (!relative && !pull && (variable == "Delta_phi" || variable == "Delta_theta" || variable == "Delta_qoverpt"))
+        rel = 1e-3;                                           //make the axis labels manageable
 
     for (Int_t j = 0; j < nFiles; j++)
     {
@@ -1900,7 +2053,7 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
         tree->SetBranchAddress("runNumber",&runNumber);
         if (var == "runNumber")
             tree->SetBranchAddress(variable,&xint);
-        else if (nHits)
+        else if (var.BeginsWith("nHits"))
         {
             tree->SetBranchAddress(variable,&xint);
             tree->SetBranchAddress(variable2,&xint2);
@@ -1921,7 +2074,7 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
         for (Int_t i = 0; i<length; i++)
         {
             tree->GetEntry(i);
-            if (var == "runNumber" || nHits)
+            if (var == "runNumber" || var.BeginsWith("nHits"))
                 x = xint;
             if (var == "runNumber")
                 runNumber = x;
@@ -1948,28 +2101,38 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
                 result = x;
             if (what == Maximum && x > result)
                 result = x;
-            if (what == Average)
-                result += x;
-            if (what == RMS)
-                result += (x - average) * (x - average);
-            if (nHits)
+            xvect.push_back(x);
+            if (var.BeginsWith("nHits"))
             {
                 x = xint2;
                 if (what == Minimum && x < result)
                     result = x;
                 if (what == Maximum && x > result)
                     result = x;
-                if (what == Average)
-                    result += x;
-                if (what == RMS)
-                    result += (x - average) * (x - average);
+                xvect.push_back(x);
             }
         }
         delete f;         //automatically closes the file
     }
-    if (nHits) totallength *= 2;
-    if (what == Average) result /= totallength;
-    if (what == RMS)  result = sqrt(result / (totallength - 1));
+
+    if (what == Minimum || what == Maximum)
+        return result;
+
+    sort(xvect.begin(), xvect.end());
+
+    for (unsigned int i = (unsigned int)(xvect.size()*(1-outliercut)/2); i <= (unsigned int)(xvect.size()*(1+outliercut)/2 + .999); i++, totallength++)
+        result += xvect[i];
+
+    result /= totallength;
+
+    if (what == RMS)
+    {
+        double average = result;
+        result = 0;
+        for (unsigned int i = (unsigned int)(xvect.size()*(1-outliercut)/2); i <= (unsigned int)(xvect.size()*(1+outliercut)/2 + .999); i++)
+            result += (x - average) * (x - average);
+        result = sqrt(result / (totallength - 1));
+    }
     return result;
 }
 
@@ -2030,51 +2193,68 @@ Double_t findRMS(TString file,TString var,Char_t axis,Bool_t relative,Bool_t pul
 //For any other variable, average +/- 5*rms are used.
 //To use this instead of the default values, just comment out the part that says [else] if (var == "?") {min = ?; max = ?;}
 
-void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max)
+void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max,Double_t &bins)
 {
+    bool pixel = subdetector.Contains("PIX");
     if (axis == 'x')
     {
-        Bool_t nHits = (var[0] == 'n' && var[1] == 'H' && var[2] == 'i'
-                                      && var[3] == 't' && var[4] == 's');
         if (var == "pt")
         {
             min = 5;
             max = 100;
+            bins = 38;
         }
         else if (var == "qoverpt")
         {
             min = -.35;
             max = .35;
+            bins = 35;
         }
         else if (var == "dxy")
         {
-            min = -10;
-            max = 10;
+            min = -100;
+            max = 100;
+            if (pixel)
+            {
+                min = -10;
+                max = 10;
+            }
+            bins = 20;
         }
         else if (var == "dz")
         {
-            min = -25;
-            max = 25;
+            min = -250;
+            max = 250;
+            if (pixel)
+            {
+                min = -25;
+                max = 25;
+            }
+            bins = 25;
         }
         else if (var == "theta")
         {
             min = .5;
             max = 2.5;
+            bins = 40;
         }
         else if (var == "eta")
         {
             min = -1.2;
             max = 1.2;
+            bins = 40;
         }
         else if (var == "phi")
         {
             min = -3;
             max = 0;
+            bins = 30;
         }
-        else if (var == "runNumber" || nHits)
+        else if (var == "runNumber" || var.BeginsWith("nHits"))
         {
             min = findMin(nFiles,files,var,'x') - .5;
             max = findMax(nFiles,files,var,'x') + .5;
+            bins = max-min;
         }
         else
         {
@@ -2083,6 +2263,7 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
             Double_t rms = findRMS (nFiles,files,var,'x');
             max = TMath::Min(average + 5 * rms,findMax(nFiles,files,var,'x'));
             min = TMath::Max(average - 5 * rms,findMin(nFiles,files,var,'x'));
+            bins = 50;
         }
     }
     if (axis == 'y')
@@ -2091,46 +2272,75 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
         {
             min = -5;
             max = 5;
+            bins = 40;
         }
         else if (var == "pt" && relative)
         {
             min = -.06;
             max = .06;
+            bins = 30;
         }
         else if (var == "pt" && !relative)
         {
             min = -.8;
             max = .8;
+            bins = 40;
         }
         else if (var == "qoverpt")
         {
-            min = -.0025;
-            max = .0025;
+            min = -2.5;
+            max = 2.5;
+            bins = 50;
         }
         else if (var == "dxy")
         {
-            min = -125;
-            max = 125;
+            min = -1250;
+            max = 1250;
+            if (pixel)
+            {
+                min = -125;
+                max = 125;
+            }
+            bins = 50;
         }
         else if (var == "dz")
         {
-            min = -200;
-            max = 200;
+            min = -2000;
+            max = 2000;
+            if (pixel)
+            {
+                min = -200;
+                max = 200;
+            }
+            bins = 40;
         }
         else if (var == "theta")
         {
-            min = -.005;
-            max = .005;
+            min = -10;
+            max = 10;
+            if (pixel)
+            {
+                min = -5;
+                max = 5;
+            }
+            bins = 50;
         }
         else if (var == "eta")
         {
-            min = -.003;
-            max = .003;
+            min = -.007;
+            max = .007;
+            if (pixel)
+            {
+                min = -.003;
+                max = .003;
+            }
+            bins = 30;
         }
         else if (var == "phi")
         {
-            min = -.002;
-            max = .002;
+            min = -2;
+            max = 2;
+            bins = 40;
         }
         else
         {
@@ -2141,6 +2351,7 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
                              findMin(nFiles,files,var,'y',relative,pull)),
                              -findMax(nFiles,files,var,'y',relative,pull));
             max = -min;
+            bins = 50;
         }
     }
 }
@@ -2243,193 +2454,4 @@ Bool_t fitsHere(TLegend *l,Double_t x1, Double_t y1, Double_t x2, Double_t y2)
         }
     }
     return fits;
-}
-
-//============
-//6. TDR Style
-//============
-
-void setTDRStyle() {
-
-  if (styleset) return;
-  styleset = true;
-  // For the canvas:
-  gStyle->SetCanvasBorderMode(0);
-  gStyle->SetCanvasColor(kWhite);
-  gStyle->SetCanvasDefH(600); //Height of canvas
-  gStyle->SetCanvasDefW(600); //Width of canvas
-  gStyle->SetCanvasDefX(0);   //POsition on screen
-  gStyle->SetCanvasDefY(0);
-
-  // For the Pad:
-  gStyle->SetPadBorderMode(1);
-  // gStyle->SetPadBorderSize(Width_t size = 1);
-  gStyle->SetPadColor(kWhite);
-  gStyle->SetPadGridX(false);
-  gStyle->SetPadGridY(false);
-  gStyle->SetGridColor(0);
-  gStyle->SetGridStyle(3);
-  gStyle->SetGridWidth(1);
-
-  // For the frame:
-  gStyle->SetFrameBorderMode(0);
-  gStyle->SetFrameBorderSize(1);
-  gStyle->SetFrameFillColor(0);
-  gStyle->SetFrameFillStyle(0);
-  gStyle->SetFrameLineColor(1);
-  gStyle->SetFrameLineStyle(1);
-  gStyle->SetFrameLineWidth(1);
-
-  // For the histo:
-  // gStyle->SetHistFillColor(1);
-  // gStyle->SetHistFillStyle(0);
-  gStyle->SetHistLineColor(1);
-  gStyle->SetHistLineStyle(0);
-  //gStyle->SetHistLineWidth(1);
-  // gStyle->SetLegoInnerR(Float_t rad = 0.5);
-  // gStyle->SetNumberContours(Int_t number = 20);
-
-  gStyle->SetEndErrorSize(2);
-  //gStyle->SetErrorMarker(20);
-  gStyle->SetErrorX(0.);
-
-  gStyle->SetMarkerStyle(7);
-
-  //For the fit/function:
-  gStyle->SetOptFit(1);
-  gStyle->SetFitFormat("5.4g");
-  gStyle->SetFuncColor(2);
-  gStyle->SetFuncStyle(1);
-  gStyle->SetFuncWidth(1);
-
-  //For the date:
-  gStyle->SetOptDate(0);
-  // gStyle->SetDateX(Float_t x = 0.01);
-  // gStyle->SetDateY(Float_t y = 0.01);
-
-
-  /*
-  // For the statistics box:
-  gStyle->SetOptFile(0);
-  gStyle->SetOptStat("mr");
-  gStyle->SetStatColor(kWhite);
-  gStyle->SetStatFont(42);
-  gStyle->SetStatFontSize(0.04);///---> gStyle->SetStatFontSize(0.025);
-  gStyle->SetStatTextColor(1);
-  gStyle->SetStatFormat("6.4g");
-  gStyle->SetStatBorderSize(1);
-  gStyle->SetStatH(0.1);
-  gStyle->SetStatW(0.2);///---> gStyle->SetStatW(0.15);
-  */
-
-  // gStyle->SetStatStyle(Style_t style = 1001);
-  // gStyle->SetStatX(Float_t x = 0);
-  // gStyle->SetStatY(Float_t y = 0);
-
-  // Margins:
-  gStyle->SetPadTopMargin(0.05);
-  gStyle->SetPadBottomMargin(0.13);
-  gStyle->SetPadLeftMargin(0.16);
-  gStyle->SetPadRightMargin(0.04);
-
-  // For the Global title:
-
-  gStyle->SetOptTitle(0);
-  gStyle->SetTitleFont(42);
-  gStyle->SetTitleColor(1);
-  gStyle->SetTitleTextColor(1);
-  gStyle->SetTitleFillColor(10);
-  gStyle->SetTitleFontSize(0.05);
-  // gStyle->SetTitleH(0); // Set the height of the title box
-  // gStyle->SetTitleW(0); // Set the width of the title box
-  // gStyle->SetTitleX(0); // Set the position of the title box
-  // gStyle->SetTitleY(0.985); // Set the position of the title box
-  // gStyle->SetTitleStyle(Style_t style = 1001);
-  // gStyle->SetTitleBorderSize(2);
-
-  // For the axis titles:
-
-  gStyle->SetTitleColor(1, "XYZ");
-  gStyle->SetTitleFont(42, "XYZ");
-  gStyle->SetTitleSize(0.06, "XYZ");
-  // gStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
-  // gStyle->SetTitleYSize(Float_t size = 0.02);
-  gStyle->SetTitleXOffset(0.9);
-  gStyle->SetTitleYOffset(1.25);
-  // gStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
-
-  // For the axis labels:
-
-  gStyle->SetLabelColor(1, "XYZ");
-  gStyle->SetLabelFont(42, "XYZ");
-  gStyle->SetLabelOffset(0.007, "XYZ");
-  gStyle->SetLabelSize(0.05, "XYZ");
-
-  // For the axis:
-
-  gStyle->SetAxisColor(1, "XYZ");
-  gStyle->SetStripDecimals(true);
-  gStyle->SetTickLength(0.03, "XYZ");
-  gStyle->SetNdivisions(510, "XYZ");
-  gStyle->SetPadTickX(1);  // To get tick marks on the opposite side of the frame
-  gStyle->SetPadTickY(1);
-
-  // Change for log plots:
-  gStyle->SetOptLogx(0);
-  gStyle->SetOptLogy(0);
-  gStyle->SetOptLogz(0);
-
-  // Postscript options:
-
-  gStyle->SetPaperSize(20.,20.);
-  // gStyle->SetLineScalePS(Float_t scale = 3);
-  // gStyle->SetLineStyleString(Int_t i, const char* text);
-  // gStyle->SetHeaderPS(const char* header);
-  // gStyle->SetTitlePS(const char* pstitle);
-
-  // gStyle->SetBarOffset(Float_t baroff = 0.5);
-  // gStyle->SetBarWidth(Float_t barwidth = 0.5);
-  // gStyle->SetPaintTextFormat(const char* format = "g");
-  // gStyle->SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
-  // gStyle->SetTimeOffset(Double_t toffset);
-  // gStyle->SetHistMinimumZero(true);
-
-  gStyle->SetPalette(1);
-
-  set_plot_style();
-
-  gROOT->ForceStyle();
-
-  TGaxis::SetMaxDigits(4);
-  setupcolors();
-}
-
-
-//source: http://ultrahigh.org/2007/08/making-pretty-root-color-palettes/
-
-void set_plot_style()
-{
-    const Int_t NRGBs = 5;
-    const Int_t NCont = 255;
-
-    Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
-    Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
-    Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
-    Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
-    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-    gStyle->SetNumberContours(NCont);
-}
-
-void setupcolors()
-{
-    colors.clear();
-    styles.clear();
-    Color_t array[15] = {1,2,3,4,6,7,8,9,
-                         kYellow+3,kOrange+10,kPink-2,kTeal+9,kAzure-8,kViolet-6,kSpring-1};
-    for (int i = 0; i < 15; i++)
-    {
-        colors.push_back(array[i]);
-        styles.push_back(1);       //Set the default to 1
-                                   //This is to be consistent with the other validation
-    }
 }

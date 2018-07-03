@@ -13,7 +13,7 @@ class MiscalibReaderFromXMLEcalBarrel : public MiscalibReaderFromXML
   MiscalibReaderFromXMLEcalBarrel(CaloMiscalibMapEcal & map):MiscalibReaderFromXML(map){};
 
 
-  virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
+  DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) override;
 
   EBDetId getCellFromAttributes(int ieta, int iphi);
 

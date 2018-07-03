@@ -7,7 +7,7 @@
 
 // STL Headers
 
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include <TSystem.h>
 
@@ -80,7 +80,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig) {
     if (XMAX <= 0) XMAX = 3564;
   }
 
-  if ((Style.compare("History") == 0) || (NBINS == 0)) {
+  if ((Style == "History") || (NBINS == 0)) {
     NBINS = (unsigned int)(XMAX - XMIN);
   }
 
@@ -254,12 +254,12 @@ void HLXMonitor::SetupHists(DQMStore::IBooker& iBooker) {
     }
   }
 
-  if (Style.compare("BX") == 0) {
+  if (Style == "BX") {
     OccXAxisTitle = "Bunch Crossing";
     OccYAxisTitle = "Tower Occupancy";
     EtXAxisTitle = "Bunch Crossing";
     EtYAxisTitle = "E_{T} Sum";
-  } else if (Style.compare("Distribution") == 0) {
+  } else if (Style == "Distribution") {
     OccXAxisTitle = "Tower Occupancy";
     OccYAxisTitle = "Count";
     EtXAxisTitle = "E_{T} Sum";
@@ -754,7 +754,7 @@ void HLXMonitor::SetupEventInfo(DQMStore::IBooker& iBooker) {
 
   pEvent_ = 0;
   evtRateCount_ = 0;
-  gettimeofday(&currentTime_, NULL);
+  gettimeofday(&currentTime_, nullptr);
   lastAvgTime_ = currentTime_;
   evtRateWindow_ = 0.5;
 
@@ -854,7 +854,7 @@ void HLXMonitor::analyze(const edm::Event& iEvent,
       currentRunEnded_ = false;
       // std::cout << "Run number is: " << runNumber_ << std::endl;
       timeval startruntime;
-      gettimeofday(&startruntime, NULL);
+      gettimeofday(&startruntime, nullptr);
       runStartTimeStamp_->Fill(getUTCtime(&startruntime));
     }
 
@@ -1146,7 +1146,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
           utotal2 += section.occupancy[iHLX].data[set2AboveIndex][iBX];
         }
 
-        if (Style.compare("BX") == 0) {
+        if (Style == "BX") {
           // Get the correct bin ...
           TH1F* Set1BelowHist = Set1Below[iWedge]->getTH1F();
           int iBin = Set1BelowHist->FindBin((float)iBX);
@@ -1199,7 +1199,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION& section) {
           Set2Between[iWedge]->setBinContent(iBin, normOccSet2Between);
           Set2Above[iWedge]->setBinContent(iBin, normOccSet2Above);
           ETSum[iWedge]->setBinContent(iBin, normEt);
-        } else if (Style.compare("Dist") == 0) {
+        } else if (Style == "Dist") {
           Set1Below[iWedge]->Fill(normOccSet1Below);
           Set1Between[iWedge]->Fill(normOccSet1Between);
           Set1Above[iWedge]->Fill(normOccSet1Above);
@@ -1452,7 +1452,7 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION& section,
   processEvents_->Fill(pEvent_);
 
   lastUpdateTime_ = currentTime_;
-  gettimeofday(&currentTime_, NULL);
+  gettimeofday(&currentTime_, nullptr);
   processTimeStamp_->Fill(getUTCtime(&currentTime_));
   processLatency_->Fill(getUTCtime(&lastUpdateTime_, &currentTime_));
 
@@ -1587,7 +1587,7 @@ void HLXMonitor::ResetAll() {
 
 double HLXMonitor::getUTCtime(timeval* a, timeval* b) {
   double deltaT = (*a).tv_sec * 1000.0 + (*a).tv_usec / 1000.0;
-  if (b != NULL) deltaT = (*b).tv_sec * 1000.0 + (*b).tv_usec / 1000.0 - deltaT;
+  if (b != nullptr) deltaT = (*b).tv_sec * 1000.0 + (*b).tv_usec / 1000.0 - deltaT;
   return deltaT / 1000.0;
 }
 

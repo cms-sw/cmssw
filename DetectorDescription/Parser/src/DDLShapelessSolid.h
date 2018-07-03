@@ -1,12 +1,12 @@
 #ifndef DDL_ShapelessSolid_H
 #define DDL_ShapelessSolid_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLShapelessSolid processes ShapelessSolid elements.
 /** @class DDLShapelessSolid
@@ -21,18 +21,14 @@
  *                                                                         
  */
 
-class DDLShapelessSolid : public DDLSolid
+class DDLShapelessSolid final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLShapelessSolid( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLShapelessSolid( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
+
 #endif

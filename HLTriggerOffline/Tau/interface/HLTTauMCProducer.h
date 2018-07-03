@@ -34,9 +34,9 @@ class HLTTauMCProducer : public edm::EDProducer {
   
 public:
   explicit HLTTauMCProducer(const edm::ParameterSet&);
-  ~HLTTauMCProducer();
+  ~HLTTauMCProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 
@@ -54,7 +54,7 @@ public:
   double ptMinMCElectron_;
   double ptMinMCMuon_;
   std::vector<int> m_PDG_;
-  double etaMax;
+  double etaMin,etaMax,phiMin,phiMax;
 
 };
 

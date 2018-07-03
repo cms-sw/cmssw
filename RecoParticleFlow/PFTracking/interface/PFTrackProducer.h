@@ -11,6 +11,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 
 #include <memory>
 #include <vector>
@@ -24,8 +25,6 @@
 */
 class Trajectory;
 
-
-class PFTrackTransformer;
 class PFTrackProducer : public edm::stream::EDProducer<> {
 public:
   
@@ -33,11 +32,11 @@ public:
   explicit PFTrackProducer(const edm::ParameterSet&);
     
 private:
-  virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
+  void beginRun(const edm::Run&,const edm::EventSetup&) override;
+  void endRun(const edm::Run&,const edm::EventSetup&) override;
   
   ///Produce the PFRecTrack collection
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   ///PFTrackTransformer
   std::unique_ptr<PFTrackTransformer> pfTransformer_; 

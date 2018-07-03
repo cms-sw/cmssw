@@ -1,4 +1,4 @@
-#include "../interface/RawDataClient.h"
+#include "DQM/EcalMonitorClient/interface/RawDataClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/FEFlags.h"
@@ -64,7 +64,7 @@ namespace ecaldqm {
         float entries(sFEStatus.getBinContent(id, iS + 1));
         towerEntries += entries;
         if(entries > 0. &&
-           iS != Enabled && iS != Disabled && iS != Suppressed &&
+           iS != Enabled && iS != Suppressed &&
            iS != FIFOFull && iS != FIFOFullL1ADesync && iS != ForcedZS)
           towerStatus = doMask ? kMBad : kBad;
       }

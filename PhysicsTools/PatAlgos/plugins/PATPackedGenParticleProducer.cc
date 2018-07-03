@@ -40,16 +40,15 @@ namespace pat {
   class PATPackedGenParticleProducer : public edm::global::EDProducer<> {
   public:
     explicit PATPackedGenParticleProducer(const edm::ParameterSet&);
-    ~PATPackedGenParticleProducer();
+    ~PATPackedGenParticleProducer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     
   private:
     const edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;
     const edm::EDGetTokenT<reco::GenParticleCollection>    GenOrigs_;
     const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
     const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    AssoOriginal_;
-    const edm::EDGetTokenT<reco::VertexCollection>         PVs_;
     const double maxRapidity_;
   };
 }
@@ -59,7 +58,6 @@ pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::Param
   GenOrigs_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("inputOriginal"))),
   Asso_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("map"))),
   AssoOriginal_(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>("inputCollection"))),
-  PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   maxRapidity_(iConfig.getParameter<double>("maxRapidity"))
 {
   produces< std::vector<pat::PackedGenParticle> > ();
@@ -75,6 +73,7 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
 
+    //from prunedGenParticlesWithStatusOne to prunedGenParticles
     edm::Handle<edm::Association<reco::GenParticleCollection> > asso;
     iEvent.getByToken( Asso_, asso );
 
@@ -85,16 +84,6 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
     iEvent.getByToken( GenOrigs_, genOrigs);
     std::vector<int> mapping(genOrigs->size(), -1);
 
-
-    edm::Handle<reco::VertexCollection> PVs;
-    iEvent.getByToken( PVs_, PVs );
-    reco::VertexRef PV(PVs.id());
-    math::XYZPoint  PVpos;
-    if (!PVs->empty()) {
-        PV = reco::VertexRef(PVs, 0);
-        PVpos = PV->position();
-    }
-
     //invert the value map from Orig2New to New2Orig
     std::map< edm::Ref<reco::GenParticleCollection> ,  edm::Ref<reco::GenParticleCollection> > reverseMap;
     for(unsigned int ic=0, nc = genOrigs->size(); ic < nc; ++ic)
@@ -104,7 +93,7 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
 	reverseMap.insert(std::pair<edm::Ref<reco::GenParticleCollection>,edm::Ref<reco::GenParticleCollection>>(newRef,originalRef));
     }
 
-    std::auto_ptr< std::vector<pat::PackedGenParticle> > outPtrP( new std::vector<pat::PackedGenParticle> );
+    auto outPtrP = std::make_unique<std::vector<pat::PackedGenParticle>>();
 
     unsigned int packed=0;
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
@@ -114,27 +103,31 @@ void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEven
 		// Obtain original gen particle collection reference from input reference and map
 		edm::Ref<reco::GenParticleCollection> inputRef = edm::Ref<reco::GenParticleCollection>(cands,ic);
 		edm::Ref<reco::GenParticleCollection> originalRef=reverseMap[inputRef];
+		edm::Ref<reco::GenParticleCollection> finalPrunedRef=(*asso)[inputRef];
 		mapping[originalRef.key()]=packed;
 		packed++;
-		if(cand.numberOfMothers() > 0) {
+		if(finalPrunedRef.isNonnull()){ //this particle exists also in the final pruned
+                        outPtrP->push_back( pat::PackedGenParticle(cand,finalPrunedRef));
+		}else{
+		  if(cand.numberOfMothers() > 0) {
 			edm::Ref<reco::GenParticleCollection> newRef=(*asso)[cand.motherRef(0)];
 	        	outPtrP->push_back( pat::PackedGenParticle(cand,newRef));
-		} else {
+	  	  } else {
 	        	outPtrP->push_back( pat::PackedGenParticle(cand,edm::Ref<reco::GenParticleCollection>()));
-			
+		  }
 		}
 
 	}	
     }
 
 
-    edm::OrphanHandle<std::vector<pat::PackedGenParticle> > oh= iEvent.put( outPtrP );
+    edm::OrphanHandle<std::vector<pat::PackedGenParticle> > oh= iEvent.put(std::move(outPtrP));
 
-    std::auto_ptr<edm::Association< std::vector<pat::PackedGenParticle> > > gp2pgp(new edm::Association< std::vector<pat::PackedGenParticle> > (oh   ));
+    auto gp2pgp = std::make_unique<edm::Association<std::vector<pat::PackedGenParticle>>>(oh);
     edm::Association< std::vector<pat::PackedGenParticle> >::Filler gp2pgpFiller(*gp2pgp);
     gp2pgpFiller.insert(genOrigs, mapping.begin(), mapping.end());
     gp2pgpFiller.fill();
-    iEvent.put(gp2pgp);
+    iEvent.put(std::move(gp2pgp));
  
 
 }

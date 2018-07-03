@@ -106,7 +106,7 @@ L1TCompare::L1TCompare(const ParameterSet & ps) :
 
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");
-  if (outputFile_.size() != 0) {
+  if (!outputFile_.empty()) {
     std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;

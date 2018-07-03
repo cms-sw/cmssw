@@ -69,9 +69,9 @@ namespace cscdqm {
    * @return true if MO was found, false - otherwise
    */
   const bool EventProcessor::getEMUHisto(const HistoId& histo, MonitorObject*& me) {
-    if (config->fnGetCacheEMUHisto(histo, me)) return (me != NULL);
+    if (config->fnGetCacheEMUHisto(histo, me)) return (me != nullptr);
     EMUHistoDef histoD(histo);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    if (config->fnGetHisto(histoD, me)) return (me != nullptr);
     return false;
   }
 
@@ -83,9 +83,9 @@ namespace cscdqm {
    * @return true if MO was found, false - otherwise
    */
   const bool EventProcessor::getFEDHisto(const HistoId& histo, const HwId& fedID, MonitorObject*& me) {
-    if (config->fnGetCacheFEDHisto(histo, fedID, me)) return (me != NULL);
+    if (config->fnGetCacheFEDHisto(histo, fedID, me)) return (me != nullptr);
     FEDHistoDef histoD(histo, fedID);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    if (config->fnGetHisto(histoD, me)) return (me != nullptr);
     return false;
   }
 
@@ -97,9 +97,9 @@ namespace cscdqm {
    * @return true if MO was found, false - otherwise
    */
   const bool EventProcessor::getDDUHisto(const HistoId& histo, const HwId& dduID, MonitorObject*& me) {
-    if (config->fnGetCacheDDUHisto(histo, dduID, me)) return (me != NULL);
+    if (config->fnGetCacheDDUHisto(histo, dduID, me)) return (me != nullptr);
     DDUHistoDef histoD(histo, dduID);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    if (config->fnGetHisto(histoD, me)) return (me != nullptr);
     return false;
   }
 
@@ -112,9 +112,9 @@ namespace cscdqm {
    * @return true if MO was found, false - otherwise
    */
   const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me) {
-    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, 0, me)) return (me != NULL);
+    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, 0, me)) return (me != nullptr);
     CSCHistoDef histoD(histo, crateID, dmbSlot);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    if (config->fnGetHisto(histoD, me)) return (me != nullptr);
     return false;
   }
 
@@ -129,9 +129,9 @@ namespace cscdqm {
    * @return true if MO was found, false - otherwise
    */
   const bool EventProcessor::getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me) {
-    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, adId, me)) return (me != NULL);
+    if (config->fnGetCacheCSCHisto(histo, crateID, dmbSlot, adId, me)) return (me != nullptr);
     CSCHistoDef histoD(histo, crateID, dmbSlot, adId);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    if (config->fnGetHisto(histoD, me)) return (me != nullptr);
     return false;
   }
 
@@ -142,9 +142,9 @@ namespace cscdqm {
    * @return true if MO was found, false - otherwise
    */
   const bool EventProcessor::getParHisto(const HistoId& histo, MonitorObject*& me) {
-    if (config->fnGetCacheParHisto(histo, me)) return (me != NULL);
+    if (config->fnGetCacheParHisto(histo, me)) return (me != nullptr);
     ParHistoDef histoD(histo);
-    if (config->fnGetHisto(histoD, me)) return (me != NULL);
+    if (config->fnGetHisto(histoD, me)) return (me != nullptr);
     return false;
   }
 

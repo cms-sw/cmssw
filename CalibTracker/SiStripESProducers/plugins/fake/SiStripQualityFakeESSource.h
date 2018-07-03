@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -26,19 +25,19 @@
 class SiStripQualityFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   SiStripQualityFakeESSource(const edm::ParameterSet&);
-  ~SiStripQualityFakeESSource(){};
+  ~SiStripQualityFakeESSource() override{};
   
   
-  std::auto_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
+  std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
   
 private:
   
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 		       const edm::IOVSyncValue& iov,
-		       edm::ValidityInterval& iValidity);
+		       edm::ValidityInterval& iValidity) override;
   
-  SiStripQualityFakeESSource( const SiStripQualityFakeESSource& );
-  const SiStripQualityFakeESSource& operator=( const SiStripQualityFakeESSource& );
+  SiStripQualityFakeESSource( const SiStripQualityFakeESSource& ) = delete;
+  const SiStripQualityFakeESSource& operator=( const SiStripQualityFakeESSource& ) = delete;
 };
 
 #endif

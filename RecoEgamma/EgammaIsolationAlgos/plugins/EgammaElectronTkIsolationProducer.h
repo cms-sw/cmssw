@@ -20,9 +20,9 @@
 class EgammaElectronTkIsolationProducer : public edm::stream::EDProducer<> {
  public:
   explicit EgammaElectronTkIsolationProducer(const edm::ParameterSet&);
-  ~EgammaElectronTkIsolationProducer();
+  ~EgammaElectronTkIsolationProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   edm::InputTag electronProducer_;

@@ -16,7 +16,7 @@ class Zhen(tk.Frame):
         #ROOT.gROOT.SetBatch(ROOT.kTRUE)
         ROOT.gStyle.SetOptStat(0)
         
-        da = TDatime(2010,03,30,13,10,00)
+        da = TDatime(2010,3,30,13,10,00)
 
         c = TCanvas("Luminosity","",1)
         

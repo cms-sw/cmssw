@@ -22,7 +22,7 @@
 // added by me
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -32,7 +32,6 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 #include "RecoVertex/VertexTools/interface/PerigeeLinearizedTrackState.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -78,7 +77,7 @@ namespace reco { namespace modules {
        class CosmicTrackSplitter : public edm::stream::EDProducer<> {
     public:
 		CosmicTrackSplitter(const edm::ParameterSet &iConfig) ;
-		virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+		void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
     private:
 		edm::EDGetTokenT<reco::TrackCollection> tokenTracks;
@@ -154,7 +153,7 @@ namespace reco { namespace modules {
 		iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
 		// prepare output collection
-		std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection());
+		auto output = std::make_unique<TrackCandidateCollection>();
 		output->reserve(tracks->size());
 
 		// working area and tools
@@ -370,7 +369,7 @@ namespace reco { namespace modules {
 			} // loop twice for top and bottom
 		} // loop on tracks
 		LogDebug("CosmicTrackSplitter") << "totalTracks_ = " << totalTracks_;
-		iEvent.put(output);
+		iEvent.put(std::move(output));
 	}
 
 	TrackCandidate

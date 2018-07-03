@@ -44,6 +44,6 @@ MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
     if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
   }
 
-  return 0;
+  return nullptr;
 }
 

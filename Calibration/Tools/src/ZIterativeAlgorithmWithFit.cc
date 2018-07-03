@@ -365,7 +365,7 @@ ZIterativeAlgorithmWithFit::~ZIterativeAlgorithmWithFit()
 }
 
 void ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errpar,float nsigmalow, float nsigmaup, double* myChi2, int* iterations) {
-  std::unique_ptr<TF1> gausa{ new TF1("gausa","gaus",histoou->GetMean()-3*histoou->GetRMS(),histoou->GetMean()+3*histoou->GetRMS()) };
+  auto gausa = std::make_unique<TF1>("gausa","gaus",histoou->GetMean()-3*histoou->GetRMS(),histoou->GetMean()+3*histoou->GetRMS());
   
   gausa->SetParameters(histoou->GetMaximum(),histoou->GetMean(),histoou->GetRMS());
   
@@ -393,7 +393,7 @@ void ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       
       char suffix[20];
       sprintf (suffix,"_iter_%d",iter); 
-      std::unique_ptr<TF1> fitFunc{ new TF1("FitFunc"+TString(suffix),"gaus",xmin_fit,xmax_fit) };
+      auto fitFunc = std::make_unique<TF1>("FitFunc"+TString(suffix),"gaus",xmin_fit,xmax_fit);
       fitFunc->SetParameters(nor,p1,sigma);
       fitFunc->SetLineColor((int)(iter+1));
       fitFunc->SetLineWidth(1);

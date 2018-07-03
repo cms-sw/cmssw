@@ -8,6 +8,7 @@ import ast
 import optparse
 import sys
 
+import six
 
 if __name__ == '__main__':
 
@@ -16,7 +17,7 @@ if __name__ == '__main__':
                        help='Save output to file OUTPUT')
     (options, args) = parser.parse_args()
     if not args:
-        raise RuntimeError, "Must provide at least one input file"
+        raise RuntimeError("Must provide at least one input file")
 
     runsLumisDict = {}
     for fjr in args:
@@ -36,7 +37,7 @@ if __name__ == '__main__':
                         runList.append (lumi)
             except:
                 try: # JSON-like version in CRAB XML files, runObjects is usually a list
-                    if isinstance(inputFile.Runs, basestring):
+                    if isinstance(inputFile.Runs, str):
                         runObjects = [inputFile.Runs]
                     else:
                         runObjects = inputFile.Runs
@@ -44,7 +45,7 @@ if __name__ == '__main__':
                     for runObject in runObjects:
                         try:
                             runs = ast.literal_eval(runObject)
-                            for (run, lumis) in runs.iteritems():
+                            for (run, lumis) in six.iteritems(runs):
                                 runList = runsLumisDict.setdefault (int(run), [])
                                 runList.extend(lumis)
                         except ValueError: # Old style handled above

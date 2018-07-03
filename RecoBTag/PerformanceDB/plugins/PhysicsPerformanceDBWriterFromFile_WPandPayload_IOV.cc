@@ -18,10 +18,10 @@ class PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV : public edm::EDAnalyz
 {
 public:
   PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV() override {}
 
 private:
   std::string inputTxtFile;
@@ -145,7 +145,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob()
 
   PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
 
-  PerformancePayloadFromTable * btagpl = 0;
+  PerformancePayloadFromTable * btagpl = nullptr;
 
   if (concreteType == "PerformancePayloadFromTable"){
     btagpl = new PerformancePayloadFromTable(res, bin, stride, pl);

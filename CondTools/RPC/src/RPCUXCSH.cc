@@ -61,7 +61,7 @@ void popcon::RpcDataUXC::getNewObjects() {
      }
    std::cout << " >> Final object size: " << UXCdata->ObUXC_rpc.size() << std::endl;  
 
-   if (UXCdata->ObUXC_rpc.size() > 0) {
+   if (!UXCdata->ObUXC_rpc.empty()) {
      niov = snc;
    } else {
      niov = snc;

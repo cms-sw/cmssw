@@ -93,7 +93,7 @@ HLTHcalMETNoiseCleaner::HLTHcalMETNoiseCleaner(const edm::ParameterSet& iConfig)
 }
 
 
-HLTHcalMETNoiseCleaner::~HLTHcalMETNoiseCleaner(){}
+HLTHcalMETNoiseCleaner::~HLTHcalMETNoiseCleaner()= default;
 
 void
 HLTHcalMETNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -147,13 +147,13 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   using namespace reco;
 
   //output collection
-  std::auto_ptr<CaloMETCollection> CleanedMET(new CaloMETCollection);
+  std::unique_ptr<CaloMETCollection> CleanedMET(new CaloMETCollection);
 
   //get the calo MET / MHT
   edm::Handle<CaloMETCollection> met_h;
   iEvent.getByToken(m_theCaloMetToken,met_h);
   
-  if(not met_h.isValid() or met_h->size()==0 or met_h->front().pt()<0){ //No Valid MET, don't do anything and accept the event
+  if(not met_h.isValid() or met_h->empty() or met_h->front().pt()<0){ //No Valid MET, don't do anything and accept the event
     return true;  // we shouldn't get here, but lets not crash
   }
   
@@ -163,7 +163,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
   // in this case, do not filter anything
   if(severity_==0){
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);
+    iEvent.put(std::move(CleanedMET));
     return true;
   }
 
@@ -174,22 +174,21 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
     edm::LogError("DataNotFound") << "HLTHcalMETNoiseCleaner: Could not find HcalNoiseRBXCollection product named "
 				  << HcalNoiseRBXCollectionTag_ << "." << std::endl;
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);    
+    iEvent.put(std::move(CleanedMET));    
     return true; // no valid RBXs
   }
 
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;
-  for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
-    const HcalNoiseRBX &rbx=(*it);
+  for(auto const & rbx : *rbxs_h) {
     CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
 			     TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
     data.insert(d);
   }
   //if 0 RBXs are in the list, just accept
-  if(data.size()<1){
+  if(data.empty()){
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);
+    iEvent.put(std::move(CleanedMET));
     return true;
   }
   // data is now sorted by RBX energy
@@ -202,7 +201,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   TVector3 noiseHPDVector(0,0,0);
   TVector3 secondHPDVector(0,0,0);
-  for(noisedataset_t::const_iterator it=data.begin();
+  for(auto it=data.begin();
       it!=data.end() && cntr<numRBXsToConsider_;
       it++, cntr++) {
     bool isNoise=false;
@@ -257,13 +256,13 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
     //-----------FOUND a SECOND NOISY RBX-------------------
     if(isNoise && cntr > 0){ 
 	CleanedMET->push_back(inCaloMet);
-	iEvent.put(CleanedMET);   	
+	iEvent.put(std::move(CleanedMET));   	
 	return accept2NoiseRBXEvents_; // don't try to clean these for the moment, just keep or throw away      
     }
     //----------LEADING RBX is NOT NOISY--------------------
     if(!isNoise && cntr == 0){ 
       CleanedMET->push_back(inCaloMet);
-      iEvent.put(CleanedMET);   	
+      iEvent.put(std::move(CleanedMET));   	
       return true; // don't reject the event if the leading RBX isn't noise
     }
     //-----------SUBLEADING RBX is NOT NOISY: STORE INFO----
@@ -283,7 +282,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   if(noiseHPDVector.Mag()==0){
     CleanedMET->push_back(inCaloMet);
-    iEvent.put(CleanedMET);   	
+    iEvent.put(std::move(CleanedMET));   	
     return true; // don't reject the event if the leading RBX isn't noise
   }
 
@@ -325,7 +324,7 @@ bool HLTHcalMETNoiseCleaner::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   reco::CaloMET corMet = BuildCaloMet(CorMetSumEt,CorMetPt,CorMetPhi);
   CleanedMET->push_back(corMet);
-  iEvent.put(CleanedMET);
+  iEvent.put(std::move(CleanedMET));
 
   return (corMet.pt() > CaloMetCut_);
 }

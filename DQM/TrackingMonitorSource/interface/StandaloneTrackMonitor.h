@@ -18,11 +18,15 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-class BeamSpot;
-class TrackCollection;
-class VertexCollection;
 class TrackingRecHit;
+class SiStripCluster;
+class PileupSummaryInfo;
 
 class StandaloneTrackMonitor : public DQMEDAnalyzer {
 public:
@@ -31,11 +35,10 @@ public:
 protected:
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
   void processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, const TrackerGeometry& tkGeom, double wfac=1);
   void processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, const TrackerGeometry& tkGeom, double wfac=1);
   void addClusterToMap(uint32_t detid, const SiStripCluster* cluster);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
 

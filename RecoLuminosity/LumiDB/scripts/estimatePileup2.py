@@ -4,6 +4,7 @@ import os, sys
 import coral
 import optparse
 from RecoLuminosity.LumiDB import sessionManager,csvSelectionParser,selectionParser,lumiCorrections,lumiCalcAPI
+import six
 
 beamChoices=['PROTPHYS','IONPHYS']
 
@@ -140,14 +141,14 @@ if __name__ == '__main__':
     # parse arguments
     try:
         (options, args) = parser.parse_args()
-    except Exception , e:
+    except Exception as e:
         print e
     if not args:
         parser.print_usage()
         sys.exit()
     if len (args) != 1:
         parser.print_usage()
-        raise RuntimeError, "Exactly one output file must be given"
+        raise RuntimeError("Exactly one output file must be given")
     output = args[0]
     finecorrections=None
     # get database session hooked up
@@ -233,7 +234,7 @@ if __name__ == '__main__':
                       options.maxPileupBin + 1,
                       -0.5, options.maxPileupBin + 0.5)
     histList = []
-    for runNumber, lumiList in sorted( runDict.iteritems() ):
+    for runNumber, lumiList in sorted( six.iteritems(runDict) ):
         if options.saveRuns:
             hist = fillPileupHistogram (lumiList,options.pileupHistName,options.maxPileupBin,
                                         runNumber = runNumber,
@@ -246,8 +247,7 @@ if __name__ == '__main__':
                                  debug = options.debugLumi)            
     histFile = ROOT.TFile.Open (output, 'recreate')
     if not histFile:
-        raise RuntimeError, \
-              "Could not open '%s' as an output root file" % output
+        raise RuntimeError("Could not open '%s' as an output root file" % output)
     pileupHist.Write()
     for hist in histList:
         hist.Write()

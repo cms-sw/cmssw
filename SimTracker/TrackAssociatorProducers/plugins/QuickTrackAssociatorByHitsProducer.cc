@@ -43,21 +43,22 @@ namespace {
 class QuickTrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
    public:
       explicit QuickTrackAssociatorByHitsProducer(const edm::ParameterSet&);
-      ~QuickTrackAssociatorByHitsProducer();
+      ~QuickTrackAssociatorByHitsProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-      virtual void endJob() override;
+      void beginJob() override;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void endJob() override;
       edm::ParameterSet makeHitAssociatorParameters(const edm::ParameterSet&);
       
       // ----------member data ---------------------------
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
-  edm::EDGetTokenT<ClusterTPAssociationList> cluster2TPToken_;
+  edm::EDGetTokenT<ClusterTPAssociation> cluster2TPToken_;
   double qualitySimToReco_;
   double puritySimToReco_;
+  double pixelHitWeight_;
   double cutRecoToSim_;
   QuickTrackAssociatorByHitsImpl::SimToRecoDenomType simToRecoDenominator_;
   bool threeHitTracksAreSpecial_;
@@ -79,9 +80,9 @@ class QuickTrackAssociatorByHitsProducer : public edm::global::EDProducer<> {
 // constructors and destructor
 //
 QuickTrackAssociatorByHitsProducer::QuickTrackAssociatorByHitsProducer(const edm::ParameterSet& iConfig):
-  trackerHitAssociatorConfig_(makeHitAssociatorParameters(iConfig), consumesCollector()),
   qualitySimToReco_( iConfig.getParameter<double>( "Quality_SimToReco" ) ),
   puritySimToReco_( iConfig.getParameter<double>( "Purity_SimToReco" ) ),
+  pixelHitWeight_( iConfig.getParameter<double>( "PixelHitWeight" ) ),
   cutRecoToSim_( iConfig.getParameter<double>( "Cut_RecoToSim" ) ),
   threeHitTracksAreSpecial_( iConfig.getParameter<bool>( "ThreeHitTracksAreSpecial" ) ),
   useClusterTPAssociation_( iConfig.getParameter<bool>( "useClusterTPAssociation" ) ),
@@ -119,7 +120,10 @@ QuickTrackAssociatorByHitsProducer::QuickTrackAssociatorByHitsProducer(const edm
   produces<reco::TrackToTrackingParticleAssociator>();  
 
   if(useClusterTPAssociation_) {
-    cluster2TPToken_ = consumes<ClusterTPAssociationList>(iConfig.getParameter < edm::InputTag > ("cluster2TPSrc"));
+    cluster2TPToken_ = consumes<ClusterTPAssociation>(iConfig.getParameter < edm::InputTag > ("cluster2TPSrc"));
+  }
+  else {
+    trackerHitAssociatorConfig_ = TrackerHitAssociator::Config(makeHitAssociatorParameters(iConfig), consumesCollector());
   }
 
 }
@@ -148,6 +152,10 @@ QuickTrackAssociatorByHitsProducer::makeHitAssociatorParameters(const edm::Param
   // I only want to use the hit associator methods that work on the hit IDs (i.e. the uint32_t trackId
   // and the EncodedEventId eventId) so I'm not interested in matching that to the PSimHit objects.
   hitAssociatorParameters.addParameter<bool>("associateRecoTracks",true);
+  // add these new ones to allow redirection of inputs:
+  hitAssociatorParameters.addParameter<edm::InputTag>( "pixelSimLinkSrc", iConfig.getParameter<edm::InputTag>("pixelSimLinkSrc") );
+  hitAssociatorParameters.addParameter<edm::InputTag>( "stripSimLinkSrc", iConfig.getParameter<edm::InputTag>("stripSimLinkSrc") );
+
   return hitAssociatorParameters;
 }
 
@@ -157,19 +165,14 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
 {
    using namespace edm;
 
-   const ClusterTPAssociationList *clusterAssoc = nullptr;
+   const ClusterTPAssociation *clusterAssoc = nullptr;
    std::unique_ptr<TrackerHitAssociator> trackAssoc;
    if(useClusterTPAssociation_)  {
-     edm::Handle<ClusterTPAssociationList> clusterAssocHandle;
+     edm::Handle<ClusterTPAssociation> clusterAssocHandle;
      iEvent.getByToken(cluster2TPToken_,clusterAssocHandle);
-
-     if(clusterAssocHandle.isValid()) {
-       clusterAssoc = clusterAssocHandle.product();
-     } else {
-       edm::LogInfo( "TrackAssociator" ) << "ClusterTPAssociationList not found. Using DigiSimLink based associator";
-     }
+     clusterAssoc = clusterAssocHandle.product();
    }
-   if(not clusterAssoc) {
+   else {
      // If control got this far then either useClusterTPAssociation_ was false or getting the cluster
      // to TrackingParticle association from the event failed. Either way I need to create a hit associator.
      trackAssoc = std::make_unique<TrackerHitAssociator>(iEvent, trackerHitAssociatorConfig_);
@@ -181,6 +184,7 @@ QuickTrackAssociatorByHitsProducer::produce(edm::StreamID, edm::Event& iEvent, c
                                                                 absoluteNumberOfHits_,
                                                                 qualitySimToReco_,
                                                                 puritySimToReco_,
+                                                                pixelHitWeight_,
                                                                 cutRecoToSim_,
                                                                 threeHitTracksAreSpecial_,
                                                                 simToRecoDenominator_);

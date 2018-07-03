@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -144,7 +143,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
       rrr  = rr + dr + 0.5*(ladderThick[1]-ladderThick[0]);
       xx   = (0.5*ladderWidth[1] - sensorEdge) * sin(phi);
       tran = DDTranslation(xx, rrr*sin(phi), 0);
-      rots = idName + dbl_to_string(copy);
+      rots = idName + std::to_string(copy);
       phix = phi-90*CLHEP::deg;
       phiy = 90*CLHEP::deg+phix;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
@@ -162,7 +161,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
       iup  = -1;
       rrr  = rr - dr - 0.5*(ladderThick[1]-ladderThick[0]);
       tran = DDTranslation(-xx, rrr*sin(phi), 0);
-      rots = idName + dbl_to_string(copy);
+      rots = idName + std::to_string(copy);
       phix = phi+90*CLHEP::deg;
       phiy = 90*CLHEP::deg+phix;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
@@ -181,7 +180,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
       iup  =-iup;
       rrr  = rr + iup*dr;
       tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
-      rots = idName + dbl_to_string(copy);
+      rots = idName + std::to_string(copy);
       if (iup > 0) phix = phi-90*CLHEP::deg;
       else         phix = phi+90*CLHEP::deg;
       phiy = phix+90.*CLHEP::deg;
@@ -201,7 +200,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
     rrr  = coolDist*cos(0.5*dphi);
     tran = DDTranslation(rrr*cos(phi)-x2*sin(phi), 
 			 rrr*sin(phi)+x2*cos(phi), 0);
-    rots = idName + dbl_to_string(i+100);
+    rots = idName + std::to_string(i+100);
     phix = phi+0.5*dphi;
     if (iup > 0) phix += 180*CLHEP::deg;
     phiy = phix+90.*CLHEP::deg;

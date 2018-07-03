@@ -55,14 +55,14 @@ public:
 EcalDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalDigisValidation();
+~EcalDigisValidation() override;
 
 void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
 void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override; 
 
 private:

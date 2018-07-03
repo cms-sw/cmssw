@@ -6,15 +6,15 @@
 
 CastorCoderFactory::CastorCoderFactory(CoderType coderType) 
 : theCoderType(coderType),
-  theDbService(0)
+  theDbService(nullptr)
 {
 }
 
 
-std::auto_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
-  CastorCoder * result = 0;
+std::unique_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
+  CastorCoder * result = nullptr;
   if(theCoderType == DB) {
-    assert(theDbService != 0);
+    assert(theDbService != nullptr);
     HcalGenericDetId hcalGenDetId(id);
     const CastorQIECoder * qieCoder = theDbService->getCastorCoder(hcalGenDetId );
     const CastorQIEShape * qieShape = theDbService->getCastorShape();
@@ -24,6 +24,6 @@ std::auto_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
   else {
     result = new CastorNominalCoder();
   }
-  return std::auto_ptr<CastorCoder>(result);
+  return std::unique_ptr<CastorCoder>(result);
 }
 

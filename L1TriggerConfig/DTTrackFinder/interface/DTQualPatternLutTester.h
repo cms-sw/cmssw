@@ -26,9 +26,9 @@ class DTQualPatternLutTester : public edm::EDAnalyzer {
 
   DTQualPatternLutTester(const edm::ParameterSet& ps);
 
-  ~DTQualPatternLutTester();
+  ~DTQualPatternLutTester() override;
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 

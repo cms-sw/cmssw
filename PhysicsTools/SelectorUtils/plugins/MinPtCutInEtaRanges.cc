@@ -16,11 +16,11 @@ public:
     }
   }
 
-  double value(const reco::CandidatePtr& cand) const override final {
+  double value(const reco::CandidatePtr& cand) const final {
     return cand->pt();
   }
 
-  result_type asCandidate(const argument_type&) const override final;
+  result_type asCandidate(const argument_type&) const final;
 
 private:
   const bool _absEta;

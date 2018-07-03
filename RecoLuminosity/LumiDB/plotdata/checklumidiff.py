@@ -12,9 +12,9 @@ def parseplotcache(filelist,fillmin,fillmax):
                 if int(fill) not in range(fillmin,fillmax+1):
                     continue
                 delivered=float(row[5])
-                if not result.has_key(int(fill)):
+                if int(fill) not in result:
                     result[int(fill)]={}
-                if result[int(fill)].has_key(int(run)):
+                if int(run) in result[int(fill)]:
                     result[int(fill)][int(run)]+=delivered
                 else:
                     result[int(fill)][int(run)]=delivered
@@ -36,8 +36,7 @@ if __name__ == "__main__" :
     plotcachedir='/afs/cern.ch/cms/lumi/www/publicplots/public_lumi_plots_cache/pp_all'
     plotfiles=[f for f in glob.glob(os.path.join(plotcachedir,'lumicalc_cache_2012-??-??.csv')) if os.path.getsize(f)>0]
     fillmin=2450
-    lpcfill2012=findlpcdir(lpcdir,fillmin)
-    lpcfill2012.sort()
+    lpcfill2012=sorted(findlpcdir(lpcdir,fillmin))
     lpcresult={}#{fill:[delivered]}
 
     plotfilldata={}#{fill:{run:delivered}}
@@ -73,7 +72,7 @@ if __name__ == "__main__" :
             lumi_lpc+=lpcdelperrun
             tot_nrunlpc+=1
         l.close()
-        if plotfilldata.has_key(fill):
+        if fill in plotfilldata:
             runs=plotfilldata[fill].keys()
             if not runs: continue
             nruns_pplot=len(runs)

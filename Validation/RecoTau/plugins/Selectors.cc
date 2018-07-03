@@ -56,12 +56,12 @@ DEFINE_FWK_MODULE( TauValGenPRefSelector );
 class ElectronIdFilter : public edm::EDFilter {
 public:
   explicit ElectronIdFilter(const edm::ParameterSet&);
-  ~ElectronIdFilter();
+  ~ElectronIdFilter() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
       
   edm::EDGetTokenT<reco::GsfElectronCollection> recoGsfElectronCollectionToken_;
   edm::EDGetTokenT< edm::ValueMap<float> > edmValueMapFloatToken_;
@@ -102,8 +102,8 @@ ElectronIdFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //cout << "Putting in the event" << endl;
-  std::auto_ptr<reco::GsfElectronCollection> collection(product);
-  iEvent.put(collection);
+  std::unique_ptr<reco::GsfElectronCollection> collection(product);
+  iEvent.put(std::move(collection));
   return true;
 }
 

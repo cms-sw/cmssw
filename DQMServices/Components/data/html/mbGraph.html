@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>mbGraph</title>
+
+    <script data-require="d3@3.3.11" data-semver="3.3.11" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.3.11/d3.js"></script>
+    <script data-require="nvd3@*" data-semver="1.1.14-beta" src="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.14-beta/nv.d3.js"></script>
+
+    <script src="//code.jquery.com/jquery-2.1.4.min.js" data-semver="2.1.4" data-require="jquery@*"></script>
+    <script data-semver="1.3.16" src="//code.angularjs.org/1.3.16/angular.js" data-require="angular.js@1.3.x"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+    <link data-require="bootstrap-css@*" data-semver="3.3.1" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+    <link data-require="nvd3@*" data-semver="1.1.14-beta" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/nvd3/1.1.14-beta/nv.d3.css" />
+
+    <script src="mbGraph.js"></script>
+    <style>
+.dashed { stroke-dasharray: 5,5; }
+    </style>
+  </head>
+
+  <body ng-app="mbGraph">
+    <div ng-controller="InfoCtrl as InfoCtrl" class="container">
+
+      <div ng-controller="GraphCtrl as GraphCtrl">
+        <div class="page-header">
+          <h2>Memory usage graph</h2>
+        </div>
+
+        <!-- {{ InfoCtrl.info | json }} -->
+
+        <div>
+          <div ng-show="GraphCtrl.profile_error" class="alert alert-danger" role="alert"><strong>Error!</strong>
+            Failed to load reference profile (from {{ GraphCtrl.profile_url }}). {{ GraphCtrl.profile_error }}.
+          </div>
+          <div ng-show="GraphCtrl.reference_error" class="alert alert-danger" role="alert"><strong>Error!</strong>
+            Failed to load reference profile (from {{ GraphCtrl.reference_url }}). {{ GraphCtrl.reference_error }}.
+          </div>
+        </div>
+
+        <div ng-show="GraphCtrl.profile">
+          <p>
+            Profile loaded from <strong>{{ GraphCtrl.profile_url }}</strong>.
+            <br />
+            <span ng-show="GraphCtrl.reference"> Reference profile loaded from <strong>{{ GraphCtrl.reference_url }}</strong>.</span>
+          </p>
+          <br />
+
+          <form class="form-inline">
+            <div class="form-group">
+              <label for="pidInput" class="control-label">Select process: </label>
+              <select class="form-control" id="pidInput" ng-model="LocParams.p.pid" ng-options="key as key + ': ' + value.cmdline_short for (key, value) in GraphCtrl.profile">
+              </select>
+            </div>
+          </form>
+        </div>
+
+        <memory-graph width="800" height="400" data="GraphCtrl.graph_data" reference-data="GraphCtrl.graph_data_reference"></memory-graph>
+
+        <div ng-show="GraphCtrl.graph_data">
+          <p>
+            Process: <strong>{{ GraphCtrl.graph_data.cmdline }}</strong>.
+            Started at <strong>{{ GraphCtrl.graph_data.start_ts*1000 | date:'yyyy-MM-dd HH:mm:ss Z' }}</strong>
+            and contains <strong>{{ GraphCtrl.graph_data.frames.length }}</strong> frames.
+            <br />
+            <span ng-show="GraphCtrl.graph_data_reference">
+              Reference process: <strong>{{ GraphCtrl.graph_data_reference.cmdline }}</strong>.
+              Started at <strong>{{ GraphCtrl.graph_data_reference.start_ts*1000 | date:'yyyy-MM-dd HH:mm:ss Z' }}</strong>
+              and contains <strong>{{ GraphCtrl.graph_data_reference.frames.length }}</strong> frames.
+            </span>
+          </p>
+        </div>
+
+      </div> <!-- graphctrl -->
+
+    </div>
+  </body>
+
+</html>

@@ -33,11 +33,11 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     static void fillDescription( edm::ParameterSetDescription & ) ;
 
     explicit GsfElectronBaseProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
-    virtual ~GsfElectronBaseProducer() ;
+    ~GsfElectronBaseProducer() override ;
 
     static std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache> 
     initializeGlobalCache( const edm::ParameterSet& conf ) {
-       return std::unique_ptr<gsfAlgoHelpers::HeavyObjectCache>(new gsfAlgoHelpers::HeavyObjectCache(conf));
+       return std::make_unique<gsfAlgoHelpers::HeavyObjectCache>(conf);
    }
   
   static void globalEndJob(gsfAlgoHelpers::HeavyObjectCache const* ) {
@@ -50,7 +50,7 @@ class GsfElectronBaseProducer : public edm::stream::EDProducer< edm::GlobalCache
     void beginEvent( edm::Event &, const edm::EventSetup & ) ;
     void fillEvent( edm::Event & ) ;
     void endEvent() ;
-    reco::GsfElectron * newElectron() { return 0 ; }
+    reco::GsfElectron * newElectron() { return nullptr ; }
     const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables

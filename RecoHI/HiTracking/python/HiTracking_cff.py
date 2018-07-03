@@ -4,9 +4,15 @@ from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *
 from RecoHI.HiTracking.hiLowPtTripletStep_cff import *
 from RecoHI.HiTracking.hiMixedTripletStep_cff import *
 from RecoHI.HiTracking.hiPixelPairStep_cff import *
+from RecoHI.HiTracking.hiPixelLessStep_cff import *
+from RecoHI.HiTracking.hiTobTecStep_cff import *
 from RecoHI.HiTracking.hiDetachedTripletStep_cff import *
 from RecoHI.HiTracking.hiJetCoreRegionalStep_cff import *
 from RecoHI.HiTracking.MergeTrackCollectionsHI_cff import *
+from RecoHI.HiTracking.hiLowPtQuadStep_cff import *
+from RecoHI.HiTracking.hiHighPtTripletStep_cff import *
+from RecoHI.HiTracking.hiDetachedQuadStep_cff import *
+
 
 from RecoHI.HiMuonAlgos.hiMuonIterativeTk_cff import *
 
@@ -15,6 +21,9 @@ hiJetCoreRegionalStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = cms.double( 10. 
 hiJetCoreRegionalStepTrajectoryFilter.minPt = 10.0
 siPixelClusters.ptMin = cms.double(100)
 siPixelClusters.deltaRmax = cms.double(0.1)
+
+from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
+trackExtrapolator.trackSrc = cms.InputTag("hiGeneralTracks")
 
 hiTracking_noRegitMu = cms.Sequence(
     hiBasicTracking
@@ -31,10 +40,26 @@ hiTracking_noRegitMu_wSplitting = cms.Sequence(
     *hiPixelPairStep
     )
 
+hiTracking_noRegitMu_wSplitting_Phase1 = cms.Sequence(
+    hiInitialJetCoreClusterSplitting
+    *hiBasicTracking
+    *hiLowPtQuadStep#New iteration
+    *hiHighPtTripletStep#New iteration
+    *hiDetachedQuadStep#New iteration
+    *hiDetachedTripletStep
+    *hiLowPtTripletStep
+    *hiPixelPairStep #no CA seeding implemented
+    *hiMixedTripletStep # large impact parameter tracks
+    *hiPixelLessStep    # large impact parameter tracks
+    *hiTobTecStep       # large impact parameter tracks
+    )
+
 hiTracking = cms.Sequence(
     hiTracking_noRegitMu
     *hiRegitMuTrackingAndSta
     *hiGeneralTracks
+    *bestFinalHiVertex
+    *trackExtrapolator
     )
 
 hiTracking_wSplitting = cms.Sequence(
@@ -42,6 +67,17 @@ hiTracking_wSplitting = cms.Sequence(
     *hiJetCoreRegionalStep 
     *hiRegitMuTrackingAndSta
     *hiGeneralTracks
+    *bestFinalHiVertex
+    *trackExtrapolator
+    )
+
+hiTracking_wSplitting_Phase1 = cms.Sequence(
+    hiTracking_noRegitMu_wSplitting_Phase1
+    *hiJetCoreRegionalStep 
+    *hiRegitMuTrackingAndSta
+    *hiGeneralTracks
+    *bestFinalHiVertex
+    *trackExtrapolator
     )
 
 hiTracking_wConformalPixel = cms.Sequence(

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimG4Core.Application.hectorParameter_cfi import *
 LHCTransport = cms.EDProducer("HectorProducer",
-    HepMCProductLabel = cms.string('generator'),  ## HepMC source to be processed
+    HepMCProductLabel = cms.string('generatorSmeared'),  ## HepMC source to be processed
     ZDCTransport = cms.bool(True),                ## main flag to set transport for ZDC
     FP420Transport = cms.bool(True),              ## main flag to set transport for FP420
     Verbosity = cms.bool(False),

@@ -28,7 +28,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
@@ -55,8 +54,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -73,12 +72,12 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
   
   explicit SiPixelTrackingRecHitsValid(const edm::ParameterSet& conf);
   
-  virtual ~SiPixelTrackingRecHitsValid();
+  ~SiPixelTrackingRecHitsValid() override;
 
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
+  void beginJob() override;
+  void endJob() override;
 
   //xt std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,const BoundPlane& plane);
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const PixelGeomDetUnit* pixelDet,const BoundPlane& plane);

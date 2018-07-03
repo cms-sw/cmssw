@@ -1,7 +1,9 @@
+<use   name="FWCore/MessageLogger"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/EcalDetId"/>
+<use   name="Geometry/CaloGeometry"/>
 <use   name="boost"/>
 <use   name="rootphysics"/>
 

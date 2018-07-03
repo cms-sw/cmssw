@@ -5,6 +5,7 @@
 #include "DataFormats/Luminosity/interface/LumiInfoRunHeader.h"
 #include "DataFormats/Luminosity/interface/LumiInfo.h"
 #include "DataFormats/Luminosity/interface/BeamCurrentInfo.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 
 namespace DataFormats_Luminosity {
    struct dictionary {
@@ -14,5 +15,6 @@ namespace DataFormats_Luminosity {
       edm::Wrapper<LumiInfoRunHeader> lumiinforunheaderobj;
       edm::Wrapper<LumiInfo> lumiinfoobj;
       edm::Wrapper<BeamCurrentInfo> beamcurrentinfoobj;
+      edm::Wrapper<reco::PixelClusterCounts> b_w;
    };
 }

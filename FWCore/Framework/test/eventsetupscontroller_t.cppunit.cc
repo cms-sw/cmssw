@@ -10,12 +10,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/shared_ptr.hpp"
-
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
+
+namespace {
+edm::ActivityRegistry activityRegistry;
+}
 
 class TestEventSetupsController: public CppUnit::TestFixture
 {
@@ -53,9 +57,9 @@ void TestEventSetupsController::constructorTest() {
   pset.addParameter<std::vector<std::string> >("@all_essources", emptyVStrings);
   pset.addParameter<std::vector<std::string> >("@all_esmodules", emptyVStrings);
 
-  esController.makeProvider(pset);
-  esController.makeProvider(pset);
-  esController.makeProvider(pset);
+  esController.makeProvider(pset, &activityRegistry);
+  esController.makeProvider(pset, &activityRegistry);
+  esController.makeProvider(pset, &activityRegistry);
 
   CPPUNIT_ASSERT(esController.providers().size() == 3);
   CPPUNIT_ASSERT(esController.providers()[0]->subProcessIndex() == 0);
@@ -68,24 +72,24 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
 
   edm::ParameterSet pset1;
   pset1.registerIt();
-  boost::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider1(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider1 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
 
   edm::ParameterSet pset2;
   pset2.addUntrackedParameter<int>("p1", 1); 
   pset2.registerIt();
-  boost::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider2(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider2 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
   CPPUNIT_ASSERT(pset2.id() == pset1.id());
 
   edm::ParameterSet pset3;
   pset3.addUntrackedParameter<int>("p1", 2); 
   pset3.registerIt();
-  boost::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider3(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider3 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
   CPPUNIT_ASSERT(pset3.id() == pset1.id());
 
   edm::ParameterSet pset4;
   pset4.addParameter<int>("p1", 1); 
   pset4.registerIt();
-  boost::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider4(new edm::eventsetup::test::DummyProxyProvider());
+  std::shared_ptr<edm::eventsetup::test::DummyProxyProvider> proxyProvider4 = std::make_shared<edm::eventsetup::test::DummyProxyProvider>();
   CPPUNIT_ASSERT(pset4.id() != pset1.id());
 
   edm::eventsetup::ParameterSetIDHolder psetIDHolder1(pset1.id());
@@ -96,7 +100,7 @@ void TestEventSetupsController::esProducerGetAndPutTest() {
   CPPUNIT_ASSERT(!(psetIDHolder1 == psetIDHolder4));
   CPPUNIT_ASSERT((pset1.id() < pset4.id()) == (psetIDHolder1 < psetIDHolder4));
 
-  boost::shared_ptr<edm::eventsetup::DataProxyProvider> ptrFromGet = esController.getESProducerAndRegisterProcess(pset1, 0);
+  std::shared_ptr<edm::eventsetup::DataProxyProvider> ptrFromGet = esController.getESProducerAndRegisterProcess(pset1, 0);
   CPPUNIT_ASSERT(!ptrFromGet);
   esController.putESProducer(pset1, proxyProvider1, 0);
 
@@ -256,28 +260,28 @@ void TestEventSetupsController::esSourceGetAndPutTest() {
 
   edm::ParameterSet pset1;
   pset1.registerIt();
-  boost::shared_ptr<DummyFinder> finder1(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder1 = std::make_shared<DummyFinder>();
 
   edm::ParameterSet pset2;
   pset2.addUntrackedParameter<int>("p1", 1); 
   pset2.registerIt();
-  boost::shared_ptr<DummyFinder> finder2(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder2 = std::make_shared<DummyFinder>();
   CPPUNIT_ASSERT(pset2.id() == pset1.id());
 
   edm::ParameterSet pset3;
   pset3.addUntrackedParameter<int>("p1", 2); 
   pset3.registerIt();
-  boost::shared_ptr<DummyFinder> finder3(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder3 = std::make_shared<DummyFinder>();
   CPPUNIT_ASSERT(pset3.id() == pset1.id());
 
   edm::ParameterSet pset4;
   pset4.addParameter<int>("p1", 1); 
   pset4.registerIt();
-  boost::shared_ptr<DummyFinder> finder4(new DummyFinder());
+  std::shared_ptr<DummyFinder> finder4 = std::make_shared<DummyFinder>();
   CPPUNIT_ASSERT(pset4.id() != pset1.id());
 
 
-  boost::shared_ptr<edm::EventSetupRecordIntervalFinder> ptrFromGet = esController.getESSourceAndRegisterProcess(pset1, 0);
+  std::shared_ptr<edm::EventSetupRecordIntervalFinder> ptrFromGet = esController.getESSourceAndRegisterProcess(pset1, 0);
   CPPUNIT_ASSERT(!ptrFromGet);
   esController.putESSource(pset1, finder1, 0);
 

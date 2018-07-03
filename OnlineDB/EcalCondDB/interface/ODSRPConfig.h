@@ -18,10 +18,10 @@ class ODSRPConfig : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODSRPConfig();
-  ~ODSRPConfig();
+  ~ODSRPConfig() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_SRP_CONFIGURATION"; }
+  inline std::string getTable() override { return "ECAL_SRP_CONFIGURATION"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -54,14 +54,14 @@ class ODSRPConfig : public IODConfig {
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite()  noexcept(false) override;
+  void writeDB()       noexcept(false);
   void clear();
-  void fetchData(ODSRPConfig * result)     throw(std::runtime_error);
-  int fetchID()  throw(std::runtime_error);
+  void fetchData(ODSRPConfig * result)     noexcept(false);
+  int fetchID()  noexcept(false);
 
 
-  int fetchNextId() throw(std::runtime_error);
+  int fetchNextId() noexcept(false);
 
   // User data
   int m_ID;

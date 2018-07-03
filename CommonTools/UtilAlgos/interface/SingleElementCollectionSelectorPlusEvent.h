@@ -16,6 +16,12 @@
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "CommonTools/UtilAlgos/interface/SelectedOutputCollectionTrait.h"
+
+namespace edm {
+  class Event;
+  class EventSetup;
+}
 
 template<typename InputCollection, typename Selector,
 	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type,
@@ -32,7 +38,7 @@ struct SingleElementCollectionSelectorPlusEvent {
   void select(const edm::Handle<InputCollection> & c, const edm::Event &ev, const edm::EventSetup &) {
     selected_.clear();
     for(size_t idx = 0; idx < c->size(); ++ idx) {
-      if(select_((*c)[idx], ev))
+      if(select_( edm::Ref<InputCollection>(c,idx), ev) ) //(*c)[idx]
 	addRef_(selected_, c, idx);
     }
   }

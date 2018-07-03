@@ -60,7 +60,7 @@ public:
    FWGeometryTableView* m_browser;
   mutable std::vector<const char*> m_list;
    FWGeoMaterialValidator( FWGeometryTableView* v) { m_browser = v;}
-   virtual ~FWGeoMaterialValidator() {}
+   ~FWGeoMaterialValidator() override {}
 
   virtual void addDaughtersRec(TGeoVolume* v) const
   {
@@ -87,7 +87,7 @@ public:
 
   }
 
-   virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const override 
+   void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const override 
    {
       oOptions.clear();
       m_list.clear();
@@ -105,14 +105,14 @@ public:
     unsigned int part_size = part.size();
       std::string h = "";
   // int cnt = 0;  
-    oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(*m_list.begin())), h));
+    oOptions.push_back(std::make_pair(std::make_shared<std::string>(*m_list.begin()), h));
     std::vector<const char*>::iterator startIt = m_list.begin();  startIt++;
     for (std::vector<const char*>::iterator i = startIt; i!=m_list.end(); ++i)
       {
     //      std::cout << *i << " " << cnt++ << std::endl;
       if ((strlen(*i) >= part_size) && strncmp(*i, part.c_str(), part_size ) == 0)
          {
-        oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i))),&((*i)[part_size]) ));
+        oOptions.push_back(std::make_pair(std::make_shared<std::string>((*i)),&((*i)[part_size]) ));
          }
       }
    }
@@ -131,9 +131,9 @@ public:
 //==============================================================================
 FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng)
    : FWGeometryTableViewBase(iParent, FWViewType::kGeometryTable, colMng),
-     m_tableManager(0),
-     m_filterEntry(0),
-     m_filterValidator(0),
+     m_tableManager(nullptr),
+     m_filterEntry(nullptr),
+     m_filterValidator(nullptr),
      m_mode(this, "Mode", 0l, 0l, 1l),
      m_disableTopNode(this,"HideTopNode", true),
      m_visLevel(this,"VisLevel", 3l, 1l, 100l),
@@ -144,7 +144,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_regionRadius(this, "SphereRadius", 10.0, 1.0, 300.0),
      m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l)
 {
-   FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
+   FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(nullptr);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
    m_eveScene  = new  FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
 #else
@@ -183,7 +183,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
       m_filterType.addEntry(kFilterShapeName,      "ShapeName");
       m_filterType.addEntry(kFilterShapeClassName, "ShapeClassName");
 
-      boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)&m_filterType) );
+      std::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)&m_filterType) );
       ptr->attach((FWParameterBase*)&m_filterType, this);
 
       TGFrame* pframe = ptr->build(hp, false);
@@ -367,7 +367,7 @@ void FWGeometryTableView::checkRegionOfInterest()
 {
    if (m_selectRegion.value())
    {
-      double* center = 0;
+      double* center = nullptr;
       for (TEveElement::List_i it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it)
       { 
          TEveViewer* v = ((TEveViewer*)(*it));

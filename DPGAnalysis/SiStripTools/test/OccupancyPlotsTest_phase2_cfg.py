@@ -170,7 +170,7 @@ process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccup
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
 #process.occupancyplots.wantedSubDets = OccupancyPlotsStripWantedSubDets
-process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry.txt")
+process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Tilted/PixelSkimmedGeometry.txt")
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
 process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
@@ -247,7 +247,7 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")

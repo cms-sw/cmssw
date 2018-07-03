@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -32,7 +31,7 @@ public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<edm::View<reco::Candidate> > muonToken_;
+  edm::EDGetTokenT<pat::MuonCollection> muonToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
   // VID
@@ -50,13 +49,6 @@ private:
   edm::EDGetTokenT<CITKMap> muonPhIsoCITKToken_;
   edm::EDGetTokenT<CITKMap> muonPuIsoCITKToken_;
 
-  // IsoDeposit
-  typedef edm::ValueMap<double> IsoMap;
-  edm::EDGetTokenT<IsoMap> muonChIsoIsoDepToken_;
-  edm::EDGetTokenT<IsoMap> muonNhIsoIsoDepToken_;
-  edm::EDGetTokenT<IsoMap> muonPhIsoIsoDepToken_;
-  edm::EDGetTokenT<IsoMap> muonPuIsoIsoDepToken_;
-
   // Histograms
   TH2F* h2Ch_, * h2Nh_, * h2Ph_, * h2Pu_;
   TH1F* hIsoDiffCh_, * hIsoDiffNh_, * hIsoDiffPh_, * hIsoDiffPu_;
@@ -64,7 +56,7 @@ private:
 
 MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
 {
-  muonToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("muon"));
+  muonToken_ = consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muon"));
   vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertex"));
 
   string vidPrefix = "muoMuonIDs:cutBasedMuonId-MuonPOG-V0-";
@@ -78,11 +70,6 @@ MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
   muonNhIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:h0-DR040-ThresholdVeto050-ConeVeto001"));
   muonPhIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:gamma-DR040-ThresholdVeto050-ConeVeto001"));
   muonPuIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFPileUpIsolation:h+-DR040-ThresholdVeto050-ConeVeto001"));
-
-  muonChIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValueCharged04PAT"));
-  muonNhIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValueNeutral04PAT"));
-  muonPhIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValueGamma04PAT"));
-  muonPuIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValuePU04PAT"));
 
   usesResource("TFileService");
   edm::Service<TFileService> fs;
@@ -100,7 +87,7 @@ MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
 
 void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
-  edm::Handle<edm::View<reco::Candidate> > muonHandle;
+  edm::Handle<pat::MuonCollection> muonHandle;
   event.getByToken(muonToken_, muonHandle);
 
   edm::Handle<reco::VertexCollection> vertexHandle;
@@ -129,20 +116,10 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
   event.getByToken(muonPhIsoCITKToken_, muonPhIsoCITKHandle);
   event.getByToken(muonPuIsoCITKToken_, muonPuIsoCITKHandle);
 
-  // IsoDeposit
-  edm::Handle<IsoMap> muonChIsoIsoDepHandle;
-  edm::Handle<IsoMap> muonNhIsoIsoDepHandle;
-  edm::Handle<IsoMap> muonPhIsoIsoDepHandle;
-  edm::Handle<IsoMap> muonPuIsoIsoDepHandle;
-  event.getByToken(muonChIsoIsoDepToken_, muonChIsoIsoDepHandle);
-  event.getByToken(muonNhIsoIsoDepToken_, muonNhIsoIsoDepHandle);
-  event.getByToken(muonPhIsoIsoDepToken_, muonPhIsoIsoDepHandle);
-  event.getByToken(muonPuIsoIsoDepToken_, muonPuIsoIsoDepHandle);
-
   for ( size_t i=0, n=muonHandle->size(); i<n; ++i )
   {
     const auto& mu = dynamic_cast<const pat::Muon&>(muonHandle->at(i));
-    const auto& muRef = mu.originalObjectRef();
+    const auto& muRef = pat::MuonRef(muonHandle, i);
 
     stringstream sout;
 
@@ -171,35 +148,25 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
     const double citkPhIso = (*muonPhIsoCITKHandle)[muRef];
     const double citkPuIso = (*muonPuIsoCITKHandle)[muRef];
 
-    const double isoDepChIso = (*muonChIsoIsoDepHandle)[muRef];
-    const double isoDepNhIso = (*muonNhIsoIsoDepHandle)[muRef];
-    const double isoDepPhIso = (*muonPhIsoIsoDepHandle)[muRef];
-    const double isoDepPuIso = (*muonPuIsoIsoDepHandle)[muRef];
-
     const double patChIso = mu.chargedHadronIso();
     const double patNhIso = mu.neutralHadronIso();
     const double patPhIso = mu.photonIso();
     const double patPuIso = mu.puChargedHadronIso();
 
-    h2Ch_->Fill(isoDepChIso, citkChIso);
-    h2Nh_->Fill(isoDepNhIso, citkNhIso);
-    h2Ph_->Fill(isoDepPhIso, citkPhIso);
-    h2Pu_->Fill(isoDepPuIso, citkPuIso);
+    h2Ch_->Fill(patChIso, citkChIso);
+    h2Nh_->Fill(patNhIso, citkNhIso);
+    h2Ph_->Fill(patPhIso, citkPhIso);
+    h2Pu_->Fill(patPuIso, citkPuIso);
 
-    hIsoDiffCh_->Fill(citkChIso-isoDepChIso);
-    hIsoDiffNh_->Fill(citkNhIso-isoDepNhIso);
-    hIsoDiffPh_->Fill(citkPhIso-isoDepPhIso);
-    hIsoDiffPu_->Fill(citkPuIso-isoDepPuIso);
+    hIsoDiffCh_->Fill(citkChIso-patChIso);
+    hIsoDiffNh_->Fill(citkNhIso-patNhIso);
+    hIsoDiffPh_->Fill(citkPhIso-patPhIso);
+    hIsoDiffPu_->Fill(citkPuIso-patPuIso);
 
-    if ( std::abs(citkChIso-isoDepChIso) >= 1e-4 ) { sout << " ChIso citk=" << citkChIso << " isodep=" << isoDepChIso << endl; }
-    if ( std::abs(citkNhIso-isoDepNhIso) >= 1e-4 ) { sout << " NhIso citk=" << citkNhIso << " isodep=" << isoDepNhIso << endl; }
-    if ( std::abs(citkPhIso-isoDepPhIso) >= 1e-4 ) { sout << " PhIso citk=" << citkPhIso << " isodep=" << isoDepPhIso << endl; }
-    if ( std::abs(citkPuIso-isoDepPuIso) >= 1e-4 ) { sout << " PuIso citk=" << citkPuIso << " isodep=" << isoDepPuIso << endl; }
-
-    if ( std::abs(patChIso-isoDepChIso) >= 1e-4 ) { sout << " ChIso pat=" << patChIso << " isodep=" << isoDepChIso << endl; }
-    if ( std::abs(patNhIso-isoDepNhIso) >= 1e-4 ) { sout << " NhIso pat=" << patNhIso << " isodep=" << isoDepNhIso << endl; }
-    if ( std::abs(patPhIso-isoDepPhIso) >= 1e-4 ) { sout << " PhIso pat=" << patPhIso << " isodep=" << isoDepPhIso << endl; }
-    if ( std::abs(patPuIso-isoDepPuIso) >= 1e-4 ) { sout << " PuIso pat=" << patPuIso << " isodep=" << isoDepPuIso << endl; }
+    if ( std::abs(citkChIso-patChIso) >= 1e-4 ) { sout << " ChIso citk=" << citkChIso << " isodep=" << patChIso << endl; }
+    if ( std::abs(citkNhIso-patNhIso) >= 1e-4 ) { sout << " NhIso citk=" << citkNhIso << " isodep=" << patNhIso << endl; }
+    if ( std::abs(citkPhIso-patPhIso) >= 1e-4 ) { sout << " PhIso citk=" << citkPhIso << " isodep=" << patPhIso << endl; }
+    if ( std::abs(citkPuIso-patPuIso) >= 1e-4 ) { sout << " PuIso citk=" << citkPuIso << " isodep=" << patPuIso << endl; }
 
     if ( !sout.str().empty() )
     {

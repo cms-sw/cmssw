@@ -89,7 +89,7 @@ if __name__ == '__main__':
         if options.normname:#commandline has priorty
             normname=options.normname
         else:
-            if normdefinitionDict.has_key('name') and normdefinitionDict['name']:
+            if 'name' in normdefinitionDict and normdefinitionDict['name']:
                 normname=normdefinitionDict['name']
         if not normname:
             raise RuntimeError('[ERROR] normname undefined')
@@ -97,13 +97,13 @@ if __name__ == '__main__':
         if options.lumitype:
             lumitype=options.lumitype
         else:
-            if normdefinitionDict.has_key('lumitype') and normdefinitionDict['lumitype']:
+            if 'lumitype' in normdefinitionDict and normdefinitionDict['lumitype']:
                 lumitype=normdefinitionDict['lumitype']
         istypedefault=0
-        if normdefinitionDict.has_key('istypedefault') and normdefinitionDict['istypedefault']:
+        if 'istypedefault' in normdefinitionDict and normdefinitionDict['istypedefault']:
             istypedefault=int(normdefinitionDict['istypedefault'])
         commentStr=''
-        if normdefinitionDict.has_key('comment'):
+        if 'comment' in normdefinitionDict:
             commentStr=normdefinitionDict['comment']
             
         if options.action=='create':
@@ -113,9 +113,9 @@ if __name__ == '__main__':
         else:
             normdata_id=normDML.normIdByName(dbsession.nominalSchema(),normname)
         for normvalueDict in normvalues:
-            if not normvalueDict.has_key('corrector') or not normvalueDict['corrector']:
+            if 'corrector' not in normvalueDict or not normvalueDict['corrector']:
                 raise RuntimeError('parameter corrector is required for create/insert action')
-            if not normvalueDict.has_key('since') or not normvalueDict['since']:
+            if 'since' not in normvalueDict or not normvalueDict['since']:
                 raise RuntimeError('parameter since is required for create/insert action')
             correctorStr=normvalueDict['corrector']
             sincerun=int(normvalueDict['since'])

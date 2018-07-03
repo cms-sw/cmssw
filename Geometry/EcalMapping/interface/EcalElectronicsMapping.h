@@ -8,7 +8,6 @@
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -16,8 +15,7 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
-
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 #include <vector>
 #include <map>
@@ -130,8 +128,8 @@ class EcalElectronicsMapping {
   bool rightTower(int tower) const;
 
   // methods used for regional unpacking :
-  std::vector<int> GetListofFEDs(const EcalEtaPhiRegion& region) const ;
-  void GetListofFEDs(const EcalEtaPhiRegion& region, std::vector<int> & FEDs) const ;
+  std::vector<int> GetListofFEDs(const RectangularEtaPhiRegion& region) const ;
+  void GetListofFEDs(const RectangularEtaPhiRegion& region, std::vector<int> & FEDs) const ;
   int GetFED(double eta, double phi) const ;
   int DCCBoundary(int FED) const;
 

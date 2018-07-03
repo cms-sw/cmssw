@@ -107,8 +107,8 @@ void PATConversionProducer::produce(edm::StreamID, edm::Event & iEvent, const ed
   }
 
   // add the electrons to the event output
-  std::auto_ptr<std::vector<Conversion> > ptr(patConversions);
-  iEvent.put(ptr);
+  std::unique_ptr<std::vector<Conversion> > ptr(patConversions);
+  iEvent.put(std::move(ptr));
 
 }
 

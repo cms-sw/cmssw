@@ -31,7 +31,7 @@ selectedElectrons = cms.EDFilter(
       src = cms.InputTag('gedGsfElectrons'),
       cut = cms.string(
          "abs(eta) < 2.5 && pt > 19.5"                              +
-         "&& (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 )" +
+         "&& (gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\')<=1 )" +
          "&& (pfIsolationVariables.sumChargedHadronPt+max(0.,pfIsolationVariables.sumNeutralHadronEt+pfIsolationVariables.sumPhotonEt - 0.5*pfIsolationVariables.sumPUPt))/et     < 0.3"  +
          "&& ((abs(eta) < 1.4442  "                                 +
          "&& abs(deltaEtaSuperClusterTrackAtVtx)            < 0.007"+

@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "RecoJets/JetProducers/interface/QjetsAdder.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -63,13 +65,13 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       //qjetsAlgo_.SetRandSeed(iEvent.id().event()*100 + (jetIt - jets->begin())*ntrial_ + ii );// set random seed for reprudcibility. We need a smarted scheme
       fastjet::ClusterSequence qjet_seq(constits, qjet_def);
       vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(cutoff_));
-      if (inclusive_jets2.size()>0){ // fill the massvalue only if the reclustering was successfull
+      if (!inclusive_jets2.empty()){ // fill the massvalue only if the reclustering was successfull
 	qjetmass.push_back(inclusive_jets2[0].m());
       }
 
     }//end loop on trials
 
-    if (qjetmass.size()<1) {//protection against dummy case
+    if (qjetmass.empty()) {//protection against dummy case
       QjetsVolatility.push_back(-1);
       continue;
     }
@@ -84,12 +86,12 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     QjetsVolatility.push_back(variance/mean);
   }//end loop on jets
 
-  std::auto_ptr<edm::ValueMap<float> > outQJV(new edm::ValueMap<float>());
+  auto outQJV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerQJV(*outQJV);
   fillerQJV.insert(jets, QjetsVolatility.begin(), QjetsVolatility.end());
   fillerQJV.fill();
 
-  iEvent.put(outQJV,"QjetsVolatility");
+  iEvent.put(std::move(outQJV),"QjetsVolatility");
 }
 
 

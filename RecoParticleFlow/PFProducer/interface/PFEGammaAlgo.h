@@ -37,6 +37,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "TMVA/Reader.h"
 #include <iostream>
 #include <TH2D.h>
@@ -46,6 +50,7 @@
 #include <unordered_map>
 
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
@@ -75,7 +80,7 @@ class PFEGammaAlgo {
     float > KFValMap;  
     
   struct ProtoEGObject {
-    ProtoEGObject() : parentSC(NULL) {}
+    ProtoEGObject() : parentSC(nullptr) {}
     reco::PFBlockRef parentBlock;
     const PFSCElement* parentSC; // if ECAL driven
     reco::ElectronSeedRef electronSeed; // if there is one
@@ -137,6 +142,14 @@ class PFEGammaAlgo {
     eetops_ = eetops;
   }
 
+  void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
+    cfg_.thePFEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
+  }
+
+  void setESChannelStatus(const ESChannelStatus* channelStatus){
+    channelStatus_ = channelStatus;
+  }
+
   void setnPU(int nVtx){
     nVtx_=nVtx;
   }
@@ -154,7 +167,7 @@ class PFEGammaAlgo {
                           const reco::PFBlockRef&  blockRef,
                           std::vector< bool >&  active){
     RunPFEG(hoc,blockRef,active);
-    return (egCandidate_.size()>0);
+    return (!egCandidate_.empty());
   };
   
   //get PFCandidate collection
@@ -284,7 +297,7 @@ private:
   // ------ end of new stuff 
   
   
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);  
@@ -380,6 +393,7 @@ private:
   float x0inner_, x0middle_, x0outer_;
   //for PileUP
   float excluded_, Mustache_EtRatio_, Mustache_Et_out_;
+  const ESChannelStatus* channelStatus_;
   
   std::vector<unsigned int> AddFromElectron_;  
   

@@ -450,7 +450,7 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
         const boost::uint16_t& activeBoardsGtDaq, const int recordLength0,
         const int recordLength1, const unsigned int altNrBxBoardDaq,
         const std::vector<L1GtBoard>& boardMaps,
-        std::auto_ptr<L1GlobalTriggerReadoutRecord>& gtDaqReadoutRecord)
+        L1GlobalTriggerReadoutRecord* gtDaqReadoutRecord)
 {
 
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
@@ -506,7 +506,7 @@ void L1GlobalTriggerFDL::fillEvmFdlBlock(const int iBxInEvent,
         const boost::uint16_t& activeBoardsGtEvm, const int recordLength0,
         const int recordLength1, const unsigned int altNrBxBoardEvm,
         const std::vector<L1GtBoard>& boardMaps,
-        std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>& gtEvmReadoutRecord)
+        L1GlobalTriggerEvmReadoutRecord* gtEvmReadoutRecord)
 {
 
     typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;

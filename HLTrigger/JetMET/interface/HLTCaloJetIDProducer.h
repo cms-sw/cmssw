@@ -36,9 +36,9 @@ namespace reco {
 class HLTCaloJetIDProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTCaloJetIDProducer(const edm::ParameterSet & iConfig);
-    ~HLTCaloJetIDProducer();
+    ~HLTCaloJetIDProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     int min_N90_;                     ///< mininum N90

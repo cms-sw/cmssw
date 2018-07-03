@@ -23,11 +23,11 @@ public:
   /// constructor from parameter set
   NtpProducer( const edm::ParameterSet& );
   /// destructor
-  ~NtpProducer();
+  ~NtpProducer() override;
 
 protected:
   /// process an event
-  virtual void produce( edm::Event&, const edm::EventSetup&) override;
+  void produce( edm::Event&, const edm::EventSetup&) override;
 
 private:
   /// label of the collection to be read in
@@ -72,25 +72,25 @@ void NtpProducer<C>::produce( edm::Event& iEvent, const edm::EventSetup&) {
    edm::Handle<C> coll;
    iEvent.getByToken(srcToken_, coll);
    if(eventInfo_){
-     std::auto_ptr<edm::EventNumber_t> event( new edm::EventNumber_t );
-     std::auto_ptr<unsigned int> run( new unsigned int );
-     std::auto_ptr<unsigned int> lumi( new unsigned int );
+     std::unique_ptr<edm::EventNumber_t> event( new edm::EventNumber_t );
+     std::unique_ptr<unsigned int> run( new unsigned int );
+     std::unique_ptr<unsigned int> lumi( new unsigned int );
      *event = iEvent.id().event();
      *run = iEvent.id().run();
      *lumi = iEvent.luminosityBlock();
-     iEvent.put( event, prefix_ + "EventNumber" );
-     iEvent.put( run, prefix_ + "RunNumber" );
-     iEvent.put( lumi, prefix_ + "LumiBlock" );
+     iEvent.put(std::move(event), prefix_ + "EventNumber" );
+     iEvent.put(std::move(run), prefix_ + "RunNumber" );
+     iEvent.put(std::move(lumi), prefix_ + "LumiBlock" );
    }
    typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > >::const_iterator
      q = tags_.begin(), end = tags_.end();
    for(;q!=end; ++q) {
-     std::auto_ptr<std::vector<float> > x(new std::vector<float>);
+     std::unique_ptr<std::vector<float> > x(new std::vector<float>);
      x->reserve(coll->size());
      for (typename C::const_iterator elem=coll->begin(); elem!=coll->end(); ++elem ) {
        x->push_back(q->second(*elem));
      }
-     iEvent.put(x, q->first);
+     iEvent.put(std::move(x), q->first);
    }
 }
 

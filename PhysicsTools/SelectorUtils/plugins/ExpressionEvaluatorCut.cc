@@ -6,17 +6,17 @@
 class ExpressionEvaluatorCut : public CutApplicatorBase {
 public:
   ExpressionEvaluatorCut(const edm::ParameterSet& c);
-  virtual ~ExpressionEvaluatorCut(){};
+  ~ExpressionEvaluatorCut() override{};
   
-  result_type asCandidate(const argument_type& cand) const override final {
+  result_type asCandidate(const argument_type& cand) const final {
     return (*cut_)(cand);
   }
 
-  double value(const reco::CandidatePtr& cand) const override final {
+  double value(const reco::CandidatePtr& cand) const final {
     return cut_->value(cand);
   }
 
-  const std::string& name() const override final { return realname_; }
+  const std::string& name() const final { return realname_; }
 
 private:
   const std::string realname_;
@@ -48,7 +48,7 @@ ExpressionEvaluatorCut(const edm::ParameterSet& c) :
                                    valExpr                  );
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorBase",
-                                 total_expr.c_str());
+                                 total_expr);
   cut_ = eval.expr<CutApplicatorBase>();
 }
 

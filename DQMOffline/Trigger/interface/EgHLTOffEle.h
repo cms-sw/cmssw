@@ -100,7 +100,7 @@ namespace egHLT {
     OffEle(const reco::GsfElectron& ele,const ClusShapeData& shapeData,const IsolData& isolData,const HLTData& hltData,const EventData& eventData):
       gsfEle_(&ele),clusShapeData_(shapeData),isolData_(isolData),hltData_(hltData),eventData_(eventData),
       cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
-    ~OffEle(){}
+    ~OffEle()= default;
     
 
     //modifiers  

@@ -27,6 +27,7 @@
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 // Define typedefs for convenience
 namespace pat {
@@ -59,31 +60,31 @@ namespace pat {
       /// constructor from a Ptr to a reco muon
       Muon(const edm::Ptr<reco::Muon> & aMuonRef);
       /// destructor
-      virtual ~Muon();
+      ~Muon() override;
 
       /// required reimplementation of the Candidate's clone method
-      virtual Muon * clone() const { return new Muon(*this); }
+      Muon * clone() const override { return new Muon(*this); }
 
       // ---- methods for content embedding ----
       /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
-      reco::TrackRef track() const;
+      reco::TrackRef track() const override;
       using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
-      reco::TrackRef innerTrack() const { return track(); }
+      reco::TrackRef innerTrack() const override { return track(); }
       /// reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
-      reco::TrackRef standAloneMuon() const;
+      reco::TrackRef standAloneMuon() const override;
       /// reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
-      reco::TrackRef outerTrack() const { return standAloneMuon(); }
+      reco::TrackRef outerTrack() const override { return standAloneMuon(); }
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
-      reco::TrackRef combinedMuon() const;
+      reco::TrackRef combinedMuon() const override;
       /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
-      reco::TrackRef globalTrack() const { return combinedMuon(); }
+      reco::TrackRef globalTrack() const override { return combinedMuon(); }
       /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
-      const reco::Track * bestTrack() const { return muonBestTrack().get(); }
+      const reco::Track * bestTrack() const override { return muonBestTrack().get(); }
       /// Track selected to be the best measurement of the muon parameters (including PFlow global information)
-      reco::TrackRef      muonBestTrack() const ; 
+      reco::TrackRef      muonBestTrack() const override ; 
       /// Track selected to be the best measurement of the muon parameters (from muon information alone)
-      virtual reco::TrackRef tunePMuonBestTrack() const ;
+      reco::TrackRef tunePMuonBestTrack() const override ;
 
       /// set reference to Track selected to be the best measurement of the muon parameters (reimplemented from reco::Muon)
       /// if force == false, do not embed this track if it's embedded already (e.g. ig it's a tracker track, and that's already embedded)
@@ -109,11 +110,11 @@ namespace pat {
       // ---- methods for TeV refit tracks ----
     
       /// reference to Track reconstructed using hits in the tracker + "good" muon hits (reimplemented from reco::Muon)
-      reco::TrackRef pickyTrack() const;
+      reco::TrackRef pickyTrack() const override;
       /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits (reimplemented from reco::Muon)
-      reco::TrackRef tpfmsTrack() const;
+      reco::TrackRef tpfmsTrack() const override;
       /// reference to Track reconstructed using DYT algorithm
-      reco::TrackRef dytTrack() const;
+      reco::TrackRef dytTrack() const override;
       /// Deprecated accessors to call the corresponding above two functions; no dytMuon since this naming is deprecated.
       reco::TrackRef pickyMuon() const { return pickyTrack(); } // JMTBAD gcc deprecated attribute?
       reco::TrackRef tpfmsMuon() const { return tpfmsTrack(); } // JMTBAD gcc deprecated attribute?
@@ -135,14 +136,14 @@ namespace pat {
       /// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
       /// get the number of non-null PF candidates
-      size_t numberOfSourceCandidatePtrs() const { 
+      size_t numberOfSourceCandidatePtrs() const override { 
 	size_t res=0;
         if(pfCandidateRef_.isNonnull()) res++;
         if(refToOrig_.isNonnull()) res++;
 	return res;
       }
       /// get the candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
       // ---- methods for accessing muon identification ----
       /// accessor for the various muon id algorithms currently defined
@@ -180,6 +181,29 @@ namespace pat {
       /// ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
+      /// returns PUPPI isolations			
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
+      /// returns PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
+      /// sets PUPPI isolations
+      void setIsolationPUPPI(float chargedhadrons, float neutralhadrons, float photons)
+      {  
+         puppiChargedHadronIso_ = chargedhadrons;
+         puppiNeutralHadronIso_ = neutralhadrons;
+         puppiPhotonIso_ = photons;
+      }
+      /// sets PUPPINoLeptons isolations
+      void setIsolationPUPPINoLeptons(float chargedhadrons, float neutralhadrons, float photons)
+      {  
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons;
+         puppiNoLeptonsPhotonIso_ = photons;
+      }
+      
       /// Muon High Level Selection
       /// The user can choose to cache this info so they can drop the
       /// global tracks. If the global track is present these should
@@ -206,7 +230,7 @@ namespace pat {
 	// IpType defines the type of the impact parameter
 	typedef enum IPTYPE 
 	  {
-	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4
+	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, PVDZ = 4, IpTypeSize = 5
 	  } IpType; 
 	void initImpactParameters(void); // init IP defaults in a constructor
 	double dB(IPTYPE type) const;
@@ -241,6 +265,63 @@ namespace pat {
 
       float pfEcalEnergy() const { return pfEcalEnergy_; }
       void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
+
+      /// near-by jet information
+      float jetPtRatio() const { return jetPtRatio_; }
+      float jetPtRel()   const { return jetPtRel_; }
+      void  setJetPtRatio(float jetPtRatio){ jetPtRatio_ = jetPtRatio; }
+      void  setJetPtRel(float jetPtRel){ jetPtRel_ = jetPtRel; }
+
+      /// Muon MVA
+      float mvaValue() const { return mvaValue_; }
+      void  setMvaValue(float mva){ mvaValue_ = mva; }
+
+      /// Soft Muon MVA
+      float softMvaValue() const { return softMvaValue_; }
+      void  setSoftMvaValue(float softmva){ softMvaValue_ = softmva; }
+
+      /// MC matching information
+      reco::MuonSimType simType() const { return simType_; }
+      reco::ExtendedMuonSimType simExtType() const { return simExtType_; }
+      //  FLAVOUR:
+      //  - for non-muons: 0
+      //  - for primary muons: 13
+      //  - for non primary muons: flavour of the mother: std::abs(pdgId) of heaviest quark, or 15 for tau
+      int simFlavour() const { return simFlavour_;}
+      int simHeaviestMotherFlavour() const { return simHeaviestMotherFlavour_;}
+      int simPdgId() const { return simPdgId_;}
+      int simMotherPdgId() const { return simMotherPdgId_;}
+      int simBX() const { return simBX_;}
+      float simProdRho() const { return simProdRho_;}
+      float simProdZ() const {   return simProdZ_;}
+      float simPt() const {      return simPt_;}
+      float simEta() const {     return simEta_;}
+      float simPhi() const {     return simPhi_;}
+
+      void initSimInfo(void); 
+      void setSimType(reco::MuonSimType type){ simType_ = type; }
+      void setExtSimType(reco::ExtendedMuonSimType type){ simExtType_ = type; }
+      void setSimFlavour(int f){ simFlavour_ = f;}
+      void setSimHeaviestMotherFlavour(int id){ simHeaviestMotherFlavour_ = id;}
+      void setSimPdgId(int id){ simPdgId_ = id;}
+      void setSimMotherPdgId(int id){ simMotherPdgId_ = id;}
+      void setSimBX(int bx){ simBX_ = bx;}
+      void setSimProdRho(float rho){ simProdRho_ = rho;}
+      void setSimProdZ(float z){ simProdZ_ = z;}
+      void setSimPt(float pt){ simPt_ = pt;}
+      void setSimEta(float eta){ simEta_ = eta;}
+      void setSimPhi(float phi){ simPhi_ = phi;}
+      
+      /// Trigger information
+      const pat::TriggerObjectStandAlone* l1Object(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerL1Mu,idx);
+      }
+      const pat::TriggerObjectStandAlone* hltObject(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerMuon,idx);
+      }
+      bool triggered( const char * pathName ){
+	return triggerObjectMatchByPath(pathName,true,true)!=nullptr;
+      }
 
     protected:
 
@@ -299,8 +380,38 @@ namespace pat {
       float  ip_[IpTypeSize];        // dB and edB are the impact parameter at the primary vertex,
       float  eip_[IpTypeSize];       // and its uncertainty as recommended by the tracking group
 
+      /// PUPPI isolations
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
+      /// PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso_;
+      float puppiNoLeptonsNeutralHadronIso_;
+      float puppiNoLeptonsPhotonIso_;
 
       float pfEcalEnergy_;
+
+      /// near-by jet information
+      float jetPtRatio_;
+      float jetPtRel_;
+
+      /// Muon MVA
+      float mvaValue_;
+      float softMvaValue_;
+
+      /// MC matching information
+      reco::MuonSimType simType_;
+      reco::ExtendedMuonSimType simExtType_;
+      int simFlavour_;
+      int simHeaviestMotherFlavour_;
+      int simPdgId_;
+      int simMotherPdgId_;
+      int simBX_;
+      float simProdRho_;
+      float simProdZ_;
+      float simPt_;
+      float simEta_;
+      float simPhi_;
   };
 
 

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQM.EcalMonitorTasks.ClusterTask_cfi import ecalClusterTask
 from DQM.EcalMonitorTasks.EnergyTask_cfi import ecalEnergyTask
@@ -20,7 +21,7 @@ from DQM.EcalMonitorClient.TimingClient_cfi import ecalTimingClient
 from DQM.EcalMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
 from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
 
-ecalMEFormatter = cms.EDAnalyzer("EcalMEFormatter",
+ecalMEFormatter = DQMEDHarvester("EcalMEFormatter",
     MEs = cms.untracked.PSet(),
     verbosity = cms.untracked.int32(0)
 )

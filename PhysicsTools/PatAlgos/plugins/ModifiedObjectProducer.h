@@ -31,15 +31,15 @@ namespace pat {
       //declare products
       produces<Collection>();
     }
-    ~ModifiedObjectProducer() {}
+    ~ModifiedObjectProducer() override {}
 
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& evs) override final {
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& evs) final {
       modifier_->setEventContent(evs);
     }
     
-    virtual void produce(edm::Event& evt,const edm::EventSetup& evs) override final {
+    void produce(edm::Event& evt,const edm::EventSetup& evs) final {
       edm::Handle<edm::View<T> > input;
-      std::auto_ptr<Collection> output(new Collection);
+      auto output = std::make_unique<Collection>();
 
       evt.getByToken(src_,input);
       output->reserve(input->size());
@@ -52,7 +52,7 @@ namespace pat {
         modifier_->modify(obj);
       }
 
-      evt.put(output);
+      evt.put(std::move(output));
     }
 
   private:

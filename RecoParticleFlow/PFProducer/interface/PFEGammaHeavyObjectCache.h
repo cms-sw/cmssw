@@ -1,5 +1,5 @@
 #ifndef __RecoParticleFlow_PFProducer_pfEGHelpersHeavyObjectCache_h__
-#define __RecoEgamma_GsfElectronAlgos_pfEGHelpersHeavyObjectCache_h__
+#define __RecoParticleFlow_PFProducer_pfEGHelpersHeavyObjectCache_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
@@ -22,4 +22,4 @@ namespace pfEGHelpers {
   };
 }
 
-#endif
+#endif // __RecoParticleFlow_PFProducer_pfEGHelpersHeavyObjectCache_h__

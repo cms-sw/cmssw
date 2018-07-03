@@ -40,13 +40,13 @@ class EcalPreshowerRecHitsValidation: public DQMEDAnalyzer{
   EcalPreshowerRecHitsValidation(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~EcalPreshowerRecHitsValidation();
+  ~EcalPreshowerRecHitsValidation() override;
   
  protected:
  
   void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override; 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
  private:
   

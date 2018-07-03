@@ -26,16 +26,16 @@ namespace pat {
   class PATElectronSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATElectronSlimmer() { }
+    ~PATElectronSlimmer() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override final;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) final;
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
     
     private:
     const edm::EDGetTokenT<edm::View<pat::Electron> > src_;
     
     const StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
-    const StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_,dropClassifications_;
+    const StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropSaturation_,dropExtrapolations_,dropClassifications_;
     
     const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
     const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
@@ -60,6 +60,7 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     dropCorrections_(iConfig.getParameter<std::string>("dropCorrections")),
     dropIsolations_(iConfig.getParameter<std::string>("dropIsolations")),
     dropShapes_(iConfig.getParameter<std::string>("dropShapes")),
+    dropSaturation_(iConfig.getParameter<std::string>("dropSaturation")),
     dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
     dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
     reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
@@ -108,7 +109,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     }
     noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
-    auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
+    auto out = std::make_unique<std::vector<pat::Electron>>();
     out->reserve(src->size());
 
     if( modifyElectron_ ) { electronModifier_->setEvent(iEvent); }
@@ -130,8 +131,9 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
         if (dropCorrections_(electron)) { electron.setCorrections(reco::GsfElectron::Corrections()); }
-        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); electron.setEcalPFClusterIso(0); electron.setHcalPFClusterIso(0); }
-        if (dropShapes_(electron)) { electron.setShowerShape(reco::GsfElectron::ShowerShape());  }
+        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); }
+        if (dropShapes_(electron)) { electron.setShowerShape(reco::GsfElectron::ShowerShape()); }
+        if (dropSaturation_(electron)) { electron.setSaturationInfo(reco::GsfElectron::SaturationInfo()); }
         if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
         if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
         if (linkToPackedPF_) {
@@ -158,7 +160,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

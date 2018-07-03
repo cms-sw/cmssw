@@ -1,4 +1,4 @@
-#include "../interface/EnergyTask.h"
+#include "DQM/EcalMonitorTasks/interface/EnergyTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -36,21 +36,30 @@ namespace ecaldqm
     return false;
   }
 
+  void
+  EnergyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  {
+    // Reset by LS plots at beginning of every LS
+    MEs_.at("HitMapAllByLumi").reset();
+  }
+
   void 
   EnergyTask::runOnRecHits(EcalRecHitCollection const& _hits)
   {
     MESet& meHitMap(MEs_.at("HitMap"));
     MESet& meHitMapAll(MEs_.at("HitMapAll"));
+    MESet& meHitMapAllByLumi(MEs_.at("HitMapAllByLumi"));
     MESet& meHit(MEs_.at("Hit"));
     MESet& meHitAll(MEs_.at("HitAll"));
 
-    uint32_t notGood(~(0x1 << EcalRecHit::kGood));
+    uint32_t neitherGoodNorPoorCalib(~(0x1 << EcalRecHit::kGood |
+                                       0x1 << EcalRecHit::kPoorCalib));
     uint32_t neitherGoodNorOOT(~(0x1 << EcalRecHit::kGood |
                                  0x1 << EcalRecHit::kOutOfTime));
 
     for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
 
-      if(isPhysicsRun_ && hitItr->checkFlagMask(notGood)) continue;
+      if(isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorPoorCalib)) continue;
       if(!isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorOOT)) continue;
 
       float energy(hitItr->energy());
@@ -61,6 +70,7 @@ namespace ecaldqm
 
       meHitMap.fill(id, energy);
       meHitMapAll.fill(id, energy);
+      meHitMapAllByLumi.fill(id, energy);
       meHit.fill(id, energy);
       meHitAll.fill(id, energy);
 

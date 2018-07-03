@@ -36,9 +36,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
   public:
 
     explicit ElectronMcFakeValidator( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronMcFakeValidator() ;
-    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
-    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) ;
+    ~ElectronMcFakeValidator() override ;
+    void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override ;
+    void analyze( const edm::Event & e, const edm::EventSetup & c ) override ;
 
   private:
 
@@ -336,13 +336,15 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_HoEVsEta;
     MonitorElement *h2_ele_HoEVsPhi;
     MonitorElement *h2_ele_HoEVsE;
+//    MonitorElement *h1_scl_ESFrac;
+    MonitorElement *h1_scl_ESFrac_endcaps;
 
     MonitorElement *h1_ele_fbrem;
     MonitorElement *h1_ele_fbrem_barrel;
     MonitorElement *h1_ele_fbrem_endcaps;
-    MonitorElement *h1_ele_superclusterfbrem; // new 2014.02.12
-    MonitorElement *h1_ele_superclusterfbrem_barrel; // new 2014.02.12
-    MonitorElement *h1_ele_superclusterfbrem_endcaps; // new 2014.02.12
+    MonitorElement *h1_ele_superclusterfbrem;
+    MonitorElement *h1_ele_superclusterfbrem_barrel;
+    MonitorElement *h1_ele_superclusterfbrem_endcaps;
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;
 

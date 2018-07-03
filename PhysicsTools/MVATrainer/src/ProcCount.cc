@@ -23,16 +23,16 @@ class ProcCount : public TrainProcessor {
 
 	ProcCount(const char *name, const AtomicId *id,
 	          MVATrainer *trainer);
-	virtual ~ProcCount();
+	~ProcCount() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	std::vector<double>	neutrals;
 };
 
-static ProcCount::Registry registry("ProcCount");
+ProcCount::Registry registry("ProcCount");
 
 ProcCount::ProcCount(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :

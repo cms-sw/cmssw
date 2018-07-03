@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ 	<RotationSection label="cavernData.xml">
+		<Rotation name="Shaft" thetaX="90*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
+	</RotationSection> 
+	<MaterialSection label="cavernData.xml">
+  		<CompositeMaterial name="RIConc" density="2.49*g/cm3" symbol=" " method="mixture by weight">
+   		<MaterialFraction fraction="0.91968">
+    		<rMaterial name="materials:Stand.Concrete"/>
+  		</MaterialFraction>
+   		<MaterialFraction fraction="0.08032">
+    		<rMaterial name="materials:StainlessSteel"/>
+   		</MaterialFraction>
+ 		</CompositeMaterial>
+	</MaterialSection>
+	<ConstantsSection label="cavernData.xml" eval="true">
+                <Constant name="CMSWallEDX" value="1467*cm"/>
+                <Constant name="CMSWallEDY" value="1680*cm"/>
+                <Constant name="CMSWallIDX" value="1330*cm"/>
+                <Constant name="CMSWallIDY" value="1543*cm"/>
+                <Constant name="CMSWallIDZ" value="2656*cm"/> 
+                <Constant name="ShaftY" value="10000*cm"/> 
+                <Constant name="ShaftZ" value="150*cm"/> 
+                <Constant name="ShaftDZ" value="5100*cm"/>  <!--shaft height-->
+                <Constant name="ShaftPosZ" value="10000*cm-[cavernData:ShaftDZ]"/> 
+                <Constant name="ShaftR" value="(2605*cm-166.5*cm)*0.5"/> 
+                <Constant name="ShaftAirR" value="(2405*cm-366.5*cm)*0.5"/> 
+                <Constant name="ShaftPosY" value="-2605*cm+[cavernData:ShaftR]"/> 
+                <Constant name="CMSR3" value="2.69*m"/>
+		<Constant name="CMSR4" value="7.99*m"/>
+		<Constant name="HFRiseZ1" value="1395*cm"/>
+		<Constant name="HFRiseZ2" value="1099*cm"/>
+		<Constant name="YBFeetDX" value="(504*cm-230*cm)*0.5"/>
+		<Constant name="YBFeetDY" value="(880*cm-604*cm)*0.5"/>
+		<Constant name="YBFeetDZ" value="[cms:MBRingZ]"/>
+		<Constant name="YBFeetPosX" value="504*cm-[cavernData:YBFeetDX]"/>
+		<Constant name="YBFeetPosY" value="-880*cm+[cavernData:YBFeetDY]"/>
+		<Constant name="YBFeetAir1DY" value="(710*cm-604*cm)*0.5"/>
+		<Constant name="YBFeetAir1DX" value="(443*cm-230*cm)"/>
+		<Constant name="YBFeetAir2DY" value="(723*cm-604*cm)*0.5"/>
+		<Constant name="YBFeetAir2DX" value="(504*cm-443*cm)"/>
+		<Constant name="YBFeetAir3DY" value="(788*cm-710*cm)*0.5"/>
+		<Constant name="YBFeetAir3DX" value="(270*cm-230*cm)"/>
+		<Constant name="YBFeetAir4DY" value="[cavernData:YBFeetDY]-[cavernData:YBFeetAir1DY]-[cavernData:YBFeetAir3DY]"/>
+		<Constant name="FloorDX" value="1250*cm"/>
+		<Constant name="FloorDY" value="360*cm"/>
+		<Constant name="FloorAirZDX" value="115*cm"/>
+		<Constant name="FloorAirZDY" value="265*cm"/>
+		<Constant name="HCDX" value="10*cm"/>
+		<Constant name="HCDY" value="80*cm"/>
+		<Constant name="H1DY" value="10*cm"/>
+		<Constant name="H3DX" value="60*cm"/>
+		<Constant name="H3DY" value="10*cm"/>
+		<Constant name="FloorToDX" value="(620*cm-[cavernData:H3DX])/2"/>
+		<Constant name="FloorToDY" value="60*cm"/>
+		<Constant name="HAirDY" value="[cavernData:FloorToDY]-[cavernData:H3DY]"/>
+		<Constant name="FloAirCDY" value="220*cm"/>
+		<Constant name="FloAirCDX" value="255*cm"/>
+		<Constant name="FloAirCDZ" value="520*cm"/>
+		<Constant name="FloAirC1DX" value="620*cm"/>
+		<Constant name="FloAirC1DZ" value="100*cm"/>
+		<Constant name="FloAirC2DX" value="([cavernData:FloAirC1DX]-[cavernData:FloAirCDX])*0.5"/>
+		<Constant name="FloAirC3DX" value="60*cm"/>
+		<Constant name="FloAirC4DX" value="[cavernData:FloAirC3DX]"/>
+		<Constant name="FloAirC4DZ" value="40*cm"/>
+		<Constant name="FloAirC4DY1" value="1270*cm"/>
+		<Constant name="FloAirC4DY2" value="1350*cm"/>
+	</ConstantsSection>
+</DDDefinition>

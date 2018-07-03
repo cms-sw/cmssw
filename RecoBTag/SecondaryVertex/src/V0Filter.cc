@@ -1,14 +1,8 @@
 #include <cmath>
 
 #include <Math/GenVector/PxPyPzM4D.h>
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/BTauReco/interface/ParticleMasses.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 
 using namespace reco; 
@@ -62,12 +56,19 @@ V0Filter::operator () (const reco::TrackRef *tracks, unsigned int n) const
 bool
 V0Filter::operator () (const std::vector<reco::CandidatePtr> & tracks) const
 {
-	std::vector<const reco::Track*> trackPtrs(tracks.size());
-	for(unsigned int i = 0; i < tracks.size(); i++)
-		trackPtrs[i] = tracks[i]->bestTrack();
+	if (tracks.size() != 2)
+		return true;
 
-	return (*this)(&trackPtrs[0], tracks.size());
+	if (tracks[0]->charge() * tracks[1]->charge() > 0)
+		return true;
+	
+	double invariantMass = (tracks[0]->p4()+tracks[1]->p4()).M();
+	if (std::abs(invariantMass - ParticleMasses::k0) < k0sMassWindow)
+		return false;
+
+	return true;
 }
+
 bool
 V0Filter::operator () (const std::vector<const reco::Track *> & tracks) const
 {

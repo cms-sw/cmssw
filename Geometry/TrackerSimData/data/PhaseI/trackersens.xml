@@ -20,9 +20,9 @@ July 2009
     <Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
   </SpecPar>
   <SpecPar name="ROUHitsTrackerPixelEndcap">
-    <PartSelector path="//PixelForwardSensor1" />
-    <PartSelector path="//PixelForwardSensor2" />
-    <PartSelector path="//PixelForwardSensor3" />
+    <PartSelector path="//.*:PixelForwardSensor" />
+    <!-- PartSelector path="//PixelForwardSensor2" / -->
+    <!-- PartSelector path="//PixelForwardSensor3" / -->
     <Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
     <Parameter name="ReadOutName" value="TrackerHitsPixelEndcap" />
   </SpecPar>

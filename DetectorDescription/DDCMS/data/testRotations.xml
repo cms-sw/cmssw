@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+
+  <RotationSection label="testRotations.xml">
+    <RotationByAxis name="z30" axis="z" angle="30*deg"/>
+    <RotationSequence name="z30x20">
+      <RotationByAxis axis="z" angle="30*deg"/>
+      <RotationByAxis axis="x" angle="20*deg"/>
+    </RotationSequence>
+    <RotationSequence name="x90y45">
+      <RotationByAxis axis="x" angle="90*deg"/>
+      <RotationByAxis axis="y" angle="45*deg"/>
+    </RotationSequence>
+    <RotationSequence name="x90y90">
+      <RotationByAxis axis="x" angle="90*deg"/>
+      <RotationByAxis axis="y" angle="90*deg"/>
+    </RotationSequence>
+    <RotationSequence name="x90y135">
+      <RotationByAxis axis="x" angle="90*deg"/>
+      <RotationByAxis axis="y" angle="135*deg"/>
+    </RotationSequence>
+    <RotationSequence name="x90y180">
+      <RotationByAxis axis="x" angle="90*deg"/>
+      <RotationByAxis axis="y" angle="180*deg"/>
+    </RotationSequence>
+    <RotationByAxis name="x90" axis="x" angle="90*deg"/>
+    <Rotation name="cmsimIdentity" phiX="0" thetaX="90*deg" phiY="90*deg" thetaY="90*deg" phiZ="0" thetaZ="0"/>
+    <RotationByAxis name="newrotIdentity" axis="z" angle="0*deg"/> <!-- This seems silly -->
+    <ReflectionRotation name="180R" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" />
+  </RotationSection>
+
+</DDDefinition>

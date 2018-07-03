@@ -37,23 +37,19 @@ namespace edm {
         class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerMultiFit() {};
-                virtual ~EcalUncalibRecHitWorkerMultiFit() {};
-
+                ~EcalUncalibRecHitWorkerMultiFit() override {};
+        private:
                 void set(const edm::EventSetup& es) override;
                 void set(const edm::Event& evt) override;
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
-		
-		edm::ParameterSetDescription getAlgoDescription();
-        protected:
-
-                double pedVec[3];
-		double pedRMSVec[3];
-                double gainRatios[3];
+                void run(const edm::Event& evt, const EcalDigiCollection & digis, EcalUncalibratedRecHitCollection & result) override;
+	public:	
+		edm::ParameterSetDescription getAlgoDescription() override;
+        private:
 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;
@@ -64,32 +60,25 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 double timeCorrection(float ampli,
                     const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
-                const SampleMatrix &noisecor(bool barrel, int gain) const;                
+                const SampleMatrix & noisecor(bool barrel, int gain) const { return noisecors_[barrel?1:0][gain];}
+                const SampleMatrixGainArray &noisecor(bool barrel) const { return noisecors_[barrel?1:0]; }
                 
                 // multifit method
-                SampleMatrix noisecorEBg12;
-                SampleMatrix noisecorEEg12;
-                SampleMatrix noisecorEBg6;
-                SampleMatrix noisecorEEg6;
-                SampleMatrix noisecorEBg1;
-                SampleMatrix noisecorEEg1;
-                FullSampleVector fullpulseEB;
-                FullSampleVector fullpulseEE;
-                FullSampleMatrix fullpulsecovEB;
-                FullSampleMatrix fullpulsecovEE;
+                std::array<SampleMatrixGainArray, 2> noisecors_;
                 BXVector activeBX;
                 bool ampErrorCalculation_;
                 bool useLumiInfoRunHeader_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 
 		int bunchSpacingManual_;
-                edm::EDGetTokenT<int> bunchSpacing_; 
+                edm::EDGetTokenT<unsigned int> bunchSpacing_; 
 
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
                 
                 // time algorithm to be used to set the jitter and its uncertainty
-                std::string timealgo_;
+                enum TimeAlgo {noMethod, ratioMethod, weightsMethod};
+                TimeAlgo timealgo_=noMethod;
 
                 // time weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
@@ -101,6 +90,17 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 bool doPrefitEE_;
 		double prefitMaxChiSqEB_;
 		double prefitMaxChiSqEE_;
+                bool dynamicPedestalsEB_;
+                bool dynamicPedestalsEE_;
+                bool mitigateBadSamplesEB_;
+                bool mitigateBadSamplesEE_;
+                bool gainSwitchUseMaxSampleEB_;
+                bool gainSwitchUseMaxSampleEE_;
+                bool selectiveBadSampleCriteriaEB_;
+                bool selectiveBadSampleCriteriaEE_;
+                double addPedestalUncertaintyEB_;
+                double addPedestalUncertaintyEE_;
+                bool simplifiedNoiseModelForGainSwitch_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 

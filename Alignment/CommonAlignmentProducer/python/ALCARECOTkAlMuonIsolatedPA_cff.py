@@ -4,8 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOTkAlMuonIsolatedPAHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    # FIXME: eventSetupPathsKey inherited from pp version - switch to its own 'TkAlMuonIsolatedPA'???
-    eventSetupPathsKey = 'TkAlMuonIsolated',
+    eventSetupPathsKey = 'TkAlMuonIsolatedPA',
     throw = False # tolerate triggers stated above, but not available
     )
 

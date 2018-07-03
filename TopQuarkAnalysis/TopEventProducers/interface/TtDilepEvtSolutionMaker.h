@@ -16,10 +16,10 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
   public:
 
     explicit TtDilepEvtSolutionMaker(const edm::ParameterSet & iConfig);
-    ~TtDilepEvtSolutionMaker();
+    ~TtDilepEvtSolutionMaker() override;
 
-    virtual void beginJob();
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void beginJob() override;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
 

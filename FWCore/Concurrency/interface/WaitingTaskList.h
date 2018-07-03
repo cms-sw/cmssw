@@ -22,14 +22,19 @@
  then several other tasks have been created in a different thread and before running those
  new tasks you need the result of the long calculation.
  \code
- class CalcTask : public tbb::task {
+ class CalcTask : public edm::WaitingTask {
     public:
     CalcTask(edm::WaitingTaskList* iWL, Value* v):
     m_waitList(iWL), m_output(v) {}
  
     tbb::task* execute() {
-     *m_output = doCalculation();
-     m_waitList.doneWaiting();
+     std::exception_ptr ptr;
+     try {
+       *m_output = doCalculation();
+     } catch(...) {
+       ptr = std::current_exception();
+     }
+     m_waitList.doneWaiting(ptr);
      return nullptr;
     }
     private:
@@ -50,7 +55,7 @@
  tbb::task::spawn(calc);
  \endcode
  
- Finally in some unrelated part of the code we can create tasks needed the calculation
+ Finally in some unrelated part of the code we can create tasks that need the calculation
  \code
  tbb::task* t1 = makeTask1(v);
  waitList.add(t1);
@@ -69,13 +74,31 @@
 #include <atomic>
 
 // user include files
+#include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
-namespace tbb {
-   class task;
-}
 
 namespace edm {
+   class EmptyWaitingTask : public WaitingTask {
+   public:
+      EmptyWaitingTask() = default;
+      
+      tbb::task* execute() override { return nullptr;}
+   };
+
+   namespace waitingtask {
+      struct TaskDestroyer {
+         void operator()(tbb::task* iTask) const {
+            tbb::task::destroy(*iTask);
+         }
+      };
+   }
+   ///Create an EmptyWaitingTask which will properly be destroyed
+   inline std::unique_ptr<edm::EmptyWaitingTask, waitingtask::TaskDestroyer> make_empty_waiting_task() {
+      return std::unique_ptr<edm::EmptyWaitingTask, waitingtask::TaskDestroyer>( new (tbb::task::allocate_root()) edm::EmptyWaitingTask{});
+   }
+
    class WaitingTaskList
    {
       
@@ -85,31 +108,39 @@ namespace edm {
        * \param[in] iInitialSize specifies the initial size of the cache used to hold waiting tasks.
        * The value is only useful for optimization as the object can resize itself.
        */
-      WaitingTaskList(unsigned int iInitialSize = 2);
-      ~WaitingTaskList();
+      explicit WaitingTaskList(unsigned int iInitialSize = 2);
+      ~WaitingTaskList() = default;
       
       // ---------- member functions ---------------------------
       
+      /** Use in the case where you need to inform the parent task of a
+       failure before some other child task which may be run later reports
+       a different, but related failure. You must later call doneWaiting
+       with same exception later in the same thread.
+       */
+      void presetTaskAsFailed(std::exception_ptr iExcept);
+
       ///Adds task to the waiting list
       /**If doneWaiting() has already been called then the added task will immediately be spawned.
        * If that is not the case then the task will be held until doneWaiting() is called and will
        * then be spawned.
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
-      void add(tbb::task*);
+      void add(WaitingTask*);
       
       ///Signals that the resource is now available and tasks should be spawned
       /**The owner of the resource calls this function to allow the waiting tasks to
        * start accessing it.
+       * If the task fails, a non 'null' std::exception_ptr should be used.
        * To have tasks wait again one must call reset().
        * Calls to add() and doneWaiting() can safely be done concurrently.
        */
-      void doneWaiting();
+      void doneWaiting(std::exception_ptr iPtr);
       
       ///Resets access to the resource so that added tasks will wait.
       /**The owner of the resouce calls reset() to make tasks wait.
        * Calling reset() is NOT thread safe. The system must guarantee that no tasks are
-       * using the resource when reset() is called and neither add() nor doneWaiting() call
+       * using the resource when reset() is called and neither add() nor doneWaiting() can
        * be called concurrently with reset().
        */
       void reset();
@@ -124,7 +155,7 @@ namespace edm {
       void announce();
       
       struct WaitNode {
-         tbb::task* m_task;
+         WaitingTask* m_task;
          std::atomic<WaitNode*> m_next;
          bool m_fromCache;
          
@@ -137,12 +168,13 @@ namespace edm {
          }
       };
       
-      WaitNode* createNode(tbb::task* iTask);
+      WaitNode* createNode(WaitingTask* iTask);
       
       
       // ---------- member data --------------------------------
       std::atomic<WaitNode*> m_head;
-      WaitNode* m_nodeCache;
+      std::unique_ptr<WaitNode[]> m_nodeCache;
+      CMS_THREAD_GUARD(m_waiting) std::exception_ptr m_exceptionPtr;
       unsigned int m_nodeCacheSize;
       std::atomic<unsigned int> m_lastAssignedCacheIndex;
       std::atomic<bool> m_waiting;    

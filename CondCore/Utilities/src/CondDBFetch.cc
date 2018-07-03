@@ -2,7 +2,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo, isOra ); \
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo ); \
     payloadPtr = payload; \
     match = true; \
   }
@@ -14,13 +14,14 @@
 #include "CondFormats.h"
 
 //
+#include <memory>
 #include <sstream>
 
 namespace cond {
 
   namespace persistency {
 
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr, bool isOra ){
+    std::pair<std::string, std::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, std::shared_ptr<void> payloadPtr ){
 
       bool match = false;
       FETCH_PAYLOAD_CASE( std::string ) 
@@ -30,6 +31,7 @@ namespace cond {
       FETCH_PAYLOAD_CASE( AlignmentErrorsExtended )
       FETCH_PAYLOAD_CASE( AlignmentSurfaceDeformations )
       FETCH_PAYLOAD_CASE( Alignments )
+      FETCH_PAYLOAD_CASE( AlignPCLThresholds )	
       FETCH_PAYLOAD_CASE( BeamSpotObjects )
       FETCH_PAYLOAD_CASE( CSCBadChambers )
       FETCH_PAYLOAD_CASE( CSCBadStrips )
@@ -48,6 +50,9 @@ namespace cond {
       FETCH_PAYLOAD_CASE( CSCDDUMap )
       FETCH_PAYLOAD_CASE( CSCL1TPParameters )
       FETCH_PAYLOAD_CASE( CSCRecoDigiParameters )
+      FETCH_PAYLOAD_CASE( CTPPSPixelDAQMapping )
+      FETCH_PAYLOAD_CASE( CTPPSPixelAnalysisMask )
+      FETCH_PAYLOAD_CASE( CTPPSPixelGainCalibrations )
       FETCH_PAYLOAD_CASE( CastorChannelQuality )
       FETCH_PAYLOAD_CASE( CastorElectronicsMap )
       FETCH_PAYLOAD_CASE( CastorGainWidths )
@@ -137,11 +142,12 @@ namespace cond {
       FETCH_PAYLOAD_CASE( GBRForest )
       FETCH_PAYLOAD_CASE( GBRForestD )
       FETCH_PAYLOAD_CASE( HBHENegativeEFilter )
+      FETCH_PAYLOAD_CASE( HFPhase1PMTParams )
       FETCH_PAYLOAD_CASE( HcalChannelQuality )
-      FETCH_PAYLOAD_CASE( HcalCholeskyMatrices )
+      FETCH_PAYLOAD_CASE( HcalDcsValues )
       FETCH_PAYLOAD_CASE( HcalElectronicsMap )
       FETCH_PAYLOAD_CASE( HcalFlagHFDigiTimeParams )
-      FETCH_PAYLOAD_CASE( HcalDcsValues )
+      FETCH_PAYLOAD_CASE( HcalFrontEndMap )
       FETCH_PAYLOAD_CASE( HcalGains )
       FETCH_PAYLOAD_CASE( HcalGainWidths )
       FETCH_PAYLOAD_CASE( HcalL1TriggerObjects )
@@ -154,15 +160,21 @@ namespace cond {
       FETCH_PAYLOAD_CASE( HcalPedestalWidths )
       FETCH_PAYLOAD_CASE( HcalPedestals )
       FETCH_PAYLOAD_CASE( HcalQIEData )
+      FETCH_PAYLOAD_CASE( HcalSiPMCharacteristics )
+      FETCH_PAYLOAD_CASE( HcalSiPMParameters )
       FETCH_PAYLOAD_CASE( HcalRecoParams )
       FETCH_PAYLOAD_CASE( HcalRespCorrs )
       FETCH_PAYLOAD_CASE( HcalTimeCorrs )
+      FETCH_PAYLOAD_CASE( HcalTPChannelParameters )
+      FETCH_PAYLOAD_CASE( HcalTPParameters )
       FETCH_PAYLOAD_CASE( HcalZSThresholds )
       FETCH_PAYLOAD_CASE( HcalInterpolatedPulseColl )
       FETCH_PAYLOAD_CASE( OOTPileupCorrectionBuffer )
       FETCH_PAYLOAD_CASE( StorableDoubleMap<AbsOOTPileupCorrection> )
       FETCH_PAYLOAD_CASE( JetCorrectorParametersCollection )
+      FETCH_PAYLOAD_CASE( JME::JetResolutionObject )
       FETCH_PAYLOAD_CASE( METCorrectorParametersCollection )
+      FETCH_PAYLOAD_CASE( MEtXYcorrectParametersCollection )
       FETCH_PAYLOAD_CASE( L1CaloEcalScale )
       FETCH_PAYLOAD_CASE( L1CaloEtScale )
       FETCH_PAYLOAD_CASE( L1CaloGeometry )
@@ -201,6 +213,18 @@ namespace cond {
       FETCH_PAYLOAD_CASE( L1RPCHwConfig )
       FETCH_PAYLOAD_CASE( l1t::CaloParams )
       FETCH_PAYLOAD_CASE( l1t::CaloConfig )
+      FETCH_PAYLOAD_CASE( L1TMuonBarrelParams )
+      FETCH_PAYLOAD_CASE( L1TMuonGlobalParams )
+      FETCH_PAYLOAD_CASE( L1TMuonOverlapParams )
+      FETCH_PAYLOAD_CASE( L1TUtmAlgorithm )
+      FETCH_PAYLOAD_CASE( L1TUtmBin )
+      FETCH_PAYLOAD_CASE( L1TUtmCondition )
+      FETCH_PAYLOAD_CASE( L1TUtmCut )
+      FETCH_PAYLOAD_CASE( L1TUtmCutValue )
+      FETCH_PAYLOAD_CASE( L1TUtmObject )
+      FETCH_PAYLOAD_CASE( L1TUtmScale )
+      FETCH_PAYLOAD_CASE( L1TUtmTriggerMenu )
+      FETCH_PAYLOAD_CASE( L1TGlobalParameters )
       FETCH_PAYLOAD_CASE( L1TriggerKey )
       FETCH_PAYLOAD_CASE( L1TriggerKeyList )
       FETCH_PAYLOAD_CASE( lumi::LumiSectionData )
@@ -212,11 +236,11 @@ namespace cond {
       FETCH_PAYLOAD_CASE( PhysicsTGraphPayload )
       FETCH_PAYLOAD_CASE( PhysicsTFormulaPayload )
       FETCH_PAYLOAD_CASE( PCaloGeometry )
-      FETCH_PAYLOAD_CASE( PHcalParameters )
       FETCH_PAYLOAD_CASE( HcalParameters )
       FETCH_PAYLOAD_CASE( PGeometricDet )
       FETCH_PAYLOAD_CASE( PGeometricDetExtra )
       FETCH_PAYLOAD_CASE( PTrackerParameters )
+      FETCH_PAYLOAD_CASE( PHGCalParameters )
       //FETCH_PAYLOAD_CASE( PerformancePayload )
       FETCH_PAYLOAD_CASE( PerformancePayloadFromTable )
       FETCH_PAYLOAD_CASE( PerformancePayloadFromTFormula )
@@ -238,6 +262,9 @@ namespace cond {
       FETCH_PAYLOAD_CASE( RPCObTemp )
       FETCH_PAYLOAD_CASE( RPCObUXC )
       FETCH_PAYLOAD_CASE( RPCObVmon )
+      FETCH_PAYLOAD_CASE( RPCLBLinkMap )
+      FETCH_PAYLOAD_CASE( RPCDCCLinkMap )
+      FETCH_PAYLOAD_CASE( RPCAMCLinkMap )
       FETCH_PAYLOAD_CASE( RPFlatParams )
       FETCH_PAYLOAD_CASE( RecoIdealGeometry )
       FETCH_PAYLOAD_CASE( RunInfo )
@@ -274,20 +301,21 @@ namespace cond {
       FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
       FETCH_PAYLOAD_CASE( EcalCondObjectContainer<float> )
       FETCH_PAYLOAD_CASE( MagFieldConfig )
+      FETCH_PAYLOAD_CASE( L1TGlobalPrescalesVetos )
 
       //   
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
+	auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
 	payloadPtr = payload;
 	match = true;
       }
       if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-	auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
+	auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
 	payloadPtr = payload;
 	match = true;
       }
       if( payloadTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
-	auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo, isOra );
+	auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo );
 	payloadPtr = payload;
 	match = true;
       }
@@ -296,16 +324,14 @@ namespace cond {
       return std::make_pair( payloadTypeName, payloadPtr );
     }
 
-    std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
-      boost::shared_ptr<void> payloadPtr;
+    std::pair<std::string,std::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
+      std::shared_ptr<void> payloadPtr;
       cond::Binary data;
       cond::Binary streamerInfo;
       std::string payloadTypeName;
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
-      if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
-      //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      bool isOra = session.isOraSession();
-      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
+      if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetch" );
+      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr );
     }
 
  }

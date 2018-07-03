@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #include "OnlineDB/EcalCondDB/interface/RunDCSLVDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 RunDCSLVDat::RunDCSLVDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_lv = 0;
   m_lvnom = 0;
@@ -30,7 +30,7 @@ RunDCSLVDat::~RunDCSLVDat()
 
 
 void RunDCSLVDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -39,21 +39,21 @@ void RunDCSLVDat::prepareWrite()
 
 
 void RunDCSLVDat::writeDB(const EcalLogicID* ecid, const RunDCSLVDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSLVDat::fetchData(map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchLastData(fillMap);
 
 }
 
 ResultSet *RunDCSLVDat::getBarrelRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.value_number , '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
     "FROM "+ getEBAccount()+".FWWIENERMARATHONCHANNEL_LV d "
@@ -64,13 +64,17 @@ ResultSet *RunDCSLVDat::getBarrelRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(std::runtime_error("RunDCSLVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
+    throw(std::runtime_error(std::string("RunDCSLVDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
+#else
+    throw(std::runtime_error(std::string("RunDCSLVDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
 
 ResultSet *RunDCSLVDat::getEndcapRset() {
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query = "SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
     " d.VALUE_NUMBER, '5' NOMINAL_VALUE , d.VALUE_TIMESTAMP "
     "FROM "+ getEEAccount()+".FWWIENERMARATHONCHANNEL_LV d "
@@ -81,7 +85,11 @@ ResultSet *RunDCSLVDat::getEndcapRset() {
     rset = m_readStmt->executeQuery();
   }
   catch (SQLException e) {
-    throw(std::runtime_error("RunDCSLVDat::getEndcapRset():  " + e.getMessage() + " " + query));
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
+    throw(std::runtime_error(std::string("RunDCSLVDat::getEndcapRset():  ") + getOraMessage(&e) + " " + query));
+#else
+    throw(std::runtime_error(std::string("RunDCSLVDat::getEndcapRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
+#endif
   }
   return rset;
 }
@@ -94,12 +102,12 @@ void RunDCSLVDat::fillTheMap(ResultSet *rset,
 
   try {
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
       dat.setLV(        rset->getFloat(7) );
       dat.setLVNominal( rset->getFloat(8) );
@@ -116,7 +124,11 @@ void RunDCSLVDat::fillTheMap(ResultSet *rset,
     } 
   }
   catch (SQLException &e) {
-    throw(std::runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
+    throw(std::runtime_error(std::string("RunDCSLVDat::fetchData():  ")+getOraMessage(&e)));
+#else
+    throw(std::runtime_error(std::string("RunDCSLVDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
+#endif
   }
 }
 
@@ -170,7 +182,7 @@ void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, const Tm& sinceTm) {
 }
 
 void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -188,6 +200,10 @@ void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
     fillTheMap(rset, fillMap);
   } 
   catch (SQLException &e) {
-    throw(std::runtime_error("RunDCSLVDat::fetchData():  "+e.getMessage()));
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
+    throw(std::runtime_error(std::string("RunDCSLVDat::fetchData():  ")+getOraMessage(&e)));
+#else
+    throw(std::runtime_error(std::string("RunDCSLVDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
+#endif
   }
 }

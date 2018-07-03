@@ -12,17 +12,17 @@ using namespace std;
 
 ESIntegrityClient::ESIntegrityClient(const edm::ParameterSet& ps) :
   ESClient(ps),
-  hFED_(0),
-  hFiberOff_(0),
-  hFiberBadStatus_(0),
-  hKF1_(0),
-  hKF2_(0),
-  hKBC_(0),
-  hKEC_(0), 
-  hL1ADiff_(0),
-  hBXDiff_(0),
-  hOrbitNumberDiff_(0),
-  hSLinkCRCErr_(0)
+  hFED_(nullptr),
+  hFiberOff_(nullptr),
+  hFiberBadStatus_(nullptr),
+  hKF1_(nullptr),
+  hKF2_(nullptr),
+  hKBC_(nullptr),
+  hKEC_(nullptr), 
+  hL1ADiff_(nullptr),
+  hBXDiff_(nullptr),
+  hOrbitNumberDiff_(nullptr),
+  hSLinkCRCErr_(nullptr)
 {
   // read in look-up table
   for (int i=0; i<2; ++i) 
@@ -44,8 +44,8 @@ ESIntegrityClient::ESIntegrityClient(const edm::ParameterSet& ps) :
 
   for(int i=0; i<2; ++i)
     for(int j=0; j<2; ++j){
-      meFED_[i][j] = 0;
-      meKCHIP_[i][j] = 0;
+      meFED_[i][j] = nullptr;
+      meKCHIP_[i][j] = nullptr;
     }
 
   std::string lutPath(ps.getUntrackedParameter<edm::FileInPath>("LookupTable").fullPath());
@@ -102,7 +102,7 @@ void ESIntegrityClient::endLumiAnalyze(DQMStore::IGetter& _igetter) {
   double nDI_FedErr[56];
   for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
 
-  MonitorElement* me = 0;
+  MonitorElement* me = nullptr;
   
   me = _igetter.get(prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking");
   hFED_ = getHisto(me, cloneME_, hFED_);

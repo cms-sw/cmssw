@@ -1,5 +1,5 @@
-#ifndef APPROX_EXP_H
-#define APPROX_EXP_H
+#ifndef DataFormatsMathAPPROX_EXP_H
+#define DataFormatsMathAPPROX_EXP_H
 /*  Quick and not that dirty vectorizable exp implementations
     Author: Florent de Dinechin, Aric, ENS-Lyon 
     with advice from Vincenzo Innocente, CERN
@@ -29,58 +29,23 @@ Not sure it makes that much sense in the vector context.
 // 6 is perfect. 
 // 5 provides max 2-ulp error, 
 // 4 loses 44 ulps (6 bits) for an acceleration of 10% WRT 6
-// (I don't subtract the loop and call overhead, so it would be more for inlined code)
+// (I don't subtract the loop and call overhead, so it would be more for constexprd code)
 
 // see the comments in the code for the accuracy you get from a given degree
 
-
-#include <cstdint>
-#include <cmath>
-#include <limits>
-#include <algorithm>
-
-#ifndef APPROX_MATH_N
-#define APPROX_MATH_N
-namespace approx_math {
-  union binary32 {
-    binary32() : ui32(0) {};
-    binary32(float ff) : f(ff) {};
-    binary32(int32_t ii) : i32(ii){}
-    binary32(uint32_t ui) : ui32(ui){}
-    
-    uint32_t ui32; /* unsigned int */                
-    int32_t i32; /* Signed int */                
-    float f;
-  };
-
-#ifdef __SSE4_1__
-  inline float fpfloor(float x) {
-    return std::floor(x);
-  }
-#else
-  inline float fpfloor(float x) {
-    int32_t ret = x;
-    binary32 xx(x);
-    ret-=(xx.ui32>>31);  
-    return ret;
-  }
-#endif
-
-}
-#endif
-
+#include "DataFormats/Math/interface/approx_math.h"
 
 template<int DEGREE>
-inline float approx_expf_P(float p);
+constexpr float approx_expf_P(float p);
 
 // degree =  2   => absolute accuracy is  8 bits
 template<>
-inline float approx_expf_P<2>(float y) {
+constexpr float approx_expf_P<2>(float y) {
   return   float(0x2.p0) + y * (float(0x2.07b99p0) + y * float(0x1.025b84p0)) ;
 }
 // degree =  3   => absolute accuracy is  12 bits
 template<>
-inline float approx_expf_P<3>(float y) {
+constexpr float approx_expf_P<3>(float y) {
 #ifdef HORNER  // HORNER 
   return   float(0x2.p0) + y * (float(0x1.fff798p0) + y * (float(0x1.02249p0) + y * float(0x5.62042p-4))) ;
 #else // ESTRIN
@@ -91,17 +56,17 @@ inline float approx_expf_P<3>(float y) {
 }
 // degree =  4   => absolute accuracy is  17 bits
 template<>
-inline float approx_expf_P<4>(float y) {
+constexpr float approx_expf_P<4>(float y) {
   return   float(0x2.p0) + y * (float(0x1.fffb1p0) + y * (float(0xf.ffe84p-4) + y * (float(0x5.5f9c1p-4) + y * float(0x1.57755p-4)))) ;
 }
 // degree =  5   => absolute accuracy is  22 bits
 template<>
-inline float approx_expf_P<5>(float y) {
+constexpr float approx_expf_P<5>(float y) {
   return   float(0x2.p0) + y * (float(0x2.p0) + y * (float(0xf.ffed8p-4) + y * (float(0x5.5551cp-4) + y * (float(0x1.5740d8p-4) + y * float(0x4.49368p-8))))) ;
 }
 // degree =  6   => absolute accuracy is  27 bits
 template<>
-inline float approx_expf_P<6>(float y) {
+constexpr float approx_expf_P<6>(float y) {
 #ifdef HORNER  // HORNER 
   float p =  float(0x2.p0) + y * (float(0x2.p0) + y * (float(0x1.p0) + y * (float(0x5.55523p-4) + y * (float(0x1.5554dcp-4) + y * (float(0x4.48f41p-8) + y * float(0xb.6ad4p-12)))))) ;
 #else // ESTRIN does seem to save a cycle or two
@@ -118,7 +83,7 @@ inline float approx_expf_P<6>(float y) {
 
 // degree =  7   => absolute accuracy is  31 bits
 template<>
-inline float approx_expf_P<7>(float y) {
+constexpr float approx_expf_P<7>(float y) {
    return float(0x2.p0) + y * (float(0x2.p0) + y * (float(0x1.p0) + y * (float(0x5.55555p-4) + y * (float(0x1.5554e4p-4) + y * (float(0x4.444adp-8) + y * (float(0xb.6a8a6p-12) + y * float(0x1.9ec814p-12))))))) ;
 }
 
@@ -146,7 +111,7 @@ end;
 
 // valid for -87.3365 < x < 88.7228
 template<int DEGREE>
-inline float unsafe_expf_impl(float x) {
+constexpr float unsafe_expf_impl(float x) {
   using namespace approx_math;
   /* Sollya for the following constants:
      display=hexadecimal;
@@ -195,12 +160,12 @@ inline float unsafe_expf_impl(float x) {
 #ifndef NO_APPROX_MATH
 
 template<int DEGREE>
-inline float unsafe_expf(float x) {
+constexpr float unsafe_expf(float x) {
  return  unsafe_expf_impl<DEGREE>(x); 
 }
 
 template<int DEGREE>
-inline float approx_expf(float x) {
+constexpr float approx_expf(float x) {
 
   constexpr float inf_threshold =float(0x5.8b90cp4);
   // log of the smallest normal
@@ -217,11 +182,11 @@ inline float approx_expf(float x) {
 
 #else
 template<int DEGREE>
-inline float unsafe_expf(float x) {
+constexpr float unsafe_expf(float x) {
   return std::exp(x);
 }
 template<int DEGREE>
-inline float approx_expf(float x) {
+constexpr float approx_expf(float x) {
   return std::exp(x);
 }
 #endif  // NO_APPROX_MATH

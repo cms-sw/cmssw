@@ -10,6 +10,8 @@ namespace reco {
    class MuonChamberMatch {
       public:
          std::vector<reco::MuonSegmentMatch> segmentMatches;    // segments matching propagated track trajectory
+         std::vector<reco::MuonSegmentMatch> gemMatches;    // segments matching propagated track trajectory
+         std::vector<reco::MuonSegmentMatch> me0Matches;    // segments matching propagated track trajectory
          std::vector<reco::MuonSegmentMatch> truthMatches;      // SimHit projection matching propagated track trajectory
          std::vector<reco::MuonRPCHitMatch>  rpcMatches;        // rpc hits matching propagated track trajectory 
          float edgeX;      // distance to closest edge in X (negative - inside, positive - outside)

@@ -32,7 +32,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
    vv.reserve( pv.size() + 1 ) ;
    for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
    {
-      vv.push_back( k_ScaleFromDDDtoGeant*pv[i] ) ;
+      vv.emplace_back( k_ScaleFromDDDtoGeant*pv[i] ) ;
    }
 
    const Pt3D cor1 (  vv[0],  vv[1], vv[2] ) ;
@@ -55,7 +55,7 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
    const CCGFloat tilt ( asin( 0.5*zdif/( vv[1]>vv[0] ? vv[1] : vv[0] ) ) ) ;
 
-   vv.push_back( tilt ) ;
+   vv.emplace_back( tilt ) ;
 
    const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
 						      geom->parMgr(), 

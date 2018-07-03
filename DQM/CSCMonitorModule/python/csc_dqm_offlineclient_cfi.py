@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQM.CSCMonitorModule.csc_dqm_masked_hw_cfi import *
 
-dqmCSCOfflineClient = cms.EDAnalyzer("CSCOfflineClient",
+dqmCSCOfflineClient = DQMEDHarvester("CSCOfflineClient",
 
   MASKEDHW = CSCMaskedHW,
 

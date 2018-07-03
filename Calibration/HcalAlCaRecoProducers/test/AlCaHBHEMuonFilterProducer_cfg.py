@@ -6,13 +6,13 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag=autoCond['run2_mc']
 
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
-process.load("Calibration.HcalAlCaRecoProducers.alcahbhemuon_cfi")
-process.load("Calibration.HcalAlCaRecoProducers.alcaHBHEMuonFilter_cfi")
 
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
@@ -23,12 +23,22 @@ process.source = cms.Source("PoolSource",
         )
 )
 
-process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalHBHEMuon_Output_cff")
-
-process.muonOutput = cms.OutputModule("PoolOutputModule",
-                                      outputCommands = process.OutALCARECOHcalHBHEMuon.outputCommands,
-                                      fileName = cms.untracked.string('PoolOutput.root'),
+process.ALCARECOStreamHcalCalHBHEMuon = cms.OutputModule("PoolOutputModule",
+                                                         SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOHcalCalHBHEMuonFilter')
+        ),
+                                                         dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('ALCARECO'),
+        filterName = cms.untracked.string('ALCARECOHcalCalHBHEMuon')
+        ),
+                                                         eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+                                                         outputCommands = process.OutALCARECOHcalCalHBHEMuonFilter.outputCommands,
+                                                         fileName = cms.untracked.string('PoolOutput.root'),
                                       )
 
-process.p = cms.Path(process.AlcaHBHEMuonFilter*process.HBHEMuonProd)
-process.e = cms.EndPath(process.muonOutput)
+# Path and EndPath definitions
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.ALCARECOStreamHcalCalHBHEMuonOutPath = cms.EndPath(process.ALCARECOStreamHcalCalHBHEMuon)
+
+# Schedule definition
+process.schedule = cms.Schedule(process.pathALCARECOHcalCalHBHEMuonFilter,process.endjob_step,process.ALCARECOStreamHcalCalHBHEMuonOutPath)

@@ -8,9 +8,9 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
   producedEcalClusterEnergyCorrectionObjectSpecificParameters = cms.untracked.bool(True),
 
   getEEAlignmentFromFile = cms.untracked.bool(True),
-  EEAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/EEAlignment_2010.txt'),
+  EEAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/EEAlignment_2015.txt'),
   getESAlignmentFromFile = cms.untracked.bool(True),
-  ESAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/ESAlignment_2010.txt'),
+  ESAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/ESAlignment_2015.txt'),
   getEBAlignmentFromFile = cms.untracked.bool(True),
-  EBAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/EBAlignment_2010.txt')
+  EBAlignmentFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/EBAlignment_2015.txt')
 )

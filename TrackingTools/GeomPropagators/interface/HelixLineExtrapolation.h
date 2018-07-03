@@ -25,8 +25,8 @@ public:
   typedef Basic3DVector<float>   DirectionType;
   typedef Basic3DVector<double>  PositionTypeDouble;
   typedef Basic3DVector<double>  DirectionTypeDouble;
-
 public:
+  virtual ~HelixLineExtrapolation() = default;
   //
   // the helix is passed to the constructor and does not appear in the interface
   //

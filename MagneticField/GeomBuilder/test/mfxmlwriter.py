@@ -1,3 +1,7 @@
+###
+### Dump a full geometry into a single xml file.
+###
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MagneticFieldXMLWriter")
@@ -6,9 +10,10 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 #process.load('Configuration.Geometry.MagneticFieldGeometry_cff')
 
-GEOMETRY_VERSION = 90322
+#GEOMETRY_VERSION = 90322
 #GEOMETRY_VERSION = 120812
 #GEOMETRY_VERSION = 130503
+GEOMETRY_VERSION = 160812
 
 
 if (GEOMETRY_VERSION == 90322) : # Note: Version 90322 and 71212 are identical.
@@ -42,7 +47,17 @@ elif (GEOMETRY_VERSION == 130503) :
         'Geometry/CMSCommonData/data/materials.xml'),
     rootNodeName = cms.string('cmsMagneticField:MAGF')
   )
-
+elif (GEOMETRY_VERSION == 160812) :
+  # Note: material description is for the large YE4 version
+  process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
+    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
+        'Geometry/CMSCommonData/data/cms.xml', 
+        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
+        'Geometry/CMSCommonData/data/materials.xml'),
+    rootNodeName = cms.string('cmsMagneticField:MAGF')
+  )
 
 
 

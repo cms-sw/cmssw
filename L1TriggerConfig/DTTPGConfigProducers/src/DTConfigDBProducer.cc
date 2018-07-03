@@ -25,7 +25,7 @@
 using std::cout;
 using std::endl;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
 
 //
 // constructors and destructor
@@ -67,11 +67,11 @@ DTConfigDBProducer::~DTConfigDBProducer()
 // member functions
 //
 
-std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd& iRecord)
+std::unique_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd& iRecord)
 {
    using namespace edm;
 
-   std::auto_ptr<DTConfigManager> dtConfig = std::auto_ptr<DTConfigManager>( new DTConfigManager() );
+   std::unique_ptr<DTConfigManager> dtConfig = std::unique_ptr<DTConfigManager>( new DTConfigManager() );
    DTConfigManager & dttpgConfig = *(dtConfig.get());
 
    // DB specific requests

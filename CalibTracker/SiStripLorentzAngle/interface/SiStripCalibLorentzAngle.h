@@ -1,7 +1,7 @@
 #ifndef CalibTracker_SiStripLorentzAngle_SiStripCalibLorentzAngle_h
 #define CalibTracker_SiStripLorentzAngle_SiStripCalibLorentzAngle_h
 
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -40,11 +40,11 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   
   explicit SiStripCalibLorentzAngle(const edm::ParameterSet& conf);
   
-  virtual ~SiStripCalibLorentzAngle();
+  ~SiStripCalibLorentzAngle() override;
   
-  SiStripLorentzAngle* getNewObject();
+  SiStripLorentzAngle* getNewObject() override;
   
-  void algoBeginJob(const edm::EventSetup&);
+  void algoBeginJob(const edm::EventSetup&) override;
   
  private:
  

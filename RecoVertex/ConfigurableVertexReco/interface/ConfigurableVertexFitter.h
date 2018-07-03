@@ -22,22 +22,22 @@ class ConfigurableVertexFitter : public VertexFitter<5>
 
     ConfigurableVertexFitter ( const edm::ParameterSet & );
     ConfigurableVertexFitter ( const ConfigurableVertexFitter & o );
-    ~ConfigurableVertexFitter();
+    ~ConfigurableVertexFitter() override;
 
-    ConfigurableVertexFitter * clone () const;
+    ConfigurableVertexFitter * clone () const override;
 
-    CachingVertex<5> vertex ( const std::vector < reco::TransientTrack > & t ) const;
-    CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> & tracks) const;
+    CachingVertex<5> vertex ( const std::vector < reco::TransientTrack > & t ) const override;
+    CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> & tracks) const override;
     CachingVertex<5> vertex( const std::vector<RefCountedVertexTrack> & tracks,
-        const reco::BeamSpot & spot ) const;
+        const reco::BeamSpot & spot ) const override;
     CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & tracks, 
-        const GlobalPoint& linPoint) const;
+        const GlobalPoint& linPoint) const override;
     CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & tracks, 
-        const GlobalPoint& priorPos, const GlobalError& priorError) const;
+        const GlobalPoint& priorPos, const GlobalError& priorError) const override;
     CachingVertex<5> vertex( const std::vector<reco::TransientTrack> & tracks, 
-                          const reco::BeamSpot& beamSpot) const;
+                          const reco::BeamSpot& beamSpot) const override;
     CachingVertex<5> vertex(const std::vector<RefCountedVertexTrack> & tracks, 
-      const GlobalPoint& priorPos, const GlobalError& priorError) const;
+      const GlobalPoint& priorPos, const GlobalError& priorError) const override;
 
   private:
     AbstractConfFitter * theFitter;

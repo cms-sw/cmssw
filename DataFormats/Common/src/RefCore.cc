@@ -1,9 +1,9 @@
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include <cassert>
-#include <iostream>
-#include <ostream>
 
 static
 void throwInvalidRefFromNullOrInvalidRef(const edm::TypeID& id) {
@@ -45,12 +45,13 @@ namespace edm {
       }
   
   RefCore::RefCore( RefCore const& iOther) :
-      cachePtr_(iOther.cachePtr_.load()),
       processIndex_(iOther.processIndex_),
-      productIndex_(iOther.productIndex_) {}
+      productIndex_(iOther.productIndex_) {
+       cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+     }
   
   RefCore& RefCore::operator=( RefCore const& iOther) {
-    cachePtr_ = iOther.cachePtr_.load();
+    cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
     processIndex_ = iOther.processIndex_;
     productIndex_ = iOther.productIndex_;
     return *this;
@@ -271,7 +272,7 @@ namespace edm {
       }
     }
     auto prodGetter = productToBeInserted.productGetter();
-    if (productGetter() == 0 &&  prodGetter != 0) {
+    if (productGetter() == nullptr &&  prodGetter != nullptr) {
       setProductGetter(prodGetter);
     }
   }

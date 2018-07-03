@@ -45,7 +45,7 @@ StandAloneMuonSmoother::StandAloneMuonSmoother(const ParameterSet& par,
   theUpdator = new KFUpdator();
   
   // The Kalman smoother
-  theSmoother = 0 ;
+  theSmoother = nullptr ;
 		
 }
 
@@ -80,7 +80,7 @@ StandAloneMuonSmoother::SmoothingResult StandAloneMuonSmoother::smooth(const Tra
   
   vector<Trajectory> trajectoriesSM = smoother()->trajectories(inputTrajectory);
   
-  if(!trajectoriesSM.size()){
+  if(trajectoriesSM.empty()){
     LogTrace(metname) << "No Track smoothed!";
     return SmoothingResult(false,inputTrajectory); 
   }

@@ -1,0 +1,15 @@
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="SimG4Core/Notification"/>
+<use   name="SimG4CMS/Calo"/>
+<use   name="geant4core"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="hepmc"/>
+<use   name="rootmath"/>
+<export>
+  <lib   name="1"/>
+</export>
+

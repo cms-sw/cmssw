@@ -49,7 +49,7 @@ namespace edm {
       /// same.  Return 'true' if we really added the new
       /// value_type object, and 'false' if the
       /// value_type object was already present.
-      bool insertMapped(value_type const& v);
+      bool insertMapped(value_type const& v, bool forceUpdate = false);
 
       ///Not thread safe
       void clear();

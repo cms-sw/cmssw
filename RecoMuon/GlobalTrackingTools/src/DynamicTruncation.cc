@@ -74,7 +74,10 @@ void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface& tsos, DTRecSe
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     DTLayerId layid((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, theG->idToDet(layid)->surface());
-    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+    if (temp.isValid()) {
+        TrajectoryStateOnSurface tempTsos = updatorHandle->update(temp, **it);
+        if (tempTsos.isValid() ) tsos = tempTsos;
+    }
   }
 }
 
@@ -88,7 +91,10 @@ void DynamicTruncation::updateWithCSChits(TrajectoryStateOnSurface& tsos, CSCSeg
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     const CSCLayer* cscLayer = cscGeom->layer((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, cscLayer->surface());  
-    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+    if (temp.isValid()) {
+      TrajectoryStateOnSurface tempTsos = updatorHandle->update(temp, **it);
+      if (tempTsos.isValid() ) tsos = tempTsos;
+    }
   }
 }
 
@@ -261,7 +267,7 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, 
     vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, *propagatorCompatibleDet, *theEstimator);
     //cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " " 
     //<< dumper.dumpLayer(navLayers[ilayer]);
-    if (comps.size() > 0) {
+    if (!comps.empty()) {
       for ( unsigned int icomp=0; icomp<comps.size(); icomp++ ) {
 		DetId id(comps[icomp].first->geographicalId().rawId());
 		detMap[ilayerCorrected].push_back(id);
@@ -297,7 +303,7 @@ void DynamicTruncation::fillSegmentMaps( map<int, vector<DetId> > &compatibleIds
 //===> testDTstation
 void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, vector<DTRecSegment4D> const &segments, 
 				      double &bestEstimator, DTRecSegment4D &bestSeg, TrajectoryStateOnSurface &tsosdt) {
-  if (segments.size() == 0) return;
+  if (segments.empty()) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     DTChamberId chamber(segments[iSeg].chamberId());
     if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
@@ -318,7 +324,7 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
 //===> testCSCstation
 void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, vector<CSCSegment> const &segments, 
 				       double &bestEstimator, CSCSegment &bestSeg, TrajectoryStateOnSurface &tsoscsc) {
-  if (segments.size() == 0) return;
+  if (segments.empty()) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     CSCDetId chamber(segments[iSeg].cscDetId());
     if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
@@ -378,12 +384,24 @@ void DynamicTruncation::preliminaryFit(map<int, vector<DetId> > compatibleIds, m
       getThresholdFromCFG(initThr, DetId(bestDTSeg.chamberId()));
       if (bestDTEstimator >= initThr) continue;
       prelFitMeas.push_back(theMuonRecHitBuilder->build(&bestDTSeg));
-      prelFitState = updatorHandle->update(tsosDTlayer, *theMuonRecHitBuilder->build(&bestDTSeg));
+      auto aSegRH = prelFitMeas.back();
+      auto uRes = updatorHandle->update(tsosDTlayer, *aSegRH);
+      if (uRes.isValid()){
+	prelFitState = uRes;
+      } else {
+	prelFitMeas.pop_back();
+      }
     } else {
       getThresholdFromCFG(initThr, DetId(bestCSCSeg.cscDetId()));
       if (bestCSCEstimator >= initThr) continue;
       prelFitMeas.push_back(theMuonRecHitBuilder->build(&bestCSCSeg));
-      prelFitState = updatorHandle->update(tsosCSClayer, *theMuonRecHitBuilder->build(&bestCSCSeg));
+      auto aSegRH = prelFitMeas.back();
+      auto uRes = updatorHandle->update(tsosCSClayer, *aSegRH);
+      if (uRes.isValid()){
+	prelFitState = uRes;
+      } else {
+	prelFitMeas.pop_back();
+      }
     }
   }
   if (!prelFitMeas.empty()) prelFitMeas.pop_back();

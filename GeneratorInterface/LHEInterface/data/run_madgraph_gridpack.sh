@@ -40,6 +40,9 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${12}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
+ncpu=${13}
+echo "%MSG-MG5 thread count requested = $ncpu (ignored)"
+
 # retrieve the wanted gridpack from the official repository 
 fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz 
 

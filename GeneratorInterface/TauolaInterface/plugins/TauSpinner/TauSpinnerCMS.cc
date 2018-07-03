@@ -143,33 +143,33 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   }
   bool isValid=true;
   if(!(0<=WT && WT<10)){isValid=false; WT=1.0; WTFlip=1.0;}
-  std::auto_ptr<bool> TauSpinnerWeightisValid(new bool);
+  std::unique_ptr<bool> TauSpinnerWeightisValid(new bool);
   *TauSpinnerWeightisValid =isValid;
-  e.put(TauSpinnerWeightisValid,"TauSpinnerWTisValid");
+  e.put(std::move(TauSpinnerWeightisValid),"TauSpinnerWTisValid");
 
   // regular weight
-  std::auto_ptr<double> TauSpinnerWeight(new double);
+  std::unique_ptr<double> TauSpinnerWeight(new double);
   *TauSpinnerWeight =WT;
-  e.put(TauSpinnerWeight,"TauSpinnerWT");
+  e.put(std::move(TauSpinnerWeight),"TauSpinnerWT");
   
   // flipped weight (ie Z->H or H->Z)
-  std::auto_ptr<double> TauSpinnerWeightFlip(new double);
+  std::unique_ptr<double> TauSpinnerWeightFlip(new double);
   *TauSpinnerWeightFlip =WTFlip;
-  e.put(TauSpinnerWeightFlip,"TauSpinnerWTFlip");
+  e.put(std::move(TauSpinnerWeightFlip),"TauSpinnerWTFlip");
   
   // h+ polarization
   double WThplus=WT;
   if(polSM<0.0 && polSM!=-999 && isValid) WThplus=0;
-  std::auto_ptr<double> TauSpinnerWeighthplus(new double);
+  std::unique_ptr<double> TauSpinnerWeighthplus(new double);
   *TauSpinnerWeighthplus = WThplus;
-  e.put(TauSpinnerWeighthplus,"TauSpinnerWThplus");
+  e.put(std::move(TauSpinnerWeighthplus),"TauSpinnerWThplus");
 
   // h- polarization
   double WThminus=WT;
   if(polSM>0.0&& polSM!=-999 && isValid) WThminus=0;
-  std::auto_ptr<double> TauSpinnerWeighthminus(new double);
+  std::unique_ptr<double> TauSpinnerWeighthminus(new double);
   *TauSpinnerWeighthminus = WThminus;
-  e.put(TauSpinnerWeighthminus,"TauSpinnerWThminus");
+  e.put(std::move(TauSpinnerWeighthminus),"TauSpinnerWThminus");
   return ;
 }
 
@@ -183,8 +183,8 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleP
       const reco::GenParticle *hx=&(*itr);
       if(!isFirst(hx)) continue;
       GetLastSelf(hx);
-      const reco::GenParticle *recotau1=NULL;
-      const reco::GenParticle *recotau2=NULL;
+      const reco::GenParticle *recotau1=nullptr;
+      const reco::GenParticle *recotau2=nullptr;
       unsigned int ntau(0),ntauornu(0);
       for(unsigned int i=0; i<itr->numberOfDaughters(); i++){
 	const reco::Candidate *dau=itr->daughter(i);

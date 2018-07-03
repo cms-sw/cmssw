@@ -16,7 +16,6 @@
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include <functional>
-#include <ext/functional>
 #include <algorithm>
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -58,11 +57,11 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 
         struct VertexData {
                 VTX                             vertex;
-                Measurement1D                   dist2d, dist3d;
+                Measurement1D                   dist1d,dist2d, dist3d;
                 GlobalVector                    direction;
 		
 		// Used by ROOT storage
-		CMS_CLASS_VERSION(11)
+		CMS_CLASS_VERSION(12)
         };
 
         struct TrackFinder {
@@ -97,7 +96,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	typedef typename IPTI::input_container input_container;
 
 	TemplatedSecondaryVertexTagInfo() {}
-	virtual ~TemplatedSecondaryVertexTagInfo() {}
+	~TemplatedSecondaryVertexTagInfo() override {}
 
 	TemplatedSecondaryVertexTagInfo(
 	                const std::vector<IndexedTrackData> &trackData,
@@ -106,14 +105,14 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 			 const edm::Ref<std::vector<IPTI> >&);
 
         /// clone
-        virtual TemplatedSecondaryVertexTagInfo * clone(void) const {
+        TemplatedSecondaryVertexTagInfo * clone(void) const override {
             return new TemplatedSecondaryVertexTagInfo(*this);
         }
   
 	const edm::Ref<std::vector<IPTI> > &trackIPTagInfoRef() const
 	{ return m_trackIPTagInfoRef; }
 
-	virtual edm::RefToBase<Jet> jet(void) const
+	edm::RefToBase<Jet> jet(void) const override
 	{ return m_trackIPTagInfoRef->jet(); }
 
 //	virtual input_container ipTracks(void) const
@@ -149,12 +148,14 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	float trackWeight(unsigned int svIndex, const typename input_container::value_type &track) const;
 
 	Measurement1D
-	flightDistance(unsigned int index, bool in2d = false) const
-	{ return in2d ? m_svData[index].dist2d : m_svData[index].dist3d; }
+	flightDistance(unsigned int index, int dim =0) const{
+          if(dim==1)      return m_svData[index].dist1d;
+          else if(dim==2) return m_svData[index].dist2d;
+          else            return m_svData[index].dist3d;
+        }
 	const GlobalVector &flightDirection(unsigned int index) const
 	{ return m_svData[index].direction; }
-
-	virtual TaggingVariableList taggingVariables() const;
+	TaggingVariableList taggingVariables() const override;
 	
 	// Used by ROOT storage
 	CMS_CLASS_VERSION(11)
@@ -302,6 +303,10 @@ template<class IPTI,class VTX> TaggingVariableList  TemplatedSecondaryVertexTagI
 
 	for(typename std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::VertexData>::const_iterator iter = m_svData.begin();
 	    iter != m_svData.end(); iter++) {
+                vars.insert(btau::flightDistance1dVal,
+                                        iter->dist1d.value(), true);
+                vars.insert(btau::flightDistance1dSig,
+                                        iter->dist1d.significance(), true); 
 		vars.insert(btau::flightDistance2dVal,
 					iter->dist2d.value(), true);
 		vars.insert(btau::flightDistance2dSig,

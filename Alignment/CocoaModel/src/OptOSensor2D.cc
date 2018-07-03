@@ -19,11 +19,13 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <cstdlib>
+#include <cmath>		// include floating-point std::abs functions
 
 using namespace CLHEP;
 
@@ -83,8 +85,8 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
     ALIUtils::dump3v( measvv, " $$$$$$MEAS IN LOCAL FRAME");
     ALIUtils::dump3v( measvv+centreGlob(), " $$$$$$MEAS IN GLOBAL FRAME");
 
-    ALIdouble detH =  1000*meas.valueSimulated(0); if(fabs(detH) <= 1.e-9 ) detH = 0.;
-    ALIdouble detV =  1000*meas.valueSimulated(1); if(fabs(detV) <= 1.e-9 ) detV = 0.;
+    ALIdouble detH =  1000*meas.valueSimulated(0); if(std::abs(detH) <= 1.e-9 ) detH = 0.;
+    ALIdouble detV =  1000*meas.valueSimulated(1); if(std::abs(detV) <= 1.e-9 ) detV = 0.;
     std::cout << "REAL value: " << chrg << meas.valueType(0) << ": " << 1000*meas.value()[0] << chrg << " " << meas.valueType(1) << ": " << 1000*meas.value()[1]  << " (mm)  " << (this)->name() 
 	 << "   DIFF= " << detH-1000*meas.value()[0] << " " << detV-1000*meas.value()[1] << std::endl;
     std::cout << "SIMU value: " << chrg << " " << meas.valueType(0) << ": "
@@ -142,7 +144,7 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
     //--------- get measurement value of the current sensor
     std::vector< Measurement* >& measv = Model::MeasurementList();
     unsigned int ii;
-    Measurement *omeas = 0;
+    Measurement *omeas = nullptr;
     for( ii = 0; ii < measv.size(); ii++ ) {
       //-   std::cout << " sensor2d finding meas " <<  measv[ii]->sensorName() << " " << name() << std::endl;
       if( measv[ii]->sensorName() == name() ) {
@@ -150,8 +152,10 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 	break;
       }
     }
-    if( omeas == 0 ) {
-      std::cerr << "!!!EXITING OptOSensor2D::fastTraversesLightRay: meas " << name() << " not found " << std::endl;
+    if (omeas == nullptr) {
+      throw cms::Exception("LogicError")
+        << "@SUB=OptOSensor2D::fastTraversesLightRay\n"
+        << "meas " << name() << " not found";
     }
 
     ALIdouble interslcx = omeas->value( 0 );
@@ -216,10 +220,13 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 	deviX = devi;
 	deviY = devi;
       }
+      if(ALIUtils::debug >= 4) {
+        std::cout << "devi " << devi << " devi x  " << deviX << " devi y  " << deviY << std::endl;
+      }
     }
   }
   if(ALIUtils::debug >= 4) {
-    std::cout << "devi " << devi << " devi x  " << deviX << " devi y  " << deviY << std::endl;
+    std::cout << " devi x  " << deviX << " devi y  " << deviY << std::endl;
   }
 
   lightray.setPoint( inters );
@@ -239,7 +246,7 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 {
   if (ALIUtils::debug >= 4) std::cout << "%%% LR: DETAILED TRAVERSES SENSOR2D  " << name() << std::endl;
   if( DeviationsFromFileSensor2D::apply() && fdevi_from_file) {
-   DeviationsFromFileSensor2D::setApply( 0 );
+   DeviationsFromFileSensor2D::setApply( false );
    //- std::cout << "fdeviFromFile" << fdevi_from_file << std::endl;
     if(ALIUtils::debug >= 0 )std::cerr << "!!WARNING: sensor " << name() << " has read deviation from file and it will not be taken into account. Please use FAST TRAVERSES" << deviFromFile << std::endl;
   }
@@ -262,7 +269,7 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 
   if (ALIUtils::debug >= 4) std::cout << std::endl << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
   //---------- Refract while entering object
   ALIdouble refra_ind1 = 1.;
   ALIdouble refra_ind2 = findExtraEntryValueMustExist("refra_ind");
@@ -270,7 +277,7 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 
   if (ALIUtils::debug >= 4) std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
   //---------- Get backward plate
-  plate = getPlate(0, 1);
+  plate = getPlate(false, true);
   //---------- Refract while exiting splitter
   lightray.refract( plate, refra_ind2, refra_ind1 );
 
@@ -293,7 +300,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 
   if(ALIUtils::debug >= 5) std::cout << "OptOSensor2D fillExtraEntry wordlist[1] " << wordlist[1] << std::endl;
   //---------- check if it is deviation read from file 
-  fdevi_from_file = 0;
+  fdevi_from_file = false;
   //-  std::cout << "WL " << wordlist[1]<< "WL " << wordlist[2]<< "WL " << wordlist[3] << std::endl;
   if( wordlist[1] == ALIstring("devi") && wordlist[2] == ALIstring("from_file") ) {
     //---------- Open file
@@ -317,7 +324,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
       }*/
 
     deviFromFile = new DeviationsFromFileSensor2D();
-    fdevi_from_file = 1;
+    fdevi_from_file = true;
     if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
     //----- Read header
     ALIstring sensor1_name, sensor2_name;
@@ -352,7 +359,7 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
       deviFromFile->setOffset( offsetX, offsetY );
     }
     deviFromFile->readFile( ifdevi );
-    fdevi_from_file = 1;
+    fdevi_from_file = true;
     if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
 
  

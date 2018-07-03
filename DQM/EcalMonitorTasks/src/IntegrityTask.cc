@@ -1,4 +1,4 @@
-#include "../interface/IntegrityTask.h"
+#include "DQM/EcalMonitorTasks/interface/IntegrityTask.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -13,6 +13,8 @@ namespace ecaldqm
   void
   IntegrityTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
   {
+    // Reset by LS plots at beginning of every LS
+    MEs_.at("MapByLumi").reset();
     MEs_.at("ByLumi").reset();
   }
 
@@ -20,9 +22,10 @@ namespace ecaldqm
   void
   IntegrityTask::runOnDetIdCollection(IDCollection const& _ids, Collections _collection)
   {
-    if(_ids.size() == 0) return;
+    // Collection is empty if there are no errors
+    if(_ids.empty()) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
     switch(_collection){
     case kEBGainErrors:
     case kEEGainErrors:
@@ -40,6 +43,7 @@ namespace ecaldqm
       return;
     }
 
+    MESet& meMapByLumi(MEs_.at("MapByLumi"));
     MESet& meByLumi(MEs_.at("ByLumi"));
     MESet& meTotal(MEs_.at("Total"));
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
@@ -50,6 +54,8 @@ namespace ecaldqm
                     int dccid(dccId(id));
                     meByLumi.fill(dccid);
                     meTotal.fill(dccid);
+                    // Fill Integrity Errors Map with channel errors for this lumi
+                    meMapByLumi.fill(id);
 
                     meTrendNErrors.fill(double(timestamp_.iLumi), 1.);
                   });
@@ -58,9 +64,10 @@ namespace ecaldqm
   void
   IntegrityTask::runOnElectronicsIdCollection(EcalElectronicsIdCollection const& _ids, Collections _collection)
   {
-    if(_ids.size() == 0) return;
+    // Collection is empty if there are no errors
+    if(_ids.empty()) return;
 
-    MESet* set(0);
+    MESet* set(nullptr);
     switch(_collection){
     case kTowerIdErrors:
       set = &MEs_.at("TowerId");
@@ -72,6 +79,7 @@ namespace ecaldqm
       return;
     }
 
+    MESet& meMapByLumi(MEs_.at("MapByLumi"));
     MESet& meByLumi(MEs_.at("ByLumi"));
     MESet& meTotal(MEs_.at("Total"));
     MESet& meTrendNErrors(MEs_.at("TrendNErrors"));
@@ -81,12 +89,18 @@ namespace ecaldqm
                     set->fill(id);
                     int dccid(id.dccId());
                     double nCrystals(0.);
+                    std::vector<DetId> chIds( getElectronicsMap()->dccTowerConstituents(dccid, id.towerId()) );
                     if(dccid <= kEEmHigh + 1 || dccid >= kEEpLow + 1)
-                      nCrystals = getElectronicsMap()->dccTowerConstituents(dccid, id.towerId()).size();
+                      nCrystals = chIds.size();
                     else
                       nCrystals = 25.;
                     meByLumi.fill(dccid, nCrystals);
                     meTotal.fill(dccid, nCrystals);
+                    // Fill Integrity Errors Map with tower errors for this lumi
+                    // Since binned by crystal for compatibility with channel errors,
+                    // fill with constituent channels of tower
+                    for(std::vector<DetId>::iterator chItr(chIds.begin()); chItr != chIds.end(); ++chItr)
+                      meMapByLumi.fill(*chItr);
 
                     meTrendNErrors.fill(double(timestamp_.iLumi), nCrystals);
                   });

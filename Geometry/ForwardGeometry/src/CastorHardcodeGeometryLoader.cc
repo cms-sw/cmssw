@@ -5,6 +5,7 @@
 #include "Geometry/ForwardGeometry/src/CastorGeometryData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <utility>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
@@ -16,7 +17,7 @@ CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader() :
 }
 
 CastorHardcodeGeometryLoader::CastorHardcodeGeometryLoader( const CastorTopology& ht ) : 
-   theTopology( 0 ) , 
+   theTopology( nullptr ) , 
    extTopology ( &ht )
 {
    init();
@@ -32,36 +33,36 @@ void CastorHardcodeGeometryLoader::init()
    theHADSectiondZ = 1212.;
 }
 
-std::auto_ptr<CaloSubdetectorGeometry> 
+std::unique_ptr<CaloSubdetectorGeometry> 
 CastorHardcodeGeometryLoader::load( DetId::Detector /*det*/, 
 				    int             subdet)
 {
-   std::auto_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry( extTopology ));
+   std::unique_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry( extTopology ));
    if( subdet == HcalCastorDetId::SubdetectorId )
    {
       fill( HcalCastorDetId::EM,  hg.get() ) ;
       fill( HcalCastorDetId::HAD, hg.get() ) ;
    }
-   return hg;
+   return std::move(hg);
 }
 
-std::auto_ptr<CaloSubdetectorGeometry> 
+std::unique_ptr<CaloSubdetectorGeometry> 
 CastorHardcodeGeometryLoader::load() 
 {
-   std::auto_ptr<CaloSubdetectorGeometry> hg
+   std::unique_ptr<CaloSubdetectorGeometry> hg
       ( new CastorGeometry( extTopology ) ) ;
    fill( HcalCastorDetId::EM,  hg.get() ) ;
    fill( HcalCastorDetId::HAD, hg.get() ) ;
-   return hg;
+   return std::move(hg);
 }
 
 void 
 CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section , 
 				    CaloSubdetectorGeometry* geom      ) 
 {
-   if( geom->cornersMgr() == 0 ) geom->allocateCorners(
+   if( geom->cornersMgr() == nullptr ) geom->allocateCorners(
       HcalCastorDetId::kSizeForDenseIndexing ) ;
-   if( geom->parMgr()     == 0 ) geom->allocatePar( 
+   if( geom->parMgr()     == nullptr ) geom->allocatePar( 
       CastorGeometry::k_NumberOfShapes*
       CastorGeometry::k_NumberOfParametersPerShape,
       CastorGeometry::k_NumberOfParametersPerShape ) ;
@@ -78,7 +79,7 @@ CastorHardcodeGeometryLoader::fill( HcalCastorDetId::Section section ,
 	   isector <= HcalCastorDetId::kNumberSectorsPerEnd ; ++isector ) 
       {
 	 const HcalCastorDetId id ( section, false, isector, imodule ) ;
-	 if( extTopology->valid( id ) )  castorIds.push_back( id ) ;
+	 if( extTopology->valid( id ) )  castorIds.emplace_back( id ) ;
       }
    }
 //   edm::LogInfo("CastorHardcodeGeometry") 
@@ -165,12 +166,12 @@ CastorHardcodeGeometryLoader::makeCell( const HcalCastorDetId&   detId ,
 
    std::vector<CCGFloat> zz ;
    zz.reserve( CastorGeometry::k_NumberOfParametersPerShape ) ;
-   zz.push_back( dxl ) ;
-   zz.push_back( dxh ) ;
-   zz.push_back( dh ) ;
-   zz.push_back( dz ) ;
-   zz.push_back( an ) ;
-   zz.push_back( dR ) ;
+   zz.emplace_back( dxl ) ;
+   zz.emplace_back( dxh ) ;
+   zz.emplace_back( dh ) ;
+   zz.emplace_back( dz ) ;
+   zz.emplace_back( an ) ;
+   zz.emplace_back( dR ) ;
 
    geom->newCell( fc, fc, fc, 
 		  CaloCellGeometry::getParmPtr( zz, 

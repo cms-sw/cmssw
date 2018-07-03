@@ -34,16 +34,16 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     useLogPt=cms.untracked.bool(True),
     #                               
     minHit = cms.double(-0.5),                            
-    maxHit = cms.double(40.5),
-    nintHit = cms.int32(41),
+    maxHit = cms.double(80.5),
+    nintHit = cms.int32(81),
     #                               
     minPu = cms.double(-0.5),                            
-    maxPu = cms.double(199.5),
-    nintPu = cms.int32(100),
+    maxPu = cms.double(259.5),
+    nintPu = cms.int32(130),
     #
     minLayers = cms.double(-0.5),                            
-    maxLayers = cms.double(15.5),
-    nintLayers = cms.int32(16),
+    maxLayers = cms.double(25.5),
+    nintLayers = cms.int32(26),
     #
     minPhi = cms.double(-3.1416),
     maxPhi = cms.double(3.1416),
@@ -57,15 +57,18 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxDz = cms.double(30),
     nintDz = cms.int32(60),
     #
+    dxyDzZoom = cms.double(25),
+    #
     # dE/dx
     minDeDx = cms.double(0.),
     maxDeDx = cms.double(10.),
     nintDeDx = cms.int32(40),
     #
     # TP originating vertical position
-    minVertpos = cms.double(0),
-    maxVertpos = cms.double(60),
-    nintVertpos = cms.int32(60),
+    minVertpos = cms.double(1e-2),
+    maxVertpos = cms.double(100),
+    nintVertpos = cms.int32(40),
+    useLogVertpos = cms.untracked.bool(True),
     #
     # TP originating z position
     minZpos = cms.double(-30),
@@ -89,7 +92,18 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
 
     minTracks = cms.double(0),
     maxTracks = cms.double(2000),
-    nintTracks = cms.int32(100),
+    nintTracks = cms.int32(200),
+
+    # PV z coordinate (to be kept in synch with PrimaryVertexAnalyzer4PUSlimmed)
+    minPVz = cms.double(-60),
+    maxPVz = cms.double(60),
+    nintPVz = cms.int32(120),
+
+    # MVA distributions
+    minMVA = cms.double(-1),
+    maxMVA = cms.double(1),
+    nintMVA = cms.int32(100),
+
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),
@@ -118,4 +132,15 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
 
     maxDzpvsigCumulative = cms.double(10),
     nintDzpvsigCumulative = cms.int32(200),
+
+    seedingLayerSets = cms.vstring(),
 )
+
+def _modifyForPhase1(pset):
+    pset.minEta = -3
+    pset.maxEta = 3
+    pset.nintEta = 60
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase1)
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(MTVHistoProducerAlgoForTrackerBlock, minEta=-4.5, maxEta=4.5, nintEta = 90)

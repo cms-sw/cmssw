@@ -19,7 +19,7 @@ void PFConcretePFCandidateProducer::produce(edm::Event& iEvent,
     // nothing ... I guess we prefer to send an exception in the next lines
    }
 
-  std::auto_ptr< reco::PFCandidateCollection > outputColl(new reco::PFCandidateCollection());
+  auto outputColl = std::make_unique<reco::PFCandidateCollection>();
   outputColl->resize(inputColl->size());
   
   for (unsigned int iCopy=0;iCopy!=inputColl->size();++iCopy){
@@ -30,5 +30,5 @@ void PFConcretePFCandidateProducer::produce(edm::Event& iEvent,
     //math::XYZPoint(pf.vx(),pf.vy(),pf.vz()));
   }
   
-  iEvent.put(outputColl);
+  iEvent.put(std::move(outputColl));
 }

@@ -99,9 +99,9 @@ namespace amc {
    }
 
    bool
-   Trailer::check(unsigned int crc, unsigned int lv1_id, unsigned int size) const
+   Trailer::check(unsigned int crc, unsigned int lv1_id, unsigned int size, bool mtf7_mode) const
    {
-      if (crc != getCRC() || size != getSize() || (lv1_id & LV1ID_mask) != getLV1ID()) {
+     if ( (crc != getCRC() || size != getSize() || (lv1_id & LV1ID_mask) != getLV1ID()) && !mtf7_mode ) {
          edm::LogWarning("L1T")
             << "Found AMC trailer with:"
             << "\n\tLV1 ID " << getLV1ID() << ", size " << getSize()
@@ -123,9 +123,9 @@ namespace amc {
       *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
    }
 
-   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load) :
+   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user) :
       block_header_(amc, board, load.size() + 3), // add 3 words for header (2) and trailer (1)
-      header_(amc, lv1id, bx, load.size() + 3, orbit, board, 0),
+      header_(amc, lv1id, bx, load.size() + 3, orbit, board, user),
       trailer_(0, lv1id, load.size() + 3)
    {
       auto hdata = header_.raw();
@@ -145,7 +145,7 @@ namespace amc {
    }
 
    void
-   Packet::finalize(unsigned int lv1, unsigned int bx, bool legacy_mc)
+   Packet::finalize(unsigned int lv1, unsigned int bx, bool legacy_mc, bool mtf7_mode)
    {
       if (legacy_mc) {
          header_ = Header(block_header_.getAMCNumber(), lv1, bx, block_header_.getSize(), 0, block_header_.getBoardID(), 0);
@@ -159,7 +159,7 @@ namespace amc {
          std::string check(reinterpret_cast<const char*>(payload_.data()), payload_.size() * 8 - 4);
          auto crc = cms::CRC32Calculator(check).checksum();
 
-         trailer_.check(crc, lv1, header_.getSize());
+         trailer_.check(crc, lv1, header_.getSize(), mtf7_mode);
       }
    }
 

@@ -25,7 +25,7 @@ void ParametrizedSubtractor::rescaleRMS(double s){
 ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) : 
   PileUpSubtractor(iConfig, std::move(iC)),
    dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true)),
-   cbins_(0)
+   cbins_(nullptr)
 {
 
     centTag_ = iC.consumes<reco::Centrality>(iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO")));
@@ -108,7 +108,7 @@ void ParametrizedSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const
 
 void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 {
-   if(0){
+   if(false){
       return;
    }else{
       LogDebug("PileUpSubtractor")<<"The subtractor subtracting pedestals...\n";
@@ -130,7 +130,7 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 	 Original_Et = getEt(itow);
       }
 
-      double etnew = Original_Et - getPU(it,1,1);
+      double etnew = Original_Et - getPU(it,true,true);
       float mScale = etnew/input_object->Et(); 
       if(etnew < 0.) mScale = 0.;
     
@@ -170,7 +170,7 @@ void ParametrizedSubtractor::offsetCorrectJets()
   rescaleRMS(nSigmaPU_);
   subtractPedestal(*fjInputs_);
 
-  if(0){
+  if(false){
      const fastjet::JetDefinition& def = fjClusterSeq_->jet_def();
      if ( !doAreaFastjet_ && !doRhoFastjet_) {
 	fastjet::ClusterSequence newseq( *fjInputs_, def );
@@ -209,7 +209,7 @@ void ParametrizedSubtractor::offsetCorrectJets()
 	   Original_Et = getEt(originalTower);
 	}
 
-	double etnew = Original_Et - getPU(it,1,1);
+	double etnew = Original_Et - getPU(it,true,true);
 	if(etnew < 0.) etnew = 0;
 	newjetet = newjetet + etnew;
 	jetOffset_[ijet] += Original_Et - etnew;
@@ -232,7 +232,7 @@ double ParametrizedSubtractor::getEt(const reco::CandidatePtr & in) const {
    const GlobalPoint& pos=geo_->getPosition(ctc->id());
    double energy = ctc->emEnergy() + ctc->hadEnergy();
 
-   if(0){
+   if(false){
       energy = 0;
       const std::vector<DetId>& hitids = ctc->constituents();
       for(unsigned int i = 0; i< hitids.size(); ++i){
@@ -253,17 +253,17 @@ double ParametrizedSubtractor::getEta(const reco::CandidatePtr & in) const {
 
 double ParametrizedSubtractor::getMeanAtTower(const reco::CandidatePtr & in) const{
    int it = ieta(in);
-   return getPU(it,1,0);
+   return getPU(it,true,false);
 }
 
 double ParametrizedSubtractor::getSigmaAtTower(const reco::CandidatePtr & in) const {
    int it = ieta(in);
-   return getPU(it,0,1);
+   return getPU(it,false,true);
 }
 
 double ParametrizedSubtractor::getPileUpAtTower(const reco::CandidatePtr & in) const {
    int it = ieta(in);
-   return getPU(it,1,1);
+   return getPU(it,true,true);
 }
 
 double ParametrizedSubtractor::getPU(int ieta,bool addMean, bool addSigma) const {   

@@ -21,7 +21,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
+Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsHelper* params) : params_(params)
 {
 }
 
@@ -37,8 +37,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   double towerLsb = params_->towerLsbSum();
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
@@ -54,7 +52,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
 
 
@@ -94,8 +92,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     int highestNeighborPhi=999;
     int highestNeighborTauVeto=999;
 
-    // if (regionEt>0) std::cout << "CCLA Prod: TauVeto: " << region->hwQual() << "\tET: " << regionEt << "\tETA: " << regionEta  << "\tPhi: " << regionPhi  << std::endl;
-
     //Find neighbor with highest Et
     for(CaloRegionBxCollection::const_iterator neighbor = subRegions->begin();
 	neighbor != subRegions->end(); neighbor++) {
@@ -126,7 +122,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
     string NESW = findNESW(regionEta, regionPhi, highestNeighborEta, highestNeighborPhi);
 
-    //std::cout << "tau et, neighbor et " << tauEt << " " << highestNeighborEt << std::endl;
     if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth"))
        || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))
        || highestNeighborEt == 0 ) {
@@ -134,7 +129,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
 
       int regionTauVeto = region->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
-      //std::cout<< "regiontauveto, neighbor " << regionTauVeto << " " << highestNeighborTauVeto << std::endl;
 
       // compute relative jet isolation
       if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
@@ -245,9 +239,6 @@ string l1t::Stage1Layer2TauAlgorithmImpPP::findNESW(int ieta, int iphi, int neta
 int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
 							      const std::vector<l1t::Jet> * jets)  const {
 
-  bool Debug=false;
-
-  if (Debug) cout << "Number of jets: " << jets->size() << endl;
   int pt = -1;
 
 
@@ -256,8 +247,6 @@ int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
 
     int jetEta = itJet->hwEta();
     int jetPhi = itJet->hwPhi();
-    if (Debug) cout << "Matching ETA: " << ieta << " " << jetEta << endl;
-    if (Debug) cout << "Matching PHI: " << iphi << " " << jetPhi << endl;
     if ((jetEta == ieta) && (jetPhi == iphi)){
       pt = itJet->hwPt();
       break;
@@ -271,10 +260,10 @@ int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
 unsigned l1t::Stage1Layer2TauAlgorithmImpPP::isoLutIndex(unsigned int tauPt,unsigned int jetPt) const
 {
   //const unsigned int nbitsTau=9;  // number of bits used for et in LUT file (needed for left shift operation)
-  //const unsigned int nbitsJet=9; 
+  //const unsigned int nbitsJet=9;
 
   const unsigned int nbitsTau=8;  // number of bits used for et in LUT file (needed for left shift operation)
-  const unsigned int nbitsJet=8; 
+  const unsigned int nbitsJet=8;
 
   const unsigned int maxJet = pow(2,nbitsJet)-1;
   const unsigned int maxTau = pow(2,nbitsTau)-1;
@@ -315,6 +304,5 @@ unsigned l1t::Stage1Layer2TauAlgorithmImpPP::isoLutIndex(unsigned int tauPt,unsi
   if (tauPt>maxTau) tauPt=maxTau;
 
   unsigned int address= (jetPt << nbitsTau) + tauPt;
-  // std::cout << address << "\t## " << tauPt << " " << jetPt << std::endl;
   return address;
 }

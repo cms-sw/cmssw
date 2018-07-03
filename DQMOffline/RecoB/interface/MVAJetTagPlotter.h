@@ -13,27 +13,26 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class MVAJetTagPlotter : public BaseTagInfoPlotter {
+class MVAJetTagPlotter: public BaseTagInfoPlotter {
 
  public:
 
   MVAJetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		    const edm::ParameterSet& pSet, const std::string& folderName, 
-		    const unsigned int& mc, const bool& willFinalize, DQMStore::IBooker & ibook);
+		    unsigned int mc, bool willFinalize, DQMStore::IBooker & ibook);
 
-  ~MVAJetTagPlotter ();
+  ~MVAJetTagPlotter () override;
 
-  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const double & jec, const int & jetFlavour);
-  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const double & jec, const int & jetFlavour, const float & w);
+  void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, double jec, int jetFlavour, float w=1) override;
 
-  virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
+  void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
 
-  void epsPlot(const std::string & name);
+  void epsPlot(const std::string & name) override;
 
-  void psPlot(const std::string & name);
+  void psPlot(const std::string & name) override;
 
-  virtual void setEventSetup (const edm::EventSetup & setup);
-  virtual std::vector<std::string> tagInfoRequirements () const;
+  void setEventSetup (const edm::EventSetup & setup) override;
+  std::vector<std::string> tagInfoRequirements () const override;
 
  private:
 
@@ -41,7 +40,7 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
   const GenericMVAJetTagComputer *computer;
 
   reco::TaggingVariableName categoryVariable;
-  std::vector<TaggingVariablePlotter*> categoryPlotters;
+  std::vector<std::unique_ptr<TaggingVariablePlotter>> categoryPlotters;
 };
 
 #endif

@@ -49,11 +49,11 @@
 
 FWPFCandidateDetailView::FWPFCandidateDetailView ():
    m_range(1),
-   m_candidate(0),
-   m_legend(0),
-   m_slider(0),
+   m_candidate(nullptr),
+   m_legend(nullptr),
+   m_slider(nullptr),
    m_sliderListener(),
-   m_eventList(0),
+   m_eventList(nullptr),
    m_plotEt(true),
    m_rnrHcal(true)
 {}
@@ -86,7 +86,7 @@ bool FWPFCandidateDetailView::isPntInRng(float x, float y)
 void
 FWPFCandidateDetailView::makeLegend()
 {
-   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, 0, "NDC" );
+   m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, nullptr, "NDC" );
    m_legend->SetFillColor(kWhite);
    m_legend->SetTextSize( 0.07 );
    m_legend->SetBorderSize( 0 );
@@ -142,7 +142,7 @@ FWPFCandidateDetailView::setTextInfo(const FWModelId &id, const reco::PFCandidat
 
    m_legend->SetY2(y);
    m_legend->Draw();
-   m_legend = 0; // Deleted together with TPad.
+   m_legend = nullptr; // Deleted together with TPad.
 }
 
 void
@@ -261,6 +261,8 @@ void FWPFCandidateDetailView::voteMaxEtEVal( const std::vector<reco::PFRecHit> *
 {
    if (!hits) return;
 
+   // FIXME: require access to geometry while reading from reco file
+   if ( (!hits->empty()) && hits->front().hasCaloCell())
    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
    {
       TEveVector centre(it->position().x(), it->position().y(), it->position().z());
@@ -362,7 +364,7 @@ namespace
 {
 TEveStraightLineSet::Line_t* AddLineToLineSet(TEveStraightLineSet* ls, const std::vector< TEveVector >& pnts, int i0, int i1) 
 {
-   if (0) {
+   if (false) {
       printf("add line \n");
       pnts[i0].Dump();
       pnts[i1].Dump();
@@ -380,9 +382,11 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
    m_eventList->AddElement(ps);
    ps->SetMainColor(kOrange);
 
+      // FIXME, requires access to geometry
+   if ( (!hits->empty()) && hits->front().hasCaloCell()) 
    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
    {
-      const std::vector< math::XYZPoint >& corners = it->getCornersXYZ();
+      const auto & corners = it->getCornersXYZ();
       if (!isPntInRng(corners[0].eta(), corners[0].phi()))
          continue;
      

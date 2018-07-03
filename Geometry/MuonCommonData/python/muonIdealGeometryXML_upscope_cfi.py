@@ -27,7 +27,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CSCGeometryBuilder/data/cscSpecs.xml', 
         'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml', 
         'Geometry/RPCGeometryBuilder/data/RPCSpecs_upscope.xml', 
-        'Geometry/MuonCommonData/data/muonNumbering_upscope.xml', 
+        'Geometry/MuonCommonData/data/muonNumbering/upscope/muonNumbering.xml', 
         'Geometry/MuonCommonData/data/muonYoke.xml', 
         'Geometry/MuonSimData/data/muonSens_upscope.xml'),
     rootNodeName = cms.string('cms:OCMS')

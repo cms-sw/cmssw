@@ -12,16 +12,12 @@
 */
 //
 
-
-
-// system include files
 #include <memory>
 #include <iostream>
 #include <fstream>
 
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,35 +38,21 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 
-//
-// class decleration
-//
-
-class TestSpecParAnalyzer : public edm::EDAnalyzer {
+class TestSpecParAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestSpecParAnalyzer( const edm::ParameterSet& );
-  ~TestSpecParAnalyzer();
+  ~TestSpecParAnalyzer() override;
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
-  // ----------member data ---------------------------
   std::string specName_;
   std::string specStrValue_;
   double specDblValue_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 TestSpecParAnalyzer::TestSpecParAnalyzer( const edm::ParameterSet& iConfig ) :
   specName_(iConfig.getParameter<std::string>("specName")),
   specStrValue_(iConfig.getUntrackedParameter<std::string>("specStrValue", "frederf")),
@@ -80,15 +62,8 @@ TestSpecParAnalyzer::TestSpecParAnalyzer( const edm::ParameterSet& iConfig ) :
 
 TestSpecParAnalyzer::~TestSpecParAnalyzer()
 {
- 
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -100,16 +75,8 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    const DDCompactView& cpv(*pDD);
    if ( specStrValue_ != "frederf" ) {
      std::cout << "specName = " << specName_ << " and specStrValue = " << specStrValue_ << std::endl;
-     DDValue fval(specName_, specStrValue_, 0.0);
-     DDSpecificsFilter filter;
-     filter.setCriteria(fval, // name & value of a variable 
-			DDCompOp::equals,
-			DDLogOp::AND, 
-			true, // compare strings otherwise doubles
-			true // use merged-specifics or simple-specifics
-			);
-     DDFilteredView fv(cpv);
-     fv.addFilter(filter);
+     DDSpecificsMatchesValueFilter filter{DDValue(specName_, specStrValue_, 0.0)};
+     DDFilteredView fv(cpv,filter);
      bool doit = fv.firstChild();
      std::vector<const DDsvalues_type *> spec = fv.specifics();
      std::vector<const DDsvalues_type *>::const_iterator spit = spec.begin();
@@ -122,12 +89,12 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	 for (;  it != (**spit).end(); it++) {
 	   std::cout << "\t" << it->second.name() << std::endl;
 	   if ( it->second.isEvaluated() ) {
-	     for ( size_t i = 0; i < it->second.doubles().size(); ++i) {
-	       std::cout << "\t\t" << it->second.doubles()[i] << std::endl;
+	     for (double i : it->second.doubles()) {
+	       std::cout << "\t\t" << i << std::endl;
 	     }
 	   } else {
-	     for ( size_t i = 0 ; i < it->second.strings().size(); ++i) {
-	       std::cout << "\t\t" << it->second.strings()[i] << std::endl;
+	     for (const auto & i : it->second.strings()) {
+	       std::cout << "\t\t" << i << std::endl;
 	     }
 	   }
 	 }
@@ -142,6 +109,4 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    std::cout << "finished" << std::endl;
 }
 
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(TestSpecParAnalyzer);

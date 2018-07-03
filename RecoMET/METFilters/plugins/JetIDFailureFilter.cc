@@ -13,11 +13,11 @@ class JetIDFailureFilter : public edm::EDFilter {
   public:
 
     explicit JetIDFailureFilter(const edm::ParameterSet & iConfig);
-    ~JetIDFailureFilter();
+    ~JetIDFailureFilter() override;
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     edm::EDGetTokenT<edm::View<pat::Jet> > theJetToken_;
     const double minJetPt_, maxJetEta_, maxNeutHadF_, maxNeutEmF_;
@@ -81,7 +81,7 @@ bool JetIDFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSe
     }
   }
 
-  iEvent.put( std::auto_ptr<bool>(new bool(goodJetID)) );
+  iEvent.put(std::make_unique<bool>(goodJetID));
 
   return taggingMode_ || goodJetID;
 }

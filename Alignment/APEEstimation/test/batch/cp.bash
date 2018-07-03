@@ -45,7 +45,7 @@ ls -l
 
 for file in *.root;
 do
-  cmsStageOut $file ${directory}${file}
+  xrdcp $file root://eoscms//eos/cms${directory}${file}
 done
 
 

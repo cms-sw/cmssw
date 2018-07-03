@@ -25,15 +25,15 @@ class PerformancePayloadFromTable : public PerformancePayload {
       results_(r), binning_(b) {}
 
   PerformancePayloadFromTable(){}
-virtual ~PerformancePayloadFromTable(){}
+~PerformancePayloadFromTable() override{}
 
-  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const override ; // gets from the full payload
 
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (minPos(p) != PerformancePayloadFromTable::InvalidPos);
   }
   
-  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
+  bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const override ;
 
 const PhysicsPerformancePayload & payLoad() const {return pl;}
 

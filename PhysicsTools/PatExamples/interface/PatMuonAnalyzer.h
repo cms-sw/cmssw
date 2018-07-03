@@ -22,13 +22,13 @@ class PatMuonAnalyzer : public edm::BasicAnalyzer {
   PatMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs);
   PatMuonAnalyzer(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC);
   /// default destructor
-  virtual ~PatMuonAnalyzer(){};
+  ~PatMuonAnalyzer() override{};
   /// everything that needs to be done before the event loop
-  void beginJob(){};
+  void beginJob() override{};
   /// everything that needs to be done after the event loop
-  void endJob(){};
+  void endJob() override{};
   /// everything that needs to be done during the event loop
-  void analyze(const edm::EventBase& event);
+  void analyze(const edm::EventBase& event) override;
 
  private:
   /// input tag for mouns

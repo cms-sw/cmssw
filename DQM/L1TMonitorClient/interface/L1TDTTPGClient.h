@@ -27,11 +27,11 @@ public:
   L1TDTTPGClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~L1TDTTPGClient();
+  ~L1TDTTPGClient() override;
  
 protected:
 
-  virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
+  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
 private:
 

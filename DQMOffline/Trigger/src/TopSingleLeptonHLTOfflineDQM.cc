@@ -35,7 +35,7 @@ namespace HLTOfflineDQMTopSingleLepton {
   static const double DRMIN = 0.05;
 
   MonitorSingleLepton::MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) : 
-    label_(label), elecIso_(0), elecSelect_(0), pvSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
+    label_(label), elecIso_(nullptr), elecSelect_(nullptr), pvSelect_(nullptr), muonIso_(nullptr), muonSelect_(nullptr), jetIDSelect_(nullptr), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -57,12 +57,12 @@ namespace HLTOfflineDQMTopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( elecExtras.existsAs<std::string>("select") ){
-        elecSelect_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("select"));
+        elecSelect_= std::make_unique<StringCutObjectSelector<reco::GsfElectron>>(elecExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( elecExtras.existsAs<std::string>("isolation") ){
-        elecIso_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("isolation"));
+        elecIso_= std::make_unique<StringCutObjectSelector<reco::GsfElectron>>(elecExtras.getParameter<std::string>("isolation"));
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
@@ -78,7 +78,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( pvExtras.existsAs<std::string>("select") ){
-        pvSelect_= new StringCutObjectSelector<reco::Vertex>(pvExtras.getParameter<std::string>("select"));
+        pvSelect_= std::make_unique<StringCutObjectSelector<reco::Vertex>>(pvExtras.getParameter<std::string>("select"));
       }
     }
     // muonExtras are optional; they may be omitted or empty
@@ -87,12 +87,12 @@ namespace HLTOfflineDQMTopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( muonExtras.existsAs<std::string>("select") ){
-        muonSelect_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("select"));
+        muonSelect_= std::make_unique<StringCutObjectSelector<reco::Muon>>(muonExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( muonExtras.existsAs<std::string>("isolation") ){
-        muonIso_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("isolation"));
+        muonIso_= std::make_unique<StringCutObjectSelector<reco::Muon>>(muonExtras.getParameter<std::string>("isolation"));
       }
     }
 
@@ -109,7 +109,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       if(jetExtras.existsAs<edm::ParameterSet>("jetID")){
         edm::ParameterSet jetID=jetExtras.getParameter<edm::ParameterSet>("jetID");
         jetIDLabel_ = iC.consumes< reco::JetIDValueMap >(jetID.getParameter<edm::InputTag>("label"));
-        jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
+        jetIDSelect_= std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
       }
       // select is optional; in case it's not found no
       // selection will be applied (only implemented for 
@@ -125,8 +125,8 @@ namespace HLTOfflineDQMTopSingleLepton {
       if( includeBTag_ ){
         edm::ParameterSet btagEff=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingEff");
         btagEff_= iC.consumes< reco::JetTagCollection >(btagEff.getParameter<edm::InputTag>("label")); btagEffWP_= btagEff.getParameter<double>("workingPoint");
-        edm::ParameterSet btagPur=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingPur");
-        btagPur_= iC.consumes< reco::JetTagCollection >(btagPur.getParameter<edm::InputTag>("label")); btagPurWP_= btagPur.getParameter<double>("workingPoint");
+//        edm::ParameterSet btagPur=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("trackCountingPur");
+//        btagPur_= iC.consumes< reco::JetTagCollection >(btagPur.getParameter<edm::InputTag>("label")); btagPurWP_= btagPur.getParameter<double>("workingPoint");
         edm::ParameterSet btagVtx=jetExtras.getParameter<edm::ParameterSet>("jetBTaggers").getParameter<edm::ParameterSet>("secondaryVertex" );
         btagVtx_= iC.consumes< reco::JetTagCollection >(btagVtx.getParameter<edm::InputTag>("label")); btagVtxWP_= btagVtx.getParameter<double>("workingPoint");
       }
@@ -153,7 +153,9 @@ namespace HLTOfflineDQMTopSingleLepton {
     // and don't forget to do the histogram booking
     folder_=cfg.getParameter<std::string>("directory");
 
-    triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","",processName_));
+//    triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","",processName_));
+	triggerSummaryTokenRAW = iC.consumes <trigger::TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW","",processName_));
+	triggerSummaryTokenAOD = iC.consumes <trigger::TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryAOD","",processName_));
 
   }
 
@@ -198,9 +200,9 @@ namespace HLTOfflineDQMTopSingleLepton {
       // btag discriminator for track counting high efficiency for jets with pt(L2L3)>20
       hists_["jetBDiscEff_"] = store_.book1D("JetBDiscProb", "Disc_{b/prob}(jet)",     25,     0.,     2.5);   
       // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>20
-      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
+//      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
       // btag discriminator for track counting high purity
-      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
+//      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
       // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>20
       hists_["jetMultBVtx_"] = store_.book1D("JetMultBVtx", "N_{20}(b/vtx)"    ,     10,     0.,     10.);   
       // btag discriminator for simple secondary vertex
@@ -235,7 +237,7 @@ namespace HLTOfflineDQMTopSingleLepton {
     }
 
   void 
-    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths)
+    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths)
     {
       // fetch trigger event if configured such 
       edm::Handle<edm::TriggerResults> triggerTable;
@@ -273,12 +275,14 @@ namespace HLTOfflineDQMTopSingleLepton {
          */
 
       // fill monitoring plots for electrons
-      edm::Handle<edm::View<reco::GsfElectron> > elecs;
+   
+	  edm::Handle<edm::View<reco::GsfElectron> > elecs;
       if( !event.getByToken(elecs_, elecs) ) {
         edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
           << "Electron collection not found \n";
         return;
       }
+
 
       // check availability of electron id
       edm::Handle<edm::ValueMap<float> > electronId; 
@@ -340,11 +344,11 @@ namespace HLTOfflineDQMTopSingleLepton {
       edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx;
       if( includeBTag_ ){ 
         if( !event.getByToken(btagEff_, btagEff) ) return;
-        if( !event.getByToken(btagPur_, btagPur) ) return;
+//        if( !event.getByToken(btagPur_, btagPur) ) return;
         if( !event.getByToken(btagVtx_, btagVtx) ) return;
       }
       // load jet corrector if configured such
-      const JetCorrector* corrector=0;
+      const JetCorrector* corrector=nullptr;
       if(!jetCorrector_.empty()){
         // check whether a jet corrector is in the event setup or not
         if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){
@@ -368,7 +372,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       // loop jet collection
       std::vector<reco::Jet> correctedJets;
-      unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
+      unsigned int mult=0, multBEff=0, multBVtx=0; //multBPur=0;
 
       edm::Handle<edm::View<reco::Jet> > jets; 
       if( !event.getByToken(jets_, jets) ) {
@@ -409,25 +413,26 @@ namespace HLTOfflineDQMTopSingleLepton {
         if( includeBTag_ ){
           // fill b-discriminators
           edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);	
-          // for the btagEff collection 
+          // for the btagEff collection
           double btagEffDisc = (*btagEff)[jetRef];
-          fill("jetBDiscEff_", btagEffDisc); 
+          fill("jetBDiscEff_", btagEffDisc);
           if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff; 
           // for the btagPur collection
-          double btagPurDisc = (*btagPur)[jetRef];
-          fill("jetBDiscPur_", btagPurDisc); 
-          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
+//          double btagPurDisc = (*btagPur)[jetRef];
+//          fill("jetBDiscPur_", btagPurDisc); 
+//          if( (*btagPur)[jetRef]>btagPurWP_ ) {if(multBPur == 0) bJetCand = *jet; ++multBPur;} 
           // for the btagVtx collection
           double btagVtxDisc = (*btagVtx)[jetRef];
           fill("jetBDiscVtx_", btagVtxDisc);
-          if( (*btagVtx)[jetRef]>btagVtxWP_ ) ++multBVtx; 
+          if( (*btagVtx)[jetRef]>btagVtxWP_ ) { if(multBVtx == 0) bJetCand= *jet; ++multBVtx;} 
         }
       }
+
       fill("jetMult_"    , mult    );
       fill("jetMultBEff_", multBEff);
-      fill("jetMultBPur_", multBPur);
+//      fill("jetMultBPur_", multBPur);
       fill("jetMultBVtx_", multBVtx);
-
+		
       /* 
          ------------------------------------------------------------
 
@@ -438,7 +443,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       // fill monitoring histograms for met
       reco::MET mET;
-      for(std::vector< edm::EDGetTokenT< edm::View<reco::MET> > >::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
+      for(auto met_=mets_.begin(); met_!=mets_.end(); ++met_){
         edm::Handle<edm::View<reco::MET> > met;
         if( !event.getByToken(*met_, met) ) continue;
         if(met->begin()!=met->end()){
@@ -466,22 +471,22 @@ namespace HLTOfflineDQMTopSingleLepton {
           // log runnumber, lumi block, event number & some
           // more pysics infomation for interesting events
           // We're doing a static_cast here to denote the explicity of the cast
-          double runID = static_cast<double>(event.eventAuxiliary().run());
-          double luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
-          double eventID = static_cast<double>(event.eventAuxiliary().event());
+          auto runID = static_cast<double>(event.eventAuxiliary().run());
+          auto luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
+          auto eventID = static_cast<double>(event.eventAuxiliary().event());
           fill("eventLogger_", 0.5, logged_+0.5, runID); 
           fill("eventLogger_", 1.5, logged_+0.5, luminosityBlockID); 
           fill("eventLogger_", 2.5, logged_+0.5, eventID); 
           ++logged_;
         }
       }
-      if(multBPur != 0 && mMultIso == 1 ){
+      if(multBVtx != 0 && mMultIso == 1 ){
         double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); if (mtW == mtW) fill("MTWm_",mtW);
         double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); if (Mlb == Mlb) fill("mMub_", Mlb);
         double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); if (MTT == MTT) fill("mMTT_", MTT);
       }
 
-      if(multBPur != 0 && eMultIso == 1 ){
+      if(multBVtx != 0 && eMultIso == 1 ){
         double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); if (mtW == mtW)fill("MTWe_",mtW);
         double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); if (Mlb == Mlb) fill("mEb_", Mlb);
         double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); if (MTT == MTT) fill("eMTT_", MTT);
@@ -496,17 +501,36 @@ namespace HLTOfflineDQMTopSingleLepton {
          ------------------------------------------------------------
          */
 
-      edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
-      if(event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) {
+//      edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
+//      if(event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) {
 
+		edm::Handle<trigger::TriggerEventWithRefs> rawTriggerEvent;
+		event.getByToken(triggerSummaryTokenRAW,rawTriggerEvent);
+	 
+		edm::Handle<trigger::TriggerEventWithRefs> aodTriggerEvent;
+		event.getByToken(triggerSummaryTokenAOD,aodTriggerEvent);
+	  
+		hasRawTriggerSummary=true;
+		if(!rawTriggerEvent.isValid()){ 
+			hasRawTriggerSummary=false;
+//			edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
+//			<< "No RAW trigger summary found! Returning... \n";
+
+			if(!aodTriggerEvent.isValid()){
+//				edm::LogWarning( "TopDiLeptonHLTOfflineDQM" ) 
+//				<< "No AOD trigger summary found! Returning... \n";
+				return;
+			}	  
+		}	  	
+		
         const edm::TriggerNames& triggerNames = event.triggerNames(*triggerTable);
         // loop over trigger paths 
-        for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
+		for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
           // consider only path from triggerPaths
           string name = triggerNames.triggerNames()[i];
           bool isInteresting = false;
-          for (unsigned int j=0; j<triggerPaths.size(); j++) {
-            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
+          for (auto const & triggerPath : triggerPaths) {
+            if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase)) isInteresting = true; 
           }
           if (!isInteresting) continue;
           // dump infos on the considered trigger path 
@@ -526,35 +550,67 @@ namespace HLTOfflineDQMTopSingleLepton {
             const string& moduleLabel(moduleLabels[k]);
             const string  moduleType(hltConfig.moduleType(moduleLabel));
             // check whether the module is packed up in TriggerEventWithRef product
-            const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
-            if (filterIndex<triggerEventWithRefsHandle->size()) {
-              triggerEventWithRefsHandle->getObjects(filterIndex,electronIds_,electronRefs_);
-              const unsigned int nElectrons(electronIds_.size());
-              if (nElectrons>0) kElec = k;
+//            const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndex(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+				if (filterIndex<rawTriggerEvent->size()) {
+				  rawTriggerEvent->getObjects(filterIndex,electronIds_,electronRefs_);
+				  const unsigned int nElectrons(electronIds_.size());
+				  if (nElectrons>0) kElec = k;
 
-              triggerEventWithRefsHandle->getObjects(filterIndex,muonIds_,muonRefs_);
-              const unsigned int nMuons(muonIds_.size());
-              if (nMuons>0) kMuon = k;
+				  rawTriggerEvent->getObjects(filterIndex,muonIds_,muonRefs_);
+				  const unsigned int nMuons(muonIds_.size());
+				  if (nMuons>0) kMuon = k;
 
-              triggerEventWithRefsHandle->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
-              const unsigned int nPFJets(pfjetIds_.size());
-              if (nPFJets>0) kJet = k;
-            }
+				  rawTriggerEvent->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
+				  const unsigned int nPFJets(pfjetIds_.size());
+				  if (nPFJets>0) kJet = k;
+				}
+			}
+			
+			else{
+				const unsigned int filterIndex(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+				if (filterIndex<aodTriggerEvent->size()) {
+				  aodTriggerEvent->getObjects(filterIndex,electronIds_,electronRefs_);
+				  const unsigned int nElectrons(electronIds_.size());
+				  if (nElectrons>0) kElec = k;
+
+				  aodTriggerEvent->getObjects(filterIndex,muonIds_,muonRefs_);
+				  const unsigned int nMuons(muonIds_.size());
+				  if (nMuons>0) kMuon = k;
+
+				  aodTriggerEvent->getObjects(filterIndex,pfjetIds_,pfjetRefs_);
+				  const unsigned int nPFJets(pfjetIds_.size());
+				  if (nPFJets>0) kJet = k;
+				}
+			}
+					
           }
           bool isMatched = true;
           bool lMatched = false;
           bool j1Matched = false;
           bool j2Matched = false;
           bool j3Matched = false;
-          // access to hlt elecs
+
+// access to hlt elecs
           double eDeltaRMin = 500.;
           unsigned int eIndMatched = 500;
           electronIds_.clear(); electronRefs_.clear();
           if (kElec > 0) {
             const string& moduleLabelElec(moduleLabels[kElec]);
             const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
-            const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
-            triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
+//            const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+//            triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
+
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndexElec(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+				rawTriggerEvent->getObjects(filterIndexElec,electronIds_,electronRefs_);
+			}
+			else{
+				const unsigned int filterIndexElec(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+				aodTriggerEvent->getObjects(filterIndexElec,electronIds_,electronRefs_);
+			}				
+            
             for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
               double deltar = deltaR(*electronRefs_[0],*isoElecs[inde]); 
               if (deltar < eDeltaRMin) {
@@ -564,15 +620,26 @@ namespace HLTOfflineDQMTopSingleLepton {
             }
             if (eDeltaRMin < DRMIN) lMatched = true;
           }
-          // access to hlt muons
+
+// access to hlt muons
           muonIds_.clear(); muonRefs_.clear();
           double mDeltaRMin = 500.;
           unsigned int mIndMatched = 500;
           if (kMuon > 0) {
             const string& moduleLabelMuon(moduleLabels[kMuon]);
             const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
-            const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
-            triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+//            const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+//            triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+			
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndexMuon(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+				rawTriggerEvent->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+			}
+			else{
+				const unsigned int filterIndexMuon(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+				aodTriggerEvent->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+			}		
+            
             for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
               double deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 
               if (deltar < mDeltaRMin) {
@@ -581,8 +648,9 @@ namespace HLTOfflineDQMTopSingleLepton {
               }
             }
             if (mDeltaRMin < DRMIN) lMatched = true;
-          }
-          // access to hlt pf jets
+          }          
+
+// access to hlt pf jets
           const unsigned int nPFJets(pfjetIds_.size());
           pfjetIds_.clear();    pfjetRefs_.clear();
           double j1DeltaRMin = 500.;   
@@ -594,8 +662,18 @@ namespace HLTOfflineDQMTopSingleLepton {
           if (kJet > 0) {
             const string& moduleLabelJet(moduleLabels[kJet]);
             const string  moduleTypeJet(hltConfig.moduleType(moduleLabelJet));
-            const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
-            triggerEventWithRefsHandle->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
+//            const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
+//            triggerEventWithRefsHandle->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
+
+			if(hasRawTriggerSummary){
+				const unsigned int filterIndexJet(rawTriggerEvent->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
+				rawTriggerEvent->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
+			}
+			else{
+				const unsigned int filterIndexJet(aodTriggerEvent->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
+				aodTriggerEvent->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);				
+			}
+				
             for (unsigned int indj = 0; indj < correctedJets.size(); indj++) {
               double deltar1 = deltaR(*pfjetRefs_[0],correctedJets[indj]); 
               if (deltar1 < j1DeltaRMin) {j1DeltaRMin = deltar1; j1IndMatched = indj;}
@@ -612,17 +690,21 @@ namespace HLTOfflineDQMTopSingleLepton {
             if (nPFJets > 1 && j2DeltaRMin < DRMIN) j2Matched = true;
             if (nPFJets > 2 && j3DeltaRMin < DRMIN) j3Matched = true;
           }
+
           if (eIndMatched < 500) {
             fill("leptDeltaREta_", isoElecs[eIndMatched]->eta(), eDeltaRMin);   
             if (lMatched) fill("leptResolution_", fabs(isoElecs[eIndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[eIndMatched]->pt() );   
           }
-          if (mIndMatched < 500) {
+		  
+		  if (mIndMatched < 500) {
             fill("leptDeltaREta_", isoMuons[mIndMatched]->eta(), mDeltaRMin);   
             if (lMatched) fill("leptResolution_", fabs(isoMuons[mIndMatched]->pt()-muonRefs_[0]->pt())/isoMuons[mIndMatched]->pt() );   
           }
-          if (lMatched) fill("matchingMon_", 0.5 );
+          
+		  if (lMatched) fill("matchingMon_", 0.5 );
           else isMatched = false;
-          if (j1IndMatched < 500) {
+		  
+		  if (j1IndMatched < 500) {
             fill("jetDeltaREta_", correctedJets[j1IndMatched].eta(), j1DeltaRMin);   
             if (j1Matched) {
               fill("jetResolution_", fabs(correctedJets[j1IndMatched].pt()-pfjetRefs_[0]->pt())/correctedJets[j1IndMatched].pt() );   
@@ -650,14 +732,14 @@ namespace HLTOfflineDQMTopSingleLepton {
 
         }
 
-      }
+//      }
     }
 
 }
 
 ///===========================================================================================================
 
-TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg): vertexSelect_(0), beamspotSelect_(0)
+TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg): vertexSelect_(nullptr), beamspotSelect_(nullptr)
 {
   // configure preselection
   edm::ParameterSet presel=cfg.getParameter<edm::ParameterSet>("preselection");
@@ -669,19 +751,19 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
   if( presel.existsAs<edm::ParameterSet>("vertex" ) ){
     edm::ParameterSet vertex=presel.getParameter<edm::ParameterSet>("vertex");
     vertex_= consumes< std::vector<reco::Vertex> >(vertex.getParameter<edm::InputTag>("src"));
-    vertexSelect_= new StringCutObjectSelector<reco::Vertex>(vertex.getParameter<std::string>("select"));
+    vertexSelect_= std::make_unique<StringCutObjectSelector<reco::Vertex>>(vertex.getParameter<std::string>("select"));
   }
   if( presel.existsAs<edm::ParameterSet>("beamspot" ) ){
     edm::ParameterSet beamspot=presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_= consumes< reco::BeamSpot >(beamspot.getParameter<edm::InputTag>("src"));
-    beamspotSelect_= new StringCutObjectSelector<reco::BeamSpot>(beamspot.getParameter<std::string>("select"));
+    beamspotSelect_= std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
   }
 
   // configure the selection
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
-  for(unsigned int i=0; i<sel.size(); ++i){
-    selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new HLTOfflineDQMTopSingleLepton::MonitorSingleLepton(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
+  for(auto & i : sel){
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(i, std::make_unique<HLTOfflineDQMTopSingleLepton::MonitorSingleLepton>(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
   }
 
   for (const std::string& s: selectionOrder_) {
@@ -691,27 +773,27 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
       continue;
 
     if (type == "muons"){
-      selectmap_[type] = new SelectionStepHLT<reco::Muon>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::Muon>>(selection_[key].first, consumesCollector());
     }
     if (type == "elecs"){
-      selectmap_[type] = new SelectionStepHLT<reco::GsfElectron>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::GsfElectron>>(selection_[key].first, consumesCollector());
     }
     if (type == "jets"){
-      selectmap_[type] = new SelectionStepHLT<reco::Jet>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::Jet>>(selection_[key].first, consumesCollector());
     }
     if (type == "jets/pf"){
-      selectmap_[type] = new SelectionStepHLT<reco::PFJet>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::PFJet>>(selection_[key].first, consumesCollector());
     }
     if (type == "jets/calo"){
-      selectmap_[type] = new SelectionStepHLT<reco::CaloJet>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::CaloJet>>(selection_[key].first, consumesCollector());
     }
     if (type == "met"){
-      selectmap_[type] = new SelectionStepHLT<reco::MET>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::MET>>(selection_[key].first, consumesCollector());
     }
   }
 }
 
-  void
+void
 TopSingleLeptonHLTOfflineDQM::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   using namespace std;
@@ -746,7 +828,7 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
     if(!(*beamspotSelect_)(*beamspot)) return;
   }
   // apply selection steps
-  for(std::vector<std::string>::const_iterator selIt=selectionOrder_.begin(); selIt!=selectionOrder_.end(); ++selIt){
+  for(auto selIt=selectionOrder_.begin(); selIt!=selectionOrder_.end(); ++selIt){
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if(selection_.find(key)!=selection_.end()){
 
@@ -761,7 +843,7 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
 
       bool passSel = true;
 
-      for(std::vector<std::string>::const_iterator selIt2=selectionOrder_.begin(); selIt2<=selIt; ++selIt2){
+      for(auto selIt2=selectionOrder_.begin(); selIt2<=selIt; ++selIt2){
         std::string key2 = selectionStep(*selIt2), type2 = objectType(*selIt2);
         if(selection_.find(key2)==selection_.end()) continue;
 

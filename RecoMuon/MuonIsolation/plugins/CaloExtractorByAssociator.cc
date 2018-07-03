@@ -22,14 +22,16 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-//#include "CommonTools/Utils/interface/deltaR.h"
-//#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
+
+namespace {
+  constexpr double dRMax_CandDep = 1.0;//pick up candidate own deposits up to this dR if theDR_Max is smaller
+}
 
 CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, edm::ConsumesCollector && iC) :
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
@@ -51,8 +53,8 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, ed
   theNoise_HO(par.getParameter<double>("Noise_HO")),
   theNoiseTow_EB(par.getParameter<double>("NoiseTow_EB")),
   theNoiseTow_EE(par.getParameter<double>("NoiseTow_EE")),
-  theService(0),
-  theAssociator(0),
+  theService(nullptr),
+  theAssociator(nullptr),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
@@ -103,9 +105,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
   if (theDepositInstanceLabels.size() != 3){
     LogError("MuonIsolation")<<"Configuration is inconsistent: Need 3 deposit instance labels";
   }
-  if (! theDepositInstanceLabels[0].compare(0,1, std::string("e")) == 0
-      || ! theDepositInstanceLabels[1].compare(0,1, std::string("h")) == 0
-      || ! theDepositInstanceLabels[2].compare(0,2, std::string("ho")) == 0){
+  if (! (theDepositInstanceLabels[0].compare(0,1, std::string("e")) == 0)
+      || ! (theDepositInstanceLabels[1].compare(0,1, std::string("h")) == 0)
+      || ! (theDepositInstanceLabels[2].compare(0,2, std::string("ho")) == 0)){
     LogWarning("MuonIsolation")<<"Deposit instance labels do not look like  (e*, h*, ho*):"
 			       <<"proceed at your own risk. The extractor interprets lab0=from ecal; lab1=from hcal; lab2=from ho";
   }
@@ -164,7 +166,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max
+      if (deltar0 > std::max(dRMax_CandDep, theDR_Max)
 	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
@@ -184,6 +186,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      //check theDR_Max only here to keep vetoHits being added to the veto energy
+      if (deltar0 > theDR_Max && ! vetoHit) continue;
+
       if (vetoHit ){
 	depEcal.addCandEnergy(et);
       } else {
@@ -200,7 +205,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max
+      if (deltar0 > std::max(dRMax_CandDep, theDR_Max)
 	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
@@ -220,6 +225,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      //check theDR_Max only here to keep vetoHits being added to the veto energy
+      if (deltar0 > theDR_Max && ! vetoHit) continue;
+
       if (vetoHit ){
 	depHcal.addCandEnergy(et);
       } else {
@@ -236,7 +244,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max
+      if (deltar0 > std::max(dRMax_CandDep, theDR_Max)
 	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
@@ -256,6 +264,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      //check theDR_Max only here to keep vetoHits being added to the veto energy
+      if (deltar0 > theDR_Max && ! vetoHit) continue;
+
       if (vetoHit ){
 	depHOcal.addCandEnergy(et);
       } else {
@@ -270,7 +281,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     for (; calCI != mInfo.towers.end(); ++calCI){
       const CaloTower* calCPtr = *calCI;
       double deltar0 = reco::deltaR(muon,*calCPtr);
-      if (deltar0>theDR_Max) continue;
+      if (deltar0> std::max(dRMax_CandDep, theDR_Max)) continue; 
 
       //even more copy-pasting .. need to refactor
       double etecal = calCPtr->emEt();
@@ -327,19 +338,21 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      if (deltar0>theDR_Max && !(vetoTowerEcal || vetoTowerHcal || vetoTowerHOCal)) continue;
+
       reco::isodeposit::Direction towerDir(calCPtr->eta(), calCPtr->phi());
       //! add the Et of the tower to deposits if it's not a vetoed; put into muonEnergy otherwise
       if (doEcal){
 	if (vetoTowerEcal) depEcal.addCandEnergy(etecal);
-	else depEcal.addDeposit(towerDir, etecal);
+	else if (deltar0<=theDR_Max) depEcal.addDeposit(towerDir, etecal);
       }
       if (doHcal){
 	if (vetoTowerHcal) depHcal.addCandEnergy(ethcal);
-	else depHcal.addDeposit(towerDir, ethcal);
+	else if (deltar0<=theDR_Max) depHcal.addDeposit(towerDir, ethcal);
       }
       if (doHOcal){
 	if (vetoTowerHOCal) depHOcal.addCandEnergy(ethocal);
-	else depHOcal.addDeposit(towerDir, ethocal);
+	else if (deltar0<=theDR_Max) depHOcal.addDeposit(towerDir, ethocal);
       }
     }
   }

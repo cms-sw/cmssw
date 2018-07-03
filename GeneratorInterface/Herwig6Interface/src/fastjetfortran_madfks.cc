@@ -357,7 +357,7 @@ void fastjetppgenktwitharea_(const double * p, const int & npart,
 //
 void fastjetconstituents_(const int & ijet, 
    	                  int * constituent_indices, int & nconstituents) {
-  assert(cs.get() != 0);
+  assert(cs.get() != nullptr);
   assert(ijet > 0 && ijet <= int(jets.size()));
 
   vector<PseudoJet> constituents = cs->constituents(jets[ijet-1]);
@@ -387,7 +387,7 @@ double fastjetarea_(const int & ijet) {
   assert(ijet > 0 && ijet <= int(jets.size()));
   const ClusterSequenceAreaBase * csab =
                     dynamic_cast<const ClusterSequenceAreaBase *>(cs.get());
-  if (csab != 0) {
+  if (csab != nullptr) {
     // we have areas and can use csab to access all the area-related info
     return csab->area(jets[ijet-1]);
   } else {
@@ -407,7 +407,7 @@ double fastjetarea_(const int & ijet) {
 //   INTEGER N
 //   
 double fastjetdmerge_(const int & n) {
-  assert(cs.get() != 0);
+  assert(cs.get() != nullptr);
   return cs->exclusive_dmerge(n);
 }
 
@@ -424,7 +424,7 @@ double fastjetdmerge_(const int & n) {
 //   INTEGER N
 //   
 double fastjetdmergemax_(const int & n) {
-  assert(cs.get() != 0);
+  assert(cs.get() != nullptr);
   return cs->exclusive_dmerge_max(n);
 }
 
@@ -445,7 +445,7 @@ void fastjetglobalrhoandsigma_(const double & rapmin, const double & rapmax,
 			       double & rho, double & sigma, double & meanarea) {
   const ClusterSequenceAreaBase * csab =
                     dynamic_cast<const ClusterSequenceAreaBase *>(cs.get());
-  if (csab != 0) {
+  if (csab != nullptr) {
       // we have areas and can use csab to access all the area-related info
     Selector range =  SelectorRapRange(rapmin,rapmax) && SelectorPhiRange(phimin,phimax);
       bool use_area_4vector = false;

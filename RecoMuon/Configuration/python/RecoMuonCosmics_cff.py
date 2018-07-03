@@ -23,14 +23,24 @@ muons.inputCollectionLabels = ['ctfWithMaterialTracksP5LHCNavigation', 'globalCo
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks', 'tev firstHit', 'tev picky', 'tev dyt']
 muons.fillIsolation = True
 muons.fillGlobalTrackQuality = True
+muons.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muons.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 # need to modify track selection as well (not clear to what)
 muons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
 muons.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muons.CaloExtractorPSet.DR_Max = 1.0
 
-from RecoMuon.MuonIdentification.calomuons_cfi import *
-calomuons.inputTracks = 'ctfWithMaterialTracksP5LHCNavigation'
-calomuons.inputCollection = 'muons'
-calomuons.inputMuons = 'muons'
+#similar to what's in pp configuration
+muonsFromCosmics = muons1stStep.clone()
+muonsFromCosmics.inputCollectionLabels = ['cosmicMuons']
+muonsFromCosmics.inputCollectionTypes = ['outer tracks']
+muonsFromCosmics.TrackExtractorPSet.inputTrackCollection = 'cosmicMuons'
+muonsFromCosmics.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
+muonsFromCosmics.fillIsolation = False
+muonsFromCosmics.fillGlobalTrackQuality = False
+muonsFromCosmics.fillGlobalTrackRefits = False
 
 ## Sequences
 
@@ -62,10 +72,10 @@ from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
 glbTrackQual.InputCollection = "globalCosmicMuons"
 
 # all muons id
-allmuons = cms.Sequence(glbTrackQual*tevMuons*muons*muIsolation*calomuons)
+allmuons = cms.Sequence(glbTrackQual*tevMuons*muons*muIsolation)
 
 # Final sequence
-muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons)
+muonrecoforcosmics = cms.Sequence(muontrackingforcosmics*allmuons*muonsFromCosmics)
 muonRecoAllGR = cms.Sequence(muonrecoforcosmics)
 
 # 1 leg mode
@@ -87,6 +97,8 @@ muons1Leg.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muons1Leg.fillIsolation = False
 muons1Leg.fillGlobalTrackQuality = False
 muons1Leg.fillGlobalTrackRefits = False
+muons1Leg.TimingFillerParameters.DTTimingParameters.PruneCut = 9999
+muons1Leg.TimingFillerParameters.CSCTimingParameters.PruneCut = 9999
 # Sequences
 
 # Stand Alone Tracking
@@ -130,9 +142,11 @@ muonsWitht0Correction.inputCollectionTypes = ['inner tracks', 'links', 'outer tr
 muonsWitht0Correction.fillIsolation = True
 muonsWitht0Correction.fillGlobalTrackQuality = False
 muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.UseSegmentT0 = True
-muonsWitht0Correction.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg'
+muonsWitht0Correction.TimingFillerParameters.MatchParameters.DTsegments = 'dt4DSegmentsT0Seg'
 muonsWitht0Correction.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
 muonsWitht0Correction.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muonsWitht0Correction.CaloExtractorPSet.DR_Max = 1.0
 muonsWitht0Correction.fillGlobalTrackRefits = False
 #Sequences
 
@@ -183,6 +197,8 @@ muonsBeamHaloEndCapsOnly.fillIsolation = True
 muonsBeamHaloEndCapsOnly.fillGlobalTrackQuality = False
 muonsBeamHaloEndCapsOnly.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
 muonsBeamHaloEndCapsOnly.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muonsBeamHaloEndCapsOnly.CaloExtractorPSet.DR_Max = 1.0
 muonsBeamHaloEndCapsOnly.fillGlobalTrackRefits = False
 
 # Sequences
@@ -209,6 +225,8 @@ muonsNoRPC.fillIsolation = True
 muonsNoRPC.fillGlobalTrackQuality = False
 muonsNoRPC.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5'
 muonsNoRPC.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+muonsNoRPC.CaloExtractorPSet.DR_Max = 1.0
 muonsNoRPC.fillGlobalTrackRefits = False
 
 #Sequences
@@ -243,6 +261,8 @@ splitMuons.fillIsolation = True
 splitMuons.fillGlobalTrackQuality = False
 splitMuons.TrackExtractorPSet.inputTrackCollection = 'splittedTracksP5'
 splitMuons.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+splitMuons.CaloExtractorPSet.DR_Max = 1.0
 splitMuons.fillGlobalTrackRefits = False
 
 #Sequences
@@ -265,6 +285,8 @@ lhcSTAMuons.fillIsolation = True
 lhcSTAMuons.fillGlobalTrackQuality = False
 lhcSTAMuons.TrackExtractorPSet.inputTrackCollection = 'ctfWithMaterialTracksP5LHCNavigation'
 lhcSTAMuons.CaloExtractorPSet.CenterConeOnCalIntersection = True
+# set wide cone until the code is made to compute this wrt CalIntersection
+lhcSTAMuons.CaloExtractorPSet.DR_Max = 1.0
 lhcSTAMuons.fillGlobalTrackRefits = False
 
 # Final sequence

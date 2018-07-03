@@ -267,7 +267,7 @@ def getCMSSWVersionFromEnvironment():
 
     varname = "CMSSW_VERSION"
 
-    if not os.environ.has_key(varname):
+    if varname not in os.environ:
         print >> sys.stderr,"The environment variable " + varname + " is not set."
         print >> sys.stderr,"It looks like you have not initialized a runtime"
         print >> sys.stderr,"environment for CMSSW but want to use the 'current one'."
@@ -405,7 +405,7 @@ if len(options.direct_input_files) == 0:
     sampleSpec = ARGV.pop(0)
 
     # check whether we know the specified sample
-    if not knownDatasets.has_key(sampleSpec):
+    if sampleSpec not in knownDatasets:
         print >> sys.stderr,"unknown sample " + sampleSpec + ", known samples are: " + " ".join(knownDatasets.keys())
         sys.exit(1)
 

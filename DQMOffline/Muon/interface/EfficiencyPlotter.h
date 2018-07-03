@@ -31,7 +31,7 @@ public:
   EfficiencyPlotter(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~EfficiencyPlotter();
+  ~EfficiencyPlotter() override;
 
 protected:
 
@@ -73,6 +73,9 @@ private:
 
   // efficiency histograms
   MonitorElement* h_eff_pt_ID;
+  MonitorElement* h_eff_inner_pt_ID;
+  MonitorElement* h_eff_inner_eta_ID;
+  MonitorElement* h_eff_inner_phi_ID;
   MonitorElement* h_eff_pt_EB_ID;
   MonitorElement* h_eff_pt_EE_ID;
   MonitorElement* h_eff_eta_ID;
@@ -99,6 +102,7 @@ private:
   MonitorElement* h_eff_vtx_pfIsodBID;
   MonitorElement* h_eff_vtx_EB_pfIsodBID;
   MonitorElement* h_eff_vtx_EE_pfIsodBID;
+  std::string theFolder;
 };
 
 #endif

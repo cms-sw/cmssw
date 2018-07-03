@@ -37,9 +37,9 @@ class TestMS : public edm::EDAnalyzer {
 public:
   explicit TestMS(const edm::ParameterSet& conf);
   ~TestMS();
-  virtual void beginRun(edm::Run & run, const edm::EventSetup& es);
-  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  virtual void endJob();
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
+  virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+
 private:
   TFile * rootFile;
   TH1F *hB1, *hB2, *hB3, *hF1, *hF2;
@@ -77,7 +77,7 @@ void TestMS::analyze(
 }
 
 
-void TestMS::beginRun(edm::Run & run, const edm::EventSetup& es) 
+void TestMS::beginRun(edm::Run const& run, const edm::EventSetup& es) 
 {
 
   edm::ESHandle<GeometricSearchTracker> tracker;
@@ -132,10 +132,6 @@ void TestMS::beginRun(edm::Run & run, const edm::EventSetup& es)
 
 
 
-}
-
-void TestMS::endJob()
-{
 }
 
 

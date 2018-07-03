@@ -1,0 +1,17 @@
+<use   name="FWCore/PluginManager"/>
+<use   name="hepmc"/>
+<use   name="root"/>
+<use   name="boost"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<use   name="SimCalorimetry/EcalEBTrigPrimAlgos"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CalibCalorimetry/EcalTPGTools"/>
+<use   name="CondFormats/DataRecord"/>
+<export>
+</export>

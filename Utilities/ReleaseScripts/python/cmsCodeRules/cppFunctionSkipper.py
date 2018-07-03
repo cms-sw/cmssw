@@ -3,7 +3,7 @@ __date__ ="$2010-09-23 15.00.20$"
 
 import re
 
-declarator = '(\*|&)?(\w|<|>|$|::)+'
+declarator = '(\*|&)?(\w|<|,|>|$|::)+'
 cv_decl = '\s*(const|volatile|noexcept)\s*'
 exception = 'throw\(((::)|\w|\s|,|<|>)*\)'
 decl_param = '\s((\(%s\))|(%s))\s*\((\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|(::))*\)'%(declarator, declarator)

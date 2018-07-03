@@ -17,7 +17,6 @@ horeco = cms.EDProducer(
     dataOOTCorrectionCategory = cms.string("Data"),
     mcOOTCorrectionName = cms.string(""),
     mcOOTCorrectionCategory = cms.string("MC"),
-    puCorrMethod = cms.int32(0),
 
     # Set time slice for first digi to be stored in aux word
     # (HO uses time slices 4-7)

@@ -22,7 +22,7 @@ ak4PFCHSJetsL1 = cms.EDProducer(
 ak4JPTJetsL1 = cms.EDProducer(
     'JPTJetCorrectionProducer',
     src        = cms.InputTag('JetPlusTrackZSPCorJetAntiKt4'),
-    correctors = cms.vstring('L1Fastjet')
+    correctors = cms.vstring('ak4L1JPTFastjet')
     )
 ak4TrackJetsL1 = cms.EDProducer(
     'TrackJetCorrectionProducer',

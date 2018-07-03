@@ -96,7 +96,7 @@ void CSCDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   c.get<CSCChamberMapRcd>().get(hcham); 
   const CSCChamberMap* theMapping = hcham.product();
 
-  std::auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection);
+  auto fed_buffers = std::make_unique<FEDRawDataCollection>();
 
   // Take digis from the event
   edm::Handle<CSCWireDigiCollection> wireDigis;
@@ -123,7 +123,7 @@ void CSCDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
 			   packEverything_);
   
   // put the raw data to the event
-  e.put(fed_buffers, "CSCRawData");
+  e.put(std::move(fed_buffers), "CSCRawData");
 }
 
 
