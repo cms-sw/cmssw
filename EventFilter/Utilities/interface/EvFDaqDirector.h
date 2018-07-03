@@ -26,6 +26,7 @@
 #include <cstdio>
 
 #include <tbb/concurrent_hash_map.h>
+#include <boost/filesystem.hpp>
 
 class SystemBounds;
 class GlobalContext;
@@ -41,6 +42,10 @@ namespace edm {
 
 namespace Json{
   class Value;
+}
+
+namespace jsoncollector {
+class DataPointDefinition;
 }
 
 namespace edm {
@@ -72,6 +77,7 @@ namespace evf{
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
+      bool useFileService() const {return useFileService_;}
 
       std::string findCurrentRunDir(){ return dirManager_.findRunDir(run_);}
       std::string getInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
@@ -97,6 +103,7 @@ namespace evf{
       std::string getBoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
+      std::string getFFFParamsFilePathOnBU() const;
       std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
       bool outputAdler32Recheck() const {return outputAdler32Recheck_;}
       void removeFile(unsigned int ls, unsigned int index);
@@ -113,6 +120,11 @@ namespace evf{
       void unlockFULocal();
       void lockFULocal2();
       void unlockFULocal2();
+      void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
+      void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection) const;
+      int grabNextJsonFile(boost::filesystem::path const& jsonSourcePath);
+      FileStatus getNextFromFileService(const unsigned int currentLumiSection,unsigned int& ls,std::string& nextFile,
+                                        int& serverEventsInNewFile_,uint32_t& fileSize,uint64_t& thisLockWaitTimeUs);
       void createRunOpendirMaybe();
       void createProcessingNotificationMaybe() const;
       int readLastLSEntry(std::string const& file);
@@ -141,6 +153,7 @@ namespace evf{
       std::string bu_base_dir_;
       bool directorBu_;
       unsigned int run_;
+      bool useFileService_;
       bool outputAdler32Recheck_;
       bool requireTSPSet_;
       std::string selectedTransferMode_;
@@ -199,6 +212,10 @@ namespace evf{
 
       //values initialized in .cc file
       static const std::vector<std::string> MergeTypeNames_;
+
+
+      //json parser
+      jsoncollector::DataPointDefinition *dpd_;
   };
 }
 
