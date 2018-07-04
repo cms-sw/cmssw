@@ -35,12 +35,15 @@ for wheel in [-2,-1,0,1,2]:
         #wite HLS LUT    
         HLSINFO={}
         #first the singles
-        for k in range(0,6):
+    
+
+        for k in range(0,7):
             tag=pow(2,k) 
-            HLSINFO[tag]={'e1':lut[k],'e2':0,'q':1}
+            HLSINFO[tag]={'e1':lut[k],'e2':lut[k],'q':1}
+        for k in range(0,6):
             for l in range(k+1,7):
                 tag=pow(2,k)+pow(2,l)
-                HLSINFO[tag]={'e1':lut[k],'e2':lut[l],'q':3}
+                HLSINFO[tag]={'e1':lut[k],'e2':lut[l],'q':1}
         keys=sorted(HLSINFO.keys())
         d1=[]
         d2=[]

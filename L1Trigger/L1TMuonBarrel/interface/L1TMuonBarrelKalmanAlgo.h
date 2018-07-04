@@ -25,9 +25,14 @@ class L1TMuonBarrelKalmanAlgo {
 
   L1TMuonBarrelKalmanAlgo (const edm::ParameterSet& settings);
   std::pair<bool,L1MuKBMTrack> chain(const L1MuKBMTCombinedStubRef&, const L1MuKBMTCombinedStubRefVector&);
+
+  L1MuKBMTrackCollection clean(const L1MuKBMTrackCollection&,uint);
+
+
   L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint);
   void resolveEtaUnit(L1MuKBMTrackCollection&);
   void addBMTFMuon(int,const L1MuKBMTrack&,std::unique_ptr<l1t::RegionalMuonCandBxCollection>&);
+  l1t::RegionalMuonCand  convertToBMTF(const L1MuKBMTrack& track); 
 
 
 
@@ -37,7 +42,7 @@ class L1TMuonBarrelKalmanAlgo {
  
  private:
   bool verbose_;
-  std::pair<bool,uint> match(const L1MuKBMTrack&, const L1MuKBMTCombinedStubRefVector&);
+  std::pair<bool,uint> match(const L1MuKBMTCombinedStubRef&, const L1MuKBMTCombinedStubRefVector&,int );
   int correctedPhi(const L1MuKBMTCombinedStubRef&,int);
   int correctedPhiB(const L1MuKBMTCombinedStubRef&);
   void propagate(L1MuKBMTrack&);
@@ -60,9 +65,15 @@ class L1TMuonBarrelKalmanAlgo {
   std::map<int,int> trackAddress(const L1MuKBMTrack&,int&);
   int encode(bool ownwheel,int sector,bool tag); 
   uint twosCompToBits(int);
+  int fp_product(float,int, uint);
+
+  uint etaStubRank(const L1MuKBMTCombinedStubRef&);
+
 
   //LUT service
-  std::unique_ptr<L1TMuonBarrelKalmanLUTs> lutService_;
+  L1TMuonBarrelKalmanLUTs* lutService_;
+  bool punchThroughVeto(const L1MuKBMTrack& track);
+  int ptLUT(int K);
 
 
   //Initial Curvature
@@ -143,7 +154,7 @@ class L1TMuonBarrelKalmanAlgo {
     }
 
     bool operator() (const L1MuKBMTrack& a ,const L1MuKBMTrack& b) {
-      if (a.curvatureAtVertex()<b.curvatureAtVertex())
+      if (abs(a.curvatureAtVertex())<=abs(b.curvatureAtVertex()))
 	return true;
       return false;
     }
