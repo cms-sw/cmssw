@@ -50,7 +50,7 @@ class L1MuKBMTCombinedStub {
     L1MuKBMTCombinedStub();
 
     /// constructor
-    L1MuKBMTCombinedStub(int wheel,int sector,int station,int phi,int phiB,bool tag,int bx,int quality,int coarseEta,int eta1=0,int eta2=0, int qeta1=-1,int qeta2=-1);
+    L1MuKBMTCombinedStub(int wheel,int sector,int station,int phi,int phiB,bool tag,int bx,int quality,int eta1=0,int eta2=0, int qeta1=-1,int qeta2=-1);
     ~L1MuKBMTCombinedStub();
     /// return wheel
     inline int whNum() const { return whNum_; }
@@ -78,9 +78,6 @@ class L1MuKBMTCombinedStub {
     /// return second eta quality
     inline int qeta2() const { return qeta2_; }
 
-    /// return coarse Eta
-    inline int coarseEta() const { return coarseEta_; }
-
     /// assignment operator
     L1MuKBMTCombinedStub& operator=(const L1MuKBMTCombinedStub&);
     /// equal operator
@@ -101,7 +98,6 @@ class L1MuKBMTCombinedStub {
     bool              tag_;        // tag for second TS (of chamber)
     int               quality_;    // 3 bits
     int               bxNum_;      // bunch crossing identifier
-    int               coarseEta_;  //Coarse eta
     int               eta1_;       //fine eta 1
     int               eta2_;       //fine eta 2
     int               qeta1_;      //fine eta quality 1
