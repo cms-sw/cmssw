@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
 
 namespace edm { class Event; class EventSetup; class ParameterSet; class ConfigurationDescriptions; }
 class TrackerTopology;
@@ -21,6 +22,8 @@ public:
 
 private:
   void store(edm::Event& ev, const pixeltrackfitting::TracksWithTTRHs& selectedTracks, const TrackerTopology& ttopo);
+  bool runOnGPU_;
   PixelTrackReconstruction theReconstruction;
+  PixelTrackReconstructionGPU theGPUReconstruction;
 };
 #endif

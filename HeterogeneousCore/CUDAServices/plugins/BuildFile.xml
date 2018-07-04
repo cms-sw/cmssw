@@ -12,6 +12,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
+<use   name="HeterogeneousCore/CUDAServices"/>
 <use   name="cuda"/>
 <library   file="*.cc" name="HeterogeneousCoreCUDAServicesPlugins">
   <flags   EDM_PLUGIN="1"/>
