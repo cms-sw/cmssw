@@ -14,5 +14,5 @@ from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCal
 def _fakeHGCalDigiAlias(process):
 	from EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi import HGCDigiConverter as _HGCDigiConverter
 	process.simHGCalUnsuppressedDigis = _HGCDigiConverter.clone()
-	process.hgcalTriggerPrimitives.insert(0,simHGCalUnsuppressedDigis)
+	process.hgcalTriggerPrimitives.insert(0,process.simHGCalUnsuppressedDigis)
 doFakeHGCalDigiAlias = convertHGCalDigisSim.makeProcessModifier(_fakeHGCalDigiAlias)
