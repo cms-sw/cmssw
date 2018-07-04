@@ -1,5 +1,5 @@
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -13,12 +13,10 @@ import FWCore.ParameterSet.Config as cms
 #    https://indico.cern.ch/event/491544/contributions/2321565/attachments/1346333/2030225/20160929_EGM_v4.pdf 
 #
 
-# This MVA implementation class name
-mvaSpring16ClassName = "ElectronMVAEstimatorRun2Spring16GeneralPurpose"
 # The tag is an extra string attached to the names of the products
 # such as ValueMaps that needs to distinguish cases when the same MVA estimator
 # class is used with different tuning/weights
-mvaTag = "V1"
+mvaTag = "Spring16GeneralPurposeV1"
 
 # There are 3 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -27,41 +25,24 @@ mvaTag = "V1"
 #   2   EE             pt 10-inf GeV
 
 mvaSpring16WeightFiles_V1 = cms.vstring(
-    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EB1_10.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EB2_10.weights.xml",
-    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EE_10.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EB1_10.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EB2_10.weights.xml.gz",
+    "RecoEgamma/ElectronIdentification/data/Spring16_GeneralPurpose_V1/electronID_mva_Spring16_GeneralPurpose_V1_EE_10.weights.xml.gz"
     )
-
-# Load some common definitions for MVA machinery
-from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools \
-    import (EleMVA_3Categories_WP,
-            configureVIDMVAEleID_V1 )
-
-# The locatoins of value maps with the actual MVA values and categories
-# for all particles.
-# The names for the maps are "<module name>:<MVA class name>Values" 
-# and "<module name>:<MVA class name>Categories"
-mvaProducerModuleLabel = "electronMVAValueMapProducer"
-mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring16ClassName + mvaTag + "Values"
-mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaSpring16ClassName + mvaTag + "Categories"
 
 ### WP to give about 90 and 80% signal efficiecny for electrons from Drell-Yan with pT > 25 GeV
 ### For turn-on and details see documentation linked above
-MVA_WP90 = EleMVA_3Categories_WP(
-    idName = "mvaEleID-Spring16-GeneralPurpose-V1-wp90",
-    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
-    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 =  0.836695742607, # EB1
-    cutCategory1 =  0.715337944031, # EB2
-    cutCategory2 =  0.356799721718, # EE
+MVA_WP90 = EleMVA_WP(
+    idName = "mvaEleID-Spring16-GeneralPurpose-V1-wp90", mvaTag = mvaTag,
+    cutCategory0 =  "0.836695742607", # EB1
+    cutCategory1 =  "0.715337944031", # EB2
+    cutCategory2 =  "0.356799721718", # EE
     )
-MVA_WP80 = EleMVA_3Categories_WP(
-    idName = "mvaEleID-Spring16-GeneralPurpose-V1-wp80",
-    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
-    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 =  0.940962684155, # EB1
-    cutCategory1 =  0.899208843708, # EB2
-    cutCategory2 =  0.758484721184, # EE
+MVA_WP80 = EleMVA_WP(
+    idName = "mvaEleID-Spring16-GeneralPurpose-V1-wp80", mvaTag = mvaTag,
+    cutCategory0 =  "0.940962684155", # EB1
+    cutCategory1 =  "0.899208843708", # EB2
+    cutCategory2 =  "0.758484721184", # EE
     )
 
 
@@ -71,19 +52,19 @@ MVA_WP80 = EleMVA_3Categories_WP(
 #
 
 # Create the PSet that will be fed to the MVA value map producer
-mvaEleID_Spring16_GeneralPurpose_V1_producer_config = cms.PSet( 
-    mvaName            = cms.string(mvaSpring16ClassName),
+mvaEleID_Spring16_GeneralPurpose_V1_producer_config = cms.PSet(
+    mvaName            = cms.string(mvaClassName),
     mvaTag             = cms.string(mvaTag),
-    # This MVA uses conversion info, so configure several data items on that
-    beamSpot           = cms.InputTag('offlineBeamSpot'),
-    conversionsAOD     = cms.InputTag('allConversions'),
-    conversionsMiniAOD = cms.InputTag('reducedEgamma:reducedConversions'),
-    #
-    weightFileNames    = mvaSpring16WeightFiles_V1
+    # Category parameters
+    nCategories         = cms.int32(3),
+    categoryCuts        = EleMVA_3CategoriesCuts,
+    # Weight files and variable definitions
+    weightFileNames     = mvaSpring16WeightFiles_V1,
+    variableDefinition  = cms.string(mvaVariablesFile)
     )
 # Create the VPset's for VID cuts
-mvaEleID_Spring16_GeneralPurpose_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
-mvaEleID_Spring16_GeneralPurpose_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
+mvaEleID_Spring16_GeneralPurpose_V1_wp90 = configureVIDMVAEleID( MVA_WP90 )
+mvaEleID_Spring16_GeneralPurpose_V1_wp80 = configureVIDMVAEleID( MVA_WP80 )
 
 
 # The MD5 sum numbers below reflect the exact set of cut variables
