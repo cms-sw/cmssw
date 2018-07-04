@@ -28,4 +28,5 @@ from PhysicsTools.PatAlgos.slimming.primaryVertexAssociation_cfi import primaryV
 # This task is not used, useful only if we run DeepFlavour from RECO
 # jets (RECO/AOD)
 pfDeepBoostedJetTask = cms.Task(puppi, primaryVertexAssociation,
-                             pfDeepBoostedJetTagInfos, pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags)
+                             pfDeepBoostedJetTagInfos, pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags,
+                             pfDeepBoostedDiscriminatorsJetTags, pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags)
