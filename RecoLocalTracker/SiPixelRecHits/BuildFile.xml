@@ -8,6 +8,7 @@
 <use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="TrackingTools/TrajectoryState"/>
+<use   name="CondFormats/SiPixelTransient"/>
 <use   name="boost"/>
 <use   name="vdt_headers"/>
 
