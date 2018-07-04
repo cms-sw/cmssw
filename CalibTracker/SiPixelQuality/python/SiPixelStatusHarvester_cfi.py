@@ -112,7 +112,7 @@ topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityPCL/BadROC_O
 )
 
 SiPixelPhase1PromptBadROC = DefaultHisto.clone(
-topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityPCL/BadRoc_Prompt",
+topFolderName = DefaultHisto.topFolderName.value() +"/SiPixelQualityPCL/BadROC_Prompt",
   name = "Dead Channels per ROC",
   title = "Dead Channels per ROC",
   xlabel = "dead channels per ROC",

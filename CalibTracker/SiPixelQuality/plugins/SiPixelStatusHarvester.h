@@ -60,20 +60,30 @@ class SiPixelStatusHarvester : public SiPixelPhase1Base {
   const SiPixelQuality* badPixelInfo_;
 
   // totoal number of lumi blocks with non-zero pixel DIGIs
-  int countLumi_;
+  int countLumi_ = 0;
   // last lumi section of the SiPixeDetectorStatus data
   edm::LuminosityBlockNumber_t endLumiBlock_;
+
+  const TrackerGeometry* trackerGeometry_ = nullptr;
+  const SiPixelFedCabling* cablingMap_ = nullptr;
+  std::map<int, unsigned int> sensorSize_;
+
+  // pixel online to offline pixel row/column
+  std::map<int, std::map<int, std::pair<int,int> > > pixelO2O_;
+
+  //Helper functions
 
   // "step function" for IOV
   edm::LuminosityBlockNumber_t stepIOV(edm::LuminosityBlockNumber_t pin, std::map<edm::LuminosityBlockNumber_t,edm::LuminosityBlockNumber_t> IOV);
 
-  const TrackerGeometry* trackerGeometry_ = nullptr;
-  const SiPixelFedCabling* cablingMap_ = nullptr;
-  std::map<int, int> sensorSize_;
+  // boolean function to check whether two SiPixelQualitys (pyloads) are identical
+  bool equal(SiPixelQuality* a, SiPixelQuality* b);
 
-  // pixel online to offline pixel row/column 
-  std::map<int, std::map<int, std::pair<int,int> > > pixelO2O_;
+  // Tag constructor
+  void constructTag(std::map<int,SiPixelQuality*>siPixelQualityTag, edm::Service<cond::service::PoolDBOutputService> &poolDbService, std::string tagName, edm::Run& iRun);
+
 
 };
+
 
 #endif
