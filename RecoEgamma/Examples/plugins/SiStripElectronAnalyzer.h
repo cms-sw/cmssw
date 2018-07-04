@@ -26,7 +26,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -43,7 +43,7 @@
 // class decleration
 //
 
-class SiStripElectronAnalyzer : public edm::EDAnalyzer {
+class SiStripElectronAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit SiStripElectronAnalyzer(const edm::ParameterSet&);
       ~SiStripElectronAnalyzer() override;

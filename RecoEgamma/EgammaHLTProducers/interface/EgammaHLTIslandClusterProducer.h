@@ -5,7 +5,7 @@
 #include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,17 +22,14 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTIslandClusterProducer : public edm::EDProducer {
+class EgammaHLTIslandClusterProducer : public edm::global::EDProducer<> {
  public:
   EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTIslandClusterProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-
-  int nMaxPrintout_; // max # of printouts
-  int nEvt_;         // internal counter of events
 
   IslandClusterAlgo::VerbosityLevel verbosity;
 
@@ -60,16 +57,14 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer {
   PositionCalc posCalculator_; // position calculation algorithm
   IslandClusterAlgo * island_p;
   
-  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
-  
   const EcalRecHitCollection * getCollection(edm::Event& evt,
-					     edm::EDGetTokenT<EcalRecHitCollection>& hitToken);
+					     const edm::EDGetTokenT<EcalRecHitCollection>& hitToken) const ;
   
   
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
+			  const edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
 			  const std::vector<RectangularEtaPhiRegion>& regions,
-			  const IslandClusterAlgo::EcalPart& ecalPart);
+			  const IslandClusterAlgo::EcalPart& ecalPart) const ;
 };
 #endif

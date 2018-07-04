@@ -5,7 +5,7 @@
 #include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,16 +24,14 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
+class EgammaHLTMulti5x5ClusterProducer : public edm::global::EDProducer<> {
  public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTMulti5x5ClusterProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  int nMaxPrintout_; // max # of printouts
-  int nEvt_;         // internal counter of events
 
   bool doBarrel_;
   bool doEndcaps_;
@@ -58,18 +56,16 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
   
   PositionCalc posCalculator_; // position calculation algorithm
   Multi5x5ClusterAlgo * Multi5x5_p;
-    
-  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 
   const EcalRecHitCollection * getCollection(edm::Event& evt,
-					     edm::EDGetTokenT<EcalRecHitCollection>& hitToken);
+					     const edm::EDGetTokenT<EcalRecHitCollection>& hitToken) const ;
   
   
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
+			  const edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
 			  const std::vector<RectangularEtaPhiRegion>& regions,
-			  const reco::CaloID::Detectors detector);
+			  const reco::CaloID::Detectors detector) const ;
 
   void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
 

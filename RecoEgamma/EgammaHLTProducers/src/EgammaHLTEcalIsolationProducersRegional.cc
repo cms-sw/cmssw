@@ -51,7 +51,7 @@ void EgammaHLTEcalIsolationProducersRegional::fillDescriptions(edm::Configuratio
 }
 
   
-void EgammaHLTEcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EgammaHLTEcalIsolationProducersRegional::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   // Get the basic cluster collection in the Barrel
   edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;

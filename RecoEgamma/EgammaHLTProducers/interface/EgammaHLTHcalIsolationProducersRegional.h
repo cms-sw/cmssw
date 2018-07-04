@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,12 +35,12 @@ namespace edm {
 
 class EgammaHLTHcalIsolation;
 
-class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
+class EgammaHLTHcalIsolationProducersRegional : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationProducersRegional() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

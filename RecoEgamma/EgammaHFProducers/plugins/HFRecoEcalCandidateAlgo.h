@@ -35,11 +35,11 @@ public:
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
 	       const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
 	       reco::RecoEcalCandidateCollection& RecoECand,
-	       int nvtx);
+	       int nvtx) const;
   
   
  private:
-  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx);
+  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx) const;
   bool m_correct;
   double m_e9e25Cut;
   double m_intercept2DCut;

@@ -51,7 +51,7 @@ void EgammaHLTHcalIsolationDoubleConeProducers::fillDescriptions(edm::Configurat
   descriptions.add(("hltEgammaHLTHcalIsolationDoubleConeProducers"), desc);
 }
 
-void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);

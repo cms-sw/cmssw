@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,17 +20,14 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTHybridClusterProducer : public edm::EDProducer  {
+class EgammaHLTHybridClusterProducer : public edm::global::EDProducer<>  {
  public:
   EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTHybridClusterProducer() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-  
-  int nMaxPrintout_; // max # of printouts
-  int nEvt_;         // internal counter of events
   
   bool doIsolated_;
   
@@ -52,7 +49,6 @@ class EgammaHLTHybridClusterProducer : public edm::EDProducer  {
   HybridClusterAlgo * hybrid_p; // clustering algorithm
   PositionCalc posCalculator_; // position calculation algorithm
   
-  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };
 #endif
 
