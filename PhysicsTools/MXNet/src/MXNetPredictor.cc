@@ -102,7 +102,7 @@ std::vector<float> MXNetPredictor::predict(const std::vector<std::vector<mx_floa
     throw cms::Exception("RuntimeError") << "Error running forward!";
   }
 
-  mx_uint *shape = 0;
+  mx_uint *shape = nullptr;
   mx_uint shape_len = 0;
 
   // Get Output Result
