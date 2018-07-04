@@ -224,10 +224,10 @@ private:
   std::vector<double> energyUncertaintyParameters_;
   std::vector<double> energyCorrectionObjectSpecificParameters_;
 
-  double sim_pulse_shape_EB_thresh;
-  double sim_pulse_shape_EE_thresh;
-  double sim_pulse_shape_APD_thresh;
-  float sim_pulse_shape_TI;
+  double sim_pulse_shape_EB_thresh_;
+  double sim_pulse_shape_EE_thresh_;
+  double sim_pulse_shape_APD_thresh_;
+  float sim_pulse_shape_TI_;
 
 
   // ageing parameters 

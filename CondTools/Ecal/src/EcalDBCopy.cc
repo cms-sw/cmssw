@@ -462,15 +462,10 @@ else if (container == "EcalIntercalibConstantsMC") {
    dbOutput->createNewIOV<const EcalSampleMask>( new EcalSampleMask(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
  }  else if (container == "EcalSimPulseShape") {
-  std::cout << "sim pulse shape writing to DB... "<< std::endl;
   edm::ESHandle<EcalSimPulseShape> handle;
-  std::cout << "sim pulse shape 1 "<< std::endl;
   evtSetup.get<EcalSimPulseShapeRcd>().get(handle);
-  std::cout << "sim pulse shape 2 "<< std::endl;
   const EcalSimPulseShape* obj = handle.product();
-  std::cout << "sim pulse shape 3 pointer is: "<< obj<< std::endl;
   dbOutput->createNewIOV<const EcalSimPulseShape>( new EcalSimPulseShape(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-  std::cout << "sim pulse shape 4 done"<< obj<< std::endl;
 
  } else if (container == "EcalTimeBiasCorrections") {
    edm::ESHandle<EcalTimeBiasCorrections> handle;

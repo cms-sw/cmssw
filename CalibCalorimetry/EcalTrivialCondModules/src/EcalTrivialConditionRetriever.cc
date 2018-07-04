@@ -113,11 +113,11 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   EEG1samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG1samplesCorrelation", std::vector<double>() );
 
 
-  sim_pulse_shape_EB_thresh  = ps.getParameter<double>("sim_pulse_shape_EB_thresh" );
-  sim_pulse_shape_EE_thresh  = ps.getParameter<double>("sim_pulse_shape_EE_thresh" );
-  sim_pulse_shape_APD_thresh = ps.getParameter<double>("sim_pulse_shape_APD_thresh");
+  sim_pulse_shape_EB_thresh_  = ps.getParameter<double>("sim_pulse_shape_EB_thresh" );
+  sim_pulse_shape_EE_thresh_  = ps.getParameter<double>("sim_pulse_shape_EE_thresh" );
+  sim_pulse_shape_APD_thresh_ = ps.getParameter<double>("sim_pulse_shape_APD_thresh");
 
-  sim_pulse_shape_TI = ps.getUntrackedParameter<double>("sim_pulse_shape_TI",  1.0);
+  sim_pulse_shape_TI_ = ps.getUntrackedParameter<double>("sim_pulse_shape_TI",  1.0);
 
   nTDCbins_ = 1;
 
@@ -3293,74 +3293,62 @@ EcalTrivialConditionRetriever::produceEcalSamplesCorrelation( const EcalSamplesC
   return ipar;
 }
 
-
-
-
-
-
-
-
 std::unique_ptr<EcalSimPulseShape>
 EcalTrivialConditionRetriever::getEcalSimPulseShapeFromConfiguration 
 ( const EcalSimPulseShapeRcd& )
 {
-  std::cout<< "Produce EcalSimPulseShape set time interval="<<sim_pulse_shape_TI<< " ns"<< std::endl; 
+  std::cout<< "Produce EcalSimPulseShape set time interval="<<sim_pulse_shape_TI_<< " ns"<< std::endl; 
 
   auto result = std::make_unique<EcalSimPulseShape>();
  
 
-  result->time_interval = sim_pulse_shape_TI;
+  result->time_interval = sim_pulse_shape_TI_;
 
-  std::vector<double> EBshape_;
-  std::vector<double> EEshape_;
-  std::vector<double> APDshape_;
+  std::vector<double> EBshape;
+  std::vector<double> EEshape;
+  std::vector<double> APDshape;
 
   if (!EBSimPulseShapeFile_.empty() )
     {
       std::ifstream shapeEBFile;
       shapeEBFile.open(EBSimPulseShapeFile_.c_str());
       double ww;
-      while (shapeEBFile >> ww) EBshape_.push_back(ww);
+      while (shapeEBFile >> ww) EBshape.push_back(ww);
       shapeEBFile.close(); 
 
-    } else {std::cout<< "no file for EB -> no shape to expect ... "<< std::endl;}
-
+    } 
   if (!EESimPulseShapeFile_.empty() )
     {
       std::ifstream shapeEEFile;
       shapeEEFile.open(EESimPulseShapeFile_.c_str());
       double ww;
-      while (shapeEEFile >> ww) EEshape_.push_back(ww);
+      while (shapeEEFile >> ww) EEshape.push_back(ww);
       shapeEEFile.close(); 
 
-    } else {std::cout<< "no file for EE -> no shape to expect ... "<< std::endl;}
-
+    } 
   // end endcaps now APD shape 
   if (!APDSimPulseShapeFile_.empty()) {
       std::ifstream shapeAPDFile;
       shapeAPDFile.open(APDSimPulseShapeFile_.c_str());
       double ww;
-      while (shapeAPDFile >> ww) APDshape_.push_back(ww);
+      while (shapeAPDFile >> ww) APDshape.push_back(ww);
       shapeAPDFile.close(); 
 
-    } else {std::cout<< "no file for APD -> no shape to expect ... "<< std::endl;}
-
+    } 
   // --- save threshold instead (waste some resources)
-  result->barrel_thresh = sim_pulse_shape_EB_thresh;
-  result->endcap_thresh = sim_pulse_shape_EE_thresh;
-  result->apd_thresh = sim_pulse_shape_APD_thresh;
+  result->barrel_thresh = sim_pulse_shape_EB_thresh_;
+  result->endcap_thresh = sim_pulse_shape_EE_thresh_;
+  result->apd_thresh = sim_pulse_shape_APD_thresh_;
 
-
-  copy(EBshape_.begin(), EBshape_.end(),
+  copy(EBshape.begin(), EBshape.end(),
        back_inserter(result->barrel_shape));
-  copy(EEshape_.begin(), EEshape_.end(),
+  copy(EEshape.begin(), EEshape.end(),
        back_inserter(result->endcap_shape));
-  copy(APDshape_.begin(), APDshape_.end(),
+  copy(APDshape.begin(), APDshape.end(),
        back_inserter(result->apd_shape));
     std::cout<< "EcalSimPulseShape done ..."<< std::endl; 
 
   return result; 
-  
 }
 
 

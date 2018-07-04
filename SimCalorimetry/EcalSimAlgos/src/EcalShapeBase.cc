@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-//const double EcalShapeBase::m_qNSecPerBin = 1./(1.*kNBinsPerNSec) ;
-
 EcalShapeBase::~EcalShapeBase()
 {
 }
@@ -48,7 +46,7 @@ EcalShapeBase::timeToRise() const
 double 
 EcalShapeBase::threshold()  const 
 {
-   return m_thresh              ; 
+   return m_thresh; 
 }
 
 
@@ -63,7 +61,7 @@ EcalShapeBase::buildMe()
   
    m_denseArraySize    = 10*m_arraySize; // dense array with interpolation between data 
    m_kNBinsPerNSec     = (unsigned int) (10/time_interval); // used to be an unsigned int = 10 in  < CMSSW10X, should work for time intervals ~0.1, 0.2, 0.5, 1
-   m_qNSecPerBin = (1.*time_interval)/(10.); 
+   m_qNSecPerBin = time_interval/10.; 
 
    for(unsigned int i = 0; i < m_denseArraySize; ++i) { m_deriv.push_back(0.0); m_shape.push_back(0.0); }
 
