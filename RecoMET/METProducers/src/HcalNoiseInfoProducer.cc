@@ -112,6 +112,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   // get the integration region with defaults
   laserMonitorTSStart_ = iConfig.getParameter<int>("laserMonTSStart");
   laserMonitorTSEnd_   = iConfig.getParameter<int>("laserMonTSEnd");
+  laserMonitorSamples_ = iConfig.getParameter<unsigned>("laserMonSamples");
 
   adc2fC= std::vector<float> {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
      13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
@@ -124,18 +125,66 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
      3109.5,3234.5,3359.5,3484.5,3609.5,3797.,4047.,4297.,4547.,4797.,5047.,
      5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
 
-  // adc -> fC for qie8 with PMT input, for laser monitor
-  // Taken from Table 2 in 
-  // https://cms-docdb.cern.ch/cgi-bin/DocDB/RetrieveFile?docid=3275&filename=qie_spec.pdf&version=1
-  adc2fCHF = std::vector<float> {-3,-0.4,2.2,4.8,7.4,10,12.6,15.2,17.8,20.4,23,25.6,28.2,30.8,33.4,
-                                 36,41.2,46.4,51.6,56.8,62,67.2,73,80.8,88.6,96.4,104,114.4,124.8,135,
-                                 148,161,150,163,176,189,202,215,228,241,254,267,280,293,306,319,332,
-                                 343,369,395,421,447,473,499,525,564,603,642,681,733,785,837,902,967,
-                                 902,967,1032,1097,1162,1227,1292,1357,1422,1487,1552,1617,1682,1747,
-                                 1812,1877,2007,2137,2267,2397,2527,2657,2787,2982,3177,3372,3567,
-                                 3827,4087,4347,4672,4997,4672,4997,5322,5647,5972,6297,6622,6947,
-                                 7272,7597,7922,8247,8572,8897,9222,9547,10197,10847,11497,12147,
-                                 12797,13447,14097,15072,16047,17022,17997,19297,20597,21897,23522,25147};
+  // adc -> fC for qie10, for laser monitor
+  // Taken from page 3 in
+  // https://cms-docdb.cern.ch/cgi-bin/DocDB/RetrieveFile?docid=12570&filename=QIE10_final.pdf&version=5
+  adc2fCHF = std::vector<float> {
+    // - - - - - - - range 0 - - - - - - - -
+  //subrange0
+  1.58, 4.73, 7.88, 11.0, 14.2, 17.3, 20.5, 23.6,
+  26.8, 29.9, 33.1, 36.2, 39.4, 42.5, 45.7, 48.8,
+  //subrange1
+  53.6, 60.1, 66.6, 73.0, 79.5, 86.0, 92.5, 98.9,
+  105, 112, 118, 125, 131, 138, 144, 151,
+  //subrange2
+  157, 164, 170, 177, 186, 199, 212, 225,
+  238, 251, 264, 277, 289, 302, 315, 328,
+  //subrange3
+  341, 354, 367, 380, 393, 406, 418, 431,
+  444, 464, 490, 516, 542, 568, 594, 620,
+
+  // - - - - - - - range 1 - - - - - - - -
+  //subrange0
+  569, 594, 619, 645, 670, 695, 720, 745,
+  771, 796, 821, 846, 871, 897, 922, 947,
+  //subrange1
+  960, 1010, 1060, 1120, 1170, 1220, 1270, 1320,
+  1370, 1430, 1480, 1530, 1580, 1630, 1690, 1740,
+  //subrange2
+  1790, 1840, 1890, 1940,  2020, 2120, 2230, 2330,
+  2430, 2540, 2640, 2740, 2850, 2950, 3050, 3150,
+  //subrange3
+  3260, 3360, 3460, 3570, 3670, 3770, 3880, 3980,
+  4080, 4240, 4450, 4650, 4860, 5070, 5280, 5490,
+
+  // - - - - - - - range 2 - - - - - - - -
+  //subrange0
+  5080, 5280, 5480, 5680, 5880, 6080, 6280, 6480,
+  6680, 6890, 7090, 7290, 7490, 7690, 7890, 8090,
+  //subrange1
+  8400, 8810, 9220, 9630, 10000, 10400, 10900, 11300,
+  11700, 12100, 12500, 12900, 13300, 13700, 14100, 14500,
+  //subrange2
+  15000, 15400, 15800, 16200, 16800, 17600, 18400, 19300,
+  20100, 20900, 21700, 22500, 23400, 24200, 25000, 25800,
+  //subrange3
+  26600, 27500, 28300, 29100, 29900, 30700, 31600, 32400,
+  33200, 34400, 36100, 37700, 39400, 41000, 42700, 44300,
+
+  // - - - - - - - range 3 - - - - - - - - -
+  //subrange0
+  41100, 42700, 44300, 45900, 47600, 49200, 50800, 52500,
+  54100, 55700, 57400, 59000, 60600, 62200, 63900, 65500,
+  //subrange1
+  68000, 71300, 74700, 78000, 81400, 84700, 88000, 91400,
+  94700, 98100, 101000, 105000, 108000, 111000, 115000, 118000,
+  //subrange2
+  121000, 125000, 128000, 131000, 137000, 145000, 152000, 160000,
+  168000, 176000, 183000, 191000, 199000, 206000, 214000, 222000,
+  //subrange3
+  230000, 237000, 245000, 253000, 261000, 268000, 276000, 284000,
+  291000, 302000, 316000, 329000, 343000, 356000, 370000, 384000
+  };
 
   hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
   hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
@@ -264,6 +313,8 @@ void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& des
       setComment("lower bound of laser monitor charge integration window");
   desc.add<int>("laserMonTSEnd", -1)->
       setComment("upper bound of laser monitor charge integration window (-1 = no bound)");
+  desc.add<unsigned>("laserMonSamples", 4)->
+      setComment("Number of laser monitor samples to take per channel");
 
   // what to fill
   desc.add<bool>("fillDigis", true);
@@ -340,9 +391,6 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(fillTracks_)     filltracks(iEvent, iSetup, summary);
 
   filljetinfo(iEvent, iSetup, summary);
-
-  // Why is this here?  Shouldn't it have been in the filldigis method? Any reason for totalCalibCharge to be defined outside filldigis(...) ?-- Jeff, 7/2/12
-  //if(fillDigis_)      summary.calibCharge_ = totalCalibCharge;
 
   // select those RBXs which are interesting
   // also look for the highest energy RBX
@@ -654,174 +702,80 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   } // if (hCalib.isValid()==true)
   if( fillLaserMonitor_  && (hLasermon.isValid() == true) ) {
 
-    std::vector<std::vector<int> > lasmon_adcs(laserMonCBoxList_.size(), std::vector<int>());
-    std::vector<std::vector<int> > lasmon_capids(laserMonCBoxList_.size(), std::vector<int>());
-
-    unsigned max_nsamples = 0;
-    for(QIE10DigiCollection::const_iterator digi = hLasermon->begin(); digi != hLasermon->end(); digi++) {
-
-      QIE10DataFrame df = static_cast<QIE10DataFrame>(*digi);
-
-      HcalCalibDetId calibId( digi->id() );
-
-      // Fill the lasermonitor channels
-      int cboxch  = calibId.cboxChannel( );
-      int iphi    = calibId.iphi();
-      int ieta    = calibId.ieta();
-
-      // only check channels having the requested cboxch
-      // find the index of this channel by matching cBox, iEta, iPhi
-      for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
-        if( cboxch == laserMonCBoxList_[idx] &&
-          iphi  == laserMonIPhiList_[idx] && 
-          ieta  == laserMonIEtaList_[idx] ) {
-
-          // now get the digis
-          unsigned ts_size = df.samples();
-          if( ts_size > max_nsamples ) max_nsamples = ts_size;
-          for(unsigned i = 0; i < ts_size; i++) {
-            bool ok = df[i].ok();
-            if( !ok ) { // protection against QIE reset
-              lasmon_adcs[idx].push_back( -1 );
-              lasmon_capids[idx].push_back( -1 );
-            } else {
-              lasmon_adcs[idx].push_back( df[i].adc() );
-              lasmon_capids[idx].push_back( df[i].capid() );
-            }
-          } // end digi loop
-        } // end matching channel if
-      } // end fiber order loop
-    } // end loop over digis
-
-    // now match the laser monitor data by fiber (in time) 
-    // check for any fibers without data and fill
-    // them so we dont run into problems later
-    for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
-        if( lasmon_adcs[idx].empty() ) {
-            lasmon_adcs[idx] = std::vector<int>(max_nsamples, -1);
-        }
-        if( lasmon_capids[idx].empty() ) {
-            lasmon_capids[idx] = std::vector<int>(max_nsamples, -1);
-        }
-    }
-    unsigned nFibers = laserMonIEtaList_.size();
-    // for each fiber we need to find the index at with the 
-    // data from the next fiber matches in order to stitch them together.
-    // When there is an overlap, the data from the end of the
-    // earlier fiber is removed.  There is no removal of the last fiber
-    std::vector<unsigned> matching_idx; 
-    // we assume that the list of fibers was given in time order
-    // (if this was not the case, then we just end up using 
-    // all data from all fibers )
-    for( unsigned fidx = 0; nFibers > 0 && (fidx < (nFibers - 1)); ++fidx ) {
-
-      unsigned nts = lasmon_capids[fidx].size();  // number of time slices
-
-      // start by checking just the last TS of the earlier fiber
-      // against the first TS of the later fiber
-      // on each iteration, check one additional TS
-      // moving back in time on the earlier fiber and
-      // forward in time in the later fiber
-      
-      int start_ts = nts - 1; // start_ts will be decrimented on each loop where a match is not found
-
-      // in the case that our stringent check below doesn't work 
-      // store the latest capID that has a match
-      int latest_cap_match = -1;
-
-      // loop over the number of checks to make
-      for( unsigned ncheck = 1; ncheck <= nts ; ncheck++ ) {
-        bool cap_match = true; //will be set to false if at least one check fails below
-        bool adc_match = true; //will be set to false if at least one check fails below
-
-        // loop over the channel TS, this is for the later fiber in time
-        for( unsigned lidx = 0; lidx < ncheck; lidx++) {
-          // we are looping over the TS of the later fiber in time
-          // the TS of the earlier fiber starts from the end
-          unsigned eidx = nts-ncheck+lidx;
-          // if we get an invald value, this fiber has no data
-          // the check and match will fail, so the start_ts will 
-          // be decrimented
-          if( lasmon_capids[fidx][eidx] == -1 || lasmon_capids[fidx+1][lidx] == -1 ) {
-            cap_match = false;
-            adc_match = false;
-            break;
-          }
-
-          if( lasmon_capids[fidx][eidx] != lasmon_capids[fidx+1][lidx] ) {
-            cap_match = false;
-          }
-          // check the data values as well
-          if( lasmon_adcs[fidx][eidx] != lasmon_adcs[fidx+1][lidx] ) {
-            adc_match = false;
-          }
-        }
-        if( cap_match && (start_ts > latest_cap_match) ) {
-          latest_cap_match = start_ts;
-        }
-        if( cap_match && adc_match ) {
-          // end the loop and we'll take the current start_ts
-          // as the end of the data for this fiber
-          break;
-        }
-        else {
-          // if we don't have a match, then decrement the 
-          // starting TS and check again
-          start_ts--;
-        }
-      }
-
-      // now make some sanity checks on the determined overlap index
-      if( start_ts == -1 ) {
-        // if we didn't find any match, use the capID only to compare
-        if( latest_cap_match < 0 ) {
-          //this shouldn't happen, in this case use all the data from the fiber
-          start_ts = nts;
-        }
-        else {
-          // its possible that the timing of the fibers
-          // is shifted such that they do not overlap
-          // and we just want to stitch the fibers
-          // together with no removal.
-          // In this case the capIDs will match at the
-          // N-4 spot (and the ADCs will not)
-          // if this is not the case, then we just take
-          // the value of latest match
-          if( latest_cap_match == int(nts - 4) ) {
-            start_ts = nts;
-          } else {
-            start_ts = latest_cap_match;
-          }
-        }
-      }
-
-      // now store as the matching index
-      matching_idx.push_back(start_ts);
-    }
-
-    // for the last fiber we always use all of the data
-    matching_idx.push_back(max_nsamples);
-
-    // now loop over the time slices of each fiber and make the sum
     int icombts = -1;
-    for( unsigned fidx = 0 ; fidx < nFibers; ++fidx ) {
-      for( unsigned its = 0; its < matching_idx[fidx]; ++its ) {
-        icombts++;
+    float max_charge = 0;
+    int max_ts = -1;
+    std::vector<float> comb_charge;
+       
+    unsigned nch = laserMonCBoxList_.size();
+    // loop over channels in the order provided
+    for( unsigned ich = 0; ich < nch; ++ich ) {
+      int cboxch = laserMonCBoxList_[ich];
+      int iphi  = laserMonIPhiList_[ich];
+      int ieta  = laserMonIEtaList_[ich];
 
-        // apply integration limits
-        if( icombts < laserMonitorTSStart_ ) continue;
-        if( laserMonitorTSEnd_ > 0 && icombts > laserMonitorTSEnd_ ) continue;
+      // loop over digis, find the digi that matches this channel
+      for(const QIE10DataFrame & df : (*hLasermon)) {
+        HcalCalibDetId calibId( df.id() );
 
-        int adc = lasmon_adcs[fidx][its];
+        int ch_cboxch = calibId.cboxChannel();
+        int ch_iphi   = calibId.iphi();
+        int ch_ieta   = calibId.ieta();
 
-        if( adc >= 0 ) { // skip invalid data
-          float fc = adc2fCHF[adc];
-          totalLasmonCharge += fc;
-          
-        }
-      } 
+        if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta ) {
+
+          unsigned ts_size = df.samples();
+
+          // loop over time slices
+          for( unsigned its = 0; its < ts_size; ++its ) {
+            // if we are on the last channel, use all the data
+            // otherwise only take the unique samples 
+            if( ( (ich + 1) < nch )  && its >= laserMonitorSamples_ ) continue;
+
+            bool ok = df[its].ok();
+            int adc = df[its].adc();
+
+            icombts++;
+            // apply integration limits
+            if( icombts < laserMonitorTSStart_ ) continue;
+            if( laserMonitorTSEnd_ > 0 && icombts > laserMonitorTSEnd_ ) continue;
+
+            if( ok && adc >= 0 ) { // protection against QIE reset or bad ADC values
+
+              float charge = adc2fCHF[adc];
+              if( charge > max_charge ) {
+                  max_charge = charge;
+                  max_ts = icombts;
+              }
+
+              comb_charge.push_back( charge );
+            } // if( ok && adc >= 0 ) 
+          } // loop over time slices
+        } // if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta ) 
+      } // loop over digi collection
+    } // loop over channel list
+
+    // do not continue with the calculation
+    // if the vector was not filled
+    if( comb_charge.empty() ) { 
+      totalLasmonCharge = -1;
     }
-  } // end filllasmon && isValidcheck
+    else {
+      // integrate from +- 3 TS around the time sample
+      // having the maximum charge
+      int start_ts = max_ts - 3;
+      int end_ts = max_ts + 3;
+
+      // Change the integration limits
+      // if outside of the range
+      if( start_ts < 0 ) start_ts = 0;
+      if( end_ts >= int(comb_charge.size()) ) end_ts = comb_charge.size() - 1; 
+
+      for( int isum = start_ts; isum <= end_ts; ++isum ) {
+          totalLasmonCharge += comb_charge[isum];
+      }
+    }
+  } // if( fillLaserMonitor_  && (hLasermon.isValid() == true) )
 
   summary.calibCharge_ = totalCalibCharge;
   summary.lasmonCharge_ = totalLasmonCharge;
