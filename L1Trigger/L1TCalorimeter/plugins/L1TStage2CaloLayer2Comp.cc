@@ -343,12 +343,12 @@ bool L1TStage2CaloLayer2Comp::compareJets(
 {
   bool eventGood = true;
 
+  std::vector<l1t::Jet> jets;
   l1t::JetBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::JetBxCollection::const_iterator emulIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data jets
-    std::vector<l1t::Jet> jets;
     while (true) {
 
       jets.emplace_back(*dataIt);
@@ -435,12 +435,12 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
 {
   bool eventGood = true;
 
+  std::vector<l1t::EGamma> egs;
   l1t::EGammaBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::EGammaBxCollection::const_iterator emulIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data egs
-    std::vector<l1t::EGamma> egs;
     while (true) {
 
       egs.emplace_back(*dataIt);
@@ -525,12 +525,12 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
 {
   bool eventGood = true;
 
+  std::vector<l1t::Tau> taus;
   l1t::TauBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::TauBxCollection::const_iterator emulIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data taus
-    std::vector<l1t::Tau> taus;
     while (true) {
 
       taus.emplace_back(*dataIt);
