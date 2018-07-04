@@ -418,7 +418,7 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       }
     }
 
-    fts.fill("pfcand_drsubjet1", subjets.size()>0 ? reco::deltaR(*cand, *subjets.at(0)) : -1);
+    fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
     fts.fill("pfcand_drsubjet2", subjets.size()>1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
 
     const reco::Track *trk = nullptr;
