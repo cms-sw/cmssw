@@ -44,9 +44,13 @@ public:
   //    ROOT file, and we do *not* own them.  But we do own the
   //    generators.
   //
-  PixelResolutionHistograms( const char * filename,    // ROOT file for histograms
-			     const char * rootdir = "" );   // ROOT dir, "" if none
-  
+  PixelResolutionHistograms( const char * filename,      // ROOT file for histograms
+			     const char * rootdir = "",  // ROOT dir, "" if none
+			     int   detType = -1,         // default: read from ROOT file.
+			     bool  ignore_multi = false, // Forward Big is always single
+			     bool  ignore_single = false,   // Edge does not need single pixels
+			     bool  ignore_qBin = false  );  // qBin histograms not used right now (future expansion)
+
 
   //--- Destructor (virtual, just in case)
   virtual ~PixelResolutionHistograms();

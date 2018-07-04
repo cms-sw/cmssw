@@ -55,26 +55,42 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     //--- Basic stuff
     mergeHitsOn = config.getParameter<bool>("MergeHitsOn");
     isBarrel    = config.getParameter<bool> ( "isBarrel" );
+    int detType = (isBarrel) ? 1 : 0;    // 1 for barrel, 0 for forward  (or could we just promote bool into int...?)
 
     //--- Resolution file names.
     theBigPixelResolutionFileName     = config.getParameter<string>( "BigPixelResolutionFile" );
     theEdgePixelResolutionFileName    = config.getParameter<string>( "EdgePixelResolutionFile" );
     theRegularPixelResolutionFileName = config.getParameter<string>( "RegularPixelResolutionFile" );
 
+
     //--- Create the resolution histogram objects, which will load the histograms
     //    and initialize random number generators.
-    //    &&& TODO: check status, throw exceptions here!
     //
+    int status = 0;
     theRegularPixelResolutions = 
       std::make_shared<PixelResolutionHistograms>( theRegularPixelResolutionFileName.c_str(), "" );
+    if (( status = theRegularPixelResolutions->status()) != 0 ) {
+      throw cms::Exception("PixelTemplateSmearerBase:")
+	<< " constructing PixelResolutionHistograms file " << theRegularPixelResolutionFileName
+	<< " failed with status = " << status << std::endl;
+    }
     
     theBigPixelResolutions =
-      std::make_shared<PixelResolutionHistograms>( theBigPixelResolutionFileName.c_str(), "" );
-      //      new PixelResolutionHistograms( theBigPixelResolutionFileName.c_str(), "" );
+      std::make_shared<PixelResolutionHistograms>( theBigPixelResolutionFileName.c_str(), "", detType, (!isBarrel), false, true );  // can miss qBin
+    if (( status = theBigPixelResolutions->status()) != 0 ) {
+      throw cms::Exception("PixelTemplateSmearerBase:")
+	<< " constructing PixelResolutionHistograms file " << theBigPixelResolutionFileName
+	<< " failed with status = " << status << std::endl;
+    }
     
     theEdgePixelResolutions =
-      std::make_shared<PixelResolutionHistograms>( theEdgePixelResolutionFileName.c_str(), "" );
-      //      new PixelResolutionHistograms( theEdgePixelResolutionFileName.c_str(), "" );
+      std::make_shared<PixelResolutionHistograms>( theEdgePixelResolutionFileName.c_str(), "", detType, false, true, true );  // can miss both single & qBin
+    if (( status = theEdgePixelResolutions->status()) != 0 ) {
+      throw cms::Exception("PixelTemplateSmearerBase:")
+	<< " constructing PixelResolutionHistograms file " << theEdgePixelResolutionFileName
+	<< " failed with status = " << status << std::endl;
+    }
+
 
     
     //--- Merging info.
@@ -94,11 +110,10 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
       //--- Load template with ID=templateId from a local ascii file.
       templateId  = config.getParameter<int> ( "templateId" );
       if ( templateId > 0 ) {
-	if ( !SiPixelTemplate::pushfile(templateId, thePixelTemp_) )
-	  {
-	    throw cms::Exception("PixelTemplateSmearerPlugin:")
-	      <<"SiPixel Template " << templateId << " Not Loaded Correctly!"<<endl;
-	  }
+	if ( !SiPixelTemplate::pushfile(templateId, thePixelTemp_) ) {
+	  throw cms::Exception("PixelTemplateSmearerBase:")
+	    <<"SiPixel Template " << templateId << " Not Loaded Correctly!" << std::endl;
+	}
       }
     }
     
@@ -669,6 +684,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit (
     
     if (edge) {
       resHistsX = resHistsY = theEdgePixelResolutions;
+      singlex = singley = false;          // no single resolutions for Edge
     }
     else {
       //--- Decide resolution histogram set for X
@@ -696,8 +712,9 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit (
     //--- Check if we found a histogram.  If nullptr, then throw up.
     if ( !xgen || !ygen ) {
       throw cms::Exception("FastSimulation/TrackingRecHitProducer")
-	<< "Histogram (" << cotalpha << cotbeta << nqbin 
-	<< ") was not found for PixelTemplateSmearer. Check if the smearing template exists.";
+	<< "Histogram (cot\alpha=" << cotalpha
+	<<", cot\beta="<< cotbeta << ", nQbin=" << nqbin
+	<< ") was not found for PixelTemplateSmearer. Check if the smearing resolution histogram exists.";
     }
 
     
