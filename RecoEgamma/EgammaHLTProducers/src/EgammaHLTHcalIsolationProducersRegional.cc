@@ -78,7 +78,7 @@ void EgammaHLTHcalIsolationProducersRegional::fillDescriptions(edm::Configuratio
   descriptions.add(("hltEgammaHLTHcalIsolationProducersRegional"), desc);  
 }
 
-void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTHcalIsolationProducersRegional::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;

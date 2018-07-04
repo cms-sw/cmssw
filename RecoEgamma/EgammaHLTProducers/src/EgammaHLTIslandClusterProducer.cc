@@ -79,8 +79,6 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
   island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
-
-  nEvt_ = 0;
 }
 
 EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
@@ -111,7 +109,7 @@ void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
 
-void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+void EgammaHLTIslandClusterProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
 
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
@@ -239,13 +237,12 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
       ) {
     clusterizeECALPart(evt, es, barrelHitToken_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
   }
-  nEvt_++;
 }
 
 
 const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::Event& evt,
-									   edm::EDGetTokenT<EcalRecHitCollection>& hitToken_)
-{
+									   const edm::EDGetTokenT<EcalRecHitCollection>& hitToken_)
+const {
   edm::Handle<EcalRecHitCollection> rhcHandle;
   evt.getByToken(hitToken_, rhcHandle);
   if (!(rhcHandle.isValid())) 
@@ -259,11 +256,11 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
 
 
 void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-							edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
+							const edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 							const std::string& clusterCollection,
 							const std::vector<RectangularEtaPhiRegion>& regions,
 							const IslandClusterAlgo::EcalPart& ecalPart)
-{
+const {
   // get the hit collection from the event:
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitToken);
 

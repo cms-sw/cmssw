@@ -103,7 +103,6 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
 
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
-  nEvt_ = 0;
 }
 
 
@@ -158,8 +157,8 @@ void EgammaHLTHybridClusterProducer::fillDescriptions(edm::ConfigurationDescript
 }
 
 
-void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
-{
+void EgammaHLTHybridClusterProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
+
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
   evt.getByToken(hittoken_, rhcHandle);
@@ -309,9 +308,6 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   auto superclusters_p = std::make_unique<reco::SuperClusterCollection>();
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(std::move(superclusters_p), superclusterCollection_);
-
-
-  nEvt_++;
 }
 
  

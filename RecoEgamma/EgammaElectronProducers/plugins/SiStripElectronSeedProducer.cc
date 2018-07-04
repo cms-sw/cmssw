@@ -69,7 +69,7 @@ SiStripElectronSeedProducer::~SiStripElectronSeedProducer()
   delete matcher_;
 }
 
-void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
+void SiStripElectronSeedProducer::produce(edm::StreamID sid, edm::Event& e, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
   using namespace std;

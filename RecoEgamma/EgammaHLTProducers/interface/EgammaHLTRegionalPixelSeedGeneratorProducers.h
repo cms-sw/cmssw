@@ -9,7 +9,7 @@
 //                  to find TrajectorySeeds.
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -28,7 +28,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
+class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::global::EDProducer<>
 {
  public:
 
@@ -36,11 +36,8 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 
   ~EgammaHLTRegionalPixelSeedGeneratorProducers() override;
 
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::StreamID sid, edm::Event& e, const edm::EventSetup& c) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void beginRun(edm::Run const&run, const edm::EventSetup& es) final;
-  void endRun(edm::Run const&run, const edm::EventSetup& es) final;
-
 
  private:
   std::unique_ptr<SeedGeneratorFromRegionHits> combinatorialSeedGenerator;
