@@ -543,16 +543,16 @@ baseDataSetRelease=[
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns UP15 premix
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns UP15 premix
-    'CMSSW_10_2_0_pre2-101X_mcRun2_asymptotic_v5_FastSim-v1',    # 7 - fastSim MinBias for mixing
-    'CMSSW_10_2_0_pre2-PU25ns_101X_mcRun2_asymptotic_v5_FastSim-v1',# 8 - fastSim premixed MinBias
-    'CMSSW_10_2_0_pre2-101X_upgrade2018_realistic_v7-v1',        # 9 - Run2 HI GEN-SIM for mixing
+    'CMSSW_10_2_0_pre5-102X_mcRun2_asymptotic_v2_FastSim-v1',    # 7 - fastSim MinBias for mixing
+    'CMSSW_10_2_0_pre5-PU25ns_102X_mcRun2_asymptotic_v2_FastSim-v1',# 8 - fastSim premixed MinBias
+    'CMSSW_10_2_0_pre5-102X_upgrade2018_realistic_v1-v1',        # 9 - Run2 HI GEN-SIM for mixing
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
     'CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v1',     # 13 - 13 TeV samples with GEN-SIM from PhaseI upgrade
     'CMSSW_10_0_0_pre2-PU25ns_100X_mc2017_realistic_v1-v1',     # 14 - fullSim PU 25ns UP17 premix
-    'CMSSW_10_2_0_pre2-PU25ns_101X_upgrade2018_realistic_v7-v1',  #15 - fullSim PU 25ns UP18 premix
-    'CMSSW_10_2_0_pre2-101X_upgrade2018_realistic_v7-v1',  #16 - GENSIM input 2018
+    'CMSSW_10_2_0_pre5-PU25ns_102X_upgrade2018_realistic_v1-v1',  #15 - fullSim PU 25ns UP18 premix
+    'CMSSW_10_2_0_pre5-102X_upgrade2018_realistic_v1-v1',  #16 - GENSIM input 2018
     ]
 
 
@@ -882,6 +882,18 @@ step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2015_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2015Defaults])
 
+step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
+                           '--fast':'',
+                           '--conditions'  :'auto:phase1_2017_realistic',
+                           '--beamspot'    : 'Realistic25ns13TeVEarly2017Collision',
+                           '--era'         :'Run2_2017_FastSim',
+                           '--eventcontent':'FEVTDEBUGHLT,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
+                           '--relval':'27000,3000'},
+                           step1Defaults])
+
+step1FastUpg2017_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
+                                                step1FastUpg2017Defaults])
 
 #step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastDefaults])
@@ -916,6 +928,19 @@ steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 
 ### FastSim: produce sample of minbias events for PU mixing
 steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPUNewMixing])
+
+#step1FastUpg2017Defaults                                                                                                                                                      
+steps['TTbarFS_13_UP17']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2017Defaults])
+steps['TTbarFS_13_trackingOnlyValidation_UP17']=merge([{'cfg':'TTbar_13TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastUpg2017_trackingOnlyValidation])
+steps['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP17']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2017Defaults])
+steps['ZEEFS_13_UP17']=merge([{'cfg':'ZEE_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2017Defaults])
+steps['ZTTFS_13_UP17']=merge([{'cfg':'ZTT_All_hadronic_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2017Defaults])
+steps['ZMMFS_13_UP17']=merge([{'cfg':'ZMM_13TeV_TuneCUETP8M1_cfi'},Kby(100,2000),step1FastUpg2017Defaults])
+steps['QCDFlatPt153000FS_13_UP17']=merge([{'cfg':'QCDForPF_13TeV_TuneCUETP8M1_cfi'},Kby(27,2000),step1FastUpg2017Defaults])
+steps['QCD_Pt_80_120FS_13_UP17']=merge([{'cfg':'QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi'},Kby(100,500),step1FastUpg2017Defaults])
+steps['H125GGgluonfusionFS_13_UP17']=merge([{'cfg':'H125GGgluonfusion_13TeV_TuneCUETP8M1_cfi'},step1FastUpg2017Defaults])
+steps['SingleMuPt10FS_UP17']=merge([{'cfg':'SingleMuPt10_pythia8_cfi'},step1FastUpg2017Defaults])
+steps['SingleMuPt100FS_UP17']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1FastUpg2017Defaults])
 
 ### FastSim: template to produce signal and overlay with minbias events
 PUFS25={'--pileup':'AVE_35_BX_25ns',
@@ -1565,7 +1590,7 @@ steps['TIER0EXPSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:SiPixelCalZeroBi
                           '--eventcontent':'ALCARECO',
                           }
 
-steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP',
+steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                         '--scenario':'pp',
                         '--data':'',
                         '--era':'Run2_2017',
@@ -1594,6 +1619,16 @@ steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotH
                         '--era':'Run2_2017',
                         '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_harvesting_trackingOnly',
                         '--filein':'file:PromptCalibProdBeamSpotHP.root'}
+
+steps['ALCAHARVDHPBSLOWPU']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHPLowPU']),
+                        #'--conditions':'auto:run2_data_promptlike',
+                        '--conditions':'92X_dataRun2_Express_v2_snapshotted', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
+                        '--scenario':'pp',
+                        '--data':'',
+                        '--era':'Run2_2017',
+                        '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_harvesting_trackingOnly',
+                        '--filein':'file:PromptCalibProdBeamSpotHPLowPU.root'}
+
 
 steps['ALCAHARVDSIPIXELCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixel']),
                         '--conditions':'100X_dataRun2_Express_v2',
@@ -2271,7 +2306,8 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvesting',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 steps['HARVESTUP15FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP15FS']])
-
+steps['HARVESTUP17FS']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017_FastSim'},steps['HARVESTUP15FS']])
+steps['HARVESTUP17FS_trackingOnly']=merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, steps['HARVESTUP17FS']])
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
@@ -2386,7 +2422,7 @@ steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
 #steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_hi','--era':'Run2_HI'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--era':'Run2_50ns'},steps['MINIAODMCUP15FS']])
-
+steps['MINIAODMCUP17FS']   =merge([{'--filein':'file:step1.root','--fast':'','--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017_FastSim'},stepMiniAODMC])
 steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
                                    '-s':'PAT',
                                    '--datatier' : 'MINIAODSIM',
@@ -2457,8 +2493,8 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_10_0_0_pre2-100X_mc2017_realistic_v1-v'
 defaultDataSets['2017Design']='CMSSW_10_0_0_pre2-100X_mc2017_design_IdealBS_v1-v'
-defaultDataSets['2018']='CMSSW_10_2_0_pre2-101X_upgrade2018_realistic_v7-v'
-defaultDataSets['2018Design']='CMSSW_10_2_0_pre2-101X_upgrade2018_design_v8-v'
+defaultDataSets['2018']='CMSSW_10_2_0_pre5-102X_upgrade2018_realistic_v1-v'
+defaultDataSets['2018Design']='CMSSW_10_2_0_pre5-102X_upgrade2018_design_v1-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''
 defaultDataSets['2023D17']='CMSSW_10_2_0_pre2-101X_upgrade2023_realistic_v5_2023D17noPU-v'
@@ -2470,6 +2506,7 @@ defaultDataSets['2023D24']=''
 defaultDataSets['2023D25']=''
 defaultDataSets['2023D26']=''
 defaultDataSets['2023D27']=''
+defaultDataSets['2023D28']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
