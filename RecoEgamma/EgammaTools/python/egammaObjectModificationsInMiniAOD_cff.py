@@ -38,40 +38,28 @@ egamma_modifications = cms.VPSet(
 )
 
 #setup the mva value maps to embed
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_spring16_gp_v1.mvaSpring16ClassName+ele_spring16_gp_v1.mvaTag)
+for ele_mva_cff in [
+          ele_spring16_gp_v1,
+          ele_spring16_hzz_v1,
+          ele_fall17_iso_v1,
+          ele_fall17_noIso_v1,
+        ]:
 
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_spring16_hzz_v1.mvaSpring16ClassName+ele_spring16_hzz_v1.mvaTag)
+    setup_mva(egamma_modifications[0].electron_config,
+              egamma_modifications[1].electron_config,
+              ele_mva_prod_name,
+              ele_mva_cff.mvaClassName + ele_mva_cff.mvaTag)
 
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_fall17_iso_v1.mvaFall17ClassName+ele_fall17_iso_v1.mvaTag)
+for pho_mva_cff in [
+          pho_spring16_nt_v1,
+          pho_fall17_94X_v1,
+          pho_fall17_94X_v1p1,
+        ]:
 
-setup_mva(egamma_modifications[0].electron_config,
-          egamma_modifications[1].electron_config,
-          ele_mva_prod_name,
-          ele_fall17_noIso_v1.mvaFall17ClassName+ele_fall17_noIso_v1.mvaTag)
-
-setup_mva(egamma_modifications[0].photon_config,
-          egamma_modifications[1].photon_config,
-          pho_mva_prod_name,
-          pho_spring16_nt_v1.mvaSpring16NonTrigClassName+pho_spring16_nt_v1.mvaTag)
-
-setup_mva(egamma_modifications[0].photon_config,
-          egamma_modifications[1].photon_config,
-          pho_mva_prod_name,
-          pho_fall17_94X_v1.mvaFall17v1ClassName+pho_fall17_94X_v1.mvaTag)
-
-setup_mva(egamma_modifications[0].photon_config,
-          egamma_modifications[1].photon_config,
-          pho_mva_prod_name,
-          pho_fall17_94X_v1p1.mvaFall17v1p1ClassName+pho_fall17_94X_v1p1.mvaTag)
+    setup_mva(egamma_modifications[0].photon_config,
+              egamma_modifications[1].photon_config,
+              pho_mva_prod_name,
+              pho_mva_cff.mvaClassName + pho_mva_cff.mvaTag)
 
 #############################################################
 # REGRESSION MODIFIERS

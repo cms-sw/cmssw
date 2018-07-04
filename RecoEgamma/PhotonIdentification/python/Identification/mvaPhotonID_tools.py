@@ -1,4 +1,17 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+
+# division between barrel and endcap
+ebeeSplit = 1.479
+
+# This MVA implementation class name
+mvaClassName = "PhotonMVAEstimator"
+
+# The locatoins of value maps with the actual MVA values and categories
+# for all particles.
+# The names for the maps are "<module name>:<MVA class name>Values" 
+# and "<module name>:<MVA class name>Categories"
+mvaProducerModuleLabel = "photonMVAValueMapProducer"
 
 # =======================================================
 # Define simple containers for MVA cut values and related
@@ -51,3 +64,52 @@ def configureVIDMVAPhoID_V1( mvaWP ):
         )
     #
     return parameterSet
+
+# ===============================================
+# High level function to create a two category ID
+# ===============================================
+
+# mvaTag:
+#         The mvaTag is an extra string attached to the names of the products
+#         such as ValueMaps that needs to distinguish cases when the same MVA estimator
+#         class is used with different tuning/weights
+# variablesFile:
+#         The file listing the variables used in this MVA
+# weightFiles:
+#         The weight files in the order EB first, then EE
+# wpConfig:
+#         A dictionary with the names and cut values of the working points
+# addKwargsForValueProducer:
+#         Additional keyword parameters passed to the producer config
+
+def configureFullVIDMVAPhoID(mvaTag, variablesFile, weightFiles, wpConfig, **addKwargsForValueProducer):
+
+    mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaClassName + mvaTag + "Values"
+    mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaClassName + mvaTag + "Categories"
+
+    # Create the PSet that will be fed to the MVA value map producer
+    producer_config = cms.PSet( 
+        mvaName             = cms.string(mvaClassName),
+        mvaTag              = cms.string(mvaTag),
+        weightFileNames     = cms.vstring(*weightFiles),
+        variableDefinition  = cms.string(variablesFile),
+        ebeeSplit           = cms.double(ebeeSplit),
+        **addKwargsForValueProducer
+        )
+
+    # Create the VPset's for VID cuts
+    VID_config = {}
+    for wpc in wpConfig:
+        idName = wpc["idName"]
+        VID_config[idName] = configureVIDMVAPhoID_V1(
+                PhoMVA_2Categories_WP(
+                    idName = idName,
+                    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+                    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+                    cutCategory0 =  wpc["cuts"]["EB"],  # EB
+                    cutCategory1 =  wpc["cuts"]["EE"]   # EE
+                )
+            )
+
+    configs = {"producer_config": producer_config, "VID_config": VID_config}
+    return configs
