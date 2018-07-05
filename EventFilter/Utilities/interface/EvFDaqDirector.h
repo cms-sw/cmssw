@@ -27,6 +27,7 @@
 
 #include <tbb/concurrent_hash_map.h>
 #include <boost/filesystem.hpp>
+#include <boost/asio.hpp>
 
 class SystemBounds;
 class GlobalContext;
@@ -121,10 +122,15 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
-      void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection) const;
-      int grabNextJsonFile(boost::filesystem::path const& jsonSourcePath);
-      FileStatus getNextFromFileService(const unsigned int currentLumiSection,unsigned int& ls,std::string& nextFile,
-                                        int& serverEventsInNewFile_,uint32_t& fileSize,uint64_t& thisLockWaitTimeUs);
+      void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS = true) const;
+      int grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson);
+
+      EvFDaqDirector::FileStatus contactFileService(unsigned int& serverHttpStatus, bool& serverState,
+                                                uint32_t& serverLS, uint32_t& closedServerLS,
+                                                std::string& nextFileJson, std::string& nextFileRaw, int maxLS);
+
+      FileStatus getNextFromFileService(const unsigned int currentLumiSection, unsigned int& ls, std::string& nextFile,
+                                        int& serverEventsInNewFile_, int64_t& fileSize, uint64_t& thisLockWaitTimeUs);
       void createRunOpendirMaybe();
       void createProcessingNotificationMaybe() const;
       int readLastLSEntry(std::string const& file);
@@ -154,6 +160,8 @@ namespace evf{
       bool directorBu_;
       unsigned int run_;
       bool useFileService_;
+      std::string fileServiceHost_;
+      std::string fileServicePort_;
       bool outputAdler32Recheck_;
       bool requireTSPSet_;
       std::string selectedTransferMode_;
@@ -163,6 +171,8 @@ namespace evf{
 
       std::string hostname_;
       std::string run_string_;
+      std::string run_nstring_;
+      std::string pid_;
       std::string run_dir_;
       std::string bu_run_dir_;
       std::string bu_run_open_dir_;
@@ -216,6 +226,16 @@ namespace evf{
 
       //json parser
       jsoncollector::DataPointDefinition *dpd_;
+
+      boost::asio::io_service io_service_;
+      std::unique_ptr<boost::asio::ip::tcp::resolver> resolver_;
+      std::unique_ptr<boost::asio::ip::tcp::resolver::query> query_;
+      std::unique_ptr<boost::asio::ip::tcp::resolver::iterator> endpoint_iterator_;
+      std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
+      //boost::asio::io_context io_context_;
+      //tcp::resolver resolver_;
+      //tcp::resolver::results_type endpoints_;
+
   };
 }
 
