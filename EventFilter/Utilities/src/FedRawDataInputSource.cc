@@ -905,15 +905,32 @@ void FedRawDataInputSource::readSupervisor()
       //queue new lumisection
       if( getLSFromFilename_) {
         if (ls > currentLumiSection) {
-          if (!useFileService_ || (currentLumiSection==0 && !alwaysStartFromFirstLS_)) {
+          if (!useFileService_) {
+            //file locking
             //fms_->setInStateSup(evf::FastMonitoringThread::inSupNewLumi);
 	    currentLumiSection = ls;
 	    fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
           }
           else {
-            //queue all lumisections after last one seen to avoid gaps
-            for (unsigned int nextLS=currentLumiSection+1;nextLS<=ls;nextLS++) {
-	      fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, nextLS));
+            //new file service
+            if (currentLumiSection==0 && !alwaysStartFromFirstLS_) {
+              if (ls < 100) {
+                //look at last LS file on disk to start from that lumisection (only within first 100 LS)
+                unsigned int lsToStart = daqDirector_->getLumisectionToStart();
+
+                for (unsigned int nextLS=lsToStart;nextLS<=ls;nextLS++)
+	          fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, nextLS));
+              }
+              else {
+                 //start from current LS
+                 fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, ls));
+              }
+            }
+            else {
+              //queue all lumisections after last one seen to avoid gaps
+              for (unsigned int nextLS=currentLumiSection+1;nextLS<=ls;nextLS++) {
+	        fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, nextLS));
+              }
             }
 	    currentLumiSection = ls;
           }

@@ -134,6 +134,7 @@ namespace evf{
       void createRunOpendirMaybe();
       void createProcessingNotificationMaybe() const;
       int readLastLSEntry(std::string const& file);
+      unsigned int getLumisectionToStart() const;
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
@@ -162,6 +163,7 @@ namespace evf{
       bool useFileService_;
       std::string fileServiceHost_;
       std::string fileServicePort_;
+      unsigned int startFromLS_ = 1;
       bool outputAdler32Recheck_;
       bool requireTSPSet_;
       std::string selectedTransferMode_;
