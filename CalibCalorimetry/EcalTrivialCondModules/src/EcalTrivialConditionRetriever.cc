@@ -3297,17 +3297,17 @@ std::unique_ptr<EcalSimPulseShape>
 EcalTrivialConditionRetriever::getEcalSimPulseShapeFromConfiguration 
 ( const EcalSimPulseShapeRcd& )
 {
-  std::cout<< "Produce EcalSimPulseShape set time interval="<<sim_pulse_shape_TI_<< " ns"<< std::endl; 
-
   auto result = std::make_unique<EcalSimPulseShape>();
- 
 
-  result->time_interval = sim_pulse_shape_TI_;
+  // save time interval to be used for the pulse shape 
+  result->time_interval = sim_pulse_shape_TI_; 
 
-  std::vector<double> EBshape;
+  // containers to store the shape info
+  std::vector<double> EBshape; 
   std::vector<double> EEshape;
   std::vector<double> APDshape;
 
+  // --- get the 3 shapes from the user provided txt files 
   if (!EBSimPulseShapeFile_.empty() )
     {
       std::ifstream shapeEBFile;
@@ -3315,7 +3315,6 @@ EcalTrivialConditionRetriever::getEcalSimPulseShapeFromConfiguration
       double ww;
       while (shapeEBFile >> ww) EBshape.push_back(ww);
       shapeEBFile.close(); 
-
     } 
   if (!EESimPulseShapeFile_.empty() )
     {
@@ -3324,29 +3323,27 @@ EcalTrivialConditionRetriever::getEcalSimPulseShapeFromConfiguration
       double ww;
       while (shapeEEFile >> ww) EEshape.push_back(ww);
       shapeEEFile.close(); 
-
     } 
-  // end endcaps now APD shape 
   if (!APDSimPulseShapeFile_.empty()) {
       std::ifstream shapeAPDFile;
       shapeAPDFile.open(APDSimPulseShapeFile_.c_str());
       double ww;
       while (shapeAPDFile >> ww) APDshape.push_back(ww);
       shapeAPDFile.close(); 
-
     } 
-  // --- save threshold instead (waste some resources)
+
+  // --- save threshold
   result->barrel_thresh = sim_pulse_shape_EB_thresh_;
   result->endcap_thresh = sim_pulse_shape_EE_thresh_;
   result->apd_thresh = sim_pulse_shape_APD_thresh_;
 
+  // --- copy
   copy(EBshape.begin(), EBshape.end(),
        back_inserter(result->barrel_shape));
   copy(EEshape.begin(), EEshape.end(),
        back_inserter(result->endcap_shape));
   copy(APDshape.begin(), APDshape.end(),
        back_inserter(result->apd_shape));
-    std::cout<< "EcalSimPulseShape done ..."<< std::endl; 
 
   return result; 
 }
