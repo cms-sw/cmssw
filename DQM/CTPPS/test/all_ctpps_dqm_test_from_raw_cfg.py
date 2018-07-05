@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process('ctppsDQMfromRAW', eras.ctpps_2016)
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+process = cms.Process('ctppsDQMfromRAW', eras.ctpps_2016, stage2L1Trigger)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -33,23 +34,25 @@ process.source = cms.Source("PoolSource",
     #'root://eostotem.cern.ch//eos/totem/data/ctpps/run290874.root'
 
     # 900GeV test, 8 May 2018
-    '/store/data/Run2018A/Totem1/RAW/v1/000/315/956/00000/B2AB3BFA-8D53-E811-ACFA-FA163E63AE40.root'
-  ),
-  inputCommands = cms.untracked.vstring(
-    'drop *',
-    'keep FEDRawDataCollection_*_*_*'
+    #'/store/data/Run2018A/Totem1/RAW/v1/000/315/956/00000/B2AB3BFA-8D53-E811-ACFA-FA163E63AE40.root'
+
+    # 2018, 90m alignment run, run 318551, TOTEM1x data stream
+    '/store/data/Run2018B/TOTEM10/RAW/v1/000/318/551/00000/6ABB0170-3878-E811-B0C2-FA163EB7360C.root'
   )
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(8000)
+  input = cms.untracked.int32(1000)
 )
 
-# global tag - conditions for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+# global tag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = '101X_dataRun2_HLT_v7'
 
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
+
+process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_DD_cff")
@@ -58,6 +61,7 @@ process.load("RecoCTPPS.Configuration.recoCTPPS_DD_cff")
 process.load("DQM.CTPPS.ctppsDQM_cff")
 
 process.path = cms.Path(
+  process.L1TRawToDigi *
   process.ctppsRawToDigi *
   process.recoCTPPS *
   process.ctppsDQMElastic
