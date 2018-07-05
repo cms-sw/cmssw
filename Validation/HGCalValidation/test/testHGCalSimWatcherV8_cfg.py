@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)
+process = cms.Process("testHGCalRecoLocal",eras.Phase2)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D21Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D21_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -57,7 +57,7 @@ process.output = cms.OutputModule("PoolOutputModule",
         'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
-    fileName = cms.untracked.string('file:testHGCalSimWatcher.root'),
+    fileName = cms.untracked.string('file:testHGCalSimWatcherV8.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
@@ -86,8 +86,10 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		'HGCalHECell',
 		'HEScintillator',
 		),
-	Types = cms.vint32(1,1,2),
+	Types          = cms.vint32(1,1,2),
+	DetTypes       = cms.vint32(0,1,2),
 	LabelLayerInfo = cms.string("HGCalInfoLayer"),
+	Verbosity      = cms.untracked.int32(0),
     ),
     type = cms.string('SimG4HGCalValidation')
 ))
@@ -95,7 +97,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
@@ -142,6 +144,7 @@ process.schedule = cms.Schedule(process.generation_step,
 				process.reconstruction_step,
 				process.out_step
 				)
+
 # filter all path with the production filter sequence
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
