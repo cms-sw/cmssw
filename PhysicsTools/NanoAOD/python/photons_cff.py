@@ -6,6 +6,7 @@ from math import ceil,log
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
@@ -138,8 +139,7 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(CandVars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         electronIdx = Var("?hasUserCand('electron')?userCand('electron').key():-1", int, doc="index of the associated electron (-1 if none)"),
-        energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
-        eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+        energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
         r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=10),
         sieie = Var("full5x5_sigmaIetaIeta()",float,doc="sigma_IetaIeta of the supercluster, calculated with full 5x5 region",precision=10),
         cutBasedBitmap = Var("userInt('cutbasedID_loose')+2*userInt('cutbasedID_medium')+4*userInt('cutbasedID_tight')",int,doc="cut-based ID bitmap, 2^(0:loose, 1:medium, 2:tight)"),
@@ -156,18 +156,19 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
     )
 )
-photonTable.variables.pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",  float, precision=-1)
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify(photonTable.variables,
+        pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
+        energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
+        eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+    )
+    
 run2_miniAOD_80XLegacy.toModify(photonTable.variables,
     cutBasedBitmap = None,
     cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based ID (0:fail, 1::loose, 2:medium, 3:tight)"),
     pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
     energyErr = Var("getCorrectedEnergyError('regression2')*userFloat('eCorr')",float,doc="energy error of the cluster from regression",precision=6),
     eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
-)
-run2_nanoAOD_92X.toModify(photonTable.variables,
-    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
-    energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
-    eCorr = None,
 )
 
 
