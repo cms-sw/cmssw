@@ -389,6 +389,20 @@ steps['RunZeroBias_hBStarTk']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissionin
 RunhBStarRP={314276: [[1, 200]]} #for Roman Pot system
 steps['RunZeroBias1_hBStarRP']={'INPUT':InputInfo(dataSet='/ZeroBias1/Commissioning2018-v1/RAW',label='zbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
 
+#### run2 2018B ####
+Run2018B={317435: [[1, 100]]}
+steps['RunHLTPhy2018B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2018B-v1/RAW',label='hltPhy2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunEGamma2018B']={'INPUT':InputInfo(dataSet='/EGamma/Run2018B-v1/RAW',label='EGamma2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunDoubleMuon2018B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2018B-v1/RAW',label='doubMu2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunJetHT2018B']={'INPUT':InputInfo(dataSet='/JetHT/Run2018B-v1/RAW',label='jetHT2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunMET2018B']={'INPUT':InputInfo(dataSet='/MET/Run2018B-v1/RAW',label='met2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunMuonEG2018B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2018B-v1/RAW',label='muEG2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunSingleMu2018B']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2018B-v1/RAW',label='sigMu2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunZeroBias2018B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2018B-v1/RAW',label='zb2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunMuOnia2018B']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018B-v1/RAW',label='muOnia2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunNoBPTX2018B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018B-v1/RAW',label='noBptx2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunDisplacedJet2018B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018B-v1/RAW',label='displacedJet2018B',events=100000,location='STD', ls=Run2018B)}
+steps['RunCharmonium2018B']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018B-v1/RAW',label='charm2018B',events=100000,location='STD', ls=Run2018B)}
 
 
 # Highstat HLTPhysics
