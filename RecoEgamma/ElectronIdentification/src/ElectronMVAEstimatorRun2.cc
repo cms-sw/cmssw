@@ -105,7 +105,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase & iEven
 
   const int iCategory = findCategory( candPtr );
 
-  if (iCategory < 0) return 0;
+  if (iCategory < 0) return -999;
 
   std::vector<float> vars;
 
