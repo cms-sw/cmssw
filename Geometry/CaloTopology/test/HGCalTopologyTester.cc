@@ -18,7 +18,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 
 class HGCalTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> { 
 
