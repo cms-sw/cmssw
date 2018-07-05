@@ -407,7 +407,8 @@ bool L1TStage2CaloLayer2Comp::compareJets(
 	    emulItCheckSort != emulCol->end(currBx);
 	    ++emulItCheckSort){
 
-	  if(dataIt->hwPhi() == emulItCheckSort->hwPhi()
+	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
+	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
 	     && dataIt->hwEta() == emulItCheckSort->hwEta())
 	    posGood = true;
 	}
@@ -510,7 +511,8 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
 	    emulItCheckSort != emulCol->end(currBx);
 	    ++emulItCheckSort){
 
-	  if(dataIt->hwPhi() == emulItCheckSort->hwPhi()
+	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
+	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
 	     && dataIt->hwEta() == emulItCheckSort->hwEta())
 	    posGood = true;
 	}
@@ -613,7 +615,8 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
 	    emulItCheckSort != emulCol->end(currBx);
 	    ++emulItCheckSort){
 
-	  if(dataIt->hwPhi() == emulItCheckSort->hwPhi()
+	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
+	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
 	     && dataIt->hwEta() == emulItCheckSort->hwEta())
 	    posGood = true;
 	}
