@@ -333,6 +333,10 @@ void L1TStage2CaloLayer2Comp::produce (
 
     // store all contents of event to edm file:
     dumpEventToEDM(e);
+
+    edm::LogProblem("l1tcalol2ebec")
+    << "Bad event! " << std::endl;
+
   }
 }
 
@@ -372,12 +376,10 @@ bool L1TStage2CaloLayer2Comp::compareJets(
     return false;
   }
 
-  int nJets = 0;
   if (dataIt != dataCol->end(currBx) ||
       emulIt != emulCol->end(currBx)) {
-    while(true) {
 
-      ++nJets;
+    while(true) {
 
       bool posGood = true;
       bool etGood = true;
@@ -391,16 +393,29 @@ bool L1TStage2CaloLayer2Comp::compareJets(
       // object position mismatch (phi)
       if (dataIt->hwPhi() != emulIt->hwPhi()){
 	posGood = false;
-	eventGood = false;
       }
 
       // object position mismatch (eta)
       if (dataIt->hwEta() != emulIt->hwEta()) {
 	posGood = false;
-	eventGood = false;
       }
 
-      // if both position and energy agree, jet is good
+      //bypass sorting bug
+      if(etGood && !posGood){
+	l1t::JetBxCollection::const_iterator emulItCheckSort;
+	for(emulItCheckSort = emulCol->begin(currBx);
+	    emulItCheckSort != emulCol->end(currBx);
+	    ++emulItCheckSort){
+
+	  if(dataIt->hwPhi() == emulItCheckSort->hwPhi()
+	     && dataIt->hwEta() == emulItCheckSort->hwEta())
+	    posGood = true;
+	}
+
+	if(!posGood) eventGood = false;
+      }
+
+      // if both position and energy agree, object is good
       if (!etGood || !posGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "Jet Problem (data emul): "
@@ -481,13 +496,26 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
       // object position mismatch (phi)
       if (dataIt->hwPhi() != emulIt->hwPhi()) {
 	posGood = false;
-	eventGood = false;
       }
 
       // object position mismatch (eta)
       if (dataIt->hwEta() != emulIt->hwEta()) {
 	posGood = false;
-	eventGood = false;
+      }
+
+      //bypass sorting bug
+      if(etGood && !posGood){
+	l1t::EGammaBxCollection::const_iterator emulItCheckSort;
+	for(emulItCheckSort = emulCol->begin(currBx);
+	    emulItCheckSort != emulCol->end(currBx);
+	    ++emulItCheckSort){
+
+	  if(dataIt->hwPhi() == emulItCheckSort->hwPhi()
+	     && dataIt->hwEta() == emulItCheckSort->hwEta())
+	    posGood = true;
+	}
+
+	if(!posGood) eventGood = false;
       }
 
       // if both position and energy agree, object is good
@@ -571,13 +599,26 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
       // object position mismatch (phi)
       if (dataIt->hwPhi() != emulIt->hwPhi()) {
 	posGood = false;
-	eventGood = false;
       }
 
       // object position mismatch (eta)
       if (dataIt->hwEta() != emulIt->hwEta()) {
 	posGood = false;
-	eventGood = false;
+      }
+
+      //bypass sorting bug
+      if(etGood && !posGood){
+	l1t::TauBxCollection::const_iterator emulItCheckSort;
+	for(emulItCheckSort = emulCol->begin(currBx);
+	    emulItCheckSort != emulCol->end(currBx);
+	    ++emulItCheckSort){
+
+	  if(dataIt->hwPhi() == emulItCheckSort->hwPhi()
+	     && dataIt->hwEta() == emulItCheckSort->hwEta())
+	    posGood = true;
+	}
+
+	if(!posGood) eventGood = false;
       }
 
       // if both position and energy agree, object is good
