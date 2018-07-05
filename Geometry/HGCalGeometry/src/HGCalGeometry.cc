@@ -77,14 +77,15 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     geomId = (DetId)(HGCScintillatorDetId(detId).geometryCell());
+    cells  = 1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCScintillatorDetId(detId) 
 				  << " GEOM " << HGCScintillatorDetId(geomId);
 #endif
   } else {
     geomId = (DetId)(HGCSiliconDetId(detId).geometryCell());
-    cells = m_topology.dddConstants().numberCellsHexagon(id.iLay,id.iSec1,
-							 id.iSec2,false);
+    cells  = m_topology.dddConstants().numberCellsHexagon(id.iLay,id.iSec1,
+							  id.iSec2,false);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCSiliconDetId(detId) 
 				  << " GEOM " << HGCSiliconDetId(geomId);
@@ -111,21 +112,57 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     for (int cell = 0; cell < cells; ++cell) {
       id.iCell1 = cell;
       DetId idc = m_topology.encode(id);
-      if (m_topology.valid(idc)) m_validIds.emplace_back(idc);
+      if (m_topology.valid(idc)) {
+	m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HGCalGeom") << "Valid Id [" << cell << "] "
+				      << HGCalDetId(idc);
+#endif
+      }
     }
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     DetId idc = m_topology.encode(id);
-    if (m_topology.valid(idc)) m_validIds.emplace_back(idc);
+    if (m_topology.valid(idc)) {
+      m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " 
+				    << HGCScintillatorDetId(idc);
+#endif
+    } else {
+      edm::LogWarning("HGCalGeom") << "Check " << HGCScintillatorDetId(idc) 
+				   << " from " << HGCScintillatorDetId(detId)
+				   << " ERROR ???";
+    }
   } else {
+#ifdef EDM_ML_DEBUG
+    unsigned int cellAll(0), cellSelect(0);
+#endif
     for (int u=0; u<2*cells; ++u) {
       for (int v=0; v<2*cells; ++v) {
 	if (((v-u) < cells) && (u-v) <= cells) {
 	  id.iCell1 = u; id.iCell2 = v;
 	  DetId idc = m_topology.encode(id);
-	  if (m_topology.valid(idc)) m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+	  ++cellAll;
+#endif
+	  if (m_topology.dddConstants().cellInLayer(id.iSec1,id.iSec2,u,v,
+						    id.iLay,true)) {
+	    m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+	    ++cellSelect;
+	    edm::LogVerbatim("HGCalGeom") << "Valid Id [" << u << ", " << v
+					  << "] " << HGCSiliconDetId(idc);
+#endif
+	  }
 	}
       }
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeometry keeps " << cellSelect
+				  << " out of " << cellAll << " for wafer "
+				  << id.iSec1 << ":" << id.iSec2 << " in "
+				  << " layer " << id.iLay;
+#endif
   }
 #ifdef EDM_ML_DEBUG
   if (m_det == DetId::HGCalHSc) {
@@ -235,7 +272,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
       const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
       glob = m_cellVec[cellIndex].getPosition(lcoord);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex 
+      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex
 				    << " Local " << lcoord.x() << ":" 
 				    << lcoord.y() << " ID " << id_.iLay << ":"
 				    << id_.iSec1 << ":" << id_.iSec2 << ":"
