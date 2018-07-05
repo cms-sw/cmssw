@@ -222,7 +222,7 @@ void PrimitiveSelection::process(
         tmp_primitives.erase(tmp_primitives.begin()+2, tmp_primitives.end());
 
       // Skip cluster size cut if primitives are from CPPF emulator or EMTF unpacker (already clustered)
-      if (tmp_primitives.size() > 0 && tmp_primitives.at(0).getRPCData().isCPPF)
+      if (!tmp_primitives.empty() && tmp_primitives.at(0).getRPCData().isCPPF)
 	break;
 
       // Apply cluster size cut
