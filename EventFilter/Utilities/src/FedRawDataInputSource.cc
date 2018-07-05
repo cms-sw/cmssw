@@ -60,6 +60,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",2)),
   maxBufferedFiles_(pset.getUntrackedParameter<unsigned int> ("maxBufferedFiles",2)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
+  alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool> ("alwaysStartFromFirstLS", false)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
@@ -208,6 +209,7 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<unsigned int> ("eventChunkBlock",32)->setComment("Block size used in a single file read call (must be smaller or equal to buffer size)");
   desc.addUntracked<unsigned int> ("numBuffers",2)->setComment("Number of buffers used for reading input");
   desc.addUntracked<unsigned int> ("maxBufferedFiles",2)->setComment("Maximum number of simultaneously buffered raw files");
+  desc.addUntracked<unsigned int> ("alwaysStartFromfirstLS",false)->setComment("Force source to start from LS 1 if server provides higher lumisection number");
   desc.addUntracked<bool> ("verifyAdler32", true)->setComment("Verify event Adler32 checksum with FRDv3 or v4");
   desc.addUntracked<bool> ("verifyChecksum", true)->setComment("Verify event CRC-32C checksum of FRDv5 or higher");
   desc.addUntracked<bool> ("useL1EventID", false)->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
@@ -236,7 +238,7 @@ bool FedRawDataInputSource::checkNextEvent()
     case evf::EvFDaqDirector::runEnded: {
       //maybe create EoL file in working directory before ending run
       struct stat buf;
-      if ( currentLumiSection_ > 0) {
+      if (!useFileService_ && currentLumiSection_ > 0) {
         bool eolFound = (stat(daqDirector_->getEoLSFilePathOnBU(currentLumiSection_).c_str(), &buf) == 0);
         if (eolFound) {
           const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
@@ -831,7 +833,8 @@ void FedRawDataInputSource::readSupervisor()
 
     //look for a new file
     std::string nextFile;
-    uint32_t fileSize;
+    uint32_t fileSizeIndex;
+    int64_t fileSizeFromJson;
 
     if (fms_) {
       fms_->setInStateSup(evf::FastMonitoringThread::inSupBusy);
@@ -853,12 +856,12 @@ void FedRawDataInputSource::readSupervisor()
       uint64_t thisLockWaitTimeUs=0.;
       if (fileListMode_) {
         //return LS if LS not set, otherwise return file
-        status = getFile(ls,nextFile,fileSize,thisLockWaitTimeUs);
+        status = getFile(ls,nextFile,fileSizeIndex,thisLockWaitTimeUs);
       }
       else if (!useFileService_)
-        status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSizeIndex,thisLockWaitTimeUs);
       else {
-        status = daqDirector_->getNextFromFileService(currentLumiSection,ls,nextFile,serverEventsInNewFile_,fileSize,thisLockWaitTimeUs);
+        status = daqDirector_->getNextFromFileService(currentLumiSection,ls,nextFile,serverEventsInNewFile_,fileSizeFromJson,thisLockWaitTimeUs);
       }
 
       if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupBusy);
@@ -883,7 +886,7 @@ void FedRawDataInputSource::readSupervisor()
         if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inRunEnd);
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSizeIndex,thisLockWaitTimeUs);
         if (currentLumiSection!=ls && status==evf::EvFDaqDirector::runEnded) status=evf::EvFDaqDirector::noFile;
       }
 
@@ -902,7 +905,7 @@ void FedRawDataInputSource::readSupervisor()
       //queue new lumisection
       if( getLSFromFilename_) {
         if (ls > currentLumiSection) {
-          if (!useFileService_ || currentLumiSection==0) {
+          if (!useFileService_ || (currentLumiSection==0 && !alwaysStartFromFirstLS_)) {
             //fms_->setInStateSup(evf::FastMonitoringThread::inSupNewLumi);
 	    currentLumiSection = ls;
 	    fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
@@ -937,8 +940,13 @@ void FedRawDataInputSource::readSupervisor()
       LogDebug("FedRawDataInputSource") << "The director says to grab -: " << nextFile;
 
 
-      boost::filesystem::path rawFilePath(nextFile);
-      std::string rawFile = rawFilePath.replace_extension(".raw").string();
+      std::string rawFile;
+      //file service will report raw extension
+      if (useFileService_) rawFile = nextFile;
+      else {
+        boost::filesystem::path rawFilePath(nextFile);
+        std::string rawFile = rawFilePath.replace_extension(".raw").string();
+      }
 
       struct stat st;
       int stat_res = stat(rawFile.c_str(),&st);
@@ -947,7 +955,7 @@ void FedRawDataInputSource::readSupervisor()
         setExceptionState_=true;
         break;
       }
-      fileSize=st.st_size;
+      uint64_t fileSize=st.st_size;
 
       if (fms_) {
         fms_->setInStateSup(evf::FastMonitoringThread::inSupBusy);
@@ -960,8 +968,9 @@ void FedRawDataInputSource::readSupervisor()
         else eventsInNewFile=-1;
       }
       else {
+        std::string empty;
         if (!useFileService_)
-          eventsInNewFile = daqDirector_->grabNextJsonFile(nextFile);
+          eventsInNewFile = daqDirector_->grabNextJsonFile(nextFile,nextFile,fileSizeFromJson);
         else
           eventsInNewFile = serverEventsInNewFile_;
         assert( eventsInNewFile>=0 );
