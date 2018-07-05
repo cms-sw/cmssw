@@ -33,7 +33,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell,
   uint32_t index(0);
   wt = 1.0;
   if ((mode_ == HGCalGeometryMode::Hexagon8Full) ||
-      (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+      (mode_ == HGCalGeometryMode::Hexagon8)) {
     int      cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
     if (cell >= 0) {
       waferType = module/1000000;
@@ -49,23 +49,33 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell,
 				cellV,waferType,wt);
     }
     if (waferType >= 0) {
-      index   = HGCSiliconDetId(det_,iz,waferType,layer,waferU,waferV,cellU,cellV).rawId();
+      index   = HGCSiliconDetId(det_,iz,waferType,layer,waferU,waferV,
+				cellU,cellV).rawId();
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "WaferType " << waferType << " Wafer "
+      edm::LogVerbatim("HGCSim") << "OK WaferType " << waferType << " Wafer "
 				 << waferU << ":" << waferV << " Cell "
 				 << cellU << ":" << cellV;
+    } else {
+      edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType;
 #endif
     }
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     std::array<int,3> id = hgcons_.assignCellTrap(pos.x(),pos.y(),pos.z(),
 						  layer,false);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "Eta/Phi " << id[0] << ":" << id[1]
-			       << " Type " << id[2] << " Layer|iz " << layer
-			       << ":" << iz;
-#endif
-    if (id[2] >= 0) 
+    if (id[2] >= 0) {
       index   = HGCScintillatorDetId(id[2], layer, iz*id[0], id[1]).rawId();
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "Eta/Phi " << id[0] << ":" << id[1]
+				 << " Type " << id[2] << " Layer|iz " 
+				 << layer << ":" << iz << " " 
+				 << HGCScintillatorDetId(index);
+    } else {
+      edm::LogVerbatim("HGCSim") << "Eta/Phi " << id[0] << ":" << id[1]
+				 << " Type " << id[2] << " Layer|iz " << layer
+				 << ":" << iz;
+#endif
+    }
+
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << det_ << ":" 
