@@ -9,6 +9,7 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 
 namespace DataFormats_ForwardDetId {
   struct dictionary {
@@ -37,5 +38,8 @@ namespace DataFormats_ForwardDetId {
 
     //ETL specific 
     ETLDetId anETLDetId;
+
+    //HF Nose specific
+    HFNoseDetId aHFNoseDetId;
   };
 }
