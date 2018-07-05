@@ -634,22 +634,20 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 jetSrcName = jetSource.value().lower()
                 if 'slimmed' in jetSrcName or 'updated' in jetSrcName:
                     # running on slimmedJetsAK8 or re-applying btag on MiniAOD
-                    updateJetCollection = cms.bool(True)
+                    update_jets = cms.bool(True)
                     puppi_value_map = cms.InputTag("")
                     vertex_associator = cms.InputTag("")
-                    subjets = cms.InputTag("")
                 else:
-                    updateJetCollection = cms.bool(False)
+                    sys.stderr.write("Warning: running pfDeepBoostedJetTagInfos on %s is not supported yet.\n"%jetSource)
+                    update_jets = cms.bool(False)
                     puppi_value_map = cms.InputTag("puppi")
                     vertex_associator = cms.InputTag("primaryVertexAssociation","original")
-                    subjets = cms.InputTag(jetSource.value().replace("Puppi", "PFPuppiSoftDrop"))
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepBoostedJetTagInfos.clone(
                                       jets = jetSource,
-                                      subjets = subjets,
                                       vertices = pvSource,
                                       secondary_vertices = svSource,
-                                      updateJetCollection = updateJetCollection,
+                                      update_jets = update_jets,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
                                       ),
