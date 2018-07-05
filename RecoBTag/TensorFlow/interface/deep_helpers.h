@@ -12,7 +12,6 @@
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 //#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
