@@ -44,7 +44,6 @@
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 
-#include "PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.h"
 #include <vector>
 
 // user include files
