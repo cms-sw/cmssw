@@ -50,19 +50,16 @@ private:
   const double min_pt_for_track_properties_;
 
   edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
-  edm::EDGetTokenT<edm::View<reco::Jet>> sdjet_token_;
   edm::EDGetTokenT<VertexCollection> vtx_token_;
   edm::EDGetTokenT<SVCollection> sv_token_;
 
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
-  bool use_subjet_collection_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
 
-  edm::Handle<edm::View<reco::Jet>> sdjets;
   edm::Handle<VertexCollection> vtxs;
   edm::Handle<SVCollection> svs;
   edm::ESHandle<TransientTrackBuilder> track_builder;
@@ -75,7 +72,7 @@ private:
 };
 
 DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::ParameterSet& iConfig)
-: update_jets_(iConfig.getParameter<bool>("updateJetCollection"))
+: update_jets_(iConfig.getParameter<bool>("update_jets"))
 , jet_radius_(iConfig.getParameter<double>("jet_radius"))
 , min_jet_pt_(iConfig.getParameter<double>("min_jet_pt"))
 , min_pt_for_track_properties_(iConfig.getParameter<double>("minPtForTrackProperties"))
@@ -84,7 +81,6 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
 , sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices")))
 , use_puppi_value_map_(false)
 , use_pvasq_value_map_(false)
-, use_subjet_collection_(false)
 , feature_names_(iConfig.getParameter<std::vector<std::string>>("feature_names"))
 {
 
@@ -101,12 +97,6 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
     use_pvasq_value_map_ = true;
   }
 
-  const auto & subjet_tag = iConfig.getParameter<edm::InputTag>("subjets");
-  if (!subjet_tag.label().empty()) {
-    sdjet_token_ = consumes<edm::View<reco::Jet>>(subjet_tag);
-    use_subjet_collection_ = true;
-  }
-
   produces<DeepBoostedJetTagInfoCollection>();
 
 }
@@ -119,17 +109,16 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
 {
   // pfDeepBoostedJetTagInfos
   edm::ParameterSetDescription desc;
-  // updateJetCollection
+  // update_jets:
   // set to true if applying on existing jet collections (whose daughters are *not* puppi weighted)
   // set to false if the jet collection is (re)clustered (whose daughters are puppi weighted)
-  desc.add<bool>("updateJetCollection", true);
+  desc.add<bool>("update_jets", true);
   desc.add<double>("jet_radius", 0.8);
   desc.add<double>("min_jet_pt", 170);
   desc.add<double>("minPtForTrackProperties", -1);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("slimmedJetsAK8"));
-  desc.add<edm::InputTag>("subjets", edm::InputTag("slimmedJetsAK8PFPuppiSoftDropPacked"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation","original"));
   desc.add<std::vector<std::string>>("feature_names", std::vector<std::string>{
@@ -239,10 +228,6 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.getByToken(pvas_token_, pvas);
   }
 
-  if (use_subjet_collection_) {
-    iEvent.getByToken(sdjet_token_, sdjets);
-  }
-
   for (std::size_t jet_n = 0; jet_n < jets->size(); jet_n++){
 
     // reco jet reference (use as much as possible)
@@ -267,24 +252,29 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 
 void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures &fts, const reco::Jet &jet){
 
-  // stuff required for dealing with pf candidates
+  // do nothing if jet does not have constituents
+  if (jet.numberOfDaughters()==0) return;
+
+  // some jet properties
   math::XYZVector jet_dir = jet.momentum().Unit();
   GlobalVector jet_ref_track_dir(jet.px(), jet.py(), jet.pz());
   const float etasign = jet.eta()>0 ? 1 : -1;
 
-  auto puppiWgt = [&](reco::CandidatePtr cand){
-    float puppiw = 1; // fall back value
-    const edm::Ptr<pat::PackedCandidate> packed_cand(cand);
-    if (packed_cand.isNonnull()) { puppiw = packed_cand->puppiWeight(); }
-    else{
-      if (use_puppi_value_map_){ puppiw = (*puppi_value_map)[cand]; }
+  auto puppiWgt = [&](const reco::CandidatePtr& cand){
+    const auto* pack_cand = dynamic_cast<const pat::PackedCandidate*>(&(*cand));
+    const auto* reco_cand = dynamic_cast<const reco::PFCandidate*>(&(*cand));
+    if (pack_cand) {
+      return pack_cand->puppiWeight();
+    } else if (reco_cand) {
+      if (use_puppi_value_map_){ return (*puppi_value_map)[cand]; }
       else { throw edm::Exception(edm::errors::InvalidReference) << "PUPPI value map is missing"; }
+    } else {
+      throw edm::Exception(edm::errors::InvalidReference) << "Cannot convert to either pat::PackedCandidate or reco::PFCandidate";
     }
-    return puppiw;
   };
 
   std::vector<reco::CandidatePtr> daughters;
-  for (auto cand : jet.daughterPtrVector()){
+  for (const auto& cand : jet.daughterPtrVector()){
     // remove particles w/ extremely low puppi weights
     if ((puppiWgt(cand)) < 0.01) continue;
     daughters.push_back(cand);
@@ -294,23 +284,22 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     // updating jet collection:
     // linked daughters here are the original PackedCandidates
     // need to scale the p4 with their puppi weights
-    std::sort(daughters.begin(), daughters.end(), [&](const reco::CandidatePtr a, const reco::CandidatePtr b){ return puppiWgt(a)*a->pt() > puppiWgt(b)*b->pt(); });
+    std::sort(daughters.begin(), daughters.end(), [&](const reco::CandidatePtr& a, const reco::CandidatePtr& b){ return puppiWgt(a)*a->pt() > puppiWgt(b)*b->pt(); });
   }else{
-    std::sort(daughters.begin(), daughters.end(), [](const reco::CandidatePtr a, const reco::CandidatePtr b){ return a->pt() > b->pt(); });
+    std::sort(daughters.begin(), daughters.end(), [](const reco::CandidatePtr& a, const reco::CandidatePtr& b){ return a->pt() > b->pt(); });
   }
 
-  auto useTrackProperties = [&](const edm::Ptr<reco::PFCandidate> reco_cand) {
-    if (reco_cand.isNull()) return false;
+  auto useTrackProperties = [&](const reco::PFCandidate* reco_cand) {
     const auto* trk = reco_cand->bestTrack();
     return trk!=nullptr && trk->pt()>min_pt_for_track_properties_;
   };
 
-  for (const auto cand : daughters){
-    const edm::Ptr<pat::PackedCandidate> packed_cand(cand);
-    const edm::Ptr<reco::PFCandidate> reco_cand(cand);
+  for (const auto& cand : daughters){
+    const auto* packed_cand = dynamic_cast<const pat::PackedCandidate*>(&(*cand));
+    const auto* reco_cand = dynamic_cast<const reco::PFCandidate*>(&(*cand));
 
     auto puppiP4 = cand->p4();
-    if (packed_cand.isNonnull()){
+    if (packed_cand){
       if (update_jets_) {
         // updating jet collection:
         // linked daughters here are the original PackedCandidates
@@ -337,13 +326,13 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       fts.fill("pfcand_dxy", catch_infs(packed_cand->dxy()));
       fts.fill("pfcand_dxysig", packed_cand->bestTrack() ? catch_infs(packed_cand->dxy()/packed_cand->dxyError()) : 0);
 
-    } else if(reco_cand.isNonnull()) {
+    } else if (reco_cand) {
       // get vertex association quality
       int pv_ass_quality = 0; // fallback value
       float vtx_ass = 0;
       if (use_pvasq_value_map_) {
-        pv_ass_quality = (*pvasq_value_map)[reco_cand];
-        const reco::VertexRef & PV_orig = (*pvas)[reco_cand];
+        pv_ass_quality = (*pvasq_value_map)[cand];
+        const reco::VertexRef & PV_orig = (*pvas)[cand];
         vtx_ass = vtx_ass_from_pfcand(*reco_cand, pv_ass_quality, PV_orig);
       } else {
         throw edm::Exception(edm::errors::InvalidReference) << "Vertex association missing";
@@ -371,8 +360,6 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
       fts.fill("pfcand_dxy", catch_infs(dxy));
       fts.fill("pfcand_dxysig", trk ? catch_infs(dxy/trk->dxyError()) : 0);
 
-    }else {
-      throw edm::Exception(edm::errors::InvalidReference) << "Cannot convert reco::Candidate to either pat::PackedCandidate or reco::PFCandidate";
     }
 
     // basic kinematics, valid for both charged and neutral
@@ -395,34 +382,19 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     }
     fts.fill("pfcand_drminsv", minDR==999 ? -1 : minDR);
 
-    std::vector<edm::Ptr<reco::Jet>> subjets;
-    if (use_subjet_collection_){
-      for (const auto &sj : *sdjets) {
-        // sdjets stores the soft-drop AK8 jets, with the actual subjets stored as daughters
-        // PhysicsTools/PatAlgos/python/slimming/applySubstructure_cff.py
-        // PhysicsTools/PatUtils/plugins/JetSubstructurePacker.cc
-        if (reco::deltaR(sj, jet) < jet_radius_) {
-          for ( size_t ida = 0; ida < sj.numberOfDaughters(); ++ida ) {
-            auto candPtr =  sj.daughterPtr(ida);
-            subjets.emplace_back(candPtr);
-          }
-          break;
-        }
-      }
-    }else {
-      try {
-        const auto &patJet = dynamic_cast<const pat::Jet&>(jet);
-        for (auto sj : patJet.subjets()) { subjets.emplace_back(sj); }
-      }catch (const std::bad_cast &e) {
-        throw edm::Exception(edm::errors::InvalidReference) << "Cannot access subjets because this is not a pat::Jet.";
-      }
+    pat::JetPtrCollection subjets;
+    try {
+      const auto &patJet = dynamic_cast<const pat::Jet&>(jet);
+      subjets = patJet.subjets();
+    }catch (const std::bad_cast &e) {
+      throw edm::Exception(edm::errors::InvalidReference) << "Cannot access subjets because this is not a pat::Jet.";
     }
 
     fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
     fts.fill("pfcand_drsubjet2", subjets.size()>1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
 
     const reco::Track *trk = nullptr;
-    if (packed_cand.isNonnull()) { trk = packed_cand->bestTrack(); }
+    if (packed_cand) { trk = packed_cand->bestTrack(); }
     else if (useTrackProperties(reco_cand)) { trk= reco_cand->bestTrack(); }
     if (trk){
       fts.fill("pfcand_normchi2", catch_infs(std::floor(trk->normalizedChi2())));
