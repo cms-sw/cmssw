@@ -122,6 +122,18 @@ namespace evf {
         throw cms::Exception("EvFDaqDirector") << "No file service or BU data address information";
       }
     }
+
+    char * startFromLSPtr = getenv("FFF_STARTFROMLS");
+    if (startFromLSPtr) {
+      try {
+        startFromLS_=boost::lexical_cast<unsigned int>(std::string(startFromLSPtr));
+        edm::LogInfo("EvFDaqDirector") << "Setting start from LS by environment string: " << startFromLS_;
+      }
+      catch( boost::bad_lexical_cast const& ) {
+        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(startFromLSPtr);
+      }
+    }
+
   }
 
   void EvFDaqDirector::initRun()
@@ -617,6 +629,7 @@ namespace evf {
             if (ls==0 && readLs>currentLs) {
               //make sure to intialize always with LS found in the lock file, with possibility of grabbing index file immediately
               //in this case there is no new file in the same LS
+              //this covers case where run has empty first lumisections and CMSSW are late to the lock file. always one process will start with LS 1,... and create empty files for them
               readLs=currentLs;
               readIndex=0;
               bumpedOk=false;
@@ -1077,7 +1090,11 @@ namespace evf {
         boost::asio::streambuf request;
         std::ostream request_stream(&request);
         std::string path = "/popfile?runnumber="+run_nstring_;
-        //if (maxLS>0) {path+="&pid="+pid_}//TODO
+        if (maxLS>0) {
+          std::stringstream spath;
+          spath << path << "&stopls=" << maxLS;
+          path = spath.str();
+        }
         request_stream << "GET " << path << " HTTP/1.0\r\n";
         request_stream << "Host: " << fileServiceHost_ << "\r\n";
         request_stream << "Accept: */*\r\n";
@@ -1172,21 +1189,28 @@ namespace evf {
         else if (s_state=="READY")
             {
               auto server_file = serverMap.find("file");
-              assert(server_file!=serverMap.end());
-              std::string filestem;
+              if (server_file==serverMap.end()) {
+                //first LS
+                fileStatus=noFile;
+                edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " and no new file";
+              }
+              else {
+                std::string filestem;
               //remove string literals
-              auto ssize = server_file->second.size();
-              if (ssize>1 && server_file->second[0]=='"' && server_file->second[ssize-1]=='"')
-                filestem = server_file->second.substr(1,ssize-2);
-              else
-                filestem = server_file->second;
-              assert(!filestem.empty());
-              nextFileJson=filestem+".jsn";
-              nextFileRaw=filestem+".raw";
-              fileStatus=newFile;
-              edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " new LS " << serverLS << " file:" << filestem;
+                auto ssize = server_file->second.size();
+                if (ssize>1 && server_file->second[0]=='"' && server_file->second[ssize-1]=='"')
+                  filestem = server_file->second.substr(1,ssize-2);
+                else
+                  filestem = server_file->second;
+                assert(!filestem.empty());
+                nextFileJson=filestem+".jsn";
+                nextFileRaw=filestem+".raw";
+                fileStatus=newFile;
+                edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " new LS " << serverLS << " file:" << filestem;
+             }
             }
         else if (s_state== "EOLS") {
+            serverLS=closedServerLS+1;
             edm::LogInfo("EvFDaqDirector") << "Got EOLS notification with last EOLS " << closedServerLS;
             fileStatus=noFile;
         }
@@ -1196,6 +1220,7 @@ namespace evf {
             fileStatus=runEnded;
         }
         else if (s_state=="ERROR") {
+            //TODO: special state for no directory
             edm::LogWarning("EvFDaqDirector") << "Server error -:" << server_state->second;
             fileStatus=noFile;
 	    serverError=true;
@@ -1273,7 +1298,7 @@ namespace evf {
     else //if file was removed before reaching stop condition, reset this
       stop_ls_override_ = 0;
 
-    /* could already have EoR
+    /* look for EoLS
     if (stat(getEoLSFilePathOnFU(currentLumiSection).c_str(),&buf)==0) {
       edm::LogWarning("EvFDaqDirector") << "Detected local EoLS for lumisection "<< currentLumiSection ; 
       ls++;
@@ -1368,6 +1393,21 @@ namespace evf {
     int ret = deserializeRoot.get("lastLS","").asInt();
     return ret;
 
+  }
+
+  unsigned int EvFDaqDirector::getLumisectionToStart() const {
+      std::string fileprefix = run_dir_ +"/"+run_string_+"_ls";
+      std::string fullpath;
+      struct stat buf;
+      unsigned int lscount=startFromLS_;
+      do {
+        std::stringstream ss;
+        ss << fileprefix << std::setfill('0') << std::setw(4) << lscount << "_EoLS.jsn";
+        fullpath = ss.str();
+        lscount++;
+      }
+      while(stat(fullpath.c_str(),&buf)==0);
+      return lscount-1;
   }
 
   //if transferSystem PSet is present in the menu, we require it to be complete and consistent for all specified streams
