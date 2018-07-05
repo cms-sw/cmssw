@@ -29,203 +29,194 @@ HGCalParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
   iSetup.get<PHGCalParametersRcd>().get( phgp );
 
   std::cout << phgp->name_ << "\n";
-  for( auto it : phgp->cellSize_ )
+  for (auto it : phgp->cellSize_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleBlS_ )
+  for (auto it : phgp->moduleBlS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleTlS_ )
+  for (auto it : phgp->moduleTlS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleHS_ )
+  for (auto it : phgp->moduleHS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleDzS_ )
+  for (auto it : phgp->moduleDzS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleAlphaS_ )
+  for (auto it : phgp->moduleAlphaS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleCellS_ )
+  for (auto it : phgp->moduleCellS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleBlR_ )
+  for (auto it : phgp->moduleBlR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleTlR_ )
+  for (auto it : phgp->moduleTlR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleHR_ )
+  for (auto it : phgp->moduleHR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleDzR_ )
+  for (auto it : phgp->moduleDzR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleAlphaR_ )
+  for (auto it : phgp->moduleAlphaR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleCellR_ )
+  for (auto it : phgp->moduleCellR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformTranX_ )
+  for (auto it : phgp->trformTranX_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformTranY_ )
+  for (auto it : phgp->trformTranY_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformTranZ_ )
+  for (auto it : phgp->trformTranZ_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotXX_ )
+  for (auto it : phgp->trformRotXX_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotYX_ )
+  for (auto it : phgp->trformRotYX_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotZX_ )
+  for (auto it : phgp->trformRotZX_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotXY_ )
+  for (auto it : phgp->trformRotXY_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotYY_ )
+  for (auto it : phgp->trformRotYY_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotZY_ )
+  for (auto it : phgp->trformRotZY_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotXZ_ )
+  for (auto it : phgp->trformRotXZ_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotYZ_ )
+  for (auto it : phgp->trformRotYZ_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->trformRotZZ_ )
+  for (auto it : phgp->trformRotZZ_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->zLayerHex_ )
+  for (auto it : phgp->zLayerHex_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->rMinLayHex_ )
+  for (auto it : phgp->rMinLayHex_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->rMaxLayHex_ )
+  for (auto it : phgp->rMaxLayHex_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->waferPosX_ )
+  for (unsigned int k=0; k<phgp->waferPosX_.size(); ++k)
+    std::cout << "(" << phgp->waferPosX_[k] << ", " << phgp->waferPosY_[k] 
+	      << ") ";
+  std::cout << "\n";
+  
+  for (unsigned int k=0; k<phgp->cellFineX_.size(); ++k)
+    std::cout << "(" << phgp->cellFineX_[k] << ", " << phgp->cellFineY_[k] 
+	      << ") ";
+  std::cout << "\n";
+  
+  for (unsigned int k=0; k<phgp->cellCoarseX_.size(); ++k)
+    std::cout << "(" << phgp->cellCoarseX_[k] << ", " << phgp->cellCoarseY_[k]
+	      << ") ";
+  std::cout << "\n";
+  
+  for (auto it : phgp->boundR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->waferPosY_ )
+  for (auto it : phgp->moduleLayS_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->cellFineX_ )
+  for (auto it : phgp->moduleLayR_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->cellFineY_ )
+  for (auto it : phgp->layer_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->cellCoarseX_ )
+  for (auto it : phgp->layerIndex_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->cellCoarseY_ )
+  for (auto it : phgp->layerGroup_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->boundR_ )
+  for (auto it : phgp->cellFactor_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleLayS_ )
+  for (auto it : phgp->depth_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->moduleLayR_ )
+  for (auto it : phgp->depthIndex_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->layer_ )
+  for (auto it : phgp->depthLayerF_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->layerIndex_ )
+  for (auto it : phgp->waferCopy_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->layerGroup_ )
+  for (auto it : phgp->waferTypeL_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->cellFactor_ )
+  for (auto it : phgp->waferTypeT_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->depth_ )
+  for (auto it : phgp->layerGroupM_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->depthIndex_ )
+  for (auto it : phgp->layerGroupO_)
     std::cout << it << ", ";
   std::cout << "\n";
   
-  for( auto it : phgp->depthLayerF_ )
-    std::cout << it << ", ";
-  std::cout << "\n";
-  
-  for( auto it : phgp->waferCopy_ )
-    std::cout << it << ", ";
-  std::cout << "\n";
-  
-  for( auto it : phgp->waferTypeL_ )
-    std::cout << it << ", ";
-  std::cout << "\n";
-  
-  for( auto it : phgp->waferTypeT_ )
-    std::cout << it << ", ";
-  std::cout << "\n";
-  
-  for( auto it : phgp->layerGroupM_ )
-    std::cout << it << ", ";
-  std::cout << "\n";
-  
-  for( auto it : phgp->layerGroupO_ )
-    std::cout << it << ", ";
-  std::cout << "\n";
-  
-  for( auto it : phgp->trformIndex_ )
+  for (auto it : phgp->trformIndex_)
     std::cout << it << ", ";
   std::cout << "\n";
   
