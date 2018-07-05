@@ -104,6 +104,9 @@ float ElectronMVAEstimatorRun2::
 mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase & iEvent) const {
 
   const int iCategory = findCategory( candPtr );
+
+  if (iCategory < 0) return 0;
+
   std::vector<float> vars;
 
   const edm::Ptr<reco::GsfElectron> gsfPtr{ candPtr };
@@ -148,7 +151,10 @@ int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& can
       if (categoryFunctions_[i](*gsfEle)) return i;
   }
 
-  throw cms::Exception("MVA failure: ")
-    << " category not defined for particle in " << name_ << tag_ << std::endl;
+  edm::LogWarning  ("MVA warning") <<
+      "category not defined for particle with pt " << gsfEle->pt() << " GeV, eta " <<
+          gsfEle->superCluster()->eta() << " in " << name_ << tag_;
+
+  return -1;
 
 }
