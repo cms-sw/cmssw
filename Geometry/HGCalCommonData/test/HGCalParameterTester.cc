@@ -123,8 +123,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("CellThickness",     phgp->cellThickness_,     10);
     myPrint("radius100to200",    phgp->radius100to200_,    10);  
     myPrint("radius200to300",    phgp->radius200to300_,    10);
-    std::cout << "nCornerCut " << phgp->nCornerCut_ << "  zMinForRad "
-	      << phgp->zMinForRad_ << "\n";
+    std::cout << "choiceType " << phgp->choiceType_ << "   nCornerCut " 
+	      << phgp->nCornerCut_ << "  fracAreaMin " << phgp->fracAreaMin_
+	      << "  zMinForRad " << phgp->zMinForRad_ << "\n";
   
     myPrint("CellSize",          phgp->cellSize_,          10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);  
