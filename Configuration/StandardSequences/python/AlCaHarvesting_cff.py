@@ -225,7 +225,7 @@ SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
-SiPixelQuality = cms.Path(ALCAHARVESTSiPixelQuality+siPixelPhase1DQMHarvester)
+SiPixelQuality = cms.Path(ALCAHARVESTSiPixelQuality)#+siPixelPhase1DQMHarvester)
 
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 
