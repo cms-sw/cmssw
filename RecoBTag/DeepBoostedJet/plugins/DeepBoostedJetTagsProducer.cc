@@ -18,15 +18,9 @@
 #include <iostream>
 #include <fstream>
 
-// TO BE IMPROVED
-// Declaration of the data structure that is hold by the edm::GlobalCache.
-// In TensorFlow, the computational graph is stored in a stateless graph object which can be shared
-// by multiple session instances which handle the initialization of variables related to the graph.
-// Following this approach in CMSSW, a graph should be stored in a GlobalCache which can be accessed
-// by sessions owned by multiple stream module copies. Instead of using only the plain graph, we
-// make use of a cache struct that can be extended in the future if nedded. In addition, the graph
-// is protected via std::atomic, which should not affect the performance as it is only accessed in
-// the module constructor and not in the actual produce loop.
+// Currently hold the raw model/param data in the edm::GlobalCache.
+// Can be improved by holding the mxnet Symbol/NDArrays in the cache
+// when moving to the MXNet C++ API.
 struct MXBufferFileCache {
   MXBufferFileCache() : model_data(nullptr), param_data(nullptr) {
   }
@@ -39,9 +33,8 @@ struct MXBufferFileCache {
 struct PreprocessParams {
   struct VarInfo {
     VarInfo() {}
-    VarInfo(float median, float upper) : center(median), scale(upper-median) {
-      if (scale==0) scale=1;
-    }
+    VarInfo(float median, float upper) :
+      center(median), scale(upper==median ? 1 : upper-median) {}
     float center = 0;
     float scale = 1;
   };
@@ -86,7 +79,7 @@ class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCac
 
     const edm::EDGetTokenT< TagInfoCollection > src_;
     std::vector<std::pair<std::string,std::vector<unsigned int>>> flav_pairs_;
-    std::vector<std::string> input_names_; // names of each input group :: the ordering is important!
+    std::vector<std::string> input_names_; // names of each input group - the ordering is important!
     std::vector<std::vector<unsigned int>> input_shapes_; // shapes of each input group
     std::unordered_map<std::string, PreprocessParams> prep_info_map_; // preprocessing info for each input group
 
@@ -112,7 +105,7 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
     auto& prep_params = prep_info_map_[group_name];
     prep_params.var_length = group_pset.getParameter<unsigned>("var_length");
     prep_params.var_names = group_pset.getParameter<std::vector<std::string>>("var_names");
-    auto &var_info_pset = group_pset.getParameterSet("var_infos");
+    const auto &var_info_pset = group_pset.getParameterSet("var_infos");
     for (const auto &var_name : prep_params.var_names){
       const auto &var_pset = var_info_pset.getParameterSet(var_name);
       double median = var_pset.getParameter<double>("median");
@@ -242,7 +235,7 @@ void DeepBoostedJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSet
   for (unsigned jet_n=0; jet_n<tag_infos->size(); ++jet_n){
 
     const auto& taginfo = tag_infos->at(jet_n);
-    std::vector<float> outputs(flav_pairs_.size(), 0);
+    std::vector<float> outputs(flav_pairs_.size(), 0); // init as all zeros
 
     if (!taginfo.features().empty()){
       // convert inputs
@@ -284,8 +277,8 @@ void DeepBoostedJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSet
 std::vector<float> DeepBoostedJetTagsProducer::center_norm_pad(
     const std::vector<float>& input, float center, float scale,
     unsigned target_length, float pad_value, float min, float max) {
-
   // do variable shifting/scaling/padding/clipping in one go
+
   auto clip = [](float value, float low, float high){
     if (low >= high) throw cms::Exception("InvalidArgument") << "Error in clip: low >= high!";
     if (value < low) return low;
@@ -307,12 +300,20 @@ void DeepBoostedJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInfo& 
   data_.clear();
   for (const auto &group_name : input_names_) {
     // initiate with an empty vector
-    data_.push_back({});
+    data_.emplace_back();
     auto &group_values = data_.back();
     const auto& prep_params = prep_info_map_.at(group_name);
     // transform/pad
+    int var_ref_len = -1;
     for (const auto &varname : prep_params.var_names){
       const auto &raw_value = taginfo.features().get(varname);
+      // check consistency of the variable length
+      if (var_ref_len == -1) {
+        var_ref_len = raw_value.size();
+      } else {
+        if (static_cast<int>(raw_value.size()) != var_ref_len)
+          throw cms::Exception("InvalidArgument") << "Inconsistent variable length " << raw_value.size() << " for " << varname << ", should be " << var_ref_len;
+      }
       const auto &info = prep_params.get_info(varname);
       float pad = 0; // pad w/ zero
       auto val = center_norm_pad(raw_value, info.center, info.scale, prep_params.var_length, pad, -5, 5);
