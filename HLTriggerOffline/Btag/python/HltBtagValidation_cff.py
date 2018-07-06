@@ -53,11 +53,11 @@ hltbTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 	'HLT_IsoMu24_eta2p1_v'
 	),
 	JetTag = cms.VInputTag(
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
 		),
 	MinJetPT = cms.double(20),
 	mcFlavours = cms.PSet(
