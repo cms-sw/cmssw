@@ -1,0 +1,8 @@
+<bin name="testMXNetPredictor" file="testRunner.cpp, testMXNetPredictor.cc">
+    <use name="boost_filesystem" />
+    <use name="cppunit" />
+
+    <use name="PhysicsTools/MXNet" />
+    <use name="FWCore/ParameterSet" />
+    <use name="FWCore/Utilities" />
+</bin>
