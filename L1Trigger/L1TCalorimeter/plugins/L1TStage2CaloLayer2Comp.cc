@@ -202,9 +202,9 @@ private:
   bool compareSums(const edm::Handle<l1t::EtSumBxCollection> & dataCol,
                    const edm::Handle<l1t::EtSumBxCollection> & emulCol);
 
-  void accuSort(std::vector<l1t::Jet> & jets);
-  void accuSort(std::vector<l1t::Tau> & taus);
-  void accuSort(std::vector<l1t::EGamma> & egs);
+  void accuSort(std::vector<l1t::Jet> *jets);
+  void accuSort(std::vector<l1t::Tau> *taus);
+  void accuSort(std::vector<l1t::EGamma> *egs);
   void accuSort(std::vector<l1t::L1Candidate> & jets);
 
   void dumpEventToFile();
@@ -347,37 +347,41 @@ bool L1TStage2CaloLayer2Comp::compareJets(
 {
   bool eventGood = true;
 
-  std::vector<l1t::Jet> jets;
-  l1t::JetBxCollection::const_iterator dataIt = dataCol->begin(currBx);
-  l1t::JetBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  std::vector<l1t::Jet> *jets = new std::vector<l1t::Jet>;
+  std::vector<l1t::Jet>::iterator dataIt;
+  l1t::JetBxCollection::const_iterator dataBxIt = dataCol->begin(currBx);
+  l1t::JetBxCollection::const_iterator emulBxIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data jets
     while (true) {
 
-      jets.emplace_back(*dataIt);
+      jets->emplace_back(*dataBxIt);
 
-      dataIt++;
-      if (dataIt == dataCol->end(currBx))
+      dataBxIt++;
+      if (dataBxIt == dataCol->end(currBx))
 	break;
     }
 
     accuSort(jets);
-    dataIt = jets.begin();
+    dataIt = jets->begin();
   }
 
   // process jets
-  if (dataCol->size(currBx) != emulCol->size(currBx)) {
+  if (jets->size() != emulCol->size(currBx)) {
     edm::LogProblem("l1tcalol2ebec")
       << "Jet collection size difference: "
-      << "data = " << dataCol->size(currBx)
+      << "data = " << jets->size()
       << " emul = " << emulCol->size(currBx)
       << std::endl;
     return false;
   }
 
-  if (dataIt != dataCol->end(currBx) ||
-      emulIt != emulCol->end(currBx)) {
+  if (dataIt != jets->end() ||
+      emulBxIt != emulCol->end(currBx)) {
+
+    int nPos=0;
+    int nNeg=0;
 
     while(true) {
 
@@ -385,57 +389,68 @@ bool L1TStage2CaloLayer2Comp::compareJets(
       bool etGood = true;
 
       // object pt mismatch
-      if (dataIt->hwPt() != emulIt->hwPt()) {
+      if (dataIt->hwPt() != emulBxIt->hwPt()) {
         etGood = false;
  	eventGood = false;
       }
 
       // object position mismatch (phi)
-      if (dataIt->hwPhi() != emulIt->hwPhi()){
+      if (dataIt->hwPhi() != emulBxIt->hwPhi()){
 	posGood = false;
       }
 
       // object position mismatch (eta)
-      if (dataIt->hwEta() != emulIt->hwEta()) {
+      if (dataIt->hwEta() != emulBxIt->hwEta()) {
 	posGood = false;
       }
 
       //bypass sorting bug
       if(etGood && !posGood){
 	l1t::JetBxCollection::const_iterator emulItCheckSort;
-	for(emulItCheckSort = emulCol->begin(currBx);
-	    emulItCheckSort != emulCol->end(currBx);
-	    ++emulItCheckSort){
+	l1t::JetBxCollection::const_iterator dataItCheckSort;
+	for(emulItCheckSort = emulCol->begin(currBx),
+	      dataItCheckSort = jets->begin();
+	    emulItCheckSort != emulCol->end(currBx),
+	      dataItCheckSort != jets->end();
+	    ++emulItCheckSort, ++dataItCheckSort){
+
+	  if(dataItCheckSort->hwEta() > 0) ++nPos;
+	  if(dataItCheckSort->hwEta() < 0) ++nNeg;
 
 	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
 	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
 	     && dataIt->hwEta() == emulItCheckSort->hwEta())
 	    posGood = true;
 	}
-
-	if(!posGood) eventGood = false;
       }
+
+      if(etGood && dataIt->hwEta() > 0 && ((distance(dataIt, jets->end())-nNeg) < 5))
+	posGood = true;
+      if(etGood && dataIt->hwEta() < 0 && (distance(dataIt, jets->end()) < 5))
+	posGood = true;
+
+      if(!posGood) eventGood = false;
 
       // if both position and energy agree, object is good
       if (!etGood || !posGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "Jet Problem (data emul): "
-	  << "\tEt = " << dataIt->hwPt() << " " << emulIt->hwPt()
-	  << "\teta = " << dataIt->hwEta() << " " << emulIt->hwEta()
-	  << "\tphi = " << dataIt->hwPhi() << " " << emulIt->hwPhi()
+	  << "\tEt = " << dataIt->hwPt() << " " << emulBxIt->hwPt()
+	  << "\teta = " << dataIt->hwEta() << " " << emulBxIt->hwEta()
+	  << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi()
 	  << std::endl;
       }
 
       // increment position of pointers
       ++dataIt;
-      ++emulIt;
+      ++emulBxIt;
 
-      if (dataIt == dataCol->end(currBx) ||
-	  emulIt == emulCol->end(currBx))
+      if (dataIt == jets->end() ||
+	  emulBxIt == emulCol->end(currBx))
 	break;
     }
   } else {
-    if (dataCol->size(currBx) != 0 || emulCol->size(currBx) != 0)
+    if (jets->size() != 0 || emulCol->size(currBx) != 0)
       return false;
   }
 
@@ -451,37 +466,41 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
 {
   bool eventGood = true;
 
-  std::vector<l1t::EGamma> egs;
-  l1t::EGammaBxCollection::const_iterator dataIt = dataCol->begin(currBx);
-  l1t::EGammaBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  std::vector<l1t::EGamma> *egs = new std::vector<l1t::EGamma>;
+  std::vector<l1t::EGamma>::iterator dataIt;
+  l1t::EGammaBxCollection::const_iterator dataBxIt = dataCol->begin(currBx);
+  l1t::EGammaBxCollection::const_iterator emulBxIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data egs
     while (true) {
 
-      egs.emplace_back(*dataIt);
+      egs->emplace_back(*dataBxIt);
 
-      dataIt++;
-      if (dataIt == dataCol->end(currBx))
+      dataBxIt++;
+      if (dataBxIt == dataCol->end(currBx))
 	break;
     }
     accuSort(egs);
-    dataIt = egs.begin();
+    dataIt = egs->begin();
   }
 
   // check length of collections
-  if (dataCol->size(currBx) != emulCol->size(currBx)) {
+  if (egs->size() != emulCol->size(currBx)) {
     edm::LogProblem("l1tcalol2ebec")
       << "EG collection size difference: "
-      << "data = " << dataCol->size(currBx)
+      << "data = " << egs->size()
       << " emul = " << emulCol->size(currBx)
       << std::endl;
     return false;
   }
 
   // processing continues only of length of data collections is the same
-  if (dataIt != dataCol->end(currBx) ||
-      emulIt != emulCol->end(currBx)) {
+  if (dataIt != egs->end() ||
+      emulBxIt != emulCol->end(currBx)) {
+
+    int nPos=0;
+    int nNeg=0;
 
     while(true) {
 
@@ -489,57 +508,68 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
       bool etGood = true;
 
       // object pt mismatch
-      if (dataIt->hwPt() != emulIt->hwPt()) {
+      if (dataIt->hwPt() != emulBxIt->hwPt()) {
 	etGood = false;
 	eventGood = false;
       }
 
       // object position mismatch (phi)
-      if (dataIt->hwPhi() != emulIt->hwPhi()) {
+      if (dataIt->hwPhi() != emulBxIt->hwPhi()) {
 	posGood = false;
       }
 
       // object position mismatch (eta)
-      if (dataIt->hwEta() != emulIt->hwEta()) {
+      if (dataIt->hwEta() != emulBxIt->hwEta()) {
 	posGood = false;
       }
 
       //bypass sorting bug
       if(etGood && !posGood){
 	l1t::EGammaBxCollection::const_iterator emulItCheckSort;
-	for(emulItCheckSort = emulCol->begin(currBx);
-	    emulItCheckSort != emulCol->end(currBx);
-	    ++emulItCheckSort){
+	l1t::EGammaBxCollection::const_iterator dataItCheckSort;
+	for(emulItCheckSort = emulCol->begin(currBx),
+	      dataItCheckSort = egs->begin();
+	    emulItCheckSort != emulCol->end(currBx),
+	      dataItCheckSort != egs->end();
+	    ++emulItCheckSort, ++dataItCheckSort){
+
+	  if(dataItCheckSort->hwEta() > 0) ++nPos;
+	  if(dataItCheckSort->hwEta() < 0) ++nNeg;
 
 	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
 	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
 	     && dataIt->hwEta() == emulItCheckSort->hwEta())
 	    posGood = true;
 	}
-
-	if(!posGood) eventGood = false;
       }
+
+      if(etGood && dataIt->hwEta() > 0 && ((distance(dataIt, egs->end())-nNeg) < 5))
+	posGood = true;
+      if(etGood && dataIt->hwEta() < 0 && (distance(dataIt, egs->end()) < 5))
+	posGood = true;
+
+      if(!posGood) eventGood = false;
 
       // if both position and energy agree, object is good
       if (!posGood || !etGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "EG Problem (data emul): "
-	  << "\tEt = " << dataIt->hwPt() << " " << emulIt->hwPt()
-	  << "\teta = " << dataIt->hwEta() << " " << emulIt->hwEta()
-	  << "\tphi = " << dataIt->hwPhi() << " " << emulIt->hwPhi()
+	  << "\tEt = " << dataIt->hwPt() << " " << emulBxIt->hwPt()
+	  << "\teta = " << dataIt->hwEta() << " " << emulBxIt->hwEta()
+	  << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi()
 	  << std::endl;
       }
 
       // increment position of pointers
       ++dataIt;
-      ++emulIt;
+      ++emulBxIt;
 
-      if (dataIt == dataCol->end(currBx) ||
-	  emulIt == emulCol->end(currBx))
+      if (dataIt == egs->end() ||
+	  emulBxIt == emulCol->end(currBx))
 	break;
     }
   } else {
-    if (dataCol->size(currBx) != 0 || emulCol->size(currBx) != 0)
+    if (egs->size() != 0 || emulCol->size(currBx) != 0)
       return false;
   }
 
@@ -555,37 +585,41 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
 {
   bool eventGood = true;
 
-  std::vector<l1t::Tau> taus;
-  l1t::TauBxCollection::const_iterator dataIt = dataCol->begin(currBx);
-  l1t::TauBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  std::vector<l1t::Tau> *taus = new std::vector<l1t::Tau>;
+  std::vector<l1t::Tau>::iterator dataIt;
+  l1t::TauBxCollection::const_iterator dataBxIt = dataCol->begin(currBx);
+  l1t::TauBxCollection::const_iterator emulBxIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data taus
     while (true) {
 
-      taus.emplace_back(*dataIt);
+      taus->emplace_back(*dataBxIt);
 
-      dataIt++;
-      if (dataIt == dataCol->end(currBx))
+      dataBxIt++;
+      if (dataBxIt == dataCol->end(currBx))
 	break;
     }
     accuSort(taus);
-    dataIt = taus.begin();
+    dataIt = taus->begin();
   }
 
   // check length of collections
-  if (dataCol->size(currBx) != emulCol->size(currBx)) {
+  if (taus->size() != emulCol->size(currBx)) {
     edm::LogProblem("l1tcalol2ebec")
       << "Tau collection size difference: "
-      << "data = " << dataCol->size(currBx)
+      << "data = " << taus->size()
       << " emul = " << emulCol->size(currBx)
       << std::endl;
     return false;
   }
 
   // processing continues only of length of data collections is the same
-  if (dataIt != dataCol->end(currBx) ||
-      emulIt != emulCol->end(currBx)) {
+  if (dataIt != taus->end() ||
+      emulBxIt != emulCol->end(currBx)) {
+
+    int nPos=0;
+    int nNeg=0;
 
     while(true) {
 
@@ -593,56 +627,68 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
       bool etGood = true;
 
       // object Et mismatch
-      if (dataIt->hwPt() != emulIt->hwPt()) {
+      if (dataIt->hwPt() != emulBxIt->hwPt()) {
 	etGood = false;
 	eventGood = false;
       }
 
       // object position mismatch (phi)
-      if (dataIt->hwPhi() != emulIt->hwPhi()) {
+      if (dataIt->hwPhi() != emulBxIt->hwPhi()) {
 	posGood = false;
       }
 
       // object position mismatch (eta)
-      if (dataIt->hwEta() != emulIt->hwEta()) {
+      if (dataIt->hwEta() != emulBxIt->hwEta()) {
 	posGood = false;
       }
 
       //bypass sorting bug
       if(etGood && !posGood){
 	l1t::TauBxCollection::const_iterator emulItCheckSort;
-	for(emulItCheckSort = emulCol->begin(currBx);
-	    emulItCheckSort != emulCol->end(currBx);
-	    ++emulItCheckSort){
+	l1t::TauBxCollection::const_iterator dataItCheckSort;
+	for(emulItCheckSort = emulCol->begin(currBx),
+	      dataItCheckSort = taus->begin();
+	    emulItCheckSort != emulCol->end(currBx),
+	      dataItCheckSort != taus->end();
+	    ++emulItCheckSort, ++dataItCheckSort){
+
+	  if(dataItCheckSort->hwEta() > 0) ++nPos;
+	  if(dataItCheckSort->hwEta() < 0) ++nNeg;
 
 	  if(dataIt->hwPt() == emulItCheckSort->hwPt()
 	     && dataIt->hwPhi() == emulItCheckSort->hwPhi()
 	     && dataIt->hwEta() == emulItCheckSort->hwEta())
 	    posGood = true;
 	}
-
-	if(!posGood) eventGood = false;
       }
+
+      if(etGood && dataIt->hwEta() > 0 && ((distance(dataIt, taus->end())-nNeg) < 5))
+	posGood = true;
+      if(etGood && dataIt->hwEta() < 0 && (distance(dataIt, taus->end()) < 5))
+	posGood = true;
+
+      if(!posGood) eventGood = false;
 
       // if both position and energy agree, object is good
       if (!posGood || !etGood) {
 	edm::LogProblem("l1tcalol2ebec")
 	  << "Tau Problem (data emul): "
-	  << "\tEt = " << dataIt->hwPt() << " " << emulIt->hwPt()
-	  << "\teta = " << dataIt->hwEta() << " " << emulIt->hwEta()
-	  << "\tphi = " << dataIt->hwPhi() << " " << emulIt->hwPhi()
+	  << "\tEt = " << dataIt->hwPt() << " " << emulBxIt->hwPt()
+	  << "\teta = " << dataIt->hwEta() << " " << emulBxIt->hwEta()
+	  << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi()
 	  << std::endl;
       }
+
       // increment position of pointers
       ++dataIt;
-      ++emulIt;
+      ++emulBxIt;
 
-      if (dataIt == dataCol->end(currBx) ||
-	  emulIt == emulCol->end(currBx))
+      if (dataIt == taus->end() ||
+	  emulBxIt == emulCol->end(currBx))
 	break;
     }
   } else {
-    if (dataCol->size(currBx) != 0 || emulCol->size(currBx) != 0)
+    if (taus->size() != 0 || emulCol->size(currBx) != 0)
       return false;
   }
 
@@ -709,16 +755,16 @@ bool L1TStage2CaloLayer2Comp::compareSums(
 }
 
 // sort for jets
-void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> & jets){
+void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets){
 
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::Jet tempJet (emptyP4, 0, 0, 0, 0);
   std::vector< std::vector<l1t::Jet> > jetEtaPos( 41 , std::vector<l1t::Jet>(18, tempJet));
   std::vector< std::vector<l1t::Jet> > jetEtaNeg( 41 , std::vector<l1t::Jet>(18, tempJet));
 
-  for (unsigned int iJet = 0; iJet < jets.size(); iJet++) {
-    if (jets.at(iJet).hwEta() > 0) jetEtaPos.at(jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
-    else  jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+  for (unsigned int iJet = 0; iJet < jets->size(); iJet++) {
+    if (jets->at(iJet).hwEta() > 0) jetEtaPos.at(jets->at(iJet).hwEta()-1).at((jets->at(iJet).hwPhi()-1)/4) = jets->at(iJet);
+    else  jetEtaNeg.at(-(jets->at(iJet).hwEta()+1)).at((jets->at(iJet).hwPhi()-1)/4) = jets->at(iJet);
   }
 
   AccumulatingSort <l1t::Jet> etaPosSorter(7);
@@ -757,26 +803,26 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> & jets){
   accumEtaNeg.resize(6);
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
-  jets.clear();
+  jets->clear();
   for (l1t::Jet accjet : accumEtaPos) {
-    if (accjet.hwPt() > 0) jets.push_back(accjet);
+    if (accjet.hwPt() > 0) jets->push_back(accjet);
   }
   for (l1t::Jet accjet : accumEtaNeg) {
-    if (accjet.hwPt() > 0) jets.push_back(accjet);
+    if (accjet.hwPt() > 0) jets->push_back(accjet);
   }
 }
 
 // sort for eg
-void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> & jets){
+void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs){
 
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::EGamma tempEGamma (emptyP4, 0, 0, 0, 0);
   std::vector< std::vector<l1t::EGamma> > jetEtaPos( 41 , std::vector<l1t::EGamma>(18, tempEGamma));
   std::vector< std::vector<l1t::EGamma> > jetEtaNeg( 41 , std::vector<l1t::EGamma>(18, tempEGamma));
 
-  for (unsigned int iEGamma = 0; iEGamma < jets.size(); iEGamma++) {
-    if (jets.at(iEGamma).hwEta() > 0) jetEtaPos.at(jets.at(iEGamma).hwEta()-1).at((jets.at(iEGamma).hwPhi()-1)/4) = jets.at(iEGamma);
-    else  jetEtaNeg.at(-(jets.at(iEGamma).hwEta()+1)).at((jets.at(iEGamma).hwPhi()-1)/4) = jets.at(iEGamma);
+  for (unsigned int iEGamma = 0; iEGamma < egs->size(); iEGamma++) {
+    if (egs->at(iEGamma).hwEta() > 0) jetEtaPos.at(egs->at(iEGamma).hwEta()-1).at((egs->at(iEGamma).hwPhi()-1)/4) = egs->at(iEGamma);
+    else  jetEtaNeg.at(-(egs->at(iEGamma).hwEta()+1)).at((egs->at(iEGamma).hwPhi()-1)/4) = egs->at(iEGamma);
   }
 
   AccumulatingSort <l1t::EGamma> etaPosSorter(7);
@@ -800,7 +846,7 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> & jets){
 
   }
 
-  //check for 6 & 7th jets with same et and eta. Keep jet with larger phi
+  //check for 6 & 7th egs with same et and eta. Keep jet with larger phi
   if(accumEtaPos.at(6).hwPt()==accumEtaPos.at(5).hwPt() && accumEtaPos.at(6).hwEta()==accumEtaPos.at(5).hwEta()
      && accumEtaPos.at(6).hwPhi() > accumEtaPos.at(5).hwPhi()){
     accumEtaPos.at(5)=accumEtaPos.at(6);
@@ -815,27 +861,27 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> & jets){
   accumEtaNeg.resize(6);
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
-  jets.clear();
+  egs->clear();
   for (l1t::EGamma accjet : accumEtaPos) {
-    if (accjet.hwPt() > 0) jets.push_back(accjet);
+    if (accjet.hwPt() > 0) egs->push_back(accjet);
   }
   for (l1t::EGamma accjet : accumEtaNeg) {
-    if (accjet.hwPt() > 0) jets.push_back(accjet);
+    if (accjet.hwPt() > 0) egs->push_back(accjet);
   }
 }
 
 
 // sort for tau
-void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> & jets){
+void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> *taus){
 
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::Tau tempTau (emptyP4, 0, 0, 0, 0);
   std::vector< std::vector<l1t::Tau> > jetEtaPos( 41 , std::vector<l1t::Tau>(18, tempTau));
   std::vector< std::vector<l1t::Tau> > jetEtaNeg( 41 , std::vector<l1t::Tau>(18, tempTau));
 
-  for (unsigned int iTau = 0; iTau < jets.size(); iTau++) {
-    if (jets.at(iTau).hwEta() > 0) jetEtaPos.at(jets.at(iTau).hwEta()-1).at((jets.at(iTau).hwPhi()-1)/4) = jets.at(iTau);
-    else  jetEtaNeg.at(-(jets.at(iTau).hwEta()+1)).at((jets.at(iTau).hwPhi()-1)/4) = jets.at(iTau);
+  for (unsigned int iTau = 0; iTau < taus->size(); iTau++) {
+    if (taus->at(iTau).hwEta() > 0) jetEtaPos.at(taus->at(iTau).hwEta()-1).at((taus->at(iTau).hwPhi()-1)/4) = taus->at(iTau);
+    else  jetEtaNeg.at(-(taus->at(iTau).hwEta()+1)).at((taus->at(iTau).hwPhi()-1)/4) = taus->at(iTau);
   }
 
   AccumulatingSort <l1t::Tau> etaPosSorter(7);
@@ -859,7 +905,7 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> & jets){
 
   }
 
-  //check for 6 & 7th jets with same et and eta. Keep jet with larger phi
+  //check for 6 & 7th taus with same et and eta. Keep jet with larger phi
   if(accumEtaPos.at(6).hwPt()==accumEtaPos.at(5).hwPt() && accumEtaPos.at(6).hwEta()==accumEtaPos.at(5).hwEta()
      && accumEtaPos.at(6).hwPhi() > accumEtaPos.at(5).hwPhi()){
     accumEtaPos.at(5)=accumEtaPos.at(6);
@@ -874,12 +920,12 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> & jets){
   accumEtaNeg.resize(6);
 
   // put all 12 candidates in the original jet vector, removing zero energy ones
-  jets.clear();
+  taus->clear();
   for (l1t::Tau accjet : accumEtaPos) {
-    if (accjet.hwPt() > 0) jets.push_back(accjet);
+    if (accjet.hwPt() > 0) taus->push_back(accjet);
   }
   for (l1t::Tau accjet : accumEtaNeg) {
-    if (accjet.hwPt() > 0) jets.push_back(accjet);
+    if (accjet.hwPt() > 0) taus->push_back(accjet);
   }
 }
 
