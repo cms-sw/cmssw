@@ -10,7 +10,7 @@
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
 //
 //--- Stand-alone: Include a the header file from the local directory, as well as
-//    a dummy implementation of SimpleHistogramGenerator.
+//    dummy implementations of SimpleHistogramGenerator, LogInfo, LogError and LogDebug...
 //
 #include "PixelResolutionHistograms.h"
 //
@@ -22,6 +22,9 @@ public:
 private:
   TH1F * hist_;         // we don't own it 
 };
+#define LOGDEBUG std::cout
+#define LOGERROR std::cout
+#define LOGINFO  std::cout
 //
 #else
 //--- We're inside a CMSSW release: Include the real thing.
@@ -29,6 +32,11 @@ private:
 #include "FastSimulation/TrackingRecHitProducer/interface/PixelResolutionHistograms.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/SimpleHistogramGenerator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//
+#define LOGDEBUG LogDebug("")
+#define LOGERROR edm::LogError("FatalError")
+#define LOGINFO  edm::LogInfo("Info")
 //
 #endif
 
@@ -217,16 +225,16 @@ PixelResolutionHistograms( const char * filename,
   file_ = std::make_unique<TFile>( filename  ,"READ");
   if ( !file_ ) {
     status_ = 1;
-    std::cout << "PixelResolutionHistograms:: Error, file " << std::string(filename) << " not found." << std::endl;
-    return;
+    LOGERROR << "PixelResolutionHistograms:: Error, file " << std::string(filename) << " not found.";
+    return;          // PixelTemplateSmearerBase will throw an exception upon our return.
   }
 
   //--- The dummy 2D histogram with the binning of cot\beta and cot\alpha:
   binningHisto_ = (TH2F*) file_->Get( Form( "%s%s" , rootdir, "ResHistoBinning" ) );
   if ( !binningHisto_ ) {
     status_ = 11;
-    std::cout << "PixelResolutionHistograms:: Error, binning histogrram ResHistoBinning not found." << std::endl;
-    return;
+    LOGERROR << "PixelResolutionHistograms:: Error, binning histogrram ResHistoBinning not found.";
+    return;          // PixelTemplateSmearerBase will throw an exception upon our return.
   }
 
   if ( detType == -1 ) {
@@ -248,12 +256,12 @@ PixelResolutionHistograms( const char * filename,
   cotalphaBins_     = binningHisto_->GetYaxis()->GetNbins();
 
   //--- If verbose, print various info...
-  std::cout << std::endl 
-	    << "Debug: loading pixel resolution file = " << std::string(filename) << std::endl 
-	    << " cotBeta[" << cotbetaLowEdge_ <<","<< cotbetaBinWidth_ <<","<< cotbetaBins_ << "]" << std::endl 
-	    << " cotAlpha[" << cotalphaLowEdge_ <<","<< cotalphaBinWidth_ <<","<< cotalphaBins_ << "]" 
-	    << std::endl;
-
+  LOGDEBUG << std::endl 
+	   << "Loading pixel resolution file = " << std::string(filename) << std::endl 
+	   << " cotBeta[" << cotbetaLowEdge_ <<","<< cotbetaBinWidth_ <<","<< cotbetaBins_ << "]" << std::endl 
+	   << " cotAlpha[" << cotalphaLowEdge_ <<","<< cotalphaBinWidth_ <<","<< cotalphaBins_ << "]" 
+	   << std::endl;
+  
 
   if ( !ignore_multi ) {
     //
@@ -269,17 +277,15 @@ PixelResolutionHistograms( const char * filename,
 		   cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 		   cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_,
 		   kk+1 );
-	  std::cout << "Debug: histo = " << std::string(histo) << " title=" << std::string(title) 
-		    << std::endl;
 	  //
 	  tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
 	  if ( !tmphist ) {
 	    status_ = 2;
-	    std::cout << "Debug: failed to find histogram=" << std::string( histo ) << std::endl;
+	    LOGERROR << "Failed to find histogram=" << std::string( histo );
 	    return;
 	  }
-	  std::cout << "Debug: found histo with title = " << std::string( tmphist->GetTitle() ) 
-		    << std::endl << std::endl;
+	  LOGDEBUG << "Found histo " << std::string(histo)
+		   << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
 	  resMultiPixelXHist_ [ ii ][ jj ][ kk ] = tmphist;
 	  resMultiPixelXGen_  [ ii ][ jj ][ kk ] = new SimpleHistogramGenerator( tmphist );
 	  
@@ -289,17 +295,15 @@ PixelResolutionHistograms( const char * filename,
 		   cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 		   cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_,
 		   kk+1 );
-	  std::cout << "Debug: histo = " << std::string(histo) << " title=" << std::string(title)  
-		    << std::endl;
 	  //
 	  tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
 	  if ( !tmphist ) {
 	    status_ = 3;
-	    std::cout << "Debug: failed to find histogram=" << std::string( histo ) << std::endl;
+	    LOGERROR << "Failed to find histogram=" << std::string( histo );
 	    return;
 	  }
-	  std::cout << "Debug: found histo with title = " << std::string( tmphist->GetTitle() ) 
-		    << std::endl << std::endl;
+	  LOGDEBUG << "Found histo " << std::string(histo)
+		   << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
 	  resMultiPixelYHist_ [ ii ][ jj ][ kk ] = tmphist;
 	  resMultiPixelYGen_  [ ii ][ jj ][ kk ] = new SimpleHistogramGenerator( tmphist );
 	}
@@ -322,24 +326,19 @@ PixelResolutionHistograms( const char * filename,
       sprintf( title, "cotbeta %.1f-%.1f cotalpha %.2f-%.2f npixel=1 X",
 	       cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 	       cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_ );
-      std::cout << "Debug: histo = " << std::string(histo) << " title=" << std::string(title)  
-		<< std::endl;
       //
       tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
       if ( !tmphist ) {
-	std::cout << "Debug: failed to find histogram=" << std::string( histo );
-	if ( ignore_single ) {
-	  std::cout << ", but never mind, we'll ignore it..." << std::endl;
-	}
-	else {
+	LOGERROR << "Failed to find histogram=" << std::string( histo );
+	if ( !ignore_single ) {
 	  status_ = 4;
-	  std::cout << std::endl;
 	  return;
 	}
       }
       else {
-	std::cout << "Debug: found histo with title = " << std::string( tmphist->GetTitle() ) 
-		  << std::endl << std::endl;
+	LOGDEBUG << "Found histo " << std::string(histo)
+		 << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
+	LOGDEBUG << "Found histo with title = " << std::string( tmphist->GetTitle() ) << std::endl;
 	resSinglePixelXHist_ [ ii ][ jj ] = tmphist;
 	resSinglePixelXGen_  [ ii ][ jj ] = new SimpleHistogramGenerator( tmphist );
       }
@@ -351,24 +350,18 @@ PixelResolutionHistograms( const char * filename,
       sprintf( title, "cotbeta %.1f-%.1f cotalpha %.2f-%.2f npixel=1 Y",
 	       cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 	       cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_ );
-      std::cout << "Debug: histo = " << std::string(histo) << " title=" << std::string(title)  
-		<< std::endl;
-   
+      //
       tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
       if ( !tmphist ) {
-	std::cout << "Debug: failed to find histogram=" << std::string( histo );
-	if ( ignore_single ) {
-	  std::cout << ", but never mind, we'll ignore it..." << std::endl;
-	}
-	else {
+	LOGERROR << "Failed to find histogram=" << std::string( histo );
+	if ( !ignore_single ) {
 	  status_ = 5;
-	  std::cout << std::endl;
 	  return;
 	}
       }
       else {
-	std::cout << "Debug: found histo with title = " << std::string( tmphist->GetTitle() ) 
-		  << std::endl << std::endl;
+	LOGDEBUG << "Found histo " << std::string(histo)
+		 << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
 	resSinglePixelYHist_ [ ii ][ jj ] = tmphist;
 	resSinglePixelYGen_  [ ii ][ jj ] = new SimpleHistogramGenerator( tmphist );
       }
@@ -380,24 +373,18 @@ PixelResolutionHistograms( const char * filename,
       sprintf( title, "cotbeta %.1f-%.1f cotalpha %.2f-%.2f qbin",
 	       cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 	       cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_ );
-      std::cout << "Debug: histo = " << std::string(histo) << " title=" << std::string(title)  
-		<< std::endl;
       //
       tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
       if ( !tmphist ) {
-	std::cout << "Debug:  failed to find histogram=" << std::string( histo );
-	if ( ignore_qBin ) {
-	  std::cout << ", but never mind, we'll ignore it..." << std::endl;
-	}
-	else {
+	LOGERROR << "Failed to find histogram=" << std::string( histo );
+	if ( !ignore_qBin ) {
 	  status_ = 6;
-	  std::cout << std::endl;
 	  return;
 	}
       }
       else {
-	std::cout << "Debug: found histo with title = " << std::string( tmphist->GetTitle() ) 
-		<< std::endl << std::endl;
+	LOGDEBUG << "Found histo " << std::string(histo)
+		 << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
 	qbinHist_ [ ii ][ jj ] = tmphist;
 	qbinGen_  [ ii ][ jj ] = new SimpleHistogramGenerator( tmphist );
       }
@@ -428,34 +415,14 @@ PixelResolutionHistograms::~PixelResolutionHistograms()
   }
   else {
     //--- We made the histograms, so first write them inthe output ROOT file and close it.
-    std::cout
+    LOGINFO
       << "PixelResHistoStore: Writing the histograms to the output file. " // << std::string( filename )
       << std::endl;
     file_->Write();
     file_->Close();
-    /// delete file_ ;   // no need to delete if unique_ptr<>
-    /// file_ = 0;
 
-    // Well, apparently, ROOT file has the ownership, and once the file is closed,
+    // ROOT file has the ownership, and once the file is closed,
     // all of these guys are deleted.  So, we don't need to do anything.
-    // //--- Then, delete them all.
-    // delete binningHisto_ ;
-
-    // for( int ii=0; ii<cotbetaBins_; ii++ ) {
-    //   for( int jj=0; jj<cotalphaBins_; jj++ ) {
-    // 	for( int kk=0; kk<qbins_; kk++ ) {
-    // 	  delete resMultiPixelXHist_ [ ii ][ jj ][ kk ];
-    // 	  delete resMultiPixelYHist_ [ ii ][ jj ][ kk ];
-    // 	}
-    //   }
-    // }
-    // for( int ii=0; ii<cotbetaBins_; ii++ ) {
-    //   for( int jj=0; jj<cotalphaBins_; jj++ ) {
-    // 	delete resSinglePixelXHist_ [ ii ][ jj ];
-    // 	delete resSinglePixelYHist_ [ ii ][ jj ]; 
-    // 	delete qbinHist_ [ ii ][ jj ];
-    //   }
-    // }
   } // else
 
 
@@ -523,12 +490,10 @@ const SimpleHistogramGenerator *
 PixelResolutionHistograms::
 getGeneratorX( double cotalpha, double cotbeta, int qbin, bool single )
 {
-  std::cout << "Debug (getGeneratorX): "<<cotalpha<<" "<<cotbeta<<" "<<qbin<< std::endl;
   int icotalpha, icotbeta, iqbin ;
   icotalpha = (int)floor( (cotalpha - cotalphaLowEdge_) / cotalphaBinWidth_ ) ;
   icotbeta  = (int)floor( (cotbeta - cotbetaLowEdge_) / cotbetaBinWidth_ ) ;
   iqbin = qbin > 2 ? 3 : qbin;     // if (qbin>2) then = 3, else return qbin
-  std::cout << "Debug (getGeneratorX): "<<icotalpha<<" "<<icotbeta<<" "<<iqbin<< std::endl;
   //
   //if( icotalpha >= 0 && icotalpha < cotalphaBins_ && icotbeta >= 0 && icotbeta < cotbetaBins_ ) {
 
@@ -564,12 +529,10 @@ const SimpleHistogramGenerator *
 PixelResolutionHistograms::
 getGeneratorY( double cotalpha, double cotbeta, int qbin, bool single )
 {
-  std::cout << "Debug (getGeneratorY): "<<cotalpha<<" "<<cotbeta<<" "<<qbin<< std::endl;
   int icotalpha, icotbeta, iqbin ;
   icotalpha = (int)floor( (cotalpha - cotalphaLowEdge_) / cotalphaBinWidth_ ) ;
   icotbeta  = (int)floor( (cotbeta - cotbetaLowEdge_) / cotbetaBinWidth_ ) ;
   iqbin = qbin > 2 ? 3 : qbin;     // if (qbin>2) then = 3, else return qbin
-  std::cout << "Debug (getGeneratorY): "<<icotalpha<<" "<<icotbeta<<" "<<iqbin<< std::endl;
   //
   //if( icotalpha >= 0 && icotalpha < cotalphaBins_ && icotbeta >= 0 && icotbeta < cotbetaBins_ ) {
 

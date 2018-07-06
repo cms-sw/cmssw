@@ -19,7 +19,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 
 // Geometry
-// &&& #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+/// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -31,9 +31,8 @@
 
 // Framework (includes ESHandle<>)
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
-
-// STL
 
 // ROOT
 #include <TFile.h>
@@ -286,11 +285,9 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                                 // other hit.  Create a new merge group for i and j
                                 mergeGroupByHit[i] = new MergeGroup();
                                 listOfMergeGroups.push_back( mergeGroupByHit[i] );   // keep track of it
-                                //std::cout << "new merge group " << mergeGroupByHit[i] << std::endl;
                                 //
                                 // Add hit i as the first to its own merge group
                                 // (simHits[i] is a const pointer to PSimHit).
-                                //std::cout << "ALICE: simHits" << simHits[i] << std::endl;
                                 mergeGroupByHit[i]->group.push_back( simHitIdPairs[i] );
                                 mergeGroupByHit[i]->smearIt = true;
                             }
@@ -321,9 +318,8 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
         } // --- end of if (mergeHitsOn)
         else
         {
-            //      std::cout << "Merged Hits Off!" << std::endl;
-            //Now we've turned off hit merging, so all hits should be pushed
-            //back to listOfUnmergedHits
+            // Now we've turned off hit merging, so all hits should be pushed
+            // back to listOfUnmergedHits
             for (int i = 0; i < nHits; ++i )
             {
                 listOfUnmergedHits.push_back( simHitIdPairs[i] );
@@ -392,10 +388,9 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit (
     cotalpha *= signOfCotalpha;  // = abs(cotalpha)
     cotbeta  *= signOfCotbeta;   // = abs(cotbeta)
 
-    std::cout << "Debug (smearHit): localVector=" << locx << "," << locy << "," << locz
-	      << "   momentum=" << localDir.mag() 
-	      << "   cotalpha=" << cotalpha << ",  cotbeta=" << cotbeta
-	      << std::endl;
+    LogDebug ("SmearHit") << "LocalVector=" << locx << "," << locy << "," << locz
+			  << "   momentum=" << localDir.mag() 
+			  << "   cotalpha=" << cotalpha << ",  cotbeta=" << cotbeta;
 
     const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
     const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);

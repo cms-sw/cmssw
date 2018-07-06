@@ -12,7 +12,6 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 
-
 #include <string>
 #include <memory>
 

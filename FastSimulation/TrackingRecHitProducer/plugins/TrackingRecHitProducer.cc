@@ -32,7 +32,6 @@
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
 
-
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
