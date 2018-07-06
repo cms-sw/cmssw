@@ -57,8 +57,8 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   } else {
     if      (fine.size()   >= 4)                     type = 0;
     else if (coarse.size() >= 4 && fine.size() <= 1) type = 1;
-    else if (coarse.size() <  2 && fine.size() == 0) type = 2;
-    else if (fine.size()   >  0)                     type =-1;
+    else if (coarse.size() <  2 && fine.empty())     type = 2;
+    else if (!fine.empty())                          type =-1;
     if (type < 0) {
       unsigned int kmax = (type == -1) ? fine.size() : coarse.size();
       std::vector<double> xcn, ycn;
