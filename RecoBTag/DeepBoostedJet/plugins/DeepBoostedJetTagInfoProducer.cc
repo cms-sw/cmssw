@@ -154,7 +154,7 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
     "pfcand_dphidxy",
     "pfcand_dlambdadz",
     "pfcand_btagEtaRel",
-    "pfcand_btagPtRel",
+    "pfcand_btagPtRatio",
     "pfcand_btagPParRatio",
     "pfcand_btagSip2dVal",
     "pfcand_btagSip2dSig",
@@ -221,12 +221,16 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
     for (const auto &name : feature_names_) { features.add(name); }
 
     // fill values only if above pt threshold and has daughters, otherwise left empty
-    if (jet.pt() < min_jet_pt_) continue;
-    if (jet.numberOfDaughters() == 0) continue;
+    bool fill_vars = true;
+    if (jet.pt() < min_jet_pt_) fill_vars = false;
+    if (jet.numberOfDaughters() == 0) fill_vars = false;
 
-    fillParticleFeatures(features, jet);
-    fillSVFeatures(features, jet);
+    if (fill_vars){
+      fillParticleFeatures(features, jet);
+      fillSVFeatures(features, jet);
+    }
 
+    // this should always be done even if features are not filled
     output_tag_infos->emplace_back(features, jet_ref);
   }
 
