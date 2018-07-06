@@ -53,7 +53,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				  HGCalParameters& php, 
 				  const std::string& name,
 				  const std::string& namew, 
-				  const std::string& namec) {
+				  const std::string& namec,
+				  const std::string& namet) {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD::build called with "
@@ -85,7 +86,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     if ((php.mode_ == HGCalGeometryMode::Hexagon) ||
 	(php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute  = "OnlyForHGCalNumbering";
-      value      = "HGCal";
+      value      = namet;
       DDValue val2(attribute, value, 0.0);
       DDSpecificsMatchesValueFilter filter2{val2};
       DDFilteredView fv2(*cpv,filter2);
@@ -109,7 +110,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				    << php.levelT_[1];
 #endif
       attribute   = "OnlyForHGCalNumbering";
-      value       = "HGCal";
+      value       = namet;
       DDValue val2(attribute, value, 0.0);
       DDSpecificsMatchesValueFilter filter2{val2};
       DDFilteredView fv2(*cpv,filter2);
