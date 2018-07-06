@@ -180,8 +180,7 @@ void SiPixelStatusHarvester::endRunProduce(edm::Run& iRun, const edm::EventSetup
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> fedError25IOV;
     std::map<edm::LuminosityBlockNumber_t, edm::LuminosityBlockNumber_t> pclIOV;
 
-    int nLumiBlock_ = countLumi_-FEDerror25Map.begin()->first+1;
-
+    //int nLumiBlock_ = countLumi_-FEDerror25Map.begin()->first+1;
 
     // container for SiPixelQuality for the whole run
     std::map<int, SiPixelQuality*> siPixelQualityStuckTBM_Tag;
