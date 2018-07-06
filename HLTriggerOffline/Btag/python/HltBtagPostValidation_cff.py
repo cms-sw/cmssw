@@ -12,11 +12,11 @@ HltBTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
 	'HLT_IsoMu24_eta2p1_v'
 	),
 	histoName	= cms.vstring(
-	'hltCombinedSecondaryVertexBJetTagsCalo',
-	'hltCombinedSecondaryVertexBJetTagsCalo',
-	'hltCombinedSecondaryVertexBJetTagsCalo',
-	'hltCombinedSecondaryVertexBJetTagsPF',
-	'hltCombinedSecondaryVertexBJetTagsPF',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo:probb',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo:probb',
+	'hltDeepCombinedSecondaryVertexBJetTagsCalo:probb',
+	'hltDeepCombinedSecondaryVertexBJetTagsPF:probb',
+	'hltDeepCombinedSecondaryVertexBJetTagsPF:probb',
 	),
 	minTag	= cms.double(0.6),
 	# MC stuff
