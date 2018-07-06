@@ -634,21 +634,29 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             if btagInfo == 'pfDeepBoostedJetTagInfos':
                 jetSrcName = jetSource.value().lower()
                 if 'slimmed' in jetSrcName or 'updated' in jetSrcName:
-                    # running on slimmedJetsAK8 or re-applying btag on MiniAOD
-                    update_jets = cms.bool(True)
+                    # case 1: update jets whose daughters are PackedCandidates, e.g., slimmedJetsAK8
+                    # daughters are links to original PackedCandidates, so NOT scaled by their puppi weights
+                    has_puppi_weighted_daughters = cms.bool(False)
                     puppi_value_map = cms.InputTag("")
                     vertex_associator = cms.InputTag("")
                 else:
                     sys.stderr.write("Warning: running pfDeepBoostedJetTagInfos on %s is not supported yet.\n"%jetSource)
-                    update_jets = cms.bool(False)
-                    puppi_value_map = cms.InputTag("puppi")
-                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+                    has_puppi_weighted_daughters = cms.bool(True)
+                    # daughters are the particles used in jet clustering, so already scaled by their puppi weights
+                    if pfCandidates.value() == 'packedPFCandidates':
+                        # case 2: running on new jet collection whose daughters are PackedCandidates (e.g., recluster jets from MiniAOD files)
+                        puppi_value_map = cms.InputTag("")
+                        vertex_associator = cms.InputTag("")
+                    elif pfCandidates.value() == 'particleFlow':
+                        # case 3: running on new jet collection whose daughters are PFCandidates (e.g., cluster jets in RECO/AOD)
+                        puppi_value_map = cms.InputTag("puppi")
+                        vertex_associator = cms.InputTag("primaryVertexAssociation","original")
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepBoostedJetTagInfos.clone(
                                       jets = jetSource,
                                       vertices = pvSource,
                                       secondary_vertices = svSource,
-                                      update_jets = update_jets,
+                                      has_puppi_weighted_daughters = has_puppi_weighted_daughters,
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
                                       ),
