@@ -44,8 +44,8 @@ def applyDeepBtagging( process, postfix="" ) :
 
 
 
-    # update slimmed jets to include DeepFlavour (keep same name)
-    # make clone for DeepDoubleB-less slimmed AK8 jets, so output name is preserved
+    # update slimmed jets to include particle-based deep taggers (keep same name)
+    # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
     addToProcessAndTask('slimmedJetsAK8NoDeepTags', process.slimmedJetsAK8.clone(), process, task)
     updateJetCollection(
        process,
@@ -114,7 +114,7 @@ def applyDeepBtagging( process, postfix="" ) :
        printWarning = False
     )
 
-    # slimmedJetsAK8 with DeepDoubleB (remove DeepDoubleB-less)
+    # slimmedJetsAK8 with DeepTags (remove DeepTags-less)
     delattr(process, 'slimmedJetsAK8')
     addToProcessAndTask('slimmedJetsAK8', getattr(process,'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix).clone(), process, task)
     # delete module not used anymore (slimmedJetsAK8 substitutes)
