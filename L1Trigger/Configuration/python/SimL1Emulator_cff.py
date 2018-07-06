@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Defines the L1 Emulator sequence for simulation use-case subsystem emulators
 # run on the results of previous (in the hardware chain) subsystem emulator:
-#  
+#
 #     SimL1Emulator = cms.Sequence(...)
 #
 # properly configured for the current Era (e.g. Run1, 2015, or 2016).  Also
@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Notes on Inputs:
 
-# ECAL TPG emulator and HCAL TPG run in the simulation sequence in order to be able 
+# ECAL TPG emulator and HCAL TPG run in the simulation sequence in order to be able
 # to use unsuppressed digis produced by ECAL and HCAL simulation, respectively
 # in Configuration/StandardSequences/python/Digi_cff.py
 # SimCalorimetry.Configuration.SimCalorimetry_cff
@@ -48,7 +48,7 @@ SimL1EmulatorCore = cms.Sequence(SimL1EmulatorCoreTask)
 SimL1EmulatorTask = cms.Task(SimL1EmulatorCoreTask)
 SimL1Emulator = cms.Sequence( SimL1EmulatorTask )
 
-# 
+#
 # Emulators are configured from DB (GlobalTags)
 #
 
@@ -109,10 +109,12 @@ from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
 phase2_SimL1Emulator += L1TkElectrons
 phase2_SimL1Emulator += L1TkIsoElectrons
 phase2_SimL1Emulator += L1TkPhotons
-phase2_SimL1Emulator += L1TkJets
+phase2_SimL1Emulator += L1TkCaloJets
+phase2_SimL1Emulator += L1TrackerJets
 phase2_SimL1Emulator += L1TkPrimaryVertex
-phase2_SimL1Emulator += L1TkEtMiss
-phase2_SimL1Emulator += L1TkHTMissVtx
+phase2_SimL1Emulator += L1TrackerEtMiss
+phase2_SimL1Emulator += L1TkCaloHTMissVtx
+phase2_SimL1Emulator += L1TrackerHTMiss
 phase2_SimL1Emulator += L1TkMuons
 phase2_SimL1Emulator += L1TkTauFromCalo
 
@@ -120,7 +122,7 @@ phase2_SimL1Emulator += L1TkTauFromCalo
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 #l1ParticleFlow = cms.Sequence(
-#    l1EGammaCrystalsProducer + 
+#    l1EGammaCrystalsProducer +
 #    pfTracksFromL1Tracks +
 #    pfClustersFromHGC3DClustersEM +
 #    pfClustersFromL1EGClusters +
@@ -128,7 +130,7 @@ from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 #    l1pfProducer
 #)
 l1pfProducerTightTK = l1pfProducer.clone(trkMinStubs = 6)
-l1ParticleFlow += l1pfProducerTightTK 
+l1ParticleFlow += l1pfProducerTightTK
 
 phase2_SimL1Emulator += l1ParticleFlow
 
@@ -163,14 +165,5 @@ l1PFJets = cms.Sequence( ak4L1Calo + ak4L1TK + ak4L1TKV + ak4L1PF + ak4L1Puppi
 
 phase2_SimL1Emulator += l1PFJets
 
-
-# Track Jets
-# ########################################################################
-from L1Trigger.L1TTrackMatch.L1TkFastJetProducer_cfi import *
-
-phase2_SimL1Emulator += L1TkFastJets
-
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1Emulator , phase2_SimL1Emulator)
-
-

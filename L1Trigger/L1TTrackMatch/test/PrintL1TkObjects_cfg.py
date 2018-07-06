@@ -74,11 +74,11 @@ process.HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
 process.HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProducer")
 
 process.CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring('HCAL', 
-        'ZDC', 
-        'EcalBarrel', 
-        'TOWER', 
-        'HGCalEESensitive', 
+    SelectedCalos = cms.vstring('HCAL',
+        'ZDC',
+        'EcalBarrel',
+        'TOWER',
+        'HGCalEESensitive',
         'HGCalHESiliconSensitive')
 )
 
@@ -119,14 +119,14 @@ process.hgcalTriggerPrimitiveDigiProducer.FECodec.DataLength = cms.uint32(8)
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits = cms.uint32(7)
 
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters.cellLSB = cms.double(
-        process.hgcalTriggerPrimitiveDigiProducer.FECodec.linLSB.value() * 
-        2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
+        process.hgcalTriggerPrimitiveDigiProducer.FECodec.linLSB.value() *
+        2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value()
 )
 
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),                           
+                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters,
                               C2d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters,
                               C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
@@ -158,20 +158,20 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 # Now we produce L1TkEmParticles and L1TkElectrons
 
 process.load("L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff")
-process.pL1TkObjects = cms.Path(process.L1TkElectrons 
-                             + process.L1TkPhotons 
-                             + process.L1TkJets 
-                             + process.L1TkPrimaryVertex 
-                             + process.L1TkEtMiss 
-                             + process.L1TkHTMissVtx
+process.pL1TkObjects = cms.Path(process.L1TkElectrons
+                             + process.L1TkPhotons
+                             + process.L1TkCaloJets
+                             + process.L1TkPrimaryVertex
+                             + process.L1TrackerEtMiss
+                             + process.L1TkCaloHTMissVtx
                              + process.L1TkMuons
                              + process.L1TkTauFromCalo)
 
 process.printTkObj = cms.EDAnalyzer( 'PrintL1TkObjects' ,
-    L1TkVtxInputTag         = cms.InputTag("L1TkPrimaryVertex",""),
-    L1TkEtMissInputTag    = cms.InputTag("L1TkEtMiss","MET"),
-    L1TkJetsInputTag      = cms.InputTag("L1TkJets","Central"),
-    L1TkHTMInputTag       = cms.InputTag("L1TkHTMissVtx", ""),
+    L1TkVtxInputTag       = cms.InputTag("L1TkPrimaryVertex",""),
+    L1TkEtMissInputTag    = cms.InputTag("L1TrackerEtMiss","MET"),
+    L1TkJetsInputTag      = cms.InputTag("L1TkCaloJets","L1TkCaloJets"),
+    L1TkHTMInputTag       = cms.InputTag("L1TkCaloHTMissVtx", "L1TkCaloHTMiss"),
     L1TkPhotonsInputTag   = cms.InputTag("L1TkPhotons" "EG"),
     L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG"),
     L1TkMuonsInputTag     = cms.InputTag("L1TkMuons",""),
@@ -189,11 +189,3 @@ process.pDumpED = cms.Path(process.dumpED)
 
 process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step,process.pL1TkObjects,process.pPrintObject,process.pDumpED)
 #process.schedule = cms.Schedule(process.L1simulation_step,process.L1TrackTrigger_step)
-
-
-
-
-
-
-
-

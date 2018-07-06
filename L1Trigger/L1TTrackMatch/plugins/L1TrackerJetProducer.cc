@@ -47,15 +47,15 @@ using namespace std;
 //                          //
 //////////////////////////////
 
-class L1TkJetProducer : public edm::EDProducer
+class L1TrackerJetProducer : public edm::EDProducer
 {
 public:
 
    typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
    typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
 
-  explicit L1TkJetProducer(const edm::ParameterSet&);
-  ~L1TkJetProducer();
+  explicit L1TrackerJetProducer(const edm::ParameterSet&);
+  ~L1TrackerJetProducer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -91,12 +91,12 @@ private:
 
 //////////////
 // constructor
-L1TkJetProducer::L1TkJetProducer(const edm::ParameterSet& iConfig) :
+L1TrackerJetProducer::L1TrackerJetProducer(const edm::ParameterSet& iConfig) :
   trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
    PVertexToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag")))
 {
 
-  produces<L1TkJetParticleCollection>("L1TkJets");
+  produces<L1TkJetParticleCollection>("L1TrackerJets");
   L1Tk_nPar   =(int)iConfig.getParameter<int>("L1Tk_nPar");
   TRK_ZMAX    = (float)iConfig.getParameter<double>("TRK_ZMAX");
   TRK_CHI2MAX = (float)iConfig.getParameter<double>("TRK_CHI2MAX");
@@ -112,12 +112,12 @@ L1TkJetProducer::L1TkJetProducer(const edm::ParameterSet& iConfig) :
 
 /////////////
 // destructor
-L1TkJetProducer::~L1TkJetProducer() {
+L1TrackerJetProducer::~L1TrackerJetProducer() {
 }
 
 ///////////
 // producer
-void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 
@@ -125,7 +125,7 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // output container
   // ----------------------------------------------------------------------------------------------
 
-  std::unique_ptr<L1TkJetParticleCollection> L1TkJets(new L1TkJetParticleCollection);
+  std::unique_ptr<L1TkJetParticleCollection> L1TrackerJets(new L1TkJetParticleCollection);
 
 
   // ----------------------------------------------------------------------------------------------
@@ -190,33 +190,33 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		edm::Ref< JetBxCollection > jetRef ;
    		L1TkJetParticle trkJet(jetP4, jetRef, L1TrackPtrs, avgZ);
 
-      	L1TkJets->push_back(trkJet);
+      	L1TrackerJets->push_back(trkJet);
 
 
 	}
 
 
 
-  iEvent.put( std::move(L1TkJets), "L1TkJets");
+  iEvent.put( std::move(L1TrackerJets), "L1TrackerJets");
 
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1TkJetProducer::beginJob()
+L1TrackerJetProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-L1TkJetProducer::endJob() {
+L1TrackerJetProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-L1TkJetProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
+L1TrackerJetProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 {
 }
 */
@@ -224,7 +224,7 @@ L1TkJetProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-L1TkJetProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TrackerJetProducer::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 */
@@ -232,7 +232,7 @@ L1TkJetProducer::endRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-L1TkJetProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TrackerJetProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
@@ -240,14 +240,14 @@ L1TkJetProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup con
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-L1TkJetProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TrackerJetProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TkJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TrackerJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -256,4 +256,4 @@ L1TkJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TkJetProducer);
+DEFINE_FWK_MODULE(L1TrackerJetProducer);

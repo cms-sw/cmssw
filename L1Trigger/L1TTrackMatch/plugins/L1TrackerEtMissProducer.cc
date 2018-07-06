@@ -25,14 +25,14 @@
 
 using namespace l1t;
 
-class L1TkEtMissProducer : public edm::EDProducer {
+class L1TrackerEtMissProducer : public edm::EDProducer {
   public:
 
     typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
     typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
 
-    explicit L1TkEtMissProducer(const edm::ParameterSet&);
-    ~L1TkEtMissProducer();
+    explicit L1TrackerEtMissProducer(const edm::ParameterSet&);
+    ~L1TrackerEtMissProducer();
 
   private:
     virtual void beginJob() ;
@@ -57,7 +57,7 @@ class L1TkEtMissProducer : public edm::EDProducer {
 ///////////////
 //constructor//
 ///////////////
-L1TkEtMissProducer::L1TkEtMissProducer(const edm::ParameterSet& iConfig) :
+L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig) :
   pvToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
   trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
 {
@@ -78,13 +78,13 @@ L1TkEtMissProducer::L1TkEtMissProducer(const edm::ParameterSet& iConfig) :
 //////////////
 //destructor//
 //////////////
-L1TkEtMissProducer::~L1TkEtMissProducer() {
+L1TrackerEtMissProducer::~L1TrackerEtMissProducer() {
 }
 
 ////////////
 //producer//
 ////////////
-void L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   // Tracker Topology
   edm::ESHandle<TrackerTopology> tTopoHandle_;
@@ -102,12 +102,12 @@ void L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if( !L1VertexHandle.isValid() ) {
-    LogError("L1TkEtMissProducer")<< "\nWarning: L1TkPrimaryVertexCollection not found in the event. Exit"<< std::endl;
+    LogError("L1TrackerEtMissProducer")<< "\nWarning: L1TkPrimaryVertexCollection not found in the event. Exit"<< std::endl;
     return;
   }
 
   if( !L1TTTrackHandle.isValid() ) {
-    LogError("L1TkEtMissProducer")<< "\nWarning: L1TTTrackCollectionType not found in the event. Exit"<< std::endl;
+    LogError("L1TrackerEtMissProducer")<< "\nWarning: L1TTTrackCollectionType not found in the event. Exit"<< std::endl;
     return;
   }
 
@@ -206,11 +206,11 @@ void L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 } // end producer
 
 // ------------ method called once each job just before starting event loop  ------------
-void L1TkEtMissProducer::beginJob() {
+void L1TrackerEtMissProducer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void L1TkEtMissProducer::endJob() {
+void L1TrackerEtMissProducer::endJob() {
 }
 
-DEFINE_FWK_MODULE(L1TkEtMissProducer);
+DEFINE_FWK_MODULE(L1TrackerEtMissProducer);

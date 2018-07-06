@@ -37,11 +37,11 @@ process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 process.source = cms.Source("PoolSource", fileNames = Source_Files) #, inputCommands=cms.untracked.vstring('drop *EMTF_*_*_*'))
 process.load("L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi")
 process.pL1TkPrimaryVertex = cms.Path( process.L1TkPrimaryVertex )
-process.load("L1Trigger.L1TTrackMatch.L1TkFastJetProducer_cfi");
-process.pL1TkJets=cms.Path(process.L1TkJets)
+process.load("L1Trigger.L1TTrackMatch.L1TrackerJetProducer_cfi");
+process.pL1TrackerJets=cms.Path(process.L1TrackerJets)
 process.out = cms.OutputModule( "PoolOutputModule",
                                 fastCloning = cms.untracked.bool( False ),
                                 fileName = cms.untracked.string("test.root" )
 		               )
 process.FEVToutput_step = cms.EndPath(process.out)
-process.schedule = cms.Schedule(process.TTTracks,process.TTTracksWithTruth,process.pL1TkPrimaryVertex,process.pL1TkJets,process.FEVToutput_step)
+process.schedule = cms.Schedule(process.TTTracks,process.TTTracksWithTruth,process.pL1TkPrimaryVertex,process.pL1TrackerJets,process.FEVToutput_step)

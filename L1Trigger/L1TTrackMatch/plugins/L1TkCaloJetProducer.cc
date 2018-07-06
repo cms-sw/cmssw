@@ -46,15 +46,15 @@ using namespace std;
 //                          //
 //////////////////////////////
 
-class L1TkMatchedJetProducer : public edm::EDProducer
+class L1TkCaloJetProducer : public edm::EDProducer
 {
 public:
 
   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
   typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
 
-  explicit L1TkMatchedJetProducer(const edm::ParameterSet&);
-  ~L1TkMatchedJetProducer();
+  explicit L1TkCaloJetProducer(const edm::ParameterSet&);
+  ~L1TkCaloJetProducer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -88,12 +88,12 @@ private:
 
 //////////////
 // constructor
-L1TkMatchedJetProducer::L1TkMatchedJetProducer(const edm::ParameterSet& iConfig) :
+L1TkCaloJetProducer::L1TkCaloJetProducer(const edm::ParameterSet& iConfig) :
 jetToken(consumes< JetBxCollection >(iConfig.getParameter<edm::InputTag>("L1CentralJetInputTag"))),
 trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
 {
 
-  produces<L1TkJetParticleCollection>("L1TkMatchedJets");
+  produces<L1TkJetParticleCollection>("L1TkCaloJets");
 
   TRK_ZMAX    = (float)iConfig.getParameter<double>("TRK_ZMAX");
   TRK_CHI2MAX = (float)iConfig.getParameter<double>("TRK_CHI2MAX");
@@ -108,12 +108,12 @@ trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.g
 
 /////////////
 // destructor
-L1TkMatchedJetProducer::~L1TkMatchedJetProducer() {
+L1TkCaloJetProducer::~L1TkCaloJetProducer() {
 }
 
 ///////////
 // producer
-void L1TkMatchedJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1TkCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
 
@@ -149,7 +149,7 @@ void L1TkMatchedJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   // ----------------------------------------------------------------------------------------------
 
   if ( !CentralJetHandle.isValid() ) {
-    LogError("L1TkMatchedJetProducer")
+    LogError("L1TkCaloJetProducer")
     << "\nWarning: L1JetParticleCollection not found in the event. Exit"
     << std::endl;
   }
@@ -389,7 +389,7 @@ void L1TkMatchedJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 
 
-  iEvent.put( std::move(cenTkJets), "L1TkMatchedJets");
+  iEvent.put( std::move(cenTkJets), "L1TkCaloJets");
 
 
 }
@@ -397,19 +397,19 @@ void L1TkMatchedJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1TkMatchedJetProducer::beginJob()
+L1TkCaloJetProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-L1TkMatchedJetProducer::endJob() {
+L1TkCaloJetProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-L1TkMatchedJetProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
+L1TkCaloJetProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 {
 }
 */
@@ -417,7 +417,7 @@ L1TkMatchedJetProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-L1TkMatchedJetProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TkCaloJetProducer::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 */
@@ -425,7 +425,7 @@ L1TkMatchedJetProducer::endRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-L1TkMatchedJetProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TkCaloJetProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
@@ -433,14 +433,14 @@ L1TkMatchedJetProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSe
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-L1TkMatchedJetProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TkCaloJetProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TkMatchedJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TkCaloJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -449,4 +449,4 @@ L1TkMatchedJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TkMatchedJetProducer);
+DEFINE_FWK_MODULE(L1TkCaloJetProducer);

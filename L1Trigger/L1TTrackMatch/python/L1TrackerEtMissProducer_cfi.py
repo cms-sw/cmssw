@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkEtMiss = cms.EDProducer('L1TkEtMissProducer',
+L1TrackerEtMiss = cms.EDProducer('L1TrackerEtMissProducer',
      L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
      L1VertexInputTag = cms.InputTag("L1TkPrimaryVertex"),
      maxZ0 = cms.double ( 25. ) ,    # in cm

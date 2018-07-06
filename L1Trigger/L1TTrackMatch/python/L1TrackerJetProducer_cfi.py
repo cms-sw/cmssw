@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkJets = cms.EDProducer("L1TkJetProducer",
+L1TrackerJets = cms.EDProducer("L1TrackerJetProducer",
     L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
 	L1PrimaryVertexTag=cms.InputTag("L1TkPrimaryVertex","",""),
     TRK_ZMAX = cms.double(25.),         # max track z0 [cm]

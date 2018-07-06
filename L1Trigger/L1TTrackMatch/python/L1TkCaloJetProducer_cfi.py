@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkMatchedJets = cms.EDProducer("L1TkMatchedJetProducer",
+L1TkCaloJets = cms.EDProducer("L1TkCaloJetProducer",
     L1CentralJetInputTag = cms.InputTag("simCaloStage2Digis",""),    # new L1Jets
     L1TrackInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
     TRK_ZMAX = cms.double(25.),         # max track z0 [cm]

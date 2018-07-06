@@ -138,8 +138,8 @@ process.pElectronsTkIsoLoose = cms.Path( process.L1TkIsoElectronsLoose )
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkPrimaryVertexProducer_cfi")
 process.pL1TkPrimaryVertex = cms.Path( process.L1TkPrimaryVertex )
 
-process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEtMissProducer_cfi")
-process.pL1TrkMET = cms.Path( process.L1TkEtMiss )
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackerEtMissProducer_cfi")
+process.pL1TrkMET = cms.Path( process.L1TrackerEtMiss )
 
 # ---------------------------------------------------------------------------
 
@@ -211,7 +211,7 @@ process.Out.outputCommands.append('keep *_L1TkIsoElectronsLoose_*_*')
         # the L1TkPrimaryVertex
 process.Out.outputCommands.append('keep *_L1TkPrimaryVertex_*_*')
         # the TrkMET
-process.Out.outputCommands.append('keep *_L1TkEtMiss*_*_*')
+process.Out.outputCommands.append('keep *_L1TrackerEtMiss*_*_*')
         # the calo-based L1MET
 process.Out.outputCommands.append('keep *_l1extraParticles_MET_*')
 
@@ -221,19 +221,19 @@ process.Out.outputCommands.append('keep *_SLHCL1ExtraParticles_Taus_*')
 
 	# jets, HT, MHT
 # Collections of L1TkJets :
-process.Out.outputCommands.append('keep *_L1TkJets_*_*')        #  L1TkJets from the L1Jets
-process.Out.outputCommands.append('keep *_L1TkJetsHI_*_*')      #  L1TkJets from the HLT Heavy Ion jets
+process.Out.outputCommands.append('keep *_L1TkCaloJets_*_*')        #  L1TkJets from the L1Jets
+process.Out.outputCommands.append('keep *_L1TkCaloJetsHI_*_*')      #  L1TkJets from the HLT Heavy Ion jets
 # intermediate products:
 process.Out.outputCommands.append('keep *_iterativeConePu5CaloJets_*_*')        # HLT HI jets
 process.Out.outputCommands.append('keep *_L1CalibFilterTowerJetProducer_CalibratedTowerJets_*')         # L1Jets
 process.Out.outputCommands.append('keep *_L1CalibFilterTowerJetProducer_UncalibratedTowerJets_*')       # L1Jets
 # Collections of HT and MHT variables :
         # -- made from the L1Jets :
-process.Out.outputCommands.append('keep *_L1TkMatchedHTMiss_*_*')          # from L1Jets, calo only
-process.Out.outputCommands.append('keep *_L1TkMatchedHTMissVtx_*_*')           # from L1Jets, with vertex constraint
+process.Out.outputCommands.append('keep *_L1TkCaloHTMiss_*_*')          # from L1Jets, calo only
+process.Out.outputCommands.append('keep *_L1TkCaloHTMissVtx_*_*')           # from L1Jets, with vertex constraint
         # -- made from the HLT HI jets:
-process.Out.outputCommands.append('keep *_L1TkMatchedHTMissHI_*_*')        # from HLT HI jets, calo only
-process.Out.outputCommands.append('keep *_L1TkMatchedHTMissVtxHI_*_*')         # from HLT HI jets, with vertex constraint
+process.Out.outputCommands.append('keep *_L1TkCaloHTMissHI_*_*')        # from HLT HI jets, calo only
+process.Out.outputCommands.append('keep *_L1TkCaloHTMissVtxHI_*_*')         # from HLT HI jets, with vertex constraint
 
 	# keep the (rebuilt) tracks
 #process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_ALL')
