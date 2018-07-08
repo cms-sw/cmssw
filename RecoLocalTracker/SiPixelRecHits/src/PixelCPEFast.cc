@@ -1,26 +1,22 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-
-// this is needed to get errors from templates
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-
-// Services
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+#include <iostream>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
 #include "HeterogeneousCore/CUDAServices/interface/numberOfCUDADevices.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
-#include <iostream>
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
+
+// Services
+// this is needed to get errors from templates
 
 namespace {
    constexpr float micronsToCm = 1.0e-4;
@@ -54,18 +50,18 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
    
    // Rechit errors in case other, more correct, errors are not vailable
    // This are constants. Maybe there is a more efficienct way to store them.
-      xerr_barrel_l1_= {0.00115, 0.00120, 0.00088};
-      xerr_barrel_l1_def_=0.01030;
-      yerr_barrel_l1_= {0.00375,0.00230,0.00250,0.00250,0.00230,0.00230,0.00210,0.00210,0.00240};
-      yerr_barrel_l1_def_=0.00210;
-      xerr_barrel_ln_= {0.00115, 0.00120, 0.00088};
-      xerr_barrel_ln_def_=0.01030;
-      yerr_barrel_ln_= {0.00375,0.00230,0.00250,0.00250,0.00230,0.00230,0.00210,0.00210,0.00240};
-      yerr_barrel_ln_def_=0.00210;
-      xerr_endcap_= {0.0020, 0.0020};
-      xerr_endcap_def_=0.0020;
-      yerr_endcap_= {0.00210};
-      yerr_endcap_def_=0.00075;
+   xerr_barrel_l1_      = { 0.00115, 0.00120, 0.00088 };
+   xerr_barrel_l1_def_  = 0.01030;
+   yerr_barrel_l1_      = { 0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240 };
+   yerr_barrel_l1_def_  = 0.00210;
+   xerr_barrel_ln_      = { 0.00115, 0.00120, 0.00088};
+   xerr_barrel_ln_def_  = 0.01030;
+   yerr_barrel_ln_      = { 0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240 };
+   yerr_barrel_ln_def_  = 0.00210;
+   xerr_endcap_         = { 0.0020, 0.0020 };
+   xerr_endcap_def_     = 0.0020;
+   yerr_endcap_         = { 0.00210 };
+   yerr_endcap_def_     = 0.00075;
 
    fillParamsForGpu();   
 }
@@ -90,7 +86,7 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
 
-  uint32_t oldLayer = 0;
+  //uint32_t oldLayer = 0;
   m_detParamsGPU.resize(m_DetParams.size());
   for (auto i=0U; i<m_DetParams.size(); ++i) {
     auto & p=m_DetParams[i];
@@ -99,7 +95,7 @@ void PixelCPEFast::fillParamsForGpu() {
     assert(p.theDet->index()==int(i));
     assert(m_commonParamsGPU.thePitchY==p.thePitchY);    
     assert(m_commonParamsGPU.thePitchX==p.thePitchX);
-    // assert(m_commonParamsGPU.theThickness==p.theThickness);
+    //assert(m_commonParamsGPU.theThickness==p.theThickness);
 
     g.isBarrel = GeomDetEnumerators::isBarrel(p.thePart);
     g.isPosZ = p.theDet->surface().position().z()>0;
@@ -109,13 +105,13 @@ void PixelCPEFast::fillParamsForGpu() {
    
     assert( (g.isBarrel ?m_commonParamsGPU.theThicknessB : m_commonParamsGPU.theThicknessE) ==p.theThickness );
 
-    // if (m_commonParamsGPU.theThickness!=p.theThickness)   
+    //if (m_commonParamsGPU.theThickness!=p.theThickness)   
     //  std::cout << i << (g.isBarrel ? "B " : "E ") << m_commonParamsGPU.theThickness<<"!="<<p.theThickness << std::endl;
 
-    if (oldLayer != g.layer) {
-      oldLayer = g.layer;
-      std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
-    }
+    //if (oldLayer != g.layer) {
+    //  oldLayer = g.layer;
+    //  std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
+    //}
 
     g.shiftX = 0.5f*p.lorentzShiftInCmX;
     g.shiftY = 0.5f*p.lorentzShiftInCmY;
