@@ -62,7 +62,9 @@ std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::File
       tmpstr = "";
   } else if (reco::details::hasEnding(weightFile.fullPath(), ".gz") || reco::details::hasEnding(weightFile.fullPath(), ".gzip")) {
       gzipped = true;
-      tmpstr = std::string(reco::details::readGzipFile(weightFile.fullPath()));
+      char *buffer = reco::details::readGzipFile(weightFile.fullPath());
+      tmpstr = std::string(buffer);
+      free(buffer);
   }
   std::stringstream is(tmpstr);
 
