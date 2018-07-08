@@ -364,6 +364,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     try {
       const auto &patJet = dynamic_cast<const pat::Jet&>(jet);
       subjets = patJet.subjets();
+      // sort by pt
+      std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet>& p1, const edm::Ptr<pat::Jet>& p2){ return p1->pt()>p2->pt(); });
     }catch (const std::bad_cast &e) {
       throw edm::Exception(edm::errors::InvalidReference) << "Cannot access subjets because this is not a pat::Jet.";
     }
