@@ -11,12 +11,12 @@
 #include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
-
-#include "CAHitQuadrupletGenerator.h"
-#include "CAHitQuadrupletGeneratorGPU.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
+
+#include "CAHitQuadrupletGeneratorGPU.h"
 
 namespace {
 void fillNtuplets(RegionsSeedingHitSets::RegionFiller &seedingHitSetsFiller,

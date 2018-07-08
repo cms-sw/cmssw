@@ -2,24 +2,20 @@
 // Author: Felice Pantaleo, CERN
 //
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CAHitQuadrupletGeneratorGPU.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
+#include <functional>
 
+#include "CommonTools/Utils/interface/DynArray.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
+#include "FWCore/Utilities/interface/isFinite.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
+#include "RecoPixelVertexing/PixelTriplets/src/CellularAutomaton.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
-#include "CellularAutomaton.h"
-
-#include "CommonTools/Utils/interface/DynArray.h"
-
-#include "FWCore/Utilities/interface/isFinite.h"
-
-#include <functional>
+#include "CAHitQuadrupletGeneratorGPU.h"
 
 namespace {
 

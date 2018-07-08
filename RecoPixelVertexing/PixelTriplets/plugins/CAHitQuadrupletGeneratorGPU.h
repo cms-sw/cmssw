@@ -2,26 +2,24 @@
 #define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATORGPU_H
 
 #include <cuda_runtime.h>
-#include "GPUHitsAndDoublets.h"
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "CAGraph.h"
-
-#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
+#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
+#include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
+#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
+#include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+
 #include "GPUCACell.h"
+#include "GPUHitsAndDoublets.h"
 
 class TrackingRegion;
 class SeedingLayerSetsHits;
