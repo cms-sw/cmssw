@@ -86,10 +86,12 @@
 
   <class name="L1MuBMTrackCollection"/>
   <class name="L1MuKBMTrackCollection"/>
+  <class name="L1MuKBMTrackBxCollection"/>
   <class name="L1MuBMTrackSegPhiCollection"/>
   <class name="L1MuBMTrackSegEtaCollection"/>
 
   <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
+  <class name="edm::Wrapper<L1MuKBMTrackBxCollection >"/>
   <class name="edm::Wrapper<L1MuKBMTrackCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
