@@ -732,18 +732,6 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 
 
     track.setHitPattern(hitPattern(track));
-    //Set eta coarse
-    //    track.setCoarseEta(seed->coarseEta());
-    //Set fine eta:
-    //if (seed->qeta1()>=0) {
-    //  if (seed->qeta2()>=0) {
-    //	track.setFineEta((seed->eta1()+seed->eta2())/2);
-    // }
-    // else {//
-    //	track.setFineEta(seed->eta1());
-    //  }
-    // }
-
     //set covariance
     L1MuKBMTrack::CovarianceMatrix covariance;  
 
@@ -781,54 +769,10 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       // muon station 1 
       if (track.step()==1) {
 	track.setCoordinatesAtMuon(track.curvature(),track.positionAngle(),track.bendingAngle());
+	calculateEta(track);
 	setFloatingPointValues(track,false);
 	//calculate coarse eta
 	//////////////////////
-	uint pattern = track.hitPattern();
-	int wheel = track.stubs()[0]->whNum();
-	uint awheel=abs(wheel);
-	int sign=1;
-	if (wheel<0)
-	  sign=-1;
-	uint nstubs = track.stubs().size();
-	uint mask=0;
-	for (unsigned int i=0;i<track.stubs().size();++i) {
-	  //printf("Stub wheel=%d\n",track.stubs()[i]->whNum());
-	  if (abs(track.stubs()[i]->whNum())!=awheel)
-	    mask=mask|(1<<i);
-	}
-	mask=(awheel<<nstubs)|mask;
-	track.setCoarseEta(sign*lutService_->coarseEta(pattern,mask));
-	//	printf("----\n");
-	//	printf("Coarse Eta=%f\n",sign*lutService_->coarseEta(pattern,mask)*0.010875);
-	//	printf("pattern=%d wheel=%d sing=%d stubs=%d mask=%d eta=%d\n",pattern,wheel,sign,nstubs,mask,sign*lutService_->coarseEta(pattern,mask));
-	//set fine eta
-	int sumweights=0;
-	int sums=0;
-	//	printf("New eta calculation\n");
-	uint rankv=0;
-	//	int etaS=255;
-	for (const auto& stub : stubs) {
-	  uint rank = etaStubRank(stub);
-	  if (rank==0)
-	    continue;
-	  // printf("new rank=%d , eta=%d\n",rank,stub->eta1());
-	  if (rank>rankv) {
-	    //	    etaS=stub->eta1();
-	    rankv=rank;
-	  }
-	  sumweights+=rank;
-	  sums+=rank*stub->eta1();
-	}
-	//	if (sumweights>0) {
-	  
-	int eta=int(float(sums)/float(sumweights));
-	  // printf("resulting eta=%f\n",eta*0.010875);
-	track.setFineEta(eta);
-	//	}
-	//	if (rankv>0) {
-	// track.setFineEta(etaS);
-	//	}
 
 
 	if (verbose_) 
@@ -872,9 +816,6 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
       }
     }
   }
-
-  //Resolve eta
-  resolveEtaUnit(pretracks);
   //Now for all the pretracks we need only one 
   L1MuKBMTrackCollection cleaned = clean(pretracks,seed->stNum());
 
@@ -936,26 +877,6 @@ int L1TMuonBarrelKalmanAlgo::wrapAround(int value,int maximum) {
 
 }
 
-void L1TMuonBarrelKalmanAlgo::resolveEtaUnit(L1MuKBMTrackCollection& tracks) {
-  int bestFineEta=0;
-  uint bestSegments=0;
-  for (const auto& track : tracks) {
-    if (track.stubs().size()>bestSegments && track.hasFineEta()) {
-      bestFineEta = track.fineEta();
-      bestSegments=track.stubs().size();
-    }
-  }
-  
-  for (auto & track :tracks) {
-    if (bestSegments!=0 && (!track.hasFineEta())) {
-      track.setFineEta(bestFineEta);
-      setFloatingPointValues(track,true);
-    }
-  }
-
-
-
-}
 
 bool L1TMuonBarrelKalmanAlgo::punchThroughVeto(const L1MuKBMTrack& track) {
   for (uint i=0;i<chiSquareCutPattern_.size();++i)  {
@@ -1208,9 +1129,41 @@ uint L1TMuonBarrelKalmanAlgo::etaStubRank(const L1MuKBMTCombinedStubRef& stub) {
   if (stub->qeta1()==0) {
     return 0;
   }
-  return (stub->qeta1()*4+stub->stNum());
+  //  return (stub->qeta1()*4+stub->stNum());
+  return (stub->qeta1());
 
 }
 
+void L1TMuonBarrelKalmanAlgo::calculateEta(L1MuKBMTrack& track) {
+  uint pattern = track.hitPattern();
+  int wheel = track.stubs()[0]->whNum();
+  uint awheel=abs(wheel);
+  int sign=1;
+  if (wheel<0)
+    sign=-1;
+  uint nstubs = track.stubs().size();
+  uint mask=0;
+  for (unsigned int i=0;i<track.stubs().size();++i) {
+    if (abs(track.stubs()[i]->whNum())!=awheel)
+      mask=mask|(1<<i);
+  }
+  mask=(awheel<<nstubs)|mask;
+  track.setCoarseEta(sign*lutService_->coarseEta(pattern,mask));
+
+
+  int sumweights=0;
+  int sums=0;
+  uint rankv=0;
+  for (const auto& stub : track.stubs()) {
+    uint rank = etaStubRank(stub);
+    if (rank==0)
+      continue;
+    sumweights+=rank;
+    sums+=rank*stub->eta1();
+  }
+  int eta=int(float(sums)/float(sumweights));
+  if (sumweights>0)
+    track.setFineEta(eta);
+}
 
 
