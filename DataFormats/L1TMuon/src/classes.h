@@ -67,8 +67,11 @@ namespace L1Trigger_L1TMuonBarrel {
     L1MuBMTrackCollection l1mu_trk_tr_V;
     edm::Wrapper<L1MuBMTrackCollection> l1mu_trk_tr_W;
 
-    L1MuKBMTrackCollection l1muk_trk_tr_V;
-    edm::Wrapper<L1MuKBMTrackCollection> l1muk_trk_tr_W;
+    L1MuKBMTrackBxCollection l1muk_trk_tr_V;
+    edm::Wrapper<L1MuKBMTrackBxCollection> l1muk_trk_tr_W;
+
+    L1MuKBMTrackCollection l1muk_trk_tr_V2;
+    edm::Wrapper<L1MuKBMTrackCollection> l1muk_trk_tr_W2;
 
     L1MuKBMTCombinedStubCollection l1mu_stub_comb_V;
     edm::Wrapper<L1MuKBMTCombinedStubCollection> l1mu_stub_comb_W;

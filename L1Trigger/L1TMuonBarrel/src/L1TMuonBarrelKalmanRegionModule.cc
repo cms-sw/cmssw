@@ -60,6 +60,9 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
   for (const auto& stub : stubsAll) {
     if (stub->bxNum()!=bx)
       continue;
+
+    if ((stub->scNum()==nextSector_ && stub->phi()>=111)||(stub->scNum()==previousSector_ && stub->phi()<=-112))
+      continue;
     
     if (stub->whNum()==wheel_  && stub->scNum()==sector_) {
       seeds.push_back(stub);

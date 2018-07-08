@@ -30,7 +30,6 @@ class L1TMuonBarrelKalmanAlgo {
 
 
   L1MuKBMTrackCollection cleanAndSort(const L1MuKBMTrackCollection&,uint);
-  void resolveEtaUnit(L1MuKBMTrackCollection&);
   void addBMTFMuon(int,const L1MuKBMTrack&,std::unique_ptr<l1t::RegionalMuonCandBxCollection>&);
   l1t::RegionalMuonCand  convertToBMTF(const L1MuKBMTrack& track); 
 
@@ -68,6 +67,8 @@ class L1TMuonBarrelKalmanAlgo {
   int fp_product(float,int, uint);
 
   uint etaStubRank(const L1MuKBMTCombinedStubRef&);
+
+  void calculateEta(L1MuKBMTrack& track);
 
 
   //LUT service
