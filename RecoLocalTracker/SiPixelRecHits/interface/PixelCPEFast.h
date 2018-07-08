@@ -3,15 +3,15 @@
 
 #include <utility>
 
+#include <cuda/api_wrappers.h>
+
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelGenError.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-
-#include <cuda/api_wrappers.h>
 
 class MagneticField;
 class PixelCPEFast final : public PixelCPEBase
@@ -29,10 +29,10 @@ public:
       // These are errors predicted by PIXELAV
       float sigmay; // CPE Generic y-error for multi-pixel cluster
       float sigmax; // CPE Generic x-error for multi-pixel cluster
-      float sy1   ; // CPE Generic y-error for single single-pixel
-      float sy2   ; // CPE Generic y-error for single double-pixel cluster
-      float sx1   ; // CPE Generic x-error for single single-pixel cluster
-      float sx2   ; // CPE Generic x-error for single double-pixel cluster
+      float sy1;    // CPE Generic y-error for single single-pixel
+      float sy2;    // CPE Generic y-error for single double-pixel cluster
+      float sx1;    // CPE Generic x-error for single single-pixel cluster
+      float sx2;    // CPE Generic x-error for single double-pixel cluster
       
    };
    
@@ -69,9 +69,9 @@ private:
    float EdgeClusterErrorX_;
    float EdgeClusterErrorY_;
    
-   std::vector<float> xerr_barrel_l1_,yerr_barrel_l1_,xerr_barrel_ln_;
-   std::vector<float> yerr_barrel_ln_,xerr_endcap_,yerr_endcap_;
-   float xerr_barrel_l1_def_, yerr_barrel_l1_def_,xerr_barrel_ln_def_;
+   std::vector<float> xerr_barrel_l1_,  yerr_barrel_l1_,  xerr_barrel_ln_;
+   std::vector<float> yerr_barrel_ln_,  xerr_endcap_,  yerr_endcap_;
+   float xerr_barrel_l1_def_, yerr_barrel_l1_def_,  xerr_barrel_ln_def_;
    float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
    
    //--- DB Error Parametrization object, new light templates 
