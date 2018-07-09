@@ -243,6 +243,11 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlineP
 firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone()
 firstStepPrimaryVerticesUnsorted.TrackLabel = cms.InputTag("initialStepTracks")
 firstStepPrimaryVerticesUnsorted.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(firstStepPrimaryVerticesUnsorted, TkFilterParameters = dict(trackQuality = "any"))
+
 # we need a replacment for the firstStepPrimaryVerticesUnsorted
 # that includes tracker information of signal and pile up
 # after mixing there is no such thing as initialStepTracks,

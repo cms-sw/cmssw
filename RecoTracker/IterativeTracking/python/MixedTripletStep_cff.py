@@ -93,15 +93,21 @@ mixedTripletStepTrackingRegionsA = _mixedTripletStepTrackingRegionsCommon.clone(
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(mixedTripletStepTrackingRegionsA, 
-                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-                fixedError = 3.75,
-                ptMin = 0.4,
-                originRadius = 1.5
+_mixedTripletStepTrackingRegionsCommon_pp_on_HI = _globalTrackingRegionWithVertices.clone(
+                RegionPSet=dict(
+                    fixedError = 3.75,
+                    ptMin = 0.4,
+                    originRadius = 1.5,
+                    originRScaling4BigEvts = True,
+                    ptMinScaling4BigEvts= True,
+                    minOriginR = 0.,
+                    maxPtMin = 0.7,
+                    scalingStartNPix = 20000,
+                    scalingEndNPix = 35000
                 )
-                                                                      )
 )
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(mixedTripletStepTrackingRegionsA,_mixedTripletStepTrackingRegionsCommon_pp_on_HI)
+
 
 # seeding
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
@@ -172,14 +178,12 @@ trackingPhase1.toModify(mixedTripletStepSeedLayersB, layerList = ['BPix3+BPix4+T
 
 # TrackingRegion
 mixedTripletStepTrackingRegionsB = _mixedTripletStepTrackingRegionsCommon.clone(RegionPSet = dict(ptMin=0.6, originHalfLength=10.0))
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(mixedTripletStepTrackingRegionsB, 
-                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-                fixedError = 2.5,
-                ptMin = 0.6,
-                originRadius = 1.5
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(mixedTripletStepTrackingRegionsB, 
+                _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet=dict(
+                    fixedError = 2.5,
+                    ptMin = 0.6,
                 )
-                                                                      )
+           )
 )
 highBetaStar_2018.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsCommon.clone())
 
