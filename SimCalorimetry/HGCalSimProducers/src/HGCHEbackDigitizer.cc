@@ -106,3 +106,4 @@ HGCHEbackDigitizer<DFr>::~HGCHEbackDigitizer()
 //explicit instantiations
 template class HGCHEbackDigitizer<HGCBHDataFrame>;
 template class HGCHEbackDigitizer<HGCHEDataFrame>;
+template class HGCHEbackDigitizer<HGCalDataFrame>;
