@@ -142,3 +142,49 @@ def L1TGtStage2ComparisonRAWvsEMU(process):
     process.l1tgtstage2comparison = cms.Path(process.l1tComparisonGtStage2RAWvsEMU)
     process.schedule.append(process.l1tgtstage2comparison)
     return process
+
+def DropDepricatedProducts(process):
+    print "INPUT SOURCE: dropping products depricated from CMSSW_9_4_X on."
+    print "drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_HLT"
+    print "drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT"
+    print "drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT"
+    print "drop l1tEMTFHit2016s_simEmtfDigis__HLT"
+    print "drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT"
+    print "drop l1tEMTFTrack2016s_simEmtfDigis__HLT"
+    process.source.inputCommands = cms.untracked.vstring("keep *" 
+        ,"drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_HLT"
+        ,"drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT"
+        ,"drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT"
+        ,"drop l1tEMTFHit2016s_simEmtfDigis__HLT"
+        ,"drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT"
+        ,"drop l1tEMTFTrack2016s_simEmtfDigis__HLT"
+    )
+    return process
+
+def DropOutputProducts(process):
+    print "OutputModule: dropping products."
+    print "drop TrackingParticles_mix_MergedTrackTruth_*"
+    print "drop PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_Tracker_*"
+    print "drop TrackingVertexs_mix_MergedTrackTruth_*"
+    process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('keep *' 
+              ,'drop TrackingParticles_mix_MergedTrackTruth_*'
+              ,'drop PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_Tracker_*'
+              ,'drop TrackingVertexs_mix_MergedTrackTruth_*'
+    )
+    return process
+
+def L1TrackTriggerTracklet(process):
+    print "L1T INFO:  run the L1TrackStep with Tracklet."
+    process.load('L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff')
+    process.L1TrackTriggerTracklet_step = cms.Path(process.L1TrackletTracksWithAssociators)
+    process.schedule.insert(2,process.L1TrackTriggerTracklet_step)
+    return process
+
+def L1TrackTriggerTMTT(process):
+    print "L1T INFO:  run the L1TrackStep with TMTT."
+    process.load('TMTrackTrigger.TMTrackFinder.TMTrackProducer_Ultimate_cff')
+    process.TMTrackProducer.EnableMCtruth = cms.bool(False)
+    process.TMTrackProducer.EnableHistos    = cms.bool(False)
+    process.L1TrackTriggerTMTT_step = cms.Path(process.TMTrackProducer)
+    process.schedule.insert(2,process.L1TrackTriggerTMTT_step)
+    return process
