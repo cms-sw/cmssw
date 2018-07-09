@@ -524,7 +524,7 @@ class CrabTask:
             #try it once more
             time.sleep(2)
             self.state , self.jobs,self.failureReason = controller.status(self.crab_folder)
-        self.nJobs = len(self.jobs.keys())
+        self.nJobs = len(self.jobs)
         self.updateJobStats()
         if self.state == "NOSTATE":
             self.log.debug( "Trying to resubmit because of NOSTATE" )
