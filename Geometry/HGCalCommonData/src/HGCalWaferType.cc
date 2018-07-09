@@ -45,8 +45,8 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   std::vector<int>         fine, coarse;
   for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
     double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
-    if      (rpos <= rv.first)  fine.push_back(k);
-    else if (rpos <= rv.second) coarse.push_back(k);
+    if      (rpos <= rv.first)  fine.emplace_back(k);
+    else if (rpos <= rv.second) coarse.emplace_back(k);
   }
   int    type(-2);
   double fracArea(0);
@@ -107,11 +107,13 @@ std::pair<double,double> HGCalWaferType::rLimits(double zpos) {
 double HGCalWaferType::areaPolygon(std::vector<double> const& x,
 				   std::vector<double> const& y) {
   double area = 0.0;
-  for (unsigned int k1=0; k1<x.size(); ++k1) {
-    unsigned int k2 = (k1 == x.size()-1) ? 0 : k1+1;
-    area += 0.5*(x[k1]*y[k2]-x[k2]*y[k1]);
+  int n = x.size();
+  int j = n-1;
+  for (int i=0; i<n; ++i) {
+    area += ((x[j]+x[i])*(y[i]-y[j]));
+    j     = i;
   }
-  return area;
+  return (0.5*area);
 }
 
 std::pair<double,double> HGCalWaferType::intersection(int k1, int k2, 
