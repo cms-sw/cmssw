@@ -13,13 +13,13 @@ process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltB
 
 process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/FE7C783A-9F7F-E811-B920-0CC47A7452D8.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/6247ABC0-9E7F-E811-BEF3-0CC47A7C354A.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/52F6F6B2-9E7F-E811-8EDD-0CC47A7C356A.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/BADE38B2-9E7F-E811-9C9C-0CC47A78A426.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/6A31CAC8-9E7F-E811-ABB7-0025905A48FC.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/F8348CC5-9E7F-E811-8198-0025905A6080.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_1_7/RelValTTbar_13/GEN-SIM-DIGI-RAW/101X_upgrade2018_realistic_HEmiss_v1-v1/10000/3295A9B8-9E7F-E811-A7EF-0025905A48E4.root'
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/103778EC-A27B-E811-8D04-0CC47A4D76AA.root',
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/6C1229C7-A37B-E811-892F-0025905B860C.root',
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/1E0840F2-A57B-E811-999A-0CC47A4D76AA.root',
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/80244DCF-A67B-E811-AA38-0CC47A78A3EE.root',
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/B2F774FD-A57B-E811-B7DE-0025905B860C.root',
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/DCA784B2-A77B-E811-8D49-0CC47A4D7698.root',
+'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/B2CC07B7-A77B-E811-AC18-0025905B8562.root'
 
 )
 #	fileNames = cms.untracked.vstring("file:RelVal750pre3.root")
