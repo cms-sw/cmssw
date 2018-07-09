@@ -24,7 +24,7 @@ class HFNoseDetId : public DetId {
 
 public:
 
-  enum waferType {HFNoseFine=0, HFNoseCoarseThin=1, HFNoseCoarseThick=2};
+  enum hfNoseWaferType {HFNoseFine=0, HFNoseCoarseThin=1, HFNoseCoarseThick=2};
   static const int HFNoseFineN  =12;
   static const int HFNoseCoarseN=8;
   static const int HFNoseFineTrigger  =3;
@@ -82,15 +82,15 @@ public:
   std::pair<int,int> waferXY() const { return std::pair<int,int>(waferX(),waferY()); }
 
   /// consistency check : no bits left => no overhead
-  bool isEE()      const { return (layer() <= maxHFNoseLayerEE); }
-  bool isHE()      const { return (layer() >  maxHFNoseLayerEE); }
+  bool isEE()      const { return (layer() <= kHFNoseLayerEEmax); }
+  bool isHE()      const { return (layer() >  kHFNoseLayerEEmax); }
   bool isForward() const { return true; }
   
   static const HFNoseDetId Undefined;
 
 private:
 
-  static const int maxHFNoseLayerEE        = 6;
+  static const int kHFNoseLayerEEmax       = 6;
   static const int kHFNoseCellUOffset      = 0;
   static const int kHFNoseCellUMask        = 0x1F;
   static const int kHFNoseCellVOffset      = 5;
