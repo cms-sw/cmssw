@@ -109,9 +109,9 @@ from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
 phase2_SimL1Emulator += L1TkElectrons
 phase2_SimL1Emulator += L1TkIsoElectrons
 phase2_SimL1Emulator += L1TkPhotons
+phase2_SimL1Emulator += L1TkPrimaryVertex
 phase2_SimL1Emulator += L1TkCaloJets
 phase2_SimL1Emulator += L1TrackerJets
-phase2_SimL1Emulator += L1TkPrimaryVertex
 phase2_SimL1Emulator += L1TrackerEtMiss
 phase2_SimL1Emulator += L1TkCaloHTMissVtx
 phase2_SimL1Emulator += L1TrackerHTMiss

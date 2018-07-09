@@ -13,7 +13,7 @@ from L1Trigger.L1TTrackMatch.L1TrackerJetProducer_cfi import L1TrackerJets
 pL1TrackerJets = cms.Path( L1TrackerJets)
 
 from L1Trigger.L1TTrackMatch.L1TkCaloJetProducer_cfi import L1TkCaloJets
-pL1TkCaloJets = cms.Path( L1TrkCaloJets)
+pL1TkCaloJets = cms.Path( L1TkCaloJets)
 
 from L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi import L1TkPrimaryVertex
 pL1TkPrimaryVertex = cms.Path( L1TkPrimaryVertex )
