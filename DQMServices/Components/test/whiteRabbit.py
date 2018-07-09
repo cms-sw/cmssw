@@ -40,7 +40,7 @@ class FWJRParser:
                 continue
             m = re.match('(.*?)_(.*)', node.nodeName)
             if m:
-                if len(result.keys()) >= 1 and m.group(1) not in result.keys():
+                if len(result) >= 1 and m.group(1) not in result.keys():
                     result[subsys] += '}'
                 subsys = m.group(1)
                 if subsys not in result.keys():

@@ -558,13 +558,13 @@ class VarParsing (object):
         formInfo = "  %%%ds  - %%s" % (maxLen - 2)
         formItem = "  %%%ds    %%s" % (maxLen - 1)
         retval = ""
-        if len (self._singletons.keys()):
+        if len (self._singletons):
             retval = retval + "Singletons:\n"
         for varName, value in sorted (six.iteritems(self._singletons)):
             retval = retval + form % (varName, value) + "\n";
             if self._info.get(varName):
                 retval = retval + formInfo % ('', self._info[varName]) + "\n"
-        if len (self._singletons.keys()):
+        if len (self._singletons):
             retval = retval +  "Lists:\n"
         for varName, value in sorted (six.iteritems(self._lists)):
             stringValue = "%s" % value

@@ -568,7 +568,7 @@ class visitor:
       d = getParamSeqDict(getParameters(modObj.parameters_()),
                           filename, specific, modObj.type_())
       theS='"%s":%s'
-      if(len(self._modulesToPaths.keys()) > 1): theS=","+theS
+      if(len(self._modulesToPaths) > 1): theS=","+theS
       dataFile.write(theS%(name, JSONFormat(d))) 
     else:
       #oldMods.append(name) 
