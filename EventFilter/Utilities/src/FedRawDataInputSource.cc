@@ -136,6 +136,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     cms::Exception("FedRawDataInputSource") << "EvFDaqDirector not found";
 
   useFileService_ = daqDirector_->useFileService();
+  if (useFileService_)
+    edm::LogInfo("FedRawDataInputSource") << "EvFDaqDirector/Source configured to use file service";
   //set DaqDirector to delete files in preGlobalEndLumi callback
   daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
   if (fms_) {
@@ -962,7 +964,7 @@ void FedRawDataInputSource::readSupervisor()
       if (useFileService_) rawFile = nextFile;
       else {
         boost::filesystem::path rawFilePath(nextFile);
-        std::string rawFile = rawFilePath.replace_extension(".raw").string();
+        rawFile = rawFilePath.replace_extension(".raw").string();
       }
 
       struct stat st;

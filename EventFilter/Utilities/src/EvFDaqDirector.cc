@@ -910,7 +910,6 @@ namespace evf {
     flock(fulocal_rwlock_fd2_,LOCK_UN);
   }
 
-
   void EvFDaqDirector::createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const
   {
     //used for backpressure mechanisms and monitoring
@@ -922,7 +921,6 @@ namespace evf {
     }
   }
 
-  //TODO:loop over lumisections
   void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS) const {
     if ( currentLumiSection > 0) {
       const std::string fuEoLS =
@@ -930,17 +928,15 @@ namespace evf {
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
-        //! daqDirector_->lockFULocal2();
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
         if (doCreateBoLS) createBoLSFile(lumiSection,false);
-        //! daqDirector_->unlockFULocal2();
       }
     }
     else if (doCreateBoLS) createBoLSFile(lumiSection,true);//needed for initial lumisection
   }
 
-  int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson)
+  int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool unlock)
   {
     std::string data;
     try {
@@ -966,7 +962,7 @@ namespace evf {
         sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
-      unlockFULocal();
+      if (unlock) unlockFULocal();
 
       try {
         //sometimes this fails but file gets deleted
@@ -1042,13 +1038,13 @@ namespace evf {
     catch (const boost::filesystem::filesystem_error& ex)
     {
       // Input dir gone?
-      unlockFULocal();
+      if (unlock) unlockFULocal();
       edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
     }
     catch (std::runtime_error e)
     {
       // Another process grabbed the file and NFS did not register this
-      unlockFULocal();
+      if (unlock) unlockFULocal();
       edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - runtime Exception -: " << e.what();
     }
 
@@ -1060,7 +1056,7 @@ namespace evf {
     catch (std::exception e)
     {
       // BU run directory disappeared?
-      unlockFULocal();
+      if (unlock) unlockFULocal();
       edm::LogError("FedRawDataInputSource") << "grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! -: " << e.what();
     }
 
@@ -1161,6 +1157,9 @@ namespace evf {
         }
 
         //check that response run number if correct
+        auto server_version = serverMap.find("version");
+        assert(server_version!=serverMap.end());
+
         auto server_run = serverMap.find("runnumber");
         assert(server_run!=serverMap.end());
         assert(run_nstring_==server_run->second);
@@ -1172,6 +1171,8 @@ namespace evf {
         assert(server_eols!=serverMap.end());
 
         auto server_ls = serverMap.find("lumisection");
+
+        //std::cout << " state " << server_state-> second << " seols " << server_eols->second; 
 
         closedServerLS = (uint64_t)std::max(0,atoi(server_eols->second.c_str()));
         if (server_ls!=serverMap.end())
@@ -1202,6 +1203,7 @@ namespace evf {
                   filestem = server_file->second.substr(1,ssize-2);
                 else
                   filestem = server_file->second;
+                filestem = bu_run_dir_+"/"+filestem;
                 assert(!filestem.empty());
                 nextFileJson=filestem+".jsn";
                 nextFileRaw=filestem+".raw";
@@ -1221,9 +1223,15 @@ namespace evf {
         }
         else if (s_state=="ERROR") {
             //TODO: special state for no directory
-            edm::LogWarning("EvFDaqDirector") << "Server error -:" << server_state->second;
-            fileStatus=noFile;
-	    serverError=true;
+            auto err_msg = serverMap.find("errormessage");
+            if (err_msg!=serverMap.end())
+              edm::LogWarning("EvFDaqDirector") << "Server error -:" << server_state->second << " : " << err_msg->second;
+            else
+              edm::LogWarning("EvFDaqDirector") << "Server error -:" << server_state->second;
+            edm::LogWarning("EvFDaqDirector") << "executing run end";
+            fileStatus=runEnded;
+            //fileStatus=noFile;
+	    //serverError=true;
         }
         else {
             edm::LogWarning("EvFDaqDirector") << "Unknown Server state -:" << server_state->second;
@@ -1311,28 +1319,29 @@ namespace evf {
     gettimeofday(&ts_lockbegin,nullptr);
 
     //local lock to force index json and EoLS files to appear in order
-    lockFULocal();
+    lockFULocal2();
 
     std::string nextFileJson;
     uint32_t serverLS, closedServerLS;
     unsigned int serverHttpStatus;
     bool serverError;
 
-    int maxLS = stopFileLS >= 0 ? -1: std::max(stopFileLS,(int)currentLumiSection);
+    int maxLS = stopFileLS < 0 ? -1: std::max(stopFileLS,(int)currentLumiSection);
     fileStatus = contactFileService(serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, maxLS);
 
     if (serverError) {
       //do not update anything
-      unlockFULocal();
+      unlockFULocal2();
       return noFile;
     }
 
     //TODO: parse server error status
 
     if (fileStatus == newFile)
-      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson);
+      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,false);
 
     //first execution, allowed to skip to last reported LS (create BoLS file only)
+    //std::cout << currentLumiSection << " "  << serverLS << " " << closedServerLS  << std::endl;
     if (currentLumiSection==0) {
         if (fileStatus == runEnded) {
           createLumiSectionFiles(closedServerLS,0);
@@ -1342,16 +1351,19 @@ namespace evf {
           createLumiSectionFiles(serverLS,0);
     } else {
         //loop over and create any EoLS files missing
-        if (serverLS>currentLumiSection)
-          for (uint32_t i=currentLumiSection+1;i<=serverLS;i++) 
-            createLumiSectionFiles(i,i-1);
+        if (closedServerLS>=currentLumiSection) {
+          //if (fileStatus != newFile) //test
+          //  sleep(5);
+          for (uint32_t i=std::max(currentLumiSection,1U);i<=closedServerLS;i++) 
+            createLumiSectionFiles(i+1,i);
+          }
     }
 
     //can unlock because all files have been created locally
-    unlockFULocal();
+    unlockFULocal2();
 
     if (fileStatus==runEnded)
-      ls = std::max(currentLumiSection,closedServerLS);
+      ls = std::max(currentLumiSection,serverLS);
     else if (fileStatus==newFile) {
       assert(serverLS>=ls);
       ls = serverLS;
