@@ -329,8 +329,8 @@ PixelResolutionHistograms( const char * filename,
       //
       tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
       if ( !tmphist ) {
-	LOGERROR << "Failed to find histogram=" << std::string( histo );
 	if ( !ignore_single ) {
+	  LOGERROR << "Failed to find histogram=" << std::string( histo );
 	  status_ = 4;
 	  return;
 	}
@@ -353,8 +353,8 @@ PixelResolutionHistograms( const char * filename,
       //
       tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
       if ( !tmphist ) {
-	LOGERROR << "Failed to find histogram=" << std::string( histo );
 	if ( !ignore_single ) {
+	  LOGERROR << "Failed to find histogram=" << std::string( histo );
 	  status_ = 5;
 	  return;
 	}
@@ -376,8 +376,8 @@ PixelResolutionHistograms( const char * filename,
       //
       tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
       if ( !tmphist ) {
-	LOGERROR << "Failed to find histogram=" << std::string( histo );
 	if ( !ignore_qBin ) {
+	  LOGERROR << "Failed to find histogram=" << std::string( histo );
 	  status_ = 6;
 	  return;
 	}
