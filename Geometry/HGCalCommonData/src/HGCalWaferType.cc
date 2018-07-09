@@ -68,14 +68,12 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
 	bool ok = ((type == -1) ?
 		   (std::find(fine.begin(),fine.end(),k2) != fine.end()) :
 		   (std::find(coarse.begin(),coarse.end(),k2) != coarse.end()));
+	xcn.emplace_back(xc[k1]); ycn.emplace_back(yc[k1]);
 	if (!ok) {
-	  xcn.emplace_back(xc[k1]); ycn.emplace_back(yc[k1]);
 	  double rr = (type == -1) ? rv.first : rv.second;
 	  std::pair<double,double> xy = intersection(k1, k2, xc, yc, xpos, 
 						     ypos, rr);
 	  xcn.emplace_back(xy.first); ycn.emplace_back(xy.second);
-	} else {
-	  xcn.emplace_back(xc[k1]); ycn.emplace_back(yc[k1]);
 	}
       }
       fracArea = areaPolygon(xcn,ycn)/areaPolygon(xc,yc);
