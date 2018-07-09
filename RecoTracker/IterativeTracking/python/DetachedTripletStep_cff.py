@@ -51,12 +51,11 @@ trackingPhase1.toModify(detachedTripletStepTrackingRegions, RegionPSet = dict(pt
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(detachedTripletStepTrackingRegions, 
-                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-                fixedError = 3.0,
-                ptMin = 0.8,
-                originRadius = 1.5
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(detachedTripletStepTrackingRegions, 
+                _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                    fixedError = 2.5,
+                    ptMin = 0.9,
+                    originRadius = 1.5
                 )
                                                                       )
 )
