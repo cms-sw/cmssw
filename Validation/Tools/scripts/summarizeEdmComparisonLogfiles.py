@@ -16,7 +16,7 @@ def summaryOK (summary):
     retval = True
     count    = -1
     compared = summary.get('eventsCompared', -1)
-    if len( summary.keys()) != 2:
+    if len( summary) != 2:
         retval = False
     for key,value in six.iteritems(summary):
         if countRE.search(key):

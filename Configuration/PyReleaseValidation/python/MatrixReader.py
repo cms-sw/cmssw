@@ -112,7 +112,7 @@ class MatrixReader(object):
     
     def makeStep(self,step,overrides):
         from Configuration.PyReleaseValidation.relval_steps import merge
-        if len(overrides.keys()) > 0:
+        if len(overrides) > 0:
             copyStep=merge([overrides]+[step])
             return copyStep
         else:    
@@ -321,7 +321,7 @@ class MatrixReader(object):
             dataFileName = matrixFile.replace('relval_', 'cmsDriver_')+'_hlt.txt'
             outFile = open(dataFileName,'w')
 
-            print "found ", len(self.workFlowSteps.keys()), ' workflows for ', dataFileName
+            print "found ", len(self.workFlowSteps), ' workflows for ', dataFileName
             ids = sorted(self.workFlowSteps.keys())
             indexAndSteps=[]
 
