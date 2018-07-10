@@ -51,8 +51,8 @@ class L1TrackerJetProducer : public edm::EDProducer
 {
 public:
 
-   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
-   typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
+  typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
+  typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
 
   explicit L1TrackerJetProducer(const edm::ParameterSet&);
   ~L1TrackerJetProducer();
@@ -92,8 +92,8 @@ private:
 //////////////
 // constructor
 L1TrackerJetProducer::L1TrackerJetProducer(const edm::ParameterSet& iConfig) :
-  trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-   PVertexToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag")))
+trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+PVertexToken(consumes<L1TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag")))
 {
 
   produces<L1TkJetParticleCollection>("L1TrackerJets");
@@ -104,6 +104,7 @@ L1TrackerJetProducer::L1TrackerJetProducer(const edm::ParameterSet& iConfig) :
   TRK_ETAMAX  = (float)iConfig.getParameter<double>("TRK_ETAMAX");
   TRK_NSTUBMIN   = (unsigned int)iConfig.getParameter<int>("TRK_NSTUBMIN");
   TRK_NSTUBPSMIN = (int)iConfig.getParameter<int>("TRK_NSTUBPSMIN");
+  DeltaZ0Cut =(float)iConfig.getParameter<double>("DeltaZ0Cut");
   CONESize =(float)iConfig.getParameter<double>("CONESize");
   doPtComp     = iConfig.getParameter<bool>("doPtComp");
   doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
@@ -119,8 +120,6 @@ L1TrackerJetProducer::~L1TrackerJetProducer() {
 // producer
 void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-
   // ----------------------------------------------------------------------------------------------
   // output container
   // ----------------------------------------------------------------------------------------------
@@ -131,7 +130,7 @@ void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // ----------------------------------------------------------------------------------------------
   // retrieve input containers
   // ----------------------------------------------------------------------------------------------
-     // L1 tracks
+  // L1 tracks
   edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackHandle;
   iEvent.getByToken(trackToken, TTTrackHandle);
   std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterL1Track;
@@ -144,57 +143,58 @@ void L1TrackerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(PVertexToken, L1TkPrimaryVertexHandle);
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, CONESize);
   std::vector<fastjet::PseudoJet>  JetInputs;
+
   unsigned int this_l1track = 0;
   for ( iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++ ) {
-	++this_l1track;
-	if(fabs(iterL1Track->getPOCA(L1Tk_nPar).z())>TRK_ZMAX)continue;
-	if(fabs(iterL1Track->getMomentum(L1Tk_nPar).eta())>TRK_ETAMAX)continue;
-	if(iterL1Track->getMomentum(L1Tk_nPar).perp()<TRK_PTMIN)continue;
-	if(iterL1Track->getChi2()>TRK_CHI2MAX)continue;
-        std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterL1Track -> getStubRefs() ;	  if(theStubs.size()<TRK_NSTUBMIN)continue;
-        float chi2ndof=(iterL1Track->getChi2()/(2*theStubs.size() - L1Tk_nPar));
-	if(doTightChi2 && (iterL1Track->getMomentum(L1Tk_nPar).perp()>20 && chi2ndof>5))continue;
-        int tmp_trk_nstubPS = 0;
-        for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
-          DetId detId( theStubs.at(istub)->getDetId() );
-          bool tmp_isPS = false;
-          if (detId.det() == DetId::Detector::Tracker) {
-            if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)     tmp_isPS = true;
-            else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9) tmp_isPS = true;
-          }
-          if (tmp_isPS) tmp_trk_nstubPS++;
-        }
-	if(tmp_trk_nstubPS<TRK_NSTUBPSMIN)continue;
-	double DeltaZtoVtx=fabs(L1TkPrimaryVertexHandle->begin()->getZvertex()-iterL1Track->getPOCA(L1Tk_nPar).z());
-	if(DeltaZtoVtx>DeltaZ0Cut)continue;
-        fastjet::PseudoJet psuedoJet(iterL1Track->getMomentum().x(), iterL1Track->getMomentum().y(), iterL1Track->getMomentum().z(), iterL1Track->getMomentum().mag());
-	JetInputs.push_back(psuedoJet);	//input tracks for clustering
-	JetInputs.back().set_user_index(this_l1track-1);//save track index in the collection
-}
-       fastjet::ClusterSequence cs(JetInputs,jet_def);//define the output jet collection
-       std::vector<fastjet::PseudoJet> JetOutputs=fastjet::sorted_by_pt(cs.inclusive_jets(0));//Output Jet ollection pTOrdered
-       for (unsigned int ijet=0;ijet<JetOutputs.size();++ijet) {
-		math::XYZTLorentzVector jetP4(JetOutputs[ijet].px(),JetOutputs[ijet].py(),JetOutputs[ijet].pz(),JetOutputs[ijet].modp());
-		float sumpt=0;
-		float avgZ=0;
-		std::vector< edm::Ptr< L1TTTrackType > > L1TrackPtrs;
-	 	std::vector<fastjet::PseudoJet> fjConstituents =fastjet::sorted_by_pt(cs.constituents(JetOutputs[ijet]));
-		for(unsigned int i=0; i<fjConstituents.size(); ++i){
-                	auto index =fjConstituents[i].user_index();
-			edm::Ptr< L1TTTrackType > trkPtr(TTTrackHandle, index) ;
-			L1TrackPtrs.push_back(trkPtr); //L1Tracks in the jet
-			sumpt=sumpt+trkPtr->getMomentum().perp();
-			avgZ=avgZ+trkPtr->getMomentum().perp()*trkPtr->getPOCA(L1Tk_nPar).z();
-		}
-		avgZ=avgZ/sumpt;
-		edm::Ref< JetBxCollection > jetRef ;
-   		L1TkJetParticle trkJet(jetP4, jetRef, L1TrackPtrs, avgZ);
+    ++this_l1track;
+    if(fabs(iterL1Track->getPOCA(L1Tk_nPar).z())>TRK_ZMAX)continue;
+    if(fabs(iterL1Track->getMomentum(L1Tk_nPar).eta())>TRK_ETAMAX)continue;
+    if(iterL1Track->getMomentum(L1Tk_nPar).perp()<TRK_PTMIN)continue;
+    if(iterL1Track->getChi2()>TRK_CHI2MAX)continue;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterL1Track -> getStubRefs() ;	  if(theStubs.size()<TRK_NSTUBMIN)continue;
+    float chi2ndof=(iterL1Track->getChi2()/(2*theStubs.size() - L1Tk_nPar));
+    if(doTightChi2 && (iterL1Track->getMomentum(L1Tk_nPar).perp()>20 && chi2ndof>5))continue;
+    int tmp_trk_nstubPS = 0;
+    for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
+      DetId detId( theStubs.at(istub)->getDetId() );
+      bool tmp_isPS = false;
+      if (detId.det() == DetId::Detector::Tracker) {
+        if (detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3)     tmp_isPS = true;
+        else if (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9) tmp_isPS = true;
+      }
+      if (tmp_isPS) tmp_trk_nstubPS++;
+    }
+    if(tmp_trk_nstubPS<TRK_NSTUBPSMIN)continue;
+    double DeltaZtoVtx=fabs(L1TkPrimaryVertexHandle->begin()->getZvertex()-iterL1Track->getPOCA(L1Tk_nPar).z());
+    if(DeltaZtoVtx>DeltaZ0Cut)continue;
 
-      	L1TrackerJets->push_back(trkJet);
+    fastjet::PseudoJet psuedoJet(iterL1Track->getMomentum().x(), iterL1Track->getMomentum().y(), iterL1Track->getMomentum().z(), iterL1Track->getMomentum().mag());
+    JetInputs.push_back(psuedoJet);	//input tracks for clustering
+    JetInputs.back().set_user_index(this_l1track-1);//save track index in the collection
+  }
+  fastjet::ClusterSequence cs(JetInputs,jet_def);//define the output jet collection
+  std::vector<fastjet::PseudoJet> JetOutputs=fastjet::sorted_by_pt(cs.inclusive_jets(0));//Output Jet ollection pTOrdered
 
+  for (unsigned int ijet=0;ijet<JetOutputs.size();++ijet) {
+    math::XYZTLorentzVector jetP4(JetOutputs[ijet].px(),JetOutputs[ijet].py(),JetOutputs[ijet].pz(),JetOutputs[ijet].modp());
+    float sumpt=0;
+    float avgZ=0;
+    std::vector< edm::Ptr< L1TTTrackType > > L1TrackPtrs;
+    std::vector<fastjet::PseudoJet> fjConstituents =fastjet::sorted_by_pt(cs.constituents(JetOutputs[ijet]));
 
-	}
+    for(unsigned int i=0; i<fjConstituents.size(); ++i){
+      auto index =fjConstituents[i].user_index();
+      edm::Ptr< L1TTTrackType > trkPtr(TTTrackHandle, index) ;
+      L1TrackPtrs.push_back(trkPtr); //L1Tracks in the jet
+      sumpt=sumpt+trkPtr->getMomentum().perp();
+      avgZ=avgZ+trkPtr->getMomentum().perp()*trkPtr->getPOCA(L1Tk_nPar).z();
+    }
+    avgZ=avgZ/sumpt;
+    edm::Ref< JetBxCollection > jetRef ;
+    L1TkJetParticle trkJet(jetP4, jetRef, L1TrackPtrs, avgZ);
+    L1TrackerJets->push_back(trkJet);
 
+  }
 
 
   iEvent.put( std::move(L1TrackerJets), "L1TrackerJets");
