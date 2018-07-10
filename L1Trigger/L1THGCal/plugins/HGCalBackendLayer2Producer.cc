@@ -26,7 +26,7 @@ class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {
   virtual void beginRun(const edm::Run&, 
                         const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  private:
   // inputs
   edm::EDGetToken input_clusters_;
@@ -50,9 +50,9 @@ HGCalBackendLayer2Producer(const edm::ParameterSet& conf):
   produces<l1t::HGCalMulticlusterBxCollection>(backendProcess_->name());
 }
 
-void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/, 
+void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/,
                                           const edm::EventSetup& es) 
-{				  
+{                 
   es.get<CaloGeometryRecord>().get("",triggerGeometry_);
   backendProcess_->setGeometry(triggerGeometry_.product());
 }
@@ -61,15 +61,13 @@ void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& e
 {
   // Output collections
   std::unique_ptr<l1t::HGCalMulticlusterBxCollection> be_multicluster_output( new l1t::HGCalMulticlusterBxCollection );
-  
+
   // Input collections   
   edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;
-  
+
   e.getByToken(input_clusters_, trigCluster2DBxColl);
-  
-  const l1t::HGCalClusterBxCollection inputTrigCluster2DBxColl = *trigCluster2DBxColl;
-    
+      
   backendProcess_->run(trigCluster2DBxColl, *be_multicluster_output, es);
-  
+
   e.put(std::move(be_multicluster_output), backendProcess_->name());  
 }
