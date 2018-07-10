@@ -51,8 +51,8 @@ ntuple_digis = cms.PSet(
 
 ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
-    TriggerCells = cms.InputTag('hgcalConcentratorProducer:TriggerCells'),
-    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:cluster3D'),
+    TriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
@@ -66,14 +66,19 @@ ntuple_triggercells = cms.PSet(
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
-    Clusters = cms.InputTag('hgcalBackEndLayer1Producer:clusters'),
-    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:multiclusters'),
+    Clusters = cms.InputTag('hgcalBackEndLayer1Producer:HGCalBackendLayer1Processor2DClustering'),
+    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
     FilterClustersInMulticlusters = cms.bool(False)
 )
 
 ntuple_multicluster = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
-    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:multiclusters')
+    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering')
+)
+
+ntuple_tower = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCTowers'),
+    Towers = cms.InputTag('hgcalTowerProducer:HGCalTowerProcessor')
 )
 
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
@@ -86,7 +91,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_digis,
         ntuple_triggercells,
         ntuple_clusters,
-        ntuple_multicluster
-        #ntuple_tower
+        ntuple_multicluster,
+        ntuple_tower
     )
 )
