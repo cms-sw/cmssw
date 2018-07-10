@@ -120,6 +120,8 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Global parameters
     // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
     // --------------------------------------------------------------------------------------------------------
+    era_      = "Run2_2018";  // Era for CMSSW customization
+    bxWindow_ = 2;            // Number of BX whose primitives can be included in the same track
 
     // spTBParams16 : Sector processor track-building parameters
     // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
@@ -134,6 +136,10 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
+    thetaWindow_      = 8;     // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 4;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+    bugAmbigThetaWin_ = false; // Can allow dThetas outside window when there are 2 LCTs in the same chamber
+    twoStationSameBX_ = true;  // Requires the hits in two-station tracks to have the same BX
 
     // spGCParams16 : Sector processor ghost-cancellation parameters
     // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
@@ -143,14 +149,22 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ReadPtLUTFile(F), FixMode15HighPt(T), Bug9BitDPhi(F), BugMode7CLCT(F),
     //            BugNegPt(F), BugGMTPhi(F), PromoteMode7(F), ModeQualVer(2)
     // ---------------------------------------------------------------------------------
+    modeQualVer_ = 2;      // Version 2 contains modified mode-quality mapping for 2018
+    promoteMode7_ = false; // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
 
 
     // ___________________________________________________________________________
-    // Versions in 2018 - no documentation
-    // As of the beginning of 2018 EMTF O2O is broken, not updating the database with online conditions
-    // Firmware version reported for runs as late as April 30 is 1504018578 (Aug. 29, 2017) even though
-    //   updates occured in February and March of 2018.  Hopefully will fix soon, may need to re-write
-    //   history in the database. - AWB 30.04.18
+    // Versions in 2018 - no external documentation
+    // As of the beginning of 2018 EMTF O2O was broken, not updating the database with online conditions
+    // Firmware version reported for runs before 318841 (June 28) is 1504018578 (Aug. 29, 2017) even though
+    //   updates occured in February and March of 2018.  May need to re-write history in the database. - AWB 30.06.18
+
+    if (fw_version < 1529520380) {  // June 20, 2018
+      thetaWindowZone0_ = 8;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+      twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
+      modeQualVer_ = 1;          // Version 2 contains modified mode-quality mapping for 2018
+      promoteMode7_ = true;      // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
+    }
 
     return;
   }
