@@ -848,6 +848,8 @@ void FedRawDataInputSource::readSupervisor()
 
     int serverEventsInNewFile_=-1;
 
+    int backoff_exp=0;
+
     while (status == evf::EvFDaqDirector::noFile) {
       if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
 	stop=true;
@@ -951,8 +953,16 @@ void FedRawDataInputSource::readSupervisor()
         if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupNoFile);
 	dbgcount++;
 	if (!(dbgcount%20)) LogDebug("FedRawDataInputSource") << "No file for me... sleep and try again...";
-	usleep(100000);
+        if (!useFileService_) usleep(100000);
+        else {
+          backoff_exp = std::min(4,backoff_exp); // max 1.6 seconds
+          //backoff_exp=0; // disabled!
+          int sleeptime  = (int) (100000. * pow(2,backoff_exp));
+	  usleep(sleeptime);
+          backoff_exp++;
+	}
       }
+      else backoff_exp=0;
     }
     if ( status == evf::EvFDaqDirector::newFile ) {
       if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupNewFile);
