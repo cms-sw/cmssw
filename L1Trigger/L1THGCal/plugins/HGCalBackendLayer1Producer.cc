@@ -22,7 +22,7 @@ class HGCalBackendLayer1Producer : public edm::stream::EDProducer<> {
  public:    
   HGCalBackendLayer1Producer(const edm::ParameterSet&);
   ~HGCalBackendLayer1Producer() { }
-  
+
   virtual void beginRun(const edm::Run&, 
                         const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -40,7 +40,7 @@ DEFINE_FWK_MODULE(HGCalBackendLayer1Producer);
 HGCalBackendLayer1Producer::
 HGCalBackendLayer1Producer(const edm::ParameterSet& conf):
 input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells")))
-{   
+{
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
@@ -51,7 +51,7 @@ input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::I
 }
 
 void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/, 
-                                          const edm::EventSetup& es) {				  
+                                          const edm::EventSetup& es) {
   es.get<CaloGeometryRecord>().get("",triggerGeometry_);
   backendProcess_->setGeometry(triggerGeometry_.product());
 }
@@ -60,13 +60,11 @@ void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& e
 
   // Output collections
   std::unique_ptr<l1t::HGCalClusterBxCollection> be_cluster_output( new l1t::HGCalClusterBxCollection );
-    
+
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
-  
-  e.getByToken(input_cell_, trigCellBxColl);
 
-  const l1t::HGCalTriggerCellBxCollection inputTrigCellBxColl = *trigCellBxColl;
+  e.getByToken(input_cell_, trigCellBxColl);
  
   backendProcess_->run(trigCellBxColl, *be_cluster_output, es);
   

@@ -70,7 +70,7 @@ void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
 
   e.getByToken(input_cell_,trigCellBxColl);
-  
+
   concentratorProcess_->run(trigCellBxColl, *cc_trigcell_output, es);
 
   // Put in the event

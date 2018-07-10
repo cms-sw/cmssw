@@ -82,7 +82,7 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   vfeProcess_->run(ee_digis, HGCHEDigiCollection(), HGCBHDigiCollection(), *vfe_trigcell_output, es);         
   vfeProcess_->run(HGCEEDigiCollection(), fh_digis, HGCBHDigiCollection(), *vfe_trigcell_output, es);   
   vfeProcess_->run(HGCEEDigiCollection(), HGCHEDigiCollection(), bh_digis, *vfe_trigcell_output, es);   
-  
+
   // Put in the event  
   e.put(std::move(vfe_trigcell_output), vfeProcess_->name());
   // At the moment the HGCalTriggerSumsBxCollection is empty 
