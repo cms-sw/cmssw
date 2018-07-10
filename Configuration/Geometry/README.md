@@ -9,6 +9,8 @@ Tracker:
 * T8: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.2.1) (same as T6 but 25x100 in 1x2 modules, 100x100 in 2x2 modules)
 * T9: Same as T5, but with an increase of 20% of the material (stress test studies)
 * T10:Same as T5 but with an increase of 50% of the material (stress test studies) 
+* T11: Phase2 tilted tracker (v6.1.4) w/ phase 2 pixel (v4.0.5) (same as T6 but 50x50 in all modules)
+
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
 * C4  HGCal (v9) + Phase2 HCAL and EB
@@ -37,6 +39,7 @@ Several detector combinations have been generated:
 * D26 = T9+C3+M2+I1+C2+F2
 * D27 = T10+C3+M2+I1+O2+F2
 * D28 = T6+C4+M2+I1+O2+F2
+* D29 = T11+C3+M2+I1+O2+F2 
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
 
