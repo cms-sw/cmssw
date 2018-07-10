@@ -31,18 +31,20 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  std::string m_dqm_path;
+  const std::string m_dqm_path;
+  const bool        m_dqm_merge;
 
   void dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const &, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter) override;
 
 private:
-  void fillSummaryPlots(        DQMStore::IBooker & booker, DQMStore::IGetter & getter);
+  void fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::IGetter & getter);
 };
 
 
 ThroughputServiceClient::ThroughputServiceClient(edm::ParameterSet const & config) :
-  m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath" ) )
+  m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
+  m_dqm_merge(config.getUntrackedParameter<bool>("createSummary"))
 {
 }
 
@@ -74,13 +76,34 @@ ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::
       if (boost::regex_match(subdir, running_n_processes)) {
         if (getter.get(subdir + "/throughput_sourced"))
           // the plots are in a per-number-of-processes subfolder
-          folders.push_back(subdir + "/throughput_sourced");
+          folders.push_back(subdir);
       }
     }
   }
+  // create a summary folder if there are more than one
+  if (m_dqm_merge and folders.size() > 1) {
+    std::string summary_folder = m_dqm_path + "/Summary";
+    booker.setCurrentFolder(summary_folder);
+    // drop the summary histograms, if they exist
+    if (getter.get(summary_folder + "/throughput_sourced"))
+      getter.removeElement(summary_folder, "throughput_sourced", true);
+    if (getter.get(summary_folder + "/throughput_retired"))
+      getter.removeElement(summary_folder, "throughput_retired", true);
+    // clone the first set of histograms
+    auto folder = folders.begin();
+    TH1F * sourced = booker.book1D("throughput_sourced", getter.get(*folder + "/throughput_sourced")->getTH1F())->getTH1F();
+    TH1F * retired = booker.book1D("throughput_retired", getter.get(*folder + "/throughput_retired")->getTH1F())->getTH1F();
+    // add the other sets of histograms
+    for (++folder; folder != folders.end(); ++folder) {
+      sourced->Add(getter.get(*folder + "/throughput_sourced")->getTH1F());
+      retired->Add(getter.get(*folder + "/throughput_retired")->getTH1F());
+    }
+    // move the summary folder to the list
+    folders.push_back(std::move(summary_folder));
+  }
   for (auto const & folder: folders) {
-    TH1F * sourced = getter.get( folder + "/throughput_sourced" )->getTH1F();
-    TH1F * retired = getter.get( folder + "/throughput_retired" )->getTH1F();
+    TH1F * sourced = getter.get(folder + "/throughput_sourced")->getTH1F();
+    TH1F * retired = getter.get(folder + "/throughput_retired")->getTH1F();
     booker.setCurrentFolder(folder);
     unsigned int nbins = sourced->GetXaxis()->GetNbins();
     double       range = sourced->GetXaxis()->GetXmax();
@@ -94,16 +117,16 @@ ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::
     // from bin=0 (underflow) to bin=nbins+1 (overflow)
     for (unsigned int i = 0; i <= nbins+1; ++i) {
       sum += sourced->GetBinContent(i) - retired->GetBinContent(i);
-      concurrent->Fill( concurrent->GetXaxis()->GetBinCenter(i), sum );
+      concurrent->Fill(concurrent->GetXaxis()->GetBinCenter(i), sum);
     }
 
     TH1F* average = nullptr;    
     double avg_min = std::min(sourced->GetMinimum(0.), retired->GetMinimum(0.));
     double avg_max = std::max(sourced->GetMaximum(),   retired->GetMaximum());
     double width   = avg_max - avg_min;
-    avg_min = std::floor( avg_min - width * 0.2 );
+    avg_min = std::floor(avg_min - width * 0.2);
     if (avg_min < 0.) avg_min = 0.;
-    avg_max = std::ceil( avg_max + width * 0.2 );
+    avg_max = std::ceil(avg_max + width * 0.2);
     width = avg_max - avg_min;
 
     // drop .../average_sourced, if it exists
@@ -135,7 +158,8 @@ ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::
 void
 ThroughputServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>( "dqmPath", "HLT/Throughput" );
+  desc.addUntracked<std::string>("dqmPath", "HLT/Throughput");
+  desc.addUntracked<bool>("createSummary", true);
   descriptions.add("throughputServiceClient", desc);
 }
 

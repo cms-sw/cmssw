@@ -1,35 +1,35 @@
 // C++ headers
 #include <cmath>
-#include <limits>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <limits>
 #include <mutex>
-#include <string>
 #include <sstream>
-#include <unordered_set>
+#include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 // boost headers
 #include <boost/format.hpp>
 #include <boost/range/irange.hpp>
 
 // CMSSW headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/Common/interface/HLTPathStatus.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "HLTrigger/Timer/interface/FastTimerService.h"
+#include "FastTimerService.h"
 
 // local headers
 #include "memory_usage.h"
@@ -153,16 +153,24 @@ FastTimerService::AtomicResources::operator+(AtomicResources const& other) const
 
 // ResourcesPerModule
 
+FastTimerService::ResourcesPerModule::ResourcesPerModule() noexcept :
+  total(),
+  events(0),
+  has_acquire(false)
+{ }
+
 void
-FastTimerService::ResourcesPerModule::reset() {
+FastTimerService::ResourcesPerModule::reset() noexcept {
   total.reset();
   events = 0;
+  has_acquire = false;
 }
 
 FastTimerService::ResourcesPerModule &
 FastTimerService::ResourcesPerModule::operator+=(ResourcesPerModule const& other) {
   total  += other.total;
   events += other.events;
+  has_acquire = has_acquire or other.has_acquire;
   return *this;
 }
 
@@ -299,12 +307,12 @@ FastTimerService::ResourcesPerJob::operator+(ResourcesPerJob const& other) const
 
 // Measurement
 
-FastTimerService::Measurement::Measurement() {
+FastTimerService::Measurement::Measurement() noexcept {
   measure();
 }
 
 void
-FastTimerService::Measurement::measure() {
+FastTimerService::Measurement::measure() noexcept {
   #ifdef DEBUG_THREAD_CONCURRENCY
   id = std::this_thread::get_id();
   #endif // DEBUG_THREAD_CONCURRENCY
@@ -315,7 +323,7 @@ FastTimerService::Measurement::measure() {
 }
 
 void
-FastTimerService::Measurement::measure_and_store(Resources & store) {
+FastTimerService::Measurement::measure_and_store(Resources & store) noexcept {
   #ifdef DEBUG_THREAD_CONCURRENCY
   assert(std::this_thread::get_id() == id);
   #endif // DEBUG_THREAD_CONCURRENCY
@@ -334,7 +342,26 @@ FastTimerService::Measurement::measure_and_store(Resources & store) {
 }
 
 void
-FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) {
+FastTimerService::Measurement::measure_and_accumulate(Resources & store) noexcept {
+  #ifdef DEBUG_THREAD_CONCURRENCY
+  assert(std::this_thread::get_id() == id);
+  #endif // DEBUG_THREAD_CONCURRENCY
+  auto new_time_thread = boost::chrono::thread_clock::now();
+  auto new_time_real   = boost::chrono::high_resolution_clock::now();
+  auto new_allocated   = memory_usage::allocated();
+  auto new_deallocated = memory_usage::deallocated();
+  store.time_thread += new_time_thread - time_thread;
+  store.time_real   += new_time_real   - time_real;
+  store.allocated   += new_allocated   - allocated;
+  store.deallocated += new_deallocated - deallocated;
+  time_thread = new_time_thread;
+  time_real   = new_time_real;
+  allocated   = new_allocated;
+  deallocated = new_deallocated;
+}
+
+void
+FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) noexcept {
   #ifdef DEBUG_THREAD_CONCURRENCY
   assert(std::this_thread::get_id() == id);
   #endif // DEBUG_THREAD_CONCURRENCY
@@ -353,9 +380,6 @@ FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-FastTimerService::PlotsPerElement::PlotsPerElement()
-  = default;
 
 void
 FastTimerService::PlotsPerElement::book(
@@ -549,9 +573,6 @@ FastTimerService::PlotsPerElement::fill_fraction(Resources const& data, Resource
     deallocated_byls_.fill(lumisection, total, fraction);
 }
 
-
-FastTimerService::PlotsPerPath::PlotsPerPath()
-  = default;
 
 void
 FastTimerService::PlotsPerPath::book(
@@ -946,6 +967,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostModuleStreamEndLumi(    this, & FastTimerService::postModuleStreamEndLumi );
 //registry.watchPreModuleEventPrefetching(  this, & FastTimerService::preModuleEventPrefetching );
 //registry.watchPostModuleEventPrefetching( this, & FastTimerService::postModuleEventPrefetching );
+  registry.watchPreModuleEventAcquire(      this, & FastTimerService::preModuleEventAcquire );
+  registry.watchPostModuleEventAcquire(     this, & FastTimerService::postModuleEventAcquire );
   registry.watchPreModuleEvent(             this, & FastTimerService::preModuleEvent );
   registry.watchPostModuleEvent(            this, & FastTimerService::postModuleEvent );
   registry.watchPreModuleEventDelayedGet(   this, & FastTimerService::preModuleEventDelayedGet );
@@ -953,125 +976,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
 //registry.watchPreEventReadFromSource(     this, & FastTimerService::preEventReadFromSource );
 //registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
 }
-
-FastTimerService::~FastTimerService() = default;
-
-double
-FastTimerService::queryModuleTime_(edm::StreamID sid, unsigned int id) const
-{
-  // private version, assume "id" is valid
-  auto const& stream = streams_[sid];
-  auto const& module = stream.modules[id];
-  return ms(module.total.time_real);
-}
-
-double
-FastTimerService::querySourceTime(edm::StreamID sid) const
-{
-  return queryModuleTime_(sid, callgraph_.source().id());
-}
-
-double
-FastTimerService::queryEventTime(edm::StreamID sid) const
-{
-  auto const& stream = streams_[sid];
-  return ms(stream.total.time_real);
-}
-
-double
-FastTimerService::queryEventTime(edm::StreamID sid, std::string const& process) const
-{
-  unsigned int pid = callgraph_.processId(process);
-  auto const& stream = streams_[sid];
-  return ms(stream.processes[pid].total.time_real);
-}
-
-double
-FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDescription & md) const
-{
-  return queryModuleTime_(sid, md.id());
-}
-
-double
-FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) const
-{
-  if (id < callgraph_.size())
-    return queryModuleTime_(sid, id);
-
-  // FIXME issue a LogWarning, raise an exception, or return NaN
-  return 0.;
-}
-
-double
-FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, std::string const& label) const
-{
-  for (unsigned int id: boost::irange(0u, callgraph_.size()))
-    if (callgraph_.module(id).moduleLabel() == label)
-      return queryModuleTime_(sid, id);
-
-  // FIXME issue a LogWarning, raise an exception, or return NaN
-  return 0.;
-}
-
-double
-FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, std::string const& process, const std::string & label) const
-{
-  for (unsigned int id: callgraph_.processDescription(process).modules_)
-    if (callgraph_.module(id).moduleLabel() == label)
-      return queryModuleTime_(sid, id);
-
-  // FIXME issue a LogWarning, raise an exception, or return NaN
-  return 0.;
-}
-
-double
-FastTimerService::queryPathTime(edm::StreamID sid, std::string const& path) const
-{
-  auto const& stream = streams_[sid];
-  for (unsigned int pid: boost::irange(0ul, callgraph_.processes().size()))
-  {
-    auto const& desc = callgraph_.processDescription(pid);
-    for (unsigned int id: boost::irange(0ul, desc.paths_.size()))
-      if (desc.paths_[id].name_ == path)
-        return ms(stream.processes[pid].paths[id].total.time_real);
-    for (unsigned int id: boost::irange(0ul, desc.endPaths_.size()))
-      if (desc.paths_[id].name_ == path)
-        return ms(stream.processes[pid].endpaths[id].total.time_real);
-  }
-
-  // FIXME issue a LogWarning, raise an exception, or return NaN
-  return 0.;
-}
-
-double
-FastTimerService::queryPathTime(edm::StreamID sid, std::string const& process, std::string const& path) const
-{
-  auto const& stream = streams_[sid];
-  unsigned int pid = callgraph_.processId(process);
-  auto const& desc = callgraph_.processDescription(pid);
-  for (unsigned int id: boost::irange(0ul, desc.paths_.size()))
-    if (desc.paths_[id].name_ == path)
-      return ms(stream.processes[pid].paths[id].total.time_real);
-  for (unsigned int id: boost::irange(0ul, desc.endPaths_.size()))
-    if (desc.paths_[id].name_ == path)
-      return ms(stream.processes[pid].endpaths[id].total.time_real);
-
-  // FIXME issue a LogWarning, raise an exception, or return NaN
-  return 0.;
-}
-
-double
-FastTimerService::queryHighlightTime(edm::StreamID sid, std::string const& label) const
-{
-  auto const& stream = streams_[sid];
-  for (unsigned int group: boost::irange(0ul, highlight_modules_.size()))
-    if (highlight_modules_[group].label == label)
-      return ms(stream.highlight[group].time_real);
-
-  // FIXME issue a LogWarning, raise an exception, or return NaN
-  return 0.;
-}
-
 
 void
 FastTimerService::ignoredSignal(const std::string& signal) const
@@ -1668,7 +1572,6 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
   stream.event_measurement = measurement;
 }
 
-
 void
 FastTimerService::postSourceEvent(edm::StreamID sid)
 {
@@ -1679,7 +1582,6 @@ FastTimerService::postSourceEvent(edm::StreamID sid)
   thread().measure_and_store(stream.modules[id].total);
   ++stream.modules[id].events;
 }
-
 
 void
 FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const & pc)
@@ -1692,7 +1594,6 @@ FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext co
   data.status = false;
   data.last   = 0;
 }
-
 
 void
 FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext const & pc, edm::HLTPathStatus const & status)
@@ -1718,6 +1619,27 @@ FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext c
 }
 
 void
+FastTimerService::preModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
+{
+  unsigned int sid = sc.streamID().value();
+  auto & stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void
+FastTimerService::postModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
+{
+  edm::ModuleDescription const& md = * mcc.moduleDescription();
+  unsigned int id  = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = streams_[sid];
+  auto & module = stream.modules[id];
+
+  module.has_acquire = true;
+  thread().measure_and_store(module.total);
+}
+
+void
 FastTimerService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
 {
   unsigned int sid = sc.streamID().value();
@@ -1732,9 +1654,14 @@ FastTimerService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCalli
   unsigned int id  = md.id();
   unsigned int sid = sc.streamID().value();
   auto & stream = streams_[sid];
+  auto & module = stream.modules[id];
 
-  thread().measure_and_store(stream.modules[id].total);
-  ++stream.modules[id].events;
+  if (module.has_acquire) {
+    thread().measure_and_accumulate(module.total);
+  } else {
+    thread().measure_and_store(module.total);
+  }
+  ++module.events;
 }
 
 void
@@ -1951,3 +1878,8 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
 
   descriptions.add("FastTimerService", desc);
 }
+
+
+// declare FastTimerService as a framework Service
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+DEFINE_FWK_SERVICE(FastTimerService);
