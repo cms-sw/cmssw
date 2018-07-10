@@ -10,20 +10,35 @@ process.load("HLTriggerOffline.Btag.HltBtagPostValidation_cff")
 
 process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal + process.dqmSaver)
 
+import sys
+import Utilities.General.cmssw_das_client as cmssw_das_client
+def add_rawRelVals(process, inputName):   
+   query='dataset='+inputName 
+   dataset = cmssw_das_client.get_data(query, limit = 0)
+   if not dataset:
+      raise RuntimeError(
+         'Das returned no dataset parent of the input file: %s \n'
+         'The parenthood is needed to add RAW secondary input files' % process.source.fileNames[0]
+         )
+   for i in dataset['data']:
+	try: n_files = i['dataset'][0]['num_file']
+	except: pass
+   raw_files = cmssw_das_client.get_data('file '+query, limit = 0)
+   files = []
+   for i in raw_files['data']:
+	files.append( i['file'][0]['name'])
+   
+   raw_files = ['root://cms-xrd-global.cern.ch/'+str(i) for i in files]
+   process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(raw_files))
+   return process
 
-process.source = cms.Source("PoolSource",
-	fileNames = cms.untracked.vstring(
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/103778EC-A27B-E811-8D04-0CC47A4D76AA.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/6C1229C7-A37B-E811-892F-0025905B860C.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/1E0840F2-A57B-E811-999A-0CC47A4D76AA.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/80244DCF-A67B-E811-AA38-0CC47A78A3EE.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/B2F774FD-A57B-E811-B7DE-0025905B860C.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/DCA784B2-A77B-E811-8D49-0CC47A4D7698.root',
-'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/B2CC07B7-A77B-E811-AC18-0025905B8562.root'
+add_rawRelVals(process, str(sys.argv[-1]))
 
-)
-#	fileNames = cms.untracked.vstring("file:RelVal750pre3.root")
-)
+#process.source = cms.Source("PoolSource",
+#	fileNames = cms.untracked.vstring(
+#'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/103778EC-A27B-E811-8D04-0CC47A4D76AA.root',
+#)
+#)
 
 
 
