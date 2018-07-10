@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 VertexProducer = cms.EDProducer('VertexProducer',
 
-  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
+  l1TracksInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"), 
+  #l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
 
   # === Vertex Reconstruction configuration
   VertexReconstruction=cms.PSet(
