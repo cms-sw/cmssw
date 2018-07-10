@@ -6,7 +6,7 @@ adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_f
 adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 
 conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
-                     Method = cms.string('thresholdSelect'), 	
+                     Method = cms.string('thresholdSelect'),
                      NData = cms.uint32(999),
                      MaxCellsInModule = cms.uint32(116),
                      linLSB = cms.double(100./1024.),
@@ -20,7 +20,7 @@ conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSele
 
 hgcalConcentratorProducer = cms.EDProducer(
     "HGCalConcentratorProducer",
-    InputTriggerCells = cms.InputTag('hgcalVFEProducer:calibratedTriggerCells'),
-    InputTriggerSums = cms.InputTag('hgcalVFEProducer:triggerSums'),
+    InputTriggerCells = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
+    InputTriggerSums = cms.InputTag('hgcalVFEProducer:HGCalVFEProcessorSums'),
     ProcessorParameters = conc_proc.clone()
     )

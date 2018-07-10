@@ -14,7 +14,7 @@ C2d_parValues = cms.PSet( clusterType = cms.string('NNC2d'), # clustering type: 
                           calibSF_cluster=cms.double(0.),
                           layerWeights = layercalibparam.TrgLayer_weights,
                           applyLayerCalibration = cms.bool(True)
-			)
+            )
 
 be_proc = cms.PSet( ProcessorName  = cms.string('HGCalBackendLayer1Processor2DClustering'),
                     C2d_parameters = C2d_parValues.clone()
@@ -22,7 +22,6 @@ be_proc = cms.PSet( ProcessorName  = cms.string('HGCalBackendLayer1Processor2DCl
 
 hgcalBackEndLayer1Producer = cms.EDProducer(
     "HGCalBackendLayer1Producer",
-    InputTriggerCells = cms.InputTag('hgcalConcentratorProducer:TriggerCells'),
-    InputTriggerSums = cms.InputTag('hgcalConcentratorProducer:TriggerSums'), 
+    InputTriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
     ProcessorParameters = be_proc.clone()
     )
