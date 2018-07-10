@@ -27,7 +27,7 @@ class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       towermap2D_.eventSetup(es);
-      std::cout << " Entry for TowerMap collHandle->size() = " << collHandle->size() << std::endl;
+      
       /* create a persistent vector of pointers to the trigger-cells */
       std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
       for( unsigned i = 0; i < collHandle->size(); ++i ) {
@@ -36,8 +36,7 @@ class HGCalTowerMapProcessor : public HGCalTowerMapProcessorBase
       }    
 
       /* call to towerMap2D clustering */
-      towermap2D_.buildTowerMap2D( triggerCellsPtrs, collTowerMap);
-      std::cout << " Final towerMap collection " << collTowerMap.size() << std::endl; 
+      towermap2D_.buildTowerMap2D( triggerCellsPtrs, collTowerMap); 
     }               
 
     
