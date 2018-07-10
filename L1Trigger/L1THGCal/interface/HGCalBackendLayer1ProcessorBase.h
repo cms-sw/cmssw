@@ -24,7 +24,7 @@ class HGCalBackendLayer1ProcessorBase {
     
   virtual void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggercells, 
                    l1t::HGCalClusterBxCollection& clusters,
-		   const edm::EventSetup& es) = 0;
+           const edm::EventSetup& es) = 0;
 
  protected:
   const HGCalTriggerGeometryBase* geometry_; 
