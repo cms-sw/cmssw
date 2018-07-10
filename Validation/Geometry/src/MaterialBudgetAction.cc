@@ -32,7 +32,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   : theHistoMgr(nullptr)
 {
   theData = new MaterialBudgetData;
-  
+
   edm::ParameterSet m_Anal = iPSet.getParameter<edm::ParameterSet>("MaterialBudgetAction");
   
   //---- Accumulate material budget only inside selected volumes
@@ -52,6 +52,9 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   } 
   else if(theHistoList == "ECAL" ) {
     std::cout << "TestGeometry: MaterialBudgetAction running in Ecal Mode" << std::endl;
+  } 
+  else if(theHistoList == "HGCal" ) {
+    std::cout << "TestGeometry: MaterialBudgetAction running in HGCal Mode" << std::endl;
   } 
   else {
     std::cout << "TestGeometry: MaterialBudgetAction running in General Mode" << std::endl;
@@ -76,10 +79,15 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
     else if (theHistoList == "ECAL") {
       theHistos = new MaterialBudgetEcalHistos( theData, theHistoMgr, saveToHistosFile );
     }
+    else if (theHistoList == "HGCal") {
+      theHistos = new MaterialBudgetHGCalHistos( theData, theHistoMgr, saveToHistosFile );
+      //In HGCal mode, so tell data class
+      theData->setHGCalmode(true);
+    }
     else {
       theHistos = new MaterialBudgetHistos( theData, theHistoMgr, saveToHistosFile );
     }
-      // rr
+    // rr
   } else {
     saveToHistos = false;
   }
@@ -222,14 +230,14 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
   }
   
   
-  if(firstParticle) {
+  // if(firstParticle) {
     //--------- start of track
     //-    std::cout << " Data Start Track " << std::endl;
     theData->dataStartTrack( aTrack );
     if (saveToTree) theTree->fillStartTrack();
     if (saveToHistos) theHistos->fillStartTrack();
     if (saveToTxt) theTxt->fillStartTrack();
-  }
+  // }
 }
  
 

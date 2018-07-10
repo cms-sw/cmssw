@@ -44,6 +44,22 @@ public:
     return theOtherFractionMB; }
   float getAirFractionMB() const {
     return theAirFractionMB; }
+  //HGCal
+  float getCopperFractionMB()   const {             
+    return theCopperFractionMB; }
+  float getH_ScintillatorFractionMB()  const {     
+    return theH_ScintillatorFractionMB; }
+  float getLeadFractionMB()       const {                    
+    return theLeadFractionMB; }
+  float getM_NEMA_FR4_plateFractionMB()   const {
+    return theM_NEMA_FR4_plateFractionMB; }
+  float getSiliconFractionMB()    const {                 
+    return theSiliconFractionMB; }
+  float getStainlessSteelFractionMB()     const {  
+    return theStainlessSteelFractionMB; }
+  float getWCuFractionMB()     const {         
+    return theWCuFractionMB; }
+
   float getSupportMB() const {
     return theSupportMB; }
   float getSensitiveMB() const {
@@ -58,6 +74,22 @@ public:
     return theOtherMB; }
   float getAirMB() const {
     return theAirMB; }
+  //HGCal
+  float getCopperMB()   const {                    
+    return theCopperMB; }
+  float getH_ScintillatorMB()  const {     
+    return theH_ScintillatorMB; }
+  float getLeadMB()       const {                    
+    return theLeadMB; }
+  float getM_NEMA_FR4_plateMB()   const {
+    return theM_NEMA_FR4_plateMB; }
+  float getSiliconMB()    const {                 
+    return theSiliconMB; }
+  float getStainlessSteelMB()     const {  
+    return theStainlessSteelMB; }
+  float getWCuMB()     const {         
+    return theWCuMB; }
+
   float getSupportFractionIL() const {
     return theSupportFractionIL; }
   float getSensitiveFractionIL() const {
@@ -72,6 +104,20 @@ public:
     return theOtherFractionIL; }
   float getAirFractionIL() const {
     return theAirFractionIL; }
+  float getCopperFractionIL()   const {                    
+    return theCopperFractionIL; }
+  float getH_ScintillatorFractionIL()  const {     
+    return theH_ScintillatorFractionIL; }
+  float getLeadFractionIL()       const {                    
+    return theLeadFractionIL; }
+  float getM_NEMA_FR4_plateFractionIL()   const {
+    return theM_NEMA_FR4_plateFractionIL; }
+  float getSiliconFractionIL()    const {                 
+    return theSiliconFractionIL; }
+  float getStainlessSteelFractionIL()     const {  
+    return theStainlessSteelFractionIL; }
+  float getWCuFractionIL()     const {         
+    return theWCuFractionIL; }
   float getTotalIL() const {
     return theTotalIL; }
   float getSupportIL() const {
@@ -88,6 +134,21 @@ public:
     return theOtherIL; }
   float getAirIL() const {
     return theAirIL; }
+  float getCopperIL()   const {                    
+    return theCopperIL; }
+  float getH_ScintillatorIL()  const {     
+    return theH_ScintillatorIL; }
+  float getLeadIL()       const {                    
+    return theLeadIL; }
+  float getM_NEMA_FR4_plateIL()   const {
+    return theM_NEMA_FR4_plateIL; }
+  float getSiliconIL()    const {                 
+    return theSiliconIL; }
+  float getStainlessSteelIL()     const {  
+    return theStainlessSteelIL; }
+  float getWCuIL()     const {         
+    return theWCuIL; }
+
   // rr
   float getEta() const {
     return theEta; }
@@ -135,6 +196,21 @@ public:
     return theOtherDmb[is]; }
   float getAirDmb( int is ) const {
     return theAirDmb[is]; }
+  float getCopperDmb( int is ) const {        
+    return theCopperDmb[is]; }
+  float getH_ScintillatorDmb( int is ) const {  
+    return theH_ScintillatorDmb[is]; }
+  float getLeadDmb( int is ) const {       
+    return theLeadDmb[is]; }
+  float getM_NEMA_FR4_plateDmb( int is ) const {
+    return theM_NEMA_FR4_plateDmb[is]; }
+  float getSiliconDmb( int is ) const {        
+    return theSiliconDmb[is]; }
+  float getStainlessSteelDmb( int is ) const {
+    return theStainlessSteelDmb[is]; }
+  float getWCuDmb( int is ) const {          
+    return theWCuDmb[is]; }
+
 
   float getStepDil( int is ) {
     return theDil[is];
@@ -153,6 +229,20 @@ public:
     return theOtherDil[is]; }
   float getAirDil( int is ) const {
     return theAirDil[is]; }
+  float getCopperDil( int is ) const {        
+    return theCopperDil[is]; }
+  float getH_ScintillatorDil( int is ) const {  
+    return theH_ScintillatorDil[is]; }
+  float getLeadDil( int is ) const {       
+    return theLeadDil[is]; }
+  float getM_NEMA_FR4_plateDil( int is ) const {
+    return theM_NEMA_FR4_plateDil[is]; }
+  float getSiliconDil( int is ) const {        
+    return theSiliconDil[is]; }
+  float getStainlessSteelDil( int is ) const {
+    return theStainlessSteelDil[is]; }
+  float getWCuDil( int is ) const {          
+    return theWCuDil[is]; }
   
   double getStepInitialX( int is ) {
     return theInitialX[is];
@@ -290,6 +380,9 @@ public:
     return allStepsToTree;
   }
 
+  inline bool getHGCalmode(void) {return isHGCal;}
+  inline void setHGCalmode(bool t) {isHGCal=t;}
+ 
  private:
   float theTotalMB, theEta, thePhi;
   // rr
@@ -302,16 +395,24 @@ public:
   float theSupportFractionIL, theSensitiveFractionIL, theCablesFractionIL,
     theCoolingFractionIL, theElectronicsFractionIL, theOtherFractionIL, theAirFractionIL;
   float theSupportMB, theSensitiveMB, theCablesMB, theCoolingMB, theElectronicsMB, theOtherMB, theAirMB;
+  //HGCal
+  float theCopperFractionMB, theH_ScintillatorFractionMB, theLeadFractionMB, theM_NEMA_FR4_plateFractionMB, theSiliconFractionMB, theStainlessSteelFractionMB, theWCuFractionMB;
+  float theCopperMB, theH_ScintillatorMB, theLeadMB, theM_NEMA_FR4_plateMB, theSiliconMB, theStainlessSteelMB, theWCuMB;
   float theTotalIL;
   float theSupportIL, theSensitiveIL, theCablesIL, theCoolingIL, theElectronicsIL, theOtherIL, theAirIL;
+  //HGCal
+  float theCopperFractionIL, theH_ScintillatorFractionIL, theLeadFractionIL, theM_NEMA_FR4_plateFractionIL, theSiliconFractionIL, theStainlessSteelFractionIL, theWCuFractionIL;
+  float theCopperIL, theH_ScintillatorIL, theLeadIL, theM_NEMA_FR4_plateIL, theSiliconIL, theStainlessSteelIL, theWCuIL;
   // rr
   int theStepN;
   double *theInitialX, *theInitialY, *theInitialZ;
   double *theFinalX,   *theFinalY,   *theFinalZ;
   float *theDmb;
   float *theSupportDmb, *theSensitiveDmb, *theCablesDmb, *theCoolingDmb, *theElectronicsDmb, *theOtherDmb, *theAirDmb;
+  float *theCopperDmb, *theH_ScintillatorDmb, *theLeadDmb, *theM_NEMA_FR4_plateDmb, *theSiliconDmb, *theStainlessSteelDmb, *theWCuDmb;
   float *theDil;
   float *theSupportDil, *theSensitiveDil, *theCablesDil, *theCoolingDil, *theElectronicsDil, *theOtherDil, *theAirDil;
+  float *theCopperDil, *theH_ScintillatorDil, *theLeadDil, *theM_NEMA_FR4_plateDil, *theSiliconDil, *theStainlessSteelDil, *theWCuDil;
   //  int *theVoluId;
   //  int *theMateId;
   // rr
@@ -370,6 +471,8 @@ public:
   int stepN;
   int MAXNUMBERSTEPS;
   bool allStepsToTree;
+  //HGCal mode
+  bool isHGCal;
   
   double densityConvertionFactor;
 };
