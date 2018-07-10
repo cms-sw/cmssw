@@ -38,6 +38,8 @@ public:
 				  int lay, bool reco) const;
   double              cellSizeHex(int type) const;
   double              cellThickness(int layer, int waferU, int waferV) const;
+  double              distFromEdgeHex(double x, double y, double z) const;
+  double              distFromEdgeTrap(double x, double y, double z) const;
   void                etaPhiFromPosition(const double x, const double y,
 					 const double z, const int layer,
 					 int& ieta, int& iphi, int& type,
@@ -129,6 +131,8 @@ private:
   std::pair<int,float>   getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
+  bool waferGlobal2Local(double& xx, double& yy, int& wafer,
+			 int& celltyp) const;
 
   const double k_horizontalShift = 1.0;
   const float  dPhiMin           = 0.02;
