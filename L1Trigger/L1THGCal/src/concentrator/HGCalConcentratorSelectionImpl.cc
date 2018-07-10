@@ -22,11 +22,15 @@ HGCalConcentratorSelectionImpl(const edm::ParameterSet& conf):
 void 
 HGCalConcentratorSelectionImpl::
 thresholdSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput)
-{ 
+{
   for (size_t i = 0; i<trigCellVecInput.size();i++){
+
     int threshold = (HGCalDetId(trigCellVecInput[i].detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
     double triggercell_threshold = (HGCalDetId(trigCellVecInput[i].detId()).subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
-    if ((trigCellVecInput[i].hwPt() >= threshold) && (trigCellVecInput[i].hwPt() >= triggercell_threshold))  trigCellVecOutput.push_back(trigCellVecInput[i]);
+  
+    if ((trigCellVecInput[i].hwPt() >= threshold) && (trigCellVecInput[i].mipPt() >= triggercell_threshold)){  
+      trigCellVecOutput.push_back(trigCellVecInput[i]);      
+    }  
   }
 }
 

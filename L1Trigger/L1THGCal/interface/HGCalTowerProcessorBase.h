@@ -26,7 +26,7 @@ class HGCalTowerProcessorBase {
   
   virtual void run(const edm::Handle<l1t::HGCalTowerMapBxCollection>& coll,               
                    l1t::HGCalTowerBxCollection& collTower,
-		   const edm::EventSetup& es) = 0;
+           const edm::EventSetup& es) = 0;
  
  protected:
   const HGCalTriggerGeometryBase* geometry_;
