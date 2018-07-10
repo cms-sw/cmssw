@@ -24,7 +24,7 @@ HGCHEDetId::HGCHEDetId(const DetId& gen) {
   if (!gen.null()) {
     ForwardSubdetector subdet=(ForwardSubdetector(gen.subdetId()));
     if ((gen.det()!=Forward) ||
-	(subdet!=HGCHEF && subdet!=HGCHEB && subdet!=HGCHET)) {
+	(subdet!=HGCHEF && subdet!=HGCHEB)) {
       throw cms::Exception("Invalid DetId") << "Cannot initialize HGCHEDetId from " << std::hex << gen.rawId() << std::dec << " Det|SubDet " << gen.det() << "|" << subdet; 
     }  
   }
@@ -35,7 +35,7 @@ HGCHEDetId& HGCHEDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
     ForwardSubdetector subdet=(ForwardSubdetector(gen.subdetId()));
     if ((gen.det()!=Forward) ||
-	(subdet!=HGCHEF && subdet!=HGCHEB && subdet!=HGCHET)) {
+	(subdet!=HGCHEF && subdet!=HGCHEB)) {
       throw cms::Exception("Invalid DetId") << "Cannot assign HGCHEDetId from " << std::hex << gen.rawId() << std::dec << " Det|SubDet " << gen.det() << "|" << subdet; 
     }  
   }
@@ -49,8 +49,7 @@ HGCHEDetId HGCHEDetId::geometryCell () const {
 }
 
 std::ostream& operator<<(std::ostream& s,const HGCHEDetId& id) {
-  if  (id.subdet() == HGCHEF || id.subdet() == HGCHEB ||
-       id.subdet() == HGCHET) {
+  if  (id.subdet() == HGCHEF || id.subdet() == HGCHEB) {
     return s << "isHE=" << id.isHE() << " zpos=" << id.zside() 
 	     << " layer=" << id.layer() << " phi subSector=" << id.subsector()
 	     << " sector=" << id.sector() << " cell=" << id.cell();

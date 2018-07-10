@@ -33,4 +33,7 @@
   <class name="ETLDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="1644731879"/>
   </class>
+  <class name="HFNoseDetId" ClassVersion="0">
+   <version ClassVersion="0" checksum="1469396081"/>
+  </class>
 </lcgdict>
