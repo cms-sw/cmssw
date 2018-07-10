@@ -39,9 +39,10 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  hgcons_(nullptr), numberingScheme_(nullptr), mouseBite_(nullptr), 
-  slopeMin_(0), levelT1_(99), levelT2_(99), 
+  hgcons_(nullptr), slopeMin_(0), levelT1_(99), levelT2_(99), 
   tan30deg_(std::tan(30.0*CLHEP::deg)) {
+
+  numberingScheme_.reset(nullptr); mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -90,11 +91,6 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
   edm::LogVerbatim("HGCSim") << "Reject MosueBite Flag: " << rejectMB_ 
 			     << " cuts along " << angles_.size() << " axes: "
 			     << angles_[0] << ", " << angles_[1];
-}
-
-HGCalSD::~HGCalSD() { 
-  delete numberingScheme_;
-  delete mouseBite_;
 }
 
 double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
@@ -227,9 +223,10 @@ void HGCalSD::update(const BeginOfJob * job) {
 			       << " wafer " << waferSize << ":" << mouseBite;
 #endif
 
-    numberingScheme_ = new HGCalNumberingScheme(*hgcons_,mydet_,nameX_);
+    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_,mydet_,nameX_));
     if (rejectMB_) 
-      mouseBite_ = new HGCMouseBite(*hgcons_,angles_,mouseBiteCut_,waferRot_);
+      mouseBite_.reset(new HGCMouseBite(*hgcons_,angles_,mouseBiteCut_,
+					waferRot_));
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

@@ -24,7 +24,7 @@ public:
   HGCScintSD(const std::string& , const DDCompactView &, 
 	     const SensitiveDetectorCatalog &, edm::ParameterSet const &,
 	     const SimTrackManager*);
-  ~HGCScintSD() override;
+  ~HGCScintSD() override  = default;
 
   uint32_t                setDetUnitId(const G4Step* step) override;
 
@@ -40,15 +40,16 @@ private:
   uint32_t                setDetUnitId(int, int, int, int, G4ThreeVector &);
   bool                    isItinFidVolume (const G4ThreeVector&);
 
-  const HGCalDDDConstants*        hgcons_;
-  HGCalNumberingScheme*           numberingScheme_;
-  DetId::Detector                 mydet_;
-  std::string                     nameX_;
-  HGCalGeometryMode::GeometryMode geom_mode_;
-  double                          eminHit_, slopeMin_, distanceFromEdge_;
-  int                             levelT1_, levelT2_;
-  bool                            storeAllG4Hits_, fiducialCut_, useBirk_;
-  double                          birk1_, birk2_, birk3_, weight_;
+  const HGCalDDDConstants*              hgcons_;
+  std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
+  DetId::Detector                       mydet_;
+  std::string                           nameX_;
+  HGCalGeometryMode::GeometryMode       geom_mode_;
+  double                                eminHit_, slopeMin_, distanceFromEdge_;
+  int                                   levelT1_, levelT2_;
+  bool                                  storeAllG4Hits_, fiducialCut_;
+  bool                                  useBirk_;
+  double                                birk1_, birk2_, birk3_, weight_;
 };
 
 #endif // HGCScintSD_h
