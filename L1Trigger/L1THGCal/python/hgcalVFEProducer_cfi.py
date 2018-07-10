@@ -42,8 +42,6 @@ calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBefor
 
 vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      calib_parameters = calib_parValues.clone(),
-                     #triggercell_threshold_silicon = cms.double(2.), # MipT
-                     #triggercell_threshold_scintillator = cms.double(2.), # MipT
                      linLSB = cms.double(100./1024.),
                      adcsaturation = adcSaturation_fC,
                      tdcnBits = tdcNbits,
@@ -51,8 +49,6 @@ vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessorSums'),
                      adcnBits = adcNbits,
                      tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
                      linnBits = cms.uint32(16),
-                     HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                     HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                      ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
                    )
 
