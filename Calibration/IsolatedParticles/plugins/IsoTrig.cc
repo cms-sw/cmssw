@@ -83,7 +83,6 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
-#include "HLTrigger/Timer/interface/FastTimerService.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -1236,7 +1235,6 @@ void IsoTrig::studyTiming(const edm::Event& theEvent) {
     const SiPixelRecHitCollection* rechits = rchts.product();
     edm::LogVerbatim("IsoTrack") << "size of SiPixelRechits " <<rechits->size();
   }
-  double tHB=0.0, tHE=0.0;
   int nCandHB=pixelTrackRefsHB_.size(), nCandHE=pixelTrackRefsHE_.size();
   int nSeedHB=0, nSeedHE=0;
 
@@ -1322,17 +1320,11 @@ void IsoTrig::studyTiming(const edm::Event& theEvent) {
       if (R>1.2 && vtxMatch) nSeedHB++;
     }
     
-    edm::Service<FastTimerService> ft;
-    tHE = ft->queryModuleTimeByLabel(theEvent.streamID(),
-				     "hltIsolPixelTrackProdHE") ;
-    tHB = ft->queryModuleTimeByLabel(theEvent.streamID(),
-				     "hltIsolPixelTrackProdHB");
-    if (verbosity_%10>0) 
-      edm::LogVerbatim("IsoTrack") << "(HB/HE) time: " << tHB <<"/" << tHE 
-				   << " nCand: " << nCandHB << "/" << nCandHE 
+    if (verbosity_ % 10 > 0) {
+      edm::LogVerbatim("IsoTrack") << "(HB/HE) nCand: " << nCandHB << "/" << nCandHE
 				   << "nSeed: " << nSeedHB << "/" << nSeedHE;
+    }
   }
-  t_timeL2Prod->push_back(tHB);   t_timeL2Prod->push_back(tHE);
   t_nPixSeed->push_back(nSeedHB); t_nPixSeed->push_back(nSeedHE);
   t_nPixCand->push_back(nCandHB); t_nPixCand->push_back(nCandHE);
 

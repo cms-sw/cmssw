@@ -52,23 +52,7 @@ class FastTimerService : public tbb::task_scheduler_observer
 {
 public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
-  ~FastTimerService() override;
-
-private:
-  double queryModuleTime_(edm::StreamID, unsigned int id) const;
-
-public:
-  // query the time spent in a module/path/process (available after it has run)
-  double querySourceTime(edm::StreamID) const;
-  double queryEventTime(edm::StreamID) const;
-  double queryEventTime(edm::StreamID, std::string const& process) const;
-  double queryModuleTime(edm::StreamID, const edm::ModuleDescription & module) const;
-  double queryModuleTime(edm::StreamID, unsigned int id) const;
-  double queryModuleTimeByLabel(edm::StreamID, std::string const& module) const;
-  double queryModuleTimeByLabel(edm::StreamID, std::string const& process, const std::string & module) const;
-  double queryPathTime(edm::StreamID, std::string const& path) const;
-  double queryPathTime(edm::StreamID, std::string const& process, std::string const& path) const;
-  double queryHighlightTime(edm::StreamID sid, std::string const& label) const;
+  ~FastTimerService() override = default;
 
 private:
   void ignoredSignal(const std::string& signal) const;
@@ -175,6 +159,9 @@ private:
   void preModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleStreamEndLumi(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
+  void preModuleEventAcquire(edm::StreamContext const&, edm::ModuleCallingContext const&);
+  void postModuleEventAcquire(edm::StreamContext const&, edm::ModuleCallingContext const&);
+
   void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
@@ -199,10 +186,14 @@ private:
   // per-thread measurements
   struct Measurement {
   public:
-    Measurement();
-    void measure();
-    void measure_and_store(Resources & store);
-    void measure_and_accumulate(AtomicResources & store);
+    Measurement() noexcept;
+    // take per-thread measurements
+    void measure() noexcept;
+    // take per-thread measurements, compute the delta with respect to the previous measurement, and store them in the argument
+    void measure_and_store(Resources & store) noexcept;
+    // take per-thread measurements, compute the delta with respect to the previous measurement, and add them to the argument
+    void measure_and_accumulate(Resources & store) noexcept;
+    void measure_and_accumulate(AtomicResources & store) noexcept;
 
   public:
     #ifdef DEBUG_THREAD_CONCURRENCY
@@ -256,13 +247,15 @@ private:
 
   struct ResourcesPerModule {
   public:
-    void reset();
+    ResourcesPerModule() noexcept;
+    void reset() noexcept;
     ResourcesPerModule & operator+=(ResourcesPerModule const& other);
     ResourcesPerModule operator+(ResourcesPerModule const& other) const;
 
   public:
     Resources total;
     unsigned  events;
+    bool      has_acquire;  // whether this module has an acquire() method
   };
 
   struct ResourcesPerPath {
@@ -321,7 +314,7 @@ private:
   // plots associated to each module or other element (path, process, etc)
   class PlotsPerElement {
   public:
-    PlotsPerElement();
+    PlotsPerElement() = default;
     void book(DQMStore::ConcurrentBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(Resources const&, unsigned int lumisection);
     void fill(AtomicResources const&, unsigned int lumisection);
@@ -342,7 +335,7 @@ private:
   // plots associated to each path or endpath
   class PlotsPerPath {
   public:
-    PlotsPerPath();
+    PlotsPerPath() = default;
     void book(DQMStore::ConcurrentBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 
