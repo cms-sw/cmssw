@@ -348,7 +348,7 @@ bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable* 
 //-------------------------------------------------------------------------
 bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )
 {
-  if( theProcessToStop == "" ) return false;
+  if( theProcessToStop.empty() ) return false;
 
   if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr) return false;
   if( aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop ) {
