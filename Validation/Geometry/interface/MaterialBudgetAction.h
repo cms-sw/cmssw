@@ -9,6 +9,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTrackerHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetEcalHistos.h"
+#include "Validation/Geometry/interface/MaterialBudgetHGCalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTxt.h"
 #include "Validation/Geometry/interface/TestHistoMgr.h"
 
