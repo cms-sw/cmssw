@@ -28,10 +28,15 @@ namespace edm {
     typedef T wrapped_type; // used with the dictionary to identify Wrappers
     Wrapper() : WrapperBase(), present(false), obj() {}
     explicit Wrapper(std::unique_ptr<T> ptr);
+    
+    template<typename... Args>
+    explicit Wrapper( Args&&... );
     ~Wrapper() override {}
     T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
 
+    T& bareProduct() { return obj;}
+    
     //these are used by FWLite
     static std::type_info const& productTypeInfo() {return typeid(T);}
     static std::type_info const& typeInfo() {return typeid(Wrapper<T>);}
@@ -84,6 +89,14 @@ private:
     if (present) {
       obj = std::move(*ptr);
     }
+  }
+
+  template<typename T>
+  template<typename... Args>
+  Wrapper<T>::Wrapper(Args&&... args) :
+  WrapperBase(),
+  present(true),
+  obj(std::forward<Args>(args)...) {
   }
 
   template<typename T>
