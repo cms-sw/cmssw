@@ -127,6 +127,15 @@ namespace edm {
     void
     put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
 
+    ///puts a new product
+    template<typename PROD, typename... Args>
+    void
+    emplace(EDPutTokenT<PROD> token, Args&&... args);
+    
+    template<typename PROD, typename... Args>
+    void
+    emplace(EDPutToken token, Args&&... args);
+
     Provenance
     getProvenance(BranchID const& theID) const;
 
@@ -163,6 +172,10 @@ namespace edm {
     void
     putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
     
+    template<typename PROD, typename... Args>
+    void
+    emplaceImpl(EDPutToken::value_type token, Args&&... args);
+
     typedef std::vector<edm::propagate_const<std::unique_ptr<WrapperBase>>> ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
@@ -207,7 +220,7 @@ namespace edm {
   Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
     if(UNLIKELY(product.get() == nullptr)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);
     }
     auto index =
     provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
@@ -219,10 +232,10 @@ namespace edm {
   Run::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
     if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, provRecorder_.productInstanceLabel(token));
     }
     if(UNLIKELY(token.isUninitialized())) {
-      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
     }
     putImpl(token.index(),std::move(product));
   }
@@ -232,10 +245,10 @@ namespace edm {
   Run::put(EDPutToken token, std::unique_ptr<PROD> product) {
     if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, provRecorder_.productInstanceLabel(token));
     }
     if(UNLIKELY(token.isUninitialized())) {
-      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
     }
     if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
       principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
@@ -243,6 +256,47 @@ namespace edm {
     
     putImpl(token.index(),std::move(product));
   }
+  
+  template<typename PROD, typename... Args>
+  void
+  Run::emplace(EDPutTokenT<PROD> token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
+    }
+    emplaceImpl<PROD>(token.index(),std::forward<Args>(args)...);
+  }
+  
+  template<typename PROD, typename... Args>
+  void
+  Run::emplace(EDPutToken token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
+    }
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    
+    emplaceImpl(token.index(),std::forward<Args>(args)...);
+  }
+  
+  template<typename PROD, typename... Args>
+  void
+  Run::emplaceImpl(EDPutToken::value_type index, Args&&... args) {
+    
+    assert(index < putProducts().size());
+    
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::forward<Args>(args)...));
+    
+    // The following will call post_insert if T has such a function,
+    // and do nothing if T has no such function.
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+    DoPostInsert<PROD>,
+    DoNotPostInsert<PROD>> maybe_inserter;
+    maybe_inserter(&(wp->bareProduct()));
+    
+    putProducts()[index]=std::move(wp);
+  }
+
 
   template <typename PROD>
   bool

@@ -149,6 +149,16 @@ namespace edm {
     OrphanHandle<PROD>
     put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
 
+    ///puts a new product
+    template<typename PROD, typename... Args>
+    OrphanHandle<PROD>
+    emplace(EDPutTokenT<PROD> token, Args&&... args);
+
+    template<typename PROD, typename... Args>
+    OrphanHandle<PROD>
+    emplace(EDPutToken token, Args&&... args);
+
+
     ///Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
     /// Event has been committed (which happens after leaving the EDProducer::produce method)
@@ -285,6 +295,10 @@ namespace edm {
     template<typename PROD>
     OrphanHandle<PROD>
     putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
+
+    template<typename PROD, typename... Args>
+    OrphanHandle<PROD>
+    emplaceImpl(EDPutToken::value_type token, Args&&... args);
 
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
@@ -434,6 +448,51 @@ namespace edm {
     return putImpl(token.index(),std::move(product));
   }
 
+  template<typename PROD, typename... Args>
+  OrphanHandle<PROD>
+  Event::emplace(EDPutTokenT<PROD> token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    return emplaceImpl<PROD>(token.index(),std::forward<Args>(args)...);
+  }
+
+  template<typename PROD, typename... Args>
+  OrphanHandle<PROD>
+  Event::emplace(EDPutToken token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    
+    return emplaceImpl(token.index(),std::forward<Args>(args)...);
+  }
+
+  template<typename PROD, typename... Args>
+  OrphanHandle<PROD>
+  Event::emplaceImpl(EDPutToken::value_type index, Args&&... args) {
+    
+    assert(index < putProducts().size());
+    
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::forward<Args>(args)...));
+
+    // The following will call post_insert if T has such a function,
+    // and do nothing if T has no such function.
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+    DoPostInsert<PROD>,
+    DoNotPostInsert<PROD>> maybe_inserter;
+    maybe_inserter(&(wp->bareProduct()));
+
+    PROD const* prod = wp->product();
+    
+    putProducts()[index]=std::move(wp);
+    auto const& prodID = provRecorder_.getProductID(index);
+    return(OrphanHandle<PROD>(prod, prodID));
+  }
+
+  
   template<typename PROD>
   RefProd<PROD>
   Event::getRefBeforePut(std::string const& productInstanceName) {

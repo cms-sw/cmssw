@@ -52,8 +52,7 @@ namespace edmtest {
       
       outputList_.append(h->value );
       
-      iEvent.put(put_,std::make_unique<int>( h->value +value_ ));
-      //iEvent.put(put_,std::make_unique<int>( h->value ) );
+      iEvent.emplace(put_, h->value +value_ );
     }
 }
 
