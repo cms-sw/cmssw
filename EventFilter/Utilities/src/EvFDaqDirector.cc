@@ -1086,7 +1086,7 @@ namespace evf {
         boost::asio::streambuf request;
         std::ostream request_stream(&request);
         std::string path = "/popfile?runnumber="+run_nstring_;
-        if (maxLS>0) {
+        if (maxLS>=0) {
           std::stringstream spath;
           spath << path << "&stopls=" << maxLS;
           path = spath.str();
