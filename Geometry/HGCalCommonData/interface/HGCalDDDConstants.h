@@ -131,8 +131,6 @@ private:
   std::pair<int,float>   getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
-  bool waferGlobal2Local(double& xx, double& yy, int& wafer,
-			 int& celltyp) const;
 
   const double k_horizontalShift = 1.0;
   const float  dPhiMin           = 0.02;

@@ -41,8 +41,9 @@ HGCScintSD::HGCScintSD(const std::string& name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  hgcons_(nullptr), numberingScheme_(nullptr), slopeMin_(0), levelT1_(99),
-  levelT2_(99) {
+  hgcons_(nullptr), slopeMin_(0), levelT1_(99), levelT2_(99) {
+
+  numberingScheme_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCScintSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -89,10 +90,6 @@ HGCScintSD::HGCScintSD(const std::string& name, const DDCompactView & cpv,
   edm::LogVerbatim("HGCSim") << "Use of Birks law is set to      " << useBirk_
 			     << "  with three constants kB = " << birk1_
 			     << ", C1 = " << birk2_ << ", C2 = " << birk3_;
-}
-
-HGCScintSD::~HGCScintSD() { 
-  delete numberingScheme_;
 }
 
 double HGCScintSD::getEnergyDeposit(const G4Step* aStep) {
@@ -218,7 +215,7 @@ void HGCScintSD::update(const BeginOfJob * job) {
 			       << " top Level " << levelT1_ << ":" << levelT2_;
 #endif
 
-    numberingScheme_ = new HGCalNumberingScheme(*hgcons_,mydet_,nameX_);
+    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_,mydet_,nameX_));
   } else {
     throw cms::Exception("Unknown", "HGCScintSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

@@ -255,13 +255,12 @@ double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
   for (int k=0; k<sizew; ++k) {
     double dx = std::abs(xx-hgpar_->waferPosX_[k]);
     double dy = std::abs(yy-hgpar_->waferPosY_[k]);
-    if (dx <= rmax_ && dy <= hexside_) {
-      if ((dy <= 0.5*hexside_) || (dx*tan30deg_ <= (hexside_-dy))) {
-	wafer   = k;
-	xx     -= hgpar_->waferPosX_[k];
-	yy     -= hgpar_->waferPosY_[k];
-	break;
-      }
+    if (dx <= rmax_ && dy <= hexside_ &&
+	((dy <= 0.5*hexside_) || (dx*tan30deg_ <= (hexside_-dy)))) {
+      wafer   = k;
+      xx     -= hgpar_->waferPosX_[k];
+      yy     -= hgpar_->waferPosY_[k];
+      break;
     }
   }
   if (wafer < sizew) {
@@ -318,7 +317,7 @@ double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
 				<< rr-zz/std::sinh(hgpar_->etaMinBH_+ieta*cell)
 				<< ":" << zz/std::sinh(hgpar_->etaMinBH_+(ieta-1)*cell)-rr;
 #endif
-  return ((dist > rr*dphi) ? rr*dphi : dist);
+  return std::min(rr*dphi,dist);
 }
 
 int HGCalDDDConstants::getLayer(double z, bool reco) const {
@@ -1146,30 +1145,6 @@ bool HGCalDDDConstants::waferInLayerTest(int wafer, int lay, bool full) const {
 				<< in;
 #endif
   return in;
-}
-
-bool HGCalDDDConstants::waferGlobal2Local(double& xx, double& yy, int& wafer, 
-					  int& celltyp) const {
-  std::cout << xx <<":" << yy << ":" << wafer << ":" << celltyp << ":" << hgpar_ << "\n";
-  int sizew = (int)(hgpar_->waferPosX_.size());
-  wafer     = sizew;
-  for (int k=0; k<sizew; ++k) {
-    double dx = std::abs(xx-hgpar_->waferPosX_[k]);
-    double dy = std::abs(yy-hgpar_->waferPosY_[k]);
-    if (dx <= rmax_ && dy <= hexside_) {
-      if ((dy <= 0.5*hexside_) || (dx*tan30deg_ <= (hexside_-dy))) {
-	wafer   = k;
-	celltyp = hgpar_->waferTypeT_[k];
-	xx     -= hgpar_->waferPosX_[k];
-	yy     -= hgpar_->waferPosY_[k];
-	break;
-      }
-    }
-  }
-  edm::LogVerbatim("HGCalGeom") << "WaferGlobal2Local: Global " << xx << ":"
-				<< yy << " wafer " << wafer << " Type " 
-				<< celltyp << " flag " << (wafer < sizew);
-  return (wafer < sizew);
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"
