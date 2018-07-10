@@ -13,7 +13,6 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-#include "RecoEgamma/EgammaTools/interface/MVAObjectCache.h"
 
 #include <memory>
 #include <vector>
@@ -66,41 +65,31 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
   srcMiniAOD_ = mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
 
   // Loop over the list of MVA configurations passed here from python and
-  // construct all requested MVA esimtators.
+  // construct all requested MVA estimators.
   const std::vector<edm::ParameterSet>& mvaEstimatorConfigs
     = iConfig.getParameterSetVector("mvaConfigurations");
 
   for( auto &imva : mvaEstimatorConfigs ){
 
-    std::unique_ptr<AnyMVAEstimatorRun2Base> thisEstimator;
-    thisEstimator.reset(NULL);
+    // The factory below constructs the MVA of the appropriate type based
+    // on the "mvaName" which is the name of the derived MVA class (plugin)
     if( !imva.empty() ) {
-      const std::string& pName = imva.getParameter<std::string>("mvaName");
-      // The factory below constructs the MVA of the appropriate type based
-      // on the "mvaName" which is the name of the derived MVA class (plugin)
-      AnyMVAEstimatorRun2Base *estimator = AnyMVAEstimatorRun2Factory::get()->create(pName, imva);
-      // Declare all event content, such as ValueMaps produced upstream or other,
-      // original event data pieces, that is needed (if any is implemented in the specific
-      // MVA classes)
-      //edm::ConsumesCollector &cc = consumesCollector();
-      estimator->setConsumes( consumesCollector() );
 
-      thisEstimator.reset(estimator);
+      mvaEstimators_.emplace_back(AnyMVAEstimatorRun2Factory::get()->create(
+                  imva.getParameter<std::string>("mvaName"), imva));
 
     } else
       throw cms::Exception(" MVA configuration not found: ")
         << " failed to find proper configuration for one of the MVAs in the main python script " << std::endl;
 
-    // The unique pointer control is passed to the vector in the line below.
-    // Don't use thisEstimator pointer beyond the next line.
-    mvaEstimators_.emplace_back( thisEstimator.release() );
+    mvaEstimators_.back()->setConsumes( consumesCollector() );
 
     //
     // Compose and save the names of the value maps to be produced
     //
-    const auto& currentEstimator = mvaEstimators_.back();
 
-    const std::string fullName = ( currentEstimator->getName() + currentEstimator->getTag() );
+    const std::string fullName = ( mvaEstimators_.back()->getName() +
+                                   mvaEstimators_.back()->getTag()  );
 
     const std::string thisValueMapName      = fullName + "Values";
     const std::string thisRawValueMapName   = fullName + "RawValues";
@@ -142,11 +131,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
-
-    // Set up all event content, such as ValueMaps produced upstream or other,
-    // original event data pieces, that is needed (if any is implemented in the specific
-    // MVA classes)
-    mvaEstimators_[iEstimator]->getEventContent( iEvent );
 
     std::vector<float> mvaValues;
     std::vector<float> mvaRawValues;
