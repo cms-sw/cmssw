@@ -200,6 +200,7 @@ process.p = cms.Path(
 zMuMuScriptTemplate="""
 #!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
+export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 
 echo  -----------------------
 echo  Job started at `date`
