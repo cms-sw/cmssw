@@ -165,7 +165,7 @@ bool HGCalTriggerNtupleGenTau::isIntermediateResonance( const reco::GenParticle&
 bool HGCalTriggerNtupleGenTau::isStableNeutralHadron( const reco::GenParticle& candidate ) const
 {
     return ( !( std::abs(candidate.pdgId())>10 && std::abs(candidate.pdgId())<17) && !isChargedHadron(candidate)
-             && candidate.isDirectPromptTauDecayProductFinalState() && candidate.status() == 1 );
+             && candidate.status() == 1 );
 }
 
 
@@ -229,12 +229,12 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
                 else if( isNeutralPion( *daughter ) ){
                     n_piZero++;
-                    const reco::GenParticleRefVector& grandaughters = daughter->daughterRefVector();
-                    for( const auto& grandaughter : grandaughters ){
-                        if( isGamma( *grandaughter ) ){
+                    const reco::GenParticleRefVector& granddaughters = daughter->daughterRefVector();
+                    for( const auto& granddaughter : granddaughters ){
+                        if( isGamma( *granddaughter ) ){
                             n_gamma++;
-                            tau_p4vis+=(grandaughter->p4());         
-                            finalProds.push_back( daughter );
+                            tau_p4vis+=(granddaughter->p4());
+                            finalProds.push_back( granddaughter );
                         }
                     }
                 }
@@ -243,6 +243,20 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                     tau_p4vis+=(daughter->p4());
                     finalProds.push_back( daughter );
                 }
+
+                else{
+
+                    const reco::GenParticleRefVector& granddaughters = daughter->daughterRefVector();
+
+                    for( const auto& granddaughter : granddaughters ){
+                        if( isStableNeutralHadron( *granddaughter ) ){
+                            tau_p4vis+=(granddaughter->p4());
+                            finalProds.push_back( granddaughter );
+                        }
+                    }
+
+                }
+
                 /* Here the selection of the decay product according to the Pythia6 decayTree */                
                 if( !isPythia8generator_ ){            
                     if( isIntermediateResonance( *daughter ) ){

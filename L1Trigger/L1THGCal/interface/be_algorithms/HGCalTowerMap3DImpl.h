@@ -12,11 +12,10 @@ class HGCalTowerMap3DImpl{
 
  public:
 
-  HGCalTowerMap3DImpl( ); 
-  
-  void buildTowerMap3D( const std::vector<edm::Ptr<l1t::HGCalTowerMap>> & towerMaps2D,
-			l1t::HGCalTowerBxCollection & towerMap
-		       );
+  HGCalTowerMap3DImpl( );
+
+  void buildTowerMap3D(const std::vector<edm::Ptr<l1t::HGCalTowerMap>> & towerMaps2D,
+                       l1t::HGCalTowerBxCollection & towerMap);
 
 };
 
