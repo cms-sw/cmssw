@@ -313,7 +313,7 @@ m_ep()
     iBase->doWork<Traits>(*m_rp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
     auto t = edm::make_empty_waiting_task();
     t->increment_ref_count();
-    iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry);
+    iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry, nullptr);
     t->wait_for_all();
     if(t->exceptionPtr() != nullptr) {
       std::rethrow_exception(*t->exceptionPtr());

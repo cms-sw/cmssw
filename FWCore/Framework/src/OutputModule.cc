@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/insertSelectedProcesses.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
@@ -95,6 +96,7 @@ namespace edm {
     std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
     std::vector<BranchDescription const*> associationDescriptions;
     std::set<BranchID> keptProductsInEvent;
+    std::set<std::string> processesWithSelectedMergeableRunProducts;
 
     for(auto const& it : preg.productList()) {
       BranchDescription const& desc = it.second;
@@ -107,12 +109,16 @@ namespace edm {
         associationDescriptions.push_back(&desc);
       } else if(selected(desc)) {
         keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
+        insertSelectedProcesses(desc,
+                                processesWithSelectedMergeableRunProducts);
       } else {
         // otherwise, output nothing,
         // and mark the fact that there is a newly dropped branch of this type.
         hasNewlyDroppedBranch_[desc.branchType()] = true;
       }
     }
+
+    setProcessesWithSelectedMergeableRunProducts(processesWithSelectedMergeableRunProducts);
 
     thinnedAssociationsHelper.selectAssociationProducts(associationDescriptions,
                                                         keptProductsInEvent,
@@ -309,9 +315,10 @@ namespace edm {
 
   void
   OutputModule::doWriteRun(RunPrincipal const& rp,
-                           ModuleCallingContext const* mcc) {
+                           ModuleCallingContext const* mcc,
+                           MergeableRunProductMetadata const* mrpm) {
     FDEBUG(2) << "writeRun called\n";
-    RunForOutput r(rp, moduleDescription_, mcc,true);
+    RunForOutput r(rp, moduleDescription_, mcc,true, mrpm);
     r.setConsumer(this);
     writeRun(r);
   }

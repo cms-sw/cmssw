@@ -114,6 +114,9 @@ namespace edm {
     std::string const& wrappedName() const {return transient_.wrappedName_;}
     void setWrappedName(std::string const& name) {transient_.wrappedName_ = name;}
 
+    bool isMergeable() const { return transient_.isMergeable_; }
+    void setIsMergeable(bool v) { transient_.isMergeable_ = v; }
+
     void updateFriendlyClassName();
 
     void initializeTransients() {transient_.reset();}
@@ -169,6 +172,10 @@ namespace edm {
 
       // if Run or Lumi based, can only get at end transition
       bool availableOnlyAtEndTransition_;
+
+      // True if the product definition has a mergeProduct function
+      // and the branchType is Run or Lumi
+      bool isMergeable_;
     };
 
   private:

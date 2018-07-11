@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Schedule.h"
 
+#include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -564,6 +565,10 @@ namespace edm {
       c->selectProducts(preg, thinnedAssociationsHelper);
     }
 
+    for(auto & product : preg.productListUpdator()) {
+      setIsMergeable(product.second);
+    }
+
     {
       // We now get a collection of types that may be consumed.
       std::set<TypeID> productTypesConsumed;
@@ -994,9 +999,10 @@ namespace edm {
   void Schedule::writeRunAsync(WaitingTaskHolder task,
                                RunPrincipal const& rp,
                                ProcessContext const* processContext,
-                               ActivityRegistry* activityRegistry) {
+                               ActivityRegistry* activityRegistry,
+                               MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     for(auto& c: all_output_communicators_) {
-      c->writeRunAsync(task, rp, processContext, activityRegistry);
+      c->writeRunAsync(task, rp, processContext, activityRegistry, mergeableRunProductMetadata);
     }
   }
 

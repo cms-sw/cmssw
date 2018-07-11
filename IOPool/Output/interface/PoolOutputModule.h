@@ -144,6 +144,8 @@ namespace edm {
     void reallyCloseFile() override;
     void beginJob() override;
 
+    void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) override;
+
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
     void updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever,
                                          BranchID const& branchID);
@@ -154,6 +156,7 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
+    void writeStoredMergeableRunProductMetadata();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
@@ -195,6 +198,7 @@ namespace edm {
     bool overrideInputFileSplitLevels_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
+    std::vector<std::string> processesWithSelectedMergeableRunProducts_;
   };
 }
 

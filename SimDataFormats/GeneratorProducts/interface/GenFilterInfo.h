@@ -44,7 +44,8 @@ public:
   double filterEfficiencyError(int idwtup=+3) const;
   // merge method. It will be used when merging different jobs populating the same lumi section
   bool mergeProduct(GenFilterInfo const &other);
-  
+  void swap(GenFilterInfo& other);
+
 private:
   
   unsigned int  numPassPositiveEvents_;
