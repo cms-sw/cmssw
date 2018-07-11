@@ -74,6 +74,7 @@ namespace edm {
     std::string const& fileIdentifierBranchName();
     std::string const& fileIndexBranchName(); // backward compatibility
     std::string const& indexIntoFileBranchName();
+    std::string const& mergeableRunProductMetadataBranchName();
 
     // Event History Tree // backward compatibility
     std::string const& eventHistoryTreeName(); // backward compatibility

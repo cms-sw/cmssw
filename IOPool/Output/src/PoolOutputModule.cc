@@ -262,6 +262,10 @@ namespace edm {
     if(rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
   }
 
+  void PoolOutputModule::setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const& processes) {
+    processesWithSelectedMergeableRunProducts_.assign(processes.begin(), processes.end());
+  }
+
   PoolOutputModule::~PoolOutputModule() {
   }
 
@@ -290,6 +294,7 @@ namespace edm {
     writeFileFormatVersion();
     writeFileIdentifier();
     writeIndexIntoFile();
+    writeStoredMergeableRunProductMetadata();
     writeProcessHistoryRegistry();
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
@@ -310,6 +315,7 @@ namespace edm {
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
   void PoolOutputModule::writeIndexIntoFile() { rootOutputFile_->writeIndexIntoFile(); }
+  void PoolOutputModule::writeStoredMergeableRunProductMetadata() { rootOutputFile_->writeStoredMergeableRunProductMetadata(); }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
@@ -358,7 +364,8 @@ namespace edm {
 
   void PoolOutputModule::reallyOpenFile() {
     auto names = physicalAndLogicalNameForNewFile();
-    rootOutputFile_ = std::make_unique<RootOutputFile>(this, names.first, names.second); // propagate_const<T> has no reset() function
+    rootOutputFile_ = std::make_unique<RootOutputFile>(this, names.first, names.second,
+                                                       processesWithSelectedMergeableRunProducts_); // propagate_const<T> has no reset() function
   }
 
   void

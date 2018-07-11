@@ -28,6 +28,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "IOPool/Output/interface/PoolOutputModule.h"
@@ -47,7 +48,8 @@ namespace edm {
     typedef PoolOutputModule::OutputItemList OutputItemList;
     typedef std::array<edm::propagate_const<RootOutputTree*>, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(PoolOutputModule* om, std::string const& fileName,
-                            std::string const& logicalFileName);
+                            std::string const& logicalFileName,
+                            std::vector<std::string> const& processesWithSelectedMergeableRunProducts);
     ~RootOutputFile() {}
     void writeOne(EventForOutput const& e);
     //void endFile();
@@ -56,6 +58,7 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
+    void writeStoredMergeableRunProductMetadata();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
@@ -116,6 +119,7 @@ namespace edm {
     IndexIntoFile::EntryNumber_t lumiEntryNumber_;
     IndexIntoFile::EntryNumber_t runEntryNumber_;
     IndexIntoFile indexIntoFile_;
+    StoredMergeableRunProductMetadata storedMergeableRunProductMetadata_;
     unsigned long nEventsInLumi_;
     edm::propagate_const<TTree*> metaDataTree_;
     edm::propagate_const<TTree*> parameterSetsTree_;

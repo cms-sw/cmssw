@@ -1,6 +1,7 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <ostream>
+#include <utility>
 
 namespace edm 
 {
@@ -16,4 +17,7 @@ namespace edm
     return true;
   }
 
+  void MergeableCounter::swap(MergeableCounter& iOther) {
+    std::swap(value, iOther.value);
+  }
 }

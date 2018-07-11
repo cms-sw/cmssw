@@ -15,6 +15,7 @@
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -433,6 +434,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
 
   for(auto& prod : m_->reg_->productListUpdator()) {
     prod.second.init();
+    setIsMergeable(prod.second);
   }
 
   // Merge into the registries. For now, we do NOT merge the product registry.

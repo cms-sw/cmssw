@@ -86,6 +86,7 @@ namespace edm {
     std::string const fileIdentifier = "FileIdentifier";
     std::string const fileIndex = "FileIndex";
     std::string const indexIntoFile = "IndexIntoFile";
+    std::string const mergeableRunProductMetadata = "MergeableRunProductMetadata";
     std::string const eventHistory = "EventHistory";
     std::string const eventBranchMapper = "EventBranchMapper";
 
@@ -232,6 +233,11 @@ namespace edm {
     // Branch on MetaData Tree
     std::string const& indexIntoFileBranchName() {
       return indexIntoFile;
+    }
+
+    // Branch on MetaData Tree
+    std::string const& mergeableRunProductMetadataBranchName() {
+      return mergeableRunProductMetadata;
     }
 
     // Branch on Event History Tree

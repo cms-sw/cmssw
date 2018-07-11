@@ -7,6 +7,7 @@
 #include "ProvenanceAdaptor.h"
 #include "RunHelper.h"
 
+#include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -17,6 +18,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -24,6 +26,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
@@ -169,6 +172,7 @@ namespace edm {
       indexIntoFileBegin_(indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder)),
       indexIntoFileEnd_(indexIntoFileBegin_),
       indexIntoFileIter_(indexIntoFileBegin_),
+      storedMergeableRunProductMetadata_((inputType == InputType::Primary) ? new StoredMergeableRunProductMetadata : nullptr),
       eventProcessHistoryIDs_(),
       eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
       savedRunAuxiliary_(),
@@ -202,7 +206,8 @@ namespace edm {
       eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
       daqProvenanceHelper_(),
-      edProductClass_(TClass::GetClass("edm::WrapperBase")) {
+      edProductClass_(TypeWithDict::byName("edm::WrapperBase").getClass()),
+      inputType_(inputType) {
 
     hasNewlyDroppedBranch_.fill(false);
 
@@ -237,6 +242,14 @@ namespace edm {
     IndexIntoFile *iifPtr = &indexIntoFile_;
     if(metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::indexIntoFileBranchName().c_str(), &iifPtr);
+    }
+
+    StoredMergeableRunProductMetadata *smrc = nullptr;
+    if(inputType == InputType::Primary) {
+      smrc = &*storedMergeableRunProductMetadata_;
+      if(metaDataTree->FindBranch(poolNames::mergeableRunProductMetadataBranchName().c_str()) != nullptr) {
+        metaDataTree->SetBranchAddress(poolNames::mergeableRunProductMetadataBranchName().c_str(), &smrc);
+      }
     }
 
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
@@ -485,6 +498,13 @@ namespace edm {
       } else if (inputType == InputType::Primary) {
         thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
       }
+
+      if (inputType == InputType::Primary) {
+        for(auto & product : newReg->productListUpdator()) {
+          setIsMergeable(product.second);
+        }
+      }
+
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
       productRegistry_.reset(newReg.release());
@@ -1530,6 +1550,16 @@ namespace edm {
 
   void
   RootFile::readRun_(RunPrincipal& runPrincipal) {
+
+    MergeableRunProductMetadata* mergeableRunProductMetadata = nullptr;
+    if (inputType_ == InputType::Primary) {
+      mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+      RootTree::EntryNumber const& entryNumber = runTree_.entryNumber();
+      assert(entryNumber >= 0);
+      mergeableRunProductMetadata->readRun(entryNumber, *storedMergeableRunProductMetadata_,
+                                           IndexIntoFileItrHolder(indexIntoFileIter_));
+    }
+
     if(!runHelper_->fakeNewRun()) {
       assert(indexIntoFileIter_ != indexIntoFileEnd_);
       assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
@@ -1544,7 +1574,7 @@ namespace edm {
     runTree_.insertEntryForIndex(0);
     runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
-    runPrincipal.readAllFromSourceAndMergeImmediately();
+    runPrincipal.readAllFromSourceAndMergeImmediately(mergeableRunProductMetadata);
   }
 
 
@@ -1787,7 +1817,7 @@ namespace edm {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
-          TClass* cp = TClass::GetClass(prod.wrappedName().c_str());
+          TClass* cp = prod.wrappedType().getClass();
           void* p = cp->New();
           int offset = cp->GetBaseClassOffset(edProductClass_);
           std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
