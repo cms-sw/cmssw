@@ -64,7 +64,9 @@
       [hgcal:rad200300P0], [hgcal:rad200300P1], [hgcal:rad200300P2],
       [hgcal:rad200300P3], [hgcal:rad200300P4]</Vector>
     <Numeric name="zMinForRadPar"    value="[hgcal:zMinForRadPar]"/>
+    <Numeric name="choiceType"       value="[hgcal:ChoiceType]"/>
     <Numeric name="nCornerCut"       value="[hgcal:NCornerCut]"/>
+    <Numeric name="fracAreaMin"      value="[hgcal:FracAreaMin]"/>
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
