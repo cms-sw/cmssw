@@ -12,7 +12,7 @@ class AnyMVAEstimatorRun2Base {
 
  public:
   // Constructor, destructor
- AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf) : conf(conf) {}
+ AnyMVAEstimatorRun2Base(const edm::ParameterSet& conf) : conf_(conf) {}
   virtual ~AnyMVAEstimatorRun2Base(){};
 
   // Functions that must be provided in derived classes
@@ -41,17 +41,16 @@ class AnyMVAEstimatorRun2Base {
   // Implement these methods only if needed in the derived classes (use "override"
   // for certainty).
 
-  // DEPRECATED
   // This method needs to be used only once after this MVA estimator is constructed
   virtual void setConsumes(edm::ConsumesCollector &&cc) const {};
-  // This method needs to be called for each event
-  virtual void getEventContent(const edm::Event& iEvent) const final {};
+
+ private:
 
   //
   // Data members
   //
   // Configuration
-  const edm::ParameterSet conf;
+  const edm::ParameterSet conf_;
 
 };
 
