@@ -63,7 +63,7 @@ private:
   };
 
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
-				  int&);
+				  const int);
   std::pair<double,double> cellPosition(const std::vector<cellParameters>& wafers,
 					std::vector<cellParameters>::const_iterator& itrf,
 					int wafer, double xx, double yy);
