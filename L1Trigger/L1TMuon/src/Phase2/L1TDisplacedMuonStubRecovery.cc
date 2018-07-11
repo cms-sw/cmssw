@@ -164,7 +164,13 @@ bool L1TDisplacedMuonStubRecovery::stubInEMTFTracks(const CSCCorrelatedLCTDigi& 
       if (not hit.Is_CSC()) continue;
 
       // does this stub match?
-      if (stub == hit.CSC_LCTDigi()) return true;
+      // if (stub == hit.CSC_LCTDigi()) return true;  
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      // !!! FIXME: 
+      // !!! CSC_LCTDigi() method deprecated from DataFormats/L1TMuon/interface/EMTFHit.h. 
+      // !!! For now return true witout stub match.
+      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      return true;
     }
   }
   return false;
