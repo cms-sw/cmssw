@@ -256,11 +256,12 @@ PixelResolutionHistograms( const char * filename,
   cotalphaBins_     = binningHisto_->GetYaxis()->GetNbins();
 
   //--- If verbose, print various info...
-  LOGDEBUG << std::endl 
-	   << "Loading pixel resolution file = " << std::string(filename) << std::endl 
-	   << " cotBeta[" << cotbetaLowEdge_ <<","<< cotbetaBinWidth_ <<","<< cotbetaBins_ << "]" << std::endl 
-	   << " cotAlpha[" << cotalphaLowEdge_ <<","<< cotalphaBinWidth_ <<","<< cotalphaBins_ << "]" 
-	   << std::endl;
+  //LOGINFO << std::endl 
+  std::cout << std::endl
+	  << "Loading pixel resolution file = " << std::string(filename) << std::endl 
+	  << " cotBeta[" << cotbetaLowEdge_ <<","<< cotbetaBinWidth_ <<","<< cotbetaBins_ << "]" << std::endl 
+	  << " cotAlpha[" << cotalphaLowEdge_ <<","<< cotalphaBinWidth_ <<","<< cotalphaBins_ << "]" 
+	  << std::endl;
   
 
   if ( !ignore_multi ) {
@@ -286,6 +287,10 @@ PixelResolutionHistograms( const char * filename,
 	  }
 	  LOGDEBUG << "Found histo " << std::string(histo)
 		   << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
+	  if ( tmphist->GetEntries() < 5 ) {
+	    std::cout << "Warning: histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
+		      << " entries. Trouble ahead." << std::endl;
+	  }
 	  resMultiPixelXHist_ [ ii ][ jj ][ kk ] = tmphist;
 	  resMultiPixelXGen_  [ ii ][ jj ][ kk ] = new SimpleHistogramGenerator( tmphist );
 	  
@@ -304,6 +309,10 @@ PixelResolutionHistograms( const char * filename,
 	  }
 	  LOGDEBUG << "Found histo " << std::string(histo)
 		   << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
+	  if ( tmphist->GetEntries() < 5 ) {
+	    std::cout << "Warning: histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
+		      << " entries. Trouble ahead." << std::endl;
+	  }
 	  resMultiPixelYHist_ [ ii ][ jj ][ kk ] = tmphist;
 	  resMultiPixelYGen_  [ ii ][ jj ][ kk ] = new SimpleHistogramGenerator( tmphist );
 	}
@@ -339,6 +348,10 @@ PixelResolutionHistograms( const char * filename,
 	LOGDEBUG << "Found histo " << std::string(histo)
 		 << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
 	LOGDEBUG << "Found histo with title = " << std::string( tmphist->GetTitle() ) << std::endl;
+	if ( tmphist->GetEntries() < 5 ) {
+	  std::cout << "Warning: histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
+		    << " entries. Trouble ahead." << std::endl;
+	}
 	resSinglePixelXHist_ [ ii ][ jj ] = tmphist;
 	resSinglePixelXGen_  [ ii ][ jj ] = new SimpleHistogramGenerator( tmphist );
       }
@@ -362,6 +375,10 @@ PixelResolutionHistograms( const char * filename,
       else {
 	LOGDEBUG << "Found histo " << std::string(histo)
 		 << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
+	if ( tmphist->GetEntries() < 5 ) {
+	  std::cout << "Warning: histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
+		    << " entries. Trouble ahead." << std::endl;
+	}
 	resSinglePixelYHist_ [ ii ][ jj ] = tmphist;
 	resSinglePixelYGen_  [ ii ][ jj ] = new SimpleHistogramGenerator( tmphist );
       }
@@ -385,6 +402,10 @@ PixelResolutionHistograms( const char * filename,
       else {
 	LOGDEBUG << "Found histo " << std::string(histo)
 		 << " with title = " << std::string( tmphist->GetTitle() ) << std::endl;
+	if ( tmphist->GetEntries() < 5 ) {
+	  std::cout << "Warning: histogram " << std::string(histo) << " has only " << tmphist->GetEntries()
+		    << " entries. Trouble ahead." << std::endl;
+	}
 	qbinHist_ [ ii ][ jj ] = tmphist;
 	qbinGen_  [ ii ][ jj ] = new SimpleHistogramGenerator( tmphist );
       }

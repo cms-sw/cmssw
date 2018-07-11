@@ -118,7 +118,7 @@ fastTrackerRecHits.plugins.append(
         name = cms.string("pixelSmearerForwardRing2Panel1"),
         type = cms.string("PixelTemplateSmearerPlugin"),
         # templateId                 = cms.int32( 2443 ),
-        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64237_2443.root'),
+        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64237_2443_6.root'),
         BigPixelResolutionFile     = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardBig2017.root'),
         EdgePixelResolutionFile    = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardEdge2017.root'),
         #
@@ -140,7 +140,7 @@ fastTrackerRecHits.plugins.append(
         name = cms.string("pixelSmearerForwardRing1Panel1"),
         type = cms.string("PixelTemplateSmearerPlugin"),
         # templateId                 = cms.int32( 2453 ),
-        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64367_2453.root'),
+        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64367_2453_6.root'),
         BigPixelResolutionFile     = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardBig2017.root'),
         EdgePixelResolutionFile    = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardEdge2017.root'),
         #
@@ -161,7 +161,7 @@ fastTrackerRecHits.plugins.append(
         name = cms.string("pixelSmearerForwardRing1Panel2"),
         type = cms.string("PixelTemplateSmearerPlugin"),
         # templateId                 = cms.int32( 2463 ),
-        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64497_2463.root'),
+        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64497_2463_6.root'),
         BigPixelResolutionFile     = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardBig2017.root'),
         EdgePixelResolutionFile    = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardEdge2017.root'),
         #
@@ -181,7 +181,7 @@ fastTrackerRecHits.plugins.append(
         name = cms.string("pixelSmearerForwardRing2Panel2"),
         type = cms.string("PixelTemplateSmearerPlugin"),
         # templateId                 = cms.int32( 2473 ),
-        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64627_2473.root'),
+        RegularPixelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/pixel_histos64627_2473_6.root'),
         BigPixelResolutionFile     = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardBig2017.root'),
         EdgePixelResolutionFile    = cms.string('FastSimulation/TrackingRecHitProducer/data/ForwardEdge2017.root'),
         #
