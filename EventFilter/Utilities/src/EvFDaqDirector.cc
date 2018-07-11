@@ -1090,6 +1090,7 @@ namespace evf {
           std::stringstream spath;
           spath << path << "&stopls=" << maxLS;
           path = spath.str();
+          edm::LogWarning("EvFDaqDirector") << "Stop LS requested " << maxLS;
         }
         request_stream << "GET " << path << " HTTP/1.0\r\n";
         request_stream << "Host: " << fileServiceHost_ << "\r\n";
@@ -1257,7 +1258,7 @@ namespace evf {
       serverError= true;
     }
 
-    if (socket_->is_open()) {    
+    if (socket_->is_open()) {
       socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
       if (ec) {
         edm::LogWarning("EvFDaqDirector") << "socket shutdown error -:" << ec;
