@@ -4,9 +4,9 @@ set -euo pipefail
 
 ! [ "$(git status --porcelain)" ] || (echo "please commit everything before running"; git status; exit 1)
 
-voms-proxy-info | grep timeleft | grep -v 00:00:00 || (echo 'no proxy'; exit 1)
+voms-proxy-info | grep timeleft | grep -v -q 00:00:00 || (echo 'no proxy'; exit 1)
 
-(echo $STY) || (echo "run this on a screen"; exit 1)
+(echo $STY > /dev/null) || (echo "run this on a screen"; exit 1)
 
 #hpnumber=
 hptype=hp   #or sm
@@ -14,13 +14,13 @@ extraopts="--redirectproxy"
 
 #common=Configurations/common_cff_py_pickyours.txt
 #lstfile=DataFiles/pickyours.lst
-#IOVfile=IOV/RunYYYYYY.dat
+#IOVfile=IOV/RunYYYYYY
 #alignmentname=pick a name
 #niterations=pick a number
 
-[ -e $lstfile ]
-[ -e $common ]
-[ -e $IOVfile ]
+[ -e $lstfile ] || echo "$lstfile does not exist!"
+[ -e $common ] || echo "$common does not exist!"
+[ -e $IOVfile ] || echo "$IOVfile does not exist!"
 
 commitid=$(git rev-parse HEAD)
 
