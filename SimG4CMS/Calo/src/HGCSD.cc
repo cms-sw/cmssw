@@ -39,7 +39,9 @@ HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme_(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT_(99) {
+  slopeMin_(0), levelT_(99) {
+
+  numberingScheme_.reset(nullptr); mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -90,11 +92,6 @@ HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 			     << " Mouse Bite " << mouseBite << ":"
 			     << mouseBiteCut_ << " along " << angles_.size() 
 			     << " axes";
-}
-
-HGCSD::~HGCSD() { 
-  delete numberingScheme_;
-  delete mouseBite_;
 }
 
 double HGCSD::getEnergyDeposit(const G4Step* aStep) {
@@ -197,8 +194,9 @@ void HGCSD::update(const BeginOfJob * job) {
     geom_mode_                = hgcons->geomMode();
     slopeMin_                 = hgcons->minSlope();
     levelT_                   = hgcons->levelTop();
-    numberingScheme_          = new HGCNumberingScheme(*hgcons,nameX_);
-    if (rejectMB_) mouseBite_ = new HGCMouseBite(*hgcons,angles_,mouseBiteCut_,waferRot_);
+    numberingScheme_.reset(new HGCNumberingScheme(*hgcons,nameX_));
+    if (rejectMB_) mouseBite_.reset(new HGCMouseBite(*hgcons,angles_,
+						     mouseBiteCut_,waferRot_));
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
 			    << nameX_;
