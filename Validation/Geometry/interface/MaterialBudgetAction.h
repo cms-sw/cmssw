@@ -57,11 +57,13 @@ class MaterialBudgetAction : public SimWatcher,
   void save( const G4Step* aStep );
   std::string getSubDetectorName( G4StepPoint* aStepPoint );
   std::string getPartName( G4StepPoint* aStepPoint );
-  MaterialBudgetData* theData;
-  MaterialBudgetTree* theTree;
-  MaterialBudgetFormat* theHistos;
-  MaterialBudgetTxt* theTxt;
-  TestHistoMgr* theHistoMgr;
+
+  std::shared_ptr<MaterialBudgetData> theData;
+  std::shared_ptr<MaterialBudgetTree> theTree;
+  std::shared_ptr<MaterialBudgetFormat> theHistos;
+  std::shared_ptr<MaterialBudgetTxt> theTxt;
+  std::shared_ptr<TestHistoMgr> theHistoMgr;
+
   bool saveToTxt, saveToTree, saveToHistos;
   bool storeDecay;
   double Ekin;

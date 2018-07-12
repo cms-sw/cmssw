@@ -7,13 +7,14 @@ template <class T> const T& max ( const T& a, const T& b ) {
 
 
 
-MaterialBudgetHGCalHistos::MaterialBudgetHGCalHistos(MaterialBudgetData* data,
-							 TestHistoMgr* mgr,
-							 const std::string& fileName ): MaterialBudgetFormat( data ), hmgr(mgr)
+MaterialBudgetHGCalHistos::MaterialBudgetHGCalHistos(std::shared_ptr<MaterialBudgetData> data,
+						     std::shared_ptr<TestHistoMgr> mgr,
+						     const std::string& fileName )
+  : MaterialBudgetFormat( data ), 
+    hmgr(mgr)
 {
   theFileName = fileName;
   book();
-
 }
 
 
@@ -465,7 +466,7 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 
 	float fillValue=subdelta/x0;
 
-	//
+	float costhetacorrection = cos( 2 * atan(exp(-fabs(eta))) );
 	// Average length
 	hmgr->getHisto2(999)->Fill(z,polarRadius,subdelta);
 	// Total
@@ -473,90 +474,90 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 	hmgr->getHistoProf1(40)->Fill(polarRadius,theTotalMB_TOT);
 	hmgr->getHisto2(51)->Fill(z,polarRadius);
 	hmgr->getHistoProf2(50)->Fill(z,polarRadius,theTotalMB_TOT);
-	hmgr->getHistoProf2(52)->Fill(z,polarRadius, theTotalMB_TOT * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(52)->Fill(z,polarRadius, theTotalMB_TOT * costhetacorrection );
 	hmgr->getHisto2(60)->Fill(z,polarRadius,fillValue);
 	hmgr->getHistoProf2(70)->Fill(z,polarRadius,fillValue);
-	hmgr->getHistoProf2(72)->Fill(z,polarRadius, fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(72)->Fill(z,polarRadius, fillValue * costhetacorrection );
 
 	// Copper
 	hmgr->getHistoProf1(140)->Fill(polarRadius,theTotalMB_COP);
 	hmgr->getHistoProf2(150)->Fill(z,polarRadius,theTotalMB_COP);
-	hmgr->getHistoProf2(152)->Fill(z,polarRadius,theTotalMB_COP * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(152)->Fill(z,polarRadius,theTotalMB_COP * costhetacorrection );
 	hmgr->getHisto2(160)->Fill(z,polarRadius,iCop*fillValue);
 	hmgr->getHistoProf2(170)->Fill(z,polarRadius,iCop*fillValue);
-	hmgr->getHistoProf2(172)->Fill(z,polarRadius, iCop * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(172)->Fill(z,polarRadius, iCop * fillValue * costhetacorrection );
 
 	// H_Scintillator
 	hmgr->getHistoProf1(240)->Fill(polarRadius,theTotalMB_SCI);
 	hmgr->getHistoProf2(250)->Fill(z,polarRadius,theTotalMB_SCI);
-	hmgr->getHistoProf2(252)->Fill(z,polarRadius,theTotalMB_SCI * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(252)->Fill(z,polarRadius,theTotalMB_SCI * costhetacorrection );
 	hmgr->getHisto2(260)->Fill(z,polarRadius,iSci*fillValue);
 	hmgr->getHistoProf2(270)->Fill(z,polarRadius,iSci*fillValue);
-	hmgr->getHistoProf2(272)->Fill(z,polarRadius, iSci * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(272)->Fill(z,polarRadius, iSci * fillValue * costhetacorrection );
 
 	// Cables
 	hmgr->getHistoProf1(340)->Fill(polarRadius,theTotalMB_CAB);
 	hmgr->getHistoProf2(350)->Fill(z,polarRadius,theTotalMB_CAB);
-	hmgr->getHistoProf2(352)->Fill(z,polarRadius,theTotalMB_CAB * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(352)->Fill(z,polarRadius,theTotalMB_CAB * costhetacorrection );
 	hmgr->getHisto2(360)->Fill(z,polarRadius,iCab*fillValue);
 	hmgr->getHistoProf2(370)->Fill(z,polarRadius,iCab*fillValue);
-	hmgr->getHistoProf2(372)->Fill(z,polarRadius, iCab * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(372)->Fill(z,polarRadius, iCab * fillValue * costhetacorrection );
 
 	// M_NEMA_FR4_plate
 	hmgr->getHistoProf1(440)->Fill(polarRadius,theTotalMB_MNE);
 	hmgr->getHistoProf2(450)->Fill(z,polarRadius,theTotalMB_MNE);
-	hmgr->getHistoProf2(452)->Fill(z,polarRadius,theTotalMB_MNE * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(452)->Fill(z,polarRadius,theTotalMB_MNE * costhetacorrection );
 	hmgr->getHisto2(460)->Fill(z,polarRadius,iMne*fillValue);
 	hmgr->getHistoProf2(470)->Fill(z,polarRadius,iMne*fillValue);
-	hmgr->getHistoProf2(472)->Fill(z,polarRadius, iMne * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(472)->Fill(z,polarRadius, iMne * fillValue * costhetacorrection );
 
 	// Silicon
 	hmgr->getHistoProf1(540)->Fill(polarRadius,theTotalMB_NIM);
 	hmgr->getHistoProf2(550)->Fill(z,polarRadius,theTotalMB_NIM);
-	hmgr->getHistoProf2(552)->Fill(z,polarRadius,theTotalMB_NIM * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(552)->Fill(z,polarRadius,theTotalMB_NIM * costhetacorrection );
 	hmgr->getHisto2(560)->Fill(z,polarRadius,iSil*fillValue);
 	hmgr->getHistoProf2(570)->Fill(z,polarRadius,iSil*fillValue);
-	hmgr->getHistoProf2(572)->Fill(z,polarRadius, iSil * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(572)->Fill(z,polarRadius, iSil * fillValue * costhetacorrection );
 
 	// Other
 	hmgr->getHistoProf1(640)->Fill(polarRadius,theTotalMB_OTH);
 	hmgr->getHistoProf2(650)->Fill(z,polarRadius,theTotalMB_OTH);
-	hmgr->getHistoProf2(652)->Fill(z,polarRadius,theTotalMB_OTH * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(652)->Fill(z,polarRadius,theTotalMB_OTH * costhetacorrection );
 	hmgr->getHisto2(660)->Fill(z,polarRadius,iOth*fillValue);
 	hmgr->getHistoProf2(670)->Fill(z,polarRadius,iOth*fillValue);
-	hmgr->getHistoProf2(672)->Fill(z,polarRadius, iOth * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(672)->Fill(z,polarRadius, iOth * fillValue * costhetacorrection );
 
 	// Air
 	hmgr->getHistoProf1(740)->Fill(polarRadius,theTotalMB_AIR);
 	hmgr->getHistoProf2(750)->Fill(z,polarRadius,theTotalMB_AIR);
-	hmgr->getHistoProf2(752)->Fill(z,polarRadius,theTotalMB_AIR * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(752)->Fill(z,polarRadius,theTotalMB_AIR * costhetacorrection );
 	hmgr->getHisto2(760)->Fill(z,polarRadius,iAir*fillValue);
 	hmgr->getHistoProf2(770)->Fill(z,polarRadius,iAir*fillValue);
-	hmgr->getHistoProf2(772)->Fill(z,polarRadius, iAir * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(772)->Fill(z,polarRadius, iAir * fillValue * costhetacorrection );
 
 	// StainlessSteel
 	hmgr->getHistoProf1(840)->Fill(polarRadius,theTotalMB_SST);
 	hmgr->getHistoProf2(850)->Fill(z,polarRadius,theTotalMB_SST);
-	hmgr->getHistoProf2(852)->Fill(z,polarRadius,theTotalMB_SST * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(852)->Fill(z,polarRadius,theTotalMB_SST * costhetacorrection );
 	hmgr->getHisto2(860)->Fill(z,polarRadius,iSst*fillValue);
 	hmgr->getHistoProf2(870)->Fill(z,polarRadius,iSst*fillValue);
-	hmgr->getHistoProf2(872)->Fill(z,polarRadius, iSst * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(872)->Fill(z,polarRadius, iSst * fillValue * costhetacorrection );
 
 	// WCu
 	hmgr->getHistoProf1(940)->Fill(polarRadius,theTotalMB_WCU);
 	hmgr->getHistoProf2(950)->Fill(z,polarRadius,theTotalMB_WCU);
-	hmgr->getHistoProf2(952)->Fill(z,polarRadius,theTotalMB_WCU * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(952)->Fill(z,polarRadius,theTotalMB_WCU * costhetacorrection );
 	hmgr->getHisto2(960)->Fill(z,polarRadius,iWcu*fillValue);
 	hmgr->getHistoProf2(970)->Fill(z,polarRadius,iWcu*fillValue);
-	hmgr->getHistoProf2(972)->Fill(z,polarRadius, iWcu * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(972)->Fill(z,polarRadius, iWcu * fillValue * costhetacorrection );
 
 	// Lead
 	hmgr->getHistoProf1(1040)->Fill(polarRadius,theTotalMB_LEA);
 	hmgr->getHistoProf2(1050)->Fill(z,polarRadius,theTotalMB_LEA);
-	hmgr->getHistoProf2(1052)->Fill(z,polarRadius,theTotalMB_LEA * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(1052)->Fill(z,polarRadius,theTotalMB_LEA * costhetacorrection );
 	hmgr->getHisto2(1060)->Fill(z,polarRadius,iLea*fillValue);
 	hmgr->getHistoProf2(1070)->Fill(z,polarRadius,iLea*fillValue);
-	hmgr->getHistoProf2(1072)->Fill(z,polarRadius, iLea * fillValue  * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(1072)->Fill(z,polarRadius, iLea * fillValue  * costhetacorrection );
 
       }
     }
@@ -710,96 +711,96 @@ void MaterialBudgetHGCalHistos::fillEndTrack()
 
 	float fillValue=subdelta/il;
 
-	//
+	float costhetacorrection = cos( 2 * atan(exp(-fabs(eta))) );
 	// Average length
 	hmgr->getHisto2(1999)->Fill(z,polarRadius,subdelta);
 	// Total
 	hmgr->getHistoProf1(10040)->Fill(polarRadius,theTotalIL_TOT);
 	hmgr->getHistoProf2(10050)->Fill(z,polarRadius,theTotalIL_TOT);
-	hmgr->getHistoProf2(10052)->Fill(z,polarRadius,theTotalIL_TOT * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10052)->Fill(z,polarRadius,theTotalIL_TOT * costhetacorrection );
 	hmgr->getHisto2(10060)->Fill(z,polarRadius,fillValue);
 	hmgr->getHistoProf2(10070)->Fill(z,polarRadius,fillValue);
-	hmgr->getHistoProf2(10072)->Fill(z,polarRadius, fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10072)->Fill(z,polarRadius, fillValue * costhetacorrection );
 
 	// Copper
 	hmgr->getHistoProf1(10140)->Fill(polarRadius,theTotalIL_COP);
 	hmgr->getHistoProf2(10150)->Fill(z,polarRadius,theTotalIL_COP);
-	hmgr->getHistoProf2(10152)->Fill(z,polarRadius,theTotalIL_COP * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10152)->Fill(z,polarRadius,theTotalIL_COP * costhetacorrection );
 	hmgr->getHisto2(10160)->Fill(z,polarRadius,iCop*fillValue);
 	hmgr->getHistoProf2(10170)->Fill(z,polarRadius,iCop*fillValue);
-	hmgr->getHistoProf2(10172)->Fill(z,polarRadius, iCop * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10172)->Fill(z,polarRadius, iCop * fillValue * costhetacorrection );
 
 	// H_Scintillator
 	hmgr->getHistoProf1(10240)->Fill(polarRadius,theTotalIL_SCI);
 	hmgr->getHistoProf2(10250)->Fill(z,polarRadius,theTotalIL_SCI);
-	hmgr->getHistoProf2(10252)->Fill(z,polarRadius,theTotalIL_SCI * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10252)->Fill(z,polarRadius,theTotalIL_SCI * costhetacorrection );
 	hmgr->getHisto2(10260)->Fill(z,polarRadius,iSci*fillValue);
 	hmgr->getHistoProf2(10270)->Fill(z,polarRadius,iSci*fillValue);
-	hmgr->getHistoProf2(10272)->Fill(z,polarRadius, iSci * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10272)->Fill(z,polarRadius, iSci * fillValue * costhetacorrection );
 
 	// Cables
 	hmgr->getHistoProf1(10340)->Fill(polarRadius,theTotalIL_CAB);
 	hmgr->getHistoProf2(10350)->Fill(z,polarRadius,theTotalIL_CAB);
-	hmgr->getHistoProf2(10352)->Fill(z,polarRadius,theTotalIL_CAB * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10352)->Fill(z,polarRadius,theTotalIL_CAB * costhetacorrection );
 	hmgr->getHisto2(10360)->Fill(z,polarRadius,iCab*fillValue);
 	hmgr->getHistoProf2(10370)->Fill(z,polarRadius,iCab*fillValue);
-	hmgr->getHistoProf2(10372)->Fill(z,polarRadius, iCab * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10372)->Fill(z,polarRadius, iCab * fillValue * costhetacorrection );
 
 	// M_NEMA_FR4_plate
 	hmgr->getHistoProf1(10440)->Fill(polarRadius,theTotalIL_MNE);
 	hmgr->getHistoProf2(10450)->Fill(z,polarRadius,theTotalIL_MNE);
-	hmgr->getHistoProf2(10452)->Fill(z,polarRadius,theTotalIL_MNE * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10452)->Fill(z,polarRadius,theTotalIL_MNE * costhetacorrection );
 	hmgr->getHisto2(10460)->Fill(z,polarRadius,iMne*fillValue);
 	hmgr->getHistoProf2(10470)->Fill(z,polarRadius,iMne*fillValue);
-	hmgr->getHistoProf2(10472)->Fill(z,polarRadius, iMne * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10472)->Fill(z,polarRadius, iMne * fillValue * costhetacorrection );
 
 	// Silicon
 	hmgr->getHistoProf1(10540)->Fill(polarRadius,theTotalIL_NIM);
 	hmgr->getHistoProf2(10550)->Fill(z,polarRadius,theTotalIL_NIM);
-	hmgr->getHistoProf2(10552)->Fill(z,polarRadius,theTotalIL_NIM * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10552)->Fill(z,polarRadius,theTotalIL_NIM * costhetacorrection );
 	hmgr->getHisto2(10560)->Fill(z,polarRadius,iSil*fillValue);
 	hmgr->getHistoProf2(10570)->Fill(z,polarRadius,iSil*fillValue);
-	hmgr->getHistoProf2(10572)->Fill(z,polarRadius, iSil * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10572)->Fill(z,polarRadius, iSil * fillValue * costhetacorrection );
 
 	// Other
 	hmgr->getHistoProf1(10640)->Fill(polarRadius,theTotalIL_OTH);
 	hmgr->getHistoProf2(10650)->Fill(z,polarRadius,theTotalIL_OTH);
-	hmgr->getHistoProf2(10652)->Fill(z,polarRadius,theTotalIL_OTH * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10652)->Fill(z,polarRadius,theTotalIL_OTH * costhetacorrection );
 	hmgr->getHisto2(10660)->Fill(z,polarRadius,iOth*fillValue);
 	hmgr->getHistoProf2(10670)->Fill(z,polarRadius,iOth*fillValue);
-	hmgr->getHistoProf2(10672)->Fill(z,polarRadius, iOth * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10672)->Fill(z,polarRadius, iOth * fillValue * costhetacorrection );
 
 	// Air
 	hmgr->getHistoProf1(10740)->Fill(polarRadius,theTotalIL_AIR);
 	hmgr->getHistoProf2(10750)->Fill(z,polarRadius,theTotalIL_AIR);
-	hmgr->getHistoProf2(10752)->Fill(z,polarRadius,theTotalIL_AIR * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10752)->Fill(z,polarRadius,theTotalIL_AIR * costhetacorrection );
 	hmgr->getHisto2(10760)->Fill(z,polarRadius,iAir*fillValue);
 	hmgr->getHistoProf2(10770)->Fill(z,polarRadius,iAir*fillValue);
-	hmgr->getHistoProf2(10772)->Fill(z,polarRadius, iAir * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10772)->Fill(z,polarRadius, iAir * fillValue * costhetacorrection );
 
 	// StainlessSteel
 	hmgr->getHistoProf1(10840)->Fill(polarRadius,theTotalIL_SST);
 	hmgr->getHistoProf2(10850)->Fill(z,polarRadius,theTotalIL_SST);
-	hmgr->getHistoProf2(10852)->Fill(z,polarRadius,theTotalIL_SST * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10852)->Fill(z,polarRadius,theTotalIL_SST * costhetacorrection );
 	hmgr->getHisto2(10860)->Fill(z,polarRadius,iSst*fillValue);
 	hmgr->getHistoProf2(10870)->Fill(z,polarRadius,iSst*fillValue);
-	hmgr->getHistoProf2(10872)->Fill(z,polarRadius, iSst * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10872)->Fill(z,polarRadius, iSst * fillValue * costhetacorrection );
 
 	// WCu
 	hmgr->getHistoProf1(10940)->Fill(polarRadius,theTotalIL_WCU);
 	hmgr->getHistoProf2(10950)->Fill(z,polarRadius,theTotalIL_WCU);
-	hmgr->getHistoProf2(10952)->Fill(z,polarRadius,theTotalIL_WCU * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10952)->Fill(z,polarRadius,theTotalIL_WCU * costhetacorrection );
 	hmgr->getHisto2(10960)->Fill(z,polarRadius,iWcu*fillValue);
 	hmgr->getHistoProf2(10970)->Fill(z,polarRadius,iWcu*fillValue);
-	hmgr->getHistoProf2(10972)->Fill(z,polarRadius, iWcu * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(10972)->Fill(z,polarRadius, iWcu * fillValue * costhetacorrection );
 
 	// Lead
 	hmgr->getHistoProf1(11040)->Fill(polarRadius,theTotalIL_LEA);
 	hmgr->getHistoProf2(11050)->Fill(z,polarRadius,theTotalIL_LEA);
-	hmgr->getHistoProf2(11052)->Fill(z,polarRadius,theTotalIL_LEA * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(11052)->Fill(z,polarRadius,theTotalIL_LEA * costhetacorrection );
 	hmgr->getHisto2(11060)->Fill(z,polarRadius,iLea*fillValue);
 	hmgr->getHistoProf2(11070)->Fill(z,polarRadius,iLea*fillValue);
-	hmgr->getHistoProf2(11072)->Fill(z,polarRadius, iLea * fillValue * cos( 2 * atan(exp(-fabs(eta))) ) );
+	hmgr->getHistoProf2(11072)->Fill(z,polarRadius, iLea * fillValue * costhetacorrection );
 
       }
 

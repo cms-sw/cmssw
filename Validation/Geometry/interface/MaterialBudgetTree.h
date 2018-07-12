@@ -14,7 +14,7 @@ class MaterialBudgetTree : public MaterialBudgetFormat
 {
 public:
 
-  MaterialBudgetTree( MaterialBudgetData* data, const std::string& fileName );   
+  MaterialBudgetTree( std::shared_ptr<MaterialBudgetData> data, const std::string& fileName );   
   ~MaterialBudgetTree() override{ hend(); }
 
   void fillStartTrack() override;

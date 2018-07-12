@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from array import array
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
-from ROOT import TCanvas, TLegend, TPaveText, THStack, TFile, TLatex
+from ROOT import TCanvas, TLegend, TPaveText, THStack, TFile, TLatex, TPaveLabel
 from ROOT import TProfile, TProfile2D, TH1D, TH2F, TPaletteAxis, TH1, TH1F, TColor, TExec
 from ROOT import kBlack, kWhite, kOrange, kAzure, kBlue
 from ROOT import gROOT, gStyle
@@ -406,6 +406,7 @@ def createCompoundPlots(detector, plot):
     can.Range(0,0,25,25)
     can.SetFillColor(kWhite)
     gStyle.SetOptStat(0)
+    gStyle.SetOptTitle(1);
 
     # Draw
     stack_X0.Draw("HIST");
@@ -425,6 +426,31 @@ def createCompoundPlots(detector, plot):
     can.SaveAs( "%s/%s_%s.pdf" % (theDirname, detector, plot))
     can.SaveAs( "%s/%s_%s.png" % (theDirname, detector, plot))
 
+    #Let's also save the total accumulated budget vs eta since muon id relies 
+    #on adequate calorimeter thickness
+    if plot == "x_vs_eta" or plot == "l_vs_eta":
+        canname = "MBCan_1D_%s_%s_total"  % (detector, plot)
+        can2 = TCanvas(canname, canname, 800, 800)
+        can2.Range(0,0,25,25)
+        can2.SetFillColor(kWhite)
+        gStyle.SetOptStat(0)
+        gStyle.SetOptTitle(0);
+        #title = TPaveLabel(.11,.95,.35,.99,"Total accumulated material budget","brndc")
+        stack_X0.GetStack().Last().GetXaxis().SetRangeUser( 0., 3.)
+        stack_X0.GetStack().Last().Draw();
+        stack_X0.GetYaxis().SetTitleOffset(1.15);
+        can2.Update()
+        can2.Modified()
+        can2.SaveAs("%s/%s_%s_total_Zplus.pdf" % (theDirname, detector, plot))
+        can2.SaveAs("%s/%s_%s_total_Zplus.png" % (theDirname, detector, plot))
+        stack_X0.GetStack().Last().GetXaxis().SetRangeUser( -3., 0.)
+        stack_X0.GetStack().Last().Draw();
+        stack_X0.GetYaxis().SetTitleOffset(1.15);
+        can2.Update()
+        can2.Modified()
+        can2.SaveAs("%s/%s_%s_total_Zminus.pdf" % (theDirname, detector, plot))
+        can2.SaveAs("%s/%s_%s_total_Zminus.png" % (theDirname, detector, plot))
+ 
 
 def create2DPlots(detector, plot, plotnum, plotmat):
     """Produce the requested plot for the specified detector.
@@ -732,6 +758,7 @@ def GetSiliconZValuesFromXML():
 
     return layersmaxZ
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generic Material Plotter',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -775,7 +802,6 @@ if __name__ == '__main__':
         #required_2Dplots = ["x_vs_eta_vs_phi", "l_vs_eta_vs_phi", "x_vs_z_vs_Rsum", "l_vs_z_vs_Rsum", "x_vs_z_vs_Rsumcos"]
 
         required_plots = ["x_vs_eta", "x_vs_phi", "x_vs_R", "l_vs_eta", "l_vs_phi", "l_vs_R"]
-
 
         required_ratio_plots = ["x_over_l_vs_eta", "x_over_l_vs_phi"]
 
