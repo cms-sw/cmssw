@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration -->
+<atn>
+   <TEST name="CheckerGccPluginsTests" type="makecheck">
+      <package>External/CheckerGccPlugins</package>
+      <timelimit>20</timelimit>
+      <author> scott snyder </author>
+      <mailto> snyder@bnl.gov </mailto>
+      <expectations>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <errorMessage>differ</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>

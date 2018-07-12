@@ -1,0 +1,20 @@
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:17:15: warning: Mutable member 'S::a' of type 'int' within thread-safe class 'struct S'; may not be thread-safe.
+   mutable int a;
+               ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:17:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:19:20: warning: Mutable member 'S::c' of type 'int* [10]' within thread-safe class 'struct S'; may not be thread-safe.
+   mutable int *c[10];
+                    ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:19:20: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:26:14: warning: Static member 'S::d' of type 'int' within thread-safe class 'struct S'; may not be thread-safe.
+   static int d;
+              ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:26:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:29:26: warning: Static member 'S::g' of type 'std::atomic<SS>' within thread-safe class 'struct S'; may not be thread-safe.
+   static std::atomic<SS> g;
+                          ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:29:26: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:40:15: warning: Mutable member 'X<T>::a' of type 'int' within thread-safe class 'struct X<T>'; may not be thread-safe.
+   mutable int a;
+               ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:40:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

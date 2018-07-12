@@ -1,0 +1,13 @@
+In file included from /home/sss/atlas/rootaccess/../test/usingns1_test.cxx:6:0:
+/home/sss/atlas/rootaccess/../test/usingns1_test.h:5:12: warning: Do not use a using declaration in the global namespace in an #included file
+ using std::qq;
+            ^~
+/home/sss/atlas/rootaccess/../test/usingns1_test.h:5:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#usingns_plugin>.
+/home/sss/atlas/rootaccess/../test/usingns1_test.cxx:4:17: warning: Do not use `using namespace' before an #include.
+ using namespace std;
+                 ^~~
+/home/sss/atlas/rootaccess/../test/usingns1_test.cxx:4:17: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#usingns_plugin>.
+/home/sss/atlas/rootaccess/../test/usingns1_test.cxx:5:12: warning: Do not use a using declaration in the global namespace before an #included file
+ using std::qq;
+            ^~
+/home/sss/atlas/rootaccess/../test/usingns1_test.cxx:5:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#usingns_plugin>.

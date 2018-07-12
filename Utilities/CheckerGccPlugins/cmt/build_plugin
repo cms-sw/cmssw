@@ -1,0 +1,83 @@
+#!/bin/sh
+
+# Build the checker plugins and install them in ATLAS_EXTERNAL.
+# Make sure the version is set correctly in the requirements file 
+# before starting.
+
+EXTERNAL=$ATLAS_EXTERNAL
+
+# build_one cmtconfig compiler destination
+build_one() {
+  cmtconfig=$1
+  compiler=$2
+  destination=$3
+
+  echo $cmtconfig
+
+  if [ -d "$destination" ]; then
+    echo "Destination $destination already exists; not overwriting."
+    return
+  fi
+
+  . $compiler/setup.sh ""
+  mkdir -p $destination
+
+  gcclibdir=`ls -d $compiler/lib/gcc/x86_64-unknown-linux-gnu/*`
+  plugindir=${gcclibdir}/plugin
+  gmp_home=`cmt show macro_value gmp_home`
+
+  includes="-I$plugindir/include -I$gcclibdir -I$gmp_home/include"
+  flags="-std=c++11 -c -g -fPIC -O2 $includes -Wno-literal-suffix -fno-rtti"
+
+  cp ../src/* $destination
+  cd $destination
+  for f in *.cxx; do
+    #echo g++ $flags $f
+    g++ $flags $f
+  done
+  g++ -shared -o libchecker_gccplugins.so *.o
+}
+
+
+# build given a cmtconfig
+build_config()
+{
+  cmtconfig=$1
+  compiler=""
+  case $cmtconfig in
+    i686-slc6-gcc48-opt|x86_64-slc6-gcc48-opt|x86_64-slc6-gcc48-dbg)
+      compiler=/afs/cern.ch/sw/lcg/releases/gcc/4.8.1/x86_64-slc6
+      ;;
+    i686-slc6-gcc49-opt|x86_64-slc6-gcc49-opt|x86_64-slc6-gcc49-dbg)
+      compiler=/afs/cern.ch/sw/lcg/releases/gcc/4.9.1/x86_64-slc6
+      ;;
+  esac
+
+  if [ "$compiler" = "" ]; then
+    echo "Unknown configuration $cmtconfig"
+    return
+  fi
+
+  version=`cmt show macro_value CheckerGccPlugins_native_version`
+  if [ "$version" = "" ]; then
+    echo "Can't find version."
+    return
+  fi
+
+  destination=$EXTERNAL/CheckerGccPlugins/$version/$cmtconfig
+
+  build_one $cmtconfig $compiler $destination
+}
+
+
+if [ "$1" = "" ]; then
+  $0 x86_64-slc6-gcc48-opt
+  $0 x86_64-slc6-gcc48-dbg
+  $0 i686-slc6-gcc48-opt
+  $0 x86_64-slc6-gcc49-opt
+  $0 x86_64-slc6-gcc49-dbg
+  $0 i686-slc6-gcc49-opt
+else
+  build_config $1
+fi
+

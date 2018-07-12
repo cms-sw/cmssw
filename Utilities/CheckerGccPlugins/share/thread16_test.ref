@@ -1,0 +1,27 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:16:16: warning: Virtual function 'virtual void D::f1()' within class 'struct D' does not have attribute 'not_reentrant', but overrides 'virtual void B::f1()' which does.
+   virtual void f1();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:8:16: note: Overridden function declared here:
+   virtual void f1 [[gnu::not_reentrant]] ();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:16:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   virtual void f1();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:17:16: warning: Virtual function 'virtual void D::f2()' within class 'struct D' has attribute 'not_reentrant', but overrides 'virtual void B::f2()' which does not.
+   virtual void f2 [[gnu::not_reentrant]] ();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:9:16: note: Overridden function declared here:
+   virtual void f2();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:17:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   virtual void f2 [[gnu::not_reentrant]] ();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:18:16: warning: Virtual function 'virtual void D::f3()' within class 'struct D' has attribute 'not_const_thread_safe', but overrides 'virtual void B::f3()' which does not.
+   virtual void f3 [[gnu::not_const_thread_safe]] ();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:10:16: note: Overridden function declared here:
+   virtual void f3();
+                ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread16_test.cxx:18:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   virtual void f3 [[gnu::not_const_thread_safe]] ();
+                ^~

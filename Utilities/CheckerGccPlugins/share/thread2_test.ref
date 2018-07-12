@@ -1,0 +1,40 @@
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx: In function 'int* f1()':
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:16:11: warning: Pointer or reference bound to static expression 'y1' of type 'int' within function 'int* f1()'; may not be thread-safe.
+   return &y1;
+           ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:7:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:16:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return &y1;
+           ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx: In function 'const int* f2()':
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:22:11: warning: Pointer or reference bound to static expression 'y1' of type 'int' within function 'const int* f2()'; may not be thread-safe.
+   return &y1;
+           ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:7:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:22:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return &y1;
+           ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx: In function 'int& f3()':
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:28:10: warning: Pointer or reference bound to static expression 'y1' of type 'int' within function 'int& f3()'; may not be thread-safe.
+   return y1;
+          ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:7:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:28:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return y1;
+          ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx: In function 'const int& f4()':
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:34:10: warning: Pointer or reference bound to static expression 'y1' of type 'int' within function 'const int& f4()'; may not be thread-safe.
+   return y1;
+          ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:7:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread2_test.cxx:34:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return y1;
+          ^~

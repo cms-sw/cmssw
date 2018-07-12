@@ -1,0 +1,10 @@
+/home/sss/atlas/rootaccess/../test/thread9_test.cxx: In member function 'int* S::f1() const':
+/home/sss/atlas/rootaccess/../test/thread9_test.cxx:20:10: warning: Returning non-const pointer or reference member 'S::x' of type 'int*' from structure 'const struct S' within const member function 'int* S::f1() const'; may not be thread-safe.
+   return y;
+          ^
+/home/sss/atlas/rootaccess/../test/thread9_test.cxx:9:8: note: Declared here:
+   int* x;
+        ^
+/home/sss/atlas/rootaccess/../test/thread9_test.cxx:20:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return y;
+          ^

@@ -1,0 +1,15 @@
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx: In function 'int* f1()':
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx:11:31: warning: Const discarded from expression 'xx' of type 'const int* (*)()' within function 'int* f1()'; may not be thread-safe.
+   return const_cast<int*>(xx());
+                               ^
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx:11:31: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx: In function 'int* f2()':
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx:17:33: warning: Const discarded from expression 'xx' of type 'const int* (*)()' within function 'int* f2()'; may not be thread-safe.
+   int* y = const_cast<int*>(xx());
+                                 ^
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx:17:33: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx: In function 'int* f5()':
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx:38:33: warning: Const discarded from expression 'xx' of type 'const int* (*)()' within function 'int* f5()'; may not be thread-safe.
+   int* y = const_cast<int*>(xx());
+                                 ^
+/home/sss/atlas/rootaccess/../test/thread8_test.cxx:38:33: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

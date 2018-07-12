@@ -1,0 +1,70 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx: In function 'void foo(float, float)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:16:10: warning: Floating-point constant used in division; consider multiplication by inverse.
+   a2 = x / 3.2;
+        ~~^~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:16:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:17:11: warning: Floating-point constant used in division; consider multiplication by inverse.
+   a4 += x / den;
+         ~~^~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:17:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:23:12: warning: Multiple divisions by the same value; consider calculating the inverse once and multiplying.
+   a7 = 2.0 / a5;
+        ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:22:12: note: Previous division is here.
+   a6 = 1.0 / a5;
+        ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:23:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+   a7 = 2.0 / a5;
+        ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:27:15: warning: Division by loop-invariant value; consider calculating inverse outside of the loop and multiplying within the loop.
+     a4 += foo / a3;
+           ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:25:19: note: Loop starts here.
+   for (int i=0; i < 10; i++) {
+                 ~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:27:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+     a4 += foo / a3;
+           ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:32:12: warning: Multiple divisions by the same value; consider calculating the inverse once and multiplying.
+   a8 = 3.0 / a5;
+        ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:23:12: note: Previous division is here.
+   a7 = 2.0 / a5;
+        ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:32:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+   a8 = 3.0 / a5;
+        ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx: In function 'float bar5(float)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:77:25: warning: Division by loop-invariant value; consider calculating inverse outside of the loop and multiplying within the loop.
+     float y1 = float(i)/x;
+                         ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:76:19: note: Loop starts here.
+   for (int i=0; i < 10; i++) {
+                 ~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:77:25: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+     float y1 = float(i)/x;
+                         ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx: In function 'float bar6()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:89:24: warning: Multiple divisions by the same value; consider calculating the inverse once and multiplying.
+   const double b_a = B/A;
+                        ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:88:31: note: Previous division is here.
+   const double rmin2 = C - B*B/A;
+                            ~~~^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:89:24: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+   const double b_a = B/A;
+                        ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx: In function 'float SetDriftSpace()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:112:25: warning: Floating-point constant used in division; consider multiplication by inverse.
+   if(a2 != 0) prt = - a1/10.;
+                     ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:112:25: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:113:18: warning: Floating-point constant used in division; consider multiplication by inverse.
+   else prt = + a1/10.;
+              ~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:113:18: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx: In function 'void bar11()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:123:11: warning: Floating-point constant used in division; consider multiplication by inverse.
+   a6 = a2 / bar10 (1, 4);    // should get a warning here
+        ~~~^~~~~~~~~~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/divcheck_test.cxx:123:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#divcheck_plugin>.

@@ -1,0 +1,26 @@
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx: In function 'int f1()':
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:21:13: warning: Use of const static expression 's1.S1::x' of type 'const int' within function 'int f1()' may not be thread-safe.
+   return s1.x;
+             ^
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:17:17: note: Declared here:
+ const static S1 s1;
+                 ^~
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:12:8: note: Because it has a method declared not_const_thread_safe:
+   void m [[gnu::not_const_thread_safe]] ();
+        ^
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:21:13: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return s1.x;
+             ^
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx: In function 'const int* f3()':
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:31:14: warning: Use of const static expression 's1.S1::x' of type 'const int' within function 'const int* f3()' may not be thread-safe.
+   return &s1.x;
+              ^
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:17:17: note: Declared here:
+ const static S1 s1;
+                 ^~
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:12:8: note: Because it has a method declared not_const_thread_safe:
+   void m [[gnu::not_const_thread_safe]] ();
+        ^
+/home/sss/atlas/rootaccess/../test/thread14_test.cxx:31:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return &s1.x;
+              ^
