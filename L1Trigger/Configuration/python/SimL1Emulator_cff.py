@@ -99,17 +99,20 @@ phase2_SimL1Emulator += simKBmtfDigis
 # Barrel EGamma
 # ########################################################################
 from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
-
 phase2_SimL1Emulator += l1EGammaCrystalsProducer
+
+from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import * 
+phase2_SimL1Emulator += l1EGammaEEProducer
+
 
 # Tk + StandaloneObj
 # (include L1TkPrimaryVertex)
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
+phase2_SimL1Emulator += L1TkPrimaryVertex
 phase2_SimL1Emulator += L1TkElectrons
 phase2_SimL1Emulator += L1TkIsoElectrons
 phase2_SimL1Emulator += L1TkPhotons
-phase2_SimL1Emulator += L1TkPrimaryVertex
 phase2_SimL1Emulator += L1TkCaloJets
 phase2_SimL1Emulator += L1TrackerJets
 phase2_SimL1Emulator += L1TrackerEtMiss
