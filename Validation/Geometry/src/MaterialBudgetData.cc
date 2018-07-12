@@ -19,6 +19,97 @@ MaterialBudgetData::MaterialBudgetData()
 }
 
 MaterialBudgetData::~MaterialBudgetData() {
+
+
+  delete theDmb;
+  delete theDil;
+  // rr
+  delete theSupportDmb;
+  delete theSensitiveDmb;
+  delete theCablesDmb;
+  delete theCoolingDmb;
+  delete theElectronicsDmb;
+  delete theOtherDmb;
+  //HGCal
+  delete theAirDmb;
+  delete theCablesDmb;
+  delete theCopperDmb;
+  delete theH_ScintillatorDmb;
+  delete theLeadDmb;
+  delete theM_NEMA_FR4_plateDmb;
+  delete theSiliconDmb;
+  delete theStainlessSteelDmb;
+  delete theWCuDmb;
+
+  delete theSupportDil;
+  delete theSensitiveDil;
+  delete theCoolingDil;
+  delete theElectronicsDil;
+  delete theOtherDil;
+  //HGCal
+  delete theAirDil ;
+  delete theCablesDil;
+  delete theCopperDil;
+  delete theH_ScintillatorDil;
+  delete theLeadDil;
+  delete theM_NEMA_FR4_plateDil;
+  delete theSiliconDil;
+  delete theStainlessSteelDil;
+  delete theWCuDil;
+
+  // rr
+  delete theInitialX;
+  delete theInitialY;
+  delete theInitialZ;
+  delete theFinalX;
+  delete theFinalY;
+  delete theFinalZ;
+  // rr
+  delete theVolumeID;
+  delete theVolumeName;
+  delete theVolumeCopy;
+  delete theVolumeX;
+  delete theVolumeY;
+  delete theVolumeZ;
+  delete theVolumeXaxis1;
+  delete theVolumeXaxis2;
+  delete theVolumeXaxis3;
+  delete theVolumeYaxis1;
+  delete theVolumeYaxis2;
+  delete theVolumeYaxis3;
+  delete theVolumeZaxis1;
+  delete theVolumeZaxis2;
+  delete theVolumeZaxis3;
+  delete theMaterialID;
+  delete theMaterialName;
+  delete theMaterialX0;
+  delete theMaterialLambda0;
+  delete theMaterialDensity;
+  delete theStepID;
+  delete theStepInitialPt;
+  delete theStepInitialEta;
+  delete theStepInitialPhi;
+  delete theStepInitialEnergy;
+  delete theStepInitialPx;
+  delete theStepInitialPy;
+  delete theStepInitialPz;
+  delete theStepInitialBeta;
+  delete theStepInitialGamma;
+  delete theStepInitialMass;
+  delete theStepFinalPt;
+  delete theStepFinalEta;
+  delete theStepFinalPhi;
+  delete theStepFinalEnergy;
+  delete theStepFinalPx;
+  delete theStepFinalPy;
+  delete theStepFinalPz;
+  delete theStepFinalBeta;
+  delete theStepFinalGamma;
+  delete theStepFinalMass;
+  delete theStepPreProcess;
+  delete theStepPostProcess;
+
+
 }
 
 void MaterialBudgetData::SetAllStepsToTree()
@@ -119,7 +210,7 @@ void MaterialBudgetData::SetAllStepsToTree()
 
 void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
 {
-  // std::cout << "MaterialBudgetData::dataStartTrack( const G4Track* aTrack )" << std::endl;;
+  std::cout << "MaterialBudgetData::dataStartTrack( const G4Track* aTrack )" << std::endl;;
   const G4ThreeVector& dir = aTrack->GetMomentum() ;
 
   if( myMaterialBudgetCategorizer == nullptr) myMaterialBudgetCategorizer = new MaterialBudgetCategorizer;
@@ -220,17 +311,18 @@ void MaterialBudgetData::dataStartTrack( const G4Track* aTrack )
 
 void MaterialBudgetData::dataEndTrack( const G4Track* aTrack )
 {
-  //-  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
-  // rr
-  // std::cout << "Recorded steps " << theStepN << std::endl;
-  // std::cout << " Material Budget: Radiation Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
-    // std::cout << " Material Budget: Interaction Length " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
+  std::cout << "[OVAL] MaterialBudget " << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " " << theEta << " " << thePhi << " " << theTotalMB << std::endl;
 
-  // std::cout << " HGCal Material Budget: Radiation Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " theCopperMB " << theCopperMB << " theH_ScintillatorMB " << theH_ScintillatorMB << " CAB " << theCablesMB << " theLeadMB " << theLeadMB << " theM_NEMA_FR4_plateMB " << theM_NEMA_FR4_plateMB << " theSiliconMB " << theSiliconMB << " Air " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB << " theWCuMB " << theWCuMB << std::endl;
+  std::cout << "Recorded steps " << theStepN << std::endl;
+  if (!isHGCal){
+    std::cout << " Material Budget: Radiation Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " SUP " << theSupportMB << " SEN " << theSensitiveMB << " CAB " << theCablesMB << " COL " << theCoolingMB << " ELE " << theElectronicsMB << " other " << theOtherMB << " Air " << theAirMB << std::endl;
+    std::cout << " Material Budget: Interaction Length " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total L " << theTotalIL << " SUP " << theSupportIL << " SEN " << theSensitiveIL << " CAB " << theCablesIL << " COL " << theCoolingIL << " ELE " << theElectronicsIL << " other " << theOtherIL << " Air " << theAirIL << std::endl;
+  } else {
+    std::cout << " HGCal Material Budget: Radiation Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalMB << " theCopperMB " << theCopperMB << " theH_ScintillatorMB " << theH_ScintillatorMB << " CAB " << theCablesMB << " theLeadMB " << theLeadMB << " theM_NEMA_FR4_plateMB " << theM_NEMA_FR4_plateMB << " theSiliconMB " << theSiliconMB << " Air " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB << " theWCuMB " << theWCuMB << std::endl;
 
-  // std::cout << " HGCal Material Budget: Interaction Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalIL << " theCopperIL " << theCopperIL << " theH_ScintillatorIL " << theH_ScintillatorIL << " CAB " << theCablesIL << " theLeadIL " << theLeadIL << " theM_NEMA_FR4_plateIL " << theM_NEMA_FR4_plateIL << " theSiliconIL " << theSiliconIL << " Air " << theAirIL << " theStainlessSteelIL " << theStainlessSteelIL << " theWCuIL " << theWCuIL << std::endl;
+    std::cout << " HGCal Material Budget: Interaction Length   " << "G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID()" << " eta " << theEta << " phi " << thePhi << " total X " << theTotalIL << " theCopperIL " << theCopperIL << " theH_ScintillatorIL " << theH_ScintillatorIL << " CAB " << theCablesIL << " theLeadIL " << theLeadIL << " theM_NEMA_FR4_plateIL " << theM_NEMA_FR4_plateIL << " theSiliconIL " << theSiliconIL << " Air " << theAirIL << " theStainlessSteelIL " << theStainlessSteelIL << " theWCuIL " << theWCuIL << std::endl;
+  }
 
-  // rr
 }
 
 void MaterialBudgetData::dataPerStep( const G4Step* aStep )
@@ -253,47 +345,40 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4double density = theMaterialPre->GetDensity() / densityConvertionFactor; // always g/cm3
   
   G4String materialName = theMaterialPre->GetName();
-  // std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
-  // std::cout << " Material Name " << theMaterialPre->GetName() << " radlen " << radlen << std::endl;
-  //If the particle enters a new volume or leaves the one it is:
-  // if ( prePoint->GetStepStatus() == fGeomBoundary && fabs(prePoint->GetMomentum().eta()) > 2.0 && fabs(prePoint->GetMomentum().eta()) < 2.4){
-  //   std::cout << theMaterialPre->GetName() << " " <<  prePos.z() << " " << prePoint->GetMomentum().eta() << " " << sqrt(prePos.x()*prePos.x()+prePos.y()*prePos.y()) <<std::endl;
-  // }
-  // if ( postPoint->GetStepStatus() == fGeomBoundary && fabs(postPoint->GetMomentum().eta()) > 2.0 && fabs(postPoint->GetMomentum().eta()) > 2.4){
-  //   std::cout << theMaterialPre->GetName() << " " <<  postPos.z() << " " << postPoint->GetMomentum().eta() << " " << sqrt(postPos.x()*postPos.x()+postPos.y()*postPos.y()) <<std::endl;
-  // }
+  std::cout << " steplen " << steplen << " radlen " << radlen << " mb " << steplen/radlen << " mate " << theMaterialPre->GetName() << std::endl;
+  std::cout << " Material Name " << theMaterialPre->GetName() << " radlen " << radlen << std::endl;
  
   G4String volumeName = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume()->GetName();
-  // std::cout << " Volume "   << volumeName << "\n";
-  // std::cout << " Material " << materialName << "\n";
+  std::cout << " Volume "   << volumeName << std::endl;
+  std::cout << " Material " << materialName << std::endl;
 
   // instantiate the categorizer
   assert(myMaterialBudgetCategorizer);
   int volumeID   = myMaterialBudgetCategorizer->volume( volumeName );
   int materialID = myMaterialBudgetCategorizer->material( materialName );
-  // std::cout << "Volume ID " << volumeID << " and material ID " << materialID << "\n";
+  std::cout << "Volume ID " << volumeID << " and material ID " << materialID <<  std::endl;
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
   if(!myMaterialBudgetCategorizer->x0fraction(materialName).empty() && (!isHGCal))
     {
-      theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(0);
-      theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName).at(1);
-      theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName).at(2);
-      theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(3);
-      theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName).at(4);
-      theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName).at(5);
-      theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName).at(6);
+      theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[0];
+      theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName)[1];
+      theCablesFractionMB      = myMaterialBudgetCategorizer->x0fraction(materialName)[2];
+      theCoolingFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName)[3];
+      theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(materialName)[4];
+      theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(materialName)[5];
+      theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(materialName)[6];
       
       if(theOtherFractionMB!=0) std::cout << " material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
-      theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName).at(0);
-      theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName).at(1);
-      theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName).at(2);
-      theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName).at(3);
-      theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName).at(4);
-      theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName).at(5);
-      theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName).at(6);
+      theSupportFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[0];
+      theSensitiveFractionIL   = myMaterialBudgetCategorizer->l0fraction(materialName)[1];
+      theCablesFractionIL      = myMaterialBudgetCategorizer->l0fraction(materialName)[2];
+      theCoolingFractionIL     = myMaterialBudgetCategorizer->l0fraction(materialName)[3];
+      theElectronicsFractionIL = myMaterialBudgetCategorizer->l0fraction(materialName)[4];
+      theOtherFractionIL       = myMaterialBudgetCategorizer->l0fraction(materialName)[5];
+      theAirFractionIL         = myMaterialBudgetCategorizer->l0fraction(materialName)[6];
 
       if(theOtherFractionIL!=0) std::cout << " material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
@@ -306,31 +391,31 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   if( (!myMaterialBudgetCategorizer->HGCalx0fraction(materialName).empty()) && (isHGCal) )
     {
       
-      theAirFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(0);
-      theCablesFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(1);
-      theCopperFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(2);
-      theH_ScintillatorFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(3);
-      theLeadFractionMB             = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(4);
-      theM_NEMA_FR4_plateFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(5);
-      theSiliconFractionMB          = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(6);
-      theStainlessSteelFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(7);
-      theWCuFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(8);
-      theOtherFractionMB            = myMaterialBudgetCategorizer->HGCalx0fraction(materialName).at(9);
+      theAirFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[0];
+      theCablesFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[1];
+      theCopperFractionMB           = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[2];
+      theH_ScintillatorFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[3];
+      theLeadFractionMB             = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[4];
+      theM_NEMA_FR4_plateFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[5];
+      theSiliconFractionMB          = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[6];
+      theStainlessSteelFractionMB   = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[7];
+      theWCuFractionMB              = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[8];
+      theOtherFractionMB            = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[9];
 
     
       if(theOtherFractionMB!=0) std::cout << " material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
 
-      theAirFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(0);
-      theCablesFractionIL           = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(1);
-      theCopperFractionIL           = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(2);
-      theH_ScintillatorFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(3);
-      theLeadFractionIL             = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(4);
-      theM_NEMA_FR4_plateFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(5);
-      theSiliconFractionIL          = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(6);
-      theStainlessSteelFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(7);
-      theWCuFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(8);
-      theOtherFractionIL            = myMaterialBudgetCategorizer->HGCall0fraction(materialName).at(9);
+      theAirFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[0];
+      theCablesFractionIL           = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[1];
+      theCopperFractionIL           = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[2];
+      theH_ScintillatorFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[3];
+      theLeadFractionIL             = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[4];
+      theM_NEMA_FR4_plateFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[5];
+      theSiliconFractionIL          = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[6];
+      theStainlessSteelFractionIL   = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[7];
+      theWCuFractionIL              = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[8];
+      theOtherFractionIL            = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[9];
 
 
       if(theOtherFractionIL!=0) std::cout << " material found with no category " << materialName 
@@ -341,9 +426,6 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
      theOtherFractionMB = 1;
      theOtherFractionIL = 1;
    }
-  //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << name 
-  //				 << " in volume " << lv->GetName();
-  // rr  
   
   float dmb = steplen/radlen;
   float dil = steplen/intlen;
@@ -356,12 +438,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
-  // if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass << " MeV/c2"
-  // 			    << "\tPt = " << thePt  << " MeV/c" << "\tEta = " << theEta << "\tPhi = " << thePhi 
-  // 			    << "\tEnergy = " << theEnergy << " MeV"
-  // 		    //			    << std::endl
-  // 		    //			    << "\tMagnetic Field at (0,0,0): (" << B000[0] << "," < B000[1] << "," << B000[2] << ")" 
-  // 			    << std::endl;
+  if(theStepN==0) std::cout << " Simulated Particle " << theID << "\tMass " << theMass << " MeV/c2"
+  			    << "\tPt = " << thePt  << " MeV/c" << "\tEta = " << theEta << "\tPhi = " << thePhi 
+  			    << "\tEnergy = " << theEnergy << " MeV"
+			    << std::endl;
 
   //fill data per step
   if( allStepsToTree ){

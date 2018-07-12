@@ -8,9 +8,9 @@ class MaterialBudgetHGCalHistos : public MaterialBudgetFormat
 {
 public:
   
-  MaterialBudgetHGCalHistos( MaterialBudgetData* data, 
-			       TestHistoMgr* mgr,
-			       const std::string& fileName );   
+  MaterialBudgetHGCalHistos( std::shared_ptr<MaterialBudgetData> data, 
+			     std::shared_ptr<TestHistoMgr> mgr,
+			     const std::string& fileName );   
   ~MaterialBudgetHGCalHistos() override{ hend(); }
   
   void fillStartTrack() override;
@@ -32,7 +32,7 @@ private:
   double* theVoluId;
   double* theMateId;
 
-  TestHistoMgr* hmgr;
+  std::shared_ptr<TestHistoMgr> hmgr;
 
 };
 

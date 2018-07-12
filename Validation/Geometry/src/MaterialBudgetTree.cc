@@ -2,14 +2,12 @@
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
 
-MaterialBudgetTree::MaterialBudgetTree(MaterialBudgetData* data, const std::string& filename ): MaterialBudgetFormat( data )
+MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string& filename )
+  : MaterialBudgetFormat( data )
 {
   theFile = new TFile(filename.c_str(),"RECREATE");
-  
   theFile->cd();
-
   book();
-  
 }
 
 

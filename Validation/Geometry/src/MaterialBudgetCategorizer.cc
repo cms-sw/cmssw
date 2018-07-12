@@ -144,10 +144,7 @@ void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName
   // fill everything as "other"
   float sup,sen,cab,col,ele,oth,air;
   sup=sen=cab=col=ele=0.;
-  oth=1.;
-  air=0;
-  
-  //
+
   std::string materialName;
   while(theMaterialFile) {
     theMaterialFile >> materialName;
@@ -185,9 +182,7 @@ void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFil
   // fill everything as "other"
   float Air,Cables,Copper,H_Scintillator,Lead,M_NEMA_FR4_plate,Silicon,StainlessSteel,WCu, oth; 
   Air=Cables=Copper=H_Scintillator=Lead=M_NEMA_FR4_plate=Silicon=StainlessSteel=WCu=0.;
-  oth=1.;
-  
-  //
+
   std::string materialName;
   while(theMaterialFile) {
     theMaterialFile >> materialName;

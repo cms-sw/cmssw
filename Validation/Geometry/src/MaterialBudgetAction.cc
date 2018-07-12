@@ -29,9 +29,8 @@
 
 //-------------------------------------------------------------------------
 MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
-  : theHistoMgr(nullptr)
 {
-  theData = new MaterialBudgetData;
+  theData = std::make_shared<MaterialBudgetData>();
 
   edm::ParameterSet m_Anal = iPSet.getParameter<edm::ParameterSet>("MaterialBudgetAction");
   
@@ -70,22 +69,21 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   if( saveToHistosFile != "None" ) {
     saveToHistos = true;
     std::cout << "TestGeometry: saving histograms to " << saveToHistosFile << std::endl;
-    theHistoMgr = new TestHistoMgr();
-
+    theHistoMgr = std::make_shared<TestHistoMgr>();
     // rr
     if(theHistoList == "Tracker" ) {
-      theHistos = new MaterialBudgetTrackerHistos( theData, theHistoMgr, saveToHistosFile );
+      theHistos = std::make_shared<MaterialBudgetTrackerHistos>(theData, theHistoMgr, saveToHistosFile);
     } 
     else if (theHistoList == "ECAL") {
-      theHistos = new MaterialBudgetEcalHistos( theData, theHistoMgr, saveToHistosFile );
+      theHistos = std::make_shared<MaterialBudgetEcalHistos>(theData, theHistoMgr, saveToHistosFile); 
     }
     else if (theHistoList == "HGCal") {
-      theHistos = new MaterialBudgetHGCalHistos( theData, theHistoMgr, saveToHistosFile );
+      theHistos = std::make_shared<MaterialBudgetHGCalHistos>( theData, theHistoMgr, saveToHistosFile );
       //In HGCal mode, so tell data class
       theData->setHGCalmode(true);
     }
     else {
-      theHistos = new MaterialBudgetHistos( theData, theHistoMgr, saveToHistosFile );
+      theHistos = std::make_shared<MaterialBudgetHistos>( theData, theHistoMgr, saveToHistosFile ); 
     }
     // rr
   } else {
@@ -97,7 +95,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   if( saveToTxtFile != "None" ) {
     saveToTxt = true;
     std::cout << "TestGeometry: saving text info to " << saveToTxtFile << std::endl;
-    theTxt = new MaterialBudgetTxt( theData, saveToTxtFile );
+    theTxt = std::make_shared<MaterialBudgetTxt>( theData, saveToTxtFile );
   } else {
     saveToTxt = false;
   }
@@ -112,7 +110,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   //  std::string saveToTreeFile = ""; 
   if( saveToTreeFile != "None" ) {
     saveToTree = true;
-    theTree = new MaterialBudgetTree( theData, saveToTreeFile );
+    theTree = std::make_shared<MaterialBudgetTree>( theData, saveToTreeFile );
   } else {
     saveToTree = false;
   }
@@ -271,8 +269,8 @@ void MaterialBudgetAction::update(const G4Step* aStep)
 //-------------------------------------------------------------------------
 std::string MaterialBudgetAction::getSubDetectorName( G4StepPoint* aStepPoint )
 {
-  G4TouchableHistory* theTouchable
-    = (G4TouchableHistory*)(aStepPoint->GetTouchable());
+  const G4TouchableHistory* theTouchable
+    = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
   G4int num_levels = theTouchable->GetHistoryDepth();
   
   if( theTouchable->GetVolume() ) {
@@ -286,8 +284,8 @@ std::string MaterialBudgetAction::getSubDetectorName( G4StepPoint* aStepPoint )
 //-------------------------------------------------------------------------
 std::string MaterialBudgetAction::getPartName( G4StepPoint* aStepPoint )
 {
-  G4TouchableHistory* theTouchable
-    = (G4TouchableHistory*)(aStepPoint->GetTouchable());
+  const G4TouchableHistory* theTouchable
+    = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
   G4int num_levels = theTouchable->GetHistoryDepth();
   //  theTouchable->MoveUpHistory(num_levels-3);
   
@@ -317,18 +315,13 @@ void MaterialBudgetAction::update(const EndOfTrack* trk)
 //-------------------------------------------------------------------------
 void MaterialBudgetAction::update(const EndOfRun* )
 {
-  if (saveToTxt) delete theTxt;
-  if (saveToTree) delete theTree;
-  if (saveToHistos) delete theHistos;
-  if (theHistoMgr) delete theHistoMgr;
-  delete theData;
   return;
 }
 
 //-------------------------------------------------------------------------
 bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable*  touch ) 
 {
-  std::vector<G4String>::const_iterator ite;
+  // std::vector<G4String>::const_iterator ite;
   size_t volh = touch->GetHistoryDepth();
 //  for( ite = theVolumeList.begin(); ite != theVolumeList.end(); ite++ ){
 //     //-  std::cout << " CheckTouchableInSelectedVolumes vol " << *ite << std::endl;
