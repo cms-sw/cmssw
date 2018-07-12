@@ -1,7 +1,7 @@
-#ifndef SimG4CMS_HGCalSD_h
-#define SimG4CMS_HGCalSD_h
+#ifndef SimG4CMS_HGCScintSD_h
+#define SimG4CMS_HGCScintSD_h
 ///////////////////////////////////////////////////////////////////////////////
-// File: HGCalSD.h
+// File: HGCScintSD.h
 // Description: Stores hits of the High Granularity Calorimeter (HGC) in the
 //              appropriate container (post TDR version)
 ///////////////////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 
 #include <string>
 
@@ -18,14 +17,14 @@ class HGCalDDDConstants;
 class G4LogicalVolume;
 class G4Step;
 
-class HGCalSD : public CaloSD, public Observer<const BeginOfJob *> {
+class HGCScintSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HGCalSD(const std::string& , const DDCompactView &,
-	  const SensitiveDetectorCatalog &,
-	  edm::ParameterSet const &, const SimTrackManager*);
-  ~HGCalSD() override  = default;
+  HGCScintSD(const std::string& , const DDCompactView &, 
+	     const SensitiveDetectorCatalog &, edm::ParameterSet const &,
+	     const SimTrackManager*);
+  ~HGCScintSD() override  = default;
 
   uint32_t                setDetUnitId(const G4Step* step) override;
 
@@ -43,17 +42,14 @@ private:
 
   const HGCalDDDConstants*              hgcons_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
-  std::unique_ptr<HGCMouseBite>         mouseBite_;
   DetId::Detector                       mydet_;
   std::string                           nameX_;
   HGCalGeometryMode::GeometryMode       geom_mode_;
   double                                eminHit_, slopeMin_, distanceFromEdge_;
-  double                                mouseBiteCut_, weight_;
   int                                   levelT1_, levelT2_;
-  bool                                  storeAllG4Hits_;
-  bool                                  fiducialCut_, rejectMB_, waferRot_;
-  const double                          tan30deg_;
-  std::vector<double>                   angles_;
+  bool                                  storeAllG4Hits_, fiducialCut_;
+  bool                                  useBirk_;
+  double                                birk1_, birk2_, birk3_, weight_;
 };
 
-#endif // HGCalSD_h
+#endif // HGCScintSD_h

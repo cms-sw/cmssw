@@ -15,6 +15,7 @@
 #include <numeric>
 
 //#define EDM_ML_DEBUG
+
 static const int maxType = 2;
 static const int minType = 0;
 
@@ -242,10 +243,88 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   return cell;
 }
 
+double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
+
+  if (z < 0) x = -x;
+  double dist(0);
+  //Input x, y in Geant4 unit and transformed to CMSSW standard
+  double xx = HGCalParameters::k_ScaleFromDDD*x;
+  double yy = HGCalParameters::k_ScaleFromDDD*y;
+  int sizew = (int)(hgpar_->waferPosX_.size());
+  int wafer = sizew;
+  for (int k=0; k<sizew; ++k) {
+    double dx = std::abs(xx-hgpar_->waferPosX_[k]);
+    double dy = std::abs(yy-hgpar_->waferPosY_[k]);
+    if (dx <= rmax_ && dy <= hexside_ &&
+	((dy <= 0.5*hexside_) || (dx*tan30deg_ <= (hexside_-dy)))) {
+      wafer   = k;
+      xx     -= hgpar_->waferPosX_[k];
+      yy     -= hgpar_->waferPosY_[k];
+      break;
+    }
+  }
+  if (wafer < sizew) {
+    if (std::abs(yy) < 0.5*hexside_) {
+      dist = rmax_ - std::abs(xx);
+    } else {
+      dist = 0.5*((rmax_-std::abs(xx))-sqrt3_*(std::abs(yy)-0.5*hexside_));
+    }
+  } else {
+    dist = 0;
+  }
+  dist *= HGCalParameters::k_ScaleToDDD;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "DistFromEdgeHex: Local " << xx << ":"
+				<< yy << " wafer " << wafer << " flag " 
+				<< (wafer < sizew) << " Distance " << rmax_ 
+				<< ":" << (rmax_-std::abs(xx)) << ":" 
+				<< (std::abs(yy)-0.5*hexside_) << ":"
+				<< 0.5*hexside_ << ":" << dist;
+#endif
+  return dist;
+}
+
+double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
+
+  int lay      = getLayer(z,false);
+  double xx    = (z < 0) ? -x : x;
+  int indx     = layerIndex(lay,false);
+  double zz    = HGCalParameters::k_ScaleToDDD*hgpar_->zLayerHex_[indx];
+  double r     = std::sqrt(x*x+y*y+zz*zz);
+  double theta = (r == 0. ? 0. : std::acos(std::max(std::min(zz/r,1.0),-1.0)));
+  double stheta= std::sin(theta);
+  double phi   = (r*stheta == 0. ? 0. : std::atan2(y,xx));
+  if (phi < 0) phi += (2.0*M_PI);
+  double eta   = (std::abs(stheta) == 1.0 ? 0. : -std::log(std::abs(std::tan(0.5*theta))) );
+  double cell  = hgpar_->dPhiEtaBH_[indx];
+  int ieta     = 1 + (int)((std::abs(eta)-hgpar_->etaMinBH_)/cell);
+  int iphi     = 1 + (int)(phi/cell);
+  double rr    = std::sqrt(x*x+y*y);
+  double dphi  = std::max(0.0,(0.5*cell-std::abs(phi-(iphi-0.5)*cell)));
+  double dist  = ((eta > hgpar_->etaMinBH_+(ieta-0.5)*cell) ?
+		  (rr - zz/std::sinh(hgpar_->etaMinBH_+ieta*cell)) :
+		  (zz/std::sinh(hgpar_->etaMinBH_+(ieta-1)*cell) - rr));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "DistFromEdgeTrap: Global " << x << ":"
+				<< y << ":" << z << " Layer " << lay 
+				<< " Index " << indx << " xx|zz " << xx << ":"
+				<< zz << " Eta " << eta << ":"<< ieta << ":" 
+				<< (hgpar_->etaMinBH_+(ieta-0.5)*cell) 
+				<< " Phi " << phi << ":" << iphi << ":" 
+				<< (iphi-0.5)*cell << " cell " << cell << " R "
+				<< rr << " Dphi " << dphi << " Dist " << dist
+				<< ":" << rr*dphi << ":" 
+				<< rr-zz/std::sinh(hgpar_->etaMinBH_+ieta*cell)
+				<< ":" << zz/std::sinh(hgpar_->etaMinBH_+(ieta-1)*cell)-rr;
+#endif
+  return std::min(rr*dphi,dist);
+}
+
 int HGCalDDDConstants::getLayer(double z, bool reco) const {
 
   unsigned int k  = 0;
-  double       zz = std::abs(z);
+  double       zz = (reco ? std::abs(z) : 
+		     HGCalParameters::k_ScaleFromDDD*std::abs(z));
   const auto& zLayerHex = hgpar_->zLayerHex_;
   std::find_if(zLayerHex.begin()+1,zLayerHex.end(),[&k,&zz,&zLayerHex](double zLayer){ ++k; return zz < 0.5*(zLayerHex[k-1]+zLayerHex[k]);});
   int lay = k;
@@ -750,8 +829,9 @@ int HGCalDDDConstants::waferFromCopy(int copy) const {
 void HGCalDDDConstants::waferFromPosition(const double x, const double y,
 					  int& wafer, int& icell, 
 					  int& celltyp) const {
-  //Input x, y in Geant4 unit and transformed to conform +z convention
-  double xx(HGCalParameters::k_ScaleFromDDD*x), yy(HGCalParameters::k_ScaleFromDDD*y);
+  //Input x, y in Geant4 unit and transformed to CMSSW standard
+  double xx = HGCalParameters::k_ScaleFromDDD*x;
+  double yy = HGCalParameters::k_ScaleFromDDD*y;
   int size_ = (int)(hgpar_->waferCopy_.size());
   wafer     = size_;
   for (int k=0; k<size_; ++k) {
@@ -759,11 +839,11 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
     double dy = std::abs(yy-hgpar_->waferPosY_[k]);
     if (dx <= rmax_ && dy <= hexside_) {
       if ((dy <= 0.5*hexside_) || (dx*tan30deg_ <= (hexside_-dy))) {
-	wafer   = k;
-	celltyp = hgpar_->waferTypeT_[k];
-	xx     -= hgpar_->waferPosX_[k];
-	yy     -= hgpar_->waferPosY_[k];
-	break;
+        wafer   = k;
+        celltyp = hgpar_->waferTypeT_[k];
+        xx     -= hgpar_->waferPosX_[k];
+        yy     -= hgpar_->waferPosY_[k];
+        break;
       }
     }
   }

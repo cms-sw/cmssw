@@ -38,6 +38,8 @@ public:
 				  int lay, bool reco) const;
   double              cellSizeHex(int type) const;
   double              cellThickness(int layer, int waferU, int waferV) const;
+  double              distFromEdgeHex(double x, double y, double z) const;
+  double              distFromEdgeTrap(double x, double y, double z) const;
   void                etaPhiFromPosition(const double x, const double y,
 					 const double z, const int layer,
 					 int& ieta, int& iphi, int& type,
