@@ -226,7 +226,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
       zz            += hthick;
       thickTot      += thick_[ii];
 
-      std::string name = "HGCal"+names_[ii]+std::to_string(copy);
+      std::string name = names_[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" 
 				    << ii << " Front " << zi << ", " << routF
@@ -367,7 +367,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     int     copy   = copyNumberTop_[ii];
     double hthickl = 0.5*layerThickTop_[ii];
     thickTot      += layerThickTop_[ii];
-    name           = "HGCal"+namesTop_[ii]+std::to_string(copy);    
+    name           = namesTop_[ii]+std::to_string(copy);    
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" << ii
 				  << " R " << rmid << ":" << rout << " Thick " 
@@ -440,7 +440,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     int     copy   = copyNumberBot_[ii];
     double hthickl = 0.5*layerThickBot_[ii];
     thickTot      += layerThickBot_[ii];
-    name           = "HGCal"+namesBot_[ii]+std::to_string(copy);    
+    name           = namesBot_[ii]+std::to_string(copy);    
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" << ii
 				  << " R " << rin << ":" << rmid << " Thick " 

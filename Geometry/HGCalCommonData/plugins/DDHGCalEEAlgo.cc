@@ -182,7 +182,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       zz            += hthick;
       thickTot      += thick_[ii];
 
-      std::string name = "HGCal"+names_[ii]+std::to_string(copy);
+      std::string name = names_[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: Layer " << ly << ":" 
 				    << ii << " Front " << zi << ", " << routF

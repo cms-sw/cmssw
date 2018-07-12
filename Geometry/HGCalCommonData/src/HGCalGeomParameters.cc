@@ -675,7 +675,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv,
 					       HGCalParameters& php) {
 
   DDsvalues_type sv(fv.mergedSpecifics());
-  php.cellThickness_ = DDVectorGetter::get("CellThickness");
+  php.cellThickness_ = getDDDArray("CellThickness",sv,3);
   std::for_each(php.cellThickness_.begin(), php.cellThickness_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell Thickness "
