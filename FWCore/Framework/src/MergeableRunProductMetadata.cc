@@ -17,6 +17,9 @@ namespace edm {
     metadataForProcesses_(mergeableRunProductProcesses.size()) {
   }
 
+  MergeableRunProductMetadata::~MergeableRunProductMetadata() {
+  }
+
   void MergeableRunProductMetadata::readFile() {
     mergeLumisFromIndexIntoFile();
   }

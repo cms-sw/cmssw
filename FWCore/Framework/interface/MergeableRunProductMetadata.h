@@ -56,6 +56,8 @@ namespace edm {
 
     MergeableRunProductMetadata(MergeableRunProductProcesses const&);
 
+    ~MergeableRunProductMetadata() override;
+
     // Called each time a new input file is opened
     void readFile();
 
