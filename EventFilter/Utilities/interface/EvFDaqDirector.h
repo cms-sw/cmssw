@@ -163,6 +163,8 @@ namespace evf{
       bool useFileService_;
       std::string fileServiceHost_;
       std::string fileServicePort_;
+      bool fileServiceKeepAlive_;
+      bool fileServiceUseLocalLock_;
       unsigned int startFromLS_ = 1;
       bool outputAdler32Recheck_;
       bool requireTSPSet_;
