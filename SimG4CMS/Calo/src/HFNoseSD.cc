@@ -1,11 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: HGCalSD.cc
+// File: HFNoseSD.cc
 // Description: Sensitive Detector class for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DataFormats/Math/interface/FastMath.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
-#include "SimG4CMS/Calo/interface/HGCalSD.h"
+#include "SimG4CMS/Calo/interface/HFNoseSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,18 +27,18 @@
 
 //#define EDM_ML_DEBUG
 
-HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
-		 const SensitiveDetectorCatalog & clg, 
-		 edm::ParameterSet const & p, const SimTrackManager* manager):
+HFNoseSD::HFNoseSD(const std::string& name, const DDCompactView & cpv,
+		   const SensitiveDetectorCatalog & clg, 
+		   edm::ParameterSet const & p, const SimTrackManager* manager):
   CaloSD(name, cpv, clg, p, manager,
-         (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
-         p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
+         (float)(p.getParameter<edm::ParameterSet>("HFNoseSD").getParameter<double>("TimeSliceUnit")),
+         p.getParameter<edm::ParameterSet>("HFNoseSD").getParameter<bool>("IgnoreTrackID")), 
   hgcons_(nullptr), slopeMin_(0), levelT1_(99), levelT2_(99), 
   tan30deg_(std::tan(30.0*CLHEP::deg)) {
 
   numberingScheme_.reset(nullptr); mouseBite_.reset(nullptr);
 
-  edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
+  edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HFNoseSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
   fiducialCut_     = m_HGC.getParameter<bool>("FiducialCut");
   distanceFromEdge_= m_HGC.getParameter<double>("DistanceFromEdge");
@@ -52,31 +52,18 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
     setNumberCheckedHits(0);
   }
 
-  //this is defined in the hgcsens.xml
-  G4String myName = name;
-  mydet_ = DetId::Forward;
-  nameX_ = "HGCal";
-  if (myName.find("HitsEE")!=std::string::npos) {
-    mydet_  = DetId::HGCalEE;
-    nameX_  = "HGCalEESensitive";
-  } else if (myName.find("HitsHEfront")!=std::string::npos) {
-    mydet_  = DetId::HGCalHSi;
-    nameX_  = "HGCalHESiliconSensitive";
-  }
-
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim")<< "**************************************************"
 			    << "\n"
 			    << "*                                                *"
 			    << "\n"
-			    << "* Constructing a HGCalSD  with name " << name << "\n"
+			    << "* Constructing a HFNoseSD  with name " << name << "\n"
 			    << "*                                                *"
 			    << "\n"
 			    << "**************************************************";
 #endif
-  edm::LogVerbatim("HGCSim") << "HGCalSD:: Threshold for storing hits: " 
-			     << eminHit_ << " for " << nameX_ << " detector "
-			     << mydet_;
+  edm::LogVerbatim("HGCSim") << "HFNoseSD:: Threshold for storing hits: " 
+			     << eminHit_ << " for " << name;
   edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits "
 			     << storeAllG4Hits_;
   edm::LogVerbatim("HGCSim") << "Fiducial volume cut with cut from eta/phi "
@@ -87,7 +74,7 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
 			     << angles_[0] << ", " << angles_[1];
 }
 
-double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
+double HFNoseSD::getEnergyDeposit(const G4Step* aStep) {
 
   double r = aStep->GetPreStepPoint()->GetPosition().perp();
   double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
@@ -96,7 +83,7 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   G4String parName = aStep->GetTrack()->GetDefinition()->GetParticleName();
   G4LogicalVolume* lv =
     aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
-  edm::LogVerbatim("HGCSim") << "HGCalSD: Hit from standard path from "
+  edm::LogVerbatim("HGCSim") << "HFNoseSD: Hit from standard path from "
 			     << lv->GetName() << " for Track " 
 			     << aStep->GetTrack()->GetTrackID() << " ("
 			     << parCode << ":" << parName << ") R = " << r 
@@ -106,7 +93,7 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   // Apply fiducial cut
   if (r < z*slopeMin_) { 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD: Fiducial Volume cut";
+    edm::LogVerbatim("HGCSim") << "HFNoseSD: Fiducial Volume cut";
 #endif
     return 0.0; 
   }
@@ -116,7 +103,7 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   double destep = weight_*wt1*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")  << "HGCalSD: weights= " << weight_ << ":" 
+  edm::LogVerbatim("HGCSim")  << "HFNoseSD: weights= " << weight_ << ":" 
 			      << wt1 << ":" << wt2 << " Total weight " 
 			      << weight_*wt1*wt2 << " deStep: "
 			      << aStep->GetTotalEnergyDeposit()
@@ -125,7 +112,7 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   return destep;
 }
 
-uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) { 
+uint32_t HFNoseSD::setDetUnitId(const G4Step * aStep) { 
 
   const G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
@@ -196,7 +183,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
   return id;
 }
 
-void HGCalSD::update(const BeginOfJob * job) {
+void HFNoseSD::update(const BeginOfJob * job) {
 
   const edm::EventSetup* es = (*job)();
   edm::ESHandle<HGCalDDDConstants>    hdc;
@@ -211,36 +198,36 @@ void HGCalSD::update(const BeginOfJob * job) {
     double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_    = waferSize*tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " 
+    edm::LogVerbatim("HGCSim") << "HFNoseSD::Initialized with mode " 
 			       << geom_mode_ << " Slope cut " << slopeMin_ 
 			       << " top Level " << levelT1_ << ":" << levelT2_ 
 			       << " wafer " << waferSize << ":" << mouseBite;
 #endif
 
-    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_,mydet_,nameX_));
+    numberingScheme_.reset(new HFNoseNumberingScheme(*hgcons_));
     if (rejectMB_) 
       mouseBite_.reset(new HGCMouseBite(*hgcons_,angles_,mouseBiteCut_,
 					waferRot_));
   } else {
-    throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
+    throw cms::Exception("Unknown", "HFNoseSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
 }
 
-void HGCalSD::initRun() {
+void HFNoseSD::initRun() {
 }
 
-bool HGCalSD::filterHit(CaloG4Hit* aHit, double time) {
+bool HFNoseSD::filterHit(CaloG4Hit* aHit, double time) {
   return ((time <= tmaxHit) && (aHit->getEnergyDeposit() > eminHit_));
 }
 
-uint32_t HGCalSD::setDetUnitId (int layer, int module, int cell, int iz, 
+uint32_t HFNoseSD::setDetUnitId (int layer, int module, int cell, int iz, 
 				G4ThreeVector &pos) {  
   uint32_t id = numberingScheme_ ? 
     numberingScheme_->getUnitID(layer, module, cell, iz, pos, weight_) : 0;
   return id;
 }
 
-bool HGCalSD::isItinFidVolume (const G4ThreeVector& pos) {
+bool HFNoseSD::isItinFidVolume (const G4ThreeVector& pos) {
   if (fiducialCut_) {
     return (hgcons_->distFromEdgeHex(pos.x(),pos.y(),pos.z()) > distanceFromEdge_);
   } else {
