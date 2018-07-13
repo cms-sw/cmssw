@@ -166,7 +166,6 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
   private:
-    int value_;
     Sleeper sleeper_;
   };
   
@@ -336,7 +335,7 @@ SleepingProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions
     std::vector<long> initTimes_;
     std::vector<long> workTimes_;
     std::vector<long> finishTimes_;
-    int value_;
+    const int value_;
     Sleeper sleeper_;
     const edm::EDPutTokenT<int> token_;
   };

@@ -14,7 +14,7 @@ namespace edm {
   class EndPathStatusInserter : public global::EDProducer<> {
   public:
 
-    EndPathStatusInserter(unsigned int numberOfStreams);
+    explicit EndPathStatusInserter(unsigned int numberOfStreams);
 
     void produce(StreamID, Event&, EventSetup const&) const final;
   private:
