@@ -998,8 +998,9 @@ void FedRawDataInputSource::readSupervisor()
       }
       else {
         std::string empty;
+        bool fileFound;
         if (!useFileService_)
-          eventsInNewFile = daqDirector_->grabNextJsonFile(nextFile,nextFile,fileSizeFromJson);
+          eventsInNewFile = daqDirector_->grabNextJsonFile(nextFile,nextFile,fileSizeFromJson,fileFound);
         else
           eventsInNewFile = serverEventsInNewFile_;
         assert( eventsInNewFile>=0 );
