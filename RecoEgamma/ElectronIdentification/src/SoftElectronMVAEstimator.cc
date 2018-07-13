@@ -3,21 +3,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
 
-SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
-  std::vector<std::string> weightsfiles;
-  std::string path_mvaWeightFileEleID;
-  for(unsigned ifile=0 ; ifile < cfg_.vweightsfiles.size() ; ++ifile) {
-    path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
-    weightsfiles.push_back(path_mvaWeightFileEleID);
-  }
-  
-  //initialize
-  //Define expected number of bins
-
+SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cfg_(cfg)
+{
   //Check number of weight files given
   if (ExpectedNBins != cfg_.vweightsfiles.size() ) {
     std::cout << "Error: Expected Number of bins = " << ExpectedNBins << " does not equal to weightsfiles.size() = "
@@ -26,50 +14,16 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
     assert(ExpectedNBins == cfg_.vweightsfiles.size());
   }
 
-
-  for (unsigned int i=0;i<ExpectedNBins; ++i) {
-    TMVA::Reader tmvaReader("!Color:Silent");
-    tmvaReader.AddVariable("fbrem",                   &fbrem);
-    tmvaReader.AddVariable("EtotOvePin",                      &EtotOvePin);
-    tmvaReader.AddVariable("EClusOverPout",                   &eleEoPout);
-    tmvaReader.AddVariable("EBremOverDeltaP",                 &EBremOverDeltaP);
-    tmvaReader.AddVariable("logSigmaEtaEta",                  &logSigmaEtaEta);
-    tmvaReader.AddVariable("DeltaEtaTrackEcalSeed",           &DeltaEtaTrackEcalSeed);
-    tmvaReader.AddVariable("HoE",                             &HoE);
-    tmvaReader.AddVariable("gsfchi2",                         &gsfchi2);
-    tmvaReader.AddVariable("kfchi2",                          &kfchi2);
-    tmvaReader.AddVariable("kfhits",                          &kfhits);
-    tmvaReader.AddVariable("SigmaPtOverPt",                   &SigmaPtOverPt);
-    tmvaReader.AddVariable("deta",                            &deta);
-    tmvaReader.AddVariable("dphi",                            &dphi);
-    tmvaReader.AddVariable("detacalo",                        &detacalo);
-    tmvaReader.AddVariable("see",                             &see);
-    tmvaReader.AddVariable("spp",                             &spp); 	
-    tmvaReader.AddVariable("R9",                             	&R9);
-    tmvaReader.AddVariable("etawidth",                        &etawidth);
-    tmvaReader.AddVariable("phiwidth",                        &phiwidth);
-    tmvaReader.AddVariable("e1x5e5x5",                        &OneMinusE1x5E5x5);
-    tmvaReader.AddVariable("IoEmIoP",				&IoEmIoP);
-    tmvaReader.AddVariable("PreShowerOverRaw",		&PreShowerOverRaw);
-    tmvaReader.AddVariable("nPV",                		&nPV);
-
-    tmvaReader.AddVariable( "pt",                            &pt);
-    tmvaReader.AddVariable( "eta",                           &eta);
-
-    tmvaReader.AddSpectator( "pt",                            &pt);
-    tmvaReader.AddSpectator( "eta",                           &eta);
-    
+  for(auto& weightsfile : cfg_.vweightsfiles) {
     // Taken from Daniele (his mail from the 30/11)    
     // training of the 7/12 with Nvtx added
-    tmvaReader.BookMVA("BDT",weightsfiles[i]);
-    gbr[i].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA("BDT") ) ) );
+    gbr_.push_back( GBRForestTools::createGBRForest( weightsfile ));
   }
 }
 
 
 SoftElectronMVAEstimator::~SoftElectronMVAEstimator()
 { }
-
 
 UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const {
 
@@ -95,8 +49,6 @@ UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const 
         } 
   return bin;
 }
-
-
 
 double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,
                                      const reco::VertexCollection& pvc) const {
@@ -163,7 +115,7 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,
 */
   bindVariables(vars);
 
-  double result= gbr[0]->GetClassifier(vars);
+  double result= gbr_[0]->GetClassifier(vars);
 
   return result;
 }
