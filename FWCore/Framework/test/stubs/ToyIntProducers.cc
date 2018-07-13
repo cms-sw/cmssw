@@ -43,7 +43,7 @@ namespace edmtest {
     explicit FailingProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   };
 
   void
@@ -63,7 +63,7 @@ namespace edmtest {
     explicit FailingInRunProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct,edm::Transition::BeginRun>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
     void globalBeginRunProduce( edm::Run&, edm::EventSetup const&) const override;
 
@@ -88,7 +88,7 @@ namespace edmtest {
     explicit NonProducer(edm::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   };
 
   void
@@ -132,7 +132,7 @@ namespace edmtest {
     explicit IntLegacyProducer(int i) : value_(i) {
       produces<IntProduct>();
     }
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
     
   private:
     int value_;
@@ -158,7 +158,7 @@ namespace edmtest {
     pi_(std::acos(-1)){
     }
 
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
   private:
     const edm::EDPutTokenT<IntProduct> token_;
@@ -192,7 +192,7 @@ namespace edmtest {
     pi_(std::acos(-1)){
     }
     
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
   private:
     const edm::EDPutTokenT<IntProduct> token_;
@@ -231,7 +231,7 @@ namespace edmtest {
       produces<IntProduct>();
     }
     
-    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
+    void produce(edm::Event& e, edm::EventSetup const& c) override;
     
   private:
     const int value_;
@@ -387,7 +387,7 @@ namespace edmtest {
         tokens_.emplace_back(consumes<IntProduct>(edm::InputTag{label}));
       }
     }
-    virtual void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
   private:
     std::vector<edm::EDGetTokenT<IntProduct>> tokens_;
     const edm::EDPutTokenT<IntProduct> putToken_;
