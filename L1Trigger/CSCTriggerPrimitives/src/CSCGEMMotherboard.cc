@@ -163,7 +163,8 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
     bx = alct.getBX();
-    keyStrip = mymap1[gem2.pad(2)];
+    // GEM pad number is counting from 1
+    keyStrip = mymap1[gem2.pad(2) - 1];
     keyWG = alct.getKeyWG();
     thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setGEM1(gem2.first());
