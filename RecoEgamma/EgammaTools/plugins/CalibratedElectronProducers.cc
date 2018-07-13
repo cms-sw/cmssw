@@ -112,6 +112,7 @@ CalibratedElectronProducerT<T>::CalibratedElectronProducerT( const edm::Paramete
   produceCalibratedObjs_(conf.getParameter<bool>("produceCalibratedObjs"))
 {
   energyCorrector_.setMinEt(conf.getParameter<double>("minEtToCalibrate"));  
+  energyCorrector_.setUseSmearCorrEcalEnergyErrInComb(conf.getParameter<bool>("useSmearCorrEcalEnergyErrInComb"));  
   
   if (conf.getParameter<bool>("semiDeterministic")) {
      semiDeterministicRng_.reset(new TRandom2());
@@ -137,6 +138,7 @@ void CalibratedElectronProducerT<T>::fillDescriptions(edm::ConfigurationDescript
   desc.add<double>("minEtToCalibrate",5.0);
   desc.add<bool>("produceCalibratedObjs",true);
   desc.add<bool>("semiDeterministic",true);
+  desc.add<bool>("useSmearCorrEcalEnergyErrInComb",false);
   std::vector<std::string> valMapsProduced;
   for(auto varToStore : valMapsToStore_) valMapsProduced.push_back(EGEnergySysIndex::name(varToStore));
   desc.add<std::vector<std::string> >("valueMapsStored",valMapsProduced)->setComment("provides to python configs the list of valuemaps stored, can not be overriden in the python config");
