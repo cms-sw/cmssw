@@ -22,7 +22,6 @@ class SoftElectronMVAEstimator {
   ~SoftElectronMVAEstimator() ;
   double mva(const reco::GsfElectron& myElectron,
              const reco::VertexCollection&) const;
-  UInt_t   GetMVABin(int pu,double eta,double pt ) const;
 
  private:
   void bindVariables(float vars[25]) const ;
