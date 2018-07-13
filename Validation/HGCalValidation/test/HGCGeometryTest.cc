@@ -9,6 +9,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -64,22 +65,31 @@ private:
   void analyzeHits (int, const std::string&, const std::vector<PCaloHit>&);
   
   // ----------member data ---------------------------
-  std::vector<std::string>              nameDetectors_, caloHitSources_;
+  const std::vector<std::string>        nameDetectors_, caloHitSources_;
+  const double                          rmin_, rmax_, zmin_, zmax_;
+  const int                             nbinR_, nbinZ_, verbosity_;
+  const bool                            ifNose_;
   std::vector<const HGCalDDDConstants*> hgcons_;
   const HcalDDDRecConstants*            hcons_;
-  int                                   verbosity_;
   std::vector<bool>                     heRebuild_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > tok_hits_;
   std::vector<int>                      layers_;
   
   //histogram related stuff
-  std::vector<TH2D*>                   h_RZ_, h_EtaPhi_;
+  std::vector<TH2D*>                    h_RZ_, h_EtaPhi_;
 };
 
 HGCGeometryTest::HGCGeometryTest(const edm::ParameterSet& iConfig) :
   nameDetectors_(iConfig.getParameter<std::vector<std::string> >("DetectorNames")),
   caloHitSources_(iConfig.getParameter<std::vector<std::string> >("CaloHitSources")),
-  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) {
+  rmin_(iConfig.getUntrackedParameter<double>("RMin",0.0)),
+  rmax_(iConfig.getUntrackedParameter<double>("RMax",3000.0)),
+  zmin_(iConfig.getUntrackedParameter<double>("ZMin",3000.0)),
+  zmax_(iConfig.getUntrackedParameter<double>("ZMax",6000.0)),
+  nbinR_(iConfig.getUntrackedParameter<int>("NBinR",300)),
+  nbinZ_(iConfig.getUntrackedParameter<int>("NBinZ",300)),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
+  ifNose_(iConfig.getUntrackedParameter<bool>("IfNose",false)) {
 
   usesResource(TFileService::kSharedResource);
 
@@ -101,7 +111,14 @@ void HGCGeometryTest::fillDescriptions(edm::ConfigurationDescriptions& descripti
 				      "HGCHitsHEback"};
   desc.add<std::vector<std::string> >("DetectorNames", names);
   desc.add<std::vector<std::string> >("CaloHitSources",sources);
+  desc.addUntracked<double>("RMin",0.0);
+  desc.addUntracked<double>("RMax",3000.0);
+  desc.addUntracked<double>("ZMin",3000.0);
+  desc.addUntracked<double>("ZMax",6000.0);
+  desc.addUntracked<int>("NBinR",300);
+  desc.addUntracked<int>("NBinZ",300);
   desc.addUntracked<int>("Verbosity",0);
+  desc.addUntracked<bool>("IfNose",false);
   descriptions.add("hgcalGeometryTest",desc);
 }
 
@@ -177,8 +194,20 @@ void HGCGeometryTest::analyzeHits(int ih, std::string const& name,
 				       rz*tanh(etaphi.first));
     } else {
       std::pair<float,float> xy;
-      if ((hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8) ||
-	  (hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+      if (ifNose_) {
+	HFNoseDetId detId = HFNoseDetId(id);
+	subdet   = detId.subdetId();
+	cell     = detId.cellU();
+	cell2    = detId.cellV();
+	sector   = detId.waferU();
+	sector2  = detId.waferV();
+	type     = detId.type();
+	layer    = detId.layer();
+	zside    = detId.zside();
+	xy       = hgcons_[ih]->locateCell(layer,sector,sector2,cell,cell2,
+					   false,true);
+      } else if ((hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8) ||
+		 (hgcons_[ih]->geomMode() == HGCalGeometryMode::Hexagon8Full)){
 	HGCSiliconDetId detId = HGCSiliconDetId(id);
 	subdet   = (int)(detId.det());
 	cell     = detId.cellU();
@@ -276,7 +305,7 @@ void HGCGeometryTest::beginJob() {
     }
     h_RZ_.emplace_back(fs->make<TH2D>(name.str().c_str(), 
 				      title.str().c_str(),
-				      300,3000.0,6000.0,300,0.0,3000.0));
+				      nbinZ_,zmin_,zmax_,nbinR_,rmin_,rmax_));
     name.str(""); title.str("");
     if (ih == 0) {
       name << "EtaPhi_AllDetectors";
