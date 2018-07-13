@@ -25,31 +25,6 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
 SoftElectronMVAEstimator::~SoftElectronMVAEstimator()
 { }
 
-UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const {
-
-    //Default is to return the first bin
-    unsigned int bin = 0;
-
- bool ptrange[3],etarange[3],purange[2];
-        ptrange[0]=pt > 2 && pt < 5;
-        ptrange[1]=pt > 5 && pt < 10;
-        ptrange[2]=pt > 10;
-        etarange[0]=fabs(eta) < 0.8;
-        etarange[1]=fabs(eta) > 0.8 && fabs(eta) <1.4;
-        etarange[2]=fabs(eta) > 1.4;
-        purange[0]=nPV<=20;
-        purange[1]=nPV>20;
-
-        int index=0;
-        for(int kPU=0;kPU<2;kPU++)
-        for(int kETA=0;kETA<3;kETA++)
-        for(int kPT=0;kPT<3;kPT++){
-                if (purange[kPU] && ptrange[kPT] && etarange[kETA]) bin=index;
-                index++;
-        } 
-  return bin;
-}
-
 double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,
                                      const reco::VertexCollection& pvc) const {
   float vars[25];
