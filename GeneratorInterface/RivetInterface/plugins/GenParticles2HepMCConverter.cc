@@ -150,7 +150,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   hepmc_event->add_vertex(vertex2);
   vertex1->add_particle_in(hepmc_parton1);
   vertex2->add_particle_in(hepmc_parton2);
-  //hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
+  hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
 
   // Prepare vertex list
   typedef std::map<const reco::Candidate*, HepMC::GenVertex*> ParticleToVertexMap;
