@@ -103,6 +103,7 @@ namespace evf {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileServiceParamPtr);
       }
     }
+
     if (useFileService_) {
       if (fileServiceHost_.empty()) {
         //find BU data address from hltd configuration
@@ -936,9 +937,10 @@ namespace evf {
     else if (doCreateBoLS) createBoLSFile(lumiSection,true);//needed for initial lumisection
   }
 
-  int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool unlock)
+  int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound, bool unlock)
   {
     std::string data;
+    fileFound=true;
     try {
       // assemble json destination path
       boost::filesystem::path jsonDestPath(baseRunDir());
@@ -1031,7 +1033,6 @@ namespace evf {
           }
         }
       }
-
       return boost::lexical_cast<int>(data);
 
     }
@@ -1040,6 +1041,11 @@ namespace evf {
       // Input dir gone?
       if (unlock) unlockFULocal();
       edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+      std::stringstream sst;
+      sst << ex.code();
+      if (sst.str()== "system:38") {
+        fileFound=false;
+      }
     }
     catch (std::runtime_error e)
     {
@@ -1085,7 +1091,7 @@ namespace evf {
 
         boost::asio::streambuf request;
         std::ostream request_stream(&request);
-        std::string path = "/popfile?runnumber="+run_nstring_;
+        std::string path = "/popfile?runnumber="+run_nstring_+"&pid="+pid_;
         if (maxLS>=0) {
           std::stringstream spath;
           spath << path << "&stopls=" << maxLS;
@@ -1187,27 +1193,39 @@ namespace evf {
               auto server_file = serverMap.find("file");
               assert(server_file==serverMap.end());//no file with starting state
               fileStatus=noFile;
+              edm::LogInfo("EvFDaqDirector") << "Got STARTING notification with last EOLS " << closedServerLS;
             }
         else if (s_state=="READY")
             {
               auto server_file = serverMap.find("file");
               if (server_file==serverMap.end()) {
                 //first LS
+                if (serverLS<=closedServerLS) serverLS=closedServerLS+1;
                 fileStatus=noFile;
                 edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " and no new file";
               }
               else {
                 std::string filestem;
-              //remove string literals
+                std::string fileprefix;
+                auto server_fileprefix = serverMap.find("fileprefix");
+                if (server_fileprefix!=serverMap.end()) {
+                  auto pssize = server_fileprefix->second.size();
+                  if (pssize>1 && server_fileprefix->second[0]=='"' && server_fileprefix->second[pssize-1]=='"')
+                    fileprefix = server_fileprefix->second.substr(1,pssize-2);
+                  else
+                    fileprefix = server_fileprefix->second;
+                }
+                
+                //remove string literals
                 auto ssize = server_file->second.size();
                 if (ssize>1 && server_file->second[0]=='"' && server_file->second[ssize-1]=='"')
                   filestem = server_file->second.substr(1,ssize-2);
                 else
                   filestem = server_file->second;
-                filestem = bu_run_dir_+"/"+filestem;
                 assert(!filestem.empty());
-                nextFileJson=filestem+".jsn";
-                nextFileRaw=filestem+".raw";
+                nextFileRaw = bu_run_dir_ +"/" + filestem+".raw";//raw files are not moved
+                filestem = bu_run_dir_ + "/" + fileprefix + filestem;
+                nextFileJson = filestem + ".jsn";
                 fileStatus=newFile;
                 edm::LogInfo("EvFDaqDirector") << "Got READY notification with last EOLS " << closedServerLS << " new LS " << serverLS << " file:" << filestem;
              }
@@ -1222,17 +1240,23 @@ namespace evf {
             edm::LogInfo("EvFDaqDirector") << "Got EOR notification with last EOLS " << closedServerLS;
             fileStatus=runEnded;
         }
+        else if (s_state=="NORUN") {
+            auto err_msg = serverMap.find("errormessage");
+            if (err_msg!=serverMap.end())
+              edm::LogWarning("EvFDaqDirector") << "Server NORUN -:" << server_state->second << " : " << err_msg->second;
+            else
+              edm::LogWarning("EvFDaqDirector") << "Server NORUN ";
+            edm::LogWarning("EvFDaqDirector") << "executing run end";
+            fileStatus=runEnded;
+        }
         else if (s_state=="ERROR") {
-            //TODO: special state for no directory
             auto err_msg = serverMap.find("errormessage");
             if (err_msg!=serverMap.end())
               edm::LogWarning("EvFDaqDirector") << "Server error -:" << server_state->second << " : " << err_msg->second;
             else
               edm::LogWarning("EvFDaqDirector") << "Server error -:" << server_state->second;
-            edm::LogWarning("EvFDaqDirector") << "executing run end";
-            fileStatus=runEnded;
-            //fileStatus=noFile;
-	    //serverError=true;
+            fileStatus=noFile;
+	    serverError=true;
         }
         else {
             edm::LogWarning("EvFDaqDirector") << "Unknown Server state -:" << server_state->second;
@@ -1271,7 +1295,7 @@ namespace evf {
 
     if (serverError) {
       fileStatus = noFile;
-      sleep(1);//back-off if error detected (TODO:caller can implement retry or timeout policy)
+      sleep(1);//back-off if error detected
     }
     return fileStatus;
   }
@@ -1338,8 +1362,19 @@ namespace evf {
 
     //TODO: parse server error status
 
+    bool fileFound;
+
     if (fileStatus == newFile)
-      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,false);
+      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,fileFound,false);
+
+    if (!fileFound) {
+      fileStatus = noFile;
+      struct stat buf;
+      if (stat(bu_run_dir_.c_str(),&buf)!=0) {
+        edm::LogWarning("EvFDaqDirector") << "BU run directory not found:" << bu_run_dir_;
+        fileStatus=runEnded;
+      }
+    }
 
     //first execution, allowed to skip to last reported LS (create BoLS file only)
     //std::cout << currentLumiSection << " "  << serverLS << " " << closedServerLS  << std::endl;
