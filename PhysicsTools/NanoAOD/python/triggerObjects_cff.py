@@ -29,9 +29,19 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"), 
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
-            qualityBits = cms.string("filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter') + 2*filter('hltEle*WPTight*TrackIsoFilter*') + 4*filter('hltEle*WPLoose*TrackIsoFilter') + 8*filter('*OverlapFilterIsoEle*PFTau*')"), 
-            qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight, 8 = OverlapFilter PFTau"),
-        ),
+            qualityBits = cms.string(
+                              "filter('*CaloIdLTrackIdLIsoVL*TrackIso*Filter') + " \
+                              "2*filter('hltEle*WPTight*TrackIsoFilter*') + " \
+                              "4*filter('hltEle*WPLoose*TrackIsoFilter') + " \
+                              "8*filter('*OverlapFilterIsoEle*PFTau*') + " \
+                              "16*filter('hltEle*Ele*CaloIdLTrackIdLIsoVL*Filter') + " \
+                              "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*')  + " \
+                              "64*filter('*OverlapFilterIsoEle*PFTau*') + " \
+                              "128*filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter') + " \
+                              "256*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter')) + " \
+                              "512*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter'))"),
+            qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = 1e (WPTight), 4 = 1e (WPLoose), 8 = OverlapFilter PFTau, 16 = 2e, 32 = 1e-1mu, 64 = 1e-1tau, 128 = 3e, 256 = 2e-1mu, 512 = 1e-2mu"),
+            ),
         cms.PSet(
             name = cms.string("Photon (PixelMatch-vetoed e/gamma)"), 
             id = cms.int32(22),
@@ -46,15 +56,37 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
             sel = cms.string("type(83) && pt > 5 && coll('hltIterL3MuonCandidates')"), 
             l1seed = cms.string("type(-81)"), l1deltaR = cms.double(0.5),
             l2seed = cms.string("type(83) && coll('hltL2MuonCandidates')"),  l2deltaR = cms.double(0.3),
-            qualityBits = cms.string("filter('*RelTrkIsoVVLFiltered0p4') + 2*filter('hltL3crIso*Filtered0p07') + 4*filter('*OverlapFilterIsoMu*PFTau*')"), qualityBitsDoc = cms.string("1 = TrkIsoVVL, 2 = Iso, 4 = OverlapFilter PFTau"),
-        ),
+            qualityBits = cms.string(
+                            "filter('*RelTrkIsoVVLFiltered0p4') + " \
+                            "2*filter('hltL3crIso*Filtered0p07') + " \
+                            "4*filter('*OverlapFilterIsoMu*PFTau*') + " \
+                            "8*max(filter('hltL3crIsoL1*SingleMu*Filtered0p07'),filter('hltL3crIsoL1sMu*Filtered0p07')) + " \
+                            "16*filter('hltDiMuon*Filtered*') + " \
+                            "32*filter('hltMu*TrkIsoVVL*Ele*CaloIdLTrackIdLIsoVL*Filter*') + " \
+                            "64*filter('hltOverlapFilterIsoMu*PFTau*') + " \
+                            "128*filter('hltL3fL1TripleMu*') + " \
+                            "256*max(filter('hltL3fL1DoubleMu*EG*Filtered*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter')) + " \
+                            "512*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter'))"),    
+            qualityBitsDoc = cms.string("1 = TrkIsoVVL, 2 = Iso, 4 = OverlapFilter PFTau, 8 = 1mu, 16 = 2mu, 32 = 1mu-1e, 64 = 1mu-1tau, 128 = 3mu, 256 = 2mu-1e, 512 =1mu-2e"),
+            ),
         cms.PSet(
             name = cms.string("Tau"),
             id = cms.int32(15),
             sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseChargedIso*') || filter('*MediumChargedIso*') || filter('*TightChargedIso*') || filter('*TightOOSCPhotons*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilterIsoMu*') || filter('*OverlapFilterIsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )"), #All trigger objects from a Tau collection + passing at least one filter
             l1seed = cms.string("type(-100)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(84) && coll('hltL2TauJetsL1IsoTauSeeded')"),  l2deltaR = cms.double(0.3),
-	    qualityBits = cms.string("filter('*LooseChargedIso*')+2*filter('*MediumChargedIso*')+4*filter('*TightChargedIso*')+8*filter('*TightOOSCPhotons*')+16*filter('hltL2TauIsoFilter')+32*filter('*OverlapFilterIsoMu*')+64*filter('*OverlapFilterIsoEle*')+128*filter('*L1HLTMatched*')+256*filter('*Dz02*')"), qualityBitsDoc = cms.string("1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = TightID OOSC photons, 16 = L2p5 pixel iso, 32 = OverlapFilter IsoMu, 64 = OverlapFilter IsoEle, 128 = L1-HLT matched, 256 = Dz"),            
+            qualityBits = cms.string(
+                               "filter('*LooseChargedIso*') + " \
+                               "2*filter('*MediumChargedIso*') + " \
+                               "4*filter('*TightChargedIso*') + " \
+                               "8*filter('*TightOOSCPhotons*') + " \
+                               "16*filter('*Hps*') + " \
+                               "32*filter('hltSelectedPFTau*MediumChargedIsolationL1HLTMatched*') + " \
+                               "64*filter('hltDoublePFTau*TrackPt1*ChargedIsolation*Dz02Reg') + " \
+                               "128*filter('hltOverlapFilterIsoEle*PFTau*') + " \
+                               "256*filter('hltOverlapFilterIsoMu*PFTau*') + " \
+                               "512*filter('hltDoublePFTau*TrackPt1*ChargedIsolation*')"),
+            qualityBitsDoc = cms.string("1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = TightID OOSC photons, 16 = HPS, 32 = single-tau + tau+MET, 64 = di-tau, 128 = e-tau, 256 = mu-tau, 512 = VBF+di-tau"),            
         ),   
         cms.PSet(
             name = cms.string("Jet"),
