@@ -1,19 +1,14 @@
 #ifndef RecoEgamma_EgammaTools_MVAVariableManager_H
 #define RecoEgamma_EgammaTools_MVAVariableManager_H
 
-#include <fstream>
-
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
+
+#include <fstream>
 
 template <class ParticleType>
 class MVAVariableManager {
@@ -27,7 +22,8 @@ class MVAVariableManager {
         init(variableDefinitionFileName);
     };
 
-    int init(const std::string &variableDefinitionFileName) {
+    int init(const std::string &variableDefinitionFileName)
+    {
         nVars_ = 0;
 
         variableInfos_.clear();
@@ -56,7 +52,8 @@ class MVAVariableManager {
         return nVars_;
     };
 
-    int getVarIndex(std::string &name) {
+    int getVarIndex(const std::string &name)
+    {
         std::map<std::string,int>::iterator it = indexMap_.find(name);
         if (it == indexMap_.end()) {
             return -1;
@@ -65,23 +62,24 @@ class MVAVariableManager {
         }
     }
 
-    const std::string getName(int index) const {
+    const std::string& getName(int index) const {
         return names_[index];
     }
 
-    const int getNVars() const {
+    int getNVars() const {
         return nVars_;
     }
 
-    std::vector<edm::InputTag> getHelperInputTags() const {
+    const std::vector<edm::InputTag>& getHelperInputTags() const {
         return helperInputTags_;
     }
 
-    std::vector<edm::InputTag> getGlobalInputTags() const {
+    const std::vector<edm::InputTag>& getGlobalInputTags() const {
         return globalInputTags_;
     }
 
-    float getValue(int index, const edm::Ptr<ParticleType>& ptclPtr, const edm::EventBase& iEvent) const {
+    float getValue(int index, const edm::Ptr<ParticleType>& ptclPtr, const edm::EventBase& iEvent) const
+    {
         float value;
         MVAVariableInfo varInfo = variableInfos_[index];
         if (varInfo.fromVariableHelper) {
@@ -115,7 +113,9 @@ class MVAVariableManager {
         bool isGlobalVariable;
     };
 
-    void addVariable(std::string &name, std::string &formula, std::string &lowerClip, std::string &upperClip) {
+    void addVariable(const std::string &name,      const std::string &formula,
+                     const std::string &lowerClip, const std::string &upperClip)
+    {
         bool hasLowerClip = lowerClip.find("None") == std::string::npos;
         bool hasUpperClip = upperClip.find("None") == std::string::npos;
         bool fromVariableHelper = formula.find("MVAVariableHelper") != std::string::npos ||
