@@ -1,0 +1,26 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx: In function 'void TTupleOfInstances_New()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:20:16: warning: Use of static expression 'PyTuple_Type.PyTypeObject::tp_new' of type 'newfunc {aka void (*)(PyTypeObject*)}' within function 'void TTupleOfInstances_New()' may not be thread-safe.
+   PyTuple_Type.tp_new( &TTupleOfInstances_Type);
+   ~~~~~~~~~~~~~^~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:14:21: note: Declared here:
+ extern PyTypeObject PyTuple_Type;
+                     ^~~~~~~~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:20:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   PyTuple_Type.tp_new( &TTupleOfInstances_Type);
+   ~~~~~~~~~~~~~^~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:20:16: warning: Pointer or reference bound to static expression 'PyTuple_Type.PyTypeObject::tp_new' of type 'newfunc {aka void (*)(PyTypeObject*)}' within function 'void TTupleOfInstances_New()'; may not be thread-safe.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:14:21: note: Declared here:
+ extern PyTypeObject PyTuple_Type;
+                     ^~~~~~~~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:20:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   PyTuple_Type.tp_new( &TTupleOfInstances_Type);
+   ~~~~~~~~~~~~~^~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:20:48: warning: Static expression 'TTupleOfInstances_Type' of type 'PyTypeObject' passed to pointer or reference function argument of 'PyTuple_Type.PyTypeObject::tp_new' within function 'void TTupleOfInstances_New()'; may not be thread-safe.
+   PyTuple_Type.tp_new( &TTupleOfInstances_Type);
+                                                ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:17:14: note: Declared here:
+ PyTypeObject TTupleOfInstances_Type;
+              ^~~~~~~~~~~~~~~~~~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread18_test.cxx:20:48: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   PyTuple_Type.tp_new( &TTupleOfInstances_Type);
+                                                ^

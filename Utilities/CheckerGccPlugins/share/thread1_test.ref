@@ -1,0 +1,105 @@
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx: In function 'int f1(int)':
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:10:5: warning: Use of static expression 'x' of type 'int' within function 'int f1(int)' may not be thread-safe.
+   x = xx;
+   ~~^~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:9:14: note: Declared here:
+   static int x;
+              ^
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:10:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   x = xx;
+   ~~^~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:11:10: warning: Use of static expression 'x' of type 'int' within function 'int f1(int)' may not be thread-safe.
+   return x;
+          ^
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:9:14: note: Declared here:
+   static int x;
+              ^
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:11:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return x;
+          ^
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx: In function 'int g1()':
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:71:10: warning: Use of static expression 'y1' of type 'int' within function 'int g1()' may not be thread-safe.
+   a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+       ~~~^~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:61:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:71:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+       ~~~^~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:71:31: warning: Use of static expression 'yy1.Y::y1' of type 'int' within function 'int g1()' may not be thread-safe.
+   a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+                           ~~~~^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:59:10: note: Declared here:
+ static Y yy1;
+          ^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:71:31: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+                           ~~~~^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:71:40: warning: Use of static expression 'y5[5]' of type 'int' within function 'int g1()' may not be thread-safe.
+   a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+                                    ~~~~^
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:65:12: note: Declared here:
+ static int y5[10];
+            ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:71:40: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+                                    ~~~~^
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx: In function 'void g2(int)':
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:78:6: warning: Use of static expression 'y1' of type 'int' within function 'void g2(int)' may not be thread-safe.
+   y1 = x;
+   ~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:61:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:78:6: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   y1 = x;
+   ~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:82:10: warning: Use of static expression 'yy1.Y::y2' of type 'int' within function 'void g2(int)' may not be thread-safe.
+   yy1.y2 = x;
+   ~~~~~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:59:10: note: Declared here:
+ static Y yy1;
+          ^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:82:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   yy1.y2 = x;
+   ~~~~~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:83:9: warning: Use of static expression 'y5[4]' of type 'int' within function 'void g2(int)' may not be thread-safe.
+   y5[4] = x;
+   ~~~~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:65:12: note: Declared here:
+ static int y5[10];
+            ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:83:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   y5[4] = x;
+   ~~~~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx: In function 'int g3(int)':
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:89:16: warning: Use of static expression 'y1' of type 'int' within function 'int g3(int)' may not be thread-safe.
+   return (x>0) ? y1 : y2;
+          ~~~~~~^~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:61:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:89:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return (x>0) ? y1 : y2;
+          ~~~~~~^~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx: In member function 'int H::hee1()':
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:108:10: warning: Use of static expression 'H::h1' of type 'int' within function 'int H::hee1()' may not be thread-safe.
+   a = h1 + h2 + h3 + h4;
+       ~~~^~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:95:14: note: Declared here:
+   static int h1;
+              ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:108:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   a = h1 + h2 + h3 + h4;
+       ~~~^~~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx: In member function 'void H::hee2(int)':
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:115:6: warning: Use of static expression 'H::h1' of type 'int' within function 'void H::hee2(int)' may not be thread-safe.
+   h1 = x;
+   ~~~^~~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:95:14: note: Declared here:
+   static int h1;
+              ^~
+/home/sss/atlas/rootaccess/../test/thread1_test.cxx:115:6: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   h1 = x;
+   ~~~^~~

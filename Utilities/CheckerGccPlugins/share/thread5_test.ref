@@ -1,0 +1,30 @@
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f2(const int*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:10:5: warning: Const discarded from expression 'y' of type 'const int*' within function 'void f2(const int*)'; may not be thread-safe.
+   f1(const_cast<int*>(y));
+   ~~^~~~~~~~~~~~~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:10:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f3(const int*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:15:5: warning: Const discarded from expression '<unknown>' of type 'const int*' (deriving from parameter 'y') within function 'void f3(const int*)'; may not be thread-safe.
+   f1((int*)&y[5]);
+   ~~^~~~~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:15:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f4(const S*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:27:5: warning: Const discarded from expression '<unknown>' of type 'const int*' (deriving from parameter 's') within function 'void f4(const S*)'; may not be thread-safe.
+   f1((int*)&s->x);
+   ~~^~~~~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:27:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f6(const S&)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:39:24: warning: Const discarded from expression 's' of type 'const S&' within function 'void f6(const S&)'; may not be thread-safe.
+   const_cast<S&>(s).foo();
+   ~~~~~~~~~~~~~~~~~~~~~^~
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:39:24: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f7a(const int*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:49:5: warning: Const discarded from expression 'y' of type 'const int*' within function 'void f7a(const int*)'; may not be thread-safe.
+   f1(const_cast<int*>(y));
+   ~~^~~~~~~~~~~~~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:49:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f8a()':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:61:5: warning: Const discarded from expression 'y' of type 'const int*' within function 'void f8a()'; may not be thread-safe.
+   f1(const_cast<int*>(y));
+   ~~^~~~~~~~~~~~~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:61:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

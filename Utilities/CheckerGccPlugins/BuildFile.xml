@@ -1,0 +1,6 @@
+<use name="gcc-plugin"/>
+<flags CXXFLAGS="-fno-rtti -iwithprefix plugin/include -std=c++14"/>
+<flags   LDFLAGS="-L${GCC_CXXCOMPILER_BASE}/lib -lgmp -lgmpxx"/>
+<export>
+  <lib   name="checker_gccplugins"/>
+</export>

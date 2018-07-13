@@ -1,0 +1,12 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/gaudi_inheritance_test.cxx:7:7: warning: 'class Foo1' derives directly from 'Algorithm'; should derive from 'AthAlgorithm' instead and use its methods.  (See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware> and <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AthenaBaseComps>.)
+ class Foo1 : public Algorithm {};
+       ^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/gaudi_inheritance_test.cxx:8:7: warning: 'class Foo2' derives directly from 'Service'; should derive from 'AthService' instead and use its methods.  (See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware> and <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AthenaBaseComps>.)
+ class Foo2 : public Service {};
+       ^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/gaudi_inheritance_test.cxx:9:7: warning: 'class Foo3' derives directly from 'AlgTool'; should derive from 'AthAlgTool' instead and use its methods.  (See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware> and <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AthenaBaseComps>.)
+ class Foo3 : public AlgTool {};
+       ^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/gaudi_inheritance_test.cxx:14:7: warning: 'class A1' derives directly from 'Algorithm'; should derive from 'AthAlgorithm' instead and use its methods.  (See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware> and <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AthenaBaseComps>.)
+ class A1 : public extends<Algorithm> {};
+       ^~

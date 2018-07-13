@@ -1,0 +1,11 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread17_test.cxx: In function 'void f1()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread17_test.cxx:7:6: warning: Inconsistent attributes between declaration and definition of function 'void f1()'.
+ void f1 [[gnu::not_reentrant]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread17_test.cxx:6:6: note: Declaration is here:
+ void f1 [[gnu::not_const_thread_safe]] ();
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread17_test.cxx:7:6: note: Definition has 'not_reentrant' but declaration does not.
+ void f1 [[gnu::not_reentrant]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread17_test.cxx:7:6: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

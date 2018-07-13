@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
+PLUGIN_NAME=libchecker_gccplugins.so
+PLUGIN_PATH=$PLUGIN_NAME
+for f in ${LD_LIBRARY_PATH//:/ }; do
+  if [ -x $f/$PLUGIN_NAME ]; then
+    PLUGIN_PATH=$f/$PLUGIN_NAME
+    break
+  fi
+done
+
+args=" -fplugin=$PLUGIN_PATH "
+for a in $*; do
+  args="$args -fplugin-arg-libchecker_gccplugins-checkers=$a"
+done
+
+echo $args
+

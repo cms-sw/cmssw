@@ -1,0 +1,38 @@
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx: In function 'void f1()':
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:30:7: warning: Static expression 'y1' of type 'int' passed to pointer or reference function argument of 'foo1' within function 'void f1()'; may not be thread-safe.
+   foo1(3, &y1);
+   ~~~~^~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:18:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:30:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   foo1(3, &y1);
+   ~~~~^~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:31:7: warning: Static expression 'y1' of type 'int' passed to pointer or reference function argument of 'foo2' within function 'void f1()'; may not be thread-safe.
+   foo2(3, y1);
+   ~~~~^~~~~~~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:18:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:31:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   foo2(3, y1);
+   ~~~~^~~~~~~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:32:7: warning: Static expression 'y1' of type 'int' passed to pointer or reference function argument of 'foo3' within function 'void f1()'; may not be thread-safe.
+   foo3(3, &y1);
+   ~~~~^~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:18:12: note: Declared here:
+ static int y1;
+            ^~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:32:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   foo3(3, &y1);
+   ~~~~^~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx: In function 'void f2()':
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:51:9: warning: Static expression 'c1' of type 'C' passed to pointer or reference function argument of 'C::foo' within function 'void f2()'; may not be thread-safe.
+   c1.foo();
+   ~~~~~~^~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:46:10: note: Declared here:
+ static C c1;
+          ^~
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:51:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   c1.foo();
+   ~~~~~~^~

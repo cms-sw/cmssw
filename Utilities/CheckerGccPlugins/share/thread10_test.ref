@@ -1,0 +1,32 @@
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx: In function 'void f4(char*)':
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:24:9: warning: statement has no effect [-Wunused-value]
+   strlen(s);
+   ~~~~~~^~~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:22:5: warning: Non-thread-safe function 'void f2()' called from thread-safe function 'void f4(char*)'; may not be thread-safe.
+   f2();
+   ~~^~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:9:6: note: Declared here:
+ void f2 [[gnu::not_thread_safe]] ();
+      ^~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:22:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   f2();
+   ~~^~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:23:5: warning: Unchecked function 'void f3()' called from thread-safe function 'void f4(char*)'; may not be thread-safe.
+   f3();
+   ~~^~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:10:6: note: Declared here:
+ void f3 ();
+      ^~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:23:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   f3();
+   ~~^~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:25:9: warning: Non-thread-safe function 'char* strtok(char*, const char*)' called from thread-safe function 'void f4(char*)'; may not be thread-safe.
+   strtok(s, ".");
+   ~~~~~~^~~~~~~~
+In file included from /home/sss/atlas/rootaccess/../test/thread10_test.cxx:4:0:
+/usr/include/string.h:343:14: note: Declared here:
+ extern char *strtok (char *__restrict __s, const char *__restrict __delim)
+              ^~~~~~
+/home/sss/atlas/rootaccess/../test/thread10_test.cxx:25:9: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   strtok(s, ".");
+   ~~~~~~^~~~~~~~

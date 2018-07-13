@@ -1,0 +1,40 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In member function 'void S::f1(int) const':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:40:5: warning: Setting mutable field 'S::x' of type 'int' within thread-safe function 'void S::f1(int) const'; may not be thread-safe.
+   x = y;
+   ~~^~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:40:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In function 'void f2(const S*)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:46:8: warning: Setting mutable field 'S::x' of type 'int' within thread-safe function 'void f2(const S*)'; may not be thread-safe.
+   s->x = 10;
+   ~~~~~^~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:46:8: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In function 'void f4(const S*)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:53:5: warning: Taking non-const reference to mutable field 'S::x' of type 'int' within thread-safe function 'void f4(const S*)'; may not be thread-safe.
+   f3(&s->x);
+   ~~^~~~~~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:53:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In function 'int* f5(const S*)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:58:14: warning: Taking non-const reference to mutable field 'S::x' of type 'int' within thread-safe function 'int* f5(const S*)'; may not be thread-safe.
+   return &s->x;
+              ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:58:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In member function 'void S::f6(int) const':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:64:7: warning: Setting mutable field 'S::b' of type 'B' within thread-safe function 'void S::f6(int) const'; may not be thread-safe.
+   b.z = y;
+   ~~~~^~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:64:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In function 'int* f7(const S*)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:69:16: warning: Taking non-const reference to mutable field 'S::b' of type 'B' within thread-safe function 'int* f7(const S*)'; may not be thread-safe.
+   return &s->b.z;
+                ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:69:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In function 'int* f8(const S*)':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:74:20: warning: Taking non-const reference to mutable field 'S::bb' of type 'B [5]' within thread-safe function 'int* f8(const S*)'; may not be thread-safe.
+   return &s->bb[2].z;
+                    ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:74:20: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx: In member function 'void S::f9(int) const':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:80:11: warning: Setting mutable field 'S::bb' of type 'B [5]' within thread-safe function 'void S::f9(int) const'; may not be thread-safe.
+   bb[0].z = y;
+   ~~~~~~~~^~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread6_test.cxx:80:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

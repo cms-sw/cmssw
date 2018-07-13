@@ -1,0 +1,5 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread12_test.cxx: In member function 'void S::f2() const':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread12_test.cxx:19:7: warning: Const member function 'void S::f2() const' calling not_const_thread_safe member function 'void S::f1() const' with same object must also be not_const_thread_safe.
+   f1();
+       ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread12_test.cxx:19:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

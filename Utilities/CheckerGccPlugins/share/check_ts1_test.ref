@@ -1,0 +1,77 @@
+In file included from /afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:3:0:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test1.h: In function 'void i1()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test1.h:5:6: warning: 'void i1()' is marked thread-safe.
+ void i1 [[gnu::check_thread_safety_debug]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test1.h: At global scope:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test1.h:9:8: warning: 'void C3::j1()' is not marked thread-safe.
+   void j1 [[gnu::check_thread_safety_debug]] () {}
+        ^~
+In file included from /afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:4:0:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p1/p1/p1a.h: In function 'void p1a()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p1/p1/p1a.h:3:6: warning: 'void p1a()' is marked thread-safe.
+ void p1a [[gnu::check_thread_safety_debug]] () {}
+      ^~~
+In file included from /afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:5:0:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p1/p1/p1b.h: In function 'void p1b()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p1/p1/p1b.h:3:6: warning: 'void p1b()' is marked thread-safe.
+ void p1b [[gnu::check_thread_safety_debug]] () {}
+      ^~~
+In file included from /afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:6:0:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p2/p2/p2a.h: In function 'void p2a()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p2/p2/p2a.h:3:6: warning: 'void p2a()' is not marked thread-safe.
+ void p2a [[gnu::check_thread_safety_debug]] () {}
+      ^~~
+In file included from /afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:7:0:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p2/p2/p2b.h: In function 'void p2b()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/Control/p2/p2/p2b.h:3:6: warning: 'void p2b()' is not marked thread-safe.
+ void p2b [[gnu::check_thread_safety_debug]] () {}
+      ^~~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In function 'void f1()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:9:6: warning: 'void f1()' is not marked thread-safe.
+ void f1 [[gnu::check_thread_safety_debug]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In function 'void f2()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:10:6: warning: 'void f2()' is marked thread-safe.
+ void f2 [[gnu::check_thread_safety_debug]] [[gnu::check_thread_safety]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: At global scope:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:15:8: warning: 'void C1::g1()' is not marked thread-safe.
+   void g1 [[gnu::check_thread_safety_debug]] () {}
+        ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:16:8: warning: 'void C1::g2()' is not marked thread-safe.
+   void g2 [[gnu::check_thread_safety_debug]] ();
+        ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:18:8: warning: 'void C1::g4()' is marked thread-safe.
+   void g4 [[gnu::check_thread_safety]] [[gnu::check_thread_safety_debug]] ();
+        ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:19:8: warning: 'void C1::g5()' is not marked thread-safe.
+   void g5 [[gnu::not_thread_safe]] [[gnu::check_thread_safety_debug]] ();
+        ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In member function 'void C1::g2()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:23:6: warning: 'void C1::g2()' is not marked thread-safe.
+ void C1::g2() {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In member function 'void C1::g3()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:24:6: warning: 'void C1::g3()' is not marked thread-safe.
+ void C1::g3 [[gnu::check_thread_safety_debug]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In member function 'void C1::g4()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:25:6: warning: 'void C1::g4()' is marked thread-safe.
+ void C1::g4() {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: At global scope:
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:30:8: warning: 'void C2::h1()' is marked thread-safe.
+   void h1 [[gnu::check_thread_safety_debug]] () {}
+        ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:37:8: warning: 'void C2::h4()' is not marked thread-safe.
+   void h4 [[gnu::not_thread_safe]] [[gnu::check_thread_safety_debug]] () {}
+        ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In member function 'void C2::h2()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:40:6: warning: 'void C2::h2()' is marked thread-safe.
+ void C2::h2 [[gnu::check_thread_safety_debug]] () {}
+      ^~
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx: In member function 'void C2::C3::h3()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/check_ts1_test.cxx:41:6: warning: 'void C2::C3::h3()' is marked thread-safe.
+ void C2::C3::h3 [[gnu::check_thread_safety_debug]] () {}
+      ^~

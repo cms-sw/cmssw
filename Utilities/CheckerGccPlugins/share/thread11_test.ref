@@ -1,0 +1,5 @@
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread11_test.cxx: In function 'void f3()':
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread11_test.cxx:13:7: warning: Function 'void f3()' calling not_reentrant function 'void f2()' must also be not_reentrant.
+   f2();
+       ^
+/afs/cern.ch/user/s/ssnyder/atlas-work3/External/CheckerGccPlugins/test/thread11_test.cxx:13:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

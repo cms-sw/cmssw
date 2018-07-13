@@ -1,0 +1,473 @@
+Enabling thread checks.  One of the following:
+
+  - Function or type directly has a gnu::check_thread_safety attribute.
+  - Containing context for a function of type
+    has a gnu::check_thread_safety attribute.
+  - File contains `#pragma ATLAS check_thread_safety'.
+  - The package contains a file ATLAS_CHECK_THREAD_SAFETY, in either the
+    root directory or the include directory.
+
+
+=========================================================================
+check_direct_static_use (thread1_test)
+  Warns about use of a non-const static value.
+
+int f1(int xx)
+{
+  static int x;
+  x = xx;
+  return x;
+}
+
+  gets two warnings.
+
+  Can suppress by:
+    - Declaring value as thread_local.
+         static thread_local int x;
+
+    - Adding a thread_safe attribute:
+        static int x [[gnu::thread_safe]];
+
+    - Adding not_thread_safe or not_reentrant to the function:
+         int f5 [[gnu::not_thread_safe]] (int xx)
+         int f6 [[gnu::not_reentrant]] (int xx)
+
+
+(thread14_test)
+
+Warns about use of a const static object with a not_const_thead_safe
+member function.
+
+Example:
+
+struct S
+{
+  S() : x(0) {}
+  void m [[gnu::not_const_thread_safe]] ();
+  int x;
+};
+
+
+const static S s;
+
+int f1()
+{
+  return s.x;
+}
+
+
+Can suppress by declaring using function as not_reentrant or not_thread_safe.
+
+
+=========================================================================
+check_assign_address_of_static (thread2_test)
+
+Check for binding a non-const pointer or reference to a static.
+
+For example:
+
+static int y1;
+int* f1()
+{
+  return &y1;
+}
+
+
+  Can suppress by:
+    - Declaring value as thread_local.
+         static thread_local int y1;
+
+    - Adding a thread_safe attribute:
+        static int x [[gnu::thread_safe]];
+
+    - Adding not_thread_safe or not_reentrant to the function:
+         int f5 [[gnu::not_thread_safe]] (int xx)
+         int f6 [[gnu::not_reentrant]] (int xx)
+
+
+(thread14_test)
+
+Warns about use of a const static object with a not_const_thead_safe
+member function.
+
+Example:
+
+struct S
+{
+  S() : x(0) {}
+  void m [[gnu::not_const_thread_safe]] ();
+  int x;
+};
+
+
+const static S s;
+
+const int* f1()
+{
+  return &s.x;
+}
+
+
+Can suppress by declaring using function as not_reentrant or not_thread_safe.
+
+
+=========================================================================
+check_pass_static_by_call (thread3_test)
+
+Check for passing a static to a non-const pointer or reference
+function argument.
+
+Example:
+
+static int y1;
+void foo1(int, int*);
+void f1()
+{
+  foo1(3, &y1);
+}
+
+
+Passing a std::atomic value of a fundamental type is considered ok.
+Passing mutexes also considered ok.
+
+  Can suppress by:
+    - Declaring value as thread_local.
+         static thread_local int y1;
+
+    - Adding a thread_safe attribute:
+        static int x [[gnu::thread_safe]];
+
+    - Adding not_thread_safe or not_reentrant to the function:
+         int f5 [[gnu::not_thread_safe]] (int xx)
+         int f6 [[gnu::not_reentrant]] (int xx)
+
+
+=========================================================================
+check_discarded_const (thread4_test)
+
+
+Check for discarding const from a pointer/reference.
+
+Example:
+
+int* f1(const int* y)
+{
+  return const_cast<int*>(y);
+}
+
+
+  Can suppress by:
+
+    - Adding a thread_safe attribute to the LHS of an assignment
+      that discards const:
+        const int* y;
+        int* yy [[gnu::thread_safe]] = (int*)y;
+
+    - Adding a not_thread_safe attribute to the function.
+
+    - Adding a not_const_thread_safe attribute to the function, when
+      it discards const from something that is not an argument.
+
+    - Adding an argument_not_const_thread_safe attribute to the function, when
+      it discards const from an argument.
+
+
+=========================================================================
+check_discarded_const_in_funcall (thread5_test)
+
+
+Check for discarding const from a pointer/reference in a function call.
+
+Example:
+
+const int* xx();
+void f1(int* y);
+void f2(const int* y)
+{
+  f1(const_cast<int*>(y));
+}
+
+
+  Can suppress by:
+
+    - Adding a not_thread_safe attribute to the function.
+
+    - Adding a not_const_thread_safe attribute to the function, when
+      it discards const from something that is not an argument.
+
+
+=========================================================================
+check_mutable (thread6_test)
+
+Check for writing to a mutable class member, or for taking
+a non-const reference to a mutable class member, within a const function.
+
+We don't warn about mutable fields of type std::mutex.
+
+Examples:
+
+void foo(int&);
+struct S
+{
+  mutable int x;
+  void f1(int y) const { x = y; }
+  void f2() const { foo(x); }
+};
+
+
+  Can suppress by:
+
+  - Making the function non-const.
+  
+  - Adding a thread_safe attribute to the member declaration.
+
+  - Adding a not_thread_safe attribute to the function.
+
+
+=========================================================================
+mutable/static checks (thread7_test)
+
+TBD
+
+static ok for std::atomic with fundamental type.
+mutable ok for std::mutex.
+
+
+=========================================================================
+check_discarded_const_from_return (thread8_test)
+
+
+Check for discarding const from a pointer/reference in a function return.
+
+Example:
+
+const int* xx();
+int* f1()
+{
+  return const_cast<int*>(xx());
+}
+
+  Can suppress by:
+
+    - Adding a not_thread_safe attribute to the function.
+
+    - Adding a not_const_thread_safe attribute to the function.
+
+
+=========================================================================
+check_returns (thread9_test)
+
+Check for returning a non-const data member from a const function.
+
+Example:
+
+struct S
+{
+  int* x;
+  int* f1() const;
+};
+
+
+int* S::f1() const
+{
+  return x;
+}
+
+
+NB: Doesn't find all the ways in which such a member can leak.
+    We don't diagnose, for example:
+
+int* foo(int* x) { return x; }
+int* S::f1() const
+{
+  return foo(x);
+}
+
+
+  Can suppress by:
+
+    - Adding a not_const_thread_safe attribute to the function.
+
+    - Making the function non-const.
+
+
+=========================================================================
+check_thread_safe_call (thread10_test)
+
+Warn about a checked function calling an unchecked function or a function
+marked with not_thread_safe.  Calls to functions defined in /usr/include
+are considered ok unless they are on a list of stdlib calls known
+to be thread-unsafe.
+
+Other calls considered ok:
+  - To functions in std::
+  - In Gaudi.
+  - In boost.
+
+
+Example:
+
+
+void f2 [[gnu::not_thread_safe]] ();
+
+void f4 [[gnu::check_thread_safety]] ()
+{
+  f2();
+}
+
+
+=========================================================================
+check_not_reentrant_call (thread11_test)
+
+
+Warn about a not_reentrant function called from a function not marked
+as not_reentrant.
+
+Example:
+
+void f2 [[gnu::not_reentrant]] ();
+
+void f3()
+{
+  f2(); // warning
+}
+
+void f4 [[gnu::not_reentrant]] ()
+{
+  f2(); // ok
+}
+
+
+=========================================================================
+check_not_const_thread_safe_call (thread12_test)
+
+Warn if a const member function calls a not_const_thread_safe member function
+on the same object and is not itself marked not_const_thread_safe.
+
+Example:
+
+
+struct S
+{
+  void f1 [[gnu::not_const_thread_safe]] () const;
+  void f2() const;
+};
+
+
+void S::f2() const
+{
+  f1();
+}
+
+
+=========================================================================
+check_argument_not_const_thread_safe_call (thread13_test)
+
+Warn if a function passes one of its arguments to an
+argument_not_const_thread_safe member function and is not itself
+marked argument_not_const_thread_safe.
+
+Example:
+
+
+void f1 [[gnu::argument_not_const_thread_safe]] (int*);
+void f10 (int* x)
+{
+  f1(x);
+}
+
+
+Warn if a const member function passes member data to an 
+argument_not_const_thread_safe member function and is not itself
+marked argument_not_const_thread_safe.
+
+
+Example:
+
+void f1 [[gnu::argument_not_const_thread_safe]] (const int*);
+struct S
+{
+  void m1() const { f1(x); }
+}
+
+
+=========================================================================
+check_static_argument_not_const_thread_safe_call (thread15_test)
+
+
+Warn if a function passes a const static object to a function
+that is declared argument_not_const_thread_safe.
+
+const static int s = 0;
+
+int f1 [[gnu::argument_not_const_thread_safe]] (const int* x);
+
+void f2()
+{
+  f1 (&s);
+}
+
+
+
+Can suppress by declaring calling function as not_reentrant.
+
+
+=========================================================================
+check_virtual_overrides (thread16_test)
+
+Check that when a virtual function is overridden, the same attributes are used.
+
+Example:
+
+
+struct B
+{
+  virtual void f1 [[gnu::not_reentrant]] ();
+};
+
+
+struct D : public B
+{
+  virtual void f1();  // Warning!
+};
+
+
+
+=========================================================================
+check_attrib_consistency (thread17_test)
+
+Warn if a threading attribute is present on a function's definition
+but not on its declaration.
+
+Example:
+
+void f1();
+void f1 [[gnu::not_reentrant]] () {}
+
+
+=========================================================================
+
+
+Attributes:
+  not_reentrant
+  thread_safe
+  argument_not_const_thread_safe
+  not_const_thread_safe
+  not_thread_safe
+  check_thread_safety
+  
+
+
+Things to think about:
+
+We don't warn about code like this:
+
+struct Foo
+{
+  int* m_x;
+  // pointer to non-const copied from const object
+  Foo (const Foo& f) : m_x (f.m_x) {}
+};
+
+cf. ArenaSharedHeapSTLAllocator.
+Should we?  It seems like this might give too many false positives.

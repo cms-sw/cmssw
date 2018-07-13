@@ -1,0 +1,8 @@
+${CONSTITUENT} ::
+	@if test ! -d ../run ; then mkdir -p ../run ; fi; \
+	cd ../cmt; . ./setup.sh; \
+	cd ../run; \
+	cc="$(cc)" cppflags="$(cppflags)" cppdebugflags="$(cppdebugflags)" CheckerGccPlugins_args="$(CheckerGccPlugins_args)" \
+	${checkertest_exe} ${checkertest_opt} ${checkertest_out}; \
+	testStatus=$$? ${checkertest_post} && \
+	echo "${CONSTITUENT} completed"

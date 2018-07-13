@@ -1,0 +1,9 @@
+/home/sss/atlas/rootaccess/../test/thread15_test.cxx: In function 'void f2()':
+/home/sss/atlas/rootaccess/../test/thread15_test.cxx:15:6: warning: Function 'void f2()' passing const static argument '& s' of type 'const int*' to argument_not_const_thread_safe function 'int f1(const int*)' must be not_reentrant.
+   f1 (&s);
+   ~~~^~~~
+/home/sss/atlas/rootaccess/../test/thread15_test.cxx:15:6: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread15_test.cxx:17:6: warning: Function 'void f2()' passing const static argument 'ss' of type 'const int*' to argument_not_const_thread_safe function 'int f1(const int*)' must be not_reentrant.
+   f1 (ss);
+   ~~~^~~~
+/home/sss/atlas/rootaccess/../test/thread15_test.cxx:17:6: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

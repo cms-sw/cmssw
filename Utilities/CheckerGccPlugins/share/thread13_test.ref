@@ -1,0 +1,35 @@
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx: In function 'void f10(int*)':
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:14:5: warning: Function 'void f10(int*)' passing argument 'x' of type 'int*' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(x);
+   ~~^~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:14:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:16:5: warning: Function 'void f10(int*)' passing argument 'xp' of type 'int*' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(xp);
+   ~~^~~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:16:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:17:5: warning: Function 'void f10(int*)' passing argument '<unknown>' of type 'int*' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(x+20);
+   ~~^~~~~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:17:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:18:5: warning: Function 'void f10(int*)' passing argument '<unknown>' of type 'int' to argument_not_const_thread_safe function 'void f2(int)' must also be argument_not_const_thread_safe.
+   f2(*x);
+   ~~^~~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:18:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx: In function 'void f12(int**)':
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:29:5: warning: Function 'void f12(int**)' passing argument '<unknown>' of type 'int*' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(x[4]);
+   ~~^~~~~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:29:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx: In member function 'void S::m1() const':
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:51:5: warning: Const member function 'void S::m1() const' passing member data 'S::x' of type 'int*' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(x);
+   ~~^~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:51:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:52:5: warning: Const member function 'void S::m1() const' passing member data 'S::SS::y' of type 'int [10]' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(&ss.y[5]);
+   ~~^~~~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:52:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:53:5: warning: Const member function 'void S::m1() const' passing member data 'S::yy' of type 'int [10]' to argument_not_const_thread_safe function 'void f1(const int*)' must also be argument_not_const_thread_safe.
+   f1(&yy[5]);
+   ~~^~~~~~~~
+/home/sss/atlas/rootaccess/../test/thread13_test.cxx:53:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
