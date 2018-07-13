@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include <vector>
 
 namespace edm {
@@ -23,6 +24,7 @@ namespace edm {
   private:
 
     std::vector<HLTPathStatus> hltPathStatus_;
+    EDPutTokenT<HLTPathStatus> token_;
   };
 }
 #endif
