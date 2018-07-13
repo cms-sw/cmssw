@@ -26,7 +26,6 @@ MaterialBudgetData::~MaterialBudgetData() {
   // rr
   delete theSupportDmb;
   delete theSensitiveDmb;
-  delete theCablesDmb;
   delete theCoolingDmb;
   delete theElectronicsDmb;
   delete theOtherDmb;
