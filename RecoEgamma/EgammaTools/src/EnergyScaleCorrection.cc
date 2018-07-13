@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <algorithm>
 
+
 EnergyScaleCorrection::EnergyScaleCorrection(const std::string& correctionFileName, unsigned int genSeed):
   smearingType_(ECALELF)
 {
@@ -359,7 +360,21 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
     r9Min_ = -1;
     r9Max_ = 0.94;
   };	
-  
+  // R9 region
+  p1 = category.find("-R9");
+  p2 = p1 + 1;
+  if(p1 != std::string::npos) {
+    p1 = category.find("_", p1);
+    p2 = category.find("_", p1 + 1);
+    r9Min_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
+    // If there is one value, just set lower bound
+    if (p2 != std::string::npos) {
+      p1 = p2;
+      p2 = category.find("-", p1);
+      r9Max_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
+      if(r9Max_>=1.0) r9Max_ = std::numeric_limits<float>::max();
+    }
+  }
   //------------------------------
   p1 = category.find("gainEle_");      // Position of first character
   if(p1 != std::string::npos) {
