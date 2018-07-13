@@ -60,6 +60,9 @@
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8" eval="false"/>
     <Parameter name="LevelTop"            value="5"/>
     <Parameter name="LevelTop"            value="7"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
