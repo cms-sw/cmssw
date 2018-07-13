@@ -1,4 +1,4 @@
-/** \class EgammaHLTElectronDetaDphiProducer
+/** \class EgammaHLTGsfTrackVarProducer
  *
  *  \author Roberto Covarelli (CERN)
  * 
