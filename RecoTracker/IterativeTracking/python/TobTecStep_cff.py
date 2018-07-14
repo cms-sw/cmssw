@@ -49,13 +49,13 @@ tobTecStepTrackingRegionsTripl = _globalTrackingRegionFromBeamSpotFixedZ.clone(R
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(tobTecStepTrackingRegionsTripl, 
-                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-                fixedError = 5.0,
-                ptMin = 2.0,
-                originRadius = 3.5
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStepTrackingRegionsCommon_pp_on_HI
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(tobTecStepTrackingRegionsTripl, 
+                _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet=dict(
+                    ptMinScaling4BigEvts= False,
+                    fixedError = 5.0,
+                    ptMin = 2.0,
+                    originRadius = 3.5
                 )                                                                      )
 )
 
@@ -143,15 +143,15 @@ tobTecStepTrackingRegionsPair = _globalTrackingRegionFromBeamSpotFixedZ.clone(Re
     originRadius = 6.0,
 ))
 
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(tobTecStepTrackingRegionsPair, 
-                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-                fixedError = 7.5,
-                ptMin = 2.0,
-                originRadius = 6.0
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(tobTecStepTrackingRegionsPair, 
+                _mixedTripletStepTrackingRegionsCommon_pp_on_HI.clone(RegionPSet=dict(
+                    ptMinScaling4BigEvts= False,
+                    fixedError = 7.5,
+                    ptMin = 2.0,
+                    originRadius = 6.0
                 )                                                                      )
 )
+
 
 # Pair seeds
 tobTecStepHitDoubletsPair = _hitPairEDProducer.clone(

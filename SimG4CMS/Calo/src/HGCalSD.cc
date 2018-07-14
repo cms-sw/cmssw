@@ -39,15 +39,15 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme_(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT1_(99), 
-  levelT2_(99), isScint_(false), tan30deg_(std::tan(30.0*CLHEP::deg)) {
+  hgcons_(nullptr), slopeMin_(0), levelT1_(99), levelT2_(99), 
+  tan30deg_(std::tan(30.0*CLHEP::deg)) {
+
+  numberingScheme_.reset(nullptr); mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
-  useBirk_         = m_HGC.getParameter<bool>("UseBirkLaw");
-  birk1_           = m_HGC.getParameter<double>("BirkC1")*(CLHEP::g/(CLHEP::MeV*CLHEP::cm2));
-  birk2_           = m_HGC.getParameter<double>("BirkC2");
-  birk3_           = m_HGC.getParameter<double>("BirkC3");
+  fiducialCut_     = m_HGC.getParameter<bool>("FiducialCut");
+  distanceFromEdge_= m_HGC.getParameter<double>("DistanceFromEdge");
   storeAllG4Hits_  = m_HGC.getParameter<bool>("StoreAllG4Hits");
   rejectMB_        = m_HGC.getParameter<bool>("RejectMouseBite");
   waferRot_        = m_HGC.getParameter<bool>("RotatedWafer");
@@ -68,9 +68,6 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
   } else if (myName.find("HitsHEfront")!=std::string::npos) {
     mydet_  = DetId::HGCalHSi;
     nameX_  = "HGCalHESiliconSensitive";
-  } else if (myName.find("HitsHEback")!=std::string::npos) {
-    mydet_  = DetId::HGCalHSc;
-    nameX_  = "HGCalHEScintillatorSensitive";
   }
 
 #ifdef EDM_ML_DEBUG
@@ -88,14 +85,12 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
 			     << mydet_;
   edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits "
 			     << storeAllG4Hits_;
+  edm::LogVerbatim("HGCSim") << "Fiducial volume cut with cut from eta/phi "
+			     << "boundary " << fiducialCut_ << " at " 
+			     << distanceFromEdge_;
   edm::LogVerbatim("HGCSim") << "Reject MosueBite Flag: " << rejectMB_ 
 			     << " cuts along " << angles_.size() << " axes: "
 			     << angles_[0] << ", " << angles_[1];
-}
-
-HGCalSD::~HGCalSD() { 
-  delete numberingScheme_;
-  delete mouseBite_;
 }
 
 double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
@@ -103,30 +98,35 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   double r = aStep->GetPreStepPoint()->GetPosition().perp();
   double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 #ifdef EDM_ML_DEBUG
-  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4int    parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4String parName = aStep->GetTrack()->GetDefinition()->GetParticleName();
   G4LogicalVolume* lv =
     aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
   edm::LogVerbatim("HGCSim") << "HGCalSD: Hit from standard path from "
 			     << lv->GetName() << " for Track " 
 			     << aStep->GetTrack()->GetTrackID() << " ("
-			     << aStep->GetTrack()->GetDefinition()->GetParticleName() 
-			     << ") R = " << r << " Z = "
-			     << z << " slope = " << r/z << ":" << slopeMin_;
+			     << parCode << ":" << parName << ") R = " << r 
+			     << " Z = " << z << " slope = " << r/z << ":" 
+			     << slopeMin_;
 #endif
   // Apply fiducial cut
-  if (r < z*slopeMin_) { return 0.0; }
+  if (r < z*slopeMin_) { 
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCalSD: Fiducial Volume cut";
+#endif
+    return 0.0; 
+  }
 
   double wt1    = getResponseWt(aStep->GetTrack());
   double wt2    = aStep->GetTrack()->GetWeight();
-  double wt3    = ((useBirk_ && isScint_) ? 
-		   getAttenuation(aStep, birk1_, birk2_, birk3_) : 1.0);
-  double destep = weight_*wt1*wt3*(aStep->GetTotalEnergyDeposit());
+  double destep = weight_*wt1*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
 #ifdef EDM_ML_DEBUG
-  edm::LogWarning("HGCalSim")  << "HGCalSD: weights= " << weight_ << ":" << wt1 << ":"
-			       << wt2 << ":" << wt3 << " Total weight "
-			       << weight_*wt1*wt2*wt3 << " deStep: "
-			       << aStep->GetTotalEnergyDeposit() << ":" <<destep;
+  edm::LogVerbatim("HGCalSim")  << "HGCalSD: weights= " << weight_ << ":" 
+				<< wt1 << ":" << wt2 << " Total weight " 
+				<< weight_*wt1*wt2 << " deStep: "
+				<<aStep->GetTotalEnergyDeposit()
+				<< ":" <<destep;
 #endif
   return destep;
 }
@@ -148,7 +148,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
     module = -1;
     cell   = -1;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
+    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() 
+			       << ":" << levelT1_ << ":" << levelT2_
 			       << " name " << touch->GetVolume(0)->GetName() 
 			       << " layer:module:cell " << layer << ":" 
 			       << module << ":" << cell;
@@ -157,6 +158,12 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
     layer  = touch->GetReplicaNumber(3);
     module = touch->GetReplicaNumber(2);
     cell   = touch->GetReplicaNumber(1);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "DepthsInside: " << touch->GetHistoryDepth() 
+			       << " name " << touch->GetVolume(0)->GetName() 
+			       << " layer:module:cell " << layer << ":" 
+			       << module << ":" << cell;
+#endif
   }
 #ifdef EDM_ML_DEBUG
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
@@ -179,7 +186,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
   if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
   
   uint32_t id = setDetUnitId (layer, module, cell, iz, hitPoint);
-  if (rejectMB_ && id != 0 && (!isScint_)) {
+  if (rejectMB_ && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec 
@@ -201,26 +208,25 @@ void HGCalSD::update(const BeginOfJob * job) {
   edm::ESHandle<HGCalDDDConstants>    hdc;
   es->get<IdealGeometryRecord>().get(nameX_,hdc);
   if (hdc.isValid()) {
-    const HGCalDDDConstants* hgcons = hdc.product();
-    geom_mode_       = hgcons->geomMode();
-    slopeMin_        = hgcons->minSlope();
-    levelT1_         = hgcons->levelTop(0);
-    levelT2_         = hgcons->levelTop(1);
-    isScint_         = (geom_mode_ == HGCalGeometryMode::Trapezoid);
-    double waferSize = hgcons->waferSize(false);
-    double mouseBite = hgcons->mouseBite(false);
+    hgcons_          = hdc.product();
+    geom_mode_       = hgcons_->geomMode();
+    slopeMin_        = hgcons_->minSlope();
+    levelT1_         = hgcons_->levelTop(0);
+    levelT2_         = hgcons_->levelTop(1);
+    double waferSize = hgcons_->waferSize(false);
+    double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_    = waferSize*tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ 
-			       << " Slope cut " << slopeMin_ << " top Level "
-			       << levelT1_ << ":" << levelT2_ << " isScint "
-			       << isScint_ << " wafer " << waferSize << ":"
-			       << mouseBite;
+    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " 
+			       << geom_mode_ << " Slope cut " << slopeMin_ 
+			       << " top Level " << levelT1_ << ":" << levelT2_ 
+			       << " wafer " << waferSize << ":" << mouseBite;
 #endif
 
-    numberingScheme_ = new HGCalNumberingScheme(*hgcons,mydet_,nameX_);
-    if (rejectMB_ && (!isScint_)) 
-      mouseBite_ = new HGCMouseBite(*hgcons,angles_,mouseBiteCut_,waferRot_);
+    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_,mydet_,nameX_));
+    if (rejectMB_) 
+      mouseBite_.reset(new HGCMouseBite(*hgcons_,angles_,mouseBiteCut_,
+					waferRot_));
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
@@ -240,3 +246,10 @@ uint32_t HGCalSD::setDetUnitId (int layer, int module, int cell, int iz,
   return id;
 }
 
+bool HGCalSD::isItinFidVolume (const G4ThreeVector& pos) {
+  if (fiducialCut_) {
+    return (hgcons_->distFromEdgeHex(pos.x(),pos.y(),pos.z()) > distanceFromEdge_);
+  } else {
+    return true;
+  }
+}

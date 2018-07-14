@@ -1,3 +1,4 @@
+
 def ignoreAllFiltersOnPath(path):
   """Given a 'Path', find all EDFilters and wrap them in 'cms.ignore'
   """
@@ -106,7 +107,8 @@ def cleanUnscheduled(proc):
   # On each path we move EDProducers and EDFilters that
   # are ignored to Tasks
   producerList = list()
-  for pName, originalPath in pathsAndEndPaths.iteritems():
+  import six
+  for pName, originalPath in six.iteritems(pathsAndEndPaths):
     producerList[:] = []
     qualified_names = []
     v = cms.DecoratedNodeNamePlusVisitor(qualified_names)
@@ -164,8 +166,10 @@ def moduleLabelsInSequences(* sequences):
 
 def createTaskWithAllProducersAndFilters(process):
   from FWCore.ParameterSet.Config import Task
-  l = [ p for p in process.producers.itervalues()]
-  l.extend( (f for f in process.filters.itervalues()) )
+  import six
+
+  l = [ p for p in six.itervalues(process.producers)]
+  l.extend( (f for f in six.itervalues(process.filters)) )
   return Task(*l)
 
 def convertToSingleModuleEndPaths(process):
@@ -173,9 +177,10 @@ def convertToSingleModuleEndPaths(process):
     and replace with new EndPaths each with only one module.
     """
     import FWCore.ParameterSet.Config as cms
+    import six
     toRemove =[]
     added = []
-    for n,ep in process.endpaths_().iteritems():
+    for n,ep in six.iteritems(process.endpaths_()):
         tsks = []
         ep.visit(cms.TaskVisitor(tsks))
 

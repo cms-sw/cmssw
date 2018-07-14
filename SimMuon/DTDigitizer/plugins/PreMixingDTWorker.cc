@@ -4,4 +4,4 @@
 
 using PreMixingDTWorker = PreMixingMuonWorker<DTDigiCollection>;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingDTWorker , "PreMixingDTWorker");
+DEFINE_PREMIXING_WORKER(PreMixingDTWorker);

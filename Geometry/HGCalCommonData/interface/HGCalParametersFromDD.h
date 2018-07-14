@@ -14,7 +14,7 @@ public:
   virtual ~HGCalParametersFromDD() {}
 
   bool build(const DDCompactView*,  HGCalParameters&, const std::string&,
-	     const std::string&, const std::string&);
+	     const std::string&, const std::string&, const std::string&);
 
 private:
   void                getCellPosition(HGCalParameters& php, int type);

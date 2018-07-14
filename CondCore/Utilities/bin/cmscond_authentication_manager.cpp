@@ -1,5 +1,3 @@
-//#include "CondCore/CondDB/interface/DbSession.h"
-//#include "CondCore/CondDB/interface/DbScopedTransaction.h"
 #include "CondCore/CondDB/interface/Auth.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/CredentialStore.h"
@@ -11,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-//#include <map>
 
 namespace coral_bridge {
   bool parseXMLAuthenticationFile( const std::string& inputFileName, 
@@ -55,18 +52,18 @@ namespace cond {
   class AuthenticationManager : public Utilities {
     public:
       AuthenticationManager();
-      ~AuthenticationManager();
+      ~AuthenticationManager() override;
       int execute() override;
   };
 }
 
 cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_authentication_manager"){
   addOption<std::string>("authPath","P","authentication path");
-  addOption<bool>("create","","[-c a0 -u a1 -p a2] create creds db");
-  addOption<bool>("init","","[-s a0 -u a1 -p a2] init db for admin");
-  addOption<bool>("drop","", "[-c a0 -u a1 -p a2] drop creds db");
+  addOption<bool>("create","","[-s a0 -u a1] create creds db");
+  addOption<bool>("reset_admin","","[-s a0 -u a1] reset write credentials for admin");
+  addOption<bool>("drop","", "[-c a0 -u a1] drop creds db");
   addOption<bool>("update_princ","", "[-s a0 -k a1 (-a)] add/update principal");
-  addOption<bool>("update_conn","", "[-s a0 -u a1 -p a2 (-l a3)] add/update connection");
+  addOption<bool>("update_conn","", "[-s a0 -u a1 (-l a3)] add/update connection");
   addOption<bool>("set_perm","", "[-s a0 -n a1 -r a2 -c a3 -l a4] set permission");
   addOption<bool>("unset_perm","", "[-s a0 -n a1 -r a2 -c a3] unset permission");
   addOption<bool>("list_conn","","[-s arg ] list connections");
@@ -85,7 +82,6 @@ cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_authenti
   addOption<std::string>("connectionString","c","the connection string");
   addOption<std::string>("connectionLabel","l","the connection label");
   addOption<std::string>("userName","u","the user name");
-  addOption<std::string>("password","p","the password");
 }
 
 cond::AuthenticationManager::~AuthenticationManager(){
@@ -109,7 +105,7 @@ int cond::AuthenticationManager::execute(){
 
   bool drop= hasOptionValue("drop");
   bool create= hasOptionValue("create");
-  bool init= hasOptionValue("init");
+  bool reset_admin= hasOptionValue("reset_admin");
   bool update_princ= hasOptionValue("update_princ");
   bool update_conn= hasOptionValue("update_conn");
   bool list_conn = hasOptionValue("list_conn");
@@ -127,34 +123,32 @@ int cond::AuthenticationManager::execute(){
   if( drop ){
     std::string connectionString = getOptionValue<std::string>("connectionString");
     std::string userName = getOptionValue<std::string>("userName");
-    std::string password = getOptionValue<std::string>("password");
+    std::string password = cond::getpassForUser( userName );
     credDb.drop( connectionString, userName, password );
     return 0;
   }
 
+  std::string service(""); 
   if( create ){
-    std::string connectionString = getOptionValue<std::string>("connectionString");
-    std::string userName("");
-    if( hasOptionValue("userName") ) userName = getOptionValue<std::string>("userName");
-    std::string password("");
-    if( hasOptionValue("password") ) password = getOptionValue<std::string>("password");
-    credDb.createSchema( connectionString, userName, password);
+    service = getOptionValue<std::string>("service");
+    std::string userName = getOptionValue<std::string>("userName");
+    std::string password = cond::getpassForUser( userName );
+    std::string credsStore = credDb.setUpForService( service, authPath );
+    credDb.createSchema( credsStore, userName, password);
     return 0;
   }
 
-  std::string service(""); 
-  if( init || update_princ || update_conn || remove_princ || remove_conn || set_perm || 
+  if( reset_admin || update_princ || update_conn || remove_princ || remove_conn || set_perm || 
       unset_perm || import || list_conn || list_princ || list_perm || exp ){
     service = getOptionValue<std::string>("service");
     std::string credsStore = credDb.setUpForService( service, authPath );
     std::cout <<"Connecting with credential repository in \""<<credsStore<<"\""<<std::endl;
   }
-  if( init ){
-    std::string userName("");
-    if( hasOptionValue("userName") ) userName = getOptionValue<std::string>("userName");
-    std::string password("");
-    if( hasOptionValue("password") ) password = getOptionValue<std::string>("password");
-    credDb.installAdmin( userName, password );
+
+  if( reset_admin ){
+    std::string userName = getOptionValue<std::string>("userName");
+    std::string password = cond::getpassForUser( userName );
+    credDb.resetAdmin( userName, password );
     return 0;
   }
 
@@ -169,7 +163,7 @@ int cond::AuthenticationManager::execute(){
 
   if( update_conn ){
     std::string userName = getOptionValue<std::string>("userName");
-    std::string password = getOptionValue<std::string>("password");
+    std::string password = cond::getpassForUser( userName );
     std::string connectionLabel = schemaLabel( service, userName );
     if( hasOptionValue("connectionLabel") ) {
       connectionLabel = getOptionValue<std::string>("connectionLabel");

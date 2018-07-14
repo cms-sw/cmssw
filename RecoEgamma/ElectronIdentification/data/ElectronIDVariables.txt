@@ -1,0 +1,64 @@
+#
+# File: variables.txt
+#
+# This file is to be read by the MVAVariableHelper class. Lists all the
+# variables which appear in the xml files for the MVA based Electron IDs for Run2.
+# Variables are given line by line. The columns of each entry correspond to:
+#
+#     1. The name under which the variable appears in the weight files.
+#     2. How to get this variable from the electron with the cut parser (NO SPACES!)
+#        or if not available, how to get the variables elsewhere.
+#     3. The lower clip value for the variable to avoid crazy values. "None" if no clip.
+#     4. The upper clip value.
+#
+
+# This selection of ID variables is rather large and not intended to be used by a real ID,
+# but by an ntuplizer which dumps all possible ID variables.
+
+rho                                fixedGridRhoFastjetAll                                     None None
+ele_pt                             pt                                                         None None
+ele_oldsigmaietaieta               full5x5_sigmaIetaIeta                                      None None
+ele_oldsigmaiphiiphi               full5x5_sigmaIphiIphi                                      None None
+ele_oldcircularity                 1.-full5x5_e1x5/full5x5_e5x5                                 -1.  2.
+ele_oldr9                          full5x5_r9                                                 None   5.
+ele_scletawidth                    superCluster.etaWidth                                      None None
+ele_sclphiwidth                    superCluster.phiWidth                                      None None
+ele_hadronicOverEm             hadronicOverEm                                             None None
+ele_oldhe                          full5x5_hcalOverEcal                                       None None
+ele_kfhits                         electronMVAVariableHelper:kfhits                           None None
+ele_kfchi2                         electronMVAVariableHelper:kfchi2                           None  10.
+ele_gsfchi2                        gsfTrack.normalizedChi2                                    None 200.
+ele_fbrem                          fbrem                                                       -1. None
+ele_gsfhits                        gsfTrack.hitPattern.trackerLayersWithMeasurement           None None
+ele_expected_inner_hits            gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS') None None
+ele_conversionVertexFitProbability electronMVAVariableHelper:convVtxFitProb                   None None
+ele_ep                             eSuperClusterOverP                                         None  20.
+ele_eelepout                       eEleClusterOverPout                                        None  20.
+ele_IoEmIop                        1.0/ecalEnergy-1.0/trackMomentumAtVtx.R                    None None
+ele_deltaetain                     abs(deltaEtaSuperClusterTrackAtVtx)                       -0.06 0.06
+ele_deltaphiin                     abs(deltaPhiSuperClusterTrackAtVtx)                        -0.6  0.6
+ele_deltaetaseed                   abs(deltaEtaSeedClusterTrackAtCalo)                        -0.2  0.2
+ele_psEoverEraw                    superCluster.preshowerEnergy/superCluster.rawEnergy        None None
+ele_pfPhotonIso                    pfIsolationVariables.sumPhotonEt                           None None
+ele_pfChargedHadIso                pfIsolationVariables.sumChargedHadronPt                    None None
+ele_pfNeutralHadIso                pfIsolationVariables.sumNeutralHadronEt                    None None
+scl_E                              superCluster.energy                                        None None
+scl_Et                             superCluster.energy*sqrt(superCluster.x^2+superCluster.y^2)/sqrt(superCluster.x^2+superCluster.y^2+superCluster.z^2) None None
+scl_eta                            superCluster.eta                                           None None
+scl_phi                            superCluster.phi                                           None None
+ele_sclRawE                        superCluster.rawEnergy                                     None None
+ele_sclNclus                       superCluster.clustersSize                                  None None
+ele_olde15                         full5x5_e1x5                                               None None
+ele_olde25max                      full5x5_e2x5Max                                            None None
+ele_olde55                         full5x5_e5x5                                               None None
+ele_ecalE                          ecalEnergy                                                 None None
+ele_ecalErr                        ecalEnergyError                                            None None
+ele_trackErr                       trackMomentumError                                         None None
+ele_combErr                        p4Error('P4_COMBINATION')                                  None None
+ele_PFcombErr                      p4Error('P4_PFLOW_COMBINATION')                            None None
+ele_pfSumPUIso                     pfIsolationVariables.sumPUPt                               None None
+ele_SCfbrem                        superClusterFbrem                                          None None
+ele_eClass                         classification                                             None None
+ele_nbrem                          numberOfBrems                                              None None
+ele_oldhebc                        full5x5_hcalOverEcalBc                                     None None
+ele_hebc                           hcalOverEcalBc                                             None None

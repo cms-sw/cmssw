@@ -130,4 +130,4 @@ private:
   PreMixingMuonWorker<CSCComparatorDigiCollection> comparatorWorker_;
 };
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingCSCWorker, "PreMixingCSCWorker");
+DEFINE_PREMIXING_WORKER(PreMixingCSCWorker);

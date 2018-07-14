@@ -34,8 +34,12 @@ public:
 				    bool reco) const;
   std::array<int,3>   assignCellTrap(float x, float y, float z, int lay, 
 				     bool reco) const;
+  bool                cellInLayer(int waferU, int waferV, int cellU, int cellV,
+				  int lay, bool reco) const;
   double              cellSizeHex(int type) const;
   double              cellThickness(int layer, int waferU, int waferV) const;
+  double              distFromEdgeHex(double x, double y, double z) const;
+  double              distFromEdgeTrap(double x, double y, double z) const;
   void                etaPhiFromPosition(const double x, const double y,
 					 const double z, const int layer,
 					 int& ieta, int& iphi, int& type,
@@ -99,6 +103,7 @@ public:
 					int& waferV, int& cellU, int& cellV,
 					int& celltype, double& wt) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
+  bool                waferFullInLayer(int wafer, int lay, bool reco) const;
   int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
   int                 waferMax() const {return waferMax_[1];}
   int                 waferMin() const {return waferMax_[0];}
@@ -125,7 +130,7 @@ private:
 	       int& cellV) const;
   std::pair<int,float>   getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
-  bool waferInLayer(int wafer, int lay) const;
+  bool waferInLayerTest(int wafer, int lay, bool full) const;
 
   const double k_horizontalShift = 1.0;
   const float  dPhiMin           = 0.02;

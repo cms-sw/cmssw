@@ -20,17 +20,14 @@ class HGCalUncalibRecHitProducer : public edm::stream::EDProducer<> {
   
  private:
   
-  const edm::EDGetTokenT<HGCEEDigiCollection> eeDigiCollection_; // collection of HGCEE digis
-  const edm::EDGetTokenT<HGCHEDigiCollection> hefDigiCollection_; // collection of HGCHEF digis
-  edm::EDGetTokenT<HGCBHDigiCollection> hebDigiCollectionOld_; // collection of HGCHEB digis
-  edm::EDGetTokenT<HGCHEDigiCollection> hebDigiCollectionNew_; // collection of HGCHEB digis
+  const edm::EDGetTokenT<HGCalDigiCollection> eeDigiCollection_; // collection of HGCEE digis
+  const edm::EDGetTokenT<HGCalDigiCollection> hefDigiCollection_; // collection of HGCHEF digis
+  edm::EDGetTokenT<HGCalDigiCollection> hebDigiCollection_; // collection of HGCHEB digis
   
   const std::string eeHitCollection_; // instance name of HGCEE collection of hits
   const std::string hefHitCollection_; // instance name of HGCHEF collection of hits
   const std::string hebHitCollection_; // instance name of HGCHEB collection of hits
 
-  int geometryType_;
-  
   std::unique_ptr<HGCalUncalibRecHitWorkerBaseClass> worker_;
 };
 #endif

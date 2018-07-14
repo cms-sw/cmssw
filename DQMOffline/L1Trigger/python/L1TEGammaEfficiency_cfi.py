@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEGammaOffline_cfi
+import six
 
 variables = {
     'electron': L1TEGammaOffline_cfi.electronEfficiencyThresholds,
@@ -39,6 +40,7 @@ deepInspectionThresholds_HI = {
     'electron': L1TEGammaOffline_cfi.deepInspectionElectronThresholds_HI,
     'photon': [],
 }
+
 
 # remove photon variables (code to produce them is currently commented out)
 variables['photon'] = []

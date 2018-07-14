@@ -7,6 +7,7 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
+import six
 
 # Pairwise generator: returns pairs of adjacent elements in a list / other iterable
 def pairwiseGen(aList):
@@ -227,8 +228,8 @@ if __name__ == '__main__':
     os.mkdir(args.output_dir)
 
     if args.mif:
-        for fileName, value in getMifParameterMap(caloParams).iteritems():
+        for fileName, value in getMifParameterMap(six.iteritems(caloParams)):
             createMIF(args.output_dir + '/' + fileName, value) 
     else:
-        for fileTag, paramList in getXmlParameterMap(caloParams).iteritems():
+        for fileTag, paramList in getXmlParameterMap(six.iteritems(caloParams)):
             createXML(paramList, 'MainProcessor' if fileTag.startswith('mp') else 'Demux', args.output_dir + '/algo_' + fileTag + '.xml')
