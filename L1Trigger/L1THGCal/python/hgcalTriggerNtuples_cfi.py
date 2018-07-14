@@ -44,9 +44,9 @@ ntuple_genjet = cms.PSet(
 
 ntuple_digis = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCDigis'),
-    HGCDigisEE = cms.InputTag('mix:HGCDigisEE'),
-    HGCDigisFH = cms.InputTag('mix:HGCDigisHEfront'),
-    HGCDigisBH = cms.InputTag('mix:HGCDigisHEback'),
+    HGCDigisEE = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    HGCDigisFH = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    HGCDigisBH = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
