@@ -1,21 +1,33 @@
+# Python 2 vs 3 compatibility library:
+import six
+
 import FWCore.ParameterSet.Config as cms
 
+
+# Load the detailed configurations of pixel plugins.
+# NB: for any new detector geometry (e.g. Phase 2 varians), we should write a new plugin
+# config file, and import it here, and below use its own Era to load it.
+#
 from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase0_cfi import pixelPluginsPhase0
 from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase1_cfi import pixelPluginsPhase1
 from FastSimulation.TrackingRecHitProducer.PixelPluginsPhase2_cfi import pixelPluginsPhase2
-import six
 
+# The default is (for better of worse) Phase 0:
+#
 fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("fastSimProducer","TrackerHits"),
     plugins = pixelPluginsPhase0
 )
 
+# Phase 1 Era: replace plugins by Phase 1 plugins
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
 trackingPhase1.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase1)
 
+# Phase 2 Era: replace plugins by Phase 2 plugins, etc...
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
 
+# Configure strip tracker Gaussian-smearing plugins:
 trackerStripGaussianResolutions={
     "TIB": {
         1: cms.double(0.00195),

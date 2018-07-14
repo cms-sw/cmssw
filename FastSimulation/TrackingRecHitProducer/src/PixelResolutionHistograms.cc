@@ -44,7 +44,7 @@ private:
 
 
 // Generic C stuff
-#include <math.h>       /* floor */
+#include <cmath>
 #include <iostream>
 #include <string>
 
