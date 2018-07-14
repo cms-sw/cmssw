@@ -5,4 +5,4 @@
 
 using PreMixingRPCWorker = PreMixingMuonWorker<RPCDigiCollection>;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingRPCWorker, "PreMixingRPCWorker");
+DEFINE_PREMIXING_WORKER(PreMixingRPCWorker);

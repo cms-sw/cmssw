@@ -101,14 +101,11 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
   SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx",5)) {
 
   auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
-  if (nameDetector_ == "HGCalEESensitive" ) {
-    digiSource_    = consumes<HGCEEDigiCollection>(temp);
-  } else if (nameDetector_ == "HGCalHESiliconSensitive" ||
-	     nameDetector_ == "HGCalHEScintillatorSensitive") {
-    digiSource_    = consumes<HGCHEDigiCollection>(temp);
+  if (nameDetector_ == "HGCalEESensitive" || nameDetector_ == "HGCalHESiliconSensitive" || nameDetector_ == "HGCalHEScintillatorSensitive") {
+    digiSource_    = consumes<HGCalDigiCollection>(temp);
   } else if (nameDetector_ == "HCal") {
     if (ifHCAL_) digiSource_ = consumes<QIE11DigiCollection>(temp);
-    else         digiSource_ = consumes<HGCBHDigiCollection>(temp);
+    else         digiSource_ = consumes<HGCalDigiCollection>(temp);
   } else {
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
@@ -120,7 +117,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
 void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("DetectorName","HGCalEESensitive");
-  desc.add<edm::InputTag>("DigiSource",edm::InputTag("mix","HGCDigisEE"));
+  desc.add<edm::InputTag>("DigiSource",edm::InputTag("hgcalDigis","EE"));
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
   desc.addUntracked<int>("SampleIndx",0);
@@ -158,7 +155,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   unsigned int ntot(0), nused(0);
   if (nameDetector_ == "HGCalEESensitive") {
     //HGCalEE
-    edm::Handle<HGCEEDigiCollection> theHGCEEDigiContainers;
+    edm::Handle<HGCalDigiCollection> theHGCEEDigiContainers;
     iEvent.getByToken(digiSource_, theHGCEEDigiContainers);
     if (theHGCEEDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -185,7 +182,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   } else if ((nameDetector_ == "HGCalHESiliconSensitive") || 
 	     (nameDetector_ == "HGCalHEScintillatorSensitive")) {
     //HGCalHE
-    edm::Handle<HGCHEDigiCollection> theHGCHEDigiContainers;
+    edm::Handle<HGCalDigiCollection> theHGCHEDigiContainers;
     iEvent.getByToken(digiSource_, theHGCHEDigiContainers);
     if (theHGCHEDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -212,7 +209,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     }
   } else if ((nameDetector_ == "HCal") && (!ifHCAL_)) {
     //HGCalBH
-    edm::Handle<HGCBHDigiCollection> theHGCBHDigiContainers;
+    edm::Handle<HGCalDigiCollection> theHGCBHDigiContainers;
     iEvent.getByToken(digiSource_, theHGCBHDigiContainers);
     if (theHGCBHDigiContainers.isValid()) {
       if (verbosity_>0) 

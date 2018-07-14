@@ -3,6 +3,7 @@ from copy import copy
 from copy import deepcopy
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
+import six
 
 # Helper functions
 def getPSetDict(thePSet):
@@ -12,7 +13,7 @@ def insertValToPSet(name,val,thePSet):
    setattr(thePSet,name,val)
 
 def insertPSetToPSet(inPSet, outPSet):
-   for key,val in getPSetDict(inPSet).iteritems():
+   for key,val in getPSetDict(six.iteritems(inPSet)):
       insertValToPSet(key,val,outPSet)
 
 def insertPSetToVPSet(inPSet, outVPSet):
@@ -110,7 +111,7 @@ class HipPyOptionParser:
 
    def interpretOptions(self):
       gttogetpsets=[]
-      for key,val in self.optdict.iteritems():
+      for key,val in six.iteritems(self.optdict):
          # Get GT name
          if key=="gt":
             autofind=val.find("auto")

@@ -128,3 +128,4 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCDigitizerBase<HGCEEDataFrame>;
 template class HGCDigitizerBase<HGCBHDataFrame>;
+template class HGCDigitizerBase<HGCalDataFrame>;

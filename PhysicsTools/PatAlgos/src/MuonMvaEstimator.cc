@@ -36,8 +36,8 @@ MuonMvaEstimator::MuonMvaEstimator(const std::string& weightsfile, float dRmax):
   tmvaReader.AddVariable("log(abs(LepGood_dz))",          &log_abs_dzPV_     );
   tmvaReader.AddVariable("LepGood_segmentCompatibility",  &segmentCompatibility_);
 
-  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(muon_mva_name, weightsfile.c_str()) );
-  gbrForest_.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(muon_mva_name) ) ) );
+  auto temp{ tmvaReader.BookMVA(muon_mva_name, weightsfile.c_str()) };
+  gbrForest_ = std::make_unique<GBRForest>( dynamic_cast<TMVA::MethodBDT*>( temp ) );
 }
 
 MuonMvaEstimator::~MuonMvaEstimator() { }

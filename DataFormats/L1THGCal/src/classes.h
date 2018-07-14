@@ -31,6 +31,7 @@ namespace DataFormats {
     l1t::HGCalTriggerCellBxCollection   hgcalTriggerCellBxColl;
     l1t::HGCalClusterBxCollection hgcalClusterBxColl;
     l1t::HGCalMulticlusterBxCollection hgcalMulticlusterBxColl;
+    l1t::HGCalTowerID towerId;
 
     edm::Ptr<l1t::HGCalTriggerCell> hgcalTriggerCellPtr;
     edm::Ptr<l1t::HGCalCluster> hgcalClusterPtr;
@@ -40,6 +41,7 @@ namespace DataFormats {
     std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>  hgcalTriggerCellMap;
     std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>  hgcalClusterMap;
     edm::PtrVector<l1t::HGCalTowerMap>  hgcalTowerMapList;
+    std::unordered_map<unsigned short,l1t::HGCalTower> towermap;
 
     edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
     edm::Wrapper<l1t::HGCalTowerMapBxCollection>   w_hgcalTowerMapBxColl;
@@ -51,7 +53,7 @@ namespace DataFormats {
     edm::Wrapper<edm::PtrVector<l1t::HGCalTriggerCell>> w_hgcalTriggerCellList;
     edm::Wrapper<edm::Ptr<l1t::HGCalCluster>> w_hgcalClusterPtr;
     edm::Wrapper<edm::PtrVector<l1t::HGCalCluster>> w_hgcalClusterList;
-    
+
     l1t::ClusterShapes clusterShapes;
   }
 }

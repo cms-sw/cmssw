@@ -7,6 +7,7 @@
 import os,sys,time
 from RecoLuminosity.LumiDB import tablePrinter, csvReporter,CommonUtil
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
+import six
 
 def dumptocsv(fieldnames,result,filename):
     '''
@@ -64,7 +65,7 @@ def toScreenNormSummary(allnorms):
     result=[]
     labels=[('Name','Type','IsTypeDefault','Comment','CreationTime')]
     print ' ==  = '
-    sorted_allnorms=sorted(allnorms.iteritems(),key=lambda x:x[0],reverse=True)
+    sorted_allnorms=sorted(six.iteritems(allnorms),key=lambda x:x[0],reverse=True)
     for (normname,normvalues) in sorted_allnorms:
         lumitype=normvalues[1]
         istypedefault=str(normvalues[2])

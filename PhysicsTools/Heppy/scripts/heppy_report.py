@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from optparse import OptionParser
 import json
+import six
 
 def root2map(dir,ana,treename):
     import ROOT
@@ -25,9 +26,9 @@ def root2map(dir,ana,treename):
         jsonind[run] =  list(set(jsonind[run]))
 
     nruns = len(jsonind)
-    nlumis = sum(len(v) for v in jsonind.itervalues())
+    nlumis = sum(len(v) for v in six.itervalues(jsonind))
     jsonmap = {}
-    for r,lumis in jsonind.iteritems():
+    for r,lumis in six.iteritems(jsonind):
         if len(lumis) == 0: continue # shouldn't happen
         lumis.sort()
         ranges = [ [ lumis[0], lumis[0] ] ]

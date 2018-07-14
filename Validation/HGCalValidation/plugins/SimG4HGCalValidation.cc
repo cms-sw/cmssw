@@ -89,14 +89,15 @@ private:
   
   // to read from parameter set
   std::vector<std::string>           names_;
-  std::vector<int>                   types_, subdet_;
+  std::vector<int>                   types_, detTypes_, subdet_;
   std::string                        labelLayer_;
 
   // parameters from geometry
   int                                levelT1_, levelT2_;
 
   // some private members for ananlysis 
-  unsigned int                       count_;                  
+  unsigned int                       count_;
+  int                                verbosity_;
   double                             edepEE_, edepHEF_, edepHEB_;
   std::vector<double>                hgcEEedep_, hgcHEFedep_, hgcHEBedep_;
   std::vector<unsigned int>          dets_, hgchitDets_, hgchitIndex_;
@@ -109,18 +110,21 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p):
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HGCalValidation");
   names_        = m_Anal.getParameter<std::vector<std::string> >("Names");
   types_        = m_Anal.getParameter<std::vector<int> >("Types");
+  detTypes_     = m_Anal.getParameter<std::vector<int> >("DetTypes");
   labelLayer_   = m_Anal.getParameter<std::string>("LabelLayerInfo");
+  verbosity_    = m_Anal.getUntrackedParameter<int>("Verbosity",0);
 
   produces<PHGCalValidInfo>(labelLayer_);
 
-  edm::LogInfo("ValidHGCal") << "HGCalTestAnalysis:: Initialised as observer "
-			     << "of begin events and of G4step with Parameter "
-			     << "values: \n\tLabel : " << labelLayer_
-			     << " and with " << names_.size() << " detectors"
-			     << std::endl;
+  edm::LogVerbatim("ValidHGCal") << "HGCalTestAnalysis:: Initialised as "
+				 << "observer of begin events and of G4step "
+				 << "with Parameter values: \n\tLabel : " 
+				 << labelLayer_ << " and with " 
+				 << names_.size() << " detectors";
   for (unsigned int k=0; k<names_.size(); ++k)
-    edm::LogInfo("ValidHGCal") << " [" << k << "] " << names_[k] << " Type "
-			       << types_[k] << std::endl;
+    edm::LogVerbatim("ValidHGCal") << " [" << k << "] " << names_[k] 
+				   << " Type " << types_[k] << " DetType "
+				   << detTypes_[k];
 } 
    
 SimG4HGCalValidation::~SimG4HGCalValidation() {
@@ -140,23 +144,24 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
 
   const edm::EventSetup* es = (*job)();
   for (unsigned int type=0; type<types_.size(); ++type) {
-    int layers(0);
+    int      layers(0);
+    int      detType = detTypes_[type];
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
       if (types_[type] == 0) {
 	subdet_.emplace_back(ForwardSubdetector::ForwardEmpty);
-	if      (type == 0) dets_.emplace_back((int)(DetId::HGCalEE));
-	else if (type == 1) dets_.emplace_back((int)(DetId::HGCalHSi));
-	else                dets_.emplace_back((int)(DetId::HGCalHSc));
+	if      (detType == 0) dets_.emplace_back((int)(DetId::HGCalEE));
+	else if (detType == 1) dets_.emplace_back((int)(DetId::HGCalHSi));
+	else                   dets_.emplace_back((int)(DetId::HGCalHSc));
       } else {
 	dets_.push_back((unsigned int)(DetId::Forward));
-	if      (type == 0) subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
-	else if (type == 1) subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
-	else                subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
+	if      (detType == 0) subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
+	else if (detType == 1) subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
+	else                   subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
       }
-      if        (type == 0) nameX = "HGCalEESensitive";
-      else if   (type == 1) nameX = "HGCalHESiliconSensitive";
-      else                  nameX = "HGCalHEScintillatorSensitive";
+      if        (detType == 0) nameX = "HGCalEESensitive";
+      else if   (detType == 1) nameX = "HGCalHESiliconSensitive";
+      else                     nameX = "HGCalHEScintillatorSensitive";
       edm::ESHandle<HGCalDDDConstants>    hdc;
       es->get<IdealGeometryRecord>().get(nameX,hdc);
       if (hdc.isValid()) {
@@ -178,7 +183,8 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
       } else {
 	edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for "
 				    << nameX;
-	throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
+	throw cms::Exception("Unknown", "ValidHGCal") 
+	  << "Cannot find HGCalDDDConstants for " << nameX << "\n";
       }
     } else {
       nameX = "HcalEndcap";
@@ -192,19 +198,21 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
 	layers = 18;
       } else {
 	edm::LogError("ValidHGCal") << "Cannot find HcalDDDSimConstant";
-	throw cms::Exception("Unknown", "ValidHGCal") << "Cannot find HcalDDDSimConstant\n";
+	throw cms::Exception("Unknown", "ValidHGCal") 
+	  << "Cannot find HcalDDDSimConstant\n";
       }
     }
-    if (type == 0) {
+    if        (detType == 0) {
       for (int i=0; i<layers; ++i) hgcEEedep_.push_back(0);
-    } else if (type == 1) {
+    } else if (detType == 1) {
       for (int i=0; i<layers; ++i) hgcHEFedep_.push_back(0);
-    } else {
+    } else                   {
       for (int i=0; i<layers; ++i) hgcHEBedep_.push_back(0);
     }
-    edm::LogInfo("ValidHGCal") << "[" << type << "]: " << nameX << " det "
-			       << dets_[type] << " subdet " << subdet_[type]
-			       << " with " << layers << " layers" << std::endl;
+    edm::LogVerbatim("ValidHGCal") << "[" << type << "]: " << nameX << " det "
+				   << dets_[type] << " subdet " 
+				   << subdet_[type] << " with " << layers 
+				   << " layers";
   }
 }
 
@@ -212,8 +220,9 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
 void SimG4HGCalValidation::update(const BeginOfEvent * evt) {
  
   int iev = (*evt)()->GetEventID();
-  edm::LogInfo("ValidHGCal") << "SimG4HGCalValidation: =====> Begin event = "
-			     << iev << std::endl;
+  if (verbosity_ > 0) 
+    edm::LogVerbatim("ValidHGCal") << "SimG4HGCalValidation: =====> Begin "
+				   << "event = " << iev;
   
   ++count_;
   edepEE_ = edepHEF_ = edepHEB_ = 0.;
@@ -232,18 +241,25 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 
   if (aStep != nullptr) {
     G4VPhysicalVolume* curPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
+    const G4String& name = curPV->GetName();
     G4VSensitiveDetector* curSD = aStep->GetPreStepPoint()->GetSensitiveDetector();
+    if (verbosity_ > 1)
+      edm::LogVerbatim("ValidHGCal") << "ValidHGCal::Step in " << name <<" at "
+				     << aStep->GetPreStepPoint()->GetPosition();
 
     // Only for Sensitive detector
     if (curSD != nullptr) {
-      const G4String& name = curPV->GetName();
       int type(-1);
       for (unsigned int k=0; k<names_.size(); ++k) {
 	if (name.find(names_[k].c_str()) != std::string::npos) {
 	  type = k; break;
 	}
       }
-      edm::LogInfo("ValidHGCal") << "Step in " << name << " type " << type;
+      int detType = (type >= 0) ? detTypes_[type] : -1;
+      if (verbosity_ > 0)
+	edm::LogVerbatim("ValidHGCal") << "ValidHGCal::In SD " << name 
+				       << " type " << type << ":" << detType;
+
       // Right type of SD
       if (type >= 0) {
 	//Get the 32-bit index of the hit cell
@@ -254,7 +270,7 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	if (types_[type] <= 1) {
 	  // HGCal
 	  G4ThreeVector localpos = touchable->GetHistory()->GetTopTransform().TransformPoint(hitPoint);	  
-	  float globalZ=touchable->GetTranslation(0).z();
+	  float globalZ = touchable->GetTranslation(0).z();
 	  int iz(globalZ>0 ? 1 : -1);
 	  int module(-1), cell(-1);
 	  if (types_[type] == 1) {
@@ -279,6 +295,10 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	    index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz,
 						     hitPoint, weight);
 	  }
+	  if (verbosity_ > 1)
+	    edm::LogVerbatim("ValidHGCal") << "HGCal: " << name << " Layer "
+					   << layer << " Module " << module
+					   << " Cell " << cell;
 	} else {
 	  // Hcal
 	  int depth = (touchable->GetReplicaNumber(0))%10 + 1;
@@ -287,29 +307,33 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(det, hitPoint, depth, lay);
 	  index = HcalTestNumbering::packHcalIndex(tmp.subdet,tmp.zside,tmp.depth,tmp.etaR,tmp.phis,tmp.lay);
 	  layer = tmp.lay;
-	  edm::LogInfo("ValidHGCal") << "HCAL: " << det << ":" << depth << ":"
-				     << lay << " o/p " << tmp.subdet << ":" 
-				     << tmp.zside << ":" << tmp.depth << ":" 
-				     << tmp.etaR << ":" << tmp.phis << ":" 
-				     << tmp.lay << " point " << hitPoint << " "
-				     << hitPoint.rho() << ":" << hitPoint.eta()
-				     << ":" << hitPoint.phi();
+	  if (verbosity_ > 1)
+	    edm::LogVerbatim("ValidHGCal") << "HCAL: " << det << ":" << depth 
+					   << ":" << lay << " o/p " 
+					   << tmp.subdet << ":" << tmp.zside 
+					   << ":" << tmp.depth << ":" 
+					   << tmp.etaR << ":" << tmp.phis 
+					   << ":" << tmp.lay << " point "
+					   << hitPoint << " " << hitPoint.rho()
+					   << ":"  << hitPoint.eta() << ":" 
+					   << hitPoint.phi();
 	}
 
 	double edeposit = aStep->GetTotalEnergyDeposit();
-	edm::LogInfo("ValidHGCal") << "Layer " << layer << " Index " 
-				   << std::hex << index << std::dec
-				   << " Edep " << edeposit << " hit at "
-				   << hitPoint;
-	if (type == 0) {
+	if (verbosity_ > 0)
+	  edm::LogVerbatim("ValidHGCal") << "Layer " << layer << " Index " 
+					 << std::hex << index << std::dec
+					 << " Edep " << edeposit << " hit at "
+					 << hitPoint;
+	if        (detType == 0) {
 	  edepEE_  += edeposit;
 	  if (layer < (int)(hgcEEedep_.size()))
 	    hgcEEedep_[layer]  += edeposit;
-	} else if (type == 1) {
+	} else if (detType == 1) {
 	  edepHEF_ += edeposit;
 	  if (layer < (int)(hgcHEFedep_.size())) 
 	    hgcHEFedep_[layer] += edeposit;
-	} else {
+	} else                   {
 	  edepHEB_ += edeposit;
 	  if (layer < (int)(hgcHEBedep_.size())) 
 	    hgcHEBedep_[layer] += edeposit;
@@ -336,12 +360,13 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 
 void SimG4HGCalValidation::layerAnalysis(PHGCalValidInfo& product) {
 
-  edm::LogInfo("ValidHGCal") << "\n ===>>> SimG4HGCalValidation: Energy deposit"
-			     << "\n at EE : " << std::setw(6) << edepEE_/MeV 
-			     << "\n at HEF: " << std::setw(6) << edepHEF_/MeV 
-			     << "\n at HEB: " << std::setw(6) << edepHEB_/MeV 
-			     << "\n";
-  
+  if (verbosity_ > 0)
+    edm::LogVerbatim("ValidHGCal") << "\n ===>>> SimG4HGCalValidation: Energy "
+				   << "deposit\n at EE : " << std::setw(6) 
+				   << edepEE_/CLHEP::MeV << "\n at HEF: " 
+				   << std::setw(6) << edepHEF_/CLHEP::MeV 
+				   << "\n at HEB: " << std::setw(6)
+				   << edepHEB_/CLHEP::MeV;
   
   //Fill HGC Variables
   product.fillhgcHits(hgchitDets_,hgchitIndex_, hgchitX_, hgchitY_, hgchitZ_);

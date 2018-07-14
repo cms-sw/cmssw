@@ -588,7 +588,7 @@ def make_files_pairs(files, verbose=True):
         for version in versions_files:
             print '%s: %d files' % (str(version),  len(versions_files[version]))
 
-    if len(versions_files.keys()) <= 1:
+    if len(versions_files) <= 1:
         print '\nFound too little versions, there is nothing to pair. Exiting...\n'
         exit()
 

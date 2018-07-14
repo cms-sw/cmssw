@@ -142,4 +142,4 @@ void PreMixingCaloParticleWorker::put(edm::Event& iEvent, edm::EventSetup const&
   iEvent.put(std::move(newParticles_), particleCollectionDM_);
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingCaloParticleWorker, "PreMixingCaloParticleWorker");
+DEFINE_PREMIXING_WORKER(PreMixingCaloParticleWorker);

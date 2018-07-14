@@ -563,9 +563,9 @@ phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.o
         'keep *_simHcalDigis_*_*',
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         # HGCAL
-        'keep *_mix_HGCDigisEE_*',
-        'keep *_mix_HGCDigisHEfront_*',
-        'keep *_mix_HGCDigisHEback_*',
+        'keep *_simHGCalUnsuppressedDigis_EE_*',
+        'keep *_simHGCalUnsuppressedDigis_HEfront_*',
+        'keep *_simHGCalUnsuppressedDigis_HEback_*',
         # DT
         'keep *_simMuonDTDigis_*_*',
         # CSC

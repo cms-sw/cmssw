@@ -24,9 +24,10 @@ class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HGCSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
+  HGCSD(const std::string& , const DDCompactView &, 
+	const SensitiveDetectorCatalog &,
 	edm::ParameterSet const &, const SimTrackManager*);
-  ~HGCSD() override;
+  ~HGCSD() override = default;
 
   uint32_t                setDetUnitId(const G4Step* step) override;
 
@@ -43,18 +44,17 @@ private:
 				       int, int, G4ThreeVector &);
   bool                    isItinFidVolume (const G4ThreeVector&) {return true;}
 
-  std::string                     nameX_;
-
-  HGCalGeometryMode::GeometryMode geom_mode_;
-  HGCNumberingScheme*             numberingScheme_;
-  HGCMouseBite*                   mouseBite_;
-  double                          eminHit_;
-  ForwardSubdetector              myFwdSubdet_;
-  double                          slopeMin_;
-  int                             levelT_;
-  bool                            storeAllG4Hits_, rejectMB_, waferRot_;
-  double                          mouseBiteCut_;
-  std::vector<double>             angles_;
+  std::string                         nameX_;
+  HGCalGeometryMode::GeometryMode     geom_mode_;
+  std::unique_ptr<HGCNumberingScheme> numberingScheme_;
+  std::unique_ptr<HGCMouseBite>       mouseBite_;
+  double                              eminHit_;
+  ForwardSubdetector                  myFwdSubdet_;
+  double                              slopeMin_;
+  int                                 levelT_;
+  bool                                storeAllG4Hits_, rejectMB_, waferRot_;
+  double                              mouseBiteCut_;
+  std::vector<double>                 angles_;
 };
 
 #endif // HGCSD_h

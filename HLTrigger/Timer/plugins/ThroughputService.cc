@@ -10,12 +10,16 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "ThroughputService.h"
 
+// local headers
+#include "processor_model.h"
+
 // describe the module's configuration
 void ThroughputService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<double>(        "timeRange",       60000.0 );
   desc.addUntracked<double>(        "timeResolution",     10.0 );
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/Throughput" );
+  desc.addUntracked<bool>(          "dqmPathByProcesses", false );
   descriptions.add("ThroughputService", desc);
 }
 
@@ -25,7 +29,8 @@ ThroughputService::ThroughputService(const edm::ParameterSet & config, edm::Acti
   // configuration
   m_time_range(      config.getUntrackedParameter<double>("timeRange") ),
   m_time_resolution( config.getUntrackedParameter<double>("timeResolution") ),
-  m_dqm_path(        config.getUntrackedParameter<std::string>("dqmPath" ) )
+  m_dqm_path(        config.getUntrackedParameter<std::string>("dqmPath") ),
+  m_dqm_bynproc(     config.getUntrackedParameter<bool>("dqmPathByProcesses") )
 {
   registry.watchPreGlobalBeginRun(  this, & ThroughputService::preGlobalBeginRun );
   registry.watchPreSourceEvent(     this, & ThroughputService::preSourceEvent );
@@ -33,6 +38,16 @@ ThroughputService::ThroughputService(const edm::ParameterSet & config, edm::Acti
 }
 
 ThroughputService::~ThroughputService() = default;
+
+void
+ThroughputService::preallocate(edm::service::SystemBounds const& bounds)
+{
+  auto concurrent_streams = bounds.maxNumberOfStreams();
+  auto concurrent_threads = bounds.maxNumberOfThreads();
+
+  if (m_dqm_bynproc)
+    m_dqm_path += (boost::format("/Running on %s with %d streams on %d threads") % processor_model % concurrent_streams % concurrent_threads).str();
+}
 
 void
 ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc)

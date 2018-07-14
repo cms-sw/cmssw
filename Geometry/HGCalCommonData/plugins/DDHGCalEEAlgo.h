@@ -52,7 +52,9 @@ private:
   std::vector<double>      rad100to200_;  //Parameters for 120-200mum trans.
   std::vector<double>      rad200to300_;  //Parameters for 200-300mum trans.
   double                   zMinRadPar_;   //Minimum z for radius parametriz.
+  int                      choiceType_;   //Type of parametrization to be used
   int                      nCutRadPar_;   //Cut off threshold for corners
+  double                   fracAreaMin_;  //Minimum fractional conatined area 
   double                   waferSize_;    //Width of the wafer
   double                   waferSepar_;   //Sensor separation
   int                      sectors_;      //Sectors   

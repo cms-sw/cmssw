@@ -421,4 +421,4 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCFEElectronics<HGCEEDataFrame>;
 template class HGCFEElectronics<HGCBHDataFrame>;
-
+template class HGCFEElectronics<HGCalDataFrame>;
