@@ -6,11 +6,8 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/PixelResolutionHistograms.h"
 
 // Geometry
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-
-// &&& #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+/// If we ever need to port back to 9X: #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -19,24 +16,16 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/SimpleHistogramGenerator.h"
 
-// STL
-
-// ROOT
-/// #include <TFile.h>
-/// #include <TH1F.h>
-/// #include <TH2F.h>
-
 
 class PixelTemplateSmearerPlugin:
-    public PixelTemplateSmearerBase
+  public PixelTemplateSmearerBase
 {
-    public:
-        explicit PixelTemplateSmearerPlugin(
-            const std::string& name,
-            const edm::ParameterSet& config,
-            edm::ConsumesCollector& consumesCollector
-        );
-        virtual ~PixelTemplateSmearerPlugin();
+public:
+  explicit PixelTemplateSmearerPlugin( const std::string& name,
+				       const edm::ParameterSet& config,
+				       edm::ConsumesCollector& consumesCollector
+				       );
+  ~PixelTemplateSmearerPlugin() override;
 };
 
 
@@ -45,7 +34,7 @@ PixelTemplateSmearerPlugin::PixelTemplateSmearerPlugin(
     const edm::ParameterSet& config,
     edm::ConsumesCollector& consumesCollector
 ):
-    PixelTemplateSmearerBase(name, config, consumesCollector)
+  PixelTemplateSmearerBase(name, config, consumesCollector)
 {
 }
 
