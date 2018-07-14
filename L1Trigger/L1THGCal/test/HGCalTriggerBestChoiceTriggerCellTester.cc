@@ -52,7 +52,7 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunBestChoiceFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<DetId,HGCSample>>&, const std::vector<std::pair<DetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
+        void fillModule(const std::vector<HGCalDataFrame>&, const std::vector<std::pair<DetId, uint32_t > >&, const HGCalTriggerCellBestChoiceDataPayload&,  const HGCalTriggerCellBestChoiceDataPayload&,const HGCalTriggerCellBestChoiceDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -94,9 +94,9 @@ class HGCalTriggerBestChoiceTriggerCellTester : public edm::EDAnalyzer
 
 
 HGCalTriggerBestChoiceTriggerCellTester::HGCalTriggerBestChoiceTriggerCellTester(const edm::ParameterSet& conf):
-    inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
-    inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-    //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
+    inputee_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
+    inputfh_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
+    //inputbh_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
     inputbeall_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("beTriggerCellsAll"))),
     inputbeselect_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("beTriggerCellsSelect"))),
     is_Simhit_comp_(conf.getParameter<bool>("isSimhitComp")),
@@ -265,13 +265,13 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
         const edm::EventSetup& es) 
 {
     // retrieve digi collections
-    edm::Handle<HGCEEDigiCollection> ee_digis_h;
-    edm::Handle<HGCHEDigiCollection> fh_digis_h;
+    edm::Handle<HGCalDigiCollection> ee_digis_h;
+    edm::Handle<HGCalDigiCollection> fh_digis_h;
     e.getByToken(inputee_,ee_digis_h);
     e.getByToken(inputfh_,fh_digis_h);
 
-    const HGCEEDigiCollection& ee_digis = *ee_digis_h;
-    const HGCHEDigiCollection& fh_digis = *fh_digis_h;
+    const HGCalDigiCollection& ee_digis = *ee_digis_h;
+    const HGCalDigiCollection& fh_digis = *fh_digis_h;
 
     HGCalTriggerCellBestChoiceDataPayload data;
 
@@ -359,25 +359,25 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
 
     }
     // Find modules containing hits and prepare list of hits for each module
-    std::unordered_map<uint32_t, std::vector<HGCEEDataFrame>> hit_modules_ee;
+    std::unordered_map<uint32_t, std::vector<HGCalDataFrame>> hit_modules_ee;
     for(const auto& eedata : ee_digis)
     {
         uint32_t module = triggerGeometry_->getModuleFromCell(eedata.id());
-        auto itr_insert = hit_modules_ee.emplace(module,std::vector<HGCEEDataFrame>());
+        auto itr_insert = hit_modules_ee.emplace(module,std::vector<HGCalDataFrame>());
         itr_insert.first->second.push_back(eedata);
     }
-    std::unordered_map<uint32_t,std::vector<HGCHEDataFrame>> hit_modules_fh;
+    std::unordered_map<uint32_t,std::vector<HGCalDataFrame>> hit_modules_fh;
     for(const auto& fhdata : fh_digis)
     {
         uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
-        auto itr_insert = hit_modules_fh.emplace(module, std::vector<HGCHEDataFrame>());
+        auto itr_insert = hit_modules_fh.emplace(module, std::vector<HGCalDataFrame>());
         itr_insert.first->second.push_back(fhdata);
     }
     // loop on modules containing hits and call front-end processing
     for( const auto& module_hits : hit_modules_ee ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<HGCalDataFrame> dataframes;
         std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over EE and fill digis belonging to that module
         for(const auto& eedata : module_hits.second)
@@ -418,7 +418,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
     for( const auto& module_hits : hit_modules_fh ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<HGCalDataFrame> dataframes;
         std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over FH digis and fill digis belonging to that module
         for(const auto& fhdata : module_hits.second)
@@ -460,7 +460,7 @@ void HGCalTriggerBestChoiceTriggerCellTester::rerunBestChoiceFragments(const edm
 }
 
 
-void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerBestChoiceTriggerCellTester::fillModule( const std::vector<HGCalDataFrame>& dataframes,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_woBestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload_TCsums_BestChoice, const HGCalTriggerCellBestChoiceDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 {
 
     // HGC cells part

@@ -6,9 +6,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-template< typename DET >
 void configureIt(const edm::ParameterSet& conf, 
-                 HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<DET,HGCSample>>& maker) {
+                 HGCalUncalibRecHitRecWeightsAlgo<HGCalDataFrame>& maker) {
   constexpr char isSiFE[]           = "isSiFE";
   constexpr char adcNbits[]         = "adcNbits";
   constexpr char adcSaturation[]    = "adcSaturation";
@@ -67,8 +66,7 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
   configureIt(ee_cfg,uncalibMaker_ee_);
   configureIt(hef_cfg,uncalibMaker_hef_);
-  configureIt(heb_cfg,uncalibMaker_heb_old_);
-  configureIt(heb_cfg,uncalibMaker_heb_new_);
+  configureIt(heb_cfg,uncalibMaker_heb_);
 }
 
 void
@@ -84,14 +82,13 @@ HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
     es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle) ; 
     uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
   }  
-  uncalibMaker_heb_old_.setGeometry(nullptr);  
-  uncalibMaker_heb_new_.setGeometry(nullptr);  
+  uncalibMaker_heb_.setGeometry(nullptr);  
 }
 
 
 bool
 HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
-                                       const HGCEEDigiCollection::const_iterator & itdg,
+                                       const HGCalDigiCollection::const_iterator & itdg,
                                        HGCeeUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_ee_.makeRecHit(*itdg));  
@@ -100,7 +97,7 @@ HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
 
 bool
 HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
-				       const HGCHEDigiCollection::const_iterator & itdg,
+				       const HGCalDigiCollection::const_iterator & itdg,
 				       HGChefUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_hef_.makeRecHit(*itdg));
@@ -109,19 +106,10 @@ HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
 
 bool
 HGCalUncalibRecHitWorkerWeights::run3( const edm::Event & evt,
-				       const HGCBHDigiCollection::const_iterator & itdg,
+				       const HGCalDigiCollection::const_iterator & itdg,
 				       HGChebUncalibratedRecHitCollection & result )
 {
-  result.push_back(uncalibMaker_heb_old_.makeRecHit(*itdg));
-  return true;
-}
-
-bool
-HGCalUncalibRecHitWorkerWeights::run4( const edm::Event & evt,
-				       const HGCHEDigiCollection::const_iterator & itdg,
-				       HGChebUncalibratedRecHitCollection & result )
-{
-  result.push_back(uncalibMaker_heb_new_.makeRecHit(*itdg));
+  result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));
   return true;
 }
 

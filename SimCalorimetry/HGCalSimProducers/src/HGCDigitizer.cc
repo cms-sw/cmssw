@@ -232,11 +232,11 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
   }
   if(hitCollection_.find("HcalHits")!=std::string::npos and geometryType_ == 0) {
     mySubDet_=ForwardSubdetector::HGCHEB;
-    theHGCHEbackDigitizerOld_=std::make_unique<HGCHEbackDigitizerOld>(ps);
+    theHGCHEbackDigitizer_=std::make_unique<HGCHEbackDigitizer>(ps);
   }
   if(hitCollection_.find("HitsHEback")!=std::string::npos and geometryType_ == 1) {
     myDet_   =DetId::HGCalHSc;
-    theHGCHEbackDigitizerNew_=std::make_unique<HGCHEbackDigitizerNew>(ps);
+    theHGCHEbackDigitizer_=std::make_unique<HGCHEbackDigitizer>(ps);
   }
 }
 
@@ -276,30 +276,22 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     e.put(std::move(simResult), digiCollection());
   } else {
     if( producesEEDigis() ) {
-      std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
+      auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(std::move(digiResult),digiCollection());
     }
     if( producesHEfrontDigis()) {
-      std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(std::move(digiResult),digiCollection());
     }
     if( producesHEbackDigis() ) {
-      if(theHGCHEbackDigitizerOld_){
-        std::unique_ptr<HGCBHDigiCollection> digiResult(new HGCBHDigiCollection() );
-        theHGCHEbackDigitizerOld_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
-        edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
-        e.put(std::move(digiResult),digiCollection());
-      }
-      else {
-        std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-        theHGCHEbackDigitizerNew_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
-        edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
-        e.put(std::move(digiResult),digiCollection());
-      }
+      auto digiResult = std::make_unique<HGCalDigiCollection>();
+      theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
+      e.put(std::move(digiResult),digiCollection());
     }
   }
 
@@ -600,9 +592,9 @@ bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset,
       keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
       break;
     case ForwardSubdetector::HGCHEB:
-      weightToAbyEnergy = theHGCHEbackDigitizerOld_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCHEbackDigitizerOld_->tdcForToAOnset();
-      keV2fC            = theHGCHEbackDigitizerOld_->keV2fC();
+      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCHEbackDigitizer_->keV2fC();
       break;
     default:
       break;
@@ -620,9 +612,9 @@ bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset,
       keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
       break;
     case DetId::HGCalHSc:
-      weightToAbyEnergy = theHGCHEbackDigitizerNew_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCHEbackDigitizerNew_->tdcForToAOnset();
-      keV2fC            = theHGCHEbackDigitizerNew_->keV2fC();
+      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCHEbackDigitizer_->keV2fC();
       break;
     default:
       break;

@@ -132,9 +132,9 @@ tower_algo =  cms.PSet( AlgorithmName = cms.string('HGCTowerAlgoThreshold'),
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalTriggerDigiProducer",
-    eeDigis = cms.InputTag('mix:HGCDigisEE'),
-    fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-    bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet(
         algorithms = cms.VPSet( cluster_algo,

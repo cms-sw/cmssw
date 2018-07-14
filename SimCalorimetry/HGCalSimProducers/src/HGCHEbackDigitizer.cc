@@ -12,8 +12,7 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 //
-template <class DFr>
-HGCHEbackDigitizer<DFr>::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase<DFr>(ps)
+HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   keV2MIP_   = cfg.getParameter<double>("keV2MIP");
@@ -26,8 +25,7 @@ HGCHEbackDigitizer<DFr>::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDi
 }
 
 //
-template <class DFr>
-void HGCHEbackDigitizer<DFr>::runDigitizer(std::unique_ptr<HGCHEbackDigitizer::DColl> &digiColl,HGCSimHitDataAccumulator &simData,
+void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
 				      const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 				      uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
 {
@@ -35,8 +33,7 @@ void HGCHEbackDigitizer<DFr>::runDigitizer(std::unique_ptr<HGCHEbackDigitizer::D
 }
 
 //
-template <class DFr>
-void HGCHEbackDigitizer<DFr>::runCaliceLikeDigitizer(std::unique_ptr<HGCHEbackDigitizer::DColl> &digiColl,HGCSimHitDataAccumulator &simData,
+void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
 						const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 						CLHEP::HepRandomEngine* engine)
 {
@@ -89,7 +86,7 @@ void HGCHEbackDigitizer<DFr>::runCaliceLikeDigitizer(std::unique_ptr<HGCHEbackDi
 	}
 
       //init a new data frame and run shaper
-      DFr newDataFrame( id );
+      HGCalDataFrame newDataFrame( id );
       this->myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl, 1 );
 
       //prepare the output
@@ -98,12 +95,6 @@ void HGCHEbackDigitizer<DFr>::runCaliceLikeDigitizer(std::unique_ptr<HGCHEbackDi
 }
 
 //
-template <class DFr>
-HGCHEbackDigitizer<DFr>::~HGCHEbackDigitizer()
+HGCHEbackDigitizer::~HGCHEbackDigitizer()
 {
 }
-
-//explicit instantiations
-template class HGCHEbackDigitizer<HGCBHDataFrame>;
-template class HGCHEbackDigitizer<HGCHEDataFrame>;
-template class HGCHEbackDigitizer<HGCalDataFrame>;
