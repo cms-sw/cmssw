@@ -39,9 +39,9 @@ DEFINE_FWK_MODULE(HGCalTriggerDigiProducer);
 
 HGCalTriggerDigiProducer::
 HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
-  inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
-  inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-  inputbh_(consumes<HGCBHDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
+  inputee_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
+  inputfh_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
+  inputbh_(consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
   backEndProcessor_(new HGCalTriggerBackendProcessor(conf.getParameterSet("BEConfiguration"),consumesCollector()) )
 {
   //setup FE codec
@@ -68,39 +68,39 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   std::unique_ptr<l1t::HGCFETriggerDigiCollection> 
     fe_output( new l1t::HGCFETriggerDigiCollection );
   
-  edm::Handle<HGCEEDigiCollection> ee_digis_h;
-  edm::Handle<HGCHEDigiCollection> fh_digis_h;
-  edm::Handle<HGCBHDigiCollection> bh_digis_h;
+  edm::Handle<HGCalDigiCollection> ee_digis_h;
+  edm::Handle<HGCalDigiCollection> fh_digis_h;
+  edm::Handle<HGCalDigiCollection> bh_digis_h;
 
   e.getByToken(inputee_,ee_digis_h);
   e.getByToken(inputfh_,fh_digis_h);
   e.getByToken(inputbh_,bh_digis_h);
 
-  const HGCEEDigiCollection& ee_digis = *ee_digis_h;
-  const HGCHEDigiCollection& fh_digis = *fh_digis_h;
-  const HGCBHDigiCollection& bh_digis = *bh_digis_h;
+  const HGCalDigiCollection& ee_digis = *ee_digis_h;
+  const HGCalDigiCollection& fh_digis = *fh_digis_h;
+  const HGCalDigiCollection& bh_digis = *bh_digis_h;
 
   // First find modules containing hits and prepare list of hits for each module
-  std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
+  std::unordered_map<uint32_t, HGCalDigiCollection> hit_modules_ee;
   for(const auto& eedata : ee_digis) {
     uint32_t module = triggerGeometry_->getModuleFromCell(eedata.id());
     if(triggerGeometry_->disconnectedModule(module)) continue;
-    auto itr_insert = hit_modules_ee.emplace(module,HGCEEDigiCollection());
+    auto itr_insert = hit_modules_ee.emplace(module,HGCalDigiCollection());
     itr_insert.first->second.push_back(eedata);
   }
-  std::unordered_map<uint32_t,HGCHEDigiCollection> hit_modules_fh;
+  std::unordered_map<uint32_t,HGCalDigiCollection> hit_modules_fh;
   for(const auto& fhdata : fh_digis) {
     uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
     if(triggerGeometry_->disconnectedModule(module)) continue;
-    auto itr_insert = hit_modules_fh.emplace(module, HGCHEDigiCollection());
+    auto itr_insert = hit_modules_fh.emplace(module, HGCalDigiCollection());
     itr_insert.first->second.push_back(fhdata);
   }
-  std::unordered_map<uint32_t,HGCBHDigiCollection> hit_modules_bh;
+  std::unordered_map<uint32_t,HGCalDigiCollection> hit_modules_bh;
   for(const auto& bhdata : bh_digis) {
     if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
     uint32_t module = triggerGeometry_->getModuleFromCell(bhdata.id());
     if(triggerGeometry_->disconnectedModule(module)) continue;
-    auto itr_insert = hit_modules_bh.emplace(module, HGCBHDigiCollection());
+    auto itr_insert = hit_modules_bh.emplace(module, HGCalDigiCollection());
     itr_insert.first->second.push_back(bhdata);
   }
   // loop on modules containing hits and call front-end processing
@@ -109,7 +109,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   for( const auto& module_hits : hit_modules_ee ) {        
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(module_hits.second,HGCHEDigiCollection(),HGCBHDigiCollection());
+    codec_->setDataPayload(module_hits.second,HGCalDigiCollection(),HGCalDigiCollection());
     codec_->encode(digi);
     digi.setDetId( DetId(module_hits.first) );
     codec_->unSetDataPayload(); 
@@ -117,7 +117,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   for( const auto& module_hits : hit_modules_fh ) {        
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(HGCEEDigiCollection(),module_hits.second,HGCBHDigiCollection());
+    codec_->setDataPayload(HGCalDigiCollection(),module_hits.second,HGCalDigiCollection());
     codec_->encode(digi);
     digi.setDetId( DetId(module_hits.first) );
     codec_->unSetDataPayload();
@@ -125,7 +125,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   for( const auto& module_hits : hit_modules_bh ) {
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(HGCEEDigiCollection(),HGCHEDigiCollection(),module_hits.second);
+    codec_->setDataPayload(HGCalDigiCollection(),HGCalDigiCollection(),module_hits.second);
     codec_->encode(digi);
     digi.setDetId( DetId(module_hits.first) );
     codec_->unSetDataPayload();

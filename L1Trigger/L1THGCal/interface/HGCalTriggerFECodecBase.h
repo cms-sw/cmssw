@@ -39,9 +39,9 @@ class HGCalTriggerFECodecBase {
   
   // give the FECodec the input digis and it sets itself
   // with the approprate data
-  virtual void setDataPayload(const HGCEEDigiCollection&,
-                              const HGCHEDigiCollection&,
-                              const HGCBHDigiCollection& ) = 0;
+  virtual void setDataPayload(const HGCalDigiCollection&,
+                              const HGCalDigiCollection&,
+                              const HGCalDigiCollection& ) = 0;
   virtual void setDataPayload(const l1t::HGCFETriggerDigi&) = 0;
   virtual void unSetDataPayload() = 0;
   // get the set data out for your own enjoyment
@@ -93,9 +93,9 @@ namespace HGCalTriggerFE {
       dataIsSet_ = true;
     }  
     
-    void setDataPayload(const HGCEEDigiCollection& ee, 
-                                const HGCHEDigiCollection& fh,
-                                const HGCBHDigiCollection& bh ) final {
+    void setDataPayload(const HGCalDigiCollection& ee, 
+                                const HGCalDigiCollection& fh,
+                                const HGCalDigiCollection& bh ) final {
       if( dataIsSet_ ) {
         edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
           << "Data payload was already set for HGCTriggerFECodec: "

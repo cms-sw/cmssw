@@ -169,7 +169,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tok_simTk_   = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   tok_simVtx_  = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
   edm::InputTag tmp2 = iConfig.getParameter<edm::InputTag>("DigiSrcEE");
-  tok_digiEE_  = consumes<HGCEEDigiCollection>(tmp2);
+  tok_digiEE_  = consumes<HGCalDigiCollection>(tmp2);
   edm::InputTag tmp3 = iConfig.getParameter<edm::InputTag>("RecHitSrcEE");
   tok_hitrEE_  = consumes<HGCRecHitCollection>(tmp3);
 #ifdef EDM_ML_DEBUG
@@ -181,7 +181,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tmp1         = iConfig.getParameter<std::string>("CaloHitSrcFH");
   tok_hitsFH_  = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",tmp1));
   tmp2         = iConfig.getParameter<edm::InputTag>("DigiSrcFH");
-  tok_digiFH_  = consumes<HGCHEDigiCollection>(tmp2);
+  tok_digiFH_  = consumes<HGCalDigiCollection>(tmp2);
   tmp3         = iConfig.getParameter<edm::InputTag>("RecHitSrcFH");
   tok_hitrFH_  = consumes<HGCRecHitCollection>(tmp3);
 #ifdef EDM_ML_DEBUG
@@ -193,7 +193,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tmp1         = iConfig.getParameter<std::string>("CaloHitSrcBH");
   tok_hitsBH_  = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",tmp1));
   tmp2         = iConfig.getParameter<edm::InputTag>("DigiSrcBH");
-  tok_digiBH_  = consumes<HGCBHDigiCollection>(tmp2);
+  tok_digiBH_  = consumes<HGCalDigiCollection>(tmp2);
   tmp3         = iConfig.getParameter<edm::InputTag>("RecHitSrcBH");
   tok_hitrBH_  = consumes<HGCRecHitCollection>(tmp3);
 
@@ -235,19 +235,19 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("UseEE",true);
   desc.add<double>("ZFrontEE",0.0);
   desc.add<std::string>("CaloHitSrcEE","HGCHitsEE");
-  desc.add<edm::InputTag>("DigiSrcEE",edm::InputTag("mix","HGCDigisEE"));
+  desc.add<edm::InputTag>("DigiSrcEE",edm::InputTag("hgcalDigis","EE"));
   desc.add<edm::InputTag>("RecHitSrcEE",edm::InputTag("HGCalRecHit","HGCEERecHits"));
   desc.add<std::string>("DetectorFH","HGCalHESiliconSensitive");
   desc.add<bool>("UseFH",false);
   desc.add<double>("ZFrontFH",0.0);
   desc.add<std::string>("CaloHitSrcFH","HGCHitsHEfront");
-  desc.add<edm::InputTag>("DigiSrcFH",edm::InputTag("mix","HGCDigisHEfront"));
+  desc.add<edm::InputTag>("DigiSrcFH",edm::InputTag("hgcalDigis","HEfront"));
   desc.add<edm::InputTag>("RecHitSrcFH",edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
   desc.add<std::string>("DetectorBH","AHCal");
   desc.add<bool>("UseBH",false);
   desc.add<double>("ZFrontBH",0.0);
   desc.add<std::string>("CaloHitSrcBH","HcalHits");
-  desc.add<edm::InputTag>("DigiSrcBH",edm::InputTag("mix","HGCDigisHEback"));
+  desc.add<edm::InputTag>("DigiSrcBH",edm::InputTag("hgcalDigis","HEback"));
   desc.add<edm::InputTag>("RecHitSrcBH",edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
   desc.add<std::string>("DetectorBeam","HcalTB06BeamDetector");
   desc.add<bool>("UseBeam",false);
@@ -638,7 +638,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
   //Now the Digis
   if (doDigis_) {
     if (ifEE_) {
-      edm::Handle<HGCEEDigiCollection> theDigiContainers;
+      edm::Handle<HGCalDigiCollection> theDigiContainers;
       iEvent.getByToken(tok_digiEE_, theDigiContainers);
       if (theDigiContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
@@ -654,7 +654,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
       }
     }
     if (ifFH_) {
-      edm::Handle<HGCHEDigiCollection> theDigiContainers;
+      edm::Handle<HGCalDigiCollection> theDigiContainers;
       iEvent.getByToken(tok_digiFH_, theDigiContainers);
       if (theDigiContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
