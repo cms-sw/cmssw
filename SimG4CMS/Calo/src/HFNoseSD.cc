@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "DataFormats/Math/interface/FastMath.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "SimG4CMS/Calo/interface/HFNoseSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -38,14 +38,14 @@ HFNoseSD::HFNoseSD(const std::string& name, const DDCompactView & cpv,
 
   numberingScheme_.reset(nullptr); mouseBite_.reset(nullptr);
 
-  edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HFNoseSD");
-  eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
-  fiducialCut_     = m_HGC.getParameter<bool>("FiducialCut");
-  distanceFromEdge_= m_HGC.getParameter<double>("DistanceFromEdge");
-  storeAllG4Hits_  = m_HGC.getParameter<bool>("StoreAllG4Hits");
-  rejectMB_        = m_HGC.getParameter<bool>("RejectMouseBite");
-  waferRot_        = m_HGC.getParameter<bool>("RotatedWafer");
-  angles_          = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
+  edm::ParameterSet m_HFN = p.getParameter<edm::ParameterSet>("HFNoseSD");
+  eminHit_         = m_HFN.getParameter<double>("EminHit")*CLHEP::MeV;
+  fiducialCut_     = m_HFN.getParameter<bool>("FiducialCut");
+  distanceFromEdge_= m_HFN.getParameter<double>("DistanceFromEdge");
+  storeAllG4Hits_  = m_HFN.getParameter<bool>("StoreAllG4Hits");
+  rejectMB_        = m_HFN.getParameter<bool>("RejectMouseBite");
+  waferRot_        = m_HFN.getParameter<bool>("RotatedWafer");
+  angles_          = m_HFN.getUntrackedParameter<std::vector<double>>("WaferAngles");
 
   if(storeAllG4Hits_) {
     setUseMap(false);
@@ -53,7 +53,7 @@ HFNoseSD::HFNoseSD(const std::string& name, const DDCompactView & cpv,
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")<< "**************************************************"
+  edm::LogVerbatim("HFNSim")<< "**************************************************"
 			    << "\n"
 			    << "*                                                *"
 			    << "\n"
@@ -62,14 +62,14 @@ HFNoseSD::HFNoseSD(const std::string& name, const DDCompactView & cpv,
 			    << "\n"
 			    << "**************************************************";
 #endif
-  edm::LogVerbatim("HGCSim") << "HFNoseSD:: Threshold for storing hits: " 
+  edm::LogVerbatim("HFNSim") << "HFNoseSD:: Threshold for storing hits: " 
 			     << eminHit_ << " for " << name;
-  edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits "
+  edm::LogVerbatim("HFNSim") << "Flag for storing individual Geant4 Hits "
 			     << storeAllG4Hits_;
-  edm::LogVerbatim("HGCSim") << "Fiducial volume cut with cut from eta/phi "
+  edm::LogVerbatim("HFNSim") << "Fiducial volume cut with cut from eta/phi "
 			     << "boundary " << fiducialCut_ << " at " 
 			     << distanceFromEdge_;
-  edm::LogVerbatim("HGCSim") << "Reject MosueBite Flag: " << rejectMB_ 
+  edm::LogVerbatim("HFNSim") << "Reject MosueBite Flag: " << rejectMB_ 
 			     << " cuts along " << angles_.size() << " axes: "
 			     << angles_[0] << ", " << angles_[1];
 }
@@ -83,7 +83,7 @@ double HFNoseSD::getEnergyDeposit(const G4Step* aStep) {
   G4String parName = aStep->GetTrack()->GetDefinition()->GetParticleName();
   G4LogicalVolume* lv =
     aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
-  edm::LogVerbatim("HGCSim") << "HFNoseSD: Hit from standard path from "
+  edm::LogVerbatim("HFNSim") << "HFNoseSD: Hit from standard path from "
 			     << lv->GetName() << " for Track " 
 			     << aStep->GetTrack()->GetTrackID() << " ("
 			     << parCode << ":" << parName << ") R = " << r 
@@ -93,7 +93,7 @@ double HFNoseSD::getEnergyDeposit(const G4Step* aStep) {
   // Apply fiducial cut
   if (r < z*slopeMin_) { 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HFNoseSD: Fiducial Volume cut";
+    edm::LogVerbatim("HFNSim") << "HFNoseSD: Fiducial Volume cut";
 #endif
     return 0.0; 
   }
@@ -103,7 +103,7 @@ double HFNoseSD::getEnergyDeposit(const G4Step* aStep) {
   double destep = weight_*wt1*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")  << "HFNoseSD: weights= " << weight_ << ":" 
+  edm::LogVerbatim("HFNSim")  << "HFNoseSD: weights= " << weight_ << ":" 
 			      << wt1 << ":" << wt2 << " Total weight " 
 			      << weight_*wt1*wt2 << " deStep: "
 			      << aStep->GetTotalEnergyDeposit()
@@ -129,7 +129,7 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step * aStep) {
     module = -1;
     cell   = -1;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() 
+    edm::LogVerbatim("HFNSim") << "DepthsTop: " << touch->GetHistoryDepth() 
 			       << ":" << levelT1_ << ":" << levelT2_
 			       << " name " << touch->GetVolume(0)->GetName() 
 			       << " layer:module:cell " << layer << ":" 
@@ -140,7 +140,7 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step * aStep) {
     module = touch->GetReplicaNumber(2);
     cell   = touch->GetReplicaNumber(1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "DepthsInside: " << touch->GetHistoryDepth() 
+    edm::LogVerbatim("HFNSim") << "DepthsInside: " << touch->GetHistoryDepth() 
 			       << " name " << touch->GetVolume(0)->GetName() 
 			       << " layer:module:cell " << layer << ":" 
 			       << module << ":" << cell;
@@ -148,7 +148,7 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step * aStep) {
   }
 #ifdef EDM_ML_DEBUG
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
-  edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth()
+  edm::LogVerbatim("HFNSim") << "Depths: " << touch->GetHistoryDepth()
 			     << " name " << touch->GetVolume(0)->GetName() 
 			     << ":" << touch->GetReplicaNumber(0) << "   "
 			     << touch->GetVolume(1)->GetName() 
@@ -168,15 +168,15 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step * aStep) {
   
   uint32_t id = setDetUnitId (layer, module, cell, iz, hitPoint);
   if (rejectMB_ && id != 0) {
-    auto uv = HGCSiliconDetId(id).waferUV();
+    auto uv = HFNoseDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec 
-			       << " " << HGCSiliconDetId(id);
+    edm::LogVerbatim("HFNSim") << "ID " << std::hex << id << std::dec 
+			       << " " << HFNoseDetId(id);
 #endif
     if (mouseBite_->exclude(hitPoint, iz, uv.first, uv.second)) {
       id = 0;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "Rejected by mousebite cutoff *****";
+      edm::LogVerbatim("HFNSim") << "Rejected by mousebite cutoff *****";
 #endif
     }
   }
@@ -198,7 +198,7 @@ void HFNoseSD::update(const BeginOfJob * job) {
     double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_    = waferSize*tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HFNoseSD::Initialized with mode " 
+    edm::LogVerbatim("HFNSim") << "HFNoseSD::Initialized with mode " 
 			       << geom_mode_ << " Slope cut " << slopeMin_ 
 			       << " top Level " << levelT1_ << ":" << levelT2_ 
 			       << " wafer " << waferSize << ":" << mouseBite;

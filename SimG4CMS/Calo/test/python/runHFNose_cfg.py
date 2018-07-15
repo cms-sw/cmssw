@@ -22,8 +22,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.categories.append('HGCalGeom')
-    process.MessageLogger.categories.append('HGCSim')
+    process.MessageLogger.categories.append('HFNSim')
     process.MessageLogger.categories.append('HGCalValidation')
 
 process.load("IOMC.RandomEngine.IOMC_cff")

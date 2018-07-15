@@ -9,7 +9,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
-#include "G4Step.hh"
+#include "G4ThreeVector.hh"
 
 class HFNoseNumberingScheme {
 
