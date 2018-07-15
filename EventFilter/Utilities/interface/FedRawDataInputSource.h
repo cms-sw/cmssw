@@ -92,7 +92,7 @@ private:
   const bool verifyChecksum_;
   const bool useL1EventID_;
   std::vector<std::string> fileNames_;
-  bool useFileService_;
+  bool useFileBroker_;
   //std::vector<std::string> fileNamesSorted_;
 
   const bool fileListMode_;
