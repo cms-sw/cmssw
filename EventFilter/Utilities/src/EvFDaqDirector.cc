@@ -1412,21 +1412,7 @@ namespace evf {
       return noFile;
     }
 
-    bool fileFound=true;
-
-    if (fileStatus == newFile)
-      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,fileFound,false);
-
-    if (!fileFound) {
-      fileStatus = noFile;
-      struct stat buf;
-      if (stat(bu_run_dir_.c_str(),&buf)!=0) {
-        edm::LogWarning("EvFDaqDirector") << "BU run directory not found:" << bu_run_dir_;
-        fileStatus=runEnded;
-      }
-    }
-
-    //first execution, allowed to skip to last reported LS (create BoLS file only)
+    //handle creation of EoLS and BoLS files if lumisection has changed
     bool excl_locked=false;
     if (currentLumiSection==0) {
         if (fileStatus == runEnded) {
@@ -1441,6 +1427,21 @@ namespace evf {
           for (uint32_t i=std::max(currentLumiSection,1U);i<=closedServerLS;i++) 
             createLumiSectionFiles(i+1,i,excl_locked);
           }
+    }
+
+    bool fileFound=true;
+
+    if (fileStatus == newFile)
+      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,fileFound,false);
+
+    if (!fileFound) {
+      //possible if directory gets deleted
+      fileStatus = noFile;
+      struct stat buf;
+      if (stat(bu_run_dir_.c_str(),&buf)!=0) {
+        edm::LogWarning("EvFDaqDirector") << "BU run directory not found:" << bu_run_dir_;
+        fileStatus=runEnded;
+      }
     }
 
     //can unlock because all files have been created locally
