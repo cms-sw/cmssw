@@ -38,15 +38,15 @@ uint32_t HFNoseNumberingScheme::getUnitID(int layer, int module, int cell,
   if (waferType >= 0) {
     index   = HFNoseDetId(iz,waferType,layer,waferU,waferV,cellU,cellV).rawId();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "OK WaferType " << waferType << " Wafer "
+    edm::LogVerbatim("HFNSim") << "OK WaferType " << waferType << " Wafer "
 			       << waferU << ":" << waferV << " Cell "
 			       << cellU << ":" << cellV;
   } else {
-    edm::LogVerbatim("HGCSim") << "Bad WaferType " << waferType;
+    edm::LogVerbatim("HFNSim") << "Bad WaferType " << waferType;
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalNumberingScheme::i/p " << layer << ":"
+  edm::LogVerbatim("HFNSim") << "HFNoseNumberingScheme::i/p " << layer << ":"
 			     << module << ":" << cell << ":" << iz << ":" 
 			     << pos.x() << ":" << pos.y() << ":" << pos.z() 
 			     << " ID " << std::hex << index << std::dec
