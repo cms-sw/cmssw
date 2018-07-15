@@ -78,7 +78,7 @@ namespace evf{
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
-      bool useFileService() const {return useFileService_;}
+      bool useFileBroker() const {return useFileBroker_;}
 
       std::string findCurrentRunDir(){ return dirManager_.findRunDir(run_);}
       std::string getInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
@@ -120,16 +120,17 @@ namespace evf{
       void lockFULocal();
       void unlockFULocal();
       void lockFULocal2();
+      void lockFULocal2_SH();
       void unlockFULocal2();
       void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
-      void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS = true) const;
+      void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool& exclusiveLocked, bool doCreateBoLS = true);
       int grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound, bool unlock=true);
 
-      EvFDaqDirector::FileStatus contactFileService(unsigned int& serverHttpStatus, bool& serverState,
+      EvFDaqDirector::FileStatus contactFileBroker(unsigned int& serverHttpStatus, bool& serverState,
                                                 uint32_t& serverLS, uint32_t& closedServerLS,
                                                 std::string& nextFileJson, std::string& nextFileRaw, int maxLS);
 
-      FileStatus getNextFromFileService(const unsigned int currentLumiSection, unsigned int& ls, std::string& nextFile,
+      FileStatus getNextFromFileBroker(const unsigned int currentLumiSection, unsigned int& ls, std::string& nextFile,
                                         int& serverEventsInNewFile_, int64_t& fileSize, uint64_t& thisLockWaitTimeUs);
       void createRunOpendirMaybe();
       void createProcessingNotificationMaybe() const;
@@ -160,11 +161,11 @@ namespace evf{
       std::string bu_base_dir_;
       bool directorBu_;
       unsigned int run_;
-      bool useFileService_;
-      std::string fileServiceHost_;
-      std::string fileServicePort_;
-      bool fileServiceKeepAlive_;
-      bool fileServiceUseLocalLock_;
+      bool useFileBroker_;
+      std::string fileBrokerHost_;
+      std::string fileBrokerPort_;
+      bool fileBrokerKeepAlive_;
+      bool fileBrokerUseLocalLock_;
       unsigned int startFromLS_ = 1;
       bool outputAdler32Recheck_;
       bool requireTSPSet_;

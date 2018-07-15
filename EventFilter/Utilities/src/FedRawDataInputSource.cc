@@ -135,8 +135,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   if (!daqDirector_)
     cms::Exception("FedRawDataInputSource") << "EvFDaqDirector not found";
 
-  useFileService_ = daqDirector_->useFileService();
-  if (useFileService_)
+  useFileBroker_ = daqDirector_->useFileBroker();
+  if (useFileBroker_)
     edm::LogInfo("FedRawDataInputSource") << "EvFDaqDirector/Source configured to use file service";
   //set DaqDirector to delete files in preGlobalEndLumi callback
   daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
@@ -240,7 +240,7 @@ bool FedRawDataInputSource::checkNextEvent()
     case evf::EvFDaqDirector::runEnded: {
       //maybe create EoL file in working directory before ending run
       struct stat buf;
-      if (!useFileService_ && currentLumiSection_ > 0) {
+      if (!useFileBroker_ && currentLumiSection_ > 0) {
         bool eolFound = (stat(daqDirector_->getEoLSFilePathOnBU(currentLumiSection_).c_str(), &buf) == 0);
         if (eolFound) {
           const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
@@ -300,7 +300,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
   if (!luminosityBlockAuxiliary()
     || luminosityBlockAuxiliary()->luminosityBlock() != lumiSection) {
 
-    if (!useFileService_) {
+    if (!useFileBroker_) {
       if ( currentLumiSection_ > 0) {
         const std::string fuEoLS =
           daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
@@ -862,10 +862,10 @@ void FedRawDataInputSource::readSupervisor()
         //return LS if LS not set, otherwise return file
         status = getFile(ls,nextFile,fileSizeIndex,thisLockWaitTimeUs);
       }
-      else if (!useFileService_)
+      else if (!useFileBroker_)
         status = daqDirector_->updateFuLock(ls,nextFile,fileSizeIndex,thisLockWaitTimeUs);
       else {
-        status = daqDirector_->getNextFromFileService(currentLumiSection,ls,nextFile,serverEventsInNewFile_,fileSizeFromJson,thisLockWaitTimeUs);
+        status = daqDirector_->getNextFromFileBroker(currentLumiSection,ls,nextFile,serverEventsInNewFile_,fileSizeFromJson,thisLockWaitTimeUs);
       }
 
       if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupBusy);
@@ -886,7 +886,7 @@ void FedRawDataInputSource::readSupervisor()
       }
 
       //check again for any remaining index/EoLS files after EoR file is seen
-      if ( status == evf::EvFDaqDirector::runEnded && !fileListMode_ && !useFileService_) {
+      if ( status == evf::EvFDaqDirector::runEnded && !fileListMode_ && !useFileBroker_) {
         if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inRunEnd);
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
@@ -909,7 +909,7 @@ void FedRawDataInputSource::readSupervisor()
       //queue new lumisection
       if( getLSFromFilename_) {
         if (ls > currentLumiSection) {
-          if (!useFileService_) {
+          if (!useFileBroker_) {
             //file locking
             //fms_->setInStateSup(evf::FastMonitoringThread::inSupNewLumi);
 	    currentLumiSection = ls;
@@ -953,7 +953,7 @@ void FedRawDataInputSource::readSupervisor()
         if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupNoFile);
 	dbgcount++;
 	if (!(dbgcount%20)) LogDebug("FedRawDataInputSource") << "No file for me... sleep and try again...";
-        if (!useFileService_) usleep(100000);
+        if (!useFileBroker_) usleep(100000);
         else {
           backoff_exp = std::min(4,backoff_exp); // max 1.6 seconds
           //backoff_exp=0; // disabled!
@@ -971,7 +971,7 @@ void FedRawDataInputSource::readSupervisor()
 
       std::string rawFile;
       //file service will report raw extension
-      if (useFileService_) rawFile = nextFile;
+      if (useFileBroker_) rawFile = nextFile;
       else {
         boost::filesystem::path rawFilePath(nextFile);
         rawFile = rawFilePath.replace_extension(".raw").string();
@@ -999,7 +999,7 @@ void FedRawDataInputSource::readSupervisor()
       else {
         std::string empty;
         bool fileFound;
-        if (!useFileService_)
+        if (!useFileBroker_)
           eventsInNewFile = daqDirector_->grabNextJsonFile(nextFile,nextFile,fileSizeFromJson,fileFound);
         else
           eventsInNewFile = serverEventsInNewFile_;
