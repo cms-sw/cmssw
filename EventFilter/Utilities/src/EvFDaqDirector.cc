@@ -42,11 +42,11 @@ namespace evf {
     bu_base_dir_(pset.getUntrackedParameter<std::string> ("buBaseDir", ".")),
     directorBu_(pset.getUntrackedParameter<bool> ("directorIsBu", false)),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
-    useFileService_(pset.getUntrackedParameter<bool> ("useFileService", false)),
-    fileServiceHost_(pset.getUntrackedParameter<std::string>("fileServiceHost","")),
-    fileServicePort_(pset.getUntrackedParameter<std::string>("fileServicePort","8080")),
-    fileServiceKeepAlive_(pset.getUntrackedParameter<bool>("fileServiceKeepAlive", false)),
-    fileServiceUseLocalLock_(pset.getUntrackedParameter<bool>("fileServiceUseLocalLock",true)),
+    useFileBroker_(pset.getUntrackedParameter<bool> ("useFileBroker", false)),
+    fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost","")),
+    fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort","8080")),
+    fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", false)),
+    fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock",true)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
@@ -71,7 +71,6 @@ namespace evf {
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
-
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
     reg.watchPreBeginJob(this, &EvFDaqDirector::preBeginJob);
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
@@ -95,28 +94,28 @@ namespace evf {
     }
 
     //override file service parameter if specified by environment
-    char * fileServiceParamPtr = getenv("FFF_USEFILESERVICE");
-    if (fileServiceParamPtr) {
+    char * fileBrokerParamPtr = getenv("FFF_USEFILEBROKER");
+    if (fileBrokerParamPtr) {
       try {
-        useFileService_=(boost::lexical_cast<unsigned int>(std::string(fileServiceParamPtr)))>0;
-        edm::LogInfo("EvFDaqDirector") << "Setting useFileService parameter by environment string: " << useFileService_;
+        useFileBroker_=(boost::lexical_cast<unsigned int>(std::string(fileBrokerParamPtr)))>0;
+        edm::LogInfo("EvFDaqDirector") << "Setting useFileBroker parameter by environment string: " << useFileBroker_;
       }
       catch( boost::bad_lexical_cast const& ) {
-        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileServiceParamPtr);
+        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerParamPtr);
       }
     }
-    if (useFileService_) {
-      if (fileServiceHost_.empty()) {
+    if (useFileBroker_) {
+      if (fileBrokerHost_.empty()) {
         //find BU data address from hltd configuration
         struct stat buf;
         if (stat("/etc/appliance/bus.config",&buf)==0) {
           std::ifstream busconfig("/etc/appliance/bus.config",std::ifstream::in);
-          std::getline(busconfig,fileServiceHost_);
+          std::getline(busconfig,fileBrokerHost_);
         }
       }
-      if (!fileServiceHost_.empty()) {
+      if (!fileBrokerHost_.empty()) {
         resolver_ = std::make_unique<boost::asio::ip::tcp::resolver>(io_service_);
-        query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileServiceHost_, fileServicePort_); //default port
+        query_ = std::make_unique<boost::asio::ip::tcp::resolver::query>(fileBrokerHost_, fileBrokerPort_); //default port
         endpoint_iterator_ = std::make_unique<boost::asio::ip::tcp::resolver::iterator>(resolver_->resolve(*query_));
         socket_=std::make_unique<boost::asio::ip::tcp::socket>(io_service_);
       }
@@ -137,14 +136,14 @@ namespace evf {
     }
 
     //override file service parameter if specified by environment
-    char * fileServiceUseLockParamPtr = getenv("FFF_FILESERVICEUSELOCALLOCK");
-    if (fileServiceUseLockParamPtr) {
+    char * fileBrokerUseLockParamPtr = getenv("FFF_FILEBROKERUSELOCALLOCK");
+    if (fileBrokerUseLockParamPtr) {
       try {
-        fileServiceUseLocalLock_=(boost::lexical_cast<unsigned int>(std::string(fileServiceUseLockParamPtr)))>0;
-        edm::LogInfo("EvFDaqDirector") << "Setting fileServiceUseLOcalLock parameter by environment string: " << fileServiceUseLocalLock_;
+        fileBrokerUseLocalLock_=(boost::lexical_cast<unsigned int>(std::string(fileBrokerUseLockParamPtr)))>0;
+        edm::LogInfo("EvFDaqDirector") << "Setting fileBrokerUseLocalLock parameter by environment string: " << fileBrokerUseLocalLock_;
       }
       catch( boost::bad_lexical_cast const& ) {
-        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileServiceUseLockParamPtr);
+        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
       }
     }
 
@@ -347,10 +346,11 @@ namespace evf {
     desc.addUntracked<std::string> ("baseDir", ".")->setComment("Local base directory for run output");
     desc.addUntracked<std::string> ("buBaseDir", ".")->setComment("BU base ramdisk directory ");
     desc.addUntracked<unsigned int> ("runNumber",0)->setComment("Run Number in ramdisk to open");
-    desc.addUntracked<bool> ("useFileService", false)->setComment("Use BU file service to grab input data instead of NFS file locking");
-    desc.addUntracked<std::string> ("fileServiceHost", "")->setComment("BU file service host");
-    desc.addUntracked<std::string> ("fileServicePort", "8080")->setComment("BU file service port");
-    desc.addUntracked<bool> ("fileServiceKeepAlive", false)->setComment("Use keep alive to avoid using large number of sockets");
+    desc.addUntracked<bool> ("useFileBroker", false)->setComment("Use BU file service to grab input data instead of NFS file locking");
+    desc.addUntracked<std::string> ("fileBrokerHost", "")->setComment("BU file service host");
+    desc.addUntracked<std::string> ("fileBrokerPort", "8080")->setComment("BU file service port");
+    desc.addUntracked<bool> ("fileBrokerKeepAlive", false)->setComment("Use keep alive to avoid using large number of sockets");
+    desc.addUntracked<bool> ("fileBrokerUseLocalLock", true)->setComment("Use local lock file to synchronize appearance of index and EoLS file markers for hltd");
     desc.addUntracked<bool>("outputAdler32Recheck",false)->setComment("Check Adler32 of per-process output files while micro-merging");
     desc.addUntracked<bool>("requireTransfersPSet",false)->setComment("Require complete transferSystem PSet in the process configuration");
     desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
@@ -928,6 +928,12 @@ namespace evf {
     flock(fulocal_rwlock_fd2_,LOCK_EX);
   }
 
+  void EvFDaqDirector::lockFULocal2_SH() {
+    //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_flk2);
+    flock(fulocal_rwlock_fd2_,LOCK_SH);
+  }
+
+
   void EvFDaqDirector::unlockFULocal2() {
     //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_fulk2);
     flock(fulocal_rwlock_fd2_,LOCK_UN);
@@ -944,19 +950,26 @@ namespace evf {
     }
   }
 
-  void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS) const {
+  void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool& exclusiveLocked, bool doCreateBoLS) {
     if ( currentLumiSection > 0) {
       const std::string fuEoLS =
         getEoLSFilePathOnFU(currentLumiSection);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
+        if (useFileBroker_ && fileBrokerUseLocalLock_ && !exclusiveLocked) {
+          exclusiveLocked=true;
+          lockFULocal2();
+        }
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
         if (doCreateBoLS) createBoLSFile(lumiSection,false);
       }
     }
-    else if (doCreateBoLS) createBoLSFile(lumiSection,true);//needed for initial lumisection
+    else if (doCreateBoLS) {
+      if (useFileBroker_ && fileBrokerUseLocalLock_) lockFULocal2();
+      createBoLSFile(lumiSection,true);//needed for initial lumisection
+    }
   }
 
   int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound, bool unlock)
@@ -1093,7 +1106,7 @@ namespace evf {
     return -1;
   }
 
-  EvFDaqDirector::FileStatus EvFDaqDirector::contactFileService(unsigned int& serverHttpStatus, bool& serverError,
+  EvFDaqDirector::FileStatus EvFDaqDirector::contactFileBroker(unsigned int& serverHttpStatus, bool& serverError,
                                                 uint32_t& serverLS, uint32_t& closedServerLS,
                                                 std::string& nextFileJson, std::string& nextFileRaw, int maxLS) {
 
@@ -1105,7 +1118,7 @@ namespace evf {
       while (true) {
 
         //socket connect
-        if (!fileServiceKeepAlive_ || !socket_->is_open()) {
+        if (!fileBrokerKeepAlive_ || !socket_->is_open()) {
           boost::asio::connect(*socket_,*endpoint_iterator_,ec);
 
           if (ec) {
@@ -1125,13 +1138,13 @@ namespace evf {
           edm::LogWarning("EvFDaqDirector") << "Stop LS requested " << maxLS;
         }
         request_stream << "GET " << path << " HTTP/1.0\r\n";
-        request_stream << "Host: " << fileServiceHost_ << "\r\n";
+        request_stream << "Host: " << fileBrokerHost_ << "\r\n";
         request_stream << "Accept: */*\r\n";
         request_stream << "Connection: close\r\n\r\n";
 
         boost::asio::write(*socket_, request,ec);
         if (ec) {
-          if (fileServiceKeepAlive_ && ec == boost::asio::error::connection_reset) {
+          if (fileBrokerKeepAlive_ && ec == boost::asio::error::connection_reset) {
             //debug!
             edm::LogInfo("EvFDaqDirector") << "reconnecting socket on received connection_reset";
             //we got disconnected, try to reconnect to the server before writing the request
@@ -1215,6 +1228,7 @@ namespace evf {
         assert(server_eols!=serverMap.end());
 
         auto server_ls = serverMap.find("lumisection");
+
 
         closedServerLS = (uint64_t)std::max(0,atoi(server_eols->second.c_str()));
         if (server_ls!=serverMap.end())
@@ -1318,7 +1332,7 @@ namespace evf {
       serverError= true;
     }
 
-    if (!fileServiceKeepAlive_ && socket_->is_open()) {
+    if (!fileBrokerKeepAlive_ && socket_->is_open()) {
       socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
       if (ec) {
         edm::LogWarning("EvFDaqDirector") << "socket shutdown error -:" << ec;
@@ -1337,7 +1351,7 @@ namespace evf {
   }
 
 
-  EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileService(const unsigned int currentLumiSection, unsigned int& ls, std::string& nextFileRaw,
+  EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileBroker(const unsigned int currentLumiSection, unsigned int& ls, std::string& nextFileRaw,
                                                     int& serverEventsInNewFile, int64_t& fileSizeFromJson, uint64_t& thisLockWaitTimeUs) {
 
     EvFDaqDirector::FileStatus fileStatus = noFile;
@@ -1379,26 +1393,26 @@ namespace evf {
     timeval ts_lockbegin;
     gettimeofday(&ts_lockbegin,nullptr);
 
-    //local lock to force index json and EoLS files to appear in order
-    if (fileServiceUseLocalLock_)
-      lockFULocal2();
-
     std::string nextFileJson;
     uint32_t serverLS, closedServerLS;
     unsigned int serverHttpStatus;
     bool serverError;
 
+    //local lock to force index json and EoLS files to appear in order
+    if (fileBrokerUseLocalLock_)
+      lockFULocal2_SH();
+
     int maxLS = stopFileLS < 0 ? -1: std::max(stopFileLS,(int)currentLumiSection);
-    fileStatus = contactFileService(serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, maxLS);
+    fileStatus = contactFileBroker(serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, maxLS);
 
     if (serverError) {
       //do not update anything
-      if (fileServiceUseLocalLock_)
+      if (fileBrokerUseLocalLock_)
         unlockFULocal2();
       return noFile;
     }
 
-    bool fileFound;
+    bool fileFound=true;
 
     if (fileStatus == newFile)
       serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,fileFound,false);
@@ -1413,26 +1427,26 @@ namespace evf {
     }
 
     //first execution, allowed to skip to last reported LS (create BoLS file only)
+    bool excl_locked=false;
     if (currentLumiSection==0) {
         if (fileStatus == runEnded) {
-          createLumiSectionFiles(closedServerLS,0);
-          createLumiSectionFiles(serverLS,closedServerLS,false); // +1
+          createLumiSectionFiles(closedServerLS,0,excl_locked);
+          createLumiSectionFiles(serverLS,closedServerLS,excl_locked,false); // +1
         }
         else 
-          createLumiSectionFiles(serverLS,0);
+          createLumiSectionFiles(serverLS,0,excl_locked);
     } else {
         //loop over and create any EoLS files missing
         if (closedServerLS>=currentLumiSection) {
-          //if (fileStatus != newFile) //test
-          //  sleep(5);
           for (uint32_t i=std::max(currentLumiSection,1U);i<=closedServerLS;i++) 
-            createLumiSectionFiles(i+1,i);
+            createLumiSectionFiles(i+1,i,excl_locked);
           }
     }
 
     //can unlock because all files have been created locally
-    if (fileServiceUseLocalLock_)
+    if (fileBrokerUseLocalLock_)
       unlockFULocal2();
+
 
     if (fileStatus==runEnded)
       ls = std::max(currentLumiSection,serverLS);
@@ -1444,7 +1458,7 @@ namespace evf {
       if (serverLS>=ls)
         ls = serverLS;
       else {
-        edm::LogWarning("EvFDaqDirector") << "Server reported LS " << serverLS << " which is smaller than currently open LS " << ls << ". Ignoring the response";
+        edm::LogWarning("EvFDaqDirector") << "Server reported LS " << serverLS << " which is smaller than currently open LS " << ls << ". Ignoring response";
         sleep(1);
       }
     }
