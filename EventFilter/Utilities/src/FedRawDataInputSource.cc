@@ -146,7 +146,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
    fms_->setInState(evf::FastMonitoringThread::inInit);
    fms_->setInStateSup(evf::FastMonitoringThread::inInit);
   }
-
   //should delete chunks when run stops
   for (unsigned int i=0;i<numBuffers_;i++) {
     freeChunks_.push(new InputChunk(i,eventChunkSize_));
@@ -856,7 +855,6 @@ void FedRawDataInputSource::readSupervisor()
 	break;
       }
 
-
       uint64_t thisLockWaitTimeUs=0.;
       if (fileListMode_) {
         //return LS if LS not set, otherwise return file
@@ -958,7 +956,7 @@ void FedRawDataInputSource::readSupervisor()
           backoff_exp = std::min(4,backoff_exp); // max 1.6 seconds
           //backoff_exp=0; // disabled!
           int sleeptime  = (int) (100000. * pow(2,backoff_exp));
-	  usleep(sleeptime);
+          usleep(sleeptime);
           backoff_exp++;
 	}
       }

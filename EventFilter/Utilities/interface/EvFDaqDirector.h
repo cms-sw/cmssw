@@ -120,7 +120,6 @@ namespace evf{
       void lockFULocal();
       void unlockFULocal();
       void lockFULocal2();
-      void lockFULocal2_SH();
       void unlockFULocal2();
       void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
       void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS = true);
