@@ -20,12 +20,12 @@ fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
 )
 
 # Phase 1 Era: replace plugins by Phase 1 plugins
-from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-trackingPhase1.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase1)
+from Configuration.Eras.Modifier_trackingPhase1_cff import phase1Pixel
+phase1Pixel.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase1)
 
 # Phase 2 Era: replace plugins by Phase 2 plugins, etc...
-from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import phase2_tracker
+phase2_tracker.toModify(fastTrackerRecHits, plugins = pixelPluginsPhase2)
 
 # Configure strip tracker Gaussian-smearing plugins:
 trackerStripGaussianResolutions={
