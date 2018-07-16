@@ -928,12 +928,6 @@ namespace evf {
     flock(fulocal_rwlock_fd2_,LOCK_EX);
   }
 
-  void EvFDaqDirector::lockFULocal2_SH() {
-    //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_flk2);
-    flock(fulocal_rwlock_fd2_,LOCK_SH);
-  }
-
-
   void EvFDaqDirector::unlockFULocal2() {
     //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_fulk2);
     flock(fulocal_rwlock_fd2_,LOCK_UN);
