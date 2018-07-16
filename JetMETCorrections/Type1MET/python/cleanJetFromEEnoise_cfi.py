@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 #______________________________________________________#
 PFCandidateJetsWithEEnoise = cms.EDProducer(
     "BadPFCandidateJetsEEnoiseProducer",
-    pfcandidatesrc             = cms.InputTag("packedPFCandidates"),
     jetsrc                     = cms.InputTag("slimmedJets"),
     userawPt                   = cms.bool(True),
     PtThreshold                = cms.double(75.0),
