@@ -257,7 +257,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.jetConfiguration()
 
         #met reprocessing and jet reclustering
-        if recoMetFromPFCs and reclusterJetsIsNone:
+        if recoMetFromPFCs and reclusterJetsIsNone and not fixEE2017:
             self.setParameter('reclusterJets',True)
 
         #ZD: puppi jet reclustering breaks the puppi jets
@@ -312,6 +312,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
 
         patMetModuleSequence = cms.Sequence()
+
+        # 2017 EE fix will modify pf cand and jet collections used downstream
+        if fixEE2017:
+            pfCandCollection, jetCollectionUnskimmed = self.runFixEE2017(process,
+                fixEE2017Params,
+                jetCollectionUnskimmed,
+                pfCandCollection,
+                [electronCollection,muonCollection,tauCollection,photonCollection],
+                postfix,
+            )                
 
         # recompute the MET (and thus the jets as well for correction) from scratch
         if recoMetFromPFCs:
@@ -1749,6 +1759,44 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         jetProductionSequence += getattr(process, "cleanedPatJets"+postfix)
         return cms.InputTag("cleanedPatJets"+postfix)
 
+    # function to implement the 2017 EE fix
+    def runFixEE2017(self,process,params,jets,cands,goodcolls,postfix):
+        PFCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
+            jetsrc = jets,
+            userawPt = params["userawPt"],
+            PtThreshold = params["PtThreshold"],
+            MinEtaThreshold = params["MinEtaThreshold"],
+            MaxEtaThreshold = params["MaxEtaThreshold"],
+        )
+        addToProcessAndTask("PFCandidateJetsWithEEnoise"+postfix, PFCandidateJetsWithEEnoise, process, task)
+        pfcandidateClustered = cms.EDProducer("CandViewMerger",
+            src = cms.VInputTag(goodcolls+[jets])
+        )
+        addToProcessAndTask("pfcandidateClustered"+postfix, pfcandidateClustered, process, task)
+        pfcandidateForUnclusteredUnc = cms.EDProducer("CandPtrProjector",
+            src  = cands,
+            veto = cms.InputTag("pfcandidateClustered"+postfix),
+        )
+        addToProcessAndTask("pfcandidateForUnclusteredUnc"+postfix, pfcandidateForUnclusteredUnc, process, task)
+        badUnclustered = cms.EDFilter("CandPtrSelector",
+            src = cms.InputTag("pfcandidateForUnclusteredUnc"+postfix),
+            cut = cms.string("abs(eta) > "+str(params["MinEtaThreshold"])+" && abs(eta) < "+str(params["MaxEtaThreshold"])),
+        )
+        addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, task)
+        superbad = cms.EDProducer("CandViewMerger",
+            src = cms.VInputTag(
+                cms.InputTag("badUnclustered"+postfix),
+                cms.InputTag("PFCandidateJetsWithEEnoise"+postfix),
+            )
+        )
+        addToProcessAndTask("superbad"+postfix, superbad, process, task)
+        pfCandidatesGoodEE2017 = cms.EDProducer("CandPtrProjector",
+            src  = cands,
+            veto = cms.InputTag("superbad"+postfix),
+        )
+        addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, task)
+        # return good cands and jets
+        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix))
 
 #========================================================================================
 runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
