@@ -485,12 +485,13 @@ void CaloSD::update(const BeginOfRun *) {
   initRun();
 } 
 
-void CaloSD::update(const BeginOfEvent *) {
+void CaloSD::update(const BeginOfEvent * g4Event) {
 #ifdef DebugLog
   edm::LogVerbatim("CaloSim")  << "CaloSD: Dispatched BeginOfEvent for " 
                            << GetName() << " !" ;
 #endif
   clearHits();
+  initEvent(g4Event);
 }
 
 void CaloSD::update(const EndOfTrack * trk) {
@@ -521,6 +522,7 @@ void CaloSD::update(const EndOfTrack * trk) {
 
 void CaloSD::update(const ::EndOfEvent * ) {
 
+  endEvent();
   slave.get()->ReserveMemory(theHC->entries());
 
   int count(0);
@@ -589,6 +591,10 @@ void CaloSD::clearHits() {
 }
 
 void CaloSD::initRun() {}
+
+void CaloSD::initEvent(const BeginOfEvent *) {}
+
+void CaloSD::endEvent() {}
 
 int CaloSD::getTrackID(const G4Track* aTrack) {
 
