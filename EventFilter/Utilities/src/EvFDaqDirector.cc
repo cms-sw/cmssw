@@ -950,24 +950,19 @@ namespace evf {
     }
   }
 
-  void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool& exclusiveLocked, bool doCreateBoLS) {
+  void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS) {
     if ( currentLumiSection > 0) {
       const std::string fuEoLS =
         getEoLSFilePathOnFU(currentLumiSection);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
-        if (useFileBroker_ && fileBrokerUseLocalLock_ && !exclusiveLocked) {
-          exclusiveLocked=true;
-          lockFULocal2();
-        }
         int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
         close(eol_fd);
         if (doCreateBoLS) createBoLSFile(lumiSection,false);
       }
     }
     else if (doCreateBoLS) {
-      if (useFileBroker_ && fileBrokerUseLocalLock_) lockFULocal2();
       createBoLSFile(lumiSection,true);//needed for initial lumisection
     }
   }
@@ -1364,7 +1359,6 @@ namespace evf {
     int stopFileLS = -1;
     int stopFileCheck = stat(stopFilePath_.c_str(),&buf);
     int stopFilePidCheck = stat(stopFilePathPid_.c_str(),&buf);
-    //TODO: send request to server to stop at specific LS
     if (stopFileCheck==0 || stopFilePidCheck==0) {
         if (stopFileCheck==0)
           stopFileLS = readLastLSEntry(stopFilePath_);
@@ -1400,7 +1394,7 @@ namespace evf {
 
     //local lock to force index json and EoLS files to appear in order
     if (fileBrokerUseLocalLock_)
-      lockFULocal2_SH();
+      lockFULocal2();
 
     int maxLS = stopFileLS < 0 ? -1: std::max(stopFileLS,(int)currentLumiSection);
     fileStatus = contactFileBroker(serverHttpStatus, serverError, serverLS, closedServerLS, nextFileJson, nextFileRaw, maxLS);
@@ -1413,19 +1407,18 @@ namespace evf {
     }
 
     //handle creation of EoLS and BoLS files if lumisection has changed
-    bool excl_locked=false;
     if (currentLumiSection==0) {
         if (fileStatus == runEnded) {
-          createLumiSectionFiles(closedServerLS,0,excl_locked);
-          createLumiSectionFiles(serverLS,closedServerLS,excl_locked,false); // +1
+          createLumiSectionFiles(closedServerLS,0);
+          createLumiSectionFiles(serverLS,closedServerLS,false); // +1
         }
         else 
-          createLumiSectionFiles(serverLS,0,excl_locked);
+          createLumiSectionFiles(serverLS,0);
     } else {
         //loop over and create any EoLS files missing
         if (closedServerLS>=currentLumiSection) {
           for (uint32_t i=std::max(currentLumiSection,1U);i<=closedServerLS;i++) 
-            createLumiSectionFiles(i+1,i,excl_locked);
+            createLumiSectionFiles(i+1,i);
           }
     }
 
