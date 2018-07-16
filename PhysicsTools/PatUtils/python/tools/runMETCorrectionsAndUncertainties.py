@@ -1761,6 +1761,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     # function to implement the 2017 EE fix
     def runFixEE2017(self,process,params,jets,cands,goodcolls,postfix):
+
+        task = getPatAlgosToolsTask(process)
+
         PFCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
             jetsrc = jets,
             userawPt = cms.bool(params["userawPt"]),
