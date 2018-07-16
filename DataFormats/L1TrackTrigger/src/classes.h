@@ -35,6 +35,9 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
+#include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticleFwd.h"
+
 #include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
 
@@ -147,6 +150,11 @@ namespace
     l1t::L1TkMuonParticleCollection trkmuColl ;
     edm::Wrapper<l1t::L1TkMuonParticleCollection> w_trkmuColl;
     l1t::L1TkMuonParticleRef reftrkMu ;
+    
+    // L1TkGlbMuonParticle
+    l1t::L1TkGlbMuonParticleCollection trkglbmuColl ;
+    edm::Wrapper<l1t::L1TkGlbMuonParticleCollection> w_trkglbmuColl;
+    l1t::L1TkGlbMuonParticleRef reftrkGlbMu ;
     
     // L1TkTauParticle
     l1t::L1TkTauParticleCollection trktauColl ;
