@@ -34,7 +34,7 @@
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
-#define plotDebug
+//#define plotDebug
 
 HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
