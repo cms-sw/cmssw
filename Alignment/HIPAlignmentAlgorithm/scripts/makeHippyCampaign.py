@@ -47,7 +47,7 @@ def main():
        cmsenv()
        for _ in args.merge_topic:
          subprocess.check_call(["git", "cms-merge-topic", _])
-       subprocess.check_call(["scram", "b", "-j", "10"])
+       os.system("eval $(scram ru -sh) && scram b -j 10")  #my cmsenv function isn't quite good enough for scram b purposes.  Also, http://stackoverflow.com/a/38792806/5228524
 
        if os.path.exists("src/Alignment/HIPAlignmentAlgorithm"):
          HIPAlignmentAlgorithm = os.path.abspath("src/Alignment/HIPAlignmentAlgorithm")
