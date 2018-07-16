@@ -1763,10 +1763,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def runFixEE2017(self,process,params,jets,cands,goodcolls,postfix):
         PFCandidateJetsWithEEnoise = cms.EDProducer("BadPFCandidateJetsEEnoiseProducer",
             jetsrc = jets,
-            userawPt = params["userawPt"],
-            PtThreshold = params["PtThreshold"],
-            MinEtaThreshold = params["MinEtaThreshold"],
-            MaxEtaThreshold = params["MaxEtaThreshold"],
+            userawPt = cms.bool(params["userawPt"]),
+            PtThreshold = cms.double(params["PtThreshold"]),
+            MinEtaThreshold = cms.double(params["MinEtaThreshold"]),
+            MaxEtaThreshold = cms.double(params["MaxEtaThreshold"]),
         )
         addToProcessAndTask("PFCandidateJetsWithEEnoise"+postfix, PFCandidateJetsWithEEnoise, process, task)
         pfcandidateClustered = cms.EDProducer("CandViewMerger",
