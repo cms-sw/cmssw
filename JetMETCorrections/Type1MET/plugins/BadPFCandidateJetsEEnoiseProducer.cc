@@ -45,7 +45,7 @@ pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const 
 {
   
   produces<edm::PtrVector<reco::Candidate> >();
-  produces<edm::PtrVector<pat::Jet> >();
+  produces<std::vector<pat::Jet> >();
   
 }
 
@@ -54,7 +54,7 @@ pat::BadPFCandidateJetsEEnoiseProducer::~BadPFCandidateJetsEEnoiseProducer() {}
 void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   auto badPFCandidates = std::make_unique<edm::PtrVector<reco::Candidate>>();
-  auto goodJets = std::make_unique<edm::PtrVector<pat::Jet>>();
+  auto goodJets = std::make_unique<std::vector<pat::Jet>>();
   
   edm::Handle<edm::View<pat::Jet> > jetcandidates;
   iEvent.getByToken(jetsrc_, jetcandidates);
@@ -71,7 +71,7 @@ void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& 
     
     if ( PtJet > PtThreshold_ || AbsEtaJet < MinEtaThreshold_ || AbsEtaJet > MaxEtaThreshold_) {
       // save good jets
-      goodJets->push_back(candjet);
+      goodJets->emplace_back(candjet);
       continue;
     }
     
