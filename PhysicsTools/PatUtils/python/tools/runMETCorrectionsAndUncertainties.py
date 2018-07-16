@@ -84,7 +84,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Switch on miniAOD configuration", Type=bool)
         self.addParameter(self._defaultParameters, 'postfix', '',
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
-
+        self.addParameter(self._defaultParameters,'fixEE2017', False,
+                          "Exclude jets and PF candidates with EE noise characteristics (fix for 2017 run)", Type=bool)
+        self.addParameter(self._defaultParameters,'fixEE2017Params', {'userawPt': True, 'PtThreshold': 75.0, 'MinEtaThreshold': 2.65, 'MaxEtaThreshold': 3.139},
+                          "Parameters dict for fixEE2017: userawPt, PtThreshold, MinEtaThreshold, MaxEtaThreshold", Type=dict)
 
         #private parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
@@ -127,6 +130,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  CHS                     =None,
                  runOnData               =None,
                  onMiniAOD               =None,
+                 fixEE2017               =None,
+                 fixEE2017Params         =None,
                  postfix                 =None):
         electronCollection = self.initializeInputTag(electronCollection, 'electronCollection')
         photonCollection = self.initializeInputTag(photonCollection, 'photonCollection')
@@ -193,6 +198,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             onMiniAOD = self._defaultParameters['onMiniAOD'].value
         if postfix is None :
             postfix = self._defaultParameters['postfix'].value
+        if fixEE2017 is None :
+            fixEE2017 = self._defaultParameters['fixEE2017'].value
+        if fixEE2017Params is None :
+            fixEE2017Params = self._defaultParameters['fixEE2017Params'].value
 
         self.setParameter('metType',metType),
         self.setParameter('correctionLevel',correctionLevel),
@@ -223,6 +232,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('postfix',postfix),
+        self.setParameter('fixEE2017',fixEE2017),
+        self.setParameter('fixEE2017Params',fixEE2017Params),
 
         #if mva/puppi MET, autoswitch to std jets
         if metType == "MVA" or metType == "Puppi":
@@ -286,6 +297,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         reclusterJets           = self._parameters['reclusterJets'].value
         onMiniAOD               = self._parameters['onMiniAOD'].value
         postfix                 = self._parameters['postfix'].value
+        fixEE2017               = self._parameters['fixEE2017'].value
+        fixEE2017Params         = self._parameters['fixEE2017Params'].value
         
         #prepare jet configuration
         jetUncInfos = { "jCorrPayload":jetFlavor, "jCorLabelUpToL3":jetCorLabelUpToL3,
@@ -1843,6 +1856,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                CHS=False,
                                reapplyJEC=True,
                                jecUncFile="",
+                               fixEE2017=False,
+                               fixEE2017Params=None,
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -1873,6 +1888,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jecUncertaintyFile=jecUncFile,
                                       CHS=CHS,
                                       postfix=postfix,
+                                      fixEE2017=fixEE2017,
+                                      fixEE2017Params=fixEE2017Params,
                                       )
     
     #MET T1+Txy / Smear
@@ -1901,6 +1918,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jecUncertaintyFile=jecUncFile,
                                       CHS=CHS,
                                       postfix=postfix,
+                                      fixEE2017=fixEE2017,
+                                      fixEE2017Params=fixEE2017Params,
                                       )
     #MET T1+Smear + uncertainties
     runMETCorrectionsAndUncertainties(process, metType=metType,
@@ -1928,4 +1947,6 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jecUncertaintyFile=jecUncFile,
                                       CHS=CHS,
                                       postfix=postfix,
+                                      fixEE2017=fixEE2017,
+                                      fixEE2017Params=fixEE2017Params,
                                       )
