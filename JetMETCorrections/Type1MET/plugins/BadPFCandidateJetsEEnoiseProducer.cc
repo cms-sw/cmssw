@@ -4,10 +4,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Common/interface/RefToPtr.h" 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -25,10 +24,9 @@ namespace pat {
   public:
     explicit BadPFCandidateJetsEEnoiseProducer(const edm::ParameterSet&);
     ~BadPFCandidateJetsEEnoiseProducer() override;
-    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
-    edm::EDGetTokenT<edm::View<pat::PackedCandidate> > pfcandidatesrc_;
     edm::EDGetTokenT<edm::View<pat::Jet> > jetsrc_;
     double PtThreshold_;
     double MinEtaThreshold_;
@@ -39,8 +37,6 @@ namespace pat {
 
 
 pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const edm::ParameterSet& iConfig) :
-  
-  pfcandidatesrc_(consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("pfcandidatesrc") )),
   jetsrc_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("jetsrc") )),
   PtThreshold_(iConfig.getParameter<double>("PtThreshold")),
   MinEtaThreshold_(iConfig.getParameter<double>("MinEtaThreshold")),
@@ -55,34 +51,23 @@ pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const 
 pat::BadPFCandidateJetsEEnoiseProducer::~BadPFCandidateJetsEEnoiseProducer() {}
 
 void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
   
   std::unique_ptr<edm::PtrVector<reco::Candidate> > badPFCandidates(new edm::PtrVector<reco::Candidate>);
   
-  edm::Handle<edm::View<pat::PackedCandidate> > pfcandidates;
-  iEvent.getByToken(pfcandidatesrc_, pfcandidates);
   edm::Handle<edm::View<pat::Jet> > jetcandidates;
   iEvent.getByToken(jetsrc_, jetcandidates);
-
-  //if( userawPt_  ) std::cout << "Caution: Uncorrected Jet Pt is being used" << std::endl;
-  //if( !userawPt_ ) std::cout << "Caution: Corrected Jet Pt is being used" << std::endl;
   
   int njets   = jetcandidates->size();
-  
  
+  // find the bad jets
   for (int jetindex = 0; jetindex < njets; ++jetindex){
     edm::Ptr<pat::Jet> candjet = jetcandidates->ptrAt(jetindex);
 
-    // find the bad jets
-    double PtJet;
     // Corrected Pt or Uncorrected Pt (It is defined from cfi file)
-    if( userawPt_  ) PtJet = candjet->correctedJet("Uncorrected").pt();
-    if( !userawPt_ ) PtJet = candjet->pt();
+    double PtJet = userawPt_ ? candjet->correctedJet("Uncorrected").pt() : candjet->pt();
+    double AbsEtaJet = std::abs(candjet->eta());
     
-    
-    if ( PtJet > PtThreshold_ )continue;
-    if (fabs(candjet->eta()) < MinEtaThreshold_ || fabs(candjet->eta()) > MaxEtaThreshold_)continue;
-    
+    if ( PtJet > PtThreshold_ || AbsEtaJet < MinEtaThreshold_ || AbsEtaJet > MaxEtaThreshold_) continue;
     
     // now get a list of the PF candidates used to build this jet
     for (unsigned int pfindex =0; pfindex < candjet->numberOfSourceCandidatePtrs(); pfindex++){
@@ -92,6 +77,18 @@ void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& 
   iEvent.put(std::move(badPFCandidates));
   
 }
+
+void pat::BadPFCandidateJetsEEnoiseProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jetsrc",edm::InputTag("slimmedJets"));
+  desc.add<bool>("userawPt",true);
+  desc.add<double>("PtThreshold",75.0);
+  desc.add<double>("MinEtaThreshold",2.65);
+  desc.add<double>("MaxEtaThreshold",3.139);
+
+  descriptions.add("BadPFCandidateJetsEEnoiseProducer",desc);
+}
+
 using pat::BadPFCandidateJetsEEnoiseProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
