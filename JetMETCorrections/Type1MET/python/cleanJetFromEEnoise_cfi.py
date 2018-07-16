@@ -15,45 +15,34 @@ PFCandidateJetsWithEEnoise = cms.EDProducer(
 #_______________________________________________________#
 # Construct the Unclustered PF Candidates
 
-# Jet projection:
-pfcandidateNojets = cms.EDProducer("CandPtrProjector",
-                                   src  = cms.InputTag("packedPFCandidates"),
-                                   veto = cms.InputTag("slimmedJets")
-                                   )
-# Electron projection:
-pfcandidateNojetsNoele = cms.EDProducer("CandPtrProjector",
-                                        src  = cms.InputTag("pfcandidateNojets"),
-                                        veto = cms.InputTag("slimmedElectrons")
-                                        )
-# Muon projection:
-pfcandidateNojetsNoeleNomu = cms.EDProducer("CandPtrProjector",
-                                            src  = cms.InputTag("pfcandidateNojetsNoele"),
-                                            veto = cms.InputTag("slimmedMuons")
-                                            )
-# Tau projection:
-pfcandidateNojetsNoeleNomuNotau = cms.EDProducer("CandPtrProjector",
-                                                 src  = cms.InputTag("pfcandidateNojetsNoeleNomu"),
-                                                 veto = cms.InputTag("slimmedTaus")
-                                                 )
-# Photon projection:
+pfcandidateClustered = cms.EDProducer(
+    "CandViewMerger",
+    src = cms.VInputTag(
+        cms.InputTag("slimmedJets"),
+        cms.InputTag("slimmedElectrons"),
+        cms.InputTag("slimmedMuons"),
+        cms.InputTag("slimmedTaus"),
+        cms.InputTag("slimmedPhotons"),
+    )
+)
+
 pfcandidateForUnclusteredUnc = cms.EDProducer("CandPtrProjector",
-                                              src  = cms.InputTag("pfcandidateNojetsNoeleNomuNotau"),
-                                              veto = cms.InputTag("slimmedPhotons")
-                                              )
+    src  = cms.InputTag("packedPFCandidates"),
+    veto = cms.InputTag("pfcandidateClustered"),
+)
 
 
 #__________________________________________________________________#
-bad1 = cms.EDFilter(
-    "CandPtrSelector",
+badUnclustered = cms.EDFilter("CandPtrSelector",
     src = cms.InputTag("pfcandidateForUnclusteredUnc"),
     cut = cms.string("abs(eta) > 2.65 && abs(eta) < 3.139")
-    )
+)
 
 #_________________________________________________________#
 superbad = cms.EDProducer(
     "CandViewMerger",
     src = cms.VInputTag(
-        cms.InputTag("bad1"),
+        cms.InputTag("badUnclustered"),
         cms.InputTag("PFCandidateJetsWithEEnoise"))
     )
 #___________________________________________________________#
@@ -69,12 +58,9 @@ cleanPFCandidates = cms.EDProducer(
 
 
 fullsuperbadSequence = cms.Sequence(PFCandidateJetsWithEEnoise+
-                                    pfcandidateNojets +
-                                    pfcandidateNojetsNoele +
-                                    pfcandidateNojetsNoeleNomu +
-                                    pfcandidateNojetsNoeleNomuNotau +
+                                    pfcandidateClustered +
                                     pfcandidateForUnclusteredUnc +
-                                    bad1 +
+                                    badUnclustered +
                                     superbad +
                                     cleanPFCandidates
                                     )
