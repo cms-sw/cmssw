@@ -28,5 +28,8 @@ pL1TrackerHTMiss = cms.Path( L1TrackerHTMiss )
 from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons
 pL1TkMuon = cms.Path( L1TkMuons )
 
+from L1Trigger.L1TTrackMatch.L1TkGlbMuonProducer_cfi import L1TkGlbMuons
+pL1TkGlbMuon = cms.Path( L1TkGlbMuons )
+
 from L1Trigger.L1TTrackMatch.L1TkTauFromCaloProducer_cfi import L1TkTauFromCalo
 pL1TkTauFromCalo = cms.Path( L1TkTauFromCalo )
