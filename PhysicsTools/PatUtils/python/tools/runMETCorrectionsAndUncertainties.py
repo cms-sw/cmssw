@@ -183,6 +183,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             recoMetFromPFCs =  self._defaultParameters['recoMetFromPFCs'].value
         if reapplyJEC is None :
             reapplyJEC = self._defaultParameters['reapplyJEC'].value
+        reclusterJetsIsNone = (reclusterJets is None)
         if reclusterJets is None :
             reclusterJets = self._defaultParameters['reclusterJets'].value
         if CHS is None :
@@ -245,7 +246,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.jetConfiguration()
 
         #met reprocessing and jet reclustering
-        if recoMetFromPFCs:
+        if recoMetFromPFCs and reclusterJetsIsNone:
             self.setParameter('reclusterJets',True)
 
         #ZD: puppi jet reclustering breaks the puppi jets
@@ -1834,7 +1835,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                jetCleaning="LepClean",
                                isData=False,
                                manualJetConfig=False,
-                               reclusterJets=False,
+                               reclusterJets=None,
                                jetSelection="pt>15 && abs(eta)<9.9",
                                recoMetFromPFCs=False,
                                jetCorLabelL3="ak4PFCHSL1FastL2L3Corrector",
