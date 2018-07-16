@@ -13,6 +13,8 @@ import sys
 
 basedir = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy"
 
+thisfile = os.path.abspath(__file__)
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("foldername", help="folder name for the campaign.  Example: CRUZET20xy")
@@ -21,11 +23,17 @@ def main():
   parser.add_argument("--subfolder", default="", help="subfolder within "+basedir+" to make 'foldername' in.")
   parser.add_argument("--merge-topic", action="append", help="things to cms-merge-topic within the CMSSW release created")
   parser.add_argument("--print-sys-path", action="store_true", help=argparse.SUPPRESS) #internal, don't use this
+  parser.add_argument("--test-cmsenv")
   args = parser.parse_args()
 
   if args.print_sys_path:
     print repr(sys.path)
     return
+
+  if args.test_cmsenv:
+    with cd(args.test_cmsenv):
+      cmsenv()
+      return
 
   folder = os.path.join(basedir, args.subfolder, args.foldername)
 
@@ -120,11 +128,17 @@ def cmsenv():
   output = subprocess.check_output(["scram", "ru", "-sh"])
   for line in output.split(";\n"):
     if not line.strip(): continue
-    match = re.match(r'^export (\w*)="([^"]*)"$', line)
-    if not match: raise ValueError("Bad scram ru -sh line:\n"+line)
-    variable, value = match.groups()
-    os.environ[variable] = value
-  sys.path[:] = eval(subprocess.check_output([__file__, "dummy", "--print-sys-path"]))
+    match1 = re.match(r'^export (\w*)="([^"]*)"$', line)
+    match2 = re.match(r'^unset *((\w* *)*)$', line)
+    if match1:
+      variable, value = match1.groups()
+      os.environ[variable] = value
+    elif match2:
+      for variable in match2.group(1).split():
+        del os.environ[variable]
+    else:
+      raise ValueError("Bad scram ru -sh line:\n"+line)
+  sys.path[:] = eval(subprocess.check_output([thisfile, "dummy", "--print-sys-path"]))
 
 if __name__ == "__main__":
   main()
