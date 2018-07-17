@@ -45,7 +45,7 @@ pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const 
 {
   
   produces<edm::PtrVector<reco::Candidate> >();
-  produces<std::vector<pat::Jet> >();
+  produces<std::vector<pat::Jet> >("jets");
   
 }
 
@@ -81,7 +81,7 @@ void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& 
     }
   }
   iEvent.put(std::move(badPFCandidates));
-  iEvent.put(std::move(goodJets));
+  iEvent.put(std::move(goodJets),"jets");
   
 }
 
