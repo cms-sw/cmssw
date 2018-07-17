@@ -364,7 +364,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 
 
 void
-HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
+HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo)
 {
    int shrink = weights_.size() - 1;
    auto& msb = fgUpgradeMap_[samples.id()];
@@ -572,7 +572,7 @@ HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
    return true;
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHF2017(
+void HcalTriggerPrimitiveAlgo::analyzeHFQIE10(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
         const int hf_lumi_shift, const HcalFeatureBit* embit)
 {
