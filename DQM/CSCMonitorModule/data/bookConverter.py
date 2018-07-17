@@ -1,3 +1,4 @@
+from builtins import range
 import xml.dom.minidom as dom
 import sys, os, optparse
 

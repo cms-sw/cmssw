@@ -36,6 +36,7 @@
 """
 
 
+from builtins import range
 import sys,os
 import commands, re, time
 import datetime

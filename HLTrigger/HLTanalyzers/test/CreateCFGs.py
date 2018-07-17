@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #
 
+from builtins import range
 import sys,string,time,os
 
 ### parameters ###

@@ -7,6 +7,7 @@
 # by:              $Author: taroni $
 #-----------------------------------------------------
 
+from builtins import range
 from xml.dom import minidom
 import re
 import json

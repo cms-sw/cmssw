@@ -4,6 +4,7 @@ Update the config-to-payload map table for the fast DAQ O2O.
 @author: hqu
 '''
 
+from builtins import object
 from CondTools.SiStrip.o2o_db_manager import make_dbtype, DbManager
 import os
 import logging

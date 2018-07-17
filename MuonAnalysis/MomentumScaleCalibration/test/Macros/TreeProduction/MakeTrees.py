@@ -10,6 +10,7 @@
 # --------------------
 
 # Number of simultaneous threads 
+from builtins import range
 TotalNumberOfThreads = 3
 # Directory on castor with the input files
 CastorFilesDir = "/castor/cern.ch/user/d/demattia/MuScleFit/Summer10/JPsi/ModifiedMaterialScenario/OniaPAT"

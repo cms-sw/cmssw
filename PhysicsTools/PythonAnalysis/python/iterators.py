@@ -3,6 +3,8 @@
 
 #import cmserror
 
+from builtins import range
+from builtins import object
 def addIterator(obj):
     """function for adding iterators to objects""" 
     if not hasattr(obj, "__iter__"):
@@ -25,7 +27,7 @@ def addIterator(obj):
 def iteratorForSizedObjects(self):
     """dynamically added iterator"""
     entries = container.size()
-    for entry in xrange(entries):
+    for entry in range(entries):
         yield obj[entry]
   
         

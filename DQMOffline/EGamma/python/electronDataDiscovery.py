@@ -30,6 +30,7 @@
 #===================================================================
 
 #import httplib, urllib, urllib2, types, string, os, sys
+from builtins import range
 import os, sys, re, das_client
 
 if 'DD_SOURCE' not in os.environ:

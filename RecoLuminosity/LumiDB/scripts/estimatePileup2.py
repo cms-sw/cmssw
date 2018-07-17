@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from builtins import range
+from builtins import object
 VERSION='2.00'
 import os, sys
 import coral

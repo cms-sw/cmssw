@@ -1,3 +1,4 @@
+from builtins import object
 class FileExportPlugin(object):
   option_types={} #option: (name, type, default, extra...)
   plugin_name=''

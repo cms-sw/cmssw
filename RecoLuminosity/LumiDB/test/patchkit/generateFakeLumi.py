@@ -1,3 +1,4 @@
+from builtins import range
 import sys
 def main(*args):
     filename=args[1]

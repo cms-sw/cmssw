@@ -13,6 +13,7 @@ readability (e.g. name some constants, use a template engine, ask for
 clang's bindings to be installed along clang itself, etc.).
 '''
 
+from builtins import object
 __author__ = 'Miguel Ojeda'
 __copyright__ = 'Copyright 2014, CERN'
 __credits__ = ['Giacomo Govi', 'Miguel Ojeda', 'Andreas Pfeiffer']

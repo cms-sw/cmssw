@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import json
 class selectionParser(object):
     def __init__(self,selectStr):

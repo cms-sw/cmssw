@@ -7,6 +7,7 @@ Note: may also contain a decorator that can wrap a class around a function that 
 
 """
 
+from builtins import range
 from data_sources import json_data_node, json_list, json_dict, json_basic
 
 # decorators

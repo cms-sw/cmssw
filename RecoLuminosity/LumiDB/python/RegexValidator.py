@@ -1,3 +1,4 @@
+from builtins import object
 import re
 class RegexValidator(object):
     def __init__(self, pattern, statement=None):

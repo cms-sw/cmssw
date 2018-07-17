@@ -6,6 +6,7 @@
 ### also run it with -h option
 ######################################################
 
+from builtins import range
 import os,sys, DLFCN
 import optparse
 

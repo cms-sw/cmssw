@@ -1,3 +1,4 @@
+from builtins import object
 class ParametersObject (object):
     '''
     collection of constants used in lumi related calculation

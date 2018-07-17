@@ -5,6 +5,7 @@
 #cmsDriver.py randomizedParametersSLHA.py -s GEN --conditions auto:mc -n -1 --filein file:cmsgrid_final.lhe  --eventcontent AODSIM --no_exec --customise_command "process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(200)"
 
 
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.Pythia8CommonSettings_cfi import *

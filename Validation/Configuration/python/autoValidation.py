@@ -1,3 +1,4 @@
+from builtins import range
 autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLiteTracking','validationHarvesting'],
                    'trackingOnlyValidation' : ['globalPrevalidationTrackingOnly','globalValidationTrackingOnly','postValidation_trackingOnly'],
                    'pixelTrackingOnlyValidation' : ['globalPrevalidationPixelTrackingOnly','globalValidationPixelTrackingOnly','postValidation_trackingOnly'],

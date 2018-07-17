@@ -1,3 +1,4 @@
+from builtins import object
 import coral
 import os,binascii
 import array

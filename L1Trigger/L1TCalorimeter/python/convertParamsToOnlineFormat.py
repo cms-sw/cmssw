@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from builtins import range
 import argparse
 import FWCore.ParameterSet.Config as cms
 from importlib import import_module
@@ -11,7 +12,7 @@ import six
 
 # Pairwise generator: returns pairs of adjacent elements in a list / other iterable
 def pairwiseGen(aList):
-    for i in xrange(len(aList)-1):
+    for i in range(len(aList)-1):
         yield (aList[i], aList[i+1])
 
 def parseOfflineLUTfile(aRelPath):

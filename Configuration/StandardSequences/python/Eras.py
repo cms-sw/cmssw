@@ -1,3 +1,4 @@
+from builtins import object
 import FWCore.ParameterSet.Config as cms
 from  FWCore.ParameterSet.Config import ModifierChain,Modifier
 

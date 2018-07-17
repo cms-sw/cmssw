@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from builtins import range
 import os
 
 # Path of the input tables

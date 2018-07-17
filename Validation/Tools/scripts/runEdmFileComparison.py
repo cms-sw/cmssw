@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import object
 import optparse
 import commands
 import pprint

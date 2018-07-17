@@ -1,3 +1,4 @@
+from builtins import object
 from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe

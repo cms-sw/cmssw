@@ -1,3 +1,4 @@
+from builtins import object
 import coral
 import nameDealer
 class idDealer(object):

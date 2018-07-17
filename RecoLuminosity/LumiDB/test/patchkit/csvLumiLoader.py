@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 import os,os.path,sys,time,csv,array,coral
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters,CommonUtil,lumiTime
 

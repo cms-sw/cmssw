@@ -1,3 +1,4 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 bxBins = [
@@ -144,7 +145,7 @@ ecalTrigPrimTask = cms.untracked.PSet(
                 nbins = cms.untracked.int32(8),
                 low = cms.untracked.double(-0.5),
                 title = cms.untracked.string('TT flag'),
-                labels = cms.untracked.vstring(map(str, range(0, 8)))
+                labels = cms.untracked.vstring(map(str, list(range(0, 8))))
             ),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('DCC'),
@@ -158,7 +159,7 @@ ecalTrigPrimTask = cms.untracked.PSet(
                 nbins = cms.untracked.int32(8),
                 low = cms.untracked.double(-0.5),
                 title = cms.untracked.string('TT flag'),
-                labels = cms.untracked.vstring(map(str, range(0, 8)))
+                labels = cms.untracked.vstring(map(str, list(range(0, 8))))
             ),
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(

@@ -55,6 +55,7 @@ OR
      This will run the performance tests only for the steps "GEN,SIM" (at once), "DIGI" and "RECO" taking care of running the necessary intermediate steps to make sure all steps can be run.
 
 """
+from builtins import range
 import os
 #Get some environment variables to use
 cmssw_base=os.environ["CMSSW_BASE"]

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 import os, time, sys, re, glob, exceptions
 import optparse as opt
 import cmsRelRegress as crr
@@ -1180,7 +1181,7 @@ class PerfSuite:
                                          # specifying the same number of cores and cpus (like: --cores 3, --cpu 3,4,5)
                 AvailableCores=cpus
             else:
-                AvailableCores=range(cores)
+                AvailableCores=list(range(cores))
                 
             #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
             TestsToDo=[]

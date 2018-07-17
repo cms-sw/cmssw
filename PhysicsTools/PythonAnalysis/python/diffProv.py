@@ -1,4 +1,5 @@
 
+from builtins import range
 class difference :
     
     def __init__(self,v):

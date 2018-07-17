@@ -1,3 +1,4 @@
+from builtins import range
 import os,coral,fnmatch,time
 from RecoLuminosity.LumiDB import nameDealer,dbUtil,revisionDML,lumiTime,CommonUtil,lumiCorrections
 from datetime import datetime

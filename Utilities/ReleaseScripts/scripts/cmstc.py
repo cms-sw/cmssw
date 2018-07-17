@@ -1,6 +1,7 @@
 """CMS TagCollector Python API
 """
 
+from builtins import object
 __author__ = "Miguel Ojeda"
 __copyright__ = "Copyright 2010-2011, CERN CMS"
 __credits__ = ["Miguel Ojeda"]

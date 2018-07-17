@@ -1,3 +1,4 @@
+from builtins import range
 import sys,os,os.path,glob,csv,math,datetime
 def parseplotcache(filelist,fillmin,fillmax):
     result={}#{fill:{run:delivered}}
@@ -9,7 +10,7 @@ def parseplotcache(filelist,fillmin,fillmax):
             if idx!=0:
                 [run,fill]=row[0].split(':')
                 [lumils,cmsls]=row[1].split(':')
-                if int(fill) not in range(fillmin,fillmax+1):
+                if int(fill) not in list(range(fillmin,fillmax+1)):
                     continue
                 delivered=float(row[5])
                 if int(fill) not in result:

@@ -1,3 +1,4 @@
+from builtins import range
 from ROOT import TFile, TCanvas, TPad, TH1F, TProfile, TProfile2D, TLine, gStyle, kOrange, kOpenCircle, kFullCircle
 from math import sqrt
 
@@ -98,10 +99,10 @@ for f in files:
   chain = fh.Get('Tracks')
   entries = chain.GetEntriesFast()
 
-  for e in xrange(entries):
+  for e in range(entries):
     nb = chain.GetEntry(e)
     num_muons = chain.nmuon
-    for m in xrange(num_muons):
+    for m in range(num_muons):
       delta_p_value = abs(chain.muon_innerMom[m] - chain.muon_outerMom[m])
       delta_pt_value = sqrt((chain.muon_innerMomx[m] - chain.muon_outerMomx[m])**2 +
                             (chain.muon_innerMomy[m] - chain.muon_outerMomy[m])**2)

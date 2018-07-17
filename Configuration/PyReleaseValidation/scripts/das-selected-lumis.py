@@ -1,4 +1,5 @@
 #!/bin/env python
+from builtins import range
 import json , sys
 input_range = []
 output_files_list = []

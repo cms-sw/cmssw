@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import ROOT
 import sys
 
@@ -27,7 +28,7 @@ def mergeHistosWheelSector(file, wheel, sector):
 
 def mergeHistosWheelStation(file, wheel, station):
 
-    sectors = range(1,13)
+    sectors = list(range(1,13))
     if station == 4: sectors.extend([13,14])
     histWheelStation = None
     for sector in sectors:
@@ -54,9 +55,9 @@ if __name__ == '__main__':
     file = ROOT.TFile(options.file,"READ")
     ROOT.gROOT.cd()
  
-    wheels = range(-2,3)
-    stations = range(1,5)
-    sectors = range(1,15)
+    wheels = list(range(-2,3))
+    stations = list(range(1,5))
+    sectors = list(range(1,15))
     histos = {}
     for wheel in wheels:
         for station in stations:

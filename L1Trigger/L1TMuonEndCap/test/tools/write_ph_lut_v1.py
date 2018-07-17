@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import os
 
 path = 'L1Trigger/L1TMuonEndCap/data/emtf_luts/vl_lut/'
@@ -28,14 +29,14 @@ def main():
 
     new_size = len(arr)
     if resize:
-      for i in xrange(new_size-old_size, resize):
+      for i in range(new_size-old_size, resize):
         arr.append(0)
     return
 
   def dump_array_into_file(arr, fn):
     with open(fn, 'w') as f:
       s = ""
-      for i in xrange(len(arr)):
+      for i in range(len(arr)):
         x = arr[i]
         s += ("%i " % x)
         if (i+1)%30 == 0:

@@ -4,6 +4,7 @@
 # Author:      Zhen Xie                                   #
 ###########################################################
 
+from builtins import range
 import os,sys,time
 from RecoLuminosity.LumiDB import tablePrinter, csvReporter,CommonUtil
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict

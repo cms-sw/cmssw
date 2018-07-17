@@ -24,6 +24,7 @@
 ## index.html to an apropriate place.
 ## (This can be autmated too, if needed.)
 
+from builtins import range
 import sys
 import os
 import re

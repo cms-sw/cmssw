@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 import sys,os,commands,re
 import xmlrpclib
 from CommonMethods import *

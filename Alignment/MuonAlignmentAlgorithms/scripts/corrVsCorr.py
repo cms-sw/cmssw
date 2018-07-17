@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import sys, optparse
 
 copyargs = sys.argv[:]

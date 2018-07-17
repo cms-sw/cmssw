@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+from builtins import range
 from sys import stderr, exit
 import commands
 

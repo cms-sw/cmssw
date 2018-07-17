@@ -7,6 +7,7 @@ connection class can also take a pre-constructed engine - useful for web service
 
 """
 
+from builtins import object
 import sqlalchemy
 from sqlalchemy import create_engine, text, or_
 from sqlalchemy.orm import sessionmaker

@@ -1,3 +1,4 @@
+from builtins import range
 import unittest
 import sys
 import datetime

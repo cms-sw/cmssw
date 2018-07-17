@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import sys
 import json
 import os
@@ -425,13 +427,13 @@ class MatrixInjector(object):
             #print 'wrapping up'
             #pprint.pprint(chainDict)
             #loop on the task list
-            for i_second in reversed(range(len(chainDict['nowmTasklist']))):
+            for i_second in reversed(list(range(len(chainDict['nowmTasklist'])))):
                 t_second=chainDict['nowmTasklist'][i_second]
                 #print "t_second taskname", t_second['TaskName']
                 if 'primary' in t_second['nowmIO']:
                     #print t_second['nowmIO']['primary']
                     primary=t_second['nowmIO']['primary'][0].replace('file:','')
-                    for i_input in reversed(range(0,i_second)):
+                    for i_input in reversed(list(range(0,i_second))):
                         t_input=chainDict['nowmTasklist'][i_input]
                         for (om,o) in t_input['nowmIO'].items():
                             if primary in o:

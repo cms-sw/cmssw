@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 
+from builtins import range
+from builtins import object
 from FWCore.ParameterSet.Config import Service
 import FWCore.ParameterSet.Types as CfgTypes
 

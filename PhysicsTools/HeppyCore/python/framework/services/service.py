@@ -1,3 +1,4 @@
+from builtins import object
 class Service(object):
     '''Basic service interface.
     If you want your own service, you should respect this interface

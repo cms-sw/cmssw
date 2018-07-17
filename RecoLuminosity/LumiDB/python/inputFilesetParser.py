@@ -1,3 +1,4 @@
+from builtins import object
 import os,csv
 from RecoLuminosity.LumiDB import csvSelectionParser,selectionParser,CommonUtil
 def filehasHeader(f):

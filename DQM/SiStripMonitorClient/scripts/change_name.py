@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from builtins import range
 import sys
 
 input_offline=open('DeadROC_offline.txt','r')

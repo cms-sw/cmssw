@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import object
 import json
 class pileupParser(object):
     def __init__(self,selectStr):

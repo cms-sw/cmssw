@@ -21,6 +21,7 @@
 # Import modules and define functions
 #
 
+from builtins import range
 import sys, os, re, operator
 import optparse as opt
 from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname, EventContents

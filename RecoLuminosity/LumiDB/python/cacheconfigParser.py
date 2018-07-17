@@ -1,3 +1,4 @@
+from builtins import object
 from  xml.dom.minidom import parse,parseString,getDOMImplementation,Node
         
 class cacheconfigParser(object):

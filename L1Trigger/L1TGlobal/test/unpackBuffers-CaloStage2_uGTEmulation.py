@@ -11,6 +11,7 @@
 #
 #   Brian Winer, March 16, 2015
 #  
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 

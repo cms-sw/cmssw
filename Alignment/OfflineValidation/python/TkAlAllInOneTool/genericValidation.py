@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import re

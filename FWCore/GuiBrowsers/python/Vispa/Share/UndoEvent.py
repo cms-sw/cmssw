@@ -1,4 +1,5 @@
 
+from builtins import object
 class UndoEvent(object):
     LABEL = ""
     

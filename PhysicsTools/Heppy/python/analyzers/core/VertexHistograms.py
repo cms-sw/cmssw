@@ -1,3 +1,4 @@
+from builtins import object
 from ROOT import TFile, TH1F
 
 class VertexHistograms(object):

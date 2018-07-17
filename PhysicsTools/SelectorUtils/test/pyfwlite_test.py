@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 # import ROOT in batch mode
+from builtins import range
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]

@@ -14,6 +14,7 @@
 #
 #____________________________________________________________
 
+from builtins import range
 import sys,os
 import string
 from array import array

@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import optparse
 import os
 import re

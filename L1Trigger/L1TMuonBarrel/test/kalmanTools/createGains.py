@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT,itertools,math      
 from array import array 
 from DataFormats.FWLite import Events, Handle

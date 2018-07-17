@@ -1,3 +1,4 @@
+from builtins import object
 from ROOT import TH1F, TH2F, TFile
 
 

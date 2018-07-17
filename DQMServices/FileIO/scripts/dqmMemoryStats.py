@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from builtins import object
 import sys
 
 from DQMServices.FileIO.DQM import DQMReader

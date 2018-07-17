@@ -37,6 +37,7 @@
 #       JOBSP3      - possible name as given to mps_setup.pl -N <name> ...
 #       JOBID       - ID of the LSF/HTCondor job
 
+from builtins import range
 import datetime
 import time
 import os
@@ -145,7 +146,7 @@ class jobdatabase:
         #print interesting Job-level lists ---- to add: t/evt, fix remarks
         print '###     dir      jobid    stat  try  rtime      nevt  remark   weight  name'
         print "------------------------------------------------------------------------------"
-        for i in xrange(self.nJobs):
+        for i in range(self.nJobs):
             print '%03d  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
                 self.JOBNUMBER[i],
                 self.JOBDIR[i],
@@ -160,7 +161,7 @@ class jobdatabase:
 
         #print merge Jobs if merge mode
         if self.driver == 'merge':
-            for i in xrange(self.nJobs,len(self.JOBDIR)):
+            for i in range(self.nJobs,len(self.JOBDIR)):
                 print '%s  %6s  %9s  %6s  %3d  %5d  %8d  %8s  %5s  %s' % (
                     'MMM',
                     self.JOBDIR[i],
@@ -216,7 +217,7 @@ class jobdatabase:
             DBFILE.write("%s\n" % item)
 
         #write mps.db jobinfo
-        for i in xrange(len(self.JOBID)):
+        for i in range(len(self.JOBID)):
             DBFILE.write('%03d:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s:%s\n' %
                          (i+1,
                           self.JOBDIR[i],

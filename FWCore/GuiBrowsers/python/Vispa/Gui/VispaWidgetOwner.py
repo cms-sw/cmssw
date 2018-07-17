@@ -1,3 +1,4 @@
+from builtins import object
 from PyQt4.QtCore import QObject, QRect, QPoint, Qt
 from PyQt4.QtGui import QApplication
 

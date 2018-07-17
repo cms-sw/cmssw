@@ -1,3 +1,4 @@
+from builtins import range
 from array import array
 from copy import copy
 from copy import deepcopy

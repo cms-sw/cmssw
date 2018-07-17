@@ -1,3 +1,4 @@
+from builtins import range
 def initL1UniformTags( tagBase = "IDEAL" ):
 
     import FWCore.ParameterSet.Config as cms

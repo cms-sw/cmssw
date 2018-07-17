@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import object
 import os
 import collections
 import logging

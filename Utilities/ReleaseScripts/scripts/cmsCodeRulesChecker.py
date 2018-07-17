@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 __author__="Aurelija"
 __date__ ="$2010-07-14 16.48.55$"
 

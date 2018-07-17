@@ -1,3 +1,4 @@
+from builtins import object
 class Filetype(object):
     "Basic information about a filetype"
     

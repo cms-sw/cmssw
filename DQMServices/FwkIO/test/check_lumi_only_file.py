@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT as R
 import sys
 
@@ -13,8 +14,8 @@ nRuns = 10
 nHists = 10
 startIndex = 0
 lastIndex =-1
-for i in xrange(0,nRuns):
-    for j in xrange(0,nHists):
+for i in range(0,nRuns):
+    for j in range(0,nHists):
         lastIndex +=1
         values.append(("Foo"+str(j)+"_lumi", 0, 1.0))
     expectedIndices.append( (i+1,1,3,startIndex,lastIndex) )
@@ -29,7 +30,7 @@ if nRuns != indices.GetEntries():
     print "wrong number of entries in Indices", indices.GetEntries()
     sys.exit(1)
 
-for run in xrange(0,nRuns):
+for run in range(0,nRuns):
     indices.GetEntry(run)
     v = (indices.Run,indices.Lumi,indices.Type,indices.FirstIndex,indices.LastIndex)
     if v != expectedIndices[run]:
@@ -37,7 +38,7 @@ for run in xrange(0,nRuns):
         print ' expected:', expectedIndices[run]
         print ' found:',v
         sys.exit(1)
-    for ihist in xrange(indices.FirstIndex,indices.LastIndex+1):
+    for ihist in range(indices.FirstIndex,indices.LastIndex+1):
         index = ihist
         th1fs.GetEntry(ihist)
         v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())

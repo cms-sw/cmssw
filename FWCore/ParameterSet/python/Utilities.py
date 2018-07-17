@@ -1,4 +1,5 @@
 
+from builtins import object
 def ignoreAllFiltersOnPath(path):
   """Given a 'Path', find all EDFilters and wrap them in 'cms.ignore'
   """

@@ -10,6 +10,7 @@
 # --inputLumiJSON=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/PileUp/pileup_latest.txt \
 # --calcMode true --maxPileupBin=40 pu2012DCSONLY.root
 
+from builtins import range
 import sys
 import os
 import commands
@@ -199,11 +200,11 @@ if __name__ == "__main__":
 
     # Turn the ROOT histogram into a Matplotlib one.
     bin_edges = [pileup_hist.GetBinLowEdge(i) \
-                 for i in xrange(1, pileup_hist.GetNbinsX() + 1)]
+                 for i in range(1, pileup_hist.GetNbinsX() + 1)]
     vals = [pileup_hist.GetBinCenter(i) \
-            for i in xrange(1, pileup_hist.GetNbinsX() + 1)]
+            for i in range(1, pileup_hist.GetNbinsX() + 1)]
     weights = [pileup_hist.GetBinContent(i) \
-               for i in xrange(1, pileup_hist.GetNbinsX() + 1)]
+               for i in range(1, pileup_hist.GetNbinsX() + 1)]
     # NOTE: Convert units to /pb!
     weights = [1.e-6 * i for i in weights]
 

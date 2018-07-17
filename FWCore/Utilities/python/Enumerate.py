@@ -4,6 +4,7 @@
 ##  leading underscore.  If you "mess" with the internal structure,
 ##  the classes may not function as intended.
 
+from builtins import object
 class Enumerate (object):
     """Similar to C++'s 'enum', but with a few extra toys.  Takes a
     string with spaces in between the different 'enum' names (keys).

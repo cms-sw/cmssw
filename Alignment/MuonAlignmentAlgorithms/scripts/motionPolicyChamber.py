@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import os, sys, optparse, math, copy
 from Alignment.MuonAlignment.geometryXMLparser import MuonGeometry, dtorder, cscorder
 

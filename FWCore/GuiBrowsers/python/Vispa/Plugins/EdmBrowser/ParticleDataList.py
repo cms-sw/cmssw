@@ -1,3 +1,4 @@
+from builtins import object
 class ParticleData(object):
     """ Class for holding particle data such as charge.
     """

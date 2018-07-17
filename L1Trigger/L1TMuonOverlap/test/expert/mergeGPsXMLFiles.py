@@ -1,3 +1,4 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("OMTFEmulation")
 import os
@@ -29,7 +30,7 @@ path = "/home/akalinow/scratch/CMS/OverlapTrackFinder/Emulator/job_3_pat/8_0_9_2
 sedCommand = "sed '/OMTF/d' "
 command = "echo \<OMTF version=\\\"0x0004\\\"\> > mergedPatterns.xml"
 os.system(command)
-for ipt in xrange(4,32):
+for ipt in range(4,32):
 
     fileName = path+"SingleMu_"+str(ipt)+"_p/GPs.xml"
     outputFileName = path+"SingleMu_"+str(ipt)+"_p/GPs_stripped.xml"

@@ -1,3 +1,4 @@
+from builtins import object
 class Zoomable(object):
     """ Interface for zoomable objects.
     """

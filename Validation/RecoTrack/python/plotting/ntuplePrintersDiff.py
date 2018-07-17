@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import re
 import sys
 import math
@@ -913,7 +915,7 @@ class TrackPrinter(_RecHitPrinter):
         oriAlgo = track.originalAlgo()
         algos = []
         algoMask = track.algoMask()
-        for i in xrange(Algo.algoSize):
+        for i in range(Algo.algoSize):
             if algoMask & 1:
                 algos.append(Algo.toString(i))
             algoMask = algoMask >> 1

@@ -1,3 +1,4 @@
+from builtins import object
 import sys,os,time
 import subprocess
 from tools import loadCmsProcess

@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT as R
 import sys
 
@@ -14,11 +15,11 @@ nLumiPerRun = 1
 nHists = 10
 startIndex = 0
 lastIndex =-1
-for i in xrange(0,nRuns):
-    for l in xrange(0,nLumiPerRun):
+for i in range(0,nRuns):
+    for l in range(0,nLumiPerRun):
         #we put dummy lumi entries in for each lumi seen
         expectedIndices.append((i+1,l+1,1000,0,0))
-    for j in xrange(0,nHists):
+    for j in range(0,nHists):
         lastIndex +=1
         values.append(("Foo"+str(j), 0, 1.0))
     expectedIndices.append( (i+1,0,3,startIndex,lastIndex) )
@@ -33,7 +34,7 @@ if nRuns+nRuns*nLumiPerRun != indices.GetEntries():
     print "wrong number of entries in Indices", indices.GetEntries()
     sys.exit(1)
 
-for run in xrange(0,nRuns+nRuns*nLumiPerRun):
+for run in range(0,nRuns+nRuns*nLumiPerRun):
     indices.GetEntry(run)
     v = (indices.Run,indices.Lumi,indices.Type,indices.FirstIndex,indices.LastIndex)
     if v != expectedIndices[run]:
@@ -42,7 +43,7 @@ for run in xrange(0,nRuns+nRuns*nLumiPerRun):
         print ' found:',v
         sys.exit(1)
     if indices.Type !=1000:
-        for ihist in xrange(indices.FirstIndex,indices.LastIndex+1):
+        for ihist in range(indices.FirstIndex,indices.LastIndex+1):
             index = ihist
             th1fs.GetEntry(ihist)
             v = (th1fs.FullName,th1fs.Flags,th1fs.Value.GetEntries())

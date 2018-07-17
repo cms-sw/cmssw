@@ -6,6 +6,7 @@
 ##     ./compareReleases.py -h
 
 ## Import python libraries
+from builtins import range
 import sys
 import optparse
 import os

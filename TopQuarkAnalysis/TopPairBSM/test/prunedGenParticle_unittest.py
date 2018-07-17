@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle

@@ -1,4 +1,5 @@
 # available "type"s and relative global tags
+from builtins import object
 globalTag = {
   'Fake' : 'auto:run1_mc_Fake',
   'Fake1': 'auto:run2_mc_Fake1',

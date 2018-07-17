@@ -8,6 +8,7 @@ https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/saved_mod
 """
 
 
+from builtins import range
 import os
 import sys
 import tensorflow as tf
@@ -30,7 +31,7 @@ y = tf.multiply(h, scale_, name="output")
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-print(sess.run(y, feed_dict={scale_: 1.0, x_: [range(10)]})[0][0])
+print(sess.run(y, feed_dict={scale_: 1.0, x_: [list(range(10))]})[0][0])
 
 builder = tf.saved_model.builder.SavedModelBuilder(os.path.join(datadir, "simplegraph"))
 builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.SERVING])

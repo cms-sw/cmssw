@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT
 
 masseb = []
@@ -9,7 +10,7 @@ e = t1.GetEntries()
 
 masseb.append(ROOT.TH1F("masseb1", "", 80, 70, 110))
 massee.append(ROOT.TH1F("massee1", "", 80, 70, 110))
-for z in xrange(e):
+for z in range(e):
     t1.GetEntry(z)
     if(abs(t1.l1eta)<1.479  and abs(t1.l2eta)<1.479):
         masseb[-1].Fill(t1.mass)
@@ -23,7 +24,7 @@ e = t2.GetEntries()
 masseb.append(ROOT.TH1F("masseb2", "", 80, 70, 110))
 massee.append(ROOT.TH1F("massee2", "", 80, 70, 110))
 
-for z in xrange(e):
+for z in range(e):
     t2.GetEntry(z)
     if(abs(t2.l1eta)<1.479  and abs(t2.l2eta)<1.479):
         masseb[-1].Fill(t2.mass)
@@ -37,7 +38,7 @@ e = t3.GetEntries()
 masseb.append(ROOT.TH1F("masseb3", "", 80, 70, 110))
 massee.append(ROOT.TH1F("massee3", "", 80, 70, 110))
 
-for z in xrange(e):
+for z in range(e):
     t3.GetEntry(z)
     if(abs(t3.l1eta)<1.479  and abs(t3.l2eta)<1.479):
         masseb[-1].Fill(t3.mass)
@@ -51,7 +52,7 @@ e = t4.GetEntries()
 masseb.append(ROOT.TH1F("masseb4", "", 80, 70, 110))
 massee.append(ROOT.TH1F("massee4", "", 80, 70, 110))
 
-for z in xrange(e):
+for z in range(e):
     t4.GetEntry(z)
     if(abs(t4.l1eta)<1.479  and abs(t4.l2eta)<1.479):
         masseb[-1].Fill(t4.mass)
@@ -61,7 +62,7 @@ for z in xrange(e):
 
 c = []
 ratio = []
-for i in xrange(2):
+for i in range(2):
     c.append(ROOT.TCanvas("c"+str(i), "c"))
     c[-1].Divide(2,2)
     c[-1].cd(1)

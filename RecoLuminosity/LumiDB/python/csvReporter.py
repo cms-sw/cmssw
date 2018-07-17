@@ -1,3 +1,4 @@
+from builtins import object
 import csv
 class csvReporter(object):
     def __init__(self,filename,dialect='excel',delimiter=',',quoting=csv.QUOTE_NONNUMERIC):
