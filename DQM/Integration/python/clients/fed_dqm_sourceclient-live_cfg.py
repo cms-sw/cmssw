@@ -66,6 +66,7 @@ process.DTDataIntegrityTask.processingMode = 'SM'
 path = 'DT/%s/' % folder_name
 process.DTDataIntegrityTask.fedIntegrityFolder = path
 process.DTDataIntegrityTask.checkUros = True
+process.DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
 # RPC sequence:
 process.load('EventFilter.RPCRawToDigi.rpcUnpacker_cfi')
 process.load('DQM.RPCMonitorClient.RPCFEDIntegrity_cfi')

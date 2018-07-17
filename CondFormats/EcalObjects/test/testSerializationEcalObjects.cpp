@@ -1,6 +1,6 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/EcalObjects/src/headers.h"
 
 int main()
 {

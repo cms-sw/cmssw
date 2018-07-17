@@ -547,7 +547,6 @@ namespace edm {
 
     bool lumiMissing = (lumi == 0 && event != 0);
 
-    std::vector<RunOrLumiIndexes>::const_iterator it;
     std::vector<RunOrLumiIndexes>::const_iterator iEnd = runOrLumiIndexes().end();
     std::vector<RunOrLumiIndexes>::const_iterator phEnd;
 
@@ -1281,10 +1280,10 @@ namespace edm {
     long long saveIndexToEvent = indexToEvent();
     long long saveNEvents = nEvents();
 
-    for(int i = 1; indexToLumi() - i > 0; ++i) {
-      if(getRunOrLumiEntryType(indexToLumi_ - i) == kRun) break;
-      if(!isSameLumi(indexToLumi(), indexToLumi() - i)) break;
-      indexToLumi_ = indexToLumi_ - i;
+    while (indexToLumi() - 1 > 0) {
+      if(getRunOrLumiEntryType(indexToLumi() - 1) == kRun) break;
+      if(!isSameLumi(indexToLumi(), indexToLumi() - 1)) break;
+      --indexToLumi_;
     }
     initializeLumi();
 

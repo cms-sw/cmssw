@@ -1,4 +1,4 @@
-#include "../interface/TrigPrimClient.h"
+#include "DQM/EcalMonitorClient/interface/TrigPrimClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetNonObject.h"

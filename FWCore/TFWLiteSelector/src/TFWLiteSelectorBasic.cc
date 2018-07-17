@@ -57,18 +57,19 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {
      public:
-      FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr), reg_() {}
+      FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr) {}
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
-      void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
+      void set(std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>> iMap) { bidToDesc_ = std::move(iMap);}
      private:
-      std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
-      std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;
+      std::unique_ptr<WrapperBase> getTheProduct(BranchID const& k) const;
+      std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
       virtual std::unique_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::unique_ptr<EventEntryDescription>();
       }
@@ -84,21 +85,21 @@ namespace edm {
 
       Long64_t entry_;
       TTree* eventTree_;
-      std::shared_ptr<ProductRegistry const>(reg_);
+      std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>> bidToDesc_;
     };
 
     std::unique_ptr<WrapperBase>
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) {
+    FWLiteDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* /*ep*/) {
       return getTheProduct(k);
     }
 
     std::unique_ptr<WrapperBase>
-    FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
-      ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
-      if(itFind == reg_->productList().end()) {
+    FWLiteDelayedReader::getTheProduct(BranchID const& k) const {
+      auto itFind= bidToDesc_->find(k.id());
+      if(itFind == bidToDesc_->end()) {
         throw Exception(errors::ProductNotFound) << "could not find entry for product " << k;
       }
-      BranchDescription const& bDesc = itFind->second;
+      BranchDescription const& bDesc = *(itFind->second);
 
       TBranch* branch= eventTree_->GetBranch(bDesc.branchName().c_str());
       if(nullptr == branch) {
@@ -140,6 +141,7 @@ namespace edm {
       TFWLiteSelectorMembers() :
       tree_(nullptr),
       reg_(new ProductRegistry()),
+      bidToDesc_(std::make_shared<std::unordered_map<unsigned int, BranchDescription const*>>()),
       phreg_(new ProcessHistoryRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
       // Note that thinned collections are not supported yet, the next
@@ -154,7 +156,7 @@ namespace edm {
       prov_(),
       pointerToBranchBuffer_(),
       provRetriever_(new edm::ProductProvenanceRetriever(0)) {
-        reader_->set(reg());
+        reader_->set(get_underlying_safe(bidToDesc_));
       }
       void setTree(TTree* iTree) {
         tree_ = iTree;
@@ -172,7 +174,7 @@ namespace edm {
 
       edm::propagate_const<TTree*> tree_;
       edm::propagate_const<std::shared_ptr<ProductRegistry>> reg_;
-      edm::propagate_const<std::shared_ptr<ProcessHistoryRegistry>> phreg_;
+      edm::propagate_const<std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>>> bidToDesc_;      edm::propagate_const<std::shared_ptr<ProcessHistoryRegistry>> phreg_;
       edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
       edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
       ProcessHistory processNames_;
@@ -498,6 +500,10 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
   m_->reg_->setFrozen();
+  m_->bidToDesc_->clear();
+  for(auto const&p: m_->reg_->productList()) {
+    m_->bidToDesc_->emplace(p.second.branchID().id(),&p.second);
+  }
   m_->ep_ = std::make_shared<edm::EventPrincipal>(m_->reg(), m_->branchIDListHelper(), m_->thinnedAssociationsHelper(), m_->pc_, nullptr);
   everythingOK_ = true;
 }

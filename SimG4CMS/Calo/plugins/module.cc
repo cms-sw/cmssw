@@ -2,6 +2,7 @@
 #include "SimG4CMS/Calo/interface/HCalSD.h"
 #include "SimG4CMS/Calo/interface/HGCSD.h"
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
+#include "SimG4CMS/Calo/interface/HGCScintSD.h"
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 #include "SimG4CMS/Calo/interface/HcalTestAnalysis.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
@@ -17,6 +18,8 @@ typedef HGCSD HGCSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(HGCSensitiveDetector);
 typedef HGCalSD HGCalSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(HGCalSensitiveDetector);
+typedef HGCScintSD HGCScintillatorSensitiveDetector;
+DEFINE_SENSITIVEDETECTOR(HGCScintillatorSensitiveDetector);
 
 DEFINE_SENSITIVEDETECTOR(CaloTrkProcessing);
 

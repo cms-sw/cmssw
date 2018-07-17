@@ -20,7 +20,7 @@ slimmedJets = modifiedJets.clone()
 slimmedJetsAK8 = modifiedJets.clone( src = cms.InputTag("slimmedJetsAK8",processName=cms.InputTag.skipCurrentProcess()) )
 slimmedJetsPuppi = modifiedJets.clone( src = cms.InputTag("slimmedJetsPuppi",processName=cms.InputTag.skipCurrentProcess()) )
 
-modifyPrimaryPhysicsObjects = cms.Sequence( electronMVAValueMapProducer *
+modifyPrimaryPhysicsObjects = cms.Sequence( electronMVAVariableHelper * electronMVAValueMapProducer *
                                             photonIDValueMapProducer * photonMVAValueMapProducer * 
                                             slimmedElectrons *
                                             slimmedPhotons *

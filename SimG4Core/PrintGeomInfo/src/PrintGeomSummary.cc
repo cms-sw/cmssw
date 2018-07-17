@@ -67,17 +67,21 @@ void PrintGeomSummary::update(const BeginOfJob * job) {
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   const DDCompactView* cpv = &(*pDD);
 
-  const DDCompactView::graph_type & gra = cpv->graph();
-  DDCompactView::graph_type::index_type i=0;
+  const auto & gra = cpv->graph();
+
+  using Graph = DDCompactView::Graph;
+  using adjl_iterator = Graph::const_adj_iterator;
+
+  Graph::index_type i=0;
   solidMap_.clear();
-  for (DDCompactView::graph_type::const_adj_iterator git=gra.begin();
+  for( adjl_iterator git=gra.begin();
        git != gra.end(); ++git) {
     const DDLogicalPart & ddLP = gra.nodeData(git);
     addSolid(ddLP);
     ++i;
     if (!git->empty()) {
       // ask for children of ddLP  
-      for (DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
+      for( Graph::edge_list::const_iterator cit  = git->begin();
 	   cit != git->end(); ++cit) {
 	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
 	addSolid(ddcurLP);

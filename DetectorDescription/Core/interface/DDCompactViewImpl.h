@@ -15,8 +15,8 @@ class DDCompactViewImpl
 {
 public:
   
-  using GraphNav = math::Graph<DDLogicalPart, DDPosData* >;
-  using WalkerType = math::GraphWalker<DDLogicalPart, DDPosData* >;
+  using Graph = math::Graph<DDLogicalPart, DDPosData* >;
+  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData* >;
 
   explicit DDCompactViewImpl();
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);
@@ -29,10 +29,9 @@ public:
   
   DDLogicalPart & current() const;
   
-  const GraphNav & graph() const { return graph_; }
+  const Graph& graph() const { return graph_; }
+  GraphWalker walker() const;
 
-  math::GraphWalker<DDLogicalPart,DDPosData*> walker() const; 
-  
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
 		 int copyno,
@@ -45,7 +44,7 @@ public:
 protected:    
   // internal use ! (see comments in DDCompactView(bool)!)
   DDLogicalPart root_;
-  GraphNav graph_;
+  Graph graph_;
 };
 
 #endif

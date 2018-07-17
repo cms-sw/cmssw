@@ -1,4 +1,4 @@
-#include "../interface/EnergyTask.h"
+#include "DQM/EcalMonitorTasks/interface/EnergyTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

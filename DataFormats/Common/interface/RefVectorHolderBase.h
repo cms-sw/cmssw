@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
+#include <stddef.h>
 #include <memory>
 
 namespace edm {

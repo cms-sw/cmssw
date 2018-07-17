@@ -1,7 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DataFormats/Math/interface/GraphWalker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDCompactViewImpl::DDCompactViewImpl( const DDLogicalPart & rootnodedata )
@@ -12,13 +11,13 @@ DDCompactViewImpl::DDCompactViewImpl( const DDLogicalPart & rootnodedata )
 
 DDCompactViewImpl::~DDCompactViewImpl() 
 {
-  GraphNav::adj_list::size_type it = 0;
+  Graph::adj_list::size_type it = 0;
   if( graph_.size() == 0 ) {
     LogDebug("DDCompactViewImpl") << "In destructor, graph is empty.  Root:" << root_ << std::endl;
   } else {
     LogDebug("DDCompactViewImpl") << "In destructor, graph is NOT empty.  Root:" << root_ << " graph_.size() = " << graph_.size() << std::endl;
     for(; it < graph_.size() ; ++it ) {
-      GraphNav::edge_range erange = graph_.edges( it );
+      Graph::edge_range erange = graph_.edges( it );
       for(; erange.first != erange.second; ++(erange.first)) {
 	DDPosData * pd = graph_.edgeData( erange.first->second );
 	delete pd;
@@ -29,10 +28,10 @@ DDCompactViewImpl::~DDCompactViewImpl()
   edm::LogInfo("DDCompactViewImpl") << std::endl << "DDD transient representation has been destructed." << std::endl << std::endl;   
 }
 
-math::GraphWalker<DDLogicalPart, DDPosData*>
+DDCompactViewImpl::GraphWalker
 DDCompactViewImpl::walker() const
 {
-  return math::GraphWalker<DDLogicalPart, DDPosData*>( graph_, root_);
+  return GraphWalker( graph_, root_ );
 }
 
 void

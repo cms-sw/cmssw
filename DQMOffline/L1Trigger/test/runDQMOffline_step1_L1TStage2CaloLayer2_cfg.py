@@ -101,7 +101,13 @@ if os.environ.get('DEBUG', False):
         '*',
     )
 
+# pfMETT1 from https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/python/jetMETDQMOfflineSource_cff.py#L109,
+# is difficult to set up, let's use pfMet for testing
+process.l1tPFMetNoMuForDQM.pfMETCollection = 'pfMet'
+
 process.dqmoffline_step = cms.Path(
+    process.goodPFJetsForL1T *
+    process.l1tPFMetNoMuForDQM *
     process.l1tEtSumJetOfflineDQMEmu +
     process.l1tEtSumJetOfflineDQM +
     process.l1tEGammaOfflineDQM +

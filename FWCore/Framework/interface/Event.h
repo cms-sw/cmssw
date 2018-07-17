@@ -39,6 +39,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <memory>
 #include <string>
@@ -147,6 +148,16 @@ namespace edm {
     template<typename PROD>
     OrphanHandle<PROD>
     put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
+
+    ///puts a new product
+    template<typename PROD, typename... Args>
+    OrphanHandle<PROD>
+    emplace(EDPutTokenT<PROD> token, Args&&... args);
+
+    template<typename PROD, typename... Args>
+    OrphanHandle<PROD>
+    emplace(EDPutToken token, Args&&... args);
+
 
     ///Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
@@ -285,6 +296,10 @@ namespace edm {
     OrphanHandle<PROD>
     putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
 
+    template<typename PROD, typename... Args>
+    OrphanHandle<PROD>
+    emplaceImpl(EDPutToken::value_type token, Args&&... args);
+
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -393,7 +408,7 @@ namespace edm {
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(unlikely(product.get() == nullptr)) {                // null pointer is illegal
+    if(UNLIKELY(product.get() == nullptr)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, productInstanceName);
     }
@@ -406,11 +421,11 @@ namespace edm {
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
-    if(unlikely(token.isUninitialized())) {
+    if(UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
     return putImpl(token.index(),std::move(product));
@@ -419,20 +434,65 @@ namespace edm {
   template<typename PROD>
   OrphanHandle<PROD>
   Event::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
-    if(unlikely(token.isUninitialized())) {
+    if(UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    if(unlikely(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
       principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
     }
 
     return putImpl(token.index(),std::move(product));
   }
 
+  template<typename PROD, typename... Args>
+  OrphanHandle<PROD>
+  Event::emplace(EDPutTokenT<PROD> token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    return emplaceImpl<PROD>(token.index(),std::forward<Args>(args)...);
+  }
+
+  template<typename PROD, typename... Args>
+  OrphanHandle<PROD>
+  Event::emplace(EDPutToken token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
+    }
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    
+    return emplaceImpl(token.index(),std::forward<Args>(args)...);
+  }
+
+  template<typename PROD, typename... Args>
+  OrphanHandle<PROD>
+  Event::emplaceImpl(EDPutToken::value_type index, Args&&... args) {
+    
+    assert(index < putProducts().size());
+    
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::forward<Args>(args)...));
+
+    // The following will call post_insert if T has such a function,
+    // and do nothing if T has no such function.
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+    DoPostInsert<PROD>,
+    DoNotPostInsert<PROD>> maybe_inserter;
+    maybe_inserter(&(wp->bareProduct()));
+
+    PROD const* prod = wp->product();
+    
+    putProducts()[index]=std::move(wp);
+    auto const& prodID = provRecorder_.getProductID(index);
+    return(OrphanHandle<PROD>(prod, prodID));
+  }
+
+  
   template<typename PROD>
   RefProd<PROD>
   Event::getRefBeforePut(std::string const& productInstanceName) {
@@ -449,7 +509,7 @@ namespace edm {
   RefProd<PROD>
   Event::getRefBeforePut(EDPutTokenT<PROD> token)
   {
-    if(unlikely(token.isUninitialized())) {
+    if(UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
    return RefProd<PROD>(provRecorder_.getProductID(token.index()),
@@ -460,10 +520,10 @@ namespace edm {
   RefProd<PROD>
   Event::getRefBeforePut(EDPutToken token)
   {
-    if(unlikely(token.isUninitialized())) {
+    if(UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    if(unlikely(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
       principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
     }
     return RefProd<PROD>(provRecorder_.getProductID(token.index()),

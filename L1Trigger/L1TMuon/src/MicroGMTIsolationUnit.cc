@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTIsolationUnit.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTIsolationUnit.h"
 
 #include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
 #include "DataFormats/L1TMuon/interface/MuonCaloSum.h"

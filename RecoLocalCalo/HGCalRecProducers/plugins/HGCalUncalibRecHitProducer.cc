@@ -10,13 +10,14 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& ps) :
-  eeDigiCollection_( consumes<HGCEEDigiCollection>( ps.getParameter<edm::InputTag>("HGCEEdigiCollection") ) ),
-  hefDigiCollection_( consumes<HGCHEDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEFdigiCollection") ) ),
-  hebDigiCollection_( consumes<HGCBHDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") ) ),
+  eeDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCEEdigiCollection") ) ),
+  hefDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEFdigiCollection") ) ),
+  hebDigiCollection_( consumes<HGCalDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") ) ),
   eeHitCollection_( ps.getParameter<std::string>("HGCEEhitCollection") ),
   hefHitCollection_( ps.getParameter<std::string>("HGCHEFhitCollection") ),
-  hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") ) {
-  
+  hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") )
+{
+
   produces< HGCeeUncalibratedRecHitCollection >(eeHitCollection_);
   produces< HGChefUncalibratedRecHitCollection >(hefHitCollection_);
   produces< HGChebUncalibratedRecHitCollection >(hebHitCollection_);
@@ -44,27 +45,27 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto hebUncalibRechits = std::make_unique<HGChebUncalibratedRecHitCollection>();
   
   // loop over HGCEE digis
-  edm::Handle< HGCEEDigiCollection > pHGCEEDigis;
+  edm::Handle< HGCalDigiCollection > pHGCEEDigis;
   evt.getByToken( eeDigiCollection_, pHGCEEDigis);
-  const HGCEEDigiCollection* eeDigis = 
+  const HGCalDigiCollection* eeDigis = 
     pHGCEEDigis.product(); // get a ptr to the product
   eeUncalibRechits->reserve(eeDigis->size());
   for(auto itdg = eeDigis->begin(); itdg != eeDigis->end(); ++itdg) {
     worker_->run1(evt, itdg, *eeUncalibRechits);
   }
   
-  edm::Handle< HGCHEDigiCollection > pHGCHEFDigis;
+  edm::Handle< HGCalDigiCollection > pHGCHEFDigis;
   evt.getByToken( hefDigiCollection_, pHGCHEFDigis);
-  const HGCHEDigiCollection* hefDigis = 
+  const HGCalDigiCollection* hefDigis = 
     pHGCHEFDigis.product(); // get a ptr to the product
   hefUncalibRechits->reserve(hefDigis->size());
   for(auto itdg = hefDigis->begin(); itdg != hefDigis->end(); ++itdg) {
     worker_->run2(evt, itdg, *hefUncalibRechits);
   }
-  
-  edm::Handle< HGCBHDigiCollection > pHGCHEBDigis;
+
+  edm::Handle< HGCalDigiCollection > pHGCHEBDigis;
   evt.getByToken( hebDigiCollection_, pHGCHEBDigis);
-  const HGCBHDigiCollection* hebDigis = 
+  const HGCalDigiCollection* hebDigis = 
     pHGCHEBDigis.product(); // get a ptr to the product
   hebUncalibRechits->reserve(hebDigis->size());
   for(auto itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {

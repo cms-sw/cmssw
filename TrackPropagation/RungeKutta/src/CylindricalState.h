@@ -1,6 +1,8 @@
 #ifndef CylindricalState_H
 #define CylindricalState_H
 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKSmallVector.h"
 

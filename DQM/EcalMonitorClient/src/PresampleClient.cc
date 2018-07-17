@@ -1,4 +1,4 @@
-#include "../interface/PresampleClient.h"
+#include "DQM/EcalMonitorClient/interface/PresampleClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

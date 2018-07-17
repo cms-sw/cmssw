@@ -96,7 +96,7 @@ void
 WaitingTaskList::add(WaitingTask* iTask) {
   iTask->increment_ref_count();
   if(!m_waiting) {
-    if(unlikely(bool(m_exceptionPtr))) {
+    if(UNLIKELY(bool(m_exceptionPtr))) {
       iTask->dependentTaskFailed(m_exceptionPtr);
     }
     if(0==iTask->decrement_ref_count()) {
@@ -129,6 +129,21 @@ WaitingTaskList::add(WaitingTask* iTask) {
 }
 
 void
+WaitingTaskList::presetTaskAsFailed(std::exception_ptr iExcept) {
+  if(iExcept and m_waiting) {
+    WaitNode* node = m_head.load();
+    while(node) {
+      WaitNode* next;
+      while(node == (next=node->nextNode())) {
+        hardware_pause();
+      }
+      node->m_task->dependentTaskFailed(iExcept);
+      node = next;
+    }
+  }
+}
+
+void
 WaitingTaskList::announce()
 {
   //Need a temporary storage since one of these tasks could
@@ -145,7 +160,7 @@ WaitingTaskList::announce()
       hardware_pause();
     }
     auto t = n->m_task;
-    if(unlikely(bool(m_exceptionPtr))) {
+    if(UNLIKELY(bool(m_exceptionPtr))) {
       t->dependentTaskFailed(m_exceptionPtr);
     }
     if(0==t->decrement_ref_count()){

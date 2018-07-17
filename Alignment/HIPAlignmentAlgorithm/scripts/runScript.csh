@@ -21,6 +21,10 @@ eval `scramv1 runtime -csh`
 setenv STAGE_SVCCLASS cmscaf
 rehash
 
+if (<PROXYREDIRECT> == 1) then
+  setenv X509_USER_PROXY <ODIR>/../.user_proxy
+endif
+
 cd $curdir
 # Execute
 time cmsRun <ODIR>/<JOBTYPE>

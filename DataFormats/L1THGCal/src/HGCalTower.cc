@@ -1,100 +1,57 @@
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-using namespace l1t;
+using l1t::L1Candidate;
+using l1t::HGCalTower;
 
-HGCalTower::HGCalTower( const LorentzVector& p4,
-                       double etEm,
+HGCalTower::HGCalTower(double etEm,
                        double etHad,
-                       int pt,
-                       int eta,
-                       int phi,
+                       double eta,
+                       double phi,
+                       unsigned short id,
+                       int hwpt,
+                       int hweta,
+                       int hwphi,
                        int qual,
                        int hwEtEm,
                        int hwEtHad,
-                       int hwEtRatio)
-  : L1Candidate(p4, pt, eta, phi, qual),
-    etEm_(etEm),
-    etHad_(etHad),
-    hwEtEm_(hwEtEm),
-    hwEtHad_(hwEtHad),
-    hwEtRatio_(hwEtRatio)
-{
-  
+                       int hwEtRatio) : L1Candidate(PolarLorentzVector(etEm+etHad, eta, phi, 0.), hwpt, hweta, hwphi, qual),
+                                        etEm_(etEm),
+                                        etHad_(etHad),
+                                        id_(id),
+                                        hwEtEm_(hwEtEm),
+                                        hwEtHad_(hwEtHad),
+                                        hwEtRatio_(hwEtRatio) {}
+
+
+HGCalTower::~HGCalTower() {}
+
+
+void HGCalTower::addEtEm(double et) {
+  etEm_+=et;
+  addEt(et);
 }
 
-HGCalTower::~HGCalTower() 
-{
-
+void HGCalTower::addEtHad(double et) {
+  etHad_+=et;
+  addEt(et);
 }
 
-void HGCalTower::setEtEm(double et)
-{
-  etEm_ = et;
-}
-
-void HGCalTower::setEtHad(double et)
-{
-  etHad_ = et;
-}
-
-void HGCalTower::setHwEtEm(int et)
-{
-  hwEtEm_ = et;
-}
-
-void HGCalTower::setHwEtHad(int et)
-{
-  hwEtHad_ = et;
-}
-
-void HGCalTower::setHwEtRatio(int ratio)
-{
-  hwEtRatio_ = ratio;
-}
-
-double HGCalTower::etEm()const
-{
-  return etEm_;
-}
-
-double HGCalTower::etHad()const
-{
-  return etHad_;
-}
-
-int HGCalTower::hwEtEm()const
-{
-  return hwEtEm_;
-}
-
-int HGCalTower::hwEtHad()const
-{
-  return hwEtHad_;
-}
-
-int HGCalTower::hwEtRatio()const
-{
-  return hwEtRatio_;
+void HGCalTower::addEt(double et) {
+  this->setP4(PolarLorentzVector(this->pt()+et, this->eta(), this->phi(), 0.));
 }
 
 
-
-
-HGCalTower& HGCalTower::operator+=(const HGCalTower& tower){
-
-  if(this->hwEta()!= tower.hwEta() || this->hwPhi()!= tower.hwPhi()){
+const HGCalTower& HGCalTower::operator+=(const HGCalTower& tower){
+  // NOTE: assume same eta and phi -> need an explicit check on the ID
+  if(id().rawId() != tower.id().rawId()) {
     throw edm::Exception(edm::errors::StdException, "StdException")
-      << "HGCalTower: Trying to add HGCalTowers with different coordinates"<<endl;
+      << "HGCalTower: adding to this tower with ID: " << id().rawId()
+      << " one with different ID: " << tower.id().rawId()  << std::endl;
   }
-
-  this->setP4(this->p4() + tower.p4());
-  this->setEtEm(this->etEm() + tower.etEm());
-  this->setEtHad(this->etHad() + tower.etHad());
-
-  this->setHwPt(this->hwPt() + tower.hwPt());
-  this->setHwEtEm(this->hwEtEm() + tower.hwEtEm());
-  this->setHwEtHad(this->hwEtHad() + tower.hwEtHad());
+  addEt(tower.pt());
+  etEm_+=tower.etEm();
+  etHad_+=tower.etHad();
 
   return *this;
 

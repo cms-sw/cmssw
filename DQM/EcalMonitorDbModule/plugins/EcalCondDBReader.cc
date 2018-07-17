@@ -1,4 +1,4 @@
-#include "../interface/EcalCondDBReader.h"
+#include "DQM/EcalMonitorDbModule/interface/EcalCondDBReader.h"
 
 #include "DQM/EcalCommon/interface/MESetUtils.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -64,7 +64,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
     db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   }
   catch(std::runtime_error& re){
-    if(hostName != ""){
+    if(!hostName.empty()){
       try{
         db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       }

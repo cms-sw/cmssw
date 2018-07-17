@@ -36,7 +36,7 @@ def getNumRunsWithinTime(path,timeDelta):
           STAY_DIR.setdefault(run,fMtime)
         else:
           break
-  numRuns=len(STAY_DIR.keys())
+  numRuns=len(STAY_DIR)
   return numRuns
   
 def debugMsg(level,message):

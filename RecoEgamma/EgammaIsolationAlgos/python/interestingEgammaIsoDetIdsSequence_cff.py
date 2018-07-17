@@ -68,8 +68,15 @@ interestingGamIsoDetIdEE.etCut = 0.110
 interestingGamIsoDetIdEE.outerRadius = 0.6
 interestingGamIsoDetIdEE.innerRadius = 0.0
 
-import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoHCALDetIdModule_cff
-interestingGedEgammaIsoHCALDetId = RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoHCALDetIdModule_cff.interestingEgammaIsoHCALDetId.clone()
+import RecoEgamma.EgammaIsolationAlgos.interestingGedEgammaIsoHCALDetId_cfi
+interestingGedEgammaIsoHCALDetId = RecoEgamma.EgammaIsolationAlgos.interestingGedEgammaIsoHCALDetId_cfi.interestingGedEgammaIsoHCALDetId.clone()
+interestingEgammaIsoHCALSel = cms.PSet(
+  maxDIEta=cms.int32(5),
+  maxDIPhi=cms.int32(5),
+  minEnergyHB = cms.double(0.8),
+  minEnergyHEDepth1 = cms.double(0.1),
+  minEnergyHEDefault = cms.double(0.2),
+)
 interestingGedEgammaIsoHCALDetId.recHitsLabel=cms.InputTag("hbhereco")
 interestingGedEgammaIsoHCALDetId.elesLabel=cms.InputTag("gedGsfElectrons")
 interestingGedEgammaIsoHCALDetId.phosLabel=cms.InputTag("gedPhotons")
@@ -77,9 +84,7 @@ interestingGedEgammaIsoHCALDetId.superClustersLabel=cms.InputTag("particleFlowEG
 interestingGedEgammaIsoHCALDetId.minSCEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minEleEt=cms.double(20)
 interestingGedEgammaIsoHCALDetId.minPhoEt=cms.double(20)
-interestingGedEgammaIsoHCALDetId.maxDIEta=cms.int32(5)
-interestingGedEgammaIsoHCALDetId.maxDIPhi=cms.int32(5)
-interestingGedEgammaIsoHCALDetId.minEnergyHCAL = cms.double(0.8)
+interestingGedEgammaIsoHCALDetId.hitSelection=interestingEgammaIsoHCALSel
 
 ## OOT Photons
 interestingOotEgammaIsoHCALDetId = interestingGedEgammaIsoHCALDetId.clone()
@@ -122,3 +127,12 @@ interestingEgammaIsoDetIdsTask = cms.Task(
     interestingOotEgammaIsoESDetId
 )
 interestingEgammaIsoDetIds = cms.Sequence(interestingEgammaIsoDetIdsTask)
+
+_pp_on_AA_interestingEgammaIsoDetIdsTask = interestingEgammaIsoDetIdsTask.copy()
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotGamIsoDetIdEB)
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotGamIsoDetIdEE)
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotEgammaIsoHCALDetId)
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotEgammaIsoESDetId)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(interestingEgammaIsoDetIdsTask, _pp_on_AA_interestingEgammaIsoDetIdsTask)

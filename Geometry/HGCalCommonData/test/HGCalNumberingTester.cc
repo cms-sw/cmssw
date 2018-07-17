@@ -111,6 +111,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
   std::string        flg;
   int   subsec(0);
   int   loff = hgdc.firstLayer();
+  double scl = (reco_ ? 10.0 : 1.0);
   for (unsigned int k=0; k<positionX_.size(); ++k) {
     float localx(positionX_[k]), localy(positionY_[k]);
     for (unsigned int i=0; i<hgdc.layers(reco_); ++i) {
@@ -145,8 +146,9 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 		  << ", " << i+loff << "), assignCell o/p (" << kxy[0] << ":" 
 		  << kxy[1] << ":" << kxy[2] << ") locateCell o/p (" 
 		  << xy.first << ", " << xy.second << ")," << " final (" 
-		  << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ")" << flg 
-		  << std::endl;
+		  << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ") Dist " 
+		  << hgdc.distFromEdgeTrap(scl*localx,scl*localy,scl*zpos)
+		  << " " << flg << std::endl;
 	kxy = hgdc.assignCellTrap(-localx,-localy,zpos,i+loff,reco_);
 	xy  = hgdc.locateCellTrap(i+loff,kxy[0],kxy[1],reco_);
 	lxy = hgdc.assignCellTrap(xy.first,xy.second,zpos,i+loff,reco_);
@@ -155,23 +157,26 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 		  << ", " << i+loff << "), assignCell o/p (" << kxy[0] << ":" 
 		  << kxy[1] << ":" << kxy[2] << ") locateCell o/p (" 
 		  << xy.first << ", " << xy.second << ")," << " final (" 
-		  << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ")" << flg 
-		  << std::endl;
+		  << lxy[0] << ":" << lxy[1] << ":" << lxy[2] << ") Dist " 
+		  << hgdc.distFromEdgeTrap(scl*localx,scl*localy,scl*zpos)
+		  << " " << flg << std::endl;
       } else {
 	std::array<int,5> kxy, lxy;
 	kxy = hgdc.assignCellHex(localx,localy,i+loff,reco_);
-	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_);
+	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_,true);
 	lxy = hgdc.assignCellHex(xy.first,xy.second,i+loff,reco_);
 	flg = (kxy == lxy) ? " " : " ***** Error *****";
+	double zpos = hgdc.waferZ(i+loff,reco_);
 	std::cout << "Input: (" << localx << "," << localy << ", " << i+loff 
 		  << "), assignCell o/p (" << kxy[0] << ":" << kxy[1] 
 		  << ":" << kxy[2] << ":" << kxy[3] << ":" << kxy[4]
 		  << ") locateCell o/p (" << xy.first << ", " << xy.second 
 		  << ")," << " final ("  << lxy[0] << ":" << lxy[1] << ":" 
-		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ")" << flg 
-		  << std::endl;
+		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ") Dist "
+		  << hgdc.distFromEdgeHex(scl*localx,scl*localy,scl*zpos)
+		  << " " << flg << std::endl;
 	kxy = hgdc.assignCellHex(-localx,-localy,i+loff,reco_);
-	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_);
+	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_,true);
 	lxy = hgdc.assignCellHex(xy.first,xy.second,i+loff,reco_);
 	flg = (kxy == lxy) ? " " : " ***** Error *****";
 	std::cout << "Input: (" <<-localx << "," <<-localy << ", " << i+loff 
@@ -179,8 +184,9 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 		  << ":" << kxy[2] << ":" << kxy[3] << ":" << kxy[4]
 		  << ") locateCell o/p (" << xy.first << ", " << xy.second 
 		  << ")," << " final ("  << lxy[0] << ":" << lxy[1] << ":" 
-		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ")" << flg 
-		  << std::endl;
+		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ") Dist "
+		  << hgdc.distFromEdgeHex(scl*localx,scl*localy,scl*zpos)
+		  << " " << flg << std::endl;
       }
       if (k == 0 && i==0 && detType_ == 1) {
 	std::vector<int> ncells = hgdc.numberCells(i+1,reco_);

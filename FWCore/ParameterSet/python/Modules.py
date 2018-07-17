@@ -4,6 +4,7 @@ from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
 from SequenceTypes import _SequenceLeaf
 from Types import vstring
 
+import six
 from ExceptionHandling import *
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
@@ -90,7 +91,7 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if targetLabel is None:
             self._targetLabel = str('')
         if kargs:
-            for k,v in kargs.iteritems():
+            for k,v in six.iteritems(kargs):
                 if not isinstance(v,vstring):
                     raise RuntimeError('ESPrefer only allows vstring attributes. "'+k+'" is a '+str(type(v)))
     def _placeImpl(self,name,proc):

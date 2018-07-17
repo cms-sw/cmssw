@@ -2,6 +2,7 @@
 #define TrackingTools_TransientTrackingRecHit_SeedingLayerSetsLooper
 
 #include <vector>
+#include <cstddef>
 
 /**
  * Class to loop over arbitrary containers according to seeding layer sets indices

@@ -8,27 +8,27 @@ namespace l1t {
 
     namespace layer2 {
 
-      extern signed int fedId;
+      extern const signed int fedId;
 
       namespace mp {
 
-	extern unsigned int offsetBoardId;
+	extern const unsigned int offsetBoardId;
 
-	extern unsigned int nInputFramePerBX;
-	extern unsigned int nOutputFramePerBX;
+	extern const unsigned int nInputFramePerBX;
+	extern const unsigned int nOutputFramePerBX;
 
       }
 
       namespace demux {
       
-	extern unsigned int nOutputFramePerBX;
+	extern const unsigned int nOutputFramePerBX;
 	
-	extern unsigned int nEGPerLink;
-	extern unsigned int nTauPerLink;
-	extern unsigned int nJetPerLink;
-	extern unsigned int nEtSumPerLink;
+	extern const unsigned int nEGPerLink;
+	extern const unsigned int nTauPerLink;
+	extern const unsigned int nJetPerLink;
+	extern const unsigned int nEtSumPerLink;
 
-	extern unsigned int amcSlotNum;
+	extern const unsigned int amcSlotNum;
       
       }
 

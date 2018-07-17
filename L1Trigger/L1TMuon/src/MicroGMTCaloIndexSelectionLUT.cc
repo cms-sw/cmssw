@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTCaloIndexSelectionLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTCaloIndexSelectionLUT.h"
 
 l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type) : MicroGMTLUT()
 {

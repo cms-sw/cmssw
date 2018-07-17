@@ -8,6 +8,8 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
+#include "FWCore/Utilities/interface/Likely.h"
+
 
 #include<bitset>
 
@@ -192,7 +194,7 @@ bool HitPattern::appendHit(const TrackingRecHit &hit, const TrackerTopology& tto
 bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
     //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
+    if UNLIKELY((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
@@ -204,7 +206,7 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const 
 bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
 {
     //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
+    if UNLIKELY((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
@@ -217,7 +219,7 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         // 0 != beginT || 0 != endT => we already have hits of T type
         // so we already have hits of T in the vector and we don't want to
         // mess them with T' hits.
-        if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
+        if UNLIKELY(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
             cms::Exception("HitPattern")
                     << "TRACK_HITS"
                     << " were stored on this object before hits of some other category were inserted "
@@ -231,7 +233,7 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         break;
     case TrackingRecHit::inactive_inner:
     case TrackingRecHit::missing_inner:
-        if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
+        if UNLIKELY(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
             cms::Exception("HitPattern")
                     << "MISSING_INNER_HITS"
                     << " were stored on this object before hits of some other category were inserted "
@@ -245,7 +247,7 @@ bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
         break;
     case TrackingRecHit::inactive_outer:
     case TrackingRecHit::missing_outer:
-        if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
+        if UNLIKELY(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
             cms::Exception("HitPattern")
                     << "MISSING_OUTER_HITS"
                     << " were stored on this object before hits of some other category were inserted "
@@ -268,11 +270,11 @@ bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t ster
 
 bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
     //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
+    if UNLIKELY((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
-    if unlikely(id.det() != DetId::Muon) {
+    if UNLIKELY(id.det() != DetId::Muon) {
         throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
     }
 
@@ -283,7 +285,7 @@ bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
 {
-    if unlikely((position < 0 || position >= hitCount)) {
+    if UNLIKELY((position < 0 || position >= hitCount)) {
         return HitPattern::EMPTY_PATTERN;
     }
     /*
@@ -502,7 +504,7 @@ int HitPattern::pixelLayersWithMeasurement() const {
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if unlikely(!trackerHitFilter(pattern)) continue;
+     if UNLIKELY(!trackerHitFilter(pattern)) continue;
      if (pattern>minStripWord) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
@@ -521,7 +523,7 @@ int HitPattern::trackerLayersWithMeasurement() const {
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if unlikely(!trackerHitFilter(pattern)) continue;
+     if UNLIKELY(!trackerHitFilter(pattern)) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
      pattern = (pattern-minTrackerWord) >> LayerOffset;
@@ -538,7 +540,7 @@ int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const {
    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
    for (int i = range.first; i < range.second; ++i) {
      auto pattern = getHitPatternByAbsoluteIndex(i);
-     if unlikely(!trackerHitFilter(pattern)) continue;
+     if UNLIKELY(!trackerHitFilter(pattern)) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      pattern = (pattern-minTrackerWord) >> LayerOffset;
      // assert(pattern<128);
@@ -1015,7 +1017,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
     // empty index.
     // unlikely, because it will happen only when inserting
     // the first hit of this type
-    if unlikely((0 == beginTrackHits && 0 == endTrackHits)) {
+    if UNLIKELY((0 == beginTrackHits && 0 == endTrackHits)) {
         beginTrackHits = hitCount;
         // before the first hit of this type is inserted, there are no hits
         endTrackHits = beginTrackHits;
@@ -1029,7 +1031,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
 
 bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
 {
-    if unlikely((0 == beginInner && 0 == endInner)) {
+    if UNLIKELY((0 == beginInner && 0 == endInner)) {
         beginInner = hitCount;
         endInner = beginInner;
     }
@@ -1042,7 +1044,7 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
 
 bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
 {
-    if unlikely((0 == beginOuter && 0 == endOuter)) {
+    if UNLIKELY((0 == beginOuter && 0 == endOuter)) {
         beginOuter = hitCount;
         endOuter = beginOuter;
     }

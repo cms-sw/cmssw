@@ -686,7 +686,7 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
 {
     // 1. Find matching path. Inside matchin path find matching filter
     std::string filterFullName = findPathAndFilter(hltConfig)[1];
-    if (filterFullName == "") {
+    if (filterFullName.empty()) {
         return;
     }
 

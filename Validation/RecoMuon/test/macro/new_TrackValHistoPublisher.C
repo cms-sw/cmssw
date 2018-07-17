@@ -39,7 +39,7 @@ void plotOptReset(bool logx[6], bool logy[6], bool doKolmo[6], Double_t norm[6],
   for(int i=0; i<6; ++i) {
     logx[i] = false;
     logy[i] = false;
-    doKolmo[i] = false;
+    doKolmo[i] = true;
     norm[i] = -1;
     minx[i] = 0;
     maxx[i] = 0;
@@ -112,7 +112,7 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
 
   bool logy[6]     = {false,  false,  false,  false,   false,  false  };
   bool logx[6]     = {false,  false,  false,  false,   false,  false  };
-  bool doKolmo[6]  = {false,  false,  false,  false,   false,  false  };
+  bool doKolmo[6]  = {true,   true,   true,   true,    true,   true };
   Double_t norm[6] =  {-1.,-1.,-1.,-1.,-1.,-1.};  // initial default: do not normalize
   Double_t minx[6] = {0, 0, 0, 0, 0, 0};
   Double_t maxx[6] = {0, 0, 0, 0, 0, 0};
@@ -271,8 +271,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     plots[0]="effic_vs_pu"      ; titles[0]="Efficiency vs n.PU interactions";
     plots[1]="fakerate_vs_pu"   ; titles[1]="Fake rate vs n.PU interactions" ;
 
-    maxx[0]= 100.;
-    maxx[1]= 100.;
+    //maxx[0]= 100.;
+    //maxx[1]= 100.;
 
     miny[0]= -0.0001;
     miny[1]=  0.;
@@ -463,10 +463,10 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     logx[2]=false;
     logx[3]=false;
 
-    maxx[0]= 0.;
-    maxx[1]= 0.;
-    maxx[2]= 0.;
-    maxx[3]= 100.;
+    //maxx[0]= 0.;
+    //maxx[1]= 0.;
+    //maxx[2]= 0.;
+    //maxx[3]= 100.;
 
     miny[0]= -0.0001;
     miny[1]=  0.;
@@ -627,8 +627,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
   plots[0]="effic_vs_pu"    ; titles[0]="Efficiency vs n.PU interactions";
   plots[1]="fakerate_vs_pu" ; titles[1]="Fake rate vs  n.PU interactions" ;
   
-  maxx[0]= 100.;
-  maxx[1]= 100.;
+  //maxx[0]= 100.;
+  //maxx[1]= 100.;
   
   miny[0]= -0.0001;
   miny[1]=  0.;

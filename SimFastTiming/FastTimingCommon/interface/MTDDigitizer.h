@@ -139,7 +139,7 @@ namespace mtd_digitizer {
     }
     std::sort(hitRefs.begin(),hitRefs.end(),MTDHelpers::orderByDetIdThenTime);
     
-    deviceSim_.getHitsResponse(hitRefs, hits, &simHitAccumulator_);
+    deviceSim_.getHitsResponse(hitRefs, hits, &simHitAccumulator_, hre);
 
     hitRefs.clear();
 
@@ -156,7 +156,7 @@ namespace mtd_digitizer {
 					   CLHEP::HepRandomEngine* hre) {
     
     auto digiCollection = std::make_unique<DigiCollection>();
-    electronicsSim_.run(simHitAccumulator_,*digiCollection);
+    electronicsSim_.run(simHitAccumulator_,*digiCollection, hre);
     e.put(std::move(digiCollection),digiCollection_);
     
     //release memory for next event

@@ -96,6 +96,7 @@ class SiStripConfigDb {
   friend class LatencyHistosUsingDb;
   friend class FineDelayHistosUsingDb;
   friend class CalibrationHistosUsingDb;
+  friend class DaqScopeModeHistosUsingDb;
 
   // Utility and tests
   friend class SiStripPartition;

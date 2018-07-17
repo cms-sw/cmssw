@@ -120,7 +120,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
     kine = GlobalTrajectoryParameters(vertexPos, initMomentum, 1, &*bfield);
   } 
 
-  if unlikely(isBOFF && (theBOFFMomentum > 0)) {
+  if UNLIKELY(isBOFF && (theBOFFMomentum > 0)) {
       kine = GlobalTrajectoryParameters(kine.position(),
 					kine.momentum().unit() * theBOFFMomentum,
 					kine.charge(),

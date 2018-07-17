@@ -51,7 +51,7 @@ namespace sistrip {
       private:
         // Configuration
         const bool allowIncompleteEvents_;
-        
+
     }; // end of SpyUnpacker class.
   
 } // end of sistrip namespace.

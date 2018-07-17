@@ -2,6 +2,7 @@
 #define RecoBTag_Analysis_SimpleMatrix_h
 
 #include <memory>
+#include <vector>
 
 namespace btag {
 

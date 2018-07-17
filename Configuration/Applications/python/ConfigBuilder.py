@@ -6,6 +6,7 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
 
+import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
@@ -536,7 +537,7 @@ class ConfigBuilder(object):
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
 				
-			if len(outDefDict.keys()):
+			if len(outDefDict):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			if theStreamType=='DQMIO': theStreamType='DQM'
 			if theStreamType=='ALL':
@@ -1501,7 +1502,7 @@ class ConfigBuilder(object):
                   optionsForHLT['type'] = 'HIon'
                 else:
                   optionsForHLT['type'] = 'GRun'
-                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
 		if sequence == 'run,fromSource':
 			if hasattr(self.process.source,'firstRun'):
 				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -1649,6 +1650,7 @@ class ConfigBuilder(object):
 		     self._options.customise_commands = self._options.customise_commands + " \n"
 	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\"\n"
              self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+             self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
 #            self.renameHLTprocessInSequence(sequence)
 

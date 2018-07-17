@@ -29,7 +29,7 @@ namespace sistrip {
     
   public: // ----- public interface -----
     
-    DigiToRaw( FEDReadoutMode, bool use_fed_key );
+    DigiToRaw(FEDReadoutMode mode, uint8_t packetCode, bool use_fed_key);
     ~DigiToRaw();
     
     //digi to raw with default headers
@@ -79,6 +79,7 @@ namespace sistrip {
     uint16_t STRIP(const edm::DetSet<SiStripRawDigi>::const_iterator& it, const edm::DetSet<SiStripRawDigi>::const_iterator& begin) const;
     
     FEDReadoutMode mode_;
+    uint8_t packetCode_;
     bool useFedKey_;
     FEDBufferGenerator bufferGenerator_;
     

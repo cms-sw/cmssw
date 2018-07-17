@@ -93,7 +93,7 @@ def displayDirectoryStatistics(stats, args):
     as_list.sort(reverse=True, key=lambda v_k1: abs(v_k1[0]))
 
     if cutoff is not None:
-        as_list = filter(lambda v_k: abs(v_k[0]) > cutoff, as_list)
+        as_list = [v_k for v_k in as_list if abs(v_k[0]) > cutoff]
 
     if display is not None:
         as_list = as_list[:display]

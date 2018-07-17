@@ -3,7 +3,7 @@
 
 #include "RelationalAccess/IAuthenticationService.h"
 #include "CoralKernel/Service.h"
-
+#include "CoralKernel/Property.h"
 #include <map>
 #include <set>
 #include <string>

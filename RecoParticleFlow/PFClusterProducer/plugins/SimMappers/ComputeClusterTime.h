@@ -2,6 +2,8 @@
 #define RecoParticleFlow_PFClusterProducer_ComputeClusterTime_h
 
 // user include files
+#include <algorithm>
+#include <cmath>
 #include <vector>
 
 

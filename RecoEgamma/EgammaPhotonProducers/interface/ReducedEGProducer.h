@@ -36,7 +36,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
-
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
@@ -51,6 +51,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   ReducedEGProducer (const edm::ParameterSet& ps);
   ~ReducedEGProducer() override;
 
+  void beginRun (edm::Run const&, const edm::EventSetup&) final;
   void produce(edm::Event& evt, const edm::EventSetup& es) final;
 
  private:
@@ -95,6 +96,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 			const CaloTopology *caloTopology,
 			reco::CaloClusterCollection& esClusters,
 			std::map<reco::CaloClusterPtr, unsigned int>& esClusterMap);
+
+  void linkHcalHits(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,
+		    std::unordered_set<DetId>& hcalDetIds);
   
   void relinkCaloClusters(reco::SuperCluster& superCluster, 
 			  const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
@@ -145,7 +149,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
- const edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
+ edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_;
  const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackT_;
  const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
@@ -155,7 +159,8 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
  const bool                                   doPreshowerEcalHits_;
  const edm::EDGetTokenT<EcalRecHitCollection> preshowerEcalHits_;
- 
+ const edm::EDGetTokenT<HBHERecHitCollection> hbheHits_;
+
  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapT_;
  const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > gsfElectronPfCandMapT_;
  
@@ -196,6 +201,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::string outEBRecHits_;
  const std::string outEERecHits_;
  const std::string outESRecHits_;
+ const std::string outHBHERecHits_;
  const std::string outPhotonPfCandMap_;
  const std::string outGsfElectronPfCandMap_;
  const std::vector<std::string> outPhotonIds_;
@@ -213,6 +219,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
+
+ EGHcalRecHitSelector hcalHitSel_;
+
 };
 #endif
 

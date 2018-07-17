@@ -302,7 +302,7 @@ namespace sistrip {
       outputL1ACounters[fedId] = (*inputL1ACounters)[fedId];
       outputAPVAddresses[fedId] = (*inputAPVAddresses)[fedId];
       for (uint8_t chan = 0; chan < FEDCH_PER_FED; ++chan) {
-        uint32_t fedIndex = SiStripFedKey::fedIndex(fedId,chan);
+        uint32_t fedIndex = ( ( fedId & sistrip::invalid_ ) << 16 ) | ( chan & sistrip::invalid_ ) ;;
         if (inputScopeDigis) {
           edm::DetSetVector<SiStripRawDigi>::const_iterator iScopeDigis = inputScopeDigis->find(fedIndex);
           if (iScopeDigis != inputScopeDigis->end()) {

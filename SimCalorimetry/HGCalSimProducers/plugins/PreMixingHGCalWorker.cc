@@ -44,15 +44,7 @@ PreMixingHGCalWorker::PreMixingHGCalWorker(const edm::ParameterSet& ps, edm::Pro
   pileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
   digitizer_(ps, iC)
 {
-  if(digitizer_.producesEEDigis()) {
-    producer.produces<HGCEEDigiCollection>(digitizer_.digiCollection());
-  }
-  if(digitizer_.producesHEfrontDigis()) {
-    producer.produces<HGCHEDigiCollection>(digitizer_.digiCollection());
-  }
-  if(digitizer_.producesHEbackDigis()) {
-    producer.produces<HGCBHDigiCollection>(digitizer_.digiCollection());
-  }
+  producer.produces<HGCalDigiCollection>(digitizer_.digiCollection());
 }
 
 void PreMixingHGCalWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) {
@@ -80,4 +72,4 @@ void PreMixingHGCalWorker::put(edm::Event &e,const edm::EventSetup& ES, std::vec
   digitizer_.finalizeEvent(e, ES, &rng->getEngine(e.streamID()));
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingHGCalWorker, "PreMixingHGCalWorker");
+DEFINE_PREMIXING_WORKER(PreMixingHGCalWorker);

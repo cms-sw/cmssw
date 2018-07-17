@@ -28,7 +28,7 @@ PixelROC const * SiPixelFrameConverter::toRoc(int link, int roc) const {
                                static_cast<unsigned int>(link),
                                static_cast<unsigned int>(roc)}; 
   const PixelROC * rocp = (theFed) ? theTree->findItemInFed(path, theFed) : theMap->findItem(path);
-  if unlikely(!rocp){
+  if UNLIKELY(!rocp){
     stringstream stm;
     stm << "Map shows no fed="<<theFedId
         <<", link="<< link

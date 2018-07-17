@@ -272,7 +272,7 @@ void FWGeometryTableManager::loadGeometry(TGeoNode* iGeoTopNode, TObjArray* iVol
    m_levelOffset = 0;
 
    // set volume table for filters
-   boost::unordered_map<TGeoVolume*, Match>  pipi(iVolumes->GetSize());
+   Volumes_t  pipi(iVolumes->GetSize());
    m_volumes.swap(pipi);
    TIter next( iVolumes);
    TGeoVolume* v;

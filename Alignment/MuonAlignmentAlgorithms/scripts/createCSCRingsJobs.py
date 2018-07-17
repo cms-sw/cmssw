@@ -274,7 +274,7 @@ if (options.inputInBlocks):
 
 stepsize = int(math.ceil(1.*len(fileNames)/njobs))
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 bsubfile = ["#!/bin/sh", ""]
 bsubnames = []

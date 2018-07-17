@@ -93,7 +93,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name, const DDCompactView & cp
 
 HcalTB06BeamSD::~HcalTB06BeamSD() {}
 
-double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
+double HcalTB06BeamSD::getEnergyDeposit(const G4Step* aStep) {
 
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;

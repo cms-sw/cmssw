@@ -3,7 +3,7 @@
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -164,8 +164,6 @@ private:
 // last layer per subdetector
 static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
-// maximum number of wafers per Layer: 666 (V7), 794 (V8)
-static const unsigned int maxNumberOfWafersPerLayer = 796;
 
 // The two parameters used to identify clusters
 std::vector<double> vecDeltas;

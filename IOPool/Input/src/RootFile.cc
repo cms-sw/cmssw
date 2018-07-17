@@ -492,9 +492,23 @@ namespace edm {
 
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry()->productList();
+
+    {
+      std::array<size_t,NumBranchTypes> nBranches;
+      nBranches.fill(0);
+      for(auto const& product : prodList) {
+        ++nBranches[product.second.branchType()];
+      }
+
+      int i = 0;
+      for(auto t: treePointers_) {
+        t->numberOfBranchesToAdd(nBranches[i]);
+        ++i;
+      }
+    }
     for(auto const& product : prodList) {
       BranchDescription const& prod = product.second;
-      treePointers_[prod.branchType()]->addBranch(product.first, prod,
+      treePointers_[prod.branchType()]->addBranch(prod,
                                                   newBranchToOldBranch(prod.branchName()));
     }
 

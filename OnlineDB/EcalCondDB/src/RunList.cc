@@ -131,17 +131,16 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
       "db_timestamp FROM run_iov i ";
     if ((withTriggers) || (withGlobalTriggers)) {
       sql += "join cms_ecal_cond.run_dat d on d.iov_id = i.iov_id " 
-	"left join CMS_RUNINFO.RUNSESSION_PARAMETER G on " 
-	"(i.run_num = G.RUNNUMBER and G.NAME = 'CMS.TRG:NumTriggers') "; 
+	"left join CMS_WBM.RUNSUMMARY R on R.RUNNUMBER = i.RUN_NUM ";
     }
     sql +=  "WHERE tag_id = :tag_id ";
     if (min_run > 0) {
       sql += "and i.run_num> :min_run and i.run_num< :max_run ";
     }
     if (withGlobalTriggers) {
-      sql += "and G.STRING_VALUE != '0' "; 
+      sql += "and R.TRIGGERS > 0 ";
     } else if (withTriggers) {
-      sql += "and (G.STRING_VALUE != '0' or num_events > 0) ";
+      sql += "and ((R.TRIGGERS > 0) or (num_events > 0)) ";
     }
     sql += " order by run_num ";
     stmt->setSQL(sql);

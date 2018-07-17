@@ -117,4 +117,4 @@ void PreMixingEcalWorker::beginLuminosityBlock(edm::LuminosityBlock const& lumi,
   myEcalDigitizer_.beginLuminosityBlock(lumi,setup);
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingEcalWorker, "PreMixingEcalWorker");
+DEFINE_PREMIXING_WORKER(PreMixingEcalWorker);

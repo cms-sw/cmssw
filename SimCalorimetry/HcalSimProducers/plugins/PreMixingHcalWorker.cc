@@ -153,4 +153,4 @@ void PreMixingHcalWorker::put(edm::Event &e,const edm::EventSetup& ES, std::vect
   myHcalDigitizer_.finalizeEvent( e, ES);
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingHcalWorker, "PreMixingHcalWorker");
+DEFINE_PREMIXING_WORKER(PreMixingHcalWorker);

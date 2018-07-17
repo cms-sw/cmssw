@@ -19,7 +19,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "RecoMuon/MuonIdentification/plugins/MuonRefProducer.h"
 #include "DataFormats/Common/interface/Ref.h"

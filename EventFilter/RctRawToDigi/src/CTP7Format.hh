@@ -1,6 +1,6 @@
 #ifndef CTP7Format_hh
 #define CTP7Format_hh
-
+#include <cstdint>
 class CTP7Format {
  public:
   CTP7Format():

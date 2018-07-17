@@ -1115,6 +1115,7 @@ namespace edm {
   template <>
   struct value_ptr_traits<IndexIntoFile::IndexIntoFileItrImpl> {
     static IndexIntoFile::IndexIntoFileItrImpl* clone(IndexIntoFile::IndexIntoFileItrImpl const* p) {return p->clone();}
+    static void destroy(IndexIntoFile::IndexIntoFileItrImpl* p) { delete p; }
   };
 
 

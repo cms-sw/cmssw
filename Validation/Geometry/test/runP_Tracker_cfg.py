@@ -11,14 +11,18 @@ process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# The default geometry is Extended2017Plan1. If a different geoemtry
-# is needed, the appropriate flag has to be passed at command line,
-# e.g.: cmsRun runP_Tracker_cfg.py geom="XYZ"
+"""
 
-# The default component to be monitored is the Tracker. If other
-# components need to be studied, they must be supplied, one at a time,
-# at the command line, e.g.: cmsRun runP_Tracker_cfg.py
-# label="XYZ"
+ The default geometry is Extended2017Plan1. If a different geometry
+ is needed, the appropriate flag has to be passed at command line,
+ e.g.: cmsRun runP_Tracker_cfg.py geom="XYZ"
+
+ The default component to be monitored is the Tracker. If other
+ components need to be studied, they must be supplied, one at a time,
+ at the command line, e.g.: cmsRun runP_Tracker_cfg.py
+ label="XYZ"
+
+"""
 
 from Validation.Geometry.plot_utils import _LABELS2COMPS
 

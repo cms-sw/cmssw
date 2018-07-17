@@ -54,7 +54,6 @@ class L1TDTTPG : public DQMEDAnalyzer {
   // BeginRun
   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 
  private:

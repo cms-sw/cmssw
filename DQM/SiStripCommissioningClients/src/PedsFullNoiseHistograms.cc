@@ -56,6 +56,8 @@ void PedsFullNoiseHistograms::histoAnalysis( bool debug ) {
   data().clear();
 
   // Iterate through map containing histograms
+  long int ichannel = 0;
+  long int nchannel = histos().size();
   for ( iter = histos().begin(); 
 	iter != histos().end(); iter++ ) {
 
@@ -81,6 +83,12 @@ void PedsFullNoiseHistograms::histoAnalysis( bool debug ) {
       if ( his2D ) { 
 	hists.push_back(his2D); }
     }
+
+    if(ichannel % 100 == 0)
+      edm::LogVerbatim(mlDqmClient_)
+	<< "[PedsFullNoiseHistograms::" << __func__ << "]"
+	<< " Analyzing channel " << ichannel << " out of "<<nchannel;
+    ichannel++;
 
     // Perform histo analysis
     PedsFullNoiseAnalysis * anal = new PedsFullNoiseAnalysis( iter->first );

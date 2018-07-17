@@ -6,8 +6,8 @@
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/FiberG4Hit.h"
 #include "SimG4CMS/Calo/interface/HFShower.h"

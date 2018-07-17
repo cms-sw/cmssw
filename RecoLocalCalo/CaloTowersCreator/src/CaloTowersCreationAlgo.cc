@@ -23,6 +23,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
 
    theHcalThreshold(-1000.),
    theHBthreshold(-1000.),
+   theHBthreshold1(-1000.),
+   theHBthreshold2(-1000.),
    theHESthreshold(-1000.),
    theHESthreshold1(-1000.),
    theHEDthreshold(-1000.),
@@ -98,7 +100,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 					       bool useSymEETreshold,				    
 
 					       double HcalThreshold,
-					       double HBthreshold, 
+					       double HBthreshold, double HBthreshold1, double HBthreshold2,
                                                double HESthreshold, double HESthreshold1, 
                                                double HEDthreshold, double HEDthreshold1,
 					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -127,6 +129,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
+    theHBthreshold1(HBthreshold1),
+    theHBthreshold2(HBthreshold2),
     theHESthreshold(HESthreshold),
     theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
@@ -201,7 +205,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
        bool useSymEETreshold,
 
        double HcalThreshold,
-       double HBthreshold, 
+       double HBthreshold, double HBthreshold1, double HBthreshold2,
        double HESthreshold, double HESthreshold1, 
        double HEDthreshold, double HEDthreshold1,
        double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -238,6 +242,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
+    theHBthreshold1(HBthreshold1),
+    theHBthreshold2(HBthreshold2),
     theHESthreshold(HESthreshold),
     theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
@@ -1060,7 +1066,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     
     // insert in collection (remove and return if below threshold)
-    if unlikely ( (towerP4[3]==0) & (E_outer>0)  ) {
+    if UNLIKELY ( (towerP4[3]==0) & (E_outer>0)  ) {
         float val = theHOIsUsed ? 0 : 1E-9; // to keep backwards compatibility for theHOIsUsed == true
         collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(val,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint); 
     } else {
@@ -1231,7 +1237,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     int depth =  hcalDetId.depth();   
 
     if(subdet == HcalBarrel) {
-      threshold = theHBthreshold;
+      threshold = (depth == 1) ? theHBthreshold1 : (depth == 2) ? theHBthreshold2 : theHBthreshold;
       weight = theHBweight;
       if (weight <= 0.) {
         ROOT::Math::Interpolator my(theHBGrid,theHBWeights,ROOT::Math::Interpolation::kAKIMA);

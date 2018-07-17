@@ -38,7 +38,7 @@ float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N, const float uP
 
 
 float StripCPEfromTrackAngle::legacyStripErrorSquared(const unsigned N, const float uProj) const {
-  if unlikely( (float(N)-uProj) > 3.5f )
+  if UNLIKELY( (float(N)-uProj) > 3.5f )
     return float(N*N)/12.f;
   else {
     static constexpr float P1=-0.339;

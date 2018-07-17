@@ -15,7 +15,7 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23','2023D24','2023D25','2023D26','2023D27']
+neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23','2023D24','2023D25','2023D26','2023D27','2023D28','2023D29','2023D30']
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 #just define all of them
@@ -76,7 +76,7 @@ for year in upgradeKeys:
                 # skip ALCA
                 trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
                 for tv in trackingVariations:
-                    stepList[tv] = filter(lambda s : "ALCA" not in s, stepList[tv])
+                    stepList[tv] = [s for s in stepList[tv] if "ALCA" not in s]
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
                 if '2017' in key:
                     for tv in trackingVariations[1:]:

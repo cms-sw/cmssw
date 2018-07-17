@@ -89,7 +89,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
   // FIXME  clean this and optimize the rest of the code once understood and validated
   if (true) { // collector.filter()) {
     emptyMono = theMonoDet->empty(data);
-    if likely(!emptyMono) {
+    if LIKELY(!emptyMono) {
         // mono does require "projection" for precise estimate
 	TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
 	theMonoDet->simpleRecHits(mts,collector.estimator(),data,monoHits);
@@ -105,7 +105,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
   // stereo requires "projection" for precision and change in coordinates
   if (collector.filter()) {
     emptyStereo = theStereoDet->empty(data);
-    if likely(!emptyStereo) {
+    if LIKELY(!emptyStereo) {
 	TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
 	theStereoDet->simpleRecHits(pts,collector.estimator(),data,stereoHits);
 	// print("stereo", pts,ts);
@@ -123,15 +123,15 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
     stat(mh,sh,mf,sf);
   }
 
-  if unlikely( emptyMono &  emptyStereo) return;
+  if UNLIKELY( emptyMono &  emptyStereo) return;
 
-  if unlikely(emptyStereo) {
+  if UNLIKELY(emptyStereo) {
       // make mono TTRHs and project them
       projectOnGluedDet( collector, monoHits, glbDir);
       return;
     }
   
-  if unlikely( emptyMono ) {
+  if UNLIKELY( emptyMono ) {
       // make stereo TTRHs and project them
     projectOnGluedDet( collector, stereoHits, glbDir);
     return;

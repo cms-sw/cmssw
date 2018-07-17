@@ -5,6 +5,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
@@ -58,6 +60,7 @@ private:
   TH2F           *heezVsLayer, *hefzVsLayer, *hebzVsLayer;
   TH2F           *heerVsLayer, *hefrVsLayer, *hebrVsLayer;
 
+  static constexpr double mmTocm_ = 0.1;
 };
 
 HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
@@ -155,41 +158,52 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
     //loop over all hits
     for (unsigned int i=0; i<hitVtxZ.size(); i++) {
 
-      double xx = hitVtxX.at(i)/10;
-      double yy = hitVtxY.at(i)/10;
-      double zz = hitVtxZ.at(i)/10;
+      double xx = mmTocm_*hitVtxX.at(i);
+      double yy = mmTocm_*hitVtxY.at(i);
+      double zz = mmTocm_*hitVtxZ.at(i);
       double rr = sqrt(xx*xx+yy*yy);
-      if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
-	int subdet, zside, layer, wafer, celltype, cell;
-	HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, layer, wafer, celltype, cell);	
-	if (subdet==(int)(HGCEE)) {
-	  double zp = hgcGeometry_[0]->waferZ(layer,false); //cm 
-	  if (zside < 0) zp = -zp;
-	  edm::LogVerbatim("HGCalValidation") << "Info[" << i 
-					      << "] Detector Information " 
-					      << hitDet[i] << ":" << subdet 
-					      << ":" << zside << ":" << layer 
-					      << ":" << wafer << ":" 
-					      << celltype << ":" << cell 
-					      << " Z " << zp << ":" << zz 
-					      << " R " << rr;
+      if ((hitDet.at(i) == (unsigned int)(DetId::Forward)) ||
+          (hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
+          (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi)) ||
+          (hitDet.at(i) == (unsigned int)(DetId::HGCalHSc))) {
+        int    dtype(0), subdet(0), layer(0), zside(1);
+        if (hitDet.at(i) == (unsigned int)(DetId::Forward)) {
+          int wafer, celltype, cell;
+	  HGCalTestNumbering::unpackHexagonIndex(hitIdx.at(i), subdet, zside, 
+                                                 layer, wafer, celltype,cell);
+          dtype = (subdet==(int)(HGCEE)) ? 0 : 1; 
+        } else if ((hitDet.at(i) == (unsigned int)(DetId::HGCalEE)) ||
+                   (hitDet.at(i) == (unsigned int)(DetId::HGCalHSi))) {
+          HGCSiliconDetId id(hitIdx.at(i));
+          dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
+          layer = id.layer();
+          zside = id.zside();
+        } else {
+          HGCScintillatorDetId id(hitIdx.at(i));
+          dtype = 2;
+          layer = id.layer();
+          zside = id.zside();
+        }
+        double zp = hgcGeometry_[dtype]->waferZ(layer,true); //cm 
+        if (zside < 0) zp = -zp;
+	edm::LogVerbatim("HGCalValidation") << "Info[" << i 
+					    << "] Detector Information " 
+					    << hitDet[i] << ":" << subdet 
+					    << ":" << zside << ":" << layer 
+					    << " Z " << zp << ":" << zz 
+					    << " R " << rr;
+	if (dtype == 0) {
 	  heedzVsZ->Fill(zp, (zz-zp));
 	  heezVsLayer->Fill(layer,zz);
 	  heerVsLayer->Fill(layer,rr);
-	} else if (subdet==(int)(HGCHEF)) {
-	  double zp = hgcGeometry_[1]->waferZ(layer,false); //cm 
-	  if (zside < 0) zp = -zp;
-	  edm::LogVerbatim("HGCalValidation") << "Info[" << i 
-					      << "] Detector Information " 
-					      << hitDet[i] << ":" << subdet
-					      << ":" << zside << ":" << layer
-					      << ":" << wafer << ":" 
-					      << celltype << ":" << cell 
-					      << " z " << zp << ":" << zz 
-					      << " R " << rr;
+	} else if (dtype == 1) {
 	  hefdzVsZ->Fill(zp, (zz-zp));
 	  hefzVsLayer->Fill(layer,zz);
 	  hefrVsLayer->Fill(layer,rr);
+	} else {
+	  hebdzVsZ->Fill(zp, (zz-zp));
+	  hebzVsLayer->Fill(layer,zz);
+	  hebrVsLayer->Fill(layer,rr);
 	}
 	
       } else if (hitDet.at(i) == (unsigned int)(DetId::Hcal)) {
@@ -221,9 +235,6 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCGeometryCheck);
-
-
-
 
 
 

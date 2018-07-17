@@ -261,6 +261,11 @@ namespace edm {
       } catch(...) {
         shouldContinue = false;
         finalException = std::current_exception();
+        //set the exception early to avoid case where another Path is waiting
+        // on a module in this Path and not running the module will lead to a
+        // different but related exception in the other Path. We want this
+        // Paths exception to be the one that gets reported.
+        waitingTasks_.presetTaskAsFailed(finalException);
       }
     }
     if(stopProcessingEvent_ and *stopProcessingEvent_) {

@@ -13,19 +13,11 @@
     <debug_algorithms/>
 
 <!-- 
-    <debug_rotations/>
     <debug_materials/>
-
-    <debug_shapes/>
-    <debug_volumes/>
-    <debug_constants/>
-    <debug_includes/>
-    <debug_namespaces/>
-    <debug_placements/>
-    <debug_algorithms/>
     <debug_visattr/>
 -->
   </debug>
+  
   <open_geometry/>
   <close_geometry/>
 
@@ -45,7 +37,15 @@
     <Include ref="DetectorDescription/DDCMS/data/testLogicalParts.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testRotations.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/testSolids.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testPosParts.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testAlgorithm.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
   </IncludeSection>
-
+  
+  <PosPartSection label="">
+    <PosPart copyNumber="2">
+      <rParent name="world_volume"/>
+      <rChild name="testLogicalParts:MotherOfAllBoxes"/>
+    </PosPart>
+  </PosPartSection>
 </DDDefinition>

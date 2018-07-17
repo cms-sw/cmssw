@@ -1,7 +1,6 @@
 #include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "fastjet/internal/base.hh"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
 #include "Math/ProbFunc.h"
@@ -87,19 +86,13 @@ void PuppiAlgo::fixAlgoEtaBin(int i_eta) {
   cur_Med = fMedian_perEta[0][i_eta]; // 0 is number of algos within this eta bin
 }
 
-void PuppiAlgo::add(const fastjet::PseudoJet &iParticle,const double &iVal,const unsigned int iAlgo) {
+void PuppiAlgo::add(const PuppiCandidate &iParticle,const double &iVal,const unsigned int iAlgo) {
     if(iParticle.pt() < fRMSPtMin[iAlgo]) return;
     // Change from SRR : Previously used fastjet::PseudoJet::user_index to decide the particle type.
     // In CMSSW we use the user_index to specify the index in the input collection, so I invented
     // a new mechanism using the fastjet UserInfo functionality. Of course, it's still just an integer
     // but that interface could be changed (or augmented) if desired / needed.
-    int puppi_register = std::numeric_limits<int>::lowest();
-    if ( iParticle.has_user_info() ) {
-        PuppiContainer::PuppiUserInfo const * pInfo = dynamic_cast<PuppiContainer::PuppiUserInfo const *>( iParticle.user_info_ptr() );
-        if ( pInfo != nullptr ) {
-            puppi_register = pInfo->puppi_register();
-        }
-    }
+    int puppi_register = iParticle.puppi_register();
     if ( puppi_register == std::numeric_limits<int>::lowest() ) {
         throw cms::Exception("PuppiRegisterNotSet") << "The puppi register is not set. This must be set before use.\n";
     }

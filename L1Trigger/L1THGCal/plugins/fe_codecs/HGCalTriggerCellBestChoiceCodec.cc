@@ -16,12 +16,12 @@ HGCalTriggerCellBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
 
 void
 HGCalTriggerCellBestChoiceCodec::
-setDataPayloadImpl(const HGCEEDigiCollection& ee,
-        const HGCHEDigiCollection& fh,
-        const HGCBHDigiCollection& ) 
+setDataPayloadImpl(const HGCalDigiCollection& ee,
+        const HGCalDigiCollection& fh,
+        const HGCalDigiCollection& ) 
 {
     data_.reset();
-    std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+    std::vector<HGCalDataFrame> dataframes;
     std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
     // convert ee and fh hit collections into the same object
     if(!ee.empty())

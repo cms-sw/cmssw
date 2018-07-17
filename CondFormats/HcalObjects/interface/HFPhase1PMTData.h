@@ -4,8 +4,12 @@
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 #include "boost/serialization/shared_ptr.hpp"
+#include "boost/version.hpp"
+#if BOOST_VERSION < 106400
 #include "boost/serialization/array.hpp"
-
+#else
+#include "boost/serialization/boost_array.hpp"
+#endif
 #include "CondFormats/HcalObjects/interface/AbsHcalFunctor.h"
 
 class HFPhase1PMTData

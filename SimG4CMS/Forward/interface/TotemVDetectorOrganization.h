@@ -6,14 +6,14 @@
 #define Forward_TotemVDetectorOrganization_h
 
 #include "G4Step.hh"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class TotemVDetectorOrganization {
 
 public:
   TotemVDetectorOrganization(){};
   virtual ~TotemVDetectorOrganization(){};   
-  virtual uint32_t GetUnitID(const  G4Step* aStep) const =0;
+  virtual uint32_t getUnitID(const  G4Step* aStep) const =0;
 };      
 
 

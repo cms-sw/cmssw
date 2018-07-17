@@ -22,7 +22,6 @@
 
 // user include files
 #include "FWCore/SOA/interface/TableExaminerBase.h"
-#include "FWCore/SOA/interface/Table.h"
 
 // forward declarations
 namespace edm {

@@ -101,12 +101,11 @@ void debugHistory(const DDGeoHistory & h)
 
 void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
-  typedef DDCompactView::graph_type graph_t;
-  const graph_t & g = cv.graph();
+  const auto & g = cv.graph();
   unsigned int node = 0;
-  graph_t::const_adj_iterator it = g.begin();
+  auto it = g.begin();
   for (; it != g.end(); ++it) {
-    graph_t::const_edge_iterator eit = it->begin();
+    auto eit = it->begin();
     for (; eit != it->end(); ++eit) {
       unsigned int eindex = eit->first;
       int copyno = g.edgeData(eit->second)->copyno();
@@ -254,7 +253,7 @@ void tutorial()
   // DDD/DDCore/interface/graph.h
  
   // First one takes the graph representation of CompactView
-  const DDCompactView::graph_type & cpvGraph = cpv.graph();
+  const auto & cpvGraph = cpv.graph();
  
   // Using the Graph.h interface, some basic information is available:
   std::cout << "CompactView, basic information: " << std::endl
@@ -369,7 +368,7 @@ void tutorial()
       
 	double dv = 0.;
 	try {
-	  dv = DDI::Singleton<ClhepEvaluator>::instance().eval("",v);
+	  dv = ClhepEvaluator().eval("",v);
 	}
 	catch (const cms::Exception & e) {
 	  dv = 0;
@@ -542,7 +541,7 @@ void tutorial()
     Start = clock();
     //while (NEXT(fv,fv_count)) ;
     int cc=0;
-    walker_type  g = walker_type(DDCompactView().graph(),DDCompactView().root());
+    auto g = math::GraphWalker<DDLogicalPart, DDPosData*>( DDCompactView().graph(), DDCompactView().root());
     while(g.next()) ++cc;
     End = clock();
     std::cout << "Time : " << ((double) (End-Start)) / double(CLOCKS_PER_SEC) << " sec" << std::endl;

@@ -36,6 +36,7 @@
 // user include files
 
 // forward declarations
+#include <tuple>
 
 namespace edm {
 namespace soa {

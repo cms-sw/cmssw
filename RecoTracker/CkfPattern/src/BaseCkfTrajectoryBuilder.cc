@@ -89,7 +89,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
       TSOS innerState   = backwardPropagator(seed)->propagate(outerState,hitGeomDet->surface());
 
       // try to recover if propagation failed
-      if unlikely(!innerState.isValid())
+      if UNLIKELY(!innerState.isValid())
         innerState =
           trajectoryStateTransform::transientState(pState, &(hitGeomDet->surface()),
                                                             forwardPropagator(seed)->magneticField());
@@ -123,7 +123,7 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 
 bool BaseCkfTrajectoryBuilder::toBeContinued (TempTrajectory& traj, bool inOut) const
 {
-  if unlikely(traj.measurements().size() > 400) {
+  if UNLIKELY(traj.measurements().size() > 400) {
     edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
     LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop") << 
               "Cropping Track After 400 Measurements:\n" <<

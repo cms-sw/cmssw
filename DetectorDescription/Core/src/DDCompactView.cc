@@ -56,9 +56,15 @@ DDCompactView::~DDCompactView()
    by an instance of class Graph<DDLogicalPart, DDPosData*). 
    Graph provides methods for navigating its content.
 */      
-const DDCompactView::graph_type & DDCompactView::graph() const 
+const DDCompactView::Graph & DDCompactView::graph() const 
 { 
   return rep_->graph(); 
+}
+
+DDCompactView::GraphWalker
+DDCompactView::walker() const
+{
+  return rep_->walker();
 }
 
 const DDLogicalPart & DDCompactView::root() const
@@ -69,11 +75,6 @@ const DDLogicalPart & DDCompactView::root() const
 const DDPosData* DDCompactView::worldPosition() const
 {
   return worldpos_.get();
-}
-
-DDCompactView::walker_type DDCompactView::walker() const
-{
-  return rep_->walker();
 }
 
 void DDCompactView::position (const DDLogicalPart & self, 

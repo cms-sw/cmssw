@@ -30,8 +30,10 @@ process.load('DQMServices.Examples.test.DQMExample_GenericClient_cfi')
 process.load('DQMServices.Examples.test.DQMExample_qTester_cfi')
 
 # L1T
-process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Efficiency_cfi')
-process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Diff_cfi')
+process.load('DQMOffline.L1Trigger.L1TEtSumEfficiency_cfi')
+process.load('DQMOffline.L1Trigger.L1TEtSumDiff_cfi')
+process.load('DQMOffline.L1Trigger.L1TJetEfficiency_cfi')
+process.load('DQMOffline.L1Trigger.L1TJetDiff_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaEfficiency_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaDiff_cfi')
 process.load('DQMOffline.L1Trigger.L1TTauEfficiency_cfi')
@@ -58,14 +60,17 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  # for MC
 # Path and EndPath definitions
 process.myHarvesting = cms.Path(process.DQMExampleStep2)
 process.myEff = cms.Path(
-    process.l1tStage2CaloLayer2Efficiency *
-    process.l1tStage2CaloLayer2EmuEfficiency *
-    process.l1tStage2CaloLayer2EmuDiff +
+    process.l1tEtSumEfficiency *
+    process.l1tEtSumEmuEfficiency *
+    process.l1tEtSumEmuDiff +
+    process.l1tJetEfficiency *
+    process.l1tJetEmuEfficiency *
+    process.l1tJetEmuDiff +
     process.l1tEGammaEfficiency *
     process.l1tEGammaEmuEfficiency *
     process.l1tEGammaEmuDiff +
     process.l1tTauEfficiency *
-    process.l1tTauEmuEfficiency * 
+    process.l1tTauEmuEfficiency *
     process.l1tTauEmuDiff
 )
 process.myTest = cms.Path(process.DQMExample_qTester)

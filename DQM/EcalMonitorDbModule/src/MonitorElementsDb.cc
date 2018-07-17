@@ -29,7 +29,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 
-#include "../interface/MonitorElementsDb.h"
+#include "DQM/EcalMonitorDbModule/interface/MonitorElementsDb.h"
 
 MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& xmlFile ){
 

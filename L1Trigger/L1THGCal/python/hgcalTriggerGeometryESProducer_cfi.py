@@ -32,5 +32,3 @@ hgcalTriggerGeometryESProducer = cms.ESProducer(
     'HGCalTriggerGeometryESProducer',
     TriggerGeometry = geometry
 )
-
-

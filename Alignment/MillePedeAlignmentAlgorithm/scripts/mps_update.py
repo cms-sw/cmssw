@@ -4,6 +4,7 @@ import re
 import subprocess
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 
+import six
 
 def fill_time_info(mps_index, status, cpu_time):
     """Fill timing info in the database for `mps_index`.
@@ -90,7 +91,7 @@ if len(submitted_jobs) > 0:
             job_status[job_id] = {"status": status,
                                   "cpu": cpu_time}
 
-    for job_id, job_info in job_status.iteritems():
+    for job_id, job_info in six.iteritems(job_status):
         mps_index = submitted_jobs.get(job_id, -1)
         # check for disabled Jobs
         disabled = "DISABLED" if "DISABLED" in lib.JOBSTATUS[mps_index] else ""
@@ -148,7 +149,7 @@ for job_id, mps_index in submitted_jobs.items(): # IMPORTANT to copy here (no it
 
 ################################################################################
 # check for orphaned jobs
-for job_id, mps_index in submitted_jobs.iteritems():
+for job_id, mps_index in six.iteritems(submitted_jobs):
     for status in ("SETUP", "DONE", "FETCH", "TIMEL", "SUBTD"):
         if status in lib.JOBSTATUS[mps_index]:
             print "Funny entry index", mps_index, " job", lib.JOBID[mps_index],

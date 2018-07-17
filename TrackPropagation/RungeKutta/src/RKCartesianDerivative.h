@@ -1,7 +1,7 @@
 #ifndef RKCartesianDerivative_H
 #define RKCartesianDerivative_H
 
-class CartesianState;
+#include "CartesianState.h"
 
 class dso_internal RKCartesianDerivative {
 public:

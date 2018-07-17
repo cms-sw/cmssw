@@ -18,38 +18,39 @@ namespace l1t {
       class GTCollections : public L1TObjectCollections {
          public:
             GTCollections(edm::Event& e) :
-                 L1TObjectCollections(e),
-		 muons_(new MuonBxCollection()),
-		 egammas_(new EGammaBxCollection()),
-		 etsums_(new EtSumBxCollection()),
-		 jets_(new JetBxCollection()),
-		 taus_(new TauBxCollection()),
-		 algBlk_(new GlobalAlgBlkBxCollection()),
-		 extBlk_(new GlobalExtBlkBxCollection())  {};
+               L1TObjectCollections(e),
+		       algBlk_(new GlobalAlgBlkBxCollection()),
+		       extBlk_(new GlobalExtBlkBxCollection())  
+            {
+               std::generate(muons_.begin(),   muons_.end(),   []{ return std::make_unique<MuonBxCollection>(); });
+               std::generate(egammas_.begin(), egammas_.end(), []{ return std::make_unique<EGammaBxCollection>(); });
+               std::generate(etsums_.begin(),  etsums_.end(),  []{ return std::make_unique<EtSumBxCollection>(); });
+               std::generate(jets_.begin(),    jets_.end(),    []{ return std::make_unique<JetBxCollection>(); });
+               std::generate(taus_.begin(),    taus_.end(),    []{ return std::make_unique<TauBxCollection>(); });
+            };
 
             ~GTCollections() override;
             
-	    inline MuonBxCollection* getMuons(const unsigned int copy) override { return muons_.get(); };
-	    inline EGammaBxCollection* getEGammas() override { return egammas_.get(); };
-            inline EtSumBxCollection* getEtSums() override { return etsums_.get(); };
-            inline JetBxCollection* getJets() override { return jets_.get(); };
-            inline TauBxCollection* getTaus() override { return taus_.get(); };
+            inline MuonBxCollection*   getMuons(  const unsigned int copy) override { return muons_[copy].get(); };
+            inline EGammaBxCollection* getEGammas(const unsigned int copy) override { return egammas_[copy].get(); };
+            inline EtSumBxCollection*  getEtSums( const unsigned int copy) override { return etsums_[copy].get(); };
+            inline JetBxCollection*    getJets(   const unsigned int copy) override { return jets_[copy].get(); };
+            inline TauBxCollection*    getTaus(   const unsigned int copy) override { return taus_[copy].get(); };
 
             inline GlobalAlgBlkBxCollection* getAlgs() { return algBlk_.get(); };
             inline GlobalExtBlkBxCollection* getExts() { return extBlk_.get(); };
 
 
          private:
-	    
-	    std::unique_ptr<MuonBxCollection> muons_;
-	    std::unique_ptr<EGammaBxCollection> egammas_;
-	    std::unique_ptr<EtSumBxCollection> etsums_;
-	    std::unique_ptr<JetBxCollection> jets_;
-	    std::unique_ptr<TauBxCollection> taus_;
+        
+            std::array<std::unique_ptr<MuonBxCollection>,   6 > muons_;
+            std::array<std::unique_ptr<EGammaBxCollection>, 6 > egammas_;
+            std::array<std::unique_ptr<EtSumBxCollection>,  6 > etsums_;
+            std::array<std::unique_ptr<JetBxCollection>,    6 > jets_;
+            std::array<std::unique_ptr<TauBxCollection>,    6 > taus_;
 
             std::unique_ptr<GlobalAlgBlkBxCollection> algBlk_;
             std::unique_ptr<GlobalExtBlkBxCollection> extBlk_;
-
 
       };
    }

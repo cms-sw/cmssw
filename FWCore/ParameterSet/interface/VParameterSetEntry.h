@@ -42,7 +42,7 @@ namespace edm {
     void fillVPSet() const;
     ParameterSet& psetInVector(int i);
 
-    std::vector<ParameterSet>::size_type size() const { return vpset().size(); }
+    std::vector<ParameterSet>::size_type size() const;
 
     void registerPsetsAndUpdateIDs();
 

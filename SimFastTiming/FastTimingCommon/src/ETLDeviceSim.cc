@@ -12,7 +12,8 @@ ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset) :
 
 void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
 				   const edm::Handle<edm::PSimHitContainer> &hits,
-				   mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator){
+				   mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
+				   CLHEP::HepRandomEngine *hre){
 
   bool weightToAbyEnergy(false);
   float tdcOnset(0.f);
