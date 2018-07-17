@@ -54,15 +54,15 @@ pi50scan10_2_0_pre6_ECALHCAL_CaloTowers.root
 
 
 (11) the result appear as the local directory 
-10_2_0_vs_10_2_0_pre6
+10_2_0_vs_10_2_0_pre6_SinglePi 
   
 which can be 
 (i) viewed with web browser locally, e.g.
-firefox 10_2_0_vs_10_2_0_pre6/index.html
+firefox 10_2_0_vs_10_2_0_pre6_SinglePi/index.html
 
 (ii) uploaded to some web server and viewed from anywhere:
 
-https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HCAL/calo_scan_single_pi/10_2_0_vs_10_2_0_pre6
+https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HCAL/calo_scan_single_pi/10_2_0_vs_10_2_0_pre6_SinglePi
 
 NB:  hitso labels correspond to aforementioned <...> strings, here
 10_2_0 and 10_2_0_pre6 (as a reference)
