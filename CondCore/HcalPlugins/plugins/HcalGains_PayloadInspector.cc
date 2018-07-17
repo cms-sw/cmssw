@@ -4,7 +4,7 @@
 //#include "DataFormats/EcalDetId/interface/EBDetId.h"
 //#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
+//#include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 
 //#include "CondCore/HcalPlugins/plugins/HcalDrawUtils.h"
 
@@ -34,8 +34,6 @@ namespace {
     HcalGainsPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") {
       setSingleIov( true );
     }
-      HcalTopology hcalTopo = new HcalTopology(HcalTopologyMode::LHC,7,7,HcalTopologyMode::Trigger_Mode2017)
-      payload->setTopo(hcalTopo);
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
       //TODO: Shift binning by 0.5
