@@ -39,7 +39,10 @@ public:
 
   //set the minimum et to apply the correction to
   void setMinEt(float val){minEt_=val;}
-  
+  //sets whether to use the smeared ecal energy in the combination
+  //note, if this is true and the E/p combination is not trained using this smeared value, this is a bug
+  //the E/p combination must get the ecalEnergyErr used in its training
+  void setUseSmearCorrEcalEnergyErrInComb(bool val){useSmearCorrEcalEnergyErrInComb_=val;}
   /// Correct this electron.
   /// StreamID is needed when used with CMSSW Random Number Generator
   std::array<float,EGEnergySysIndex::kNrSysErrs> 
@@ -72,6 +75,7 @@ private:
   const EpCombinationTool *epCombinationTool_; //this is not owned
   TRandom *rng_; //this is not owned
   float minEt_;
+  bool useSmearCorrEcalEnergyErrInComb_;
 
   //default values to access if no correction available
   static const EnergyScaleCorrection::ScaleCorrection defaultScaleCorr_;

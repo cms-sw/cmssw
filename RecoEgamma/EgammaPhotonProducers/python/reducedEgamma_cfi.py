@@ -97,3 +97,6 @@ from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReduce
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 modifyReducedEGammaRun2MiniAOD9XFall17_ = run2_miniAOD_94XFall17.makeProcessModifier(calibrateReducedEgamma)
 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+modifyReducedEGammaRun2MiniAOD8XLegacy_ = run2_miniAOD_80XLegacy.makeProcessModifier(calibrateReducedEgamma)
+

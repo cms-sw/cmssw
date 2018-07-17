@@ -13,7 +13,8 @@ ElectronEnergyCalibrator::ElectronEnergyCalibrator(const EpCombinationTool &comb
   correctionRetriever_(correctionFile), 
   epCombinationTool_(&combinator), 
   rng_(nullptr),
-  minEt_(1.0)
+  minEt_(1.0),
+  useSmearCorrEcalEnergyErrInComb_(false)
 {
   
 }
@@ -148,8 +149,8 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   energyData[EGEnergySysIndex::kSmearUp]   = calCombinedMom(ele,corrUp,smearUp).first;
   energyData[EGEnergySysIndex::kSmearDown] = calCombinedMom(ele,corrDn,smearDn).first;
   
+  const std::pair<float, float> combinedMomentum = calCombinedMom(ele,corr,smear);
   setEcalEnergy(ele,corr,smear);
-  const std::pair<float, float> combinedMomentum = epCombinationTool_->combine(ele);
   const float energyCorr =  combinedMomentum.first / oldP4.t();
 
   const math::XYZTLorentzVector newP4(oldP4.x() * energyCorr,
@@ -183,10 +184,19 @@ std::pair<float,float> ElectronEnergyCalibrator::calCombinedMom(reco::GsfElectro
 { 
   const float oldEcalEnergy = ele.ecalEnergy();
   const float oldEcalEnergyErr = ele.ecalEnergyError();
+
+  const auto oldP4 = ele.p4();
+  const float oldP4Err = ele.p4Error(reco::GsfElectron::P4_COMBINATION);
+  const float oldTrkMomErr = ele.trackMomentumError();
+ 
   setEcalEnergy(ele,scale,smear);
-  const auto& combinedMomentum = epCombinationTool_->combine(ele);
+  float ecalEnergyErrForComb = useSmearCorrEcalEnergyErrInComb_ ?  ele.correctedEcalEnergyError() : oldEcalEnergyErr*scale;
+  const auto& combinedMomentum = epCombinationTool_->combine(ele,ecalEnergyErrForComb);
+  
   ele.setCorrectedEcalEnergy(oldEcalEnergy);
   ele.setCorrectedEcalEnergyError(oldEcalEnergyErr);
+  ele.correctMomentum(oldP4,oldTrkMomErr,oldP4Err);
+  
   return combinedMomentum;
 }
 						      
