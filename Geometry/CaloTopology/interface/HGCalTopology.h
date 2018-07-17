@@ -121,6 +121,10 @@ public:
   DetId::Detector    detector()  const { return det_;}
   ForwardSubdetector subDetector()  const {return subdet_;}
   bool               detectorType() const { return false;}
+  bool               isHFNose() const { 
+    return (((det_ == DetId::Forward) && 
+	     (subdet_ == ForwardSubdetector::HFNose)) ?  true : false);
+  }
 private:
 
   /// move the nagivator along x, y
