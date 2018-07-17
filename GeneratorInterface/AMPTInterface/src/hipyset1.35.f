@@ -7134,7 +7134,7 @@ C...in the event weighting.
      &NAREL(6),WTREL(6),WTMAT(6,6),COEFU(6),IACCMX(4),SIGSMX(4),    
      &SIGSSM(3) 
       DATA CVAR/'tau ','tau''','y*  ','cth '/   
-    
+      INTEGER :: IOFF=0
 C...Select subprocess to study: skip cases not applicable.  
       VINT(143)=1.  
       VINT(144)=1.  
@@ -13987,6 +13987,7 @@ C...I: 2 -> 2, tree diagrams, non-standard model processes.
     
       ELSE  
       IF(ISUB.EQ.161) THEN  
+        CALL PYWIDT(40,SQRT(SH),WDTP,WDTE)
 C...f + g -> f' + H+/- (q + g -> q' + H+/- only).   
         FHCQ=COMFAC*FACA*AS*AEM/XW*1./24    
         DO 900 I=1,MSTP(54) 
