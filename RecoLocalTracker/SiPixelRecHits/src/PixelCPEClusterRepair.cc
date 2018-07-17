@@ -107,8 +107,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 //-----------------------------------------------------------------------------
 PixelCPEClusterRepair::~PixelCPEClusterRepair()
 {
-   for(auto x : thePixelTemp_) x.destroy();
-   // Note: this is not needed for Template 2D
+   for (auto x : thePixelTemp_)   x.destroy();
+   for (auto x : thePixelTemp2D_) x.destroy();
 }
 
 PixelCPEBase::ClusterParam* PixelCPEClusterRepair::createClusterParam(const SiPixelCluster & cl) const
@@ -130,6 +130,7 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
 {
    
    ClusterParamTemplate & theClusterParam = static_cast<ClusterParamTemplate &>(theClusterParamBase);
+   bool filled_from_2d = false;
    
    if(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
       throw cms::Exception("PixelCPEClusterRepair::localPosition :")
@@ -239,6 +240,7 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
    //--- Are we on edge?
    if ( theClusterParam.isOnEdge_ ) {
      //--- Call the Template Reco 2d with cluster repair.0
+     filled_from_2d = true;
      callTempReco3D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
    }
    else {
@@ -267,8 +269,27 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
 
        //--- Call the Template Reco 2d with cluster repair
        callTempReco3D( theDetParam, theClusterParam, clusterPayload2d, ID, lp );
+       filled_from_2d = true;
      }
 
+   }
+
+   //--- Make sure cluster repair returns all info about the hit back up to caller
+   //--- Necessary because it copied the base class so it does not modify it
+   theClusterParamBase.isOnEdge_ = theClusterParam.isOnEdge_;
+   theClusterParamBase.hasBadPixels_ = theClusterParam.hasBadPixels_;
+   theClusterParamBase.spansTwoROCs_ = theClusterParam.spansTwoROCs_;
+   theClusterParamBase.hasFilledProb_ = theClusterParam.hasFilledProb_;
+   theClusterParamBase.qBin_ = theClusterParam.qBin_;
+   theClusterParamBase.probabilityQ_ = theClusterParam.probabilityQ_;
+   theClusterParamBase.filled_from_2d = filled_from_2d;
+   if(filled_from_2d){
+       theClusterParamBase.probabilityX_ = theClusterParam.templProbXY_;
+       theClusterParamBase.probabilityY_ = 0.;
+    }
+   else{
+       theClusterParamBase.probabilityX_ = theClusterParam.probabilityX_;
+       theClusterParamBase.probabilityY_ = theClusterParam.probabilityY_;
    }
 
 
@@ -292,8 +313,8 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
    float nonsense = -99999.9f; // nonsense init value
    theClusterParam.templXrec_ = theClusterParam.templYrec_ = theClusterParam.templSigmaX_ = theClusterParam.templSigmaY_ = nonsense;
    // If the template recontruction fails, we want to return 1.0 for now
-   theClusterParam.templProbY_ = theClusterParam.templProbX_ = theClusterParam.templProbQ_ = 1.0f;
-   theClusterParam.templQbin_ = 0;
+   theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 1.f;
+   theClusterParam.qBin_ = 0;
    // We have a boolean denoting whether the reco failed or not
    theClusterParam.hasFilledProb_ = false;
    
@@ -315,16 +336,19 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
                    theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.probabilityY_,
                    theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.probabilityX_,
                    theClusterParam.qBin_,
-		   speed_, deadpix, zeropix,
-		   theClusterParam.probabilityQ_, nypix, nxpix
+                   speed_, deadpix, zeropix,
+                   theClusterParam.probabilityQ_, nypix, nxpix
                    );
    // ******************************************************************
    
    //--- Check exit status
-   if unlikely( theClusterParam.ierr != 0 )
+   if UNLIKELY( theClusterParam.ierr != 0 )
    {
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "reconstruction failed with error " << theClusterParam.ierr << "\n";
+
+      theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 0.f;
+      theClusterParam.qBin_ = 0;
       
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
@@ -390,8 +414,8 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
    float nonsense = -99999.9f; // nonsense init value
    theClusterParam.templXrec_ = theClusterParam.templYrec_ = theClusterParam.templSigmaX_ = theClusterParam.templSigmaY_ = nonsense;
    // If the template recontruction fails, we want to return 1.0 for now
-   theClusterParam.templProbY_ = theClusterParam.templProbX_ = theClusterParam.templProbQ_ = 1.0f;
-   theClusterParam.templQbin_ = 0;
+   theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 1.f;
+   theClusterParam.qBin_ = 0;
    // We have a boolean denoting whether the reco failed or not
    theClusterParam.hasFilledProb_ = false;
    
@@ -425,27 +449,37 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
    float deltay = 0;    // return param
    int npixels = 0;     // return param
 
-   theClusterParam.ierr2 =
-   PixelTempReco3D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
-                   locBz, locBx,
-		   edgeTypeY , theClusterParam.edgeTypeX_ ,
-                   clusterPayload,
-                   templ2d,
-                   theClusterParam.templYrec_, theClusterParam.templSigmaY_, 
-                   theClusterParam.templXrec_, theClusterParam.templSigmaX_, 
-		   theClusterParam.templProbXY_,
-         	   theClusterParam.probabilityQ_,
-		   theClusterParam.qBin_,
-		   deltay, npixels
-                   );
+   if(clusterPayload.mrow > 4){
+       // The cluster is too big, the 2D reco will perform horribly.
+       // Better to return immediately in error
+       theClusterParam.ierr2 = 8;
+
+   }
+   else{
+       theClusterParam.ierr2 =
+       PixelTempReco3D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+                       locBz, locBx,
+                       edgeTypeY , theClusterParam.edgeTypeX_ ,
+                       clusterPayload,
+                       templ2d,
+                       theClusterParam.templYrec_, theClusterParam.templSigmaY_, 
+                       theClusterParam.templXrec_, theClusterParam.templSigmaX_, 
+                       theClusterParam.templProbXY_,
+                       theClusterParam.probabilityQ_,
+                       theClusterParam.qBin_,
+                       deltay, npixels
+                       );
+   }
    // ******************************************************************
    
    //--- Check exit status
-   if unlikely( theClusterParam.ierr2 != 0 )
+   if UNLIKELY( theClusterParam.ierr2 != 0 )
    {
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "3D reconstruction failed with error " << theClusterParam.ierr2 << "\n";
       
+      theClusterParam.probabilityX_ = theClusterParam.probabilityY_ = theClusterParam.probabilityQ_ = 0.f;
+      theClusterParam.qBin_ = 0;
       // GG: what do we do in this case?  For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
       float lorentz_drift = -999.9;
@@ -502,11 +536,11 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    float xerr = 0.0f, yerr = 0.0f;
 
    //--- Check status of both template calls.
-   if unlikely ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) ) {
+   if UNLIKELY ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) ) {
      // If reconstruction fails the hit position is calculated from cluster center of gravity
      // corrected in x by average Lorentz drift. Assign huge errors.
      //
-     if unlikely (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
+     if UNLIKELY (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
        throw cms::Exception("PixelCPEClusterRepair::localPosition :")
 	 << "A non-pixel detector type in here?";
      

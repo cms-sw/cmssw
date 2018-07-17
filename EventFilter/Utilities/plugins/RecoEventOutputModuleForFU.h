@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <sstream>
 #include <iomanip>
@@ -11,6 +12,7 @@
 #include <boost/algorithm/string.hpp>
 #include <zlib.h>
 
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"

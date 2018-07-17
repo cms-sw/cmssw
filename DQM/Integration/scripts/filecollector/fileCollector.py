@@ -95,13 +95,13 @@ while True:
           NEW.setdefault(runnr, {}).setdefault(subsystem,[]).append(f)
           NFOUND += 1  
           
-    if len(NEW.keys()) == 0:
+    if len(NEW) == 0:
       time.sleep(WAITTIME)
       continue
       
     TAGS=sorted(glob.glob('%s/tagfile_runend_*' % COLLECTDIR ),reverse=True)
     if len(TAGS)==0:
-      if len(NEW.keys()) <= 1:
+      if len(NEW) <= 1:
         time.sleep(WAITTIME)
         continue
         

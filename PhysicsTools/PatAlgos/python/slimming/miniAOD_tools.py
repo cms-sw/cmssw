@@ -28,7 +28,9 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeMiniIso = cms.bool(True)
     process.patMuons.computeMuonMVA = cms.bool(True)
     process.patMuons.computeSoftMuonMVA = cms.bool(True)
-    
+
+    process.patMuons.addTriggerMatching = True
+
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -279,8 +281,11 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.addElectronID = cms.bool(True)
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff', 
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff', 
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
@@ -288,6 +293,8 @@ def miniAOD_customizeCommon(process):
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronMVAVariableHelper.src = \
+        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronRegressionValueMapProducer.src = \
@@ -390,50 +397,15 @@ def miniAOD_customizeCommon(process):
 
     process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
 
-    process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
-
-    # update slimmed jets to include DeepFlavour (keep same name)
-    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-    # make clone for DeepFlavour-less slimmed jets, so output name is preserved
-    process.slimmedJetsNoDeepFlavour = process.slimmedJets.clone()
-    task.add(process.slimmedJetsNoDeepFlavour)
-    updateJetCollection(
-       process,
-       jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
-       # updateJetCollection defaults to MiniAOD inputs but
-       # here it is made explicit (as in training or MINIAOD redoing)
-       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-       pfCandidates = cms.InputTag('packedPFCandidates'),
-       svSource = cms.InputTag('slimmedSecondaryVertices'),
-       muSource = cms.InputTag('slimmedMuons'),
-       elSource = cms.InputTag('slimmedElectrons'),
-       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-       btagDiscriminators = [
-          'pfDeepFlavourJetTags:probb',
-          'pfDeepFlavourJetTags:probbb',
-          'pfDeepFlavourJetTags:problepb',
-          'pfDeepFlavourJetTags:probc',
-          'pfDeepFlavourJetTags:probuds',
-          'pfDeepFlavourJetTags:probg',
-       ],
-       postfix = 'SlimmedDeepFlavour',
-       printWarning = False
-    )
-
-    # slimmedJets with DeepFlavour (remove DeepFlavour-less)
-    delattr(process, 'slimmedJets')
-    process.slimmedJets = process.selectedUpdatedPatJetsSlimmedDeepFlavour.clone()
-    # delete module not used anymore (slimmedJets substitutes)
-    delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour')
-
-    task.add(process.slimmedJets)
-    task.add(process.slimmedJetsAK8)
+    from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
+    applyDeepBtagging( process )
 
     addToProcessAndTask('slimmedJetsPuppiNoMultiplicities', process.slimmedJetsNoDeepFlavour.clone(), process, task)
     process.slimmedJetsPuppiNoMultiplicities.src = cms.InputTag("selectedPatJetsPuppi")
     process.slimmedJetsPuppiNoMultiplicities.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
     process.patPuppiJetSpecificProducer = patPuppiJetSpecificProducer.clone(
       src=cms.InputTag("slimmedJetsPuppiNoMultiplicities"),
     )
@@ -563,4 +535,6 @@ def miniAOD_customizeAllMCFastSim(process):
     process = miniAOD_customizeMETFiltersFastSim(process)
     from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
     process = miniAOD_customizeIsolatedTracksFastSim(process)
+    process.patMuons.addTriggerMatching = False
+
     return process

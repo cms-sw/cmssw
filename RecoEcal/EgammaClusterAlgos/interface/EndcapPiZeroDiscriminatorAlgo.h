@@ -20,13 +20,11 @@ class EndcapPiZeroDiscriminatorAlgo {
    typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
    EndcapPiZeroDiscriminatorAlgo() :
-     preshStripEnergyCut_(0.), preshSeededNstr_(5), pathToFiles_("")
+     preshStripEnergyCut_(0.), preshSeededNstr_(5)
    {}
 
    EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, 
 				 const std::string& path);
-
-   ~EndcapPiZeroDiscriminatorAlgo() {};
 
    std::vector<float>  findPreshVector(ESDetId strip, RecHitsMap *rechits_map,
 					 CaloSubdetectorTopology *topology_p);
@@ -35,11 +33,6 @@ class EndcapPiZeroDiscriminatorAlgo {
 
    bool goodPi0Strip(RecHitsMap::iterator candidate_it, ESDetId lastID);
 
-   void readWeightFile(const char *WFile);
-
-   float Activation_fun(float SUM);
-
-   float getNNoutput(int sel_wfile);
 
    bool calculateNNInputVariables(std::vector<float>& vph1, std::vector<float>& vph2,
                                           float pS1_max, float pS9_max, float pS25_max, int EScorr);
@@ -53,43 +46,28 @@ class EndcapPiZeroDiscriminatorAlgo {
    float GetBarrelNNOutput(float EB_Et);  
 
 
-   float* get_input_vector() {return input_var;};
+   std::vector<float>const & get_input_vector() const {return input_var;}
 
  private:
+   void readWeightFile(const char *WFile,int& Layers, int& Indim, int& Hidden, int& Outdim);
+   float getNNoutput(int sel_wfile, int Layers, int Indim, int Hidden, int Outdim, int barrelstart) const;
+   float Activation_fun(float SUM) const;
+
 
    double preshStripEnergyCut_;
    int preshSeededNstr_;
    int debugLevel_;
 
-   int inp_var;
-   int barrelstart;  
-
-   int Nfiles_EB;
-   int Nfiles_EE;
-
-   int Layers, Indim, Hidden, Outdim;
    int EE_Layers, EE_Indim, EE_Hidden, EE_Outdim;
    int EB_Layers, EB_Indim, EB_Hidden, EB_Outdim;
-
-   float* I_H_Weight;
-   float* H_O_Weight;
-   float* H_Thresh;
-   float* O_Thresh;
 
    std::vector<float> I_H_Weight_all;
    std::vector<float> H_O_Weight_all;
    std::vector<float> H_Thresh_all;
    std::vector<float> O_Thresh_all;
 
-   float* input_var;
+   std::vector<float> input_var;
 //   float input_var[25]; // array with the 25 variables to be used as input in NN
-
-
-   // The map of hits
-   RecHitsMap *rechits_map;
-
-   // path to weight files
-  std::string pathToFiles_;
 
 };
 #endif

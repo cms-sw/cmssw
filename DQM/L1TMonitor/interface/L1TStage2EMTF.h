@@ -24,7 +24,6 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
  protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -58,13 +57,21 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
   MonitorElement* emtfTrackBXVsCSCLCT[3];
   MonitorElement* emtfTrackBXVsRPCHit[3];
   MonitorElement* emtfTrackPt;
+  MonitorElement* emtfTrackPtHighQuality;//Chad Freer May 8 2018
+  MonitorElement* emtfTrackPtHighQualityHighPT;
   MonitorElement* emtfTrackEta;
+  MonitorElement* emtfTrackEtaHighQuality;//Chad Freer May 8 2018
+  MonitorElement* emtfTrackEtaHighQualityHighPT;
   MonitorElement* emtfTrackPhi;
   MonitorElement* emtfTrackPhiHighQuality;
+  MonitorElement* emtfTrackPhiHighQualityHighPT;
   MonitorElement* emtfTrackOccupancy;
+  MonitorElement* emtfTrackOccupancyHighQuality;//Chad Freer May 8 2018
+  MonitorElement* emtfTrackOccupancyHighQualityHighPT;
   MonitorElement* emtfTrackMode;
   MonitorElement* emtfTrackQuality;
   MonitorElement* emtfTrackQualityVsMode;
+  MonitorElement* RPCvsEMTFTrackMode;
 
   MonitorElement* emtfMuonBX;
   MonitorElement* emtfMuonhwPt;

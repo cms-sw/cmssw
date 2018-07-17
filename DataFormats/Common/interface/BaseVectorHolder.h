@@ -3,6 +3,7 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/BaseHolder.h"
+#include <stddef.h>
 #include <memory>
 
 namespace edm {

@@ -102,8 +102,10 @@ class CommissioningHistograms {
   
   void remove( std::string pattern = "" ); 
   
+
   void save( std::string& filename,
-	     uint32_t run_number = 0 ); 
+             uint32_t run_number = 0,
+             std::string partitionName = "");
 
   // ---------- protected methods ----------
   

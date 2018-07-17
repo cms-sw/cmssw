@@ -16,6 +16,7 @@ import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.trackerTree as mpsv_tra
 from Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper import checked_out_MPS
 from functools import reduce
 
+import six
 
 ################################################################################
 def main(argv = None):
@@ -156,7 +157,7 @@ class SetupAlignment(object):
             datasets = map(lambda x: x.strip(),
                            self._config.get("general",
                                             "externalDatasets").split(","))
-            datasets = filter(lambda x: len(x.strip()) > 0, datasets)
+            datasets = [x for x in datasets if len(x.strip()) > 0]
             for item in datasets:
                 splitted = item.split("|")
                 dataset = splitted[0].strip()
@@ -258,7 +259,7 @@ class SetupAlignment(object):
         json_regex = re.compile('setupJson\s*\=\s*.*$', re.M)
 
         first_dataset = True
-        for name, dataset in self._datasets.iteritems():
+        for name, dataset in six.iteritems(self._datasets):
             print "="*75
             # Build config from template/Fill in variables
             try:
@@ -328,7 +329,7 @@ class SetupAlignment(object):
                        "cmscafuser:"+self._mss_dir]
             if dataset["numberOfEvents"] > 0:
                 command.extend(["--max-events", str(dataset["numberOfEvents"])])
-            command = filter(lambda x: len(x.strip()) > 0, command)
+            command = [x for x in command if len(x.strip()) > 0]
 
             # Some output:
             print "Creating jobs for dataset:", name
@@ -439,7 +440,7 @@ class SetupAlignment(object):
             print "Properly set up the alignment before using the -w option."
             sys.exit(1)
 
-        firstDataset = next(self._datasets.itervalues())
+        firstDataset = next(six.itervalues(self._datasets))
         config_template = firstDataset["configTemplate"]
         collection = firstDataset["collection"]
 
@@ -503,7 +504,7 @@ class SetupAlignment(object):
                                               run_number, input_db_name)
 
         self._override_gt = ""
-        for record,tag in tags.iteritems():
+        for record,tag in six.iteritems(tags):
             if self._override_gt == "":
                 self._override_gt \
                     += ("\nimport "
@@ -558,13 +559,13 @@ class SetupAlignment(object):
                 print self._first_run, "!=", iovs[0]
                 sys.exit(1)
 
-        for inp in inputs.itervalues():
+        for inp in six.itervalues(inputs):
             inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
 
         # check consistency of input with output
         problematic_gt_inputs = {}
         input_indices = {key: len(value["iovs"]) -1
-                         for key,value in inputs.iteritems()}
+                         for key,value in six.iteritems(inputs)}
         for iov in reversed(iovs):
             for inp in inputs:
                 if inputs[inp].pop("problematic", False):
@@ -604,7 +605,7 @@ class SetupAlignment(object):
 
         # check consistency of 'TrackerAlignmentRcd' with other inputs
         input_indices = {key: len(value["iovs"]) -1
-                         for key,value in inputs.iteritems()
+                         for key,value in six.iteritems(inputs)
                          if (key != "TrackerAlignmentRcd")
                          and (inp not in problematic_gt_inputs)}
         for iov in reversed(inputs["TrackerAlignmentRcd"]["iovs"]):
@@ -666,7 +667,7 @@ class SetupAlignment(object):
                 if var == "testMode": continue
                 print "No '" + var + "' given in [general] section."
 
-        for dataset in self._external_datasets.itervalues():
+        for dataset in six.itervalues(self._external_datasets):
             dataset["general"] = {}
             for var in ("globaltag", "configTemplate", "json"):
                 try:
@@ -701,7 +702,7 @@ class SetupAlignment(object):
                                "weight": None}
         all_configs.update(self._external_datasets)
 
-        for config in all_configs.itervalues():
+        for config in six.itervalues(all_configs):
             global_weight = "1" if config["weight"] is None else config["weight"]
             if global_weight+self._config.config_path in self._common_weights:
                 global_weight = self._common_weights[global_weight+
@@ -847,8 +848,8 @@ class SetupAlignment(object):
                         print "inputfilelist as the number of jobs."
 
             # check if local weights override global weights and resolve name clashes
-            for weight_name, weight_values in common_weights.iteritems():
-                for key, weight in weight_dict.iteritems():
+            for weight_name, weight_values in six.iteritems(common_weights):
+                for key, weight in six.iteritems(weight_dict):
                     if any([weight_name in w for w in weight]):
                         self._common_weights[weight_name+config["config"].config_path] = weight_values
                         self._weight_dict[key] = [mps_tools.replace_factors(w,

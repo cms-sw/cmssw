@@ -28,9 +28,7 @@ class DQMMessageLoggerClient : public edm::EDAnalyzer {
   
   // Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
-  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup&) override;
   
   // Save the histos
   void endRun(const edm::Run&, const edm::EventSetup&) override;

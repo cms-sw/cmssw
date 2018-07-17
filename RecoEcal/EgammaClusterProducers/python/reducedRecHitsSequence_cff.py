@@ -143,8 +143,8 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                         cms.InputTag("interestingEcalDetIdOOTPFES"),
                                       ),
                                       interestingDetIdsNotToClean = cms.VInputTag(
-                                          cms.InputTag("interestingGedEgammaIsoESDetId"),
-                                          cms.InputTag("interestingOotEgammaIsoESDetId"),
+                                        cms.InputTag("interestingGedEgammaIsoESDetId"),
+                                        cms.InputTag("interestingOotEgammaIsoESDetId"),
                                       )
 )
 
@@ -180,3 +180,18 @@ phase2_common.toReplaceWith( reducedEcalRecHitsTask , _phase2_reducedEcalRecHits
 _fastSim_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copyAndExclude(seldigisTask)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith( reducedEcalRecHitsTask, _fastSim_reducedEcalRecHitsTask)
+
+_pp_on_AA_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copy()
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEB)
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEE)
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFES)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(reducedEcalRecHitsTask, _pp_on_AA_reducedEcalRecHitsTask)
+
+pp_on_AA_2018.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEB")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEB")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEE")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEE")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFES")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIdsNotToClean, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoESDetId")) )

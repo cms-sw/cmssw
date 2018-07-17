@@ -41,8 +41,7 @@ class TrackingSlaveSD;
 class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector,
-		public Observer<const BeginOfEvent*>,
-		public Observer<const EndOfEvent*> {
+		public Observer<const BeginOfEvent*>{
 
 public:
 
@@ -55,28 +54,26 @@ public:
 
   void   Initialize(G4HCofThisEvent * HCE) override;
   void   EndOfEvent(G4HCofThisEvent * eventHC) override;
-  void   clear() override;
-  void   DrawAll() override;
   void   PrintAll() override;
 
   void   fillHits(edm::PSimHitContainer&, const std::string&) override;
   void   clearHits() override;
 
-private:
+protected:
 
   void   update(const BeginOfEvent *) override;
-  void   update(const ::EndOfEvent *) override;
 
-  G4ThreeVector  SetToLocal(const G4ThreeVector& globalPoint);
-  void           GetStepInfo(G4Step* aStep);
-  bool           HitExists();
-  void           CreateNewHit();
-  void           CreateNewHitEvo();
-  G4ThreeVector  PosizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
-  void           UpdateHit();
-  void           StoreHit(TotemG4Hit*);
-  void           ResetForNewPrimary();
-  void           Summarize();
+private:
+
+  G4ThreeVector  setToLocal(const G4ThreeVector& globalPoint);
+  void           getStepInfo(const G4Step* aStep);
+  bool           hitExists();
+  void           createNewHit();
+  void           createNewHitEvo();
+  G4ThreeVector  posizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
+  void           updateHit();
+  void           storeHit(TotemG4Hit*);
+  void           resetForNewPrimary();
 
 private:
 
@@ -104,8 +101,8 @@ private:
   int                         primaryID, tSliceID;  
   double                      tSlice;
 
-  G4StepPoint*                preStepPoint; 
-  G4StepPoint*                postStepPoint; 
+  const G4StepPoint*          preStepPoint; 
+  const G4StepPoint*          postStepPoint; 
   float                       edeposit;
   G4ThreeVector               hitPoint;
 
@@ -120,8 +117,6 @@ private:
 
   int                         ParentId;
   float                       Vx,Vy,Vz;
-
-  int                         eventno;
 };
 
 #endif

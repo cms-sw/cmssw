@@ -56,9 +56,8 @@ protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
 
 private:
   bool passesLooseEleId(reco::GsfElectron const& electron) const;
@@ -75,6 +74,8 @@ private:
   void fillPhotons(edm::Event const& e, const unsigned int nVertex);
   bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
   bool matchesAnHLTObject(double eta, double phi) const;
+
+  void normalise2DHistogramsToBinArea();
 
   math::XYZPoint PVPoint_;
 
@@ -99,6 +100,9 @@ private:
 
   std::vector<double> photonEfficiencyThresholds_;
   std::vector<double> photonEfficiencyBins_;
+
+  double maxDeltaRForL1Matching_;
+  double maxDeltaRForHLTMatching_;
 
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
@@ -180,7 +184,7 @@ private:
 
   MonitorElement* h_resolutionPhotonEta_;
 
-  // electron turn-ons
+  // photon turn-ons
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_pass_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EE_pass_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_EE_pass_;

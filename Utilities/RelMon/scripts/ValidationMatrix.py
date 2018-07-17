@@ -188,7 +188,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
 
 def get_roofiles_in_dir(directory):  
   print directory
-  files_list = filter(lambda s: s.endswith(".root"), os.listdir(directory))
+  files_list = [s for s in os.listdir(directory) if s.endswith(".root")]
   files_list_path=map(lambda s: os.path.join(directory,s), files_list)
   
   return files_list_path
@@ -265,7 +265,7 @@ def get_clean_fileanames(ref_samples,test_samples):
 #-------------------------------------------------------------------------------
 
 def count_alive_processes(p_list):
-  return len(filter(lambda p: p.returncode==None,p_list))
+  return len([p for p in p_list if p.returncode==None])
 
 #-------------------------------------------------------------------------------
 
@@ -304,7 +304,7 @@ def call_compare_using_files(args):
     command+= '-B %s ' %blacklists[sample]
   print "\nExecuting --  %s" %command
 
-  process=call(filter(lambda x: len(x)>0,command.split(" ")))
+  process=call([x for x in command.split(" ") if len(x)>0])
   return process
   
 
@@ -391,7 +391,7 @@ def do_comparisons_threaded(options):
 def do_reports(indir):
   #print indir
   os.chdir(indir)
-  pkl_list=filter(lambda x:".pkl" in x, os.listdir("./"))
+  pkl_list=[x for x in os.listdir("./") if ".pkl" in x]
   running_subprocesses=[]
   n_processes=int(options.n_processes)
   process_counter=0
@@ -403,7 +403,7 @@ def do_reports(indir):
     command+= "-P %s " %pklfilename
     command+= "-o %s " %pklfilename[:-4]
     print "Executing %s" %command
-    process=call(filter(lambda x: len(x)>0,command.split(" ")))
+    process=call([x for x in command.split(" ") if len(x)>0])
     process_counter+=1
     # add it to the list
     running_subprocesses.append(process)   

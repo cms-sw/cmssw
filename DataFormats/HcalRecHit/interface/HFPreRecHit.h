@@ -16,23 +16,52 @@ class HFPreRecHit
 public:
     typedef HcalDetId key_type;
 
-    HFPreRecHit();
+    constexpr HFPreRecHit() 
+        : hasInfo_{false, false}
+    {}
 
     // In the constructor below, either "first" or "second"
     // pointer can be nullptr
-    HFPreRecHit(const HcalDetId& id, const HFQIE10Info* first,
-                const HFQIE10Info* second);
+    constexpr HFPreRecHit(const HcalDetId& id, const HFQIE10Info* first,
+                const HFQIE10Info* second)
+        : id_(id), hasInfo_{false, false} {
+        if (first) {
+            hfQIE10Info_[0] = *first;
+            hasInfo_[0] = true;
+        }
+        if (second) {
+            hfQIE10Info_[1] = *second;
+            hasInfo_[1] = true;
+        }
+    }
 
-    inline HcalDetId id() const {return id_;}
+    constexpr HcalDetId id() const {return id_;}
 
     // Get a pointer to the QIE10 info. nullptr will be returned
     // if the info with the given index does not exist or if the
     // index is out of range.
-    const HFQIE10Info* getHFQIE10Info(unsigned index) const;
+    constexpr HFQIE10Info const* getHFQIE10Info(unsigned index) const {
+        if (index < 2 && hasInfo_[index])
+            return &hfQIE10Info_[index];
+        else
+            return nullptr;
+    }
 
     // Quantities simply added from both anodes
-    float charge() const;
-    float energy() const;
+    constexpr float charge() const {
+        float q = 0.f;
+        for (unsigned i=0; i<2; ++i)
+            if (hasInfo_[i])
+                q += hfQIE10Info_[i].charge();
+        return q;
+    }
+    constexpr float energy() const {
+        float e = 0.f;
+        for (unsigned i=0; i<2; ++i)
+            if (hasInfo_[i])
+                e += hfQIE10Info_[i].energy();
+        return e;
+    }
 
     // The following function returns a pair.
     // The first element of the pair is the charge asymmetry,

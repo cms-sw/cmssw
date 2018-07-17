@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-#include "../src/headers.h"
+#include "CondFormats/BTauObjects/src/headers.h"
 
 int main()
 {

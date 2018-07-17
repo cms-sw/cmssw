@@ -8,6 +8,8 @@
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -61,10 +63,10 @@ public:
   struct hitsinfo{
     hitsinfo() {
       x=y=z=phi=eta=0.0;
-      cell=sector=layer=0;
+      cell=cell2=sector=sector2=type=layer=0;
     }
     double x, y, z, phi, eta;
-    int    cell, sector, layer;
+    int    cell, cell2, sector, sector2, type, layer;
   };
   
   
@@ -137,7 +139,7 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_hepMC_,evtMC); 
   if (!evtMC.isValid()) {
-    edm::LogWarning("HGCalValidation") << "no HepMCProduct found\n";
+    edm::LogVerbatim("HGCalValidation") << "no HepMCProduct found";
   } else { 
     const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
     unsigned int k(0);
@@ -192,8 +194,8 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     double energy      = hits[i].energy();
     double time        = hits[i].time();
     uint32_t id_       = hits[i].id();
-    int    cell, sector, subsector, layer, zside;
-    int    subdet(0);
+    int    cell, sector, subsector(0), layer, zside;
+    int    subdet(0), cell2(0), type(0);
     if (heRebuild_) {
       HcalDetId detId  = HcalDetId(id_);
       subdet           = detId.subdet();
@@ -203,21 +205,41 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       subsector        = 1;
       layer            = detId.depth();
       zside            = detId.zside();
+    } else if ((hgcons_->geomMode() == HGCalGeometryMode::Hexagon8) ||
+	       (hgcons_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+      HGCSiliconDetId detId = HGCSiliconDetId(id_);
+      subdet           = ForwardEmpty;
+      cell             = detId.cellU();
+      cell2            = detId.cellV();
+      sector           = detId.waferU();
+      subsector        = detId.waferV();
+      type             = detId.type();
+      layer            = detId.layer();
+      zside            = detId.zside();
+    } else if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
+      HGCalTestNumbering::unpackSquareIndex(id_, zside, layer, sector, subsector, cell);
+    } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
+      HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
+      subdet           = ForwardEmpty;
+      cell             = detId.ietaAbs();
+      sector           = detId.iphi();
+      subsector        = 1;
+      type             = detId.type();
+      layer            = detId.layer();
+      zside            = detId.zside();
     } else {
-      if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
-	HGCalTestNumbering::unpackSquareIndex(id_, zside, layer, sector, subsector, cell);
-      } else {
-	HGCalTestNumbering::unpackHexagonIndex(id_, subdet, zside, layer, sector, subsector, cell);
-      }
+      HGCalTestNumbering::unpackHexagonIndex(id_, subdet, zside, layer, sector, type, cell);
     }
     nused++;
     if (verbosity_>1) 
       edm::LogVerbatim("HGCalValidation") << "Detector "     << nameDetector_
 					  << " zside = "     << zside
 					  << " sector|wafer = "   << sector
-					  << " subsector|type = " << subsector
+					  << ":" << subsector
+					  << " type = "      << type
 					  << " layer = "     << layer
-					  << " cell = "      << cell
+					  << " cell = "      << cell 
+					  << ":" << cell2
 					  << " energy = "    << energy
 					  << " energyem = "  << hits[i].energyEM()
 					  << " energyhad = " << hits[i].energyHad()
@@ -236,20 +258,26 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       gcoord = HepGeom::Point3D<float>(rz*cos(etaphi.second)/cosh(etaphi.first),
 				       rz*sin(etaphi.second)/cosh(etaphi.first),
 				       rz*tanh(etaphi.first));
+    } else if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
+      std::pair<float,float> xy = hgcons_->locateCell(cell,layer,subsector,false);
+      const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
+      int subs = (symmDet_ ? 0 : subsector);
+      id_      = HGCalTestNumbering::packSquareIndex(zside,layer,sector,subs,0);
+      gcoord   = (transMap_[id_]*lcoord);
     } else {
-      if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
-	std::pair<float,float> xy = hgcons_->locateCell(cell,layer,subsector,false);
-	const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
-	int subs = (symmDet_ ? 0 : subsector);
-	id_      = HGCalTestNumbering::packSquareIndex(zside,layer,sector,subs,0);
-	gcoord   = (transMap_[id_]*lcoord);
+      std::pair<float,float> xy;
+      if ((hgcons_->geomMode() == HGCalGeometryMode::Hexagon8) ||
+	  (hgcons_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+	xy = hgcons_->locateCell(layer,sector,subsector,cell,cell2,false,true);
+      } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
+	xy = hgcons_->locateCellTrap(layer,sector,cell,false);
       } else {
-	std::pair<float,float> xy = hgcons_->locateCell(cell,layer,sector,false);
-	double zp = hgcons_->waferZ(layer,false);
-	if (zside < 0) zp = -zp;
-	float  xp = (zp < 0) ? -xy.first : xy.first;
-	gcoord = HepGeom::Point3D<float>(xp,xy.second,zp);
+	xy = hgcons_->locateCell(cell,layer,sector,false);
       }
+      double zp = hgcons_->waferZ(layer,false);
+      if (zside < 0) zp = -zp;
+      float  xp = (zp < 0) ? -xy.first : xy.first;
+      gcoord = HepGeom::Point3D<float>(xp,xy.second,zp);
     }
     double tof = (gcoord.mag()*CLHEP::mm)/CLHEP::c_light; 
     if (verbosity_>1) 
@@ -268,7 +296,10 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       hinfo.y      = gcoord.y();
       hinfo.z      = gcoord.z();
       hinfo.sector = sector;
+      hinfo.sector2= subsector;
       hinfo.cell   = cell;
+      hinfo.cell2  = cell;
+      hinfo.type   = type;
       hinfo.layer  = layer;
       hinfo.phi    = gcoord.getPhi();
       hinfo.eta    = gcoord.getEta();
@@ -342,9 +373,11 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo,energysum> hits,
     if (verbosity_>0) 
       edm::LogVerbatim("HGCalValidation") << "Problematic Hit for " 
 					  << nameDetector_ << " at sector " 
-					  << hits.first.sector << " layer " 
+					  << hits.first.sector << ":"
+					  << hits.first.sector2 << " layer " 
 					  << hits.first.layer << " cell " 
-					  << hits.first.cell << " energy "
+					  << hits.first.cell << ":"
+					  << hits.first.cell2 << " energy "
 					  << hits.second.etotal;
   }
 }
@@ -430,7 +463,7 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB,
 					   edm::Run const&, 
 					   edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalSimHitsV/"+nameDetector_);
+  iB.setCurrentFolder("HGCAL/HGCalSimHitsV/"+nameDetector_);
     
   std::ostringstream histoname;
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {

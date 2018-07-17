@@ -53,7 +53,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				  HGCalParameters& php, 
 				  const std::string& name,
 				  const std::string& namew, 
-				  const std::string& namec) {
+				  const std::string& namec,
+				  const std::string& namet) {
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD::build called with "
@@ -85,7 +86,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     if ((php.mode_ == HGCalGeometryMode::Hexagon) ||
 	(php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute  = "OnlyForHGCalNumbering";
-      value      = "HGCal";
+      value      = namet;
       DDValue val2(attribute, value, 0.0);
       DDSpecificsMatchesValueFilter filter2{val2};
       DDFilteredView fv2(*cpv,filter2);
@@ -109,7 +110,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				    << php.levelT_[1];
 #endif
       attribute   = "OnlyForHGCalNumbering";
-      value       = "HGCal";
+      value       = namet;
       DDValue val2(attribute, value, 0.0);
       DDSpecificsMatchesValueFilter filter2{val2};
       DDFilteredView fv2(*cpv,filter2);
@@ -173,20 +174,20 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadSpecParsHexagon8(fv, php);
       //Load Geometry parameters
       geom->loadGeometryHexagon8(fv, php, 1);
-      //Load wafer positions
-      geom->loadWaferHexagon8(php);
       //Set complete fill mode
       php.defineFull_ = false;
+      //Load wafer positions
+      geom->loadWaferHexagon8(php);
     } else if (php.mode_ == HGCalGeometryMode::Hexagon8Full) {
       //Load the SpecPars
       php.firstLayer_ = 1;
       geom->loadSpecParsHexagon8(fv, php);
       //Load Geometry parameters
       geom->loadGeometryHexagon8(fv, php, 1);
-      //Load wafer positions
-      geom->loadWaferHexagon8(php);
       //Set complete fill mode
       php.defineFull_ = true;
+      //Load wafer positions
+      geom->loadWaferHexagon8(php);
     } else if (php.mode_ == HGCalGeometryMode::Trapezoid) {
       //Load maximum eta & top level
       php.etaMinBH_        = getDDDValue("etaMinBH", sv);

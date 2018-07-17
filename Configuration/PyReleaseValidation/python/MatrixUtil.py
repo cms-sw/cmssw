@@ -88,7 +88,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
             print "run %s is NOT present in json %s\n\n"%(run, l_json)
         # print "++    %s"%(local_dict)
 
-    if ( len(local_dict.keys()) > 0 ) :
+    if ( len(local_dict) > 0 ) :
         return local_dict
     else :
         print "No luminosity section interval passed the json and your selection; returning None"

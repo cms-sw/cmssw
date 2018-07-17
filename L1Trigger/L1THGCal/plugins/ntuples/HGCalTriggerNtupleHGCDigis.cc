@@ -84,9 +84,9 @@ HGCalTriggerNtupleHGCDigis::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
 
-    ee_token_ = collector.consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisEE"));
-    fh_token_ = collector.consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisFH"));
-    bh_token_ = collector.consumes<HGCBHDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisBH"));
+    ee_token_ = collector.consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisEE"));
+    fh_token_ = collector.consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisFH"));
+    bh_token_ = collector.consumes<HGCalDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisBH"));
     if (is_Simhit_comp_) {
       SimHits_inputee_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("eeSimHits"));
       SimHits_inputfh_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("fhSimHits"));
@@ -127,15 +127,15 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 {
     es.get<CaloGeometryRecord>().get(triggerGeometry_);
 
-    edm::Handle<HGCEEDigiCollection> ee_digis_h;
+    edm::Handle<HGCalDigiCollection> ee_digis_h;
     e.getByToken(ee_token_, ee_digis_h);
-    const HGCEEDigiCollection& ee_digis = *ee_digis_h;
-    edm::Handle<HGCHEDigiCollection> fh_digis_h;
+    const HGCalDigiCollection& ee_digis = *ee_digis_h;
+    edm::Handle<HGCalDigiCollection> fh_digis_h;
     e.getByToken(fh_token_, fh_digis_h);
-    const HGCHEDigiCollection& fh_digis = *fh_digis_h;
-    edm::Handle<HGCBHDigiCollection> bh_digis_h;
+    const HGCalDigiCollection& fh_digis = *fh_digis_h;
+    edm::Handle<HGCalDigiCollection> bh_digis_h;
     e.getByToken(bh_token_, bh_digis_h);
-    const HGCBHDigiCollection& bh_digis = *bh_digis_h;
+    const HGCalDigiCollection& bh_digis = *bh_digis_h;
 
     triggerTools_.eventSetup(es);
 

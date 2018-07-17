@@ -1,4 +1,4 @@
-#include "../interface/OccupancyClient.h"
+#include "DQM/EcalMonitorClient/interface/OccupancyClient.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 

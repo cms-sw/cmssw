@@ -112,6 +112,7 @@ int main(int argc, char *argv[]) {
 	  th_summary->AddBinContent(i, hist->GetBinContent(i));
           TotalDigis += hist->GetBinContent(i);
 	}
+	hist->SetLineColor(2);
 	if (imagePrint) printPlot(hist,prefix,postfix);
 	hist->Write();
       } else {  

@@ -18,6 +18,7 @@ import ConfigParser
 
 import numpy as np
 
+import six
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
@@ -346,14 +347,14 @@ if __name__ == "__main__":
         print "Selecting data for beam energy %.0f GeV" % beam_energy
     else:
         print "Selecting data for default beam energy for '%s' from:" % accel_mode
-        for (key, val) in beam_energy_defaults[accel_mode].iteritems():
+        for (key, val) in six.iteritems(beam_energy_defaults[accel_mode]):
             print "  %d : %.1f GeV" % (key, val)
     if beam_fluctuation_from_cfg:
         print "Using beam energy fluctuation of +/- %.0f%%" % \
               (100. * beam_fluctuation)
     else:
         print "Using default beam energy fluctuation for '%s' from:" % accel_mode
-        for (key, val) in beam_fluctuation_defaults[accel_mode].iteritems():
+        for (key, val) in six.iteritems(beam_fluctuation_defaults[accel_mode]):
             print "  %d : +/- %.0f%%" % (key, 100. * val)
     if use_oracle:
         print "Using direct access to the Oracle luminosity database"

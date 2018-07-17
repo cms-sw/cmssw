@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTConfiguration.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 unsigned
 l1t::MicroGMTConfiguration::getTwosComp(const int signed_int, const int width) {

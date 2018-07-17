@@ -107,12 +107,12 @@ class Directory(Weighted):
     
     self.n_skiped = 0
     self.n_comp_skiped = 0
-    self.n_missing_objs = len(self.different_histograms['file1'].keys())+len(self.different_histograms['file2'].keys())
+    self.n_missing_objs = len(self.different_histograms['file1'])+len(self.different_histograms['file2'])
     if self.n_missing_objs != 0:
       print "    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1'])
       print "    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2'])
     # clean from empty dirs    
-    self.subdirs = filter(lambda subdir: not subdir.is_empty(),self.subdirs)    
+    self.subdirs = [subdir for subdir in self.subdirs if not subdir.is_empty()]    
     
     for comp in self.comparisons:
       if comp.status == SKIPED: #in case its in black list & skiped 
@@ -182,7 +182,7 @@ class Directory(Weighted):
       self.calcStats(make_pie=False)
     # print small failure report
     if verbose:
-      fail_comps=filter(lambda comp:comp.status==FAIL,self.comparisons)
+      fail_comps=[comp for comp in self.comparisons if comp.status==FAIL]
       fail_comps=sorted(fail_comps,key=lambda comp:comp.name )    
       if len(fail_comps)>0:
         print indent+"* %s/%s:" %(self.mother_dir,self.name)

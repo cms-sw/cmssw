@@ -4,7 +4,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include <set>
+#include <vector>
 #include <iostream>
 
 
@@ -29,25 +29,15 @@ namespace reco {
 
   public:
 
-    /// -------- Useful Types -------- ///
-
-    typedef std::set< reco::TrackBaseRef >::iterator IEset;
-
-    /// A function necessary to use a set format to store the tracks Refs.
-    /// The set is the most appropriate in that case to avoid the double counting 
-    /// of the tracks durring the build up procedure.
-    /// The position of the tracks in the Collection
-    /// is used as a classification parameter.
-    struct Compare{
-      bool operator()(const TrackBaseRef& s1, const TrackBaseRef& s2) const
-      {return s1.key() < s2.key();}
-    };
-
     /// Default constructor
     PFDisplacedVertexSeed();
 
     /// Add a track Reference to the current Seed
+    /// If the track reference is already in the collection, it is ignored
     void addElement(TrackBaseRef);
+
+    /// Reserve space for elements
+    void reserveElements(size_t);
 
     /// Add a track Ref to the Seed and recalculate the seedPoint with a new dcaPoint
     /// A weight different from 1 may be assign to the new DCA point 
@@ -60,8 +50,8 @@ namespace reco {
     /// Check if it is a new Seed
     bool isEmpty() const {return (elements_.empty());}
 
-    /// \return set of references to tracks 
-    const std::set < TrackBaseRef, Compare >& elements() const 
+    /// \return vector of unique references to tracks 
+    const std::vector <TrackBaseRef>& elements() const 
       {return elements_;}
 
     const double nTracks() const {return elements_.size();}
@@ -84,7 +74,7 @@ namespace reco {
     /// --------- MEMBERS ---------- ///
 
     /// Set of tracks refs associated to the seed
-    std::set < TrackBaseRef , Compare >     elements_;
+    std::vector< TrackBaseRef>     elements_;
     /// Seed point which indicated the approximative position of the vertex.
     GlobalPoint                   seedPoint_;
     /// Total weight of the points used to calculate the seed point. 

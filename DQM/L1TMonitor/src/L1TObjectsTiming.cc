@@ -83,7 +83,6 @@ void L1TObjectsTiming::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) 
   }
 }
 
-void L1TObjectsTiming::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 
@@ -559,86 +558,86 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   if (bxShiftLast > -999) {
     // muons
     for (int itBX = std::max(MuonBxCollection->getFirstBX(), MuonBxCollection->getFirstBX() + bxShiftLast); itBX <= std::min(MuonBxCollection->getLastBX(), MuonBxCollection->getLastBX() + bxShiftLast); ++itBX) {
-      int index = itBX - bxShiftLast - uGtAlgs->getFirstBX();
-      if (index >= 0 and index < (int)muons_eta_phi_lastbunch.size()) {
+      auto correctedBx = itBX - bxShiftLast;
+      if (correctedBx >= 0 and correctedBx < (int)muons_eta_phi_lastbunch.size()) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
           if (muon->pt() >= muonPtCut_ and muon->hwQual() >= muonQualCut_) {
             denominator_muons_lastbunch->Fill(muon->eta(), muon->phi());
-            muons_eta_phi_lastbunch.at(index)->Fill(muon->eta(), muon->phi());
+            muons_eta_phi_lastbunch.at(correctedBx)->Fill(muon->eta(), muon->phi());
           }
         }
       }
     }
     // jets
     for (int itBX = std::max(JetBxCollection->getFirstBX(), JetBxCollection->getFirstBX() + bxShiftLast); itBX <= std::min(JetBxCollection->getLastBX(), JetBxCollection->getLastBX() + bxShiftLast); ++itBX) {
-      int index = itBX - bxShiftLast - uGtAlgs->getFirstBX();
-      if (index >= 0 and index < (int)jet_eta_phi_lastbunch.size()) {
+      auto correctedBx = itBX - bxShiftLast;
+      if (correctedBx >= 0 and correctedBx < (int)jet_eta_phi_lastbunch.size()) {
         for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
           if (jet->pt() >= jetPtCut_) {
             denominator_jet_lastbunch->Fill(jet->eta(), jet->phi());
-            jet_eta_phi_lastbunch.at(index)->Fill(jet->eta(), jet->phi());
+            jet_eta_phi_lastbunch.at(correctedBx)->Fill(jet->eta(), jet->phi());
           }
         }
       }
     }
     // egammas
     for (int itBX = std::max(EGammaBxCollection->getFirstBX(), EGammaBxCollection->getFirstBX() + bxShiftLast); itBX <= std::min(EGammaBxCollection->getLastBX(), EGammaBxCollection->getLastBX() + bxShiftLast); ++itBX) {
-      int index = itBX - bxShiftLast - uGtAlgs->getFirstBX();
+      auto correctedBx = itBX - bxShiftLast;
       for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
         for (size_t i = 0; i < egammaPtCuts_.size(); ++i) {
           if (egamma->pt() >= egammaPtCuts_.at(i)) {
-            if (index >= 0 and index < (int)egamma_eta_phi_lastbunch.size()) {
+            if (correctedBx >= 0 and correctedBx < (int)egamma_eta_phi_lastbunch.size()) {
               denominator_egamma_lastbunch.at(i)->Fill(egamma->eta(), egamma->phi());
-              egamma_eta_phi_lastbunch.at(i).at(index)->Fill(egamma->eta(), egamma->phi());
+              egamma_eta_phi_lastbunch.at(i).at(correctedBx)->Fill(egamma->eta(), egamma->phi());
             }
             if ((bool)egamma->hwIso()) {
-              egamma_iso_bx_ieta_lastbunch.at(i)->Fill(itBX - bxShiftLast, egamma->hwEta());
+              egamma_iso_bx_ieta_lastbunch.at(i)->Fill(correctedBx, egamma->hwEta());
             }
-            egamma_noniso_bx_ieta_lastbunch.at(i)->Fill(itBX - bxShiftLast, egamma->hwEta());
+            egamma_noniso_bx_ieta_lastbunch.at(i)->Fill(correctedBx, egamma->hwEta());
           }
         }
       }
     }
     // taus
     for (int itBX = std::max(TauBxCollection->getFirstBX(), TauBxCollection->getFirstBX() + bxShiftLast); itBX <= std::min(TauBxCollection->getLastBX(), TauBxCollection->getLastBX() + bxShiftLast); ++itBX) {
-      int index = itBX - bxShiftLast - uGtAlgs->getFirstBX();
-      if (index >= 0 and index < (int)tau_eta_phi_lastbunch.size()) {
+      auto correctedBx = itBX - bxShiftLast;
+      if (correctedBx >= 0 and correctedBx < (int)tau_eta_phi_lastbunch.size()) {
         for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
           if (tau->pt() >= tauPtCut_) {
             denominator_tau_lastbunch->Fill(tau->eta(), tau->phi());
-            tau_eta_phi_lastbunch.at(index)->Fill(tau->eta(), tau->phi());
+            tau_eta_phi_lastbunch.at(correctedBx)->Fill(tau->eta(), tau->phi());
           }
         }
       }
     }
     // etsums
     for (int itBX = std::max(EtSumBxCollection->getFirstBX(), EtSumBxCollection->getFirstBX() + bxShiftLast); itBX <= std::min(EtSumBxCollection->getLastBX(), EtSumBxCollection->getLastBX() + bxShiftLast); ++itBX) {
-      int index = itBX - bxShiftLast - uGtAlgs->getFirstBX();
-      if (index >= 0) {
+      auto correctedBx = itBX - bxShiftLast;
+      if (correctedBx >= 0) {
         for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
           if (EtSum->pt() >= etsumPtCut_) {
             if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
-              if (index < (int)etsum_eta_phi_MET_lastbunch.size()) {
+              if (correctedBx < (int)etsum_eta_phi_MET_lastbunch.size()) {
                 denominator_etsum_lastbunch_MET->Fill(EtSum->phi());
-                etsum_eta_phi_MET_lastbunch.at(index)->Fill(EtSum->phi());
+                etsum_eta_phi_MET_lastbunch.at(correctedBx)->Fill(EtSum->phi());
               }
             }
             else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
-              if (index < (int)etsum_eta_phi_METHF_lastbunch.size()) {
+              if (correctedBx < (int)etsum_eta_phi_METHF_lastbunch.size()) {
                 denominator_etsum_lastbunch_METHF->Fill(EtSum->phi());
-                etsum_eta_phi_METHF_lastbunch.at(index)->Fill(EtSum->phi());
+                etsum_eta_phi_METHF_lastbunch.at(correctedBx)->Fill(EtSum->phi());
               }
             }
             else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
-              if (index < (int)etsum_eta_phi_MHT_lastbunch.size()) {
+              if (correctedBx < (int)etsum_eta_phi_MHT_lastbunch.size()) {
                 denominator_etsum_lastbunch_MHT->Fill(EtSum->phi());
-                etsum_eta_phi_MHT_lastbunch.at(index)->Fill(EtSum->phi());
+                etsum_eta_phi_MHT_lastbunch.at(correctedBx)->Fill(EtSum->phi());
               }
             }
             else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
-              if (index < (int)etsum_eta_phi_MHTHF_lastbunch.size()) {
+              if (correctedBx < (int)etsum_eta_phi_MHTHF_lastbunch.size()) {
                 denominator_etsum_lastbunch_MHTHF->Fill(EtSum->phi());
-                etsum_eta_phi_MHTHF_lastbunch.at(index)->Fill(EtSum->phi());
+                etsum_eta_phi_MHTHF_lastbunch.at(correctedBx)->Fill(EtSum->phi());
               }
             }
           }

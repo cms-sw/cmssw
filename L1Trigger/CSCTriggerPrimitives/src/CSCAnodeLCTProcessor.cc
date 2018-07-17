@@ -951,13 +951,14 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
       else if ((sz % 2) == 1) first_bx_corrected[key_wire] = *(++im);
       else first_bx_corrected[key_wire] = ((*im) + (*(++im)))/2;
 
+#if defined(EDM_ML_DEBUG)
       if (infoV > 1) {
-        char bxs[300]="";
-        for (im = mset_for_median.begin(); im != mset_for_median.end(); im++)
-          sprintf(bxs,"%s %d", bxs, *im);
-        LogTrace("CSCAnodeLCTProcessor")
-          <<"bx="<<first_bx[key_wire]<<" bx_cor="<< first_bx_corrected[key_wire]<<"  bxset="<<bxs;
+        auto lt = LogTrace("CSCAnodeLCTProcessor") <<"bx="<<first_bx[key_wire]<<" bx_cor="<< first_bx_corrected[key_wire]<<"  bxset=";
+        for (im = mset_for_median.begin(); im != mset_for_median.end(); im++) {
+          lt<<" "<<*im;
+        }
       }
+#endif
     }
 
     if (temp_quality >= pattern_thresh[i_pattern]) {

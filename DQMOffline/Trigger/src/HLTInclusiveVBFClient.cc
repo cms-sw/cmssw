@@ -53,9 +53,6 @@ void HLTInclusiveVBFClient::beginRun(const edm::Run& r, const edm::EventSetup& c
 }
 
 
-void HLTInclusiveVBFClient::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-
-}
 
 
 void HLTInclusiveVBFClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ) {

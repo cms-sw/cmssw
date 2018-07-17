@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
+import six
 
 variables = {
     'met': L1TStep1.metEfficiencyThresholds,
@@ -9,7 +10,7 @@ variables = {
 }
 
 plots = {
-    'met': ['efficiencyMET', 'efficiencyETMHF'],
+    'met': ['efficiencyMET', 'efficiencyETMHF', 'efficiencyPFMetNoMu'],
     'mht': ['efficiencyMHT'],
     'ett': ['efficiencyETT'],
     'htt': ['efficiencyHTT'],
@@ -17,7 +18,7 @@ plots = {
 
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
-for variable, thresholds in variables.iteritems():
+for variable, thresholds in six.iteritems(variables):
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
@@ -26,13 +27,13 @@ for variable, thresholds in variables.iteritems():
 from DQMOffline.L1Trigger.L1TDiffHarvesting_cfi import l1tDiffHarvesting
 
 resolution_plots = [
-    "resolutionMET", "resolutionETMHF", "resolutionMHT", "resolutionETT",
-    "resolutionHTT", "resolutionMETPhi", "resolutionETMHFPhi",
+    "resolutionMET", "resolutionETMHF", "resolutionPFMetNoMu", "resolutionMHT", "resolutionETT",
+    "resolutionHTT", "resolutionMETPhi", "resolutionETMHFPhi", "resolutionPFMetNoMuPhi",
     "resolutionMHTPhi",
 ]
 plots2D = [
-    'L1METvsCaloMET', 'L1ETMHFvsCaloETMHF', 'L1MHTvsRecoMHT', 'L1ETTvsCaloETT',
-    'L1HTTvsRecoHTT', 'L1METPhivsCaloMETPhi', 'L1ETMHFPhivsCaloETMHFPhi',
+    'L1METvsCaloMET', 'L1ETMHFvsCaloETMHF', 'L1METvsPFMetNoMu', 'L1MHTvsRecoMHT', 'L1ETTvsCaloETT',
+    'L1HTTvsRecoHTT', 'L1METPhivsCaloMETPhi', 'L1METPhivsPFMetNoMuPhi', 'L1ETMHFPhivsCaloETMHFPhi',
     'L1MHTPhivsRecoMHTPhi',
 ]
 
@@ -44,8 +45,10 @@ allPlots.extend(plots2D)
 l1tEtSumEmuDiff = l1tDiffHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(  # EMU comparison
-            dir1=cms.untracked.string("L1T/L1TObjects/L1TEtSum/L1TriggerVsReco"),
-            dir2=cms.untracked.string("L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco"),
+            dir1=cms.untracked.string(
+                "L1T/L1TObjects/L1TEtSum/L1TriggerVsReco"),
+            dir2=cms.untracked.string(
+                "L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco"),
             outputDir=cms.untracked.string(
                 "L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco/Comparison"),
             plots=cms.untracked.vstring(allPlots)
@@ -58,7 +61,7 @@ variables_HI = variables
 
 allEfficiencyPlots_HI = []
 add_plot = allEfficiencyPlots_HI.append
-for variable, thresholds in variables_HI.iteritems():
+for variable, thresholds in six.iteritems(variables_HI):
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
@@ -70,7 +73,7 @@ allPlots_HI.extend(resolution_plots)
 allPlots_HI.extend(plots2D)
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tEtSumEmuDiff,
-    plotCfgs = {0:dict(plots = allPlots_HI)}
+ppRef_2017.toModify(
+    l1tEtSumEmuDiff,
+    plotCfgs={0: dict(plots=allPlots_HI)}
 )
-

@@ -302,4 +302,3 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
 void L1TStage2CaloLayer2::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup)
 {}
 
-void L1TStage2CaloLayer2::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {}

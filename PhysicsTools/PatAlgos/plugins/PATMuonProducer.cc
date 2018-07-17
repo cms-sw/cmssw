@@ -44,6 +44,12 @@
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include <vector>
 #include <memory>
@@ -179,6 +185,13 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   // MC info
   simInfo_        = consumes<edm::ValueMap<reco::MuonSimInfo> >(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
 
+  addTriggerMatching_ = iConfig.getParameter<bool>("addTriggerMatching");
+  if ( addTriggerMatching_ ){
+    triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(iConfig.getParameter<edm::InputTag>("triggerObjects"));
+    triggerResults_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"));
+  }
+  hltCollectionFilters_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionFilters");
+
   // produces vector of muons
   produces<std::vector<Muon> >();
 }
@@ -188,8 +201,100 @@ PATMuonProducer::~PATMuonProducer()
 {
 }
 
+std::unique_ptr<GlobalPoint> PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+							       const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+							       const DetId& chamberId)
+{
+  const GeomDet* chamberGeometry = geometry->idToDet( chamberId );
+  if (chamberGeometry){
+    LocalPoint localPosition(chamberMatch.x, chamberMatch.y, 0);
+    return std::unique_ptr<GlobalPoint>(new GlobalPoint(chamberGeometry->toGlobal(localPosition)));
+  }
+  return std::unique_ptr<GlobalPoint>();
+
+}
+
+
+void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
+					edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+					const edm::TriggerNames & names,
+					const edm::ESHandle<GlobalTrackingGeometry>& geometry)
+{
+  // L1 trigger object parameters are defined at MB2/ME2. Use the muon
+  // chamber matching information to get the local direction of the
+  // muon trajectory and convert it to a global direction to match the
+  // trigger objects
+
+  std::unique_ptr<GlobalPoint> muonPosition;
+  // Loop over chambers
+  // initialize muonPosition with any available match, just in case 
+  // the second station is missing - it's better folling back to 
+  // dR matching at IP
+  for ( const auto& chamberMatch: aMuon.matches() ) {
+    if ( chamberMatch.id.subdetId() == MuonSubdetId::DT) {
+      DTChamberId detId(chamberMatch.id.rawId());
+      if (abs(detId.station())>3) continue; 
+      muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
+      if (abs(detId.station())==2) break;
+    }
+    if ( chamberMatch.id.subdetId() == MuonSubdetId::CSC) {
+      CSCDetId detId(chamberMatch.id.rawId());
+      if (abs(detId.station())>3) continue;
+      muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
+      if (abs(detId.station())==2) break;
+    }
+  }
+  if (not muonPosition) return;
+  for (const auto& triggerObject: *triggerObjects){
+    if (triggerObject.hasTriggerObjectType(trigger::TriggerL1Mu)){
+      if (fabs(triggerObject.eta())<0.001){
+	// L1 is defined in X-Y plain
+	if (deltaPhi(triggerObject.phi(),muonPosition->phi())>0.1) continue;
+      } else {
+	// 3D L1
+	if (deltaR(triggerObject.p4(),*muonPosition)>0.15) continue;
+      }
+      pat::TriggerObjectStandAlone obj(triggerObject);
+      obj.unpackPathNames(names);
+      aMuon.addTriggerObjectMatch(obj);
+    }
+  }
+}
+
+void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
+					 edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+					 const edm::TriggerNames & names,
+					 const std::vector<std::string>& collection_filter_names)
+{
+  // WARNING: in a case of close-by muons the dR matching may select both muons.
+  // It's better to select the best match for a given collection.
+  for (const auto& triggerObject: *triggerObjects){
+    if (triggerObject.hasTriggerObjectType(trigger::TriggerMuon)){
+      bool keepIt = false;
+      for (const auto& name: collection_filter_names){
+	if (triggerObject.hasCollection(name)){
+	  keepIt = true;
+	  break;
+	}
+      }
+      if (not keepIt) continue;
+      if ( deltaR(triggerObject.p4(),muon)>0.1 ) continue;
+      pat::TriggerObjectStandAlone obj(triggerObject);
+      obj.unpackPathNames(names);
+      muon.addTriggerObjectMatch(obj);
+    }
+  }
+}
+
+
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
+   // get the tracking Geometry
+   edm::ESHandle<GlobalTrackingGeometry> geometry;
+   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry);
+   if ( ! geometry.isValid() )
+     throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
+
   // switch off embedding (in unschedules mode)
   if (iEvent.isRealData()){
     addGenMatch_   = false;
@@ -523,7 +628,24 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (computeMuonMVA_) iEvent.getByToken(rho_,rho);
   const reco::Vertex* pv(nullptr);
   if (primaryVertexIsValid) pv = &primaryVertex;
+
+  edm::Handle<std::vector<pat::TriggerObjectStandAlone> > triggerObjects;
+  edm::Handle< edm::TriggerResults > triggerResults;
+  bool triggerObjectsAvailable = false;
+  bool triggerResultsAvailable = false;
+  if (addTriggerMatching_){
+    triggerObjectsAvailable = iEvent.getByToken(triggerObjects_, triggerObjects);
+    triggerResultsAvailable = iEvent.getByToken(triggerResults_, triggerResults);
+  }
+
   for(auto& muon: *patMuons){
+    // trigger info
+    if (addTriggerMatching_ and triggerObjectsAvailable and triggerResultsAvailable){
+      const edm::TriggerNames & triggerNames(iEvent.triggerNames( *triggerResults ));
+      fillL1TriggerInfo(muon,triggerObjects,triggerNames,geometry);
+      fillHltTriggerInfo(muon,triggerObjects,triggerNames,hltCollectionFilters_);
+    }
+
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
@@ -741,6 +863,8 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<bool>("computeMiniIso", false)->setComment("whether or not to compute and store electron mini-isolation");
   iDesc.add<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("collection to use to compute mini-iso");
   iDesc.add<std::vector<double> >("miniIsoParams", std::vector<double>())->setComment("mini-iso parameters to use for muons");
+
+  iDesc.add<bool>("addTriggerMatching", false)->setComment("add L1 and HLT matching to offline muon");
 
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 

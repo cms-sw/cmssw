@@ -78,7 +78,7 @@ void HGCalDigiClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
       if (verbosity_) 
 	edm::LogVerbatim("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
-      std::string nameDirectory = "HGCalDigiV/"+nameDetector_;
+      std::string nameDirectory = "HGCAL/HGCalDigisV/"+nameDetector_;
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
         if (verbosity_) 

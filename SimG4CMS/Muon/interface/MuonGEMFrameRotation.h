@@ -14,9 +14,8 @@
 #include "SimG4CMS/Muon/interface/MuonFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
 
-#include "G4Step.hh"
-
 class MuonDDDConstants;
+class G4Step;
 
 class MuonGEMFrameRotation : public MuonFrameRotation {
 

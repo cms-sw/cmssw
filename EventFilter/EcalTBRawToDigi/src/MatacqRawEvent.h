@@ -4,7 +4,8 @@
 #define MATACQTBRAWEVENT_H
 
 #include <cinttypes>
-
+#include <time.h>
+#include <vector>
 #if 0 //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed
       //the machine is little endian.
 #include "i2o/utils/endian.h" //from XDAQ
@@ -119,7 +120,7 @@ public:
    * @throw std::exception if the data cannot be decoded due to data corruption
    * or truncation.
    */
-  MatacqTBRawEvent(const unsigned char* dataBuffer, size_t bufferSize){
+  MatacqTBRawEvent(const unsigned char* dataBuffer, std::size_t bufferSize){
     setRawData(dataBuffer, bufferSize);
   }
   //methods
@@ -249,7 +250,7 @@ private:
    * @throw std::exception if the data cannot be decoded due to data corruption
    * or truncation.
    */
-  void setRawData(const unsigned char* buffer, size_t bufferSize);
+  void setRawData(const unsigned char* buffer, std::size_t bufferSize);
 
   //fields
 private:

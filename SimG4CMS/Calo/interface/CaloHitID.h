@@ -5,7 +5,7 @@
 // HitID class for storing unique identifier of a Calorimetric Hit
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iostream>
 
 class CaloHitID {

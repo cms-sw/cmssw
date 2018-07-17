@@ -5,6 +5,7 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include <vector>
 
 /** \class PhotonMCTruth
@@ -18,7 +19,6 @@
 
 
 
-class ElectronMCTruth;
 class PhotonMCTruth {
 public:
   PhotonMCTruth() : isAConversion_(0),thePhoton_(0.,0.,0.), 

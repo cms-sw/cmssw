@@ -1,5 +1,5 @@
 
-#include "../interface/MicroGMTLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTLUT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

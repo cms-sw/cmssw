@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import re
 import ROOT
 import exceptions
+import six
 import sys
 ### define tab completion
 try:
@@ -113,7 +114,7 @@ class EventTree(object):
       def tree(self):
           return self._tree
       def __setBranchIndicies(self):
-          for branch in self._usedBranches.itervalues():
+          for branch in six.itervalues(self._usedBranches):
               branch.setIndex(self._index)
       def __getattr__(self, name):
           return self.branch(name)

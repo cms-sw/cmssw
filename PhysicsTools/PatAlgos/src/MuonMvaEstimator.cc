@@ -29,15 +29,15 @@ MuonMvaEstimator::MuonMvaEstimator(const std::string& weightsfile, float dRmax):
   tmvaReader.AddVariable("LepGood_miniRelIsoCharged",     &miniRelIsoCharged_);
   tmvaReader.AddVariable("LepGood_miniRelIsoNeutral",     &miniRelIsoNeutral_);
   tmvaReader.AddVariable("LepGood_jetPtRelv2",            &jetPtRel_         );
-  tmvaReader.AddVariable("min(LepGood_jetPtRatiov2,1.5)", &jetPtRatio_       );
   tmvaReader.AddVariable("max(LepGood_jetBTagCSV,0)",     &jetBTagCSV_       );
+  tmvaReader.AddVariable("(LepGood_jetBTagCSV>-5)*min(LepGood_jetPtRatiov2,1.5)+(LepGood_jetBTagCSV<-5)/(1+LepGood_relIso04)", &jetPtRatio_       );
   tmvaReader.AddVariable("LepGood_sip3d",                 &sip_              );
   tmvaReader.AddVariable("log(abs(LepGood_dxy))",         &log_abs_dxyBS_    );
   tmvaReader.AddVariable("log(abs(LepGood_dz))",          &log_abs_dzPV_     );
   tmvaReader.AddVariable("LepGood_segmentCompatibility",  &segmentCompatibility_);
 
-  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(muon_mva_name, weightsfile.c_str()) );
-  gbrForest_.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(muon_mva_name) ) ) );
+  auto temp{ tmvaReader.BookMVA(muon_mva_name, weightsfile.c_str()) };
+  gbrForest_ = std::make_unique<GBRForest>( dynamic_cast<TMVA::MethodBDT*>( temp ) );
 }
 
 MuonMvaEstimator::~MuonMvaEstimator() { }
@@ -101,10 +101,19 @@ float MuonMvaEstimator::computeMva(const pat::Muon& muon,
   double jecL1L2L3Res = 1.;
   double jecL1 = 1.;
 
-  var[kJetPtRatio] = -99;
-  var[kJetPtRel]   = -99;
+  // Compute corrected isolation variables
+  double chIso  = muon.pfIsolationR04().sumChargedHadronPt;
+  double nIso   = muon.pfIsolationR04().sumNeutralHadronEt;
+  double phoIso = muon.pfIsolationR04().sumPhotonEt;
+  double puIso  = muon.pfIsolationR04().sumPUPt;
+  double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
+  double dbCorrectedRelIso = dbCorrectedIsolation/muon.pt();
+
+  var[kJetPtRatio] = 1./(1+dbCorrectedRelIso);
+  var[kJetPtRel]   = 0;
   var[kJetBTagCSV] = -999;
   var[kJetNDauCharged] = -1;
+
 
   for (const auto& tagI: bTags){
     // for each muon with the lepton 

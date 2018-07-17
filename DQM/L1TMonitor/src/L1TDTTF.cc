@@ -246,9 +246,6 @@ void L1TDTTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
   //empty
 }
 
-void L1TDTTF::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c){
-  //empty
-}
 
 //--------------------------------------------------------
 void L1TDTTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&)

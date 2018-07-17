@@ -4,7 +4,7 @@
 #include <TF1.h>
 #include <TH1F.h>
 
-#include "../src/headers.h"
+#include "CondFormats/BTauObjects/src/headers.h"
 
 int main()
 {

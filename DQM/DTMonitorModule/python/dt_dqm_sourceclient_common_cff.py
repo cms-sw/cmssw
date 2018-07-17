@@ -69,7 +69,8 @@ from DQM.DTMonitorModule.dtTriggerBaseTask_cfi import *
 from DQM.DTMonitorModule.dtTriggerLutTask_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerLutTest_cfi import *
-
+triggerTest.hwSources = cms.untracked.vstring('TM')
+dtTriggerBaseMonitor.processDDU = False
 # scaler task
 from DQM.DTMonitorModule.dtScalerInfoTask_cfi import *
 
@@ -109,6 +110,7 @@ dtTPmonitor.inTimeHitsUpperBound = 0
 from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_TP_cfi import *
 dtTPTriggerTest.hwSources = cms.untracked.vstring('TM')
+dtTPTriggerMonitor.process_ddu = cms.untracked.bool(False)
 
 unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
 

@@ -2,6 +2,7 @@
 #define RecoHI_HiTracking_HITrackingRegionForPrimaryVtxProducer _H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"

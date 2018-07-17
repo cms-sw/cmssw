@@ -620,8 +620,8 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
     int nBinsY = std::max(m_nrTrackObjects, m_nrHitObjects);
     int nBinsYStrip = std::max(m_nrNoisyStrip, m_nrDeadStrip);
 
-    m_meReportSummaryMap = ibooker.book2D("reportSummaryMap",
-            "reportSummaryMap", 2, 1, 3, nBinsY, 1, nBinsY + 1);
+    m_meReportSummaryMap = ibooker.book2D("reportSummaryMap_EMTF",
+            "reportSummaryMap_EMTF", 2, 1, 3, nBinsY, 1, nBinsY + 1);
     m_meReportSummaryMap_chamberStrip = ibooker.book2D("reportSummaryMap_chamberStrip",
             "reportSummaryMap_chamberStrip", 2, 1, 3, nBinsYStrip, 1, nBinsYStrip + 1);
 
@@ -653,7 +653,7 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter 
 
     m_meReportSummaryMap->setBinLabel(1, "Hit BX", 2);
     m_meReportSummaryMap->setBinLabel(2, "Track BX", 2);
-    m_meReportSummaryMap->setBinLabel(3, "Track Phi", 2);
+    //m_meReportSummaryMap->setBinLabel(3, "Track Phi", 2);
 
     const std::vector<std::string> suffix_name = {"-4/2", "-4/1", "-3/2", "-3/1", "-2/2", "-2/1", 
 						  "-1/3", "-1/2", "-1/1b", "-1/1a", 
@@ -715,7 +715,6 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string hName = qHist->getName();
 
                 // if (m_verbose) {
 		if (true) {  // Force printout - AWB 03.12.16
@@ -829,7 +828,6 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string hName = qHist->getName();
 
 		if (m_verbose) std::cout << "\nNumber of quality tests "
 					 << " for histogram " << hitObjQtHist[iHitObjQTest]
@@ -931,7 +929,6 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string hName = qHist->getName();
 
 		if (m_verbose) std::cout << "\nNumber of quality tests "
 					 << " for histogram " << noisyStrpQtHist[iNoisyStrpQTest]
@@ -1032,7 +1029,6 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string hName = qHist->getName();
 
 		if (m_verbose) std::cout << "\nNumber of quality tests "
 					 << " for histogram " << deadStrpQtHist[iDeadStrpQTest]

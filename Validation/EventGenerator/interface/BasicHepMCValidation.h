@@ -183,6 +183,17 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
     MonitorElement *vrtxRadius;
     //
     MonitorElement *Bjorken_x;
+    MonitorElement *pdf_u;
+    MonitorElement *pdf_ubar;
+    MonitorElement *pdf_d;
+    MonitorElement *pdf_dbar;
+    MonitorElement *pdf_ssbar;
+    MonitorElement *pdf_ccbar;
+    MonitorElement *pdf_bbbar;
+    MonitorElement *pdf_g;
+    MonitorElement *scalePDF;
+    MonitorElement *parton1Id;
+    MonitorElement *parton2Id;
     
     MonitorElement *status1ShortLived;
     

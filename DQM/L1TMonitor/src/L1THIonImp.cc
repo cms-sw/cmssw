@@ -179,8 +179,6 @@ void L1THIonImp::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm
 void L1THIonImp::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
 }
 
-void L1THIonImp::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {
-}
 
 void L1THIonImp::analyze(const edm::Event & e, const edm::EventSetup & c) {
 

@@ -36,6 +36,7 @@ class TGCheckButton;
 class TFile;
 class FWTableWidget;
 class DataAdderTableManager;
+class TGFrame;
 
 class FWGUIEventDataAdder
 {

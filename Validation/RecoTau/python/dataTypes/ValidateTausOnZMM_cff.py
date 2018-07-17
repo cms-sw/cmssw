@@ -42,7 +42,7 @@ proc.TauValNumeratorAndDenominatorZMM.visit(zttModifier)
 proc.efficienciesZMM.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZMM)
 
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('ZMM') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('ZMM') != -1)]
 
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:

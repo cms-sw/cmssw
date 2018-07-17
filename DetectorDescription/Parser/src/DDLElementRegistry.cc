@@ -1,4 +1,3 @@
-#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
@@ -191,4 +190,3 @@ DDLElementRegistry::getElement( const std::string& name )
   return myret;
 }
 
-template class DDI::Singleton<DDLElementRegistry>;

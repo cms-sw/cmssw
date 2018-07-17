@@ -7,7 +7,7 @@ HGCHEfrontDigitizer::HGCHEfrontDigitizer(const edm::ParameterSet &ps) : HGCDigit
 }
 
 //
-void HGCHEfrontDigitizer::runDigitizer(std::unique_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
+void HGCHEfrontDigitizer::runDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
 				       const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 				       uint32_t digitizationType, CLHEP::HepRandomEngine* engine) {
 }

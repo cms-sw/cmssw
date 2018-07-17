@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
+import six
 
 process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)
 
@@ -27,8 +28,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ### setup HGCal local reco
 # get uncalibrechits with weights method
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
-process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'mix:HGCDigisEE'
-process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'mix:HGCDigisHEfront'
+process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'hgcalDigis:EE'
+process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'hgcalDigis:HEfront'
 
 # get rechits e.g. from the weights
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
@@ -150,7 +151,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-for label, prod in process.producers_().iteritems():
+for label, prod in six.iteritems(process.producers_()):
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"

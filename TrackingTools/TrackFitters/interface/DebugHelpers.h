@@ -1,3 +1,6 @@
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
 #ifdef EDM_ML_DEBUG
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

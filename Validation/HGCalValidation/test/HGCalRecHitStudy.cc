@@ -22,6 +22,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -201,7 +204,10 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
       for (const auto & it : *(theRecHitContainers.product())) {
 	ntot++; nused++;
 	DetId detId = it.id();
-	int layer   = HGCalDetId(detId).layer();
+	int layer   = ((detId.det() == DetId::Forward) ? HGCalDetId(detId).layer() :
+		       ((detId.det() == DetId::HGCalHSc) ? 
+			HGCScintillatorDetId(detId).layer() : 
+			HGCSiliconDetId(detId).layer()));
 	recHitValidation(detId, layer, geom0, &it);
       }
     } else {
@@ -325,4 +331,3 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCalRecHitStudy);
-

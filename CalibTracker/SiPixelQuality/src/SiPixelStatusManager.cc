@@ -120,7 +120,7 @@ void SiPixelStatusManager::createBadComponents(){
         }
 
         siPixelStatusVtr_iterator currentIt = it;
-        siPixelStatusVtr_iterator nextIt = (++currentIt);
+        siPixelStatusVtr_iterator nextIt = std::next(currentIt);
         // wirte out if current lumi is the last lumi-section in the IOV
         if(iterationLumi%nLumi_==nLumi_-1 || nextIt==lastStatus) 
         {
@@ -178,7 +178,7 @@ void SiPixelStatusManager::createBadComponents(){
 
          // if reaching the end of data, write the last IOV to the map whatsoevec
          siPixelStatusVtr_iterator currentIt = it;
-         siPixelStatusVtr_iterator nextIt = (++currentIt);
+         siPixelStatusVtr_iterator nextIt = std::next(currentIt);
          if(tmpSiPixelStatus.perRocDigiOcc()<aveDigiOcc && nextIt!=lastStatus){
             isNewIOV = false; // if digi occ is not enough, next data will not belong to new IOV
          }
@@ -252,7 +252,7 @@ void SiPixelStatusManager::createFEDerror25(){
     bool sameAsLastIOV = true;
     edm::LuminosityBlockNumber_t previousLumi = firstLumi;
 
-    siPixelStatusVtr_iterator secondStatus = ++siPixelStatusVtr_.begin();
+    siPixelStatusVtr_iterator secondStatus = std::next(siPixelStatusVtr_.begin());
     for (siPixelStatusVtr_iterator it = secondStatus; it != lastStatus; it++) {
         // init for each lumi section (iterator)
         edm::LuminosityBlockNumber_t tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);

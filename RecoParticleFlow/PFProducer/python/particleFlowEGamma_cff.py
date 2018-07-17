@@ -54,5 +54,9 @@ egmElectronIsolationPileUpCITK.srcToIsolate = cms.InputTag("gedGsfElectronsTmp")
 egmElectronIsolationPileUpCITK.srcForIsolationCone = cms.InputTag("pfPileUpAllChargedParticles")
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp*ootPhotonSequence)
-particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfNoPileUpIsoSequence*pfNoPileUpCandidates*pfPileUpAllChargedParticles*\
+particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*\
+pfNoPileUpIsoSequence*cms.ignore(pfNoPileUpCandidates)*cms.ignore(pfPileUpAllChargedParticles)*\
 egmPhotonIsolationCITK*egmElectronIsolationCITK*egmElectronIsolationPileUpCITK*gedPhotonSequence*gedElectronPFIsoSequence)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))

@@ -59,7 +59,7 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,				    
 
     double HcalThreshold,
-    double HBthreshold, 
+    double HBthreshold, double HBthreshold1, double HBthreshold2,
     double HESthreshold, double HESthreshold1,
     double HEDthreshold, double HEDthreshold1, 
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -84,7 +84,7 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,
 
     double HcalThreshold,
-    double HBthreshold, 
+    double HBthreshold, double HBthreshold1, double HBthreshold2,
     double HESthreshold, double HESthreshold1,
     double HEDthreshold, double HEDthreshold1,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -254,7 +254,7 @@ private:
   
   double  theHcalThreshold;
 
-  double theHBthreshold;
+  double theHBthreshold, theHBthreshold1, theHBthreshold2;
   double theHESthreshold, theHESthreshold1; 
   double theHEDthreshold, theHEDthreshold1; 
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;

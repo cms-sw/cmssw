@@ -545,7 +545,7 @@ namespace evf{
   {
     //make sure that all path names are retrieved before allowing ministate to change
     //hack: assume memory is synchronized after ~50 events seen by each stream
-    if (unlikely(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
+    if (UNLIKELY(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
     {
       //protection between stream threads, as well as the service monitoring thread
       std::lock_guard<std::mutex> lock(fmt_.monlock_);

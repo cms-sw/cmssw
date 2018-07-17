@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ### command line options helper
+import six
 from  Options import Options
 options = Options()
 
@@ -411,7 +412,7 @@ class Process(object):
        containing mod and return it. If none is found, return None"""
        from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
        l = list()
-       for seqOrTask in seqsOrTasks.itervalues():
+       for seqOrTask in six.itervalues(seqsOrTasks):
           l[:] = []
           v = ModuleNodeVisitor(l)
           seqOrTask.visit(v)
@@ -668,51 +669,51 @@ class Process(object):
         config+=self._dumpConfigNamedList(self.subProcesses_(),
                                   'subProcess',
                                   options)
-        config+=self._dumpConfigNamedList(self.producers_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.producers_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.filters_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.filters_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.analyzers_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.analyzers_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.outputModules_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.outputModules_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.sequences_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.sequences_()),
                                   'sequence',
                                   options)
-        config+=self._dumpConfigNamedList(self.paths_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.paths_()),
                                   'path',
                                   options)
-        config+=self._dumpConfigNamedList(self.endpaths_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.endpaths_()),
                                   'endpath',
                                   options)
-        config+=self._dumpConfigUnnamedList(self.services_().iteritems(),
+        config+=self._dumpConfigUnnamedList(six.iteritems(self.services_()),
                                   'service',
                                   options)
-        config+=self._dumpConfigNamedList(self.aliases_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.aliases_()),
                                   'alias',
                                   options)
         config+=self._dumpConfigOptionallyNamedList(
-            self.es_producers_().iteritems(),
+            six.iteritems(self.es_producers_()),
             'es_module',
             options)
         config+=self._dumpConfigOptionallyNamedList(
-            self.es_sources_().iteritems(),
+            six.iteritems(self.es_sources_()),
             'es_source',
             options)
         config += self._dumpConfigESPrefers(options)
-        for name,item in self.psets.iteritems():
+        for name,item in six.iteritems(self.psets):
             config +=options.indentation()+item.configTypeName()+' '+name+' = '+item.configValue(options)
-        for name,item in self.vpsets.iteritems():
+        for name,item in six.iteritems(self.vpsets):
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
             pathNames = [p.label_() for p in self.schedule]
             config +=options.indentation()+'schedule = {'+','.join(pathNames)+'}\n'
 
-#        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
+#        config+=self._dumpConfigNamedList(six.iteritems(self.vpsets),
 #                                  'VPSet',
 #                                  options)
         config += "}\n"
@@ -720,7 +721,7 @@ class Process(object):
         return config
     def _dumpConfigESPrefers(self, options):
         result = ''
-        for item in self.es_prefers_().itervalues():
+        for item in six.itervalues(self.es_prefers_()):
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
     def _dumpPythonSubProcesses(self, l, options):
@@ -763,7 +764,7 @@ class Process(object):
         # For each item, see what other items it depends upon
         # For our purpose here, an item depends on the items it contains.
         dependencies = {}
-        for label,item in processDictionaryOfItems.iteritems():
+        for label,item in six.iteritems(processDictionaryOfItems):
             containedItems = []
             if isinstance(item, Task):
                 v = TaskVisitor(containedItems)
@@ -800,18 +801,18 @@ class Process(object):
         # keep looping until we get rid of all dependencies
         while dependencies:
             oldDeps = dict(dependencies)
-            for label,deps in oldDeps.iteritems():
+            for label,deps in six.iteritems(oldDeps):
                 if len(deps)==0:
                     returnValue[label]=processDictionaryOfItems[label]
                     #remove this as a dependency for all other tasks
                     del dependencies[label]
-                    for lb2,deps2 in dependencies.iteritems():
+                    for lb2,deps2 in six.iteritems(dependencies):
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
     def _dumpPython(self, d, options):
         result = ''
-        for name, value in sorted(d.iteritems()):
+        for name, value in sorted(six.iteritems(d)):
            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
@@ -844,15 +845,15 @@ class Process(object):
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
-        for sequenceable in self.sequences.itervalues():
+        for sequenceable in six.itervalues(self.sequences):
             sequenceable.replace(old,new)
-        for sequenceable in self.paths.itervalues():
+        for sequenceable in six.itervalues(self.paths):
             sequenceable.replace(old,new)
-        for sequenceable in self.endpaths.itervalues():
+        for sequenceable in six.itervalues(self.endpaths):
             sequenceable.replace(old,new)
     def _replaceInTasks(self, label, new):
         old = getattr(self,label)
-        for task in self.tasks.itervalues():
+        for task in six.itervalues(self.tasks):
             task.replace(old, new)
     def _replaceInSchedule(self, label, new):
         if self.schedule_() == None:
@@ -866,7 +867,7 @@ class Process(object):
             raise LookupError("process has no item of label "+label)
         setattr(self,label,new)
     def _insertInto(self, parameterSet, itemDict):
-        for name,value in itemDict.iteritems():
+        for name,value in six.iteritems(itemDict):
             value.insertInto(parameterSet, name)
     def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
@@ -877,7 +878,7 @@ class Process(object):
         parameterSet.addVString(tracked, label, vitems)
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
-        for name,value in itemDict.iteritems():
+        for name,value in six.iteritems(itemDict):
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
@@ -952,9 +953,9 @@ class Process(object):
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
     def resolve(self,keepUnresolvedSequencePlaceholders=False):
-        for x in self.paths.itervalues():
+        for x in six.itervalues(self.paths):
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
-        for x in self.endpaths.itervalues():
+        for x in six.itervalues(self.endpaths):
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         if not self.schedule_() == None:
             for task in self.schedule_()._tasks:
@@ -986,8 +987,8 @@ class Process(object):
             for n in unneededPaths:
                 delattr(self,n)
         else:
-            pths = list(self.paths.itervalues())
-            pths.extend(self.endpaths.itervalues())
+            pths = list(six.itervalues(self.paths))
+            pths.extend(six.itervalues(self.endpaths))
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
@@ -996,12 +997,12 @@ class Process(object):
         #remove sequences that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
-        for p in self.paths.itervalues():
+        for p in six.itervalues(self.paths):
             p.visit(sv)
-        for p in self.endpaths.itervalues():
+        for p in six.itervalues(self.endpaths):
             p.visit(sv)
         keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
-        availableSeqs = set(self.sequences.itervalues())
+        availableSeqs = set(six.itervalues(self.sequences))
         unneededSeqs = availableSeqs-keepSeqSet
         unneededSeqLabels = []
         for s in unneededSeqs:
@@ -1070,26 +1071,26 @@ class Process(object):
         # the modules, ESSources, ESProducers, and services it visits.
         nodeVisitor = NodeVisitor()
         self._insertPaths(adaptor, nodeVisitor)
-        all_modules_onTasksOrScheduled = { key:value for key, value in all_modules.iteritems() if value in nodeVisitor.modules }
+        all_modules_onTasksOrScheduled = { key:value for key, value in six.iteritems(all_modules) if value in nodeVisitor.modules }
         self._insertManyInto(adaptor, "@all_modules", all_modules_onTasksOrScheduled, True)
         # Same as nodeVisitor except this one visits all the Tasks attached
         # to the process.
         processNodeVisitor = NodeVisitor()
-        for pTask in self.tasks.itervalues():
+        for pTask in six.itervalues(self.tasks):
             pTask.visit(processNodeVisitor)
         esProducersToEnable = {}
-        for esProducerName, esProducer in self.es_producers_().iteritems():
+        for esProducerName, esProducer in six.iteritems(self.es_producers_()):
             if esProducer in nodeVisitor.esProducers or not (esProducer in processNodeVisitor.esProducers):
                 esProducersToEnable[esProducerName] = esProducer
         self._insertManyInto(adaptor, "@all_esmodules", esProducersToEnable, True)
         esSourcesToEnable = {}
-        for esSourceName, esSource in self.es_sources_().iteritems():
+        for esSourceName, esSource in six.iteritems(self.es_sources_()):
             if esSource in nodeVisitor.esSources or not (esSource in processNodeVisitor.esSources):
                 esSourcesToEnable[esSourceName] = esSource
         self._insertManyInto(adaptor, "@all_essources", esSourcesToEnable, True)
         #handle services differently
         services = []
-        for serviceName, serviceObject in self.services_().iteritems():
+        for serviceName, serviceObject in six.iteritems(self.services_()):
              if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
                  serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
         adaptor.addVPSet(False,"services",services)
@@ -1143,7 +1144,7 @@ class Process(object):
         else:
             # maybe it's an unnamed ESModule?
             found = False
-            for name, value in d.iteritems():
+            for name, value in six.iteritems(d):
                if value.type_() == esname:
                   if found:
                       raise RuntimeError("More than one ES module for "+esname)

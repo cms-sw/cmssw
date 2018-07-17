@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Need a safe assertion function
 #ifdef NDEBUG

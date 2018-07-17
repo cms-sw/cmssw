@@ -1257,11 +1257,14 @@ namespace edm {
   }
 
   void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
-    auto t = edm::make_waiting_task(tbb::task::allocate_root(), [t = std::move(iTask), status = iLumiStatus, this] (std::exception_ptr const* iPtr) mutable {
+    //Need to be sure iTask is always destroyed after iLumiStatus since iLumiStatus can cause endRun to start.
+    auto t = edm::make_waiting_task(tbb::task::allocate_root(), [ items = std::make_pair(iLumiStatus,std::move(iTask)), this] (std::exception_ptr const* iPtr) mutable {
       std::exception_ptr ptr;
+      //use an easier to remember variable name
+      auto status = std::move(items.first);
       if(iPtr) {
         ptr = *iPtr;
-        WaitingTaskHolder tmp(t);
+        WaitingTaskHolder tmp(items.second);
         //set the exception early to prevent a beginLumi from running
         // we use a copy to keep t from resetting on doneWaiting call.
         tmp.doneWaiting(ptr);
@@ -1279,10 +1282,17 @@ namespace edm {
           }
         }
       }
-      deleteLumiFromCache(*status);
-      //release our hold on the IOV
-      iovQueue_.resume();
-      status->resumeGlobalLumiQueue();
+      ServiceRegistry::Operate operate(serviceToken_);
+      try {
+        deleteLumiFromCache(*status);
+        //release our hold on the IOV
+        iovQueue_.resume();
+        status->resumeGlobalLumiQueue();
+      } catch(...) {
+        if( not ptr) {
+          ptr = std::current_exception();
+        }
+      }
       try {
         status.reset();
       } catch(...) {
@@ -1291,7 +1301,7 @@ namespace edm {
         }
       }
       //have to wait until reset is called since that could call endRun
-      t.doneWaiting(ptr);
+      items.second.doneWaiting(ptr);
     });
 
     auto writeT = edm::make_waiting_task(tbb::task::allocate_root(), [this,status =iLumiStatus, task = WaitingTaskHolder(t)] (std::exception_ptr const* iExcept) mutable {

@@ -144,15 +144,6 @@ void DQMSourceExample::beginJob() {
 void DQMSourceExample::beginRun(const edm::Run& r, const EventSetup& context) {
 }
 
-
-//==================================================================//
-//==================== beginLuminosityBlock ========================//
-//==================================================================//
-void DQMSourceExample::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
-					    const EventSetup& context) {
-}
-
-
 //==================================================================//
 //==================== analyse (takes each event) ==================//
 //==================================================================//
@@ -212,14 +203,6 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   }
 
   // usleep(100);
-
-}
-
-//==================================================================//
-//========================= endLuminosityBlock =====================//
-//==================================================================//
-void DQMSourceExample::endLuminosityBlock(const LuminosityBlock& lumiSeg,
-					  const EventSetup& context) {
 
 }
 

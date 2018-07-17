@@ -135,7 +135,7 @@ private:
   DetId::Detector                 det_;
   ForwardSubdetector              subdet_;
   int                             sectors_, layers_, cells_, types_;
-  int                             cellMax_, waferOff_, waferMax_;
+  int                             firstLay_, cellMax_, waferOff_, waferMax_;
   int                             kHGhalf_, kHGeomHalf_;
   unsigned int                    kSizeForDenseIndexing;
 };

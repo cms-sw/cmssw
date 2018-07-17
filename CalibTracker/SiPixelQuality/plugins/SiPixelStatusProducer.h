@@ -15,6 +15,18 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
                                                          edm::one::WatchLuminosityBlocks, edm::Accumulator> {
@@ -65,12 +77,15 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   // fedId as a function of detId
   std::unordered_map<uint32_t, unsigned int> fFedIds;
   // map the index ROC to rocId
-  std::map<int, std::map<int,int> >fRocIds;
+  std::map<int, std::map<int,int> > fRocIds;
 
   // Producer inputs / controls
   edm::InputTag                                           fPixelClusterLabel_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>  fSiPixelClusterToken_;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection> > theBadPixelFEDChannelsTokens_;
+
+  // Channels always have FEDerror25 for the full lumi section
+  std::map<int, std::vector<PixelFEDChannel> > FEDerror25_;
 
   // Producer production (output collection)
   SiPixelDetectorStatus                                    fDet;

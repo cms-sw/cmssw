@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys
+import six
 
 def checkPrefix(mainList, inputGTParams):
     """ Compares two input GTs to see if they have the same prefix. Returns the index in the internal list of GTs of the match
@@ -104,7 +105,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
     # add any explicitly requested conditions, possibly overriding those from autoCond.py
     if conditions is not None:
         # TODO backward compatible code: to be removed after migrating ConfigBuilder.py and confdb.py to use a map for custom conditions
-        if isinstance(conditions, basestring): 
+        if isinstance(conditions, str): 
           if conditions:
             map = {}
             for entry in conditions.split('+'):
@@ -123,7 +124,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.iteritems()):
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(six.iteritems(custom_conditions)):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:

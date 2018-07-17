@@ -174,9 +174,7 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
 
 }
 
-void L1TdeStage2uGT::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
-void L1TdeStage2uGT::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&) {}
 
 void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , const edm::EventSetup& es) 
 {

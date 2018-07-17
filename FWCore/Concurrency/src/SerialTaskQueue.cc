@@ -56,7 +56,7 @@ SerialTaskQueue::pushTask(TaskBase* iTask) {
 tbb::task* 
 SerialTaskQueue::pushAndGetNextTask(TaskBase* iTask) {
   tbb::task* returnValue{nullptr};
-  if likely(nullptr!=iTask) {
+  if LIKELY(nullptr!=iTask) {
     m_tasks.push(iTask);
     returnValue = pickNextTask();
   }
@@ -74,9 +74,9 @@ SerialTaskQueue::TaskBase*
 SerialTaskQueue::pickNextTask() {
   
   bool expect = false;
-  if likely(0 == m_pauseCount and m_taskChosen.compare_exchange_strong(expect,true)) {
+  if LIKELY(0 == m_pauseCount and m_taskChosen.compare_exchange_strong(expect,true)) {
     TaskBase* t=nullptr;
-    if likely(m_tasks.try_pop(t)) {
+    if LIKELY(m_tasks.try_pop(t)) {
       return t;
     }
     //no task was actually pulled
@@ -99,8 +99,8 @@ SerialTaskQueue::pickNextTask() {
 
 void SerialTaskQueue::pushAndWait(tbb::empty_task* iWait, TaskBase* iTask) {
    auto nextTask = pushAndGetNextTask(iTask);
-   if likely(nullptr != nextTask) {
-     if likely(nextTask == iTask) {
+   if LIKELY(nullptr != nextTask) {
+     if LIKELY(nextTask == iTask) {
         //spawn and wait for all requires the task to have its parent set
         iWait->spawn_and_wait_for_all(*nextTask);
      } else {

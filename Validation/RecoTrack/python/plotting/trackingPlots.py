@@ -2,6 +2,7 @@ import os
 import copy
 import collections
 
+import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -624,7 +625,7 @@ def _mapCollectionToAlgoQuality(collName):
                 break
         # next try "old style"
         if algo is None:
-            for coll, name in _possibleTrackingCollsOld.iteritems():
+            for coll, name in six.iteritems(_possibleTrackingCollsOld):
                 if testColl(coll.lower()):
                     algo = name
                     break
@@ -644,7 +645,7 @@ def _mapCollectionToAlgoQuality(collName):
 def _collhelper(name):
     return (name, [name])
 _collLabelMap = collections.OrderedDict(map(_collhelper, ["generalTracks"]+_possibleTrackingColls))
-_collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+filter(lambda n: "Step" in n, _possibleTrackingColls)))
+_collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+[n for n in _possibleTrackingColls if "Step" in n]))
 def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, ptCut, seeds):
     (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
     if algo == "ootb":
@@ -953,7 +954,7 @@ class TrackingSummaryTable:
 
     def create(self, tdirectory):
         def _getAlgoQuality(data, algo, quality):
-            for label, value in data.iteritems():
+            for label, value in six.iteritems(data):
                 (a, q) = _mapCollectionToAlgoQuality(label)
                 if a == algo and q == quality:
                     return value[0] # value is (value, uncertainty) tuple
@@ -1564,9 +1565,9 @@ _iterations = [
 def _iterModuleMap(includeConvStep=True, onlyConvStep=False):
     iterations = _iterations
     if not includeConvStep:
-        iterations = filter(lambda i: i.name() != "ConvStep", iterations)
+        iterations = [i for i in iterations if i.name() != "ConvStep"]
     if onlyConvStep:
-        iterations = filter(lambda i: i.name() == "ConvStep", iterations)
+        iterations = [i for i in iterations if i.name() == "ConvStep"]
     return collections.OrderedDict([(i.name(), i.all()) for i in iterations])
 def _stepModuleMap():
     def getProp(prop):

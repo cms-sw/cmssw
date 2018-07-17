@@ -22,13 +22,13 @@ class HGCalUncalibRecHitWorkerBaseClass {
                 virtual void set(const edm::EventSetup& es) = 0;
 
                 // run HGC-EE things
-                virtual bool run1(const edm::Event& evt, const HGCEEDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result) = 0;
+                virtual bool run1(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result) = 0;
 
                 // run HGC-FH things
-                virtual bool run2(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result) = 0;
+                virtual bool run2(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result) = 0;
 
                 // run HGC-BH things
-                virtual bool run3(const edm::Event& evt, const HGCBHDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) = 0;
+                virtual bool run3(const edm::Event& evt, const HGCalDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) = 0;
 };
 
 #endif

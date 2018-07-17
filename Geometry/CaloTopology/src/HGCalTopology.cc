@@ -18,6 +18,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   waferOff_ = hdcons_.waferUVMax();
   waferMax_ = 2*waferOff_ + 1;
   kHGhalf_  = sectors_*layers_*cells_ ;
+  firstLay_ = hdcons_.firstLayer();
   if ((mode_ == HGCalGeometryMode::Hexagon) || 
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     det_        = DetId::Forward;
@@ -27,7 +28,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
-    kHGeomHalf_ = hdcons_.numberCells(true);
+    kHGeomHalf_ = sectors_*layers_*cells_;
     types_      = 2;
   } else {
     det_        = (DetId::Detector)(det);
@@ -37,17 +38,19 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   }
   kSizeForDenseIndexing = (unsigned int)(2*kHGhalf_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalTopology initialized for detector " << subdet_ 
-				<< " having " << sectors_  << " Sectors " 
-				<< layers_ << " Layers " << cells_
-				<< " cells and total channels " 
+  edm::LogVerbatim("HGCalGeom") << "HGCalTopology initialized for detector " 
+				<< det_ << ":" << subdet_ << " having " 
+				<< sectors_  << " Sectors, " << layers_ 
+				<< " Layers from " << firstLay_ << ", " 
+				<< cells_ << " cells and total channels " 
 				<< kSizeForDenseIndexing << ":"
 				<< (2*kHGeomHalf_) << std::endl;
 #endif
 }
 
 unsigned int HGCalTopology::allGeomModules() const {
-  return ((mode_ == HGCalGeometryMode::Trapezoid) ? (unsigned int)(2*kHGeomHalf_) : 
+  return ((mode_ == HGCalGeometryMode::Trapezoid) ? 
+	  (unsigned int)(2*hdcons_.numberCells(true)) : 
 	  (unsigned int)(2*hdcons_.wafers()));
 }
 
@@ -62,7 +65,7 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 		     ((((id.iCell1-1)*layers_+id.iLay-1)*sectors_+
 		       id.iSec1)*types_+type));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "I/P " << id.zSide << ":" << id.iLay 
+    edm::LogVerbatim("HGCalGeom") << "Input Hex " << id.zSide << ":" << id.iLay 
 				  << ":" << id.iSec1 << ":" << id.iCell1
 				  << ":" << id.iType << " Constants " 
 				  << kHGeomHalf_ << ":" << layers_ << ":" 
@@ -71,10 +74,10 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     idx = (uint32_t)(((id.zSide > 0) ? kHGhalf_ : 0) +
-		     ((((id.iCell1-1)*layers_+id.iLay-1)*sectors_+
+		     ((((id.iCell1-1)*layers_+id.iLay-firstLay_)*sectors_+
 		       id.iSec1-1)*types_+id.iType));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "I/P " << id.zSide << ":" << id.iLay 
+    edm::LogVerbatim("HGCalGeom") << "Input Trap " << id.zSide << ":" << id.iLay 
 				  << ":" << id.iSec1 << ":" << id.iCell1
 				  << ":" << id.iType << " Constants " 
 				  << kHGeomHalf_ << ":" << layers_ << ":" 
@@ -87,7 +90,7 @@ uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
 			 id.iLay-1)*waferMax_+id.iSec1+waferOff_)*
 		       waferMax_+id.iSec2+waferOff_)*types_+id.iType));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "I/P " << id.zSide << ":" << id.iLay 
+    edm::LogVerbatim("HGCalGeom") << "Input Hex8 " << id.zSide << ":" << id.iLay 
 				  << ":" << id.iSec1 << ":" << id.iSec2 << ":"
 				  << id.iCell1 << ":" << id.iCell2 << ":"
 				  << id.iType << " Constants " << kHGeomHalf_ 
@@ -113,7 +116,7 @@ DetId HGCalTopology::denseId2detId(uint32_t hi) const {
       id.iLay  = (((((di-type)/types_)-id.iSec1+1)/sectors_)%layers_+1);
       id.iCell1= (((((di-type)/types_)-id.iSec1+1)/sectors_-id.iLay+1)/layers_+1);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " o/p " << id.zSide 
+      edm::LogVerbatim("HGCalGeom") << "Input Hex " << hi << " o/p " << id.zSide 
 				    << ":" << id.iLay << ":" << id.iType
 				    << ":" << id.iSec1 << ":" << id.iCell1;
 #endif
@@ -121,10 +124,10 @@ DetId HGCalTopology::denseId2detId(uint32_t hi) const {
       int type  = (di%types_);
       id.iType = type;
       id.iSec1 = (((di-type)/types_)%sectors_)+1;
-      id.iLay  = (((((di-type)/types_)-id.iSec1+1)/sectors_)%layers_+1);
-      id.iCell1= (((((di-type)/types_)-id.iSec1+1)/sectors_-id.iLay+1)/layers_+1);
+      id.iLay  = (((((di-type)/types_)-id.iSec1+1)/sectors_)%layers_+firstLay_);
+      id.iCell1= (((((di-type)/types_)-id.iSec1+1)/sectors_-id.iLay+firstLay_)/layers_+1);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " o/p " << id.zSide 
+      edm::LogVerbatim("HGCalGeom") << "Input Trap " << hi << " o/p " << id.zSide 
 				    << ":" << id.iLay << ":" << id.iType
 				    << ":" << id.iSec1 << ":" << id.iCell1;
 #endif
@@ -141,7 +144,7 @@ DetId HGCalTopology::denseId2detId(uint32_t hi) const {
       id.iCell2 = (di%cellMax_);
       id.iCell1 = (di-id.iCell2)/cellMax_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " o/p " << id.zSide 
+      edm::LogVerbatim("HGCalGeom") << "Input Hex8 " << hi << " o/p " << id.zSide 
 				    << ":" << id.iLay << ":" << id.iType
 				    << ":" << id.iSec1 << ":" << id.iSec2
 				    << ":" << id.iCell1 << ":" << id.iCell2;
@@ -160,7 +163,7 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
 		     (id.iLay-1)*sectors_+id.iSec1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "I/P " << id.zSide << ":" << id.iLay 
+    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" << id.iLay
 				  << ":" << id.iSec1 << ":" << id.iType 
 				  << " Constants " << kHGeomHalf_ << ":" 
 				  << layers_ << ":" << sectors_ << " o/p " 
@@ -168,23 +171,24 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
-		     (((id.iLay-1)*sectors_+id.iSec1-1)*cellMax_+
+		     (((id.iLay-firstLay_)*sectors_+id.iSec1-1)*cellMax_+
 		      id.iCell1-1));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "I/P " << id.zSide << ":" << id.iLay 
-				  << ":" << id.iSec1 << ":" << id.iCell1
-				  << ":" << id.iType << " Constants " 
+    edm::LogVerbatim("HGCalGeom") << "Geom Trap I/P " << id.zSide << ":" 
+				  << id.iLay  << ":" << id.iSec1 << ":" 
+				  << id.iCell1 << ":" << id.iType << " Constants "
 				  << kHGeomHalf_ << ":" << layers_ << ":" 
-				  << sectors_ << " o/p " << idx;
+				  << firstLay_ << ":" << sectors_ << ":"
+				  << cellMax_ << " o/p " << idx;
 #endif
   } else {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
 		     (((id.iLay-1)*waferMax_+id.iSec1+waferOff_)*waferMax_+
 		      id.iSec2+waferOff_));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "I/P " << id.zSide << ":" << id.iLay 
-				  << ":" << id.iSec1 << ":" << id.iSec2
-				  << ":" << id.iType << " Constants " 
+    edm::LogVerbatim("HGCalGeom") << "Geom Hex8 I/P " << id.zSide << ":" 
+				  << id.iLay  << ":" << id.iSec1 << ":" 
+				  << id.iSec2 << ":" << id.iType << " Constants " 
 				  << kHGeomHalf_ << ":" << layers_ << ":"
 				  << waferMax_ << ":" << waferOff_ << " o/p "
 				  << idx;
@@ -245,21 +249,22 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
       id.iLay   = (di%layers_)+1;
       id.iType  = ((di-id.iLay+1)/layers_ == 0) ? -1 : 1;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " O/P " << id.zSide 
-				    << ":" << id.iType << ":" << id.iLay
-				    << ":" << id.iSec1;
+      edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << hi << " O/P " 
+				    << id.zSide  << ":" << id.iType << ":" 
+				    << id.iLay << ":" << id.iSec1;
 #endif
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
       id.iCell1 = (di%cellMax_)+1;
       di        = (di-id.iCell1+1)/cellMax_;
       id.iSec1  = (di%sectors_)+1;
       di        = (di-id.iSec1+1)/sectors_;
-      id.iLay   = (di%layers_) + 1;
-      id.iType  = (di-id.iLay+1)/layers_;
+      id.iLay   = (di%layers_) + firstLay_;
+      id.iType  = (di-id.iLay+firstLay_)/layers_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " O/P " << id.zSide 
-				    << ":" << id.iType << ":" << id.iLay
-				    << ":" << id.iSec1 << ":" << id.iCell1;
+      edm::LogVerbatim("HGCalGeom") << "Geom Trap I/P " << hi << " O/P " 
+				    << id.zSide << ":" << id.iType << ":" 
+				    << id.iLay << ":" << id.iSec1 << ":" 
+				    << id.iCell1;
 #endif
     } else {
       id.iSec2  = (di%waferMax_)-waferOff_;
@@ -269,9 +274,10 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
       id.iLay   = (di%layers_)+1;
       id.iType  = (di-id.iLay+1)/layers_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " O/P " << id.zSide 
-				    << ":" << id.iType << ":" << id.iLay
-				    << ":" << id.iSec1 << ":" << id.iSec2;
+      edm::LogVerbatim("HGCalGeom") << "Geom Hex8 I/P " << hi << " O/P " 
+				    << id.zSide << ":" << id.iType << ":" 
+				    << id.iLay << ":" << id.iSec1 << ":" 
+				    << id.iSec2;
 #endif
     }
   }

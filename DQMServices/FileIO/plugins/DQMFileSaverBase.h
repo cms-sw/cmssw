@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"

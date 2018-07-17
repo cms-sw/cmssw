@@ -77,17 +77,32 @@ CombinedSVComputer::threshTrack(const CandIPTagInfo &trackIPTagInfo,
                 if (kin.vectorSum().M() > charmCut)
                         return data;
         }
+        if(trackFlip){
+          static const btag::TrackIPData dummy = {
+	    GlobalPoint(),
+	    GlobalPoint(),
+	    Measurement1D(1.0, 1.0),
+	    Measurement1D(1.0, 1.0),
+	    Measurement1D(1.0, 1.0),
+	    Measurement1D(1.0, 1.0),
+	    0.
+          };
+          return dummy;
+        }
+        else{
+          static const btag::TrackIPData dummy = {
+	    GlobalPoint(),
+	    GlobalPoint(),
+	    Measurement1D(-1.0, 1.0),
+	    Measurement1D(-1.0, 1.0),
+	    Measurement1D(-1.0, 1.0),
+	    Measurement1D(-1.0, 1.0),
+	    0.
+          };
+          return dummy;
+        }
 
-        static const btag::TrackIPData dummy = {
-                GlobalPoint(),
-                GlobalPoint(),
-                Measurement1D(-1.0, 1.0),
-                Measurement1D(-1.0, 1.0),
-                Measurement1D(-1.0, 1.0),
-                Measurement1D(-1.0, 1.0),
-                0.
-        };
-        return dummy;
+
 }
 
 const btag::TrackIPData &
@@ -117,16 +132,31 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 			return data;
 	}
 
-	static const btag::TrackIPData dummy = {
- 		GlobalPoint(),
-		GlobalPoint(),
-		Measurement1D(-1.0, 1.0),
-		Measurement1D(-1.0, 1.0),
-		Measurement1D(-1.0, 1.0),
-		Measurement1D(-1.0, 1.0),
-		0.
-	};
-	return dummy;
+        if(trackFlip){
+          static const btag::TrackIPData dummy = {
+	    GlobalPoint(),
+	    GlobalPoint(),
+	    Measurement1D(1.0, 1.0),
+	    Measurement1D(1.0, 1.0),
+	    Measurement1D(1.0, 1.0),
+	    Measurement1D(1.0, 1.0),
+	    0.
+          };
+          return dummy;
+        }
+        else{
+          static const btag::TrackIPData dummy = {
+	    GlobalPoint(),
+	    GlobalPoint(),
+	    Measurement1D(-1.0, 1.0),
+	    Measurement1D(-1.0, 1.0),
+	    Measurement1D(-1.0, 1.0),
+	    Measurement1D(-1.0, 1.0),
+            0.
+          };
+          return dummy;
+        }
+
 }
 
 

@@ -311,6 +311,18 @@ namespace pat {
       void setSimPt(float pt){ simPt_ = pt;}
       void setSimEta(float eta){ simEta_ = eta;}
       void setSimPhi(float phi){ simPhi_ = phi;}
+      
+      /// Trigger information
+      const pat::TriggerObjectStandAlone* l1Object(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerL1Mu,idx);
+      }
+      const pat::TriggerObjectStandAlone* hltObject(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerMuon,idx);
+      }
+      bool triggered( const char * pathName ){
+	return triggerObjectMatchByPath(pathName,true,true)!=nullptr;
+      }
+
     protected:
 
       // ---- for content embedding ----
@@ -400,7 +412,6 @@ namespace pat {
       float simPt_;
       float simEta_;
       float simPhi_;
-      
   };
 
 

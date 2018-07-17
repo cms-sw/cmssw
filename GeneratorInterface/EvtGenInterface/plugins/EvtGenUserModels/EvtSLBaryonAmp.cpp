@@ -30,13 +30,13 @@
 #include "EvtGenBase/EvtDiracSpinor.hh"
 #include "EvtGenBase/EvtDiracParticle.hh"
 #include "EvtGenBase/EvtRaritaSchwinger.hh"
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtSLBaryonAmp.hh"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGenUserModels/EvtSLBaryonAmp.hh"
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtAmp.hh"
 #include "EvtGenBase/EvtSemiLeptonicFF.hh"
 #include "EvtGenBase/EvtGammaMatrix.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using std::endl;
 

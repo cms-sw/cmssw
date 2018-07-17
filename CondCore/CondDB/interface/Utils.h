@@ -73,7 +73,7 @@ namespace cond {
 	  commName.replace(ind,1,1,' ');
 	  ind = commName.find('\0');
 	}
-      } catch ( std::ifstream::failure ){
+      } catch ( std::ifstream::failure const& ){
 	commName = "unknown";
       }
       return commName;

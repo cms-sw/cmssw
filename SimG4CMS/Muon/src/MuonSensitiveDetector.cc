@@ -7,10 +7,9 @@
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-
 #include "SimG4CMS/Muon/interface/SimHitPrinter.h"
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
@@ -20,14 +19,18 @@
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
-#include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Step.hh"
+#include "G4StepPoint.hh"
+#include "G4Track.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+
+//#define DebugLog
 
 MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name, 
 					     const DDCompactView & cpv,
@@ -35,43 +38,39 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
 					     edm::ParameterSet const & p,
 					     const SimTrackManager* manager) 
   : SensitiveTkDetector(name, cpv, clg, p),
-    thePV(nullptr), theHit(nullptr), theDetUnitId(0), theTrackID(0), theManager(manager)
+    thePV(nullptr), theHit(nullptr), theDetUnitId(0), newDetUnitId(0), 
+    theTrackID(0), theManager(manager)
 {
   edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
-  STenergyPersistentCut = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency");//Default 1. GeV
-  STallMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
+  ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency")/CLHEP::GeV;//Default 1. GeV
+  allMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
   printHits  = m_MuonSD.getParameter<bool>("PrintHits");
   
   //
   // Here simply create 1 MuonSlaveSD for the moment
   //  
-  
-  LogDebug("MuonSimDebug") << "create MuonSubDetector "<<name<<std::endl;
-
+  LogDebug("MuonSimDebug") << "create MuonSubDetector "<<name;
   detector = new MuonSubDetector(name);
 
-  LogDebug("MuonSimDebug") << "create MuonFrameRotation"<<std::endl;
-
- //The constants take time to calculate and are needed by many helpers
- MuonDDDConstants constants(cpv);
- if (detector->isEndcap()) {
-   //    cout << "MuonFrameRotation create MuonEndcapFrameRotation"<<endl;
+  //The constants take time to calculate and are needed by many helpers
+  MuonDDDConstants constants(cpv);
+  G4String sdet = "unknown";
+  if (detector->isEndcap()) {
     theRotation=new MuonEndcapFrameRotation();
+    sdet = "Endcap";
   } else if (detector->isRPC()) {
-    //    cout << "MuonFrameRotation create MuonRPCFrameRotation"<<endl;
     theRotation=new MuonRPCFrameRotation( constants );
+    sdet = "RPC";
   } else if (detector->isGEM()) {
-    //    cout << "MuonFrameRotation create MuonGEMFrameRotation"<<endl;
     theRotation=new MuonGEMFrameRotation( constants );
+    sdet = "GEM";
   } else if (detector->isME0()) {
-    //    cout << "MuonFrameRotation create MuonME0FrameRotation"<<endl;
     theRotation=new MuonME0FrameRotation( constants );
-  }  else {
-    theRotation = nullptr;
+    sdet = "ME0";
+  } else {
+    theRotation = new MuonFrameRotation();
   }
-  LogDebug("MuonSimDebug") << "create MuonSlaveSD"<<std::endl;
   slaveMuon  = new MuonSlaveSD(detector,theManager);
-  LogDebug("MuonSimDebug") << "create MuonSimHitNumberingScheme"<<std::endl;
   numbering  = new MuonSimHitNumberingScheme(detector, constants);
   g4numbering = new MuonG4Numbering(constants);
   
@@ -79,13 +78,12 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
     thePrinter = new SimHitPrinter("HitPositionOSCAR.dat");
   }
 
-
-  edm::LogInfo("MuonSimDebug") << "  EnergyThresholdForPersistency " 
-			       << STenergyPersistentCut << " AllMuonsPersistent " 
-			       <<  STallMuonsPersistent;
+  edm::LogVerbatim("MuonSensitiveDetector") 
+    << " of type " << sdet << " <" << GetName() 
+    << "> EnergyThresholdForPersistency(GeV) " << ePersistentCutGeV/CLHEP::GeV 
+    << " allMuonsPersistent: " << allMuonsPersistent;
     
   theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
-  myG4TrackToParticleID = new G4TrackToParticleID;
 }
 
 MuonSensitiveDetector::~MuonSensitiveDetector() { 
@@ -94,40 +92,34 @@ MuonSensitiveDetector::~MuonSensitiveDetector() {
   delete slaveMuon;
   delete theRotation;
   delete detector;
-
   delete theG4ProcessTypeEnumerator;
-  
-  delete myG4TrackToParticleID;
 }
 
 void MuonSensitiveDetector::update(const BeginOfEvent * i){
   clearHits();
-
   //----- Initialize variables to check if two steps belong to same hit
   thePV = nullptr;
   theDetUnitId = 0;
   theTrackID = 0;
-
 }
-
-void MuonSensitiveDetector::update(const  ::EndOfEvent *)
-{}
-
 
 void MuonSensitiveDetector::clearHits()
 {
-  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::clearHits"<<std::endl;
+  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::clearHits";
   slaveMuon->Initialize();
 }
 
 bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROhist)
 {
-  LogDebug("MuonSimDebug") <<" MuonSensitiveDetector::ProcessHits "<<InitialStepPosition(aStep,WorldCoordinates)<<std::endl;
-
- // TimeMe t1( theHitTimer, false);
+  LogDebug("MuonSimDebug") <<" MuonSensitiveDetector::ProcessHits "
+			   <<InitialStepPosition(aStep,WorldCoordinates);
 
   if (aStep->GetTotalEnergyDeposit()>0.){
+    newDetUnitId = setDetUnitId(aStep);
+
     // do not count neutrals that are killed by User Limits MinEKine
+    //---VI: this is incorrect, neutral particle, like neutron may have local
+    //       energy deposit, which potentially may make a hit
     if( aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0 ){
   
       if (newHit(aStep)) {
@@ -135,23 +127,22 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
 	createHit(aStep);
       } else {
 	updateHit(aStep);
-      }    
-      return true;
+      } 
     } else {
-      storeVolumeAndTrack(aStep);
-      return false;
+      thePV = aStep->GetPreStepPoint()->GetPhysicalVolume();
+      theTrackID = aStep->GetTrack()->GetTrackID();
+      theDetUnitId = newDetUnitId;
     }
   }
-  return false;
+  return true;
 }
 
 uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
 { 
-  //  G4VPhysicalVolume * pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
 
+#ifdef DebugLog
   std::stringstream MuonBaseNumber; 
-  // LogDebug :: Print MuonBaseNumber
   MuonBaseNumber << "MuonNumbering :: number of levels = "<<num.getLevels()<<std::endl;
   MuonBaseNumber << "Level \t SuperNo \t BaseNo"<<std::endl;
   for (int level=1;level<=num.getLevels();level++) {
@@ -161,248 +152,169 @@ uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
   std::string MuonBaseNumbr = MuonBaseNumber.str();
 
   LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: "<<MuonBaseNumbr;
-  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: MuonDetUnitId = "<<(numbering->baseNumberToUnitNumber(num));
+  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: MuonDetUnitId = "
+			   <<(numbering->baseNumberToUnitNumber(num));
+#endif
   return numbering->baseNumberToUnitNumber(num);
 }
 
+bool MuonSensitiveDetector::newHit(const G4Step * aStep){
 
-Local3DPoint MuonSensitiveDetector::toOrcaRef(Local3DPoint in ,G4Step * step){
-  if (theRotation !=nullptr ) {
-    return theRotation->transformPoint(in,step);
-  }
-  return (in);
+  return (!theHit || (aStep->GetTrack()->GetTrackID() != theTrackID) 
+	  || (aStep->GetPreStepPoint()->GetPhysicalVolume() != thePV)
+	  || newDetUnitId != theDetUnitId);
 }
 
-Local3DPoint MuonSensitiveDetector::toOrcaUnits(const Local3DPoint& in){
-  return Local3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
-}
-
-Global3DPoint MuonSensitiveDetector::toOrcaUnits(const Global3DPoint& in){
-  return Global3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
-}
-
-void MuonSensitiveDetector::storeVolumeAndTrack(const G4Step * aStep) {
-  G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
-  G4Track * t  = aStep->GetTrack();
-  thePV=pv;
-  theTrackID=t->GetTrackID();
-}
-
-bool MuonSensitiveDetector::newHit(G4Step * aStep){
-  
-  G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
-  G4Track * t  = aStep->GetTrack();
-  uint32_t currentUnitId=setDetUnitId(aStep);
-  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::newHit :: currentUnitId = "<<currentUnitId;
-  unsigned int currentTrackID=t->GetTrackID();
-  //unsigned int currentEventID=G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-  bool changed=((pv!=thePV) || 
-		(currentUnitId!=theDetUnitId) || 
-		(currentTrackID!=theTrackID));
-  return changed;
-}
-
-void MuonSensitiveDetector::createHit(G4Step * aStep){
-
-  G4Track * theTrack  = aStep->GetTrack(); 
+void MuonSensitiveDetector::createHit(const G4Step * aStep){
 
   Local3DPoint theEntryPoint;
   Local3DPoint theExitPoint;
 
   if (detector->isBarrel()) {
-    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,1),aStep)); // 1 level up
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,1),aStep));  
+    // 1 levels up
+    theEntryPoint = cmsUnits(theRotation->transformPoint(InitialStepPositionVsParent(aStep,1),aStep));
+    theExitPoint  = cmsUnits(theRotation->transformPoint(FinalStepPositionVsParent(aStep,1),aStep));
   } else if (detector->isEndcap()) {
     // save local z at current level
-    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep));
-    float zentry = theEntryPoint.z();
-    float zexit = theExitPoint.z();
-    Local3DPoint tempEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,4),aStep)); // 4 levels up
-    Local3DPoint tempExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));
+    theEntryPoint = theRotation->transformPoint(InitialStepPosition(aStep,LocalCoordinates),aStep);
+    theExitPoint  = theRotation->transformPoint(FinalStepPosition(aStep,LocalCoordinates),aStep);
+    float zentry  = theEntryPoint.z();
+    float zexit   = theExitPoint.z();
+    // 4 levels up
+    Local3DPoint tempEntry = theRotation->transformPoint(InitialStepPositionVsParent(aStep,4),aStep);
+    Local3DPoint tempExit  = theRotation->transformPoint(FinalStepPositionVsParent(aStep,4),aStep);
     // reset local z from z wrt deep-parent volume to z wrt low-level volume
-    theEntryPoint = Local3DPoint( tempEntryPoint.x(), tempEntryPoint.y(), zentry );
-    theExitPoint  = Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit );
+    theEntryPoint = cmsUnits(Local3DPoint( tempEntry.x(), tempEntry.y(), zentry ));
+    theExitPoint  = cmsUnits(Local3DPoint( tempExit.x(),  tempExit.y(),  zexit ));
   } else {
-    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
+    theEntryPoint = cmsUnits(theRotation->transformPoint(InitialStepPosition(aStep,LocalCoordinates),aStep));
+    theExitPoint  = cmsUnits(theRotation->transformPoint(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   }
 
-  float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
-  float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
-  float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-  //  int theParticleType     = theTrack->GetDefinition()->GetPDGEncoding();
-  int theParticleType     = myG4TrackToParticleID->particleID(theTrack);
-  G4ThreeVector gmd  = aStep->GetPreStepPoint()->GetMomentumDirection();
-  G4ThreeVector lmd = ((const G4TouchableHistory *)(aStep->GetPreStepPoint()->GetTouchable()))->GetHistory()
-    ->GetTopTransform().TransformAxis(gmd);
-  Local3DPoint lnmd = toOrcaRef(ConvertToLocal3DPoint(lmd),aStep);
+  const G4Track* theTrack = aStep->GetTrack(); 
+  const G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
+
+  float thePabs       = preStepPoint->GetMomentum().mag()/CLHEP::GeV;
+  float theTof        = preStepPoint->GetGlobalTime()/CLHEP::nanosecond;
+  float theEnergyLoss = aStep->GetTotalEnergyDeposit()/CLHEP::GeV;
+  int theParticleType = G4TrackToParticleID::particleID(theTrack);
+
+  theDetUnitId = newDetUnitId;
+  thePV = preStepPoint->GetPhysicalVolume();
+  theTrackID = theTrack->GetTrackID();
+
+  // convert momentum direction it to local frame
+  const G4ThreeVector& gmd  = preStepPoint->GetMomentumDirection();
+  G4ThreeVector lmd = ((G4TouchableHistory *)(preStepPoint->GetTouchable()))->GetHistory()
+      ->GetTopTransform().TransformAxis(gmd);
+  Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
+  lnmd = theRotation->transformPoint(lnmd, aStep);
   float theThetaAtEntry = lnmd.theta();
   float thePhiAtEntry = lnmd.phi();
 
-  storeVolumeAndTrack( aStep );
-  theDetUnitId              = setDetUnitId(aStep);
-
-  Global3DPoint theGlobalPos;
-  if (printHits) {   
-    Local3DPoint theGlobalHelp = InitialStepPosition(aStep,WorldCoordinates);
-    theGlobalEntry = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
-
-    G4StepPoint * preStepPoint = aStep->GetPreStepPoint();
-    const G4TouchableHistory * theTouchable=(const G4TouchableHistory *)
-                                            (preStepPoint->GetTouchable());
-    theGlobalHelp=ConvertToLocal3DPoint(theTouchable->GetTranslation());
-    theGlobalPos = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
-    //    const G4RotationMatrix * theGlobalRot = theTouchable->GetRotation();
-  }
-  
-  LogDebug("MuonSimDebug") << "MuonSensitiveDetector::createHit UpdatablePSimHit"<<std::endl;
-
   theHit = new UpdatablePSimHit(theEntryPoint,theExitPoint,thePabs,theTof,
-                  theEnergyLoss,theParticleType,theDetUnitId,
-                  theTrackID,theThetaAtEntry,thePhiAtEntry,
-                  theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));
+				theEnergyLoss,theParticleType,theDetUnitId,
+				theTrackID,theThetaAtEntry,thePhiAtEntry,
+				theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));
 
-
-  LogDebug("MuonSimDebug") <<"=== NEW ==================> ELOSS   = "<<theEnergyLoss<<" "
-       <<thePV->GetLogicalVolume()->GetName()<<std::endl;
-  const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
-  const G4VProcess* p2 = aStep->GetPreStepPoint()->GetProcessDefinedStep();
-  if (p)
-    LogDebug("MuonSimDebug") <<" POST PROCESS = "<<p->GetProcessName()<<std::endl;
-  if (p2)
-    LogDebug("MuonSimDebug") <<" PRE  PROCESS = "<<p2->GetProcessName()<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit theta " << theThetaAtEntry<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit phi   " << thePhiAtEntry<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit pabs  " << thePabs<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit tof   " << theTof<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit track " << theTrackID<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit entry " << theEntryPoint<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit exit  " << theExitPoint<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit eloss " << theEnergyLoss << std::endl;
-  LogDebug("MuonSimDebug") << "newhit detid " << theDetUnitId<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit delta " << (theExitPoint-theEntryPoint)<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit deltu " << (theExitPoint-theEntryPoint).unit();
-  LogDebug("MuonSimDebug") << " " << (theExitPoint-theEntryPoint).mag()<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit glob  " << theGlobalEntry<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit dpos  " << theGlobalPos<<std::endl;
-  LogDebug("MuonSimDebug") << "newhit drot  " << std::endl;
-  //  theGlobalRot->print(LogDebug("MuonSimDebug"));
-
-
-  //
-  //----- SimTracks: Make it persistent?
-  //
-  int thePID = theTrack->GetDefinition()->GetPDGEncoding();
-  LogDebug("MuonSimDebug") << " checking simtrack " << thePID << " " << thePabs << " STenergyPersistentCut " << STenergyPersistentCut << std::endl;
-
-  if( thePabs*GeV > STenergyPersistentCut 
-      || ( abs(thePID) == 13 && STallMuonsPersistent ) ){
-    TrackInformation* info = getOrCreateTrackInformation(theTrack);
-    LogDebug("MuonSimDebug") <<" track leaving hit in muons made selected for persistency"<<std::endl;
-
+  // Make track persistent
+  int thePID = std::abs(theTrack->GetDefinition()->GetPDGEncoding());
+  //---VI - in parameters cut in energy is declared but applied to momentum
+  if(thePabs > ePersistentCutGeV || ( thePID == 13 && allMuonsPersistent ) ){
+    TrackInformation* info = cmsTrackInformation(theTrack);
     info->storeTrack(true);
   }
-     
+
+#ifdef DebugLog
+  edm::LogVerbatim("MuonSimDebug") <<"=== NEW Muon hit for "<< GetName() 
+				   << " Edep(GeV)= " << theEnergyLoss
+				   <<" " <<thePV->GetLogicalVolume()->GetName();
+  const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
+  const G4VProcess* p2 = preStepPoint->GetProcessDefinedStep();
+  G4String sss = "";
+  if (p) sss += " POST PROCESS: " + p->GetProcessName();
+  if (p2)sss += ";  PRE  PROCESS: " + p2->GetProcessName();
+  if("" != sss) edm::LogVerbatim("MuonSimDebug") << sss;
+  edm::LogVerbatim("MuonSimDebug") << " theta= " << theThetaAtEntry
+				   << " phi= " << thePhiAtEntry
+				   << " Pabs(GeV/c)  " << thePabs
+				   << " Eloss(GeV)= " << theEnergyLoss
+				   << " Tof(ns)=  " << theTof
+				   << " trackID= " << theTrackID
+				   << " detID= " << theDetUnitId
+				   << "\n Local:  entry " << theEntryPoint 
+				   << " exit " << theExitPoint
+				   << " delta " << (theExitPoint-theEntryPoint)
+				   << "\n Global: entry " << preStepPoint->GetPosition() 
+				   << " exit " << aStep->GetPostStepPoint()->GetPosition();
+#endif
 }
 
-void MuonSensitiveDetector::updateHit(G4Step * aStep){
-  //  float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
-  //  Local3DPoint theEntryPoint= InitialStepPosition(aStep,LocalCoordinates);  
-
+void MuonSensitiveDetector::updateHit(const G4Step * aStep){
 
   Local3DPoint theExitPoint;
 
   if (detector->isBarrel()) {
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,1),aStep));  
+    theExitPoint = cmsUnits(theRotation->transformPoint(FinalStepPositionVsParent(aStep,1),aStep));  
   } else if (detector->isEndcap()) {
     // save local z at current level
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep));
-    float zexit = theExitPoint.z();
-    Local3DPoint tempExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));
-    theExitPoint  = Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit );
+    theExitPoint = theRotation->transformPoint(FinalStepPosition(aStep,LocalCoordinates),aStep);
+    float zexit  = theExitPoint.z();
+    Local3DPoint tempExitPoint = theRotation->transformPoint(FinalStepPositionVsParent(aStep,4),aStep);
+    theExitPoint = cmsUnits(Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit));
   } else {
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
+    theExitPoint = cmsUnits(theRotation->transformPoint(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   }
 
-  float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;  
-
-  if( theHit == nullptr ){ 
-    std::cerr << "!!ERRROR in MuonSensitiveDetector::updateHit. It is called when there is no hit " << std::endl;
-  }
+  float theEnergyLoss = aStep->GetTotalEnergyDeposit()/CLHEP::GeV;  
 
   theHit->updateExitPoint(theExitPoint);
   theHit->addEnergyLoss(theEnergyLoss);
 
-  LogDebug("MuonSimDebug") <<"=== UPDATE ===============> ELOSS   = "<<theEnergyLoss<<" "
-       <<thePV->GetLogicalVolume()->GetName()<<std::endl;
+#ifdef DebugLog
+  edm::LogVerbatim("MuonSimDebug") <<"=== NEW Update muon hit for "<< GetName() 
+				   << " Edep(GeV)= " << theEnergyLoss
+				   <<" " <<thePV->GetLogicalVolume()->GetName();
   const G4VProcess* p = aStep->GetPostStepPoint()->GetProcessDefinedStep();
-  const G4VProcess* p2 = aStep->GetPreStepPoint()->GetProcessDefinedStep();
-  if (p)
-    LogDebug("MuonSimDebug") <<" POST PROCESS = "<<p->GetProcessName()<<std::endl;
-  if (p2)
-    LogDebug("MuonSimDebug") <<" PRE  PROCESS = "<<p2->GetProcessName()<<std::endl;
-  LogDebug("MuonSimDebug") << "updhit exit  " << theExitPoint<<std::endl;
-  LogDebug("MuonSimDebug") << "updhit eloss " << theHit->energyLoss() <<std::endl;
-  LogDebug("MuonSimDebug") << "updhit detid " << theDetUnitId<<std::endl;
-  LogDebug("MuonSimDebug") << "updhit delta " << (theExitPoint-theHit->entryPoint())<<std::endl;
-  LogDebug("MuonSimDebug") << "updhit deltu " << (theExitPoint-theHit->entryPoint()).unit();
-  LogDebug("MuonSimDebug") << " " << (theExitPoint-theHit->entryPoint()).mag()<<std::endl; 
-
+  const G4VProcess* p2 = preStepPoint->GetProcessDefinedStep();
+  G4String sss = "";
+  if (p) sss += " POST PROCESS: " + p->GetProcessName();
+  if (p2)sss += ";  PRE  PROCESS: " + p2->GetProcessName();
+  if("" != sss) edm::LogVerbatim("MuonSimDebug") << sss;
+  edm::LogVerbatim("MuonSimDebug") << " delEloss(GeV)= " << theEnergyLoss
+				   << " Tof(ns)=  " << theTof
+				   << " trackID= " << theTrackID
+				   << " detID= " << theDetUnitId
+				   << " exit " << theExitPoint;
+#endif
 }
 
 void MuonSensitiveDetector::saveHit(){
-
   if (theHit) {
     if (printHits) {
       thePrinter->startNewSimHit(detector->name());
       thePrinter->printId(theHit->detUnitId());
-      //      thePrinter->printTrack(theHit->trackId());
-      //thePrinter->printPabs(theHit->pabs());
-      //thePrinter->printEloss(theHit->energyLoss());
       thePrinter->printLocal(theHit->entryPoint(),theHit->exitPoint());
-      thePrinter->printGlobal(theGlobalEntry);
     }
+    // hit is included into hit collection
     slaveMuon->processHits(*theHit);
-    // seems the hit does not want to be deleted
-    // done by the hit collection?
     delete theHit;
-    theHit = nullptr; //set it to 0, because you are checking that is 0
-  }
-
-}
-
-TrackInformation* MuonSensitiveDetector::getOrCreateTrackInformation( const G4Track* gTrack)
-{
-  G4VUserTrackInformation* temp = gTrack->GetUserInformation();
-  if (temp == nullptr){
-    std::cerr <<" ERROR: no G4VUserTrackInformation available"<<std::endl;
-    abort();
-  }else{
-    TrackInformation* info = dynamic_cast<TrackInformation*>(temp);
-    if (info ==nullptr){
-      std::cerr <<" ERROR: TkSimTrackSelection: the UserInformation does not appear to be a TrackInformation"<<std::endl;
-      abort();
-    }
-    return info;
+    theHit = nullptr;
   }
 }
 
 void MuonSensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
-//  TimeMe t("MuonSensitiveDetector::EndOfEvent", false);
- // LogDebug("MuonSimDebug") << "MuonSensitiveDetector::EndOfEvent saving last hit en event " << std::endl;
   saveHit();
 }
-
 
 void MuonSensitiveDetector::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
   if (slaveMuon->name() == hname) { cc=slaveMuon->hits(); }
 }
 
-Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * currentStep, G4int levelsUp) {
+Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(const G4Step * currentStep, G4int levelsUp) {
   
-  G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
+  const G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
   const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
   
   const G4TouchableHistory * theTouchable=(const G4TouchableHistory *)
@@ -415,10 +327,10 @@ Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * current
   return ConvertToLocal3DPoint(localCoordinates); 
 }
  
-Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(G4Step * currentStep, G4int levelsUp) {
+Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(const G4Step* currentStep, G4int levelsUp) {
   
-  G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
-  G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
+  const G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
+  const G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
   const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
     
   const G4TouchableHistory * theTouchable = (const G4TouchableHistory *)

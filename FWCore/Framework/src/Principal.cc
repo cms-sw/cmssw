@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -602,7 +603,7 @@ namespace edm {
 
     assert(results.empty());
 
-    if(unlikely(consumer and (not consumer->registeredToConsumeMany(typeID,branchType())))) {
+    if(UNLIKELY(consumer and (not consumer->registeredToConsumeMany(typeID,branchType())))) {
       failedToRegisterConsumesMany(typeID);
     }
 
@@ -729,7 +730,7 @@ namespace edm {
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
-    if(unlikely( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
+    if(UNLIKELY( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),
                                appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
     }
@@ -767,7 +768,7 @@ namespace edm {
       return nullptr;
     }
     
-    if(unlikely( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {
+    if(UNLIKELY( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,label,instance,process);
     }
     

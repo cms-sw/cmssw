@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
 
-  <LogicalPartSection label="lps">
+  <LogicalPartSection label="testLogicalParts.xml">
     <LogicalPart name="trap1">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trap1"/>
@@ -85,6 +85,10 @@
     <LogicalPart name="trunctubs1">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trunctubs1"/>
+    </LogicalPart> 
+    <LogicalPart name="trunctubs2">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:trunctubs2"/>
     </LogicalPart> 
     <LogicalPart name="momma">
       <rMaterial name="testMaterials:Air"/>

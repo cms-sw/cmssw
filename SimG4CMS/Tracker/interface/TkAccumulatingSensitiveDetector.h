@@ -51,12 +51,12 @@ private:
     bool newHit   (const G4Step *);
     bool closeHit (const G4Step *);
 
+protected:
     void update(const BeginOfEvent *) override;
     void update(const BeginOfTrack *) override;
     void update(const BeginOfJob *) override;
 
-    Local3DPoint RotateAndScale(const Local3DPoint&);
-    TrackInformation* getTrackInformation(const G4Track *);
+private:
 
     // data members initialised before run
     const SimTrackManager* theManager;

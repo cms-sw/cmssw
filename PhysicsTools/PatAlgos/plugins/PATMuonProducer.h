@@ -34,6 +34,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace pat {
 
@@ -109,7 +112,17 @@ namespace pat {
 			 bool beamspotIsValid );
     double relMiniIsoPUCorrected( const pat::Muon& aMuon,
 				  double rho);
-
+    std::unique_ptr<GlobalPoint> getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+						  const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+						  const DetId& chamberId);
+    void fillL1TriggerInfo(pat::Muon& muon,
+			   edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			   const edm::TriggerNames & names,
+			   const edm::ESHandle<GlobalTrackingGeometry>& geometry);
+    void fillHltTriggerInfo(pat::Muon& muon,
+			    edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			    const edm::TriggerNames & names,
+			    const std::vector<std::string>& collection_names);
   private:
     /// input source
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
@@ -214,6 +227,12 @@ namespace pat {
 
     /// MC info
     edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
+
+    /// Trigger
+    bool addTriggerMatching_;
+    edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
+    std::vector<std::string> hltCollectionFilters_;
   };
 
 }

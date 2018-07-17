@@ -7,7 +7,8 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile.h>
-
+#include "globals.hh"
+#include "G4ThreeVector.hh"
 #include <string>
 
 //

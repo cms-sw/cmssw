@@ -64,7 +64,7 @@ IOChannel::write (const void *from, IOSize n)
   while (s == -1 && errno == EINTR);
 
   if (s == -1 && errno != EWOULDBLOCK)
-    throwStorageError ("FileWriteError", "Calling IOChannel::write()", "write()", errno);
+    throwStorageError (edm::errors::FileWriteError, "Calling IOChannel::write()", "write()", errno);
 
   return s >= 0 ? s : 0;
 }
@@ -95,7 +95,7 @@ IOChannel::writev (const IOBuffer *from, IOSize buffers)
 
   // If it was serious error, throw it.
   if (n == -1)
-    throwStorageError ("FileWriteError", "Calling IOChannel::writev()", "writev()", errno);
+    throwStorageError (edm::errors::FileWriteError, "Calling IOChannel::writev()", "writev()", errno);
 
   // Return the number of bytes actually written.
   return n;

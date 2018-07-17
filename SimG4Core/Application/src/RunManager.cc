@@ -6,8 +6,6 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 #include "SimG4Core/Application/interface/G4RegionReporter.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
@@ -33,6 +31,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"

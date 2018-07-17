@@ -70,6 +70,13 @@ OuterTrackerMonitorTrackingParticles = DQMEDAnalyzer('OuterTrackerMonitorTrackin
         xmin = cms.double(0)
         ),
 
+# tracking particles vs pT (for efficiency)
+    TH1Effic_pt_zoom = cms.PSet(
+        Nbinsx = cms.int32(50),
+        xmax = cms.double(10),
+        xmin = cms.double(0)
+        ),
+
 # tracking particles vs eta (for efficiency)
     TH1Effic_eta = cms.PSet(
         Nbinsx = cms.int32(50),

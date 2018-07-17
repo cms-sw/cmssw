@@ -3,47 +3,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 using namespace hgc_digi;
-
-namespace {
-  void addCellMetadata(HGCCellInfo& info,
-		       const HcalGeometry* geom,
-		       const DetId& detid ) {
-    //base time samples for each DetId, initialized to 0
-    info.size = 1.0;
-    info.thickness = 1.0;
-  }
-
-  void addCellMetadata(HGCCellInfo& info,
-		       const HGCalGeometry* geom,
-		       const DetId& detid ) {
-    const auto& topo     = geom->topology();
-    const auto& dddConst = topo.dddConstants();
-    uint32_t id(detid.rawId());
-    int waferTypeL = 0;
-    bool isHalf = false;
-    HGCalDetId hid(id);
-    int wafer = HGCalDetId(id).wafer();
-    waferTypeL = dddConst.waferTypeL(wafer);
-    isHalf = dddConst.isHalfCell(wafer,hid.cell());
-    //base time samples for each DetId, initialized to 0
-    info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = waferTypeL;
-  }
-
-  void addCellMetadata(HGCCellInfo& info,
-		       const CaloSubdetectorGeometry* geom,
-		       const DetId& detid ) {
-    if( DetId::Hcal == detid.det() ) {
-      const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
-      addCellMetadata(info,hc,detid);
-    } else {
-      const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
-      addCellMetadata(info,hg,detid);
-    }
-  }
-
-}
-
+using namespace hgc_digi_utils;
 
 template<class DFr>
 HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
@@ -168,3 +128,4 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCDigitizerBase<HGCEEDataFrame>;
 template class HGCDigitizerBase<HGCBHDataFrame>;
+template class HGCDigitizerBase<HGCalDataFrame>;

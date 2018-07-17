@@ -10,6 +10,7 @@
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -262,7 +263,7 @@ RequestManager::updateCurrentServer()
     // NOTE: we use memory_order_relaxed here, meaning that we may actually miss
     // a pending update.  *However*, since we call this for every read, we'll get it
     // eventually.
-    if (likely(!m_serverToAdvertise.load(std::memory_order_relaxed))) {return;}
+    if (LIKELY(!m_serverToAdvertise.load(std::memory_order_relaxed))) {return;}
     std::string *hostname_ptr;
     if ((hostname_ptr = m_serverToAdvertise.exchange(nullptr)))
     {

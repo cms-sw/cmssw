@@ -1,4 +1,4 @@
-#include "../interface/CocoaDaqReaderRoot.h"
+#include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 #include "TFile.h" 
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
