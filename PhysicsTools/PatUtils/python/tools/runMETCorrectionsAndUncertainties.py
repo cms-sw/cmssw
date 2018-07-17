@@ -184,6 +184,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             manualJetConfig =  self._defaultParameters['manualJetConfig'].value
         if jetSelection is None :
             jetSelection = self._defaultParameters['jetSelection'].value
+        recoMetFromPFCsIsNone = (recoMetFromPFCs is None)
         if recoMetFromPFCs is None :
             recoMetFromPFCs =  self._defaultParameters['recoMetFromPFCs'].value
         if reapplyJEC is None :
@@ -256,6 +257,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
              #internal jet configuration
             self.jetConfiguration()
 
+        #defaults for 2017 fix
+        #(don't need to recluster, just uses a subset of the input jet coll)
+        if fixEE2017:
+            if recoMetFromPFCsIsNone: self.setParameter('recoMetFromPFCs',True)
+            if reclusterJetsIsNone: self.setParameter('reclusterJets',False)
+        
         #met reprocessing and jet reclustering
         if recoMetFromPFCs and reclusterJetsIsNone and not fixEE2017:
             self.setParameter('reclusterJets',True)
@@ -321,7 +328,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 pfCandCollection,
                 [electronCollection,muonCollection,tauCollection,photonCollection],
                 postfix,
-            )                
+            )
 
         # recompute the MET (and thus the jets as well for correction) from scratch
         if recoMetFromPFCs:
@@ -1901,7 +1908,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                manualJetConfig=False,
                                reclusterJets=None,
                                jetSelection="pt>15 && abs(eta)<9.9",
-                               recoMetFromPFCs=False,
+                               recoMetFromPFCs=None,
                                jetCorLabelL3="ak4PFCHSL1FastL2L3Corrector",
                                jetCorLabelRes="ak4PFCHSL1FastL2L3ResidualCorrector",
 ##                               jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
