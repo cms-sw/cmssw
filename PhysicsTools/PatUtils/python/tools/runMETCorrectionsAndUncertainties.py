@@ -1799,7 +1799,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         )
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, task)
         # return good cands and jets
-        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix))
+        return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"jets"))
 
 #========================================================================================
 runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
