@@ -1150,7 +1150,7 @@ double BPHMonitor::Prescale(const std::string  hltpath1, const std::string  hltp
   //retrieving HLT prescale
   PrescaleHLT_den = (hltPrescale_->prescaleValuesInDetail(iEvent, iSetup, hltpath)).second;
   PrescaleHLT_num = (hltPrescale_->prescaleValuesInDetail(iEvent, iSetup, hltpath1)).second;
-  if ( PrescaleHLT_den*PrescaleHLT_num>0 ) HLTP =PrescaleHLT_num/std::__gcd(PrescaleHLT_num, PrescaleHLT_den);
+  if ( PrescaleHLT_den>0 && PrescaleHLT_num>0 ) HLTP =PrescaleHLT_num/std::__gcd(PrescaleHLT_num, PrescaleHLT_den);
 
   //retrieving L1 prescale
   //Checking if we have the same l1 seeds in den and num
