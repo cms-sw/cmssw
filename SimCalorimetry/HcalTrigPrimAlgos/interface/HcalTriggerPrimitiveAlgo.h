@@ -88,10 +88,10 @@ public:
   bool validChannel(const QIE10DataFrame& digi, int ts) const;
   bool needLegacyFG(const HcalTrigTowerDetId& id) const;
 
-  /// adds the actual RecHits
+  /// adds the actual digis
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  // 2017: QIE11
-  void analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
+  // 2017 and later: QIE11
+  void analyzeQIE11(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
@@ -102,7 +102,7 @@ public:
           const HcalFeatureBit* HCALFEM
           );
   // With dual anode readout
-  void analyzeHF2017(
+  void analyzeHFQIE10(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
           const int HF_LUMI_SHIFT,
@@ -258,7 +258,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
             analyzeHF(item.second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
             if (upgrade_hf_)
-               analyzeHF2017(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
+               analyzeHFQIE10(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
             else
                analyzeHF2016(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
@@ -274,7 +274,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
          if (fgMap_.find(item.first) != fgMap_.end()) {
             analyze(item.second, result.back());
          } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-            analyze2017(item.second, result.back(), fg_algo);
+            analyzeQIE11(item.second, result.back(), fg_algo);
          }
       }
    }
