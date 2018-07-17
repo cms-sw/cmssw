@@ -68,12 +68,12 @@ static long algorithm( Detector& /* description */,
     LogDebug( "DDAlgorithm" ) << "\trotateSolid must occur 3*n times (defining n subsequent rotations)\n"
 			      << "\t  currently it appears " << sz << " times!\n";
   }
-  for( unsigned int i = 0; i < sz; ++i )
+  for( unsigned int i = 0; i < sz; i += 3 )
   {
-    if(( i > 180._deg ) || ( i < 0._deg ))
+    if(( i > 180.*deg ) || ( i < 0. ))
     {
       LogDebug( "DDAlgorithm" ) << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
-				<< "\t  currently it is " << ConvertTo( i, deg ) 
+				<< "\t  currently it is " << ConvertTo( i, deg )
 				<< "*deg in rotateSolid[" << double(i) << "]!\n";
     }
     DDAxisAngle temp( fUnitVector( rotateSolid[i], rotateSolid[i + 1] ),
@@ -104,8 +104,8 @@ static long algorithm( Detector& /* description */,
     Position tran( xpos, ypos, zpos );
     mother.placeVolume( child, copy, Transform3D( rotation, tran ));
     LogDebug("DDAlgorithm") << "test " << child.name() << " number " 
-                            << copy << " positioned in " << mother.name() << " at "
-                            << tran  << " with " << rotation;
+			    << copy << " positioned in " << mother.name() << " at "
+			    << tran  << " with " << rotstr << "\n" << rotation;
     copy += incrCopyNo;
     phi  += delta;
   }
