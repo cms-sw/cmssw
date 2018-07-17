@@ -200,6 +200,8 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		}
 	}
 
+	int naninput = 0;
+	int nanoutput = 0; 
 	// loop over TagInfos
 	for(auto& info : *(taginfos)) {
 		//convert the taginfo into the value map in the appropriate way
@@ -221,10 +223,9 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 					inputs_[var.name] = vars.get(var.id, var.default_value);
 				}
 
-				//warn if the input is nan
+				//count if the input is nan
 				if(std::isnan(inputs_[var.name])) {
-					edm::LogWarning("ValueError") 	<< "The required output, " 
-									<< var.name << ", encountered an nan value during TagInfo processing.";
+					naninput++;
 				}
 			}
 
@@ -236,10 +237,10 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 				nnout[entry.second] += nnout[entry.first];
 			}
 
-			//warn if the input is nan
+			//count if the output is nan
 			for(auto entry : nnout) {
 				if(std::isnan(entry.second)) {
-					edm::LogWarning("ValueError") << "The NN output is nan for an event.";
+					nanoutput++;
 				}
 			}
 		}
@@ -251,6 +252,10 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		for(size_t i=0; i<outputs_.size(); ++i) {
 			(*output_tags[i])[key] = (defaulted) ? -1 : nnout[outputs_[i]];
 		}
+	}
+
+	if( naninput + nanoutput > 0 ) {
+		edm::LogWarning("ValueError") << "The NN encountered " << naninput << " nan input TagInfo values and produced " << nanoutput << " nan output values";
 	}
 
 	// put the output in the event
