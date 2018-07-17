@@ -70,7 +70,7 @@ static long algorithm( Detector& /* description */,
   }
   for( unsigned int i = 0; i < sz; i += 3 )
   {
-    if(( i > 180.*deg ) || ( i < 0. ))
+    if(( i > 180._deg ) || ( i < 0._deg ))
     {
       LogDebug( "DDAlgorithm" ) << "\trotateSolid \'theta\' must be in range [0,180*deg]\n"
 				<< "\t  currently it is " << ConvertTo( i, deg )
@@ -105,7 +105,7 @@ static long algorithm( Detector& /* description */,
     mother.placeVolume( child, copy, Transform3D( rotation, tran ));
     LogDebug("DDAlgorithm") << "test " << child.name() << " number " 
 			    << copy << " positioned in " << mother.name() << " at "
-			    << tran  << " with " << rotstr << "\n" << rotation;
+			    << tran  << " with " << rotstr << ": " << rotation;
     copy += incrCopyNo;
     phi  += delta;
   }
