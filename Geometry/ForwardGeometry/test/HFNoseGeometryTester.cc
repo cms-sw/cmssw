@@ -21,7 +21,7 @@
 class HFNoseGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HFNoseGeometryTester(const edm::ParameterSet& );
-  ~HFNoseGeometryTester() override;
+  ~HFNoseGeometryTester() override {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -30,29 +30,25 @@ public:
 private:
   void doTestWafer(const HGCalGeometry* geom);
   
-  std::string    name;
+  const std::string    name_;
 };
 
-HFNoseGeometryTester::HFNoseGeometryTester(const edm::ParameterSet& iC) {
-  name       = iC.getParameter<std::string>("Detector");
-}
-
-
-HFNoseGeometryTester::~HFNoseGeometryTester() {}
+HFNoseGeometryTester::HFNoseGeometryTester(const edm::ParameterSet& iC) :
+  name_(iC.getParameter<std::string>("Detector")) { }
 
 void HFNoseGeometryTester::analyze(const edm::Event& , 
 				   const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<HGCalGeometry> geomH;
-  iSetup.get<IdealGeometryRecord>().get(name,geomH);
+  iSetup.get<IdealGeometryRecord>().get(name_,geomH);
   const HGCalGeometry* geom = (geomH.product());
   if (!geomH.isValid()) {
-    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
+    std::cout << "Cannot get valid HGCalGeometry Object for " << name_ 
 	      << std::endl;
   } else if (geom->topology().isHFNose()) {
     doTestWafer(geom);
   } else {
-    std::cout << name << " is not a valid name for HFNose Detecor"<< std::endl;
+    std::cout << name_<< " is not a valid name for HFNose Detecor"<< std::endl;
   }
 }
 
