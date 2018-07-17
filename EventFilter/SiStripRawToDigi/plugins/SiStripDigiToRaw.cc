@@ -108,6 +108,11 @@ namespace sistrip {
 				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
 				     std::unique_ptr<FEDRawDataCollection>& buffers,
 				     bool zeroSuppressed) {
+    const bool dataIsAlready8BitTruncated = zeroSuppressed && ( ! ( // not for 10bit modes
+             ( ( mode_ == READOUT_MODE_ZERO_SUPPRESSED ) && ( packetCode_ == PACKET_CODE_ZERO_SUPPRESSED10 ) )
+          || ( mode_ == READOUT_MODE_ZERO_SUPPRESSED_LITE10 )
+          || ( mode_ == READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE )
+          ) );
     try {
       
       //set the L1ID to use in the buffers
@@ -224,7 +229,7 @@ namespace sistrip {
           //for special mode premix raw, data is zero-suppressed but not converted to 8 bit
           //zeroSuppressed here means converted to 8 bit...
           if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
-          FEDStripData fedData(zeroSuppressed);
+          FEDStripData fedData(dataIsAlready8BitTruncated);
           
           
           for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
@@ -335,7 +340,7 @@ namespace sistrip {
           //for special mode premix raw, data is zero-suppressed but not converted to 8 bit
           //zeroSuppressed here means converted to 8 bit...
           if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
-          FEDStripData fedData(zeroSuppressed);
+          FEDStripData fedData(dataIsAlready8BitTruncated);
           
           
           for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
