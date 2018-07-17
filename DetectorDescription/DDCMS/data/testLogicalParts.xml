@@ -127,6 +127,10 @@
       <rSolid name="testSolids:extrudedpgon"/>
     </LogicalPart>
 
+    <LogicalPart name="V_1101" category="unspecified">
+      <rSolid name="testSolids:V_1101"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
   </LogicalPartSection>
 
 </DDDefinition>
