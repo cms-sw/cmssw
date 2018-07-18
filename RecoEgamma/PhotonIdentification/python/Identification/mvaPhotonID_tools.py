@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+from os import path
+
+weightFileBaseDir = "RecoEgamma/PhotonIdentification/data/MVA"
 
 # division between barrel and endcap
 ebeeSplit = 1.479
