@@ -59,7 +59,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD::build called with "
 				<< "names " << name << ":" << namew << ":" 
-				<< namec;
+				<< namec << ":" << namet;
 #endif
 
   //Special parameters at simulation level

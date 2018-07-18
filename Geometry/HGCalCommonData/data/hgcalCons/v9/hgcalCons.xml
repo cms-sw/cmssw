@@ -2,9 +2,6 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcalCons.xml" eval="true">
-  <Vector name="CellThickness" type="numeric" nEntries="3">
-    [hgcal:CellThicknessFine], [hgcal:CellThicknessCoarse1],
-    [hgcal:CellThicknessCoarse2] </Vector>
   <Vector name="RadiusMixBoundary" type="numeric" nEntries="16">
     [hgcal:radMixL0], [hgcal:radMixL1], [hgcal:radMixL2], [hgcal:radMixL3],
     [hgcal:radMixL4], [hgcal:radMixL5], [hgcal:radMixL6], [hgcal:radMixL7],
@@ -26,6 +23,9 @@
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
     <Parameter name="LevelTop"            value="5"/>
     <Parameter name="LevelTop"            value="5"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
@@ -60,6 +60,9 @@
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
     <Parameter name="LevelTop"            value="5"/>
     <Parameter name="LevelTop"            value="7"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P2]"/>
