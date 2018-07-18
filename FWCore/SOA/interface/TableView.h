@@ -56,7 +56,7 @@ public:
   template <typename... OArgs>
   TableView( Table<OArgs...> const& iTable):
   m_size(iTable.size()) {
-    fillArray<0>(iTable,std::true_type{});
+    fillArray<0>(iTable);
   }
   TableView( unsigned int iSize, std::array<void*, sizeof...(Args)>& iArray):
   m_size(iSize),
@@ -93,15 +93,13 @@ private:
   }
   
   template <int I, typename T>
-  void fillArray( T const& iTable, std::true_type) {
-    using ElementType = typename std::tuple_element<I, Layout>::type;
-    m_values[I] = iTable.columnAddressWorkaround(static_cast<ElementType const*>(nullptr));
-    fillArray<I+1>(iTable, std::conditional_t<I+1<sizeof...(Args), std::true_type, std::false_type>{});
+  void fillArray( T const& iTable) {
+    if constexpr(I<sizeof...(Args)) {
+      using ElementType = typename std::tuple_element<I, Layout>::type;
+      m_values[I] = iTable.columnAddressWorkaround(static_cast<ElementType const*>(nullptr));
+      fillArray<I+1>(iTable);
+    }
   }
-  template <int I, typename T>
-  void fillArray( T const& iTable, std::false_type) {}
-  
-  
 };
 
 }
