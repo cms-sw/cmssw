@@ -10,8 +10,8 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 mvaTag                       = "RunIIFall17v1"
 mvaVariablesFile             = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesFall17V1.txt"
 mvaWeightFiles = [
-    "RecoEgamma/PhotonIdentification/data/Fall17/HggPhoId_92X_barrel_BDT.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Fall17/HggPhoId_92X_endcap_BDT.weights.xml"
+    "RecoEgamma/PhotonIdentification/data/Fall17/HggPhoId_92X_barrel_BDT.weights.xml.gz",
+    "RecoEgamma/PhotonIdentification/data/Fall17/HggPhoId_92X_endcap_BDT.weights.xml.gz"
     ]
 
 # Set up the VID working point parameters
