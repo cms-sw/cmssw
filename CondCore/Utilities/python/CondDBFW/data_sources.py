@@ -5,7 +5,7 @@ This file contains the base DataSource class, and all sub classes that implement
 """
 
 from builtins import range
-from builtins import object
+#from builtins import object
 import json
 
 # data_source will extend this

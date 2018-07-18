@@ -9,7 +9,7 @@ Note: some things done in methods written in classes rely on the querying module
 
 """
 from builtins import range
-from builtins import object
+#from builtins import object
 import json
 import datetime
 
