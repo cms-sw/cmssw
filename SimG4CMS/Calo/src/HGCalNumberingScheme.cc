@@ -3,9 +3,7 @@
 // Description: Numbering scheme for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG

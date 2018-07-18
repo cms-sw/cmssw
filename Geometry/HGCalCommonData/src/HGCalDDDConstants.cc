@@ -245,6 +245,8 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
 
 double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
 
+  //Assming the point is within a hexagonal plane of the wafer, calculate
+  //the shortest distance from the edge
   if (z < 0) x = -x;
   double dist(0);
   //Input x, y in Geant4 unit and transformed to CMSSW standard
@@ -252,6 +254,7 @@ double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
   double yy = HGCalParameters::k_ScaleFromDDD*y;
   int sizew = (int)(hgpar_->waferPosX_.size());
   int wafer = sizew;
+  //Transform to the local coordinate frame of the wafer first
   for (int k=0; k<sizew; ++k) {
     double dx = std::abs(xx-hgpar_->waferPosX_[k]);
     double dy = std::abs(yy-hgpar_->waferPosY_[k]);
@@ -263,6 +266,7 @@ double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
       break;
     }
   }
+  //Look at only one quarter (both x,y are positive)
   if (wafer < sizew) {
     if (std::abs(yy) < 0.5*hexside_) {
       dist = rmax_ - std::abs(xx);
@@ -286,6 +290,8 @@ double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
 
 double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
 
+  //Assming the point is within the eta-phi plane of the scintillator tile,
+  //calculate the shortest distance from the edge
   int lay      = getLayer(z,false);
   double xx    = (z < 0) ? -x : x;
   int indx     = layerIndex(lay,false);
@@ -297,6 +303,8 @@ double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
   if (phi < 0) phi += (2.0*M_PI);
   double eta   = (std::abs(stheta) == 1.0 ? 0. : -std::log(std::abs(std::tan(0.5*theta))) );
   double cell  = hgpar_->dPhiEtaBH_[indx];
+  //Compare with the center of the tile find distances along R and also phi
+  //Take the smaller value
   int ieta     = 1 + (int)((std::abs(eta)-hgpar_->etaMinBH_)/cell);
   int iphi     = 1 + (int)(phi/cell);
   double rr    = std::sqrt(x*x+y*y);
@@ -322,6 +330,7 @@ double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
 
 int HGCalDDDConstants::getLayer(double z, bool reco) const {
 
+  //Get the layer # from the gloabl z coordinate
   unsigned int k  = 0;
   double       zz = (reco ? std::abs(z) : 
 		     HGCalParameters::k_ScaleFromDDD*std::abs(z));
@@ -377,7 +386,7 @@ std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
 }
 
 int HGCalDDDConstants::getTypeTrap(int layer) const {
-
+  //Get the module type for scinitllator
   if (mode_ == HGCalGeometryMode::Trapezoid) {
     return ((hgpar_->nPhiBinBH_[layerIndex(layer,true)] == hgpar_->nCellsFine_)
 	    ? 0 : 1);
@@ -387,7 +396,7 @@ int HGCalDDDConstants::getTypeTrap(int layer) const {
 }
 
 int HGCalDDDConstants::getTypeHex(int layer, int waferU, int waferV) const {
-
+  //Get the module type for a silicon wafer
   if ((mode_ == HGCalGeometryMode::Hexagon8) ||
       (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer,waferU,waferV));
@@ -405,7 +414,7 @@ bool HGCalDDDConstants::isHalfCell(int waferType, int cell) const {
 
 bool HGCalDDDConstants::isValidHex(int lay, int mod, int cell, 
 				   bool reco) const {
-
+  //Check validity for a layer|wafer|cell of pre-TDR version
   bool result(false), resultMod(false);
   int  cellmax(0);
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
@@ -455,6 +464,7 @@ bool HGCalDDDConstants::isValidHex(int lay, int mod, int cell,
 
 bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, 
 				    int cellV) const {
+  //Check validity for a layer|wafer|cell of post-TDR version
   int indx  = HGCalWaferIndex::waferIndex(layer,modU,modV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
   if (itr == hgpar_->typesInLayers_.end()) return false;
@@ -470,6 +480,7 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU,
 }
 
 bool HGCalDDDConstants::isValidTrap(int layer, int ieta, int iphi) const {
+  //Check validity for a layer|eta|phi of scintillator
   const auto & indx  = getIndex(layer,true);
   if (indx.first < 0) return false;
   return ((ieta >= hgpar_->iEtaMinBH_[indx.first]) &&
