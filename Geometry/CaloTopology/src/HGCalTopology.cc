@@ -26,9 +26,9 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
     subdet_     = (ForwardSubdetector)(det);
     kHGeomHalf_ = sectors_*layers_;
     types_      = 2;
-  } else if (det < (int)(DetId::HGCalEE)) {
+  } else if (det == (int)(DetId::Forward)) {
     det_        = DetId::Forward;
-    subdet_     = (ForwardSubdetector)(det);
+    subdet_     = HFNose;
     kHGeomHalf_ = sectors_*layers_;
     types_      = 3;
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
