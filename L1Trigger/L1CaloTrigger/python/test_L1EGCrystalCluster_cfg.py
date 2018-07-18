@@ -16,12 +16,17 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
    # Set to do test run on official Phase-2 L1T Ntuples
-   fileNames = cms.untracked.vstring('file:root://cmsxrootd.fnal.gov///store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/PU200_90X_upgrade2023_realistic_v9-v1/120000/04B4BF1D-1E2C-E711-BE1C-7845C4FC39D1.root'),
+   fileNames = cms.untracked.vstring('file:root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall17D/SingleE_FlatPt-2to100/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/80000/C0F55AFC-1638-E811-9A14-EC0D9A8221EE.root'),
    inputCommands = cms.untracked.vstring(
                     "keep *",
                     "drop l1tEMTFHitExtras_simEmtfDigis_CSC_HLT",
                     "drop l1tEMTFHitExtras_simEmtfDigis_RPC_HLT",
                     "drop l1tEMTFTrackExtras_simEmtfDigis__HLT",
+                    "drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT",
+                    "drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT",
+                    "drop l1tEMTFHit2016s_simEmtfDigis__HLT",
+                    "drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT",
+                    "drop l1tEMTFTrack2016s_simEmtfDigis__HLT",
    )
 )
 
@@ -30,7 +35,7 @@ process.source = cms.Source("PoolSource",
 # ---- Global Tag :
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2023_realistic_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '93X_upgrade2023_realistic_v5', '')
 
 # Choose a 2023 geometry!
 process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
