@@ -48,7 +48,7 @@ namespace ecaldqm
   MESetNonObject::clone(std::string const& _path/* = ""*/) const
   {
     std::string path(path_);
-    if(_path != "") path_ = _path;
+    if(!_path.empty()) path_ = _path;
     MESet* copy(new MESetNonObject(*this));
     path_ = path;
     return copy;
@@ -262,6 +262,13 @@ namespace ecaldqm
     if(mes_.empty() || !mes_[0]) return 0.;
 
     return mes_[0]->getBinContent(_bin);
+  }
+
+  double
+  MESetNonObject::getFloatValue() const
+  {
+    if(kind_ == MonitorElement::DQM_KIND_REAL) return mes_[0]->getFloatValue();
+    else return 0.;
   }
 
   double

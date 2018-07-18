@@ -49,7 +49,7 @@ const std::vector<double> emtf::twoJetsScale = std::vector<double>(twoJets_scale
 
 float processPrediction(float BDTPt, int Quality, float PrelimFit)
 {
-// Discretize and scale the BDTPt prediction 
+// Discretize and scale the BDTPt prediction
 
 
     // Fix terrible predictions

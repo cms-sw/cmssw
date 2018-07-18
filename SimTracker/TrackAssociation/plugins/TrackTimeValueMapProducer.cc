@@ -30,16 +30,11 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-
+#include <random>
 #include <memory>
 
 #include "SimTracker/TrackAssociation/interface/ResolutionModel.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "FWCore/Utilities/interface/isFinite.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -110,21 +105,9 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
     produces<edm::ValueMap<float> >(tracksName_+name);
     produces<edm::ValueMap<float> >(tracksName_+name+resolution);
   }
-  // get RNG engine
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if (!rng.isAvailable()){
-    throw cms::Exception("Configuration")
-      << "TrackTimeValueMapProducer::TrackTimeValueMapProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
-      << "Add the service in the configuration file or remove the modules that require it.";
-  }
-
 }
 
 void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
-  // get RNG engine
-  edm::Service<edm::RandomNumberGenerator> rng;  
-  auto rng_engine = &(rng->getEngine(sid));
-
   // get sim track associators
   std::vector<edm::Handle<reco::TrackToTrackingParticleAssociator> > associators;
   for( const auto& token : associators_ ) {
@@ -176,6 +159,15 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
   double meanSimTime = sumSimTime/double(nsim);
   double varSimTime = sumSimTimeSq/double(nsim) - meanSimTime*meanSimTime;
   double rmsSimTime = std::sqrt(std::max(0.1*0.1,varSimTime));
+  std::normal_distribution<float> gausSimTime(meanSimTime, rmsSimTime);
+
+  // get event-based seed for RNG
+  unsigned int runNum_uint = static_cast <unsigned int> (evt.id().run());
+  unsigned int lumiNum_uint = static_cast <unsigned int> (evt.id().luminosityBlock());
+  unsigned int evNum_uint = static_cast <unsigned int> (evt.id().event());
+  unsigned int tkChi2_uint = uint32_t(TrackCollection.empty() ? 0 : TrackCollection.refAt(0)->chi2()/0.01);
+  std::uint32_t seed = tkChi2_uint + (lumiNum_uint<<10) + (runNum_uint<<20) + evNum_uint;
+  std::mt19937 rng(seed);
 
   for( unsigned itk = 0; itk < TrackCollection.size(); ++itk ) {
     const auto tkref = TrackCollection.refAt(itk);
@@ -192,7 +184,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
       generalTrackTimes.push_back(time);
     }
     else {
-      float rndtime = CLHEP::RandGauss::shoot(rng_engine, meanSimTime, rmsSimTime);
+      float rndtime = gausSimTime(rng);
       generalTrackTimes.push_back(rndtime);
       if (track_tps != associatedTracks.back().end() && track_tps->val.size() > 1) {
         LogDebug("TooManyTracks") << "track matched to " << track_tps->val.size() << " tracking particles!" << std::endl;
@@ -213,7 +205,8 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
       bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ && tk.p()>pMin_ && (absEta>etaMaxForPtThreshold_ || tk.pt()>ptMin_);
       if (inAcceptance) {
         const float resolution = reso->getTimeResolution(tk);
-        times.push_back( CLHEP::RandGauss::shoot(rng_engine, generalTrackTimes[i], resolution) );
+        std::normal_distribution<float> gausGeneralTime(generalTrackTimes[i], resolution);
+        times.push_back( gausGeneralTime(rng) );
         resos.push_back( resolution );
       }
       else {

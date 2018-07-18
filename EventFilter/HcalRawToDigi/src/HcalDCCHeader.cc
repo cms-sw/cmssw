@@ -25,13 +25,13 @@ void HcalDCCHeader::getSpigotData(int nspigot, HcalHTRData& decodeTool) const {
   
 
 int HcalDCCHeader::getSpigotData(int nspigot, HcalHTRData& decodeTool, int validSize) const {
-  const unsigned short* base=((unsigned short*)this)+sizeof(HcalDCCHeader)/sizeof(unsigned short);
+  const uint16_t* base=((const uint16_t*)this)+sizeof(HcalDCCHeader)/sizeof(uint16_t);
   int offset=0,i,len=0;
   for (i=0; i<=nspigot; i++) {
     offset+=len;
     len=(spigotInfo[i]&0x3FF)*2;
   }
-  if ((offset+len+sizeof(HcalDCCHeader)/sizeof(unsigned short))<(validSize/sizeof(unsigned short))) {
+  if ((offset+len+sizeof(HcalDCCHeader)/sizeof(uint16_t))<(validSize/sizeof(uint16_t))) {
     decodeTool.adoptData(base+offset,len);
     return 0;
   } else { return -1; }

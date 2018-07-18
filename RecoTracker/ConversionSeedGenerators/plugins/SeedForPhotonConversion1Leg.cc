@@ -151,7 +151,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
   es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
   auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-  cloner = (*builder).cloner();
+  auto cloner = (*builder).cloner();
 
   // get updator
   KFUpdator  updator;
@@ -173,7 +173,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
     
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit]; 
     
-    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state));
+    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state, cloner));
 
     
     if (!checkHit(state,&*newtth,es)) return nullptr;
@@ -202,7 +202,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
 
 SeedingHitSet::RecHitPointer SeedForPhotonConversion1Leg::refitHit(
       SeedingHitSet::ConstRecHitPointer hit, 
-      const TrajectoryStateOnSurface &state) const
+      const TrajectoryStateOnSurface &state, const TkClonerImpl& cloner) const
 {
   //const TransientTrackingRecHit* a= hit.get();
   //return const_cast<TransientTrackingRecHit*> (a);

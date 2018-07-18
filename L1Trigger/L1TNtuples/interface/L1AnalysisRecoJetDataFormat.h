@@ -28,7 +28,14 @@ namespace L1Analysis
     eta.clear();
     phi.clear();
 
-    isPF.clear();
+    nCaloJets=0;
+    
+    caloE.clear();
+    caloEt.clear();
+    caloEtCorr.clear();
+    caloCorrFactor.clear();
+    caloEta.clear();
+    caloPhi.clear();
 
     // calo quantities
     eEMF.clear();
@@ -80,7 +87,14 @@ namespace L1Analysis
     std::vector<float> corrFactor;
     std::vector<float> eta;
     std::vector<float> phi;
-    std::vector<bool> isPF;
+
+    unsigned short nCaloJets;
+    std::vector<float> caloE;
+    std::vector<float> caloEt;
+    std::vector<float> caloEtCorr;
+    std::vector<float> caloCorrFactor;
+    std::vector<float> caloEta;
+    std::vector<float> caloPhi;
 
     std::vector<float> eEMF;
     std::vector<float> eHadHB;

@@ -67,15 +67,12 @@ public:
 					   const edm::EventSetup& es) const;
 
   SeedingHitSet::RecHitPointer refitHit( SeedingHitSet::ConstRecHitPointer hit, 
-					 const TrajectoryStateOnSurface &state) const;
+					 const TrajectoryStateOnSurface &state, const TkClonerImpl& cloner) const;
   
 protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;
   std::string TTRHBuilder;
-
-  // FIXME (well the whole class needs to be fixed!)      
-  mutable  TkClonerImpl cloner;
 
   std::stringstream * pss;
   PrintRecoObjects po;

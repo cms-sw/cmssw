@@ -54,6 +54,7 @@
 
 // system include files
 #include <atomic>
+#include <cassert>
 
 #include "tbb/task.h"
 #include "tbb/concurrent_queue.h"
@@ -70,6 +71,13 @@ namespace edm {
       m_pauseCount{0}
       {  }
       
+      SerialTaskQueue(SerialTaskQueue&& iOther):
+        m_tasks(std::move(iOther.m_tasks)),
+        m_taskChosen(iOther.m_taskChosen.exchange(false)),
+        m_pauseCount(iOther.m_pauseCount.exchange(0))
+      {
+        assert(m_tasks.empty() and m_taskChosen == false);
+      }
       ~SerialTaskQueue();
       
       // ---------- const member functions ---------------------
@@ -77,7 +85,7 @@ namespace edm {
       /**\return true if the queue is paused
        * \sa pause(), resume()
        */
-      bool isPaused() const { return m_pauseCount.load()==0;}
+      bool isPaused() const { return m_pauseCount.load()!=0;}
       
       // ---------- member functions ---------------------------
       /// Pauses processing of additional tasks from the queue.

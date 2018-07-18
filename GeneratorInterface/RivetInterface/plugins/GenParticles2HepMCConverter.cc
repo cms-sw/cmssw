@@ -38,6 +38,7 @@ private:
   edm::ESHandle<ParticleDataTable> pTable_;
 
   std::vector<int> signalParticlePdgIds_;
+  const double cmEnergy_;
 
 private:
   inline HepMC::FourVector FourVector(const reco::Candidate::Point& point)
@@ -54,7 +55,8 @@ private:
 
 };
 
-GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset)
+GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset):
+  cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)) // dummy value to set incident proton pz for particle gun samples
 {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
@@ -84,16 +86,20 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   // Set PDF
   const gen::PdfInfo* pdf = genEventInfoHandle->pdf();
-  const int pdf_id1 = pdf->id.first, pdf_id2 = pdf->id.second;
-  const double pdf_x1 = pdf->x.first, pdf_x2 = pdf->x.second;
-  const double pdf_scalePDF = pdf->scalePDF;
-  const double pdf_xPDF1 = pdf->xPDF.first, pdf_xPDF2 = pdf->xPDF.second;
-  HepMC::PdfInfo hepmc_pdfInfo(pdf_id1, pdf_id2, pdf_x1, pdf_x2, pdf_scalePDF, pdf_xPDF1, pdf_xPDF2);
-  hepmc_event->set_pdf_info(hepmc_pdfInfo);
+  if ( pdf != nullptr ) {
+    const int pdf_id1 = pdf->id.first, pdf_id2 = pdf->id.second;
+    const double pdf_x1 = pdf->x.first, pdf_x2 = pdf->x.second;
+    const double pdf_scalePDF = pdf->scalePDF;
+    const double pdf_xPDF1 = pdf->xPDF.first, pdf_xPDF2 = pdf->xPDF.second;
+    HepMC::PdfInfo hepmc_pdfInfo(pdf_id1, pdf_id2, pdf_x1, pdf_x2, pdf_scalePDF, pdf_xPDF1, pdf_xPDF2);
+    hepmc_event->set_pdf_info(hepmc_pdfInfo);
+  }
 
   // Prepare list of HepMC::GenParticles
   std::map<const reco::Candidate*, HepMC::GenParticle*> genCandToHepMCMap;
+  HepMC::GenParticle* hepmc_parton1 = nullptr, * hepmc_parton2 = nullptr;
   std::vector<HepMC::GenParticle*> hepmc_particles;
+  const reco::Candidate* parton1 = nullptr, * parton2 = nullptr;
   for ( unsigned int i=0, n=genParticlesHandle->size(); i<n; ++i )
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
@@ -109,27 +115,52 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
     hepmc_particles.push_back(hepmc_particle);
     genCandToHepMCMap[p] = hepmc_particle;
+
+    // Find incident proton pair
+    if ( p->mother() == nullptr and std::abs(p->eta()) > 5 and std::abs(p->pz()) > 1000 ) {
+      if ( !parton1 and p->pz() > 0 ) {
+        parton1 = p;
+        hepmc_parton1 = hepmc_particle;
+      }
+      else if ( !parton2 and p->pz() < 0 ) {
+        parton2 = p;
+        hepmc_parton2 = hepmc_particle;
+      }
+    }
   }
 
-  // Put incident beam particles : proton -> parton vertex
-  const reco::Candidate* parton1 = genParticlesHandle->at(0).daughter(0);
-  const reco::Candidate* parton2 = genParticlesHandle->at(1).daughter(0);
-  HepMC::GenVertex* vertex1 = new HepMC::GenVertex(FourVector(parton1->vertex()));
-  HepMC::GenVertex* vertex2 = new HepMC::GenVertex(FourVector(parton2->vertex()));
+  HepMC::GenVertex* vertex1 = nullptr;
+  HepMC::GenVertex* vertex2 = nullptr;
+  if ( parton1 == nullptr and parton2 == nullptr ) {
+    // Particle gun samples do not have incident partons. Put dummy incident particle and prod vertex
+    // Note: leave parton1 and parton2 as nullptr since it is not used anymore after creating hepmc_parton1 and 2
+    const reco::Candidate::LorentzVector nullP4(0,0,0,0);
+    const reco::Candidate::LorentzVector beamP4(0,0,cmEnergy_/2, cmEnergy_/2);
+    vertex1 = new HepMC::GenVertex(FourVector(nullP4));
+    vertex2 = new HepMC::GenVertex(FourVector(nullP4));
+    hepmc_parton1 =  new HepMC::GenParticle(FourVector(+beamP4), 2212, 4);
+    hepmc_parton2 =  new HepMC::GenParticle(FourVector(-beamP4), 2212, 4);
+  }
+  else {
+    // Put incident beam particles : proton -> parton vertex
+    vertex1 = new HepMC::GenVertex(FourVector(parton1->vertex()));
+    vertex2 = new HepMC::GenVertex(FourVector(parton2->vertex()));
+  }
   hepmc_event->add_vertex(vertex1);
   hepmc_event->add_vertex(vertex2);
-  vertex1->add_particle_in(hepmc_particles[0]);
-  vertex2->add_particle_in(hepmc_particles[1]);
-  hepmc_event->set_beam_particles(hepmc_particles[0], hepmc_particles[1]);
+  vertex1->add_particle_in(hepmc_parton1);
+  vertex2->add_particle_in(hepmc_parton2);
+  //hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
 
   // Prepare vertex list
   typedef std::map<const reco::Candidate*, HepMC::GenVertex*> ParticleToVertexMap;
   ParticleToVertexMap particleToVertexMap;
   particleToVertexMap[parton1] = vertex1;
   particleToVertexMap[parton2] = vertex2;
-  for ( unsigned int i=2, n=genParticlesHandle->size(); i<n; ++i )
+  for ( unsigned int i=0, n=genParticlesHandle->size(); i<n; ++i )
   {
     const reco::Candidate* p = &genParticlesHandle->at(i);
+    if ( p == parton1 or p == parton2 ) continue;
 
     // Connect mother-daughters for the other cases
     for ( unsigned int j=0, nMothers=p->numberOfMothers(); j<nMothers; ++j )

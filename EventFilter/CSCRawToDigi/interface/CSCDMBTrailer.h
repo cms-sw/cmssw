@@ -12,15 +12,15 @@
 
 
 // class CSCDMBHeader;
-class CSCDMBTrailer2005;
-class CSCDMBTrailer2013;
+struct CSCDMBTrailer2005;
+struct CSCDMBTrailer2013;
 
 class CSCDMBTrailer {
 public:
 
   CSCDMBTrailer(uint16_t firmware_version = 2005);
 
-  CSCDMBTrailer(unsigned short * buf, uint16_t firmware_version = 2005);
+  CSCDMBTrailer(const uint16_t * buf, uint16_t firmware_version = 2005);
   
   CSCDMBTrailer(const CSCDMBStatusDigi & digi) 
     {

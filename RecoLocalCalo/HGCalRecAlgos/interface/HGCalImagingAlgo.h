@@ -3,7 +3,7 @@
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -49,7 +49,7 @@ public:
 
 enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
-HGCalImagingAlgo() : vecDeltas(), kappa(1.), ecut(0.), cluster_offset(0),
+HGCalImagingAlgo() : vecDeltas(), kappa(1.), ecut(0.),
         sigma2(1.0),
         algoId(reco::CaloCluster::undefined),
         verbosity(pERROR),initialized(false){
@@ -67,7 +67,6 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  VerbosityLevel the_verbosity = pERROR) :
         vecDeltas(vecDeltas_in), kappa(kappa_in),
         ecut(ecut_in),
-        cluster_offset(0),
         sigma2(1.0),
         algoId(algoId_in),
         dependSensor(dependSensor_in),
@@ -99,7 +98,6 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) : vecDeltas(vecDeltas_in), kappa(kappa_in),
         ecut(ecut_in),
-        cluster_offset(0),
         sigma2(std::pow(showerSigma,2.0)),
         algoId(algoId_in),
         dependSensor(dependSensor_in),
@@ -140,9 +138,8 @@ void getEventSetup(const edm::EventSetup& es){
 }
 // use this if you want to reuse the same cluster object but don't want to accumulate clusters (hardly useful?)
 void reset(){
-        current_v.clear();
         clusters_v.clear();
-        cluster_offset = 0;
+        layerClustersPerLayer.clear();
         for( auto& it: points)
         {
                 it.clear();
@@ -167,8 +164,6 @@ private:
 // last layer per subdetector
 static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
-// maximum number of wafers per Layer: 666 (V7), 794 (V8)
-static const unsigned int maxNumberOfWafersPerLayer = 796;
 
 // The two parameters used to identify clusters
 std::vector<double> vecDeltas;
@@ -176,9 +171,6 @@ double kappa;
 
 // The hit energy cutoff
 double ecut;
-
-// The current offset into the temporary cluster structure
-unsigned int cluster_offset;
 
 // for energy sharing
 double sigma2;   // transverse shower size
@@ -234,7 +226,7 @@ struct Hexel {
                 clusterIndex(-1), sigmaNoise(sigmaNoise_in), thickness(thickness_in),
                 tools(tools_in)
         {
-                const GlobalPoint position( std::move( tools->getPosition( detid ) ) );
+                const GlobalPoint position( tools->getPosition( detid ) );
                 weight = hit.energy();
                 x = position.x();
                 y = position.y();
@@ -260,10 +252,9 @@ typedef KDTreeLinkerAlgo<Hexel,2> KDTree;
 typedef KDTreeNodeInfoT<Hexel,2> KDNode;
 
 
-// A vector of vectors of KDNodes holding an Hexel in the clusters - to be used to build CaloClusters of DetIds
-std::vector< std::vector<KDNode> > current_v;
+std::vector<std::vector<std::vector< KDNode> > > layerClustersPerLayer;
 
-std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v){
+std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v) const {
         std::vector<size_t> idx(v.size());
         std::iota (std::begin(idx), std::end(idx), 0);
         sort(idx.begin(), idx.end(),
@@ -281,18 +272,18 @@ std::vector<std::array<float,2> > maxpos;
 
 
 //these functions should be in a helper class.
-inline double distance2(const Hexel &pt1, const Hexel &pt2) {   //distance squared
+inline double distance2(const Hexel &pt1, const Hexel &pt2) const{   //distance squared
         const double dx = pt1.x - pt2.x;
         const double dy = pt1.y - pt2.y;
         return (dx*dx + dy*dy);
 }   //distance squaredq
-inline double distance(const Hexel &pt1, const Hexel &pt2) {   //2-d distance on the layer (x-y)
+inline double distance(const Hexel &pt1, const Hexel &pt2) const{   //2-d distance on the layer (x-y)
         return std::sqrt(distance2(pt1,pt2));
 }
-double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int);   //return max density
-double calculateDistanceToHigher(std::vector<KDNode> &);
-int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int);
-math::XYZPoint calculatePosition(std::vector<KDNode> &);
+double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int) const;   //return max density
+double calculateDistanceToHigher(std::vector<KDNode> &) const;
+int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int, std::vector<std::vector<KDNode> >&) const;
+math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
 // attempt to find subclusters within a given set of hexels
 std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode>&);

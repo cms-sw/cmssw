@@ -11,6 +11,7 @@ class CaloVNoiseSignalGenerator;
 class HcalDbService;
 class HPDIonFeedbackSim;
 class HcalTimeSlewSim;
+class HcalTimeSlew;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -33,6 +34,11 @@ public:
   }
   void setTimeSlewSim(HcalTimeSlewSim * timeSlewSim) {
     theTimeSlewSim = timeSlewSim;
+  }
+
+  const HcalTimeSlew* theTimeSlew = nullptr;
+  void setTimeSlew(const HcalTimeSlew* timeSlew) {
+    theTimeSlew = timeSlew;
   }
 
   virtual void amplify(CaloSamples & linearFrame, CLHEP::HepRandomEngine*) const;

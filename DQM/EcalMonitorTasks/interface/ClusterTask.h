@@ -21,7 +21,7 @@ namespace ecaldqm
   class ClusterTask : public DQWorkerTask {
   public:
     ClusterTask();
-    ~ClusterTask() {}
+    ~ClusterTask() override {}
 
     bool filterRunType(short const*) override;
 

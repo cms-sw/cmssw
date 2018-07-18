@@ -18,12 +18,14 @@
 #include <mutex>
 
 //system headers
-//#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
 #include <cstdio>
+
+#include <tbb/concurrent_hash_map.h>
 
 class SystemBounds;
 class GlobalContext;
@@ -66,7 +68,6 @@ namespace evf{
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
-      //std::string &baseDir(){return base_dir_;}
       void overrideRunNumber(unsigned int run) {run_=run;}
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
@@ -104,8 +105,6 @@ namespace evf{
       FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
-      FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
-      void unlockAndCloseMergeStream();
       void lockInitLock();
       void unlockInitLock();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
@@ -125,15 +124,11 @@ namespace evf{
       void checkMergeTypePSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
       std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
-      bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
-      bool microMergeDisabled() const {return microMergeDisabled_;}
-
+      static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
     private:
-      //bool bulock();
-      //bool fulock();
       bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
-      void openFULockfileStream(std::string& fuLockFilePath, bool create);
+      void openFULockfileStream(bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
       std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -151,8 +146,6 @@ namespace evf{
       std::string selectedTransferMode_;
       std::string hltSourceDirectory_;
       unsigned int fuLockPollInterval_;
-      bool emptyLumisectionMode_;
-      bool microMergeDisabled_;
       std::string mergeTypePset_;
 
       std::string hostname_;
@@ -160,11 +153,11 @@ namespace evf{
       std::string run_dir_;
       std::string bu_run_dir_;
       std::string bu_run_open_dir_;
+      std::string fulockfile_;
 
       int bu_readlock_fd_;
       int bu_writelock_fd_;
       int fu_readwritelock_fd_;
-      int data_readwrite_fd_;
       int fulocal_rwlock_fd_;
       int fulocal_rwlock_fd2_;
 
@@ -173,7 +166,6 @@ namespace evf{
       FILE * fu_rw_lock_stream;
       FILE * bu_w_monitor_stream;
       FILE * bu_t_monitor_stream;
-      FILE * data_rw_stream;
 
       DirManager dirManager_;
 
@@ -185,12 +177,6 @@ namespace evf{
       struct flock bu_r_fulk;
       struct flock fu_rw_flk;
       struct flock fu_rw_fulk;
-      struct flock data_rw_flk;
-      struct flock data_rw_fulk;
-      //struct flock fulocal_rw_flk;
-      //struct flock fulocal_rw_fulk;
-      //struct flock fulocal_rw_flk2;
-      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
 
@@ -209,7 +195,7 @@ namespace evf{
       unsigned int stop_ls_override_ = 0;
 
       std::shared_ptr<Json::Value> transferSystemJson_;
-      std::map<std::string,std::string> mergeTypeMap_;
+      tbb::concurrent_hash_map<std::string,std::string> mergeTypeMap_;
 
       //values initialized in .cc file
       static const std::vector<std::string> MergeTypeNames_;

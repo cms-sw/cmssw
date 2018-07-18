@@ -6,7 +6,7 @@
 #include <string>
 #include <boost/range/sub_range.hpp>
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 namespace nanoaod {
 

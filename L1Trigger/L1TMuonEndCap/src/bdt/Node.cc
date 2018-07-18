@@ -2,13 +2,13 @@
 //                            Node.cxx                                  //
 // =====================================================================//
 // This is the object implementation of a node, which is the            //
-// fundamental unit of a decision tree.                                 //                                    
+// fundamental unit of a decision tree.                                 //
 // References include                                                   //
 //    *Elements of Statistical Learning by Hastie,                      //
 //     Tibshirani, and Friedman.                                        //
 //    *Greedy Function Approximation: A Gradient Boosting Machine.      //
 //     Friedman. The Annals of Statistics, Vol. 29, No. 5. Oct 2001.    //
-//    *Inductive Learning of Tree-based Regression Models. Luis Torgo.  //    
+//    *Inductive Learning of Tree-based Regression Models. Luis Torgo.  //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
@@ -219,7 +219,7 @@ void Node::calcOptimumSplit()
 
     // Intialize some variables.
     double bestSplitValue = 0;
-    int bestSplitVariable = -1; 
+    int bestSplitVariable = -1;
     double bestErrorReduction = -1;
 
     double SUM = 0;
@@ -231,17 +231,17 @@ void Node::calcOptimumSplit()
     // Calculate the sum of the target variables and the sum of
     // the target variables squared. We use these later.
     for(unsigned int i=0; i<events[0].size(); i++)
-    {   
+    {
         double target = events[0][i]->data[0];
         SUM += target;
         SSUM += target*target;
-    }  
+    }
 
     unsigned int numVars = events.size();
 
     // Calculate the best split point for each variable
     for(unsigned int variableToCheck = 1; variableToCheck < numVars; variableToCheck++)
-    { 
+    {
 
         // The sum of the target variables in the left, right nodes
         double SUMleft = 0;
@@ -255,15 +255,15 @@ void Node::calcOptimumSplit()
 
         std::vector<Event*>& v = events[variableToCheck];
 
-        // Find the best split point for this variable 
+        // Find the best split point for this variable
         for(unsigned int i=1; i<v.size(); i++)
         {
-            // As the candidate split point interates, the number of events in the 
+            // As the candidate split point interates, the number of events in the
             // left/right node increases/decreases and SUMleft/right increases/decreases.
 
             SUMleft = SUMleft + v[i-1]->data[0];
             SUMright = SUMright - v[i-1]->data[0];
-             
+
             // No need to check the split point if x on both sides is equal
             if(v[i-1]->data[candidateSplitVariable] < v[i]->data[candidateSplitVariable])
             {
@@ -271,7 +271,7 @@ void Node::calcOptimumSplit()
                 // the following statement.
                 candidateErrorReduction = SUMleft*SUMleft/nleft + SUMright*SUMright/nright - SUM*SUM/numEvents;
 //                std::cout << "candidateErrorReduction= " << candidateErrorReduction << std::endl << std::endl;
-                
+
                 // if the new candidate is better than the current best, then we have a new overall best.
                 if(candidateErrorReduction > bestErrorReduction)
                 {
@@ -285,7 +285,7 @@ void Node::calcOptimumSplit()
             nleft = nleft+1;
         }
     }
- 
+
     // Store the information gained from our computations.
 
     // The fit value is the average for least squares.
@@ -299,7 +299,7 @@ void Node::calcOptimumSplit()
     // [ <y^2>-k^2 ]
     avgError = totalError/numEvents;
 //    std::cout << "avgError= " << avgError << std::endl;
-    
+
 
     errorReduction = bestErrorReduction;
 //    std::cout << "errorReduction= " << errorReduction << std::endl;
@@ -320,21 +320,21 @@ void Node::listEvents()
     std::cout << std::endl << "Listing Events... " << std::endl;
 
     for(unsigned int i=0; i < events.size(); i++)
-    {   
+    {
         std::cout << std::endl << "Variable " << i << " vector contents: " << std::endl;
         for(unsigned int j=0; j < events[i].size(); j++)
-        {   
+        {
             events[i][j]->outputEvent();
-        }   
+        }
        std::cout << std::endl;
-    }   
+    }
 }
 
 // ----------------------------------------------------------------------
 
 void Node::theMiracleOfChildBirth()
-{ 
-    // Create Daughter Nodes 
+{
+    // Create Daughter Nodes
     Node* left = new Node(name + " left");
     Node* right = new Node(name + " right");
 
@@ -342,7 +342,7 @@ void Node::theMiracleOfChildBirth()
     leftDaughter = left;
     rightDaughter = right;
     left->setParent(this);
-    right->setParent(this); 
+    right->setParent(this);
 }
 
 // ----------------------------------------------------------------------
@@ -359,7 +359,7 @@ void Node::filterEventsToDaughters()
 // Anyways, this function takes events from the parent node
 // and filters an event into the left or right daughter
 // node depending on whether it is < or > the split point
-// for the given split variable. 
+// for the given split variable.
 
     int sv = splitVariable;
     double sp = splitValue;
@@ -380,10 +380,10 @@ void Node::filterEventsToDaughters()
         }
     }
 
-    events = std::vector< std::vector<Event*> >();    
+    events = std::vector< std::vector<Event*> >();
 
     left->getEvents().swap(l);
-    right->getEvents().swap(r);    
+    right->getEvents().swap(r);
 
     // Set the number of events in the node.
     left->setNumEvents(left->getEvents()[0].size());
@@ -397,7 +397,7 @@ Node* Node::filterEventToDaughter(Event* e)
 // Anyways, this function takes an event from the parent node
 // and filters an event into the left or right daughter
 // node depending on whether it is < or > the split point
-// for the given split variable. 
+// for the given split variable.
 
     int sv = splitVariable;
     double sp = splitValue;
@@ -410,6 +410,6 @@ Node* Node::filterEventToDaughter(Event* e)
 
     if(e->data[sv] <  sp) nextNode = left;
     if(e->data[sv] >= sp) nextNode = right;
-    
+
     return nextNode;
 }

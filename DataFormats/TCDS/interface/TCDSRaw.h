@@ -9,8 +9,6 @@
 //---------------------------------------------------------------------------
 
 #include <cstdint>
-#include "EventFilter/FEDInterface/interface/fed_header.h"
-#include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -114,13 +112,11 @@ namespace tcds {
 
   struct Raw_v1
   {
-    const fedh_t               fedHeader;
     const struct Sizes_v1      sizes;
     const struct Header_v1     header;
     const struct L1aHistory_v1 l1aHistory;
     const struct BST_v1        bst;
     const struct BGoHistory_v1 bgoHistory;
-    const fedt_t               fedTrailer;
   };
 
 }

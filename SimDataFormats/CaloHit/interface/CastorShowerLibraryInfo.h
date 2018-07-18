@@ -14,7 +14,7 @@ class SLBin: public TObject {
              SLBin() {};
              ~SLBin() override {};
 // Setters
-             void Clear()                       {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
+             void Clear(Option_t * option = "") override {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
              void setNEvts(unsigned int n)      {NEvts = n;};
              void setNBins(unsigned int n)      {NBins = n;};
              void setNEvtPerBin(unsigned int n) {NEvtPerBin=n;};
@@ -40,8 +40,8 @@ class CastorShowerLibraryInfo : public TObject {
   
     CastorShowerLibraryInfo();
     ~CastorShowerLibraryInfo() override;
-    
-    void Clear();
+
+    void Clear(Option_t * option = "") override;
     
     // Data members
     SLBin Energy;

@@ -1,10 +1,14 @@
 import os
+import re
 import sys
+import shutil
 import importlib
 import sqlalchemy
 import subprocess
 import CondCore.Utilities.conddblib as conddb
+from functools import reduce
 
+import six
 
 def create_single_iov_db(inputs, run_number, output_db):
     """Create an sqlite file with single-IOV tags for alignment payloads.
@@ -16,7 +20,7 @@ def create_single_iov_db(inputs, run_number, output_db):
     """
 
     # find the IOV containing `run_number`
-    for record,tag in inputs.iteritems():
+    for record,tag in six.iteritems(inputs):
         run_is_covered = False
         for iov in reversed(tag["iovs"]):
             if iov <= run_number:
@@ -32,8 +36,9 @@ def create_single_iov_db(inputs, run_number, output_db):
             sys.exit(1)
 
     result = {}
-    if os.path.exists(output_db): os.remove(output_db)
-    for record,tag in inputs.iteritems():
+    remove_existing_object(output_db)
+
+    for record,tag in six.iteritems(inputs):
         result[record] = {"connect": "sqlite_file:"+output_db,
                           "tag": "_".join([tag["tag"], tag["since"]])}
 
@@ -182,3 +187,77 @@ def get_iovs(db, tag):
     session.close()
 
     return sorted([int(item[0]) for item in iovs])
+
+
+def replace_factors(product_string, name, value):
+    """Takes a `product_string` and replaces all factors with `name` by `value`.
+
+    Arguments:
+    - `product_string`: input string containing a product
+    - `name`: name of the factor
+    - `value`: value of the factor
+    """
+
+    value = str(value)                                 # ensure it's a string
+    return re.sub(r"^"+name+r"$", value,               # single factor
+                  re.sub(r"[*]"+name+r"$", r"*"+value, # rhs
+                         re.sub(r"^"+name+r"[*]", value+r"*", # lhs
+                                re.sub(r"[*]"+name+r"[*]", r"*"+value+r"*",
+                                       product_string))))
+
+def compute_product_string(product_string):
+    """Takes `product_string` and returns the product of the factors as string.
+
+    Arguments:
+    - `product_string`: string containing product ('<factor>*<factor>*...')
+    """
+
+    factors = [float(f) for f in product_string.split("*")]
+    return str(reduce(lambda x,y: x*y, factors))
+
+
+def check_proxy():
+    """Check if GRID proxy has been initialized."""
+
+    try:
+        with open(os.devnull, "w") as dump:
+            subprocess.check_call(["voms-proxy-info", "--exists"],
+                                  stdout = dump, stderr = dump)
+    except subprocess.CalledProcessError:
+        return False
+    return True
+
+
+def remove_existing_object(path):
+    """
+    Tries to remove file or directory located at `path`. If the user
+    has no delete permissions, the object is moved to a backup
+    file. If this fails it tries 5 times in total and then asks to
+    perform a cleanup by a user with delete permissions.
+
+    Arguments:
+    - `name`: name of the object to be (re)moved
+    """
+
+    if os.path.exists(path):
+        remove_method = shutil.rmtree if os.path.isdir(path) else os.remove
+        move_method = shutil.move if os.path.isdir(path) else os.rename
+        try:
+            remove_method(path)
+        except OSError as e:
+            if e.args != (13, "Permission denied"): raise
+            backup_path = path.rstrip("/")+"~"
+            for _ in xrange(5):
+                try:
+                    if os.path.exists(backup_path): remove_method(backup_path)
+                    move_method(path, backup_path)
+                    break
+                except OSError as e:
+                    if e.args != (13, "Permission denied"): raise
+                    backup_path += "~"
+        if os.path.exists(path):
+            msg = ("Cannot remove '{}' due to missing 'delete' ".format(path)
+                   +"permissions and the limit of 5 backups is reached. Please "
+                   "ask a user with 'delete' permissions to clean up.")
+            print msg
+            sys.exit(1)

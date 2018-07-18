@@ -1,4 +1,5 @@
 import inspect
+import six
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
@@ -205,7 +206,7 @@ class _Parameterizable(object):
         self._isModified = True
 
     def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+        for name,value in six.iteritems(parameters):
             self.__addParameter(name, value)
 
     def __setattr__(self,name,value):
@@ -628,7 +629,7 @@ def saveOrigin(obj, level):
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):
         #need to treat items both in params and myparams specially
-        for key,value in newParams.iteritems():
+        for key,value in six.iteritems(newParams):
             if key in params:
                 if value is None:
                     del params[key]
@@ -636,13 +637,17 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                     if isinstance(params[key],_Parameterizable):
                         pset = params[key]
                         p =pset.parameters_()
+                        oldkeys = set(p.keys())
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
-                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
-                        for k,v in p.iteritems():
+                                                  ("%s.%s" if isinstance(key, str) else "%s[%s]")%(keyDepth,key))
+                        for k,v in six.iteritems(p):
                             setattr(pset,k,v)
+                            oldkeys.discard(k)
+                        for k in oldkeys:
+                            delattr(pset,k)
                     elif isinstance(params[key],_ValidatingParameterListBase):
-                        if any(type(k) != int for k in value.keys()):
+                        if any(not isinstance(k, int) for k in value.keys()):
                             raise TypeError("Attempted to change a list using a dict whose keys are not integers")
                         plist = params[key]
                         if any((k < 0 or k >= len(plist)) for k in value.keys()):
@@ -650,12 +655,12 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                         p = dict(enumerate(plist))
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
-                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
-                        for k,v in p.iteritems():
+                                                  ("%s.%s" if isinstance(key, str) else "%s[%s]")%(keyDepth,key))
+                        for k,v in six.iteritems(p):
                             plist[k] = v
                     else:
                         raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
-                elif isinstance(value,_ParameterTypeBase) or (type(key) == int):
+                elif isinstance(value,_ParameterTypeBase) or (isinstance(key, int)):
                     params[key] = value
                 else:
                     params[key].setValue(value)
@@ -750,6 +755,7 @@ if __name__ == "__main__":
                         x = dict(a = 7,
                                  c = dict(gamma = 8),
                                  d = __TestType(9)))
+            c = a.clone(x = dict(a=None, c=None))
             self.assertEqual(a.t.value(),1)
             self.assertEqual(a.u.value(),2)
             self.assertEqual(b.t.value(),3)
@@ -760,6 +766,8 @@ if __name__ == "__main__":
             self.assertEqual(b.x.c.gamma.value(),8)
             self.assertEqual(b.x.d.value(),9)
             self.assertEqual(hasattr(b,"w"), False)
+            self.assertEqual(hasattr(c.x,"a"), False)
+            self.assertEqual(hasattr(c.x,"c"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):

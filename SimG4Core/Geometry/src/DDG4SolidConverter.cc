@@ -13,29 +13,24 @@ G4RotationMatrix* DDG4SolidConverter::rot = nullptr;
 DDG4SolidConverter::DDG4SolidConverter() {
   // could also be done 'dynamically' from outside 
   // would then need to have a 'register' method ...
-  convDispatch_[ddbox]            = DDG4SolidConverter::box; 
-  convDispatch_[ddtubs]           = DDG4SolidConverter::tubs;
-  convDispatch_[ddcuttubs]        = DDG4SolidConverter::cuttubs;
-  convDispatch_[ddtrap]           = DDG4SolidConverter::trap;
-  convDispatch_[ddcons]           = DDG4SolidConverter::cons;
-  convDispatch_[ddpolycone_rrz]   = DDG4SolidConverter::polycone_rrz;
-  convDispatch_[ddpolycone_rz]    = DDG4SolidConverter::polycone_rz;
-  convDispatch_[ddpolyhedra_rrz]  = DDG4SolidConverter::polyhedra_rrz;
-  convDispatch_[ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;
-  convDispatch_[ddextrudedpolygon]= DDG4SolidConverter::extrudedpolygon;
-  convDispatch_[ddtorus]          = DDG4SolidConverter::torus;   
-  convDispatch_[ddreflected]      = DDG4SolidConverter::reflected;
-  convDispatch_[ddunion]          = DDG4SolidConverter::unionsolid;
-  convDispatch_[ddintersection]   = DDG4SolidConverter::intersection;
-  convDispatch_[ddsubtraction]    = DDG4SolidConverter::subtraction;
-  convDispatch_[ddmultiunion]     = DDG4SolidConverter::multiunion;
-  convDispatch_[ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
-  convDispatch_[ddtrunctubs]      = DDG4SolidConverter::trunctubs;
-  convDispatch_[ddsphere]         = DDG4SolidConverter::sphere;   
-  convDispatch_[ddorb]            = DDG4SolidConverter::orb;   
-  convDispatch_[ddellipticaltube] = DDG4SolidConverter::ellipticaltube;   
-  convDispatch_[ddellipsoid]      = DDG4SolidConverter::ellipsoid;   
-  convDispatch_[ddparallelepiped] = DDG4SolidConverter::para;   
+  convDispatch_[DDSolidShape::ddbox]            = DDG4SolidConverter::box; 
+  convDispatch_[DDSolidShape::ddtubs]           = DDG4SolidConverter::tubs;
+  convDispatch_[DDSolidShape::ddcuttubs]        = DDG4SolidConverter::cuttubs;
+  convDispatch_[DDSolidShape::ddtrap]           = DDG4SolidConverter::trap;
+  convDispatch_[DDSolidShape::ddcons]           = DDG4SolidConverter::cons;
+  convDispatch_[DDSolidShape::ddpolycone_rrz]   = DDG4SolidConverter::polycone_rrz;
+  convDispatch_[DDSolidShape::ddpolycone_rz]    = DDG4SolidConverter::polycone_rz;
+  convDispatch_[DDSolidShape::ddpolyhedra_rrz]  = DDG4SolidConverter::polyhedra_rrz;
+  convDispatch_[DDSolidShape::ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;
+  convDispatch_[DDSolidShape::ddextrudedpolygon]= DDG4SolidConverter::extrudedpolygon;
+  convDispatch_[DDSolidShape::ddtorus]          = DDG4SolidConverter::torus;   
+  convDispatch_[DDSolidShape::ddunion]          = DDG4SolidConverter::unionsolid;
+  convDispatch_[DDSolidShape::ddintersection]   = DDG4SolidConverter::intersection;
+  convDispatch_[DDSolidShape::ddsubtraction]    = DDG4SolidConverter::subtraction;
+  convDispatch_[DDSolidShape::ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
+  convDispatch_[DDSolidShape::ddtrunctubs]      = DDG4SolidConverter::trunctubs;
+  convDispatch_[DDSolidShape::ddsphere]         = DDG4SolidConverter::sphere;   
+  convDispatch_[DDSolidShape::ddellipticaltube] = DDG4SolidConverter::ellipticaltube;   
 }
 
 DDG4SolidConverter::~DDG4SolidConverter() {}
@@ -53,7 +48,7 @@ G4VSolid * DDG4SolidConverter::convert(const DDSolid & solid) {
   } else {
     throw cms::Exception("DetectorDescriptionFault") 
       <<  "DDG4SolidConverter::convert: conversion failed for s=" << solid
-      << "\n solid.shape()=" << solid.shape()
+      << "\n solid.shape()=" << DDSolidShapesName::name(solid.shape())
       << std::endl;
   }
   return result;
@@ -261,27 +256,6 @@ G4VSolid * DDG4SolidConverter::torus(const DDSolid & solid) {
 		     (*par_)[4]);// deltaPhi
 }
 
-
-#include "G4ReflectedSolid.hh"
-
-namespace {
-  const HepGeom::ReflectZ3D z_reflection;
-}
-
-G4VSolid * DDG4SolidConverter::reflected(const DDSolid & solid) {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: reflected = " << solid;
-  G4ReflectedSolid * rs = nullptr;
-  DDReflectionSolid rfs(solid); 
-  if (rfs) {	
-    rs = new G4ReflectedSolid(solid.name().name(), 
-                              DDG4SolidConverter().convert(rfs.unreflected()), 
-			      z_reflection);
-    
-  } // else ?
-  return rs;
-}
-
-
 #include "G4UnionSolid.hh"
 G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: unionsolid = " << solid.name();
@@ -308,7 +282,6 @@ G4VSolid * DDG4SolidConverter::unionsolid(const DDSolid & solid) {
   return us;	   
 }
 
-
 #include "G4SubtractionSolid.hh"
 #include <sstream>
 G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & solid) {
@@ -319,9 +292,6 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & solid) {
     G4VSolid * sa = DDG4SolidConverter().convert(bs.solidA());
     G4VSolid * sb = DDG4SolidConverter().convert(bs.solidB());
     LogDebug("SimG4CoreGeometry") << " name:" << solid.name() << " t=" << bs.translation() << std::flush;
-    //       stringstream sst;
-    //       bs.rotation().rotation()->inverse().print(sst);
-    //       LogDebug("SimG4CoreGeometry") << " " << sst.str() << std::flush;
     LogDebug("SimG4CoreGeometry") << " " << bs.rotation().rotation()->Inverse() << std::flush;
     std::vector<double> tdbl(9);
     bs.rotation().rotation()->Inverse().GetComponents(tdbl.begin(), tdbl.end());
@@ -335,7 +305,6 @@ G4VSolid * DDG4SolidConverter::subtraction(const DDSolid & solid) {
   }
   return us;	   
 }
-
 
 #include "G4IntersectionSolid.hh"
 G4VSolid * DDG4SolidConverter::intersection(const DDSolid & solid) {
@@ -359,33 +328,6 @@ G4VSolid * DDG4SolidConverter::intersection(const DDSolid & solid) {
   }
   return us;	   
 }
-
-#if defined(G4GEOM_USE_USOLIDS)
-
-#include "G4MultiUnion.hh"
-G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
-  G4MultiUnion* munion = new G4MultiUnion( G4String( solid.name().name()));
-  DDMultiUnionSolid ms( solid );
-  std::vector<DDSolid> solids = ms.solids();
-  if( ms ) {
-    for( auto i : solids ) {
-      G4VSolid* gs = DDG4SolidConverter().convert( solids[i]);
-      G4RotationMatrix rotm = G4RotationMatrix();
-      G4ThreeVector position1 = G4ThreeVector( 0., 0., 1. );
-      G4Transform3D tr1 = G4Transform3D( rotm, position1 );
-      munion->AddNode( *gs, tr1 );
-    }
-  }
-  return munion;
-}
-
-#else
-
-G4VSolid * DDG4SolidConverter::multiunion( const DDSolid & solid ) {
-  return nullptr;
-}
-
-#endif // G4GEOM_USE_USOLIDS
 
 #include "G4Trd.hh"
 G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
@@ -463,29 +405,15 @@ G4VSolid * DDG4SolidConverter::pseudotrap(const DDSolid & solid) {
     result = new G4SubtractionSolid(name, trap, tubs, rot, displ);
   }
   else {
-    /** correct implementation, but fails to visualize due to G4/Iguana limitations */
     G4VSolid * tubicCap = new G4SubtractionSolid(name, 
 						 tubs, 
 						 new G4Box(name, 1.1*x, sqrt(r*r-x*x), 1.1*h),  
 						 nullptr, 
 						 G4ThreeVector());
     result = new G4UnionSolid(name, trap, tubicCap, rot, displ);
-            
-    // approximative implementation - also fails to visualize due to G4/Iguana limitations
-    /*
-      delete tubs;
-      tubs = new G4Tubs(name, 
-      sqrt(r*r-x*x), // rMin-approximation!
-      std::abs(r), // rMax
-      h, // half height
-      startPhi, // start angle
-      openingAngle);
-      result = new G4UnionSolid(name, trap, tubs, rot, displ);
-    */
   }			 	   
   return result;
 }
-
 
 G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & solid) {
   // truncated tube-section: a boolean subtraction solid:
@@ -511,9 +439,6 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & solid) {
   if (startPhi != 0.) {
     throw cms::Exception("DetectorDescriptionFault", "TruncTubs " + std::string(tt.name().fullname()) + ": startPhi != 0 not supported!");
   }
-  //     if (cutInside != false) {
-  //       throw cms::Exception("DetectorDescriptionFault", "TruncTubs " + std::string(tt.name()) + " cutInside == true not supported!");
-  //     }
   
   startPhi=0.;
   double r(cutAtStart), R(cutAtDelta);
@@ -577,13 +502,6 @@ G4VSolid * DDG4SolidConverter::sphere(const DDSolid & solid) {
 		      sp.deltaTheta());
 }
 
-#include "G4Orb.hh"
-G4VSolid * DDG4SolidConverter::orb(const DDSolid & solid) {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: orb = " << solid;  
-  DDOrb sp(solid);
-  return new G4Orb(solid.name().name(), sp.radius());
-}
-
 #include "G4EllipticalTube.hh"
 G4VSolid * DDG4SolidConverter::ellipticaltube(const DDSolid & solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipticaltube = " << solid;
@@ -593,29 +511,3 @@ G4VSolid * DDG4SolidConverter::ellipticaltube(const DDSolid & solid) {
 			      sp.ySemiAxis(),
 			      sp.zHeight());
 }
-
-#include "G4Ellipsoid.hh"
-G4VSolid * DDG4SolidConverter::ellipsoid(const DDSolid & solid) {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipsoid = " << solid;
-  DDEllipsoid sp(solid);
-  return new G4Ellipsoid(solid.name().name(),
-			 sp.xSemiAxis(),
-			 sp.ySemiAxis(),
-			 sp.zSemiAxis(),
-			 sp.zBottomCut(),
-			 sp.zTopCut());
-}
-
-#include "G4Para.hh"
-G4VSolid * DDG4SolidConverter::para(const DDSolid & solid) {
-  LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: parallelepiped = " << solid;  
-  DDParallelepiped sp(solid);
-  return new G4Para(solid.name().name(),
-		    sp.xHalf(),
-		    sp.yHalf(),
-		    sp.zHalf(),
-		    sp.alpha(),
-		    sp.theta(),
-		    sp.phi());
-}
-

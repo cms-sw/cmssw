@@ -19,6 +19,7 @@ public:
     m_name = iConfig.getUntrackedParameter<std::string>( "Name" );
     m_namew = iConfig.getUntrackedParameter<std::string>( "NameW" );
     m_namec = iConfig.getUntrackedParameter<std::string>( "NameC" );
+    m_namet = iConfig.getUntrackedParameter<std::string>( "NameT" );
   }
   
   void beginRun( edm::Run const& iEvent, edm::EventSetup const& ) override;
@@ -31,6 +32,7 @@ private:
   std::string m_name;
   std::string m_namew;
   std::string m_namec;
+  std::string m_namet;
 };
 
 void
@@ -48,7 +50,7 @@ PHGCalParametersDBBuilder::beginRun( const edm::Run&, edm::EventSetup const& es 
   
   HGCalParameters* ptp = new HGCalParameters( m_name );
   HGCalParametersFromDD builder;
-  builder.build( &(*cpv), *ptp, m_name, m_namew, m_namec );
+  builder.build( &(*cpv), *ptp, m_name, m_namew, m_namec, m_namet );
   swapParameters( ptp, phgp );
 
   delete ptp;

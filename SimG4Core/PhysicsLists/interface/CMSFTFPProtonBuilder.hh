@@ -28,8 +28,8 @@ class CMSFTFPProtonBuilder : public G4VProtonBuilder
     void Build(G4HadronElasticProcess * aP) override;
     void Build(G4ProtonInelasticProcess * aP) override;
     
-    void SetMinEnergy(G4double aM) {theMin = aM;}
-    void SetMaxEnergy(G4double aM) {theMax = aM;}
+    void SetMinEnergy(G4double aM) override {theMin = aM;}
+    void SetMaxEnergy(G4double aM) override {theMax = aM;}
 
   private:
     G4TheoFSGenerator * theModel;

@@ -126,9 +126,9 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
          cont   = occupancy_map -> getBinContent(i,j);
          conte  = occupancy_map -> getBinError(i,j);
          if(fev>0. && cnorm>1.e-30){
-	   occupancy_map -> setBinContent(i,j,cont/fev);
-	   occupancy_map -> setBinContent(i,j,conte/fev);
-	 }
+            occupancy_map -> setBinContent(i,j,cont/fev);
+            occupancy_map -> setBinError(i,j,conte/fev);
+         }
 
          sumphi += cont;
 
@@ -136,7 +136,7 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
 
       //Occupancy vs ieta histo is drawn
       // phi-factor evaluation for occupancy_vs_ieta calculation
-      int ieta = i - 42;        // -41 -1, 0, 1 41 (zero doesn't exist, so it will be a hall)
+      int ieta = i - 43; //should be the same as int ieta = int(occupancy_vs_ieta->getBinCenter(i));
 
       if(ieta >= -20 && ieta <= 20 )
          {phi_factor = 72.;}
@@ -144,14 +144,14 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
             if(ieta >= 40 || ieta <= -40 ) {phi_factor = 18.;}
          else
             phi_factor = 36.;
-       }
+      }
 
-       cnorm  = sumphi / phi_factor / fev;
-       cnorme = pow(sumphi,0.5) / phi_factor / fev;
-       if(fev>0. && cnorm>1.e-30){
-	 occupancy_vs_ieta->setBinContent(i, cnorm);
-	 occupancy_vs_ieta->setBinError(i, cnorme);
-       }
+      cnorm  = sumphi / phi_factor;
+      cnorme = pow(sumphi,0.5) / phi_factor;
+      if(fev>0. && cnorm>1.e-30){
+         occupancy_vs_ieta->setBinContent(i, cnorm/fev);
+         occupancy_vs_ieta->setBinError(i, cnorme/fev);
+      }
 
    } // end of ieta cycle (i)
    

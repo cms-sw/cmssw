@@ -165,7 +165,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   createTrendMEs        = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_               = conf_.getParameter<bool>("Mod_On");
-  m_trendVsLS             = conf_.getParameter<bool>("TrendVsLS");
+  m_trendVs10LS         = conf_.getParameter<bool>("TrendVs10LS");
   //  xLumiProf             = conf_.getParameter<int>("xLumiProf");
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
@@ -329,6 +329,9 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     edm::ESHandle<TrackerTopology> tTopoHandle;
     es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
@@ -337,8 +340,6 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     std::vector<uint32_t> activeDets;
     activeDets.clear(); // just in case
     SiStripDetCabling_->addActiveDetectorsRawIds(activeDets);
-
-    SiStripSubStructure substructure;
 
     // remove any eventual zero elements - there should be none, but just in case
     for(std::vector<uint32_t>::iterator idets = activeDets.begin(); idets != activeDets.end(); idets++){
@@ -350,10 +351,10 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 
     // Create TkHistoMap for Digi and APV shots properies
 
-    if (digitkhistomapon)      tkmapdigi                = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
-    if (shotshistomapon)       tkmapNApvshots           = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
-    if (shotsstripshistomapon) tkmapNstripApvshot       = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
-    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
+    if (digitkhistomapon)      tkmapdigi                = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
+    if (shotshistomapon)       tkmapNApvshots           = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
+    if (shotsstripshistomapon) tkmapNstripApvshot       = std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
+    if (shotschargehistomapon) tkmapMedianChargeApvshots= std::make_unique<TkHistoMap>(tkDetMap, ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
 
     std::vector<uint32_t> tibDetIds;
 
@@ -395,17 +396,17 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
         int32_t lnumber = det_layer_pair.second;
         std::vector<uint32_t> layerDetIds;
         if (det_layer_pair.first == "TIB") {
-          substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
+          SiStripSubStructure::getTIBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0,0);
         } else if (det_layer_pair.first == "TOB") {
-          substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
+          SiStripSubStructure::getTOBDetectors(activeDets,layerDetIds,tTopo,lnumber,0,0);
         } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,2,abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-          substructure.getTIDDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0);
+          SiStripSubStructure::getTIDDetectors(activeDets,layerDetIds,tTopo,1,abs(lnumber),0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,2,abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,2,abs(lnumber),0,0,0,0);
         } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-          substructure.getTECDetectors(activeDets,layerDetIds,1,abs(lnumber),0,0,0,0);
+          SiStripSubStructure::getTECDetectors(activeDets,layerDetIds,tTopo,1,abs(lnumber),0,0,0,0);
         }
 
         LayerDetMap[label] = layerDetIds;
@@ -517,7 +518,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
                                        FEDDigi.getParameter<double>("xmax"),
                                        FEDDigi.getParameter<int32_t>("Nbinsy"),
                                        FEDDigi.getParameter<double>("ymin"),
-                                       FEDDigi.getParameter<double>("ymax"));
+                                       FEDDigi.getParameter<double>("ymax"),"");
       NumberOfFEDDigis->setAxisTitle("FED ID",1);
       NumberOfFEDDigis->setAxisTitle("Mean # of Digis in FED",2);
     }
@@ -587,7 +588,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   runNb   = iEvent.id().run();
   eventNb++;
 
-  float iOrbitVar      = m_trendVsLS ? iEvent.orbitNumber()/NORBITS_PER_LS : iEvent.orbitNumber()/NORBITS_PER_SECOND ;
+  float iOrbitVar      = m_trendVs10LS ? iEvent.orbitNumber()/(10*NORBITS_PER_LS) : iEvent.orbitNumber()/NORBITS_PER_LS;
 
   digi_detset_handles.clear();
 
@@ -692,8 +693,8 @@ else{
 	const std::vector<APVShot>& shots = theShotFinder.getShots();
 	AddApvShotsToSubDet(shots,SubDetMEsMap[subdet_label].SubDetApvShots);
 	if (shotshistomapon) tkmapNApvshots->fill(detid,shots.size());
-	if (shotsstripshistomapon) FillApvShotsMap(tkmapNstripApvshot,shots,detid,1);
-	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots,shots,detid,2);
+	if (shotsstripshistomapon) FillApvShotsMap(tkmapNstripApvshot.get(),shots,detid,1);
+	if (shotschargehistomapon) FillApvShotsMap(tkmapMedianChargeApvshots.get(),shots,detid,2);
       }
 
       if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != nullptr))
@@ -951,8 +952,7 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , co
 					   "" );
   if(!me) return me;
 
-  if(m_trendVsLS ) me->setAxisTitle("Lumisection",1);
-  else             me->setAxisTitle("Event Time in Seconds",1);
+  me->setAxisTitle("Lumisection",1);
   if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
@@ -1136,8 +1136,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						    Parameters.getParameter<double>("ymin"),
 						    Parameters.getParameter<double>("ymax"),
 						    "" );
-    if(m_trendVsLS) subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection",1);
-    else            subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
+    subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection",1);
 
     if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }

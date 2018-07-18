@@ -53,5 +53,8 @@ PFTauQualityCuts = cms.PSet(
     ##leadingTrkOrPFCandOption = cms.string("firstTrack") #default behaviour until 710 (first track in the collection)
 )
 phase2_common.toModify(PFTauQualityCuts,
-                       isolationQualityCuts = dict( maxDeltaZ = cms.double(0.1) ) )
+                       isolationQualityCuts = dict(
+                          maxDeltaZ = 0.15,
+                          maxTransverseImpactParameter = 0.05
+                       ) )
                        

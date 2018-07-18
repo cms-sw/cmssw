@@ -26,10 +26,10 @@ public:
   void update(const GeomDetUnit* geomDetUnit);
 
   /// No components here => exception!
-  void addComponent( Alignable* ) override;
+  void addComponent( Alignable* ) final;
 
   /// Returns a null vector (no components here)
-  Alignables components() const override { return Alignables(); }
+  const Alignables& components() const override { return emptyComponents_; }
 
   /// Do nothing (no components here, so no subcomponents either...)
   void recursiveComponents(Alignables &result) const override {}
@@ -41,26 +41,26 @@ public:
   void rotateInGlobalFrame( const RotationType& rotation ) override;
 
   /// Set the AlignmentPositionError (no components => second argument ignored)
-  void setAlignmentPositionError(const AlignmentPositionError &ape, bool /*propDown*/) override;
+  void setAlignmentPositionError(const AlignmentPositionError &ape, bool /*propDown*/) final;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// (no components => second argument without effect)
-  void addAlignmentPositionError(const AlignmentPositionError& ape, bool /*propDown*/) override;
+  void addAlignmentPositionError(const AlignmentPositionError& ape, bool /*propDown*/) final;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the global reference frame
   /// (no components => second argument without effect)
-  void addAlignmentPositionErrorFromRotation(const RotationType& rot, bool /*propDown*/) override;
+  void addAlignmentPositionErrorFromRotation(const RotationType& rot, bool /*propDown*/) final;
 
   /// Add (or set if it does not exist yet) the AlignmentPositionError
   /// resulting from a rotation in the local reference frame
   /// (no components => second argument without effect)
-  void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot, bool /*propDown*/) override;
+  void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot, bool /*propDown*/) final;
 
   /// Set surface deformation parameters (2nd argument without effect)
-  void setSurfaceDeformation(const SurfaceDeformation *deformation, bool) override;
+  void setSurfaceDeformation(const SurfaceDeformation *deformation, bool) final;
   /// Add surface deformation parameters to the existing ones (2nd argument without effect)
-  void addSurfaceDeformation(const SurfaceDeformation *deformation, bool) override;
+  void addSurfaceDeformation(const SurfaceDeformation *deformation, bool) final;
 
   /// Return the alignable type identifier
   StructureType alignableObjectId () const override { return align::AlignableDetUnit; }
@@ -94,6 +94,7 @@ public:
 
 private:
 
+  static const Alignables emptyComponents_;
   AlignmentPositionError* theAlignmentPositionError;
   SurfaceDeformation* theSurfaceDeformation;
   SurfaceDeformation* theCachedSurfaceDeformation;

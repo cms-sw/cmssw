@@ -8,7 +8,6 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>
 <bin file="TestIntegration.cpp" name="DetectorDescriptionParserTE">
    <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/Parser/test run_testDoc.sh" />
@@ -24,7 +23,6 @@
    <use name="FWCore/ServiceRegistry"/>
    <use name="FWCore/Utilities"/>
    <use name="Utilities/Xerces"/>
-   <use name="boost_system"/>
 </bin>
 
 <bin name="testmat" file="testmat.cpp">
@@ -35,7 +33,6 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>
 <bin name="dumpDDCompactView" file="dumpDDCompactView.cpp">
  <use name="DetectorDescription/Core"/>
@@ -47,7 +44,6 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>
 <bin name="testNew" file="testNew.cpp">
  <use name="DetectorDescription/Core"/>
@@ -62,5 +58,4 @@
  <use name="FWCore/PythonParameterSet"/>
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/Utilities"/>
- <use name="boost_system"/>
 </bin>

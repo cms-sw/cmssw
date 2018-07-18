@@ -30,7 +30,6 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
  protected:
 
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
@@ -59,6 +58,8 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
   int dataInvFlagMask_;
 
   int maxFedReadoutSize_;
+
+  bool checkOnlyCapIdsWithMasks_;
 
   std::string monitorDir_;
   bool verbose_;

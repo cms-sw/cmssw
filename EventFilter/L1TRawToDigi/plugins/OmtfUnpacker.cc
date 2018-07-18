@@ -142,7 +142,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
   auto producedRPCDigis = std::make_unique<RPCDigiCollection>();
   auto producedCscLctDigis = std::make_unique<CSCCorrelatedLCTDigiCollection>();
   auto producedMuonDigis = std::make_unique<l1t::RegionalMuonCandBxCollection>(); 
-  producedMuonDigis->setBXRange(-3,3);
+  producedMuonDigis->setBXRange(-3,4);
   auto producedDTPhDigis = std::make_unique<L1MuDTChambPhContainer>();
   auto producedDTThDigis = std::make_unique<L1MuDTChambThContainer>();
   std::vector<L1MuDTChambPhDigi> phi_Container;
@@ -151,7 +151,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
   for (int fedId= 1380; fedId<= 1381; ++fedId) {
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
-    int nWords = rawData.size()/sizeof(Word64);
+    unsigned int nWords = rawData.size()/sizeof(Word64);
     LogTrace("") <<"FED : " << fedId <<" words: " << nWords;
     if (nWords==0) continue;
 
@@ -191,15 +191,15 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
         if (debug) LogTrace("") <<" ** PROBLEM **, trailer.check() failed, break";
         break;
       }
-      if ( fedTrailer.lenght()!= nWords) {
-        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.lenght()!= nWords, break";
+      if ( fedTrailer.fragmentLength()!= nWords) {
+        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.fragmentLength()!= nWords, break";
         break;
       }
       moreTrailers = fedTrailer.moreTrailers();
       if (debug) {
         std::ostringstream str;
         str <<" trailer: "<<  *reinterpret_cast<const std::bitset<64>*> (trailer) << std::endl;
-        str <<"  trailer lenght:    "<<fedTrailer.lenght()<< std::endl;
+        str <<"  trailer lenght:    "<<fedTrailer.fragmentLength()<< std::endl;
         str <<"  trailer crc:       "<<fedTrailer.crc()<< std::endl;
         str <<"  trailer evtStatus: "<<fedTrailer.evtStatus()<< std::endl;
         str <<"  trailer ttsBits:   "<<fedTrailer.ttsBits()<< std::endl;

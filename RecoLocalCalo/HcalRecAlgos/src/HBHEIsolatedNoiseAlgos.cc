@@ -589,7 +589,7 @@ void HBHEHitMap::tracksNeighborTowers(std::set<const reco::Track*>& v) const
 
 void HBHEHitMap::byTowers(std::vector<twrinfo>& v) const
 {
-  assert(0);
+  assert(false);
 }
 
 void HBHEHitMap::insert(const HBHERecHit* hit, const PhysicsTower* twr, std::set<const PhysicsTower*>& neighbors)

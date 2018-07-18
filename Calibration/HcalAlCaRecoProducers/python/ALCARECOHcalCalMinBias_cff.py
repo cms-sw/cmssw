@@ -17,9 +17,10 @@ import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 hbherecoMBNZS = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprereco.clone(
     digiLabelQIE8  = cms.InputTag("hcalDigiAlCaMB"),
     digiLabelQIE11 = cms.InputTag("hcalDigiAlCaMB"),
-    tsFromDB = cms.bool(False),
+###    tsFromDB = cms.bool(False),
     dropZSmarkedPassed = cms.bool(False),
     algorithm = dict(
+        useMahi = cms.bool(False),
         useM2 = cms.bool(False),
         useM3 = cms.bool(False)
     ),
@@ -34,11 +35,10 @@ hbherecoMBNZS = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbhep
     setLegacyFlagsQIE11 = cms.bool(False),
 )
 
-hbherecoMBNZS.algorithm.firstSample = 4
-hbherecoMBNZS.algorithm.samplesToAdd = 4
+hbherecoMBNZS.algorithm.firstSampleShift = 0 # explicitly repeating the default
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
+import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
+horecoMBNZS = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
 
 horecoMBNZS.firstSample = 4
 horecoMBNZS.samplesToAdd = 4
@@ -46,10 +46,10 @@ horecoMBNZS.digiLabel = 'hcalDigiAlCaMB'
 horecoMBNZS.tsFromDB = cms.bool(False)
 horecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
+import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
+hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()
 
-hfrecoMBNZS.firstSample = 2
+hfrecoMBNZS.firstSample = 2   # Run 2 default before 2017
 hfrecoMBNZS.samplesToAdd = 2
 hfrecoMBNZS.digiLabel = 'hcalDigiAlCaMB'
 hfrecoMBNZS.tsFromDB = cms.bool(False)

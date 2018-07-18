@@ -18,7 +18,7 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAbsAlgo.h"
 
 #include "TVectorD.h"
 #include <vector>

@@ -9,6 +9,7 @@ import pprint
 import commands
 import subprocess
 from XML2Python import xml2obj
+import six
 
 # These aren't all typedefs, but can sometimes make the output more
 # readable
@@ -181,7 +182,7 @@ def searchClassDefXml ():
             className = stdRE.sub    ('', className)
             # print "  ", className
             # Now get rid of any typedefs
-            for typedef, tdList in typedefsDict.iteritems():
+            for typedef, tdList in six.iteritems(typedefsDict):
                 for alias in tdList:
                     className = re.sub (alias, typedef, className)
             classDict.setdefault (className, set()).add (filename)
@@ -227,12 +228,11 @@ def searchClassDefXml ():
             print '\n%s\n%s\n' % (filename, dupProblems)
     # for filename
     if options.dups:
-        for name, fileSet in sorted( classDict.iteritems() ):
+        for name, fileSet in sorted( six.iteritems(classDict) ):
             if len (fileSet) < 2:
                 continue
             print name
-            fileList = list (fileSet)
-            fileList.sort()
+            fileList = sorted (fileSet)
             for filename in fileList:
                 print "  ", filename
             print

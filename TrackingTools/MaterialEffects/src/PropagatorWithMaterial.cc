@@ -36,7 +36,7 @@ PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
       bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
                                                        PropagationDirectionFromPath()(newTsosWP.second,
                                                                                       propagationDirection()));
-      if unlikely(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+      if UNLIKELY(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
   }
   return newTsosWP;
 }
@@ -49,7 +49,7 @@ PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
       bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
                                                        PropagationDirectionFromPath()(newTsosWP.second,
                                                                                       propagationDirection()));
-      if unlikely(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+      if UNLIKELY(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
   }
   return newTsosWP;
 }
@@ -64,21 +64,21 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
   TsosWP newTsosWP(tsos,0.);
   if ( materialAtSource() ) {
     bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,propagationDirection());
-    if unlikely(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+    if UNLIKELY(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
   }
-  if unlikely( !newTsosWP.first.isValid() )  return newTsosWP;
+  if UNLIKELY( !newTsosWP.first.isValid() )  return newTsosWP;
   //
   // geometrical propagation
   //
   newTsosWP = theGeometricalPropagator->propagateWithPath(newTsosWP.first,plane);
-  if unlikely( !newTsosWP.first.isValid() || materialAtSource() )  return newTsosWP;
+  if UNLIKELY( !newTsosWP.first.isValid() || materialAtSource() )  return newTsosWP;
   //
   // add material at destination surface, if requested
   //
   bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
                                                    PropagationDirectionFromPath()(newTsosWP.second,
                                                                                   propagationDirection()));
-  if unlikely(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  if UNLIKELY(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
   return newTsosWP;
 }
 
@@ -91,21 +91,21 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
   TsosWP newTsosWP(tsos,0.);
   if ( materialAtSource() ) {
     bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,propagationDirection());
-    if unlikely(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+    if UNLIKELY(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
   }
-  if unlikely( !newTsosWP.first.isValid() )  return newTsosWP;
+  if UNLIKELY( !newTsosWP.first.isValid() )  return newTsosWP;
   //
   // geometrical propagation
   //
   newTsosWP = theGeometricalPropagator->propagateWithPath(newTsosWP.first,cylinder);
-  if unlikely( !(newTsosWP.first).isValid() || materialAtSource() )  return newTsosWP;
+  if UNLIKELY( !(newTsosWP.first).isValid() || materialAtSource() )  return newTsosWP;
   //
   // add material at destination surface, if requested
   //
   bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
                                                    PropagationDirectionFromPath()(newTsosWP.second,
                                                                                   propagationDirection()));
-  if unlikely(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
+  if UNLIKELY(!updateOk) newTsosWP.first = TrajectoryStateOnSurface();
   return newTsosWP;
 }
 
@@ -116,7 +116,7 @@ void PropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) 
 
 bool
 PropagatorWithMaterial::materialAtSource() const {
-  if unlikely( (propagationDirection()==anyDirection) &&  (theMaterialLocation!=atDestination) )
+  if UNLIKELY( (propagationDirection()==anyDirection) &&  (theMaterialLocation!=atDestination) )
 	       throw cms::Exception("TrackingTools/MaterialEffects",
 				    "PropagatorWithMaterial: propagation direction = anyDirection is incompatible with adding of material at source");
 

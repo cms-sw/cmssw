@@ -1,5 +1,6 @@
 from copy import deepcopy
 import inspect
+import six
 
 ACTIVATE_INSPECTION=True
 
@@ -307,10 +308,10 @@ def new_dumpModifications(self, comments=True, process=True, module=False, seque
     for name, o in self.items_():
         modifications += self.recurseDumpModifications_(name, o)
     if not sequence:
-        modifications = filter(lambda x: not x['type'] == 'seq', modifications)
+        modifications = [x for x in modifications if not x['type'] == 'seq']
     checkpoint = self.__dict__['_Process__modifiedcheckpoint']
     if not checkpoint == None:
-        modifications = filter(lambda x: any([x['name'].startswith(check) for check in checkpoint]), modifications)
+        modifications = [x for x in modifications if any([x['name'].startswith(check) for check in checkpoint])]
     if module:
         value = False
         comments = False
@@ -378,7 +379,7 @@ def new_items_(self):
     items += self.moduleItems_()
     items += self.outputModules.items()
     items += self.sequences.items()
-    items += self.paths.iteritems()
+    items += six.iteritems(self.paths)
     items += self.endpaths.items()
     items += self.services.items()
     items += self.es_producers.items()

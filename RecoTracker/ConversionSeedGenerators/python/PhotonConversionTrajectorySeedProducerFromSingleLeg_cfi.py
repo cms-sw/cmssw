@@ -68,9 +68,22 @@ peripheralPbPb.toModify(photonConvTrajSeedFromSingleLeg,
                         ClusterCheckPSet = dict(cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)")
                         )
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-pp_on_XeXe_2017.toModify(photonConvTrajSeedFromSingleLeg,
-                         ClusterCheckPSet = dict(MaxNumberOfPixelClusters = 100000,
-                                                 cut = "strip < 1000000 && pixel < 100000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)"
-                                                 ),
-                         OrderedHitsFactoryPSet = dict(maxElement = 100000)
-                         )
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018 ).toModify(photonConvTrajSeedFromSingleLeg,
+                             ClusterCheckPSet = dict(MaxNumberOfPixelClusters = 100000,
+                                                     cut = "strip < 1000000 && pixel < 100000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)"
+                                                     ),
+                             OrderedHitsFactoryPSet = dict(maxElement = 100000)
+                             )
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+(pp_on_XeXe_2017 | pp_on_AA_2018 ).toModify(photonConvTrajSeedFromSingleLeg,
+               RegionFactoryPSet = dict(ComponentName = 'GlobalTrackingRegionWithVerticesProducer',
+                                        RegionPSet = _globalTrackingRegionWithVertices.RegionPSet.clone(
+                                                          originRadius = 0,
+                                                          originRScaling4BigEvts = True,
+                                                          minOriginR = 0,
+                                                          scalingStartNPix = 0,
+                                                          scalingEndNPix = 1#essentially turn off immediately 
+                                                         ),
+                                        )
+               )

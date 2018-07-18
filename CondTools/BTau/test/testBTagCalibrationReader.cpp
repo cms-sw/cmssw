@@ -59,12 +59,19 @@ int main()
   assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 0.5, 100.), 200., 1e-3));
   assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 0.5, 100.), 210., 1e-3));
   assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 0.5, 100.), 190., 1e-3));
-  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 0.5, 20.), 100., 1e-3));  // low
-  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 0.5, 20.), 110., 1e-3));  // low
-  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 0.5, 20.),  90., 1e-3));  // low
-  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 0.5, 999.), 1000., 1e-3));  // high
-  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 0.5, 999.), 1100., 1e-3));  // high
-  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 0.5, 999.),  900., 1e-3));  // high
+  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 0.5, 20.), 100., 1e-3));  // low pt
+  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 0.5, 20.), 110., 1e-3));  // low pt
+  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 0.5, 20.),  90., 1e-3));  // low pt
+  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 0.5, 999.), 1000., 1e-3));  // high pt
+  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 0.5, 999.), 1100., 1e-3));  // high pt
+  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 0.5, 999.),  900., 1e-3));  // high pt
+  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, 2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, 2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, 2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("central", BTagEntry::FLAV_C, -2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("up",      BTagEntry::FLAV_C, -2.5, 100.), 1., 1e-3));   // eta out of bounds
+  assert (eq(bcr3.eval_auto_bounds("down",    BTagEntry::FLAV_C, -2.5, 100.), 1., 1e-3));   // eta out of bounds
 
-  return 0;
+ 
+ return 0.;
 }

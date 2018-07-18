@@ -108,6 +108,10 @@ namespace reco {
     template<>
     struct ParameterAdapter<TrackingParticleSelector> {
       static TrackingParticleSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
+        return make(cfg);
+      }
+
+      static TrackingParticleSelector make( const edm::ParameterSet & cfg) {
 	return TrackingParticleSelector(
  	  cfg.getParameter<double>( "ptMin" ),
  	  cfg.getParameter<double>( "ptMax" ),

@@ -36,8 +36,7 @@ if __name__ == "__main__" :
     plotcachedir='/afs/cern.ch/cms/lumi/www/publicplots/public_lumi_plots_cache/pp_all'
     plotfiles=[f for f in glob.glob(os.path.join(plotcachedir,'lumicalc_cache_2012-??-??.csv')) if os.path.getsize(f)>0]
     fillmin=2450
-    lpcfill2012=findlpcdir(lpcdir,fillmin)
-    lpcfill2012.sort()
+    lpcfill2012=sorted(findlpcdir(lpcdir,fillmin))
     lpcresult={}#{fill:[delivered]}
 
     plotfilldata={}#{fill:{run:delivered}}

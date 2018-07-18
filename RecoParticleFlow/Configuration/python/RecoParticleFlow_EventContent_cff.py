@@ -146,6 +146,7 @@ def _modifyPFEventContentForHGCalFEVT( obj ):
 
 
 # mods for HGCAL
+# Some SC content also defined in RecoEcal/Configuration/python/RecoEcal_EventContent_cff.py
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( RecoParticleFlowFEVT, outputCommands = RecoParticleFlowFEVT.outputCommands + [
         'keep recoPFRecHits_particleFlowClusterECAL__*',

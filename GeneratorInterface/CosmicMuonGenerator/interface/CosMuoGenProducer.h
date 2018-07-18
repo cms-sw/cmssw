@@ -15,6 +15,8 @@
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 
+#include <memory>
+
 namespace edm
 {
   class CosMuoGenProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks> {
@@ -81,9 +83,8 @@ namespace edm
     double       extCrossSect;
     double       extFilterEff;
 
-    CosmicMuonGenerator* CosMuoGen;
+    std::unique_ptr<CosmicMuonGenerator> CosMuoGen;
     // the event format itself
-    HepMC::GenEvent* fEvt;
     bool cmVerbosity_;
 
     bool isInitialized_;

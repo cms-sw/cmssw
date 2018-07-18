@@ -9,6 +9,7 @@
 //event
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -32,8 +33,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-// CaloJets
-#include "DataFormats/JetReco/interface/CaloJet.h"
+// PFJets
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 // Calo MET
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -52,6 +53,9 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "DQMOffline/L1Trigger/interface/HistDefinition.h"
+
+
 class L1TStage2CaloLayer2Offline: public DQMEDAnalyzer {
 
 public:
@@ -67,6 +71,7 @@ public:
     L1HTT,
     OfflineMET,
     OfflineETMHF,
+    OfflinePFMetNoMu,
     OfflineMHT,
     OfflineETT,
     OfflineHTT,
@@ -77,13 +82,19 @@ public:
 
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
 
+  enum PlotConfig {
+    nVertex,
+    ETvsET,
+    PHIvsPHI
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
+
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
@@ -94,22 +105,28 @@ private:
 
   void fillEnergySums(edm::Event const& e, const unsigned int nVertex);
   void fillJets(edm::Event const& e, const unsigned int nVertex);
+  void fillJetEfficiencies(const double & recoEt, const double & l1Et, const double & recoEta);
+
+  bool doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const;
 
   //private variables
   math::XYZPoint PVPoint_;
 
   //variables from config file
-  edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
+  edm::EDGetTokenT<reco::PFJetCollection> thePFJetCollection_;
   edm::EDGetTokenT<reco::CaloMETCollection> thecaloMETCollection_;
   edm::EDGetTokenT<reco::CaloMETCollection> thecaloETMHFCollection_;
+  edm::EDGetTokenT<reco::PFMETCollection> thePFMETNoMuCollection_;
   edm::EDGetTokenT<reco::VertexCollection> thePVCollection_;
   edm::EDGetTokenT<reco::BeamSpot> theBSCollection_;
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  edm::InputTag triggerFilter_;
-  std::string triggerPath_;
-  std::string histFolder_;
-  std::string efficiencyFolder_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerInputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsInputTag_;
+  std::string triggerProcess_;
+  std::vector<std::string> triggerNames_;
+  std::string histFolderEtSum_;
+  std::string histFolderJet_;
+  std::string efficiencyFolderEtSum_;
+  std::string efficiencyFolderJet_;
 
   edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection> stage2CaloLayer2EtSumToken_;
@@ -129,6 +146,12 @@ private:
   double recoHTTMaxEta_;
   double recoMHTMaxEta_;
 
+  HLTConfigProvider hltConfig_;
+  std::vector<unsigned int> triggerIndices_;
+  edm::TriggerResults triggerResults_;
+  trigger::TriggerEvent triggerEvent_;
+  dqmoffline::l1t::HistDefinitions histDefinitions_;
+
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
   MonitorElement* h_nVertex_;
@@ -139,50 +162,56 @@ private:
   // energy sums reco vs L1
   MonitorElement* h_L1METvsCaloMET_;
   MonitorElement* h_L1ETMHFvsCaloETMHF_;
+  MonitorElement* h_L1METvsPFMetNoMu_;
   MonitorElement* h_L1MHTvsRecoMHT_;
   MonitorElement* h_L1METTvsCaloETT_;
   MonitorElement* h_L1HTTvsRecoHTT_;
 
   MonitorElement* h_L1METPhivsCaloMETPhi_;
   MonitorElement* h_L1ETMHFPhivsCaloETMHFPhi_;
+  MonitorElement* h_L1METPhivsPFMetNoMuPhi_;
   MonitorElement* h_L1MHTPhivsRecoMHTPhi_;
 
   // energy sum resolutions
   MonitorElement* h_resolutionMET_;
   MonitorElement* h_resolutionETMHF_;
+  MonitorElement* h_resolutionPFMetNoMu_;
   MonitorElement* h_resolutionMHT_;
   MonitorElement* h_resolutionETT_;
   MonitorElement* h_resolutionHTT_;
   MonitorElement* h_resolutionMETPhi_;
   MonitorElement* h_resolutionETMHFPhi_;
+  MonitorElement* h_resolutionPFMetNoMuPhi_;
   MonitorElement* h_resolutionMHTPhi_;
 
   // energy sum turn ons
   std::map<double, MonitorElement*> h_efficiencyMET_pass_;
   std::map<double, MonitorElement*> h_efficiencyETMHF_pass_;
+  std::map<double, MonitorElement*> h_efficiencyPFMetNoMu_pass_;
   std::map<double, MonitorElement*> h_efficiencyMHT_pass_;
   std::map<double, MonitorElement*> h_efficiencyETT_pass_;
   std::map<double, MonitorElement*> h_efficiencyHTT_pass_;
 
   std::map<double, MonitorElement*> h_efficiencyMET_total_;
   std::map<double, MonitorElement*> h_efficiencyETMHF_total_;
+  std::map<double, MonitorElement*> h_efficiencyPFMetNoMu_total_;
   std::map<double, MonitorElement*> h_efficiencyMHT_total_;
   std::map<double, MonitorElement*> h_efficiencyETT_total_;
   std::map<double, MonitorElement*> h_efficiencyHTT_total_;
 
 
   // jet reco vs L1
-  MonitorElement* h_L1JetETvsCaloJetET_HB_;
-  MonitorElement* h_L1JetETvsCaloJetET_HE_;
-  MonitorElement* h_L1JetETvsCaloJetET_HF_;
-  MonitorElement* h_L1JetETvsCaloJetET_HB_HE_;
+  MonitorElement* h_L1JetETvsPFJetET_HB_;
+  MonitorElement* h_L1JetETvsPFJetET_HE_;
+  MonitorElement* h_L1JetETvsPFJetET_HF_;
+  MonitorElement* h_L1JetETvsPFJetET_HB_HE_;
 
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HB_;
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HE_;
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HF_;
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HB_HE_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HB_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HE_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HF_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HB_HE_;
 
-  MonitorElement* h_L1JetEtavsCaloJetEta_;
+  MonitorElement* h_L1JetEtavsPFJetEta_;
 
   // jet resolutions
   MonitorElement* h_resolutionJetET_HB_;

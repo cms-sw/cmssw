@@ -1,5 +1,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
+<use   name="EventFilter/Utilities"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/DTDigi"/>
 <use   name="CondFormats/DTObjects"/>

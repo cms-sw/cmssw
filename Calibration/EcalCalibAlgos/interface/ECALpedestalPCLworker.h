@@ -41,10 +41,10 @@ public:
 
 
 private:
-    virtual void beginJob() ;
+    void beginJob() override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;   
     void analyze(const edm::Event&, const edm::EventSetup&) override ;
-    virtual void endJob() ;
+    void endJob() override;
 
 
     edm::EDGetTokenT<EBDigiCollection> digiTokenEB_; 

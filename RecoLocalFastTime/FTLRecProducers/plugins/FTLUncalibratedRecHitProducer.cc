@@ -71,14 +71,14 @@ FTLUncalibratedRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& e
   evt.getByToken( ftlbDigis_, hBarrel );  
   barrelRechits->reserve(hBarrel->size()/2);
   for(const auto& digi : *hBarrel) {
-    barrelRechits->push_back( std::move(barrel_->makeRecHit(digi)) );
+    barrelRechits->emplace_back( barrel_->makeRecHit(digi) );
   }
 
   edm::Handle< FTLDigiCollection > hEndcap;
   evt.getByToken( ftleDigis_, hEndcap );  
   endcapRechits->reserve(hEndcap->size()/2);
   for(const auto& digi : *hEndcap) {
-    endcapRechits->push_back( std::move(endcap_->makeRecHit(digi)) );
+    endcapRechits->emplace_back( endcap_->makeRecHit(digi) );
   }
       
   // put the collection of recunstructed hits in the event

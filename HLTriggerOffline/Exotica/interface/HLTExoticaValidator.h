@@ -46,13 +46,13 @@ protected:
     void bookHistograms(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:
-    virtual void beginJob();
+    void beginJob() override;
     /// Method called by the framework just before dqmBeginRun()
     void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup) override;
     /// Method called for each event.
     void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
-    virtual void endJob();
+    void endJob() override;
 
     /// Copy (to be modified) of the input ParameterSet from configuration file.
     edm::ParameterSet _pset;

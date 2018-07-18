@@ -79,7 +79,7 @@ class SiStripQualityChecker {
   int globalStatusFilling_;
   bool useGoodTracks_;
 
-  TkDetMap* tkDetMap_;
+  const TkDetMap* tkDetMap_;
  
   float cutoffTrackRate_;
   float cutoffChi2overDoF_;

@@ -10,8 +10,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalShapes::HcalShapes()
-: theMCParams(nullptr),
-  theTopology(nullptr)
+: theDbService(nullptr)
  {
 /*
          00 - not used (reserved)
@@ -20,11 +19,14 @@ HcalShapes::HcalShapes()
         201 - SiPMs Zecotec shape   (HO)
         202 - SiPMs Hamamatsu shape (HO)
         203 - SiPMs Hamamatsu shape (HE 2017)
+	205 - SiPMs from Data (HE data 2017)
+	206 - SiPMs Hamamatsu shape (HE 2018)
+	207 - SiPMs from Data (HE 2017)
         301 - regular HF PMT shape
         401 - regular ZDC shape
   */
 
-  std::vector<int> theHcalShapeNums = {101,102,103,104,105,123,124,125,201,202,203,205,301};
+  std::vector<int> theHcalShapeNums = {101,102,103,104,105,123,124,125,201,202,203,205,206,207,301};
   // use resize so vector won't invalidate pointers by reallocating memory while filling
   theHcalShapes.resize(theHcalShapeNums.size());
   for(unsigned inum = 0; inum < theHcalShapeNums.size(); ++inum){
@@ -47,41 +49,15 @@ HcalShapes::~HcalShapes()
     delete shapeItr.second;
   }
   theShapes.clear();
-  if (theMCParams!=nullptr) delete theMCParams;
-  if (theTopology!=nullptr) delete theTopology;
-}
-
-
-void HcalShapes::beginRun(edm::EventSetup const & es)
-{
-  edm::ESHandle<HcalMCParams> p;
-  es.get<HcalMCParamsRcd>().get(p);
-  theMCParams = new HcalMCParams(*p.product()); 
-
-// here we are making a _copy_ so we need to add a copy of the topology...
-  
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<HcalRecNumberingRecord>().get(htopo);
-  theTopology=new HcalTopology(*htopo);
-  theMCParams->setTopo(theTopology);
-}
-
-
-void HcalShapes::endRun()
-{
-  if (theMCParams) delete theMCParams;
-  theMCParams = nullptr;
-  if (theTopology) delete theTopology;
-  theTopology = nullptr;
 }
 
 
 const CaloVShape * HcalShapes::shape(const DetId & detId, bool precise) const
 {
-  if(!theMCParams) {
+  if(!theDbService) {
     return defaultShape(detId);
   }
-  int shapeType = theMCParams->getValues(detId)->signalShape();
+  int shapeType = theDbService->getHcalMCParam(detId)->signalShape();
   const auto& myShapes = getShapeMap(precise);
   auto shapeMapItr = myShapes.find(shapeType);
   if(shapeMapItr == myShapes.end()) {

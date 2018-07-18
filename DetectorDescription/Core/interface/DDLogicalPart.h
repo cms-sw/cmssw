@@ -113,9 +113,6 @@ class DDLogicalPart : public DDBase<DDName,DDI::LogicalPart*>
   //! Returns a reference object of the solid being the shape of this LogicalPart 
   const DDSolid & solid( void ) const; 
   
-  //! Weight of the LogicalPart viewed as a component, if cached, else -1
-  double & weight( void );
-  
   //! returns the specific-data attached to the LogicalPart only (not to a DDExpandedNode)
   std::vector<const DDsvalues_type *> specifics( void ) const;
   

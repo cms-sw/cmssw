@@ -12,6 +12,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondFormats/Alignment/interface/Definitions.h"

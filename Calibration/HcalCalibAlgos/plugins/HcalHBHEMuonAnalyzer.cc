@@ -81,8 +81,6 @@ private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   void   clearVectors();
   int    matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);
@@ -96,21 +94,22 @@ private:
   // ----------member data ---------------------------
   HLTConfigProvider          hltConfig_;
   edm::Service<TFileService> fs;
-  edm::InputTag              HLTriggerResults_;
-  edm::InputTag              labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
-  std::string                labelVtx_, labelBS_, labelMuon_, fileInCorr_;
-  std::vector<std::string>   triggers_;
-  bool                       useRaw_, unCorrect_, collapseDepth_, isItPlan1_;
-  bool                       ignoreHECorr_, isItPreRecHit_, mergedDepth_;
-  bool                       getCharge_, writeRespCorr_, useMyCorr_;
-  int                        verbosity_, maxDepth_, kount_;
+  const edm::InputTag        hlTriggerResults_;
+  const edm::InputTag        labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
+  const std::string          labelVtx_, labelMuon_, fileInCorr_;
+  const std::vector<std::string> triggers_;
+  const int                  verbosity_, useRaw_;
+  const bool                 unCorrect_, collapseDepth_, isItPlan1_;
+  const bool                 ignoreHECorr_, isItPreRecHit_;
+  const bool                 getCharge_, writeRespCorr_;
+  bool                       mergedDepth_, useMyCorr_;
+  int                        maxDepth_, kount_;
 
   const HcalDDDRecConstants *hdc_;
   const HcalTopology        *theHBHETopology_;
   HcalRespCorrs             *respCorrs_;
 
   edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
-  edm::EDGetTokenT<reco::BeamSpot>                        tok_bs_;
   edm::EDGetTokenT<reco::VertexCollection>                tok_Vtx_;
   edm::EDGetTokenT<EcalRecHitCollection>                  tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection>                  tok_EE_;
@@ -123,6 +122,7 @@ private:
   unsigned int              runNumber_, eventNumber_ , lumiNumber_, bxNumber_;
   unsigned int              goodVertex_;
   std::vector<bool>         muon_is_good_, muon_global_, muon_tracker_;
+  std::vector<bool>         muon_is_tight_, muon_is_medium_;
   std::vector<double>       ptGlob_, etaGlob_, phiGlob_, energyMuon_, pMuon_;
   std::vector<float>        muon_trkKink, muon_chi2LocalPosition, muon_segComp;
   std::vector<int>          trackerLayer_, numPixelLayers_, tight_PixelHits_;
@@ -140,6 +140,7 @@ private:
   std::vector<bool>         matchedId_, hcalHot_;
   std::vector<double>       ecal3x3Energy_, hcal1x1Energy_;
   std::vector<unsigned int> ecalDetId_, hcalDetId_, ehcalDetId_;
+  std::vector<int>          hcal_ieta_, hcal_iphi_;
   std::vector<double>       hcalDepthEnergy_[depthMax_];
   std::vector<double>       hcalDepthActiveLength_[depthMax_];
   std::vector<double>       hcalDepthEnergyHot_[depthMax_];
@@ -160,45 +161,44 @@ private:
   
 };
 
-HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : hdc_(nullptr), theHBHETopology_(nullptr), respCorrs_(nullptr) {
+HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) :
+  hlTriggerResults_(iConfig.getParameter<edm::InputTag>("hlTriggerResults")),
+  labelEBRecHit_(iConfig.getParameter<edm::InputTag>("labelEBRecHit")),
+  labelEERecHit_(iConfig.getParameter<edm::InputTag>("labelEERecHit")),
+  labelHBHERecHit_(iConfig.getParameter<edm::InputTag>("labelHBHERecHit")),
+  labelVtx_(iConfig.getParameter<std::string>("labelVertex")),
+  labelMuon_(iConfig.getParameter<std::string>("labelMuon")),
+  fileInCorr_(iConfig.getUntrackedParameter<std::string>("fileInCorr","")),
+  triggers_(iConfig.getParameter<std::vector<std::string>>("triggers")),
+  verbosity_(iConfig.getUntrackedParameter<int>("verbosity",0)),
+  useRaw_(iConfig.getParameter<int>("useRaw")),
+  unCorrect_(iConfig.getParameter<bool>("unCorrect")),
+  collapseDepth_(iConfig.getParameter<bool>("collapseDepth")),
+  isItPlan1_(iConfig.getParameter<bool>("isItPlan1")),
+  ignoreHECorr_(iConfig.getUntrackedParameter<bool>("ignoreHECorr",false)),
+  isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit",false)),
+  getCharge_(iConfig.getParameter<bool>("getCharge")),
+  writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr",false)),
+  hdc_(nullptr), theHBHETopology_(nullptr), respCorrs_(nullptr) {
   
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_            = 0;
-  HLTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
-  labelBS_          = iConfig.getParameter<std::string>("LabelBeamSpot");
-  labelVtx_         = iConfig.getParameter<std::string>("LabelVertex");
-  labelEBRecHit_    = iConfig.getParameter<edm::InputTag>("LabelEBRecHit");
-  labelEERecHit_    = iConfig.getParameter<edm::InputTag>("LabelEERecHit");
-  labelHBHERecHit_  = iConfig.getParameter<edm::InputTag>("LabelHBHERecHit");
-  labelMuon_        = iConfig.getParameter<std::string>("LabelMuon");
-  triggers_         = iConfig.getParameter<std::vector<std::string>>("Triggers");
-  useRaw_           = iConfig.getParameter<bool>("UseRaw");
-  unCorrect_        = iConfig.getParameter<bool>("UnCorrect");
-  getCharge_        = iConfig.getParameter<bool>("GetCharge");
-  collapseDepth_    = iConfig.getParameter<bool>("CollapseDepth");
-  isItPlan1_        = iConfig.getParameter<bool>("IsItPlan1");
-  ignoreHECorr_     = iConfig.getUntrackedParameter<bool>("IgnoreHECorr",false);
-  isItPreRecHit_    = iConfig.getUntrackedParameter<bool>("IsItPreRecHit",false);
-  verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
+  maxDepth_         = iConfig.getUntrackedParameter<int>("maxDepth",4);
   if      (maxDepth_ > depthMax_) maxDepth_ = depthMax_;
   else if (maxDepth_ < 1)         maxDepth_ = 4;
-  std::string modnam = iConfig.getUntrackedParameter<std::string>("ModuleName","");
-  std::string procnm = iConfig.getUntrackedParameter<std::string>("ProcessName","");
-  fileInCorr_        = iConfig.getUntrackedParameter<std::string>("FileInCorr","");
-  writeRespCorr_     = iConfig.getUntrackedParameter<bool>("WriteRespCorr",false);
+  std::string modnam = iConfig.getUntrackedParameter<std::string>("moduleName","");
+  std::string procnm = iConfig.getUntrackedParameter<std::string>("processName","");
 
   mergedDepth_  = (!isItPreRecHit_) || (collapseDepth_);
-  tok_trigRes_  = consumes<edm::TriggerResults>(HLTriggerResults_);
-  tok_bs_       = consumes<reco::BeamSpot>(labelBS_);
+  tok_trigRes_  = consumes<edm::TriggerResults>(hlTriggerResults_);
   tok_EB_       = consumes<EcalRecHitCollection>(labelEBRecHit_);
   tok_EE_       = consumes<EcalRecHitCollection>(labelEERecHit_);
   tok_HBHE_     = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  if (modnam == "") {
+  if (modnam.empty()) {
     tok_Vtx_      = consumes<reco::VertexCollection>(labelVtx_);
     tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
-    edm::LogVerbatim("HBHEMuon")  << "Labels used: Trig " << HLTriggerResults_
+    edm::LogVerbatim("HBHEMuon")  << "Labels used: Trig " << hlTriggerResults_
 				  << " Vtx " << labelVtx_ << " EB " 
 				  << labelEBRecHit_ << " EE "
 				  << labelEERecHit_ << " HBHE " 
@@ -206,7 +206,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
   } else {
     tok_Vtx_      = consumes<reco::VertexCollection>(edm::InputTag(modnam,labelVtx_,procnm));
     tok_Muon_     = consumes<reco::MuonCollection>(edm::InputTag(modnam,labelMuon_,procnm));
-    edm::LogVerbatim("HBHEMuon")   << "Labels used Trig " << HLTriggerResults_
+    edm::LogVerbatim("HBHEMuon")   << "Labels used Trig " << hlTriggerResults_
 				   << "\n  Vtx  " << edm::InputTag(modnam,labelVtx_,procnm)
 				   << "\n  EB   " << labelEBRecHit_
 				   << "\n  EE   " << labelEERecHit_
@@ -214,7 +214,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) : h
 				   << "\n  MU   " << edm::InputTag(modnam,labelMuon_,procnm);
   }
 
-  if (fileInCorr_ != "") {
+  if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
     if (infile.is_open()) {
       while (true) {
@@ -323,8 +323,6 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   // Relevant blocks from iEvent
   edm::Handle<reco::VertexCollection> vtx;
   iEvent.getByToken(tok_Vtx_, vtx);
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByToken(tok_bs_, beamSpotH);
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
@@ -339,34 +337,22 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // require a good vertex
   math::XYZPoint pvx;
-  bool goodVtx(false);
   goodVertex_ = 0;
-  if (vtx.isValid()) {
-    reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
-    for (reco::VertexCollection::const_iterator it = vtx->begin(); 
-	 it != vtx->end(); it++) {
-      if (isGoodVertex(*it)) {
-	if (firstGoodVertex == vtx->end()) firstGoodVertex = it;
-	++goodVertex_;
-      }
-    }
-    if (firstGoodVertex != vtx->end()) {
-      pvx     = firstGoodVertex->position();
-      goodVtx = true;
-    }
-  }
-  if (!goodVtx) {
-    if (beamSpotH.isValid()) {
-      pvx     = beamSpotH->position();
-      goodVtx = true;
-    }
-  }
-  if (!goodVtx) {
+  if (!vtx.isValid()) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HBHEMuon") << "No Good Vertex found == Reject\n";
 #endif
     return;
   }
+  reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
+  for (reco::VertexCollection::const_iterator it = vtx->begin(); 
+       it != vtx->end(); it++) {
+    if (isGoodVertex(*it)) {
+      if (firstGoodVertex == vtx->end()) firstGoodVertex = it;
+      ++goodVertex_;
+    }
+  }
+  if (firstGoodVertex != vtx->end()) pvx = firstGoodVertex->position();
   
   bool accept(false);
   if (_Muon.isValid() && barrelRecHitsHandle.isValid() && 
@@ -385,6 +371,8 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       edm::LogVerbatim("HBHEMuon") << "Energy:" << RecMuon->energy() << " P:"
 				   << RecMuon->p() << std::endl;
 #endif
+      muon_is_tight_.push_back(muon::isTightMuon(*RecMuon,*firstGoodVertex));
+      muon_is_medium_.push_back(muon::isMediumMuon(*RecMuon));
       muon_trkKink.push_back(RecMuon->combinedQuality().trkKink);
       muon_chi2LocalPosition.push_back(RecMuon->combinedQuality().chi2LocalPosition);
       muon_segComp.push_back(muon::segmentCompatibility(*RecMuon));
@@ -475,6 +463,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       HcalDetId eHcalDetId[depthMax_];
       unsigned int isHot(0);
       bool         tmpmatch(false);
+      int ieta(-1000), iphi(-1000);
       for (int i=0; i<depthMax_; ++i) {
 	eHcalDepth[i]    = eHcalDepthHot[i]  = 0;
 	eHcalDepthC[i]   = eHcalDepthHotC[i] = 0;
@@ -521,9 +510,9 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 #endif
 	  
 	  HcalSubdetector subdet = hcidt.subdet();
-	  int             ieta   = hcidt.ieta();
-	  int             iphi   = hcidt.iphi();
-	  bool            hborhe = (std::abs(ieta) == 16);
+	  ieta   = hcidt.ieta();
+	  iphi   = hcidt.iphi();
+	  bool hborhe = (std::abs(ieta) == 16);
 
 	  eHcal = spr::eHCALmatrix(theHBHETopology_, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  std::vector<std::pair<double,int> > ehdepth;
@@ -578,11 +567,12 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  }
 #ifdef EDM_ML_DEBUG
 	  if ((verbosity_%10) > 0) {
-	    std::cout << hcidt << " Match " << tmpmatch << " Depths "
-		      << ehdepth.size();
+	    edm::LogVerbatim("HBHEMuon") << hcidt << " Match " << tmpmatch 
+					 << " Depths " << ehdepth.size();
 	    for (unsigned int k=0; k<ehdepth.size(); ++k)
-	      std::cout << " [" << ehdepth[k].second << "] " << matchDepth[k];
-	    std::cout << std::endl;
+	      edm::LogVerbatim("HBHEMuon") << " [" << k << ":"
+					   << ehdepth[k].second << "] " 
+					   << matchDepth[k];
 	  }
 #endif
 	  HcalDetId           hotCell;
@@ -617,7 +607,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 		  double chg(ene), enec(ene);
 		  if (unCorrect_) {
 		    double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
-		    if (corr != 0) {ene /= corr; chg /= corr;}
+		    if (corr != 0) ene /= corr;
 #ifdef EDM_ML_DEBUG
 		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
 		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id 
@@ -675,7 +665,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 		  double chg(ene);
 		  if (unCorrect_) {
 		    double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
-		    if (corr != 0) {ene /= corr; chg /= corr;}
+		    if (corr != 0) ene /= corr; 
 #ifdef EDM_ML_DEBUG
 		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
 		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id 
@@ -725,6 +715,8 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       matchedId_.push_back(tmpmatch); 
       ecal3x3Energy_.push_back(eEcal);
       hcal1x1Energy_.push_back(eHcal);
+      hcal_ieta_.push_back(ieta);
+      hcal_iphi_.push_back(iphi);
       for (int i=0; i<depthMax_; ++i)  {
 	hcalDepthEnergy_[i].push_back(eHcalDepth[i]);
 	hcalDepthActiveLength_[i].push_back(activeL[i]);
@@ -742,7 +734,15 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       hcalActiveLengthHot_.push_back(activeLengthHotTot);
     }
   }
-  if (accept) tree_->Fill();
+  if (accept) {
+#ifdef EDM_ML_DEBUG
+    for (unsigned int i=0; i<hcal_ieta_.size(); ++i)
+      edm::LogVerbatim("HBHEMuon") << "[" << i << "] ieta/iphi for entry to "
+				   << "HCAL has value of " << hcal_ieta_[i]
+				   << ":" << hcal_iphi_[i];
+#endif
+    tree_->Fill();
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -757,6 +757,8 @@ void HcalHBHEMuonAnalyzer::beginJob() {
   tree_->Branch("PF_Muon",                          &muon_is_good_);
   tree_->Branch("Global_Muon",                      &muon_global_);
   tree_->Branch("Tracker_muon",                     &muon_tracker_);
+  tree_->Branch("MuonIsTight",                      &muon_is_tight_);
+  tree_->Branch("MuonIsMedium",                     &muon_is_medium_);
   tree_->Branch("pt_of_muon",                       &ptGlob_);
   tree_->Branch("eta_of_muon",                      &etaGlob_);
   tree_->Branch("phi_of_muon",                      &phiGlob_);
@@ -810,7 +812,9 @@ void HcalHBHEMuonAnalyzer::beginJob() {
   tree_->Branch("ecal_detID",                       &ecalDetId_);
   tree_->Branch("hcal_detID",                       &hcalDetId_);
   tree_->Branch("ehcal_detID",                      &ehcalDetId_);
-  
+  tree_->Branch("hcal_ieta",                        &hcal_ieta_);
+  tree_->Branch("hcal_iphi",                        &hcal_iphi_);
+
   char name[100];
   for (int k=0; k<maxDepth_; ++k) {
     sprintf (name, "hcal_edepth%d", (k+1));
@@ -939,31 +943,29 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HcalHBHEMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("HLTriggerResults",edm::InputTag("TriggerResults","","HLT"));
-  desc.add<std::string>("LabelBeamSpot","offlineBeamSpot");
-  desc.add<std::string>("LabelVertex","offlinePrimaryVertices");
-  desc.add<edm::InputTag>("LabelEBRecHit",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  desc.add<edm::InputTag>("LabelEERecHit",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
-  desc.add<edm::InputTag>("LabelHBHERecHit",edm::InputTag("hbhereco"));
-  desc.add<std::string>("LabelMuon","muons");
-// std::vector<std::string> trig = {"HLT_IsoMu_","HLT_L1SingleMu_","HLT_L2Mu","HLT_Mu","HLT_RelIso1p0Mu"};
+  desc.add<edm::InputTag>("hlTriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.add<edm::InputTag>("labelEBRecHit",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  desc.add<edm::InputTag>("labelEERecHit",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  desc.add<edm::InputTag>("labelHBHERecHit",edm::InputTag("hbhereco"));
+  desc.add<std::string>("labelVertex","offlinePrimaryVertices");
+  desc.add<std::string>("labelMuon","muons");
   std::vector<std::string> trig = {"HLT_IsoMu17","HLT_IsoMu20",
 				   "HLT_IsoMu24","HLT_IsoMu27",
 				   "HLT_Mu45","HLT_Mu50"};
-  desc.add<std::vector<std::string>>("Triggers",trig);
-  desc.add<bool>("UseRaw",false);
-  desc.add<bool>("UnCorrect",false);
-  desc.add<bool>("GetCharge",false);
-  desc.add<bool>("CollapseDepth",false);
-  desc.add<bool>("IsItPlan1",false);
-  desc.addUntracked<bool>("IgnoreHECorr",false);
-  desc.addUntracked<bool>("IsItPreRecHit",false);
-  desc.addUntracked<std::string>("ModuleName","");
-  desc.addUntracked<std::string>("ProcessName","");
-  desc.addUntracked<int>("Verbosity",0);
-  desc.addUntracked<int>("MaxDepth",4);
-  desc.addUntracked<std::string>("FileInCorr","");
-  desc.addUntracked<bool>("WriteRespCorr",false);
+  desc.add<std::vector<std::string>>("triggers",trig);
+  desc.addUntracked<int>("verbosity",0);
+  desc.add<int>("useRaw",0);
+  desc.add<bool>("unCorrect",false);
+  desc.add<bool>("getCharge",false);
+  desc.add<bool>("collapseDepth",false);
+  desc.add<bool>("isItPlan1",false);
+  desc.addUntracked<bool>("ignoreHECorr",false);
+  desc.addUntracked<bool>("isItPreRecHit",false);
+  desc.addUntracked<std::string>("moduleName","");
+  desc.addUntracked<std::string>("processName","");
+  desc.addUntracked<int>("maxDepth",4);
+  desc.addUntracked<std::string>("fileInCorr","");
+  desc.addUntracked<bool>("writeRespCorr",false);
   descriptions.add("hcalHBHEMuon",desc);
 }
 
@@ -986,6 +988,8 @@ void HcalHBHEMuonAnalyzer::clearVectors() {
   muon_trkKink.clear();
   muon_chi2LocalPosition.clear();
   muon_segComp.clear();
+  muon_is_tight_.clear();
+  muon_is_medium_.clear();
 
   trackerLayer_.clear();
   numPixelLayers_.clear();
@@ -1029,6 +1033,8 @@ void HcalHBHEMuonAnalyzer::clearVectors() {
   ecalDetId_.clear();
   hcalDetId_.clear();
   ehcalDetId_.clear();
+  hcal_ieta_.clear();
+  hcal_iphi_.clear();
   for (int i=0; i<maxDepth_; ++i) {
     hcalDepthEnergy_[i].clear();
     hcalDepthActiveLength_[i].clear();

@@ -53,7 +53,7 @@ namespace edm {
        * \param[in] iAction Must be a functor that takes no arguments and return no values.
        */
       template<typename T>
-      void push(const T& iAction);
+      void push(T&& iAction);
       
       /// synchronously pushes functor iAction into queue
       /**
@@ -64,7 +64,58 @@ namespace edm {
        * \param[in] iAction Must be a functor that takes no arguments and return no values.
        */
       template<typename T>
-      void pushAndWait(const T& iAction);
+      void pushAndWait(T&& iAction);
+     
+      class Resumer {
+      public:
+         friend class LimitedTaskQueue;
+         
+         Resumer() = default;
+         ~Resumer(){
+            resume();
+         }
+
+         Resumer(Resumer&& iOther): m_queue(iOther.m_queue){
+            iOther.m_queue = nullptr;
+         }
+
+         Resumer(Resumer const& iOther): m_queue(iOther.m_queue) {
+            if(m_queue) {
+               m_queue->pause();
+            }
+         }
+
+         Resumer& operator=(Resumer const& iOther) {
+            auto t = iOther;
+            return (*this = std::move(t));
+         }
+         Resumer& operator=(Resumer&& iOther) {
+            if(m_queue) { m_queue->resume();}
+            m_queue = iOther.m_queue;
+            iOther.m_queue = nullptr;
+            return *this;
+         }
+         
+         bool resume() {
+            if(m_queue) {
+               auto q = m_queue;
+               m_queue = nullptr;
+               return q->resume();
+            }
+            return false;
+         }
+      private:
+         Resumer(SerialTaskQueue* iQueue): m_queue{iQueue}{}
+         SerialTaskQueue* m_queue=nullptr;
+      };
+
+      /// asynchronously pushes functor iAction into queue then pause the queue and run iAction
+      /** iAction must take as argument a copy of a LimitedTaskQueue::Resumer. To resume
+       the queue let the last copy of the Resumer go out of scope, or call Resumer::resume().
+       Using this function will decrease the allowed concurrency limit by 1.
+       */
+      template<typename T>
+      void pushAndPause(T&& iAction);
      
      unsigned int concurrencyLimit() const { return m_queues.size(); }
    private:
@@ -76,10 +127,10 @@ namespace edm {
    };
    
    template<typename T>
-   void LimitedTaskQueue::push(const T& iAction) {
+   void LimitedTaskQueue::push(T&& iAction) {
      auto set_to_run = std::make_shared<std::atomic<bool>>(false);
      for(auto& q: m_queues) {
-       q.push([set_to_run,iAction]() {
+       q.push([set_to_run,iAction]() mutable{
          bool expected = false;
          if(set_to_run->compare_exchange_strong(expected,true)) {
            iAction();
@@ -89,12 +140,12 @@ namespace edm {
    }
    
    template<typename T>
-   void LimitedTaskQueue::pushAndWait(const T& iAction) {
+   void LimitedTaskQueue::pushAndWait(T&& iAction) {
       tbb::empty_task* waitTask = new (tbb::task::allocate_root()) tbb::empty_task;
       waitTask->set_ref_count(2);
      auto set_to_run = std::make_shared<std::atomic<bool>>(false);
      for(auto& q: m_queues) {
-       q.push([set_to_run,waitTask,iAction]() {
+       q.push([set_to_run,waitTask,iAction]() mutable{
          bool expected = false;
          if(set_to_run->compare_exchange_strong(expected,true)) {
            try {
@@ -107,7 +158,21 @@ namespace edm {
      waitTask->wait_for_all();
      tbb::task::destroy(*waitTask);
    }
-   
+  
+   template<typename T>
+   void LimitedTaskQueue::pushAndPause(T&& iAction) {
+      auto set_to_run = std::make_shared<std::atomic<bool>>(false);
+      for(auto& q: m_queues) {
+         q.push([&q,set_to_run,iAction]() mutable{
+            bool expected = false;
+            if(set_to_run->compare_exchange_strong(expected,true)) {
+               q.pause();
+               iAction(Resumer(&q));
+            }
+         });
+      }
+   }
+  
 }
 
 #endif

@@ -31,6 +31,7 @@ class DQMGenericClient : public DQMEDHarvester
   DQMGenericClient(const edm::ParameterSet& pset);
   ~DQMGenericClient() override {};
 
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,DQMStore::IGetter& igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   enum class EfficType {
@@ -71,6 +72,11 @@ class DQMGenericClient : public DQMEDHarvester
     bool ascending;
   };
 
+  struct NoFlowOption
+  {
+    std::string name;
+  };
+
   void computeEfficiency(DQMStore::IBooker& ibooker,
 			 DQMStore::IGetter& igetter,
 			 const std::string& startDir, 
@@ -101,11 +107,18 @@ class DQMGenericClient : public DQMEDHarvester
 			  const std::string& startDir,
 			  const std::string& cdName,
                           bool ascending=true);
+  void makeNoFlowDist(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& cdName);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
  private:
   unsigned int verbose_;
+  bool runOnEndLumi_;
+  bool runOnEndJob_;
+  bool makeGlobalEffPlot_;
   bool isWildcardUsed_;
   bool resLimitedFit_;
 
@@ -118,6 +131,7 @@ class DQMGenericClient : public DQMEDHarvester
   std::vector<ProfileOption> profileOptions_;
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
+  std::vector<NoFlowOption> noFlowOptions_;
 
   void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency);
 
@@ -126,6 +140,10 @@ class DQMGenericClient : public DQMEDHarvester
 			      std::string dir,
 			      std::set<std::string> * myList,
 			      const TString& pattern);
+
+  void makeAllPlots(DQMStore::IBooker &, DQMStore::IGetter &);
+
+  void removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 

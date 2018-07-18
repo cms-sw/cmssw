@@ -15,7 +15,7 @@ DDI::Tubs::Tubs(double zhalf,
     	        double rIn, double rOut,	      	      
 	        double startPhi, 
 	        double deltaPhi)
- : Solid(ddtubs)
+ : Solid(DDSolidShape::ddtubs)
 {
   p_.emplace_back(zhalf);
   p_.emplace_back(rIn);

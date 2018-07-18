@@ -60,7 +60,6 @@ public:
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
 

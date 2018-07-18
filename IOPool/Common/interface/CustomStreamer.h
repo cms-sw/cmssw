@@ -6,7 +6,7 @@
 #include "TClassStreamer.h"
 #include "TClassRef.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-class TBuffer;
+#include "TBuffer.h"
 
 namespace edm {
   template <typename T>

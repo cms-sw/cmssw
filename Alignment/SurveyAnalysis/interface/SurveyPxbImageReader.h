@@ -1,6 +1,10 @@
 #ifndef GUARD_surveypxbimagereader_h
 #define GUARD_surveypxbimagereader_h
 
+#include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
+
+#include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <fstream>

@@ -95,6 +95,7 @@ void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitColle
   // navigator to define a 5x5 region around the input DetId
 
   CaloNavigator<DetId> cursor = CaloNavigator<DetId>(det,caloTopo->getSubdetectorTopology(det));
+  const CaloGeometry* geo = geometry.product();
 
   // loop over a 5x5 array centered on the input DetId
 
@@ -109,7 +110,7 @@ void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitColle
 	      EcalRecHit tmpHit = *hits->find(*cursor); // get rechit with detID at cursor
 
 
-	      const GlobalPoint p ( geometry->getPosition(*cursor) ) ; // calculate Et of the rechit
+	      const GlobalPoint p ( geo->getPosition(*cursor) ) ; // calculate Et of the rechit
 	      TVector3 hitPos(p.x(),p.y(),p.z());
 	      hitPos *= 1.0/hitPos.Mag();
 	      hitPos *= tmpHit.energy();
@@ -165,9 +166,6 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventS
   DetId det;
 
   int ix,iy,iz;
-
-  ix=0,iy=0,iz=0;
-
 
   // loop over the list of bad SCs (defined in the python file)
 

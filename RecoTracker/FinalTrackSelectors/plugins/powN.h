@@ -1,3 +1,4 @@
+#include <cmath>
 namespace {
  // not a generic solution (wrong for N negative for instance)
   template<int N> 

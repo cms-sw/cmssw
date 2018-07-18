@@ -97,9 +97,9 @@ void GsfBetheHeitlerUpdator::readParameters (const std::string fileName)
 
 GsfBetheHeitlerUpdator::Polynomial
 GsfBetheHeitlerUpdator::readPolynomial (std::ifstream& aStream, 
-					const int order) {
+					const unsigned int order) {
   float coeffs[order+1];
-  for ( int i=0; i<(order+1); ++i ) aStream >> coeffs[i];
+  for ( unsigned int i=0; i<(order+1); ++i ) aStream >> coeffs[i];
   return Polynomial(coeffs,order+1);
 }
 

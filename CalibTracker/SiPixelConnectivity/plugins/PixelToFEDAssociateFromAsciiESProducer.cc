@@ -16,10 +16,9 @@ PixelToFEDAssociateFromAsciiESProducer::
     ~PixelToFEDAssociateFromAsciiESProducer()
 { }
 
-std::shared_ptr<PixelToFEDAssociate> PixelToFEDAssociateFromAsciiESProducer::
+std::unique_ptr<PixelToFEDAssociate> PixelToFEDAssociateFromAsciiESProducer::
     produce(const TrackerDigiGeometryRecord & r)
 {
-  theAssociator = std::make_shared<PixelToFEDAssociateFromAscii>(theConfig.getParameter<std::string>("fileName"));
-  return theAssociator;
+  return std::make_unique<PixelToFEDAssociateFromAscii>(theConfig.getParameter<std::string>("fileName"));
 }
 

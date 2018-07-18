@@ -1527,7 +1527,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   thefront.lateBrem = roToMerge->lateBrem;
 	 } else if ( thefront.electronSeed.isNonnull() && 
 		     roToMerge->electronSeed.isNonnull()) {
-	   LOGWARN("PFEGammaAlgo::mergeROsByAnyLink")
+	   LOGDRESSED("PFEGammaAlgo::mergeROsByAnyLink")
 	     << "Need to implement proper merging of two gsf candidates!"
 	     << std::endl;
 	 }

@@ -30,8 +30,8 @@ class CMSFTFPNeutronBuilder : public G4VNeutronBuilder
     void Build(G4HadronCaptureProcess * aP) override;
     void Build(G4NeutronInelasticProcess * aP) override;
     
-    void SetMinEnergy(G4double aM) {theMin = aM;}
-    void SetMaxEnergy(G4double aM) {theMax = aM;}
+    void SetMinEnergy(G4double aM) override {theMin = aM;}
+    void SetMaxEnergy(G4double aM) override {theMax = aM;}
 
   private:
     G4TheoFSGenerator * theModel;

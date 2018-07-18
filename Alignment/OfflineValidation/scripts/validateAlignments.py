@@ -7,6 +7,7 @@ import datetime
 import shutil
 import fnmatch
 
+import six
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates \
     as configTemplates
 import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
@@ -297,7 +298,7 @@ def createMergeScript( path, validations, options ):
     for validation in validations:
         for referenceName in validation.filesToCompare:
             validationtype = type(validation)
-            if isinstance(validationtype, PreexistingValidation):
+            if issubclass(validationtype, PreexistingValidation):
                 #find the actual validationtype
                 for parentclass in validationtype.mro():
                     if not issubclass(parentclass, PreexistingValidation):
@@ -325,7 +326,7 @@ def createMergeScript( path, validations, options ):
     #prepare dictionary containing handle objects for parallel merge batch jobs
     if options.mergeOfflineParallel:
         parallelMergeObjects={}
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in six.iteritems(comparisonLists):
         for validation in validations:
             #parallel merging
             if (isinstance(validation, PreexistingValidation)
@@ -413,12 +414,12 @@ def createMergeScript( path, validations, options ):
         repMap["DownloadData"] = ""
 
     repMap["RunValidationPlots"] = ""
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in six.iteritems(comparisonLists):
         if issubclass(validationType, ValidationWithPlots):
             repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in six.iteritems(comparisonLists):
         if issubclass(validationType, ValidationWithComparison):
             repMap["CompareAlignments"] += validationType.doComparison(validations)
     

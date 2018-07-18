@@ -1,4 +1,5 @@
 <lcgdict>
 	<class name="RPAlignmentCorrectionData"/>
 	<class name="RPAlignmentCorrectionsData"/>
+	<class name="RPAlignmentCorrectionsDataSequence"/>
 </lcgdict>                                                                                                                                                              

@@ -186,5 +186,5 @@ HLTScoutingCaloProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
     descriptions.add("hltScoutingCaloProducer", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTScoutingCaloProducer);

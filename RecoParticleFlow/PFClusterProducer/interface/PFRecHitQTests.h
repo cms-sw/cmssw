@@ -3,6 +3,8 @@
 
 #include <memory>
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
@@ -52,6 +54,67 @@ protected:
 
   bool pass(const reco::PFRecHit& hit){
     if (hit.energy()>threshold_) return true;
+
+    return false;
+  }
+};
+
+
+
+//
+//  Quality test that checks threshold read from the DB
+//
+class PFRecHitQTestDBThreshold : public PFRecHitQTestBase {
+public:
+    PFRecHitQTestDBThreshold():eventSetup_(nullptr){
+    }
+
+    PFRecHitQTestDBThreshold(const edm::ParameterSet& iConfig):
+     PFRecHitQTestBase(iConfig),
+     applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),    
+     eventSetup_(nullptr){
+    }
+
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
+        eventSetup_=&iSetup;
+    }
+
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
+      if (applySelectionsToAllCrystals_) return pass(hit);  
+      return fullReadOut or pass(hit);
+    }
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+protected:
+    
+  bool applySelectionsToAllCrystals_;
+  const edm::EventSetup * eventSetup_;
+
+  
+  bool pass(const reco::PFRecHit& hit){
+
+    edm::ESHandle<EcalPFRecHitThresholds> ths;
+    (*eventSetup_).get<EcalPFRecHitThresholdsRcd>().get(ths);
+
+    float threshold = (*ths)[hit.detId()];
+    if (hit.energy()>threshold) return true;
 
     return false;
   }
@@ -147,7 +210,7 @@ protected:
 
     bool test(unsigned aDETID, double energy, int flags, bool& clean){
     HcalDetId detid = (HcalDetId)aDETID;
-    if (theHcalTopology_->withSpecialRBXHBHE() and detid.subdet() == HcalEndcap){
+    if (theHcalTopology_->getMergePositionFlag() and detid.subdet() == HcalEndcap){
       detid = theHcalTopology_->idFront(detid);
     }
 
@@ -259,8 +322,13 @@ public:
     {
       std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
       for (auto & pset : psets) {
-        depths_.push_back(pset.getParameter<int>("depth"));
-        thresholds_.push_back(pset.getParameter<double>("threshold"));
+        depths_=pset.getParameter<std::vector<int> >("depth");
+        thresholds_=pset.getParameter<std::vector<double> >("threshold");
+	detector_=pset.getParameter<int>("detectorEnum");
+        if(thresholds_.size()!=depths_.size()) {
+          throw cms::Exception("InvalidPFRecHitThreshold")
+            << "PFRecHitThreshold mismatch with the numbers of depths";
+        }
       }
     }
 
@@ -292,11 +360,13 @@ public:
 protected:
     std::vector<int> depths_;
     std::vector<double> thresholds_;
+    int detector_;
 
     bool test(unsigned aDETID, double energy, double time, bool& clean){
       HcalDetId detid(aDETID);
-      for (unsigned int i=0;i<depths_.size();++i) {
-        if (detid.depth() == depths_[i]) {
+
+      for (unsigned int i=0;i<thresholds_.size();++i) {
+	if (detid.depth() == depths_[i] && detid.subdet() == detector_ ) {
           if (  energy<thresholds_[i])
             {
               clean=false;
@@ -384,11 +454,12 @@ public:
 
   PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig):
     PFRecHitQTestBase(iConfig),
-    thresholds_(iConfig.getParameter<std::vector<double> >("thresholds"))
-  {
+    thresholds_(iConfig.getParameter<std::vector<double> >("thresholds")),
+    applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals"))
+    {
     if (thresholds_.size() != EcalRingCalibrationTools::N_RING_TOTAL)
       throw edm::Exception(edm::errors::Configuration, "ValueError")
-        << "thresholds is expected to have " << EcalRingCalibrationTools::N_RING_TOTAL << " elements but has " << thresholds_.size();
+        << "thresholds is expected to have " << EcalRingCalibrationTools::N_RING_TOTAL << " elements but has " << thresholds_.size();   
   }
 
   void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
@@ -403,7 +474,8 @@ public:
   }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
-    return fullReadOut or pass(hit);
+    if (applySelectionsToAllCrystals_) return pass(hit);
+    else return fullReadOut or pass(hit);
   }
   bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     return true;
@@ -428,6 +500,10 @@ protected:
   const std::vector<double> thresholds_;
   bool endcapGeometrySet_;
 
+  // apply selections to all crystals
+  bool applySelectionsToAllCrystals_;
+  
+  
   bool pass(const reco::PFRecHit& hit){
 
     DetId detId(hit.detId());

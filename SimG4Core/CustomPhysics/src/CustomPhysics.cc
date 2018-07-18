@@ -15,10 +15,8 @@
 #include "G4HadronPhysicsFTFP_BERT.hh"
 #include "G4SystemOfUnits.hh"
  
-CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
-			     const HepPDT::ParticleDataTable * table_,
-			     sim::ChordFinderSetter *chordFinderSetter_, 
-			     const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
+CustomPhysics::CustomPhysics(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   G4DataQuestionaire it(photon);
 
@@ -27,7 +25,7 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
   double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML for regular particles \n"
+			      << "FTFP_BERT_EMM for regular particles \n"
 			      << "CustomPhysicsList " << ssPhys << " for exotics; "
                               << " tracking cut " << tracking << "  t(ns)= " << timeLimit/ns;
   // EM Physics

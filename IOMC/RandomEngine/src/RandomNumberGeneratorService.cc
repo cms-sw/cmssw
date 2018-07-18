@@ -41,6 +41,7 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "CLHEP/Random/MixMaxRng.h"
 
 #include <algorithm>
 #include <cassert>
@@ -140,7 +141,7 @@ namespace edm {
           if(initialSeedSet[0] > maxSeedRanecu ||
              initialSeedSet[1] > maxSeedRanecu) {  // They need to fit in a 31 bit integer
             throw Exception(errors::Configuration)
-              << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
+              << "The RanecuEngine seeds should be in the range 0 to " << maxSeedRanecu << ".\n"
               << "The seeds passed to the RandomNumberGenerationService from the\n"
                  "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
               << "\nThis was for the module with label \"" << label << "\".\n";
@@ -150,7 +151,7 @@ namespace edm {
         else {
           if(initialSeedSet.size() != 1U) {
             throw Exception(errors::Configuration)
-              << "Random engines of type \"HepJamesRandom\" and \"TRandom3\n"
+              << "Random engines of type \"HepJamesRandom\", \"TRandom3\" and \"MixMaxRng\" \n"
               << "require exactly 1 seed be specified in the configuration.\n"
               << "There were " << initialSeedSet.size() << " seeds set for the\n"
               << "module with label \"" << label << "\".\n" ;
@@ -158,12 +159,28 @@ namespace edm {
           if(engineName == "HepJamesRandom") {
             if(initialSeedSet[0] > maxSeedHepJames) {
               throw Exception(errors::Configuration)
-                << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+                << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to " << maxSeedHepJames <<".\n"
                 << "The seed passed to the RandomNumberGenerationService from the\n"
                    "configuration file was " << initialSeedSet[0] << ".  This was for \n"
                 << "the module with label " << label << ".\n";
             }
-          } else if(engineName != "TRandom3") {
+          } else if(engineName == "MixMaxRng") {
+            if(initialSeedSet[0] > maxSeedTRandom3) {
+              throw Exception(errors::Configuration)
+                << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
+                << "The seed passed to the RandomNumberGenerationService from the\n"
+                   "configuration file was " << initialSeedSet[0] << ".  This was for \n"
+                << "the module with label " << label << ".\n";
+            }
+          } else if(engineName == "TRandom3") {
+            if(initialSeedSet[0] > maxSeedTRandom3) {
+              throw Exception(errors::Configuration)
+                << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
+                << "The seed passed to the RandomNumberGenerationService from the\n"
+                   "configuration file was " << initialSeedSet[0] << ".  This was for \n"
+                << "the module with label " << label << ".\n";
+            }
+          } else {
             throw Exception(errors::Configuration)
               << "The random engine name, \"" << engineName
               << "\", does not correspond to a supported engine.\n"
@@ -557,6 +574,8 @@ namespace edm {
           os << " " << i.engine()->name();
           if(i.engine()->name() == std::string("HepJamesRandom")) {
             os << "  " << i.engine()->getSeed();
+          } else if(i.engine()->name() == std::string("MixMaxRng")) {
+            os << "  " << i.engine()->getSeed();
           } else {
             os << "  engine does not know seeds";
           }
@@ -575,6 +594,8 @@ namespace edm {
           }
           os << " " << i.engine()->name();
           if(i.engine()->name() == std::string("HepJamesRandom")) {
+            os << "  " << i.engine()->getSeed();
+          } else if(i.engine()->name() == std::string("MixMaxRng")) {
             os << "  " << i.engine()->getSeed();
           } else {
             os << "  engine does not know seeds";
@@ -754,6 +775,15 @@ namespace edm {
 
           labelAndEngine->setSeed(engineSeeds[0], 0);
           labelAndEngine->setSeed(engineSeeds[1], 1);
+        } else if(engineStateL[0] == CLHEP::engineIDulong<CLHEP::MixMaxRng>()) {
+
+          checkEngineType(engine->name(), std::string("MixMaxRng"), engineLabel);
+
+          // This line actually restores the engine state.
+          engine->setSeed(engineSeedsL[0], 0);
+          engine->get(engineStateL);
+
+          labelAndEngine->setSeed(engineSeeds[0], 0);
         } else if(engineStateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
 
           checkEngineType(engine->name(), std::string("TRandom3"), engineLabel);
@@ -841,17 +871,14 @@ namespace edm {
     void
     RandomNumberGeneratorService::writeStates(std::vector<RandomEngineState> const& v,
                                               std::ofstream& outFile) {
-      for(std::vector<RandomEngineState>::const_iterator iter = v.begin(),
-                                                          iEnd = v.end();
-        iter != iEnd; ++iter) {
-
-        std::vector<std::uint32_t> const& seedVector = iter->getSeed();
+      for(auto & state : v) {
+        std::vector<std::uint32_t> const& seedVector = state.getSeed();
         std::vector<std::uint32_t>::size_type seedVectorLength = seedVector.size();
 
-        std::vector<std::uint32_t> const& stateVector = iter->getState();
+        std::vector<std::uint32_t> const& stateVector = state.getState();
         std::vector<std::uint32_t>::size_type stateVectorLength = stateVector.size();
 
-        outFile << "<ModuleLabel>\n" << iter->getLabel() << "\n</ModuleLabel>\n";
+        outFile << "<ModuleLabel>\n" << state.getLabel() << "\n</ModuleLabel>\n";
 
         outFile << "<SeedLength>\n" << seedVectorLength << "\n</SeedLength>\n" ;
         outFile << "<InitialSeeds>\n";
@@ -1120,6 +1147,12 @@ namespace edm {
               if(seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
               }
+            } else if(name == "MixMaxRng") {
+              std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::MixMaxRng>(seedL);
+              engines.emplace_back(label, seeds, engine);
+              if(seedOffset != 0 || eventSeedOffset != 0) {
+                resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
+              }
             } else { // TRandom3, currently the only other possibility
 
               // There is a dangerous conversion from std::uint32_t to long
@@ -1169,7 +1202,7 @@ namespace edm {
       } else {
         assert(seeds.size() == 1U);
 
-        if(engineName == "HepJamesRandom") {
+        if(engineName == "HepJamesRandom" || engineName == "MixMaxRng") {
           // Wrap around if the offsets push the seed over the maximum allowed value
           std::uint32_t mod = maxSeedHepJames + 1U;
           offset1 %= mod;

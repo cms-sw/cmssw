@@ -254,8 +254,11 @@ namespace edm {
     // simultaneously.
     eventPrincipalHolder_ = std::make_unique<EventPrincipalHolder>(); // propagate_const<T> has no reset() function
     setRefCoreStreamer(eventPrincipalHolder_.get());
-    sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
-    setRefCoreStreamer();
+    {
+      std::shared_ptr<void> refCoreStreamerGuard(nullptr,[](void*){ setRefCoreStreamer();
+        ;});
+      sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
+    }
 
     if(sendEvent_.get() == nullptr) {
         throw cms::Exception("StreamTranslation","Event deserialization error")

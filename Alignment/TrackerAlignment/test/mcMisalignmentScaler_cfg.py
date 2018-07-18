@@ -25,6 +25,7 @@ process.mcMisalignmentScaler.scalers.append(
     )
 )
 process.mcMisalignmentScaler.pullBadModulesToIdeal = False
+process.mcMisalignmentScaler.outlierPullToIdealCut = 0.1
 ################################################################################
 
 

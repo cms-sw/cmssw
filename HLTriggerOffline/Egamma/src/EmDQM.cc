@@ -62,14 +62,6 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//       method called once each job just before starting event loop          //
-////////////////////////////////////////////////////////////////////////////////
-void 
-EmDQM::beginJob()
-{
-
-}
 
 void 
 EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
@@ -1084,14 +1076,6 @@ EmDQM::endRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
            edm::LogPrint("EmDQM") << "  " << tag;
       }
    }
-}
-
-//////////////////////////////////////////////////////////////////////////////// 
-//      method called once each job just after ending the event loop          //
-//////////////////////////////////////////////////////////////////////////////// 
-void EmDQM::endJob()
-{
-
 }
 
 // returns count of non-overlapping occurrences of 'sub' in 'str'

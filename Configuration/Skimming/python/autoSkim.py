@@ -9,19 +9,21 @@ autoSkim = {
  'SinglePhoton' : 'SinglePhotonJetPlusHOFilter+EXOMONOPOLE+LogError+LogErrorMonitor',
  'DoubleEG' : 'ZElectron+LogError+LogErrorMonitor',
  'Tau' : 'LogError+LogErrorMonitor',
- 'SingleMuon' : 'ZMu+MuTau+LogError+LogErrorMonitor',
+ 'SingleMuon' : 'MuonPOGSkim+ZMu+MuTau+LogError+LogErrorMonitor',
  'DoubleMuon' : 'LogError+LogErrorMonitor',
  'MuonEG' : 'TopMuEG+LogError+LogErrorMonitor',
  'DoubleMuonLowMass' : 'BPHSkim+LogError+LogErrorMonitor',
  'MuOnia' : 'BPHSkim+LogError+LogErrorMonitor',
- 'Charmonium' : 'BPHSkim+LogError+LogErrorMonitor',
+ 'Charmonium' : 'MuonPOGJPsiSkim+BPHSkim+LogError+LogErrorMonitor',
  'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
  'HcalHPDNoise' : 'LogError+LogErrorMonitor',
  'HcalNZS' : 'LogError+LogErrorMonitor',
  'HLTPhysics' : 'LogError+LogErrorMonitor',
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
- 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor'
+ 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
+
+ 
 }
 
 autoSkimRunI = {

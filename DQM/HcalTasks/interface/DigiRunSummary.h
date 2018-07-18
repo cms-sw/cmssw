@@ -3,6 +3,7 @@
 
 #include "DQM/HcalCommon/interface/DQClient.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 namespace hcaldqm
 {
@@ -38,16 +39,19 @@ namespace hcaldqm
 			ContainerXXX<uint32_t> _xDead, _xDigiSize, _xUniHF,
 				_xUni, _xNChs, _xNChsNominal;
 
+			std::map<HcalSubdetector, uint32_t> _refDigiSize;
+
 			//	flag enum
 			enum DigiLSFlag
 			{
 				fDigiSize = 0,
 				fNChsHF=1,
 				fUnknownIds=2,
-				nLSFlags=3, // defines the boundary between lumi-based and run-based flags
-				fUniHF=4,
-				fDead=5,
-				nDigiFlag = 6
+				fLED=3,
+				nLSFlags=4, // defines the boundary between lumi-based and run-based flags
+				fUniHF=5,
+				fDead=6,
+				nDigiFlag = 7
 			};
 	};
 }

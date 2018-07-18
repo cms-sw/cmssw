@@ -4,6 +4,7 @@ import re
 import collections
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.SequenceTypes as seq
+import six
 
 class unscheduled:
   def __init__(self,cfgFile,html,quiet,helperDir,fullDir):
@@ -23,7 +24,7 @@ class unscheduled:
     "ModuleSeqParent":{"creator":"modSeqCreate","simple": False},
     "ProdConsumParent":{"creator":"prodConCreate","simple": False}
     }
-    for name,x in self._parents.iteritems():
+    for name,x in six.iteritems(self._parents):
       x["pfile"] = self._filenames(name)
       x["cfile"] = self._filenames(x["creator"])
     self._type = "%stypes.js"%(fullDir)
@@ -174,7 +175,7 @@ class unscheduled:
     if(not self._mother and not self._daughter):
       return  
     for name,theDict in {"producer":self._mother, 
-                         "consumer":self._daughter}.iteritems():
+                         six.iteritems("consumer":self._daughter}):
       thedataFile , fulldataFile = self._calcFilenames(name)
       self._saveData(name.capitalize(),
                       self._parents[self._prodConsP]["creator"],
@@ -200,7 +201,7 @@ class unscheduled:
     }
     """
     name = "data"
-    for pname,x in self._parents.iteritems():
+    for pname,x in six.iteritems(self._parents):
       simple = base%(pname,name)
       filename,fullfilename= x["cfile"]
       self._allJSFiles.append(filename)
@@ -439,7 +440,7 @@ def getParameters(parameters):
   all =[]
   if(not parameters):
     return []
-  for (name,valType) in parameters.iteritems():
+  for (name,valType) in six.iteritems(parameters):
     theT= (valType.configTypeName() if(
            hasattr(valType,"configTypeName")) else "").split(" ",1)[-1]
     temp = re.sub("<|>|'", "", str(type(valType)))
@@ -459,7 +460,7 @@ def getParameters(parameters):
         except:
           value = valType
       theList.append(value) 
-      if(theT != "double" and theT !="int" and type(valType)!= str):
+      if(theT != "double" and theT !="int" and not isinstance(valType, str)):
         if(not valType.isTracked()):
           theList.append("untracked")
     theList.append(theT)
@@ -567,7 +568,7 @@ class visitor:
       d = getParamSeqDict(getParameters(modObj.parameters_()),
                           filename, specific, modObj.type_())
       theS='"%s":%s'
-      if(len(self._modulesToPaths.keys()) > 1): theS=","+theS
+      if(len(self._modulesToPaths) > 1): theS=","+theS
       dataFile.write(theS%(name, JSONFormat(d))) 
     else:
       #oldMods.append(name) 
@@ -649,13 +650,13 @@ class html:
     l= """
 <option value=%(n)s data-base="%(d)s" data-files="%(f)s"> %(n)s</option>"""
     s= [l%({"n":x,"f":y["data-files"],"d":y["data-base"]})
-        for x,y in items.iteritems()]
+        for x,y in six.iteritems(items)]
     return " ".join(s)
 
   def _searchitems(self,items):
     b = """<option value="%(name)s" data-base="%(d)s">%(name)s</option> """
     return "\n ".join([b%({"name": x, "d":y["data-base"]})
-           for x,y in items.iteritems()])
+           for x,y in six.iteritems(items)])
 
   def _printHtml(self,name,scrip,css,items, search):
     with open(name,'w') as htmlFile:
@@ -1284,7 +1285,7 @@ process = cms.Process('%(n)s')\nfrom %(fileN)s import *\n%(changes)s\n\n\"""
   def _doConversion(self):\n    return self.header%(
     {"changes":self._doWork(self._obj),
      "n":self._pName,"fileN":self._pFileN})\n\n  def _doWork(self, obj):
-    result =""\n    for key, value in obj.iteritems():
+    result =""\n    for key, value in six.iteritems(obj):
       _type = value["Type"]\n      _file = value["File"]
       _params = value["Parameters"]\n      _oType = value["oType"]
       if(_oType):\n        _oType= "'%s',"%(value["oType"])

@@ -276,33 +276,13 @@ void CommissioningHistosUsingDb::createAnalyses( SiStripConfigDb::AnalysisDescri
     << " Creating AnalysisDescriptions...";
 
   desc.clear();
-  
-//   uint16_t size = 0;
-//   std::stringstream ss;
-//   ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
-//      << " Analysis descriptions:" << std::endl;
 
   Analyses::iterator ianal = data().begin();
   Analyses::iterator janal = data().end();
   for ( ; ianal != janal; ++ianal ) { 
-
     // create analysis description
-    create( desc, ianal ); 
-    
-//     // debug
-//     if ( ianal->second ) {
-//       if ( desc.size()/2 > size ) { // print every 2nd description
-// 	size = desc.size()/2;
-// 	ianal->second->print(ss); 
-// 	ss << (*(desc.end()-2))->toString();
-// 	ss << (*(desc.end()-1))->toString();
-// 	ss << std::endl;
-//       }
-//     }
-
+    create( desc, ianal );     
   }
-
-//   LogTrace(mlDqmClient_) << ss.str(); 
   
 }
 

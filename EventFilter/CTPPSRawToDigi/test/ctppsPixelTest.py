@@ -32,7 +32,7 @@ duplicateCheckMode = cms.untracked.string("checkEachFile")
 
 process.load("EventFilter.CTPPSRawToDigi.ctppsPixelRawToDigi_cfi")
 
-process.ctppsPixelDigis.InputLabel = 'source'
+process.ctppsPixelDigis.inputLabel = 'source'
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('ctppsPixelDigis'),

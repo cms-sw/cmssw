@@ -37,6 +37,11 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Disabling strips: " << disableBadStrips_
     << " ; keeping previously disabled strips: " << keepStripsDisabled_;
+
+  allowSelectiveUpload_ = this->pset().existsAs<bool>("doSelectiveUpload")?this->pset().getParameter<bool>("doSelectiveUpload"):false;
+  LogTrace(mlDqmClient_)
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Selective upload of modules set to : " << allowSelectiveUpload_;
 }
 
 // -----------------------------------------------------------------------------
@@ -111,9 +116,14 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
                              conn.lldChannel() );
 
       // Locate appropriate analysis object 
-      Analyses::const_iterator iter = data().find( fec_key.key() );
-      if ( iter != data().end() ) {
-
+      Analyses::const_iterator iter = data(allowSelectiveUpload_).find( fec_key.key() );
+      if ( iter != data(allowSelectiveUpload_).end() ) {
+	
+	// Check if analysis is valid
+	if ( !iter->second->isValid() ) { 
+	  continue; 
+	}
+  
          PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
          if ( !anal ) { 
            edm::LogError(mlDqmClient_)
@@ -127,8 +137,12 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
         for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
           uint32_t pedmin = (uint32_t) anal->pedsMin()[iapv];
           pedshift = pedmin < pedshift ? pedmin : pedshift;
-        }
-
+	  std::stringstream ss;
+	  ss << "iapv: " << iapv << " pedsMin()[iapv]: " << anal->pedsMin()[iapv] << " pedmin: " << pedmin << " pedshift: " << pedshift;  
+	  edm::LogWarning(mlDqmClient_) << ss.str();
+	}
+        
+      
         // Iterate through APVs and strips
         for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
           for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
@@ -136,6 +150,24 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
             // get the information on the strip as it was on the db
             Fed9U::Fed9UAddress addr( ichan, iapv, istr );
             Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
+
+
+	    if ( anal->peds()[iapv][istr] < 1.) { //@@ ie, zero
+	      edm::LogWarning(mlDqmClient_) 
+		<< "[PedestalsHistosUsingDb::" << __func__ << "]"
+		<< " Skipping ZERO pedestal value (ie, NO UPLOAD TO DB!) for FedKey/Id/Ch: " 
+		<< hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
+		<< (*ifed)->getFedId() << "/"
+		<< ichan
+		<< " and device with FEC/slot/ring/CCU/LLD " 
+		<< fec_key.fecCrate() << "/"
+		<< fec_key.fecSlot() << "/"
+		<< fec_key.fecRing() << "/"
+		<< fec_key.ccuAddr() << "/"
+		<< fec_key.ccuChan() << "/"
+		<< fec_key.channel();
+	      continue; //@@ do not upload
+	    }
 
             // determine whether we need to disable the strip
             bool disableStrip = false;

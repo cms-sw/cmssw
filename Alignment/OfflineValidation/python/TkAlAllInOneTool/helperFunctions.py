@@ -3,6 +3,7 @@ import re
 import ROOT
 import sys
 from TkAlExceptions import AllInOneError
+import six
 
 ####################--- Helpers ---############################
 def replaceByMap(target, the_map):
@@ -23,7 +24,7 @@ def replaceByMap(target, the_map):
                     result = result.replace(".oO["+key+"]Oo.",the_map[key])
                 except TypeError:   #try a dict
                     try:
-                        for keykey, value in the_map[key].iteritems():
+                        for keykey, value in six.iteritems(the_map[key]):
                            result = result.replace(".oO[" + key + "['" + keykey + "']]Oo.", value)
                            result = result.replace(".oO[" + key + '["' + keykey + '"]]Oo.', value)
                     except AttributeError:   #try a list
@@ -152,12 +153,12 @@ def cache(function):
     cache = {}
     def newfunction(*args, **kwargs):
         try:
-            return cache[args, tuple(sorted(kwargs.iteritems()))]
+            return cache[args, tuple(sorted(six.iteritems(kwargs)))]
         except TypeError:
-            print args, tuple(sorted(kwargs.iteritems()))
+            print args, tuple(sorted(six.iteritems(kwargs)))
             raise
         except KeyError:
-            cache[args, tuple(sorted(kwargs.iteritems()))] = function(*args, **kwargs)
+            cache[args, tuple(sorted(six.iteritems(kwargs)))] = function(*args, **kwargs)
             return newfunction(*args, **kwargs)
     newfunction.__name__ = function.__name__
     return newfunction
@@ -218,7 +219,7 @@ def conddb(*args):
     sys.argv[1:] = args
     bkpstdout = sys.stdout
     with NamedTemporaryFile(bufsize=0) as sys.stdout:
-        exec conddb in namespace
+        exec(conddb, namespace)
         namespace["main"]()
         with open(sys.stdout.name) as f:
             result = f.read()

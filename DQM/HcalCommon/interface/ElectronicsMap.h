@@ -53,6 +53,7 @@ namespace hcaldqm
 				void initialize(HcalElectronicsMap const*, ElectronicsMapType,
 					filter::HashFilter const&);
 				uint32_t lookup(DetId const&);
+				uint32_t lookup(HcalDetId const&);
 				uint32_t lookup(HcalElectronicsId const&);
 
 				void print();

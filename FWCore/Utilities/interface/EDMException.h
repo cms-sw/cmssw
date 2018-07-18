@@ -62,7 +62,11 @@ namespace edm {
        ExceededResourceVSize = 8030,
        ExceededResourceRSS = 8031,
        ExceededResourceTime = 8032,
+
+       FileWriteError = 8033,
       
+       EventGenerationFailure = 8501,
+
        CaughtSignal = 9000
     };
 

@@ -1,5 +1,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
 <export>
   <lib   name="1"/>
 </export>

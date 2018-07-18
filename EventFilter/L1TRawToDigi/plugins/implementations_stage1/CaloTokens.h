@@ -15,8 +15,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
-
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 
 namespace l1t {

@@ -34,21 +34,18 @@ CastorGeometry::~CastorGeometry()
 DetId 
 CastorGeometry::getClosestCell(const GlobalPoint& r) const
 {
-   DetId returnId ( 0 ) ;
-   const std::vector<DetId>& detIds ( getValidDetIds() ) ;
-   for(auto detId : detIds)
-   {
-      const CaloCellGeometry* cell ( getGeometry( detId ) ) ;
-      if( nullptr != cell &&
-	  cell->inside( r ) )
-      {
-	 returnId = detId ;
-	 break ;
-      }
-   }
-   return returnId ;
+  DetId returnId ( 0 ) ;
+  const std::vector<DetId>& detIds ( getValidDetIds() ) ;
+  for(auto detId : detIds)  {
+    auto cell = getGeometry(detId);
+    if( nullptr != cell &&
+	cell->inside( r ) ) {
+      returnId = detId ;
+      break ;
+    }
+  }
+  return returnId ;
 }
-
 
 
 unsigned int
@@ -93,10 +90,9 @@ CastorGeometry::newCell( const GlobalPoint& f1 ,
    addValidID( detId ) ;
 }
 
-const CaloCellGeometry* 
-CastorGeometry::cellGeomPtr( uint32_t index ) const
-{
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    nullptr == cell->param() ? nullptr : cell ) ;
+const CaloCellGeometry* CastorGeometry::getGeometryRawPtr(uint32_t index) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
 }

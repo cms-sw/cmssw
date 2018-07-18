@@ -10,6 +10,8 @@
 #ifndef DataFormats_CTPPSReco_TotemRPCluster
 #define DataFormats_CTPPSReco_TotemRPCluster
 
+#include <cstdint>
+
 /**
  *\brief Cluster of TOTEM RP strip hits.
  **/

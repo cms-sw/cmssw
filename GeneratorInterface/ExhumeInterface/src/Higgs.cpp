@@ -36,18 +36,18 @@ Exhume::Higgs::Higgs(const edm::ParameterSet& pset) : CrossSection(pset){
     double HmpSqrtHm2pGam2 = HiggsMass + SqrtHm2pGam2;
     //C normalises so that integral of |prop|^2 d(m^2) = 1
 
-    C = (2.0/HiggsMass) * PI *SqrtHm2pGam2 *
+    C = (2.0/HiggsMass) * M_PI *SqrtHm2pGam2 *
       (HiggsWidth*HiggsWidth + HiggsMass * HmpSqrtHm2pGam2) / 
       (2.0 * pow(HiggsMass, 4.5) * HiggsWidth * sqrt(2 * HmpSqrtHm2pGam2));
 
     C = 1.0/sqrt(C);
     */
-    //GGHConst = sqrt((*BR)) * 0.25 * I * LambdaW / PI;
+    //GGHConst = sqrt((*BR)) * 0.25 * I * LambdaW / M_PI;
     FsfTop = 0.25 / (TopMass * TopMass);
     FsfBottom = 0.25 / (BottomMass * BottomMass);
 
     //Gev2fb = 3.88 * pow(10.0,11);
-    NLOConst = PI + 5.5/PI;
+    NLOConst = M_PI + 5.5/M_PI;
 
     Name = "Higgs";
     Partons.resize(1);
@@ -60,13 +60,13 @@ inline void Exhume::Higgs::SetC(){
   double SqrtHm2pGam2 = sqrt(Hm2pGam2);
   double HmpSqrtHm2pGam2 = HiggsMass + SqrtHm2pGam2;
 
-  C = (2.0/HiggsMass) * PI *SqrtHm2pGam2 *
+  C = (2.0/HiggsMass) * M_PI *SqrtHm2pGam2 *
     (HiggsWidth*HiggsWidth + HiggsMass * HmpSqrtHm2pGam2) / 
     (2.0 * pow(HiggsMass, 4.5) * HiggsWidth * sqrt(2 * HmpSqrtHm2pGam2));
 
   C = sqrt(1.0/C);
 
-  GGHConst = sqrt((*BR)) * 0.25 * I * LambdaW / PI;
+  GGHConst = sqrt((*BR)) * 0.25 * I * LambdaW / M_PI;
 
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ void Exhume::Higgs::SetHiggsMass(const double &HM_){
   /*
   double Hm2pGam2 = HiggsMass2 + HiggsWidth * HiggsWidth;
   
-  C = 0.25*PI*pow(Hm2pGam2,0.25)*
+  C = 0.25*M_PI*pow(Hm2pGam2,0.25)*
     (2.0*HiggsWidth*HiggsWidth + 3.0*HiggsMass2 - 
      HiggsMass*sqrt(Hm2pGam2))/(HiggsWidth*pow(HiggsMass,4.5));
   
@@ -99,7 +99,7 @@ double Exhume::Higgs::SubProcess(){
   double ModAmp = abs(GluGlu2HiggsAmp() * Propagator() * C);
 
   return( (1.0 + AlphaS_*NLOConst) * 
-	  (Gev2fb * ModAmp * ModAmp * PI * InvsHat2)); 
+	  (Gev2fb * ModAmp * ModAmp * M_PI * InvsHat2)); 
 }
 /////////////////////////////////////////////////////////////////////////////
 double Exhume::Higgs::HiggsWidth_(){
@@ -148,7 +148,7 @@ double Exhume::Higgs::HiggsWidth_(){
   double GfAmt = param_.gf*masses_.amt;
   double Mw_Mt2 = (param_.amw*param_.amw)/(masses_.amt*masses_.amt);
   double one_Mw_Mt2 = 1.0 - Mw_Mt2;
-  wzwdth_.gamt0 = GfAmt*GfAmt*GfAmt * 0.125/sqrt(2.0)/PI*
+  wzwdth_.gamt0 = GfAmt*GfAmt*GfAmt * 0.125/sqrt(2.0)/M_PI*
     one_Mw_Mt2*one_Mw_Mt2*(1+2*Mw_Mt2);
   wzwdth_.gamt1 = wzwdth_.gamt0;
   //double tgbet = 1.0;
@@ -282,7 +282,7 @@ void Exhume::Higgs::SetHiggsDecay(const int & id_){
   double SqrtHm2pGam2 = sqrt(Hm2pGam2);
   double HmpSqrtHm2pGam2 = HiggsMass + SqrtHm2pGam2;
 
-  C = (2.0/HiggsMass) * PI *SqrtHm2pGam2 *
+  C = (2.0/HiggsMass) * M_PI *SqrtHm2pGam2 *
     (HiggsWidth*HiggsWidth + HiggsMass * HmpSqrtHm2pGam2) / 
     (2.0 * pow(HiggsMass, 4.5) * HiggsWidth * sqrt(2 * HmpSqrtHm2pGam2));
 

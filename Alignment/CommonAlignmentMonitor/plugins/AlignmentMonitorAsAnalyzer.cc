@@ -34,7 +34,7 @@
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
@@ -187,7 +187,7 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
       
       // within an analyzer, modules can't expect to see any selected alignables!
-      std::vector<Alignable*> empty_alignables;
+      align::Alignables empty_alignables;
       
       m_alignableTracker = new AlignableTracker( &(*theTracker), tTopo );
       m_alignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );

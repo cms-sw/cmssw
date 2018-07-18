@@ -15,7 +15,7 @@ DDDWorld::DDDWorld(const DDCompactView* cpv,
 		   SensitiveDetectorCatalog & catalog,
 		   bool check) {
 
-  std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
+  std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
 
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
   G4LogicalVolume *    world = ret.logicalVolume();

@@ -20,48 +20,7 @@ DDCompareEPV::DDCompareEPV(const DDCompOptions& ddco) : ddco_(ddco) { }
 
 bool DDCompareEPV::operator()(DDExpandedView& lhs, DDExpandedView& rhs) const {
   bool ret(true);
-  /* struct DDCompareCPVGraph : public std::binary_function<DDCompactView::graph_type, DDCompactView::graph_type, bool> { */
-  /*   bool operator()(const DDCompactView::graph_type& lhs, const DDCompactView::graph_type& rhs) const { */
-  /*     bool ret; */
-  //    const graph<DDLogicalPart, DDPosData*>& g1= lhs;
-  //    graph<DDLogicalPart, DDPosData*>::const_iterator beg1 = g1.begin();
-  //DDCompactView::graph_type::const_iterator beg1 = lhs.begin();
-  /*     std::cout << "size of lhs = " << lhs.edge_size() << std::endl;     */
-  /*     std::cout << "size of rhs = " << rhs.edge_size() << std::endl;     */
-  /*     std::cout << "iterating over lhs edges?" << std::endl; */
-  /*     graph<DDLogicalPart, DDPosData*>::const_iterator beg1(lhs), end1(lhs); */
-  /*     beg1 = lhs.begin_iter(); */
-  /*     end1 = lhs.end_iter(); */
-  /*     size_t countem(0); */
-  /*     for ( ; beg1 != end1 ; ++beg1 ) { */
-  /*       ++countem; */
-  /*     } */
-  /*     std::cout << "between lhs.begin_iter() and lhs.end_iter() there are " << countem << std::endl; */
-  /*     graph<DDLogicalPart,DDPosData*>::const_edge_range cer = lhs.graph().edges(lhs.root()); */
-  /*     graph<DDLogicalPart,DDPosData*>::adj_iterator i = const_edge_range.first */
-  //    DDExpandedView v1(lhs), v2(rhs);
-  //    if (v1.next()) std::cout << "v1 is true" << std::endl;
-  //    if (v2.next()) std::cout << "v2 is true" << std::endl;
-  //    DDNodeComparator ddnc;
-  //if ( ddnc (v1, v2) ) { 
-  //  ret = true;
-  //}
-  /*     while (v1.next()) { */
-  /*       if (v2.next()) { */
-  /* 	std::cout << v1.logicalPart().name().name() << ":" << v1.copyno() */
-  /* 		  << " !=? " << v2.logicalPart().name().name() << ":" << v2.copyno() */
-  /* 		  << std::endl; */
-	
-  /* 	if ( v1.logicalPart().name().name() != v2.logicalPart().name().name() ) { */
-  /* 	  std::cout << v1.logicalPart().name().name() << ":" << v1.copyno() */
-  /* 		    << " !=? " << v2.logicalPart().name().name() << ":" << v2.copyno() */
-  /* 		    << std::endl; */
-  /* 	//	  std::cout << v1.logicalPart().name().name() << " !=? " << v2.logicalPart().name().name() << std::endl; */
-  /* 	  ret=false; */
-  /* 	  break; */
-  /* 	} */
-  /*       } */
-  /*     } */
+
   std::cout <<"*********FIRST BY firstChild, firstChild, nextSibling, nextSibling*********" << std::endl;
   std::cout << lhs.logicalPart().name().name() << ":" << lhs.copyno()
 	    << " !=? " << rhs.logicalPart().name().name() << ":" << rhs.copyno()
@@ -121,19 +80,19 @@ DDCompareCPV::DDCompareCPV(const DDCompOptions& ddco) : ddco_(ddco) { }
 bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs) const {
   bool ret(true);
 
-  const DDCompactView::graph_type & g1 = lhs.graph();
-  const DDCompactView::graph_type & g2 = rhs.graph();
+  const auto & g1 = lhs.graph();
+  const auto & g2 = rhs.graph();
 
-  typedef DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+  using Graph = DDCompactView::Graph;
+  using adjl_iterator = Graph::const_adj_iterator;
+
   adjl_iterator git1 = g1.begin();
   adjl_iterator gend1 = g1.end();
   adjl_iterator git2 = g2.begin();
   adjl_iterator gend2 = g2.end();
-  /*     std::cout << "uniqueness test: " << &(*git1) << " != " << &(*git2)  */
-  /* 	      << " and " << &(*gend1) << " != " << &(*gend2) << std::endl; */
-  //    DDCompactView::graph_type::const_iterator bit = g1.begin_iter();
-  DDCompactView::graph_type::index_type i=0;
-  //    for (; git1 != gend1; ++git1) {
+
+  Graph::index_type i=0;
+
   while ( git1 != gend1 && git2 != gend2 && ret ) {
     const DDLogicalPart & ddLP1 = g1.nodeData(git1);
     const DDLogicalPart & ddLP2 = g2.nodeData(git2);
@@ -142,11 +101,11 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
       ret = false;
       break;
     } else if (!git1->empty() && !git2->empty() ) { 
-      DDCompactView::graph_type::edge_list::const_iterator cit1  = git1->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend1 = git1->end();
-      DDCompactView::graph_type::edge_list::const_iterator cit2  = git2->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend2 = git2->end();
-      //for (; cit != cend; ++cit) {
+      auto cit1  = git1->begin();
+      auto cend1 = git1->end();
+      auto cit2  = git2->begin();
+      auto cend2 = git2->end();
+
       while ( cit1 != cend1 && cit2 != cend2 ) {
 	const DDLogicalPart & ddcurLP1 = g1.nodeData(cit1->first);
 	const DDLogicalPart & ddcurLP2 = g2.nodeData(cit2->first);
@@ -154,14 +113,7 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 	std::cout << ++i << " c2--> " << g2.edgeData(cit2->second)->copyno() << " " << ddcurLP2.name().fullname() << std::endl;
 	const DDPosData* p1(g1.edgeData(cit1->second));
 	const DDPosData* p2(g2.edgeData(cit2->second));
-	//	  if ( g1.edgeData(cit1->second)->copyno_ != g2.edgeData(cit2->second)->copyno_
-// 	if ( p1->copyno_ != p2->copyno_
-// 	     || ddcurLP1.name().fullname() != ddcurLP2.name().fullname() ) {
-// 	  std::cout << "Failed to match node (fullname:copy_no): 1: " 
-// 		    << ddcurLP1.name().fullname() << ":" << p1->copyno_ << " 2: " 
-// 		    << ddcurLP2.name().fullname() << ":" << p2->copyno_ << std::endl;
-// 	  ret = false;
-// 	  break;
+
 	if ( p1->copyno() != p2->copyno() || 
 	     ! DDCompareLP(ddco_)(ddcurLP1,ddcurLP2) ) {
 	  std::cout << "Failed to match node (fullname:copy_no): 1: " 
@@ -171,12 +123,6 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
 	  break;
 	} else if ( ! DDCompareDDTrans()(p1->trans(), p2->trans()) ) {
 	  std::cout << "Failed to match translation " << std::endl;
-// 	  std::cout << "1: " << std::setw(12) << std::fixed << std::setprecision(4) << p1->trans_.x();
-// 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p1->trans_.y();
-// 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p1->trans_.z() << std::endl;
-// 	  std::cout << "2: " << std::setw(12) << std::fixed << std::setprecision(4) << p2->trans_.x();
-// 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p2->trans_.y();
-// 	  std::cout << "," << std::setw(12) << std::fixed << std::setprecision(4) << p2->trans_.z() << std::endl;
 	  ret = false;
 	  break;
 	} else if ( ! DDCompareDDRot(ddco_)(p1->ddrot(), p2->ddrot()) ) {
@@ -225,26 +171,23 @@ DDCompareSolid::DDCompareSolid(const DDCompOptions& ddco) : ddco_(ddco) { }
 bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
   bool ret(true);
     switch ( lhs.shape() ) {
-    case dd_not_init:
-    case ddbox:
-    case ddtubs:
-    case ddcuttubs:
-    case ddtrap: 
-    case ddcons:
-    case ddpolycone_rz:
-    case ddpolyhedra_rz:
-    case ddpolycone_rrz:
-    case ddpolyhedra_rrz:
-    case ddextrudedpolygon:
-    case ddtorus:
-    case ddpseudotrap:
-    case ddtrunctubs:
-    case ddsphere:
-    case ddorb:
-    case ddellipticaltube:
-    case ddellipsoid:
-    case ddparallelepiped:
-    case ddshapeless: 
+    case DDSolidShape::dd_not_init:
+    case DDSolidShape::ddbox:
+    case DDSolidShape::ddtubs:
+    case DDSolidShape::ddcuttubs:
+    case DDSolidShape::ddtrap: 
+    case DDSolidShape::ddcons:
+    case DDSolidShape::ddpolycone_rz:
+    case DDSolidShape::ddpolyhedra_rz:
+    case DDSolidShape::ddpolycone_rrz:
+    case DDSolidShape::ddpolyhedra_rrz:
+    case DDSolidShape::ddextrudedpolygon:
+    case DDSolidShape::ddtorus:
+    case DDSolidShape::ddpseudotrap:
+    case DDSolidShape::ddtrunctubs:
+    case DDSolidShape::ddsphere:
+    case DDSolidShape::ddellipticaltube:
+    case DDSolidShape::ddshapeless: 
       {
 	if ( lhs.name().fullname() != rhs.name().fullname() ) {
 	  ret = false;
@@ -263,23 +206,12 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
 	} 
 	break;
       }
-    case ddunion:
-    case ddsubtraction:
-    case ddintersection: 
+    case DDSolidShape::ddunion:
+    case DDSolidShape::ddsubtraction:
+    case DDSolidShape::ddintersection: 
       {
 	if ( ! DDCompareBoolSol(ddco_)(lhs, rhs) ) {
 	  ret = false;
-	}
-	break;
-      }
-    case ddreflected:
-      {
-	DDReflectionSolid rs1(lhs);
-	DDReflectionSolid rs2(rhs);
-	if ( ! DDCompareSolid(ddco_)( rs1.unreflected(), rs2.unreflected()) ) {
-	  ret = false;
-	  std::cout << "Unreflected volumes of DDReflections do not match. Reflections are " 
-		    << lhs.name().fullname() << " and " << rhs.name().fullname() << std::endl;
 	}
 	break;
       }

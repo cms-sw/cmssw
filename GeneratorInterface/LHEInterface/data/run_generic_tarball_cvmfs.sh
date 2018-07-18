@@ -65,6 +65,10 @@ mkdir lheevent; cd lheevent
 #untar the tarball directly from cvmfs
 tar -xaf ${path} 
 
+# If TMPDIR is unset, set it to the condor scratch area if present
+# and fallback to /tmp
+export TMPDIR=${TMPDIR:-${_CONDOR_SCRATCH_DIR:-/tmp}}
+
 #generate events
 ./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
 

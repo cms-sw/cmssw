@@ -62,7 +62,6 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   void analyze(const edm::Event&, const edm::EventSetup&  ) override ;
   void beginJob() override ;
   void endJob() override ;
-  void endLuminosityBlock( const edm::LuminosityBlock& , const edm::EventSetup& ) override ;
   void endRun(const edm::Run& , const edm::EventSetup& ) override ;
  
 

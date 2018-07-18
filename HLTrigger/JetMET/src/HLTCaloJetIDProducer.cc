@@ -71,7 +71,7 @@ void HLTCaloJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             pass = true;
 
         } else {
-            if (min_N90hits_ > 0)  jetIDHelper_.calculate(iEvent, j);
+	    if (min_N90hits_ > 0)  jetIDHelper_.calculate(iEvent, iSetup, j);
             if ((j.emEnergyFraction() >= min_EMF_) &&
                 (j.emEnergyFraction() <= max_EMF_) &&
                 (j.n90() >= min_N90_) &&

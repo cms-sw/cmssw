@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
@@ -63,7 +64,7 @@ class DQMFileSaverBase
 
   // these method (and only these) should be overriden
   // so we need to call all file savers
-  virtual void initRun(void) const {};
+  virtual void initRun() const {};
   virtual void saveLumi(const FileParameters& fp) const {};
   virtual void saveRun(const FileParameters& fp) const {};
 

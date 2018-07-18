@@ -8,7 +8,8 @@ L1TStage2RatioClient::L1TStage2RatioClient(const edm::ParameterSet& ps):
   ratioTitle_(ps.getUntrackedParameter<std::string>("ratioTitle")),
   yAxisTitle_(ps.getUntrackedParameter<std::string>("yAxisTitle")),
   binomialErr_(ps.getUntrackedParameter<bool>("binomialErr")),
-  ignoreBin_(ps.getUntrackedParameter<std::vector<int>>("ignoreBin"))
+  ignoreBin_(ps.getUntrackedParameter<std::vector<int>>("ignoreBin")),
+  ratioME_(nullptr)
 {
 }
 
@@ -36,16 +37,21 @@ void L1TStage2RatioClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQM
 
 void L1TStage2RatioClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 {
-  ibooker.setCurrentFolder(monitorDir_);
+  // Book when called the first time. Otherwise reset the ratio histogram.
+  if (ratioME_ == nullptr) {
+    ibooker.setCurrentFolder(monitorDir_);
 
-  // get the axis range from the numerator histogram
-  const MonitorElement* numME_ = igetter.get(inputNum_);
-  if (numME_) {
-    TH1F *hNum = numME_->getTH1F();
+    // get the axis range from the numerator histogram
+    const MonitorElement* numME_ = igetter.get(inputNum_);
+    if (numME_) {
+      TH1F *hNum = numME_->getTH1F();
 
-    ratioME_ = ibooker.book1D(ratioName_, ratioTitle_, hNum->GetNbinsX(), hNum->GetXaxis()->GetXmin(), hNum->GetXaxis()->GetXmax());
-    ratioME_->setEfficiencyFlag();
-    ratioME_->setAxisTitle(yAxisTitle_, 2);
+      ratioME_ = ibooker.book1D(ratioName_, ratioTitle_, hNum->GetNbinsX(), hNum->GetXaxis()->GetXmin(), hNum->GetXaxis()->GetXmax());
+      ratioME_->setEfficiencyFlag();
+      ratioME_->setAxisTitle(yAxisTitle_, 2);
+    }
+  } else {
+    ratioME_->Reset();
   }
 }
 

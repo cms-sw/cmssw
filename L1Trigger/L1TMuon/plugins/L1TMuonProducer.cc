@@ -99,6 +99,7 @@ using namespace l1t;
         bool m_autoBxRange;
         int m_bxMin;
         int m_bxMax;
+        bool m_autoCancelMode;
         std::bitset<72> m_inputsToDisable;
         std::bitset<28> m_caloInputsToDisable;
         std::bitset<12> m_bmtfInputsToDisable;
@@ -118,6 +119,7 @@ using namespace l1t;
         MicroGMTIsolationUnit m_isolationUnit;
         MicroGMTCancelOutUnit m_cancelOutUnit;
         std::ofstream m_debugOut;
+        l1t::cancelmode m_emtfCancelMode;
 
         edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_barrelTfInputToken;
         edm::EDGetTokenT<MicroGMTConfiguration::InputCollection> m_overlapTfInputToken;
@@ -138,7 +140,7 @@ using namespace l1t;
 //
 // constructors and destructor
 //
-L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut("test/debug/iso_debug.dat")
+L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut("test/debug/iso_debug.dat"), m_emtfCancelMode(cancelmode::coordinate)
 {
   // edm::InputTag barrelTfInputTag = iConfig.getParameter<edm::InputTag>("barrelTFInput");
   // edm::InputTag overlapTfInputTag = iConfig.getParameter<edm::InputTag>("overlapTFInput");
@@ -152,6 +154,11 @@ L1TMuonProducer::L1TMuonProducer(const edm::ParameterSet& iConfig) : m_debugOut(
   m_autoBxRange = iConfig.getParameter<bool>("autoBxRange");
   m_bxMin = iConfig.getParameter<int>("bxMin");
   m_bxMax = iConfig.getParameter<int>("bxMax");
+
+  m_autoCancelMode = iConfig.getParameter<bool>("autoCancelMode");
+  if (!m_autoCancelMode && iConfig.getParameter<std::string>("emtfCancelMode").find("tracks") == 0) {
+    m_emtfCancelMode = cancelmode::tracks;
+  }
 
   m_barrelTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_barrelTfInputTag);
   m_overlapTfInputToken = consumes<MicroGMTConfiguration::InputCollection>(m_overlapTfInputTag);
@@ -274,9 +281,8 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     m_cancelOutUnit.setCancelOutBits(bmtfWedges, tftype::bmtf, cancelmode::tracks);
     m_cancelOutUnit.setCancelOutBits(omtfPosWedges, tftype::omtf_pos, cancelmode::coordinate);
     m_cancelOutUnit.setCancelOutBits(omtfNegWedges, tftype::omtf_neg, cancelmode::coordinate);
-    // cancel-out for endcap will be done in the sorter
-    m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, cancelmode::coordinate);
-    m_cancelOutUnit.setCancelOutBits(emtfNegWedges, tftype::emtf_neg, cancelmode::coordinate);
+    m_cancelOutUnit.setCancelOutBits(emtfPosWedges, tftype::emtf_pos, m_emtfCancelMode);
+    m_cancelOutUnit.setCancelOutBits(emtfNegWedges, tftype::emtf_neg, m_emtfCancelMode);
 
     // cancel out between track finder acceptance overlaps:
     m_cancelOutUnit.setCancelOutBitsOverlapBarrel(omtfPosWedges, bmtfWedges, cancelmode::coordinate);
@@ -531,6 +537,10 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParamsHelper->sortRankLUT(), microGMTParamsHelper->fwVersion());
   m_isolationUnit.initialise(microGMTParamsHelper.get());
   m_cancelOutUnit.initialise(microGMTParamsHelper.get());
+
+  if (m_autoCancelMode && microGMTParamsHelper->fwVersion() > 0x5000000) {
+    m_emtfCancelMode = cancelmode::tracks;
+  }
 }
 
 // ------------ method called when ending the processing of a run  ------------

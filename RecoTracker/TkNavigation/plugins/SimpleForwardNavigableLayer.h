@@ -25,6 +25,8 @@ public:
   nextLayers( const FreeTrajectoryState& fts, 
 	      PropagationDirection timeDirection) const override;
 
+  using SimpleNavigableLayer::compatibleLayers;
+
   std::vector<const DetLayer*> 
   compatibleLayers( NavigationDirection direction) const override;
 

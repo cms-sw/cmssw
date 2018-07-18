@@ -245,7 +245,7 @@ void SPYHistograms::fillDetailedHistograms(const Errors & aErr,
 }
 
 
-void SPYHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
+void SPYHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker, const TkDetMap*)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = sistrip::FED_ID_MIN;

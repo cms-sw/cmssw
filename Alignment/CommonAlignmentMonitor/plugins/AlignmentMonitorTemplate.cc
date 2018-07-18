@@ -62,13 +62,13 @@ void AlignmentMonitorTemplate::book() {
    // This is a procedure that makes one histogram for each selected alignable, and puts them in the iterN directory.
    // This is not a constant-time lookup.  If you need something faster, see AlignmentMonitorMuonHIP, which has a
    // dynamically-allocated array of TH1F*s.
-   std::vector<Alignable*> alignables = pStore()->alignables();
-   for (std::vector<Alignable*>::const_iterator it = alignables.begin();  it != alignables.end();  ++it) {
+   const auto& alignables = pStore()->alignables();
+   for (const auto& it: alignables) {
       char name[256], title[256];
-      snprintf(name, sizeof(name), "xresid%d", (*it)->geomDetId().rawId());
-      snprintf(title, sizeof(title), "x track-hit for DetId %d", (*it)->geomDetId().rawId());
+      snprintf(name, sizeof(name), "xresid%d", it->geomDetId().rawId());
+      snprintf(title, sizeof(title), "x track-hit for DetId %d", it->geomDetId().rawId());
 
-      m_residuals[*it] = book1D("/iterN/", name, title, 100, -5., 5.);
+      m_residuals[it] = book1D("/iterN/", name, title, 100, -5., 5.);
    }
 
    // Important: you create TObject pointers with the "new" operator, but YOU don't delete them.  They're deleted by the

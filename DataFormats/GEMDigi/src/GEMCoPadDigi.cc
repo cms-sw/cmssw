@@ -29,6 +29,12 @@ bool GEMCoPadDigi::operator != (const GEMCoPadDigi& digi) const
 }
 
 
+bool GEMCoPadDigi::isValid() const
+{
+  return first_.isValid() and second_.isValid();
+}
+
+
 int GEMCoPadDigi::pad(int l) const
 {
   if (l==1) return first_.pad();

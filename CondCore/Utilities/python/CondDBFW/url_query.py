@@ -36,15 +36,15 @@ class url_query():
 		self._response = StringIO()
 
 		if body:
-			if type(body) == dict:
+			if isinstance(body, dict):
 				body = urlencode(body)
-			elif type(body) == list:
+			elif isinstance(body, list):
 				body = json.dumps(body)
 
 			self._r.setopt(self._r.POSTFIELDS, body)
 
 		if url_data:
-			if type(url_data) == dict:
+			if isinstance(url_data, dict):
 				url_data = urlencode(url_data)
 			else:
 				exit("URL data '%s' for request to URL '%s' was not valid - should be a dictionary." % (str(url_data), url))
@@ -52,7 +52,7 @@ class url_query():
 		# set the URL with url parameters if they were given
 		self._r.setopt(self._r.URL, url + (("?%s" % url_data) if url_data else ""))
 
-		if response_stream and type(response_stream) != StringIO:
+		if response_stream and not isinstance(response_stream, StringIO):
 			response_stream = StringIO()
 			# copy reference to instance variable
 			self._response = response_stream
@@ -77,7 +77,7 @@ class url_query():
 				attempt += 1
 				# this catches exceptions that occur with the actual http request
 				# not exceptions sent back from server side
-				if type(e) == pycurl.error and e[0] in [7, 52]:
+				if isinstance(e, pycurl.error) and e[0] in [7, 52]:
 					# wait two seconds to retry
 					print("Request failed - waiting 3 seconds to retry.")
 					sleep(3)

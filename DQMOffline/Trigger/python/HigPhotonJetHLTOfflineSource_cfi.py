@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-higPhotonJetHLTOfflineSource = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+higPhotonJetHLTOfflineSource = DQMEDAnalyzer(
     "HigPhotonJetHLTOfflineSource",
     # Used when fetching triggerSummary and triggerResults
     hltProcessName = cms.string("HLT"),

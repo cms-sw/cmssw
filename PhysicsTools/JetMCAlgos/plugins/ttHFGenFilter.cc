@@ -67,9 +67,8 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       const edm::EDGetTokenT<std::vector<std::vector<int> > > genBHadPlusMothersIndicesToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadIndexToken_;
       bool OnlyHardProcessBHadrons_;
+      bool taggingMode_;
 
-
-      // ----------member data ---------------------------
 };
 
 //
@@ -93,6 +92,9 @@ genBHadIndexToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTa
 {
   //now do what ever initialization is needed
   OnlyHardProcessBHadrons_ = iConfig.getParameter<bool> ( "OnlyHardProcessBHadrons" );
+  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
+
+  produces<bool>();
 }
 
 
@@ -142,8 +144,12 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::vector<const reco::Candidate*> AllTopMothers;
    std::vector<const reco::Candidate*> Tops = GetTops(*genParticles,AllTopMothers);
-   // std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
-   return HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
+   
+   bool pass = HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
+
+   iEvent.put(std::make_unique<bool>(pass));
+
+   return taggingMode_ || pass;
 
 }
 

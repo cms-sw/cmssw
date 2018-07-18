@@ -1,6 +1,9 @@
 #ifndef ECALBOUNDARYINFOCALCULATOR_H_
 #define ECALBOUNDARYINFOCALCULATOR_H_
 #include <memory>
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -338,7 +341,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     EcalDetId hitdetid = (EcalDetId) hit->id();
     boundaryDetIds.push_back(hitdetid);
     const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(hitdetid);
-    const CaloCellGeometry* cellGeom = subGeom->getGeometry(hitdetid);
+    auto cellGeom = subGeom->getGeometry(hitdetid);
     double eta = cellGeom->getPosition().eta();
     boundaryET += hit->energy() / cosh(eta);
 
@@ -528,7 +531,7 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
     EcalDetId hitdetid = (EcalDetId) hit->id();
     gapDetIds.push_back(hitdetid);
     const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(hitdetid);
-    const CaloCellGeometry* cellGeom = subGeom->getGeometry(hitdetid);
+    auto cellGeom = subGeom->getGeometry(hitdetid);
     double eta = cellGeom->getPosition().eta();
     gapET += hit->energy() / cosh(eta);
 

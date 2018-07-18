@@ -34,9 +34,9 @@ SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::Pa
 }
 
 
-std::shared_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
+std::unique_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
 {
-
+  std::unique_ptr<SiStripLorentzAngle> siStripLA;
   edm::LogInfo("SiStripLorentzAngleDepESProducer") << "Producer called" << std::endl;
   
   std::string latencyRecordName = getLatency.getParameter<std::string>("record");
@@ -63,11 +63,11 @@ std::shared_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(c
   if ( lorentzAngleRecordName == "SiStripLorentzAngleRcd"){
     edm::ESHandle<SiStripLorentzAngle> siStripLorentzAngle;
     iRecord.getRecord<SiStripLorentzAngleRcd>().get(lorentzAngleLabel, siStripLorentzAngle);
-    siStripLA_.reset(new SiStripLorentzAngle(*(siStripLorentzAngle.product())));
+    siStripLA.reset(new SiStripLorentzAngle(*(siStripLorentzAngle.product())));
   } else edm::LogError("SiStripLorentzAngleDepESProducer") << "[SiStripLorentzAngleDepESProducer::produce] No Lorentz Angle Record found " << std::endl;
 	 
 
-   return siStripLA_;
+   return siStripLA;
 
   
 }

@@ -4,7 +4,6 @@ siStripNoisesFakeESSource = cms.ESSource("SiStripNoisesFakeESSource",
         appendToDataLabel = cms.string(''),
 
         printDebug = cms.untracked.uint32(5),
-        file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
 
         StripLengthMode = cms.bool(True),
 

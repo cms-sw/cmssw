@@ -34,7 +34,9 @@ public:
   double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const override;
   virtual bool HTvalid(const int ieta, const int iphi, const int version) const;
   virtual const std::vector<unsigned int> getCompressionLUT(const HcalTrigTowerDetId& id) const;
-  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&, int, int);
+  virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&,
+                     int nctScaleShift, int rctScaleShift,
+                     double lsbQIE8, double lsbQIE11, bool allLinear);
   virtual int getOutputLUTId(const HcalTrigTowerDetId& id) const;
   virtual int getOutputLUTId(const int ieta, const int iphi, const int version) const;
 
@@ -62,15 +64,19 @@ public:
 
   // Member functions
   unsigned int getOutputLUTSize(const HcalTrigTowerDetId& id) const;
+  bool isOnlyQIE11(const HcalTrigTowerDetId& id) const;
   void loadHCALCompress(HcalLutMetadata const&, HcalTrigTowerGeometry const&) ; //Analytical compression tables
 
   // Member Variables
+  bool allLinear_ = false;
   double nominal_gain_;
   double lsb_factor_;
   double rct_factor_;
   double nct_factor_;
-  std::string compressionFile_;
-  std::string decompressionFile_;
+  double lin8_factor_;
+  double lin11_factor_;
+  const std::string compressionFile_;
+  const std::string decompressionFile_;
   std::vector<int> ietal;
   std::vector<int> ietah;
   std::vector<int> ZS;

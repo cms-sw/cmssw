@@ -76,7 +76,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
   pnAllocated = false;
   
 
-  theParser_->parseBuffer( reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(pData)), static_cast<uint32_t>(length), shit );
+  theParser_->parseBuffer( reinterpret_cast<const uint32_t*>(pData), static_cast<uint32_t>(length), shit );
   
   std::vector< DCCTBEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
@@ -191,7 +191,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     
     
     short TowerStatus[MAX_TT_SIZE+1];
-    char buffer[20];
+    char buffer[25];
     std::vector<short> theTTstatus;
     for(int i=1;i<MAX_TT_SIZE+1;i++)
       { 

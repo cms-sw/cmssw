@@ -24,7 +24,6 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
  protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -34,6 +33,7 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
   std::string monitorDir;
   std::string titlePrefix;
   bool verbose;
+  bool makeMuonAtVtxPlots;
 
   MonitorElement* ugmtMuonBX;
   MonitorElement* ugmtnMuons;

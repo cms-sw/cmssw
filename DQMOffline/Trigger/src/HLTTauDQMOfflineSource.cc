@@ -43,14 +43,8 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   }
   tagAndProbe_ = false;
   if(ps.exists("TagAndProbe")) {
-    std::vector<edm::ParameterSet> tagAndProbePaths = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("TagAndProbe");
+    tagAndProbePaths = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("TagAndProbe");
     tagAndProbe_ = true;
-    //    tagandprobePlotters_.reserve(tagAndProbePaths.size()); 
-    for(const edm::ParameterSet& tpset: tagAndProbePaths) {
-      num_genTriggerEventFlag_.emplace_back(new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("numerator"),consumesCollector(), *this));
-      den_genTriggerEventFlag_.emplace_back(new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("denominator"),consumesCollector(), *this));
-      tagandprobePlotters_.emplace_back( new HLTTauDQMTagAndProbePlotter(tpset,std::move(num_genTriggerEventFlag_.back()),std::move(den_genTriggerEventFlag_.back()),dqmBaseFolder_));
-    }
   }
 
   if(doRefAnalysis_) {
@@ -72,19 +66,19 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
   if(HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged)) {
     LogDebug("HLTTauDQMOffline") << "dqmBeginRun(), hltMenuChanged " << hltMenuChanged;
     if(hltMenuChanged) {
-      // Find all paths to monitor
-      std::vector<std::string> foundPaths;
-      std::smatch what;
-      LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
-      for(const std::string& pathName: HLTCP_.triggerNames()) {
-        if(std::regex_search(pathName, what, pathRegex_)) {
-          LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
-          foundPaths.emplace_back(pathName);
-        }
-      }
-      std::sort(foundPaths.begin(), foundPaths.end());
-
       if(!tagAndProbe_) {
+        // Find all paths to monitor
+        std::vector<std::string> foundPaths;
+	std::smatch what;
+	LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
+	for(const std::string& pathName: HLTCP_.triggerNames()) {
+	  if(std::regex_search(pathName, what, pathRegex_)) {
+	    LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
+	    foundPaths.emplace_back(pathName);
+	  }
+	}
+	std::sort(foundPaths.begin(), foundPaths.end());
+
         // Construct path plotters
         std::vector<const HLTTauDQMPath *> pathObjects;
         pathPlotters_.reserve(foundPaths.size());  
@@ -100,6 +94,48 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
         if(pathSummaryPlotter_) {
           pathSummaryPlotter_->setPathObjects(pathObjects);
         }
+      }else{ // tag and probe
+        // Find all paths to monitor
+	std::vector<std::string> foundPaths;
+	std::smatch what;
+
+	for(const edm::ParameterSet& tpset: tagAndProbePaths) {
+          std::vector<std::string> moduleLabels;
+          edm::ParameterSet denpset = tpset.getParameter<edm::ParameterSet>("denominator");
+          std::vector<std::string> denominators = denpset.getParameter<std::vector<std::string> >("hltPaths");
+          std::vector<std::string> updatedDenominators;
+          for(size_t i = 0; i < denominators.size(); ++i){
+            const std::regex denRegex_(denominators[i]);
+            for(const std::string& pathName: HLTCP_.triggerNames()) {
+              if(std::regex_search(pathName, what, denRegex_)) {
+                updatedDenominators.push_back(pathName);
+                moduleLabels = HLTCP_.moduleLabels(pathName);
+              }
+            }
+          }
+          denpset.addParameter<std::vector<std::string> >("hltPaths",updatedDenominators);
+
+
+
+	  edm::ParameterSet numpset = tpset.getParameter<edm::ParameterSet>("numerator");
+          std::vector<std::string> numerators = numpset.getParameter<std::vector<std::string> >("hltPaths");
+
+          const std::regex numRegex_(numerators[0]);
+          for(const std::string& pathName: HLTCP_.triggerNames()) {
+              if(std::regex_search(pathName, what, numRegex_)) {
+
+                  edm::ParameterSet new_tpset = tpset;
+                  new_tpset.addParameter<std::string>("name",pathName);
+                  std::vector<std::string> updatedHltPaths;
+                  updatedHltPaths.push_back(pathName);
+                  numpset.addParameter<std::vector<std::string> >("hltPaths",updatedHltPaths);
+                  new_tpset.addParameter<edm::ParameterSet>("numerator",numpset);
+                  new_tpset.addParameter<edm::ParameterSet>("denominator",denpset);
+
+                  tagandprobePlotters_.emplace_back( new HLTTauDQMTagAndProbePlotter(new_tpset,moduleLabels,dqmBaseFolder_));
+              }
+          }
+	}
       }
     }
   } else {
@@ -186,7 +222,7 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         //Tag and probe plotters
         for(auto& tpPlotter: tagandprobePlotters_) {
           if(tpPlotter->isValid())
-	    tpPlotter->analyze(iEvent,iSetup,refC);
+	    tpPlotter->analyze(iEvent,*triggerResultsHandle, *triggerEventHandle, refC);
         }
 
     } else {

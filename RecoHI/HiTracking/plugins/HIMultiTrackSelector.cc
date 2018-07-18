@@ -208,7 +208,7 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
   
     setQualityBit_.push_back( false );
     std::string qualityStr = trkSelectors[i].getParameter<std::string>("qualityBit");
-    if (qualityStr != "") {
+    if (!qualityStr.empty()) {
       setQualityBit_[i] = true;
       qualityToSet_[i]  = TrackBase::qualityByName(trkSelectors[i].getParameter<std::string>("qualityBit"));
     }
@@ -230,7 +230,7 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
     preFilter_[i]=trkSelectors.size(); // no prefilter
 
     std::string pfName=trkSelectors[i].getParameter<std::string>("preFilterName");
-    if (pfName!="") {
+    if (!pfName.empty()) {
       bool foundPF=false;
       for ( unsigned int j=0; j<i; j++) 
 	if (name_[j]==pfName ) {
@@ -472,7 +472,7 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
   int lostOut = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
   int minLost = std::min(lostIn,lostOut);
   if (minLost > max_minMissHitOutOrIn_[tsNum]) return false;
-  float lostMidFrac = tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
+  float lostMidFrac = tk.numberOfLostHits()==0? 0. : tk.numberOfLostHits() / (tk.numberOfValidHits() + tk.numberOfLostHits());
   if (lostMidFrac > max_lostHitFraction_[tsNum]) return false;
 
   // Pixel Track Merging pT dependent cuts

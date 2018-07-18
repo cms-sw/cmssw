@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # the uGMT DQM module
-l1tStage2uGMT = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2uGMT = DQMEDAnalyzer(
     "L1TStage2uGMT",
     bmtfProducer = cms.InputTag("gmtStage2Digis", "BMTF"),
     omtfProducer = cms.InputTag("gmtStage2Digis", "OMTF"),

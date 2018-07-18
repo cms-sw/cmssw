@@ -1,0 +1,11 @@
+#! /bin/bash
+#
+# generate HLT tables from master table in ConfDB
+#
+
+MASTER="/dev/CMSSW_10_0_0/HLT"                          # no version, take the latest one
+TARGET="/users/sdonato/STORM/cosmics/FromMaster/CRAFT"  # where to store the online-compliant menu
+TABLES="craft"
+
+source subtables.sh
+createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"

@@ -2,6 +2,7 @@
 <use   name="root"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/TrackerCommon" />
+<use   name="CalibTracker/StandaloneTrackerTopology"/>
 <export>
   <lib   name="1"/>
 </export>

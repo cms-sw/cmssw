@@ -1,6 +1,7 @@
 #ifndef MuonReco_MuonMETCorrectionData_h
 #define MuonReco_MuonMETCorrectionData_h
 
+#include <cmath>
 
 namespace reco {
   class MuonMETCorrectionData {

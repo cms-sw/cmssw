@@ -235,9 +235,10 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('')
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             TkMapFileName = cms.untracked.string(''),
+                             dataLabel = cms.untracked.string('')
+                             )
 
 process.e = cms.EndPath(process.stat)

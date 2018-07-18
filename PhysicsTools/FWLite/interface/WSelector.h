@@ -1,3 +1,5 @@
+#ifndef PhysicsTools_FWLite_WSelector_h
+#define PhysicsTools_FWLite_WSelector_h
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
@@ -81,3 +83,4 @@ protected:
   /// MET from W boson
   pat::MET const* met_;
 };
+#endif // PhysicsTools_FWLite_WSelector_h

@@ -3,7 +3,6 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 
-#include "G4String.hh"
 #include <map>
 #include <string>
 
@@ -13,15 +12,15 @@ class AHCalSD : public CaloSD {
 
 public:    
 
-  AHCalSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
+  AHCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  ~AHCalSD() override;
-  double                getEnergyDeposit(G4Step* ) override;
-  uint32_t              setDetUnitId(G4Step* step) override;
-  bool                          unpackIndex(const uint32_t & idx, int & row, 
-					    int& col, int& depth);
+  ~AHCalSD() override = default;
+  uint32_t              setDetUnitId(const G4Step* step) override;
+  bool                  unpackIndex(const uint32_t & idx, int & row, 
+				    int& col, int& depth);
 protected:
 
+  double                getEnergyDeposit(const G4Step*) override;
   bool                  filterHit(CaloG4Hit*, double) override;
 
 private:    

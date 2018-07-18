@@ -11,6 +11,7 @@
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+#include "L1Trigger/L1TMuonOverlap/interface/XMLConfigReader.h"
 
 class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
    public:

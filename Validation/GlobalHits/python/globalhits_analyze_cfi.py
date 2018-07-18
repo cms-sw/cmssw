@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-globalhitsanalyze = cms.EDAnalyzer("GlobalHitsAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+globalhitsanalyze = DQMEDAnalyzer('GlobalHitsAnalyzer',
     G4VtxSrc = cms.InputTag("g4SimHits"),
     G4TrkSrc = cms.InputTag("g4SimHits"),
     MuonRpcSrc = cms.InputTag("g4SimHits","MuonRPCHits"),

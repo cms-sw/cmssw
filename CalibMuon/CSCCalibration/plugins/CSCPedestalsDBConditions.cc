@@ -10,7 +10,6 @@ CSCPedestalsDBConditions::CSCPedestalsDBConditions(const edm::ParameterSet& iCon
 {
   //the following line is needed to tell the framework what
   // data is being produced
- cndbPedestals = prefillDBPedestals();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCPedestalsDBConditions::produceDBPedestals);
   findingRecord<CSCDBPedestalsRcd>();
@@ -23,7 +22,6 @@ CSCPedestalsDBConditions::~CSCPedestalsDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbPedestals;
 }
 
 
@@ -36,8 +34,7 @@ CSCPedestalsDBConditions::ReturnType
 CSCPedestalsDBConditions::produceDBPedestals(const CSCDBPedestalsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBPedestals* mydata=new CSCDBPedestals( *cndbPedestals );
-  return mydata;
+  return CSCPedestalsDBConditions::ReturnType( prefillDBPedestals());
   
 }
 

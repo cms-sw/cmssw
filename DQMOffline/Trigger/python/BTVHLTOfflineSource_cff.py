@@ -12,6 +12,7 @@ btvHLTDQMSourceExtra = cms.Sequence(
     + BTagMu_AK4Jet300_Mu5
     + BTagMu_AK8DiJet170_Mu5
     + BTagMu_AK8Jet300_Mu5
+    + BTagMu_AK8Jet170_DoubleMu5
     + PFJet40
     + PFJet60
     + PFJet80

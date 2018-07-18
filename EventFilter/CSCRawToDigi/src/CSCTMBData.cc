@@ -64,7 +64,7 @@ CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
 
 }
 
-CSCTMBData::CSCTMBData(unsigned short *buf) 
+CSCTMBData::CSCTMBData(const uint16_t *buf) 
   : theOriginalBuffer(buf), 
     theTMBHeader(2007, 0x50c3),
     theCLCTData(&theTMBHeader),
@@ -135,7 +135,7 @@ CSCTMBData::~CSCTMBData(){
 
 /// returns -1 if not found
 /// obsolete
-int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) {
+int findLine(const uint16_t *buf, uint16_t marker,int first,  int maxToDo) {
   for(int i = first; i < maxToDo; ++i) { 
     if(buf[i] == marker) {
       return i;
@@ -162,7 +162,7 @@ int CSCTMBData::TMBCRCcalc() {
   }
 }
 
-int CSCTMBData::UnpackTMB(unsigned short *buf) {
+int CSCTMBData::UnpackTMB(const uint16_t *buf) {
   ///determine 2007 or 2006 version
   unsigned short int firmwareVersion=0;
   int Ntbins = 0 ;

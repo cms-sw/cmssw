@@ -8,6 +8,7 @@ import os
 
 
 """
+import six
 
    RecoTauValidation_cfi.py
 
@@ -111,7 +112,8 @@ GenericTriggerSelectionParameters = cms.PSet(
    verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
 )
 
-proc.templateAnalyzer = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+proc.templateAnalyzer = DQMEDAnalyzer(
    "TauTagValidation",
    StandardMatchingParameters,
    GenericTriggerSelection = GenericTriggerSelectionParameters,
@@ -220,7 +222,8 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-proc.efficiencies = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+proc.efficiencies = DQMEDHarvester(
    "TauDQMHistEffProducer",
    plots = plotPset    
    )
@@ -252,7 +255,7 @@ PLOTTING
 
 """
 
-loadTau = cms.EDAnalyzer("TauDQMFileLoader",
+loadTau = DQMEDAnalyzer("TauDQMFileLoader",
   test = cms.PSet(
     #inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/MyValidationArea/310pre6NewTags/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT_0505Fixes.root'),
     inputFileNames = cms.vstring('/opt/sbg/cms/ui4_data1/dbodin/CMSSW_3_5_1/src/TauID/QCD_recoFiles/TauVal_CMSSW_3_6_0_QCD.root'),
@@ -393,7 +396,7 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of HPS Efficiencies
 #
 ##################################################
-## plotHPSEfficiencies = cms.EDAnalyzer("TauDQMHistPlotter",
+## plotHPSEfficiencies = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                      standardDrawingStuff,
 ##                                      standardCompareTestAndReference,
 ##                                      drawJobs = Utils.SpawnDrawJobs(RunHPSValidation, plotPset),
@@ -409,7 +412,7 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of all the Shrinking cone leading pion efficiencies
 #
 ##################################################
-## plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("TauDQMHistPlotter",
+## plotPFTauHighEfficiencyEfficienciesLeadingPion = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                                                 standardDrawingStuff,
 ##                                                                 standardCompareTestAndReference,
 ##                                                                 drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyLeadingPionBothProngs, plotPset),
@@ -470,7 +473,7 @@ def ConvertDrawJobToLegacyCompare(input):
    if not hasattr(input, "drawJobs"):
       return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in myDrawJobs.iteritems():
+   for drawJobName, drawJobData in six.iteritems(myDrawJobs):
       print drawJobData
       if not drawJobData.plots.pythonTypeName() == "cms.PSet":
          continue

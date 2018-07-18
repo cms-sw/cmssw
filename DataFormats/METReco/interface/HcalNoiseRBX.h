@@ -42,7 +42,7 @@ namespace reco {
     HcalNoiseRBX();
     
     // destructor
-    virtual ~HcalNoiseRBX();
+    ~HcalNoiseRBX();
 
     //
     // Detector ID accessors
@@ -97,7 +97,7 @@ namespace reco {
     
     // helper function to get the unique calotowers
     struct twrcomp {
-      inline bool operator() ( const CaloTower & t1, const CaloTower & t2 ) {
+      inline bool operator() ( const CaloTower & t1, const CaloTower & t2 ) const {
 	return t1.id() < t2.id();
       }
     };

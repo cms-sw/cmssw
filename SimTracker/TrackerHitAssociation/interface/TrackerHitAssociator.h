@@ -56,6 +56,7 @@ class TrackerHitAssociator {
   
  public:
   struct Config {
+    Config() {}
     Config(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
     Config(edm::ConsumesCollector && iC);
     bool doPixel_, doStrip_, useOTph2_, doTrackAssoc_, assocHitbySimTrack_;

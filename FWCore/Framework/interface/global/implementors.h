@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -31,6 +32,8 @@
 
 // forward declarations
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
   
   namespace global {
     namespace impl {
@@ -118,20 +121,24 @@ namespace edm {
         LuminosityBlockCacheHolder<T,C>& operator=(LuminosityBlockCacheHolder<T,C> const&) = delete;
         ~LuminosityBlockCacheHolder() noexcept(false) override {};
       protected:
-        C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return cache_.get(); }
-      private:
-        void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) final {
-          cache_ = globalBeginLuminosityBlock(rp,c);
+        void preallocLumis(unsigned int iNLumis) final {
+          caches_.reset( new std::shared_ptr<C>[iNLumis]);
         }
-        void doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) final {
-          globalEndLuminosityBlock(rp,c);
-          cache_.reset();
+
+        C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
+      private:
+        void doBeginLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final {
+          caches_[lp.index()] = globalBeginLuminosityBlock(lp,c);
+        }
+        void doEndLuminosityBlock_(LuminosityBlock const& lp, EventSetup const& c) final {
+          globalEndLuminosityBlock(lp,c);
+          caches_[lp.index()].reset();
         }
         
         virtual std::shared_ptr<C> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
         virtual void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const = 0;
         //When threaded we will have a container for N items whre N is # of simultaneous runs
-        std::shared_ptr<C> cache_;
+        std::unique_ptr<std::shared_ptr<C>[]> caches_;
       };
       
       template<typename T, typename C> class EndRunSummaryProducer;
@@ -290,6 +297,48 @@ namespace edm {
         }
         
         virtual void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, S const*) const = 0;
+      };
+
+      template <typename T>
+      class ExternalWork : public virtual T {
+      public:
+        ExternalWork() = default;
+        ExternalWork(ExternalWork const&) = delete;
+        ExternalWork& operator=(ExternalWork const&) = delete;
+        ~ExternalWork() noexcept(false) override {};
+
+      private:
+
+        bool hasAcquire() const override { return true; }
+
+        void doAcquire_(StreamID,
+                        Event const&,
+                        edm::EventSetup const&,
+                        WaitingTaskWithArenaHolder&) final;
+
+        virtual void acquire(StreamID,
+                             Event const&,
+                             edm::EventSetup const&,
+                             WaitingTaskWithArenaHolder) const = 0;
+      };
+
+      template <typename T>
+      class Accumulator : public virtual T {
+      public:
+        Accumulator() = default;
+        Accumulator(Accumulator const&) = delete;
+        Accumulator& operator=(Accumulator const&) = delete;
+        ~Accumulator() noexcept(false) override {};
+
+      private:
+
+        bool hasAccumulator() const override { return true; }
+
+        void produce(StreamID streamID, Event& ev, EventSetup const& es) const final {
+          accumulate(streamID, ev, es);
+        }
+
+        virtual void accumulate(StreamID streamID, Event const& ev, EventSetup const& es) const = 0;
       };
     }
   }

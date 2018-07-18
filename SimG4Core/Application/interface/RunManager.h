@@ -131,10 +131,8 @@ private:
   bool m_RestorePhysicsTables;
   int m_EvtMgrVerbosity;
   bool m_check;
-  edm::ParameterSet m_pGeometry;
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pGenerator;   
-  edm::ParameterSet m_pVertexGenerator;
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
   edm::ParameterSet m_pEventAction;

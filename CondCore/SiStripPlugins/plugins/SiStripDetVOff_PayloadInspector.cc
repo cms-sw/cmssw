@@ -7,7 +7,7 @@
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
 #include <sstream>
@@ -70,12 +70,12 @@ namespace {
 
       for (const auto & d : detid) {
 	if(payload->IsModuleVOff(d)){
-	  tmap->fill(d,1);
+	  tmap->fill(d,1.);
 	}
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.99,1.01,fileName);
 
       return true;
     }
@@ -104,12 +104,12 @@ namespace {
 
       for (const auto & d : detid) {
 	if(payload->IsModuleHVOff(d)){
-	  tmap->fill(d,1);
+	  tmap->fill(d,1.);
 	}
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.99,1.01,fileName);
 
       return true;
     }
@@ -138,12 +138,12 @@ namespace {
 
       for (const auto & d : detid) {
 	if(payload->IsModuleLVOff(d)){
-	  tmap->fill(d,1);
+	  tmap->fill(d,1.);
 	}
       } // loop over detIds
       
       std::string fileName(m_imageFileName);
-      tmap->save(true,0,0,fileName);
+      tmap->save(true,0.99,1.01,fileName);
 
       return true;
     }
@@ -158,7 +158,7 @@ namespace {
   public:
     SiStripDetVOffTest() : cond::payloadInspector::Histogram1D<SiStripDetVOff>("SiStrip DetVOff test",
 									       "SiStrip DetVOff test", 10,0.0,10.0),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       Base::setSingleIov( true );
     }
@@ -209,7 +209,7 @@ namespace {
   class SiStripDetVOffByRegion : public cond::payloadInspector::PlotImage<SiStripDetVOff> {
   public:
     SiStripDetVOffByRegion() : cond::payloadInspector::PlotImage<SiStripDetVOff>( "SiStrip DetVOff By Region" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
     }
@@ -281,11 +281,11 @@ namespace {
 	  }
 
 	h_HV->SetBinContent(iBin,countHV);
-	h_HV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index));
+	h_HV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index).second);
 	h_HV->GetXaxis()->LabelsOption("v");
 
 	h_LV->SetBinContent(iBin,countLV);
-	h_LV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index));
+	h_LV->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(index).second);
 	h_LV->GetXaxis()->LabelsOption("v");
 
 	if(detector!=currentDetector) {

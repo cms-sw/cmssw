@@ -46,15 +46,28 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::computeDiff(DQMStore::IBooker &ibook
   TH1* h1;
   TH1* h2;
   bool is1D(histType1_ == MonitorElement::DQM_KIND_TH1F || histType1_ == MonitorElement::DQM_KIND_TH1D);
+  bool is2D(histType1_ == MonitorElement::DQM_KIND_TH2F || histType1_ == MonitorElement::DQM_KIND_TH2D);
+  bool isProfile(histType1_ == MonitorElement::DQM_KIND_TPROFILE);
 
   if (is1D) {
     h_diff = h_diff_->getTH1F();
     h1 = h1_->getTH1F();
     h2 = h2_->getTH1F();
-  } else { // TH2
+  } else if (is2D) {
     h_diff = h_diff_->getTH2F();
     h1 = h1_->getTH2F();
     h2 = h2_->getTH2F();
+  }
+  else if (isProfile){
+    h_diff = h_diff_->getTProfile();
+    h1 = h1_->getTProfile();
+    h2 = h2_->getTProfile();
+  } else {
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::computeDiff")
+        << "Unknown histogram type. Quitting booking"
+        << std::endl;
+
+    return;
   }
   h_diff->Add(h1);
   h_diff->Add(h2, -1);
@@ -71,7 +84,7 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms(DQMStore::IGetter &ig
   h2_ = igetter.get(h2Name);
 
   if (!h1_ || !h2_) {
-    edm::LogError("L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms")
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms")
         << (!h1_ && !h2_ ? h1Name + " && " + h2Name : !h1_ ? h1Name : h2Name) << " not gettable. Quitting booking"
         << std::endl;
 
@@ -86,12 +99,12 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::loadHistograms(DQMStore::IGetter &ig
 bool L1TDiffHarvesting::L1TDiffPlotHandler::isValid() const
 {
   if (histType1_ == MonitorElement::DQM_KIND_INVALID) {
-    edm::LogError("L1TDiffHarvesting::L1TDiffPlotHandler::isValid") << " Could not find a supported histogram type"
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::isValid") << " Could not find a supported histogram type"
         << std::endl;
     return false;
   }
   if (histType1_ != histType2_) {
-    edm::LogError("L1TDiffHarvesting::L1TDiffPlotHandler::isValid")
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::isValid")
         << " Histogram 1 and 2 have different histogram types" << std::endl;
     return false;
   }
@@ -103,13 +116,16 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::bookDiff(DQMStore::IBooker &ibooker)
   ibooker.setCurrentFolder(outputDir_);
 
   bool is1D(histType1_ == MonitorElement::DQM_KIND_TH1F || histType1_ == MonitorElement::DQM_KIND_TH1D);
+  bool is2D(histType1_ == MonitorElement::DQM_KIND_TH2F || histType1_ == MonitorElement::DQM_KIND_TH2D);
+  bool isProfile(histType1_ == MonitorElement::DQM_KIND_TPROFILE);
+
   if (is1D) {
     TH1F* h1 = h1_->getTH1F();
     double min = h1->GetXaxis()->GetXmin();
     double max = h1->GetXaxis()->GetXmax();
     int nBins = h1->GetNbinsX();
     h_diff_ = ibooker.book1D(plotName_, plotName_, nBins, min, max);
-  } else { // TH2
+  } else if (is2D) {
     TH2F* h1 = h1_->getTH2F();
     double minX = h1->GetXaxis()->GetXmin();
     double maxX = h1->GetXaxis()->GetXmax();
@@ -119,6 +135,20 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::bookDiff(DQMStore::IBooker &ibooker)
     int nBinsY = h1->GetNbinsY();
 
     h_diff_ = ibooker.book2D(plotName_, plotName_, nBinsX, minX, maxX, nBinsY, minY, maxY);
+  } else if (isProfile) {
+    TProfile* h1 = h1_->getTProfile();
+    double minX = h1->GetXaxis()->GetXmin();
+    double maxX = h1->GetXaxis()->GetXmax();
+    double minY = h1->GetYaxis()->GetXmin();
+    double maxY = h1->GetYaxis()->GetXmax();
+    int nBins = h1->GetNbinsX();
+    h_diff_ = ibooker.bookProfile(plotName_,  plotName_, nBins, minX, maxX, minY, maxY);
+  } else {
+    edm::LogWarning("L1TDiffHarvesting::L1TDiffPlotHandler::bookDiff")
+        << "Unknown histogram type. Quitting booking"
+        << std::endl;
+
+    return;
   }
 
 }

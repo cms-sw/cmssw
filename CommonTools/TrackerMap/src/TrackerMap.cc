@@ -913,7 +913,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     arphi.Draw();
     TLegend *MyL = buildLegend();
     
-    if (((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue))){
+    if (title.find("QTestAlarm")!=std::string::npos){
 
       MyL->Draw();
     }
@@ -3519,7 +3519,7 @@ save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
 std::ifstream * TrackerMap::findfile(std::string filename) {
   std::ifstream * ifilename;
   std::string ifname;
-  if(jsPath!=""){
+  if(!jsPath.empty()){
   ifname=jsPath+filename;
   ifilename = new std::ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
   if(!ifilename){

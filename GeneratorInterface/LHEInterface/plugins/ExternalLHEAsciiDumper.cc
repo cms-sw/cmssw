@@ -42,6 +42,8 @@ private:
   edm::InputTag lheProduct_;
   std::string   lheFileName_;
 
+  edm::EDGetTokenT<LHEXMLStringProduct> LHEAsciiToken_;
+
   // ----------member data ---------------------------
   
 };
@@ -50,6 +52,8 @@ ExternalLHEAsciiDumper::ExternalLHEAsciiDumper(const edm::ParameterSet& ps):
   lheProduct_( ps.getParameter<edm::InputTag>("lheProduct") ),
   lheFileName_( ps.getParameter<std::string>("lheFileName") )
 {
+  
+  LHEAsciiToken_ = consumes <LHEXMLStringProduct,edm::InRun> (edm::InputTag(lheProduct_));
   
   return;
   
@@ -70,7 +74,7 @@ void
 ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 
   edm::Handle< LHEXMLStringProduct > LHEAscii;
-  iRun.getByLabel(lheProduct_,LHEAscii);
+  iRun.getByToken(LHEAsciiToken_,LHEAscii);
   
   const std::vector<std::string>& lheOutputs = LHEAscii->getStrings();
 
@@ -87,7 +91,7 @@ ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
     else {
       std::stringstream fname;
       fname << basename << "_" << iout ;
-      if (extension != "")
+      if (!extension.empty())
         fname << "." << extension;
       outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
     }
@@ -103,7 +107,7 @@ ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
     else {
       std::stringstream fname;
       fname << basename << "_" << iout ;
-      if (extension != "")
+      if (!extension.empty())
         fname << "." << extension;
       outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
     }

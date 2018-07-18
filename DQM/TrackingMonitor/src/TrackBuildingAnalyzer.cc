@@ -6,10 +6,12 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -38,7 +40,8 @@ TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig):
   doProfETA(     iConfig.getParameter<bool>("doSeedNVsEtaProf")),
   doStopSource(  iConfig.getParameter<bool>("doStopSource")),
   doMVAPlots(    iConfig.getParameter<bool>("doMVAPlots")),
-  doRegionPlots( iConfig.getParameter<bool>("doRegionPlots"))
+  doRegionPlots( iConfig.getParameter<bool>("doRegionPlots")),
+  doRegionCandidatePlots( iConfig.getParameter<bool>("doRegionCandidatePlots"))
 {
 }
 
@@ -62,10 +65,12 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   int    PhiBin     = iConfig.getParameter<int>(   "PhiBin");
   double PhiMin     = iConfig.getParameter<double>("PhiMin");
   double PhiMax     = iConfig.getParameter<double>("PhiMax");
+  phiBinWidth = PhiBin > 0 ? (PhiMax-PhiMin)/PhiBin : 0.;
   
   int    EtaBin     = iConfig.getParameter<int>(   "EtaBin");
   double EtaMin     = iConfig.getParameter<double>("EtaMin");
   double EtaMax     = iConfig.getParameter<double>("EtaMax");
+  etaBinWidth = EtaBin > 0 ? (EtaMax-EtaMin)/EtaBin : 0.;
   
   int    ThetaBin   = iConfig.getParameter<int>(   "ThetaBin");
   double ThetaMin   = iConfig.getParameter<double>("ThetaMin");
@@ -196,36 +201,59 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   }
 
   if (doRegionPlots) {
-    if (doAllSeedPlots || doPT) {
-      auto ptBin = iConfig.getParameter<int>(   "RegionCandidatePtBin");
-      auto ptMin = iConfig.getParameter<double>("RegionCandidatePtMin");
-      auto ptMax = iConfig.getParameter<double>("RegionCandidatePtMax");
-
-      histname = "TrackingRegionCandidatePt_"+seedProducer.label() + "_";
-      TrackingRegionCandidatePt = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ptBin, ptMin, ptMax);
-      TrackingRegionCandidatePt->setAxisTitle("TrackingRegion Candidate p_{T} (GeV/c)", 1);
-      TrackingRegionCandidatePt->setAxisTitle("Number of TrackingRegion Candidates", 2);
-    }
-
     if (doAllSeedPlots || doETA) {
-      histname = "TrackingRegionCandidateEta_"+seedProducer.label() + "_";
-      TrackingRegionCandidateEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
-      TrackingRegionCandidateEta->setAxisTitle("TrackingRegion Candidate #eta", 1);
-      TrackingRegionCandidateEta->setAxisTitle("Number of TrackingRegion Candidates", 2);
+      histname = "TrackingRegionEta_"+seedProducer.label() + "_";
+      TrackingRegionEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
+      TrackingRegionEta->setAxisTitle("TrackingRegion-covered #eta", 1);
+      TrackingRegionEta->setAxisTitle("Number of TrackingRegions", 2);
     }
 
     if (doAllSeedPlots || doPHI) {
-      histname = "TrackingRegionCandidatePhi_"+seedProducer.label() + "_";
-      TrackingRegionCandidatePhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
-      TrackingRegionCandidatePhi->setAxisTitle("TrackingRegion Candidate #phi", 1);
-      TrackingRegionCandidatePhi->setAxisTitle("Number of TrackingRegion Candidates", 2);
+      histname = "TrackingRegionPhi_"+seedProducer.label() + "_";
+      TrackingRegionPhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
+      TrackingRegionPhi->setAxisTitle("TrackingRegion-covered #phi", 1);
+      TrackingRegionPhi->setAxisTitle("Number of TrackingRegions", 2);
     }
 
     if (doAllSeedPlots || doPHIVsETA) {
-      histname = "TrackingRegionCandidatePhiVsEta_"+seedProducer.label() + "_";
-      TrackingRegionCandidatePhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
-      TrackingRegionCandidatePhiVsEta->setAxisTitle("TrackingRegion Candidate #eta", 1);
-      TrackingRegionCandidatePhiVsEta->setAxisTitle("TrackingRegion Candidate #phi", 2);
+      histname = "TrackingRegionPhiVsEta_"+seedProducer.label() + "_";
+      TrackingRegionPhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+      TrackingRegionPhiVsEta->setAxisTitle("TrackingRegion-covered #eta", 1);
+      TrackingRegionPhiVsEta->setAxisTitle("TrackingRegion-covered #phi", 2);
+    }
+
+    if (doRegionCandidatePlots) {
+      if (doAllSeedPlots || doPT) {
+        auto ptBin = iConfig.getParameter<int>(   "RegionCandidatePtBin");
+        auto ptMin = iConfig.getParameter<double>("RegionCandidatePtMin");
+        auto ptMax = iConfig.getParameter<double>("RegionCandidatePtMax");
+
+        histname = "TrackingRegionCandidatePt_"+seedProducer.label() + "_";
+        TrackingRegionCandidatePt = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ptBin, ptMin, ptMax);
+        TrackingRegionCandidatePt->setAxisTitle("TrackingRegion Candidate p_{T} (GeV/c)", 1);
+        TrackingRegionCandidatePt->setAxisTitle("Number of TrackingRegion Candidates", 2);
+      }
+
+      if (doAllSeedPlots || doETA) {
+        histname = "TrackingRegionCandidateEta_"+seedProducer.label() + "_";
+        TrackingRegionCandidateEta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax);
+        TrackingRegionCandidateEta->setAxisTitle("TrackingRegion Candidate #eta", 1);
+        TrackingRegionCandidateEta->setAxisTitle("Number of TrackingRegion Candidates", 2);
+      }
+
+      if (doAllSeedPlots || doPHI) {
+        histname = "TrackingRegionCandidatePhi_"+seedProducer.label() + "_";
+        TrackingRegionCandidatePhi = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
+        TrackingRegionCandidatePhi->setAxisTitle("TrackingRegion Candidate #phi", 1);
+        TrackingRegionCandidatePhi->setAxisTitle("Number of TrackingRegion Candidates", 2);
+      }
+
+      if (doAllSeedPlots || doPHIVsETA) {
+        histname = "TrackingRegionCandidatePhiVsEta_"+seedProducer.label() + "_";
+        TrackingRegionCandidatePhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+        TrackingRegionCandidatePhiVsEta->setAxisTitle("TrackingRegion Candidate #eta", 1);
+        TrackingRegionCandidatePhiVsEta->setAxisTitle("TrackingRegion Candidate #phi", 2);
+      }
     }
   }
 
@@ -241,12 +269,12 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     seedStoppingSource->setAxisTitle("Stopping reason",1);
     seedStoppingSource->setAxisTitle("Number of seeds",2);
 
-    histname = "StoppingSourceVsPhi_"+seedProducer.label() + "_";
+    histname = "SeedStoppingSourceVsPhi_"+seedProducer.label() + "_";
     seedStoppingSourceVsPhi = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, 2, 0., 2.);
     seedStoppingSourceVsPhi->setAxisTitle("seed #phi",1);
     seedStoppingSourceVsPhi->setAxisTitle("fraction stopped",2);
 
-    histname = "StoppingSourceVsEta_"+seedProducer.label() + "_";
+    histname = "SeedStoppingSourceVsEta_"+seedProducer.label() + "_";
     seedStoppingSourceVsEta = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, 2, 0., 2.);
     seedStoppingSourceVsEta->setAxisTitle("seed #eta",1);
     seedStoppingSourceVsEta->setAxisTitle("fraction stopped",2);
@@ -267,12 +295,12 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     numberOfTrajCandsPerSeedVsEta->setAxisTitle("Number of Trajectory Candidates for each Seed", 2);
 
     histname = "SeedStoppingSourceVsNumberOfTrajCandsPerSeed_"+seedProducer.label() + "_";
-    seedStoppingSourceVsNumberOfTrajCandsPerSeed = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, candsBin, candsMin, candsMax, stopReasonSize, 0, stopReasonSize);
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, candsBin, candsMin, candsMax, 2, 0., 2.);
     seedStoppingSourceVsNumberOfTrajCandsPerSeed->setAxisTitle("Number of Trajectory Candidates for each Seed", 1);
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed->setAxisTitle("fraction stopped",2);
 
     for(unsigned int i=0; i<stopReasonSize; ++i) {
       seedStoppingSource->setBinLabel(i+1, SeedStopReasonName::SeedStopReasonName[i], 1);
-      seedStoppingSourceVsNumberOfTrajCandsPerSeed->setBinLabel(i+1, SeedStopReasonName::SeedStopReasonName[i], 2);
     }
   }
 
@@ -496,7 +524,7 @@ void TrackBuildingAnalyzer::analyze
     numberOfTrajCandsPerSeedVsPhi->Fill(phi, ncands);
     numberOfTrajCandsPerSeedVsEta->Fill(eta, ncands);
 
-    seedStoppingSourceVsNumberOfTrajCandsPerSeed->Fill(ncands, stopInfo.stopReasonUC());
+    seedStoppingSourceVsNumberOfTrajCandsPerSeed->Fill(ncands, stopped);
   }
 }
 
@@ -629,7 +657,7 @@ void TrackBuildingAnalyzer::analyze(const edm::View<reco::Track>& trackCollectio
 }
 
 void TrackBuildingAnalyzer::analyze(const reco::CandidateView& regionCandidates) {
-  if(!doRegionPlots)
+  if(!doRegionPlots || !doRegionCandidatePlots)
     return;
 
   for(const auto& candidate: regionCandidates) {
@@ -641,3 +669,58 @@ void TrackBuildingAnalyzer::analyze(const reco::CandidateView& regionCandidates)
     if (doAllSeedPlots || doPHIVsETA) TrackingRegionCandidatePhiVsEta->Fill( eta, phi);
   }
 }
+
+void TrackBuildingAnalyzer::analyze(const edm::OwnVector<TrackingRegion>& regions) {
+  analyzeRegions(regions);
+}
+void TrackBuildingAnalyzer::analyze(const TrackingRegionsSeedingLayerSets& regions) {
+  analyzeRegions(regions);
+}
+
+namespace {
+  const TrackingRegion *regionPtr(const TrackingRegion& region) {
+    return &region;
+  }
+  const TrackingRegion *regionPtr(const TrackingRegionsSeedingLayerSets::RegionLayers& regionLayers) {
+    return &(regionLayers.region());
+  }
+}
+
+template <typename T>
+void TrackBuildingAnalyzer::analyzeRegions(const T& regions) {
+  if(!doRegionPlots && etaBinWidth <= 0. && phiBinWidth <= 0.)
+    return;
+
+  for(const auto& tmp: regions) {
+    if(const auto *etaPhiRegion = dynamic_cast<const RectangularEtaPhiTrackingRegion *>(regionPtr(tmp))) {
+      const auto& etaRange = etaPhiRegion->etaRange();
+      const auto& phiMargin = etaPhiRegion->phiMargin();
+
+      const auto etaMin = etaRange.min();
+      const auto etaMax = etaRange.max();
+
+      const auto phiMin = etaPhiRegion->phiDirection() - phiMargin.left();
+      const auto phiMax = etaPhiRegion->phiDirection() + phiMargin.right();
+
+      if(doAllSeedPlots || doETA) {
+        for(auto eta = etaMin; eta < etaMax; eta += etaBinWidth) {
+          TrackingRegionEta->Fill(eta);
+        }
+      }
+      if(doAllSeedPlots || doPHI) {
+        for(auto phi = phiMin; phi < phiMax; phi += phiBinWidth) {
+          TrackingRegionPhi->Fill(reco::reduceRange(phi));
+        }
+      }
+      if (doAllSeedPlots || doPHIVsETA) {
+        for(auto phi = phiMin; phi < phiMax; phi += phiBinWidth) {
+          const auto reducedPhi = reco::reduceRange(phi);
+          for(auto eta = etaMin; eta < etaMax; eta += etaBinWidth) {
+            TrackingRegionPhiVsEta->Fill(eta, reducedPhi);
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -14,7 +14,8 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
   theN1(0.),
   theN2(0.),
   theC(0.),
-  theValid(true) {
+  theValid(true),
+  theIsLine(false) {
 
   createCircleParameters();
   
@@ -34,7 +35,8 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
   theN1(0.),
   theN2(0.),
   theC(0.),
-  theValid(true) {
+  theValid(true),
+  theIsLine(false) {
 
   createCircleParameters();
   
@@ -89,6 +91,7 @@ void FastCircle::createCircleParameters() {
     // numeric limit
     // circle is more a straight line...
     theValid = false;
+    theIsLine = true;
     return;
   }
 

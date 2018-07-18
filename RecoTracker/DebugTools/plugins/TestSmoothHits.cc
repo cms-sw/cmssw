@@ -1,4 +1,4 @@
-#include "RecoTracker/DebugTools/interface/TestSmoothHits.h"
+#include "TestSmoothHits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"

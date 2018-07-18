@@ -614,6 +614,8 @@ namespace edm {
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
       areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPreModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
+      areg->watchPostModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
       areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
       areg->watchPostModuleEventDelayedGet(timeKeeperPtr,&SystemTimeKeeper::restartModuleEvent);
 
@@ -639,7 +641,7 @@ namespace edm {
                         SubProcessParentageHelper const* subProcessParentageHelper) {
     std::string const output("output");
 
-    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
+    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents");
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
     ParameterSet const* vMaxEventsOut = nullptr;
@@ -989,14 +991,22 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp, ProcessContext const* processContext) {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeRun, _1, std::cref(rp), processContext));
+  void Schedule::writeRunAsync(WaitingTaskHolder task,
+                               RunPrincipal const& rp,
+                               ProcessContext const* processContext,
+                               ActivityRegistry* activityRegistry) {
+    for(auto& c: all_output_communicators_) {
+      c->writeRunAsync(task, rp, processContext, activityRegistry);
+    }
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeLumi, _1, std::cref(lbp), processContext));
+  void Schedule::writeLumiAsync(WaitingTaskHolder task,
+                                LuminosityBlockPrincipal const& lbp,
+                                ProcessContext const* processContext,
+                                ActivityRegistry* activityRegistry) {
+    for(auto& c: all_output_communicators_) {
+      c->writeLumiAsync(task, lbp, processContext, activityRegistry);
+    }
   }
 
   bool Schedule::shouldWeCloseOutput() const {
@@ -1034,9 +1044,10 @@ namespace edm {
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
                                       unsigned int iStreamID,
                                       EventPrincipal& ep,
-                                      EventSetup const& es) {
+                                      EventSetup const& es,
+                                      ServiceToken const& token) {
     assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,pathStatusInserters_);
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,token,pathStatusInserters_);
   }
   
   bool Schedule::changeModule(std::string const& iLabel,

@@ -29,9 +29,9 @@ class CSCTMBData {
   CSCTMBData();
   CSCTMBData(int firmwareVersion, int firmwareRevision, int ncfebs=5);
   ~CSCTMBData();
-  CSCTMBData(unsigned short *buf);
+  CSCTMBData(const uint16_t *buf);
   CSCTMBData(const CSCTMBData& data);
-  int UnpackTMB(unsigned short *buf);
+  int UnpackTMB(const uint16_t *buf);
   /// sees if the size adds up to the word count
   bool checkSize() const;
   static void setDebug(const bool value) {debug = value;}
@@ -72,7 +72,7 @@ class CSCTMBData {
 
   ///@@ not sure what this means for simulation.  I keep this
   /// around so we can calculate CRCs
-  unsigned short * theOriginalBuffer;
+  const uint16_t * theOriginalBuffer;
   /// CRC calc needs to know where 0x6B0C and 0x6E0F lines were
   /// we want to put off CRC calc until needed
   unsigned theB0CLine;

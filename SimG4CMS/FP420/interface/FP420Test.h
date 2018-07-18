@@ -26,8 +26,6 @@
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
-//#include "SimG4Core/Watcher/interface/SimProducer.h"
-//#include "SimG4Core/Watcher/interface/SimWatcherMaker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
@@ -36,8 +34,6 @@
 #include <map>
 #include <cmath>
 #include <CLHEP/Random/Randomize.h> 
-// #include <fstream>
-
 
 // ----------------------------------------------------------------
 // Includes needed for Root ntupling

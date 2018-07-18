@@ -61,6 +61,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestGetBy.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationOutput">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestOutput.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationDropOnInput">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestDropOnInput.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -125,8 +129,9 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
-  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc" name="SomeTestModules">
+  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc" name="SomeTestModules">
     <flags   EDM_PLUGIN="1"/>
+    <lib   name="FWCoreIntegrationWaitingServer"/>
     <use   name="FWCore/Framework"/>
     <use   name="DataFormats/TestObjects"/>
   </library>
@@ -191,6 +196,16 @@
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="WaitingServer.cc" name="FWCoreIntegrationWaitingServer">
+    <use   name="FWCore/Concurrency"/>
+  </library>
+  <library   file="WaitingService.cc" name="FWCoreIntegrationWaitingService">
+    <flags   EDM_PLUGIN="1"/>
+    <lib   name="FWCoreIntegrationWaitingServer"/>
+    <use   name="FWCore/Concurrency"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/ServiceRegistry"/>
   </library>
   <library   file="OtherThingAnalyzer.cc,OtherThingRefComparer.cc" name="TestOtherThingAnalyzer">
     <flags   EDM_PLUGIN="1"/>

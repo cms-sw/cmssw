@@ -80,6 +80,7 @@ if isDA:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
                                            probePt  = cms.untracked.double(.oO[ptCut]Oo.),
                                            probeEta = cms.untracked.double(.oO[etaCut]Oo.),
                                            doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
@@ -126,6 +127,7 @@ else:
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(.oO[forceBeamSpot]Oo.),
                                            probePt = cms.untracked.double(.oO[ptCut]Oo.),
                                            probeEta = cms.untracked.double(.oO[etaCut]Oo.),
                                            doBPix   = cms.untracked.bool(.oO[doBPix]Oo.),
@@ -165,6 +167,7 @@ process.p = cms.Path(process.goodvertexSkim*
 PVValidationScriptTemplate="""
 #!/bin/bash
 source /afs/cern.ch/cms/caf/setup.sh
+export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 
 echo  -----------------------
 echo  Job started at `date`

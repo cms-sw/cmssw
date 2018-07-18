@@ -9,6 +9,7 @@
 """
 
 import sys
+import six
 import os
 # Get CMSSW base
 try:
@@ -99,14 +100,14 @@ def GetTrainingFile(computerName, anAlgo):
 
 #Find the unique mva types to train
 listOfMVANames = {}
-for name, mvaCollection in MVACollections.iteritems():
+for name, mvaCollection in six.iteritems(MVACollections):
    for _mva in mvaCollection:
       name = _mva.computerName.value()
       if not name in listOfMVANames:
          listOfMVANames[name] = _mva
 
 myModules = []
-for name, _mva in listOfMVANames.iteritems():
+for name, _mva in six.iteritems(listOfMVANames):
    myModules.append(_mva)
 
 SignalTrainFiles         = glob.glob(SignalFileTrainingGlob)

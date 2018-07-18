@@ -6,3 +6,4 @@ from DQM.DTMonitorClient.dtCertificationSummary_cfi import *
 
 dtCertification = cms.Sequence(dtDAQInfo + dtDCSByLumiSummary + dtCertificationSummary)
 
+

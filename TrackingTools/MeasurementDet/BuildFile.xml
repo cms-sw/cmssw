@@ -3,4 +3,5 @@
 </export>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/DetLayers"/>
 

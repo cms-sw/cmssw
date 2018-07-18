@@ -137,8 +137,7 @@ def addTimeForRun(dbsession,c,runtimedict):
         inputData.extend('starttime','time stamp')
         inputData.extend('stoptime','time stamp')
         inputData.extend('runnum','unsigned int')
-        runs=runtimedict.keys()
-        runs.sort()
+        runs=sorted(runtimedict.keys())
         for runnum in runs:
             (startTimeT,stopTimeT)=runtimedict[runnum]
             inputData['starttime'].setData(startTimeT)

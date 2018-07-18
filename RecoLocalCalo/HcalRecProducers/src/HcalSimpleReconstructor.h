@@ -28,10 +28,9 @@ class HcalTopology;
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
       ~HcalSimpleReconstructor() override;
       void produce(edm::Event& e, const edm::EventSetup& c) final;
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void beginRun(edm::Run const&r, edm::EventSetup const & es) final;
       void endRun(edm::Run const&r, edm::EventSetup const & es) final;
-
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:      
       template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c, const edm::EDGetTokenT<DIGICOLL> &tok);
@@ -41,7 +40,6 @@ class HcalTopology;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
 
-      edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HFDigiCollection> tok_hf_;
       edm::EDGetTokenT<HODigiCollection> tok_ho_;
       edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;

@@ -55,7 +55,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	if (esd !=Detector && Detector != HcalOther  ) 
 	  continue;
 
-        if (theHcalTopology->withSpecialRBXHBHE() && esd == HcalEndcap) {
+        if (theHcalTopology->getMergePositionFlag() && esd == HcalEndcap) {
           detid = theHcalTopology->idFront(detid);
 	}
 
@@ -64,7 +64,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto depth =detid.depth();
 	  
 	
-	const CaloCellGeometry * thisCell= hcalGeo->getGeometry(detid);
+	auto thisCell= hcalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {

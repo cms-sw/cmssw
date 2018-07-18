@@ -6,8 +6,8 @@
     <QTEST name="Yrange:PXLayer_1__Shell_mI:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.65</PARAM>
+      <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">0.8</PARAM>
       <PARAM name="ymax">360.</PARAM>
     </QTEST>
@@ -15,8 +15,8 @@
     <QTEST name="Yrange:PXLayer_1__Shell_mO:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.65</PARAM>
+      <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">0.8</PARAM>
       <PARAM name="ymax">380.</PARAM>
     </QTEST>
@@ -24,8 +24,8 @@
     <QTEST name="Yrange:PXLayer_1__Shell_pI:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.65</PARAM>
+      <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">0.8</PARAM>
       <PARAM name="ymax">360.</PARAM>
     </QTEST>
@@ -33,8 +33,8 @@
     <QTEST name="Yrange:PXLayer_1__Shell_pO:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.65</PARAM>
+      <PARAM name="warning">0.80</PARAM>
       <PARAM name="ymin">0.8</PARAM>
       <PARAM name="ymax">360.</PARAM>
     </QTEST>
@@ -43,8 +43,8 @@
     <QTEST name="Yrange:PXLayer_2__Shell_mI:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.75</PARAM>
+      <PARAM name="warning">0.90</PARAM>
       <PARAM name="ymin">0.1</PARAM>
       <PARAM name="ymax">90.</PARAM>
     </QTEST>
@@ -52,8 +52,8 @@
     <QTEST name="Yrange:PXLayer_2__Shell_mO:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.75</PARAM>
+      <PARAM name="warning">0.90</PARAM>
       <PARAM name="ymin">0.2</PARAM>
       <PARAM name="ymax">90.</PARAM>
     </QTEST>
@@ -61,8 +61,8 @@
     <QTEST name="Yrange:PXLayer_2__Shell_pI:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.75</PARAM>
+      <PARAM name="warning">0.90</PARAM>
       <PARAM name="ymin">0.14</PARAM>
       <PARAM name="ymax">100.</PARAM>
     </QTEST>
@@ -70,8 +70,8 @@
     <QTEST name="Yrange:PXLayer_2__Shell_pO:mean_num_digis" activate="true">
       <TYPE>ContentsYRange</TYPE>
       <PARAM name="useEmptyBins">0</PARAM>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
+      <PARAM name="error">0.75</PARAM>
+      <PARAM name="warning">0.90</PARAM>
       <PARAM name="ymin">0.1</PARAM>
       <PARAM name="ymax">100.</PARAM>
     </QTEST>

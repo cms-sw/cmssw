@@ -19,12 +19,17 @@ FWTTreeCache::~FWTTreeCache()
 
 //==============================================================================
 
-bool FWTTreeCache::s_logging = false;
+bool FWTTreeCache::s_logging      = false;
+bool FWTTreeCache::s_prefetching  = false;
 int  FWTTreeCache::s_default_size = 50 * 1024 * 1024;
 
 void FWTTreeCache::LoggingOn()  { s_logging = true;  }
 void FWTTreeCache::LoggingOff() { s_logging = false; }
 bool FWTTreeCache::IsLogging()  { return s_logging;  }
+
+void FWTTreeCache::PrefetchingOn()  { s_prefetching = true;  }
+void FWTTreeCache::PrefetchingOff() { s_prefetching = false; }
+bool FWTTreeCache::IsPrefetching()  { return s_prefetching;  }
 
 void FWTTreeCache::SetDefaultCacheSize(int def_size) { s_default_size = def_size; }
 int  FWTTreeCache::GetDefaultCacheSize()             { return s_default_size; }

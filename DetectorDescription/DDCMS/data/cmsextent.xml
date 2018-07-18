@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="cmsextent.xml" eval="true">
+		<Constant name="Rmin" value="0*fm"/>
+		<Constant name="Zmin" value="0*fm"/>
+		<Constant name="HallZ" value="27.0*m"/>
+		<Constant name="HallR" value="13.0*m"/>
+		<Constant name="HallRMax" value="[HallR]"/>
+		<Constant name="CMSR1" value="8.30*m"/>
+		<Constant name="CMSR2" value="1.00*m"/>
+		<Constant name="CMSZ1" value="27.1*m"/>
+		<Constant name="CMSZ2" value="26.0*m"/>
+	</ConstantsSection>
+</DDDefinition>

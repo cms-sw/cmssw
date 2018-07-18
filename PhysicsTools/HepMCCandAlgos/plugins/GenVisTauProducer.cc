@@ -11,6 +11,7 @@
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 #include <vector>
 #include <iostream>
@@ -21,6 +22,7 @@ class GenVisTauProducer : public edm::global::EDProducer<>
   GenVisTauProducer(const edm::ParameterSet& params) 
     : src_(consumes<reco::GenJetCollection>(params.getParameter<edm::InputTag>("src")))
     , srcGenParticles_(consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("srcGenParticles")))
+    , pTComparator_()
   {
     produces<reco::GenParticleCollection>();
   }
@@ -77,6 +79,7 @@ class GenVisTauProducer : public edm::global::EDProducer<>
       genVisTaus->push_back(genVisTau);
     }
 
+    std::sort(genVisTaus->begin(), genVisTaus->end(), pTComparator_);
     evt.put(std::move(genVisTaus));
   }
 
@@ -91,6 +94,7 @@ class GenVisTauProducer : public edm::global::EDProducer<>
  private:
   const edm::EDGetTokenT<reco::GenJetCollection> src_;
   const edm::EDGetTokenT<reco::GenParticleCollection> srcGenParticles_;
+  const GreaterByPt<reco::GenParticle> pTComparator_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

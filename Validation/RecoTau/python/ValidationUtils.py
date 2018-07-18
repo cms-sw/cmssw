@@ -133,8 +133,7 @@ def SetPlotSequence(sequence):
     scanner = Scanner()
     sequence.visit(scanner)
     for analyzer in scanner.modules():#The first one is the sequence itself
-        if type(analyzer) is cms.EDAnalyzer:
-            PlotAnalyzer(pset, analyzer)
+        PlotAnalyzer(pset, analyzer)
     return pset
 
 def SpawnPSet(lArgument, subPset):
@@ -156,11 +155,11 @@ def SpawnPSet(lArgument, subPset):
             return None
         spawnArg = copy.deepcopy(subPset)
         for par, val in zip(spawn[1],spawn[2]):
-            if type(val) is str :
+            if isinstance(val, str) :
                 setattr(spawnArg,par,cms.string(val))
-            elif type(val) is int :
+            elif isinstance(val, int) :
                 setattr(spawnArg,par,cms.int32(val))
-            elif type(val) is float :
+            elif isinstance(val, float) :
                 setattr(spawnArg,par,cms.double(val))
         setattr(ret,spawn[0],spawnArg)
     return ret

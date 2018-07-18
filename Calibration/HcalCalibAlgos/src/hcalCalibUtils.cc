@@ -353,7 +353,7 @@ void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPos
     GlobalPoint recHitPoint;
     DetId id = it->id(); 
     if (id.det() == DetId::Hcal) {
-      recHitPoint = ((HcalGeometry*)(theCaloGeometry->getSubdetectorGeometry(id)))->getPosition(id);
+      recHitPoint = (static_cast<const HcalGeometry*>(theCaloGeometry->getSubdetectorGeometry(id)))->getPosition(id);
     } else {
       recHitPoint = GlobalPoint(theCaloGeometry->getPosition(id));
     }

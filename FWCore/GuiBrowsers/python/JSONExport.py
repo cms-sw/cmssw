@@ -106,7 +106,7 @@ class JsonExport(FileExportPlugin):
       for p in all['paths']:
         path=jsonPathRecursive(p,data.label(p))
         if path:
-          if not type(path)==type([]):
+          if not isinstance(path, type([])):
             if path['type']=='Sequence':
               path = path['children']
             else:
@@ -119,7 +119,7 @@ class JsonExport(FileExportPlugin):
       for p in all['endpaths']:
         path=jsonPathRecursive(p,data.label(p))
         if path:
-          if not type(path)==type([]):
+          if not isinstance(path, type([])):
             if path['type']=='Sequence':
               path = path['children']
             else:

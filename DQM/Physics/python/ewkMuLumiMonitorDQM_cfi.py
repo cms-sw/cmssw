@@ -25,7 +25,8 @@ TrkIsoCuts = cms.PSet(
 
 
 
-ewkMuLumiMonitorDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ewkMuLumiMonitorDQM = DQMEDAnalyzer(
     "EwkMuLumiMonitorDQM",
     # isolation cuts
     TrkIsoCuts,

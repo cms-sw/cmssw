@@ -15,6 +15,7 @@
 #include <atomic>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 class DetId;
 class CaloGeometry;
@@ -48,7 +49,7 @@ class EcalRingCalibrationTools
   
   static std::atomic<bool> isInitializedFromGeometry_;
 
-  [[cms::thread_guard("isInitializedFromGeometry_")]]
+  CMS_THREAD_GUARD(isInitializedFromGeometry_)
   static short endcapRingIndex_[EEDetId::IX_MAX][EEDetId::IY_MAX];  // array needed only for the endcaps
 
   static std::once_flag once_;

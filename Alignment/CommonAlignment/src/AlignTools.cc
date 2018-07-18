@@ -94,7 +94,7 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::st
 	std::string copy=weightBy; 	 
 	std::transform(copy.begin(), copy.end(), copy.begin(),  (int(*)(int)) toupper); 	 
 	if(copy != "SELF"){
-		const align::Alignables& comp = ali->components();
+		const auto& comp = ali->components();
 		unsigned int nComp = comp.size();
 		for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
 		// double the weight for SS modules if weight by Det

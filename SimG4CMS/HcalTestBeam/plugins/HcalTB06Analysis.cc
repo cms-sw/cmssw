@@ -80,6 +80,7 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
   m_widthHcal = ptb.getParameter<double>("HcalWidth");
   m_factEcal  = ptb.getParameter<double>("EcalFactor");
   m_factHcal  = ptb.getParameter<double>("HcalFactor");
+  double eMIP = ptb.getParameter<double>("MIP");
 
   edm::LogInfo("HcalTB06Analysis") 
     << "Beam parameters: E(GeV)= " << m_ener
@@ -94,6 +95,7 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet &p) : count(0) {
     << "  EcalWidth= " << m_widthEcal << " GeV" 
     << "\n        HcalFactor= " << m_factHcal
     << "  HcalWidth= " << m_widthHcal << " GeV"
+    << "  MIP=       " << eMIP << " GeV"
     << "\n        TimeLimit=  " << m_timeLimit << " ns" << "\n";
   m_histo = new HcalTB06Histo(ptb);
 } 

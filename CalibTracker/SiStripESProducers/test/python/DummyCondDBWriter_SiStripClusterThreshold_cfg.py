@@ -23,6 +23,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripThresholdDummyDBWriter_cfi")
 from CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi import siStripThresholdFakeESSource

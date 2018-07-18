@@ -12,8 +12,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
@@ -159,7 +157,15 @@ void HGCalHitCalibration::fillWithRecHits(
   if (hitmap.find(hitid) == hitmap.end()) {
     // Hit was not reconstructed
     IfLogTrace(debug_ > 0, "HGCalHitCalibration")
-      << ">>> Failed to find detid " << hitid.rawId()
+      << ">>> Failed to find detid " << std::hex << hitid.rawId() << std::dec
+      << " Det " << hitid.det()
+      << " Subdet " << hitid.subdetId() << std::endl;
+    return;
+  }
+  if ((hitid.det() != DetId::Forward) && (hitid.det() != DetId::HGCalEE) &&
+      (hitid.det() != DetId::HGCalHSi) && (hitid.det() != DetId::HGCalHSc)) {
+    IfLogTrace(debug_ > 0, "HGCalHitCalibration")
+      << ">>> Wrong type of detid " << std::hex << hitid.rawId() << std::dec
       << " Det " << hitid.det()
       << " Subdet " << hitid.subdetId() << std::endl;
     return;
@@ -272,8 +278,11 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent,
         // dump raw RecHits and match
         if (rawRecHits_) {
           if ((hitid.det() == DetId::Forward &&
-              (hitid.subdetId() == HGCEE or hitid.subdetId() == HGCHEF or
-               hitid.subdetId() == HGCHEB)) ||
+	       (hitid.subdetId() == HGCEE || hitid.subdetId() == HGCHEF ||
+		hitid.subdetId() == HGCHEB)) ||
+	      (hitid.det() == DetId::HGCalEE) ||
+	      (hitid.det() == DetId::HGCalHSi) ||
+	      (hitid.det() == DetId::HGCalHSc) ||
 	      (hitid.det() == DetId::Hcal && hitid.subdetId() == HcalEndcap))
             fillWithRecHits(hitmap, hitid, hitlayer, it_haf.second, seedDet,
                             seedEnergy);
@@ -337,7 +346,8 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent,
 				      ele.end(),
 				      closest_fcn);
       if (closest != ele.end()
-	  && closest->superCluster()->seed()->seed().det() == DetId::Forward
+	  && (closest->superCluster()->seed()->seed().det() == DetId::Forward ||
+	      closest->superCluster()->seed()->seed().det() == DetId::HGCalEE)
 	  && reco::deltaR2(*closest, it_caloPart) < 0.01) {
 	seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
 	if (hgcal_ele_EoP_CPene_calib_fraction_.count(seedDet)) {
@@ -354,7 +364,8 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent,
 				      photon.end(),
 				      closest_fcn);
       if (closest != photon.end()
-	  && closest->superCluster()->seed()->seed().det() == DetId::Forward
+	  && (closest->superCluster()->seed()->seed().det() == DetId::Forward ||
+	      closest->superCluster()->seed()->seed().det() == DetId::HGCalEE)
 	  && reco::deltaR2(*closest, it_caloPart) < 0.01) {
 	seedDet = recHitTools_.getSiThickness(closest->superCluster()->seed()->seed());
 	if (hgcal_photon_EoP_CPene_calib_fraction_.count(seedDet)) {
@@ -381,7 +392,7 @@ void HGCalHitCalibration::fillDescriptions(
   desc.add<edm::InputTag>("hgcalMultiClusters", edm::InputTag("particleFlowClusterHGCalFromMultiCl"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("ecalDrivenGsfElectronsFromMultiCl"));
   desc.add<edm::InputTag>("photons", edm::InputTag("photonsFromMultiCl"));
-  descriptions.add("hgcalHitCalibration", desc);
+  descriptions.add("hgcalHitCalibrationDefault", desc);
 }
 
 // define this as a plug-in

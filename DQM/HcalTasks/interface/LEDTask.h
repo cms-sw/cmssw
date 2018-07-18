@@ -17,6 +17,7 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
+#include "FWCore/Framework/interface/Run.h"
 
 class LEDTask : public hcaldqm::DQTask
 {
@@ -44,15 +45,17 @@ class LEDTask : public hcaldqm::DQTask
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
-		edm::InputTag	_tagHEP17;
+		edm::InputTag	_tagHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;
+		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
+		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
 		//	emap
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
@@ -60,8 +63,9 @@ class LEDTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_VME;
 
 		//	Cuts
+		int _nevents;
 		double _lowHBHE;
-		double _lowHEP17;
+		double _lowHE;
 		double _lowHO;
 		double _lowHF;
 
@@ -100,6 +104,17 @@ class LEDTask : public hcaldqm::DQTask
 		hcaldqm::Container2D		_cMissing_depth;
 		hcaldqm::Container2D		_cMissing_FEDVME;
 		hcaldqm::Container2D		_cMissing_FEDuTCA;
+
+		// For hcalcalib online LED
+		hcaldqm::Container2D _cADCvsTS_SubdetPM;
+		hcaldqm::Container1D _cSumQ_SubdetPM;
+		hcaldqm::Container1D _cTDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cTDCTime_depth;
+		hcaldqm::ContainerSingle2D _cLowSignal_CrateSlot;
+
+		// For monitoring LED firing: ADC vs BX
+		MonitorElement* _meLEDMon;
+		
 };
 
 #endif

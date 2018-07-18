@@ -2,6 +2,7 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
 	RawRunSummary::RawRunSummary(std::string const& name, 
 		std::string const& taskname, edm::ParameterSet const& ps) :
 		DQClient(name, taskname, ps), _booked(false)

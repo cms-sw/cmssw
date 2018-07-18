@@ -51,11 +51,11 @@ namespace edm
         label_(std::string(" ")),
         labelCF_(std::string(" ")),
         maxNbSources_(5),
+        makePCrossingFrame_(false),
 	tag_(),
 	tagSignal_(),
         allTags_(),
-        crFrame_(nullptr),
-        secSourceCF_(nullptr)
+        crFrame_(nullptr)
         {
 	}
 
@@ -63,7 +63,7 @@ namespace edm
       MixingWorker(int minBunch,int maxBunch, int bunchSpace,
 		   std::string subdet,std::string label,
 		   std::string labelCF,int maxNbSources, InputTag& tag,
-		   InputTag& tagCF):
+		   InputTag& tagCF, bool makePCrossingFrame=false):
 	MixingWorkerBase(),
 	minBunch_(minBunch),
 	maxBunch_(maxBunch),
@@ -72,11 +72,11 @@ namespace edm
 	label_(label),
 	labelCF_(labelCF),
 	maxNbSources_(maxNbSources),
+	makePCrossingFrame_(makePCrossingFrame),
 	tag_(tag),
 	tagSignal_(tagCF),
         allTags_(),
-        crFrame_(nullptr),
-        secSourceCF_(nullptr)
+        crFrame_(nullptr)
 	{
 	}
 
@@ -94,11 +94,11 @@ namespace edm
 	label_(label),
 	labelCF_(labelCF),
 	maxNbSources_(maxNbSources),
+	makePCrossingFrame_(false),
 	tag_(tag),
 	tagSignal_(tagCF),
         allTags_(tags),
-        crFrame_(nullptr),
-        secSourceCF_(nullptr)
+        crFrame_(nullptr)
 	{
 	}
 
@@ -133,7 +133,7 @@ namespace edm
       
       
       void createnewEDProduct() override{        
-          crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
+        crFrame_ = std::make_unique<CrossingFrame<T> >(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
       }
            
       void addSignals(const edm::Event &e) override{
@@ -155,8 +155,10 @@ namespace edm
       void setTof() override;
 
       void put(edm::Event &e) override {	
-        std::unique_ptr<CrossingFrame<T> > pOut(crFrame_);
-	e.put(std::move(pOut),label_);
+        if(makePCrossingFrame_) {
+          e.put(std::make_unique<PCrossingFrame<T> >(*crFrame_), label_);
+        }
+	e.put(std::move(crFrame_),label_);
 	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
       }
 
@@ -172,12 +174,12 @@ namespace edm
       std::string const label_;
       std::string const labelCF_;
       unsigned int const maxNbSources_;
+      bool const makePCrossingFrame_;
       InputTag tag_;
       InputTag tagSignal_;
       std::vector<InputTag> allTags_; // for HepMCProduct
 
-      CrossingFrame<T> * crFrame_;
-      PCrossingFrame<T> * secSourceCF_;
+      std::unique_ptr<CrossingFrame<T> > crFrame_;
     };
 
   template <typename T>

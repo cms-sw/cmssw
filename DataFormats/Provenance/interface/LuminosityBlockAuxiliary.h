@@ -53,6 +53,10 @@ namespace edm {
     }
     void mergeAuxiliary(LuminosityBlockAuxiliary const& newAux);
 
+    bool sameIdentity(LuminosityBlockAuxiliary const& iRHS) const {
+      return iRHS.processHistoryID_ == processHistoryID_ &&
+      iRHS.id_ == id_;
+    }
   private:
     // This is the ID of the full process history (not the reduced process history).
     // In cases where LuminosityBlock's are merged, the ID of the first process history encountered

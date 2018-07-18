@@ -29,10 +29,9 @@ using namespace edm;
 void SSDigitizerAlgorithm::init(const edm::EventSetup& es) {
   es.get<TrackerDigiGeometryRecord>().get(geom_);
 }
-SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
+SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf) :
   Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-				  conf.getParameter<ParameterSet>("SSDigitizerAlgorithm"),
-				  eng)
+				  conf.getParameter<ParameterSet>("SSDigitizerAlgorithm"))
 {
   pixelFlag = false;
   LogInfo("SSDigitizerAlgorithm ") << "SSDigitizerAlgorithm constructed "

@@ -43,7 +43,6 @@ class CentralityTableProducer : public edm::EDAnalyzer {
       ~CentralityTableProducer() override;
 
    private:
-      virtual void beginRun(const edm::EventSetup&) ;
       void analyze(const edm::Event&, const edm::EventSetup&) override;
       void endJob() override ;
    void printBin(const CentralityTable::CBin*);
@@ -120,11 +119,6 @@ CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   }    
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CentralityTableProducer::beginRun(const edm::EventSetup& iSetup)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

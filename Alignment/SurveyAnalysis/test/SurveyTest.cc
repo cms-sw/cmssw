@@ -32,7 +32,7 @@ void SurveyTest::beginJob()
 {
   Alignable* det = SurveyInputBase::detector();
 
-  std::vector<Alignable*> sensors;
+  align::Alignables sensors;
 
   getTerminals(sensors, det);
 
@@ -47,10 +47,10 @@ void SurveyTest::beginJob()
        i != algos.end(); ++i) delete i->second;
 }
 
-void SurveyTest::getTerminals(std::vector<Alignable*>& terminals,
+void SurveyTest::getTerminals(align::Alignables& terminals,
 			      Alignable* ali)
 {
-  const std::vector<Alignable*>& comp = ali->components();
+  const auto& comp = ali->components();
 
   unsigned int nComp = comp.size();
 

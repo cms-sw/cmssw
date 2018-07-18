@@ -14,7 +14,7 @@ DDI::TruncTubs::TruncTubs(double zHalf,
 			  double cutAtStart,
 			  double cutAtDelta,
 			  bool cutInside)
-  : Solid(ddtrunctubs)
+  : Solid(DDSolidShape::ddtrunctubs)
 {
   p_.emplace_back(zHalf);
   p_.emplace_back(rIn);

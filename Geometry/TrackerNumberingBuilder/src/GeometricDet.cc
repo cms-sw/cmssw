@@ -197,7 +197,7 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _rot(onePGD._a11, onePGD._a12, onePGD._a13, 
        onePGD._a21, onePGD._a22, onePGD._a23,
        onePGD._a31, onePGD._a32, onePGD._a33),
-  _shape(DDSolidShapesName::index(onePGD._shape)),
+  _shape(static_cast<DDSolidShape>(onePGD._shape)),
   _ddd(), 
   _ddname(onePGD._name, onePGD._ns),//, "fromdb");
   _type(type),

@@ -3,7 +3,7 @@
     "destinationTags": {
         "SiStripApvGainAfterAbortGap_PCL_multirun_v0_prompt": {}
     }, 
-    "inputTag": "SiStripApvGain_pcl", 
+    "inputTag": "SiStripApvGainAAG_pcl", 
     "since": null, 
     "userText": "PCL MultiRun Upload for SiStrip Gains calib. AAG (prep)"
 }

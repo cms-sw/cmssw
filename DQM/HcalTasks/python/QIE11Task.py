@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-qie11Task = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+qie11Task = DQMEDAnalyzer(
 	"QIE11Task",
 
 	#	standard

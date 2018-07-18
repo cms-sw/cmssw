@@ -304,8 +304,7 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         <th class="domain">Domain</th><th class="contact">Contact</th>
         </tr>
         """
-        keysI = self.data.keys()
-        keysI.sort()
+        keysI = sorted(self.data.keys())
         for i in keysI:
             #########################
             if i == 'Other': continue
@@ -344,13 +343,11 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         if domain not in self.data: return
         
         content = ''
-        keysI = self.data[domain].keys()
-        keysI.sort()
+        keysI = sorted(self.data[domain].keys())
         for i in keysI:
             if i == '__DATA__': continue
             content += self.HTMLTreeBegin(i)
-            keysJ = self.data[domain][i].keys()
-            keysJ.sort()
+            keysJ = sorted(self.data[domain][i].keys())
             for j in keysJ:
 #                if len(self.data[domain][i][j].keys()) == 1:
 #                    if self.data[domain][i][j].has_key("__DATA__"):
@@ -358,8 +355,7 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
 #                    else:
 #                        content += self.HTMLTreeAddItem(j)
 #                    continue
-                keysK = self.data[domain][i][j].keys()
-                keysK.sort()
+                keysK = sorted(self.data[domain][i][j].keys())
                 length = len(keysK)
 #                content += "<!-- Begin -->"
                 if length > 1:
@@ -403,12 +399,12 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         if endNode: html = '\t<li class="last">'
         else: html = '\t<li>'
         
-        if type(links) == str or type(links) == type(u''):
+        if isinstance(links, str) or isinstance(links, type(u'')):
             if folder:
                 html = html + '\t<a href="%s" target="_blank" class=""><span class="emptyFolder">%s</span></a>\n' % (links, title)
             else:
                 html = html + '\t<a href="%s" target="_blank" class=""><span class="file">%s</span></a>\n' % (links, title)
-        elif type(links) == dict:
+        elif isinstance(links, dict):
             if folder:
                 html = html + '<span class="emptyFolder">%s ' % title
             else:

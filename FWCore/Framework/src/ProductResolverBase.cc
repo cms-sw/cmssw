@@ -53,6 +53,4 @@ namespace edm {
   void
   ProductResolverBase::setupUnscheduled(UnscheduledConfigurator const&) {}
   
-  void ProductResolverBase::resetFailedFromThisProcess() {}
-
 }

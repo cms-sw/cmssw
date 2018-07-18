@@ -34,7 +34,7 @@ public:
     ~L1GtTscObjectKeysOnlineProd() override;
 
     /// public methods
-    void fillObjectKeys(ReturnType pL1TriggerKey) override;
+    void fillObjectKeys(FillType pL1TriggerKey) override;
 
 private:
 

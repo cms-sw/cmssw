@@ -1,46 +1,56 @@
 #ifndef __PhysicsTools_PatAlgos_MuonMvaEstimator__
 #define __PhysicsTools_PatAlgos_MuonMvaEstimator__
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
+
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "TMVA/Reader.h"
+
+#include <memory>
+#include <string>
+
+class GBRForest;
+
+namespace pat {
+  class Muon;
+}
 
 namespace reco {
   class JetCorrector;
+  class Vertex;
 }
+
 namespace pat {
   class MuonMvaEstimator{
   public:
-    MuonMvaEstimator();
-    void initialize(std::string weightsfile, 
-		    float dRmax);
-    void computeMva(const pat::Muon& imuon,
-		    const reco::Vertex& vertex,
-		    const reco::JetTagCollection& bTags,
-		    const reco::JetCorrector* correctorL1=nullptr,
-		    const reco::JetCorrector* correctorL1L2L3Res=nullptr);
-    float mva() const {return mva_;}
-    float jetPtRatio() const {return jetPtRatio_;}
-    float jetPtRel() const {return jetPtRel_;}
+
+    MuonMvaEstimator(const std::string& weightsfile, float dRmax);
+
+    ~MuonMvaEstimator();
+
+    float computeMva(const pat::Muon& imuon,
+                     const reco::Vertex& vertex,
+                     const reco::JetTagCollection& bTags,
+                     float& jetPtRatio,
+                     float& jetPtRel,
+                     const reco::JetCorrector* correctorL1=nullptr,
+                     const reco::JetCorrector* correctorL1L2L3Res=nullptr) const;
+
   private:
-    TMVA::Reader tmvaReader_;
-    bool initialized_;
-    float mva_;
+
+    std::unique_ptr<const GBRForest> gbrForest_;
     float dRmax_;
-    
+
     /// MVA VAriables
-    float pt_;
-    float eta_;
-    float jetNDauCharged_;
-    float miniRelIsoCharged_;
-    float miniRelIsoNeutral_;
-    float jetPtRel_;
-    float jetPtRatio_;
-    float jetBTagCSV_;
-    float sip_;
-    float log_abs_dxyBS_; 
-    float log_abs_dzPV_;            
-    float segmentCompatibility_;
+    float pt_ = 0.0;
+    float eta_ = 0.0;
+    float jetNDauCharged_ = 0.0;
+    float miniRelIsoCharged_ = 0.0;
+    float miniRelIsoNeutral_ = 0.0;
+    float jetPtRel_ = 0.0;
+    float jetPtRatio_ = 0.0;
+    float jetBTagCSV_ = 0.0;
+    float sip_ = 0.0;
+    float log_abs_dxyBS_ = 0.0;
+    float log_abs_dzPV_ = 0.0;
+    float segmentCompatibility_ = 0.0;
   };
 }
 #endif

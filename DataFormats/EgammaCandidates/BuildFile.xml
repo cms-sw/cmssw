@@ -12,7 +12,6 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/GsfTrackReco"/>
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
-# <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="FWCore/MessageLogger"/>
 
 <export>

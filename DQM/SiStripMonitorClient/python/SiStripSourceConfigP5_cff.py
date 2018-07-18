@@ -123,5 +123,4 @@ MonitorTrackResiduals_gentk.Mod_On                 = False
 #MonitorTrackResiduals_hi.Mod_On                 = False
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
-SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripCommon.TkDetMap_cff import *

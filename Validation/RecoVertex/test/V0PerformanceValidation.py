@@ -88,7 +88,7 @@ macro = 'macros/V0ValHistoPublisher.C'
 # Does replacement of strings in files
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:

@@ -88,6 +88,11 @@ class HcalOnlineHarvesting : public hcaldqm::DQHarvester
 		//	reportSummaryMap
 		MonitorElement *_reportSummaryMap;
 		MonitorElement *_runSummary;
+
+		// Efficiencies
+		hcaldqm::ContainerSingle2D _cTDCCutEfficiency_depth;
+		hcaldqm::ContainerSingle1D _cTDCCutEfficiency_ieta;
+
 };
 
 #endif

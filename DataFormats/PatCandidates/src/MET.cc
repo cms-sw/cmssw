@@ -445,7 +445,7 @@ double MET::shiftedSumEt_74x(MET::METUncertainty shift, MET::METCorrectionLevel 
 
 
 
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 
 void MET::PackedMETUncertainty::pack() {
   packedDpx_  =  MiniFloatConverter::float32to16(dpx_);

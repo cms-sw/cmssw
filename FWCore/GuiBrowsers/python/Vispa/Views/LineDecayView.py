@@ -661,7 +661,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         return None
     
     def select(self, decayObject):
-        if type(decayObject) == type(True):
+        if isinstance(decayObject, type(True)):
             WidgetContainer.select(self, decayObject)
         elif not decayObject in self._selectedList:
         #if type(decayObject) != type(True) and not decayObject in self._selectedList:

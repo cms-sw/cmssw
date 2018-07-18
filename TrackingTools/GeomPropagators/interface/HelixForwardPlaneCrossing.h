@@ -4,6 +4,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include <limits>
 
 /** Calculates intersections of a helix with planes perpendicular to the z-axis.
@@ -27,7 +28,7 @@ public:
     //
     // Protect against p_z=0 and calculate path length
     //
-    if unlikely( std::abs(theCosTheta)<std::numeric_limits<float>::min()  )  return std::pair<bool,double>(false,0);
+    if UNLIKELY( std::abs(theCosTheta)<std::numeric_limits<float>::min()  )  return std::pair<bool,double>(false,0);
     
     double dS = (plane.position().z()-theZ0) / theCosTheta;
     

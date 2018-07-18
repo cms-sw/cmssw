@@ -1115,7 +1115,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     CandleLogFiles = []
                     if os.path.exists(LocalPath):
                         thedir = os.listdir(LocalPath)
-                        CandleLogFiles = filter(lambda x: (x.endswith(".log") or x.endswith("EdmSize")) and not os.path.isdir(x) and os.path.exists(x), map(lambda x: os.path.abspath(os.path.join(LocalPath,x)),thedir))                    
+                        CandleLogFiles = [x for x in map(lambda x: os.path.abspath(os.path.join(LocalPath,x)),thedir) if (x.endswith(".log") or x.endswith("EdmSize")) and not os.path.isdir(x) and os.path.exists(x)]                    
 
                     if (len(CandleLogFiles)>0):
                         
@@ -1814,7 +1814,7 @@ def getDirnameDirs(repdir,WebArea):
         if _verbose:
             print "Copying %s to %s\n" %  (elem,WebArea)
 
-    dirstocp = filter(lambda x: _containsDirName(x),map(lambda x: repdir + x,Dir))
+    dirstocp = [x for x in map(lambda x: repdir + x,Dir) if _containsDirName(x)]
     map(lambda x: _print4Lambda(x,WebArea),dirstocp)
     syscp(dirstocp,WebArea + "/")
     os.mkdir("%s/DirectoryBrowsing" % WebArea)
@@ -1968,7 +1968,7 @@ def copytree4(src,dest,keepTop=True):
         print "WARNING: Could not determine the new location for source %s into destination %s" % (src,dest)
         
 def syscp(srcs,dest):
-    if type(srcs) == type(""):
+    if isinstance(srcs, type("")):
         if os.path.exists(srcs):
             if os.path.isdir(srcs):
                 copytree4(srcs,dest)

@@ -116,7 +116,8 @@ SiPixelPhase1TrackingParticleConf = cms.VPSet(
     SiPixelPhase1TrackingParticleLip,
 )
 
-SiPixelPhase1TrackingParticleAnalyzerV = cms.EDAnalyzer("SiPixelPhase1TrackingParticleV",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1TrackingParticleAnalyzerV = DQMEDAnalyzer('SiPixelPhase1TrackingParticleV',
     src = cms.InputTag("mix","MergedTrackTruth"),
     simHitToken = cms.VInputTag(
                             cms.InputTag( 'g4SimHits','TrackerHitsPixelBarrelLowTof'),
@@ -126,6 +127,8 @@ SiPixelPhase1TrackingParticleAnalyzerV = cms.EDAnalyzer("SiPixelPhase1TrackingPa
     histograms = SiPixelPhase1TrackingParticleConf,
     geometry = SiPixelPhase1Geometry
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(SiPixelPhase1TrackingParticleAnalyzerV, src = "mixData:MergedTrackTruth")
 
 SiPixelPhase1TrackingParticleHarvesterV = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackingParticleConf,

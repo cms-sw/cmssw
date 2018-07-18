@@ -163,8 +163,7 @@ class matplotRender():
         ax.xaxis.set_minor_locator(minorLocator)
         ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
         head=['#Run']
@@ -261,8 +260,7 @@ class matplotRender():
         ax.xaxis.set_major_formatter(majorFormatter)
         #ax.xaxis.set_minor_locator(minorLocator)
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
         head=['#fill','run']        
@@ -375,8 +373,7 @@ class matplotRender():
         for tx in xticklabels:
             tx.set_horizontalalignment('left')
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
         head=['#Run','StartTime','StopTime']
@@ -621,8 +618,7 @@ class matplotRender():
         MaxDay=maxTime.date().toordinal()
         fulldays=range(MinDay,MaxDay+1)
         for label in rawdata.keys():
-            yvalues=rawdata[label]
-            yvalues.sort()#sort by day
+            yvalues=sorted(rawdata[label])
             alldays=[t[0] for t in yvalues]
             alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
             ypoints[label]=[]
@@ -769,8 +765,7 @@ class matplotRender():
         for tx in xticklabels:
             tx.set_horizontalalignment('right')
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         legendlist=[]
 
         for ylabel in keylist:

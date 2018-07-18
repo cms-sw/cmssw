@@ -6,6 +6,7 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
 
+import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
@@ -479,7 +480,7 @@ class ConfigBuilder(object):
 			self.runsAndWeights = eval(self._options.runsAndWeightsForMC)
 		else:
 			from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
-			if type(RunsAndWeights[self._options.runsScenarioForMC])==str:
+			if isinstance(RunsAndWeights[self._options.runsScenarioForMC], str):
 				__import__(RunsAndWeights[self._options.runsScenarioForMC])
 				self.runsAndWeights = sys.modules[RunsAndWeights[self._options.runsScenarioForMC]].runProbabilityDistribution
 			else:
@@ -536,7 +537,7 @@ class ConfigBuilder(object):
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
 				
-			if len(outDefDict.keys()):
+			if len(outDefDict):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			if theStreamType=='DQMIO': theStreamType='DQM'
 			if theStreamType=='ALL':
@@ -614,7 +615,13 @@ class ConfigBuilder(object):
 		if streamType=='': continue
 		if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
 		if streamType=='DQMIO': streamType='DQM'
-                theEventContent = getattr(self.process, streamType+"EventContent")
+		eventContent=streamType
+                ## override streamType to eventContent in case NANOEDM
+		if streamType == "NANOEDMAOD" :
+			eventContent = "NANOAOD"
+		elif streamType == "NANOEDMAODSIM" :
+			eventContent = "NANOAODSIM"
+                theEventContent = getattr(self.process, eventContent+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
                         theFilterName=self._options.filtername
@@ -625,7 +632,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
-		if "NANOAOD" in streamType and 'NANOAOD' in tier : CppType='NanoAODOutputModule'
+		if "NANOAOD" in streamType : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -658,7 +665,10 @@ class ConfigBuilder(object):
 				self.executeAndRemember("process.%s.outputCommands.append('%s')"%(outputModuleName,evct.strip()))
 				
                 if not self._options.inlineEventContent:
-                        def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
+			tmpstreamType=streamType
+			if "NANOEDM" in tmpstreamType :
+				tmpstreamType=tmpstreamType.replace("NANOEDM","NANO")
+			def doNotInlineEventContent(instance,label = "process."+tmpstreamType+"EventContent.outputCommands"):
                                 return label
                         outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 
@@ -741,9 +751,9 @@ class ConfigBuilder(object):
 			stepName=stepName[2:]
 		if stepSpec=="":
 			getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
-		elif type(stepSpec)==list:
+		elif isinstance(stepSpec, list):
 			getattr(self,"prepare_"+stepName)(sequence = '+'.join(stepSpec))
-		elif type(stepSpec)==tuple:
+		elif isinstance(stepSpec, tuple):
 			getattr(self,"prepare_"+stepName)(sequence = ','.join([stepSpec[1],'+'.join(stepSpec[0])]))
 		else:
 			raise ValueError("Invalid step definition")
@@ -938,25 +948,15 @@ class ConfigBuilder(object):
 
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-	    if self._options.datamix == 'PreMix':
-		    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDMPreMix_cff"
-	    else:
-	            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
-
-	if "DIGIPREMIX" in self.stepMap.keys():
-            self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
-            self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawPreMixing_cff"
-            self.L1EMDefaultCFF="Configuration/StandardSequences/SimL1EmulatorPreMix_cff"
 
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
-	self.DIGIPREMIXDefaultSeq='pdigi'
-	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1400,7 +1400,7 @@ class ConfigBuilder(object):
 			self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
 	else:
 		if self._options.magField=='0T':
-			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
+			self.executeAndRemember("process.fastSimProducer.detectorDefinition.magneticFieldZ = cms.untracked.double(0.)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
@@ -1421,35 +1421,6 @@ class ConfigBuilder(object):
 		else:
 			self._options.inputEventContent=self._options.inputEventContent+',REGEN'
 
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
-
-        if sequence == 'pdigi_valid':
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
-	else:
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX_S2(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
-
-
-        if sequence == 'pdigi_valid':
-            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
-	else:
-	    self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
@@ -1481,10 +1452,6 @@ class ConfigBuilder(object):
     def prepare_DIGI2RAW(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
-	    if "DIGIPREMIX" in self.stepMap.keys():
-		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
-		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
-
             return
 
     def prepare_REPACK(self, sequence = None):
@@ -1501,7 +1468,7 @@ class ConfigBuilder(object):
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT']
+	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT','CalouGT']
             if sequence in supported:
                 self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
 		if self._options.scenario == 'HeavyIons':
@@ -1535,7 +1502,7 @@ class ConfigBuilder(object):
                   optionsForHLT['type'] = 'HIon'
                 else:
                   optionsForHLT['type'] = 'GRun'
-                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
 		if sequence == 'run,fromSource':
 			if hasattr(self.process.source,'firstRun'):
 				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -1683,6 +1650,7 @@ class ConfigBuilder(object):
 		     self._options.customise_commands = self._options.customise_commands + " \n"
 	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\"\n"
              self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+             self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
 #            self.renameHLTprocessInSequence(sequence)
 
@@ -2040,18 +2008,23 @@ class ConfigBuilder(object):
 
  	from Configuration.AlCa.autoPCL import autoPCL
  	self.expandMapping(harvestingList,autoPCL)
-	
+
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):
                self.schedule.append(harvestingstream)
-               self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
-               self.executeAndRemember("process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVEST" + name + "_metadata)")
+               if isinstance(getattr(harvestingConfig,"ALCAHARVEST" + name + "_dbOutput"), cms.VPSet) and \
+                  isinstance(getattr(harvestingConfig,"ALCAHARVEST" + name + "_metadata"), cms.VPSet):
+                   self.executeAndRemember("process.PoolDBOutputService.toPut.extend(process.ALCAHARVEST" + name + "_dbOutput)")
+                   self.executeAndRemember("process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVEST" + name + "_metadata)")
+               else:
+                   self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
+                   self.executeAndRemember("process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVEST" + name + "_metadata)")
                harvestingList.remove(name)
 	# append the common part at the end of the sequence
 	lastStep = getattr(harvestingConfig,"ALCAHARVESTDQMSaveAndMetadataWriter")
 	self.schedule.append(lastStep)
-	
+
         if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
             print "The following harvesting could not be found : ", harvestingList
             raise Exception("The following harvesting could not be found : "+str(harvestingList))
@@ -2168,8 +2141,7 @@ class ConfigBuilder(object):
         # dump all additional outputs (e.g. alca or skim streams)
         self.pythonCfgCode += "\n# Additional output definition\n"
         #I do not understand why the keys are not normally ordered.
-        nl=self.additionalOutputs.keys()
-        nl.sort()
+        nl=sorted(self.additionalOutputs.keys())
         for name in nl:
                 output = self.additionalOutputs[name]
                 self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())

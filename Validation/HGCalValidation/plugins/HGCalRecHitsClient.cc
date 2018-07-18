@@ -1,26 +1,52 @@
-#include "Validation/HGCalValidation/plugins/HGCalRecHitsClient.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include <unistd.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-HGCalRecHitsClient::HGCalRecHitsClient(const edm::ParameterSet& iConfig) {
-  
-  verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
-}
+class HGCalRecHitsClient : public DQMEDHarvester {
+ 
+private:
+  //member data
+  std::string  nameDetector_; 
+  int          verbosity_;
+  unsigned int layers_;
 
-HGCalRecHitsClient::~HGCalRecHitsClient() { }
+public:
+  explicit HGCalRecHitsClient(const edm::ParameterSet& );
+  ~HGCalRecHitsClient() override {}
+  
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
+  virtual void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);   
+
+  int recHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
+};
+
+HGCalRecHitsClient::HGCalRecHitsClient(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) { }
 
 void HGCalRecHitsClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) { 
   if (nameDetector_ == "HCal") {
@@ -43,24 +69,27 @@ void HGCalRecHitsClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 void HGCalRecHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
 
   ig.setCurrentFolder("/"); 
-  if (verbosity_>0) edm::LogInfo("HGCalValidation") << "\nrunClient";
+  if (verbosity_>0) edm::LogVerbatim("HGCalValidation") << "\nrunClient";
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
     if (verbosity_>0) 
-      edm::LogInfo("HGCalValidation") << "\nfullPath: " << fullDirPath.at(i);
+      edm::LogVerbatim("HGCalValidation") << "\nfullPath: " 
+					  << fullDirPath.at(i);
     ig.setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
       if (verbosity_>1) 
-	edm::LogInfo("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
-      std::string nameDirectory = "HGCalRecHitsV/"+nameDetector_;
+	edm::LogVerbatim("HGCalValidation") << "fullSubPath: " 
+					    << fullSubDirPath.at(j);
+      std::string nameDirectory = "HGCAL/HGCalRecHitsV/"+nameDetector_;
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
         if (verbosity_>1) 
-	  edm::LogInfo("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
+	  edm::LogVerbatim("HGCalValidation") << "hgcalMES size : " 
+					      << hgcalMEs.size();
         if (!recHitsEndjob(hgcalMEs)) 
 	  edm::LogWarning("HGCalValidation") << "\nError in RecHitsEndjob!";
       }

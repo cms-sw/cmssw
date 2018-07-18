@@ -160,7 +160,9 @@ LeptonJetVarProducer<T>::calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm:
 
   if ((rawp4-lepp4).R()<1e-4) return std::tuple<float,float,float>(1.0,0.0,0.0);
 
-  auto jetp4 = (rawp4 - lepp4*(1.0/jet->jecFactor("L1FastJet")))*(jet->pt()/rawp4.pt())+lepp4;
+  auto l1corrFactor = jet->jecFactor("L1FastJet")/jet->jecFactor("Uncorrected");
+
+  auto jetp4 = (rawp4 - lepp4*(1.0/l1corrFactor))*(jet->pt()/rawp4.pt())+lepp4;
   auto ptratio = lepp4.pt()/jetp4.pt();
   auto ptrel = lepp4.Vect().Cross((jetp4-lepp4).Vect().Unit()).R();
 

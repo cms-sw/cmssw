@@ -75,12 +75,12 @@ BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts,
 			    const Propagator& prop, 
 			    const MeasurementEstimator&) const
 {
-  if unlikely(theCylinder == nullptr)  edm::LogError("DetLayers") 
+  if UNLIKELY(theCylinder == nullptr)  edm::LogError("DetLayers") 
     << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
-  if unlikely(!myState.isValid()) return make_pair( false, myState);
+  if UNLIKELY(!myState.isValid()) return make_pair( false, myState);
   
 
   // check z assuming symmetric bounds around position().z()

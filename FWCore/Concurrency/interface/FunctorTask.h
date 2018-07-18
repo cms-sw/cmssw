@@ -32,7 +32,7 @@ namespace edm {
   template<typename F>
   class FunctorTask : public tbb::task {
   public:
-    explicit FunctorTask( F f): func_(f) {}
+    explicit FunctorTask( F f): func_(std::move(f)) {}
     
     task* execute() override {
       func_();
@@ -45,7 +45,7 @@ namespace edm {
   
   template< typename ALLOC, typename F>
   FunctorTask<F>* make_functor_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorTask<F>(f);
+    return new (iAlloc) FunctorTask<F>(std::move(f));
   }
 }
 

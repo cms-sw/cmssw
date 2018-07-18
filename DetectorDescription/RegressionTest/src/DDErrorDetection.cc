@@ -88,8 +88,7 @@ const std::map<std::string, std::set<DDLogicalPart> > & DDErrorDetection::lp_cpv
   static std::map<std::string, std::set<DDLogicalPart> > result_;
   if (!result_.empty()) return result_;
   
-  //  DDCompactView cpv;
-  const DDCompactView::graph_type & g = cpv.graph();
+  const auto & g = cpv.graph();
   
   std::map<std::string, std::set<DDLogicalPart> >::const_iterator it(lp_err::instance().begin()),
                                                        ed(lp_err::instance().end());
@@ -97,7 +96,7 @@ const std::map<std::string, std::set<DDLogicalPart> > & DDErrorDetection::lp_cpv
     std::set<DDLogicalPart>::const_iterator sit(it->second.begin()), sed(it->second.end());
     for( ; sit != sed; ++sit) {
       const DDLogicalPart & lp = *sit;
-      DDCompactView::graph_type::const_edge_range er = g.edges(lp);
+      auto er = g.edges(lp);
       if (g.nodeIndex(lp).second) {
         result_.insert(make_pair(lp.ddname().fullname(), std::set<DDLogicalPart>()));  
       }
@@ -208,7 +207,7 @@ const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
     DDSolid  ma = *it;
     if (ma.isDefined().second) {
       DDSolidShape sh = ma.shape();
-      if ( (sh == ddunion) || (sh == ddintersection) || (sh == ddsubtraction) ) {
+      if ( (sh == DDSolidShape::ddunion) || (sh == DDSolidShape::ddintersection) || (sh == DDSolidShape::ddsubtraction) ) {
        DDBooleanSolid bs(ma);
        DDSolid a(bs.solidA()),b(bs.solidB());
        //DDRotation r(bs.rotation());
@@ -222,24 +221,18 @@ const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
     }
   }
   
-    std::vector<DDSolid>::const_iterator mit(errs.begin()),
-                                      med(errs.end());
-    for (; mit != med; ++mit) {
+  std::vector<DDSolid>::const_iterator mit(errs.begin()),
+    med(errs.end());
+  for (; mit != med; ++mit) {
 
-    try {
-      // loop over erroreous materials
-      ma_walker_t w(mag,*mit);
-      while (w.next()) {
-        result_[*mit].insert(w.current().first);
-      }
-      std::cout << std::endl;
-    } 
-    catch(DDSolid m) {
-      ;
-      //std::cout << "no such material: " << m << " for creating a walker." << std::endl;
+    ma_walker_t w(mag,*mit);
+    while (w.next()) {
+      result_[*mit].insert(w.current().first);
     }
-   } 
-   return result_;
+    std::cout << std::endl;
+  } 
+  
+  return result_;
 }
 
 

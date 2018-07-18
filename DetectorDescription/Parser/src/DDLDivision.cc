@@ -103,7 +103,7 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
 
   switch (div.parent().solid().shape()) 
   {
-  case ddbox:
+  case DDSolidShape::ddbox:
     if (div.axis() == DDAxes::x)
       dg = new DDDividedBoxX(div,cpv);
     else if (div.axis() == DDAxes::y)
@@ -121,7 +121,7 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     }
     break;
 
-  case ddtubs:
+  case DDSolidShape::ddtubs:
     if (div.axis() == DDAxes::rho)
       dg = new DDDividedTubsRho(div,cpv);
     else if (div.axis() == DDAxes::phi)
@@ -139,7 +139,7 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     }
     break;
 
-  case ddtrap:
+  case DDSolidShape::ddtrap:
     if (div.axis() == DDAxes::x)
       dg = new DDDividedTrdX(div,cpv);
     else if (div.axis() == DDAxes::y )
@@ -158,7 +158,7 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     }
     break;
 
-  case ddcons:
+  case DDSolidShape::ddcons:
     if (div.axis() == DDAxes::rho)
       dg = new DDDividedConsRho(div,cpv);
     else if (div.axis() == DDAxes::phi)
@@ -176,7 +176,7 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     }
     break;
 
-  case ddpolycone_rrz:
+  case DDSolidShape::ddpolycone_rrz:
     if (div.axis() == DDAxes::rho)
       dg = new DDDividedPolyconeRho(div,cpv);
     else if (div.axis() == DDAxes::phi)
@@ -195,7 +195,7 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     }
     break;
 
-  case ddpolyhedra_rrz:
+  case DDSolidShape::ddpolyhedra_rrz:
     if (div.axis() == DDAxes::rho)
       dg = new DDDividedPolyhedraRho(div,cpv);
     else if (div.axis() == DDAxes::phi)
@@ -214,8 +214,8 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
     }
     break;
 
-  case ddpolycone_rz:
-  case ddpolyhedra_rz: {
+  case DDSolidShape::ddpolycone_rz:
+  case DDSolidShape::ddpolyhedra_rz: {
     std::string s = "ERROR:  A Polycone or Polyhedra can not be divided on any axis if it's\n";
     s += "original definition used r and z instead of ZSections. This has\n";
     s += "not (yet) been implemented.";
@@ -224,14 +224,13 @@ DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
   }
     break;
 
-  case ddunion: 
-  case ddsubtraction: 
-  case ddintersection: 
-  case ddreflected: 
-  case ddshapeless: 
-  case ddpseudotrap: 
-  case ddtrunctubs:
-  case dd_not_init: {
+  case DDSolidShape::ddunion: 
+  case DDSolidShape::ddsubtraction: 
+  case DDSolidShape::ddintersection: 
+  case DDSolidShape::ddshapeless: 
+  case DDSolidShape::ddpseudotrap: 
+  case DDSolidShape::ddtrunctubs:
+  case DDSolidShape::dd_not_init: {
     std::string s = "DDLDivision can not divide a ";
     s += DDSolidShapesName::name(div.parent().solid().shape());
     s += " at all (yet?).  Requested axis was ";

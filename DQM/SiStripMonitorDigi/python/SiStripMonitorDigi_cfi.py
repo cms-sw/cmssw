@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # SiStripMonitorDigi
-SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripMonitorDigi = DQMEDAnalyzer('SiStripMonitorDigi',
 
     TopFolderName = cms.string('SiStrip'),
     # add digi producers same way as Domenico in SiStripClusterizer
@@ -131,9 +132,9 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ),
 
     TProfNDigisFED = cms.PSet(
-        Nbinsx          = cms.int32(460),
-        xmax           = cms.double(460),
-        xmin           = cms.double(0),
+        Nbinsx          = cms.int32(440),
+        xmax           = cms.double(489.5),
+        xmin           = cms.double(49.5),
         Nbinsy = cms.int32(200),
         ymin = cms.double(-0.5),
         ymax = cms.double(199999.5),
@@ -203,5 +204,5 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
     ShowControlView = cms.bool(False),
     CalculateStripOccupancy = cms.bool(False),
     ResetMEsEachRun = cms.bool(False),
-    TrendVsLS       = cms.bool(True),
+    TrendVs10LS       = cms.bool(False),
 )

@@ -173,9 +173,9 @@ testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
   
   edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("famosSimHits",fastSimTracks);
+  iEvent.getByLabel("fastSimProducer",fastSimTracks);
   edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("famosSimHits",fastSimVertices);
+  iEvent.getByLabel("fastSimProducer",fastSimVertices);
   mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
 
   if ( !mySimEvent[1]->nVertices() ) return;

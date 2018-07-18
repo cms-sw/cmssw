@@ -69,7 +69,11 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
   if (processTM) processTags.push_back("TM");
-  if (processDDU) processTags.push_back("DDU");
+  if (processDDU) {processTags.push_back("DDU");
+		  ddu_Token_   = consumes<DTLocalTriggerCollection>(
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
+  	}
+  if (!processTM && !processDDU) LogError ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: Error, no trigger source (DDU or Twinmux) has been selected!!" <<endl;
 
 }
 
@@ -112,11 +116,6 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
   }
 }
 
-void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") <<"[DTTriggerEfficiencyTask]: Begin of LS transition"<<endl;
-
-}
 
 void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
@@ -148,6 +147,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
   }
 
   //Getting Best DDU Stuff
+  if (processDDU){
   Handle<DTLocalTriggerCollection> trigsDDU;
   e.getByToken(ddu_Token_, trigsDDU);
   DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
@@ -167,6 +167,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     }
 
   }
+  }//processDDU
 
   //Getting Best Segments
   vector<const DTRecSegment4D*> best4DSegments;

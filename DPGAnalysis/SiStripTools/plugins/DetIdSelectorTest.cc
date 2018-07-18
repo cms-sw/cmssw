@@ -70,7 +70,7 @@ private:
 
 
   std::vector<DetIdSelector> detidsels_;
-  TkHistoMap *tkhisto_;
+  std::unique_ptr<TkHistoMap> tkhisto_;
   TrackerMap tkmap_;
 
   
@@ -88,7 +88,7 @@ private:
 // constructors and destructor
 //
 DetIdSelectorTest::DetIdSelectorTest(const edm::ParameterSet& iConfig):
-  detidsels_(), tkhisto_(new TkHistoMap("SelectorTest","SelectorTest",-1)),tkmap_()
+  detidsels_(), tkhisto_(nullptr), tkmap_()
 {
    //now do what ever initialization is needed
 
@@ -123,6 +123,12 @@ void
 DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+
+   if ( ! tkhisto_ ) {
+     edm::ESHandle<TkDetMap> tkDetMapHandle;
+     iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+     tkhisto_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SelectorTest","SelectorTest",-1);
+   }
    
    {
      SiStripDetInfoFileReader * reader=edm::Service<SiStripDetInfoFileReader>().operator->();

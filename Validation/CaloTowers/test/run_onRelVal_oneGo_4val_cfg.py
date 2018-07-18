@@ -50,7 +50,8 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 
-process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
     outputFile		      = cms.untracked.string('HcalDigisValidationRelVal.root'),
     digiLabel		      = cms.InputTag("hcalDigis"),
     zside		      = cms.untracked.string('*'),
@@ -60,7 +61,7 @@ process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     mc			      = cms.untracked.string('yes') # 'yes' for MC
 )   
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+process.hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
     CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
 
@@ -78,7 +79,7 @@ process.hcalNoiseRates = DQMEDHarvester('NoiseRates',
     useAllHistos = cms.untracked.bool(False)                         
 )
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),

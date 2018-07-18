@@ -1,6 +1,8 @@
 #ifndef CSCSPCounters_h
 #define CSCSPCounters_h
 
+#include <cstring>
+
 class CSCSPCounters {
 private:
 	// Block of counters
@@ -24,7 +26,7 @@ public:
 		return zero_1 !=0 || zero_2 !=0 || zero_3 !=0 || zero_4 !=0 ;
 	}
 
-	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
+	bool unpack(const unsigned short *&buf) throw() { std::memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
 
 	int track_counter(void) const throw() { return (track_counter_high<<15) | track_counter_low; }
 	int orbit_counter(void) const throw() { return (orbit_counter_high<<15) | orbit_counter_low; }

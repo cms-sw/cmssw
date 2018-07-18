@@ -22,6 +22,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #Populate ES
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
 from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
 siStripBadModuleConfigurableFakeESSource.BadComponentList = cms.untracked.VPSet(   cms.PSet(
@@ -138,15 +139,18 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      )
 
 #### Add these lines to produce a tracker map
-process.load("DQMServices.Core.DQMStore_cfg")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
+# load TrackerTopology (needed for TkDetMap and TkHistoMap)
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 ####
 
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("TkMapBadComponents_byHand.png")
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
+                               dataLabel = cms.untracked.string(""),
+                               TkMapFileName = cms.untracked.string("TkMapBadComponents_byHand.png")
+                               )
 
 process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)

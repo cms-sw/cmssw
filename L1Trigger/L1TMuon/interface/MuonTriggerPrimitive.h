@@ -1,5 +1,5 @@
-#ifndef __L1TMUON_TRIGGERPRIMITIVE_H__
-#define __L1TMUON_TRIGGERPRIMITIVE_H__
+#ifndef __L1TMuon_TriggerPrimitive_h__
+#define __L1TMuon_TriggerPrimitive_h__
 //
 // Class: L1TMuon::TriggerPrimitive
 //
@@ -26,9 +26,6 @@
 //Global point (created on the fly)
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-// Forward declaration
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
-
 // DT digi types
 class DTChamberId;
 class L1MuDTChambPhDigi;
@@ -39,12 +36,16 @@ class CSCCorrelatedLCTDigi;
 class CSCDetId;
 
 // RPC digi types
-class RPCDigiL1Link;
+class RPCDigi;
 class RPCDetId;
 
 // GEM digi types
 class GEMPadDigi;
 class GEMDetId;
+
+// ME0 digi types
+class ME0PadDigi;
+class ME0DetId;
 
 
 namespace L1TMuon {
@@ -59,19 +60,20 @@ namespace L1TMuon {
     // within a subsystem
     // for RPCs you have to unroll the digi-link and raw det-id
     struct RPCData {
-    RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0), valid(0) {}
+      RPCData() : strip(0), strip_low(0), strip_hi(0), layer(0), bx(0), valid(0), time(0.) {}
       uint16_t strip;
       uint16_t strip_low; // for use in clustering
       uint16_t strip_hi;  // for use in clustering
       uint16_t layer;
       int16_t bx;
       uint16_t valid;
+      double time;  // why double?
     };
 
     struct CSCData {
       CSCData() : trknmb(0), valid(0), quality(0), keywire(0), strip(0),
-		  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
-		  cscID(0) {}
+                  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
+                  cscID(0), alct_quality(0), clct_quality(0) {}
       uint16_t trknmb;
       uint16_t valid;
       uint16_t quality;
@@ -84,13 +86,17 @@ namespace L1TMuon {
       uint16_t bx0;
       uint16_t syncErr;
       uint16_t cscID;
+
+      // Extra info for ALCT (wires) and CLCT (strips)
+      uint16_t alct_quality;
+      uint16_t clct_quality;
     };
 
     struct DTData {
       DTData() : bx(0), wheel(0), sector(0), station(0), radialAngle(0),
-		 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
-		 theta_bti_group(0), segment_number(0), theta_code(0),
-		 theta_quality(0) {}
+                 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
+                 theta_bti_group(0), segment_number(0), theta_code(0),
+                 theta_quality(0) {}
       // from ChambPhDigi (corresponds to a TRACO)
       // this gives us directly the phi
       int bx; // relative? bx number
@@ -114,11 +120,13 @@ namespace L1TMuon {
     };
 
     struct GEMData {
-      GEMData() : pad(0), pad_low(0), pad_hi(0), bx(0) {}
+      GEMData() : pad(0), pad_low(0), pad_hi(0), bx(0), bend(0), isME0(false) {}
       uint16_t pad;
       uint16_t pad_low; // for use in clustering
       uint16_t pad_hi;  // for use in clustering
       int16_t bx;
+      int16_t bend;
+      bool isME0;
     };
 
     //Persistency
@@ -126,20 +134,22 @@ namespace L1TMuon {
 
     //DT
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const int segment_number);
+                     const L1MuDTChambPhDigi&,
+                     const int segment_number);
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambThDigi&,
-		     const int segment_number);
+                     const L1MuDTChambThDigi&,
+                     const int segment_number);
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const L1MuDTChambThDigi&,
-		     const int theta_bti_group);
+                     const L1MuDTChambPhDigi&,
+                     const L1MuDTChambThDigi&,
+                     const int theta_bti_group);
     //CSC
     TriggerPrimitive(const CSCDetId&,
-		     const CSCCorrelatedLCTDigi&);
+                     const CSCCorrelatedLCTDigi&);
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
+                     const RPCDigi& digi);
+    TriggerPrimitive(const RPCDetId& detid,  // keep this version for backward compatibility
                      const unsigned strip,
                      const unsigned layer,
                      const int bx);
@@ -147,6 +157,8 @@ namespace L1TMuon {
     // GEM
     TriggerPrimitive(const GEMDetId& detid,
                      const GEMPadDigi& digi);
+    TriggerPrimitive(const ME0DetId& detid,
+                     const ME0PadDigi& digi);
 
     //copy
     TriggerPrimitive(const TriggerPrimitive&);
@@ -208,18 +220,14 @@ namespace L1TMuon {
   private:
     // Translate to 'global' position information at the level of 60
     // degree sectors. Use CSC sectors as a template
-    void calculateDTGlobalSector(const DTChamberId& chid,
-				 unsigned& global_sector,
-				 unsigned& subsector );
-    void calculateCSCGlobalSector(const CSCDetId& chid,
-				  unsigned& global_sector,
-				  unsigned& subsector );
-    void calculateRPCGlobalSector(const RPCDetId& chid,
-                                  unsigned& global_sector,
-                                  unsigned& subsector );
-    void calculateGEMGlobalSector(const GEMDetId& chid,
-                                  unsigned& global_sector,
-                                  unsigned& subsector );
+    template<typename IDType>
+      void calculateGlobalSector(const IDType& chid,
+                                 unsigned& globalsector,
+                                 unsigned& subsector ) {
+        // Not sure if this is ever going to get implemented
+        globalsector = 0;
+        subsector = 0;
+      }
 
     DTData  _dt;
     CSCData _csc;

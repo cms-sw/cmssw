@@ -115,7 +115,7 @@ private:
   std::set < reco::TransientTrack > thePrimaries;
   AnnealingSchedule * theAssComp;
   LinearizationPointFinder * theSeeder;
-  mutable TrackAndSeedToWeightMap theWeights;
+  TrackAndSeedToWeightMap theWeights;
   LinTrackCache theCache;
 };
 

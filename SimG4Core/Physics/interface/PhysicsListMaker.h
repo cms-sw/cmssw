@@ -30,27 +30,22 @@
 template<class T>
 class PhysicsListMaker : public PhysicsListMakerBase
 {
+ public:
+  PhysicsListMaker(){}
 
-   public:
-      PhysicsListMaker(){}
-
-      // ---------- const member functions ---------------------
-      std::unique_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap& map_,
-					      const HepPDT::ParticleDataTable * table_,
-					      sim::ChordFinderSetter * chordFinderSetter_,
-					      const edm::ParameterSet& p,
-					      SimActivityRegistry& reg) const override
-      {
-	std::unique_ptr<T> returnValue(new T(map_, table_, chordFinderSetter_, p));
-	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
+  // ---------- const member functions ---------------------
+  std::unique_ptr<PhysicsList> make(const edm::ParameterSet& p,
+				    SimActivityRegistry& reg) const override
+    {
+      std::unique_ptr<T> returnValue(new T(p));
+      SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 	
-	return returnValue;
-      }
-   private:
+      return returnValue;
+    }
+ private:
 
-      PhysicsListMaker(const PhysicsListMaker&) = delete;
-      const PhysicsListMaker& operator=(const PhysicsListMaker&) = delete; 
-
+  PhysicsListMaker(const PhysicsListMaker&) = delete;
+  const PhysicsListMaker& operator=(const PhysicsListMaker&) = delete; 
 };
 
 

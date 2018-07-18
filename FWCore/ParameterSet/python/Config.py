@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ### command line options helper
+import six
 from  Options import Options
 options = Options()
 
@@ -411,7 +412,7 @@ class Process(object):
        containing mod and return it. If none is found, return None"""
        from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
        l = list()
-       for seqOrTask in seqsOrTasks.itervalues():
+       for seqOrTask in six.itervalues(seqsOrTasks):
           l[:] = []
           v = ModuleNodeVisitor(l)
           seqOrTask.visit(v)
@@ -426,7 +427,7 @@ class Process(object):
             raise ValueError('this attribute cannot be deleted')
 
         # we have to remove it from all dictionaries/registries
-        dicts = [item for item in self.__dict__.values() if (type(item)==dict or type(item)==DictTypes.SortedKeysDict)]
+        dicts = [item for item in self.__dict__.values() if (isinstance(item, dict) or isinstance(item, DictTypes.SortedKeysDict))]
         for reg in dicts:
             if name in reg: del reg[name]
         # if it was a labelable object, the label needs to be removed
@@ -668,51 +669,51 @@ class Process(object):
         config+=self._dumpConfigNamedList(self.subProcesses_(),
                                   'subProcess',
                                   options)
-        config+=self._dumpConfigNamedList(self.producers_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.producers_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.filters_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.filters_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.analyzers_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.analyzers_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.outputModules_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.outputModules_()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.sequences_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.sequences_()),
                                   'sequence',
                                   options)
-        config+=self._dumpConfigNamedList(self.paths_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.paths_()),
                                   'path',
                                   options)
-        config+=self._dumpConfigNamedList(self.endpaths_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.endpaths_()),
                                   'endpath',
                                   options)
-        config+=self._dumpConfigUnnamedList(self.services_().iteritems(),
+        config+=self._dumpConfigUnnamedList(six.iteritems(self.services_()),
                                   'service',
                                   options)
-        config+=self._dumpConfigNamedList(self.aliases_().iteritems(),
+        config+=self._dumpConfigNamedList(six.iteritems(self.aliases_()),
                                   'alias',
                                   options)
         config+=self._dumpConfigOptionallyNamedList(
-            self.es_producers_().iteritems(),
+            six.iteritems(self.es_producers_()),
             'es_module',
             options)
         config+=self._dumpConfigOptionallyNamedList(
-            self.es_sources_().iteritems(),
+            six.iteritems(self.es_sources_()),
             'es_source',
             options)
         config += self._dumpConfigESPrefers(options)
-        for name,item in self.psets.iteritems():
+        for name,item in six.iteritems(self.psets):
             config +=options.indentation()+item.configTypeName()+' '+name+' = '+item.configValue(options)
-        for name,item in self.vpsets.iteritems():
+        for name,item in six.iteritems(self.vpsets):
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
             pathNames = [p.label_() for p in self.schedule]
             config +=options.indentation()+'schedule = {'+','.join(pathNames)+'}\n'
 
-#        config+=self._dumpConfigNamedList(self.vpsets.iteritems(),
+#        config+=self._dumpConfigNamedList(six.iteritems(self.vpsets),
 #                                  'VPSet',
 #                                  options)
         config += "}\n"
@@ -720,7 +721,7 @@ class Process(object):
         return config
     def _dumpConfigESPrefers(self, options):
         result = ''
-        for item in self.es_prefers_().itervalues():
+        for item in six.itervalues(self.es_prefers_()):
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
     def _dumpPythonSubProcesses(self, l, options):
@@ -763,7 +764,7 @@ class Process(object):
         # For each item, see what other items it depends upon
         # For our purpose here, an item depends on the items it contains.
         dependencies = {}
-        for label,item in processDictionaryOfItems.iteritems():
+        for label,item in six.iteritems(processDictionaryOfItems):
             containedItems = []
             if isinstance(item, Task):
                 v = TaskVisitor(containedItems)
@@ -800,18 +801,18 @@ class Process(object):
         # keep looping until we get rid of all dependencies
         while dependencies:
             oldDeps = dict(dependencies)
-            for label,deps in oldDeps.iteritems():
+            for label,deps in six.iteritems(oldDeps):
                 if len(deps)==0:
                     returnValue[label]=processDictionaryOfItems[label]
                     #remove this as a dependency for all other tasks
                     del dependencies[label]
-                    for lb2,deps2 in dependencies.iteritems():
+                    for lb2,deps2 in six.iteritems(dependencies):
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
     def _dumpPython(self, d, options):
         result = ''
-        for name, value in sorted(d.iteritems()):
+        for name, value in sorted(six.iteritems(d)):
            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
@@ -844,15 +845,15 @@ class Process(object):
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
-        for sequenceable in self.sequences.itervalues():
+        for sequenceable in six.itervalues(self.sequences):
             sequenceable.replace(old,new)
-        for sequenceable in self.paths.itervalues():
+        for sequenceable in six.itervalues(self.paths):
             sequenceable.replace(old,new)
-        for sequenceable in self.endpaths.itervalues():
+        for sequenceable in six.itervalues(self.endpaths):
             sequenceable.replace(old,new)
     def _replaceInTasks(self, label, new):
         old = getattr(self,label)
-        for task in self.tasks.itervalues():
+        for task in six.itervalues(self.tasks):
             task.replace(old, new)
     def _replaceInSchedule(self, label, new):
         if self.schedule_() == None:
@@ -866,7 +867,7 @@ class Process(object):
             raise LookupError("process has no item of label "+label)
         setattr(self,label,new)
     def _insertInto(self, parameterSet, itemDict):
-        for name,value in itemDict.iteritems():
+        for name,value in six.iteritems(itemDict):
             value.insertInto(parameterSet, name)
     def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
@@ -877,7 +878,7 @@ class Process(object):
         parameterSet.addVString(tracked, label, vitems)
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
-        for name,value in itemDict.iteritems():
+        for name,value in six.iteritems(itemDict):
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
@@ -952,9 +953,9 @@ class Process(object):
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
     def resolve(self,keepUnresolvedSequencePlaceholders=False):
-        for x in self.paths.itervalues():
+        for x in six.itervalues(self.paths):
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
-        for x in self.endpaths.itervalues():
+        for x in six.itervalues(self.endpaths):
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         if not self.schedule_() == None:
             for task in self.schedule_()._tasks:
@@ -986,8 +987,8 @@ class Process(object):
             for n in unneededPaths:
                 delattr(self,n)
         else:
-            pths = list(self.paths.itervalues())
-            pths.extend(self.endpaths.itervalues())
+            pths = list(six.itervalues(self.paths))
+            pths.extend(six.itervalues(self.endpaths))
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
@@ -996,12 +997,12 @@ class Process(object):
         #remove sequences that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
-        for p in self.paths.itervalues():
+        for p in six.itervalues(self.paths):
             p.visit(sv)
-        for p in self.endpaths.itervalues():
+        for p in six.itervalues(self.endpaths):
             p.visit(sv)
         keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
-        availableSeqs = set(self.sequences.itervalues())
+        availableSeqs = set(six.itervalues(self.sequences))
         unneededSeqs = availableSeqs-keepSeqSet
         unneededSeqLabels = []
         for s in unneededSeqs:
@@ -1070,26 +1071,26 @@ class Process(object):
         # the modules, ESSources, ESProducers, and services it visits.
         nodeVisitor = NodeVisitor()
         self._insertPaths(adaptor, nodeVisitor)
-        all_modules_onTasksOrScheduled = { key:value for key, value in all_modules.iteritems() if value in nodeVisitor.modules }
+        all_modules_onTasksOrScheduled = { key:value for key, value in six.iteritems(all_modules) if value in nodeVisitor.modules }
         self._insertManyInto(adaptor, "@all_modules", all_modules_onTasksOrScheduled, True)
         # Same as nodeVisitor except this one visits all the Tasks attached
         # to the process.
         processNodeVisitor = NodeVisitor()
-        for pTask in self.tasks.itervalues():
+        for pTask in six.itervalues(self.tasks):
             pTask.visit(processNodeVisitor)
         esProducersToEnable = {}
-        for esProducerName, esProducer in self.es_producers_().iteritems():
+        for esProducerName, esProducer in six.iteritems(self.es_producers_()):
             if esProducer in nodeVisitor.esProducers or not (esProducer in processNodeVisitor.esProducers):
                 esProducersToEnable[esProducerName] = esProducer
         self._insertManyInto(adaptor, "@all_esmodules", esProducersToEnable, True)
         esSourcesToEnable = {}
-        for esSourceName, esSource in self.es_sources_().iteritems():
+        for esSourceName, esSource in six.iteritems(self.es_sources_()):
             if esSource in nodeVisitor.esSources or not (esSource in processNodeVisitor.esSources):
                 esSourcesToEnable[esSourceName] = esSource
         self._insertManyInto(adaptor, "@all_essources", esSourcesToEnable, True)
         #handle services differently
         services = []
-        for serviceName, serviceObject in self.services_().iteritems():
+        for serviceName, serviceObject in six.iteritems(self.services_()):
              if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
                  serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
         adaptor.addVPSet(False,"services",services)
@@ -1143,7 +1144,7 @@ class Process(object):
         else:
             # maybe it's an unnamed ESModule?
             found = False
-            for name, value in d.iteritems():
+            for name, value in six.iteritems(d):
                if value.type_() == esname:
                   if found:
                       raise RuntimeError("More than one ES module for "+esname)
@@ -1189,8 +1190,7 @@ class FilteredStream(dict):
     def __new__(cls, *args, **kw):
         new = dict.__new__(cls)
         dict.__init__(new, *args, **kw)
-        keys = kw.keys()
-        keys.sort()
+        keys = sorted(kw.keys())
         if keys != ['content', 'dataTier', 'name', 'paths', 'responsible', 'selectEvents']:
            raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
 	if not isinstance(kw['name'],str):
@@ -1278,17 +1278,22 @@ class _ParameterModifier(object):
   def _raiseUnknownKey(key):
     raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
 
-class _AndModifier(object):
-  """A modifier which only applies if multiple Modifiers are chosen"""
-  def __init__(self, lhs, rhs):
-    self.__lhs = lhs
-    self.__rhs = rhs
-  def isChosen(self):
-    return self.__lhs.isChosen() and self.__rhs.isChosen()
+class _BoolModifierBase(object):
+  """A helper base class for _AndModifier, _InvertModifier, and _OrModifier to contain the common code"""
+  def __init__(self, lhs, rhs=None):
+    self._lhs = lhs
+    if rhs is not None:
+      self._rhs = rhs
   def toModify(self,obj, func=None,**kw):
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
       return
-    self.__lhs.toModify(obj,func, **kw)
+    Modifier._toModify(obj,func,**kw)
+  def toReplaceWith(self,toObj,fromObj):
+    Modifier._toReplaceWithCheck(toObj,fromObj)
+    if not self.isChosen():
+      return
+    Modifier._toReplaceWith(toObj,fromObj)
   def makeProcessModifier(self,func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
         This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
@@ -1296,7 +1301,31 @@ class _AndModifier(object):
     return ProcessModifier(self,func)
   def __and__(self, other):
     return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
 
+class _AndModifier(_BoolModifierBase):
+  """A modifier which only applies if multiple Modifiers are chosen"""
+  def __init__(self, lhs, rhs):
+    super(_AndModifier,self).__init__(lhs, rhs)
+  def isChosen(self):
+    return self._lhs.isChosen() and self._rhs.isChosen()
+
+class _InvertModifier(_BoolModifierBase):
+  """A modifier which only applies if a Modifier is not chosen"""
+  def __init__(self, lhs):
+    super(_InvertModifier,self).__init__(lhs)
+  def isChosen(self):
+    return not self._lhs.isChosen()
+
+class _OrModifier(_BoolModifierBase):
+  """A modifier which only applies if at least one of multiple Modifiers is chosen"""
+  def __init__(self, lhs, rhs):
+    super(_OrModifier,self).__init__(lhs, rhs)
+  def isChosen(self):
+    return self._lhs.isChosen() or self._rhs.isChosen()
 
 
 class Modifier(object):
@@ -1317,6 +1346,10 @@ class Modifier(object):
        In order to work, the value returned from this function must be assigned to a uniquely named variable.
     """
     return ProcessModifier(self,func)
+  @staticmethod
+  def _toModifyCheck(obj,func,**kw):
+    if func is not None and len(kw) != 0:
+      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
   def toModify(self,obj, func=None,**kw):
     """This is used to register an action to be performed on the specific object. Two different forms are allowed
     Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
@@ -1330,22 +1363,30 @@ class Modifier(object):
         #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
         mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
     """
-    if func is not None and len(kw) != 0:
-      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
         return
+    Modifier._toModify(obj,func,**kw)
+  @staticmethod
+  def _toModify(obj,func,**kw):
     if func is not None:
       func(obj)
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
+  @staticmethod
+  def _toReplaceWithCheck(toObj,fromObj):
+    if not isinstance(fromObj, type(toObj)):
+        raise TypeError("toReplaceWith requires both arguments to be the same class type")
   def toReplaceWith(self,toObj,fromObj):
     """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
     """
-    if type(fromObj) != type(toObj):
-        raise TypeError("toReplaceWith requires both arguments to be the same class type")
+    Modifier._toReplaceWithCheck(toObj,fromObj)
     if not self.isChosen():
         return
+    Modifier._toReplaceWith(toObj,fromObj)
+  @staticmethod
+  def _toReplaceWith(toObj,fromObj):
     if isinstance(fromObj,_ModuleSequenceType):
         toObj._seq = fromObj._seq
         toObj._tasks = fromObj._tasks
@@ -1370,6 +1411,10 @@ class Modifier(object):
     return self.__chosen
   def __and__(self, other):
     return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
   def _isOrContains(self, other):
     return self == other
 
@@ -2085,8 +2130,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             visitor1 = ModuleNodeVisitor(l)
             testTask1.visit(visitor1)
             l.sort()
-            expectedList = [edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4]
-            expectedList.sort()
+            expectedList = sorted([edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4])
             self.assertTrue(expectedList == l)
 
             process.myTask6 = Task()
@@ -2917,9 +2961,10 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             #test removal of parameter
             m1 = Modifier()
             p = Process("test",m1)
-            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
-            m1.toModify(p.a, fred = None)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1), fintstones = PSet(fred = int32(1)))
+            m1.toModify(p.a, fred = None, fintstones = dict(fred = None))
             self.assertEqual(hasattr(p.a, "fred"), False)
+            self.assertEqual(hasattr(p.a.fintstones, "fred"), False)
             self.assertEqual(p.a.wilma.value(),1)
             #test adding a parameter
             m1 = Modifier()
@@ -3023,6 +3068,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
+            self.assertRaises(TypeError, lambda: (m1 & m2).toModify(p.a, 1, wilma=2))
             self.assertEqual(p.a.fred, 1)
             m1 = Modifier()
             m2 = Modifier()
@@ -3037,11 +3083,66 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2 & m3).toModify(p.a, fred = int32(2))
             self.assertEqual(p.a.fred, 2)
+            (m1 & (m2 & m3)).toModify(p.a, fred = int32(3))
+            self.assertEqual(p.a.fred, 3)
+            ((m1 & m2) & m3).toModify(p.a, fred = int32(4))
+            self.assertEqual(p.a.fred, 4)
+            #check inverse
+            m1 = Modifier()
+            m2 = Modifier()
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (~m1).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 1)
+            (~m2).toModify(p.a, wilma=2)
+            self.assertEqual(p.a.wilma, 2)
+            self.assertRaises(TypeError, lambda: (~m1).toModify(p.a, 1, wilma=2))
+            self.assertRaises(TypeError, lambda: (~m2).toModify(p.a, 1, wilma=2))
+            # check or
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (m1 | m2).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 2)
+            (m1 | m2 | m3).toModify(p.a, fred=3)
+            self.assertEqual(p.a.fred, 3)
+            (m3 | m2 | m1).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 4)
+            ((m1 | m2) | m3).toModify(p.a, fred=5)
+            self.assertEqual(p.a.fred, 5)
+            (m1 | (m2 | m3)).toModify(p.a, fred=6)
+            self.assertEqual(p.a.fred, 6)
+            (m2 | m3).toModify(p.a, fred=7)
+            self.assertEqual(p.a.fred, 6)
+            self.assertRaises(TypeError, lambda: (m1 | m2).toModify(p.a, 1, wilma=2))
+            self.assertRaises(TypeError, lambda: (m2 | m3).toModify(p.a, 1, wilma=2))
+            # check combinations
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            m4 = Modifier()
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (m1 & ~m2).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 1)
+            (m1 & ~m3).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 2)
+            (m1 | ~m2).toModify(p.a, fred=3)
+            self.assertEqual(p.a.fred, 3)
+            (~m1 | ~m2).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 3)
+            (~m3 & ~m4).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 4)
+            ((m1 & m3) | ~m4).toModify(p.a, fred=5)
+            self.assertEqual(p.a.fred, 5)
             #check toReplaceWith
             m1 = Modifier()
             p = Process("test",m1)
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
+            self.assertRaises(TypeError, lambda: m1.toReplaceWith(p.a, EDProducer("YourProducer")))
             p.b =EDAnalyzer("BAn")
             p.c =EDProducer("c")
             p.d =EDProducer("d")
@@ -3062,4 +3163,29 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
             self.assertEqual(p.a.type_(),"MyAnalyzer")
+            #check toReplaceWith and and/not/or combinations
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            m4 = Modifier()
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            self.assertRaises(TypeError, lambda: (m1 & m2).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m3 & m4).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (~m3).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (~m1).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m1 | m3).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m3 | m4).toReplaceWith(p.a, EDProducer("YourProducer")))
+            (m1 & m2).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer1"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (m1 & m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (~m1).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (~m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer2")
+            (m1 | m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer3"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer3")
+            (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer3")
     unittest.main()

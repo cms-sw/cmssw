@@ -99,9 +99,8 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    siStripDetCabling->addActiveDetectorsRawIds(activeDets);
 //    SelectedDetIds = activeDets; // all active detector modules
    // use SiStripSubStructure for selecting certain regions
-   SiStripSubStructure substructure;
-   substructure.getTIBDetectors(activeDets, SelectedDetIds, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
-   substructure.getTOBDetectors(activeDets, SelectedDetIds, 0, 0, 0);    // this adds rawDetIds to SelectedDetIds
+   SiStripSubStructure::getTIBDetectors(activeDets, SelectedDetIds, tTopo, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
+   SiStripSubStructure::getTOBDetectors(activeDets, SelectedDetIds, tTopo, 0, 0, 0);    // this adds rawDetIds to SelectedDetIds
    // get tracker geometry and find nr. of apv pairs for each active detector 
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
    for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules

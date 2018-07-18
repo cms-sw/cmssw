@@ -78,7 +78,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
     ignoreTotal = cms.untracked.int32(1)
 )
 
-process.load('Validation.HGCalValidation.test.ftSimHitTest_cfi')
+process.load('Validation.HGCalValidation.ftSimHitTest_cfi')
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('ftValid.root'),
                                    closeFileFast = cms.untracked.bool(True)

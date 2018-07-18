@@ -120,6 +120,7 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 
     bool TTpair=false;
     for (TagProbePairs::iterator it2 = pairs.begin(); it2 != ed; ++it2) {   // first check for Tag-Tag pairs
+      if (it2->tag.isNull()) continue; // skip already invalidated pairs                  
       if(it!=it2 && it->probe==it2->tag && it->tag==it2->probe){
 	//std::cout << "----------> probe is tag!!!!" << std::endl;
 	TTpair=true;

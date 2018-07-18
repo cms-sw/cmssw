@@ -15,24 +15,22 @@
 // System include files
 #include <memory>
 #include <vector>
-
+#include <utility>
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/typedefs.h"
 
 // L1 trigger include files
 //#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 // DQM include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -51,10 +49,8 @@ public:
 
 protected:
    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
    void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
    void analyze(const edm::Event&, const edm::EventSetup&) override;
-   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override; // end section
 
 private:
    
@@ -62,11 +58,13 @@ private:
    edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_; // input tag for L1 uGT DAQ readout record
   
    std::string monitorDir_; // histogram folder for L1 uGT plots
-   
+
    bool verbose_; // verbosity switch
-   
-   // Booking of histograms for the module
-   
+
+   // To get the number of algorithms
+   std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
+   int numAlgs_; // number of algorithms
+
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
    MonitorElement* algoBits_before_prescale_;
@@ -94,7 +92,6 @@ private:
  
    // Prescale factor index 
    MonitorElement* prescaleFactorSet_;
-
 };
 
 #endif

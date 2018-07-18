@@ -19,7 +19,7 @@ Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
                       const std::vector<double> & z,
                       const std::vector<double> & rmin,
                       const std::vector<double> & rmax)
-  : Solid(ddpolyhedra_rrz)	      
+  : Solid(DDSolidShape::ddpolyhedra_rrz)	      
 {
   p_.emplace_back(sides);
   p_.emplace_back(startPhi);
@@ -41,7 +41,7 @@ Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
 
 Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
                       const std::vector<double> & z,
-                      const std::vector<double> & r) : Solid(ddpolyhedra_rz)	      
+                      const std::vector<double> & r) : Solid(DDSolidShape::ddpolyhedra_rz)	      
 {
   p_.emplace_back(sides);
   p_.emplace_back(startPhi);
@@ -62,13 +62,31 @@ Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
 
 double Polyhedra::volume() const
 {
-  double volume=0;
-  /* the following assumption is made: there are at least 3 eaqual sides if there is a complete circle (this has to be done, otherwise you can not define a polygon in a circle */
+  double volume = 0;
+  /* the following assumption is made:
+     there are at least 3 eaqual sides
+     if there is a complete circle (this has to be done,
+     otherwise you can not define a polygon in a circle */
   
-  /* the calculation for the volume is similar as in the case of the polycone. However, the rotation is not defined as part of a circle, but as sides in a regular polygon (specified by parameter "sides"). The sides are defined betwee startPhi and endPhi and form triangles within the circle they are defined in. First we need to determine the aread of side. let alpha |startPhi-endPhi|. the half the angle of 1 side is beta=0.5*(alph/sides). If r is the raddius of the circle in which the regular polygon is defined, the are of such a side will be 0.5*(height side)*(base side)=0.5*(cos(beta)*r)*(2*sin(beta)*r)= cos(beta)sin(beta)*r*r. r is the radius that varies if we "walk" over the boundaries of the polygon that is described by the z and r values (this yields the same integral primitive as used with the Polycone. Read Polycone documentation in code first if you do not understand this */
+  /* the calculation for the volume is similar as in
+     the case of the polycone. However, the rotation
+     is not defined as part of a circle, but as sides
+     in a regular polygon (specified by parameter "sides").
+     The sides are defined betwee startPhi and endPhi and
+     form triangles within the circle they are defined in.
+     First we need to determine the aread of side.
+     let alpha |startPhi-endPhi|.
+     the half the angle of 1 side is beta=0.5*(alph/sides).
+     If r is the raddius of the circle in which the regular polygon is defined,
+     the are of such a side will be
+     0.5*(height side)*(base side)=0.5*(cos(beta)*r)*(2*sin(beta)*r)= cos(beta)sin(beta)*r*r.
+     r is the radius that varies if we "walk" over the boundaries of
+     the polygon that is described by the z and r values
+     (this yields the same integral primitive as used with the Polycone.
+     Read Polycone documentation in code first if you do not understand this */
    
   //FIXME: rz, rrz !!
-  if (shape()==ddpolyhedra_rrz) 
+  if (shape()==DDSolidShape::ddpolyhedra_rrz) 
   {
     int loop = (p_.size()-3)/3 -1;
     double sec=0;

@@ -1,7 +1,7 @@
 <use   name="boost"/>
 <use   name="cppunit"/>
 <use   name="DataFormats/PatCandidates"/>
-<bin name="testDataFormatsPatCandidates" file="testPackedCandidate.cc,testPackedGenParticle.cc,testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp"/>
+<bin name="testDataFormatsPatCandidates" file="testPackedCandidate.cc,testPackedGenParticle.cc,testRunner.cpp"/>
 <bin   name="testKinResolutions" file="testKinParametrizations.cc,testKinResolutions.cc,testRunner.cpp">
   <flags   NO_TESTRUN="1"/>
 </bin>

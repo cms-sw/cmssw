@@ -1,12 +1,23 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
 import urllib
-import Config
+from . import Config
 import string
 import os
 import sys
 import commands
 import time
 import optparse
+
+def dasQuery(query,config):
+  cmd = config.dasClient+" --limit=9999 --query=\"%s\""%query
+  print cmd
+  output = commands.getstatusoutput(config.initEnv+cmd)
+  if output[0]!=0:
+    print "DAS CLIENT ERROR %s"%output[0]
+    print output[1]
+    sys.exit()
+  return(output[1].splitlines())
 
 def checkDatasetStructure(dataset,silent=False):
    goodDataset=True
@@ -34,11 +45,7 @@ def getDatasetFromPattern(pattern,conf):
    if not checkDatasetStructure(pattern):
       print "FATAL ERROR, bad dataset pattern"
       return([])
-   cmd = "das_client  --limit=9999 --query='dataset dataset="+pattern+"'"
-   print cmd
-
-   result = commands.getstatusoutput(conf.initEnv+cmd)[1].splitlines()
-   print conf.initEnv+cmd 
+   result = dasQuery("dataset dataset=%s"%pattern,conf)
    datasets = []
    for line in result:
       print line
@@ -50,16 +57,13 @@ def getRunsFromDataset(dataset,conf):
    if not checkDatasetStructure(dataset):
       print "FATAL ERROR, bad dataset pattern"
       return([])
-   cmd = "das_client  --limit=9999 --query='run dataset="+dataset+"'"
-   print cmd
-   result = commands.getstatusoutput(conf.initEnv+cmd)[1].splitlines()
-   
+   result = dasQuery("run dataset=%s"%dataset,conf)
    runs=[]
    for line in result:
       if line.isdigit:
          if len(line)==6: #We want the run number to be btw 100.000 and 999.999
             runs.append(int(line))
-   runs.sort() 
+   runs.sort()
    return runs
 
 def getNumberOfEvents(run,dataset,conf):
@@ -69,9 +73,13 @@ def getNumberOfEvents(run,dataset,conf):
    if not checkDatasetStructure(dataset):
       print "Invalid dataset"
       return 0
-   NEventsDasOut = commands.getstatusoutput(conf.initEnv+"das_client  --limit=9999 --query='summary dataset="+dataset+" run="+str(run)+" | grep summary.nevents'")[1].    splitlines()[-1]
+
+
+
+   NEventsDasOut = dasQuery("summary run=%s dataset=%s |grep summary.nevents"%(run,dataset),conf)[-1].replace(" ","")
    if not NEventsDasOut.isdigit():
-      print "Invalid number of events"
+      print "Invalid number of events:"
+      print "__%s__"%NEventsDasOut
       return 0
    else:
       return int(NEventsDasOut)
@@ -83,7 +91,7 @@ def getNumberOfFiles (run,dataset,conf):
    if not checkDatasetStructure(dataset):
       print "Invalid dataset"
       return 0
-   NFilesDasOut = commands.getstatusoutput(conf.initEnv+"das_client  --limit=9999 --query='summary dataset="+dataset+" run="+str(run)+" | grep summary.nfiles'")[1].      splitlines()[-1]
+   NFilesDasOut = dasQuery('summary dataset=%s run=%s | grep summary.nfiles'%(dataset,run),conf)[-1].replace(" ","")
    if not NFilesDasOut.isdigit():
       print "Invalid number of files."
       return 0
@@ -94,35 +102,11 @@ def getNumberOfFiles (run,dataset,conf):
 def reSubmitJob(run, dataset, conf, first, last):
    print "Re-submitting jobs for run = %s, dataset = %s"%(run, dataset)
 
-   #GET THE LIST OF FILE FROM THE DATABASE
-   files = ''
-   if not checkDatasetStructure(dataset,conf):
-      print "FATAL ERROR, bad dataset"
-      return -1
-   if not run > 99999 or not run<1000000:
-      print "FATAL ERROR, bad run number"
-      return -1
-   results = commands.getstatusoutput(conf.initEnv+"das_client  --limit=9999 --query='file dataset="+dataset+" run="+str(run)+"'")
-   if(int(results[0])!=0 or results[1].find('Error:')>=0):
-      print "FATAL ERROR, unable to get files list"
-      print results
-      #os.system('echo ' + str(run) + ' >> FailledRun%s.txt'%('_Aag' if AAG else ''))
-      return -1
-   filesList = results[1].splitlines();
-   fileId = 0
-   for f in filesList:
-      if(not f.startswith('/store')):continue
-      if fileId>=int(first) :
-         files+="'"+f+"',"
-      fileId+=1
-      if fileId>int(last) :      
-         sendJob(dataset,run,files,conf,first)
-         return (1)
 
 
 def submitJobs(run, dataset, nFiles, conf):
    print "Submitting jobs for run = %s, dataset = %s"%(run, dataset)
-   
+
    #GET THE LIST OF FILE FROM THE DATABASE
    files = ''
    if not checkDatasetStructure(dataset,conf):
@@ -131,27 +115,21 @@ def submitJobs(run, dataset, nFiles, conf):
    if not run > 99999 or not run<1000000:
       print "FATAL ERROR, bad run number"
       return -1
-   results = commands.getstatusoutput(conf.initEnv+"das_client  --limit=9999 --query='file dataset="+dataset+" run="+str(run)+"'")
-   if(int(results[0])!=0 or results[1].find('Error:')>=0):
-      print "FATAL ERROR, unable to get files list"
-      print results
-      #os.system('echo ' + str(run) + ' >> FailledRun%s.txt'%('_Aag' if AAG else ''))
-      return -1
-   filesList = results[1].splitlines();
+   filesList = dasQuery('file dataset=%s run=%s'%(dataset,run),conf)
    filesInJob = 0
    firstFile = 0
    for f in filesList:
       if(not f.startswith('/store')):continue
-      if filesInJob<conf.nFilesPerJob: 
+      if filesInJob<conf.nFilesPerJob:
          files+="'"+f+"',"
          filesInJob+=1
       else:
          firstFile = firstFile+filesInJob
-         sendJob(dataset,run,files,conf,firstFile) 
+         sendJob(dataset,run,files,conf,firstFile)
          files="'"+f+"',"
          filesInJob=1
    sendJob(dataset,run,files,conf,firstFile)
-   
+
 def sendJob(dataset,run,files,conf,firstFile):
    cmd = "python %s/submitCalibTree/runJob.py -f %s --firstFile %s -d %s -r %s "%(conf.RUNDIR, files,firstFile,dataset,run)
    if conf.AAG:
@@ -161,7 +139,7 @@ def sendJob(dataset,run,files,conf,firstFile):
    if conf.submit:
       os.system(bsub)
    else:
-      print bsub
+      print cmd + " --stageout False"
 
 def generateJobs(conf):
    print "Gathering jobs to launch."
@@ -227,7 +205,7 @@ def checkCorrupted(lastGood, config):
             else:
                nFiles = getNumberOfFiles(r,d,config)
                if nFiles < 25:
-                  print "Found run %s ? %s"%(r,[str(r)] in runList) 
+                  print "Found run %s ? %s"%(r,[str(r)] in runList)
                else:
                   x=25
                   while x<nFiles:
@@ -235,7 +213,7 @@ def checkCorrupted(lastGood, config):
                      x+=25
 
 
-               
+
 
 
    #for line in runList:
@@ -247,7 +225,7 @@ def checkCorrupted(lastGood, config):
       #   print(results[1]);
       #   print("add " + str(run) + " to the list of failled runs")
 #         os.system('echo ' + str(run) + ' >> FailledRun%s.txt'%('_Aag' if AAG else ''))
-   
+
 
 
 if __name__ == "__main__":
@@ -272,16 +250,16 @@ if False:
    for info in calibTreeInfo:
       subParts = info.split();
       if(len(subParts)<4):continue
-       
+
       run = int(subParts[4].replace("/calibTree_","").replace(".root","").replace(CASTORDIR,""))
-      file = "root://eoscms//eos/cms"+subParts[4] 
+      file = "root://eoscms//eos/cms"+subParts[4]
       print("Checking " + file)
       results = commands.getstatusoutput(initEnv+'root -l -b -q ' + file)
       if(len(results[1].splitlines())>3):
          print(results[1]);
          print("add " + str(run) + " to the list of failled runs")
          os.system('echo ' + str(run) + ' >> FailledRun%s.txt'%('_Aag' if AAG else ''))
-   
+
    #### If mode = All, relaunch with mode = Aag
    if opt.datasetType.lower()=="all":
       system("cd "+RUNDIR+"; python SubmitJobs.py -c -d Aag")

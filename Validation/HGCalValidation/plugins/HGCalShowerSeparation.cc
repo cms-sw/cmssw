@@ -12,8 +12,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
@@ -329,7 +327,7 @@ void HGCalShowerSeparation::fillDescriptions(
   desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
   desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
-  descriptions.add("hgcalShowerSeparation", desc);
+  descriptions.add("hgcalShowerSeparationDefault", desc);
 }
 
 // define this as a plug-in

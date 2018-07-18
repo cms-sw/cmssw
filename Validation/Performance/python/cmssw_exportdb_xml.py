@@ -226,7 +226,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	#create nodes for TestResults:
 	for (testName, result) in run_info["TestResults"].items():
 		#either we have one node or multiple ones (if list)
-		if type(result) == list:
+		if isinstance(result, list):
 			for result_item in result:
 				result_item.update({"testname": testName})
 

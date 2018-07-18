@@ -41,6 +41,8 @@ from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
+from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
+
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
@@ -60,28 +62,28 @@ preprodPrevalidation = cms.Sequence(
     tracksPreValidation
 )
 
-globalValidation = cms.Sequence(   trackerHitsValidation 
-                                 + trackerDigisValidation 
-                                 + trackerRecHitsValidation 
-                                 + trackingTruthValid 
-                                 + trackingRecHitsValid 
-                                 + ecalSimHitsValidationSequence 
-                                 + ecalDigisValidationSequence 
-                                 + ecalRecHitsValidationSequence 
+globalValidation = cms.Sequence(   trackerHitsValidation
+                                 + trackerDigisValidation
+                                 + trackerRecHitsValidation
+                                 + trackingTruthValid
+                                 + trackingRecHitsValid
+                                 + ecalSimHitsValidationSequence
+                                 + ecalDigisValidationSequence
+                                 + ecalRecHitsValidationSequence
                                  + ecalClustersValidationSequence
                                  + hcalSimHitsValidationSequence
                                  + hcaldigisValidationSequence
                                  + hcalSimHitStudy
                                  + hcalRecHitsValidationSequence
                                  + calotowersValidationSequence
-                                 + validSimHit+muondtdigianalyzer 
+                                 + validSimHit+muondtdigianalyzer
                                  + cscDigiValidation
-                                 + validationMuonRPCDigis 
-                                 + recoMuonValidation 
-                                 + muIsoVal_seq 
-                                 + muonIdValDQMSeq 
-                                 + mixCollectionValidation 
-                                 + JetValidation 
+                                 + validationMuonRPCDigis
+                                 + recoMuonValidation
+                                 + muIsoVal_seq
+                                 + muonIdValDQMSeq
+                                 + mixCollectionValidation
+                                 + JetValidation
                                  + METValidation
                                  + egammaValidation
                                  + pfJetValidationSequence
@@ -99,17 +101,13 @@ globalValidation = cms.Sequence(   trackerHitsValidation
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+fastSim.toReplaceWith(globalValidation, globalValidation.copyAndExclude([
     # fastsim has no tracker digis and different tracker rechit and simhit structure => skipp
-    globalValidation.remove(trackerHitsValidation)
-    globalValidation.remove(trackerDigisValidation)
-    globalValidation.remove(trackerRecHitsValidation)
-    globalValidation.remove(trackingRecHitsValid)
-    # globalValidation.remove(mixCollectionValidation) # can be put back, once mixing is migrated to fastsim era
+    trackerHitsValidation, trackerDigisValidation, trackerRecHitsValidation, trackingRecHitsValid,
     # the following depends on crossing frame of ecal simhits, which is a bit hard to implement in the fastsim workflow
     # besides: is this cross frame doing something, or is it a relic from the past?
-    globalValidation.remove(ecalDigisValidationSequence)
-    globalValidation.remove(ecalRecHitsValidationSequence)
+    ecalDigisValidationSequence, ecalRecHitsValidationSequence
+]))
 
 #lite tracking validator to be used in the Validation matrix
 #lite validation
@@ -132,10 +130,16 @@ globalPrevalidationTrackingOnly = cms.Sequence(
     + vertexValidationTrackingOnly
 )
 globalValidationTrackingOnly = cms.Sequence()
-
+# Pixel tracking only validation
+globalPrevalidationPixelTrackingOnly = cms.Sequence(
+      simHitTPAssocProducer
+    + tracksValidationPixelTrackingOnly
+    + vertexValidationPixelTrackingOnly
+)
+globalValidationPixelTrackingOnly = cms.Sequence()
 
 globalValidationJetMETonly = cms.Sequence(
-                                   JetValidation 
+                                   JetValidation
                                  + METValidation
 )
 
@@ -156,6 +160,8 @@ globalValidationHCAL = cms.Sequence(
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
+globalValidationOuterTracker = cms.Sequence(OuterTrackerSourceV)
+
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
     + me0SimValid
@@ -174,7 +180,7 @@ globalValidationMuons = cms.Sequence()
 _phase_1_globalValidation = globalValidation.copy()
 _phase_1_globalValidation += siPixelPhase1OfflineDQM_sourceV
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith( globalValidation, _phase_1_globalValidation )
+(phase1Pixel & ~fastSim).toReplaceWith( globalValidation, _phase_1_globalValidation ) #module siPixelPhase1OfflineDQM_sourceV can't run in FastSim since siPixelClusters of type edmNew::DetSetVector are not produced
 
 _run3_globalValidation = globalValidation.copy()
 _run3_globalValidation += gemSimValid
@@ -183,8 +189,8 @@ _phase2_globalValidation = _run3_globalValidation.copy()
 _phase2_globalValidation += me0SimValid
 
 
-from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
-run2_GEM_2017_MCTest.toReplaceWith( globalValidation, _run3_globalValidation )
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith( globalValidation, _run3_globalValidation )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( globalValidation, _run3_globalValidation )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon

@@ -55,10 +55,6 @@ namespace edm {
          EventSetupRecordImplementation() {}
 
       private:
-         EventSetupRecordImplementation(EventSetupRecordImplementation const&) = delete; // stop default
-
-         EventSetupRecordImplementation const& operator=(EventSetupRecordImplementation const&) = delete; // stop default
-
          // ---------- member data --------------------------------
       };
    }

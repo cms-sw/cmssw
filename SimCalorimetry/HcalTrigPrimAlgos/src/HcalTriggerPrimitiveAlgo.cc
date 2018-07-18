@@ -376,8 +376,10 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
 	//add up value * scale factor
 	// In addition, divide by two in the 10 degree phi segmentation region
 	// to mimic 5 degree segmentation for the trigger
-	if(ids.size()==2) algosumvalue += int(samples[ibin+i] * 0.5 * weights_[i]);
-	else algosumvalue += int(samples[ibin+i] * weights_[i]);
+	unsigned int sample = samples[ibin+i];
+	if(sample>QIE11_MAX_LINEARIZATION_ET) sample = QIE11_MAX_LINEARIZATION_ET;
+	if(ids.size()==2) algosumvalue += int(sample * 0.5 * weights_[i]);
+	else algosumvalue += int(sample * weights_[i]);
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
@@ -741,13 +743,30 @@ HcalTriggerPrimitiveAlgo::validUpgradeFG(const HcalTrigTowerDetId& id, int depth
       return false;
    if (id.ietaAbs() > LAST_FINEGRAIN_TOWER)
       return false;
+   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
+      return false;
    return true;
+}
+
+bool
+HcalTriggerPrimitiveAlgo::needLegacyFG(const HcalTrigTowerDetId& id) const
+{
+   // This tower (ietaAbs == 16) does not accept upgraded FG bits,
+   // but needs pseudo legacy ones to ensure that the tower is processed
+   // even when the QIE8 depths in front of it do not have energy deposits.
+   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
+      return true;
+   return false;
 }
 
 void
 HcalTriggerPrimitiveAlgo::addUpgradeFG(const HcalTrigTowerDetId& id, int depth, const std::vector<std::bitset<2>>& bits)
 {
    if (not validUpgradeFG(id, depth)) {
+      if (needLegacyFG(id)) {
+         std::vector<bool> pseudo(bits.size(), false);
+         addFG(id, pseudo);
+      }
       return;
    }
 

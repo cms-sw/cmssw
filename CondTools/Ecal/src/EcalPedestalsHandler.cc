@@ -11,7 +11,7 @@
 #include "TTree.h"
 
 const Int_t kChannels = 75848, kEBChannels = 61200, kEEChannels = 14648;
-const Int_t Nbpedxml = 17; // Number of Gain1 Gain6 files in 2017 
+const Int_t Nbpedxml = 25; // Number of Gain1 Gain6 files in 2017 
 
 popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalPedestalsHandler")) {
@@ -30,7 +30,6 @@ popcon::EcalPedestalsHandler::EcalPedestalsHandler(const edm::ParameterSet & ps)
 	m_runtype = ps.getUntrackedParameter<int>("RunType",1);
 
 	std::cout << m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag   << std::endl;
-
 
 }
 
@@ -944,9 +943,9 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
 		      278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
 		      280941, 281753, 282631, 282833, 283199, 283766};
   */
-  //  int Nbpedxml = 17;
   Int_t pedxml[Nbpedxml] = {286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
-			    299279, 299710, 300186, 300581, 301191, 302006, 302293};
+			    299279, 299710, 300186, 300581, 301191, 302006, 302293, 302605, 303436, 303848, 
+			    304211, 304680, 305117, 305848, 306176};
   Int_t run16Index = 0;
 
   Int_t fed[kChannels], chan[kChannels], id, run, run_type, seq_id, las_id, fill_num, run_num_infill, run_time, run_time_stablebeam, nxt, time[54];
@@ -1284,9 +1283,9 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
 		      278246, 278389, 278499, 278693, 278858, 278888, 278931, 279728, 280129, 280263,
 		      280941, 281753, 282631, 282833, 283199, 283766};
   */
-  //  int Nbpedxml = 17;
   Int_t pedxml[Nbpedxml] = {286535, 293513, 293632, 293732, 295507, 295672, 296391, 296917, 297388, 298481, 
-			    299279, 299710, 300186, 300581, 301191, 302006, 302293};
+			    299279, 299710, 300186, 300581, 301191, 302006, 302293, 302605, 303436, 303848, 
+			    304211, 304680, 305117, 305848, 306176};
   Int_t run16Index = 0;
 
   Int_t fed[kChannels], chan[kChannels], id, run, run_type, seq_id, las_id, fill_num, run_num_infill, run_time, run_time_stablebeam, nxt, time[54];
@@ -1340,7 +1339,7 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
 
   int runold = -1, fillold = -1, firsttimeFEDold = -1;
   int firsttimeFED = -1;
-  bool firstSeqAfterStable = false;
+  bool firstSeqBeforeStable = false;
   int transfer = 0;
   int first_run_kept = (int)m_firstRun;  //  m_firstRun is unsigned!
   for(int entry = 0; entry < nevents; entry++) {
@@ -1361,12 +1360,13 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
       continue;
     }
     if(bfield < 3.79) {
-      //      fout << " entry " << entry << " run " << run << " sequence " << seq_id << " run_time " << run_time
       fout << " entry " << entry << " run " << run << " sequence " << seq_id 
 	   << " ***********  bfield = " << bfield << std::endl;
       //      continue;  keep these runs
     }
-    fout << " entry "<< entry << " run " << run << " sequence " << seq_id;
+    fout << " entry "<< entry << " run " << run;
+    if(run_type == 1) fout << " fill " << fill_num;
+    fout << " sequence " << seq_id;
     if(run_type == 1) {
       fout << " stable " << run_time_stablebeam;
       if(run_time_stablebeam < first_run_kept) {
@@ -1376,8 +1376,7 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     }
     firsttimeFED = time[0];
     for(int ifed = 0; ifed < 54; ifed++) {
-      //      fout << " " << time[ifed];
-      if(time[ifed] > firsttimeFEDold && firsttimeFED < time[ifed]) firsttimeFED = time[ifed];  // take the first AFTER the previous sequence one!...
+      if(time[ifed] > firsttimeFEDold && firsttimeFED < time[ifed]) time[ifed] = firsttimeFED;  // take the first AFTER the previous sequence one!...
     }
     if(firsttimeFED < first_run_kept) {
       fout << " time " << firsttimeFED << " before first wanted " << m_firstRun << std::endl;
@@ -1393,20 +1392,25 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     }
     firsttimeFEDold = firsttimeFED;
 
-    //    if(run != runold) firstSeqAfterStable = false;
-    if(fill_num != fillold) firstSeqAfterStable = false;
+    //    if(run != runold) firstSeqBeforeStable = false;
+    if(fill_num != fillold) firstSeqBeforeStable = false;
     if(run_type == 1) {
       if(run_time_stablebeam > 0) {
-	if(firsttimeFED > run_time_stablebeam) {
-	  if(!firstSeqAfterStable) {
-	    firstSeqAfterStable = true;
-	    firsttimeFED = run_time_stablebeam;
-	    fout << " first sequence after stable; change the IOV " << firsttimeFED << std::endl;
-	  }
-	}
+	if(firsttimeFED < run_time_stablebeam) {
+	  fout << " data taken before stable beam, skip it" << std::endl;
+	  firstSeqBeforeStable = true;
+	  runold = run;
+	  fillold = fill_num;
+	  continue;
+	} 
       }
       else   //  problem with run_time_stablebeam
 	fout << " *** entry " << entry << " run_time_stablebeam " << run_time_stablebeam << std::endl;
+      if(firstSeqBeforeStable) {   // this is the first fully filled entry after stable beam
+	firstSeqBeforeStable = false;
+	firsttimeFED = run_time_stablebeam;
+	fout << " first full sequence after stable; change the IOV " << firsttimeFED << std::endl;
+      }
     }  // only collision runs
 
     for(int ich = 0; ich < kChannels; ich++) {
@@ -1480,9 +1484,10 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
 	  stt = bid.substr(8,15);
 	  std::istringstream r1(stt);
 	  r1 >> EArms1[ich];
-	  if(debug && iEEChannel%1000 == 0) fout << " EE channel " << iEEChannel << " " << mean12 << " " << rms12
-						 << " " << EAmean6[ich] << " " << EArms6[ich] 
-						 << " " << EAmean1[ich] << " " << EArms1[ich] << std::endl;
+	  if(debug && iEEChannel%1000 == 0) 
+	    fout << " EE channel " << iEEChannel << " " << mean12 << " " << rms12
+		 << " " << EAmean6[ich] << " " << EArms6[ich] 
+		 << " " << EAmean1[ich] << " " << EArms1[ich] << std::endl;
 	  for(int i = 0; i < 3; i++) std::getline(fxml, dummyLine);   // skip lines
 	}
 	fxml.close();

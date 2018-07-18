@@ -9,11 +9,13 @@
 //event
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 //DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMOffline/L1Trigger/interface/HistDefinition.h"
 
 //Candidate handling
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -41,14 +43,21 @@ public:
   L1TEGammaOffline(const edm::ParameterSet& ps);
   ~L1TEGammaOffline() override;
 
+  enum PlotConfig {
+    nVertex,
+    ETvsET,
+    PHIvsPHI
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
+
 protected:
 
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
 
 private:
   bool passesLooseEleId(reco::GsfElectron const& electron) const;
@@ -64,6 +73,9 @@ private:
   void fillElectrons(edm::Event const& e, const unsigned int nVertex);
   void fillPhotons(edm::Event const& e, const unsigned int nVertex);
   bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
+  bool matchesAnHLTObject(double eta, double phi) const;
+
+  void normalise2DHistogramsToBinArea();
 
   math::XYZPoint PVPoint_;
 
@@ -72,10 +84,10 @@ private:
   edm::EDGetTokenT<std::vector<reco::Photon> > thePhotonCollection_;
   edm::EDGetTokenT<reco::VertexCollection> thePVCollection_;
   edm::EDGetTokenT<reco::BeamSpot> theBSCollection_;
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  edm::InputTag triggerFilter_;
-  std::string triggerPath_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerInputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsInputTag_;
+  std::string triggerProcess_;
+  std::vector<std::string> triggerNames_;
   std::string histFolder_;
   std::string efficiencyFolder_;
 
@@ -89,9 +101,18 @@ private:
   std::vector<double> photonEfficiencyThresholds_;
   std::vector<double> photonEfficiencyBins_;
 
+  double maxDeltaRForL1Matching_;
+  double maxDeltaRForHLTMatching_;
+
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
   double tagAndProbleInvariantMass_;
+
+  HLTConfigProvider hltConfig_;
+  std::vector<unsigned int> triggerIndices_;
+  edm::TriggerResults triggerResults_;
+  trigger::TriggerEvent triggerEvent_;
+  dqmoffline::l1t::HistDefinitions histDefinitions_;
 
   // TODO: add turn-on cuts (vectors of doubles)
   // Histograms
@@ -163,7 +184,7 @@ private:
 
   MonitorElement* h_resolutionPhotonEta_;
 
-  // electron turn-ons
+  // photon turn-ons
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_pass_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EE_pass_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_EE_pass_;

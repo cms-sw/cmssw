@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = _cfg.clusterRemoverForIter("LowPtQuadStep")
@@ -21,21 +22,25 @@ lowPtQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSe
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase1QuadProp.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35,originRadius = 0.025))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_XeXe_2017.toReplaceWith(lowPtQuadStepTrackingRegions, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 0.5,
-            ptMin = 0.25,
-            originRadius = 0.02
-            )
-                                                                      )
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(lowPtQuadStepTrackingRegions, 
+                _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                    fixedError = 0.5,
+                    ptMin = 0.3,
+                    originRadius = 0.02
+                )
+                                                            )
 )
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(lowPtQuadStepTrackingRegions,RegionPSet = dict(
+     ptMin = 0.05,
+     originRadius = 0.2,
+))
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -65,41 +70,30 @@ lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAPhiCut = 0.3,
 )
 trackingPhase2PU140.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0015,CAPhiCut = 0.25)
+highBetaStar_2018.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0034,CAPhiCut = 0.6)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 lowPtQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "lowPtQuadStepHitQuadruplets",
 )
 
-trackingPhase1QuadProp.toModify(lowPtQuadStepHitDoublets, layerPairs = [0])
-lowPtQuadStepHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "lowPtQuadStepHitDoublets",
-    produceIntermediateHitTriplets = True,
-    SeedComparitorPSet = lowPtQuadStepHitQuadruplets.SeedComparitorPSet,
-)
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-_lowPtQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
-    triplets = "lowPtQuadStepHitTriplets",
-    extraHitRZtolerance = lowPtQuadStepHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = lowPtQuadStepHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8  , pt2    = 2,
-        value1 = 2000, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.3, pt2    = 1,
-        value1 = 0.4, value2 = 0.05,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
-)
-trackingPhase1QuadProp.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadruplets_propagation)
+#For FastSim phase1 tracking
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
+_fastSim_lowPtQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    trackingRegions = "lowPtQuadStepTrackingRegions",
+    hitMasks = cms.InputTag("lowPtQuadStepMasks"),
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets).clone(
+            SeedComparitorPSet = dict(ComponentName = "none")),
+                               layerList = lowPtQuadStepSeedLayers.layerList.value(),
+                               #new parameters required for phase1 seeding
+                               BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
+                               FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
+                               layerPairs = lowPtQuadStepHitDoublets.layerPairs.value()
+                               ))
 
-
+_fastSim_lowPtQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
+fastSim.toReplaceWith(lowPtQuadStepSeeds,_fastSim_lowPtQuadStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
@@ -113,7 +107,8 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
 )
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
 
-pp_on_XeXe_2017.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -179,6 +174,16 @@ trackingPhase2PU140.toModify(lowPtQuadStepTrackCandidates,
     clustersToSkip = None,
     phase2clustersToSkip = cms.InputTag("lowPtQuadStepClusters")
 )
+
+#For FastSim phase1 tracking
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+_fastSim_lowPtQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    src = cms.InputTag("lowPtQuadStepSeeds"),
+    MinNumberOfCrossedLayers = 3,
+    hitMasks = cms.InputTag("lowPtQuadStepMasks")
+    )
+fastSim.toReplaceWith(lowPtQuadStepTrackCandidates,_fastSim_lowPtQuadStepTrackCandidates)
+
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
@@ -186,7 +191,7 @@ lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     AlgorithmName = 'lowPtQuadStep',
     Fitter = 'FlexibleKFFittingSmoother',
 )
-
+fastSim.toModify(lowPtQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 
 # Final selection
@@ -196,6 +201,8 @@ lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
     mva = dict(GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1'),
     qualityCuts = [-0.7,-0.35,-0.15],
 )
+fastSim.toModify(lowPtQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
+highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -245,18 +252,29 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
 
 
 # Final sequence
-LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
-                             lowPtQuadStepSeedLayers*
-                             lowPtQuadStepTrackingRegions*
-                             lowPtQuadStepHitDoublets*
-                             lowPtQuadStepHitQuadruplets*
-                             lowPtQuadStepSeeds*
-                             lowPtQuadStepTrackCandidates*
-                             lowPtQuadStepTracks*
+LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
+                             lowPtQuadStepSeedLayers,
+                             lowPtQuadStepTrackingRegions,
+                             lowPtQuadStepHitDoublets,
+                             lowPtQuadStepHitQuadruplets,
+                             lowPtQuadStepSeeds,
+                             lowPtQuadStepTrackCandidates,
+                             lowPtQuadStepTracks,
                              lowPtQuadStep)
-_LowPtQuadStep_Phase1Prop = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase1Prop.replace(lowPtQuadStepHitDoublets, lowPtQuadStepHitDoublets+lowPtQuadStepHitTriplets)
-trackingPhase1QuadProp.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase1Prop)
-_LowPtQuadStep_Phase2PU140 = LowPtQuadStep.copy()
-_LowPtQuadStep_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
-trackingPhase2PU140.toReplaceWith(LowPtQuadStep, _LowPtQuadStep_Phase2PU140)
+LowPtQuadStep = cms.Sequence(LowPtQuadStepTask)
+
+_LowPtQuadStepTask_Phase2PU140 = LowPtQuadStepTask.copy()
+_LowPtQuadStepTask_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)
+trackingPhase2PU140.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase2PU140)
+
+# fast tracking mask producer
+from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
+lowPtQuadStepMasks = maskProducerFromClusterRemover(lowPtQuadStepClusters)
+fastSim.toReplaceWith(LowPtQuadStepTask,
+                      cms.Task(lowPtQuadStepMasks
+                               ,lowPtQuadStepTrackingRegions
+                               ,lowPtQuadStepSeeds
+                               ,lowPtQuadStepTrackCandidates
+                               ,lowPtQuadStepTracks
+                               ,lowPtQuadStep
+                               ) )

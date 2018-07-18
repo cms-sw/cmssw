@@ -36,7 +36,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   if(hits.empty()) return Trajectory();
 
 
-  if unlikely(aSeed.direction() == anyDirection)
+  if UNLIKELY(aSeed.direction() == anyDirection)
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
 
   std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(*thePropagator,
@@ -70,9 +70,9 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
     const TransientTrackingRecHit & hit = (*ihit);
 
-    // if unlikely(hit.det() == nullptr) continue;
+    // if UNLIKELY(hit.det() == nullptr) continue;
 
-    if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
+    if UNLIKELY( (!hit.isValid()) && hit.surface() == nullptr) {
        LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
@@ -83,7 +83,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       predTsos = p_cloned->propagate( currTsos, *(hit.surface()) );
 
 
-    if unlikely(!predTsos.isValid()) {
+    if UNLIKELY(!predTsos.isValid()) {
       LogDebug("TrackFitters")
 	<< "SOMETHING WRONG !" << "\n"
 	<< "KFTrajectoryFitter: predicted tsos not valid!\n"
@@ -101,7 +101,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
 
 
-    if likely(hit.isValid()) {
+    if LIKELY(hit.isValid()) {
         assert( (hit.geographicalId()!=0U) | !hit.canImproveWithTrack() ) ;
        	assert(hit.surface()!=nullptr);
 	//update
@@ -114,7 +114,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
        	assert( (preciseHit->geographicalId()!=0U)  | (!preciseHit->canImproveWithTrack()) );
        	assert(preciseHit->surface()!=nullptr);
 
-	if unlikely(!preciseHit->isValid()){
+	if UNLIKELY(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	    currTsos = predTsos;
 	    myTraj.push(TM(predTsos, ihit,0,theGeometry->idToLayer((ihit)->geographicalId()) ));
@@ -129,14 +129,20 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
               (std::abs(currTsos.localParameters().qbp())>100
                || std::abs(currTsos.localParameters().position().y()) > 1000
                || std::abs(currTsos.localParameters().position().x()) > 1000
-               ) ) || edm::isNotFinite(currTsos.localParameters().qbp());
-	  if unlikely(badState){
+               ) ) 
+            || edm::isNotFinite(currTsos.localParameters().qbp()) 
+            || !currTsos.localError().posDef();
+	  if UNLIKELY(badState){
 	    if (!currTsos.isValid()) {
 	      edm::LogError("FailedUpdate") <<"updating with the hit failed. Not updating the trajectory with the hit";
 
             } 
 	    else if (edm::isNotFinite(currTsos.localParameters().qbp())) {
               edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
+
+            }
+	    else if (!currTsos.localError().posDef()) {
+              edm::LogError("TrajectoryNotPosDef")<<"Trajectory covariance is not positive-definite";
 
             }
 	    else{ 

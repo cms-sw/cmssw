@@ -63,8 +63,7 @@ def ReadNewList(newlist):
 if __name__=="__main__":
     defaultList=hcalLaserEventFilter.BadRunEventNumbers
     defaultDict=MakePair(defaultList)
-    keys=defaultDict.keys()
-    keys.sort()
+    keys=sorted(defaultDict.keys())
     if len(sys.argv)==1:
         print "Default bad (run,events) are:"
         for i in keys:
@@ -112,14 +111,14 @@ if __name__=="__main__":
 
     print "Total bad events in new file = ",len(newkeys)
 
-    if len(notInOld.keys())>0:
+    if len(notInOld)>0:
         print
-        print "A total of %i bad events found"%len(notInOld.keys())
+        print "A total of %i bad events found"%len(notInOld)
         for k in notInOld.keys():
             print k
 
-    if len(notInNew.keys())>0:
+    if len(notInNew)>0:
         print
-        print "A total of %i events aren't in NEW list!"%len(notInNew.keys())
+        print "A total of %i events aren't in NEW list!"%len(notInNew)
         for k in notInNew.keys():
             print k

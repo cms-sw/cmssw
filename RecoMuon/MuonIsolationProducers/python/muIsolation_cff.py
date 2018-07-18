@@ -4,10 +4,13 @@ import FWCore.ParameterSet.Config as cms
 #seqs/mods to make MuIsoDeposits
 from RecoMuon.MuonIsolationProducers.muIsoDeposits_cff import *
 #  sequences suggested for reco (only isoDeposits are produced at this point)
-muIsolation_muons = cms.Sequence(muIsoDeposits_muons)
-muIsolation_ParamGlobalMuons = cms.Sequence(muIsoDeposits_ParamGlobalMuons)
-muIsolation_ParamGlobalMuonsOld = cms.Sequence(muIsoDeposits_ParamGlobalMuonsOld)
+muIsolation_muonsTask = cms.Task(muIsoDeposits_muonsTask)
+muIsolation_muons = cms.Sequence(muIsolation_muonsTask)
+muIsolation_ParamGlobalMuonsTask = cms.Task(muIsoDeposits_ParamGlobalMuonsTask)
+muIsolation_ParamGlobalMuons = cms.Sequence(muIsolation_ParamGlobalMuonsTask)
+muIsolation_ParamGlobalMuonsOldTask = cms.Task(muIsoDeposits_ParamGlobalMuonsOldTask)
+muIsolation_ParamGlobalMuonsOld = cms.Sequence(muIsolation_ParamGlobalMuonsOldTask)
 #standard sequence
-muIsolation = cms.Sequence(muIsolation_muons)
-
+muIsolationTask = cms.Task(muIsolation_muonsTask)
+muIsolation = cms.Sequence(muIsolationTask)
 

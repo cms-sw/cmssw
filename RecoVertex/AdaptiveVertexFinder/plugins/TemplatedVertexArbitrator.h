@@ -38,7 +38,7 @@
 
 
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
-#include "RecoVertex/AdaptiveVertexFinder/interface/TrackVertexArbitratration.h"
+#include "RecoVertex/AdaptiveVertexFinder/interface/TrackVertexArbitration.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
 #include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
@@ -54,6 +54,39 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
 	typedef std::vector<VTX> Product;
 	TemplatedVertexArbitrator(const edm::ParameterSet &params); 
 
+	static void fillDescriptions(edm::ConfigurationDescriptions & cdesc) {
+	  edm::ParameterSetDescription pdesc;
+	  pdesc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+	  pdesc.add<edm::InputTag>("primaryVertices",edm::InputTag("offlinePrimaryVertices"));
+          if( std::is_same<VTX,reco::Vertex>::value ) {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+            pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("vertexMerger"));
+          } else if (  std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("particleFlow"));
+            pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("candidateVertexMerger"));
+          } else {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+            pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("vertexMerger"));
+          }
+	  pdesc.add<double>("dLenFraction",0.333);
+	  pdesc.add<double>("dRCut",0.4);
+	  pdesc.add<double>("distCut",0.04);
+	  pdesc.add<double>("sigCut",5.0);
+	  pdesc.add<double>("fitterSigmacut",3.0);
+	  pdesc.add<double>("fitterTini",256);
+	  pdesc.add<double>("fitterRatio",0.25);
+	  pdesc.add<int>("trackMinLayers",4);
+	  pdesc.add<double>("trackMinPt",0.4);
+	  pdesc.add<int>("trackMinPixels",1);
+	  pdesc.add<double>("maxTimeSignificance",3.5);
+          if( std::is_same<VTX,reco::Vertex>::value ) {
+            cdesc.add("trackVertexArbitratorDefault",pdesc); 
+          } else if (  std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
+            cdesc.add("candidateVertexArbitratorDefault",pdesc); 
+          } else {
+            cdesc.addDefault(pdesc); 
+          }
+	}
 
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override ;
 

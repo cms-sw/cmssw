@@ -41,21 +41,25 @@ public:
   using ProducerBase::resolvePutIndicies;
   using ProducerBase::registerProducts;
   void registerProducts() final;
-  
+
+  bool hasAbilityToProduceInRuns() const final {
+    return true;
+  }
+
+  bool hasAbilityToProduceInLumis() const final {
+    return true;
+  }
+
 protected:
   //If inheriting class overrides, they need to call this function as well
   void beginJob() override;
 private:
   void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;
-  void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*) override;
   void doBeginRun(RunPrincipal& rp, ProcessContext const*) override;
-  void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*) override;
   
   
   virtual void beginRun(Run&);
-  virtual void endRun(Run&);
   virtual void beginLuminosityBlock(LuminosityBlock&);
-  virtual void endLuminosityBlock(LuminosityBlock&);
   
   PuttableSourceBase(const PuttableSourceBase&) = delete;
   

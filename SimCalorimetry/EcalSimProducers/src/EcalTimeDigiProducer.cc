@@ -21,7 +21,7 @@
 
 //#define ecal_time_debug 1
 
-EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod,edm::ConsumesCollector& sumes) :
+EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::ProducerBase& mixMod,edm::ConsumesCollector& sumes) :
    DigiAccumulatorMixMod(),
    m_EBdigiCollection ( params.getParameter<std::string>("EBtimeDigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEtimeDigiCollection") ) ,

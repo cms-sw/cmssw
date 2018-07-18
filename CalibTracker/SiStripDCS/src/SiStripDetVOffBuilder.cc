@@ -1,7 +1,6 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
 #include "boost/foreach.hpp"
 #include <sys/stat.h>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 // constructor
 SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, const edm::ActivityRegistry&) : 
@@ -88,7 +87,7 @@ void SiStripDetVOffBuilder::printPar(std::stringstream& ss, const std::vector<in
   }
 }
 
-void SiStripDetVOffBuilder::BuildDetVOffObj(const TrackerTopology* trackerTopo)
+void SiStripDetVOffBuilder::BuildDetVOffObj()
 {
   // vectors for storing output from DB or text file
   TimesAndValues timesAndValues;

@@ -21,7 +21,7 @@ HcalGeometry::HcalGeometry(const HcalTopology& topology) :
 HcalGeometry::~HcalGeometry() {}
 
 void HcalGeometry::init() {
-  if (!m_topology.withSpecialRBXHBHE()) m_mergePosition = false;
+  if (!m_topology.getMergePositionFlag()) m_mergePosition = false;
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry: " << "HcalGeometry::init() "
 			       << " HBSize " << m_topology.getHBSize() 
@@ -83,7 +83,7 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		 ( HcalForward == subdet ? *m_hfIds.load() : *m_emptyIds.load() ) ) ) ) ) ;
 }
 
-const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
+std::shared_ptr<const CaloCellGeometry> HcalGeometry::getGeometry(const DetId& id) const {
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalGeometry::getGeometry for " << HcalDetId(id) << "  " 
 	    << m_mergePosition << " ";
@@ -104,6 +104,11 @@ const CaloCellGeometry* HcalGeometry::getGeometry(const DetId& id) const {
 }
 
 DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
+  return getClosestCell(r,false);
+}
+
+DetId HcalGeometry::getClosestCell(const GlobalPoint& r,
+				   bool ignoreCorrect) const {
 
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
@@ -149,7 +154,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
     else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
     for ( ; currentId != HcalDetId(); m_topology.incrementDepth(currentId)) {
-      const CaloCellGeometry * cell = getGeometry(currentId);
+      std::shared_ptr<const CaloCellGeometry> cell = getGeometry(currentId);
       if (cell == nullptr) {
         assert (bestId != HcalDetId());
         break;
@@ -163,8 +168,12 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
         }
       }
     }
-    
-    return correctId(bestId);
+#ifdef EDM_ML_DEBUG
+    std::cout << bestId << " Corrected to " << HcalDetId(correctId(bestId)) 
+	      << std::endl;
+#endif
+
+    return (ignoreCorrect ? bestId : correctId(bestId));
   }
 }
 
@@ -252,7 +261,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		 for (int idep ( idep_lo ) ; idep <= idep_hi ; ++idep ) {
 		   const HcalDetId did ( hs[is], ieta, iphi, idep ) ;
 		   if (m_topology.valid(did)) {
-		     const CaloCellGeometry* cell ( getGeometryBase( did ) );
+		     std::shared_ptr<const CaloCellGeometry> cell ( getGeometryBase( did ) );
 		     if (nullptr != cell ) {
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;
@@ -445,10 +454,10 @@ unsigned int HcalGeometry::newCellImpl(const GlobalPoint& f1 ,
 }
 
 void HcalGeometry::newCell(const GlobalPoint& f1 ,
-               const GlobalPoint& f2 ,
-               const GlobalPoint& f3 ,
-               const CCGFloat*    parm ,
-               const DetId&       detId) {
+			   const GlobalPoint& f2 ,
+			   const GlobalPoint& f3 ,
+			   const CCGFloat*    parm ,
+			   const DetId&       detId) {
 
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
@@ -457,10 +466,10 @@ void HcalGeometry::newCell(const GlobalPoint& f1 ,
 }
 
 void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
-               const GlobalPoint& f2 ,
-               const GlobalPoint& f3 ,
-               const CCGFloat*    parm ,
-               const DetId&       detId) {
+			       const GlobalPoint& f2 ,
+			       const GlobalPoint& f3 ,
+			       const CCGFloat*    parm ,
+			       const DetId&       detId) {
 
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
@@ -468,25 +477,24 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
   m_dins.emplace_back( din );
 }
 
-const CaloCellGeometry* HcalGeometry::cellGeomPtr( unsigned int din ) const {
-  const CaloCellGeometry* cell ( nullptr ) ;
-  if( m_hbCellVec.size() > din ) {
-    cell = &m_hbCellVec[ din ] ;
-  } else {
-    if (m_hbCellVec.size() + m_heCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() ) ;
-      cell = &m_heCellVec[ index ] ;
-    } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size());
-      cell = &m_hoCellVec[ index ] ;
-    } else if (m_hbCellVec.size() + m_heCellVec.size() + m_hoCellVec.size() +
-	       m_hfCellVec.size() > din) {
-      const unsigned int index (din - m_hbCellVec.size() - m_heCellVec.size() -
-				m_hoCellVec.size() ) ;
-      cell = &m_hfCellVec[ index ] ;
-    }
+const CaloCellGeometry* HcalGeometry::getGeometryRawPtr (uint32_t din) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(nullptr);
+  if (m_hbCellVec.size() > din) {
+    cell = (&m_hbCellVec[din]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() ) ;
+    cell = (&m_heCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size());
+    cell = (&m_hoCellVec[ind]);
+  } else if (m_hbCellVec.size()+m_heCellVec.size()+m_hoCellVec.size()+
+	     m_hfCellVec.size() > din) {
+    const unsigned int ind (din - m_hbCellVec.size() - m_heCellVec.size() -
+			    m_hoCellVec.size() ) ;
+    cell = (&m_hfCellVec[ind]);
   }
-   
+  
   return (( nullptr == cell || nullptr == cell->param()) ? nullptr : cell ) ;
 }
 
@@ -508,7 +516,7 @@ void HcalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec,
    
   for( auto i : m_dins ) {
     Tr3D tr ;
-    const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+    auto ptr = cellGeomPtr( i );
        
     if (nullptr != ptr) {
       dinsVec.emplace_back( i );

@@ -17,7 +17,7 @@ class CSCTMBScope {
 public:
 
   CSCTMBScope() {size_ = 0;}  //default constructor
-  CSCTMBScope(unsigned short *buf,int b05Line,int e05Line);
+  CSCTMBScope(const uint16_t *buf,int b05Line,int e05Line);
   static unsigned short sizeInWords() {return 1538;}
   static void setDebug(const bool value) {debug = value;};
 
@@ -25,7 +25,7 @@ public:
                                     //public for now -- better way?
 private:
 
-  int UnpackScope(unsigned short *buf,int b05Line,int e05Line);
+  int UnpackScope(const uint16_t *buf,int b05Line,int e05Line);
   int GetPretrig(int ich);
 
   unsigned int scope_ram[256][6];   //stores all scope data

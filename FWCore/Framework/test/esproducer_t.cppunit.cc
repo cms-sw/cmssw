@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "cppunit/extensions/HelperMacros.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -21,6 +22,10 @@ using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
 using edm::ESProducer;
 using edm::EventSetupRecordIntervalFinder;
+
+namespace {
+edm::ActivityRegistry activityRegistry;
+}
 
 class testEsproducer: public CppUnit::TestFixture 
 {
@@ -157,7 +162,7 @@ void testEsproducer::registerTest()
 
 void testEsproducer::getFromTest()
 {
-   EventSetupProvider provider;
+  EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<Test1Producer>();
    provider.add(pProxyProv);
@@ -178,7 +183,7 @@ void testEsproducer::getFromTest()
 
 void testEsproducer::getfromShareTest()
 {
-   EventSetupProvider provider;
+  EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<ShareProducer>();
    provider.add(pProxyProv);
@@ -199,7 +204,7 @@ void testEsproducer::getfromShareTest()
 
 void testEsproducer::getfromUniqueTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<UniqueProducer>();
    provider.add(pProxyProv);
@@ -221,7 +226,7 @@ void testEsproducer::getfromUniqueTest()
 void testEsproducer::labelTest()
 {
    try {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<LabelledProducer>();
    provider.add(pProxyProv);
@@ -284,7 +289,7 @@ private:
 
 void testEsproducer::decoratorTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DecoratorProducer>();
    provider.add(pProxyProv);
@@ -335,7 +340,7 @@ private:
 
 void testEsproducer::dependsOnTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DepProducer>();
    provider.add(pProxyProv);
@@ -362,7 +367,7 @@ void testEsproducer::failMultipleRegistration()
 
 void testEsproducer::forceCacheClearTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<Test1Producer>();
    provider.add(pProxyProv);

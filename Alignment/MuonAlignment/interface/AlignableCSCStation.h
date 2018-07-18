@@ -10,7 +10,7 @@
  */
 
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
@@ -33,17 +33,6 @@ class AlignableCSCStation : public AlignableComposite
  public:
 
   AlignableCSCStation( const std::vector<AlignableCSCRing*>& cscRings );
-
-  ~AlignableCSCStation() override;
-  
-  std::vector<Alignable*> components() const override 
-  {
-
-        std::vector<Alignable*> result;
-        result.insert( result.end(), theCSCRings.begin(), theCSCRings.end() );
-        return result;
-
-  }
   
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;

@@ -126,7 +126,7 @@ class StepID {
 };
 
 #define OBSERVES(type) public Observer<const type*>
-#define UPDATE(type) void update(const type*) { std::cout <<"++ signal " #type<<std::endl; }
+#define UPDATE(type) void update(const type*) override { std::cout <<"++ signal " #type<<std::endl; }
 class G4StepStatistics : public SimWatcher, 
 OBSERVES(DDDWorld),
 OBSERVES(BeginOfJob),

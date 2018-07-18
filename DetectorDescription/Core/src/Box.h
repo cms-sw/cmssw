@@ -14,7 +14,7 @@ namespace DDI {
   {
   public:
     Box(double xHalf, double yHalf, double zHalf)
-     : Solid(ddbox)
+      : Solid(DDSolidShape::ddbox)
     { 
       p_.emplace_back(xHalf);
       p_.emplace_back(yHalf);

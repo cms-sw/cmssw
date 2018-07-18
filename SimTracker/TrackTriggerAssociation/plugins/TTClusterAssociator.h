@@ -55,13 +55,11 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
   private:
     /// Data members
     edm::Handle< edm::DetSetVector< PixelDigiSimLink > >   thePixelDigiSimLinkHandle;
-    edm::Handle< edm::SimTrackContainer >                  theSimTrackHandle;
     edm::Handle< std::vector< TrackingParticle > >         TrackingParticleHandle;
 
     std::vector< edm::InputTag > TTClustersInputTags;
 
     edm::EDGetTokenT< edm::DetSetVector< PixelDigiSimLink > >              digisimLinkToken;
-    edm::EDGetTokenT< edm::SimTrackContainer >                             simTrackToken;
     edm::EDGetTokenT< std::vector< TrackingParticle > >                    tpToken;
     //std::vector< edm::EDGetTokenT< edm::DetSetVector< TTCluster< T > > > > TTClustersTokens;
     std::vector<edm::EDGetTokenT< edmNew::DetSetVector< TTCluster< T > > > > TTClustersTokens;
@@ -92,7 +90,6 @@ class TTClusterAssociator : public edm::stream::EDProducer<>
 template< typename T >
 TTClusterAssociator< T >::TTClusterAssociator( const edm::ParameterSet& iConfig )
 {
-  simTrackToken = consumes< edm::SimTrackContainer >(iConfig.getParameter< edm::InputTag >( "simTrackHits" ));
   digisimLinkToken = consumes< edm::DetSetVector< PixelDigiSimLink > >(iConfig.getParameter< edm::InputTag >( "digiSimLinks" ));
   tpToken = consumes< std::vector< TrackingParticle >  >(iConfig.getParameter< edm::InputTag >( "trackingParts" ));
 

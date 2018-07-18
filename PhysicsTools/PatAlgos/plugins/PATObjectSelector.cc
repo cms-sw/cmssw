@@ -26,3 +26,6 @@ DEFINE_FWK_MODULE(PATGenericParticleRefSelector);
 DEFINE_FWK_MODULE(PATCompositeCandidateRefSelector);
 
 
+DEFINE_FWK_MODULE(IsoTrackSelector);
+DEFINE_FWK_MODULE(MuonRefPatCount);
+

@@ -1,9 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.JetMonitor_cff import *
+from DQMOffline.Trigger.DiJetMonitor_cff import *
 
 jetmetMonitorHLT = cms.Sequence(
-    HLTJetmonitoring
+    HLTJetmonitoring*
+    HLTDiJetmonitoring
 )
 
 jmeHLTDQMSourceExtra = cms.Sequence(
@@ -48,4 +50,19 @@ jmeHLTDQMSourceExtra = cms.Sequence(
     *AK8PFJetFwd400_Prommonitoring    
     *AK8PFJetFwd500_Prommonitoring 
     *CaloJet500_NoJetID_Prommonitoring 
+    *DiPFjetAve40_Prommonitoring
+    *DiPFjetAve60_Prommonitoring
+    *DiPFjetAve80_Prommonitoring
+    *DiPFjetAve140_Prommonitoring
+    *DiPFjetAve200_Prommonitoring
+    *DiPFjetAve260_Prommonitoring
+    *DiPFjetAve320_Prommonitoring
+    *DiPFjetAve400_Prommonitoring
+    *DiPFjetAve500_Prommonitoring
+    *DiPFjetAve60_HFJEC_Prommonitoring
+    *DiPFjetAve80_HFJEC_Prommonitoring
+    *DiPFjetAve100_HFJEC_Prommonitoring
+    *DiPFjetAve160_HFJEC_Prommonitoring
+    *DiPFjetAve220_HFJEC_Prommonitoring
+    *DiPFjetAve300_HFJEC_Prommonitoring
 )

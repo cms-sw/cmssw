@@ -1,6 +1,7 @@
 #ifndef HIPUserVariablesIORoot_H
 #define HIPUserVariablesIORoot_H
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentUserVariablesIO.h"
 
@@ -8,7 +9,7 @@
 
 class HIPUserVariablesIORoot : public AlignmentIORootBase, public AlignmentUserVariablesIO{
 public:
-  typedef std::vector<Alignable*> Alignables;
+  using Alignables = align::Alignables;
 
   /** constructor */
   HIPUserVariablesIORoot();

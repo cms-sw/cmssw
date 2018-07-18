@@ -28,78 +28,80 @@ fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
     maxRapidity = 2.5
     )
 
-recoPFJets   =cms.Sequence(fixedGridRhoAll+
-                           fixedGridRhoFastjetAll+
-                           fixedGridRhoFastjetCentral+
-                           fixedGridRhoFastjetCentralChargedPileUp+
-                           fixedGridRhoFastjetCentralNeutral+
-                           ak4PFJets+
-                           pfNoPileUpJMESequence+
-                           ak4PFJetsCHS+
-                           ak8PFJetsCHS+
-                           ak8PFJetsCHSConstituents+
-                           ak8PFJetsCHSSoftDrop+
-                           ak8PFJetsCHSSoftDropMass+
-                           cmsTopTagPFJetsCHS
+recoPFJetsTask   =cms.Task(fixedGridRhoAll,
+                           fixedGridRhoFastjetAll,
+                           fixedGridRhoFastjetCentral,
+                           fixedGridRhoFastjetCentralChargedPileUp,
+                           fixedGridRhoFastjetCentralNeutral,
+                           ak4PFJets,
+                           ak4PFJetsCHS,
+                           ak8PFJetsCHS,
+                           ak8PFJetsCHSConstituents,
+                           ak8PFJetsCHSSoftDrop,
+                           ak8PFJetsCHSSoftDropMass,
+                           cmsTopTagPFJetsCHS,
+                           pfNoPileUpJMETask
     )
+recoPFJets   = cms.Sequence(recoPFJetsTask)
 
-recoAllPFJets=cms.Sequence(fixedGridRhoAll+
-                           fixedGridRhoFastjetAll+
-                           fixedGridRhoFastjetCentral+
-                           fixedGridRhoFastjetCentralChargedPileUp+
-                           fixedGridRhoFastjetCentralNeutral+
-                           ak4PFJets+ak8PFJets+
-                           pfNoPileUpJMESequence+
-                           ak8PFJetsCHS+
-                           ak8PFJetsCHSPruned+
-                           ak8PFJetsCHSFiltered+
-                           ak8PFJetsCHSTrimmed+
-                           ak8PFJetsCHSSoftDrop+
-                           ak4PFJetsCHS+                                                      
-                           ak8PFJetsCHS+
-                           ak8PFJetsCHSPruned+
-                           ak8PFJetsCHSFiltered+
-                           ak8PFJetsCHSTrimmed+
-                           ak8PFJetsCHSSoftDrop+
-                           ak8PFJetsCHSPrunedMass+
-                           ak8PFJetsCHSTrimmedMass+
-                           ak8PFJetsCHSSoftDropMass+
-                           ak8PFJetsCHSFilteredMass+
-                           ca15PFJetsCHSMassDropFiltered+
+recoAllPFJetsTask=cms.Task(fixedGridRhoAll,
+                           fixedGridRhoFastjetAll,
+                           fixedGridRhoFastjetCentral,
+                           fixedGridRhoFastjetCentralChargedPileUp,
+                           fixedGridRhoFastjetCentralNeutral,
+                           ak4PFJets,ak8PFJets,
+                           pfNoPileUpJMETask,
+                           ak8PFJetsCHS,
+                           ak8PFJetsCHSPruned,
+                           ak8PFJetsCHSFiltered,
+                           ak8PFJetsCHSTrimmed,
+                           ak8PFJetsCHSSoftDrop,
+                           ak4PFJetsCHS, 
+                           ak8PFJetsCHS,
+                           ak8PFJetsCHSPruned,
+                           ak8PFJetsCHSFiltered,
+                           ak8PFJetsCHSTrimmed,
+                           ak8PFJetsCHSSoftDrop,
+                           ak8PFJetsCHSPrunedMass,
+                           ak8PFJetsCHSTrimmedMass,
+                           ak8PFJetsCHSSoftDropMass,
+                           ak8PFJetsCHSFilteredMass,
+                           ca15PFJetsCHSMassDropFiltered,
                            ca15PFJetsCHSFiltered
     )
+recoAllPFJets=cms.Sequence(recoAllPFJetsTask)
 
-
-recoPFJetsWithSubstructure=cms.Sequence(
-                           fixedGridRhoAll+
-                           fixedGridRhoFastjetAll+
-                           fixedGridRhoFastjetCentral+
-                           fixedGridRhoFastjetCentralChargedPileUp+
-                           fixedGridRhoFastjetCentralNeutral+
-                           ak4PFJets+ak8PFJets+
-                           pfNoPileUpJMESequence+
-                           ak8PFJetsCHS+
-                           ak8PFJetsCHSPruned+
-                           ak8PFJetsCHSFiltered+
-                           ak8PFJetsCHSTrimmed+
-                           ak8PFJetsCHSSoftDrop+
-                           ak4PFJetsCHS+                                                      
-                           ak8PFJetsCHS+
-                           ak8PFJetsCHSPruned+
-                           ak8PFJetsCHSFiltered+
-                           ak8PFJetsCHSTrimmed+
-                           ak8PFJetsCHSSoftDrop+
-                           ak8PFJetsCHSConstituents+
-                           ak8PFJetsCHSPrunedMass+
-                           ak8PFJetsCHSTrimmedMass+
-                           ak8PFJetsCHSSoftDropMass+
-                           ak8PFJetsCHSFilteredMass+
-                           ca15PFJetsCHSMassDropFiltered+
-                           ca15PFJetsCHSFiltered+
-                           ak8PFJetsCS+
-                           ak8PFJetsCSConstituents+
-                           puppi+
-                           ak4PFJetsPuppi+
-                           softKiller+
+recoPFJetsWithSubstructureTask=cms.Task(
+                           fixedGridRhoAll,
+                           fixedGridRhoFastjetAll,
+                           fixedGridRhoFastjetCentral,
+                           fixedGridRhoFastjetCentralChargedPileUp,
+                           fixedGridRhoFastjetCentralNeutral,
+                           ak4PFJets,ak8PFJets,
+                           pfNoPileUpJMETask,
+                           ak8PFJetsCHS,
+                           ak8PFJetsCHSPruned,
+                           ak8PFJetsCHSFiltered,
+                           ak8PFJetsCHSTrimmed,
+                           ak8PFJetsCHSSoftDrop,
+                           ak4PFJetsCHS,                                                      
+                           ak8PFJetsCHS,
+                           ak8PFJetsCHSPruned,
+                           ak8PFJetsCHSFiltered,
+                           ak8PFJetsCHSTrimmed,
+                           ak8PFJetsCHSSoftDrop,
+                           ak8PFJetsCHSConstituents,
+                           ak8PFJetsCHSPrunedMass,
+                           ak8PFJetsCHSTrimmedMass,
+                           ak8PFJetsCHSSoftDropMass,
+                           ak8PFJetsCHSFilteredMass,
+                           ca15PFJetsCHSMassDropFiltered,
+                           ca15PFJetsCHSFiltered,
+                           ak8PFJetsCS,
+                           ak8PFJetsCSConstituents,
+                           puppi,
+                           ak4PFJetsPuppi,
+                           softKiller,
                            ak4PFJetsSK
     )
+recoPFJetsWithSubstructure=cms.Sequence(recoPFJetsWithSubstructureTask)

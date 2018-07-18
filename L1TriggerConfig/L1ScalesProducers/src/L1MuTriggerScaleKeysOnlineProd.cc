@@ -31,7 +31,7 @@ class L1MuTriggerScaleKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 
       ~L1MuTriggerScaleKeysOnlineProd() override {}
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType pL1TriggerKey ) override ;
 
    private:    
     std::vector<std::string> m_objectTypes;
@@ -40,7 +40,7 @@ class L1MuTriggerScaleKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 };
 
 void
-L1MuTriggerScaleKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+L1MuTriggerScaleKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
     
       std::string subsystemKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kGMT ) ;

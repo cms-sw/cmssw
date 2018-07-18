@@ -2,18 +2,14 @@
 #define SimG4CMS_ShowerLibraryProducer_HFWedgeSD_h
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
- 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <map>
 
 class G4Step;
@@ -23,9 +19,9 @@ class HFWedgeSD : public SensitiveCaloDetector {
 
 public:    
   
-  HFWedgeSD(std::string name, const DDCompactView & cpv,
-	    const SensitiveDetectorCatalog & clg,
-	    edm::ParameterSet const & p, const SimTrackManager*);
+  explicit HFWedgeSD(const std::string&, const DDCompactView & cpv,
+		     const SensitiveDetectorCatalog & clg,
+		     edm::ParameterSet const &p, const SimTrackManager*);
   ~HFWedgeSD() override;
   
   void     Initialize(G4HCofThisEvent * HCE) override;
@@ -35,21 +31,19 @@ public:
   void     DrawAll() override;
   void     PrintAll() override;
 
+  void     clearHits() override;
+  uint32_t setDetUnitId(const G4Step*) override;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
+
 protected:
 
   G4bool           hitExists();
   HFShowerG4Hit*   createNewHit();
   void             updateHit(HFShowerG4Hit*);
 
-  void     clearHits() override;
-  uint32_t setDetUnitId(G4Step*) override;
-  void     fillHits(edm::PCaloHitContainer&, std::string) override;
-
-
 private:
 
-  std::string                  theName;
-  const SimTrackManager*       m_trackManager;
+  const SimTrackManager* m_trackManager;
 
   int                          hcID;
   HFShowerG4HitsCollection*    theHC; 

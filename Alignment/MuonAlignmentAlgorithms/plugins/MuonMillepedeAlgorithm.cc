@@ -176,9 +176,7 @@
 	  edm::LogWarning("Alignment") << "[MuonMillepedeAlgorithm] Terminating";
 
 	  // iterate over alignment parameters
-	  for(std::vector<Alignable*>::const_iterator
-	    it=theAlignables.begin(); it!=theAlignables.end(); it++) {
-	    Alignable* ali=(*it);
+	  for(const auto& ali: theAlignables) {
 	    // Alignment parameters
 	    // AlignmentParameters* par = ali->alignmentParameters();
 	    edm::LogInfo("Alignment") << "now apply params";

@@ -19,6 +19,7 @@
 <use   name="SimTracker/Common"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="SimGeneral/MixingModule"/>
+<use   name="SimGeneral/PreMixingModule"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/HcalDetId"/>

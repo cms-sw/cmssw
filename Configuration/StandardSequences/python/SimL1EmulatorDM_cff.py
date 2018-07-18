@@ -12,6 +12,9 @@ simRpcTechTrigDigis.RPCDigiLabel = 'mixData'
 #
 simHcalTechTrigDigis.ttpDigiCollection = "DMHcalTTPDigis"
 #
+hgcalTriggerPrimitiveDigiProducer.eeDigis = "mixData:HGCDigisEE"
+hgcalTriggerPrimitiveDigiProducer.fhDigis = "mixData:HGCDigisHEfront"
+hgcalTriggerPrimitiveDigiProducer.bhDigis = "mixData:HGCDigisHEback"
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not stage2L1Trigger.isChosen():

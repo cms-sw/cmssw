@@ -67,12 +67,6 @@ class L1TStage2CaloLayer2DEClient: public DQMEDHarvester {
   MonitorElement* ETTEMComp_;
   MonitorElement* TowerCountComp_;
 
-  MonitorElement * hlSummary;
-  MonitorElement * jetSummary;
-  MonitorElement * egSummary;
-  MonitorElement * tauSummary;
-  MonitorElement * sumSummary;
-  MonitorElement * problemSummary;
 };
 
 #endif

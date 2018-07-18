@@ -125,20 +125,19 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
 #    cms.PSet(mapName=cms.untracked.string('ClusterCharge'),mapMax=cms.untracked.double(-1.)),
 #    cms.PSet(mapName=cms.untracked.string('ChargePerCMfromOrigin')),
     cms.PSet(mapName=cms.untracked.string('ChargePerCMfromTrack'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(6000.),TopModules=cms.untracked.bool(True),mapMin=cms.untracked.double(2000.)),
-    cms.PSet(mapName=cms.untracked.string('NumberMissingHits'),RunNumber=cms.untracked.uint32(options.runNumber),TopModules=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberValidHits'),RunNumber=cms.untracked.uint32(options.runNumber),TopModules=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('NumberMissingHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('NumberValidHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('NumberInactiveHits'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(-1),TopModules=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('ResidualsMean'),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(.01),TopModules=cms.untracked.bool(True)),######range has been set in SiStripMonitorClient/src/SiStripTrackerMapCreator.cc file##
-#    cms.PSet(mapName=cms.untracked.string('ClusterWidthOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(5.5),mapMin=cms.untracked.double(2.5)),
-#    cms.PSet(mapName=cms.untracked.string('ClusterWidthOffTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(5.5),mapMin=cms.untracked.double(2.5)),
-#    cms.PSet(mapName=cms.untracked.string('NoiseOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(7.),mapMin=cms.untracked.double(3.)),
-#    cms.PSet(mapName=cms.untracked.string('NoiseOffTrack'),mapMax=cms.untracked.double(7.),RunNumber=cms.untracked.uint32(options.runNumber),mapMin=cms.untracked.double(3.))
+    cms.PSet(mapName=cms.untracked.string('ClusterWidthOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(7.),mapMin=cms.untracked.double(0.5)),
+    cms.PSet(mapName=cms.untracked.string('ClusterWidthOffTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(7.),mapMin=cms.untracked.double(0.5)),
+    cms.PSet(mapName=cms.untracked.string('NoiseOnTrack'),TopModules=cms.untracked.bool(True),RunNumber=cms.untracked.uint32(options.runNumber),mapMax=cms.untracked.double(7.),mapMin=cms.untracked.double(3.)),
+    cms.PSet(mapName=cms.untracked.string('NoiseOffTrack'),mapMax=cms.untracked.double(7.),RunNumber=cms.untracked.uint32(options.runNumber),mapMin=cms.untracked.double(3.))
     )
 )
 
 # Services needed for TkHistoMap / DetIdInfoFile
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
 process.TFileService = cms.Service('TFileService',
   fileName = cms.string(options.detIdInfoFile)
 )
@@ -155,11 +154,12 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 #        cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
         )
 
-process.ssqualitystat = cms.EDAnalyzer("SiStripQualityStatistics",
-                                       dataLabel = cms.untracked.string(""),
-                                       TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
-                                       SaveTkHistoMap = cms.untracked.bool(False)
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.ssqualitystat = DQMEDAnalyzer("SiStripQualityStatistics",
+                                      dataLabel = cms.untracked.string(""),
+                                      TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
+                                      SaveTkHistoMap = cms.untracked.bool(False)
+                                      )
 
 
 process.p1 = cms.Path(process.siStripOfflineAnalyser + process.ssqualitystat)

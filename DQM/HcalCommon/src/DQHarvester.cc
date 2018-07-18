@@ -1,7 +1,10 @@
 #include "DQM/HcalCommon/interface/DQHarvester.h"
+#include "FWCore/Framework/interface/Run.h"
 
 namespace hcaldqm
 {
+	using namespace constants;
+
 	DQHarvester::DQHarvester(edm::ParameterSet const& ps) :
 		DQModule(ps)
 	{}

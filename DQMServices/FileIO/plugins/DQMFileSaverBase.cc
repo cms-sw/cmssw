@@ -1,4 +1,3 @@
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -66,7 +65,7 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
   initial_fp_ = fp;
 }
 
-DQMFileSaverBase::~DQMFileSaverBase() {}
+DQMFileSaverBase::~DQMFileSaverBase() = default;
 
 std::shared_ptr<NoCache> DQMFileSaverBase::globalBeginRun(
     const edm::Run &r, const edm::EventSetup &) const {

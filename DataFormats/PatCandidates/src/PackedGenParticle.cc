@@ -1,5 +1,5 @@
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 

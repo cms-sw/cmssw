@@ -18,6 +18,8 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -35,6 +37,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   fillRecHits_       = iConfig.getParameter<bool>("fillRecHits");
   fillCaloTowers_    = iConfig.getParameter<bool>("fillCaloTowers");
   fillTracks_        = iConfig.getParameter<bool>("fillTracks");
+  fillLaserMonitor_  = iConfig.getParameter<bool>("fillLaserMonitor");
 
   maxProblemRBXs_    = iConfig.getParameter<int>("maxProblemRBXs");
 
@@ -47,49 +50,30 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   caloTowerCollName_ = iConfig.getParameter<std::string>("caloTowerCollName");
   trackCollName_     = iConfig.getParameter<std::string>("trackCollName");
 
-  if (iConfig.existsAs<std::string>("jetCollName"))
-  {
-      jetCollName_   = iConfig.getParameter<std::string>("jetCollName");
-      maxNHF_        = iConfig.getParameter<double>("maxNHF");
-      maxjetindex_   = iConfig.getParameter<int>("maxjetindex");
-      jet_token_     = consumes<reco::PFJetCollection>(edm::InputTag(jetCollName_));
-  }
+  jetCollName_   = iConfig.getParameter<std::string>("jetCollName");
+  maxNHF_        = iConfig.getParameter<double>("maxNHF");
+  maxjetindex_   = iConfig.getParameter<int>("maxjetindex");
+  jet_token_     = consumes<reco::PFJetCollection>(edm::InputTag(jetCollName_));
 
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
-  if(iConfig.existsAs<double>("minR45HitE"))
-     minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
+  
+  minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
-  if (iConfig.exists("HcalRecHitFlagsToBeExcluded"))
-      HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
-  else{
-    edm::LogWarning("MisConfiguration")<<"the module is missing the parameter HcalAcceptSeverityLevel. created empty.";
-    HcalRecHitFlagsToBeExcluded_.resize(0);
-  }
+  HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
 
   // Digi threshold and time slices to use for HBHE and HF calibration digis
-  useCalibDigi_ = true;
-  if(iConfig.existsAs<double>("calibdigiHBHEthreshold") == false)               useCalibDigi_ = false;
-  if(iConfig.existsAs<double>("calibdigiHFthreshold") == false)                 useCalibDigi_ = false;
-  if(iConfig.existsAs<std::vector<int> >("calibdigiHBHEtimeslices") == false)   useCalibDigi_ = false;
-  if(iConfig.existsAs<std::vector<int> >("calibdigiHFtimeslices") == false)     useCalibDigi_ = false;
+  calibdigiHBHEthreshold_ = 0;
+  calibdigiHBHEtimeslices_ = std::vector<int>();
+  calibdigiHFthreshold_ = 0;
+  calibdigiHFtimeslices_ = std::vector<int>();
 
-  if(useCalibDigi_ == true)
-  {
-    calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
-    calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
-    calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
-    calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
-  }
-  else
-  {
-     calibdigiHBHEthreshold_ = 0;
-     calibdigiHBHEtimeslices_ = std::vector<int>();
-     calibdigiHFthreshold_ = 0;
-     calibdigiHFtimeslices_ = std::vector<int>();
-  }
+  calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
+  calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
+  calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
+  calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
 
   TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
 
@@ -112,7 +96,25 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
     edm::LogWarning("HCalNoiseInfoProducer") << " forcing fillRecHits to be true if fillDigis is true.\n";
   }
 
-  const float adc2fCTemp[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
+  // get the fiber configuration vectors
+  laserMonCBoxList_ = iConfig.getParameter<std::vector<int> >("laserMonCBoxList");
+  laserMonIPhiList_ = iConfig.getParameter<std::vector<int> >("laserMonIPhiList");
+  laserMonIEtaList_ = iConfig.getParameter<std::vector<int> >("laserMonIEtaList");
+
+  // check that the vectors have the same size, if not
+  // disable the laser monitor
+  if( !( (laserMonCBoxList_.size() == laserMonIEtaList_.size() ) && 
+         (laserMonCBoxList_.size() == laserMonIPhiList_.size() ) ) ) { 
+    edm::LogWarning("MisConfiguration")<<"Must provide equally sized lists for laserMonCBoxList, laserMonIEtaList, and laserMonIPhiList.  Will not fill LaserMon\n";
+    fillLaserMonitor_=false;
+  }
+
+  // get the integration region with defaults
+  laserMonitorTSStart_ = iConfig.getParameter<int>("laserMonTSStart");
+  laserMonitorTSEnd_   = iConfig.getParameter<int>("laserMonTSEnd");
+  laserMonitorSamples_ = iConfig.getParameter<unsigned>("laserMonSamples");
+
+  adc2fC= std::vector<float> {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
      13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
      64.5,59.5,64.5,69.5,74.5,79.5,84.5,89.5,94.5,99.5,104.5,109.5,114.5,119.5,
      124.5,129.5,137.,147.,157.,167.,177.,187.,197.,209.5,224.5,239.5,254.5,272.,
@@ -122,11 +124,71 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
      1859.5,1984.5,2109.5,2234.5,2359.5,2484.5,2609.5,2734.5,2859.5,2984.5,
      3109.5,3234.5,3359.5,3484.5,3609.5,3797.,4047.,4297.,4547.,4797.,5047.,
      5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
-  for(int i = 0; i < 128; i++)
-     adc2fC[i] = adc2fCTemp[i];
+
+  // adc -> fC for qie10, for laser monitor
+  // Taken from page 3 in
+  // https://cms-docdb.cern.ch/cgi-bin/DocDB/RetrieveFile?docid=12570&filename=QIE10_final.pdf&version=5
+  adc2fCHF = std::vector<float> {
+    // - - - - - - - range 0 - - - - - - - -
+  //subrange0
+  1.58, 4.73, 7.88, 11.0, 14.2, 17.3, 20.5, 23.6,
+  26.8, 29.9, 33.1, 36.2, 39.4, 42.5, 45.7, 48.8,
+  //subrange1
+  53.6, 60.1, 66.6, 73.0, 79.5, 86.0, 92.5, 98.9,
+  105, 112, 118, 125, 131, 138, 144, 151,
+  //subrange2
+  157, 164, 170, 177, 186, 199, 212, 225,
+  238, 251, 264, 277, 289, 302, 315, 328,
+  //subrange3
+  341, 354, 367, 380, 393, 406, 418, 431,
+  444, 464, 490, 516, 542, 568, 594, 620,
+
+  // - - - - - - - range 1 - - - - - - - -
+  //subrange0
+  569, 594, 619, 645, 670, 695, 720, 745,
+  771, 796, 821, 846, 871, 897, 922, 947,
+  //subrange1
+  960, 1010, 1060, 1120, 1170, 1220, 1270, 1320,
+  1370, 1430, 1480, 1530, 1580, 1630, 1690, 1740,
+  //subrange2
+  1790, 1840, 1890, 1940,  2020, 2120, 2230, 2330,
+  2430, 2540, 2640, 2740, 2850, 2950, 3050, 3150,
+  //subrange3
+  3260, 3360, 3460, 3570, 3670, 3770, 3880, 3980,
+  4080, 4240, 4450, 4650, 4860, 5070, 5280, 5490,
+
+  // - - - - - - - range 2 - - - - - - - -
+  //subrange0
+  5080, 5280, 5480, 5680, 5880, 6080, 6280, 6480,
+  6680, 6890, 7090, 7290, 7490, 7690, 7890, 8090,
+  //subrange1
+  8400, 8810, 9220, 9630, 10000, 10400, 10900, 11300,
+  11700, 12100, 12500, 12900, 13300, 13700, 14100, 14500,
+  //subrange2
+  15000, 15400, 15800, 16200, 16800, 17600, 18400, 19300,
+  20100, 20900, 21700, 22500, 23400, 24200, 25000, 25800,
+  //subrange3
+  26600, 27500, 28300, 29100, 29900, 30700, 31600, 32400,
+  33200, 34400, 36100, 37700, 39400, 41000, 42700, 44300,
+
+  // - - - - - - - range 3 - - - - - - - - -
+  //subrange0
+  41100, 42700, 44300, 45900, 47600, 49200, 50800, 52500,
+  54100, 55700, 57400, 59000, 60600, 62200, 63900, 65500,
+  //subrange1
+  68000, 71300, 74700, 78000, 81400, 84700, 88000, 91400,
+  94700, 98100, 101000, 105000, 108000, 111000, 115000, 118000,
+  //subrange2
+  121000, 125000, 128000, 131000, 137000, 145000, 152000, 160000,
+  168000, 176000, 183000, 191000, 199000, 206000, 214000, 222000,
+  //subrange3
+  230000, 237000, 245000, 253000, 261000, 268000, 276000, 284000,
+  291000, 302000, 316000, 329000, 343000, 356000, 370000, 384000
+  };
 
   hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
   hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
+  lasermondigi_token_  = consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("lasermonDigis"));
   hbherechit_token_    = consumes<HBHERecHitCollection>(edm::InputTag(recHitCollName_));
   calotower_token_     = consumes<CaloTowerCollection>(edm::InputTag(caloTowerCollName_));
   track_token_         = consumes<reco::TrackCollection>(edm::InputTag(trackCollName_));
@@ -142,6 +204,163 @@ HcalNoiseInfoProducer::~HcalNoiseInfoProducer()
 {
 }
 
+void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // define hit energy thesholds
+  desc.add<double>("minRecHitE", 1.5);
+  desc.add<double>("minLowHitE", 10.0);
+  desc.add<double>("minHighHitE", 25.0);
+  desc.add<double>("minR45HitE", 5.0);
+
+  // define energy threshold for "problematic" cuts
+  desc.add<double>("pMinERatio", 25.0);
+  desc.add<double>("pMinEZeros", 5.0);
+  desc.add<double>("pMinEEMF", 10.0);
+
+  // define energy threshold for loose/tight/high level cuts
+  desc.add<double>("minERatio", 50.0);
+  desc.add<double>("minEZeros", 10.0);
+  desc.add<double>("minEEMF", 50.0);
+
+  // define problematic RBX
+  desc.add<double>("pMinE", 40.0);
+  desc.add<double>("pMinRatio", 0.75);
+  desc.add<double>("pMaxRatio", 0.85);
+  desc.add<int>("pMinHPDHits", 10);
+  desc.add<int>("pMinRBXHits", 20);
+  desc.add<int>("pMinHPDNoOtherHits", 7);
+  desc.add<int>("pMinZeros", 4);
+  desc.add<double>("pMinLowEHitTime", -6.0);
+  desc.add<double>("pMaxLowEHitTime", 6.0);
+  desc.add<double>("pMinHighEHitTime", -4.0);
+  desc.add<double>("pMaxHighEHitTime", 5.0);
+  desc.add<double>("pMaxHPDEMF", -0.02);
+  desc.add<double>("pMaxRBXEMF", 0.02);
+  desc.add<int>("pMinRBXRechitR45Count", 1);
+  desc.add<double>("pMinRBXRechitR45Fraction", 0.1);
+  desc.add<double>("pMinRBXRechitR45EnergyFraction", 0.1);
+
+  // define loose noise cuts
+  desc.add<double>("lMinRatio", -999.0);
+  desc.add<double>("lMaxRatio", 999.0);
+  desc.add<int>("lMinHPDHits", 17);
+  desc.add<int>("lMinRBXHits", 999);
+  desc.add<int>("lMinHPDNoOtherHits", 10);
+  desc.add<int>("lMinZeros", 10);
+  desc.add<double>("lMinLowEHitTime", -9999.0);
+  desc.add<double>("lMaxLowEHitTime", 9999.0);
+  desc.add<double>("lMinHighEHitTime", -9999.0);
+  desc.add<double>("lMaxHighEHitTime", 9999.0);
+
+  // define tight noise cuts
+  desc.add<double>("tMinRatio", -999.0);
+  desc.add<double>("tMaxRatio", 999.0);
+  desc.add<int>("tMinHPDHits", 16);
+  desc.add<int>("tMinRBXHits", 50);
+  desc.add<int>("tMinHPDNoOtherHits", 9);
+  desc.add<int>("tMinZeros", 8);
+  desc.add<double>("tMinLowEHitTime", -9999.0);
+  desc.add<double>("tMaxLowEHitTime", 9999.0);
+  desc.add<double>("tMinHighEHitTime", -7.0);
+  desc.add<double>("tMaxHighEHitTime", 6.0);
+
+  // define high level noise cuts
+  desc.add<double>("hlMaxHPDEMF", -9999.0);
+  desc.add<double>("hlMaxRBXEMF", 0.01);
+  
+  // Calibration digi noise variables (used for finding laser noise events)
+  desc.add<double>("calibdigiHBHEthreshold", 15)->
+      setComment("minimum threshold in fC of any HBHE  \
+              calib digi to be counted in summary");
+  desc.add<std::vector<int>>("calibdigiHBHEtimeslices", {3,4,5,6,})->
+      setComment("time slices to use when determining charge of HBHE calib digis");
+  desc.add<double>("calibdigiHFthreshold", -999)->
+      setComment("minimum threshold in fC of any HF calib digi to be counted in summary");
+  desc.add<std::vector<int>>("calibdigiHFtimeslices", {0,1,2,3,4,5,6,7,8,9,})->
+      setComment("time slices to use when determining charge of HF calib digis");
+
+  // RBX-wide TS4TS5 variable
+  desc.add<double>("TS4TS5EnergyThreshold", 50);
+  desc.add<std::vector<double>>("TS4TS5UpperThreshold", {70,90,100,400,4000,});
+  desc.add<std::vector<double>>("TS4TS5UpperCut", {1,0.8,0.75,0.72,0.72,});
+  desc.add<std::vector<double>>("TS4TS5LowerThreshold", {100,120,150,200,300,400,500,});
+  desc.add<std::vector<double>>("TS4TS5LowerCut", {-1,-0.7,-0.4,-0.2,-0.08,0,0.1,});
+
+  // rechit R45 population filter variables
+  // this comes in groups of four: (a_Count, a_Fraction, a_EnergyFraction, const)
+  // flag as noise if (count * a_count + fraction * a_fraction + energyfraction * a_energyfraction + const) > 0
+  desc.add<std::vector<double>>("lRBXRecHitR45Cuts", 
+                                {0.0,1.0,0.0,-0.5,0.0,0.0,1.0,-0.5,})->
+      setComment("first 4 entries : equivalent to 'fraction > 0.5'  \
+                  last 4 entries : equivalent to 'energy fraction > 0.5'");
+  desc.add<std::vector<double>>("tRBXRecHitR45Cuts", 
+                                {0.0,1.0,0.0,-0.2,0.0,0.0,1.0,-0.2,})->
+      setComment("first 4 entries : equivalent to 'fraction > 0.2' \
+                  last 4 entries : equivalent to 'energy fraction > 0.2'" );
+
+  // define the channels used for laser monitoring
+  // note that the order here indicates the time order
+  // of the channels
+  desc.add<std::vector<int>>("laserMonCBoxList", {5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,})->
+      setComment("time ordered list of the cBox values of laser monitor channels");
+  desc.add<std::vector<int>>("laserMonIPhiList", {23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0})->
+      setComment("time ordered list of the iPhi values of laser monitor channels");
+  desc.add<std::vector<int>>("laserMonIEtaList", {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,})->
+      setComment("time ordered list of the iEta values of laser monitor channels");
+
+  // boundaries for total charge integration
+  desc.add<int>("laserMonTSStart", 0)->
+      setComment("lower bound of laser monitor charge integration window");
+  desc.add<int>("laserMonTSEnd", -1)->
+      setComment("upper bound of laser monitor charge integration window (-1 = no bound)");
+  desc.add<unsigned>("laserMonSamples", 4)->
+      setComment("Number of laser monitor samples to take per channel");
+
+  // what to fill
+  desc.add<bool>("fillDigis", true);
+  desc.add<bool>("fillRecHits", true);
+  desc.add<bool>("fillCaloTowers", true);
+  desc.add<bool>("fillTracks", true);
+  desc.add<bool>("fillLaserMonitor", true);
+
+  // maximum number of RBXs to fill
+  // if you want to record all RBXs above some energy threshold,
+  // change maxProblemRBXs to 999 and pMinE (above) to the threshold you want
+  desc.add<int>("maxProblemRBXs", 72)->
+      setComment("maximum number of RBXs to fill.  if you want to record  \
+              all RBXs above some energy threshold,change maxProblemRBXs to  \
+              999 and pMinE (above) to the threshold you want");
+;
+
+  // parameters for calculating summary variables
+  desc.add<int>("maxCaloTowerIEta", 20);
+  desc.add<double>("maxTrackEta", 2.0);
+  desc.add<double>("minTrackPt", 1.0);
+  desc.add<double>("maxNHF", 0.9);
+  desc.add<int>("maxjetindex", 0);
+
+  // collection names
+  desc.add<std::string>("digiCollName", "hcalDigis");
+  desc.add<std::string>("recHitCollName", "hbhereco");
+  desc.add<std::string>("caloTowerCollName", "towerMaker");
+  desc.add<std::string>("trackCollName", "generalTracks");
+  desc.add<std::string>("jetCollName", "ak4PFJets");
+  desc.add<edm::InputTag>("lasermonDigis", edm::InputTag( "hcalDigis", "LASERMON"));
+
+  // severity level
+  desc.add<unsigned int>("HcalAcceptSeverityLevel", 9);
+
+  // which hcal calo flags to mask 
+  // (HBHEIsolatedNoise=11, HBHEFlatNoise=12, HBHESpikeNoise=13, 
+  // HBHETriangleNoise=14, HBHETS4TS5Noise=15, HBHENegativeNoise=27)
+  desc.add<std::vector<int>>("HcalRecHitFlagsToBeExcluded", {11,12,13,14,15,27,})->
+      setComment("which hcal calo flags to mask (HBHEIsolatedNoise=11, \
+                  HBHEFlatNoise=12, HBHESpikeNoise=13, \
+                  HBHETriangleNoise=14, HBHETS4TS5Noise=15, HBHENegativeNoise=27)");
+;
+
+  descriptions.add("hcalnoise", desc);
+}
 
 //
 // member functions
@@ -172,9 +391,6 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(fillTracks_)     filltracks(iEvent, iSetup, summary);
 
   filljetinfo(iEvent, iSetup, summary);
-
-  // Why is this here?  Shouldn't it have been in the filldigis method? Any reason for TotalCalibCharge to be defined outside filldigis(...) ?-- Jeff, 7/2/12
-  //if(fillDigis_)      summary.calibCharge_ = TotalCalibCharge;
 
   // select those RBXs which are interesting
   // also look for the highest energy RBX
@@ -326,7 +542,8 @@ void
 HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array, HcalNoiseSummary& summary)
 {
   // Some initialization
-  TotalCalibCharge = 0;
+  totalCalibCharge = 0;
+  totalLasmonCharge = 0;
 
   // Starting with this version (updated by Jeff Temple on Dec. 6, 2012), the "TS45" names in the variables are mis-nomers.  The actual time slices used are determined from the digiTimeSlices_ variable, which may not be limited to only time slices 4 and 5.  For now, "TS45" name kept, because that is what is used in HcalNoiseSummary object (in GetCalibCountTS45, etc.).  Likewise, the charge value in 'gt15' is now configurable, though the name remains the same.  For HBHE, we track both the number of calibration channels (NcalibTS45) and the number of calibration channels above threshold (NcalibTS45gt15).  For HF, we track only the number of channels above the given threshold in the given time window (NcalibHFgtX).  Default for HF in 2012 is to use the full time sample with effectively no threshold (threshold=-999)
   int NcalibTS45=0;
@@ -425,42 +642,23 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   //  iEvent.getByLabel("hcalDigis", hCalib);
   iEvent.getByToken(hcalcalibdigi_token_, hCalib);
 
+
+  // get the lasermon digis
+  edm::Handle<QIE10DigiCollection> hLasermon;
+  iEvent.getByToken(lasermondigi_token_, hLasermon);
+
   // get total charge in calibration channels
   if(hCalib.isValid() == true)
   {
+
      for(HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++)
      {
         if(digi->id().hcalSubdet() == 0)
            continue;
 
-        /*
-        HcalCalibDetId cell = digi->id();
-        DetId detcell = (DetId)cell;
-        
-        const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
 
-        if(mySeverity->dropChannel(mydigistatus->getValue()))
-           continue;
-        if(digi->zsMarkAndPass())
-           continue;
-
-        const HcalQIECoder *channelCoder = conditions->getHcalCoder(cell);
-	const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
-        HcalCoderDb coder(*channelCoder, *shape);
-
-        CaloSamples tool;
-        coder.adc2fC(*digi, tool);
-
-        for(int i = 0; i < (int)digi->size(); i++)
-           TotalCalibCharge = TotalCalibCharge + tool[i];
-        */
-
-	// Original code computes total calib charge over all digis.  While I think it would be more useful to skip
-	// zs mark-and-pass channels, I keep this computation as is.  Individual HBHE and HF variables do skip
-	// the m-p channels.  -- Jeff Temple, 6 December 2012
-
-	for(int i = 0; i < (int)digi->size(); i++)
-	  TotalCalibCharge = TotalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
+	for(unsigned i = 0; i < (unsigned)digi->size(); i++)
+	  totalCalibCharge = totalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
 	
 
 	HcalCalibDetId myid=(HcalCalibDetId)digi->id();
@@ -500,9 +698,87 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 	      }
           } // end of HBHE check
      } // loop on HcalCalibDigiCollection
+
   } // if (hCalib.isValid()==true)
-  
-  summary.calibCharge_ = TotalCalibCharge;
+  if( fillLaserMonitor_  && (hLasermon.isValid() == true) ) {
+
+    int icombts = -1;
+    float max_charge = 0;
+    int max_ts = -1;
+    std::vector<float> comb_charge;
+       
+    unsigned nch = laserMonCBoxList_.size();
+    // loop over channels in the order provided
+    for( unsigned ich = 0; ich < nch; ++ich ) {
+      int cboxch = laserMonCBoxList_[ich];
+      int iphi  = laserMonIPhiList_[ich];
+      int ieta  = laserMonIEtaList_[ich];
+
+      // loop over digis, find the digi that matches this channel
+      for(const QIE10DataFrame & df : (*hLasermon)) {
+        HcalCalibDetId calibId( df.id() );
+
+        int ch_cboxch = calibId.cboxChannel();
+        int ch_iphi   = calibId.iphi();
+        int ch_ieta   = calibId.ieta();
+
+        if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta ) {
+
+          unsigned ts_size = df.samples();
+
+          // loop over time slices
+          for( unsigned its = 0; its < ts_size; ++its ) {
+            // if we are on the last channel, use all the data
+            // otherwise only take the unique samples 
+            if( ( (ich + 1) < nch )  && its >= laserMonitorSamples_ ) continue;
+
+            bool ok = df[its].ok();
+            int adc = df[its].adc();
+
+            icombts++;
+            // apply integration limits
+            if( icombts < laserMonitorTSStart_ ) continue;
+            if( laserMonitorTSEnd_ > 0 && icombts > laserMonitorTSEnd_ ) continue;
+
+            if( ok && adc >= 0 ) { // protection against QIE reset or bad ADC values
+
+              float charge = adc2fCHF[adc];
+              if( charge > max_charge ) {
+                  max_charge = charge;
+                  max_ts = icombts;
+              }
+
+              comb_charge.push_back( charge );
+            } // if( ok && adc >= 0 ) 
+          } // loop over time slices
+        } // if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta ) 
+      } // loop over digi collection
+    } // loop over channel list
+
+    // do not continue with the calculation
+    // if the vector was not filled
+    if( comb_charge.empty() ) { 
+      totalLasmonCharge = -1;
+    }
+    else {
+      // integrate from +- 3 TS around the time sample
+      // having the maximum charge
+      int start_ts = max_ts - 3;
+      int end_ts = max_ts + 3;
+
+      // Change the integration limits
+      // if outside of the range
+      if( start_ts < 0 ) start_ts = 0;
+      if( end_ts >= int(comb_charge.size()) ) end_ts = comb_charge.size() - 1; 
+
+      for( int isum = start_ts; isum <= end_ts; ++isum ) {
+          totalLasmonCharge += comb_charge[isum];
+      }
+    }
+  } // if( fillLaserMonitor_  && (hLasermon.isValid() == true) )
+
+  summary.calibCharge_ = totalCalibCharge;
+  summary.lasmonCharge_ = totalLasmonCharge;
   summary.calibCountTS45_=NcalibTS45;
   summary.calibCountgt15TS45_=NcalibTS45gt15;
   summary.calibChargeTS45_=chargecalibTS45;
@@ -600,7 +876,11 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       summary.rechitCount15_ = summary.rechitCount15_ + 1;
       summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.eraw();
     }
-
+    
+    // Exclude uncollapsed QIE11 channels
+    if( CaloRecHitAuxSetter::getBit(rechit.auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME) &&
+       !CaloRecHitAuxSetter::getBit(rechit.auxPhase1(), HBHERecHitAuxSetter::OFF_COMBINED) ) continue;
+   
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
       summary.nisolnoise_++;

@@ -192,7 +192,7 @@ public:
   
   /// mostly to be compatible for <610 
   void verifyVersion() const {
-    if unlikely( thePixelRow<MAXPOS && thePixelCol<MAXPOS)
+    if UNLIKELY( thePixelRow<MAXPOS && thePixelCol<MAXPOS)
 		 const_cast<Phase2ITPixelCluster*>(this)->computeMax();
   }
   

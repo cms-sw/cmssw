@@ -1,10 +1,10 @@
 
 #include "CalibMuon/CSCCalibration/interface/CSCFakeNoiseMatrixConditions.h"
 
-void CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
+CSCNoiseMatrix * CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
 
   const CSCDetId& detId = CSCDetId();
-  cnmatrix = new CSCNoiseMatrix();
+  CSCNoiseMatrix * cnmatrix = new CSCNoiseMatrix();
   
   int max_istrip,id_layer,max_ring,max_cham;
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
@@ -175,13 +175,13 @@ void CSCFakeNoiseMatrixConditions::prefillNoiseMatrix(){
       }
     }
   }
+  return cnmatrix;
 }
 
 CSCFakeNoiseMatrixConditions::CSCFakeNoiseMatrixConditions(const edm::ParameterSet& iConfig)
 {
   
   //tell the framework what data is being produced
-  prefillNoiseMatrix();  
   setWhatProduced(this,&CSCFakeNoiseMatrixConditions::produceNoiseMatrix);
   
   findingRecord<CSCNoiseMatrixRcd>();
@@ -195,7 +195,6 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
-  delete cnmatrix; // since not made persistent so we still own it.
 }
 
 //
@@ -206,8 +205,9 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-  return cnmatrix;
+  return CSCFakeNoiseMatrixConditions::ReturnType( prefillNoiseMatrix());
 }
+
 
 void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
 						  edm::ValidityInterval & oValidity)

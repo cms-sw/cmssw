@@ -13,8 +13,9 @@ class SiStripBackPlaneCorrectionDQM : public SiStripBaseCondObjDQM{
   public:
   
   SiStripBackPlaneCorrectionDQM(const edm::EventSetup & eSetup,
-                             edm::ParameterSet const& hPSet,
-                             edm::ParameterSet const& fPSet);
+                                edm::RunNumber_t iRun,
+                                edm::ParameterSet const& hPSet,
+                                edm::ParameterSet const& fPSet);
   
   ~SiStripBackPlaneCorrectionDQM() override;
   

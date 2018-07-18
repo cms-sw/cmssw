@@ -177,8 +177,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
     #print 'writing avg file'
     summaryfilename=str(fillnum)+'_lumi_CMS.txt'
     f=None
-    lstimes=timedict.keys()
-    lstimes.sort()
+    lstimes=sorted(timedict.keys())
     fillseg=[]
     lscounter=0
     for lstime in lstimes:

@@ -21,7 +21,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -33,6 +32,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 
 //#define DebugLog
 
@@ -157,6 +157,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   //initialize: they won't be called later if flag is set
+  hcalTimeSlew_delay_ = nullptr;
   theTimeSlewSim = nullptr;
   if(doTimeSlew) {
     // no time slewing for HF
@@ -294,10 +295,14 @@ void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGe
 }
 
 void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup) {
+  setup(eventSetup);
+
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   
+  theShapes->setDbService(conditions.product());
+
   theHBHEAmplifier->setDbService(conditions.product());
   theHFAmplifier->setDbService(conditions.product());
   theHOAmplifier->setDbService(conditions.product());
@@ -526,9 +531,8 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 }
 
 
-void HcalDigitizer::beginRun(const edm::EventSetup & es) {
+void HcalDigitizer::setup(const edm::EventSetup & es) {
   checkGeometry(es);
-  theShapes->beginRun(es);
 
   if (agingFlagHB) {
     edm::ESHandle<HBHEDarkening> hdark;
@@ -540,31 +544,26 @@ void HcalDigitizer::beginRun(const edm::EventSetup & es) {
     es.get<HBHEDarkeningRecord>().get("HE",hdark);
     m_HEDarkening = &*hdark;
   }
-}
 
+  edm::ESHandle<HcalTimeSlew> delay;
+  es.get<HcalTimeSlewRecord>().get("HBHE", delay);
+  hcalTimeSlew_delay_ = &*delay;
 
-void HcalDigitizer::endRun() {
-  theShapes->endRun();
+  theHBHEAmplifier->setTimeSlew(hcalTimeSlew_delay_);
+  theHBHEQIE11Amplifier->setTimeSlew(hcalTimeSlew_delay_);
+  theHOAmplifier->setTimeSlew(hcalTimeSlew_delay_);
+  theZDCAmplifier->setTimeSlew(hcalTimeSlew_delay_);  
 }
 
 
 void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
-  // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
+  theGeometry = &*geometry;
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   eventSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+  theRecNumber= &*pHRNDC;
 
-  // See if it's been updated
-  if (&*geometry != theGeometry) {
-    theGeometry = &*geometry;
-    theRecNumber= &*pHRNDC;
-    updateGeometry(eventSetup);
-  }
-}
-
-
-void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   if(theHBHEResponse) theHBHEResponse->setGeometry(theGeometry);
   if(theHBHESiPMResponse) theHBHESiPMResponse->setGeometry(theGeometry);
   if(theHOResponse) theHOResponse->setGeometry(theGeometry);
@@ -574,6 +573,16 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theZDCResponse->setGeometry(theGeometry);
   if(theRelabeller) theRelabeller->setGeometry(theRecNumber);
 
+  // See if it's been updated
+  bool check1 = theGeometryWatcher_.check(eventSetup);
+  bool check2 = theRecNumberWatcher_.check(eventSetup);
+  if (check1 or check2) {
+    updateGeometry(eventSetup);
+  }
+}
+
+
+void HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
   const std::vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);

@@ -1,4 +1,5 @@
 #include "DQM/HcalTasks/interface/PedestalTask.h"
+#include "FWCore/Framework/interface/Run.h"
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
@@ -8,7 +9,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
-	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+	_tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE",
 		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
@@ -19,16 +20,16 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
-	_vflags.resize(nPedestalFlag);
+	_vflags.resize(2);
 	_vflags[fMsn]=hcaldqm::flag::Flag("Msn");
 	_vflags[fBadM]=hcaldqm::flag::Flag("BadM");
-	_vflags[fBadR]=hcaldqm::flag::Flag("BadR");
+	//_vflags[fBadR]=hcaldqm::flag::Flag("BadR");
 
 	_thresh_mean = ps.getUntrackedParameter<double>("thresh_mean",
 		0.25);
@@ -772,7 +773,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 				double frmissing = double(_xNMsn1LS.get(eid))/
 					double(_xNChs.get(eid));
 				double frbadm = _xNBadMean1LS.get(eid)/_xNChs.get(eid);
-				double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
+				//double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
 
 				if (frmissing>=_thresh_missing_high)
 					_vflags[fMsn]._state = hcaldqm::flag::fBAD;
@@ -784,10 +785,11 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 					_vflags[fBadM]._state = hcaldqm::flag::fBAD;
 				else
 					_vflags[fBadM]._state = hcaldqm::flag::fGOOD;
-				if (frbadr>=_thresh_badr)
-					_vflags[fBadR]._state = hcaldqm::flag::fBAD;
-				else
-					_vflags[fBadR]._state = hcaldqm::flag::fGOOD;
+				// BadR removed May 9, 2018 - the pedestal RMS isn't stable enough to monitor right now.
+				//if (frbadr>=_thresh_badr)
+				//	_vflags[fBadR]._state = hcaldqm::flag::fBAD;
+				//else
+				//	_vflags[fBadR]._state = hcaldqm::flag::fGOOD;
 			}
 
 			int iflag=0;
@@ -858,7 +860,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			+ _tagHF.label() + " " + _tagHF.instance());
 	if (!e.getByToken(_tokHEP17, chep17))
 		_logger.dqmthrow("Collection QIE11DigiCollection isn't available"
-			+ _tagHEP17.label() + " " + _tagHEP17.instance());
+			+ _tagHE.label() + " " + _tagHE.instance());
 
 	int nHB(0), nHE(0), nHO(0), nHF(0);
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin();

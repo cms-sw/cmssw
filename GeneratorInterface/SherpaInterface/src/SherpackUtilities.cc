@@ -1,5 +1,6 @@
 #include "GeneratorInterface/SherpaInterface/interface/SherpackUtilities.h"
 #include <unistd.h>
+#include <cstdlib>
 namespace spu {
 	
 // functions for inflating (and deflating)
@@ -153,6 +154,16 @@ void zerr(int ret)
 /* compress or decompress from stdin to stdout */
 int Unzip(std::string infile, std::string outfile)
 {
+    /////////////////////////////////////////////
+    /////////////// BUG FIX FOR MPI /////////////
+    /////////////////////////////////////////////
+    const char *tmpdir = getenv("TMPDIR");
+    if (tmpdir && (strlen(tmpdir) > 50)) {
+        setenv("TMPDIR", "/tmp", true);
+    }
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
     int ret;
 	FILE *in = fopen(infile.c_str(),"r");
 	if (!in) return -1;

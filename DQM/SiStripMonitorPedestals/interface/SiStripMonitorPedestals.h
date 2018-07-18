@@ -58,10 +58,9 @@ class SiStripMonitorPedestals : public DQMEDAnalyzer {
   explicit SiStripMonitorPedestals(const edm::ParameterSet&);
   ~SiStripMonitorPedestals() override;
   
-  virtual void beginJob() ;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  virtual void endJob();
+  void endJob() override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
    
  private:

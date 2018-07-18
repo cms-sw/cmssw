@@ -19,6 +19,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , metToken_             ( consumes<reco::PFMETCollection>      (iConfig.getParameter<edm::InputTag>("met")       ) )
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )
   , eleToken_             ( mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons") ) )
+  //ATHER
+  , elecIDToken_          ( consumes<edm::ValueMap<bool> >                      (iConfig.getParameter<edm::InputTag>("elecID")    ) )
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
   // Menglei 
   , phoToken_             ( mayConsume<reco::PhotonCollection>     (iConfig.getParameter<edm::InputTag>("photons")     ) ) 
@@ -93,6 +95,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , invMassCutInAllMuPairs_ (iConfig.getParameter<bool>("invMassCutInAllMuPairs"))
   //Menglei
   , enablePhotonPlot_ ( iConfig.getParameter<bool>("enablePhotonPlot")  )
+  //Mateusz
+  , enableMETplot_(iConfig.getParameter<bool>("enableMETplot"))
 {
 
     std::string metcut_str = iConfig.getParameter<std::string>("metSelection");
@@ -163,7 +167,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder);
 
-  if (applyMETcut_){
+  if (applyMETcut_ || enableMETplot_){
 
       histname = "met"; histtitle = "PFMET";
       bookME(ibooker,metME_,histname,histtitle,met_binning_.nbins,met_binning_.xmin, met_binning_.xmax);
@@ -553,7 +557,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
-  if (!metHandle.isValid() && applyMETcut_){
+  if (!metHandle.isValid() && (applyMETcut_ || enableMETplot_)){
       edm::LogWarning("TopMonitor") << "MET handle not valid \n";
       return;
   }
@@ -561,7 +565,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   float met = 0;
   float phi = 0;
 
-  if (applyMETcut_){
+  if (applyMETcut_ || enableMETplot_){
       reco::PFMET pfmet = metHandle->front();
       if ( ! metSelection_( pfmet ) ) return;
       met = pfmet.pt();
@@ -575,17 +579,33 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       edm::LogWarning("TopMonitor") << "Electron handle not valid \n";
       return;
   }
+
+  //ATHER                                                                                                                                                                                                                       
+  edm::Handle<edm::ValueMap<bool> > eleIDHandle;
+  iEvent.getByToken(elecIDToken_,  eleIDHandle);
+  if (!eleIDHandle.isValid() && nelectrons_>0){
+    edm::LogWarning("TopMonitor") << "Electron ID handle not valid \n";
+    return;
+  }
+
+
   std::vector<reco::GsfElectron> electrons;
   if (nelectrons_>0){
-      if ( eleHandle->size() < nelectrons_ ) return;
-      for ( auto const & e : *eleHandle ) {
-          if (eleSelection_(e)) electrons.push_back(e);
-          //Suvankar
-          if ( usePVcuts_ &&
-               (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
-      }
-      if ( electrons.size() < nelectrons_ ) return;
+    if ( eleHandle->size() < nelectrons_ ) return;
+    for (size_t index = 0; index < eleHandle->size() ; index++) {
+      const auto e  = eleHandle->at(index);
+      const auto el = eleHandle->ptrAt(index);              
+      bool pass_id = (*eleIDHandle)[el];                                                                                                                                                                                           
+      if (eleSelection_(e) && pass_id) electrons.push_back(e); 
+      //Suvankar
+      if ( usePVcuts_ &&
+	   (std::fabs(e.gsfTrack()->dxy(pv->position())) >= lepPVcuts_.dxy || std::fabs(e.gsfTrack()->dz(pv->position())) >= lepPVcuts_.dz) ) continue;
+    }
+    if ( electrons.size() < nelectrons_ ) return;
   }
+
+
+
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
   if (!muoHandle.isValid() && nmuons_>0){
@@ -741,7 +761,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   int ls = iEvent.id().luminosityBlock();
 
   // filling histograms (denominator)
-  if (applyMETcut_){
+  if (applyMETcut_ || enableMETplot_){
       metME_.denominator -> Fill(met);
       metME_variableBinning_.denominator -> Fill(met);
       metPhiME_.denominator -> Fill(phi);
@@ -884,7 +904,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   // filling histograms (num_genTriggerEventFlag_)
 
-  if (applyMETcut_>0){
+  if (applyMETcut_>0 || enableMETplot_){
       metME_.numerator -> Fill(met);
       metME_variableBinning_.numerator -> Fill(met);
       metPhiME_.numerator -> Fill(phi);
@@ -1030,6 +1050,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "met",      edm::InputTag("pfMet") );
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
+  //ATHER
+  desc.add<edm::InputTag>( "elecID"    ,edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Summer16-80X-V1-medium") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
   //Menglei
   desc.add<edm::InputTag>( "photons",  edm::InputTag("photons") );
@@ -1069,6 +1091,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<bool>("invMassCutInAllMuPairs",false);
   //Menglei
   desc.add<bool>("enablePhotonPlot",  false);
+  //Mateusz
+  desc.add<bool>("enableMETplot",  false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

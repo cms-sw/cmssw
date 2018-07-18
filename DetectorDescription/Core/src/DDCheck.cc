@@ -27,7 +27,7 @@ bool DDCheckLP( const DDLogicalPart & lp , std::ostream & os )
        os << "LogicalPart: " << lp << "| no solid defined, solid=" 
           << lp.solid() << std::endl;
      }
-     else if(lp.solid().shape()==dd_not_init) {
+     else if(lp.solid().shape()==DDSolidShape::dd_not_init) {
        os << "LogicalPart: " << lp << "| solid not init, solid=" 
           << lp.solid() << std::endl;
      }
@@ -45,8 +45,8 @@ bool DDCheckLP( const DDLogicalPart & lp , std::ostream & os )
 
 
 // checks PosData* if it contains sensfull stuff ...
-//:void DDCheckPD(const DDLogicalPart & lp, graph_type::neighbour_type & nb, std::ostream & os)
-bool DDCheckPD(const DDLogicalPart & lp, DDCompactView::graph_type::edge_range nb, const DDCompactView::graph_type & g, std::ostream & os)
+//:void DDCheckPD(const DDLogicalPart & lp, Graph::neighbour_type & nb, std::ostream & os)
+bool DDCheckPD(const DDLogicalPart & lp, DDCompactView::Graph::edge_range nb, const DDCompactView::Graph & g, std::ostream & os)
 {
    bool result = false;
    if (nb.first != nb.second) {
@@ -80,8 +80,7 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
   
   // Pass 1:
   std::map<DDLogicalPart,bool> visited;
-  //  walker_type wkr = DDCompactView().walker();
-  walker_type wkr = cpv.walker();
+  auto wkr = math::GraphWalker<DDLogicalPart, DDPosData*>( cpv.graph(), cpv.root());
   visited[wkr.current().first]=true;
   while(wkr.next()) {
     //    std::cout << "DDCheck" << "   " << wkr.current().first << std::endl;
@@ -91,10 +90,10 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
      << " (multiple-)connected LogicalParts with root=" << cpv.root().ddname() << std::endl;
   
   // Pass 2:
-  DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
+  DDCompactView::Graph & g = const_cast<DDCompactView::Graph&>(cpv.graph());
 
   int uc = 0;
-  DDCompactView::graph_type::adj_list::size_type it = 0;
+  DDCompactView::Graph::adj_list::size_type it = 0;
   
   for(; it < g.size(); ++it) { 
     if (! visited[g.nodeData(it)] ) {
@@ -122,13 +121,13 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
 bool DDCheckAll(const DDCompactView & cpv, std::ostream & os)
 {
    bool result = false;
-   // const_cast because graph_type does not provide const_iterators!
-   DDCompactView::graph_type & g = const_cast<DDCompactView::graph_type&>(cpv.graph());
+   // const_cast because Graph does not provide const_iterators!
+   DDCompactView::Graph & g = const_cast<DDCompactView::Graph&>(cpv.graph());
    
    // basic debuggger
    std::map< std::pair<std::string,std::string>, int > lp_names;
    
-   DDCompactView::graph_type::adj_list::size_type it = 0;
+   DDCompactView::Graph::adj_list::size_type it = 0;
    for(; it < g.size(); ++it) { 
      const DDLogicalPart & lp = g.nodeData(it);
      lp_names[std::make_pair(lp.name().ns(),lp.name().name())]++;

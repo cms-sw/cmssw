@@ -146,7 +146,7 @@ namespace l1t {
 
 	RegionalMuonCandBxCollection* res_cand;
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
-	RegionalMuonCand mu_;
+	RegionalMuonCand mu_(0, 0, 0, 0, 0, 0, 0, tftype::emtf_pos);
 	
 	///////////////////////////////////
 	// Unpack the SP Output Data Record
@@ -196,6 +196,9 @@ namespace l1t {
 	    Track_.set_track_num( (res->at(iOut)).PtrSPCollection()->size() );
 	  else Track_.set_track_num( 0 );
 	else Track_.set_track_num( 0 );
+
+	// For single-LCT tracks, "Track_num" = 2 (last in collection)
+	if (SP_.Quality_GMT() < 4) Track_.set_track_num( 2 );
 	
 	mu_.setHwSign      ( SP_.C() );
 	mu_.setHwSignValid ( SP_.VC() );
@@ -205,6 +208,10 @@ namespace l1t {
 	mu_.setHwPt        ( SP_.Pt_GMT() );
 	mu_.setTFIdentifiers ( Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg );
 	mu_.setTrackSubAddress( RegionalMuonCand::kTrkNum, Track_.Track_num() );
+	// Truncated to 11 bits and offset by 25 from global event BX in EMTF firmware
+	int EMTF_kBX = ((res->at(iOut)).PtrEventHeader()->L1A_BXN() % 2048) - 25 + Track_.BX();
+	if (EMTF_kBX < 0) EMTF_kBX += 2048;
+	mu_.setTrackSubAddress( RegionalMuonCand::kBX, EMTF_kBX );
 	// mu_.set_dataword   ( SP_.Dataword() );
 	// Track_.set_GMT(mu_);
 

@@ -11,8 +11,8 @@
 //STL
 #include <vector>
 
-namespace edm {class Track;}
-namespace reco {class Event;}
+namespace reco {class Track;}
+namespace edm {class Event; class EventSetup;}
 
 class AlignmentGlobalTrackSelector
 {

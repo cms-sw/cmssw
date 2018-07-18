@@ -13,6 +13,10 @@
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
+#include "FWCore/ParameterSet/interface/DocFormatHelper.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -51,6 +55,8 @@ static char const* const kPrintOnlyPluginsOpt = "printOnlyPlugins";
 static char const* const kPrintOnlyPluginsCommandOpt = "printOnlyPlugins,q";
 static char const* const kLineWidthOpt = "lineWidth";
 static char const* const kLineWidthCommandOpt = "lineWidth,w";
+static char const* const kTopLevelOpt = "topLevel";
+static char const* const kTopLevelCommandOpt = "topLevel,t";
 
 namespace {
 
@@ -137,7 +143,7 @@ namespace {
     os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  " << pluginInfo.loadable_.leaf() << "\n";
     os.flags(oldFlags);
 
-    edm::ConfigurationDescriptions descriptions(filler->baseType());
+    edm::ConfigurationDescriptions descriptions(filler->baseType(), pluginInfo.name_);
 
     try {
       filler->fill(descriptions);
@@ -168,8 +174,42 @@ namespace {
       return;
     }
   }
-}
 
+  void printTopLevelParameterSets(bool brief, size_t lineWidth, std::string const& psetName) {
+
+    std::ostream & os = std::cout;
+
+    edm::ParameterSetDescription description;
+
+    if (psetName == "options") {
+      os << "\nDescription of \'options\' top level ParameterSet\n\n";
+      edm::fillOptionsDescription(description);
+
+    } else if (psetName == "maxEvents") {
+      os << "\nDescription of \'maxEvents\' top level ParameterSet\n\n";
+      edm::fillMaxEventsDescription(description);
+
+    } else if (psetName == "maxLuminosityBlocks") {
+      os << "\nDescription of \'maxLuminosityBlocks\' top level ParameterSet\n\n";
+      edm::fillMaxLuminosityBlocksDescription(description);
+
+    } else if (psetName == "maxSecondsUntilRampdown") {
+      os << "\nDescription of \'maxSecondsUntilRampdown\' top level ParameterSet\n\n";
+      edm::fillMaxSecondsUntilRampdownDescription(description);
+    } else {
+      throw cms::Exception("CommandLineArgument") << "Unrecognized name for top level parameter set. "
+        << "Allowed values are 'options', 'maxEvents', 'maxLuminosityBlocks', and 'maxSecondsUntilRampdown'";
+    }
+
+    edm::DocFormatHelper dfh;
+    dfh.setBrief(brief);
+    dfh.setLineWidth(lineWidth);
+    dfh.setSection("1");
+
+    description.print(os, dfh);
+    os << "\n";
+  }
+}
 // ---------------------------------------------------------------------------------
 
 int main (int argc, char **argv)
@@ -187,7 +227,7 @@ try {
   descString += "For more information about the output format see:\n";
   descString += "https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigurationValidationAndHelp\n\n";
 
-  descString += "At least one of the following options must be used: -p, -l, -a, or -q\n\n";
+  descString += "At least one of the following options must be used: -p, -l, -a, -q, or -t\n\n";
   descString += "Allowed options:";
   boost::program_options::options_description desc(descString);   
   desc.add_options()
@@ -213,7 +253,9 @@ try {
                    "do not print parameter descriptions or module labels, just list plugins matching selection criteria")
                   (kLineWidthCommandOpt,
                    boost::program_options::value<unsigned>(),
-                   "try to limit lines to this length by inserting newlines between words in comments. Long words or names can cause the line length to exceed this limit. Defaults to terminal screen width or 80");
+                   "try to limit lines to this length by inserting newlines between words in comments. Long words or names can cause the line length to exceed this limit. Defaults to terminal screen width or 80")
+                  (kTopLevelCommandOpt, boost::program_options::value<std::string>(),
+                   "print only the description for the top level parameter set with this name. Allowed names are 'options', 'maxEvents', 'maxLuminosityBlocks', and 'maxSecondsUntilRampdown'.");
 
   boost::program_options::variables_map vm;
   try {
@@ -237,6 +279,7 @@ try {
   bool brief = false;
   bool printOnlyLabels = false;
   bool printOnlyPlugins = false;
+  std::string printOnlyTopLevel;
 
   if (vm.count(kPluginOpt)) {
     plugin = vm[kPluginOpt].as<std::string>();
@@ -247,8 +290,9 @@ try {
   if (!vm.count(kAllLibrariesOpt)) {
     if (!vm.count(kPluginOpt) &&
         !vm.count(kLibraryOpt) &&
-        !vm.count(kPrintOnlyPluginsOpt)) {
-      std::cerr << "\nERROR: At least one of the following options must be used: -p, -l, -a, or -q\n\n";
+        !vm.count(kPrintOnlyPluginsOpt) &&
+        !vm.count(kTopLevelOpt)) {
+      std::cerr << "\nERROR: At least one of the following options must be used: -p, -l, -a, -q, or -t\n\n";
       std::cerr << desc << std::endl;
       return 1;
     }
@@ -303,6 +347,12 @@ try {
 
   if (vm.count(kLineWidthOpt)) {
     lineWidth = vm[kLineWidthOpt].as<unsigned>();
+  }
+
+  if (vm.count(kTopLevelOpt)) {
+    printOnlyTopLevel = vm[kTopLevelOpt].as<std::string>();
+    printTopLevelParameterSets(brief, lineWidth, printOnlyTopLevel);
+    return 0;
   }
 
   // Get the list of plugins from the plugin cache

@@ -51,6 +51,7 @@ private:
   long property_;
 public:
   static TypeWithDict byName(std::string const& name);
+  static TypeWithDict byTypeInfo(std::type_info const& ti);
 private:
   static TypeWithDict byName(std::string const& name, long property);
 public:

@@ -107,7 +107,7 @@ protected:
   double  kPI_;
 
   // FIXME (well the whole class needs to be fixed!)
-  mutable TkClonerImpl cloner;
+  TkClonerImpl cloner;
 
   std::stringstream * pss;
   PrintRecoObjects po;

@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/transform.h"
 //
@@ -64,8 +65,26 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 }
 
-IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() {
+IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() { }
 
+void IsolatedPixelTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  std::vector<edm::InputTag> tracksrc = {edm::InputTag("hltPixelTracks")};
+  desc.add<edm::InputTag>("L1eTauJetsSource",edm::InputTag("hltCaloStage2Digis","Tau"));
+  desc.add<double>("tauAssociationCone",        0.0 );
+  desc.add<double>("tauUnbiasCone",             1.2 );
+  desc.add<std::vector<edm::InputTag> >("PixelTracksSources",tracksrc);
+  desc.add<double>("ExtrapolationConeSize",     1.0);
+  desc.add<double>("PixelIsolationConeSizeAtEC",40);
+  desc.add<edm::InputTag>("L1GTSeedLabel",edm::InputTag("hltL1sIsoTrack"));
+  desc.add<double>("MaxVtxDXYSeed",             101.0);
+  desc.add<double>("MaxVtxDXYIsol",             101.0);
+  desc.add<edm::InputTag>("VertexLabel",edm::InputTag("hltTrimmedPixelVertices"));
+  desc.add<std::string>("MagFieldRecordName","VolumeBasedMagneticField");
+  desc.add<double>("minPTrack",                 5.0);
+  desc.add<double>("maxPTrackForIsolation",     3.0);
+  desc.add<double>("EBEtaBoundary",             1.479);
+  descriptions.add("isolPixelTrackProd",desc);
 }
 
 void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run &run, const edm::EventSetup &theEventSetup) {

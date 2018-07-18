@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 // -----------------------------
 //  constructors and destructor
@@ -21,9 +22,12 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , jetToken_             ( mayConsume<reco::PFJetCollection>      (iConfig.getParameter<edm::InputTag>("jets")      ) )   
   , eleToken_             ( mayConsume<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons") ) )   
   , muoToken_             ( mayConsume<reco::MuonCollection>       (iConfig.getParameter<edm::InputTag>("muons")     ) )
+  , phoToken_             ( mayConsume<reco::PhotonCollection>     (iConfig.getParameter<edm::InputTag>("photons")   ) )
+  , trkToken_             ( mayConsume<reco::TrackCollection>     (iConfig.getParameter<edm::InputTag>("tracks")   ) )
   , do_met_ (iConfig.getParameter<bool>("doMETHistos") )
   , do_jet_ (iConfig.getParameter<bool>("doJetHistos") )
   , do_ht_  (iConfig.getParameter<bool>("doHTHistos")  )
+  , do_hmg_  (iConfig.getParameter<bool>("doHMesonGammaHistos")  )
   , num_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(std::make_unique<GenericTriggerEventFlag>(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
   , metSelection_ ( iConfig.getParameter<std::string>("metSelection") )
@@ -32,9 +36,13 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   , htjetSelection_ ( iConfig.getParameter<std::string>("htjetSelection"))
   , eleSelection_ ( iConfig.getParameter<std::string>("eleSelection") )
   , muoSelection_ ( iConfig.getParameter<std::string>("muoSelection") )
+  , phoSelection_ ( iConfig.getParameter<std::string>("phoSelection") )
+  , trkSelection_ ( iConfig.getParameter<std::string>("trkSelection") )
   , njets_      ( iConfig.getParameter<int>("njets" )      )
   , nelectrons_ ( iConfig.getParameter<int>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<int>("nmuons" )     )
+  , nphotons_   ( iConfig.getParameter<int>("nphotons")    )
+  , nmesons_    ( iConfig.getParameter<int>("nmesons")    )
 {
   if (do_met_){
     metDQM_.initialise(iConfig);
@@ -44,6 +52,9 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   }
   if (do_ht_ ){
     htDQM_.initialise(iConfig);
+  }
+  if (do_hmg_ ){
+    hmgDQM_.initialise(iConfig);
   }
 }
 
@@ -55,11 +66,12 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 {  
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   if (do_met_) metDQM_.bookHistograms(ibooker);
   if (do_jet_) jetDQM_.bookHistograms(ibooker);
   if (do_ht_ ) htDQM_.bookHistograms(ibooker);
+  if (do_hmg_ ) hmgDQM_.bookHistograms(ibooker);
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
@@ -84,7 +96,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
   std::vector<reco::PFJet> htjets;
-  if ( int(jetHandle->size()) < njets_ ) return;
+  if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       if (jetId_=="loose" || jetId_ =="tight"){
@@ -102,26 +114,80 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     }
     if ( htjetSelection_( j ) ) htjets.push_back(j);
   }
-  if ( int(jets.size()) < njets_ ) return;
+  if ( jets.size() < njets_ ) return;
   
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
-  if ( int(electrons.size()) < nelectrons_ ) return;
+  if ( electrons.size() < nelectrons_ ) return;
   
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
-  if ( int(muoHandle->size()) < nmuons_ ) return;
+  if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
   for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
-  if ( int(muons.size()) < nmuons_ ) return;
+  if ( muons.size() < nmuons_ ) return;
 
+  edm::Handle<reco::PhotonCollection> phoHandle;
+  iEvent.getByToken( phoToken_, phoHandle );
+  if ( phoHandle->size() < nphotons_ ) return;
+  std::vector<reco::Photon> photons;
+  for ( auto const & m : *phoHandle ) {
+    if ( phoSelection_( m ) ) photons.push_back(m);
+  }
+  if ( photons.size() < nphotons_ ) return;
+
+  std::vector<TLorentzVector> passedMesons;
+  if (do_hmg_ ) {
+    edm::Handle<reco::TrackCollection> trkHandle;
+    iEvent.getByToken( trkToken_, trkHandle );
+    // find isolated mesons (phi or rho)
+    TLorentzVector t1,t2;
+    float hadronMassHyp[2] = {0.1396,0.4937};  // pi or K mass
+    float loMassLim[2] = {0.5,0.9};  // rho or phi mass 
+    float hiMassLim[2] = {1.0,1.11};  // rho or phi mass 
+    
+    for (size_t i = 0; i < trkHandle->size(); ++i){
+      const reco::Track trk1 = trkHandle->at(i);
+      if (!trkSelection_(trk1)) continue;
+      for (size_t j = i+1; j < trkHandle->size(); ++j){
+	const reco::Track trk2 = trkHandle->at(j);
+	if (!trkSelection_(trk2)) continue;
+	if (trk1.charge() * trk2.charge() != -1) continue;
+	
+	for (unsigned hyp = 0; hyp < 2; ++hyp){
+	  
+	  t1.SetPtEtaPhiM(trk1.pt(),trk1.eta(),trk1.phi(),hadronMassHyp[hyp]);
+	  t2.SetPtEtaPhiM(trk2.pt(),trk2.eta(),trk2.phi(),hadronMassHyp[hyp]);
+	  TLorentzVector mesCand = t1 + t2;
+	  
+	  // cuts
+	  if (mesCand.M() < loMassLim[hyp] || mesCand.M() > hiMassLim[hyp]) continue;   //mass
+	  if (mesCand.Pt() < 35. || fabs(mesCand.Rapidity()) > 2.1 ) continue;   //pT eta
+	  
+	  // isolation
+	  float absIso = 0.;
+	  for (size_t k = 0; k < trkHandle->size(); ++k){
+	    if (k == i || k == j) continue;
+	    const reco::Track trkN = trkHandle->at(k);
+	    if (trkN.charge() == 0 || trkN.pt() < 0.5 ||
+		( trkN.dz() > 0.1 ) || 
+		deltaR(trkN.eta(),trkN.phi(),mesCand.Eta(),mesCand.Phi()) > 0.5) continue;
+	    absIso += trkN.pt();
+	  }
+	  if (absIso/mesCand.Pt() > 0.2) continue;
+	  passedMesons.push_back(mesCand);
+	}
+      }
+    }
+    if ( passedMesons.size() < nmesons_ ) return;
+  }
 
   bool passNumCond = num_genTriggerEventFlag_->off() || num_genTriggerEventFlag_->accept( iEvent, iSetup);
   int ls = iEvent.id().luminosityBlock();
@@ -129,6 +195,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (do_met_) metDQM_.fillHistograms(met,phi,ls,passNumCond);
   if (do_jet_) jetDQM_.fillHistograms(jets,pfmet,ls,passNumCond);
   if (do_ht_ ) htDQM_.fillHistograms(htjets,met,ls,passNumCond);
+  if (do_hmg_ ) hmgDQM_.fillHistograms(photons,passedMesons,ls,passNumCond); 
 
 }
 
@@ -181,15 +248,21 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<edm::InputTag>( "jets",     edm::InputTag("ak4PFJetsCHS") );
   desc.add<edm::InputTag>( "electrons",edm::InputTag("gedGsfElectrons") );
   desc.add<edm::InputTag>( "muons",    edm::InputTag("muons") );
+  desc.add<edm::InputTag>( "photons",    edm::InputTag("gedPhotons") );
+  desc.add<edm::InputTag>( "tracks",    edm::InputTag("generalTracks") );
   desc.add<std::string>("metSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("jetId", "");
   desc.add<std::string>("htjetSelection", "pt > 30");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
+  desc.add<std::string>("phoSelection", "pt > 0");
+  desc.add<std::string>("trkSelection", "pt > 0");
   desc.add<int>("njets",      0);
   desc.add<int>("nelectrons", 0);
   desc.add<int>("nmuons",     0);
+  desc.add<int>("nphotons",     0);
+  desc.add<int>("nmesons",     0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -215,6 +288,8 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   JetDQM::fillJetDescription(histoPSet);
   desc.add<bool>("doHTHistos", true);
   HTDQM::fillHtDescription(histoPSet);
+  desc.add<bool>("doHMesonGammaHistos", true);
+  HMesonGammaDQM::fillHmgDescription(histoPSet);
 
   desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
 

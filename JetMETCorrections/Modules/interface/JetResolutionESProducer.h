@@ -31,7 +31,7 @@ class JetResolutionESProducer : public edm::ESProducer
 
         ~JetResolutionESProducer() override {}
 
-        std::shared_ptr<JME::JetResolution> produce(JetResolutionRcd const& iRecord) {
+        std::unique_ptr<JME::JetResolution> produce(JetResolutionRcd const& iRecord) {
             
             // Get object from record
             edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
@@ -39,7 +39,7 @@ class JetResolutionESProducer : public edm::ESProducer
 
             // Convert this object to a JetResolution object
             JME::JetResolutionObject const& jerObject = (*jerObjectHandle);
-            return std::make_shared<JME::JetResolution>(jerObject);
+            return std::make_unique<JME::JetResolution>(jerObject);
         }
 };
 
@@ -57,7 +57,7 @@ class JetResolutionScaleFactorESProducer : public edm::ESProducer
 
         ~JetResolutionScaleFactorESProducer() override {}
 
-        std::shared_ptr<JME::JetResolutionScaleFactor> produce(JetResolutionScaleFactorRcd const& iRecord) {
+        std::unique_ptr<JME::JetResolutionScaleFactor> produce(JetResolutionScaleFactorRcd const& iRecord) {
             
             // Get object from record
             edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
@@ -65,7 +65,7 @@ class JetResolutionScaleFactorESProducer : public edm::ESProducer
 
             // Convert this object to a JetResolution object
             JME::JetResolutionObject const& jerObject = (*jerObjectHandle);
-            return std::make_shared<JME::JetResolutionScaleFactor>(jerObject);
+            return std::make_unique<JME::JetResolutionScaleFactor>(jerObject);
         }
 };
 #endif

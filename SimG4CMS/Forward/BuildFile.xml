@@ -1,9 +1,13 @@
 <use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
 <use   name="SimG4Core/Watcher"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Notification"/>
-<use   name="SimG4Core/Application"/>
+<use   name="SimG4Core/Physics"/>
 <use   name="SimG4CMS/Calo"/>
+<use   name="SimG4CMS/Tracker"/>
 <use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/SimHitMaker"/>
@@ -11,19 +15,12 @@
 <use   name="SimDataFormats/Forward"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="Geometry/HGCalCommonData"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/MessageLogger"/>
+<use   name="Geometry/MTDCommonData"/>
 <use   name="boost"/>
+<use   name="clhep"/>
 <use   name="geant4core"/>
 <use   name="root"/>
 <use   name="rootmath"/>
 <export>
   <lib   name="1"/>
 </export>
-<!--
-     There is no way to avoid these in C++ until possibly GCC 6.1.0
-     Diagnostic pragmas would not work due to the way C++ pre-processor is implemented
-     RFC PATCH: https://gcc.gnu.org/ml/gcc-patches/2015-07/msg02414.html
--->
-<flags REM_CXXFLAGS="-Werror=unused-variable"/>

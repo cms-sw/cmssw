@@ -36,6 +36,7 @@ SiStripPartition::SiStripPartition() :
   vpspScanV_(0,0),
   apvCalibV_(0,0),
   pedestalsV_(0,0),
+  pedsFullNoiseV_(0,0),
   apvLatencyV_(0,0),
   fineDelayV_(0,0),
   inputModuleXml_(""),
@@ -68,6 +69,7 @@ SiStripPartition::SiStripPartition( std::string partition ) :
   vpspScanV_(0,0),
   apvCalibV_(0,0),
   pedestalsV_(0,0),
+  pedsFullNoiseV_(0,0),
   apvLatencyV_(0,0),
   fineDelayV_(0,0),
   inputModuleXml_(""),
@@ -102,6 +104,7 @@ SiStripPartition::SiStripPartition( const SiStripPartition& input ) :
   vpspScanV_( input.vpspScanVersion() ),
   apvCalibV_( input.apvCalibVersion() ),
   pedestalsV_( input.pedestalsVersion() ),
+  pedsFullNoiseV_( input.pedsFullNoiseVersion() ),
   apvLatencyV_( input.apvLatencyVersion() ),
   fineDelayV_( input.fineDelayVersion() ),
   inputModuleXml_( input.inputModuleXml() ),
@@ -135,6 +138,7 @@ SiStripPartition& SiStripPartition::operator= ( const SiStripPartition& input ){
   vpspScanV_ = input.vpspScanVersion();
   apvCalibV_ = input.apvCalibVersion();
   pedestalsV_ = input.pedestalsVersion();
+  pedsFullNoiseV_ = input.pedsFullNoiseVersion();
   apvLatencyV_ = input.apvLatencyVersion();
   fineDelayV_ = input.fineDelayVersion();
   inputModuleXml_ = input.inputModuleXml();
@@ -168,6 +172,7 @@ bool SiStripPartition::operator== ( const SiStripPartition& input ) const {
 	   vpspScanV_ == input.vpspScanVersion() &&
 	   apvCalibV_ == input.apvCalibVersion() &&
 	   pedestalsV_ == input.pedestalsVersion() &&
+	   pedsFullNoiseV_ == input.pedsFullNoiseVersion() &&
 	   apvLatencyV_ == input.apvLatencyVersion() &&
 	   fineDelayV_ == input.fineDelayVersion() &&
 	   inputModuleXml_ == input.inputModuleXml() &&
@@ -215,6 +220,7 @@ void SiStripPartition::reset() {
   vpspScanV_    = std::make_pair(0,0);
   apvCalibV_    = std::make_pair(0,0);
   pedestalsV_   = std::make_pair(0,0);
+  pedsFullNoiseV_   = std::make_pair(0,0);
   apvLatencyV_  = std::make_pair(0,0);
   fineDelayV_   = std::make_pair(0,0);
   
@@ -251,6 +257,7 @@ void SiStripPartition::pset( const edm::ParameterSet& pset ) {
   vpspScanV_       = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "VpspScanVersion", tmp2 ) );
   apvCalibV_       = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "ApvCalibVersion", tmp2 ) );
   pedestalsV_      = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "PedestalsVersion", tmp2 ) );
+  pedsFullNoiseV_      = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "PedsFullNoiseVersion", tmp2 ) );
   apvLatencyV_     = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "ApvLatencyVersion", tmp2 ) );
   fineDelayV_      = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "FineDelayVersion", tmp2 ) );
   
@@ -350,7 +357,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	  maskVersion_.second = (*istate)->getMaskVersionMinorId(); 
 	}
 	//#endif
-	
+
 	// Retrieve global and local versions 
 	if ( forceCurrentState_ || globalAnalysisV_ ) { // use global version (or current state)
 
@@ -382,6 +389,9 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
 	      pedestalsV_.first = ivers->second.first;
 	      pedestalsV_.second = ivers->second.second;
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDSFULLNOISE ) {
+	      pedsFullNoiseV_.first = ivers->second.first;
+	      pedsFullNoiseV_.second = ivers->second.second;
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
 	      apvLatencyV_.first = ivers->second.first;
 	      apvLatencyV_.second = ivers->second.second;
@@ -443,6 +453,11 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 		pedestalsV_.first = ivers->second.first;
 		pedestalsV_.second = ivers->second.second;
 	      }
+	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDSFULLNOISE ) {
+	      if ( !pedsFullNoiseV_.first && !pedsFullNoiseV_.second ) {
+		pedsFullNoiseV_.first = ivers->second.first;
+		pedsFullNoiseV_.second = ivers->second.second;
+	      }
 	    } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
 	      if ( !apvLatencyV_.first && !apvLatencyV_.second ) {
 		apvLatencyV_.first = ivers->second.first;
@@ -484,7 +499,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
       TkRun* run = nullptr;
       if ( !runNumber_ ) { run = df->getLastRun( partitionName_ ); }
       else { run = df->getRun( partitionName_, runNumber_ ); }
-  
+
       // Retrieve versioning for given TkRun object 
       if ( run ) {
 	
@@ -570,6 +585,9 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
 		pedestalsV_.first = ivers->second.first;
 		pedestalsV_.second = ivers->second.second;
+	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_PEDSFULLNOISE ) {
+		pedsFullNoiseV_.first = ivers->second.first;
+		pedsFullNoiseV_.second = ivers->second.second;
 	      } else if ( ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
 		apvLatencyV_.first = ivers->second.first;
 		apvLatencyV_.second = ivers->second.second;
@@ -604,6 +622,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      else if ( runType_ == sistrip::VPSP_SCAN )      { type = CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN; }
 	      else if ( runType_ == sistrip::CALIBRATION )    { type = CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION; }
 	      else if ( runType_ == sistrip::PEDESTALS )      { type = CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS; }
+	      else if ( runType_ == sistrip::PEDS_FULL_NOISE) { type = CommissioningAnalysisDescription::T_ANALYSIS_PEDSFULLNOISE; }
 	      else if ( runType_ == sistrip::APV_LATENCY )    { type = CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY; }
 	      else if ( runType_ == sistrip::FINE_DELAY_TTC ) { type = CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY; }
 
@@ -644,6 +663,10 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 		  runTableVersion_ = pedestalsV_;
 		  pedestalsV_.first = ivers->second.back().first;
 		  pedestalsV_.second = ivers->second.back().second;
+		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_PEDSFULLNOISE ) {
+		  runTableVersion_ = pedsFullNoiseV_;
+		  pedsFullNoiseV_.first = ivers->second.back().first;
+		  pedsFullNoiseV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
 		  runTableVersion_ = apvLatencyV_;
 		  apvLatencyV_.first = ivers->second.back().first;
@@ -752,6 +775,7 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
       ss << "  VPSP scan maj/min vers     : " << vpspScanV_.first << "." << vpspScanV_.second << std::endl;
       ss << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl;
       ss << "  Pedestals maj/min vers     : " << pedestalsV_.first << "." << pedestalsV_.second << std::endl;
+      ss << "  PedsFullNoise maj/min vers     : " << pedsFullNoiseV_.first << "." << pedsFullNoiseV_.second << std::endl;
       ss << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl;
       ss << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
       
@@ -765,7 +789,7 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
 	   << fastCablingV_.first << "." << fastCablingV_.second 
 	   << " for this FED cabling run!" << std::endl;
       }
-
+      
       if ( runType_ != sistrip::APV_TIMING ) { 
 	ss << "  APV timing maj/min vers    : " << apvTimingV_.first << "." << apvTimingV_.second << std::endl;
       } else {
@@ -808,6 +832,15 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
 	ss << "  Pedestals maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
 	   << " <= This \"state\" version overriden by \"history\" version " 
 	   << pedestalsV_.first << "." << pedestalsV_.second 
+	   << " for this pedestals run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::PEDS_FULL_NOISE ) { 
+	ss << "  PedsFullNoise maj/min vers     : " << pedsFullNoiseV_.first << "." << pedsFullNoiseV_.second << std::endl;
+      } else {
+	ss << "  Pedestals maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << pedsFullNoiseV_.first << "." << pedsFullNoiseV_.second 
 	   << " for this pedestals run!" << std::endl;
       }
 

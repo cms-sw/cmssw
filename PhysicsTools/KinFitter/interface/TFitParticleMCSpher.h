@@ -31,8 +31,10 @@ protected :
 
   void init(TVector3* p, Double_t M, const TMatrixD* theCovMatrix);
 
-  
+
 private:
+
+  ClassDefOverride(TFitParticleMCSpher, 0)
 };
 
 #endif

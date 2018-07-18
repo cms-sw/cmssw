@@ -5,7 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
-#include <boost/shared_ptr.hpp>
 
 /** Provides algorithms for estimating material effects (GSF compatible).
  * Multiple scattering estimates can be provided according to a single (== "KF") 
@@ -17,7 +16,7 @@ class  GsfMaterialEffectsESProducer: public edm::ESProducer{
  public:
   GsfMaterialEffectsESProducer(const edm::ParameterSet & p);
   ~GsfMaterialEffectsESProducer() override; 
-  std::shared_ptr<GsfMaterialEffectsUpdator> produce(const TrackingComponentsRecord &);
+  std::unique_ptr<GsfMaterialEffectsUpdator> produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };

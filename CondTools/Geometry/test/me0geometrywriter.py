@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ME0GeometryWriter")
 process.load('CondCore.CondDB.CondDB_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D20_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
 process.source = cms.Source("EmptyIOVSource",

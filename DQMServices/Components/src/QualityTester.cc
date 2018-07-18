@@ -62,8 +62,8 @@ void QualityTester::beginRun(const edm::Run& run , const edm::EventSetup& iSetup
     iSetup.get<DQMXMLFileRcd>().get(Label,xmlfile);
     std::unique_ptr<std::vector<unsigned char> > vc( (*xmlfile).getUncompressedBlob() );
     std::string xmlstr="";
-    for(std::vector<unsigned char>::iterator it=vc->begin();it!=vc->end();it++){
-      xmlstr += *it;
+    for(unsigned char & it : *vc){
+      xmlstr += it;
     }
 
     qtHandler->configureTests(xmlstr,bei,true);
@@ -107,7 +107,7 @@ void QualityTester::endJob(){
   if (qtestOnEndJob) performTests();
 }
 
-void QualityTester::performTests(void)
+void QualityTester::performTests()
 {
     // done here because new ME can appear while processing data
     qtHandler->attachTests(bei,verboseQT);
@@ -121,20 +121,18 @@ void QualityTester::performTests(void)
       std::map< std::string, std::vector<std::string> > theAlarms
 	= qtHandler->checkDetailedQTStatus(bei);
 
-      for (std::map<std::string,std::vector<std::string> >::iterator itr = theAlarms.begin();
-	   itr != theAlarms.end(); ++itr)
+      for (auto & theAlarm : theAlarms)
       {
-        const std::string &alarmType = itr->first;
-        const std::vector<std::string> &msgs = itr->second;
+        const std::string &alarmType = theAlarm.first;
+        const std::vector<std::string> &msgs = theAlarm.second;
         if ((reportThreshold == "black")
 	    || (reportThreshold == "orange" && (alarmType == "orange" || alarmType == "red"))
 	    || (reportThreshold == "red" && alarmType == "red"))
 	  {
 	    std::cout << std::endl;
 	    std::cout << "Error Type: " << alarmType << std::endl;
-	    for (std::vector<std::string>::const_iterator msg = msgs.begin();
-		 msg != msgs.end(); ++msg)
-	      std::cout << *msg << std::endl;
+	    for (auto const & msg : msgs)
+	      std::cout << msg << std::endl;
 	  }
       }
       std::cout << std::endl;

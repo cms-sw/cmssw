@@ -11,7 +11,11 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedTausBoosted_*_*',
         'keep *_slimmedCaloJets_*_*',
         'keep *_slimmedJets_*_*',
+        # drop content created by MINIAOD DeepFlavour production
+        'drop recoBaseTagInfosOwned_slimmedJets_*_*',
         'keep *_slimmedJetsAK8_*_*',
+        # drop content created by MINIAOD DeepDoubleB production
+        'drop recoBaseTagInfosOwned_slimmedJetsAK8_*_*',
         'keep *_slimmedJetsPuppi_*_*',
         'keep *_slimmedMETs_*_*',
         'keep *_slimmedMETsNoHF_*_*',
@@ -28,7 +32,7 @@ MicroEventContent = cms.PSet(
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
         'keep recoGsfTracks_reducedEgamma_*_*',
-        
+        'keep HBHERecHitsSorted_reducedEgamma_*_*',
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
@@ -74,7 +78,9 @@ MicroEventContent = cms.PSet(
         # Lumi
         'keep LumiScalerss_scalersRawToDigi_*_*',
         # CTPPS
-        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
+        'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
+	# displacedStandAlone muon collection for EXO
+	'keep recoTracks_displacedStandAloneMuons__*',
     )
 )
 
@@ -126,3 +132,8 @@ cms.untracked.PSet(branch = cms.untracked.string("recoGenJets_slimmedGenJets__*"
 cms.untracked.PSet(branch = cms.untracked.string("patJets_slimmedJetsPuppi__*"),splitLevel=cms.untracked.int32(99)),
 cms.untracked.PSet(branch = cms.untracked.string("EcalRecHitsSorted_reducedEgamma_reducedESRecHits_*"),splitLevel=cms.untracked.int32(99)),
 ])
+
+
+_phase2_hgc_extraCommands = ["keep *_slimmedElectronsFromMultiCl_*_*", "keep *_slimmedPhotonsFromMultiCl_*_*"]
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _phase2_hgc_extraCommands)

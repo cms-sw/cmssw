@@ -5,7 +5,7 @@
 //
 // -----------------------------------------------------------------------------
 
-#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.hh"
+#include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4BetheHeitlerModel.hh"

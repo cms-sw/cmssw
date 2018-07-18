@@ -8,16 +8,24 @@
 
 HcalHitRelabeller::HcalHitRelabeller(bool nd) : 
   theRecNumber(nullptr),
-  neutralDensity_(nd) { }
+  neutralDensity_(nd) { 
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalSim") << "HcalHitRelabeller initialized with" 
+				  << " neutralDensity " << neutralDensity_;
+#endif
+}
 
 void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 
   if (theRecNumber) {
-    for (auto & hcalHit : hcalHits) {
-
 #ifdef EDM_ML_DEBUG
-      std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() 
-		<< std::dec << " Neutral density " << neutralDensity_ << "\n";
+    int ii(0);
+#endif
+    for (auto & hcalHit : hcalHits) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalSim") << "Hit[" << ii << "] " << std::hex 
+				  << hcalHit.id() << std::dec 
+				  << " Neutral density " << neutralDensity_;
 #endif
       double energy = (hcalHit.energy());
       if (neutralDensity_) {
@@ -26,13 +34,16 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
       }
       DetId newid = relabel(hcalHit.id());
 #ifdef EDM_ML_DEBUG
-      std::cout << "Hit " << ii << " out of " << hcalHits.size() << " " 
-		<< std::hex << newid.rawId() << std::dec << " E " << energy 
-                << std::endl;
+      edm::LogVerbatim("HcalSim") << "Hit " << ii << " out of " 
+				  << hcalHits.size() << " " << std::hex 
+				  << newid.rawId() << std::dec << " E " 
+				  << energy;
 #endif
       hcalHit.setID(newid.rawId());
 #ifdef EDM_ML_DEBUG
-      std::cout << "Modified Hit " << HcalDetId(hcalHits[ii].id()) <<std::endl;
+      edm::LogVerbatim("HcalSim") << "Modified Hit " 
+				  << HcalDetId(hcalHit.id());
+      ++ii;
 #endif
     }
   } else {
@@ -52,18 +63,18 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId) const {
 DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstants * theRecNumber) {
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "Enter HcalHitRelabeller::relabel " << std::endl;
+  edm::LogVerbatim("HcalSim") << "Enter HcalHitRelabeller::relabel";
 #endif
   HcalDetId hid;
   int       det, z, depth, eta, phi, layer, sign;
   HcalTestNumbering::unpackHcalIndex(testId,det,z,depth,eta,phi,layer);
 #ifdef EDM_ML_DEBUG
-  std::cout << "det: " << det << " "
-  	    << "z: " << z << " "
-   	    << "depth: " << depth << " "
-   	    << "ieta: " << eta << " "
-   	    << "iphi: " << phi << " "
-   	    << "layer: " << layer << std::endl;
+  edm::LogVerbatim("HcalSim") << "det: " << det << " "
+			      << "z: " << z << " "
+			      << "depth: " << depth << " "
+			      << "ieta: " << eta << " "
+			      << "iphi: " << phi << " "
+			      << "layer: " << layer;
 #endif
   sign=(z==0)?(-1):(1);
   HcalDDDRecConstants::HcalID id = theRecNumber->getHCID(det,sign*eta,phi,layer,depth);
@@ -78,12 +89,11 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstant
     hid=HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth);
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << " new HcalDetId -> hex.RawID = "
-	    << std::hex << hid.rawId() << std::dec;
-  std::cout.flush();
-  std::cout << " det, z, depth, eta, phi = " << det << " "
-	    << z << " "<< id.depth << " " << id.eta << " "
-	    << id.phi << " ---> " << hid << std::endl;  
+  edm::LogVerbatim("HcalSim") << " new HcalDetId -> hex.RawID = "
+			      << std::hex << hid.rawId() << std::dec
+			      << " det, z, depth, eta, phi = " << det << " "
+			      << z << " "<< id.depth << " " << id.eta << " "
+			      << id.phi << " ---> " << hid;  
 #endif
   return hid;
 }
@@ -97,9 +107,10 @@ double HcalHitRelabeller::energyWt(const uint32_t testId) const {
   double    wt    = (((det==1) || (det==2)) && (depth == 1)) ? 
     theRecNumber->getLayer0Wt(det,phi,zside) : 1.0;
 #ifdef EDM_ML_DEBUG
-  std::cout << "EnergyWT::det: " << det << " z: " << z  << ":" << zside
-            << " depth: " << depth << " ieta: " << eta << " iphi: " << phi
-            << " layer: " << layer << " wt " << wt << std::endl;
+  edm::LogVerbatim("HcalSim") << "EnergyWT::det: " << det << " z: " << z  
+			      << ":" << zside << " depth: " << depth 
+			      << " ieta: " << eta << " iphi: " << phi
+			      << " layer: " << layer << " wt " << wt;
 #endif
   return wt;
 }

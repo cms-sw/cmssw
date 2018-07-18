@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pedestalTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pedestalTask = DQMEDAnalyzer(
 	"PedestalTask",
 	
 	#	standard parameters

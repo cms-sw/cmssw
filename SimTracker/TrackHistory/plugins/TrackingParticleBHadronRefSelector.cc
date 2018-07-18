@@ -39,7 +39,7 @@ TrackingParticleBHadronRefSelector::TrackingParticleBHadronRefSelector(const edm
 void TrackingParticleBHadronRefSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("mix", "MergedTrackTruth"));
-  descriptions.add("trackingParticleBHadronRefSelector", desc);
+  descriptions.add("trackingParticleBHadronRefSelectorDefault", desc);
 }
 
 void TrackingParticleBHadronRefSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

@@ -55,7 +55,7 @@ namespace {
 
     for ( auto const & ds : compatDets) {
       MeasurementDetWithData mdet = theDetSystem->idToDet(ds.first->geographicalId(), *theData);
-      if unlikely(mdet.isNull()) {
+      if UNLIKELY(mdet.isNull()) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }
       
@@ -186,13 +186,17 @@ void LayerMeasurements::addInvalidMeas( vector<TrajectoryMeasurement>& measVec,
 {
   if (!measVec.empty()) {
     // invalidMeas on Det of most compatible hit
+    auto const & ts = measVec.front().predictedState();
+    auto toll = measVec.front().recHitR().det()->surface().bounds().significanceInside(ts.localPosition(),ts.localError().positionError());
     measVec.emplace_back(measVec.front().predictedState(), 
-			 std::make_shared<InvalidTrackingRecHit>(*measVec.front().recHit()->det(), TrackingRecHit::missing),
-			 0.,&layer);
+			 std::make_shared<InvalidTrackingRecHit>(*measVec.front().recHitR().det(), TrackingRecHit::missing),
+			 toll,&layer);
   }
   else if (!group.empty()) {
     // invalid state on first compatible Det
-    measVec.emplace_back(group.front().trajectoryState(), 
-			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), 0.,&layer);
+    auto const & ts = group.front().trajectoryState();
+    auto toll = group.front().det()->surface().bounds().significanceInside(ts.localPosition(),ts.localError().positionError());
+      measVec.emplace_back(group.front().trajectoryState(), 
+    			 std::make_shared<InvalidTrackingRecHit>(*group.front().det(), TrackingRecHit::missing), toll,&layer);
   }
 }

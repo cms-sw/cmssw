@@ -11,7 +11,7 @@ namespace DDI {
   {
   public:
   
-    Solid() : shape_(dd_not_init) { }
+  Solid() : shape_(DDSolidShape::dd_not_init) { }
     
     Solid(DDSolidShape shape) : shape_(shape) { }
     

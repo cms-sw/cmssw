@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.Trigger.VBFMETMonitor_Client_cff import *
+from DQMOffline.Trigger.HMesonGammaMonitor_Client_cff import *
 from DQMOffline.Trigger.VBFTauMonitor_Client_cff import *
 from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_Client_cfi import *
 from DQMOffline.Trigger.MssmHbbMonitoring_Client_cfi import *
@@ -506,4 +507,5 @@ higgsClient = cms.Sequence(
   + VBFEfficiency
   + mssmHbbBtagTriggerEfficiency 
   + mssmHbbHLTEfficiency 
+  + hmesongammaEfficiency
 )

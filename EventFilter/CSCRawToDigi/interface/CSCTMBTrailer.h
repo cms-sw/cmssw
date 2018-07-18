@@ -32,7 +32,7 @@ public:
   /// don't forget to pass in the size of the tmb header + clct data
   CSCTMBTrailer(int wordCount, int firmwareVersion);
 
-  CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion);
+  CSCTMBTrailer(const uint16_t * buf, unsigned short int firmwareVersion);
 
   CSCTMBTrailer(const CSCTMBStatusDigi & digi)
     {

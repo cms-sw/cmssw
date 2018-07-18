@@ -4,6 +4,7 @@ from DQMOffline.Trigger.RazorMonitor_cff import *
 from DQMOffline.Trigger.VBFSUSYMonitor_cff import *
 from DQMOffline.Trigger.LepHTMonitor_cff import *
 from DQMOffline.Trigger.susyHLTEleCaloJets_cff import *
+from DQMOffline.Trigger.SoftMuHardJetMETSUSYMonitor_cff import *
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
 #george
@@ -257,6 +258,7 @@ susHLTDQMSourceExtra = cms.Sequence(
   + double_soft_muon_backup_90_metpt
   + double_soft_muon_backup_90_mhtpt
   + susyMuEGMonitoring 
-  +double_soft_muon_dca_muonpt
-  +double_soft_muon_dca_metpt
+  + double_soft_muon_dca_muonpt
+  + double_soft_muon_dca_metpt
+  + susyHLTSoftMuHardJetMETMonitoring
 )

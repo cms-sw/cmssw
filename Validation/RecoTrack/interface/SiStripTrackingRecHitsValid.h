@@ -255,8 +255,7 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
   const MagneticField * magfield2_ ;
-  void beginJob(const edm::EventSetup& es);
-  void endJob();
+  void endJob() override;
 
  private:
   

@@ -91,7 +91,7 @@ my $nMerge = @JOBDIR - $nJobs; # 'index' of this merge job to achieve jobm, jobm
 # add a new merge job entry. 
 $theJobDir = "jobm".$nMerge;
 push @JOBDIR,$theJobDir;
-push @JOBID,0;
+push @JOBID,"";
 push @JOBSTATUS,"SETUP";
 push @JOBNTRY,0;
 push @JOBRUNTIME,0;

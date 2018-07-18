@@ -36,10 +36,13 @@ muParamGlobalIsoDepositCalHcal = RecoMuon.MuonIsolationProducers.muIsoDepositCal
 #
 #------------------------------
 # "standard sequences"
-muIsoDeposits_muons = cms.Sequence(muIsoDepositTk+muIsoDepositCalByAssociatorTowers+muIsoDepositJets)
+muIsoDeposits_muonsTask = cms.Task(muIsoDepositTk,muIsoDepositCalByAssociatorTowers,muIsoDepositJets)
+muIsoDeposits_muons = cms.Sequence(muIsoDeposits_muonsTask)
 #old one, using a reduced config set
-muIsoDeposits_ParamGlobalMuonsOld = cms.Sequence(muParamGlobalIsoDepositGsTk+muParamGlobalIsoDepositCalEcal+muParamGlobalIsoDepositCalHcal)
-muIsoDeposits_ParamGlobalMuons = cms.Sequence(muParamGlobalIsoDepositTk+muParamGlobalIsoDepositCalByAssociatorTowers+muParamGlobalIsoDepositJets)
+muIsoDeposits_ParamGlobalMuonsOldTask = cms.Task(muParamGlobalIsoDepositGsTk,muParamGlobalIsoDepositCalEcal,muParamGlobalIsoDepositCalHcal)
+muIsoDeposits_ParamGlobalMuonsOld = cms.Sequence(muIsoDeposits_ParamGlobalMuonsOldTask)
+muIsoDeposits_ParamGlobalMuonsTask = cms.Task(muParamGlobalIsoDepositTk,muParamGlobalIsoDepositCalByAssociatorTowers,muParamGlobalIsoDepositJets)
+muIsoDeposits_ParamGlobalMuons = cms.Sequence(muIsoDeposits_ParamGlobalMuonsTask)
 muParamGlobalIsoDepositCtfTk.IOPSet = cms.PSet(
     MIsoDepositParamGlobalViewIOBlock
 )

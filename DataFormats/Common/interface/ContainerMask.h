@@ -22,6 +22,7 @@
 // system include files
 #include <vector>
 #include <cassert>
+#include <cstddef>
 #include <algorithm>
 
 // user include files

@@ -1,6 +1,6 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveMatching.h"
 
-#include "helper.h"  // to_hex, to_binary
+#include "helper.h"  // to_hex, to_binary, merge_sort3
 
 namespace {
   const int bw_fph = 13;  // bit width of ph, full precision
@@ -82,7 +82,6 @@ void PrimitiveMatching::process(
     EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
-
       int istation = conv_hits_it->Station()-1;
       int zone_code = conv_hits_it->Zone_code();  // decide based on original zone code
       if (use_fs_zone_code)
@@ -465,7 +464,7 @@ void PrimitiveMatching::insert_hits(
       (conv_hit_i.BX()         == conv_hit_j.BX()) &&
       (conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) && // For RPC clusters
       (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
-      //(conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
+      (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&      // For RPC clusters
       true
     ) {
       // All duplicates with the same strip but different wire must have same phi_fp
@@ -487,16 +486,9 @@ void PrimitiveMatching::insert_hits(
       (conv_hit_i.BX()         == conv_hit_j.BX()) &&
       //(conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) && // For RPC clusters
       //(conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
-      //(conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
+      //(conv_hit_i.Roll()       == conv_hit_j.Roll()) &&      // For RPC clusters
       true
     ) {
-      // // All duplicates with the same strip but different wire must have same phi_fp
-      // if (not(conv_hit_i.Phi_fp() == conv_hit_j.Phi_fp()))
-      // 	{ edm::LogError("L1T") << "conv_hit_i.Phi_fp() = " << conv_hit_i.Phi_fp() 
-      // 			       << ", conv_hit_j.Phi_fp() = " << conv_hit_j.Phi_fp(); return; }
-      
-      // track.push_Hit( conv_hit_i );
-
       // Dirty hack
       EMTFHit tmp_hit = conv_hit_j;
       tmp_hit.set_theta_fp( conv_hit_i.Theta_fp() );

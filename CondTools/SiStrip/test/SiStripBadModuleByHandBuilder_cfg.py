@@ -23,7 +23,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
+    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStrip'),
@@ -31,7 +31,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.prod = cms.EDFilter("SiStripBadModuleByHandBuilder",
+process.prod = cms.EDAnalyzer("SiStripBadModuleByHandBuilder",
     BadModuleList = cms.untracked.vuint32(470178036, 470178032, 470178024),
     Record = cms.string('SiStripBadStrip'),
     SinceAppendMode = cms.bool(True),
@@ -41,9 +41,9 @@ process.prod = cms.EDFilter("SiStripBadModuleByHandBuilder",
     file = cms.untracked.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat')
 )
 
-process.print = cms.OutputModule("AsciiOutputModule")
+process.pprint = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.prod)
-process.ep = cms.EndPath(process.print)
+process.ep = cms.EndPath(process.pprint)
 
 

@@ -4,6 +4,7 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/plugins/ExceptionGenerator.h"
 #include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
+#include "EventFilter/Utilities/plugins/EvFFEDSelector.h"
 #include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
 #include "EventFilter/Utilities/plugins/RecoEventWriterForFU.h"
 #include "EventFilter/Utilities/plugins/RecoEventOutputModuleForFU.h"
@@ -31,6 +32,7 @@ DEFINE_FWK_SERVICE(EvFBuildingThrottle);
 DEFINE_FWK_SERVICE(EvFDaqDirector);
 DEFINE_FWK_MODULE(ExceptionGenerator);
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
+DEFINE_FWK_MODULE(EvFFEDSelector);
 DEFINE_FWK_MODULE(EvFOutputModule);
 DEFINE_FWK_MODULE(ShmStreamConsumer);
 DEFINE_FWK_MODULE(DaqFakeReader);

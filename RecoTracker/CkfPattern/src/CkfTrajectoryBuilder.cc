@@ -348,7 +348,7 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 
     TSOS stateToUse = stateAndLayers.first;
     //Added protection before asking for the lastLayer on the trajectory
-    if unlikely (!traj.empty() && (*il)==traj.lastLayer()) {
+    if UNLIKELY (!traj.empty() && (*il)==traj.lastLayer()) {
 	LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
 	//self navigation case
 	// go to a middle point first

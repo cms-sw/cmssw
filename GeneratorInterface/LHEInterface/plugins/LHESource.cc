@@ -5,7 +5,6 @@
 #include <memory>
 
 #include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_deque.hpp>
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,14 +35,12 @@ using namespace lhef;
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
   ProducerSourceFromFiles(params, desc, false),
-  reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
-  wasMerged(false),
+  reader_(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
   lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct)), productRegistryUpdate()),
-  phid_(),
-  runPrincipal_()
+  phid_()
 {
   nextEvent();
-  lheProvenanceHelper_.lheAugment(runInfo.get());
+  lheProvenanceHelper_.lheAugment(nullptr);
   // Initialize metadata, and save the process history ID for use every event.
   phid_ = lheProvenanceHelper_.lheInit(processHistoryRegistryForUpdate());
 
@@ -58,68 +55,67 @@ LHESource::~LHESource()
 
 void LHESource::endJob()
 {
-  reader.reset();
+  reader_.reset();
 }
 
 void LHESource::nextEvent()
 {
-  if (partonLevel) {
+  if (partonLevel_) {
     return;
   }
 
   bool newFileOpened;
   do {
     newFileOpened = false;
-    partonLevel = reader->next(&newFileOpened);
-  } while (newFileOpened && !partonLevel);
+    partonLevel_ = reader_->next(&newFileOpened);
+    if(newFileOpened) {
+      incrementFileIndex();
+    }
+  } while (newFileOpened && !partonLevel_);
 
-  if (!partonLevel) {
+  if (!partonLevel_) {
     return;
   }
 
-  boost::shared_ptr<LHERunInfo> runInfoThis = partonLevel->getRunInfo();
-  if (runInfoThis != runInfoLast) {
-    runInfo = runInfoThis;
-    runInfoLast = runInfoThis;
-  }
-  if (runInfo) {
-    std::auto_ptr<LHERunInfoProduct> product(
-                                             new LHERunInfoProduct(*runInfo->getHEPRUP()));
-    std::for_each(runInfo->getHeaders().begin(),
-                  runInfo->getHeaders().end(),
-                  boost::bind(
-                              &LHERunInfoProduct::addHeader,
-                              product.get(), _1));
-    std::for_each(runInfo->getComments().begin(),
-                  runInfo->getComments().end(),
-                  boost::bind(&LHERunInfoProduct::addComment,
-                              product.get(), _1));
+  auto runInfoThis = partonLevel_->getRunInfo();
+  if (runInfoThis != runInfoLast_) {
+    runInfoLast_ = runInfoThis;
+    std::unique_ptr<LHERunInfoProduct> product(
+                                             new LHERunInfoProduct(*runInfoThis->getHEPRUP()));
+    fillRunInfoProduct(*runInfoThis, *product);
 
-    if (!runInfoProducts.empty()) {
-      if (runInfoProducts.front().mergeProduct(*product)) {
-        if (!wasMerged) {
-          runInfoProducts.pop_front();
-          runInfoProducts.push_front(product);
-          wasMerged = true;
-        }
-      } else {
-        lheProvenanceHelper_.lheAugment(runInfo.get());
+    if (runInfoProductLast_) {
+      if (!runInfoProductLast_->mergeProduct(*product)) {
+        //cannot be merged so must start new Run
+        runInfoProductLast_ = std::move(product);
+        lheProvenanceHelper_.lheAugment(runInfoThis.get());
         // Initialize metadata, and save the process history ID for use every event.
         phid_ = lheProvenanceHelper_.lheInit(processHistoryRegistryForUpdate());
         resetRunAuxiliary();
       }
+    } else {
+      runInfoProductLast_ = std::move(product);
     }
-
-    runInfo.reset();
   }
 }
 
-// This is the only way we can now access the run principal.
+void 
+LHESource::fillRunInfoProduct(lhef::LHERunInfo const& iInfo, LHERunInfoProduct& oProduct) {
+  for(auto const& h: iInfo.getHeaders()) {
+    oProduct.addHeader(h);
+  }
+  for(auto const& c: iInfo.getComments()) {
+    oProduct.addComment(c);
+  }
+}
+
+
 void
 LHESource::readRun_(edm::RunPrincipal& runPrincipal) {
   runAuxiliary()->setProcessHistoryID(phid_);
   runPrincipal.fillRunPrincipal(processHistoryRegistryForUpdate());
-  runPrincipal_ = &runPrincipal;
+
+  putRunInfoProduct(runPrincipal);
 }
 
 void
@@ -128,52 +124,21 @@ LHESource::readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) {
   lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 }
 
-void LHESource::beginRun(edm::Run&)
-{
-  if (runInfoLast) {
-    runInfo = runInfoLast;
-
-    std::unique_ptr<LHERunInfoProduct> product(
-                                               new LHERunInfoProduct(*runInfo->getHEPRUP()));
-    std::for_each(runInfo->getHeaders().begin(),
-                  runInfo->getHeaders().end(),
-                  boost::bind(
-                              &LHERunInfoProduct::addHeader,
-                              product.get(), _1));
-    std::for_each(runInfo->getComments().begin(),
-                  runInfo->getComments().end(),
-                  boost::bind(&LHERunInfoProduct::addComment,
-                              product.get(), _1));
-
-    // keep a copy around in case of merging
-    runInfoProducts.push_back(new LHERunInfoProduct(*product));
-    wasMerged = false;
-
+void LHESource::putRunInfoProduct(edm::RunPrincipal& iRunPrincipal) {
+  if (runInfoProductLast_) {
+    auto product = std::make_unique<LHERunInfoProduct>(*runInfoProductLast_);
     std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
-    runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
-
-    runInfo.reset();
+    iRunPrincipal.put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
   }
-}
-
-void LHESource::endRun(edm::Run&)
-{
-  if (!runInfoProducts.empty()) {
-    std::unique_ptr<LHERunInfoProduct> product(
-                                               runInfoProducts.pop_front().release());
-    std::unique_ptr<edm::WrapperBase> rdp(new edm::Wrapper<LHERunInfoProduct>(std::move(product)));
-    runPrincipal_->put(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
-  }
-  runPrincipal_ = nullptr;
 }
 
 bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
 {
   nextEvent();
-  if (!partonLevel) {
+  if (!partonLevel_) {
     // We just finished an input file. See if there is another.
     nextEvent();
-    if (!partonLevel) {
+    if (!partonLevel_) {
       // No more input files.
       return false;
     }
@@ -189,28 +154,28 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
   eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
 
   std::unique_ptr<LHEEventProduct> product(
-                                           new LHEEventProduct(*partonLevel->getHEPEUP(),
-                                                               partonLevel->originalXWGTUP())
+                                           new LHEEventProduct(*partonLevel_->getHEPEUP(),
+                                                               partonLevel_->originalXWGTUP())
                                            );
-  if (partonLevel->getPDF()) {
-    product->setPDF(*partonLevel->getPDF());
+  if (partonLevel_->getPDF()) {
+    product->setPDF(*partonLevel_->getPDF());
   }
-  std::for_each(partonLevel->weights().begin(),
-                partonLevel->weights().end(),
+  std::for_each(partonLevel_->weights().begin(),
+                partonLevel_->weights().end(),
                 boost::bind(&LHEEventProduct::addWeight,
                             product.get(), _1));
-  product->setScales(partonLevel->scales());
-  product->setNpLO(partonLevel->npLO());
-  product->setNpNLO(partonLevel->npNLO());
-  std::for_each(partonLevel->getComments().begin(),
-                partonLevel->getComments().end(),
+  product->setScales(partonLevel_->scales());
+  product->setNpLO(partonLevel_->npLO());
+  product->setNpNLO(partonLevel_->npNLO());
+  std::for_each(partonLevel_->getComments().begin(),
+                partonLevel_->getComments().end(),
                 boost::bind(&LHEEventProduct::addComment,
                             product.get(), _1));
 
   std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<LHEEventProduct>(std::move(product)));
   eventPrincipal.put(lheProvenanceHelper_.eventProductBranchDescription_, std::move(edp), lheProvenanceHelper_.eventProductProvenance_);
 
-  partonLevel.reset();
+  partonLevel_.reset();
 
   resetEventCached();
 }

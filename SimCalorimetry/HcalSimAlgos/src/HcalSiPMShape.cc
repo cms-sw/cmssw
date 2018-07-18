@@ -20,7 +20,7 @@ void HcalSiPMShape::computeShape(unsigned int signalShape) {
   //grab correct function pointer based on shape
   double (*analyticPulseShape)(double);
   if(signalShape==HcalShapes::ZECOTEK || signalShape==HcalShapes::HAMAMATSU) analyticPulseShape = &HcalPulseShapes::analyticPulseShapeSiPMHO;
-  else if(signalShape==HcalShapes::HE2017) analyticPulseShape = &HcalPulseShapes::analyticPulseShapeSiPMHE;
+  else if(signalShape==HcalShapes::HE2017 or signalShape==HcalShapes::HE2018) analyticPulseShape = &HcalPulseShapes::analyticPulseShapeSiPMHE;
   else return;
 
   double norm = 0.;

@@ -16,7 +16,7 @@
 class RecoTrackSelectorBase {
 public:
   RecoTrackSelectorBase() {}
-  RecoTrackSelectorBase(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC):
+  RecoTrackSelectorBase(const edm::ParameterSet & cfg):
     ptMin_(cfg.getParameter<double>("ptMin")),
     minRapidity_(cfg.getParameter<double>("minRapidity")),
     maxRapidity_(cfg.getParameter<double>("maxRapidity")),
@@ -29,8 +29,7 @@ public:
     minPixelHit_(cfg.getParameter<int>("minPixelHit")),
     minLayer_(cfg.getParameter<int>("minLayer")),
     min3DLayer_(cfg.getParameter<int>("min3DLayer")),
-    usePV_(cfg.getParameter<bool>("usePV")),
-    bsSrcToken_(iC.consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"))) {
+    usePV_(false) {
       const auto minPhi = cfg.getParameter<double>("minPhi");
       const auto maxPhi = cfg.getParameter<double>("maxPhi");
       if(minPhi >= maxPhi) {
@@ -43,8 +42,6 @@ public:
         throw cms::Exception("Configuration") << "RecoTrackSelectorPhase: maxPhi (" << maxPhi << ") must be larger than -PI. The range is constructed from minPhi to maxPhi around their average.";
       }
 
-      if (usePV_)
-        vertexToken_ = iC.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexTag"));
       for(const std::string& quality: cfg.getParameter<std::vector<std::string> >("quality"))
         quality_.push_back(reco::TrackBase::qualityByName(quality));
       for(const std::string& algorithm: cfg.getParameter<std::vector<std::string> >("algorithm"))
@@ -54,6 +51,14 @@ public:
       for(const std::string& algorithm: cfg.getParameter<std::vector<std::string> >("algorithmMaskContains"))
         algorithmMask_.push_back(reco::TrackBase::algoByName(algorithm));
     }
+
+  RecoTrackSelectorBase(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC):
+    RecoTrackSelectorBase(cfg) {
+    usePV_ = cfg.getParameter<bool>("usePV");
+    bsSrcToken_ = iC.consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamSpot"));
+    if (usePV_)
+      vertexToken_ = iC.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertexTag"));
+  }
 
   void init(const edm::Event& event, const edm::EventSetup& es) {
      edm::Handle<reco::BeamSpot> beamSpot;
@@ -71,6 +76,11 @@ public:
   }
 
   bool operator()( const reco::Track & t) const {
+    return (*this)(t, vertex_);
+  }
+
+  bool operator()(const reco::Track& t, const reco::Track::Point& vertex) const {
+
     bool quality_ok = true;
     if (!quality_.empty()) {
       quality_ok = false;
@@ -108,8 +118,8 @@ public:
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        dphi >= -rangePhi_ && dphi <= rangePhi_ &&
-       fabs(t.dxy(vertex_)) <= tip_ &&
-       fabs(t.dsz(vertex_)) <= lip_  &&
+       fabs(t.dxy(vertex)) <= tip_ &&
+       fabs(t.dsz(vertex)) <= lip_  &&
        t.normalizedChi2()<=maxChi2_
       );
   }

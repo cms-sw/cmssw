@@ -25,7 +25,7 @@ namespace {
   public:
     KFTrajectoryFitterESProducer(const edm::ParameterSet & p);
     ~KFTrajectoryFitterESProducer() override; 
-    std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
+    std::unique_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -52,7 +52,7 @@ namespace {
   
   KFTrajectoryFitterESProducer::~KFTrajectoryFitterESProducer() {}
   
-  std::shared_ptr<TrajectoryFitter>
+  std::unique_ptr<TrajectoryFitter>
   KFTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
     
     std::string pname = pset_.getParameter<std::string>("Propagator");
@@ -71,7 +71,7 @@ namespace {
     iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
     iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
 
-    return std::make_shared<KFTrajectoryFitter>(prop.product(),
+    return std::make_unique<KFTrajectoryFitter>(prop.product(),
 				                upd.product(),
 				                est.product(),
 				                minHits,

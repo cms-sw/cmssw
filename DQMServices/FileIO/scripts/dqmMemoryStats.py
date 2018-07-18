@@ -38,19 +38,21 @@ class HistogramAnalyzer(object):
             self._all[fn] = HistogramEntry(t, bin_size, bin_count, extra, total_bytes)
         else:
             t = str(type(obj))
-            bin_count, bin_size, extra = 0, 0, len(str(obj)) + len(fn)
+            #bin_count, bin_size, extra = 0, 0, len(str(obj)) + len(fn)
+            # assume constant size for strings
+            bin_count, bin_size, extra = 0, 0, 10 + len(fn)
             total_bytes = bin_count * bin_size + extra
 
             self._all[fn] = HistogramEntry(t, bin_size, bin_count, extra, total_bytes)
 
-    def group(self, level):
+    def group(self, level, countObjects):
         group_stats = {}
 
         for k, v in self._all.items():
             group_key = "/".join(k.split("/")[:level])
 
             current = group_stats.get(group_key, 0)
-            group_stats[group_key] = current + v.total_bytes
+            group_stats[group_key] = current + (1 if countObjects else v.total_bytes)
 
         return group_stats
 
@@ -72,6 +74,8 @@ class HistogramAnalyzer(object):
 
 
 def kibisize(num,args):
+    if args.count:
+      return str(num)
     pStr="%."+str(args.precision)+"f %s"
     for prefix in ['KiB','MiB','GiB']:
         num /= 1024.0
@@ -81,15 +85,15 @@ def kibisize(num,args):
     return pStr % (num, prefix)
 
 def displayDirectoryStatistics(stats, args):
-    group_stats = stats.group(args.depth)
+    group_stats = stats.group(args.depth, args.count)
 
     cutoff, display = args.cutoff * 1024, args.display
 
     as_list = [(v, k, ) for (k, v) in group_stats.items()]
-    as_list.sort(reverse=True, key=lambda (v, k): abs(v))
+    as_list.sort(reverse=True, key=lambda v_k1: abs(v_k1[0]))
 
     if cutoff is not None:
-        as_list = filter(lambda (v, k): abs(v) > cutoff, as_list)
+        as_list = [v_k for v_k in as_list if abs(v_k[0]) > cutoff]
 
     if display is not None:
         as_list = as_list[:display]
@@ -107,7 +111,7 @@ def displayDirectoryStatistics(stats, args):
         if args.human:
             print kibisize(v,args).ljust(16, " "), k
         else:
-            print v, k  
+            print v, k
 
 if __name__ == '__main__':
     import argparse
@@ -116,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--input", help = "Input DQM ROOT file")
     parser.add_argument("-r", "--ref", help = "Reference DQM ROOT file (to diff)")
     parser.add_argument("--summary", help = "Dump summary", action = "store_true")
+    parser.add_argument("--count", help = "Count Histograms", action = "store_true")
     parser.add_argument("-x", "--human", help = "Human readable output.", action = "store_true")
     parser.add_argument("-n", "--display", help = "Max entries to display in --summary.", type = int, default = None)
     parser.add_argument("-c", "--cutoff", help = "Max cutoff to display in --summary.", type = float, default = 512, metavar="KiB")
@@ -143,7 +148,7 @@ if __name__ == '__main__':
     if args.summary:
         displayDirectoryStatistics(stats, args)
 
-    total = stats.group(0)
+    total = stats.group(0, args.count)
     if args.human:
         print "Total bytes: %s" % kibisize(total[""],args)
     else:

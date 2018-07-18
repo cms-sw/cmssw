@@ -18,15 +18,13 @@ process.source = cms.Source ( "PoolSource",
 #------------------------------------------
 # Load standard sequences.
 #------------------------------------------
-process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
-
-
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
-process.load("Configuration/StandardSequences/Reconstruction_cff")
-process.load('Configuration/EventContent/EventContent_cff')
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 #------------------------------------------
 # Load ClusterToDigiProducer
@@ -55,9 +53,7 @@ process.recotrackout = cms.OutputModule("PoolOutputModule",
 # Load DQM 
 #------------------------------------------
 
-process.DQMStore = cms.Service("DQMStore")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.load("DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi")
 

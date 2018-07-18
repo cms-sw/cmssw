@@ -1,75 +1,64 @@
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include <TBranch.h>
+#include <TCanvas.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TProfile.h>
+#include <TRandom.h>
+#include <TTree.h>
 
-#include "Calibration/Tools/interface/CalibrationCluster.h"
-#include "Calibration/Tools/interface/HouseholderDecomposition.h"
-#include "Calibration/Tools/interface/MinL3Algorithm.h"
-#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
-#include "Calibration/Tools/interface/EcalIndexingTools.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
-#include "CLHEP/Vector/LorentzVector.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
-#include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
-
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
-
+#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
+#include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
+#include "Calibration/Tools/interface/CalibrationCluster.h"
+#include "Calibration/Tools/interface/EcalIndexingTools.h"
+#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
+#include "Calibration/Tools/interface/HouseholderDecomposition.h"
+#include "Calibration/Tools/interface/MinL3Algorithm.h"
+#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-
-/////////
-#include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include "TTree.h"
-#include "TBranch.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "TRandom.h"
-
-#include <iostream>
-#include <string>
-#include <stdexcept>
-#include <vector>
-#include <utility>
-#include <map>
-#include <fstream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #define MZ 91.1876
 

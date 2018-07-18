@@ -9,8 +9,14 @@ public:
 
   enum CaloType {EBEE=0, HBHE, HF};
 
-  UCTCTP7RawData(uint32_t *d) : myDataPtr(d) {
-    // Yes this ptr is read-write, you better be damn sure it is size 192 or else...
+  // read-only constructor
+  UCTCTP7RawData(const uint32_t *d) : myDataPtr(d) {
+    if(myDataPtr == nullptr) {
+      edm::LogError("UCTCTP7RawData") << "You gave me a nullptr :<";
+    }
+  }
+  // read-write constructor, caller must allocate 192*sizeof(uint32_t) bytes
+  UCTCTP7RawData(uint32_t *d) : myDataPtr(d), myDataWritePtr(d) {
     if(myDataPtr == nullptr) {
       edm::LogError("UCTCTP7RawData") << "You gave me a nullptr :<";
     }
@@ -146,8 +152,12 @@ public:
   }
 
   void setET(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi, uint32_t et) {
+    if ( myDataWritePtr == nullptr ) {
+      edm::LogError("UCTCTP7RawData") << "I was made in read-only mode";
+      return;
+    }
     size_t index = getIndex(cType, negativeEta, cEta, iPhi);
-    uint32_t & data = myDataPtr[index];
+    uint32_t & data = myDataWritePtr[index];
     if(cType == HF) {
       // Pick out the correct 8-bits for the iEta chosen
       // Note that cEta = 41 is special, it only occurs for iPhi == 1 and shares cEta = 40 position
@@ -181,12 +191,16 @@ public:
   }
 
   void setFB(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi, uint32_t fb) {
+    if ( myDataWritePtr == nullptr ) {
+      edm::LogError("UCTCTP7RawData") << "I was made in read-only mode";
+      return;
+    }
     if(cType == HF) {
       setHFFeatureBits(negativeEta, cEta, iPhi, fb);
     }
     else {
       size_t index = getFeatureIndex(cType, negativeEta, cEta, iPhi);
-      uint32_t & data = myDataPtr[index];
+      uint32_t & data = myDataWritePtr[index];
 
       uint32_t tower = iPhi;
       if(((cEta - 1) % 2) == 1) {
@@ -215,14 +229,18 @@ public:
   }
 
   void setHFFeatureBits(bool negativeEta, uint32_t cEta, uint32_t iPhi, uint32_t fb) {
+    if ( myDataWritePtr == nullptr ) {
+      edm::LogError("UCTCTP7RawData") << "I was made in read-only mode";
+      return;
+    }
     size_t index = getFeatureIndex(HF, negativeEta, cEta, iPhi);
     uint32_t shift = (cEta - 30) * 2;
     if(cEta == 41) shift = 20; // 41 occurs on b-fiber but shares the position of 40
     if ( shift >= 8 ) {
-      uint32_t & data = myDataPtr[index];
+      uint32_t & data = myDataWritePtr[index];
       data |= (fb & 0x3) << (shift-8);
     } else {
-      uint32_t & data = myDataPtr[index-1];
+      uint32_t & data = myDataWritePtr[index-1];
       data |= (fb & 0x3) << (shift+24);
     }
   }
@@ -252,8 +270,12 @@ public:
   }
 
   void setRegionSummary(bool negativeEta, uint32_t region, uint32_t regionData) {
+    if ( myDataWritePtr == nullptr ) {
+      edm::LogError("UCTCTP7RawData") << "I was made in read-only mode";
+      return;
+    }
     size_t index = getSummaryIndex(negativeEta, region);
-    uint32_t & data = myDataPtr[index];
+    uint32_t & data = myDataWritePtr[index];
     data |= (regionData & 0xFFFF) << (16 * (region % 2));
   }
 
@@ -331,7 +353,9 @@ private:
   
   // Pointer to contiguous array of 192 values
   // We assume instantiator of this class will gurantee that fact
-  uint32_t* myDataPtr;
+  const uint32_t* myDataPtr;
+  // == myDataPtr unless read-only
+  uint32_t* myDataWritePtr = nullptr;
 
 };
 

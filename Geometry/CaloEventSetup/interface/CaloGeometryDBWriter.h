@@ -4,7 +4,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
-
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class CaloGeometryDBWriter

@@ -77,6 +77,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   pfCandidateMultiMapToken_(usePfCandidateMultiMap_ ? consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>( "pfCandidateMultiMap" )) : edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>>()),
   embedPFCandidate_(iConfig.getParameter<bool>( "embedPFCandidate" )),
   // mva input variables
+  addMVAVariables_(iConfig.getParameter<bool>("addMVAVariables")),
   reducedBarrelRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection")),
   reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
   reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
@@ -433,9 +434,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    anElectron.setElectronIDs(ids);
 	  }
 
-          // add missing mva variables
-          std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-          anElectron.setMvaVariables(vCov[1], ip3d);
+          if (addMVAVariables_) {
+            // add missing mva variables
+            std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
+            anElectron.setMvaVariables(vCov[1], ip3d);
+          }
 	  // PFClusterIso
 	  if (addPFClusterIso_) {
 	    // Get PFCluster Isolation
@@ -443,14 +446,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
 	    edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
 	    iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-
-	    anElectron.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[elecsRef]);
-	    anElectron.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[elecsRef]);
-	  } else {
-	    anElectron.setEcalPFClusterIso(-999.);
-	    anElectron.setHcalPFClusterIso(-999.);
+	    reco::GsfElectron::PflowIsolationVariables newPFIsol = anElectron.pfIsolationVariables();
+	    newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[elecsRef];
+	    newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[elecsRef];
+	    anElectron.setPfIsolationVariables(newPFIsol);
 	  }
-	    
+ 
 	  std::vector<DetId> selectedCells;
           bool barrel = itElectron->isEB();
           //loop over sub clusters
@@ -667,9 +668,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	}
       }
 
-      // add mva variables
-      std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-      anElectron.setMvaVariables(vCov[1], ip3d);
+      if (addMVAVariables_) {
+        // add mva variables
+        std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
+        anElectron.setMvaVariables(vCov[1], ip3d);
+      }
+      
       // PFCluster Isolation
       if (addPFClusterIso_) {
 	// Get PFCluster Isolation
@@ -677,13 +681,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
 	edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
 	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-	
-	anElectron.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[elecsRef]);
-	anElectron.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[elecsRef]);
-      } else {
-	anElectron.setEcalPFClusterIso(-999.);
-	anElectron.setHcalPFClusterIso(-999.);
+	reco::GsfElectron::PflowIsolationVariables newPFIsol = anElectron.pfIsolationVariables();
+	newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[elecsRef];
+	newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[elecsRef];
+	anElectron.setPfIsolationVariables(newPFIsol);
       }
+      
       if (addPuppiIsolation_) {
         anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
         anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
@@ -1110,7 +1113,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 
 
   // electron shapes
-  iDesc.add<bool>("addElectronShapes", true);
+  iDesc.add<bool>("addMVAVariables", true)->setComment("embed extra variables in pat::Electron : sip3d, sigmaIEtaIPhi");
   iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
   iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));
 

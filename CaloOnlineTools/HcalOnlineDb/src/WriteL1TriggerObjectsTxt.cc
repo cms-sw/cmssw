@@ -85,7 +85,7 @@ WriteL1TriggerObjectsTxt::analyze(const edm::Event& iEvent, const edm::EventSetu
        
 	for (auto i : {0,1,2,3}){
 	    gain += calibrations.LUTrespcorrgain(i);
-	    ped += calibrations.pedestal(i);
+	    ped += calibrations.effpedestal(i);
 	}
 
 	gain /= 4.;

@@ -37,30 +37,26 @@ PrintGeomSummary::PrintGeomSummary(const edm::ParameterSet &p) : theTopPV_(nullp
   for (unsigned int ii=0; ii<nodeNames_.size(); ii++)
     G4cout << "Node[" << ii << "] : " << nodeNames_[ii] << G4endl;
 
-  solidShape_[ddbox]            = "Box";
-  solidShape_[ddtubs]           = "Tube";
-  solidShape_[ddtrap]           = "Trapezoid";
-  solidShape_[ddcons]           = "Cone";
-  solidShape_[ddpolycone_rz]    = "Polycone_rz";
-  solidShape_[ddpolyhedra_rz]   = "Polyhedra_rz";
-  solidShape_[ddpolycone_rrz]   = "Polycone_rrz";
-  solidShape_[ddpolyhedra_rrz]  = "Polyhedra_rrz";
-  solidShape_[ddtorus]          = "Torus";
-  solidShape_[ddunion]          = "UnionSolid";
-  solidShape_[ddsubtraction]    = "SubtractionSolid"; 
-  solidShape_[ddintersection]   = "IntersectionSolid";
-  solidShape_[ddreflected]      = "ReflectedSolid";
-  solidShape_[ddshapeless]      = "ShapelessSolid";
-  solidShape_[ddpseudotrap]     = "PseudoTrapezoid";
-  solidShape_[ddtrunctubs]      = "TruncatedTube";
-  solidShape_[ddsphere]         = "Sphere"; 
-  solidShape_[ddorb]            = "Orb"; 
-  solidShape_[ddellipticaltube] = "EllipticalTube";
-  solidShape_[ddellipsoid]      = "Ellipsoid";
-  solidShape_[ddparallelepiped] = "Parallelepiped";
-  solidShape_[ddcuttubs]        = "CutTubs";
-  solidShape_[ddextrudedpolygon]= "ExtrudedPolygon";
-  solidShape_[dd_not_init]      = "Unknown";
+  solidShape_[DDSolidShape::ddbox]            = "Box";
+  solidShape_[DDSolidShape::ddtubs]           = "Tube";
+  solidShape_[DDSolidShape::ddtrap]           = "Trapezoid";
+  solidShape_[DDSolidShape::ddcons]           = "Cone";
+  solidShape_[DDSolidShape::ddpolycone_rz]    = "Polycone_rz";
+  solidShape_[DDSolidShape::ddpolyhedra_rz]   = "Polyhedra_rz";
+  solidShape_[DDSolidShape::ddpolycone_rrz]   = "Polycone_rrz";
+  solidShape_[DDSolidShape::ddpolyhedra_rrz]  = "Polyhedra_rrz";
+  solidShape_[DDSolidShape::ddtorus]          = "Torus";
+  solidShape_[DDSolidShape::ddunion]          = "UnionSolid";
+  solidShape_[DDSolidShape::ddsubtraction]    = "SubtractionSolid"; 
+  solidShape_[DDSolidShape::ddintersection]   = "IntersectionSolid";
+  solidShape_[DDSolidShape::ddshapeless]      = "ShapelessSolid";
+  solidShape_[DDSolidShape::ddpseudotrap]     = "PseudoTrapezoid";
+  solidShape_[DDSolidShape::ddtrunctubs]      = "TruncatedTube";
+  solidShape_[DDSolidShape::ddsphere]         = "Sphere"; 
+  solidShape_[DDSolidShape::ddellipticaltube] = "EllipticalTube";
+  solidShape_[DDSolidShape::ddcuttubs]        = "CutTubs";
+  solidShape_[DDSolidShape::ddextrudedpolygon]= "ExtrudedPolygon";
+  solidShape_[DDSolidShape::dd_not_init]      = "Unknown";
 }
  
 PrintGeomSummary::~PrintGeomSummary() {}
@@ -71,17 +67,21 @@ void PrintGeomSummary::update(const BeginOfJob * job) {
   (*job)()->get<IdealGeometryRecord>().get(pDD);
   const DDCompactView* cpv = &(*pDD);
 
-  const DDCompactView::graph_type & gra = cpv->graph();
-  DDCompactView::graph_type::index_type i=0;
+  const auto & gra = cpv->graph();
+
+  using Graph = DDCompactView::Graph;
+  using adjl_iterator = Graph::const_adj_iterator;
+
+  Graph::index_type i=0;
   solidMap_.clear();
-  for (DDCompactView::graph_type::const_adj_iterator git=gra.begin();
+  for( adjl_iterator git=gra.begin();
        git != gra.end(); ++git) {
     const DDLogicalPart & ddLP = gra.nodeData(git);
     addSolid(ddLP);
     ++i;
     if (!git->empty()) {
       // ask for children of ddLP  
-      for (DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
+      for( Graph::edge_list::const_iterator cit  = git->begin();
 	   cit != git->end(); ++cit) {
 	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
 	addSolid(ddcurLP);
@@ -96,7 +96,7 @@ void PrintGeomSummary::addSolid(const DDLogicalPart & part) {
   const DDSolid& solid = part.solid();
   std::map<DDSolidShape,std::string>::iterator it = solidShape_.find(solid.shape());
   std::string name = solid.name().name();
-  if (it == solidShape_.end()) solidMap_[name] = dd_not_init;
+  if (it == solidShape_.end()) solidMap_[name] = DDSolidShape::dd_not_init;
   else                         solidMap_[name] = it->first;
 //G4cout << "Solid " << name << " is of shape " << solidMap_[name] << G4endl;
 }  
@@ -183,7 +183,7 @@ void PrintGeomSummary::addName(std::string name) {
     name = name.substr(0,(name.find("_refl")));
   }
   std::map<std::string,DDSolidShape>::const_iterator jt=solidMap_.find(name);
-  DDSolidShape shape =  (jt == solidMap_.end()) ? dd_not_init : jt->second;
+  DDSolidShape shape =  (jt == solidMap_.end()) ? DDSolidShape::dd_not_init : jt->second;
   std::map<DDSolidShape,std::pair<int,int>>::iterator itr = kount_.find(shape);
   if (itr == kount_.end()) {
     kount_[shape] = (refl) ? std::pair<int,int>(0,1) : std::pair<int,int>(1,0);

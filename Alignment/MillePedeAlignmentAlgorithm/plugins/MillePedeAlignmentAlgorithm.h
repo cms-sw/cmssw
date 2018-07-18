@@ -234,10 +234,10 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// read pede input defined by 'psetName', flag to create/not create MillePedeVariables
   bool readFromPede(const edm::ParameterSet &mprespset, bool setUserVars,
                     const RunRange &runrange);
-  bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
+  bool areEmptyParams(const align::Alignables& alignables) const;
   unsigned int doIO(int loop) const;
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
-  void buildUserVariables(const std::vector<Alignable*> &alignables) const;
+  void buildUserVariables(const align::Alignables& alignables) const;
 
   /// Generates list of files to read, given the list and dir from the configuration.
   /// This will automatically expand formatting directives, if they appear.
@@ -265,14 +265,14 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool isMode(unsigned int testMode) const {return (theMode & testMode);}
   bool addHitStatistics(int fromLoop, const std::string &outFile,
                         const std::vector<std::string> &inFiles) const;
-  bool addHits(const std::vector<Alignable*> &alis,
+  bool addHits(const align::Alignables& alis,
                const std::vector<AlignmentUserVariables*> &mpVars) const;
 
   edm::ParameterSet         theConfig;
   unsigned int              theMode;
   std::string               theDir; /// directory for all kind of files
   AlignmentParameterStore  *theAlignmentParameterStore;
-  std::vector<Alignable*>   theAlignables;
+  align::Alignables         theAlignables;
   std::unique_ptr<AlignableNavigator>    theAlignableNavigator;
   std::unique_ptr<MillePedeMonitor>      theMonitor;
   std::unique_ptr<Mille>                 theMille;

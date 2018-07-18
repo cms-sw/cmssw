@@ -63,11 +63,6 @@ SiStripMonitorRawData::~SiStripMonitorRawData()
 					  << " Destructing....... ";     
 }
 //
-// -- Begin Job
-//
-void SiStripMonitorRawData::beginJob() {
-}
-//
 // -- BeginRun
 //
 

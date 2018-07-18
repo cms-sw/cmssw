@@ -43,6 +43,8 @@ namespace edm {
 
 		HepMCProduct(HepMCProduct const &orig);
 		HepMCProduct &operator = (HepMCProduct const &other);
+		HepMCProduct(HepMCProduct&& orig);
+		HepMCProduct &operator=(HepMCProduct&& other);
 		void swap(HepMCProduct &other);
 
 	    private:

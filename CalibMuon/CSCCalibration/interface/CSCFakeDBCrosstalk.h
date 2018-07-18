@@ -24,7 +24,7 @@ class CSCFakeDBCrosstalk: public edm::ESProducer, public edm::EventSetupRecordIn
 
       inline static CSCDBCrosstalk * prefillDBCrosstalk(); 
 
-      typedef  std::shared_ptr<CSCDBCrosstalk> Pointer;
+      typedef  std::unique_ptr<CSCDBCrosstalk> Pointer;
 
       Pointer produceDBCrosstalk(const CSCDBCrosstalkRcd&);
 

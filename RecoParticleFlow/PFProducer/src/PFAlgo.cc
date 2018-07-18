@@ -45,7 +45,7 @@
 
 #include "boost/graph/adjacency_matrix.hpp" 
 #include "boost/graph/graph_utility.hpp" 
-
+#include <numeric>
 
 
 using namespace std;
@@ -1882,6 +1882,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	} else {
 	  (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal, muonHcal);
 	}
+        setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
 
 	if(letMuonEatCaloEnergy){
 	  muonHCALEnergy += totalHcal;
@@ -2221,6 +2222,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpi].setHcalEnergy(max(totalHcal-totalHO,0.0),muonHcal);
 	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
 	  }
+          setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
 	  // Remove it from the block
 	  const ::math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();	  
@@ -2392,6 +2394,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
+      setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
       std::pair<II,II> myEcals = associatedEcals.equal_range(iTrack);
       for (II ii=myEcals.first; ii!=myEcals.second; ++ii ) { 
 	unsigned iEcal = ii->second.second;
@@ -3283,6 +3286,9 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   //Set the cnadidate Vertex
   pfCandidates_->back().setVertex(vertexPos);  
 
+  // depth info
+  setHcalDepthInfo(pfCandidates_->back(), cluster);
+
   //*TODO* cluster time is not reliable at the moment, so only use track timing
 
   if(debug_) 
@@ -3293,6 +3299,34 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 
 }
 
+void
+PFAlgo::setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluster) const {
+    std::array<double,7> energyPerDepth; 
+    std::fill(energyPerDepth.begin(), energyPerDepth.end(), 0.0);
+    for (auto & hitRefAndFrac : cluster.recHitFractions()) {
+        const auto & hit = *hitRefAndFrac.recHitRef();
+        if (DetId(hit.detId()).det() == DetId::Hcal) {
+            if (hit.depth() == 0) {
+                edm::LogWarning("setHcalDepthInfo") << "Depth zero found";
+                continue;
+            }
+            if (hit.depth() < 1 || hit.depth() > 7) {
+                throw cms::Exception("CorruptData") << "Bogus depth " << hit.depth() << " at detid " << hit.detId() << "\n";
+            }
+            energyPerDepth[hit.depth()-1] += hitRefAndFrac.fraction()*hit.energy();
+        }
+    }
+    double sum = std::accumulate(energyPerDepth.begin(), energyPerDepth.end(), 0.);
+    std::array<float,7> depthFractions;
+    if (sum > 0) {
+        for (unsigned int i = 0; i < depthFractions.size(); ++i) {
+            depthFractions[i] = energyPerDepth[i]/sum;
+        }
+    } else {
+        std::fill(depthFractions.begin(), depthFractions.end(), 0.f);
+    }
+    cand.setHcalDepthEnergyFractions(depthFractions);
+}
 
 //GMA need the followign two for HO also
 

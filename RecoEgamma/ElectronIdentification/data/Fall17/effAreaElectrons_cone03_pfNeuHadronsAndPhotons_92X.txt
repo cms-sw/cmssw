@@ -1,0 +1,17 @@
+# This file contains Effective Area constants for 
+# computing pile-up corrections for the neutral hadron and photon
+# isolation for an electron object.
+#   Documentation:
+# 
+#   https://indico.cern.ch/event/662749/contributions/2763091/attachments/1545124/2424854/talk_electron_ID_fall17.pdf
+# 
+#  The effective areas are based on 90% efficient contours
+#
+# |eta| min   |eta| max   effective area
+0.0000         1.0000        0.1566
+1.0000         1.4790        0.1626
+1.4790         2.0000        0.1073
+2.0000         2.2000        0.0854
+2.2000         2.3000        0.1051
+2.3000         2.4000        0.1204
+2.4000         5.0000        0.1524

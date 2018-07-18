@@ -6,6 +6,11 @@
 *   A longer explanation will be placed here later
 */
 
+#include <fstream>
+#include <string>
+#include <vector>
+#include <utility>
+
 namespace pos{
 /*! \class PixelConfig PixelConfig.h "interface/PixelConfig.h"
 *   \brief This class implements..

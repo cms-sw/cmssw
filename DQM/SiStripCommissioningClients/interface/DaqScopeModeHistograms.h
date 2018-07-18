@@ -2,37 +2,20 @@
 #define DQM_SiStripCommissioningClients_DaqScopeModeHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/DaqScopeModeSummaryFactory.h"
-#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
-
 
 class DQMStore;
 
-class DaqScopeModeHistograms : public CommissioningHistograms {
+class DaqScopeModeHistograms : public virtual CommissioningHistograms {
 
  public:
   
   DaqScopeModeHistograms( const edm::ParameterSet& pset, DQMStore* );
   ~DaqScopeModeHistograms() override;
   
-  typedef SummaryHistogramFactory<DaqScopeModeAnalysis> Factory;
-  
-  /** */
   void histoAnalysis( bool debug ) override;
 
-  /** */
-  void createSummaryHisto( const sistrip::Monitorable&,
-			   const sistrip::Presentation&,
-			   const std::string& top_level_dir,
-			   const sistrip::Granularity& ) override;
-  
- protected: 
-  
-  std::map<uint32_t,DaqScopeModeAnalysis> data_;
-  
-  std::auto_ptr<Factory> factory_;
-  
+  void printAnalyses() override; // override
+
 };
 
 #endif // DQM_SiStripCommissioningClients_DaqScopeModeHistograms_H
-

@@ -3,6 +3,7 @@ import time
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.AlCa.autoCond import autoCond
+import six
 
 options = VarParsing.VarParsing()
 options.register('connectionString',
@@ -155,7 +156,7 @@ process.esout = cms.EndPath( process.escontent + process.esretrieval )
 if process.schedule_() is not None:
     process.schedule_().append( process.esout )
 
-for name, module in process.es_sources_().iteritems():
+for name, module in six.iteritems(process.es_sources_()):
     print "ESModules> provider:%s '%s'" % ( name, module.type_() )
-for name, module in process.es_producers_().iteritems():
+for name, module in six.iteritems(process.es_producers_()):
     print "ESModules> provider:%s '%s'" % ( name, module.type_() )

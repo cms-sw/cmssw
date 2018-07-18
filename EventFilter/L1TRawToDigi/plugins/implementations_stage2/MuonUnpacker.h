@@ -14,11 +14,9 @@ namespace l1t {
 
             bool unpack(const Block& block, UnpackerCollections *coll) override;
 
-            inline unsigned int getAlgoVersion() { return algoVersion_; };
             inline int getFedNumber() { return fed_; };
             inline unsigned int getMuonCopy() { return muonCopy_; };
 
-            inline void setAlgoVersion(const unsigned int version) { algoVersion_ = version; };
             inline void setFedNumber(const int fed) { fed_ = fed; };
             inline void setMuonCopy(const unsigned int copy) { muonCopy_ = copy; };
 
@@ -27,7 +25,6 @@ namespace l1t {
             static constexpr unsigned bxzs_enable_shift_ = 1;
 
             MuonBxCollection* res_;
-            unsigned int algoVersion_;
             int fed_;
             unsigned int muonCopy_;
 

@@ -9,25 +9,24 @@
 //
 //
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
   {
@@ -190,7 +189,7 @@ inline volatile unsigned long long rdtsc() {
 
 
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 
@@ -221,7 +220,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
   std::string qualityStr = conf.getParameter<std::string>("newQuality");
   
-  if (qualityStr != "") {
+  if (!qualityStr.empty()) {
     qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
   }
   else
@@ -460,13 +459,13 @@ TrackListMerger::~TrackListMerger() { }
 	const TrackingRecHit* hit = (*it);
 	unsigned int id = hit->rawId() ;
 	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
-	if likely(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
+	if LIKELY(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
       }
       std::sort_heap(rh1[i].begin(),rh1[i].end(),compById);
     }
 
     //DL here
-    if likely(ngood>1 && collsSize>1)
+    if LIKELY(ngood>1 && collsSize>1)
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
       int saveSelected[rSize];
       bool notActive[collsSize];
@@ -523,7 +522,7 @@ TrackListMerger::~TrackListMerger() { }
 	  int noverlap=0;
 	  int firstoverlap=0;
 	  // check first hit  (should use REAL first hit?)
-	  if unlikely(allowFirstHitShare_ && rh1[k1][0].first==rh1[k2][0].first ) {
+	  if UNLIKELY(allowFirstHitShare_ && rh1[k1][0].first==rh1[k2][0].first ) {
 	      const TrackingRecHit*  it = rh1[k1][0].second;
 	      const TrackingRecHit*  jt = rh1[k2][0].second;
 	      if (share(it,jt,epsilon_)) firstoverlap=1;

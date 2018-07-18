@@ -19,7 +19,7 @@ public:
   static const int kHGCalLayerMask       = 0x1F;
   static const int kHGCalZsideOffset     = 24;
   static const int kHGCalZsideMask       = 0x1;
-  static const int kHGCalMaskCell        = 0xFFFFFF00;
+  static const int kHGCalMaskCell        = 0xFFFBFF00;
 
   /** Create a null cellid*/
   HGCalDetId();

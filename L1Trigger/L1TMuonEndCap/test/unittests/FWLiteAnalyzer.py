@@ -7,6 +7,7 @@
 from ROOT import gROOT, gSystem, AutoLibraryLoader
 from DataFormats.FWLite import Events, Handle
 
+import six
 
 class FWLiteAnalyzer(object):
 
@@ -14,7 +15,7 @@ class FWLiteAnalyzer(object):
     gROOT.SetBatch()        # don't pop up canvases
 
     if inputFiles:
-      if isinstance(inputFiles, basestring):
+      if isinstance(inputFiles, str):
         self.inputFiles = [inputFiles]
       else:
         self.inputFiles = inputFiles
@@ -26,7 +27,7 @@ class FWLiteAnalyzer(object):
     self.handles = {}
     self.handle_labels = {}
     if handles:
-      for k, v in handles.iteritems():
+      for k, v in six.iteritems(handles):
         self.handles[k] = Handle(v[0])
         self.handle_labels[k] = v[1]
 
@@ -69,7 +70,7 @@ class FWLiteAnalyzer(object):
     return
 
   def getHandles(self, event):
-    for k, v in self.handles.iteritems():
+    for k, v in six.iteritems(self.handles):
       label = self.handle_labels[k]
       event.getByLabel(label, v)
     return

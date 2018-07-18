@@ -3,7 +3,8 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.RecoB.bTagCommon_cff import *
 
-bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+bTagValidation = DQMEDAnalyzer('BTagPerformanceAnalyzerMC',
                                 bTagCommonBlock,
                                 applyPtHatWeight = cms.bool(False),
                                 jetCorrection = cms.string(''),

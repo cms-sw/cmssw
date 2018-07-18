@@ -112,14 +112,14 @@ public:
 
 
   CartesianTrajectoryError cartesianError() const {
-    if unlikely(!hasError()) missingError();
+    if UNLIKELY(!hasError()) missingError();
     CartesianTrajectoryError aCartesianError;
     createCartesianError(aCartesianError);
     return aCartesianError;
   }
 
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if  unlikely(!hasError()) missingError();
+    if  UNLIKELY(!hasError()) missingError();
     return theCurvilinearError;
   }
 

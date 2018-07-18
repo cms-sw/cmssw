@@ -76,7 +76,7 @@ namespace ecaldqm
     typedef EcalDCCHeaderBlock::EcalDCCEventSettings EventSettings;
 
     DQWorkerTask();
-    virtual ~DQWorkerTask() {}
+    ~DQWorkerTask() override {}
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 

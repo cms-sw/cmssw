@@ -17,7 +17,7 @@ DDI::Torus::Torus( double pRMin,
 		   double pSPhi,
 		   double pDPhi
 		   )
- : Solid(ddtorus) 
+ : Solid(DDSolidShape::ddtorus) 
 {		 
   p_.emplace_back(pRMin); // ......... 0
   p_.emplace_back(pRMax); // ......... 1

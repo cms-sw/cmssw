@@ -10,8 +10,10 @@
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 
 #include "XrdStatistics.h"
@@ -84,7 +86,7 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
     }
 };
 
-[[cms::thread_safe]] SendMonitoringInfoHandler nullHandler;
+CMS_THREAD_SAFE SendMonitoringInfoHandler nullHandler;
 
 
 static void
@@ -261,7 +263,7 @@ RequestManager::updateCurrentServer()
     // NOTE: we use memory_order_relaxed here, meaning that we may actually miss
     // a pending update.  *However*, since we call this for every read, we'll get it
     // eventually.
-    if (likely(!m_serverToAdvertise.load(std::memory_order_relaxed))) {return;}
+    if (LIKELY(!m_serverToAdvertise.load(std::memory_order_relaxed))) {return;}
     std::string *hostname_ptr;
     if ((hostname_ptr = m_serverToAdvertise.exchange(nullptr)))
     {
@@ -1069,6 +1071,10 @@ XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
 void
 XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDStatus *status_ptr, XrdCl::AnyObject *, XrdCl::HostList *hostList_ptr)
 {
+  // Make sure we get rid of the strong self-reference when the callback finishes.
+  std::shared_ptr<OpenHandler> self = m_self;
+  m_self.reset();
+
   // NOTE: as in XrdCl::File (synchronous), we ignore the response object.
   // Make sure that we set m_outstanding_open to false on exit from this function.
   // NOTE: we need to pass non-nullptr to unique_ptr in order for the guard to run
@@ -1077,10 +1083,6 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
   std::shared_ptr<Source> source;
   std::unique_ptr<XrdCl::XRootDStatus> status(status_ptr);
   std::unique_ptr<XrdCl::HostList> hostList(hostList_ptr);
-
-    // Make sure we get rid of the strong self-reference when the callback finishes.
-  std::shared_ptr<OpenHandler> self = m_self;
-  m_self.reset();
 
   auto manager = m_manager.lock();
     // Manager object has already been deleted.  Cleanup the

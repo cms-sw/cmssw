@@ -38,8 +38,8 @@ def test_nnet(n_samples=200, n_features=7, distance=0.8, complete=False):
         for loss in nnet.losses:
             for NNType in nn_types:
                 for trainer in nnet.trainers:
-                    nn = NNType(layers=[5], loss=loss, trainer=trainer, random_state=42)
-                    nn.fit(X, y, epochs=100)
+                    nn = NNType(layers=[5], loss=loss, trainer=trainer, random_state=42, epochs=100)
+                    nn.fit(X, y )
                     print(roc_auc_score(y, nn.predict_proba(X)[:, 1]), nn)
 
         lr = LogisticRegression().fit(X, y)
@@ -60,9 +60,9 @@ def test_nnet(n_samples=200, n_features=7, distance=0.8, complete=False):
 
                 nn_type = nn_types[attempt % len(nn_types)]
 
-                nn = nn_type(layers=[5], loss=loss, trainer=trainer, random_state=42 + retry_attempt)
+                nn = nn_type(layers=[5], loss=loss, trainer=trainer, random_state=42 + retry_attempt, epochs=200)
                 print(nn)
-                nn.fit(X, y, epochs=200)
+                nn.fit(X, y)
                 quality = roc_auc_score(y, nn.predict_proba(X)[:, 1])
                 computed_loss = nn.compute_loss(X, y)
                 if quality > 0.8:
@@ -76,8 +76,8 @@ def test_nnet(n_samples=200, n_features=7, distance=0.8, complete=False):
 def test_with_scaler(n_samples=200, n_features=15, distance=0.5):
     X, y = generate_sample(n_samples=n_samples, n_features=n_features, distance=distance)
     for scaler in [BinTransformer(max_bins=16), IronTransformer()]:
-        clf = nnet.SimpleNeuralNetwork(scaler=scaler)
-        clf.fit(X, y, epochs=300)
+        clf = nnet.SimpleNeuralNetwork(scaler=scaler,epochs=300)
+        clf.fit(X, y)
 
         p = clf.predict_proba(X)
         assert roc_auc_score(y, p[:, 1]) > 0.8, 'quality is too low for model: {}'.format(clf)

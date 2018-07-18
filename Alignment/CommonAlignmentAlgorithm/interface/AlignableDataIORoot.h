@@ -7,6 +7,8 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIO.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 
+class Alignable;
+
 /// concrete class for ROOT based IO of Alignable positions 
 
 class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO

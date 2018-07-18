@@ -75,11 +75,7 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
             tag = cms.string(''))
 )
 
-process.load("DQM.SiStripCommon.TkHistoMap_cfi")
-
-process.DQMStore=cms.Service("DQMStore")
-
-process.load("DQMServices.Core.DQMStore_cfg") 
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
   # configuration of the Tracker Geometry Comparison Tool
   # Tracker Geometry Comparison

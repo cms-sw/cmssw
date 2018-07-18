@@ -20,6 +20,7 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQM/SiStripCommon/interface/APVShotFinder.h"
 #include "DQM/SiStripCommon/interface/APVShot.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -143,7 +144,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   //Global MEs to monitor APV Shots properties
   MonitorElement *NApvShotsGlobal, *NApvShotsGlobalProf, *MedianChargeApvShotsGlobal, *NApvApvShotsGlobal, *StripMultiplicityApvShotsGlobal, *ShotsVsTimeApvShotsGlobal;
 
-  TkHistoMap* tkmapdigi, *tkmapNApvshots, *tkmapNstripApvshot, *tkmapMedianChargeApvshots;
+  std::unique_ptr<TkHistoMap> tkmapdigi, tkmapNApvshots, tkmapNstripApvshot, tkmapMedianChargeApvshots;
 
   int runNb, eventNb;
   int firstEvent;
@@ -209,7 +210,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
 
   bool createTrendMEs;
 
-  bool m_trendVsLS;
+  bool m_trendVs10LS;
 
   edm::InputTag historyProducer_;
   edm::InputTag apvPhaseProducer_;

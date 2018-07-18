@@ -139,12 +139,14 @@ namespace edm {
     void processOneEventAsync(WaitingTaskHolder iTask,
                               unsigned int iStreamID,
                               EventPrincipal& principal,
-                              EventSetup const& eventSetup);
+                              EventSetup const& eventSetup,
+                              ServiceToken const& token);
 
     template <typename T>
     void processOneGlobalAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
+                               ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     template <typename T>
@@ -152,6 +154,7 @@ namespace edm {
                                unsigned int iStreamID,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
+                               ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
@@ -161,10 +164,16 @@ namespace edm {
     void endStream(unsigned int);
 
     // Write the luminosity block
-    void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*);
+    void writeLumiAsync(WaitingTaskHolder iTask,
+                        LuminosityBlockPrincipal const& lbp,
+                        ProcessContext const*,
+                        ActivityRegistry*);
 
     // Write the run
-    void writeRun(RunPrincipal const& rp, ProcessContext const*);
+    void writeRunAsync(WaitingTaskHolder iTask,
+                       RunPrincipal const& rp,
+                       ProcessContext const*,
+                       ActivityRegistry*);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
@@ -303,9 +312,10 @@ namespace edm {
                                        unsigned int iStreamID,
                                        typename T::MyPrincipal& ep,
                                        EventSetup const& es,
+                                       ServiceToken const& token,
                                        bool cleaningUpAfterException) {
     assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder),ep,es,cleaningUpAfterException);
+    streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder),ep,es,token,cleaningUpAfterException);
   }
 
   template <typename T>
@@ -313,8 +323,9 @@ namespace edm {
   Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,
                                   typename T::MyPrincipal& ep,
                                   EventSetup const& es,
+                                  ServiceToken const& token,
                                   bool cleaningUpAfterException) {
-    globalSchedule_->processOneGlobalAsync<T>(iTaskHolder,ep,es,cleaningUpAfterException);
+    globalSchedule_->processOneGlobalAsync<T>(iTaskHolder,ep,es,token,cleaningUpAfterException);
   }
 
 }

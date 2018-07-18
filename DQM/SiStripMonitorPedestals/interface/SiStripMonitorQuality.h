@@ -49,11 +49,10 @@ class SiStripMonitorQuality : public DQMEDAnalyzer {
   explicit SiStripMonitorQuality(const edm::ParameterSet&);
   ~SiStripMonitorQuality() override;
   
-  virtual void beginJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  virtual void endJob() ;
+  void endJob() override;
   
   
  private:

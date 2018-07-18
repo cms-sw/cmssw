@@ -1434,41 +1434,42 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( theConvTP_.size() < 2 )   continue;
 
       //associated = false;
-      reco::RecoToSimCollection p1 =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
-      reco::RecoToSimCollection p2 =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
-      try{
-	std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
-	std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
-	if (!(!tp1.empty()&&!tp2.empty())){
-	    tp1 = p1[tk2];
-	    tp2 = p2[tk1];
-	}
-	if (!tp1.empty()&&!tp2.empty()) {
-	  TrackingParticleRef tpr1 = tp1.front().first;
-	  TrackingParticleRef tpr2 = tp2.front().first;
-	  if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11&& tpr1->pdgId()*tpr2->pdgId()<0) {
-	    if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
-		 (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
-	      if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
-		mcConvR_ = sqrt(tpr1->parentVertex()->position().Perp2());
-		mcConvZ_ = tpr1->parentVertex()->position().z();
-		mcConvX_ = tpr1->parentVertex()->position().x();
-		mcConvY_ = tpr1->parentVertex()->position().y();
-		mcConvEta_ = tpr1->parentVertex()->position().eta();
-		mcConvPhi_ = tpr1->parentVertex()->position().phi();
-		mcConvPt_ = sqrt((*tpr1->parentVertex()->sourceTracks_begin())->momentum().Perp2());
-		//std::cout << " Reco to Sim mcconvpt " << mcConvPt_ << std::endl;
-		//cout << "associated track1 to " << tpr1->pdgId() << " with p=" << tpr1->p4() << " with pT=" << tpr1->pt() << endl;
-		//cout << "associated track2 to " << tpr2->pdgId() << " with p=" << tpr2->p4() << " with pT=" << tpr2->pt() << endl;
-		associated = true;
-                break;
-	      }
-	    }
-	  }
-	}
-      } catch (Exception event) {
-	//cout << "do not continue: " << event.what()  << endl;
-	//continue;
+      reco::RecoToSimCollection const& p1 =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);
+      reco::RecoToSimCollection const& p2 =  theTrackAssociator->associateRecoToSim(tc2,theConvTP_);
+
+      auto itP1 = p1.find(tk1);
+      auto itP2 = p2.find(tk2);
+      bool good = (itP1 != p1.end()) and (not itP1->val.empty()) and (itP2 != p2.end()) and (not itP2->val.empty());
+      if(not good) {
+        itP1 = p1.find(tk2);
+        itP2 = p2.find(tk1);
+        good = (itP1 != p1.end()) and (not itP1->val.empty()) and (itP2 != p2.end()) and (not itP2->val.empty());
+      }
+
+      if(good) {
+	std::vector<std::pair<TrackingParticleRef, double> >const& tp1 = itP1->val;
+	std::vector<std::pair<TrackingParticleRef, double> >const& tp2 = itP2->val;
+        TrackingParticleRef tpr1 = tp1.front().first;
+        TrackingParticleRef tpr2 = tp2.front().first;
+        if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11&& tpr1->pdgId()*tpr2->pdgId()<0) {
+          if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
+               (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
+            if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
+              mcConvR_ = sqrt(tpr1->parentVertex()->position().Perp2());
+              mcConvZ_ = tpr1->parentVertex()->position().z();
+              mcConvX_ = tpr1->parentVertex()->position().x();
+              mcConvY_ = tpr1->parentVertex()->position().y();
+              mcConvEta_ = tpr1->parentVertex()->position().eta();
+              mcConvPhi_ = tpr1->parentVertex()->position().phi();
+              mcConvPt_ = sqrt((*tpr1->parentVertex()->sourceTracks_begin())->momentum().Perp2());
+              //std::cout << " Reco to Sim mcconvpt " << mcConvPt_ << std::endl;
+              //cout << "associated track1 to " << tpr1->pdgId() << " with p=" << tpr1->p4() << " with pT=" << tpr1->pt() << endl;
+              //cout << "associated track2 to " << tpr2->pdgId() << " with p=" << tpr2->p4() << " with pT=" << tpr2->pt() << endl;
+              associated = true;
+              break;
+            }
+          }
+        }
       }
 
     }// end loop on sim photons

@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "EventFilter/Utilities/interface/DTCRC.h"
 
 #include <iostream>
 #include <fstream>
@@ -57,7 +58,7 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
     
   for (size_t wh_i = 0; wh_i < amcsecmap_.size(); ++wh_i){
     std::array<short, 12> whmap;      
-    for (size_t amc_i = 1; amc_i < 13; ++amc_i ){
+    for (size_t amc_i = 1; amc_i < 13; ++amc_i ) {
       short shift = (12-amc_i)*4;
       whmap[amc_i-1] = ( amcsecmap_[wh_i] >> shift ) & 0xF;
     }
@@ -68,8 +69,8 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
 
 L1TTwinMuxRawToDigi::~L1TTwinMuxRawToDigi(){}
 
-void L1TTwinMuxRawToDigi::produce(edm::Event& e, 
-                             const edm::EventSetup& c) {
+void L1TTwinMuxRawToDigi::produce(edm::StreamID, edm::Event& e, 
+                             const edm::EventSetup& c) const {
 
   std::unique_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
   std::unique_ptr<L1MuDTChambThContainer> TM7the_product(new L1MuDTChambThContainer);
@@ -95,7 +96,7 @@ void L1TTwinMuxRawToDigi::produce(edm::Event& e,
 bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
                                   L1MuDTChambPhContainer::Phi_Container& phi_data,
                                   L1MuDTChambThContainer::The_Container& the_data,
-                                  L1MuDTChambPhContainer::Phi_Container& phi_out_data  ) {
+                                  L1MuDTChambPhContainer::Phi_Container& phi_out_data  ) const {
 
   edm::Handle<FEDRawDataCollection> data;
   e.getByToken( Raw_token, data );
@@ -108,7 +109,7 @@ bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
 }
 
 int L1TTwinMuxRawToDigi::normBx( int bx_, 
-                            int bxCnt_ ){
+                            int bxCnt_ ) const {
     
     int bxNorm_ = bx_ - bxCnt_;    
     if ( abs( bxNorm_ ) < 3000 ) return bxNorm_; 
@@ -120,7 +121,7 @@ int L1TTwinMuxRawToDigi::normBx( int bx_,
     
 }
 
-int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) {
+int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) const {
     
     if (radAng_>2047) 
         return radAng_-4096;
@@ -129,7 +130,7 @@ int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) {
     
 }
 
-int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) {
+int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) const {
     
     if (benAng_>511) 
         return benAng_-1024;
@@ -140,11 +141,11 @@ int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) {
 
 void L1TTwinMuxRawToDigi::processFed( int twinMuxFed, 
                                  int twinMuxWheel,
-                                 std::array<short, 12> twinMuxAmcSec,
+                                 std::array<short, 12> const& twinMuxAmcSec,
                                  edm::Handle<FEDRawDataCollection> data,
                                  L1MuDTChambPhContainer::Phi_Container& phiSegments,
                                  L1MuDTChambThContainer::The_Container& theSegments,
-                                 L1MuDTChambPhContainer::Phi_Container& phioutSegments ) {
+                                 L1MuDTChambPhContainer::Phi_Container& phioutSegments ) const {
 
   const unsigned int fw_rev_with_zerosupression = 93 ; // put the correct Firmware Revision of the first version with zerosuppression
   int previous_selector = -100;
@@ -164,14 +165,14 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   if ( TM7data.size() == 0 ) return;
 
   /// Variables
-  LineFED_ = TM7data.data();
+  unsigned char* lineFED = TM7data.data();
   int nline  = 0; // counting already include header
   long dataWord = 0;
   int newCRC = 0xFFFF;
 
   ///--> Header - line 1 [must start with 0x5]
-  readline( nline, dataWord );
-  calcCRC( dataWord, newCRC );
+  lineFED = readline( lineFED, nline, dataWord );
+  dt_crc::calcCRC(dataWord, newCRC);
 
   int TM7fedId = ( dataWord >> 8 ) & 0xFFF;  // positions 8 -> 19
   /*** NOT UNPACKED  
@@ -196,8 +197,8 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   }
 
   ///--> Header - line 2
-  readline( nline, dataWord );
-  calcCRC( dataWord, newCRC );
+  lineFED = readline( lineFED, nline, dataWord );
+  dt_crc::calcCRC(dataWord, newCRC);
 
   std::map<int, int> AMCsizes;
   /*** NOT UNPACKED  
@@ -212,9 +213,9 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   ///--> AMC - line 3 to 3+nAMC
   for ( int j = 0; j < nAMC; ++j ) {
   
-    readline( nline, dataWord ); 
-    calcCRC( dataWord, newCRC );
-   
+    lineFED = readline( lineFED, nline, dataWord ); 
+    dt_crc::calcCRC(dataWord, newCRC);
+
     int AMCno = (dataWord >> 16 ) & 0xF;  // positions 16 -> 19
     /*** NOT UNPACKED  
     int TM7boardID = dataWord & 0xFFFF;  // positions 0 -> 15
@@ -243,20 +244,21 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
       
     for ( int k=0; k<AMCiterator->second; ++k) {
         
-       readline( nline, dataWord );
-       calcCRC( dataWord, newCRC);
+       lineFED = readline( lineFED, nline, dataWord );
+       dt_crc::calcCRC(dataWord, newCRC);
+  
        DTTM7WordContainer.push_back( dataWord );
     }
   }  
 
   ///--> Trailer - line 1
-  readline( nline, dataWord );
-  calcCRC( dataWord, newCRC);
-
+  lineFED = readline( lineFED, nline, dataWord );
+  dt_crc::calcCRC(dataWord, newCRC);
+  
   ///--> Trailer - line 2 [must start with 0xA]
 
-  readline( nline, dataWord );
-  calcCRC( dataWord & 0xFFFFFFFF0000FFFF, newCRC); /// needed not to put crc in crc calc
+  lineFED = readline( lineFED, nline, dataWord );
+  dt_crc::calcCRC(dataWord & 0xFFFFFFFF0000FFFF, newCRC);
 
   ///--> AMC trailer - line 2
   int chkEOE = (dataWord >> 60 ) & 0xF;  // positions 60 -> 63
@@ -328,7 +330,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
     ++DTTM7iterator; // User word empty  /// ==>> increment 2
     if( DTTM7iterator == DTTM7itend ) {
-      edm::LogInfo("TwinMux_unpacker") << "TRAILING WORD AS A PAYLOAD END in FED " 
+      LogDebug("TwinMux_unpacker") << "TRAILING WORD AS A PAYLOAD END in FED " 
                                        << std::hex << TM7fedId 
                                        << std::hex << dataWord 
                                        << std::dec<< " [it pos " 
@@ -530,7 +532,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x9 || selector == 0xE ) { //RPC word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -542,7 +544,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x6 ) { //HO word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -554,7 +556,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0xF ) { //ERROR word
 
-			edm::LogInfo("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -565,7 +567,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
 		  else { //unkown word
 
-			edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
+			LogDebug("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
 											   << " in FED " << std::hex << TM7fedId;
 
 			if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
@@ -871,7 +873,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 		   
 		  else if ( selector == 0x9 || selector == 0xE ) { //RPC word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -883,7 +885,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x6 ) { //HO word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -895,7 +897,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0xF ) { //ERROR word
 
-			edm::LogInfo("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -906,7 +908,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
 		  else { //unkown word
 
-			edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
+			LogDebug("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
 											   << " in FED " << std::hex << TM7fedId;
 
 			if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
@@ -926,107 +928,6 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
   } // end for-loop container content
 
-  return;
-}
-
-
-
-void L1TTwinMuxRawToDigi::calcCRC( long word, int & myC ) {
-
-  int myCRC[16], D[64], C[16];
-
-  for ( int i = 0; i < 64; ++i ) { D[i]    = (word >> i) & 0x1; }
-  for ( int i = 0; i < 16; ++i ) { C[i]    = (myC>>i)  & 0x1; }
-
-  myCRC[0] = ( D[63] + D[62] + D[61] + D[60] + D[55] + D[54] +
-               D[53] + D[52] + D[51] + D[50] + D[49] + D[48] +
-               D[47] + D[46] + D[45] + D[43] + D[41] + D[40] +
-               D[39] + D[38] + D[37] + D[36] + D[35] + D[34] +
-               D[33] + D[32] + D[31] + D[30] + D[27] + D[26] +
-               D[25] + D[24] + D[23] + D[22] + D[21] + D[20] +
-               D[19] + D[18] + D[17] + D[16] + D[15] + D[13] +
-               D[12] + D[11] + D[10] + D[9]  + D[8]  + D[7]  +
-               D[6]  + D[5]  + D[4]  + D[3]  + D[2]  + D[1]  +
-               D[0]  + C[0]  + C[1]  + C[2]  + C[3]  + C[4]  +
-               C[5]  + C[6]  + C[7]  + C[12] + C[13] + C[14] +
-               C[15] )%2;
-
-  myCRC[1] = ( D[63] + D[62] + D[61] + D[56] + D[55] + D[54] +
-	           D[53] + D[52] + D[51] + D[50] + D[49] + D[48] +
-	           D[47] + D[46] + D[44] + D[42] + D[41] + D[40] +
-	           D[39] + D[38] + D[37] + D[36] + D[35] + D[34] +
-    	       D[33] + D[32] + D[31] + D[28] + D[27] + D[26] +
-    	       D[25] + D[24] + D[23] + D[22] + D[21] + D[20] +
-    	       D[19] + D[18] + D[17] + D[16] + D[14] + D[13] +
-    	       D[12] + D[11] + D[10] + D[9]  + D[8]  + D[7]  +
-	           D[6]  + D[5]  + D[4]  + D[3]  + D[2]  + D[1]  +
-	           C[0]  + C[1]  + C[2]  + C[3]  + C[4]  + C[5]  +
-	           C[6]  + C[7]  + C[8]  + C[13] + C[14] + C[15] )%2;
-
-  myCRC[2] = ( D[61] + D[60] + D[57] + D[56] + D[46] + D[42] +
-	           D[31] + D[30] + D[29] + D[28] + D[16] + D[14] +
-	           D[1]  + D[0]  + C[8]  + C[9]  + C[12] + C[13] )%2;
-
-  myCRC[3] = ( D[62] + D[61] + D[58] + D[57] + D[47] + D[43] +
-	           D[32] + D[31] + D[30] + D[29] + D[17] + D[15] +
-	           D[2]  + D[1]  + C[9]  + C[10] + C[13] + C[14] )%2;
-
-  myCRC[4] = ( D[63] + D[62] + D[59] + D[58] + D[48] + D[44] +
-    	       D[33] + D[32] + D[31] + D[30] + D[18] + D[16] + 
-	           D[3]  + D[2]  + C[0]  + C[10] + C[11] + C[14] +
-	           C[15] )%2;
-
-  myCRC[5] = ( D[63] + D[60] + D[59] + D[49] + D[45] + D[34] +
-	           D[33] + D[32] + D[31] + D[19] + D[17] + D[4]  +
-    	       D[3]  + C[1]  + C[11] + C[12] + C[15] )%2;
-
-  myCRC[6] = ( D[61] + D[60] + D[50] + D[46] + D[35] + D[34] +
-	           D[33] + D[32] + D[20] + D[18] + D[5]  + D[4]  +
-	           C[2]  + C[12] + C[13] )%2;
-
-  myCRC[7] = ( D[62] + D[61] + D[51] + D[47] + D[36] + D[35] +
-    	       D[34] + D[33] + D[21] + D[19] + D[6]  + D[5]  +
-	           C[3]  + C[13] + C[14] )%2;
-
-  myCRC[8] = ( D[63] + D[62] + D[52] + D[48] + D[37] + D[36] +
-	           D[35] + D[34] + D[22] + D[20] + D[7]  + D[6]  +
-    	       C[0]  + C[4]  + C[14] + C[15] )%2;
-
-  myCRC[9] = ( D[63] + D[53] + D[49] + D[38] + D[37] + D[36] +
-	           D[35] + D[23] + D[21] + D[8]  + D[7]  + C[1]  +
-	           C[5]  + C[15] )%2;
-
-  myCRC[10] = ( D[54] + D[50] + D[39] + D[38] + D[37] + D[36] + 
-       		    D[24] + D[22] + D[9]  + D[8]  + C[2]  + C[6] )%2;
-
-  myCRC[11] = ( D[55] + D[51] + D[40] + D[39] + D[38] + D[37] +
-		        D[25] + D[23] + D[10] + D[9]  + C[3]  + C[7] )%2;
-
-  myCRC[12] = ( D[56] + D[52] + D[41] + D[40] + D[39] + D[38] +
-        		D[26] + D[24] + D[11] + D[10] + C[4]  + C[8] )%2;
-
-  myCRC[13] = ( D[57] + D[53] + D[42] + D[41] + D[40] + D[39] +
-		        D[27] + D[25] + D[12] + D[11] + C[5]  + C[9] )%2;
-
-  myCRC[14] = ( D[58] + D[54] + D[43] + D[42] + D[41] + D[40] +
-        		D[28] + D[26] + D[13] + D[12] + C[6]  + C[10] )%2;
-
-  myCRC[15] = ( D[63] + D[62] + D[61] + D[60] + D[59] + D[54] +
-		        D[53] + D[52] + D[51] + D[50] + D[49] + D[48] + 
-	        	D[47] + D[46] + D[45] + D[44] + D[42] + D[40] +
-        		D[39] + D[38] + D[37] + D[36] + D[35] + D[34] + 
-		        D[33] + D[32] + D[31] + D[30] + D[29] + D[26] +
-        		D[25] + D[24] + D[23] + D[22] + D[21] + D[20] + 
-        		D[19] + D[18] + D[17] + D[16] + D[15] + D[14] +
-        		D[12] + D[11] + D[10] + D[9]  + D[8]  + D[7]  + 
-        		D[6]  + D[5]  + D[4]  + D[3]  + D[2]  + D[1]  +
-        		D[0]  + C[0]  + C[1]  + C[2]  + C[3]  + C[4]  + 
-	        	C[5]  + C[6]  + C[11] + C[12] + C[13] + C[14] +
-	        	C[15] )%2;
-
-  int tempC = 0x0;  
-  for ( int i = 0; i < 16 ; ++i) { tempC = tempC + ( myCRC[i] << i ); }
-  myC = tempC;
   return;
 }
 

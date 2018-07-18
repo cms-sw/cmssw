@@ -41,44 +41,39 @@ class TrackingSlaveSD;
 class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector,
-		public Observer<const BeginOfEvent*>,
-		public Observer<const EndOfEvent*> {
+		public Observer<const BeginOfEvent*>{
 
 public:
 
-  TotemSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  TotemSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   ~TotemSD() override;
 
   bool   ProcessHits(G4Step *,G4TouchableHistory *) override;
-  uint32_t setDetUnitId(G4Step*) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
   void   Initialize(G4HCofThisEvent * HCE) override;
   void   EndOfEvent(G4HCofThisEvent * eventHC) override;
-  void   clear() override;
-  void   DrawAll() override;
   void   PrintAll() override;
 
-  void fillHits(edm::PSimHitContainer&, std::string use) override;
-
-private:
-
-  void           update(const BeginOfEvent *) override;
-  void           update(const ::EndOfEvent *) override;
+  void   fillHits(edm::PSimHitContainer&, const std::string&) override;
   void   clearHits() override;
 
+protected:
+
+  void   update(const BeginOfEvent *) override;
+
 private:
 
-  G4ThreeVector  SetToLocal(const G4ThreeVector& globalPoint);
-  void           GetStepInfo(G4Step* aStep);
-  bool           HitExists();
-  void           CreateNewHit();
-  void           CreateNewHitEvo();
-  G4ThreeVector  PosizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
-  void           UpdateHit();
-  void           StoreHit(TotemG4Hit*);
-  void           ResetForNewPrimary();
-  void           Summarize();
+  G4ThreeVector  setToLocal(const G4ThreeVector& globalPoint);
+  void           getStepInfo(const G4Step* aStep);
+  bool           hitExists();
+  void           createNewHit();
+  void           createNewHitEvo();
+  G4ThreeVector  posizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
+  void           updateHit();
+  void           storeHit(TotemG4Hit*);
+  void           resetForNewPrimary();
 
 private:
 
@@ -94,7 +89,6 @@ private:
   float                       incidentEnergy;
   G4int                       primID  ; //@@ ID of the primary particle.
 
-  std::string                 name;
   G4int                       hcID;
   TotemG4HitCollection*       theHC; 
   const SimTrackManager*      theManager;
@@ -107,8 +101,8 @@ private:
   int                         primaryID, tSliceID;  
   double                      tSlice;
 
-  G4StepPoint*                preStepPoint; 
-  G4StepPoint*                postStepPoint; 
+  const G4StepPoint*          preStepPoint; 
+  const G4StepPoint*          postStepPoint; 
   float                       edeposit;
   G4ThreeVector               hitPoint;
 
@@ -123,8 +117,6 @@ private:
 
   int                         ParentId;
   float                       Vx,Vy,Vz;
-
-  int                         eventno;
 };
 
 #endif

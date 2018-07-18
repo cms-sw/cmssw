@@ -18,6 +18,7 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
+#include "FWCore/Framework/interface/Run.h"
 
 class UMNioTask : public hcaldqm::DQTask
 {
@@ -42,6 +43,9 @@ class UMNioTask : public hcaldqm::DQTask
 	protected:
 		//	funcs
 		void _process(edm::Event const&, edm::EventSetup const&) override;
+
+		// Get index of a particular OrbitGapType in the vector, which is used as the value for filling the histogram
+		int getOrbitGapIndex(uint8_t eventType, uint32_t laserType);
 
 		std::vector<uint32_t> _eventtypes;
 

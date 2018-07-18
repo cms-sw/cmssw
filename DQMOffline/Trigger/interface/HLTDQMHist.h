@@ -23,6 +23,12 @@
 //***********************************************************************************
 
 #include "DQMOffline/Trigger/interface/FunctionDefs.h"
+#include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
+
+#include "FWCore/Framework/interface/Event.h"
+
+#include <TH1.h>
+#include <TH2.h>
 
 //our base class for our histograms
 //takes an object, edm::Event,edm::EventSetup and fills the histogram

@@ -22,10 +22,6 @@ fastMatchedTrackerRecHitCombinations = FastSimulation.Tracking.FastTrackerRecHit
     simHit2RecHitMap = cms.InputTag("fastMatchedTrackerRecHits","simHit2RecHitMap")
     )
 
-# FastSim stores the IdealMagneticFieldRecord and the TrackerInteractionGeometryRecord in a particular structure
-# This extra layer is probably more confusing than it is useful and we should consider to remove it
-from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
-
 # confusing name for the file that imports 
 # the fitters used by the TrackProducer
 # 

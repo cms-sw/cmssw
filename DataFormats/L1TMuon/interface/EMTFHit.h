@@ -11,9 +11,11 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
 namespace l1t {
@@ -22,15 +24,17 @@ namespace l1t {
   public:
 
     EMTFHit() :
-    endcap(-99), station(-99), ring(-99), sector(-99), sector_RPC(-99), sector_idx(-99), 
-      subsector(-99), subsector_RPC(-99), chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99), 
+      rawDetId(0),
+      endcap(-99), station(-99), ring(-99), sector(-99), sector_RPC(-99), sector_idx(-99),
+      subsector(-99), subsector_RPC(-99), chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99),
       neighbor(-99), mpc_link(-99), pc_sector(-99), pc_station(-99), pc_chamber(-99), pc_segment(-99),
       wire(-99), strip(-99), strip_hi(-99), strip_low(-99), track_num(-99), quality(-99),
       pattern(-99), bend(-99), valid(-99), sync_err(-99), bc0(-99), bx(-99), stub_num(-99),
       phi_fp(-99), theta_fp(-99), phzvl(-99), ph_hit(-99), zone_hit(-99), zone_code(-99),
       fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
-      phi_loc(-99), phi_glob(-999), theta(-99), eta(-99),
-      phi_sim(-999), theta_sim(-99), eta_sim(-99),
+      phi_loc(-99), phi_glob(-999), theta(-99), eta(-99), time(-99),
+      phi_sim(-999), theta_sim(-99), eta_sim(-99), rho_sim(-99), z_sim(-99),
+      alct_quality(-99), clct_quality(-99),
       is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
       {};
 
@@ -52,19 +56,27 @@ namespace l1t {
     // void PrintSimulatorHeader() const;
     // void PrintForSimulator() const;
 
-    void SetCSCDetId   (const CSCDetId& id)                 { csc_DetId         = id;        }
-    void SetRPCDetId   (const RPCDetId& id)                 { rpc_DetId         = id;        }
-    void SetGEMDetId   (const GEMDetId& id)                 { gem_DetId         = id;        }
-    void SetCSCLCTDigi (const CSCCorrelatedLCTDigi& digi)   { csc_LCTDigi       = digi;      }
-    void SetRPCDigi    (const RPCDigi& digi)                { rpc_Digi          = digi;      }
-    void SetGEMPadDigi (const GEMPadDigi& digi)             { gem_PadDigi       = digi;      }
+    //void SetCSCDetId   (const CSCDetId& id)                 { csc_DetId         = id;        }
+    //void SetRPCDetId   (const RPCDetId& id)                 { rpc_DetId         = id;        }
+    //void SetGEMDetId   (const GEMDetId& id)                 { gem_DetId         = id;        }
+    //void SetCSCLCTDigi (const CSCCorrelatedLCTDigi& digi)   { csc_LCTDigi       = digi;      }
+    //void SetRPCDigi    (const RPCDigi& digi)                { rpc_Digi          = digi;      }
+    //void SetGEMPadDigi (const GEMPadDigi& digi)             { gem_PadDigi       = digi;      }
+    void SetCSCDetId   (const CSCDetId& id)                 { rawDetId = id.rawId(); }
+    void SetRPCDetId   (const RPCDetId& id)                 { rawDetId = id.rawId(); }
+    void SetGEMDetId   (const GEMDetId& id)                 { rawDetId = id.rawId(); }
+    void SetME0DetId   (const ME0DetId& id)                 { rawDetId = id.rawId(); }
 
-    CSCDetId CSC_DetId                          () const { return csc_DetId;    }
-    RPCDetId RPC_DetId                          () const { return rpc_DetId;    }
-    GEMDetId GEM_DetId                          () const { return gem_DetId;    }
-    CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
-    RPCDigi RPC_Digi                            () const { return rpc_Digi;     }
-    GEMPadDigi GEM_PadDigi                      () const { return gem_PadDigi;  }
+    //CSCDetId CSC_DetId                          () const { return csc_DetId;    }
+    //RPCDetId RPC_DetId                          () const { return rpc_DetId;    }
+    //GEMDetId GEM_DetId                          () const { return gem_DetId;    }
+    //CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
+    //RPCDigi RPC_Digi                            () const { return rpc_Digi;     }
+    //GEMPadDigi GEM_PadDigi                      () const { return gem_PadDigi;  }
+    CSCDetId CSC_DetId                          () const { return CSCDetId(rawDetId); }
+    RPCDetId RPC_DetId                          () const { return RPCDetId(rawDetId); }
+    GEMDetId GEM_DetId                          () const { return GEMDetId(rawDetId); }
+    ME0DetId ME0_DetId                          () const { return ME0DetId(rawDetId); }
 
     void set_endcap       (int  bits) { endcap       = bits; }
     void set_station      (int  bits) { station      = bits; }
@@ -111,9 +123,14 @@ namespace l1t {
     void set_phi_glob     (float val) { phi_glob     = val;  }
     void set_theta        (float val) { theta        = val;  }
     void set_eta          (float val) { eta          = val;  }
+    void set_time         (float val) { time         = val;  }
     void set_phi_sim      (float val) { phi_sim      = val;  }
     void set_theta_sim    (float val) { theta_sim    = val;  }
     void set_eta_sim      (float val) { eta_sim      = val;  }
+    void set_rho_sim      (float val) { rho_sim      = val;  }
+    void set_z_sim        (float val) { z_sim        = val;  }
+    void set_alct_quality (int  bits) { alct_quality = bits; }
+    void set_clct_quality (int  bits) { clct_quality = bits; }
     void set_is_CSC       (int  bits) { is_CSC       = bits; }
     void set_is_RPC       (int  bits) { is_RPC       = bits; }
     void set_is_GEM       (int  bits) { is_GEM       = bits; }
@@ -164,9 +181,14 @@ namespace l1t {
     float Phi_glob     ()  const { return phi_glob    ; }
     float Theta        ()  const { return theta       ; }
     float Eta          ()  const { return eta         ; }
+    float Time         ()  const { return time        ; }
     float Phi_sim      ()  const { return phi_sim     ; }
     float Theta_sim    ()  const { return theta_sim   ; }
     float Eta_sim      ()  const { return eta_sim     ; }
+    float Rho_sim      ()  const { return rho_sim     ; }
+    float Z_sim        ()  const { return z_sim       ; }
+    int   ALCT_quality ()  const { return alct_quality; }
+    int   CLCT_quality ()  const { return clct_quality; }
     int   Is_CSC       ()  const { return is_CSC      ; }
     int   Is_RPC       ()  const { return is_RPC      ; }
     int   Is_GEM       ()  const { return is_GEM      ; }
@@ -175,12 +197,14 @@ namespace l1t {
 
   private:
 
-    CSCDetId csc_DetId;
-    RPCDetId rpc_DetId;
-    GEMDetId gem_DetId;
-    CSCCorrelatedLCTDigi csc_LCTDigi;
-    RPCDigi rpc_Digi;
-    GEMPadDigi gem_PadDigi;
+    //CSCDetId csc_DetId;
+    //RPCDetId rpc_DetId;
+    //GEMDetId gem_DetId;
+    //CSCCorrelatedLCTDigi csc_LCTDigi;
+    //RPCDigi rpc_Digi;
+    //GEMPadDigi gem_PadDigi;
+
+    uint32_t rawDetId;  // raw CMSSW DetId
 
     int   endcap      ; //    +/-1.  For ME+ and ME-.
     int   station     ; //  1 -  4.
@@ -227,9 +251,14 @@ namespace l1t {
     float phi_glob    ; // +/-180.
     float theta       ; // 0 - 90.
     float eta         ; // +/-2.5.
+    float time        ; //  ? -  ?.  RPC time information
     float phi_sim     ; // +/-180.
     float theta_sim   ; // 0 - 90.
     float eta_sim     ; // +/-2.5.
+    float rho_sim     ; //  ? -  ?.
+    float z_sim       ; //  ? -  ?.
+    int   alct_quality; //  1 -  3.  For emulated CSC LCTs only, maps to number of ALCT layers (4 - 6).
+    int   clct_quality; //  4 -  6.  For emulated CSC LCTs only, maps to number of CLCT layers (4 - 6).
     int   is_CSC      ; //  0 or 1.
     int   is_RPC      ; //  0 or 1.
     int   is_GEM      ; //  0 or 1.

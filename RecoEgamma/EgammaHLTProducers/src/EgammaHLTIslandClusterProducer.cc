@@ -29,7 +29,6 @@
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
@@ -127,8 +126,8 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
-  std::vector<EcalEtaPhiRegion> barrelRegions;
-  std::vector<EcalEtaPhiRegion> endcapRegions;
+  std::vector<RectangularEtaPhiRegion> barrelRegions;
+  std::vector<RectangularEtaPhiRegion> endcapRegions;
 
   if(doIsolated_) {
     for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
@@ -163,16 +162,16 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	if (isforw) {
 	  if (etaHigh>-1.479 && etaHigh<1.479) etaHigh=-1.479;
 	  if ( etaLow>-1.479 &&  etaLow<1.479) etaLow=1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  endcapRegions.push_back(region);
 	}
 	if (isbarl) {
 	  if (etaHigh>1.479) etaHigh=1.479;
 	  if (etaLow<-1.479) etaLow=-1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  barrelRegions.push_back(region);
 	}
-	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	
       }
     }
@@ -215,13 +214,13 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	if (isforw) {
 	  if (etaHigh>-1.479 && etaHigh<1.479) etaHigh=-1.479;
 	  if ( etaLow>-1.479 &&  etaLow<1.479) etaLow=1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  endcapRegions.push_back(region);
 	}
 	if (isbarl) {
 	  if (etaHigh>1.479) etaHigh=1.479;
 	  if (etaLow<-1.479) etaLow=-1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  barrelRegions.push_back(region);
 	}
 	
@@ -262,7 +261,7 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
 void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 							edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 							const std::string& clusterCollection,
-							const std::vector<EcalEtaPhiRegion>& regions,
+							const std::vector<RectangularEtaPhiRegion>& regions,
 							const IslandClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:

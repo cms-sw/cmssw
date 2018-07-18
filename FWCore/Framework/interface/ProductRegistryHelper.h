@@ -22,9 +22,8 @@ namespace edm {
   
   class ProductRegistryHelper {
   public:
-
+    virtual ~ProductRegistryHelper() noexcept(false);
     ProductRegistryHelper() : typeLabelList_() {}
-    ~ProductRegistryHelper();
 
     // has_donotrecordparents<T>::value is true if we should not
     // record parentage for type T, and false otherwise.
@@ -91,6 +90,7 @@ namespace edm {
                              TypeLabelList::const_iterator const& iEnd,
                              ModuleDescription const& iDesc,
                              ProductRegistry& iReg,
+                             ProductRegistryHelper* iProd,
                              bool iIsListener=false);
 
     /// declare what type of product will make and with which optional label 
@@ -153,6 +153,14 @@ namespace edm {
       typeLabelList_.emplace_back(B, id, std::move(instanceName));
       recordProvenanceList_.push_back(recordProvenance and B == Transition::Event);
       return BranchAliasSetter{typeLabelList_.back(),EDPutToken{ index }};
+    }
+
+    virtual bool hasAbilityToProduceInRuns() const {
+      return false;
+    }
+
+    virtual bool hasAbilityToProduceInLumis() const {
+      return false;
     }
 
   private:

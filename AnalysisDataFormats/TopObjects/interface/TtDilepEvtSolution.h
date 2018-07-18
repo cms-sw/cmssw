@@ -81,7 +81,7 @@ class TtDilepEvtSolution {
   //-------------------------------------------
   double getJetResidual()    const;
   double getLeptonResidual() const;
-  double getFullResidual()   const { return getJetResidual()+getFullResidual(); }
+  double getFullResidual()   const { return getJetResidual()+getLeptonResidual(); }
   bool   getBestSol()      const { return bestSol_; }
   double getRecTopMass()   const {return topmass_; }
   double getRecWeightMax() const {return weightmax_; }

@@ -101,12 +101,11 @@ void debugHistory(const DDGeoHistory & h)
 
 void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
-  typedef DDCompactView::graph_type graph_t;
-  const graph_t & g = cv.graph();
+  const auto & g = cv.graph();
   unsigned int node = 0;
-  graph_t::const_adj_iterator it = g.begin();
+  auto it = g.begin();
   for (; it != g.end(); ++it) {
-    graph_t::const_edge_iterator eit = it->begin();
+    auto eit = it->begin();
     for (; eit != it->end(); ++eit) {
       unsigned int eindex = eit->first;
       int copyno = g.edgeData(eit->second)->copyno();
@@ -254,7 +253,7 @@ void tutorial()
   // DDD/DDCore/interface/graph.h
  
   // First one takes the graph representation of CompactView
-  const DDCompactView::graph_type & cpvGraph = cpv.graph();
+  const auto & cpvGraph = cpv.graph();
  
   // Using the Graph.h interface, some basic information is available:
   std::cout << "CompactView, basic information: " << std::endl
@@ -369,7 +368,7 @@ void tutorial()
       
 	double dv = 0.;
 	try {
-	  dv = DDI::Singleton<ClhepEvaluator>::instance().eval("",v);
+	  dv = ClhepEvaluator().eval("",v);
 	}
 	catch (const cms::Exception & e) {
 	  dv = 0;
@@ -456,21 +455,13 @@ void tutorial()
       GroupFilter gf(vecF);
       DDFilteredView fv(compactview,gf);
     
-      //bool looop = true;
       int count =0;
-      /*
-	while(looop) {
-	looop = fv.next();
-	++count;
-	}
-      */
       std::cout << "The filtered-view contained " << count << " nodes." << std::endl;
       fv.reset();
       std::cout << "Now entering interactive navigation: f = (f)irstChild," << std::endl
 		<< "                                     n = (n)extSibling," << std::endl 
 		<< "                                     p = (p)arent," << std::endl
 		<< "                                     s = (s)tatus," << std::endl
-		<< "                                     w = (w)eigth[kg]," << std::endl
 		<< "                                     h = (h)istory debugging," << std::endl
 		<< "                                     e = (e)nd" << std::endl;
       std::string nav="";
@@ -485,7 +476,6 @@ void tutorial()
 	std::vector<const DDsvalues_type *> only = fv.logicalPart().specifics();
 	DDsvalues_type merged = fv.mergedSpecifics();
 	DDLogicalPart curlp = fv.logicalPart();
-	double curweight=0;
 	bool result = false;
 	switch (c) {
 	case 'f':
@@ -529,15 +519,7 @@ void tutorial()
 	  std::cout << "material=" << fv.logicalPart().material().ddname() << std::endl;
 	  std::cout << "solid=" << fv.logicalPart().solid().ddname() <<
 	    " volume[m3]=" << fv.logicalPart().solid().volume()/m3 << std::endl;	      
-	 
-	  //std::cout << "id from default numbering-scheme=" << nums.id(fv) << std::endl;
 	  break;
-	case 'w':
-	  curweight = wcpv.weight(curlp);
-	  std::cout << " The weight of " << curlp.ddname() << " is " 
-		    << curweight/kg << "kg" << std::endl;
-	  std::cout << " The average density is " << curweight/curlp.solid().volume()/g*cm3 << "g/cm3" << std::endl;
-	  break;     
 	case 'e':
 	  break;	 
 	default:
@@ -559,7 +541,7 @@ void tutorial()
     Start = clock();
     //while (NEXT(fv,fv_count)) ;
     int cc=0;
-    walker_type  g = walker_type(DDCompactView().graph(),DDCompactView().root());
+    auto g = math::GraphWalker<DDLogicalPart, DDPosData*>( DDCompactView().graph(), DDCompactView().root());
     while(g.next()) ++cc;
     End = clock();
     std::cout << "Time : " << ((double) (End-Start)) / double(CLOCKS_PER_SEC) << " sec" << std::endl;

@@ -5,6 +5,8 @@
 
 #include <boost/cstdint.hpp> 
 
+#include <vector>
+
 namespace l1t {
   namespace emtf {
     class ME {

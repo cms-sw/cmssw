@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 
 class DDConstant;
+class ClhepEvaluator;
 
 //! output operator for printing ...
 std::ostream & operator<<(std::ostream & o, const DDConstant & cons);
@@ -26,7 +27,7 @@ public:
    DDConstant(const DDName & name, double* value);
    
    //! creates all DDConstants from the variables of the ClhepEvaluator
-   static void createConstantsFromEvaluator();
+   static void createConstantsFromEvaluator(ClhepEvaluator&);
       
    //! return the first stored value; does not check boundaries!
    double value() const { return rep(); }

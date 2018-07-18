@@ -18,18 +18,26 @@
 // -----------------------------------------------------------------------------
 //
 CalibrationScanTask::CalibrationScanTask( DQMStore* dqm,
-			      const FedChannelConnection& conn,
-			      const sistrip::RunType& rtype,
-			      const char* filename,
-			      uint32_t run,
-                              const edm::EventSetup& setup ) :
+					  const FedChannelConnection& conn,
+					  const sistrip::RunType& rtype,
+					  const char* filename,
+					  uint32_t run,
+					  const edm::EventSetup& setup ) :
   CommissioningTask( dqm, conn, "CalibrationScanTask" ),
   runType_(rtype),
-  calib1_(),calib2_(),
-  nBins_(65),lastISHA_(1000),lastVFS_(1000),lastCalchan_(1000),
-  filename_(filename),
+  nBins_(64),
+  lastISHA_(1000),
+  lastVFS_(1000),
+  lastCalChan_(1000),
+  lastCalSel_(1000),
+  lastLatency_(1000),
+  extrainfo_(),
   run_(run)
 {
+
+  if(runType_ == sistrip::CALIBRATION) nBins_ = 64;
+  else if(runType_ == sistrip::CALIBRATION_DECO) nBins_ = 80;
+
   LogDebug("Commissioning") << "[CalibrationScanTask::CalibrationScanTask] Constructing object...";
   // load the pedestals
   edm::ESHandle<SiStripPedestals> pedestalsHandle;
@@ -57,239 +65,101 @@ CalibrationScanTask::~CalibrationScanTask() {
 // -----------------------------------------------------------------------------
 //
 void CalibrationScanTask::book() {
-  LogDebug("Commissioning") << "[CalibrationScanTask::book]";
 
-  // construct the histo titles and book two histograms: one per APV
-  std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-					 runType_, 
-  					 sistrip::DET_KEY, 
-					 connection().detId(),
-					 sistrip::APV, 
-					 connection().i2cAddr(0) ).title(); 
-  calib1_.histo( dqm()->book1D( title1, title1, nBins_, 0, 203.125) );
-  calib1_.isProfile_=false;
-  calib1_.vNumOfEntries_.resize(nBins_,0);
-  std::string title2 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-					 runType_, 
-  					 sistrip::DET_KEY, 
-					 connection().detId(),
-					 sistrip::APV, 
-					 connection().i2cAddr(1) ).title(); 
-  calib2_.histo( dqm()->book1D( title2, title2, nBins_, 0, 203.125) );
-  calib2_.isProfile_=false;
-  calib2_.vNumOfEntries_.resize(nBins_,0);
+  if(calib1_.find(extrainfo_) == calib1_.end()){
 
-  // book the isha, vfs values
-  std::string pwd = dqm()->pwd();
-  std::string rootDir = pwd.substr(0,pwd.find(std::string(sistrip::root_) + "/")+(sizeof(sistrip::root_) - 1));
-  dqm()->setCurrentFolder( rootDir );
-  std::vector<std::string> existingMEs = dqm()->getMEs();
-  if(find(existingMEs.begin(),existingMEs.end(),"isha")!=existingMEs.end()) {
-    ishaElement_ = dqm()->get(dqm()->pwd()+"/isha");
-  } else {
-    ishaElement_ = dqm()->bookInt("isha");
+    // construct the histo titles and book two histograms: one per APV
+    std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+					   runType_, 
+					   sistrip::FED_KEY, 
+					   fedKey(),
+					   sistrip::APV, 
+					   connection().i2cAddr(0),
+					   extrainfo_).title(); 
+    
+    dqm()->setCurrentFolder(directory_);    
+    calib1_[extrainfo_] = HistoSet();
+    if(runType_ == sistrip::CALIBRATION_SCAN) // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency                                                                 
+      calib1_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 200));
+    else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency                                                      
+      calib1_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 250));
+    calib1_[extrainfo_].isProfile_ = false;
+    calib1_[extrainfo_].vNumOfEntries_.resize(nBins_,0);
   }
-  if(find(existingMEs.begin(),existingMEs.end(),"isha")!=existingMEs.end()) {
-    vfsElement_ = dqm()->get(dqm()->pwd()+"/vfs");  
-  } else {
-    vfsElement_ = dqm()->bookInt("vfs");
+
+  if(calib2_.find(extrainfo_) == calib2_.end()){
+
+    std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+					   runType_, 
+					   sistrip::FED_KEY, 
+					   fedKey(),
+					   sistrip::APV, 
+					   connection().i2cAddr(1),
+					   extrainfo_).title(); 
+            
+    dqm()->setCurrentFolder(directory_);    
+    calib2_[extrainfo_] = HistoSet();
+    if(runType_ == sistrip::CALIBRATION_SCAN) // each latency point is 25ns, each calSel is 25/8 --> 64 points = 8 calsel + 8 latency                                                                  
+       calib2_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 200));
+    else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) // each latency point is 25ns, each calSel is 25/8 --> 80 points = 8 calsel + 10 latency                                                       
+      calib2_[extrainfo_].histo( dqm()->book1D( title, title, nBins_, 0, 250));
+    calib2_[extrainfo_].isProfile_=false;
+    calib2_[extrainfo_].vNumOfEntries_.resize(nBins_,0);
   }
-  if(find(existingMEs.begin(),existingMEs.end(),"calchan")!=existingMEs.end()) {
-    calchanElement_ = dqm()->get(dqm()->pwd()+"/calchan");
-  } else {
-    calchanElement_ = dqm()->bookInt("calchan");
-  }
-  
-  LogDebug("Commissioning") << "[CalibrationScanTask::book] done";
-  
 }
 
 // -----------------------------------------------------------------------------
 //
 void CalibrationScanTask::fill( const SiStripEventSummary& summary,
-			    const edm::DetSet<SiStripRawDigi>& digis ) {
-//  LogDebug("Commissioning") << "[CalibrationScanTask::fill]: isha/vfs = " << summary.isha() << "/" << summary.vfs();
-  // Check if ISHA/VFS changed. In that case, save, reset histo, change title, and continue
-  checkAndSave(summary.isha(),summary.vfs());
+				const edm::DetSet<SiStripRawDigi>& digis ) {
+  
+
+  if(lastISHA_ != summary.isha() or lastVFS_ != summary.vfs()){ // triggered only when there is a change in isha and vfs
+    lastISHA_    = summary.isha();
+    lastVFS_     = summary.vfs();
+    lastCalSel_  = summary.calSel();
+    lastLatency_ = summary.latency();
+    lastCalChan_ = summary.calChan();    
+    extrainfo_ = "isha_"+std::to_string(lastISHA_)+"_vfs_"+std::to_string(lastVFS_);
+    book(); // book histograms and load the right one
+  }
+  else{
+    lastISHA_    = summary.isha();
+    lastVFS_     = summary.vfs();
+    lastCalSel_  = summary.calSel();
+    lastLatency_ = summary.latency();
+    lastCalChan_ = summary.calChan();
+    extrainfo_ = "isha_"+std::to_string(lastISHA_)+"_vfs_"+std::to_string(lastVFS_);
+  }
+
   // retrieve the delay from the EventSummary
-  int bin = (100-summary.latency())*8+(7-summary.calSel());
-  // loop on the strips to fill the histogram
-  // digis are obtained for an APV pair. 
-  // strips 0->127  : calib1_
-  // strips 128->255: calib2_
+  int bin = 0;
+  if(runType_ == sistrip::CALIBRATION_SCAN) bin = (100-summary.latency())*8+(7-summary.calSel());
+  else if(runType_ == sistrip::CALIBRATION_SCAN_DECO) bin = (102-summary.latency())*8+(7-summary.calSel());
+  // digis are obtained for an APV pair.strips 0->127  : calib1_ strips 128->255: calib2_
   // then, only some strips are fired at a time.
   // We use calChan to know that
-  int isub,ical = summary.calChan();
-  isub = ical<4 ? ical+4 : ical-4;
-  lastCalchan_ = ical;
+  int isub = lastCalChan_<4 ? lastCalChan_+4 : lastCalChan_-4;
   for (int k=0;k<16;++k)  {
     // all strips of the APV are merged in 
-    updateHistoSet( calib1_,bin,digis.data[ical+k*8].adc()-ped[ical+k*8]-(digis.data[isub+k*8].adc()-ped[isub+k*8]));
-    updateHistoSet( calib2_,bin,digis.data[128+ical+k*8].adc()-ped[128+ical+k*8]-(digis.data[128+isub+k*8].adc()-ped[128+isub+k*8]));
-  }
+    updateHistoSet(calib1_[extrainfo_],bin,digis.data[lastCalChan_+k*8].adc()-ped[lastCalChan_+k*8]-(digis.data[isub+k*8].adc()-ped[isub+k*8]));
+    updateHistoSet(calib2_[extrainfo_],bin,digis.data[128+lastCalChan_+k*8].adc()-ped[128+lastCalChan_+k*8]-(digis.data[128+isub+k*8].adc()-ped[128+isub+k*8]));
+  } 
   update(); //TODO: temporary: find a better solution later
 }
 
 // -----------------------------------------------------------------------------
 //
 void CalibrationScanTask::update() {
-  // LogDebug("Commissioning") << "[CalibrationScanTask::update]"; // huge output
-  updateHistoSet( calib1_ );
-  updateHistoSet( calib2_ );
+  
+  LogDebug("Commissioning") << "[CalibrationScanTask::update]"; // huge output  
+  for(auto element : calib1_)
+    updateHistoSet(element.second);
+  for(auto element : calib2_)
+    updateHistoSet(element.second);
 }
 
-// -----------------------------------------------------------------------------
-//
-void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs ) {
-  //for the first time
-  if(lastISHA_==1000 && lastVFS_==1000) {
-    lastISHA_ = isha;
-    lastVFS_  = vfs;
-  }
-
-  // set the calchan value in the correspond string
-  ishaElement_->Fill(lastISHA_);
-  vfsElement_->Fill(lastVFS_);
-  calchanElement_->Fill(lastCalchan_);
-
-  // check if ISHA/VFS has changed
-  // in that case, save the histograms, reset them, change the title and continue
-  if(lastISHA_!=isha || lastVFS_!=vfs) {
-
-    // set histograms before saving
-    update(); //TODO: we must do this for all tasks, otherwise only the first is updated.
-    
-    // change the title
-    std::stringstream complement;
-    complement << "ISHA" << isha << "_VFS" << vfs;
-    std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			 		    runType_, 
-  					    sistrip::DET_KEY, 
-				 	    connection().detId(),
-					    sistrip::APV, 
-					    connection().i2cAddr(0),
-					    complement.str() ).title(); 
-    calib1_.histo()->setTitle(title1);
-
-    std::string title2 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
-			 		    runType_, 
-  					    sistrip::DET_KEY, 
-				 	    connection().detId(),
-					    sistrip::APV, 
-					    connection().i2cAddr(1),
-					    complement.str() ).title(); 
-    calib2_.histo()->setTitle(title2);
-
-    // Strip filename of ".root" extension
-    std::string name;
-    if ( filename_.find(".root",0) == std::string::npos ) { name = filename_; }
-    else { name = filename_.substr( 0, filename_.find(".root",0) ); }
-  
-    // Retrieve SCRATCH directory
-    std::string scratch = "SCRATCH"; //@@ remove trailing slash!!!
-    std::string dir = "";
-    if ( getenv(scratch.c_str()) != nullptr ) {
-      dir = getenv(scratch.c_str());
-    }
-  
-    // Save file with appropriate filename 
-    std::stringstream ss;
-    if ( !dir.empty() ) { ss << dir << "/"; }
-    else { ss << "/tmp/"; }
-    ss << name << "_";
-    directory(ss,run_); // Add filename with run number, host ip, pid and .root extension
-    ss << "_ISHA" << lastISHA_ << "_VFS" << lastVFS_; // Add ISHA and VFS values
-    ss << "_000"; // Add FU instance number (fake)
-    ss << ".root"; // Append ".root" extension
-    if ( !filename_.empty() ) {
-      if(std::ifstream(ss.str().c_str(),std::ifstream::in).fail()) { //save only once. Skip if the file already exist
-        dqm()->save( ss.str() ); 
-        LogTrace("DQMsource")
-          << "[SiStripCommissioningSource::" << __func__ << "]"
-          << " Saved all histograms to file \""
-          << ss.str() << "\"";
-      } else {
-        LogTrace("DQMsource")
-	  << "[SiStripCommissioningSource::" << __func__ << "]"
-	  << " Skipping creation of file \""
-	  << ss.str() << "\" that already exists" ;
-      }
-    } else {
-      edm::LogWarning("DQMsource")
-        << "[SiStripCommissioningSource::" << __func__ << "]"
-        << " NULL value for filename! No root file saved!";
-    }
-  
-    // reset
-    calib1_.vNumOfEntries_.clear();
-    calib1_.vNumOfEntries_.resize(nBins_,0);
-    calib2_.vNumOfEntries_.clear();
-    calib2_.vNumOfEntries_.resize(nBins_,0);
-  
-    // set new parameter values
-    lastISHA_=isha;
-    lastVFS_=vfs;
-    // set the calchan value in the correspond string
-    ishaElement_->Fill(lastISHA_);
-    vfsElement_->Fill(lastVFS_);
-    calchanElement_->Fill(lastCalchan_);
-  }
+void CalibrationScanTask::setCurrentFolder(const std::string & dir){
+  directory_ = dir;
 }
 
-// -----------------------------------------------------------------------------
-// 
-void CalibrationScanTask::directory( std::stringstream& dir,
-					    uint32_t run_number ) {
-
-  // Get details about host
-  char hn[256];
-  gethostname( hn, sizeof(hn) );
-  struct hostent* he;
-  he = gethostbyname(hn);
-
-  // Extract host name and ip
-  std::string host_name;
-  std::string host_ip;
-  if ( he ) { 
-    host_name = std::string(he->h_name);
-    host_ip = std::string( inet_ntoa( *(struct in_addr*)(he->h_addr) ) );
-  } else {
-    host_name = "unknown.cern.ch";
-    host_ip = "255.255.255.255";
-  }
-
-  // Reformat IP address
-  std::string::size_type pos = 0;
-  std::stringstream ip;
-  //for ( uint16_t ii = 0; ii < 4; ++ii ) {
-  while ( pos != std::string::npos ) {
-    std::string::size_type tmp = host_ip.find(".",pos);
-    if ( tmp != std::string::npos ) {
-      ip << std::setw(3)
-	 << std::setfill('0')
-	 << host_ip.substr( pos, tmp-pos ) 
-	 << ".";
-      pos = tmp+1; // skip the delimiter "."
-    } else {
-      ip << std::setw(3)
-	 << std::setfill('0')
-	 << host_ip.substr( pos );
-      pos = std::string::npos;
-    }
-  }
-  
-  // Get pid
-  pid_t pid = getpid();
-
-  // Construct string
-  dir << std::setw(8) 
-      << std::setfill('0') 
-      << run_number
-      << "_" 
-      << ip.str()
-      << "_"
-      << std::setw(5) 
-      << std::setfill('0') 
-      << pid;
-
-}

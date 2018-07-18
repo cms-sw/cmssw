@@ -9,6 +9,8 @@
 #ifndef DataFormats_CTPPSDigi_TotemFEDInfo
 #define DataFormats_CTPPSDigi_TotemFEDInfo
 
+#include <cstdint>
+
 /**
  * \brief OptoRx headers and footers.
  **/

@@ -18,9 +18,10 @@ class GEMCoPadProcessor
 {
  public:
   /** Normal constructor. */
-  GEMCoPadProcessor(unsigned endcap, unsigned station, unsigned chamber,
-                    const edm::ParameterSet& copad);
-
+  GEMCoPadProcessor(unsigned endcap, unsigned station,
+		    unsigned chamber,
+		    const edm::ParameterSet& copad);
+  
   /** Default constructor. Used for testing. */
   GEMCoPadProcessor();
 
@@ -39,10 +40,10 @@ class GEMCoPadProcessor
   enum {MAX_CoPad_BINS = 3};
 
   /** Returns vector of CoPads in the read-out time window, if any. */
-  const std::vector<GEMCoPadDigi>& readoutCoPads();
+  const std::vector<GEMCoPadDigi>& readoutCoPads() const;
 
   // declusterizes the clusters into single pad digis
-  void declusterize(const GEMPadDigiClusterCollection*, GEMPadDigiCollection&);
+  void declusterize(const GEMPadDigiClusterCollection*, GEMPadDigiCollection&) const;
 
  private:
   /** Chamber id (trigger-type labels). */
@@ -55,12 +56,10 @@ class GEMCoPadProcessor
    *                   2: info at every step of the algorithm.
    *                   3: add special-purpose prints. */
   unsigned int infoV;
-  unsigned int maxDeltaPadGE11_;
-  unsigned int maxDeltaPadGE21_;
-  unsigned int maxDeltaRollGE11_;
-  unsigned int maxDeltaRollGE21_;
+  unsigned int maxDeltaPad_;
   unsigned int maxDeltaBX_;
-
+  unsigned int maxDeltaRoll_;
+  
   // output collection
   std::vector<GEMCoPadDigi> gemCoPadV;
 };

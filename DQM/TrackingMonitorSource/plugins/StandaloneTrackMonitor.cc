@@ -549,8 +549,6 @@ void StandaloneTrackMonitor::addClusterToMap(uint32_t detid, const SiStripCluste
     s.insert(cluster);
   }
 }
-void StandaloneTrackMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
-}
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(StandaloneTrackMonitor);
