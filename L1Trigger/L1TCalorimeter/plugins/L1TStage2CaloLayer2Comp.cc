@@ -308,6 +308,12 @@ void L1TStage2CaloLayer2Comp::produce (
   edm::LogProblem("l1tcalol2ebec")
     << "Processing event " << e.id() << std::endl;
 
+  if(caloTowerDataCol->size()==0){
+    edm::LogProblem("l1tcalol2ebec")
+      << "Empty caloTowers. Skipping event " << std::endl;
+    return;
+  }
+
   if (!compareJets(jetDataCol, jetEmulCol)) {
     eventGood = false;
   }
