@@ -194,12 +194,12 @@ public:
 
   bool crcModified() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000000004) == 1);
+    return ((data[0] & 0x0000000000000004) != 0);
   }
 
   bool isLastTrailerWord() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000000008) == 1);
+    return ((data[0] & 0x0000000000000008) != 0);
   }
 
   uint32_t ttsBits() {
@@ -214,12 +214,12 @@ public:
 
   bool isWrongFEDID() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000004000) == 1);
+    return ((data[0] & 0x0000000000004000) != 0);
   }
 
   bool isSLinkErrorDetectedByFRL() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000008000) == 1);
+    return ((data[0] & 0x0000000000008000) != 0);
   }
 
   uint32_t crc16() {
