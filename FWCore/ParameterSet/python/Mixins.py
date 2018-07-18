@@ -1,3 +1,4 @@
+from __future__ import print_function
 import inspect
 import six
 
@@ -180,7 +181,7 @@ class _Parameterizable(object):
             return getattr(self, params, None)
         for param in params:
             lastParam = getattr(lastParam, param, None)
-            print str(lastParam)
+            print(str(lastParam))
             if lastParam == None:
                 return None
         return lastParam

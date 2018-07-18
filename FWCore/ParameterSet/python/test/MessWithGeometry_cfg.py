@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("P")
@@ -6,5 +7,5 @@ process.load("FWCore.ParameterSet.test.Geometry_cfi")
 process.load("FWCore.ParameterSet.test.MessWithGeometry_cff")
 process.load("FWCore.ParameterSet.test.MessWithPreshower_cff")
 #check that both changes got merged
-print process.geometry.dumpPython()
+print(process.geometry.dumpPython())
 
