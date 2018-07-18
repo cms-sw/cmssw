@@ -78,7 +78,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 	  cout << "\t\tMCTrack " << setw(2) << tpr.index() << " pT: " << setw(6) << tpr->pt() << 
 	    " NShared: " << assocChi2 << endl;
 	}
-    } catch (Exception event) {
+    } catch (Exception const&) {
       cout << "->   Track pT: " 
 	   << setprecision(2) << setw(6) << track->pt() 
 	   <<  " matched to 0  MC Tracks" << endl;
@@ -99,7 +99,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 	cout << "\t\tMCTrack " << setw(2) << tpr.index() << " pT: " << setw(6) << tpr->pt() << 
 	  " chi2: " << assocChi2 << endl;
       }
-    } catch (Exception event) {
+    } catch (Exception const&) {
       cout << "->   Track pT: " 
 	   << setprecision(2) << setw(6) << track->pt() 
 	   <<  " matched to 0  MC Tracks" << endl;
@@ -122,7 +122,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 	  cout << "\t\treco::Track pT: " << setw(6) << tr->pt() << 
 	    " NShared: " << assocChi2 << endl;
 	}
-    } catch (Exception event) {
+    } catch (Exception const&) {
       cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " 
 	   <<setprecision(2)<<setw(6)<<tp->pt() 
 	   <<  " matched to 0  reco::Tracks" << endl;
@@ -142,7 +142,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
 	cout << "\t\treco::Track pT: " << setw(6) << tr->pt() << 
 	  " chi2: " << assocChi2 << endl;
       }
-    } catch (Exception event) {
+    } catch (Exception const&) {
       cout << "->   TrackingParticle " << setw(2) << tp.index() << " pT: " 
 	   <<setprecision(2)<<setw(6)<<tp->pt() 
 	   <<  " matched to 0  reco::Tracks" << endl;
