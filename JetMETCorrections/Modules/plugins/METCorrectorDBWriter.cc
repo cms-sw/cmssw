@@ -75,7 +75,7 @@ void METCorrectorDBWriter::beginJob()
       }
       std::cout << "Added record " << ilev << std::endl;
     }
-    catch(edm::Exception ex) {
+    catch(edm::Exception const&) {
       std::cout<<"Have not found METC file: "<<inputTxtFile<<std::endl;
     }
   }

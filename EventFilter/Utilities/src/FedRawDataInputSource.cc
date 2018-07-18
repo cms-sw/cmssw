@@ -137,7 +137,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   if (fileListMode_) {
     try {
       fms_ = static_cast<evf::FastMonitoringService *> (edm::Service<evf::MicroStateService>().operator->());
-    } catch(cms::Exception e) {
+    } catch(cms::Exception const&) {
         edm::LogInfo("FedRawDataInputSource") << "No FastMonitoringService found in the configuration";
     }
   }
@@ -882,7 +882,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     daqDirector_->unlockFULocal();
     edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
   }
-  catch (std::runtime_error e)
+  catch (std::runtime_error const& e)
   {
     // Another process grabbed the file and NFS did not register this
     daqDirector_->unlockFULocal();
@@ -894,7 +894,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
                                            << "Input value is -: " << data;
   }
 
-  catch (std::exception e)
+  catch (std::exception const& e)
   {
     // BU run directory disappeared?
     daqDirector_->unlockFULocal();
