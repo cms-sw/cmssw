@@ -10,8 +10,8 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 mvaTag                       = "RunIIFall17v1p1"
 mvaVariablesFile             = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesFall17V1p1.txt"
 mvaWeightFiles = [
-    "RecoEgamma/PhotonIdentification/data/Fall17/HggPhoId_92X_barrel_BDT.weights.xml.gz",
-    "RecoEgamma/PhotonIdentification/data/Fall17/HggPhoId_92X_endcap_BDT.weights.xml.gz"
+    path.join(weightFileBaseDir, "Fall17/EB_V1.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Fall17/EE_V1.weights.xml.gz"),
     ]
 
 # Set up the VID working point parameters
@@ -19,13 +19,13 @@ wpConfig = [
             # The working point for this MVA that is expected to have about 90% signal
             # efficiency in each category for photons with pt>30 GeV (somewhat lower
             # for lower pt photons).
-            {"idName" : "mvaPhoID-RunIIFall17-v1p1-wp90", 
+            {"idName" : "mvaPhoID-RunIIFall17-v1p1-wp90",
              "cuts"   : { "EB" : 0.27,
                           "EE" : 0.14 }},
             # The working point for this MVA that is expected to have about 90% signal
             # efficiency in each category for photons with pt>30 GeV (somewhat lower
             # for lower pt photons).
-            {"idName" : "mvaPhoID-RunIIFall17-v1p1-wp80", 
+            {"idName" : "mvaPhoID-RunIIFall17-v1p1-wp80",
              "cuts"   : { "EB" : 0.67,
                           "EE" : 0.54 }},
            ]
@@ -44,8 +44,8 @@ mvaPhoID_RunIIFall17_v1p1_wp90            = configs["VID_config"]["mvaPhoID-RunI
 mvaPhoID_RunIIFall17_v1p1_wp80            = configs["VID_config"]["mvaPhoID-RunIIFall17-v1p1-wp80"]
 
 # The MD5 sum numbers below reflect the exact set of cut variables
-# and values above. If anything changes, one has to 
-# 1) comment out the lines below about the registry, 
+# and values above. If anything changes, one has to
+# 1) comment out the lines below about the registry,
 # 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 

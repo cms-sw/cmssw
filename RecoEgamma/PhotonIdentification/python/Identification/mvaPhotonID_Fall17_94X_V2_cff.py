@@ -15,8 +15,8 @@ mvaTag = "RunIIFall17v2"
 
 mvaVariablesFile = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesFall17V2.txt"
 mvaWeightFiles = [
-    "RecoEgamma/PhotonIdentification/data/Fall17_94X/EgammaPhoId_94X_barrel_BDT.weights.xml.gz",
-    "RecoEgamma/PhotonIdentification/data/Fall17_94X/EgammaPhoId_94X_endcap_BDT.weights.xml.gz"
+    path.join(weightFileBaseDir, "Fall17/EB_V2.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Fall17/EE_V2.weights.xml.gz"),
     ]
 
 # Set up the VID working point parameters
@@ -24,13 +24,13 @@ wpConfig = [
             # The working point for this MVA that is expected to have about 90% signal
             # efficiency in each category for photons with pt>30 GeV (somewhat lower
             # for lower pt photons).
-            {"idName" : "mvaPhoID-RunIIFall17-v2-wp90", 
+            {"idName" : "mvaPhoID-RunIIFall17-v2-wp90",
              "cuts"   : { "EB" : -0.02,
                           "EE" : -0.26 }},
             # The working point for this MVA that is expected to have about 90% signal
             # efficiency in each category for photons with pt>30 GeV (somewhat lower
             # for lower pt photons).
-            {"idName" : "mvaPhoID-RunIIFall17-v2-wp80", 
+            {"idName" : "mvaPhoID-RunIIFall17-v2-wp80",
              "cuts"   : { "EB" : 0.42,
                           "EE" : 0.14 }},
            ]
@@ -49,8 +49,8 @@ mvaPhoID_RunIIFall17_v2_wp90            = configs["VID_config"]["mvaPhoID-RunIIF
 mvaPhoID_RunIIFall17_v2_wp80            = configs["VID_config"]["mvaPhoID-RunIIFall17-v2-wp80"]
 
 # The MD5 sum numbers below reflect the exact set of cut variables
-# and values above. If anything changes, one has to 
-# 1) comment out the lines below about the registry, 
+# and values above. If anything changes, one has to
+# 1) comment out the lines below about the registry,
 # 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
