@@ -9,8 +9,9 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
-#include "G4Step.hh"
+#include "G4ThreeVector.hh"
 
 class HGCalNumberingScheme {
 
