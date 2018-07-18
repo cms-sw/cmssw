@@ -33,7 +33,9 @@
 
 #include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 
-
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 
 class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
@@ -56,6 +58,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 
     const double jet_radius_;
     const double min_candidate_pt_;
+    const bool flip_;
 
     edm::EDGetTokenT<edm::View<reco::Jet>>  jet_token_;
     edm::EDGetTokenT<VertexCollection> vtx_token_;
@@ -76,6 +79,7 @@ class DeepFlavourTagInfoProducer : public edm::stream::EDProducer<> {
 DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& iConfig) :
   jet_radius_(iConfig.getParameter<double>("jet_radius")),
   min_candidate_pt_(iConfig.getParameter<double>("min_candidate_pt")),
+  flip_(iConfig.getParameter<bool>("flip")),
   jet_token_(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
   vtx_token_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
   sv_token_(consumes<SVCollection>(iConfig.getParameter<edm::InputTag>("secondary_vertices"))),
@@ -114,6 +118,7 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("shallow_tag_infos", edm::InputTag("pfDeepCSVTagInfos"));
   desc.add<double>("jet_radius", 0.4);
   desc.add<double>("min_candidate_pt", 0.95);
+  desc.add<bool>("flip", false);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
@@ -196,6 +201,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // fill number of pv
     features.npv = vtxs->size();
+    math::XYZVector jet_dir = jet.momentum().Unit();
+    GlobalVector jet_ref_track_dir(jet.px(),
+                                   jet.py(),
+                                   jet.pz());
 
     // fill features from ShallowTagInfo
     const auto & tag_info_vars = tag_info.taggingVariables();
@@ -209,20 +218,16 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
               { return btagbtvdeep::sv_vertex_comparator(sva, svb, pv); });
     // fill features from secondary vertices
     for (const auto & sv : svs_sorted) {
-      if (reco::deltaR(sv, jet) > jet_radius_) continue;
+      if (reco::deltaR2(sv, jet_dir) > (jet_radius_*jet_radius_)) continue;
       else {
         features.sv_features.emplace_back();
         // in C++17 could just get from emplace_back output
         auto & sv_features = features.sv_features.back();
-        btagbtvdeep::svToFeatures(sv, pv, jet, sv_features);
+        btagbtvdeep::svToFeatures(sv, pv, jet, sv_features, flip_);
       }
     }
 
     // stuff required for dealing with pf candidates
-    math::XYZVector jet_dir = jet.momentum().Unit();
-    GlobalVector jet_ref_track_dir(jet.px(),
-                                   jet.py(),
-                                   jet.pz());
 
     std::vector<btagbtvdeep::SortingClass<size_t> > c_sorted, n_sorted;
 
@@ -269,6 +274,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     features.n_pf_features.resize(n_sorted.size());
 
 
+    const edm::Provenance *prov = shallow_tag_infos.provenance();
+    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
+    double negative_cut = ( ( psetFromProvenance.getParameter<edm::ParameterSet>("computer") 
+			      ).getParameter<edm::ParameterSet>("trackSelection") 
+			    ).getParameter<double>("sip3dSigMax");
 
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
 
@@ -305,12 +315,13 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto entry = c_sortedindices.at(i);
       // get cached track info
       auto & trackinfo = trackinfos.at(i);
+      if(flip_ && (trackinfo.getTrackSip3dSig() > negative_cut)){continue;}
       // get_ref to vector element
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure
       if (packed_cand) {
         btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, trackinfo, 
-					       drminpfcandsv, static_cast<float> (jet_radius_), c_pf_features);
+					       drminpfcandsv, static_cast<float> (jet_radius_), c_pf_features, flip_);
       } else if (reco_cand) {
         // get vertex association quality
         int pv_ass_quality = 0; // fallback value
@@ -337,7 +348,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         }
         btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, trackinfo, 
 					     drminpfcandsv,  static_cast<float> (jet_radius_), puppiw,
-					     pv_ass_quality, PV, c_pf_features);
+					     pv_ass_quality, PV, c_pf_features, flip_);
       }
     } else {
       // is neutral candidate

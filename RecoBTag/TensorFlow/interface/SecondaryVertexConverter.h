@@ -13,7 +13,8 @@ namespace btagbtvdeep {
   
   void svToFeatures( const reco::VertexCompositePtrCandidate & sv,
 		     const reco::Vertex & pv, const reco::Jet & jet,
-		     SecondaryVertexFeatures & sv_features) ;
+		     SecondaryVertexFeatures & sv_features,
+		     const bool flip = false) ;
     
   
 }
