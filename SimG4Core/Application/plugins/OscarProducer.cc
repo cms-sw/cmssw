@@ -121,7 +121,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   produces<edm::PCaloHitContainer>("ChamberHits"); 
   produces<edm::PCaloHitContainer>("FibreHits"); 
   produces<edm::PCaloHitContainer>("WedgeHits"); 
-    
+  produces<edm::PCaloHitContainer>("HFNoseHits");
+
   //register any products 
   m_producers = m_runManager->producers();
 
