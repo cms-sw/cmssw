@@ -645,9 +645,10 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			// 'diffAlignables' returns 'refAli - curAli' for translations and 'curAli - refAli' for rotations.
 			// The plan is to unify this at some point, but a simple change of the sign for one of them was postponed
 			// to do some further checks to understand the rotations better
-			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);  
+			//Updated July 2018: as requested the sign in the translations has been changed to match the one in rotations. A test was done to change the diffAlignables function and solve the issue there, but proved quite time consuming. To unify the sign convention in the least amount of time the choice was made to change the sign here.
+			CLHEP::Hep3Vector dR(-diff[0],-diff[1],-diff[2]);  
 			CLHEP::Hep3Vector dW(diff[3],diff[4],diff[5]);
-			CLHEP::Hep3Vector dRLocal(diff[6],diff[7],diff[8]);
+			CLHEP::Hep3Vector dRLocal(-diff[6],-diff[7],-diff[8]);
 			CLHEP::Hep3Vector dWLocal(diff[9],diff[10],diff[11]);
 			
 			// Translations
