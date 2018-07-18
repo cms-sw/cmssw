@@ -13,7 +13,7 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 
 mvaTag = "RunIIFall17v2"
 
-mvaVariablesFile = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesFall17V2.txt"
+mvaVariablesFile = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesFall17.txt"
 mvaWeightFiles = [
     path.join(weightFileBaseDir, "Fall17/EB_V2.weights.xml.gz"),
     path.join(weightFileBaseDir, "Fall17/EE_V2.weights.xml.gz"),
