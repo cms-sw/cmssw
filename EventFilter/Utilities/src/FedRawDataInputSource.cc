@@ -464,7 +464,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     if (fms_) fms_->setInState(evf::FastMonitoringThread::inWaitChunk);
     while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
       usleep(10000);
-      if (currentFile_->parent_->exceptionState()) currentFile_->parent_->threadError();
+      if (currentFile_->parent_->exceptionState() || setExceptionState_) currentFile_->parent_->threadError();
     }
     if (fms_) fms_->setInState(evf::FastMonitoringThread::inChunkReceived);
 
@@ -1028,6 +1028,7 @@ void FedRawDataInputSource::readSupervisor()
 	  unsigned int newTid = 0xffffffff;
 	  while (!workerPool_.try_pop(newTid)) {
 	    usleep(100000);
+            if (quit_threads_.load(std::memory_order_relaxed)) {stop=true;break;}
 	  }
 
           if (fms_) {
@@ -1041,7 +1042,7 @@ void FedRawDataInputSource::readSupervisor()
 	  InputChunk * newChunk = nullptr;
 	  while (!freeChunks_.try_pop(newChunk)) {
             usleep(100000);
-            if (quit_threads_.load(std::memory_order_relaxed)) break;
+            if (quit_threads_.load(std::memory_order_relaxed)) {stop=true;break;}
 	  }
 
           if (newChunk == nullptr) {
@@ -1050,6 +1051,7 @@ void FedRawDataInputSource::readSupervisor()
             stop = true;
             break;
           }
+          if (stop) break;
           if (fms_) fms_->setInStateSup(evf::FastMonitoringThread::inSupNewFile);
 
 	  std::unique_lock<std::mutex> lk(mReader_);
@@ -1078,7 +1080,10 @@ void FedRawDataInputSource::readSupervisor()
 	//in single-buffer mode put single chunk in the file and let the main thread read the file
 	InputChunk * newChunk;
 	//should be available immediately
-	while(!freeChunks_.try_pop(newChunk)) usleep(100000);
+	while(!freeChunks_.try_pop(newChunk)) {
+          usleep(100000);
+          if (quit_threads_.load(std::memory_order_relaxed)) break;
+        }
 
         std::unique_lock<std::mutex> lkw(mWakeup_);
 
@@ -1147,33 +1152,51 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     chunk = workerJob_[tid].second;
 
     int fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
-    off_t pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
+    off_t pos = 0;
 
 
-    if (fileDescriptor>=0)
-      LogDebug("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos;
-    else
-    {
+    if (fileDescriptor<0) {
       edm::LogError("FedRawDataInputSource") <<
-      "readWorker failed to open file -: " << file->fileName_ << " fd:" << fileDescriptor <<
-      " or seek to offset " << chunk->offset_ << ", lseek returned:" << pos;
+      "readWorker failed to open file -: " << file->fileName_ << " fd:" << fileDescriptor <<" error: " << strerror(errno);
       setExceptionState_=true;
-      return;
-
+      continue;
     }
+    pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
+    if (pos==-1) {
+      edm::LogError("FedRawDataInputSource") <<
+      "readWorker failed to seek file -: " << file->fileName_ << " fd:" << fileDescriptor <<
+      " to offset " << chunk->offset_ << " error: " << strerror(errno);
+      setExceptionState_=true;
+      continue;
+    }
+
+    LogDebug("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos;
 
     unsigned int bufferLeft = 0;
     auto start = std::chrono::high_resolution_clock::now();
     for (unsigned int i=0;i<readBlocks_;i++)
     {
       const ssize_t last = ::read(fileDescriptor,( void*) (chunk->buf_+bufferLeft), eventChunkBlock_);
+      if (last<0) {
+          edm::LogError("FedRawDataInputSource") <<
+          "readWorker failed to read file -: " << file->fileName_ << " fd:" << fileDescriptor << " error: " << strerror(errno);
+          setExceptionState_=true;
+          break;
+      }
       if ( last > 0 )
 	bufferLeft+=last;
       if (last < eventChunkBlock_) {
-	assert(chunk->usedSize_==i*eventChunkBlock_+last);
+	if (!(chunk->usedSize_==i*eventChunkBlock_+last)) {
+          edm::LogError("FedRawDataInputSource") <<
+          "readWorker failed to read file -: " << file->fileName_ << " fd:" << fileDescriptor << " last:" << last <<
+          " expectedChunkSize:" << chunk->usedSize_ << " readChunkSize:" << (i*eventChunkBlock_+last) << " error: " << strerror(errno);
+          setExceptionState_=true;
+        }
 	break;
       }
     }
+    if (setExceptionState_) continue;
+
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end-start;
     std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
