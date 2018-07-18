@@ -1,34 +1,41 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMVAEstimator.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
-  AnyMVAEstimatorRun2Base(conf),
-  name_(conf.getParameter<std::string>("mvaName")),
-  tag_(conf.getParameter<std::string>("mvaTag")),
-  methodName_("BDTG method"),
-  mvaVarMngr_(conf.getParameter<std::string>("variableDefinition")),
-  ebeeSplit_ (conf.getParameter<double> ("ebeeSplit")),
-  debug_(conf.getUntrackedParameter<bool>("debug", false))
+PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
+  : AnyMVAEstimatorRun2Base(conf)
+  , mvaVarMngr_ (conf.getParameter<std::string>("variableDefinition"))
+  // So far only used in Run2Spring16NonTrigV1
+  , effectiveAreas_        (conf.exists("effAreasConfigFile") ?
+          std::make_unique<EffectiveAreas>((
+                  conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath()) : nullptr)
+  , phoIsoPtScalingCoeff_  (conf.exists("phoIsoPtScalingCoeff") ?
+          conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff") : std::vector<double>{0.0, 0.0})
+  , phoIsoCutoff_          (conf.exists("phoIsoCutoff") ? conf.getParameter<double>("phoIsoCutoff") : 0.0)
 {
-  //
-  // Construct the MVA estimators
-  //
-  if (tag_ == "Run2Spring16NonTrigV1") {
-      effectiveAreas_ = std::make_unique<EffectiveAreas>((conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath());
-      phoIsoPtScalingCoeff_ = conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff");
-      phoIsoCutoff_ = conf.getParameter<double>("phoIsoCutoff");
-  }
 
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
-  // Initialize GBRForests
-  if( (int)(weightFileNames.size()) != nCategories_ )
+  const std::vector <std::string> categoryCutStrings
+    = conf.getParameter<std::vector<std::string> >("categoryCuts");
+
+  if( (int)(categoryCutStrings.size()) != getNCategories() )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of weightfiles in " << name_ << tag_ << std::endl;
+      << "wrong number of category cuts in " << getName() << getTag() << std::endl;
+
+  for (int i = 0; i < getNCategories(); ++i) {
+      StringCutObjectSelector<reco::Photon> select(categoryCutStrings[i]);
+      categoryFunctions_.push_back(select);
+  }
+
+  // Initialize GBRForests
+  if( static_cast<int>(weightFileNames.size()) != getNCategories() )
+    throw cms::Exception("MVA config failure: ")
+      << "wrong number of weightfiles in " << getName() << getTag() << std::endl;
 
   gbrForests_.clear();
   // Create a TMVA reader object for each category
-  for(int i=0; i<nCategories_; i++){
+  for(int i=0; i<getNCategories(); i++){
 
     std::vector<std::string> variableNamesInCategory;
     std::vector<int> variablesInCategory;
@@ -46,7 +53,7 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
         int index = mvaVarMngr_.getVarIndex(variableNamesInCategory[j]);
         if(index == -1) {
             throw cms::Exception("MVA config failure: ")
-               << "Concerning " << name_ << tag_ << std::endl
+               << "Concerning " << getName() << getTag() << std::endl
                << "Variable " << variableNamesInCategory[j]
                << " not found in variable definition file!" << std::endl;
         }
@@ -61,9 +68,7 @@ PhotonMVAEstimator::
 }
 
 float PhotonMVAEstimator::
-mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent) const {
-
-  const int iCategory = findCategory( candPtr );
+mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent, int &iCategory) const {
 
   const edm::Ptr<reco::Photon> phoPtr{ candPtr };
   if( phoPtr.get() == nullptr) {
@@ -72,6 +77,8 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent)
       << " but appears to be neither" << std::endl;
   }
 
+  iCategory = findCategory( phoPtr );
+
   std::vector<float> vars;
 
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
@@ -79,7 +86,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent)
   }
 
   // Special case for Spring16!
-  if (tag_ == "Run2Spring16NonTrigV1" and iCategory == CAT_EE) {
+  if (getTag() == "Run2Spring16NonTrigV1" and iCategory == 1) { // Endcap category
       // Raw value for EB only, because of loss of transparency in EE
       // for endcap MVA only in 2016
       double eA = effectiveAreas_->getEffectiveArea( std::abs(phoPtr->superCluster()->eta()) );
@@ -87,8 +94,8 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent)
       vars[10] = TMath::Max( phoIsoCorr, phoIsoCutoff_);
   }
 
-  if(debug_) {
-    std::cout << " *** Inside " << name_ << tag_ << std::endl;
+  if(isDebug()) {
+    std::cout << " *** Inside " << getName() << getTag() << std::endl;
     std::cout << " category " << iCategory << std::endl;
     for (int i = 0; i < nVariables_[iCategory]; ++i) {
         std::cout << " " << mvaVarMngr_.getName(variables_[iCategory][i]) << " " << vars[i] << std::endl;
@@ -97,7 +104,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent)
 
   const float response = gbrForests_.at(iCategory)->GetResponse(vars.data());
 
-  if(debug_) {
+  if(isDebug()) {
     std::cout << " ### MVA " << response << std::endl << std::endl;
   }
 
@@ -106,25 +113,29 @@ mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent)
 
 int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& candPtr) const {
 
-  // Try to cast the particle into a reco particle.
-  // This should work for both reco and pat.
-  auto pho = dynamic_cast<reco::Photon const*>(candPtr.get());
-
-  if( pho == nullptr) {
+  const edm::Ptr<reco::Photon> phoPtr{ candPtr };
+  if( phoPtr.get() == nullptr ) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::Photon or pat::Photon," << std::endl
       << " but appears to be neither" << std::endl;
   }
 
-  float eta = pho->superCluster()->eta();
+  return findCategory(phoPtr);
 
-  //
-  // Determine the category
-  //
-  if ( std::abs(eta) < ebeeSplit_)
-     return CAT_EB; 
-  else
-     return CAT_EE;
+}
+
+int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Photon>& phoPtr) const {
+
+  for (int i = 0; i < getNCategories(); ++i) {
+      if (categoryFunctions_[i](*phoPtr)) return i;
+  }
+
+  edm::LogWarning  ("MVA warning") <<
+      "category not defined for particle with pt " << phoPtr->pt() << " GeV, eta " <<
+          phoPtr->superCluster()->eta() << " in " << getName() << getTag();
+
+  return -1;
+
 }
 
 void PhotonMVAEstimator::setConsumes(edm::ConsumesCollector&& cc) const {

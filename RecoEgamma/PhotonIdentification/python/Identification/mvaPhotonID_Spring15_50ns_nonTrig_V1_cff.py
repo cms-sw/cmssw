@@ -64,7 +64,10 @@ mvaPhoID_Spring15_50ns_nonTrig_V1_producer_config = cms.PSet(
     mvaName            = cms.string(mvaSpring15NonTrigClassName),
     mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V1,
-    variableDefinition  = cms.string(mvaVariablesFile)
+    variableDefinition  = cms.string(mvaVariablesFile),
+    # Category parameters
+    nCategories         = cms.int32(2),
+    categoryCuts        = category_cuts
     )
 # Create the VPset's for VID cuts
 mvaPhoID_Spring15_50ns_nonTrig_V1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
