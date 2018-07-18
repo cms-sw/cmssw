@@ -12,6 +12,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
+#include "FWCore/ParameterSet/interface/defaultModuleLabel.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -19,6 +20,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
+#include <cerrno>
 #include <cstring>
 
 namespace {
@@ -37,8 +40,9 @@ static const char* const k_source = "source";
 
 namespace edm {
 
-  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType) :
+  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType, std::string const& pluginName) :
     baseType_(baseType),
+    pluginName_(pluginName),
     defaultDescDefined_(false)
   { }
 
@@ -91,6 +95,21 @@ namespace edm {
     pair.first = label;
     pair.second = psetDescription;
     
+  }
+
+  void
+  ConfigurationDescriptions::addWithDefaultLabel(ParameterSetDescription const& psetDescription) {
+    std::string label;
+    if(kService == baseType_) {
+      label = pluginName_;
+    }
+    else if(kSource == baseType_) {
+      label = "source";
+    }
+    else {
+      label = defaultModuleLabel(pluginName_);
+    }
+    add(label, psetDescription);
   }
 
   void
@@ -151,14 +170,12 @@ namespace edm {
   }
 
   void
-  ConfigurationDescriptions::writeCfis(std::string const& baseType,
-                                       std::string const& pluginName,
-                                       std::set<std::string>& usedCfiFileNames) const {
+  ConfigurationDescriptions::writeCfis(std::set<std::string>& usedCfiFileNames) const {
 
     for_all(descriptions_, std::bind(&ConfigurationDescriptions::writeCfiForLabel,
                                        std::placeholders::_1,
-                                       std::cref(baseType),
-                                       std::cref(pluginName),
+                                       std::cref(baseType_),
+                                       std::cref(pluginName_),
                                        std::ref(usedCfiFileNames)));
   }
 
@@ -208,6 +225,15 @@ namespace edm {
       throw ex;
     }
     std::ofstream outFile(cfi_filename.c_str());
+    if(outFile.fail()) {
+      edm::Exception ex(edm::errors::LogicError,
+                        "Creating cfi file failed.\n");
+      ex << "Opening a file '" << cfi_filename << "' for module '" << labelAndDesc.first << "' failed.\n";
+      ex << "Error code from errno " << errno << ": " << std::strerror(errno) << "\n";
+      
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
+    }
 
     outFile << "import FWCore.ParameterSet.Config as cms\n\n";
     outFile << labelAndDesc.first << " = cms." << baseType << "('" << pluginName << "'";

@@ -226,12 +226,6 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-GlobalMuonMatchAnalyzer::beginJob()
-{
-}
-void GlobalMuonMatchAnalyzer::endJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void GlobalMuonMatchAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
   computeEfficiencyEta(h_effic,h_goodMatchSim,h_shouldMatch);

@@ -1,6 +1,7 @@
 #ifndef L1T_PACKER_STAGE2_MUONPACKER_H
 #define L1T_PACKER_STAGE2_MUONPACKER_H
 
+#include <map>
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
 
 namespace l1t {

@@ -161,7 +161,7 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
     }
     fpar.clear();
     //    dpar = fv.logicalPart().solid().parameters();
-    if ( fv.logicalPart().solid().shape() == ddsubtraction ) {
+    if ( fv.logicalPart().solid().shape() == DDSolidShape::ddsubtraction ) {
       const DDSubtraction& first = fv.logicalPart().solid();
       const DDSubtraction& second = first.solidA();
       const DDSolid& third = second.solidA();

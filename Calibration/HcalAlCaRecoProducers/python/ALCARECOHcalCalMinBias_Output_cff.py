@@ -11,6 +11,7 @@ OutALCARECOHcalCalMinBias_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_TriggerResults_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep HBHERecHitsSorted_hbherecoMBNZS_*_*',
         'keep HORecHitsSorted_horecoMBNZS_*_*',
         'keep HFRecHitsSorted_hfrecoMBNZS_*_*',

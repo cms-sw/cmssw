@@ -32,8 +32,7 @@ def extractBlocks(config):
   extractBlock(config, outputScouting,  'hltScouting_cff.py')
 
 def makePSet(statements):
-  statements = list(statements)
-  statements.sort()
+  statements = sorted(statements)
   block = cms.PSet(
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*', )
   )
@@ -41,8 +40,7 @@ def makePSet(statements):
   return block
 
 def makePSetNoDrop(statements):
-  statements = list(statements)
-  statements.sort()
+  statements = sorted(statements)
   block = cms.PSet(
     outputCommands = cms.untracked.vstring()
   )

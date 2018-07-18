@@ -3,6 +3,7 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/Forward"/>
 <use   name="SimGeneral/HepPDTRecord"/>
+<use   name="IOMC/RandomEngine"/>
 <use   name="hector"/>
 <use   name="hepmc"/>
 <use   name="clhep"/>

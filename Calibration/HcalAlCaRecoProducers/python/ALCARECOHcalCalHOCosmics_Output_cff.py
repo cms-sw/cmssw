@@ -9,6 +9,7 @@ OutALCARECOHcalCalHOCosmics_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         #'keep HOCalibVariabless_*_*_*'
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep HOCalibVariabless_hoCalibCosmicsProducer_*_*')
 )
 

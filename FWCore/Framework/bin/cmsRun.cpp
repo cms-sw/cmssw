@@ -11,6 +11,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -133,7 +134,7 @@ int main(int argc, char* argv[]) {
   //NOTE: with new version of TBB (44_20160316oss) we can only construct 1 tbb::task_scheduler_init per job
   // else we get a crash. So for now we can't have any services use tasks in their constructors.
   bool setNThreadsOnCommandLine = false;
-  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
   std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
@@ -254,7 +255,7 @@ int main(int argc, char* argv[]) {
       }
       if(not tsiPtr) {
         //If we haven't initialized TBB yet, do it here
-        tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+        tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads);
       }
 
       if (!vm.count(kParameterSetOpt)) {

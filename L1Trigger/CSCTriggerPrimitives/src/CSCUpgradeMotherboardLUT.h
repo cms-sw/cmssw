@@ -15,15 +15,20 @@ class CSCGEMMotherboardLUT
   CSCGEMMotherboardLUT();
   virtual ~CSCGEMMotherboardLUT();
 
+  // map of GEM pad number to CSC halfstrip number
   virtual std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const=0;
+  // map of CSC halfstrip number to GEM pad number
   virtual std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const=0;
+  // map of CSC wiregroup to GEM rols
   std::vector<std::pair<int,int> > get_csc_wg_to_gem_roll(Parity par, int layer=1) const;
   // map the GEM roll to the wire-group in the middle of that roll
   std::vector<int> get_gem_roll_to_csc_wg(Parity par, int layer=1) const;
 
  protected:
 
+  // maps the edges of the CSC wire group to eta for odd numbered chambers
   std::vector<std::vector<double> > lut_wg_eta_odd;
+  // maps the edges of the CSC wire group to eta for even numbered chambers
   std::vector<std::vector<double> > lut_wg_eta_even;
   // LUT with bending angles of the GEM-CSC high efficiency patterns (98%)
   // 1st index: pt value = {3,5,7,10,15,20,30,40}
@@ -71,16 +76,19 @@ class CSCGEMMotherboardLUTME11 : public CSCGEMMotherboardLUT
   std::vector<std::vector<double> > lut_wg_vs_hs_me1ag;
   std::vector<std::vector<double> > lut_wg_vs_hs_me1b;
 
-  // map of pad to HS
+  // map of GEM pad to CSC HS for ME1a chambers
   std::vector<int> gem_pad_to_csc_hs_me1a_odd;
   std::vector<int> gem_pad_to_csc_hs_me1a_even;
 
+  // map of GEM pad to CSC HS for ME1b chambers
   std::vector<int> gem_pad_to_csc_hs_me1b_odd;
   std::vector<int> gem_pad_to_csc_hs_me1b_even;
 
+  // map of CSC HS to GEM pad for ME1a chambers
   std::vector<std::pair<int,int> > csc_hs_to_gem_pad_me1a_odd;
   std::vector<std::pair<int,int> > csc_hs_to_gem_pad_me1a_even;
 
+  // map of CSC HS to GEM pad for ME1b chambers
   std::vector<std::pair<int,int> > csc_hs_to_gem_pad_me1b_odd;
   std::vector<std::pair<int,int> > csc_hs_to_gem_pad_me1b_even;
 };
@@ -95,61 +103,13 @@ class CSCGEMMotherboardLUTME21 : public CSCGEMMotherboardLUT
   std::vector<int> get_gem_pad_to_csc_hs(Parity par, enum CSCPart) const override;
   std::vector<std::pair<int,int> > get_csc_hs_to_gem_pad(Parity par, enum CSCPart) const override;
 
-  // map of pad to HS
+  // map of GEM pad to CSC HS
   std::vector<int> gem_pad_to_csc_hs_odd;
   std::vector<int> gem_pad_to_csc_hs_even;
 
+  // map of CSC HS to GEM pad
   std::vector<std::pair<int,int> > csc_hs_to_gem_pad_odd;
   std::vector<std::pair<int,int> > csc_hs_to_gem_pad_even;
-};
-
-class CSCRPCMotherboardLUT
-{
-public:
-
-  CSCRPCMotherboardLUT();
-  virtual ~CSCRPCMotherboardLUT();
-
-  std::vector<std::vector<double> > get_lut_wg_eta(Parity par) const;
-  std::vector<std::pair<double,double> > get_rpc_roll_eta_limits(Parity par) const;
-  std::vector<int> get_rpc_strip_to_csc_hs(Parity par) const;
-  std::vector<std::pair<int,int> > get_csc_hs_to_rpc_strip(Parity par) const;
-  std::vector<int> get_csc_wg_to_rpc_roll(Parity par) const;
-
- protected:
-  // map of wg to eta roll
-  std::vector<std::vector<double> > lut_wg_eta_odd;
-  std::vector<std::vector<double> > lut_wg_eta_even;
-
-  // map of roll N to min and max eta
-  std::vector<std::pair<double,double> > rpc_roll_eta_limits_odd;
-  std::vector<std::pair<double,double> > rpc_roll_eta_limits_even;
-
-  // map of strip to HS
-  std::vector<int> rpc_strip_to_csc_hs_odd;
-  std::vector<int> rpc_strip_to_csc_hs_even;
-
-  std::vector<std::pair<int,int> > csc_hs_to_rpc_strip_odd;
-  std::vector<std::pair<int,int> > csc_hs_to_rpc_strip_even;
-
-  std::vector<int> csc_wg_to_rpc_roll_odd;
-  std::vector<int> csc_wg_to_rpc_roll_even;
-};
-
-class CSCRPCMotherboardLUTME31 : public CSCRPCMotherboardLUT
-{
- public:
-
-  CSCRPCMotherboardLUTME31();
-  ~CSCRPCMotherboardLUTME31() override {}
-};
-
-class CSCRPCMotherboardLUTME41 : public CSCRPCMotherboardLUT
-{
- public:
-
-  CSCRPCMotherboardLUTME41();
-  ~CSCRPCMotherboardLUTME41() override {}
 };
 
 #endif

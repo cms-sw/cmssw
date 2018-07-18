@@ -34,6 +34,8 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/JetID.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -69,12 +71,15 @@ private:
   void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
   void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr); 
   void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
+  void doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr); 
   void doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet);
   void doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetBE);
 
   void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
+  void doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet, edm::Handle<reco::MuonCollection>);
 
-  bool jetId(const reco::PFJet& jet);
+  bool pfJetID(const reco::PFJet& jet);
+  bool caloJetID(const reco::CaloJet& jet);
 
 public:
   L1Analysis::L1AnalysisRecoJetDataFormat*              jet_data;
@@ -90,14 +95,16 @@ private:
 
   // EDM input tags
   edm::EDGetTokenT<reco::PFJetCollection>     pfJetToken_;
-  //  edm::EDGetTokenT<reco::CaloJetCollection>     caloJetToken_;
-  //  edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIdToken_;
-  edm::EDGetTokenT<reco::JetCorrector>        jecToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>     caloJetToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIDToken_;
+  edm::EDGetTokenT<reco::JetCorrector>        pfJECToken_;
+  edm::EDGetTokenT<reco::JetCorrector>        caloJECToken_;
 
   edm::EDGetTokenT<reco::PFMETCollection>     pfMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection>   caloMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection>   caloMetBEToken_;
 
+  edm::EDGetTokenT<reco::MuonCollection>      muonToken_;
   
   // debug stuff
   bool pfJetsMissing_;
@@ -107,31 +114,42 @@ private:
   unsigned int maxJet_;
   unsigned int maxVtx_;
   unsigned int maxTrk_;
-
-  bool pfMetMissing_;
+  
   bool pfJetCorrMissing_;
+  bool caloJetCorrMissing_;
+  bool caloJetsMissing_;
+  bool caloJetIDMissing_;
+  bool pfMetMissing_;
   bool caloMetMissing_;
   bool caloMetBEMissing_;
-
+  
+  bool muonsMissing_;
 };
 
 
 L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   pfJetsMissing_(false),
-  pfMetMissing_(false),
   pfJetCorrMissing_(false),
+  caloJetCorrMissing_(false),
+  caloJetsMissing_(false),
+  caloJetIDMissing_(false),
+  pfMetMissing_(false),
   caloMetMissing_(false),
-  caloMetBEMissing_(false)
+  caloMetBEMissing_(false),
+  muonsMissing_(false)
 {
   
-  //  caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
+  caloJetToken_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter("caloJetToken",edm::InputTag("ak4CaloJets")));
   pfJetToken_ = consumes<reco::PFJetCollection>(iConfig.getUntrackedParameter("pfJetToken",edm::InputTag("ak4PFJetsCHS")));
-  //  caloJetIdToken_ = consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("jetIdToken",edm::InputTag("ak4JetID")));
-  jecToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("jecToken",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")));
+  caloJetIDToken_ = consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("caloJetIDToken",edm::InputTag("ak4JetID")));
+  pfJECToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("pfJECToken",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")));
+  caloJECToken_ = consumes<reco::JetCorrector>(iConfig.getUntrackedParameter<edm::InputTag>("caloJECToken",edm::InputTag("ak4CaloL1FastL2L3ResidualCorrector")));
 
   pfMetToken_ = consumes<reco::PFMETCollection>(iConfig.getUntrackedParameter("pfMetToken",edm::InputTag("pfMetT1")));
   caloMetToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetToken",edm::InputTag("caloMet")));
   caloMetBEToken_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter("caloMetBEToken",edm::InputTag("caloMetBE")));
+
+  muonToken_ = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter("muonToken",edm::InputTag("muons")));
 
   jetptThreshold_ = iConfig.getParameter<double>      ("jetptThreshold");
   jetetaMax_       = iConfig.getParameter<double>      ("jetetaMax");
@@ -172,22 +190,34 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByToken(pfJetToken_, pfJets);
 
+  // get calo jets
+  edm::Handle<reco::CaloJetCollection> caloJets;
+  iEvent.getByToken(caloJetToken_, caloJets);
+  
   //get sums
   edm::Handle<reco::PFMETCollection> pfMet;
   iEvent.getByToken(pfMetToken_, pfMet);
   
   // get jet ID
-  //  edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
-  //iEvent.getByLabel(jetIdTag_,jetsID);
+  edm::Handle<edm::ValueMap<reco::JetID> > jetsID;
+  iEvent.getByToken(caloJetIDToken_,jetsID);
 
   edm::Handle<reco::JetCorrector> pfJetCorr;
-  iEvent.getByToken(jecToken_, pfJetCorr);
-
+  iEvent.getByToken(pfJECToken_, pfJetCorr);
+  
+  edm::Handle<reco::JetCorrector> caloJetCorr;
+  iEvent.getByToken(caloJECToken_, caloJetCorr);
+  
   edm::Handle<reco::CaloMETCollection> caloMet;
   iEvent.getByToken(caloMetToken_, caloMet);
 
   edm::Handle<reco::CaloMETCollection> caloMetBE;
   iEvent.getByToken(caloMetBEToken_, caloMetBE);
+
+  // get muons
+  edm::Handle<reco::MuonCollection> muons;
+  iEvent.getByToken(muonToken_, muons);
+
 
   if (pfJets.isValid()) {
 
@@ -207,16 +237,53 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
  
   }
   else {
-    if (!pfJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "Jet Corrector not found.  Branch will not be filled" << std::endl;}
+    if (!pfJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "PF Jet Corrector not found.  Branch will not be filled" << std::endl;}
     pfJetCorrMissing_ = true;
   }
  
-  if (pfMet.isValid()) {
- 
-    doPFMet(pfMet);
-
+  if (caloJets.isValid()) {
+    
+    jet_data->nCaloJets=0;
+    
+    doCaloJets(caloJets);
+    
   }
   else {
+    if (!caloJetsMissing_) {edm::LogWarning("MissingProduct") << "Calo Jets not found.  Branch will not be filled" << std::endl;}
+    caloJetsMissing_ = true;
+  }
+
+  if (caloJetCorr.isValid()) {
+ 
+    doCaloJetCorr(caloJets,caloJetCorr);
+ 
+  }
+  else {
+    if (!caloJetCorrMissing_)  {edm::LogWarning("MissingProduct") << "Calo Jet Corrector not found.  Branch will not be filled" << std::endl;}
+    caloJetCorrMissing_ = true;
+  } 
+
+  if (!jetsID.isValid()){
+    
+    if (!caloJetIDMissing_) {edm::LogWarning("MissingProduct") << "Calo Jet ID not found.  Branch will not be filled" << std::endl;}
+    caloJetIDMissing_ = true;
+  }
+  
+  if (pfMet.isValid()) {
+    
+    doPFMet(pfMet);
+
+    if (muons.isValid()) {
+      
+      doPFMetNoMu(pfMet,muons);
+      
+    }
+    else {
+      if (!muonsMissing_) {edm::LogWarning("MissingProduct") << "Muons not found.  PFMetNoMu branch will not be filled" << std::endl;}
+      muonsMissing_ = true;
+    }
+  }
+  else{
     if (!pfMetMissing_) {edm::LogWarning("MissingProduct") << "PFMet not found.  Branch will not be filled" << std::endl;}
     pfMetMissing_ = true;
   }
@@ -249,16 +316,17 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
 void
 L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets) {
 
-
   for( auto it=caloJets->begin();
-       it!=caloJets->end() && jet_data->nJets < maxJet_;
+       it!=caloJets->end() && jet_data->nCaloJets < maxJet_;
        ++it) {
     
-    jet_data->et.push_back(it->et());
-    jet_data->eta.push_back(it->eta());
-    jet_data->phi.push_back(it->phi());
-    jet_data->e.push_back(it->energy());
-    jet_data->isPF.push_back(false);
+    if(!caloJetIDMissing_)
+      if(!caloJetID(*it)) continue;
+    
+    jet_data->caloEt.push_back(it->et());
+    jet_data->caloEta.push_back(it->eta());
+    jet_data->caloPhi.push_back(it->phi());
+    jet_data->caloE.push_back(it->energy());
     
     jet_data->eEMF.push_back(it->emEnergyFraction());
     jet_data->eEmEB.push_back(it->emEnergyInEB());
@@ -271,8 +339,9 @@ L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets)
     jet_data->eMaxEcalTow.push_back(it->maxEInEmTowers());
     jet_data->eMaxHcalTow.push_back(it->maxEInHadTowers());
     jet_data->towerArea.push_back(it->towersArea());
-
-    jet_data->nJets++;
+    jet_data->n60.push_back(it->n60());
+    
+    jet_data->nCaloJets++;
 
   }
 
@@ -287,11 +356,14 @@ L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
   for( auto it=pfJets->begin();
        it!=pfJets->end() && jet_data->nJets < maxJet_;
        ++it) {
+
+    if(!pfJetID(*it)) continue;
+    
+
     jet_data->et.push_back(it->et());
     jet_data->eta.push_back(it->eta());
     jet_data->phi.push_back(it->phi());
     jet_data->e.push_back(it->energy());
-    jet_data->isPF.push_back(true);
 
     jet_data->chef.push_back(it->chargedHadronEnergyFraction());
     jet_data->nhef.push_back(it->neutralHadronEnergyFraction());
@@ -355,34 +427,41 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
 
   }
 
-  TVector2 *tv2 = new TVector2(mHx,mHy);
-  met_data->mHt	   = tv2->Mod();
-  met_data->mHtPhi = tv2->Phi();
+  TVector2 tv2 = TVector2(mHx,mHy);
+  met_data->mHt	   = tv2.Mod();
+  met_data->mHtPhi = tv2.Phi();
 
-  // std::vector< std::pair<float,float> > corrJetEtsAndCorrs;
+
+}
+
+
+
+
+void
+L1JetRecoTreeProducer::doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr) {
+
+ 
+  float caloCorrFactor = 1.;
+  unsigned int nCaloJets = 0;
   
-  // //get jet correction and fill corrected jet ets and corrections
-  // for( auto it=pfJets->begin(); it!=pfJets->end(); ++it) 
-  //   {
-  //     float corr = pfJetCorr.product()->correction(*it);
-  //     std::pair<float,float> corrJetEtAndCorr(corr*it->et(),corr);
-  //     corrJetEtsAndCorrs.push_back(corrJetEtAndCorr);
-  //   }
+  met_data->caloHt     = 0;
 
-  // // sort corrected jet ets and correction factors 
-  // // by corrected jet et
-  // std::sort(corrJetEtsAndCorrs.rbegin(),corrJetEtsAndCorrs.rend());
+  for( auto it=caloJets->begin();
+       it!=caloJets->end() && nCaloJets < maxJet_;
+       ++it) {
+
+    caloCorrFactor = caloJetCorr.product()->correction(*it);
   
-  // //fill jet data array with sorted jet ets and corr factors
-  // std::vector<std::pair<float,float> >::iterator it;
-  // unsigned int nJets = 0;
-    
-  // for(it = corrJetEtsAndCorrs.begin(); it != corrJetEtsAndCorrs.end() && nJets < maxJet_; ++it){
-  //   jet_data->etCorr.push_back(it->first);
-  //   jet_data->corrFactor.push_back(it->second);
-  //   nJets++
-  // }
+    jet_data->caloEtCorr.push_back(it->et()*caloCorrFactor);
+    jet_data->caloCorrFactor.push_back(caloCorrFactor);
 
+    nCaloJets++;
+
+    if (it->pt()*caloCorrFactor > jetptThreshold_ && fabs(it->eta())<jetetaMax_) {
+      met_data->caloHt  += it->pt()*caloCorrFactor;
+    }
+
+  }
 }
 
 void
@@ -398,6 +477,42 @@ L1JetRecoTreeProducer::doPFMet(edm::Handle<reco::PFMETCollection> pfMet) {
   met_data->metPy   = theMet.py();
 
 }
+
+void
+L1JetRecoTreeProducer::doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet, edm::Handle<reco::MuonCollection> muons) {
+
+  const reco::PFMETCollection *metCol = pfMet.product();
+  const reco::PFMET theMet = metCol->front();
+  reco::PFMET thePFMetNoMu = metCol->front();
+
+  double pfMetNoMuPx = theMet.px();
+  double pfMetNoMuPy = theMet.py();
+
+  double muPx(0.), muPy(0.);
+
+  for( auto it=muons->begin();
+       it!=muons->end(); ++it) {
+    if(it->isPFMuon()){
+      muPx += it->px();
+      muPy += it->py();
+    }
+  }
+
+  pfMetNoMuPx += muPx;
+  pfMetNoMuPy += muPy;
+
+  math::XYZTLorentzVector pfMetNoMuP4(pfMetNoMuPx,pfMetNoMuPy,0,hypot(pfMetNoMuPx,pfMetNoMuPy));
+
+
+  thePFMetNoMu.setP4(pfMetNoMuP4);
+
+  met_data->pfMetNoMu     = thePFMetNoMu.et();
+  met_data->pfMetNoMuPhi  = thePFMetNoMu.phi();
+  met_data->pfMetNoMuPx   = thePFMetNoMu.px();
+  met_data->pfMetNoMuPy   = thePFMetNoMu.py();
+
+}
+
 
 void
 L1JetRecoTreeProducer::doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet) {
@@ -424,18 +539,22 @@ L1JetRecoTreeProducer::doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetB
 }
 
 bool
-L1JetRecoTreeProducer::jetId(const reco::PFJet& jet) {
+L1JetRecoTreeProducer::pfJetID(const reco::PFJet& jet) {
 
   bool tmp = true;
-
-  tmp &= jet.neutralHadronEnergyFraction() < 0.9 ;
-  tmp &= jet.neutralEmEnergyFraction() < 0.9 ;
-  tmp &= (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1 ;
-  tmp &= jet.muonEnergyFraction() < 0.8 ;
-  if (fabs(jet.eta()) < 2.4) {
+  if (fabs(jet.eta()) < 2.7) {
+    tmp &= jet.neutralHadronEnergyFraction() < 0.9 ;
+    tmp &= jet.neutralEmEnergyFraction() < 0.9 ;
+    tmp &= (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1 ;
+    tmp &= jet.muonEnergyFraction() < 0.8 ;
     tmp &= jet.chargedHadronEnergyFraction() > 0.0 ;
     tmp &= jet.chargedMultiplicity() > 0 ;
     tmp &= jet.chargedEmEnergyFraction() < 0.9 ;
+  }
+  if (fabs(jet.eta()) > 2.7 && fabs(jet.eta()) < 3.0){
+    tmp &= jet.neutralEmEnergyFraction() > 0.01 ;
+    tmp &= jet.neutralHadronEnergyFraction() < 0.98 ;
+    tmp &= jet.neutralMultiplicity() > 2 ;
   }
   if (fabs(jet.eta()) > 3.0) {
     tmp &= jet.neutralEmEnergyFraction() < 0.9 ;
@@ -443,8 +562,18 @@ L1JetRecoTreeProducer::jetId(const reco::PFJet& jet) {
   }
 
   // our custom selection
-  tmp &= jet.muonMultiplicity() == 0;
-  tmp &= jet.electronMultiplicity() == 0;
+  //tmp &= jet.muonMultiplicity() == 0;
+  //tmp &= jet.electronMultiplicity() == 0;
+
+  return tmp;
+
+}
+
+bool
+L1JetRecoTreeProducer::caloJetID(const reco::CaloJet& jet) {
+
+  bool tmp = true;
+
 
   return tmp;
 

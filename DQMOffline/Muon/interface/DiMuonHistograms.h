@@ -83,6 +83,10 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::vector<MonitorElement*> MediumMediumMuon;
   std::vector<MonitorElement*> TightTightMuon;
   std::vector<MonitorElement*> SoftSoftMuon;
+  std::vector<MonitorElement*> LooseLooseMuonBadFrac;
+  std::vector<MonitorElement*> MediumMediumMuonBadFrac;
+  std::vector<MonitorElement*> TightTightMuonBadFrac;
+  std::vector<MonitorElement*> SoftSoftMuonBadFrac;
   
   MonitorElement* test; // my test
 

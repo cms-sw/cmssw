@@ -98,7 +98,6 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
 {
   private:
     /// Data members
-    std::shared_ptr< TTClusterAlgorithm< T > > _theAlgo;    
 
   public:
     /// Constructor
@@ -111,13 +110,12 @@ class ES_TTClusterAlgorithm_neighbor : public edm::ESProducer
     ~ES_TTClusterAlgorithm_neighbor() override{}
 
     /// Implement the producer
-    std::shared_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
+    std::unique_ptr< TTClusterAlgorithm< T > > produce( const TTClusterAlgorithmRecord & record )
     { 
       TTClusterAlgorithm< T >* TTClusterAlgo =
         new TTClusterAlgorithm_neighbor< T >( );
 
-      _theAlgo = std::shared_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTClusterAlgorithm< T > >( TTClusterAlgo );
     }
 
 }; /// Close class

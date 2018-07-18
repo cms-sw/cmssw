@@ -5,7 +5,6 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -41,7 +40,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
-	digiToken_ = consumes<edm::DetSetVector<SiStripDigi>> (  conf.getParameter<edm::InputTag>("ADCDigi_src") );
+  digiToken_       = consumes<edm::DetSetVector<SiStripDigi>> (  conf.getParameter<edm::InputTag>("ADCDigi_src") );
   clusterToken_    = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
   trackToken_      = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
 
@@ -64,7 +63,6 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 SiStripMonitorTrack::~SiStripMonitorTrack() {
   if (dcsStatus_) delete dcsStatus_;
   if (genTriggerEventFlag_) delete genTriggerEventFlag_;
-
 }
 
 //------------------------------------------------------------------------
@@ -83,11 +81,14 @@ void SiStripMonitorTrack::dqmBeginRun(const edm::Run& run, const edm::EventSetup
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & es)
 {
-  //Retrieve tracker topology from geometry
+  // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-  book(ibooker , tTopo);
+  
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  es.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  
+  book(ibooker, tTopoHandle.product(), tkDetMapHandle.product());
 }
 
 // ------------ method called to produce the data  ------------
@@ -124,7 +125,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   std::map<std::string, MonitorElement*>::iterator iME;
   std::map<std::string, LayerMEs>::iterator        iLayerME;
 
-  fillControlViewHistos(e,es);
+  if (!(topFolderName_.find("IsolatedBunches") != std::string::npos)) { fillControlViewHistos(e,es); }
 
   if (Trend_On_) {
  // for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin(), iterEnd=SubDetMEsMaps.end();
@@ -150,28 +151,27 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 }
 
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopology* tTopo)
+void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology* tTopo, const TkDetMap* tkDetMap)
 {
 
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.setSiStripFolderName(topFolderName_);
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
-    tkhisto_StoNCorrOnTrack = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_StoNCorrOnTrack",         0.0,true);
-    tkhisto_NumOnTrack      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
-    tkhisto_NumOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
-    tkhisto_ClChPerCMfromTrack  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
-    tkhisto_NumMissingHits      = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberMissingHits",0.0,true);
-    tkhisto_NumberInactiveHits  = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberInactiveHits",0.0,true);
-    tkhisto_NumberValidHits     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NumberValidHits",0.0,true);
-    tkhisto_NoiseOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
-    tkhisto_NoiseOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
-    tkhisto_ClusterWidthOnTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
-    tkhisto_ClusterWidthOffTrack     = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ClusterWidthOffTrack",0.0,true);
-
+    tkhisto_StoNCorrOnTrack      = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_StoNCorrOnTrack",         0.0,true);
+    tkhisto_NumOnTrack           = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberOfOnTrackCluster",  0.0,true);
+    tkhisto_NumOffTrack          = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberOfOfffTrackCluster",0.0,true);
+    tkhisto_ClChPerCMfromTrack   = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_ChargePerCMfromTrack",0.0,true);
+    tkhisto_NumMissingHits       = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberMissingHits",0.0,true,true);
+    tkhisto_NumberInactiveHits   = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberInactiveHits",0.0,true,true);
+    tkhisto_NumberValidHits      = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NumberValidHits",0.0,true,true);
+    tkhisto_NoiseOnTrack         = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NoiseOnTrack",0.0,true);
+    tkhisto_NoiseOffTrack        = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_NoiseOffTrack",0.0,true);
+    tkhisto_ClusterWidthOnTrack  = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_ClusterWidthOnTrack",0.0,true);
+    tkhisto_ClusterWidthOffTrack = std::make_unique<TkHistoMap>(tkDetMap, topFolderName_, "TkHMap_ClusterWidthOffTrack",0.0,true);
   }
   if (clchCMoriginTkHmap_On_)
-    tkhisto_ClChPerCMfromOrigin = new TkHistoMap(ibooker , topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
+    tkhisto_ClChPerCMfromOrigin = std::make_unique<TkHistoMap>(tkDetMap,  topFolderName_, "TkHMap_ChargePerCMfromOrigin",0.0,true);
   //******** TkHistoMaps
 
   std::vector<uint32_t> vdetId_;
@@ -263,9 +263,9 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
         std::string ring_id = hidmanager.getSubdetid(detid, tTopo, true);
         std::map<std::string, RingMEs>::iterator iRingME  = RingMEsMap.find(ring_id);
         if(iRingME==RingMEsMap.end()){
-	  std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
-	  folder_organizer.setLayerFolder(detid, tTopo, det_ring_pair.second, true);
-	  bookRingMEs(ibooker , detid, ring_id);
+          std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
+          folder_organizer.setLayerFolder(detid, tTopo, det_ring_pair.second, true);
+          bookRingMEs(ibooker , detid, ring_id);
         }
       }
 
@@ -277,95 +277,93 @@ void SiStripMonitorTrack::book(DQMStore::IBooker & ibooker , const TrackerTopolo
       }
     }//end loop on detectors detid
   }
-
-
+  
   //book control view plots
-  ibooker.setCurrentFolder(topFolderName_+"/ControlView/");
+  if (!(topFolderName_.find("IsolatedBunches") != std::string::npos)) {
+    
+    ibooker.setCurrentFolder(topFolderName_+"/ControlView/");
 
-  ClusterStoNCorr_OnTrack_TIBTID =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TIBTID->setAxisTitle("S/N",1);
-
-  ClusterStoNCorr_OnTrack_TOB =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TOB","TOB [FECCrate=4] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TOB->setAxisTitle("S/N",1);
-
-  ClusterStoNCorr_OnTrack_TECM =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TECM","TECM [FECCrate=3] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TECM->setAxisTitle("S/N",1);
-
-  ClusterStoNCorr_OnTrack_TECP =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TECP","TECP [FECCrate=2] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TECP->setAxisTitle("S/N",1);
-
-
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
-
-ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
-  ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5)\
-  ;
- ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
- ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
-
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
-
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
-
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
-
-  //----------------------------------------
-  // for conting the number of clusters, for the mean S/N calculation
-   //book control view plots
-
-  ClusterCount_OnTrack_FECCratevsFECSlot =
-    ibooker.book2D("ClusterCount_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
-
-ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID =
-  ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5)\
-  ;
- ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
- ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
-
-  ClusterCount_OnTrack_FECSlotVsFECRing_TOB =
-    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
-
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECM =
-    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
-
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECP =
-    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
-
-
-
-
+    ClusterStoNCorr_OnTrack_TIBTID =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TIBTID->setAxisTitle("S/N",1);
+    
+    ClusterStoNCorr_OnTrack_TOB =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TOB","TOB [FECCrate=4] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TOB->setAxisTitle("S/N",1);
+    
+    ClusterStoNCorr_OnTrack_TECM =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TECM","TECM [FECCrate=3] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TECM->setAxisTitle("S/N",1);
+    
+    ClusterStoNCorr_OnTrack_TECP =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TECP","TECP [FECCrate=2] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TECP->setAxisTitle("S/N",1);
+    
+    
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5) \
+      ;
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+    
+    //----------------------------------------
+    // for conting the number of clusters, for the mean S/N calculation
+    //book control view plots
+    
+    ClusterCount_OnTrack_FECCratevsFECSlot =
+      ibooker.book2D("ClusterCount_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5) \
+      ;
+    ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TOB =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECM =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECP =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+  }
 }
 
 //--------------------------------------------------------------------------------
@@ -387,11 +385,9 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker & ibooker , const uint32_
     // Cluster Charge
     theModMEs.ClusterCharge=bookME1D(ibooker , "TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterCharge,id);
-
     // Cluster Charge Raw (no gain )
     theModMEs.ClusterChargeRaw=bookME1D(ibooker , "TH1ClusterChargeRaw", hidmanager.createHistoId("ClusterChargeRaw_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterChargeRaw,id);
-
     // Cluster Charge Corrected
     theModMEs.ClusterChargeCorr=bookME1D(ibooker , "TH1ClusterChargeCorr", hidmanager.createHistoId("ClusterChargeCorr_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterChargeCorr,id);
@@ -660,7 +656,7 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0,xmaximum, 1);
   }
-
+  
   theSubDetMEs.nClustersOffTrack->getTH1()->StatOverflows(kTRUE);
 
   // Cluster Gain
@@ -806,7 +802,7 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker & ibooker , c
 
 //------------------------------------------------------------------------------------------
 void SiStripMonitorTrack::trajectoryStudy(
-  const reco::Track &                   track,
+  const reco::Track&                    track,
   const edm::DetSetVector<SiStripDigi>& digilist,
   const edm::Event&                     ev,
   const edm::EventSetup&                es,
@@ -824,11 +820,11 @@ void SiStripMonitorTrack::trajectoryStudy(
       uint32_t thedetid=ttrh->rawId();
       if ( SiStripDetId(thedetid).subDetector() >=3 &&  SiStripDetId(thedetid).subDetector() <=6) { //TIB/TID + TOB + TEC only
         if ( (ttrh->getType()==1) )
-          tkhisto_NumMissingHits->add(thedetid,1.);
+          tkhisto_NumMissingHits->fill(thedetid,1.);
         if ( (ttrh->getType()==2) )
-          tkhisto_NumberInactiveHits->add(thedetid,1.);
+          tkhisto_NumberInactiveHits->fill(thedetid,1.);
         if ( (ttrh->getType()==0) )
-          tkhisto_NumberValidHits->add(thedetid,1.);
+          tkhisto_NumberValidHits->fill(thedetid,1.);
       }
     }
 
@@ -901,15 +897,15 @@ void SiStripMonitorTrack::trajectoryStudy(
 }
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::hitStudy(
-  const edm::Event&                     ev,
-  const edm::EventSetup&                es,
-  const edm::DetSetVector<SiStripDigi>& digilist,
-	const ProjectedSiStripRecHit2D*       projhit,
-	const SiStripMatchedRecHit2D*         matchedhit,
-	const SiStripRecHit2D*                hit2D,
-	const SiStripRecHit1D*                hit1D,
-	      LocalVector                     localMomentum,
-	const bool                            track_ok
+  const edm::Event&                      ev,
+  const edm::EventSetup&                 es,
+  const edm::DetSetVector<SiStripDigi>&  digilist,
+  const ProjectedSiStripRecHit2D*        projhit,
+  const SiStripMatchedRecHit2D*          matchedhit,
+  const SiStripRecHit2D*                 hit2D,
+  const SiStripRecHit1D*                 hit1D,
+        LocalVector                      localMomentum,
+  const bool                             track_ok
 ) {
   LocalVector statedirection;
   if(matchedhit){     // type=Matched;
@@ -981,7 +977,7 @@ using namespace reco;
   // track input
   edm::Handle<reco::TrackCollection > trackCollectionHandle;
   ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
-
+  
   // digis list
   edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
   ev.getByToken( digiToken_, digihandle );
@@ -1122,13 +1118,13 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(
 }
 //------------------------------------------------------------------------
 template <class T> void SiStripMonitorTrack::RecHitInfo(
-  const T*                              tkrecHit,
-  LocalVector                           LV,
-  const edm::DetSetVector<SiStripDigi>& digilist,
-  const edm::Event&                     ev,
-  const edm::EventSetup&                es,
-  bool                                  track_ok)
-  {
+    const T*                              tkrecHit,
+          LocalVector                     LV,
+    const edm::DetSetVector<SiStripDigi>& digilist,
+    const edm::Event&                     ev,
+    const edm::EventSetup&                es,
+    bool track_ok
+ ){
 
     if(!tkrecHit->isValid()){
       LogTrace("SiStripMonitorTrack") <<"\t\t Invalid Hit " << std::endl;
@@ -1159,13 +1155,15 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(
     es.get<SiStripQualityRcd>().get("",qualityHandle);
     const SiStripQuality* stripQuality = qualityHandle.product();
 
+    // edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
+    // ev.getByToken( digiToken_, digihandle );
+
     //Get SiStripCluster from SiStripRecHit
     if ( tkrecHit != nullptr ){
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
       SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,detid);
 
       const Det2MEs MEs = findMEs(tTopo, detid);
-      //      if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs, tTopo,stripGain,stripQuality,*digihandle))
       if (clusterInfos(&SiStripClusterInfo_,detid, OnTrack, track_ok, LV, MEs, tTopo,stripGain,stripQuality,digilist))
       {
         vPSiStripCluster.insert(SiStripCluster_);
@@ -1196,6 +1194,7 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
 
   edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
   ev.getByToken( digiToken_, digihandle );
+  
   edm::DetSetVector<SiStripDigi> dummy;
   auto& digilist = digihandle.isValid()? *(digihandle.product()) : dummy;
 
@@ -1217,7 +1216,6 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
 
         if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end()) {
           SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
-	  //          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality,*digihandle);
           clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality,digilist);
         }
       }
@@ -1259,12 +1257,11 @@ SiStripMonitorTrack::Det2MEs SiStripMonitorTrack::findMEs(const TrackerTopology*
   return me;
 }
 
-
 bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm::EventSetup& es) {
 
   edm::Handle<reco::TrackCollection > tracks;
   ev.getByToken(trackToken_, tracks);//takes the track collection
-
+  
   //check that tracks are valid
   if( !tracks.isValid() )     return false;
 
@@ -1375,7 +1372,6 @@ void SiStripMonitorTrack::return2DME(MonitorElement* input1, MonitorElement* inp
 
 }
 
-
 //------------------------------------------------------------------------
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 bool SiStripMonitorTrack::clusterInfos(
@@ -1425,9 +1421,7 @@ bool SiStripMonitorTrack::clusterInfos(
     if( stripQuality->IsStripBad(stripQuality->getRange(detid), cluster->firstStrip()+chidx)) { continue ; }
     clustergain += stripGain->getStripGain(cluster->firstStrip()+chidx, stripGain->getRange(detid));
     // Getting raw adc charge from digi collections
-    if( digi_it == digilist.end() ){
-      continue;
-    } // skipping if not found
+    if( digi_it == digilist.end() ){ continue; } // skipping if not found
     for( const auto& digiobj : *digi_it ){
       if( digiobj.strip() == cluster->firstStrip() + chidx  ){
         chargeraw += digiobj.adc();
@@ -1515,8 +1509,7 @@ bool SiStripMonitorTrack::clusterInfos(
       tkhisto_ClusterWidthOnTrack->fill(adet,cluster->width());
       if(noise > 0.0) tkhisto_NoiseOnTrack->fill(adet,cluster->noiseRescaledByGain()*cosRZ);
     }
-
-
+    
     // Module plots filled only for onTrack Clusters
     if(Mod_On_){
       SiStripHistoId hidmanager2;
@@ -1563,9 +1556,9 @@ bool SiStripMonitorTrack::clusterInfos(
         }
       }
       if (TkHistoMap_On_) {
-	uint32_t adet=cluster->detId();
-	tkhisto_ClusterWidthOffTrack->fill(adet,cluster->width());
-	if(noise > 0.0) tkhisto_NoiseOffTrack->fill(adet,cluster->noiseRescaledByGain());
+        uint32_t adet=cluster->detId();
+        tkhisto_ClusterWidthOffTrack->fill(adet,cluster->width());
+        if(noise > 0.0) tkhisto_NoiseOffTrack->fill(adet,cluster->noiseRescaledByGain());
       }
     }
     // layerMEs
@@ -1598,16 +1591,5 @@ bool SiStripMonitorTrack::clusterInfos(
     }
   }
   return true;
-  delete tkhisto_StoNCorrOnTrack;
-  delete tkhisto_NumOnTrack;
-  delete tkhisto_NumOffTrack;
-  delete tkhisto_ClChPerCMfromTrack;
-  delete tkhisto_NumMissingHits;
-  delete tkhisto_NumberInactiveHits;
-  delete tkhisto_NumberValidHits;
-  delete tkhisto_NoiseOnTrack;
-  delete tkhisto_NoiseOffTrack;
-  delete tkhisto_ClusterWidthOnTrack;
-  delete tkhisto_ClusterWidthOffTrack;
 }
 //--------------------------------------------------------------------------------

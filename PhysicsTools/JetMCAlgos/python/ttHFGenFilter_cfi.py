@@ -8,7 +8,7 @@ ttHFGenFilter = cms.EDFilter("ttHFGenFilter",
     genBHadPlusMothers = cms.InputTag("matchGenBHadron", "genBHadPlusMothers"),
     genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
     genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
-
-    OnlyHardProcessBHadrons = cms.bool(False)
+    OnlyHardProcessBHadrons = cms.bool(False),
+    taggingMode               = cms.bool(False)
 
 )

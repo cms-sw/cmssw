@@ -30,8 +30,9 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
   public:
   
   SiStripQualityDQM(const edm::EventSetup & eSetup,
-                      edm::ParameterSet const& hPSet,
-                      edm::ParameterSet const& fPSet);
+                    edm::RunNumber_t iRun,
+                    edm::ParameterSet const& hPSet,
+                    edm::ParameterSet const& fPSet);
   
   ~SiStripQualityDQM() override;
   

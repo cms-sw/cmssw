@@ -11,6 +11,7 @@ OutALCARECOHcalCalPedestal_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_TriggerResults_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep HBHERecHitsSorted_hbherecoPedestal_*_*',
         'keep HORecHitsSorted_horecoPedestal_*_*',
         'keep HFRecHitsSorted_hfrecoPedestal_*_*')

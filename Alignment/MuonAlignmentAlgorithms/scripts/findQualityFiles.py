@@ -416,8 +416,7 @@ for line in ff:
 ff.close()
 #os.system('rm /tmp/runs_and_files_full_of_pink_bunnies')
 
-uniq_list_of_runs = list(set(list_of_runs))
-uniq_list_of_runs.sort()
+uniq_list_of_runs = sorted(set(list_of_runs))
 
 print "### list of runs with good B field and quality in the dataset: ###"
 print uniq_list_of_runs

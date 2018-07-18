@@ -102,8 +102,10 @@ class CommissioningHistograms {
   
   void remove( std::string pattern = "" ); 
   
+
   void save( std::string& filename,
-	     uint32_t run_number = 0 ); 
+             uint32_t run_number = 0,
+             std::string partitionName = "");
 
   // ---------- protected methods ----------
   
@@ -113,7 +115,7 @@ class CommissioningHistograms {
   
   inline DQMStore* const bei() const;
   
-  inline Analyses& data();
+  Analyses& data(bool getMaskedData = false);
   
   inline Factory* const factory();
   
@@ -154,6 +156,17 @@ class CommissioningHistograms {
   FedToFecMap mapping_;
 
   edm::ParameterSet pset_;
+
+  bool mask_;
+  std::vector<uint32_t> fedMaskVector_; 
+  std::vector<uint32_t> fecMaskVector_; 
+  std::vector<uint32_t> ringVector_; 
+  std::vector<uint32_t> ccuVector_; 
+  std::vector<uint32_t> i2cChanVector_; 
+  std::vector<uint32_t> lldChanVector_; 
+  
+  Analyses dataWithMask_;      
+  bool dataWithMaskCached_;    
   
 };
 
@@ -161,7 +174,6 @@ class CommissioningHistograms {
 
 const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
 DQMStore* const CommissioningHistograms::bei() const { return bei_; }
-CommissioningHistograms::Analyses& CommissioningHistograms::data() { return data_; }
 CommissioningHistograms::Factory* const CommissioningHistograms::factory() { return factory_.get(); }
 const CommissioningHistograms::HistosMap& CommissioningHistograms::histos() const { return histos_; }
 const CommissioningHistograms::FedToFecMap& CommissioningHistograms::mapping() const { return mapping_; }

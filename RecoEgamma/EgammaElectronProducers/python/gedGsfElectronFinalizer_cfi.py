@@ -10,6 +10,8 @@ gedGsfElectrons = cms.EDProducer("GEDGsfElectronFinalizer",
                                        pfSumChargedHadronPt = cms.InputTag('egmElectronIsolationCITK:h+-DR030-'),
                                        pfSumPhotonEt = cms.InputTag('egmElectronIsolationCITK:gamma-DR030-'),
                                        pfSumNeutralHadronEt= cms.InputTag('egmElectronIsolationCITK:h0-DR030-'),
-                                       pfSumPUPt = cms.InputTag('egmElectronIsolationPileUpCITK:h+-DR030-')),
+                                       pfSumPUPt = cms.InputTag('egmElectronIsolationPileUpCITK:h+-DR030-'),
+                                       pfSumEcalClusterEt = cms.InputTag("electronEcalPFClusterIsolationProducer"),
+                                       pfSumHcalClusterEt = cms.InputTag("electronHcalPFClusterIsolationProducer")),
                                  outputCollectionLabel = cms.string("")
                                  )

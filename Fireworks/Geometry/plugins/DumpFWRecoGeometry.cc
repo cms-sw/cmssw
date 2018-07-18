@@ -30,6 +30,7 @@ private:
 DumpFWRecoGeometry::DumpFWRecoGeometry( const edm::ParameterSet& config )
   : m_level( config.getUntrackedParameter<int>( "level", 1 )),
     m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "unknown" )),
+    
     m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsRecoGeo.root" ))
 {}
 
@@ -85,6 +86,7 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   file.WriteTObject(new TNamed("PRODUCER_VERSION", "1")); // version 2 changes pixel parameters
 
 
+  file.WriteTObject(new TNamed("TrackerTopology",  geoh.product()->trackerTopologyXML));
 
   file.Close();
 }

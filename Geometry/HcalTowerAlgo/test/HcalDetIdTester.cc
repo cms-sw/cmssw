@@ -64,7 +64,7 @@ HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
 	for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
 	  HcalDetId detId ((HcalSubdetector) det, eta, phi, depth);
 	  if (topology.valid(detId)) {
-	    const CaloCellGeometry * cell = caloGeom->getGeometry((DetId)(detId));
+	    auto cell = caloGeom->getGeometry((DetId)(detId));
 	    if (cell) {
 	      std::cout << detId << " " << cell->getPosition() << std::endl;
 	    } else {

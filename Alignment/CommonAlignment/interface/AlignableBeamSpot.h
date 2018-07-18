@@ -32,7 +32,7 @@ public:
   void addComponent( Alignable* component ) override {}
 
   /// Return vector of direct components
-  Alignables components() const override { return std::vector<Alignable*>(); }
+  const Alignables& components() const override { return emptyComponents_; }
 
   /// Provide all components, subcomponents etc. (cf. description in base class)
   void recursiveComponents(Alignables &result) const override { }
@@ -96,6 +96,7 @@ public:
 
 private:
 
+  static const Alignables emptyComponents_;
   AlignmentPositionError* theAlignmentPositionError;
 
   bool theInitializedFlag;

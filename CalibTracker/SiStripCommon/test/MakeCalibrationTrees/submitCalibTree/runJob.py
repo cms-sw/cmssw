@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
 import os
 import sys
 import commands
 import time
 import optparse
-import Config
+from . import Config
 
 usage = 'usage: %prog [options]'
 parser = optparse.OptionParser(usage)
@@ -57,24 +58,20 @@ cmd+=' conditionGT="'+conf.globalTag+'"'
 cmd+=' inputCollection="'+conf.collection+'"'
 if files[-1]==",":files=files[:-1]
 cmd+=' inputFiles="'+files.replace("'","")+'"'
+cmd+=' runNumber=%s'%run
 print cmd
 
-os.system('sed -e "s@OUTFILE@'+PWDDIR+'/'+outfile+'@g" -e "s@GLOBALTAG@'+conf.globalTag+'@g" -e "s@FILES@'+files+'@g" '+conf.RUNDIR+'/produceCalibrationTree_template_cfg.py > ConfigFile_'+str(run)+'_'+str(firstFile)+'_cfg.py')
-print 'cmsRun ConfigFile_'+str(run)+'_'+str(firstFile)+'_cfg.py'
 exit_code = os.system(conf.initEnv+cmd)
 stageOutCode = True
 if(int(exit_code)!=0):
    print("Job Failed with ExitCode "+str(exit_code))
    os.system('echo %i %i %i >> FailledRun%s.txt' % (run, firstFile, firstFile+nFiles,'_Aag' if AAG else ''))
 else:
-   #print initEnv+'eos rm ' + conf.CASTORDIR+'/'+outfile
-   #os.system(initEnv+'eos rm ' + conf.CASTORDIR+'/'+outfile) #make sure that the file is overwritten
    FileSizeInKBytes =commands.getstatusoutput('ls  -lth --block-size=1024 '+PWDDIR+'/'+outfile)[1].split()[4]
-   if(int(FileSizeInKBytes)>10 and stageout): 
+   if(int(FileSizeInKBytes)>10 and stageout):
       print("Preparing for stageout of " + PWDDIR+'/'+outfile + ' on ' + conf.CASTORDIR+'/'+outfile + '.  The file size is %d KB' % int(FileSizeInKBytes))
       cpCmd = "eos cp %s/%s "%(PWDDIR,outfile)
       cpCmd+= "root://eoscms.cern.ch//eos/cms/%s/%s"%(conf.CASTORDIR,outfile)
-#      print 'cmsStageOut -f '+PWDDIR+'/'+outfile + ' ' + conf.CASTORDIR+'/'+outfile
       stageOutCode&= not os.system(conf.initEnv+" "+cpCmd)
       print conf.eosLs + conf.CASTORDIR+'/'+outfile
       stageOutCode&= not os.system("eos ls " + conf.CASTORDIR+'/'+outfile)

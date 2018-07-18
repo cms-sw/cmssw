@@ -29,13 +29,12 @@ def mail(STDruns,AAGruns,cleanUpLog):
          runs[run[0]]=1
       else:
          runs[run[0]]+=1
-   
-   runsOrdered = runs.keys()
-   runsOrdered.sort()
+
+   runsOrdered = sorted(runs.keys())
 
    for r in runsOrdered:
       message+=" Run %s (%s jobs) \n"%(r,runs[r])
-   message +="\n\n"      
+   message +="\n\n"
    message += "Aag bunch : processed the following runs :\n"
    runs={}
    for run in AAGruns:
@@ -75,10 +74,10 @@ if config.integrity:
    print cleanUpMessage
    with open("LastRun.txt","r") as lastRun:
       for line in lastRun:
-         line = line.replace("\n","")
+         line = line.replace("\n","").replace("\r","")
          if line.isdigit():
             config.firstRun = int(line)
-   
+
    with open("FailledRun.txt","r") as failled:
       for line in failled:
          line = line.split()
@@ -91,15 +90,15 @@ if config.integrity:
    if not debug:
       with open("FailledRun.txt","w") as failled:
          failled.write("")
-   
+
    lastRunProcessed = submitCalibTree.launchJobs.generateJobs(config)
-   
+
    print config.launchedRuns
-   
+
    if not debug:
       with open("LastRun.txt","w") as lastRun:
          lastRun.write(str(lastRunProcessed))
-      
+
 
 
 print "Processing AAG"
@@ -110,11 +109,11 @@ configAAG = submitCalibTree.Config.configuration(True,debug=debug)
 if configAAG.integrity:
    with open("LastRun_Aag.txt","r") as lastRun:
       for line in lastRun:
-         line = line.replace("\n","")
+         line = line.replace("\n","").replace("\r","")
          if line.isdigit():
             configAAG.firstRun = int(line)
-   
-   
+
+
    with open("FailledRun_Aag.txt","r") as failled:
       for line in failled:
          line = line.split()
@@ -127,9 +126,9 @@ if configAAG.integrity:
    if not debug:
       with open("FailledRun_Aag.txt","w") as failled:
          failled.write("")
-   
+
    lastRunProcessed = submitCalibTree.launchJobs.generateJobs(configAAG)
-   
+
    if not debug:
       with open("LastRun_Aag.txt","w") as lastRun:
          lastRun.write(str(lastRunProcessed))

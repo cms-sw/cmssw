@@ -13,8 +13,12 @@
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 
+#include "L1Trigger/L1TMuonEndCap/interface/MicroGMTConverter.h"
+
 namespace l1t {
   namespace stage2 {
+    namespace L1TMuonEndCap = ::emtf;  // use alias 'L1TMuonEndCap' for the namespace 'emtf' used in L1Trigger/L1TMuonEndCap
+
     class EMTFCollections : public UnpackerCollections {
     public:
     EMTFCollections(edm::Event& e) :

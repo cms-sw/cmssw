@@ -7,22 +7,23 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class EcalBarrelTopology final : public CaloSubdetectorTopology
 {
 
- public:
+public:
   /// create a new Topology
-  EcalBarrelTopology(): theGeom_(nullptr) {};
+ EcalBarrelTopology(): theGeom_(nullptr) {};
 
   /// virtual destructor
   ~EcalBarrelTopology() override { }  
 
   /// create a new Topology from geometry
-  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) : theGeom_(std::move(theGeom))
-    {
-    }
+  EcalBarrelTopology(edm::ESHandle<CaloGeometry> theGeom) {
+    theGeom_ = theGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+  }
   
  /// move the Topology north (increment iphi)
   DetId  goNorth(const DetId& id) const override {
@@ -105,7 +106,7 @@ class EcalBarrelTopology final : public CaloSubdetectorTopology
   /// move the nagivator to smaller iphi (wraps around the barrel)
   EBDetId decrementIphi(const EBDetId&) const;
 
-  edm::ESHandle<CaloGeometry> theGeom_;
+  const CaloSubdetectorGeometry* theGeom_;
 };
 
 #endif

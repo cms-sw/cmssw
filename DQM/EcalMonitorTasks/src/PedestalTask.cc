@@ -1,4 +1,4 @@
-#include "../interface/PedestalTask.h"
+#include "DQM/EcalMonitorTasks/interface/PedestalTask.h"
 
 #include <iomanip>
 

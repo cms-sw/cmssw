@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
 
-jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4CaloJets"),
@@ -163,12 +164,20 @@ jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(
 
 jetDQMAnalyzerAk8PFPUPPICleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
     jetsrc = cms.InputTag("slimmedJetsAK8"),
+    #for PUPPI jets: TIGHT
+    JetIDQuality               = cms.string("TIGHT"),
+    #for PUPPI jets: WINTER17PUPPI from 9_4_X onwards
+    JetIDVersion               = cms.string("WINTER17PUPPI"),
     fillsubstructure =cms.bool(True),
 )
 
 jetDQMAnalyzerAk4PFCHSPuppiCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
     JetType = cms.string('miniaod'),#pf, calo or jpt
     jetsrc = cms.InputTag("slimmedJetsPuppi"),
+    #for PUPPI jets: TIGHT
+    JetIDQuality               = cms.string("TIGHT"),
+    #for PUPPI jets: WINTER17PUPPI from 9_4_X onwards
+    JetIDVersion               = cms.string("WINTER17PUPPI"),
 )
 
 jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
@@ -189,7 +198,7 @@ jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     )
 )
 
-jetDQMAnalyzerAkPU3Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
+jetDQMAnalyzerAkPU3Calo = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('calo'),
                                          UEAlgo = cms.untracked.string('Pu'),
                                          OutputFile = cms.untracked.string(''),
@@ -207,7 +216,7 @@ jetDQMAnalyzerAkPU3Calo = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
 jetDQMAnalyzerAkPU4Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu4CaloJets"))
 jetDQMAnalyzerAkPU5Calo = jetDQMAnalyzerAkPU3Calo.clone(src = cms.InputTag("akPu5CaloJets"))
  
-jetDQMAnalyzerAkPU3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
+jetDQMAnalyzerAkPU3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                        JetType = cms.untracked.string('pf'),
                                        UEAlgo = cms.untracked.string('Pu'),
                                        OutputFile = cms.untracked.string(''),
@@ -224,7 +233,7 @@ jetDQMAnalyzerAkPU3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
 jetDQMAnalyzerAkPU4PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu4PFJets"))
 jetDQMAnalyzerAkPU5PF = jetDQMAnalyzerAkPU3PF.clone(src = cms.InputTag("akPu5PFJets"))
 
-jetDQMAnalyzerAkCs3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons",
+jetDQMAnalyzerAkCs3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons',
                                          JetType = cms.untracked.string('pf'),
                                          UEAlgo = cms.untracked.string('Cs'),
                                          OutputFile = cms.untracked.string(''),
@@ -247,7 +256,7 @@ jetDQMAnalyzerAkCs4PF=jetDQMAnalyzerAkCs3PF.clone(src = cms.InputTag("akCs4PFJet
 )
 
 
-jetDQMMatchAkPu3CaloAkPu3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
+jetDQMMatchAkPu3CaloAkPu3PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu3CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu3PFJets"),
                                              Jet1     = cms.untracked.string("PuCalo"),
@@ -257,7 +266,7 @@ jetDQMMatchAkPu3CaloAkPu3PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              recoJetEtaCut = cms.double(2.0)
 )
 
-jetDQMMatchAkPu4CaloAkPu4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
+jetDQMMatchAkPu4CaloAkPu4PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu4CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu4PFJets"),
                                              Jet1     = cms.untracked.string("PuCalo"),
@@ -267,7 +276,7 @@ jetDQMMatchAkPu4CaloAkPu4PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
                                              recoJetEtaCut = cms.double(2.0)
 )
 
-jetDQMMatchAkPu5CaloAkPu5PF = cms.EDAnalyzer("JetAnalyzer_HeavyIons_matching",
+jetDQMMatchAkPu5CaloAkPu5PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              src_Jet1 = cms.InputTag("akPu5CaloJets"),
                                              src_Jet2 = cms.InputTag("akPu5PFJets"),
                                              Jet1     = cms.untracked.string("PuCalo"),

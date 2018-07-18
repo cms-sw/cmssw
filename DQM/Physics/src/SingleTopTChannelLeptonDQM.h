@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 /**
    \class   MonitorEnsemble TopDQMHelpers.h
@@ -140,7 +141,8 @@ class MonitorEnsemble {
   /// electronId label
   //    edm::InputTag electronId_;
   edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
-
+	// Jet corrector
+  edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
   /// electronId pattern we expect the following pattern:
   ///  0: fails
   ///  1: passes electron ID only
@@ -158,17 +160,18 @@ class MonitorEnsemble {
   /// extra isolation criterion on electron
   std::string elecIso_;
   /// extra selection on electrons
-  std::string elecSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
+	edm::InputTag rhoTag;
 
   /// extra selection on primary vertices; meant to investigate the pile-up
   /// effect
   std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
 
   /// extra isolation criterion on muon
-  std::string muonIso_;
-  /// extra selection on muons
-  std::string muonSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonIso_;
 
+  /// extra selection on muons
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
   /// jetCorrector
   std::string jetCorrector_;
   /// jetID as an extra selection type
@@ -176,7 +179,8 @@ class MonitorEnsemble {
 
   /// extra jetID selection on calo jets
   std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
-
+	std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetlooseSelection_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelection_;
   /// extra selection on jets (here given as std::string as it depends
   /// on the the jet type, which selections are valid and which not)
   std::string jetSelect_;
@@ -185,11 +189,11 @@ class MonitorEnsemble {
   bool includeBTag_;
   /// btag discriminator labels
   //    edm::InputTag btagEff_, btagPur_, btagVtx_, btagCombVtx_;
-  edm::EDGetTokenT<reco::JetTagCollection> btagEff_, btagPur_, btagVtx_,
+  edm::EDGetTokenT<reco::JetTagCollection> btagEff_, btagPur_, btagVtx_, btagCSV_,
       btagCombVtx_;
 
   /// btag working points
-  double btagEffWP_, btagPurWP_, btagVtxWP_, btagCombVtxWP_;
+  double btagEffWP_, btagPurWP_, btagVtxWP_, btagCSVWP_, btagCombVtxWP_;
   /// mass window upper and lower edge
   double lowerEdge_, upperEdge_;
 
@@ -205,9 +209,6 @@ class MonitorEnsemble {
   std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonSelect;
   std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonIso;
   
-  std::unique_ptr<StringCutObjectSelector<reco::CaloJet> > jetSelectCalo;
-  std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelectPF;
-  std::unique_ptr<StringCutObjectSelector<reco::Jet> > jetSelectJet;
   
   std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecSelect;
   std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecIso;

@@ -143,39 +143,55 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                         cms.InputTag("interestingEcalDetIdOOTPFES"),
                                       ),
                                       interestingDetIdsNotToClean = cms.VInputTag(
-                                          cms.InputTag("interestingGedEgammaIsoESDetId"),
-                                          cms.InputTag("interestingOotEgammaIsoESDetId"),
+                                        cms.InputTag("interestingGedEgammaIsoESDetId"),
+                                        cms.InputTag("interestingOotEgammaIsoESDetId"),
                                       )
 )
 
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
-reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
-                                          interestingEcalDetIdEE*
-                                          interestingEcalDetIdPFEB*interestingEcalDetIdPFEE*interestingEcalDetIdPFES*
-                                          interestingEcalDetIdOOTPFEB*interestingEcalDetIdOOTPFEE*interestingEcalDetIdOOTPFES*
-                                          interestingEcalDetIdRefinedEB*interestingEcalDetIdRefinedEE*interestingEcalDetIdRefinedES*
-                                          interestingTrackEcalDetIds*
-                                          reducedEcalRecHitsEB*
-                                          reducedEcalRecHitsEE*
-                                          seldigis*
+reducedEcalRecHitsTask = cms.Task(interestingEcalDetIdEB,interestingEcalDetIdEBU,
+                                          interestingEcalDetIdEE,
+                                          interestingEcalDetIdPFEB,interestingEcalDetIdPFEE,interestingEcalDetIdPFES,
+                                          interestingEcalDetIdOOTPFEB,interestingEcalDetIdOOTPFEE,interestingEcalDetIdOOTPFES,
+                                          interestingEcalDetIdRefinedEB,interestingEcalDetIdRefinedEE,interestingEcalDetIdRefinedES,
+                                          interestingTrackEcalDetIds,
+                                          reducedEcalRecHitsEB,
+                                          reducedEcalRecHitsEE,
+                                          seldigisTask,
                                           reducedEcalRecHitsES)
+reducedEcalRecHitsSequence = cms.Sequence(reducedEcalRecHitsTask)
                                           
-reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
-                                          interestingEcalDetIdEE*
-                                          reducedEcalRecHitsEB*
-                                          reducedEcalRecHitsEE*
-                                          seldigis)                                          
+reducedEcalRecHitsSequenceEcalOnlyTask = cms.Task(interestingEcalDetIdEB,interestingEcalDetIdEBU,
+                                          interestingEcalDetIdEE,
+                                          reducedEcalRecHitsEB,
+                                          reducedEcalRecHitsEE,
+                                          seldigisTask)
+reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(reducedEcalRecHitsSequenceEcalOnlyTask)
 
-
-_phase2_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copy()
-_phase2_reducedEcalRecHitsSequence.remove(reducedEcalRecHitsES)
+_phase2_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copy()
+_phase2_reducedEcalRecHitsTask.remove(reducedEcalRecHitsES)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith( reducedEcalRecHitsSequence , _phase2_reducedEcalRecHitsSequence )
+phase2_common.toReplaceWith( reducedEcalRecHitsTask , _phase2_reducedEcalRecHitsTask )
 
 
-_fastSim_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copyAndExclude([seldigis])
+_fastSim_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copyAndExclude(seldigisTask)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith( reducedEcalRecHitsSequence, _fastSim_reducedEcalRecHitsSequence)
+fastSim.toReplaceWith( reducedEcalRecHitsTask, _fastSim_reducedEcalRecHitsTask)
+
+_pp_on_AA_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copy()
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEB)
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEE)
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFES)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(reducedEcalRecHitsTask, _pp_on_AA_reducedEcalRecHitsTask)
+
+pp_on_AA_2018.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEB")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsEB.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEB")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFEE")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsEE.interestingDetIdCollections, func = lambda list: list.remove(cms.InputTag("interestingOotGamIsoDetIdEE")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingEcalDetIdOOTPFES")) )
+pp_on_AA_2018.toModify(reducedEcalRecHitsES.interestingDetIdsNotToClean, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoESDetId")) )

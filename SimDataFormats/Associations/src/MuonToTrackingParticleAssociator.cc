@@ -19,18 +19,7 @@
 //
 // constructors and destructor
 //
-reco::MuonToTrackingParticleAssociator::MuonToTrackingParticleAssociator():
-  impl_(nullptr)
-{
-}
-
 reco::MuonToTrackingParticleAssociator::MuonToTrackingParticleAssociator(std::unique_ptr<MuonToTrackingParticleAssociatorBaseImpl> iImpl):
-  impl_(iImpl.release())
+  impl_(std::move(iImpl))
 {
 }
-
-reco::MuonToTrackingParticleAssociator::~MuonToTrackingParticleAssociator()
-{
-  delete impl_;
-}
-

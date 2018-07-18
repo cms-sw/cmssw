@@ -18,7 +18,7 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,8 +39,11 @@
 //
 // class decleration
 //
+namespace rlec {
+  struct Cache {};
+}
 
-class RunLumiEventChecker : public edm::EDAnalyzer {
+class RunLumiEventChecker : public edm::global::EDAnalyzer<edm::RunCache<rlec::Cache>, edm::LuminosityBlockCache<rlec::Cache>> {
 public:
    explicit RunLumiEventChecker(edm::ParameterSet const&);
    ~RunLumiEventChecker() override;
@@ -48,21 +51,21 @@ public:
 
 private:
    void beginJob() override;
-   void analyze(edm::Event const&, edm::EventSetup const&) override;
+   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
    void endJob() override;
 
-   void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
-   void endRun(edm::Run const& run, edm::EventSetup const& es) override;
+   std::shared_ptr<rlec::Cache> globalBeginRun(edm::Run const& run, edm::EventSetup const& es) const override;
+   void globalEndRun(edm::Run const& run, edm::EventSetup const& es) const override;
    
-   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
-   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
+   std::shared_ptr<rlec::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) const override;
+   void globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) const override;
 
-   void check(edm::EventID const& iID, bool isEvent);
+   void check(edm::EventID const& iID, bool isEvent) const;
    
    // ----------member data ---------------------------
    std::vector<edm::EventID> ids_;
-   unsigned int index_;
-   std::map<edm::EventID, unsigned int> seenIDs_;
+   mutable std::atomic<unsigned int> index_;
+   bool unorderedEvents_;
    
 };
 
@@ -79,7 +82,8 @@ private:
 //
 RunLumiEventChecker::RunLumiEventChecker(edm::ParameterSet const& iConfig) :
   ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventSequence")),
-  index_(0)
+  index_(0),
+  unorderedEvents_(iConfig.getUntrackedParameter<bool>("unorderedEvents"))
 {
    //now do what ever initialization is needed
 }
@@ -95,38 +99,47 @@ RunLumiEventChecker::~RunLumiEventChecker() {
 //
 
 void
-RunLumiEventChecker::check(edm::EventID const& iEventID, bool iIsEvent) {
+RunLumiEventChecker::check(edm::EventID const& iEventID, bool iIsEvent) const {
    if(index_ >= ids_.size()) {
       throw cms::Exception("TooManyEvents") << "Was passes " << ids_.size() << " EventIDs but have processed more events than that\n";
    }
-   if(iEventID  != ids_[index_]) {
-      throw cms::Exception("WrongEvent") << "Was expecting event " << ids_[index_] << " but was given " << iEventID << "\n";
+   if(unorderedEvents_) {
+     auto itFound =std::find(ids_.begin(),ids_.end(), iEventID);
+     if(itFound == ids_.end()) {
+       throw cms::Exception("UnexpecedEvent") <<"The event "<<iEventID<<" was not expected.";
+     }
+   } else {
+     if(iEventID  != ids_[index_]) {
+        throw cms::Exception("WrongEvent") << "Was expecting event " << ids_[index_] << " but was given " << iEventID << "\n";
+     }
    }
    ++index_;
 }
 
 // ------------ method called to for each event  ------------
 void
-RunLumiEventChecker::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+RunLumiEventChecker::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
    check(iEvent.id(), true);
 }
 
-void 
-RunLumiEventChecker::beginRun(edm::Run const& run, edm::EventSetup const&) {
-   check(edm::EventID(run.id().run(), 0, 0), false);   
+std::shared_ptr<rlec::Cache>
+RunLumiEventChecker::globalBeginRun(edm::Run const& run, edm::EventSetup const&) const {
+   check(edm::EventID(run.id().run(), 0, 0), false);
+   return std::shared_ptr<rlec::Cache>{};
 }
 void 
-RunLumiEventChecker::endRun(edm::Run const& run, edm::EventSetup const&) {
+RunLumiEventChecker::globalEndRun(edm::Run const& run, edm::EventSetup const&) const {
    check(edm::EventID(run.id().run(), 0, 0), false);   
 }
 
-void 
-RunLumiEventChecker::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+std::shared_ptr<rlec::Cache>
+RunLumiEventChecker::globalBeginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) const {
    check(edm::EventID(lumi.id().run(), lumi.id().luminosityBlock(), 0), false);   
+   return std::shared_ptr<rlec::Cache>{};
 }
 
 void 
-RunLumiEventChecker::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+RunLumiEventChecker::globalEndLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) const {
    check(edm::EventID(lumi.id().run(), lumi.id().luminosityBlock(), 0), false);   
 }
 
@@ -141,7 +154,7 @@ void
 RunLumiEventChecker::endJob() {
    if(index_ != ids_.size()) {
       throw cms::Exception("WrongNumberOfEvents")<<"Saw "<<index_<<" events but was supposed to see "<<ids_.size()<<"\n";
-   }   
+   }
 }
 
 // ------------ method called once each job for validation
@@ -149,6 +162,7 @@ void
 RunLumiEventChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::vector<edm::EventID> >("eventSequence");
+  desc.addUntracked<bool>("unorderedEvents",false);
   descriptions.add("runLumiEventIDChecker", desc);
 }
 

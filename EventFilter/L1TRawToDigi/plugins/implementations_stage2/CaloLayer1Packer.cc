@@ -25,7 +25,7 @@ namespace stage2 {
       load.resize(192, 0u);
 
       auto ctp7_phi = board();
-      uint32_t * ptr = &*load.begin();
+      uint32_t * ptr = load.data();
       UCTCTP7RawData ctp7Data(ptr);
       makeECalTPGs(ctp7_phi, ctp7Data, ecalDigis.product());
       makeHCalTPGs(ctp7_phi, ctp7Data, hcalDigis.product());

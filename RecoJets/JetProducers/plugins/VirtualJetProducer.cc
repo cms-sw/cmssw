@@ -229,7 +229,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 
 		if (voronoiRfact_ <= 0) {
 			fjActiveArea_     = ActiveAreaSpecPtr(new fastjet::GhostedAreaSpec(ghostEtaMax_,activeAreaRepeats_,ghostArea_));
-			fjActiveArea_->set_fj2_placement(true);
+			
 
 			if ( !useExplicitGhosts_ ) {
 				fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area, *fjActiveArea_ ) );
@@ -237,7 +237,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
 				fjAreaDefinition_ = AreaDefinitionPtr( new fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, *fjActiveArea_ ) );
 			}
 		}
-		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(rhoEtaMax_) );
+		fjSelector_ =  SelectorPtr( new fastjet::Selector( fastjet::SelectorAbsRapMax(rhoEtaMax_) ) );
 	} 
 
 	if( ( doFastJetNonUniform_ ) && ( puCenters_.empty() ) ) 
@@ -647,20 +647,14 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
         dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
-      /*
-	const double nemptyjets = clusterSequenceWithArea->n_empty_jets(*fjRangeDef_);
-	if(( nemptyjets  < -15 ) || ( nemptyjets > fjRangeDef_->area()+ 15)) {
-	edm::LogWarning("StrangeNEmtpyJets") << "n_empty_jets is : " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description() << ".";
-	}
-      */
       if (clusterSequenceWithArea ==nullptr ){
 	if (!fjJets_.empty()) {
 	  throw cms::Exception("LogicError")<<"fjClusterSeq is not initialized while inputs are present\n ";
 	}
       } else {
-	clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
+	clusterSequenceWithArea->get_median_rho_and_sigma(*fjSelector_,false,*rho,*sigma,mean_area);
 	if((*rho < 0)|| (edm::isNotFinite(*rho))) {
-	  edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
+	  edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjSelector_) << " with range " << fjSelector_->description()
 				  <<". Setting rho to rezo.";
 	  *rho = 0;
 	}

@@ -31,7 +31,7 @@ namespace l1t {
 							_hit.Subsector(), _hit.Ring(), _hit.CSC_ID() ) );
 
         _hit.SetCSCDetId   ( _hit.CreateCSCDetId() );
-        _hit.SetCSCLCTDigi ( _hit.CreateCSCCorrelatedLCTDigi() );
+        //_hit.SetCSCLCTDigi ( _hit.CreateCSCCorrelatedLCTDigi() );
 	
 	// Station, CSC_ID, Sector, Subsector, and Neighbor filled in
 	// EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFBlockME.cc

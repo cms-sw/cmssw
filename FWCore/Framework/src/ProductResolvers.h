@@ -107,15 +107,16 @@ namespace edm {
 
 
       Resolution resolveProduct_(Principal const& principal,
-                                         bool skipCurrentProcess,
-                                         SharedResourcesAcquirer* sra,
-                                         ModuleCallingContext const* mcc) const override;
-     void prefetchAsync_(WaitingTask* waitTask,
-                                 Principal const& principal,
                                  bool skipCurrentProcess,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
-      void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
+     void prefetchAsync_(WaitingTask* waitTask,
+                         Principal const& principal,
+                         bool skipCurrentProcess,
+                         ServiceToken const& token,
+                         SharedResourcesAcquirer* sra,
+                         ModuleCallingContext const* mcc) const override;
+    void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
 
       void retrieveAndMerge_(Principal const& principal) const override;
 
@@ -133,8 +134,6 @@ namespace edm {
   class ProducedProductResolver : public DataManagingProductResolver {
     public:
       ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
-
-      void resetFailedFromThisProcess() override;
 
     protected:
       void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
@@ -157,6 +156,7 @@ namespace edm {
      void prefetchAsync_(WaitingTask* waitTask,
                                  Principal const& principal,
                                  bool skipCurrentProcess,
+                         ServiceToken const& token,
                                  SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const override;
     bool unscheduledWasNotRun_() const override {return false;}
@@ -185,10 +185,11 @@ namespace edm {
                                          SharedResourcesAcquirer* sra,
                                          ModuleCallingContext const* mcc) const override;
        void prefetchAsync_(WaitingTask* waitTask,
-                                   Principal const& principal,
-                                   bool skipCurrentProcess,
-                                   SharedResourcesAcquirer* sra,
-                                   ModuleCallingContext const* mcc) const override;
+                           Principal const& principal,
+                           bool skipCurrentProcess,
+                           ServiceToken const& token,
+                           SharedResourcesAcquirer* sra,
+                           ModuleCallingContext const* mcc) const override;
       bool unscheduledWasNotRun_() const override {return status() == ProductStatus::ResolveNotRun;}
 
       void resetProductData_(bool deleteEarly) override;
@@ -210,16 +211,17 @@ namespace edm {
 
     private:
       Resolution resolveProduct_(Principal const& principal,
-                                         bool skipCurrentProcess,
-                                         SharedResourcesAcquirer* sra,
-                                         ModuleCallingContext const* mcc) const override {
+                                 bool skipCurrentProcess,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const override {
         return realProduct_.resolveProduct(principal, skipCurrentProcess, sra, mcc);}
        void prefetchAsync_(WaitingTask* waitTask,
-                                   Principal const& principal,
-                                   bool skipCurrentProcess,
-                                   SharedResourcesAcquirer* sra,
-                                   ModuleCallingContext const* mcc) const override {
-        realProduct_.prefetchAsync(waitTask, principal, skipCurrentProcess, sra, mcc);
+                           Principal const& principal,
+                           bool skipCurrentProcess,
+                           ServiceToken const& token,
+                           SharedResourcesAcquirer* sra,
+                           ModuleCallingContext const* mcc) const override {
+        realProduct_.prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
       }
       bool unscheduledWasNotRun_() const override {return realProduct_.unscheduledWasNotRun();}
       bool productUnavailable_() const override {return realProduct_.productUnavailable();}
@@ -259,19 +261,20 @@ namespace edm {
 
   private:
     Resolution resolveProduct_(Principal const& principal,
-                                       bool skipCurrentProcess,
-                                       SharedResourcesAcquirer* sra,
-                                       ModuleCallingContext const* mcc) const override {
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const override {
       skipCurrentProcess = false;
       return realProduct_->resolveProduct(*parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
      void prefetchAsync_(WaitingTask* waitTask,
-                                 Principal const& principal,
-                                 bool skipCurrentProcess,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const* mcc) const override {
+                         Principal const& principal,
+                         bool skipCurrentProcess,
+                         ServiceToken const& token,
+                         SharedResourcesAcquirer* sra,
+                         ModuleCallingContext const* mcc) const override {
       skipCurrentProcess = false;
-      realProduct_->prefetchAsync( waitTask, *parentPrincipal_, skipCurrentProcess, sra, mcc);
+      realProduct_->prefetchAsync( waitTask, *parentPrincipal_, skipCurrentProcess, token, sra, mcc);
     }
     bool unscheduledWasNotRun_() const override {
       if (realProduct_) return realProduct_->unscheduledWasNotRun();
@@ -310,7 +313,7 @@ namespace edm {
     public:
       typedef ProducedProductResolver::ProductStatus ProductStatus;
       NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
-                             std::vector<bool> const& ambiguous);
+                             std::vector<bool> const& ambiguous, bool madeAtEnd);
 
     void connectTo(ProductResolverBase const& iOther, Principal const*) final ;
 
@@ -332,14 +335,15 @@ namespace edm {
     private:
       unsigned int unsetIndexValue() const;
       Resolution resolveProduct_(Principal const& principal,
-                                         bool skipCurrentProcess,
-                                         SharedResourcesAcquirer* sra,
-                                         ModuleCallingContext const* mcc) const override;
+                                 bool skipCurrentProcess,
+                                 SharedResourcesAcquirer* sra,
+                                 ModuleCallingContext const* mcc) const override;
        void prefetchAsync_(WaitingTask* waitTask,
-                                   Principal const& principal,
-                                   bool skipCurrentProcess,
-                                   SharedResourcesAcquirer* sra,
-                                   ModuleCallingContext const* mcc) const override;
+                           Principal const& principal,
+                           bool skipCurrentProcess,
+                           ServiceToken const& token,
+                           SharedResourcesAcquirer* sra,
+                           ModuleCallingContext const* mcc) const override;
       bool unscheduledWasNotRun_() const override;
       bool productUnavailable_() const override;
       bool productWasDeleted_() const override;
@@ -375,7 +379,7 @@ namespace edm {
       mutable std::atomic<unsigned int> lastSkipCurrentCheckIndex_;
       mutable std::atomic<bool> prefetchRequested_;
       mutable std::atomic<bool> skippingPrefetchRequested_;
-      mutable std::atomic<bool> recheckedAtEnd_;
+      const bool madeAtEnd_;
   };
 
   class SingleChoiceNoProcessProductResolver : public ProductResolverBase {
@@ -388,14 +392,15 @@ namespace edm {
 
   private:
     Resolution resolveProduct_(Principal const& principal,
-                                       bool skipCurrentProcess,
-                                       SharedResourcesAcquirer* sra,
-                                       ModuleCallingContext const* mcc) const override;
+                               bool skipCurrentProcess,
+                               SharedResourcesAcquirer* sra,
+                               ModuleCallingContext const* mcc) const override;
      void prefetchAsync_(WaitingTask* waitTask,
-                                 Principal const& principal,
-                                 bool skipCurrentProcess,
-                                 SharedResourcesAcquirer* sra,
-                                 ModuleCallingContext const* mcc) const override;
+                         Principal const& principal,
+                         bool skipCurrentProcess,
+                         ServiceToken const& token,
+                         SharedResourcesAcquirer* sra,
+                         ModuleCallingContext const* mcc) const override;
     bool unscheduledWasNotRun_() const override;
     bool productUnavailable_() const override;
     bool productWasDeleted_() const override;

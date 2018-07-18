@@ -14,6 +14,7 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
   public:
   
   SiStripNoisesDQM(const edm::EventSetup & eSetup,
+                   edm::RunNumber_t iRun,
                    edm::ParameterSet const& hPSet,
                    edm::ParameterSet const& fPSet);
   

@@ -23,7 +23,7 @@ class HFShower {
 
 public:    
 
-  HFShower(std::string & name, const DDCompactView & cpv, 
+  HFShower(const std::string & name, const DDCompactView & cpv, 
 	   edm::ParameterSet const & p, int chk=0);
   virtual ~HFShower();
 
@@ -38,10 +38,10 @@ public:
     G4ThreeVector     position;
   };
 
-  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
-  std::vector<Hit>    getHits(G4Step * aStep, double weight);
-  std::vector<Hit>    getHits(G4Step * aStep, bool forLibrary);
-  std::vector<Hit>    getHits(G4Step * aStep, bool forLibraryProducer, double zoffset);
+  void                initRun(const HcalDDDSimConstants*);
+  std::vector<Hit>    getHits(const G4Step * aStep, double weight);
+  std::vector<Hit>    getHits(const G4Step * aStep, bool forLibrary);
+  std::vector<Hit>    getHits(const G4Step * aStep, bool forLibraryProducer, double zoffset);
 
 
 private:    

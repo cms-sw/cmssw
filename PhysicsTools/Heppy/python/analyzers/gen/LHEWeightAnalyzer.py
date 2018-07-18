@@ -49,7 +49,7 @@ class LHEWeightAnalyzer( Analyzer ):
                     int(w.id)
                     event.LHE_weights.append(w)
                 except ValueError:
-                    if not type(w.id) == str:
+                    if not isinstance(w.id, str):
                         raise RuntimeError('Non int or string type for LHE weight id')
 
                     newweight = WeightsInfo()

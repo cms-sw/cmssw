@@ -27,20 +27,20 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 {
    switch( solid.shape()) 
    {
-      case ddunion:
-      case ddsubtraction:
-      case ddintersection: 
+      case DDSolidShape::ddunion:
+      case DDSolidShape::ddsubtraction:
+      case DDSolidShape::ddintersection: 
       {      
          DDBooleanSolid rs( solid );
-         if( solid.shape() == ddunion ) 
+         if( solid.shape() == DDSolidShape::ddunion ) 
          {
             xos << "<UnionSolid ";
          } 
-         else if( solid.shape() == ddsubtraction ) 
+         else if( solid.shape() == DDSolidShape::ddsubtraction ) 
          {
             xos << "<SubtractionSolid ";
          } 
-         else if( solid.shape() == ddintersection ) 
+         else if( solid.shape() == DDSolidShape::ddintersection ) 
          {
             xos << "<IntersectionSolid ";
          }
@@ -59,34 +59,21 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
             rotName = "gen:ID";
          }
          xos << "<rRotation name=\""  << rs.rotation().toString() << "\"/>" << std::endl;
-         if( solid.shape() == ddunion ) 
+         if( solid.shape() == DDSolidShape::ddunion ) 
          {
             xos << "</UnionSolid>" << std::endl;
          } 
-         else if( solid.shape() == ddsubtraction ) 
+         else if( solid.shape() == DDSolidShape::ddsubtraction ) 
          {
             xos << "</SubtractionSolid>" << std::endl;
          } 
-         else if( solid.shape() == ddintersection ) 
+         else if( solid.shape() == DDSolidShape::ddintersection ) 
          {
             xos << "</IntersectionSolid>" << std::endl;
          }
          break;
       }
-      case ddreflected:
-      { 
-         /*
-          <ReflectionSolid name="trd2mirror">
-          <rSolid name="trd2"/>
-          </ReflectionSolid>
-          */
-         DDReflectionSolid rs(solid);
-         xos << "<ReflectionSolid name=\""  << rs.toString() << "\">"  << std::endl;
-         xos << "<rSolid name=\""  << rs.unreflected().toString() << "\">" << std::endl;
-         xos << "</ReflectionSolid>" << std::endl;
-         break;
-      }
-      case ddbox: 
+      case DDSolidShape::ddbox: 
       {
          //    <Box name="box1" dx="10*cm" dy="10*cm" dz="10*cm"/>
          DDBox rs(solid);
@@ -97,7 +84,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddtubs: 
+      case DDSolidShape::ddtubs: 
       {
          //      <Tubs name="TrackerSupportTubeNomex"         rMin="[SupportTubeR1]+[Tol]" 
          //            rMax="[SupportTubeR2]-[Tol]"           dz="[SupportTubeL]" 
@@ -112,7 +99,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddtrap: 
+      case DDSolidShape::ddtrap: 
       {
          //    <Trapezoid name="UpL_CSC_for_TotemT1_Plane_2_5_7" dz="[PCB_Epoxy_Thick_3P]/2."  alp1="-[Up_Signal_Side_alpL_3P]" alp2="-[Up_Signal_Side_alpL_3P]"  
          //     bl1="[Max_Base_Signal_SideL_3P]/2." tl1="[Up_Min_Base_Signal_SideL_3P]/2." h1="[Up_Height_Signal_SideL_3P]/2."
@@ -133,7 +120,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddcons: 
+      case DDSolidShape::ddcons: 
       {
          DDCons rs(solid);
          xos << "<Cone name=\""  << rs.toString() << "\""
@@ -147,7 +134,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddpolycone_rz: 
+      case DDSolidShape::ddpolycone_rz: 
       {
          DDPolycone rs(solid);
          xos << "<Polycone name=\""  << rs.toString() << "\""
@@ -164,7 +151,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          xos << "</Polycone>" << std::endl;
          break;
       }
-      case ddpolyhedra_rz: 
+      case DDSolidShape::ddpolyhedra_rz: 
       {
          DDPolyhedra rs(solid);
          xos << "<Polyhedra name=\""  << rs.toString() << "\""
@@ -182,7 +169,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          xos << "</Polyhedra>" << std::endl;
          break;
       }
-      case ddpolycone_rrz:
+      case DDSolidShape::ddpolycone_rrz:
       {
          //   <Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg" >
          //    <ZSection z="-[CMSZ1]"  rMin="[Rmin]"  rMax="[CMSR2]" />
@@ -208,7 +195,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          xos << "</Polycone>" << std::endl;
          break;
       }
-      case ddpolyhedra_rrz:
+      case DDSolidShape::ddpolyhedra_rrz:
       {
          DDPolyhedra rs(solid);
          xos << "<Polyhedra name=\""  << rs.toString() << "\""
@@ -228,7 +215,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          xos << "</Polyhedra>" << std::endl;
          break;
       }
-      case ddpseudotrap:
+      case DDSolidShape::ddpseudotrap:
       {
          // <PseudoTrap name="YE3_b" dx1="0.395967*m" dx2="1.86356*m" dy1="0.130*m" dy2="0.130*m" dz="2.73857*m" radius="-1.5300*m" atMinusZ="true"/> 
          DDPseudoTrap rs(solid);
@@ -243,7 +230,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddtrunctubs:
+      case DDSolidShape::ddtrunctubs:
       {
          // <TruncTubs name="trunctubs1" zHalf="50*cm" rMin="20*cm" rMax="40*cm" startPhi="0*deg" deltaPhi="90*deg" cutAtStart="25*cm" cutAtDelta="35*cm"/>
          DDTruncTubs rs(solid);
@@ -259,14 +246,14 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddshapeless:
+      case DDSolidShape::ddshapeless:
       {
          DDShapelessSolid rs(solid);
          xos << "<ShapelessSolid name=\""  << rs.toString() << "\"/>"
          << std::endl;
          break;
       }
-      case ddtorus:
+      case DDSolidShape::ddtorus:
       {
          // <Torus name="torus" innerRadius="7.5*cm" outerRadius="10*cm" torusRadius="30*cm" startPhi="0*deg" deltaPhi="360*deg"/>
          DDTorus rs(solid);
@@ -279,7 +266,20 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
-      case ddcuttubs: 
+      case DDSolidShape::ddellipticaltube:
+      {
+	// <EllipticalTube name="CMSWall"  xSemiAxis="[cavernData:CMSWallEDX]"
+	//                                 ySemiAxis="[cavernData:CMSWallEDY]"
+	//                                 zHeight="[cms:HallZ]"/>
+	DDEllipticalTube rs(solid);
+	xos << "<EllipticalTube name=\"" << rs.toString()  << "\""
+	    << " xSemiAxis=\"" << rs.xSemiAxis() << "*mm\""
+	    << " ySemiAxis=\"" << rs.ySemiAxis() << "*mm\""
+	    << " zHeight=\"" << rs.zHeight() << "*mm\"/>"
+	    << std::endl;
+	break;
+      }
+      case DDSolidShape::ddcuttubs: 
       {
          //      <Tubs name="TrackerSupportTubeNomex"         rMin="[SupportTubeR1]+[Tol]" 
          //            rMax="[SupportTubeR2]-[Tol]"           dz="[SupportTubeL]" 
@@ -303,7 +303,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
 	     << std::endl;
          break;
       }
-      case ddextrudedpolygon:
+      case DDSolidShape::ddextrudedpolygon:
       {
 	 DDExtrudedPolygon rs(solid);
 	 std::vector<double> x = rs.xVec();
@@ -323,9 +323,9 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
       }
          //       return new PSolid( pstrs(solid.toString()), solid.parameters()
          // 			 , solid.shape(), pstrs(""), pstrs(""), pstrs("") );
-      case dd_not_init:
+      case DDSolidShape::dd_not_init:
       default:
-         throw cms::Exception("DDException") << "DDCoreToDDXMLOutput::solid(...) either not inited or no such solid.";
+	throw cms::Exception("DDException") << "DDCoreToDDXMLOutput::solid(...) " << solid.name() << " either not inited or no such solid.";
          break;
    }
 }
@@ -377,7 +377,7 @@ void DDCoreToDDXMLOutput::rotation( const DDRotation& rotation, std::ostream& xo
    std::string rotName=rotation.toString();
    if( rotName == ":" ) 
    {
-      if( rotn != "" ) 
+      if( !rotn.empty() ) 
       {
          rotName = rotn;
          std::cout << "about to try to make a new DDRotation... should fail!" << std::endl;

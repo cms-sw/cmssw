@@ -76,8 +76,8 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
   //xt std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,const BoundPlane& plane);
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const PixelGeomDetUnit* pixelDet,const BoundPlane& plane);

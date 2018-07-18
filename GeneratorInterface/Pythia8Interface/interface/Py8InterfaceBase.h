@@ -12,6 +12,7 @@
 
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
+#include <Dire/Dire.h>
 
 class EvtGenDecays;
 

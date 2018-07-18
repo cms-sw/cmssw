@@ -24,32 +24,32 @@
 //------------------------------------------------------------------------
 
 #include "EvtGenBase/EvtPatches.hh"
-#include <stdlib.h>
+#include <cstdlib>
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtGenKine.hh"
 #include "EvtGenBase/EvtPDL.hh"
 #include "EvtGenBase/EvtReport.hh"
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtLb2plnuLCSR.hh"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGenUserModels/EvtLb2plnuLCSR.hh"
 #include "EvtGenBase/EvtConst.hh"
 #include "EvtGenBase/EvtIdSet.hh"
 #include <string>
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtLb2plnuLCSRFF.hh"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGenUserModels/EvtLb2plnuLCSRFF.hh"
 
 using namespace std;
 #ifdef D0
 #undef D0
 #endif
 EvtLb2plnuLCSR::EvtLb2plnuLCSR():
-  ffmodel(0)
-  ,calcamp(0)
+  ffmodel(nullptr)
+  ,calcamp(nullptr)
 {}
 
 
 EvtLb2plnuLCSR::~EvtLb2plnuLCSR() {
   delete ffmodel;
-  ffmodel=0;
+  ffmodel=nullptr;
   delete calcamp;
-  calcamp=0;
+  calcamp=nullptr;
 }
 
 std::string EvtLb2plnuLCSR::getName(){

@@ -5,6 +5,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
 
 #include <bitset>
 #include <vector>
@@ -32,7 +33,7 @@ class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   static const float  lsb_;
 
-  HcaluLUTTPGCoder(const HcalTopology* topo);
+  HcaluLUTTPGCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay);
   ~HcaluLUTTPGCoder() override;
   void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const override;
   void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const override;
@@ -44,12 +45,15 @@ public:
   float getLUTGain(HcalDetId id) const override;
   std::vector<unsigned short> getLinearizationLUT(HcalDetId id) const override;
 
+  double cosh_ieta(int ieta, int depth, HcalSubdetector subdet);
+  void make_cosh_ieta_map(void);
   void update(const HcalDbService& conditions);
   void update(const char* filename, bool appendMSB = false);
   void updateXML(const char* filename);
   void setLUTGenerationMode(bool gen){ LUTGenerationMode_ = gen; };
   void setFGHFthreshold(unsigned int fgthreshold){ FG_HF_threshold_ = fgthreshold; };
   void setMaskBit(int bit){ bitToMask_ = bit; };
+  void setAllLinear(bool linear, double lsb8, double lsb11, double lsb11overlap) { allLinear_ = linear; linearLSB_QIE8_ = lsb8; linearLSB_QIE11_ = lsb11; linearLSB_QIE11Overlap_ = lsb11overlap; };
   void lookupMSB(const HBHEDataFrame& df, std::vector<bool>& msb) const;
   void lookupMSB(const QIE10DataFrame& df, std::vector<bool>& msb) const;
   void lookupMSB(const QIE11DataFrame& df, std::vector<std::bitset<2>>& msb) const;
@@ -79,6 +83,7 @@ private:
   
   // member variables
   const HcalTopology* topo_;
+  const edm::ESHandle<HcalTimeSlew>& delay_;
   bool LUTGenerationMode_;
   unsigned int FG_HF_threshold_;
   int  bitToMask_;
@@ -88,6 +93,12 @@ private:
   std::vector< Lut > inputLUT_;
   std::vector<float> gain_;
   std::vector<float> ped_;
+  std::vector<double> cosh_ieta_;
+  // edge cases not covered by the cosh_ieta_ map
+  double cosh_ieta_28_HE_low_depths_, cosh_ieta_28_HE_high_depths_, cosh_ieta_29_HE_;
+  bool allLinear_;
+  double linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_;
+  std::unique_ptr<HcalPulseContainmentManager> pulseCorr_;
 };
 
 #endif

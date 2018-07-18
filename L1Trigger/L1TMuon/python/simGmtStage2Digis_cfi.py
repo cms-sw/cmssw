@@ -14,7 +14,9 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTowerSums"),
     autoBxRange = cms.bool(True), # if True the output BX range is calculated from the inputs and 'bxMin' and 'bxMax' are ignored
     bxMin = cms.int32(-2),
-    bxMax = cms.int32(2)
+    bxMax = cms.int32(2),
+    autoCancelMode = cms.bool(False), # if True the cancel out methods are configured depending on the FW version number and 'emtfCancelMode' is ignored
+    emtfCancelMode = cms.string("coordinate") # 'tracks' or 'coordinate'
 )
 
 from CondCore.CondDB.CondDB_cfi import CondDB

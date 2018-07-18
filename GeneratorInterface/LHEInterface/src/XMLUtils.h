@@ -43,6 +43,7 @@ class XMLDocument {
 
 	bool parse();
 
+        static std::shared_ptr<void> platformHandle() { return std::make_shared<XercesPlatform>(); }
     private:
 	class XercesPlatform {
 	    public:

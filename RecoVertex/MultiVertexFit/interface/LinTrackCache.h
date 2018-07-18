@@ -12,12 +12,12 @@ class LinTrackCache
 private:
   struct Comparer
   {
-    bool operator() ( const GlobalPoint &, const GlobalPoint & );
+    bool operator() ( const GlobalPoint &, const GlobalPoint & ) const;
   };
 
   struct Vicinity
   {
-    bool operator() ( const GlobalPoint &, const GlobalPoint & );
+    bool operator() ( const GlobalPoint &, const GlobalPoint & ) const;
   };
 
 public:

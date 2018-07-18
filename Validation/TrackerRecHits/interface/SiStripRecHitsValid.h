@@ -128,9 +128,8 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
-  void beginJob(const edm::EventSetup& es);
 
- private: 
+ private:
 
   TotalMEs totalMEs;
 

@@ -31,11 +31,6 @@ private:
   bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& theTime, edm::EventAuxiliary::ExperimentType& eType) override;
   void produce(edm::Event& e) override;
 
-  void beginRun(edm::Run&) override {}
-  void endRun(edm::Run&) override {}
-  void beginLuminosityBlock(edm::LuminosityBlock&) override {}
-  void endLuminosityBlock(edm::LuminosityBlock&) override {}
-
   bool openFile(const std::string& fileName);
 
 

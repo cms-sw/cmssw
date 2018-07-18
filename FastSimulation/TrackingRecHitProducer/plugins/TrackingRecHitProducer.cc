@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -43,7 +42,8 @@ class TrackingRecHitProducer:
     private:
         edm::EDGetTokenT<std::vector<PSimHit>> _simHitToken;
         std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
-        edm::IOVSyncValue _iovSyncValue;
+        unsigned long long _trackerGeometryCacheID = 0;
+        unsigned long long _trackerTopologyCacheID = 0;
         std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
         void setupDetIdPipes(const edm::EventSetup& eventSetup);
 
@@ -116,13 +116,17 @@ void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& ev
 
 void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
 {
-    if (_iovSyncValue!=eventSetup.iovSyncValue())
+    auto const& trackerGeomRec = eventSetup.get<TrackerDigiGeometryRecord>();
+    auto const& trackerTopoRec = eventSetup.get<TrackerTopologyRcd>();
+    if (trackerGeomRec.cacheIdentifier() != _trackerGeometryCacheID or 
+        trackerTopoRec.cacheIdentifier() != _trackerTopologyCacheID )
     {
-        _iovSyncValue=eventSetup.iovSyncValue();
+        _trackerGeometryCacheID = trackerGeomRec.cacheIdentifier();
+        _trackerTopologyCacheID = trackerTopoRec.cacheIdentifier();
         edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
         edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-        eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-        eventSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+        trackerGeomRec.get(trackerGeometryHandle);
+        trackerTopoRec.get(trackerTopologyHandle);
         const TrackerGeometry* trackerGeometry = trackerGeometryHandle.product();
         const TrackerTopology* trackerTopology = trackerTopologyHandle.product();
 

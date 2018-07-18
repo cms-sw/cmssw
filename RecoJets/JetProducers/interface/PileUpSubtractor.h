@@ -76,8 +76,6 @@ class PileUpSubtractor{
   double                nSigmaPU_;                  // number of sigma for pileup
   double                radiusPU_;                  // pileup radius
   ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
-  RangeDefPtr                     fjRangeDef_;      // range definition
-
   CaloGeometry const *  geo_;                       // geometry
   int                   ietamax_;                   // maximum eta in geometry
   int                   ietamin_;                   // minimum eta in geometry

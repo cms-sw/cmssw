@@ -1,8 +1,7 @@
 /*
  *  See header file for a description of this class.
- *
- *  \author S. Bolognesi - INFN Torino
  */
+
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
@@ -15,9 +14,14 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
+
 #include "TH1I.h"
 #include "TFile.h"
 #include "TKey.h"
+#include "TSpectrum.h"
+#include "TF1.h"
 
 using namespace std;
 using namespace edm;
@@ -27,16 +31,18 @@ using namespace edm;
 DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
-  if(debug) 
+  if(debug)
     cout << "[DTT0Calibration]Constructor called!" << endl;
 
   // Get the label to retrieve digis from the event
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
 
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
+
   // The root file which contain the histos per layer
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTT0PerLayer.root");
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
- 
+
   theCalibWheel =  pset.getUntrackedParameter<string>("calibWheel", "All"); //FIXME amke a vector of integer instead of a string
   if(theCalibWheel != "All") {
     stringstream linestr;
@@ -69,22 +75,26 @@ DTT0Calibration::DTT0Calibration(const edm::ParameterSet& pset) {
     }
   }
 
-  hT0SectorHisto=0;
+  hT0SectorHisto=nullptr;
 
   nevents=0;
   eventsForLayerT0 = pset.getParameter<unsigned int>("eventsForLayerT0");
   eventsForWireT0 = pset.getParameter<unsigned int>("eventsForWireT0");
-  rejectDigiFromPeak = pset.getParameter<unsigned int>("rejectDigiFromPeak");
   tpPeakWidth = pset.getParameter<double>("tpPeakWidth");
-  //useReferenceWireInLayer_ = true;
-  correctByChamberMean_ = pset.getParameter<bool>("correctByChamberMean");
+  tpPeakWidthPerLayer = pset.getParameter<double>("tpPeakWidthPerLayer");
+  timeBoxWidth = pset.getParameter<unsigned int>("timeBoxWidth");
+  rejectDigiFromPeak = pset.getParameter<unsigned int>("rejectDigiFromPeak");
+
+  spectrum = new TSpectrum(5);
+  retryForLayerT0 = 0;
 }
 
 // Destructor
 DTT0Calibration::~DTT0Calibration(){
-  if(debug) 
+  if(debug)
     cout << "[DTT0Calibration]Destructor called!" << endl;
 
+  delete spectrum;
   theFile->Close();
 }
 
@@ -96,12 +106,16 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
   nevents++;
 
   // Get the digis from the event
-  Handle<DTDigiCollection> digis; 
+  Handle<DTDigiCollection> digis;
   event.getByLabel(digiLabel, digis);
 
   // Get the DT Geometry
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
+  // Get ttrig DB
+  edm::ESHandle<DTTtrig> tTrigMap;
+  eventSetup.get<DTTtrigRcd>().get(dbLabel,tTrigMap);
+  
   // Iterate through all digi collections ordered by LayerId   
   DTDigiCollection::DigiRangeIterator dtLayerIt;
   for (dtLayerIt = digis->begin();
@@ -112,6 +126,7 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
   
     // Get the layerId
     const DTLayerId layerId = (*dtLayerIt).first; //FIXME: check to be in the right sector
+    const DTChamberId chamberId = layerId.superlayerId().chamberId();
 
     if((theCalibWheel != "All") && (layerId.superlayerId().chamberId().wheel() != selWheel))
       continue;
@@ -121,6 +136,13 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
     //if(debug) {
     //  cout << "Layer " << layerId<<" with "<<distance(digiRange.first, digiRange.second)<<" digi"<<endl;
     //}
+
+    float tTrig,tTrigRMS, kFactor;
+    tTrigMap->get(layerId.superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
+    if(debug&&(nevents <= 1)){
+	cout << "  Superlayer: " << layerId.superlayerId() << endl 
+	     << "            tTrig,tTrigRMS= " << tTrig << ", " << tTrigRMS << endl;
+    }	
 
     // Loop over all digis in the given layer
     for (DTDigiCollection::const_iterator digi = digiRange.first;
@@ -133,11 +155,13 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	//Get the per-layer histo from the map
 	TH1I *hT0LayerHisto = theHistoLayerMap[layerId];
 	//If it doesn't exist, book it
-	if(hT0LayerHisto == 0){
+	if(hT0LayerHisto == nullptr){
 	  theFile->cd();
+	  float hT0Min = tTrig - 2*tTrigRMS;
+	  float hT0Max = hT0Min + timeBoxWidth;
 	  hT0LayerHisto = new TH1I(getHistoName(layerId).c_str(),
 				   "T0 from pulses by layer (TDC counts, 1 TDC count = 0.781 ns)",
-				   200, t0-100, t0+100);
+				   timeBoxWidth,hT0Min,hT0Max);
 	  if(debug)
 	    cout << "  New T0 per Layer Histo: " << hT0LayerHisto->GetName() << endl;
 	  theHistoLayerMap[layerId] = hT0LayerHisto;
@@ -145,7 +169,7 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
     
 	//Fill the histos
 	theFile->cd();
-	if(hT0LayerHisto != 0) {
+	if(hT0LayerHisto != nullptr) {
 	  //  if(debug)
 	  // cout<<"Filling histo "<<hT0LayerHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
 	  hT0LayerHisto->Fill(t0);
@@ -162,38 +186,55 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 	}   
 
 	//Fill the histos per wire for the chosen cells
-	vector<DTWireId>::iterator it_wire = find(wireIdWithHistos.begin(),wireIdWithHistos.end(),wireId);
-	if(it_wire != wireIdWithHistos.end()){
-          if(theHistoWireMap.find(wireId) == theHistoWireMap.end()){
-            theHistoWireMap[wireId] = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
-            if(debug) cout << "  New T0 per wire Histo: " << (theHistoWireMap[wireId])->GetName() << endl;
-          }
-          if(theHistoWireMap_ref.find(wireId) == theHistoWireMap_ref.end()){
-            theHistoWireMap_ref[wireId] = new TH1I((getHistoName(wireId) + "_ref").c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
-            if(debug) cout << "  New T0 per wire Histo: " << (theHistoWireMap_ref[wireId])->GetName() << endl;
-          }
-
-          TH1I* hT0WireHisto = theHistoWireMap[wireId];
+	vector<DTWireId>::iterator it = find(wireIdWithHistos.begin(),wireIdWithHistos.end(),wireId);
+	if (it!=wireIdWithHistos.end()){
+ 	  //Get the per-wire histo from the map
+	  TH1I *hT0WireHisto = theHistoWireMap[wireId];	
+	  //If it doesn't exist, book it
+	  if(hT0WireHisto == nullptr){
+	    theFile->cd(); 
+	    hT0WireHisto = new TH1I(getHistoName(wireId).c_str(),"T0 from pulses by wire (TDC counts, 1 TDC count = 0.781 ns)",7000,0,7000);
+	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())-100,
+	    //hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())+100);
+	    if(debug)
+	      cout << "  New T0 per wire Histo: " << hT0WireHisto->GetName() << endl;
+	    theHistoWireMap[wireId] = hT0WireHisto;
+	  }
 	  //Fill the histos
 	  theFile->cd();
-	  if(hT0WireHisto) hT0WireHisto->Fill(t0);
+	  if(hT0WireHisto != nullptr) {
+	    //if(debug)
+	    // cout<<"Filling histo "<<hT0WireHisto->GetName()<<" with digi "<<t0<<" TDC counts"<<endl;
+	    hT0WireHisto->Fill(t0);
+	  }
 	}
 
 	//Check the tzero has reasonable value
-	if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > rejectDigiFromPeak){
+	//float hT0Min = tTrig - 2*tTrigRMS;
+	//float hT0Max = hT0Min + timeBoxWidth;
+	/*if(abs(hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin()) - t0) > rejectDigiFromPeak){
 	  if(debug)
 	    cout<<"digi skipped because t0 per sector "<<hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;
 	  continue;
+	}*/
+	/*if((t0 < hT0Min)||(t0 > hT0Max)){
+          if(debug)
+            cout<<"digi skipped because t0 outside of interval (" << hT0Min << "," << hT0Max << ")" <<endl;
+          continue;
+        }*/
+	//Select per layer
+	if(fabs(theTPPeakMap[layerId] - t0) > rejectDigiFromPeak){
+	  if(debug)
+            cout<<"digi skipped because t0 too far from peak " << theTPPeakMap[layerId] << endl;
+          continue;	
 	}
+
+	//Find to ref. per chamber
+	theSumT0ByChamber[chamberId] = theSumT0ByChamber[chamberId] + t0;
+	theCountT0ByChamber[chamberId]++;
 
 	//Use second bunch of events to compute a t0 reference per wire
 	if(nevents< (eventsForLayerT0 + eventsForWireT0)){
-          //Fill reference wire histos
-          if(it_wire != wireIdWithHistos.end()){
-            TH1I* hT0WireHisto_ref = theHistoWireMap_ref[wireId];
-            theFile->cd();
-            if(hT0WireHisto_ref) hT0WireHisto_ref->Fill(t0); 
-          } 
 	  if(!nDigiPerWire_ref[wireId]){
 	    mK_ref[wireId] = 0;
 	  }
@@ -221,73 +262,149 @@ void DTT0Calibration::analyze(const edm::Event & event, const edm::EventSetup& e
 
   //Use the t0 per layer histos to have an indication about the t0 position 
   if(nevents == eventsForLayerT0){
+    bool increaseEvtsForLayerT0 = false;	
     for(map<DTLayerId, TH1I*>::const_iterator lHisto = theHistoLayerMap.begin();
 	lHisto != theHistoLayerMap.end();
 	++lHisto){
       if(debug)
-	cout<<"Reading histogram "<<(*lHisto).second->GetName()<<" with mean "<<(*lHisto).second->GetMean()<<" and RMS "<<(*lHisto).second->GetRMS();
+	cout<<"Reading histogram "<<(*lHisto).second->GetName()<<" with mean "<<(*lHisto).second->GetMean()<<" and RMS "<<(*lHisto).second->GetRMS() << endl;
 
+      //Find peaks
+      //int npeaks = spectrum->Search((*lHisto).second,0.5,"goff");
+      //int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"goff",0.3);
+      int npeaks = spectrum->Search((*lHisto).second,(tpPeakWidthPerLayer/2.),"",0.3);
+
+      double *peaks = spectrum->GetPositionX();	
+      //Put in a std::vector<float>
+      vector<double> peakMeans(peaks,peaks + npeaks);
+      //Sort the peaks in ascending order
+      sort(peakMeans.begin(),peakMeans.end());
+				
+      //Find best peak -- preliminary criteria: find peak closest to center of time box	
+      float tTrig,tTrigRMS, kFactor;
+      tTrigMap->get((*lHisto).first.superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
+
+      double timeBoxCenter = (2*tTrig + (float)timeBoxWidth)/2.;	
+      double hMin = (*lHisto).second->GetXaxis()->GetXmin();
+      double hMax = (*lHisto).second->GetXaxis()->GetXmax();		
+      vector<double>::const_iterator tpPeak = peakMeans.end();
+      for(vector<double>::const_iterator it = peakMeans.begin(); it != peakMeans.end(); ++it){
+	double mean = *it;
+
+	int bin = (*lHisto).second->GetXaxis()->FindBin(mean);
+	double yp = (*lHisto).second->GetBinContent(bin);
+	if(debug) cout << "Peak : (" << mean << "," << yp << ")" << endl; 
+
+	//Find RMS
+	double previous_peak = (it == peakMeans.begin())?hMin:*(it - 1);
+        double next_peak = (it == (peakMeans.end()-1))?hMax:*(it + 1);
+
+	double rangemin = mean - (mean - previous_peak)/8.;
+        double rangemax = mean + (next_peak - mean)/8.;
+	int binmin = (*lHisto).second->GetXaxis()->FindBin(rangemin);
+	int binmax = (*lHisto).second->GetXaxis()->FindBin(rangemax);
+	(*lHisto).second->GetXaxis()->SetRange(binmin,binmax);
+	//RMS estimate
+	double rms_seed = (*lHisto).second->GetRMS();
+
+	/*rangemin = mean - 2*rms_seed;
+	rangemax = mean + 2*rms_seed;
+	if(debug) cout << "Seed for RMS, Fit min, Fit max: " << rms_seed << ", " << rangemin << ", " << rangemax << endl;
+	//Fit to gaussian
+	string funcname("fitFcn_");
+	funcname += (*lHisto).second->GetName();
+	if(debug) cout << "Fitting function " << funcname << endl; 
+	TF1* func = new TF1(funcname.c_str(),"gaus",rangemin,rangemax);
+	func->SetParameters(yp,mean,rms_seed);
+	(*lHisto).second->Fit(func,"Q","",rangemin,rangemax);
+	float fitconst = func->GetParameter(0);
+	float fitmean = func->GetParameter(1);
+	float fitrms = func->GetParameter(2);
+	float chisquare = func->GetChisquare()/func->GetNDF();
+	if(debug) cout << "Gaussian fit constant,mean,RMS,chi2= " << fitconst << ", " << fitmean << ", " << fitrms << ", " << chisquare << endl;*/
+
+	//Reject peaks with RMS larger than specified
+	//if(fitrms > tpPeakWidth) continue;
+	if(rms_seed > tpPeakWidthPerLayer) continue;
+
+	if(fabs(mean - timeBoxCenter) < fabs(*tpPeak - timeBoxCenter)) tpPeak = it;
+      }	
+      //Didn't find peak	
+      /*if(tpPeak == peakMeans.end()){
+	if(retryForLayerT0 < 2){
+	  increaseEvtsForLayerT0 = true;
+	  retryForLayerT0++;
+	  break;
+	} 
+      }*/
+
+      double selPeak = (tpPeak != peakMeans.end())?*tpPeak:(*lHisto).second->GetBinCenter((*lHisto).second->GetMaximumBin());		
+      if(debug) cout << "Peak selected at " << selPeak << endl;
+	
+      theTPPeakMap[(*lHisto).first] = selPeak;
+		
       //Take the mean as a first t0 estimation
-      if((*lHisto).second->GetRMS()<5.0){
+      /*if((*lHisto).second->GetRMS() < tpPeakWidth){
 	if(hT0SectorHisto == 0){
 	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
 				    //20, (*lHisto).second->GetMean()-100, (*lHisto).second->GetMean()+100);
 				    700, 0, 7000);
+				    //300,3300,3600);	
 	}
 	if(debug)
 	  cout<<" accepted"<<endl;
+	//TH1I* aux_histo = (*lHisto).second;
+	//aux_histo->GetXaxis()->SetRangeUser(3300,3600);
 	hT0SectorHisto->Fill((*lHisto).second->GetMean());
+	//hT0SectorHisto->Fill(aux_histo->GetMean());
       }
       //Take the mean of noise + 400ns as a first t0 estimation
-      // if((*lHisto).second->GetRMS()>10.0 && ((*lHisto).second->GetRMS()<15.0)){
-// 	double t0_estim = (*lHisto).second->GetMean() + 400;
-// 	if(hT0SectorHisto == 0){
-// 	  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
-// 				    //20, t0_estim-100, t0_estim+100);
-// 				    700, 0, 7000);
-// 	}
-// 	if(debug)
-// 	  cout<<" accepted + 400ns"<<endl;
-// 	hT0SectorHisto->Fill((*lHisto).second->GetMean() + 400);
-//       }
+      //if((*lHisto).second->GetRMS()>10.0 && ((*lHisto).second->GetRMS()<15.0)){
+      //double t0_estim = (*lHisto).second->GetMean() + 400;
+      //if(hT0SectorHisto == 0){
+      //  hT0SectorHisto = new TH1D("hT0AllLayerOfSector","T0 from pulses per layer in sector", 
+      //			    //20, t0_estim-100, t0_estim+100);
+      //			    700, 0, 7000);
+      //}
+      //if(debug)
+      //  cout<<" accepted + 400ns"<<endl;
+      //hT0SectorHisto->Fill((*lHisto).second->GetMean() + 400);
+      //}
       if(debug)
 	cout<<endl;
-
       theT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetMean();
-      theSigmaT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetRMS();
+      theSigmaT0LayerMap[(*lHisto).second->GetName()] = (*lHisto).second->GetRMS();*/
     }
-    if(!hT0SectorHisto){
+    /*if(!hT0SectorHisto){
       cout<<"[DTT0Calibration]: All the t0 per layer are still uncorrect: trying with greater number of events"<<endl;
       eventsForLayerT0 = eventsForLayerT0*2;
       return;
     }
     if(debug)
       cout<<"[DTT0Calibration] t0 reference for this sector "<<
-	hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;
+	hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin())<<endl;*/
+    if(increaseEvtsForLayerT0){
+	cout<<"[DTT0Calibration]: t0 per layer are still uncorrect: trying with greater number of events"<<endl;
+	eventsForLayerT0 = eventsForLayerT0*2;
+	return;
+    }		
   } 
 }
 
-
 void DTT0Calibration::endJob() {
 
-  DTT0* t0sAbsolute = new DTT0();
-  DTT0* t0sRelative = new DTT0();
+  DTT0* t0s = new DTT0();
   DTT0* t0sWRTChamber = new DTT0();
 
-  //if(debug) 
+  if(debug)
     cout << "[DTT0CalibrationPerLayer]Writing histos to file!" << endl;
 
   theFile->cd();
-  hT0SectorHisto->Write();
+  //hT0SectorHisto->Write();
   for(map<DTWireId, TH1I*>::const_iterator wHisto = theHistoWireMap.begin();
       wHisto != theHistoWireMap.end();
       ++wHisto) {
     (*wHisto).second->Write(); 
-  }
-  for(map<DTWireId, TH1I*>::const_iterator wHisto = theHistoWireMap_ref.begin();
-      wHisto != theHistoWireMap_ref.end();
-      ++wHisto) {
-    (*wHisto).second->Write();
   }
   for(map<DTLayerId, TH1I*>::const_iterator lHisto = theHistoLayerMap.begin();
       lHisto != theHistoLayerMap.end();
@@ -295,190 +412,204 @@ void DTT0Calibration::endJob() {
     (*lHisto).second->Write(); 
   }  
 
-  //if(debug) 
+  if(debug)
     cout << "[DTT0Calibration] Compute and store t0 and sigma per wire" << endl;
 
+  for(map<DTChamberId,double>::const_iterator chamber = theSumT0ByChamber.begin();
+      chamber != theSumT0ByChamber.end();
+      ++chamber) theRefT0ByChamber[(*chamber).first] = theSumT0ByChamber[(*chamber).first]/((double)theCountT0ByChamber[(*chamber).first]);
+  
   for(map<DTWireId, double>::const_iterator wiret0 = theAbsoluteT0PerWire.begin();
       wiret0 != theAbsoluteT0PerWire.end();
       ++wiret0){
     if(nDigiPerWire[(*wiret0).first]){
       double t0 = (*wiret0).second/nDigiPerWire[(*wiret0).first];
-
-      theRelativeT0PerWire[(*wiret0).first] = t0 - hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin());
+      DTChamberId chamberId = ((*wiret0).first).chamberId();
+      //theRelativeT0PerWire[(*wiret0).first] = t0 - hT0SectorHisto->GetBinCenter(hT0SectorHisto->GetMaximumBin());
+      theRelativeT0PerWire[(*wiret0).first] = t0 - theRefT0ByChamber[chamberId];	
+      cout<<"Wire "<<(*wiret0).first<<" has    t0 "<<t0<<"(absolute) "<<theRelativeT0PerWire[(*wiret0).first]<<"(relative)";
 
       //theSigmaT0PerWire[(*wiret0).first] = sqrt((theSigmaT0PerWire[(*wiret0).first] / nDigiPerWire[(*wiret0).first]) - t0*t0);
       theSigmaT0PerWire[(*wiret0).first] = sqrt(qK[(*wiret0).first]/nDigiPerWire[(*wiret0).first]);
-
-      cout << "Wire " << (*wiret0).first << " has t0 " << t0 << "(absolute) "
-                                                       << theRelativeT0PerWire[(*wiret0).first] << "(relative)"
-                                         << "    sigma " << theSigmaT0PerWire[(*wiret0).first] << endl;
-
-      t0sAbsolute->set((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first],DTTimeUnits::counts); 
+      cout<<"    sigma "<<theSigmaT0PerWire[(*wiret0).first]<<endl;
     }
     else{
-      cout<<"[DTT0Calibration] ERROR: no digis in wire "<<(*wiret0).first<<endl;
+      cout<<"[DTT0CalibrationNew] ERROR: no digis in wire "<<(*wiret0).first<<endl;
       abort();
     }
   }
 
-  if(correctByChamberMean_){
-     ///Loop on superlayer to correct between even-odd layers (2 different test pulse lines!)
-     // Get all the sls from the setup
-     const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();     
-     // Loop over all SLs
-     for(auto  sl = superLayers.begin();
-	   sl != superLayers.end(); sl++) {
+  ///Loop on superlayer to correct between even-odd layers (2 different test pulse lines!)
+  // Get all the sls from the setup
+  const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();     
+  // Loop over all SLs
+  for(vector<const DTSuperLayer*>::const_iterator  sl = superLayers.begin();
+      sl != superLayers.end(); sl++) {
 
-
-	//Compute mean for odd and even superlayers
-	double oddLayersMean=0;
-	double evenLayersMean=0; 
-	double oddLayersDen=0;
-	double evenLayersDen=0;
-	for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
-	      wiret0 != theRelativeT0PerWire.end();
-	      ++wiret0){
-	   if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
-	      if(debug)
-		 cout<<"[DTT0Calibration] Superlayer "<<(*sl)->id()
-		    <<"layer " <<(*wiret0).first.layerId().layer()<<" with "<<(*wiret0).second<<endl;
-	      if(((*wiret0).first.layerId().layer()) % 2){
-		 oddLayersMean = oddLayersMean + (*wiret0).second;
-		 oddLayersDen++;
-	      }
-	      else{
-		 evenLayersMean = evenLayersMean + (*wiret0).second;
-		 evenLayersDen++;
-	      }
-	   }
-	}
-	oddLayersMean = oddLayersMean/oddLayersDen;
-	evenLayersMean = evenLayersMean/evenLayersDen;
-	//if(debug && oddLayersMean)
-	cout<<"[DTT0Calibration] Relative T0 mean for  odd layers "<<oddLayersMean<<"  even layers"<<evenLayersMean<<endl;
-
-	//Compute sigma for odd and even superlayers
-	double oddLayersSigma=0;
-	double evenLayersSigma=0;
-	for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
-	      wiret0 != theRelativeT0PerWire.end();
-	      ++wiret0){
-	   if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
-	      if(((*wiret0).first.layerId().layer()) % 2){
-		 oddLayersSigma = oddLayersSigma + ((*wiret0).second - oddLayersMean) * ((*wiret0).second - oddLayersMean);
-	      }
-	      else{
-		 evenLayersSigma = evenLayersSigma + ((*wiret0).second - evenLayersMean) * ((*wiret0).second - evenLayersMean);
-	      }
-	   }
-	}
-	oddLayersSigma = oddLayersSigma/oddLayersDen;
-	evenLayersSigma = evenLayersSigma/evenLayersDen;
-	oddLayersSigma = sqrt(oddLayersSigma);
-	evenLayersSigma = sqrt(evenLayersSigma);
-
-	//if(debug && oddLayersMean)
-	cout<<"[DTT0Calibration] Relative T0 sigma for  odd layers "<<oddLayersSigma<<"  even layers"<<evenLayersSigma<<endl;
-
-	//Recompute the mean for odd and even superlayers discarding fluctations
-	double oddLayersFinalMean=0; 
-	double evenLayersFinalMean=0;
-	for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
-	      wiret0 != theRelativeT0PerWire.end();
-	      ++wiret0){
-	   if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
-	      if(((*wiret0).first.layerId().layer()) % 2){
-		 if(abs((*wiret0).second - oddLayersMean) < (2*oddLayersSigma))
-		    oddLayersFinalMean = oddLayersFinalMean + (*wiret0).second;
-	      }
-	      else{
-		 if(abs((*wiret0).second - evenLayersMean) < (2*evenLayersSigma))
-		    evenLayersFinalMean = evenLayersFinalMean + (*wiret0).second;
-	      }
-	   }
-	}
-	oddLayersFinalMean = oddLayersFinalMean/oddLayersDen;
-	evenLayersFinalMean = evenLayersFinalMean/evenLayersDen;
-	//if(debug && oddLayersMean)
-	cout<<"[DTT0Calibration] Final relative T0 mean for  odd layers "<<oddLayersFinalMean<<"  even layers"<<evenLayersFinalMean<<endl;
-
-	for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
-	      wiret0 != theRelativeT0PerWire.end();
-	      ++wiret0){
-	   if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
-	      double t0=-999;
-	      if(((*wiret0).first.layerId().layer()) % 2)
-		 t0 = (*wiret0).second + (evenLayersFinalMean - oddLayersFinalMean);
-	      else
-		 t0 = (*wiret0).second;
-
-	      cout << "[DTT0Calibration] Wire " << (*wiret0).first << " has t0 " << (*wiret0).second 
-                   << " (relative, after even-odd layer corrections)  "
-		   << "    sigma " << theSigmaT0PerWire[(*wiret0).first] << endl;
-
-	      //Store the results into DB
-	      t0sRelative->set((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first],DTTimeUnits::counts); 
-	   }
-	}
-     }
-
-     ///Change t0 absolute reference -> from sector peak to chamber average
-     //if(debug) 
-     cout << "[DTT0Calibration]Computing relative t0 wrt to chamber average" << endl;
-     //Compute the reference for each chamber
-     map<DTChamberId,double> sumT0ByChamber;
-     map<DTChamberId,int> countT0ByChamber;
-     for(DTT0::const_iterator tzero = t0sRelative->begin();
-	   tzero != t0sRelative->end(); ++tzero) {
-        int channelId = tzero->channelId;
-        if ( channelId == 0 ) continue;
-        DTWireId wireId(channelId);
-        DTChamberId chamberId(wireId.chamberId());
-        //sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + tzero->t0mean;
-        // @@@ better DTT0 usage
-        float t0mean_f;
-        float t0rms_f;
-        t0sRelative->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
-        sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + t0mean_f;
-        // @@@ NEW DTT0 END
-	countT0ByChamber[chamberId]++;
-     }
-
-     //Change reference for each wire and store the new t0s in the new map
-     for(DTT0::const_iterator tzero = t0sRelative->begin();
-	   tzero != t0sRelative->end(); ++tzero) {
-	int channelId = tzero->channelId;
-	if ( channelId == 0 ) continue;
-	DTWireId wireId(channelId);
-	DTChamberId chamberId(wireId.chamberId());
-	//double t0mean = (tzero->t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-	//double t0rms = tzero->t0rms;
-	// @@@ better DTT0 usage
-	float t0mean_f;
-	float t0rms_f;
-	t0sRelative->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
-	double t0mean = t0mean_f - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-	double t0rms = t0rms_f;
-	// @@@ NEW DTT0 END
-	t0sWRTChamber->set(wireId,
-	      t0mean,
-	      t0rms,
-	      DTTimeUnits::counts);
-	//if(debug)
-	//cout<<"Chamber "<<chamberId<<" has reference "<<(sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-	cout << "Changing t0 of wire " << wireId << " from " << t0mean_f
-	     << " to " << t0mean << endl;
-     }
-  }
   
+    //Compute mean for odd and even superlayers
+    double oddLayersMean=0;
+    double evenLayersMean=0; 
+    double oddLayersDen=0;
+    double evenLayersDen=0;
+    for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
+	wiret0 != theRelativeT0PerWire.end();
+	++wiret0){
+      if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
+	if(debug)
+	  cout<<"[DTT0Calibration] Superlayer "<<(*sl)->id()
+	      <<"layer " <<(*wiret0).first.layerId().layer()<<" with "<<(*wiret0).second<<endl;
+	if(((*wiret0).first.layerId().layer()) % 2){
+	  oddLayersMean = oddLayersMean + (*wiret0).second;
+	  oddLayersDen++;
+	}
+	else{
+	  evenLayersMean = evenLayersMean + (*wiret0).second;
+	  evenLayersDen++;
+	}
+      }
+    }
+    oddLayersMean = oddLayersMean/oddLayersDen;
+    evenLayersMean = evenLayersMean/evenLayersDen;
+    if(debug && oddLayersMean)
+      cout<<"[DTT0Calibration] Relative T0 mean for  odd layers "<<oddLayersMean<<"  even layers"<<evenLayersMean<<endl;
+
+    //Compute sigma for odd and even superlayers
+    double oddLayersSigma=0;
+    double evenLayersSigma=0;
+    for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
+	wiret0 != theRelativeT0PerWire.end();
+	++wiret0){
+      if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
+	if(((*wiret0).first.layerId().layer()) % 2){
+	  oddLayersSigma = oddLayersSigma + ((*wiret0).second - oddLayersMean) * ((*wiret0).second - oddLayersMean);
+	}
+	else{
+	  evenLayersSigma = evenLayersSigma + ((*wiret0).second - evenLayersMean) * ((*wiret0).second - evenLayersMean);
+	}
+      }
+    }
+    oddLayersSigma = oddLayersSigma/oddLayersDen;
+    evenLayersSigma = evenLayersSigma/evenLayersDen;
+    oddLayersSigma = sqrt(oddLayersSigma);
+    evenLayersSigma = sqrt(evenLayersSigma);
+
+    if(debug && oddLayersMean)
+      cout<<"[DTT0Calibration] Relative T0 sigma for  odd layers "<<oddLayersSigma<<"  even layers"<<evenLayersSigma<<endl;
+
+    //Recompute the mean for odd and even superlayers discarding fluctations
+    double oddLayersFinalMean=0; 
+    double evenLayersFinalMean=0;
+    for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
+	wiret0 != theRelativeT0PerWire.end();
+	++wiret0){
+      if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
+	if(((*wiret0).first.layerId().layer()) % 2){
+	  if(abs((*wiret0).second - oddLayersMean) < (2*oddLayersSigma))
+	    oddLayersFinalMean = oddLayersFinalMean + (*wiret0).second;
+	}
+	else{
+	  if(abs((*wiret0).second - evenLayersMean) < (2*evenLayersSigma))
+	    evenLayersFinalMean = evenLayersFinalMean + (*wiret0).second;
+	}
+      }
+    }
+    oddLayersFinalMean = oddLayersFinalMean/oddLayersDen;
+    evenLayersFinalMean = evenLayersFinalMean/evenLayersDen;
+    if(debug && oddLayersMean)
+      cout<<"[DTT0Calibration] Final relative T0 mean for  odd layers "<<oddLayersFinalMean<<"  even layers"<<evenLayersFinalMean<<endl;
+
+    for(map<DTWireId, double>::const_iterator wiret0 = theRelativeT0PerWire.begin();
+	wiret0 != theRelativeT0PerWire.end();
+	++wiret0){
+      if((*wiret0).first.layerId().superlayerId() == (*sl)->id()){
+	double t0=-999;
+	if(((*wiret0).first.layerId().layer()) % 2)
+	  t0 = (*wiret0).second + (evenLayersFinalMean - oddLayersFinalMean);
+	else
+	  t0 = (*wiret0).second;
+
+	cout<<"[DTT0Calibration] Wire "<<(*wiret0).first<<" has    t0 "<<(*wiret0).second<<" (relative, after even-odd layer corrections)  "
+	    <<"    sigma "<<theSigmaT0PerWire[(*wiret0).first]<<endl;
+	//Store the results into DB
+	t0s->set((*wiret0).first, t0, theSigmaT0PerWire[(*wiret0).first],DTTimeUnits::counts);
+      }
+    }
+  }
+
+  ///Change t0 absolute reference -> from sector peak to chamber average
+  if(debug)
+    cout << "[DTT0Calibration]Computing relative t0 wrt to chamber average" << endl;
+  //Compute the reference for each chamber
+  map<DTChamberId,double> sumT0ByChamber;
+  map<DTChamberId,int> countT0ByChamber;
+  for(DTT0::const_iterator tzero = t0s->begin();
+      tzero != t0s->end(); ++tzero) {
+// @@@ NEW DTT0 FORMAT
+//    DTChamberId chamberId((*tzero).first.wheelId,
+//			  (*tzero).first.stationId,
+//			  (*tzero).first.sectorId);
+//    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + (*tzero).second.t0mean;
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId(channelId);
+    DTChamberId chamberId(wireId.chamberId());
+    //sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + tzero->t0mean;
+// @@@ better DTT0 usage
+    float t0mean_f;
+    float t0rms_f;
+    t0s->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
+    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + t0mean_f;
+// @@@ NEW DTT0 END
+    countT0ByChamber[chamberId]++;
+  }
+
+  //Change reference for each wire and store the new t0s in the new map
+  for(DTT0::const_iterator tzero = t0s->begin();
+      tzero != t0s->end(); ++tzero) {
+// @@@ NEW DTT0 FORMAT
+//    DTChamberId chamberId((*tzero).first.wheelId,
+//			  (*tzero).first.stationId,
+//			  (*tzero).first.sectorId);
+//    double t0mean = ((*tzero).second.t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+//    double t0rms = (*tzero).second.t0rms;
+//    DTWireId wireId((*tzero).first.wheelId,
+//		    (*tzero).first.stationId,
+//		    (*tzero).first.sectorId,
+//		    (*tzero).first.slId,
+//		    (*tzero).first.layerId,
+//		    (*tzero).first.cellId);
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId( channelId );
+    DTChamberId chamberId(wireId.chamberId());
+    //double t0mean = (tzero->t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    //double t0rms = tzero->t0rms;
+// @@@ better DTT0 usage
+    float t0mean_f;
+    float t0rms_f;
+    t0s->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
+    double t0mean = t0mean_f - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    double t0rms = t0rms_f;
+// @@@ NEW DTT0 END
+    t0sWRTChamber->set(wireId,
+		       t0mean,
+		       t0rms,
+		       DTTimeUnits::counts);
+    if(debug){
+      //cout<<"Chamber "<<chamberId<<" has reference "<<(sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+//      cout<<"Changing t0 of wire "<<wireId<<" from "<<(*tzero).second.t0mean<<" to "<<t0mean<<endl;
+      cout<<"Changing t0 of wire "<<wireId<<" from "<<tzero->t0mean<<" to "<<t0mean<<endl;
+    }
+  }
+
   ///Write the t0 map into DB
-  if(debug) 
+  if(debug)
    cout << "[DTT0Calibration]Writing values in DB!" << endl;
   // FIXME: to be read from cfg?
   string t0Record = "DTT0Rcd";
   // Write the t0 map to DB
-  if( correctByChamberMean_ ) DTCalibDBUtils::writeToDB(t0Record, t0sWRTChamber);
-  else                        DTCalibDBUtils::writeToDB(t0Record, t0sAbsolute);
+  DTCalibDBUtils::writeToDB(t0Record, t0sWRTChamber);
 }
 
 string DTT0Calibration::getHistoName(const DTWireId& wId) const {

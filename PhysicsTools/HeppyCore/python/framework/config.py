@@ -4,6 +4,7 @@
 from weight import Weight
 import copy
 import glob
+import six
 
 def printComps(comps, details=False):
     '''
@@ -41,7 +42,7 @@ class CFG(object):
         header = '{type}: {name}'.format( type=self.__class__.__name__,
                                           name=self.name)
         varlines = ['\t{var:<15}:   {value}'.format(var=var, value=value) \
-                    for var,value in sorted(vars(self).iteritems()) \
+                    for var,value in sorted(vars(six.iteritems(self))) \
                     if var is not 'name']
         all = [ header ]
         all.extend(varlines)
@@ -70,7 +71,7 @@ class CFG(object):
            module2 will share the same instance of value1, and not have two copies.
         '''
         other = copy.copy(self)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems(kwargs):
             setattr(other, k, v)
         return other
     
@@ -188,9 +189,9 @@ class Component( CFG ):
     DataComponent, MCComponent, EmbedComponent
     for more information.'''
     def __init__(self, name, files, tree_name=None, triggers=None, **kwargs):
-        if isinstance(triggers, basestring):
+        if isinstance(triggers, str):
             triggers = [triggers]
-        if type(files) == str:
+        if isinstance(files, str):
             files = sorted(glob.glob(files))
         super( Component, self).__init__( name = name,
                                           files = files,

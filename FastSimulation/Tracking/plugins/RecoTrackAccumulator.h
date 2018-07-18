@@ -26,9 +26,7 @@
 namespace edm {
   class ConsumesCollector;
   template<typename T> class Handle;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class StreamID;
 }
 
@@ -36,7 +34,7 @@ namespace edm {
 class RecoTrackAccumulator : public DigiAccumulatorMixMod 
 {
  public:
-  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   ~RecoTrackAccumulator() override;
   
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;

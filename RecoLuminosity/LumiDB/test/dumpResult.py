@@ -75,8 +75,7 @@ if __name__ == '__main__':
     del lumiquery
     del session
     del svc
-    alldays=result.keys()
-    alldays.sort()
+    alldays=sorted(result.keys())
     for ordi in alldays:
         print datetime.datetime.fromordinal(ordi).date(),',',result[ordi]
     print '#total running days: ',len(alldays)

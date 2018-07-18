@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -29,6 +30,9 @@
 // constants, enums and typedefs
 //
 namespace edm {
+
+  class WaitingTaskWithArenaHolder;
+
   namespace global {
     //
     // static data member definitions
@@ -41,6 +45,7 @@ namespace edm {
     ProducerBase(),
     moduleDescription_(),
     previousParentages_(),
+    gotBranchIDsFromAcquire_(),
     previousParentageIds_() { }
     
     EDProducerBase::~EDProducerBase()
@@ -54,7 +59,9 @@ namespace edm {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
-      e.setProducer(this, &previousParentages_[streamIndex]);
+      e.setProducer(this,
+                    &previousParentages_[streamIndex],
+                    hasAcquire() ? &gotBranchIDsFromAcquire_[streamIndex] : nullptr);
       EventSignalsSentry sentry(act,mcc);
       this->produce(e.streamID(), e, c);
       commit_(e, &previousParentageIds_[streamIndex]);
@@ -62,11 +69,31 @@ namespace edm {
     }
 
     void
+    EDProducerBase::doAcquire(EventPrincipal const& ep, EventSetup const& c,
+                              ActivityRegistry* act,
+                              ModuleCallingContext const* mcc,
+                              WaitingTaskWithArenaHolder& holder) {
+      Event e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
+      const auto streamIndex = e.streamID().value();
+      e.setProducerForAcquire(this,
+                              nullptr,
+                              gotBranchIDsFromAcquire_[streamIndex]);
+      EventAcquireSignalsSentry sentry(act,mcc);
+      this->doAcquire_(e.streamID(), e, c, holder);
+    }
+
+    void
     EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       auto const nStreams = iPrealloc.numberOfStreams();
       previousParentages_.reset(new std::vector<BranchID>[nStreams]);
+      if (hasAcquire()) {
+        gotBranchIDsFromAcquire_.reset(new std::vector<BranchID>[nStreams]);
+      }
       previousParentageIds_.reset( new ParentageID[nStreams]);
       preallocStreams(nStreams);
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
+      preallocate(iPrealloc);
     }
     
     void
@@ -82,7 +109,7 @@ namespace edm {
     void
     EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
@@ -95,7 +122,7 @@ namespace edm {
     void
     EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       r.setProducer(this);
       Run const& cnstR = r;
@@ -108,7 +135,7 @@ namespace edm {
     void
     EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
@@ -121,7 +148,7 @@ namespace edm {
     void
     EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       lb.setProducer(this);
       LuminosityBlock const& cnstLb = lb;
@@ -145,7 +172,7 @@ namespace edm {
                                      EventSetup const& c,
                                      ModuleCallingContext const* mcc)
     {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       this->doStreamBeginRun_(id, r, c);
     }
@@ -154,7 +181,7 @@ namespace edm {
                                    RunPrincipal const& rp,
                                    EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       this->doStreamEndRun_(id, r, c);
       this->doStreamEndRunSummary_(id, r, c);
@@ -164,7 +191,7 @@ namespace edm {
                                                  LuminosityBlockPrincipal const& lbp,
                                                  EventSetup const& c,
                                                  ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       this->doStreamBeginLuminosityBlock_(id,lb, c);
     }
@@ -174,7 +201,7 @@ namespace edm {
                                                LuminosityBlockPrincipal const& lbp,
                                                EventSetup const& c,
                                                ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       this->doStreamEndLuminosityBlock_(id,lb, c);
       this->doStreamEndLuminosityBlockSummary_(id,lb, c);
@@ -193,6 +220,8 @@ namespace edm {
     }
     
     void EDProducerBase::preallocStreams(unsigned int) {}
+    void EDProducerBase::preallocLumis(unsigned int) {}
+    void EDProducerBase::preallocate(PreallocationConfiguration const&) {}
     void EDProducerBase::doBeginStream_(StreamID id){}
     void EDProducerBase::doEndStream_(StreamID id) {}
     void EDProducerBase::doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c) {}
@@ -217,7 +246,9 @@ namespace edm {
     void EDProducerBase::doEndRunProduce_(Run& rp, EventSetup const& c) {}
     void EDProducerBase::doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
     void EDProducerBase::doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) {}
-    
+
+    void EDProducerBase::doAcquire_(StreamID, Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) {}
+
     void
     EDProducerBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;

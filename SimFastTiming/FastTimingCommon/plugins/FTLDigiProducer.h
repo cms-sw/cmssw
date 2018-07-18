@@ -9,9 +9,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class ParameterSet;
   class StreamID;
 }
@@ -22,7 +20,7 @@ namespace CLHEP {
 
 class FTLDigiProducer : public DigiAccumulatorMixMod {
 public:
-  FTLDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  FTLDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   FTLDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC)
   {
     throw cms::Exception("DeprecatedConstructor") << "Please make sure you're calling this with the threaded mixing module...";
@@ -36,10 +34,9 @@ public:
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~FTLDigiProducer() override;
 private:
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer
   std::vector<std::unique_ptr<FTLDigitizerBase> > theDigitizers_;
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

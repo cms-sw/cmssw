@@ -21,7 +21,7 @@ namespace omtf {
   typedef std::map<EleIndex, LinkBoardElectronicIndex> MapEleIndex2LBIndex;
   MapEleIndex2LBIndex translateOmtf2Pact(const RpcLinkMap & omtfLnks, const RPCReadOutMapping* pactCabling); 
 
-  struct lessLinkBoardElectronicIndex { bool operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2); };
+  struct lessLinkBoardElectronicIndex { bool operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2) const; };
   typedef std::map<LinkBoardElectronicIndex, std::pair<EleIndex,EleIndex>, lessLinkBoardElectronicIndex > MapLBIndex2EleIndex;
   MapLBIndex2EleIndex  translatePact2Omtf(const RpcLinkMap & omtfLnks, const RPCReadOutMapping* pactCabling); 
 
@@ -37,7 +37,7 @@ public:
 
   unsigned int link(const std::string& board, const std::string& lbName) const { return lbName2link.at(board).at(lbName); }
 
-  const std::vector<EleIndex> &omtfEleIndex ( const std::string& lbName) const { return lbName2OmtfIndex.at(lbName); }
+  std::vector<EleIndex> omtfEleIndex ( const std::string& lbName) const;
 
 private:
     std::map<std::string, std::map<unsigned int, std::string> > link2lbName; //[processorName][rpcRxNum] - lbName

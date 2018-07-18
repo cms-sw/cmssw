@@ -6,7 +6,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "PhysicsTools/CandUtils/interface/CandMatcherNew.h"
+#include "CommonTools/CandUtils/interface/CandMatcherNew.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

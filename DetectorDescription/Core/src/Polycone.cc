@@ -16,7 +16,7 @@ using DDI::Polycone;
 Polycone::Polycone (double startPhi, double deltaPhi,
                     const std::vector<double> & z,
                     const std::vector<double> & rmin,
-                    const std::vector<double> & rmax) : Solid (ddpolycone_rrz)	      
+                    const std::vector<double> & rmax) : Solid (DDSolidShape::ddpolycone_rrz)	      
 {
    p_.emplace_back(startPhi);
    p_.emplace_back(deltaPhi);
@@ -38,7 +38,7 @@ Polycone::Polycone (double startPhi, double deltaPhi,
 
 Polycone::Polycone (double startPhi, double deltaPhi,
                     const std::vector<double> & z,
-                    const std::vector<double> & r) : Solid (ddpolycone_rz)	      
+                    const std::vector<double> & r) : Solid (DDSolidShape::ddpolycone_rz)	      
 {
    p_.emplace_back(startPhi);
    p_.emplace_back(deltaPhi);
@@ -59,7 +59,7 @@ Polycone::Polycone (double startPhi, double deltaPhi,
 double Polycone::volume() const 
 {
    double result = -1.;
-   if (shape_==ddpolycone_rrz) 
+   if (shape_==DDSolidShape::ddpolycone_rrz) 
    {
       unsigned int loop = (p_.size()-2)/3 -1;
       assert(loop>0);
@@ -79,7 +79,7 @@ double Polycone::volume() const
       result = sec * std::fabs(p_[1])/rad/(2.*pi);
    }
    
-   if (shape_==ddpolycone_rz) 
+   if (shape_==DDSolidShape::ddpolycone_rz) 
    {
       double volume=0;
       double phiFrom=p_[0]/rad;

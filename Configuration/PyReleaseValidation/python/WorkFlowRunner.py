@@ -109,7 +109,10 @@ class WorkFlowRunner(Thread):
                     cmd2 =cmd+cmd2+closeCmd(istep,'lumiRanges')
                     lumiRangeFile='step%d_lumiRanges.log'%(istep,)
                     retStep = self.doCmd(cmd2)
-                cmd+=com.das(self.dasOptions)
+                if (com.dataSetParent):
+                    cmd3=cmd+com.das(self.dasOptions,com.dataSetParent)+closeCmd(istep,'dasparentquery')
+                    retStep = self.doCmd(cmd3)
+                cmd+=com.das(self.dasOptions,com.dataSet)
                 cmd+=closeCmd(istep,'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step
@@ -134,7 +137,9 @@ class WorkFlowRunner(Thread):
                 cmd += com
                 if self.noRun:
                     cmd +=' --no_exec'
-                if inFile: #in case previous step used DAS query (either filelist of das:)
+                # in case previous step used DAS query (either filelist of das:)
+                # not to be applied for premixing stage1 to allow combiend stage1+stage2 workflow
+                if inFile and not 'premix_stage1' in cmd:
                     cmd += ' --filein '+inFile
                     inFile=None
                 if lumiRangeFile: #DAS query can also restrict lumi range
@@ -144,13 +149,15 @@ class WorkFlowRunner(Thread):
                 if 'HARVESTING' in cmd and not 134==self.wf.numId and not '--filein' in cmd:
                     cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
                 else:
-                    if istep!=1 and not '--filein' in cmd:
-                        cmd+=' --filein file:step%s.root '%(istep-1,)
+                    # Disable input for premix stage1 to allow combined stage1+stage2 workflow
+                    # Bit of a hack but works
+                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd:
+                        cmd+=' --filein  file:step%s.root '%(istep-1,)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s.root '%(istep,)
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
-                if (self.nThreads > 1) and ('HARVESTING' not in cmd) :
+                if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
                   cmd += ' --nThreads %s' % self.nThreads
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0

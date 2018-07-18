@@ -96,37 +96,37 @@ RPAlignmentCorrectionsData::setSensorCorrection( unsigned int id, const RPAlignm
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
+RPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
 {
   auto it = rps_.find( id );
   if ( it == rps_.end() )
     rps_.insert( mapType::value_type( id, a ) );
   else
-    it->second.add( a, sumErrors, addShR, addShZ, addRotZ );
+    it->second.add( a, sumErrors, addSh, addRot );
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
+RPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const RPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
 {
   auto it = sensors_.find( id );
   if ( it == sensors_.end() )
     sensors_.insert( mapType::value_type( id, a ) );
   else
-    it->second.add( a, sumErrors, addShR, addShZ, addRotZ );
+    it->second.add( a, sumErrors, addSh, addRot );
 }
 
 //----------------------------------------------------------------------------------------------------
 
 void
-RPAlignmentCorrectionsData::addCorrections( const RPAlignmentCorrectionsData &nac, bool sumErrors, bool addShR, bool addShZ, bool addRotZ )
+RPAlignmentCorrectionsData::addCorrections( const RPAlignmentCorrectionsData &nac, bool sumErrors, bool addSh, bool addRot )
 {
   for ( const auto& it : nac.rps_ )
-    addRPCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
+    addRPCorrection( it.first, it.second, sumErrors, addSh, addRot );
 
   for ( const auto& it : nac.sensors_ )
-    addSensorCorrection( it.first, it.second, sumErrors, addShR, addShZ, addRotZ );
+    addSensorCorrection( it.first, it.second, sumErrors, addSh, addRot );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -136,6 +136,23 @@ RPAlignmentCorrectionsData::clear()
 {
   rps_.clear();
   sensors_.clear();
+}
+
+//----------------------------------------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream& s, const RPAlignmentCorrectionsData &corr)
+{
+  for (const auto &p : corr.getRPMap())
+  {
+    s << "RP " << p.first << ": " << p.second << std::endl;
+  }
+
+  for (const auto &p : corr.getSensorMap())
+  {
+    s << "sensor " << p.first << ": " << p.second << std::endl;
+  }
+
+  return s;
 }
 
 //----------------------------------------------------------------------------------------------------

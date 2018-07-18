@@ -41,7 +41,7 @@ class CalibrationAlgorithm : public CommissioningAlgorithm {
   
   float maximum( TH1* );
   
-  float turnOn( TH1* );
+  float turnOn( TF1* );
   
  private:
   
@@ -51,7 +51,6 @@ class CalibrationAlgorithm : public CommissioningAlgorithm {
   /** Fitter in deconvolution mode */
   TF1* deconv_fitter_;
   /** Fitter in peak mode */
-
   TF1* peak_fitter_;
   
   CalibrationAnalysis* cal_;

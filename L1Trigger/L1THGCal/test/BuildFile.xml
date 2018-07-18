@@ -1,4 +1,5 @@
 <use   name="Geometry/HGCalGeometry"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="L1Trigger/L1THGCal"/>
 <use   name="Geometry/Records"/>

@@ -120,7 +120,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
     }
 
   // Step 3:  Compute ratio
-  double Ratio=1;
+  double Ratio=0;
   HFRecHitCollection::const_iterator part=rec.find(partner);
   if (part!=rec.end())
     {

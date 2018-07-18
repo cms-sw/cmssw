@@ -102,8 +102,10 @@ DcsStatus::~DcsStatus() { }
 /// Pretty-print operator for DcsStatus
 std::ostream& operator<<(std::ostream& s, const DcsStatus& c) 
 {
-  char zeit[128];
-  char line[128];
+  constexpr size_t kZeitBufferSize = 128;
+  char zeit[kZeitBufferSize];
+  constexpr size_t kLineBufferSize = 157;
+  char line[kLineBufferSize];
   struct tm * hora;
 
   s << "DcsStatus    Version: " << c.version() << 
@@ -111,31 +113,31 @@ std::ostream& operator<<(std::ostream& s, const DcsStatus& c)
 
   timespec ts = c.collectionTime();
   hora = gmtime(&ts.tv_sec);
-  strftime(zeit, sizeof(zeit), "%Y.%m.%d %H:%M:%S", hora);
-  sprintf(line, " CollectionTime: %s.%9.9d", zeit, 
+  strftime(zeit, kZeitBufferSize, "%Y.%m.%d %H:%M:%S", hora);
+  snprintf(line, kLineBufferSize, " CollectionTime: %s.%9.9d", zeit, 
 	  (int)ts.tv_nsec);
   s << line << std::endl;
 
-  sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
+  snprintf(line, kLineBufferSize, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  sprintf(line," MagnetCurrent: %e    MagnetTemperature: %e", 
+  snprintf(line, kLineBufferSize, " MagnetCurrent: %e    MagnetTemperature: %e", 
 	  c.magnetCurrent(), c.magnetTemperature());
   s << line << std::endl;
 
-  sprintf(line," Ready: %d  0x%8.8X", c.ready(), c.ready());
+  snprintf(line,kLineBufferSize," Ready: %d  0x%8.8X", c.ready(), c.ready());
   s << line << std::endl;
 
   for ( int i=0; i<DcsStatus::nPartitions; i++)
   {
     if ( c.ready(DcsStatus::partitionList[i]))
     {
-      sprintf(line,"  %2d %6s: READY", i, DcsStatus::partitionName[i]);
+      snprintf(line,kLineBufferSize,"  %2d %6s: READY", i, DcsStatus::partitionName[i]);
     }
     else
     {
-      sprintf(line,"  %2d %6s: NOT READY", i, DcsStatus::partitionName[i]);
+      snprintf(line,kLineBufferSize,"  %2d %6s: NOT READY", i, DcsStatus::partitionName[i]);
     }
   s << line << std::endl;
   }

@@ -125,11 +125,11 @@ namespace edm {
     processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, getReleaseVersion(), getPassID()); // propagate_const<T> has no reset() function
     auto common = std::make_shared<CommonParams>(
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                                   "maxEvents").getUntrackedParameter<int>("input"),
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1),
+                                   "maxLuminosityBlocks").getUntrackedParameter<int>("input"),
                                 parameterSet.getUntrackedParameterSet(
-                                   "maxSecondsUntilRampdown", ParameterSet()).getUntrackedParameter<int>("input", -1));
+                                   "maxSecondsUntilRampdown").getUntrackedParameter<int>("input"));
     return common;
   }
 

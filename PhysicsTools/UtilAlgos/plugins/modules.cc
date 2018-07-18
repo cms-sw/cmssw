@@ -7,8 +7,6 @@
 
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 DEFINE_FWK_SERVICE( VariableHelperService );
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
-DEFINE_FWK_SERVICE( InputTagDistributorService );
 
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include "PhysicsTools/UtilAlgos/plugins/VariableEventSelector.h"

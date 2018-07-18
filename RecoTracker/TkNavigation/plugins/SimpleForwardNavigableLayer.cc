@@ -95,7 +95,7 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ( (dir == oppositeToMomentum) && !isInOutTrackFWD);
   //bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
 
-  if likely( dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) { //standard tracks
+  if LIKELY( dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) { //standard tracks
     wellInside(ftsWithoutErrors, dir, theOuterLayers, result);
   }
   else if (!dirOppositeXORisInOutTrackFWD && !dirOppositeXORisInOutTrackBarrel){ // !dirOppositeXORisInOutTrack

@@ -16,7 +16,7 @@ ExtrudedPolygon::ExtrudedPolygon( const std::vector<double> & x,
 				  const std::vector<double> & z,
 				  const std::vector<double> & zx,
 				  const std::vector<double> & zy,
-				  const std::vector<double> & zscale) : Solid( ddextrudedpolygon )	      
+				  const std::vector<double> & zscale) : Solid( DDSolidShape::ddextrudedpolygon )	      
 {
   assert( x.size() == y.size());
   assert( z.size() == zx.size());

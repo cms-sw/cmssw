@@ -30,7 +30,9 @@ SiPixelPhase1SummaryOnline = DQMEDHarvester("SiPixelPhase1Summary",
             MapName = cms.string("Charge"),
             MapHist = cms.string("mean_charge")
             )
-        )
+        ),
+    # Number of dead ROCs required to generate an error. Order must be layers 1-4, ring1, ring2.
+    DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2)
 )
 
 SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
@@ -58,7 +60,9 @@ SiPixelPhase1SummaryOffline = DQMEDHarvester("SiPixelPhase1Summary",
             MapName = cms.string("Charge"),
             MapHist = cms.string("mean_charge")
             )
-        )
+        ),
+        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2)
+
 )
 
 SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
@@ -78,7 +82,8 @@ SiPixelPhase1SummaryCosmics = DQMEDHarvester("SiPixelPhase1Summary",
             MapName = cms.string("Charge"),
             MapHist = cms.string("mean_charge")
             )
-        )
+        ),
+        DeadROCErrorThreshold = cms.vdouble(0.2,0.2,0.2,0.2,0.2,0.2)
 )
 
 ADCQTester = cms.EDAnalyzer("QualityTester",

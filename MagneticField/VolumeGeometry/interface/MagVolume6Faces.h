@@ -17,10 +17,6 @@
 
 #include <vector>
 
-//-- FIXME
-#include <string>
-//--
-
 template <class T>
 class MagneticFieldProvider;
 
@@ -28,7 +24,7 @@ class MagVolume6Faces : public MagVolume {
 public:
 
   MagVolume6Faces( const PositionType& pos, const RotationType& rot, 
-		   DDSolidShape shape, const std::vector<VolumeSide>& faces,
+		   const std::vector<VolumeSide>& faces,
 		   const MagneticFieldProvider<float> * mfp,
 		   double sf=1.);
 

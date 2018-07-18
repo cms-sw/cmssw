@@ -221,9 +221,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
   }
   // enable fluorescence
   bool fluo = theParSet.getParameter<bool>("FlagFluo");
-  if(fluo) {
+  if(fluo && !G4LossTableManager::Instance()->AtomDeexcitation()) {
     G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
     G4LossTableManager::Instance()->SetAtomDeexcitation(de);
-    de->SetFluo(true);
   }
 }

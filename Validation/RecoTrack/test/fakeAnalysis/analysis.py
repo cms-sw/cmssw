@@ -8,6 +8,7 @@ import pickle
 from math import sqrt, copysign, sin, cos, pi
 
 from Validation.RecoTrack.plotting.ntuple import *
+import six
 
 ##### GLOBAL VARIABLES #####
 
@@ -572,7 +573,7 @@ def StopReason(track):
 
 def PrintTrackInfo(track, fake = None, frac = 0, fake_info = None):
     ''' Prints info on the track. Called from PlotFakes method in graphics.py.  '''
-    if type(track) == Track:
+    if isinstance(track, Track):
 	if track.nMatchedTrackingParticles() == 0: # FAKE
 	    print str(track.index()) + ": FAKE \nSTOP REASON: " + StopReason(track)
 	    print "Has " + str(track.nValid()) + " valid hits"
@@ -601,7 +602,7 @@ def PrintTrackInfo(track, fake = None, frac = 0, fake_info = None):
 	    print "Fake shares " + str(dec) + " fraction of hits with track"
 	print "Shared hits from beginning: " + str(SharedHitsFromBeginning(track, fake, 10))
 
-    if type(track) is TrackingParticle:
+    if isinstance(track, TrackingParticle):
 	print "Parameters:"
 	print "px  : " + str(track.px()) + "  py  : " + str(track.py()) + "  pz  : " + str(track.pz())
 	print "pt  : " + str(track.pca_pt()) + "  eta : " + str(track.pca_eta()) + "  phi : " + str(track.pca_phi())
@@ -1158,17 +1159,17 @@ def Save_Normalisation_Coefficients(ntuple_file):
     '''
     norm_c = copy(layer_data_tmp)
 
-    print sum([val for ind, val in norm_c.iteritems()])
+    print sum([val for ind, val in six.iteritems(norm_c)])
     for event in ntuple_file:
 	print event.entry()+1
 	for particle in event.trackingParticles():
 	    for hit in particle.hits():
 		if hit.isValidHit():
 		    norm_c[layer_names_rev[hit.layerStr()]] += 1
-    norm_sum = sum([val for ind, val in norm_c.iteritems()])
+    norm_sum = sum([val for ind, val in six.iteritems(norm_c)])
     print norm_sum
     print norm_c
-    for i, c in norm_c.iteritems():
+    for i, c in six.iteritems(norm_c):
 	norm_c[i] = 1.0*c/norm_sum
     #normalisation = [1.0*c/norm_sum for c in norm_c]
     print "normalisation_coefficients.dmp"

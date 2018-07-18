@@ -18,6 +18,10 @@ The available inspectors are:
 | `SiStripBadChannelRcd`          | `SiStripBadStrip`	        | `SiStripBadStrip_PayloadInspector.cc`     |
 | `SiStripDCSStatusRcd`           | `SiStripBadStrip`	        | `SiStripBadStrip_PayloadInspector.cc`     |
 | `SiStripDetVOffRcd`             | `SiStripDetVOff` 	        | `SiStripDetVOff_PayloadInspector.cc`      |
+| `SiStripConfObjectRcd`          | `SiStripConfObject` 	| `SiStripConfObject_PayloadInspector.cc`   |
+| `SiStripThresholdRcd `          | `SiStripThreshold`          | `SiStripThreshold_PayloadInspector.cc`    |
+| `SiStripLatencyRcd`             | `SiStripLatency`            | `SiStripLatency_PayloadInspector.cc`      |
+
 
 Plots will be shown within the **cmsDbBrowser** [payload inspector](https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod) application.
-In the `CondCore/SiStripPlugins/test` directory a few bash scripts to inspect conditions from command line are available (N.B.: to use this upon payloads store in the offline Conditions DB, you will need to ask AlCa/DB conveners appropriate keys to be able to read the DB.)
+In the `CondCore/SiStripPlugins/test` directory a few bash scripts to inspect conditions from command line are available.

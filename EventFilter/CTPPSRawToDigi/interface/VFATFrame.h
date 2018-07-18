@@ -41,6 +41,11 @@ class VFATFrame
     {
       return data;
     }
+    
+    const VFATFrame::word* getData() const
+    {
+      return data;
+    }
 
     /// Returns Bunch Crossing number (BC<11:0>).
     VFATFrame::word getBC() const

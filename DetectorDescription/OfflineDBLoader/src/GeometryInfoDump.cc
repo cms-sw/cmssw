@@ -15,6 +15,9 @@
 #include <set>
 #include <vector>
 
+using Graph = DDCompactView::Graph;
+using adjl_iterator = Graph::const_adj_iterator;
+
 GeometryInfoDump::GeometryInfoDump () { }
 
 GeometryInfoDump::~GeometryInfoDump () { }
@@ -65,12 +68,11 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
     // final destination of the DDSpecifics
     std::string dsname = "dumpSpecs" + fname;
     std::ofstream dump(dsname.c_str());
-    DDCompactView::DDCompactView::graph_type gra = cpv.graph();
+    const auto& gra = cpv.graph();
     std::set<DDLogicalPart> lpStore;
-    typedef  DDCompactView::graph_type::const_adj_iterator adjl_iterator;
     adjl_iterator git = gra.begin();
     adjl_iterator gend = gra.end();        
-    DDCompactView::graph_type::index_type i=0;
+    Graph::index_type i=0;
     for (; git != gend; ++git) 
     {
       const DDLogicalPart & ddLP = gra.nodeData(git);

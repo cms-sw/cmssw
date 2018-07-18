@@ -14,6 +14,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HBHERecalibration.h"
+#include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
@@ -63,8 +64,12 @@ protected:
 			      const edm::IOVSyncValue& , 
 			      edm::ValidityInterval&) override ;
 
+  std::unique_ptr<HcalPedestals> producePedestals_ (const HcalPedestalsRcd& rcd, bool eff);
+  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_ (const HcalPedestalWidthsRcd& rcd, bool eff);
   std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
+  std::unique_ptr<HcalPedestals> produceEffectivePedestals (const HcalPedestalsRcd& rcd);
+  std::unique_ptr<HcalPedestalWidths> produceEffectivePedestalWidths (const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::unique_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
   std::unique_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
@@ -109,5 +114,7 @@ private:
   bool setHEdsegm;
   bool setHBdsegm;
   bool useLayer0Weight;
+  bool useIeta18depth1;
+  bool testHEPlan1;
 };
 

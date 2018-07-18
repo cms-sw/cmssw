@@ -1,5 +1,6 @@
 <use   name="SimCalorimetry/HcalSimProducers"/>
 <use   name="SimGeneral/MixingModule"/>
+<use   name="SimGeneral/PreMixingModule"/>
 <library   file="*.cc" name="SimCalorimetryHcalSimProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

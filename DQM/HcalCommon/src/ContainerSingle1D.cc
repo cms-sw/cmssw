@@ -4,6 +4,7 @@
 namespace hcaldqm
 {
 	using namespace quantity;
+	using namespace constants;
 	ContainerSingle1D::ContainerSingle1D()
 	{
 		_qx = nullptr;
@@ -69,8 +70,8 @@ namespace hcaldqm
 		 std::string subsystem, std::string aux)
 	{
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = ib.book1D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = ib.book1D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max());
 		customize();
 	}
@@ -79,8 +80,8 @@ namespace hcaldqm
 		 std::string subsystem, std::string aux)
 	{
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = store->book1D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = store->book1D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max());
 		customize();
 	}
@@ -304,6 +305,15 @@ namespace hcaldqm
 			_qx->setMax(x);
 		}
 	}
+
+	void ContainerSingle1D::showOverflowX(bool showOverflow) {
+		_qx->showOverflow(showOverflow);
+	}
+
+	void ContainerSingle1D::showOverflowY(bool showOverflow) {
+		_qy->showOverflow(showOverflow);
+	}
+
 }
 
 

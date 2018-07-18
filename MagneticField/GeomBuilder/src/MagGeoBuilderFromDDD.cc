@@ -490,7 +490,6 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     const GloballyPositioned<float> * gpos = (*vol)->placement();
     (*vol)->magVolume = new MagVolume6Faces(gpos->position(),
 					    gpos->rotation(),
-					    (*vol)->shape(),
 					    (*vol)->sides(),
 					    mp, sf);
 
@@ -579,7 +578,6 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     // Check that all grid points of the interpolator are inside the volume.
       const MagVolume6Faces tempVolume(vol->placement()->position(),
 				 vol->placement()->rotation(),
-				 vol->shape(),
 				 vol->sides(), 
 				 interpolators[vol->magFile]);
 

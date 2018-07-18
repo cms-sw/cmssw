@@ -123,8 +123,7 @@ def parseDir(dir,label,it1="",itN=""):
     print "directory ", dir, "has no ", itN, " in it!!"
     return ["problem!!!",""]
   res = [label,dir]
-  files = os.listdir(dir)
-  files.sort()
+  files = sorted(os.listdir(dir))
   for f in files:
     if re.match(".+\.png", f):
       if len(it1)>0 and len(itN)>0:

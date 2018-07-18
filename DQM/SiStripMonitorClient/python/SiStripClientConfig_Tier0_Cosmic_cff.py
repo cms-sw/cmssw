@@ -21,12 +21,37 @@ siStripQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
+from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import*
+siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
+siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)
+
+from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import siStripQualityESProducer 
+mergedSiStripQualityProducer = siStripQualityESProducer.clone(
+    #names and desigantions
+    ListOfRecordToMerge = cms.VPSet(
+        cms.PSet(record = cms.string("SiStripDetVOffRcd"), tag = cms.string('')), # DCS information
+        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string('')), # Use Detector cabling information to exclude detectors not connected            
+        cms.PSet(record = cms.string('SiStripBadChannelRcd'), tag = cms.string('')), # Online Bad components
+        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),   # Bad Channel list from the selected IOV as done at PCL
+        cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel')), # BadChannel list from FED erroes              
+        cms.PSet(record = cms.string('RunInfoRcd'), tag = cms.string(''))            # List of FEDs exluded during data taking          
+        )
+    )
+
+mergedSiStripQualityProducer.ReduceGranularity = cms.bool(False)
+mergedSiStripQualityProducer.ThresholdForReducedGranularity = cms.double(0.3)
+mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
+
+
+siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
+    StripQualityLabel = cms.string('MergedBadComponent')
+)
+
 # Sequence
-SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser)
+SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siStripBadComponentInfo)
 #removed modules using TkDetMap
 #SiStripCosmicDQMClient = cms.Sequence(siStripQTester)
 
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
-SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripCommon.TkDetMap_cff import *

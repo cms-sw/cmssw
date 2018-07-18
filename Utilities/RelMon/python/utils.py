@@ -245,7 +245,7 @@ class Chi2(StatisticalTest):
         if h.GetBinContent(ibin)>0:
           nfilled+=1
       n_filled_l.append(nfilled)
-    return len(filter (lambda x:x>=min_filled,n_filled_l) )>0
+    return len([x for x in n_filled_l if x>=min_filled] )>0
 
   def absval(self):
     nbins=getNbins(self.h1)
@@ -588,7 +588,7 @@ def make_files_pairs(files, verbose=True):
         for version in versions_files:
             print '%s: %d files' % (str(version),  len(versions_files[version]))
 
-    if len(versions_files.keys()) <= 1:
+    if len(versions_files) <= 1:
         print '\nFound too little versions, there is nothing to pair. Exiting...\n'
         exit()
 

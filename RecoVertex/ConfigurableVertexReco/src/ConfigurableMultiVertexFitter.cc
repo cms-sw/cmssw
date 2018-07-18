@@ -99,5 +99,5 @@ edm::ParameterSet ConfigurableMultiVertexFitter::defaults() const
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfRecoBuilder.h"
 
 namespace {
-  ConfRecoBuilder < ConfigurableMultiVertexFitter > t ( "mvf", "Multi Vertex Fitter" );
+  const ConfRecoBuilder < ConfigurableMultiVertexFitter > t ( "mvf", "Multi Vertex Fitter" );
 }

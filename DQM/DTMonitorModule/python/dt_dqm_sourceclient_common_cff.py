@@ -28,13 +28,16 @@ scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
 twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
-from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
+#from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
-dtunpacker.readOutParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
-dtunpacker.readOutParameters.debug = False
-dtunpacker.readOutParameters.rosParameters.debug = False
-dtunpacker.inputLabel = 'rawDataCollector'
+#dtunpacker.readOutParameters.performDataIntegrityMonitor = True
+#dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
+#dtunpacker.readOutParameters.debug = False
+#dtunpacker.readOutParameters.rosParameters.debug = False
+#dtunpacker.inputLabel = 'rawDataCollector'
+
+import EventFilter.DTRawToDigi.dturosunpacker_cfi
+dtunpacker = EventFilter.DTRawToDigi.dturosunpacker_cfi.dturosunpacker.clone()
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 dt1DRecHits.dtDigiLabel = 'dtunpacker'
@@ -48,10 +51,15 @@ from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
 DTDataIntegrityTask.processingMode = 'Online'
 DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
 DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
+DTDataIntegrityTask.dtFEDlabel     = 'dtunpacker'
+DTDataIntegrityTask.checkUros      = True
+blockedROChannelTest.checkUros      = True
+dataIntegrityTest.checkUros      = True
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
 from DQM.DTMonitorClient.dtOccupancyTest_cfi import *
+from DQM.DTMonitorClient.dtOccupancyTestML_cfi import *
 dtDigiMonitor.readDB = False 
 dtDigiMonitor.filterSyncNoise = True
 dtDigiMonitor.lookForSyncNoise = True
@@ -61,7 +69,8 @@ from DQM.DTMonitorModule.dtTriggerBaseTask_cfi import *
 from DQM.DTMonitorModule.dtTriggerLutTask_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerLutTest_cfi import *
-
+triggerTest.hwSources = cms.untracked.vstring('TM')
+dtTriggerBaseMonitor.processDDU = False
 # scaler task
 from DQM.DTMonitorModule.dtScalerInfoTask_cfi import *
 
@@ -100,7 +109,8 @@ dtTPmonitor.inTimeHitsUpperBound = 0
 # Local Trigger task for test pulses
 from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_TP_cfi import *
-
+dtTPTriggerTest.hwSources = cms.untracked.vstring('TM')
+dtTPTriggerMonitor.process_ddu = cms.untracked.bool(False)
 
 unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
 
@@ -110,10 +120,11 @@ reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 dtDQMTask = cms.Sequence(DTDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
 # DQM clients to be run on physics event only
-dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
+dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + dtOccupancyTestML + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
 
 # DQM tasks and clients to be run on calibration events only
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
 
 # sequence to be run on physics events (includes filters, reco and DQM)
 dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + reco + dtDQMTask + dtDQMTest)
+

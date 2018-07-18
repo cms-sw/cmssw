@@ -50,7 +50,7 @@ def OptionsFromItems(items):
         from Configuration.AlCa import autoCond
         possible=""
         for k in autoCond.autoCond:
-            possible+="\nauto:"+k+" -> "+autoCond.autoCond[k]
+            possible+="\nauto:"+k+" -> "+str(autoCond.autoCond[k])
         raise Exception("the --conditions option is mandatory. Possibilities are: "+possible)
 
 
@@ -84,8 +84,6 @@ def OptionsFromItems(items):
                  "SIM":"GEN",
                  "reSIM":"SIM",
                  "DIGI":"SIM",
-                 "DIGIPREMIX":"SIM",
-                 "DIGIPREMIX_S2":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
                  "HLT":"RAW",

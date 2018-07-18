@@ -3,11 +3,9 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef std::vector<float> ParmVec;

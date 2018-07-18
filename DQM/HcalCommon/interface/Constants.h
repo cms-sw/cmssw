@@ -180,7 +180,6 @@ namespace hcaldqm
 		int const HF = 4;
 		int const SUBDET_NUM = 4;
 		int const TPSUBDET_NUM = 2;
-		int const DIGISIZE[SUBDET_NUM] = {10, 10, 10, 3};
 		std::string const SUBDET_NAME[SUBDET_NUM]={"HB", "HE", "HO", "HF"};
 		std::string const SUBDETPM_NAME[2*SUBDET_NUM] = { "HBM", "HBP",
 			"HEM", "HEP", "HOM", "HOP", "HFM", "HFP"};
@@ -322,26 +321,28 @@ namespace hcaldqm
 		 *	Orbit Gap Operations enum
 		 */
 		uint8_t const EVENTTYPE_PEDESTAL = 1;
-		uint8_t const EVENTTYPE_LASER = 14;
+		uint8_t const EVENTTYPE_LASER    = 14;
+		uint8_t const EVENTTYPE_LED      = 15;
 		enum OrbitGapType
 		{
-			tUnkown = -1,
 			tNull = 0,
 			tPedestal = 1,
-			tHFRaddam = 2,
-			tHBHEHPD = 3,
-			tHO = 4,
-			tHF = 5,
-			tZDC = 6,
-			tHEPMega = 7,
-			tHEMMega = 8,
-			tHBPMega = 9,
-			tHBMMega = 10,
-			tSomething = 11,
-			tCRF = 12,
-			tCalib = 13,
-			tSafe = 14,
-			nOrbitGapType = 15
+			tLED = 2,
+			tHFRaddam = 3,
+			tHBHEHPD = 4,
+			tHO = 5,
+			tHF = 6,
+			tZDC = 7,
+			tHEPMega = 8,
+			tHEMMega = 9,
+			tHBPMega = 10,
+			tHBMMega = 11,
+			tSomething = 12,
+			tCRF = 13,
+			tCalib = 14,
+			tSafe = 15,
+			tUnknown = 16,
+			nOrbitGapType = 17
 		};
 	}
 }

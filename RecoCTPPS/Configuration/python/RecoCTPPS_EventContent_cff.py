@@ -21,8 +21,13 @@ RecoCTPPSAOD = cms.PSet(
     'keep CTPPSDiamondRecHitedmDetSetVector_ctppsDiamondRecHits_*_*',
     'keep CTPPSDiamondLocalTrackedmDetSetVector_ctppsDiamondLocalTracks_*_*',
 
-    #tracking pixels
+    # TOTEM timing
+    'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigi_*_*',
+    'keep TotemTimingRecHitedmDetSetVector_totemTimingRecHits_*_*',
+
+    # tracking pixels
     'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*',
+    'keep CTPPSPixelDataErroredmDetSetVector_ctppsPixelDigis_*_*',
     'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
     'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHits_*_*',
     'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',

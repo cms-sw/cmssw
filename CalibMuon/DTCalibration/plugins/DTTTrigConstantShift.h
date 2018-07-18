@@ -5,6 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Applies constant shift to tTrig values
  *
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -27,10 +28,10 @@ public:
   DTTTrigConstantShift(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTTTrigConstantShift();
+  ~DTTTrigConstantShift() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTTTrigData correction(const DTSuperLayerId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTTTrigData correction(const DTSuperLayerId&) override;
 
 private:
   std::string dbLabel_;

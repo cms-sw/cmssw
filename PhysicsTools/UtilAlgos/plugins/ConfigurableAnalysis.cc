@@ -36,7 +36,7 @@
 #include "PhysicsTools/UtilAlgos/interface/Selections.h"
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
+#include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
 
 //
 // class decleration

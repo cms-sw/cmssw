@@ -1,11 +1,10 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 
 EBDetId EcalBarrelTopology::incrementIeta(const EBDetId& id) const {
-  if (!(*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(id))
+  if (!(theGeom_->present(id)))
     return EBDetId(0);
-      
+  
   EBDetId nextPoint;
   if (id.ieta()==-1) 
     {
@@ -21,7 +20,7 @@ EBDetId EcalBarrelTopology::incrementIeta(const EBDetId& id) const {
       else
 	return EBDetId(0);
     }
-  if ((*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(nextPoint))
+  if (theGeom_->present(nextPoint))
     return nextPoint;
   else
     return EBDetId(0);
@@ -29,7 +28,7 @@ EBDetId EcalBarrelTopology::incrementIeta(const EBDetId& id) const {
 
 EBDetId EcalBarrelTopology::decrementIeta(const EBDetId& id) const {
   
-  if (!(*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(id))
+  if (!(theGeom_->present(id)))
     return EBDetId(0);
   
   EBDetId nextPoint;
@@ -48,7 +47,7 @@ EBDetId EcalBarrelTopology::decrementIeta(const EBDetId& id) const {
 	return EBDetId(0);
     }
   
-  if ((*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(nextPoint))
+  if (theGeom_->present(nextPoint))
     return nextPoint;
   else
     return EBDetId(0);
@@ -56,7 +55,7 @@ EBDetId EcalBarrelTopology::decrementIeta(const EBDetId& id) const {
 
 
 EBDetId EcalBarrelTopology::incrementIphi(const EBDetId& id) const {
-  if (!(*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(id))
+  if (!(theGeom_->present(id)))
     return EBDetId(0);
   
   EBDetId nextPoint;
@@ -76,7 +75,7 @@ EBDetId EcalBarrelTopology::incrementIphi(const EBDetId& id) const {
 	return EBDetId(0);
     }
   
-  if ((*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(nextPoint))
+  if (theGeom_->present(nextPoint))
     return nextPoint;
   else
     return EBDetId(0);
@@ -84,7 +83,7 @@ EBDetId EcalBarrelTopology::incrementIphi(const EBDetId& id) const {
 
 
 EBDetId EcalBarrelTopology::decrementIphi(const EBDetId& id) const {
-  if (!(*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(id))
+  if (!(theGeom_->present(id)))
     return EBDetId(0);
   
   EBDetId nextPoint;
@@ -104,7 +103,7 @@ EBDetId EcalBarrelTopology::decrementIphi(const EBDetId& id) const {
         return EBDetId(0);
     }  
   
-  if ((*theGeom_).getSubdetectorGeometry(DetId::Ecal,EcalBarrel)->present(nextPoint))
+  if (theGeom_->present(nextPoint))
     return nextPoint;
   else
     return EBDetId(0);

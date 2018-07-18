@@ -55,7 +55,6 @@ private:
   void beginJob() override ;
   void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) override;
   void endJob() override ;
   
   DQMStore *dbe_;  

@@ -13,8 +13,8 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
-#include "DataFormats/PatCandidates/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/libminifloat.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -448,6 +448,7 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
   edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> trackToPackedCandidateToken_;
 
   std::string rootFolder_;
+  bool debug_;
 
   enum {
     sf_AllTracks = 0,
@@ -529,6 +530,7 @@ PackedCandidateTrackValidator::PackedCandidateTrackValidator(const edm::Paramete
   verticesToken_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertices"))),
   trackToPackedCandidateToken_(consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getUntrackedParameter<edm::InputTag>("trackToPackedCandidateAssociation"))),
   rootFolder_(iConfig.getUntrackedParameter<std::string>("rootFolder")),
+  debug_(iConfig.getUntrackedParameter<bool>("debug")),
   h_diffDxyAssocPV(RangeAbs(0.001)),
   h_diffDzAssocPV(RangeAbs(0.001)),
   h_diffCovQoverpQoverp(Range(-1e-6, 0.13), -15, 0),  // despite of ceil in pack, there is rounding in double->float
@@ -550,6 +552,7 @@ void PackedCandidateTrackValidator::fillDescriptions(edm::ConfigurationDescripti
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.addUntracked<edm::InputTag>("trackToPackedCandidateAssociation", edm::InputTag("packedPFCandidates"));
   desc.addUntracked<std::string>("rootFolder", "Tracking/PackedCandidate");
+  desc.addUntracked<bool>("debug", false);
 
   descriptions.add("packedCandidateTrackValidator", desc);
 }
@@ -893,7 +896,8 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     }
 
     // Print warning if there are differences outside the expected range
-    if(diffNormalizedChi2 < -1 || diffNormalizedChi2 > 0 || diffCharge != 0 || diffHP != 0
+    if(debug_ && 
+       (diffNormalizedChi2 < -1 || diffNormalizedChi2 > 0 || diffCharge != 0 || diffHP != 0
        || std::abs(diffPhi) > 5e-4
        || diffDxyAssocPV.outsideExpectedRange()
        || diffDzAssocPV.outsideExpectedRange()
@@ -904,6 +908,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
        || diffCovDxyDsz.outsideExpectedRange() || diffCovDszDsz.outsideExpectedRange()
        || diffNumberOfPixelHits != 0 || diffNumberOfHits != 0 || diffLostInnerHits != 0
        || diffHitPatternHasValidHitInFirstPixelBarrel != 0
+        )
        ) {
 
       edm::LogInfo("PackedCandidateTrackValidator") << "Track " << i << " pt " << track.pt() << " eta " << track.eta() << " phi " << track.phi() << " chi2 " << track.chi2() << " ndof " << track.ndof()

@@ -2,7 +2,6 @@
 #define MagVolume_H
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "MagneticField/VolumeGeometry/interface/VolumeSide.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -21,14 +20,12 @@ public:
   typedef GloballyPositioned<float>::GlobalVector   GlobalVector;
 
   MagVolume( const PositionType& pos, const RotationType& rot, 
-	     DDSolidShape shape, const MagneticFieldProvider<float> * mfp,
+	     const MagneticFieldProvider<float> * mfp,
 	     double sf=1.) :
-    Base(pos,rot), MagneticField(), theShape(shape), theProvider(mfp), 
+    Base(pos,rot), MagneticField(), theProvider(mfp), 
     theProviderOwned(false), theScalingFactor(sf), isIronFlag(false) {}
 
   ~MagVolume() override;
-
-  DDSolidShape shapeType() const {return theShape;}
 
   LocalVector fieldInTesla( const LocalPoint& lp) const;
   GlobalVector fieldInTesla( const GlobalPoint& lp) const;
@@ -54,7 +51,6 @@ public:
 
 private:
 
-  DDSolidShape theShape;
   const MagneticFieldProvider<float> * theProvider;
   bool theProviderOwned;
   double theScalingFactor;

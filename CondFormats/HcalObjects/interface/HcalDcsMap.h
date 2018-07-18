@@ -130,31 +130,31 @@ class HcalDcsMap {
 namespace HcalDcsMapAddons {
   class LessById {
    public:
-    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
       return a->mId < b->mId;
     }
-    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) {
+    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) const {
       return a.mId < b.mId;
     }
-    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
       return a->mId == b->mId;
     }
-    bool good (const HcalDcsMap::Item& a) {
+    bool good (const HcalDcsMap::Item& a) const {
       return a.mDcsId;
     }
   };
   class LessByDcsId {
    public:
-    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+    bool operator () (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
       return a->mDcsId < b->mDcsId;
     }
-    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) {
+    bool operator () (const HcalDcsMap::Item& a, const HcalDcsMap::Item& b) const {
       return a.mDcsId < b.mDcsId;
     }
-    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) {
+    bool equal (const HcalDcsMap::Item* a, const HcalDcsMap::Item* b) const {
       return a->mDcsId == b->mDcsId;
     }
-    bool good (const HcalDcsMap::Item& a) {
+    bool good (const HcalDcsMap::Item& a) const {
       return a.mDcsId;
     }
   };

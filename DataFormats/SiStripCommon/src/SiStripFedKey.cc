@@ -227,23 +227,17 @@ bool SiStripFedKey::isInvalid( const sistrip::Granularity& gran ) const {
 // 
 void SiStripFedKey::initFromValue() {
   
-  if ( fedId_ >= sistrip::FED_ID_MIN &&
-       fedId_ <= sistrip::FED_ID_MAX ) { 
-    fedId_ = fedId_; 
-  } else if ( fedId_ == 0 ) { 
-    fedId_ = fedId_; 
-  } else { 
+  if ( not ( (fedId_ >= sistrip::FED_ID_MIN &&
+              fedId_ <= sistrip::FED_ID_MAX ) ||
+             ( fedId_ == 0 ) ) ) { 
     fedId_ = sistrip::invalid_; 
   }
   
-  if ( feUnit_ <= sistrip::FEUNITS_PER_FED ) { feUnit_ = feUnit_; }
-  else { feUnit_ = sistrip::invalid_; }
+  if ( feUnit_ > sistrip::FEUNITS_PER_FED ) { feUnit_ = sistrip::invalid_; }
 
-  if ( feChan_ <= sistrip::FEDCH_PER_FEUNIT ) { feChan_ = feChan_; }
-  else { feChan_ = sistrip::invalid_; }
+  if ( feChan_ > sistrip::FEDCH_PER_FEUNIT ) { feChan_ = sistrip::invalid_; }
   
-  if ( fedApv_ <= sistrip::APVS_PER_FEDCH ) { fedApv_ = fedApv_; }
-  else { fedApv_ = sistrip::invalid_; }
+  if ( fedApv_ > sistrip::APVS_PER_FEDCH ) { fedApv_ = sistrip::invalid_; }
   
 }
 

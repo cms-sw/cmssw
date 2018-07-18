@@ -44,13 +44,14 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    hltpostvalidation.remove(postProcessorHLTtrackingSequence)
-    hltpostvalidation.remove(postProcessorHLTvertexing)
-    hltpostvalidation.remove(postProcessorHLTgsfTrackingSequence)
-    hltpostvalidation.remove(postProcessorHLTmuonTrackingSequence)
-    # remove this:     +hltvalidationqt ?
-    # remove this:    +hltExoticaPostProcessors ?
+fastSim.toReplaceWith(hltpostvalidation, hltpostvalidation.copyAndExclude([
+    postProcessorHLTtrackingSequence,
+    postProcessorHLTvertexing,
+    postProcessorHLTgsfTrackingSequence,
+    postProcessorHLTmuonTrackingSequence
+    # remove this:    hltvalidationqt ?
+    # remove this:    hltExoticaPostProcessors ?
+]))
     
 hltpostvalidation_preprod = cms.Sequence( 
     postProcessorHLTtrackingSequence

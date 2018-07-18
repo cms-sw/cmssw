@@ -91,8 +91,6 @@ L1TdeCSCTF::L1TdeCSCTF(ParameterSet const& pset) {
 void L1TdeCSCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
-void L1TdeCSCTF::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-}
 
 void L1TdeCSCTF::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 
 {

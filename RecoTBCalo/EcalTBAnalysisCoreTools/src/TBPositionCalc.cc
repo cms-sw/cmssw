@@ -80,9 +80,8 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(const std::vector<EBDetId>& pa
 
   // Get position of the central crystal from shower depth 
   EBDetId maxId_ = EBDetId(1, myCrystal, EBDetId::SMCRYSTALMODE);
-  const CaloCellGeometry* center_cell = theGeometry_ -> getGeometry(maxId_);
-  GlobalPoint center_pos = 
-    (dynamic_cast<const TruncatedPyramid*>(center_cell))->getPosition(depth);
+  auto center_cell = theGeometry_ -> getGeometry(maxId_);
+  GlobalPoint center_pos =  center_cell->getPosition(depth);
 
   // Loop over the hits collection
   double weight        = 0;
@@ -106,8 +105,8 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(const std::vector<EBDetId>& pa
     total_weight += weight;
 
     // weighted position of this detId
-    const CaloCellGeometry* jth_cell = theGeometry_->getGeometry(myId);
-    GlobalPoint jth_pos = dynamic_cast<const TruncatedPyramid*>(jth_cell)->getPosition(depth);    
+    auto jth_cell = theGeometry_->getGeometry(myId);
+    GlobalPoint jth_pos = jth_cell->getPosition(depth);    
     cluster_theta += weight*jth_pos.theta();
     cluster_phi   += weight*jth_pos.phi();
   }

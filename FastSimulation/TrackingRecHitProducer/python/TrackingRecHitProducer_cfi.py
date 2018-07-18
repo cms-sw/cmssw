@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+import six
 
 fastTrackerRecHits = cms.EDProducer("TrackingRecHitProducer",
-    simHits = cms.InputTag("famosSimHits","TrackerHits"),
+    simHits = cms.InputTag("fastSimProducer","TrackerHits"),
     plugins=cms.VPSet()
 )
 
@@ -85,8 +86,8 @@ trackerStripGaussianResolutions={
     }
 }
 
-for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():
-    for trackerLayer, resolutionX in trackerLayers.iteritems():
+for subdetId,trackerLayers in six.iteritems(trackerStripGaussianResolutions):
+    for trackerLayer, resolutionX in six.iteritems(trackerLayers):
         pluginConfig = cms.PSet(
             name = cms.string(subdetId+str(trackerLayer)),
             type=cms.string("TrackingRecHitStripGSPlugin"),

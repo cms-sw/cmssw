@@ -93,21 +93,13 @@ namespace edm {
     void put(ProductResolverIndex index,
              std::unique_ptr<WrapperBase> edp) const;
 
-    void setComplete() {
-      complete_ = true;
-    }
-
   private:
-
-    bool isComplete_() const override {return complete_;}
 
     unsigned int transitionIndex_() const override;
 
     edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
-
-    bool complete_;
   };
 }
 #endif

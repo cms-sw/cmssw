@@ -25,7 +25,6 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
  protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -43,6 +42,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   std::string summaryTitle;
   std::vector<int> ignoreBin;
   bool verbose;
+  bool enable2DComp; // Default value is false. Set to true in the configuration file for enabling 2D eta-phi histograms
 
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;
@@ -60,6 +60,7 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   MonitorElement* muColl1hwQual;
   MonitorElement* muColl1hwIso;
   MonitorElement* muColl1Index;
+  MonitorElement* muColl1EtaPhimap; // This histogram will be filled only if enable2DComp is true 
 
   MonitorElement* muColl2BxRange;
   MonitorElement* muColl2nMu;
@@ -73,7 +74,8 @@ class L1TStage2MuonComp : public DQMEDAnalyzer {
   MonitorElement* muColl2hwQual;
   MonitorElement* muColl2hwIso;
   MonitorElement* muColl2Index;
-
+  MonitorElement* muColl2EtaPhimap; // This histogram will be filled only if enable2DComp is true
+ 
 };
 
 #endif

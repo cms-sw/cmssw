@@ -15,7 +15,7 @@ DDI::CutTubs::CutTubs( double zhalf,
 		       double deltaPhi,
 		       double lx, double ly, double lz,
 		       double tx, double ty, double tz )
-  : Solid(ddcuttubs)
+  : Solid(DDSolidShape::ddcuttubs)
 {
   p_.emplace_back(zhalf);
   p_.emplace_back(rIn);

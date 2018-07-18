@@ -3425,23 +3425,23 @@ MisalignmentScenario_PhaseI_PseudoAsymptotic = MisalignmentScenarioSettings.clon
 
   P1PXBBarrels = cms.PSet(
     DetUnits = cms.PSet(
-      dXlocal = cms.double(0.854365),
-      dYlocal = cms.double(1.20877),
-      dZlocal = cms.double(1.52849),
-      phiXlocal = cms.double(0.139737), # 0.139737 * 0.0001 = 0.0000139737 rad -> 0.0008006 degree
-      phiYlocal = cms.double(0.100908),
-      phiZlocal = cms.double(0.980077),
+      dXlocal = cms.double(0.45),
+      dYlocal = cms.double(0.6),
+      dZlocal = cms.double(0.8),
+      phiXlocal = cms.double(0.07), # 0.07 * 0.0001 = 0.000007 rad -> 0.00040107 degree
+      phiYlocal = cms.double(0.05),
+      phiZlocal = cms.double(0.5),
     ),
   ),
 
   P1PXECEndcaps = cms.PSet(
     DetUnits = cms.PSet(
-      dXlocal = cms.double(3.73954),
-      dYlocal = cms.double(4.79800),
-      dZlocal = cms.double(6.0599),
-      phiXlocal = cms.double(3.52428),
-      phiYlocal = cms.double(3.17239),
-      phiZlocal = cms.double(1.73939),
+      dXlocal = cms.double(0.8),
+      dYlocal = cms.double(1.0),
+      dZlocal = cms.double(1.2),
+      phiXlocal = cms.double(0.7),
+      phiYlocal = cms.double(0.6),
+      phiZlocal = cms.double(0.3),
     ),
   ),
 )

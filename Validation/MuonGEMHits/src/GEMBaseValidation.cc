@@ -78,15 +78,8 @@ string GEMBaseValidation::getSuffixTitle(int region){
 }
 
 string GEMBaseValidation::getStationLabel(int i) {
-  vector<string> stationLabel;
-  if ( nstationForLabel == 2) { 
-    string stationLabel[] = {"1","2"};
-    return stationLabel[i-1];
-  }
-  else {
-    std::cout<<"Something is wrong"<<std::endl;
-    return "";
-  }
+  string stationLabel[] = {"1","2"};
+  return stationLabel[i-1];
 }
 
 

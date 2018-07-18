@@ -2,7 +2,10 @@ import os
 import coral,datetime
 from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil,lumiCorrections
 import array
-from RecoLuminosity.LumiDB import argparse, nameDealer, selectionParser, hltTrgSeedMapper, \
+import argparse
+
+import six
+from RecoLuminosity.LumiDB import  nameDealer, selectionParser, hltTrgSeedMapper, \
      connectstrParser, cacheconfigParser, tablePrinter, csvReporter, csvSelectionParser
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
 from pprint import pprint, pformat
@@ -124,7 +127,7 @@ def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None
                 maxLumiSectionDict[run] = max ( max (lslist),
                                            maxLumiSectionDict.get(run,0) )
             runLsDict.setdefault (run, []).append (lslist)
-        for run, metaLsList in sorted (runLsDict.iteritems()):
+        for run, metaLsList in sorted (six.iteritems(runLsDict)):
             if parameters.verbose:
                 print "run", run
             runLumiData = []
@@ -865,7 +868,7 @@ def flatten (obj):
     '''Given nested lists or tuples, returns a single flattened list'''
     result = []
     for piece in obj:
-        if hasattr (piece, '__iter__') and not isinstance (piece, basestring):
+        if hasattr (piece, '__iter__') and not isinstance (piece, str):
             result.extend( flatten (piece) )
         else:
             result.append (piece)
@@ -877,7 +880,7 @@ def mergeXingLumi (triplet, xingLumiDict):
     luminosity information is merged with the general information'''
     runNumber = triplet[0]
     deadTable = triplet[2]
-    for lumi, lumiList in deadTable.iteritems():
+    for lumi, lumiList in six.iteritems(deadTable):
         key = ( int(runNumber), int(lumi) )
         xingLumiValues = xingLumiDict.get (key)
         if xingLumiValues:

@@ -6,7 +6,7 @@ class CSCTFObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       CSCTFObjectKeysOnlineProd(const edm::ParameterSet& iConfig) ;
       ~CSCTFObjectKeysOnlineProd() override {}
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType ) override ;
    private:
       bool m_enableConfiguration ;
       bool m_enablePtLut ;

@@ -1,9 +1,9 @@
 <LesHouchesEvents version="1.0">  
-<!-- Additional XML structures can go here -->
+<!-- T1 Additional XML structures can go here -->
 <header>
-<!-- Additional XML tags can go here -->
+<!-- T2 Additional XML tags can go here -->
 </header>
-<!-- Additional XML structures can go here -->
+<!-- T3 Additional XML structures can go here -->
 <init>
     2212   -2212  9.800000E+02  9.800000E+02     0     0     7     7     3     2
   5.220106E+00  5.384128E-01  1.000000E+00    81

@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("FIRST")
 
-process.Tracer = cms.Service('Tracer')
+process.Tracer = cms.Service('Tracer',
+  dumpEventSetupInfo = cms.untracked.bool(True)
+)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

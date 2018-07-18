@@ -188,16 +188,24 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     double dEta = std::abs( absEta - 1.5 );
     double etaPow = dEta * dEta * dEta * dEta;
 
+
     if ( e > 0. && thresh > 0. ) {
-      etaCorrE = 1. + aEtaEndcapEH(t) + 1.3*bEtaEndcapEH(t)*(0.04 + etaPow);
+      if(absEta<2.5) {
+        etaCorrE = 1. + aEtaEndcapEH(t) ;
+      }
+      else {
+        etaPow = dEta * dEta;
+        etaCorrE = 1. + aEtaEndcapEH(t) + 1.3*bEtaEndcapEH(t)*(0.6 + etaPow);
+      }
+      etaPow = dEta * dEta * dEta * dEta;
       etaCorrH = 1. + aEtaEndcapEH(t) + bEtaEndcapEH(t)*(0.04 + etaPow);
     } else {
       etaCorrE = 1. + aEtaEndcapH(t) + 1.3*bEtaEndcapH(t)*(0.04 + etaPow);
       if(absEta<2.5) {
-	etaCorrH = 1. + aEtaEndcapH(t) + 0.05*bEtaEndcapH(t);
+        etaCorrH = 1. + aEtaEndcapH(t) + 0.05*bEtaEndcapH(t);
       }
       else {
-	etaCorrH = 1. + aEtaEndcapH(t) + bEtaEndcapH(t)*(0.04 + etaPow);
+        etaCorrH = 1. + aEtaEndcapH(t) + bEtaEndcapH(t)*(etaPow - 1.1);
       }
     }
 
@@ -510,22 +518,22 @@ std::ostream& operator<<(std::ostream& out,
 
   if ( calib.pfCalibrations ) { 
 
-    static std::map<std::string, PerformanceResult::ResultType> functType;
-
-    functType["PFfa_BARREL"] = PerformanceResult::PFfa_BARREL;
-    functType["PFfa_ENDCAP"] = PerformanceResult::PFfa_ENDCAP;
-    functType["PFfb_BARREL"] = PerformanceResult::PFfb_BARREL;
-    functType["PFfb_ENDCAP"] = PerformanceResult::PFfb_ENDCAP;
-    functType["PFfc_BARREL"] = PerformanceResult::PFfc_BARREL;
-    functType["PFfc_ENDCAP"] = PerformanceResult::PFfc_ENDCAP;
-    functType["PFfaEta_BARRELH"] = PerformanceResult::PFfaEta_BARRELH;
-    functType["PFfaEta_ENDCAPH"] = PerformanceResult::PFfaEta_ENDCAPH;
-    functType["PFfbEta_BARRELH"] = PerformanceResult::PFfbEta_BARRELH;
-    functType["PFfbEta_ENDCAPH"] = PerformanceResult::PFfbEta_ENDCAPH;
-    functType["PFfaEta_BARRELEH"] = PerformanceResult::PFfaEta_BARRELEH;
-    functType["PFfaEta_ENDCAPEH"] = PerformanceResult::PFfaEta_ENDCAPEH;
-    functType["PFfbEta_BARRELEH"] = PerformanceResult::PFfbEta_BARRELEH;
-    functType["PFfbEta_ENDCAPEH"] = PerformanceResult::PFfbEta_ENDCAPEH;
+    static const std::map<std::string, PerformanceResult::ResultType> functType = {
+      {"PFfa_BARREL", PerformanceResult::PFfa_BARREL},
+      {"PFfa_ENDCAP", PerformanceResult::PFfa_ENDCAP},
+      {"PFfb_BARREL", PerformanceResult::PFfb_BARREL},
+      {"PFfb_ENDCAP", PerformanceResult::PFfb_ENDCAP},
+      {"PFfc_BARREL", PerformanceResult::PFfc_BARREL},
+      {"PFfc_ENDCAP", PerformanceResult::PFfc_ENDCAP},
+      {"PFfaEta_BARRELH", PerformanceResult::PFfaEta_BARRELH},
+      {"PFfaEta_ENDCAPH", PerformanceResult::PFfaEta_ENDCAPH},
+      {"PFfbEta_BARRELH", PerformanceResult::PFfbEta_BARRELH},
+      {"PFfbEta_ENDCAPH", PerformanceResult::PFfbEta_ENDCAPH},
+      {"PFfaEta_BARRELEH", PerformanceResult::PFfaEta_BARRELEH},
+      {"PFfaEta_ENDCAPEH", PerformanceResult::PFfaEta_ENDCAPEH},
+      {"PFfbEta_BARRELEH", PerformanceResult::PFfbEta_BARRELEH},
+      {"PFfbEta_ENDCAPEH", PerformanceResult::PFfbEta_ENDCAPEH}
+    };
     
     for(std::map<std::string,PerformanceResult::ResultType>::const_iterator 
 	  func = functType.begin(); 

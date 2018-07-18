@@ -146,7 +146,7 @@ SiPixelErrorsDigisToCalibDigis::endJob() {
   if (!outputFilename_.empty() && createOutputFile_)
     {
       edm::LogInfo("SiPixelErrorCalibDigis") << "Writing ROOT file to: " << outputFilename_ << std::endl;
-      if ( &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outputFilename_);
+      if ( edm::Service<DQMStore>().isAvailable() ) edm::Service<DQMStore>()->save (outputFilename_);
     }
 }
 

@@ -27,6 +27,9 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
+
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <map>
@@ -47,7 +50,8 @@ namespace edm {
   class ProcessDesc;
   class SubProcess;
   class WaitingTaskHolder;
-  class WaitingTask;
+  class LuminosityBlockProcessingStatus;
+  class IOVSyncValue;
   
   namespace eventsetup {
     class EventSetupProvider;
@@ -182,6 +186,8 @@ namespace edm {
     // transition handling.
 
     InputSource::ItemType nextTransitionType();
+    InputSource::ItemType lastTransitionType() const { if(deferredExceptionPtrIsSet_) {return InputSource::IsStop;}
+                                                          return lastSourceTransition_;}
     std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
     edm::LuminosityBlockNumber_t nextLuminosityBlockID();
     
@@ -203,18 +209,28 @@ namespace edm {
 
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
-
-    void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool& globalBeginSucceeded);
-    void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool globalBeginSucceeded, bool cleaningUpAfterException);
-
+    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
+    
+    InputSource::ItemType processLumis(std::shared_ptr<void> const& iRunResource);
+    void endUnfinishedLumi();
+    
+    void beginLumiAsync(edm::IOVSyncValue const& iSyncValue,
+                        std::shared_ptr<void> const& iRunResource,
+                        edm::WaitingTaskHolder iHolder);
+    void continueLumiAsync(edm::WaitingTaskHolder iHolder);
+    
+    void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
+    void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
+                            unsigned int iStreamIndex,
+                            std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
     std::pair<ProcessHistoryID,RunNumber_t> readRun();
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
-    int readLuminosityBlock();
-    int readAndMergeLumi();
-    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void readLuminosityBlock(LuminosityBlockProcessingStatus&);
+    int readAndMergeLumi(LuminosityBlockProcessingStatus&);
+    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
-    void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
+    void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
+    void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
 
@@ -223,8 +239,6 @@ namespace edm {
     void setExceptionMessageLumis(std::string& message);
 
     bool setDeferredException(std::exception_ptr);
-
-    InputSource::ItemType readAndProcessEvents();
 
   private:
     //------------------------------------------------------------------
@@ -236,11 +250,10 @@ namespace edm {
               serviceregistry::ServiceLegacy);
 
     bool readNextEventForStream(unsigned int iStreamIndex,
-                                     std::atomic<bool>* finishedProcessingEvents);
+                                LuminosityBlockProcessingStatus& iLumiStatus);
 
-    void handleNextEventForStreamAsync(WaitingTask* iTask,
-                                       unsigned int iStreamIndex,
-                                     std::atomic<bool>* finishedProcessingEvents);
+    void handleNextEventForStreamAsync(WaitingTaskHolder iTask,
+                                       unsigned int iStreamIndex);
 
     
     //read the next event using Stream iStreamIndex
@@ -279,13 +292,20 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
+    InputSource::ItemType lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
+    edm::SerialTaskQueue iovQueue_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
+    std::vector<edm::SerialTaskQueue> streamQueues_;
+    std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;
+    std::vector<std::shared_ptr<LuminosityBlockProcessingStatus>> streamLumiStatus_;
+    std::atomic<unsigned int> streamLumiActive_{0}; //works as guard for streamLumiStatus
+    
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
@@ -312,7 +332,6 @@ namespace edm {
     PreallocationConfiguration                    preallocations_;
     
     bool                                          asyncStopRequestedWhileProcessingEvents_;
-    InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_=true;
     

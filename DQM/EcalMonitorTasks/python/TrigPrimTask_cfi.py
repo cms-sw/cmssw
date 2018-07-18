@@ -23,7 +23,8 @@ ecalTrigPrimTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         #    HLTMuonPath = cms.untracked.string('HLT_Mu5_v*'),
         #    HLTCaloPath = cms.untracked.string('HLT_SingleJet*'),
-        runOnEmul = cms.untracked.bool(True)
+        runOnEmul = cms.untracked.bool(True),
+        lhcStatusInfoCollectionTag = cms.untracked.InputTag("tcdsDigis","tcdsRecord")
     ),
     MEs = cms.untracked.PSet(
         LowIntMap = cms.untracked.PSet(
@@ -268,6 +269,13 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Real vs Emulated TP Et%(suffix)s'),
             description = cms.untracked.string('Real data VS emulated TP Et (in-time)')
+        ),
+        LHCStatusByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/LHC status by lumi'),
+            kind = cms.untracked.string('REAL'),
+            otype = cms.untracked.string('None'),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('LHC Status in this lumisection. The convention for the value is the same as in the plot Info/LhcInfo/beamMode')
         )
     )
 )

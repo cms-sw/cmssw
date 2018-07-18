@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
 
 process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     CalibTreeFilenames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//newfilelocation'),
-    Threshold         = cms.double(0.1),
+    Threshold         = cms.double(0.2),
     nModsMin          = cms.int32(25),
     doSummary         = cms.int32(0),
     #ResXSig           = cms.untracked.double(5),
@@ -27,9 +27,11 @@ process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     Record            = cms.string('SiStripBadStrip'),
     doStoreOnDB       = cms.bool(True),
     BadModulesFile    = cms.untracked.string("BadModules_input.txt"),   # default "" no input
+    AutoIneffModTagging = cms.untracked.bool(True),   # default true, automatic limit for each layer to identify inefficient modules
     ClusterMatchingMethod  = cms.untracked.int32(4),     # default 0  case0,1,2,3,4
     ClusterTrajDist   = cms.untracked.double(64),   # default 64
     StripsApvEdge     = cms.untracked.double(10),   # default 10  
+    UseOnlyHighPurityTracks = cms.untracked.bool(True), # default True
     SpaceBetweenTrains = cms.untracked.int32(25),   # default 25
     UseCommonMode     = cms.untracked.bool(False),  # default False
     ShowEndcapSides   = cms.untracked.bool(True),  # default True

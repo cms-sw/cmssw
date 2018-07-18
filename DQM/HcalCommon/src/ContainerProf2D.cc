@@ -55,7 +55,7 @@ namespace hcaldqm
 		//	full path as in Container1D.cc
 		//
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname
-			+(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			+(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
 			//	for Detector Hashes
@@ -140,7 +140,7 @@ namespace hcaldqm
 		//	full path as in Container1D.cc
 		//
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname
-			+(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			+(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
 			//	for Detector Hashes
@@ -231,7 +231,7 @@ namespace hcaldqm
 		//	full path as in Container1D.cc
 		//
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname
-			+(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			+(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
 			//	for Detector Hashes
@@ -316,7 +316,7 @@ namespace hcaldqm
 		//	full path as in Container1D.cc
 		//
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname
-			+(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			+(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
 			//	for Detector Hashes
@@ -399,4 +399,248 @@ namespace hcaldqm
 			}
 		}
 	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did)
+	{
+		_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+			_qy->getValue(did));
+	}
+
+	//	HcalDetId based
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did, int x)
+	{
+		if (_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(did), x);
+		else if (_qx->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(x));
+		else if (_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did, double x)
+	{
+		if (_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(did), x);
+		else if (_qx->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(x));
+		else if (_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did, 
+		int x, double y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did, 
+		int x, int y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did, 
+		double x, double y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& did)
+	{
+		_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+			_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& did, int x)
+	{
+		if (_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(did), x);
+		else if (_qx->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(x));
+		else if (_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& did, double x)
+	{
+		if (_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(did), x);
+		else if (_qx->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(x));
+		else if (_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& did, 
+		int x, double y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& did, 
+		int x, int y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& did, 
+		double x, double y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& did)
+	{
+		_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+			_qy->getValue(did));
+	}
+
+	//	HcalDetId based
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& did, int x)
+	{
+		if (_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(did), x);
+		else if (_qx->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(x));
+		else if (_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& did, 
+		double x)
+	{
+		if (_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(did), x);
+		else if (_qx->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did),
+				_qy->getValue(x));
+		else if (_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& did, 
+		int x, double y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& did, 
+		int x, int y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& did, 
+		double x, double y)
+	{
+		if (_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(did), 
+				_qy->getValue(x), y);
+		else if (!_qx->isCoordinate() && _qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(did), y);
+		else if (!_qx->isCoordinate() && !_qy->isCoordinate())
+			_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), 
+				_qy->getValue(y));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalDetId const& did, 
+		double x, double y, double z)
+	{
+		_mes[_hashmap.getHash(did)]->Fill(_qx->getValue(x), _qy->getValue(y), _qz->getValue(z));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalElectronicsId const& eid, 
+		double x, double y, double z)
+	{
+		_mes[_hashmap.getHash(eid)]->Fill(_qx->getValue(x), _qy->getValue(y), _qz->getValue(z));
+	}
+
+	/* virtual */ void ContainerProf2D::fill(HcalTrigTowerDetId const& tid, 
+		double x, double y, double z)
+	{
+		_mes[_hashmap.getHash(tid)]->Fill(_qx->getValue(x), _qy->getValue(y), _qz->getValue(z));
+	}
+
 }

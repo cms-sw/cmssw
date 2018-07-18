@@ -65,6 +65,10 @@ class CTPPSDiamondTrackRecognition
     float yWidth_;
     float yPositionInitial_;
     float yWidthInitial_;
+    float zPosition_;
+    float zWidth_;
+    float zPositionInitial_;
+    float zWidthInitial_;
 
     /// Function for pad efficiency
     TF1 hit_f_;

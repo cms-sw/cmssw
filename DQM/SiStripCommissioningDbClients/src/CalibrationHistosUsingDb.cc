@@ -1,4 +1,3 @@
-
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"

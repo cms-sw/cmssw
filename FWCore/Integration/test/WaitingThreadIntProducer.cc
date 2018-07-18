@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -190,7 +191,7 @@ namespace edmtest {
     virtual void endJob() override;
     
   private:
-    virtual void preallocStreams(unsigned int) override;
+    virtual void preallocate(edm::PreallocationConfiguration const&) override;
 
     std::vector<edm::EDGetTokenT<IntProduct>> m_tokens;
     std::unique_ptr<WaitingServer> m_server;
@@ -215,7 +216,8 @@ namespace edmtest {
     }
   }
 
-  void WaitingThreadIntProducer::preallocStreams(unsigned int iNStreams) {
+  void WaitingThreadIntProducer::preallocate(edm::PreallocationConfiguration const& iPrealloc) {
+    unsigned int iNStreams = iPrealloc.numberOfStreams();
     m_server = std::make_unique<WaitingServer>(iNStreams,
                                                m_numberOfStreamsToAccumulate <=iNStreams? m_numberOfStreamsToAccumulate : iNStreams,
                                                m_secondsToWaitForWork);

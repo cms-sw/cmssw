@@ -127,14 +127,16 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       // Identification of the egamma
       // Based on the seed tower FG bit, the H/E ratio of the seed tower, and the shape of the cluster
       bool hOverEBit = cluster.hOverE()>0;
+      bool hOverEExtBit = true;
       if(!params_->egBypassExtHOverE())
-	hOverEBit &= HoE_ext;
+	hOverEExtBit = HoE_ext;
       bool shapeBit  = idShape(cluster, egamma.hwPt());
       bool fgBit     = !(cluster.fgECAL()); 
       int qual = 0;
       if(fgBit)     qual |= (0x1); // first bit = FG
       if(hOverEBit) qual |= (0x1<<1); // second bit = H/E
       if(shapeBit)  qual |= (0x1<<2); // third bit = shape
+      if(hOverEExtBit) qual |= (0x1<<3); // fourth bit = shape
       egamma.setHwQual( qual ); 
 
       // Isolation 
@@ -231,13 +233,15 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int fgBit     = egammas_raw.at(iEG).hwQual()    & (0x1);
       int hOverEBit = egammas_raw.at(iEG).hwQual()>>1 & (0x1);
       int shapeBit  = egammas_raw.at(iEG).hwQual()>>2 & (0x1);
+      int hOverEExtBit = egammas_raw.at(iEG).hwQual()>>3 & (0x1);
 
-      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE()) || (params_->egBypassEGVetos());
+      bool IDcuts = (fgBit && hOverEBit && shapeBit && hOverEExtBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE()) || (params_->egBypassEGVetos());
 
       if(!IDcuts) continue;
 
-      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
-      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
+      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);
+      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);
+      
   }
 
   AccumulatingSort <l1t::EGamma> etaPosSorter(6);
@@ -503,7 +507,6 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimmingLutIndex(unsi
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnShape(const l1t::CaloCluster& clus)
 /*****************************************************************/
 {
-  const l1t::CaloCluster& clusCopy = clus;
 
   unsigned int shape = 0;
   if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);

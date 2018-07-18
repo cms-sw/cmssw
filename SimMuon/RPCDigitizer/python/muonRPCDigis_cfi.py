@@ -93,3 +93,5 @@ _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( simMuonRPCDigis, _simMuonRPCDigisPhaseII )
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(simMuonRPCDigis, doBkgNoise = False)

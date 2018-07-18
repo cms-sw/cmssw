@@ -69,7 +69,7 @@ MuonIDTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
         const pat::Muon & mu = (*muons)[i];
         tight[i] = muon::isTightMuon(mu, pv);
         highPt[i] = muon::isHighPtMuon(mu, pv) ? 2 : isTrackerHighPt(mu,pv);
-        soft[i] = isRun2016BCDEF ? isSoftMuonHIP(mu,pv) : muon::isTightMuon(mu, pv);
+        soft[i] = isRun2016BCDEF ? isSoftMuonHIP(mu,pv) : muon::isSoftMuon(mu, pv);
         medium[i] = isRun2016BCDEF ? isMediumMuonHIP(mu) : muon::isMediumMuon(mu);
     }
 
@@ -97,7 +97,6 @@ bool MuonIDTableProducer::isSoftMuonHIP(const pat::Muon& mu, const reco::Vertex&
     return muon::isGoodMuon(mu, muon::TMOneStationTight) && 
            mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
            mu.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0 && 
-           mu.innerTrack()->quality(reco::Track::highPurity) && 
            std::abs(mu.innerTrack()->dxy(vtx.position())) < 0.3 && 
            std::abs(mu.innerTrack()->dz(vtx.position())) < 20.;
 }

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-jetMETHLTOfflineSourceAK4 = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+jetMETHLTOfflineSourceAK4 = DQMEDAnalyzer(
     "JetMETHLTOfflineSource",
     dirname = cms.untracked.string("HLT/JME/Jets/AK4"),
     #

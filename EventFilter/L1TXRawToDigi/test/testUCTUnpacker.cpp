@@ -7,9 +7,9 @@
 
 using namespace std;
 
-#include "../plugins/UCTDAQRawData.h"
-#include "../plugins/UCTAMCRawData.h"
-#include "../plugins/UCTCTP7RawData.h"
+#include "EventFilter/L1TXRawToDigi/plugins/UCTDAQRawData.h"
+#include "EventFilter/L1TXRawToDigi/plugins/UCTAMCRawData.h"
+#include "EventFilter/L1TXRawToDigi/plugins/UCTCTP7RawData.h"
 
 int main(int argc, char **argv) {
   uint32_t index = 0;

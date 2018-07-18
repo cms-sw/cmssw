@@ -8,7 +8,7 @@
 class HcalSiPMShape : public CaloVShape {
 public:
 
-  HcalSiPMShape(unsigned int signalShape=203);
+  HcalSiPMShape(unsigned int signalShape=206);
   HcalSiPMShape(const HcalSiPMShape & other);
 
   ~HcalSiPMShape() override {}

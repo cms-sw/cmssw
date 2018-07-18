@@ -62,22 +62,26 @@ muonSeededTracksOutInDisplacedClassifier.src='muonSeededTracksOutInDisplaced'
 
 
 #for displaced global muons
-muonSeededStepCoreDisplaced = cms.Sequence(
-    cms.SequencePlaceholder("muonSeededStepCoreInOut") +
-    muonSeededSeedsOutInDisplaced + muonSeededTrackCandidatesOutInDisplaced + muonSeededTracksOutInDisplaced 
+muonSeededStepCoreDisplacedTask = cms.Task(
+    cms.TaskPlaceholder("muonSeededStepCoreInOutTask"),
+    muonSeededSeedsOutInDisplaced , muonSeededTrackCandidatesOutInDisplaced , muonSeededTracksOutInDisplaced
 )
+muonSeededStepCoreDisplaced = cms.Sequence(muonSeededStepCoreDisplacedTask)
 
 #for displaced global muons
-muonSeededStepExtraDisplaced = cms.Sequence(
-    cms.SequencePlaceholder("muonSeededStepExtraInOut") +
+muonSeededStepExtraDisplacedTask = cms.Task(
+    cms.TaskPlaceholder("muonSeededStepExtraInOutTask"),
     muonSeededTracksOutInDisplacedClassifier
 )
+muonSeededStepExtraDisplaced = cms.Sequence(muonSeededStepExtraDisplacedTask)
+
 #for displaced global muons
-muonSeededStepDisplaced = cms.Sequence(
-    earlyDisplacedMuons +
-    muonSeededStepCoreDisplaced +
-    muonSeededStepExtraDisplaced 
+muonSeededStepDisplacedTask = cms.Task(
+    earlyDisplacedMuons ,
+    muonSeededStepCoreDisplacedTask ,
+    muonSeededStepExtraDisplacedTask 
 )
+muonSeededStepDisplaced = cms.Sequence(muonSeededStepDisplacedTask)
     
 ##### MODULES FOR DEBUGGING ###############3
 #for displaced global muons
@@ -85,7 +89,8 @@ muonSeededSeedsOutInDisplacedAsTracks = cms.EDProducer("FakeTrackProducerFromSee
 #for displaced global muons
 muonSeededTrackCandidatesOutInDisplacedAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesOutInDisplaced"))
 #for displaced global muons
-muonSeededStepDebugDisplaced = cms.Sequence(
-    muonSeededSeedsOutInDisplacedAsTracks + muonSeededTrackCandidatesOutInDisplacedAsTracks +
-    cms.SequencePlaceholder("muonSeededStepDebugInOut")
+muonSeededStepDebugDisplacedTask = cms.Task(
+    cms.TaskPlaceholder("muonSeededStepDebugInOutTask"),
+    muonSeededSeedsOutInDisplacedAsTracks , muonSeededTrackCandidatesOutInDisplacedAsTracks 
 )
+muonSeededStepDebugDisplaced = cms.Sequence(muonSeededStepDebugDisplacedTask)

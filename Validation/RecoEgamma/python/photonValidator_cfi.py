@@ -8,7 +8,8 @@ trackAssociatorByHitsForPhotonValidation.Purity_SimToReco = 0.5
 trackAssociatorByHitsForPhotonValidation.SimToRecoDenominator = 'reco'
 
 
-photonValidation = cms.EDAnalyzer("PhotonValidator",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+photonValidation = DQMEDAnalyzer('PhotonValidator',
     ComponentName = cms.string('photonValidation'),
     OutputFileName = cms.string('PhotonValidationHistos.root'),
     scEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
@@ -140,6 +141,5 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    photonValidation.fastSim = True
+fastSim.toModify(photonValidation, fastSim = True)
 

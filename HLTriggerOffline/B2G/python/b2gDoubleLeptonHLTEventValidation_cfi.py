@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # ttbar cross channel
-b2gDoubleLeptonEleMuHLTValidation = cms.EDAnalyzer('B2GDoubleLeptonHLTValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+b2gDoubleLeptonEleMuHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/EleMu/'),
         # Electrons
@@ -24,7 +25,7 @@ b2gDoubleLeptonEleMuHLTValidation = cms.EDAnalyzer('B2GDoubleLeptonHLTValidation
 )
 
 # ttbar double electron
-b2gDoubleElectronHLTValidation = cms.EDAnalyzer('B2GDoubleLeptonHLTValidation',
+b2gDoubleElectronHLTValidation = DQMEDAnalyzer('B2GDoubleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/DoubleEle/'),
         # Electrons

@@ -1,7 +1,6 @@
 #include "SimG4Core/GFlash/interface/GFlash.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
-#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -17,11 +16,9 @@
 
 #include <string>
 
-GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, 
-	       const HepPDT::ParticleDataTable * table_, 
-	       sim::ChordFinderSetter *chordFinderSetter_, 
-	       const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p), 
-					      thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
+GFlash::GFlash(const edm::ParameterSet & p) 
+  : PhysicsList(p), 
+    thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
 
   G4DataQuestionaire it(photon);
 
@@ -68,10 +65,6 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
       RegisterPhysics( new G4NeutronTrackingCut(ver));
     }
   }
-
-  // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
-
   // singleton histogram object
   if(thePar.getParameter<bool>("GflashHistogram")) {
     theHisto = GflashHistogram::instance();

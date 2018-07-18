@@ -1,5 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
@@ -7,7 +9,7 @@
 
 namespace l1t {
    namespace stage2 {
-      MuonUnpacker::MuonUnpacker() : res_(nullptr), algoVersion_(0), muonCopy_(0)
+      MuonUnpacker::MuonUnpacker() : res_(nullptr), muonCopy_(0)
       {
       }
 
@@ -43,7 +45,12 @@ namespace l1t {
          // Get the BX blocks and unpack them
          auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
          for (const auto& bxBlock : bxBlocks) {
-            unpackBx(bxBlock.header().getBx(), bxBlock.payload());
+            // Throw an exception if finding a corrupt BX header with out of range BX numbers
+            const auto bx = bxBlock.header().getBx();
+            if (bx < firstBX || bx > lastBX) {
+               throw cms::Exception("CorruptData") << "Corrupt RAW data from FED " << fed_ << ", AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header.";
+            }
+            unpackBx(bx, bxBlock.payload());
          }
          return true;
       }
@@ -67,7 +74,7 @@ namespace l1t {
 
                Muon mu;
                    
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, algoVersion_);
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, getAlgoVersion());
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 

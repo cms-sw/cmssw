@@ -60,6 +60,7 @@ private:
   std::string m_fileName;
   std::string m_logicalFileName;
   int m_compressionLevel;
+  int m_eventsSinceFlush{0};
   std::string m_compressionAlgorithm;
   bool m_writeProvenance;
   bool m_fakeName; //crab workaround, remove after crab is fixed
@@ -68,6 +69,8 @@ private:
   edm::JobReport::Token m_jrToken;
   std::unique_ptr<TFile> m_file;
   std::unique_ptr<TTree> m_tree, m_lumiTree, m_runTree, m_metaDataTree, m_parameterSetsTree;
+
+  static constexpr int m_firstFlush{1000};
 
   class CommonEventBranches {
      public:
@@ -154,6 +157,39 @@ NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
   //Get data from 'e' and write it to the file
   edm::Service<edm::JobReport> jr;
   jr->eventWrittenToFile(m_jrToken, iEvent.id().run(), iEvent.id().event());
+
+  if (m_autoFlush) {
+    int64_t events = m_tree->GetEntriesFast();
+    if (events == m_firstFlush) {
+      m_tree->FlushBaskets();
+      float maxMemory;
+      if (m_autoFlush > 0) {
+        // Estimate the memory we'll be using at the first full flush by
+        // linearly scaling the number of events.
+        float percentClusterDone = m_firstFlush / static_cast<float>(m_autoFlush);
+        maxMemory = static_cast<float>(m_tree->GetTotBytes()) / percentClusterDone;
+      } else if (m_tree->GetZipBytes() == 0) {
+        maxMemory = 100*1024*1024; // Degenerate case of no information in the tree; arbitrary value
+      } else {
+        // Estimate the memory we'll be using by scaling the current compression ratio.
+        float cxnRatio = m_tree->GetTotBytes() / static_cast<float>(m_tree->GetZipBytes());
+        maxMemory = -m_autoFlush * cxnRatio;
+        float percentBytesDone = -m_tree->GetZipBytes() / static_cast<float>(m_autoFlush);
+        m_autoFlush = m_firstFlush / percentBytesDone;
+      }
+      //std::cout << "OptimizeBaskets: total bytes " << m_tree->GetTotBytes() << std::endl;
+      //std::cout << "OptimizeBaskets: zip bytes " << m_tree->GetZipBytes() << std::endl;
+      //std::cout << "OptimizeBaskets: autoFlush " << m_autoFlush << std::endl;
+      //std::cout << "OptimizeBaskets: maxMemory " << static_cast<uint32_t>(maxMemory) << std::endl;
+      //m_tree->OptimizeBaskets(static_cast<uint32_t>(maxMemory), 1, "d");
+      m_tree->OptimizeBaskets(static_cast<uint32_t>(maxMemory), 1, "");
+    }
+    if (m_eventsSinceFlush == m_autoFlush) {
+      m_tree->FlushBaskets();
+      m_eventsSinceFlush = 0;
+    }
+    m_eventsSinceFlush++;
+  }
 
   m_commonBranches.fill(iEvent.id());
   // fill all tables, starting from main tables and then doing extension tables
@@ -259,23 +295,23 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
 
   // create the trees
   m_tree.reset(new TTree("Events","Events"));
-  m_tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
-  m_tree->SetAutoFlush(m_autoFlush);
+  m_tree->SetAutoSave(0);
+  m_tree->SetAutoFlush(0);
   m_commonBranches.branch(*m_tree);
 
   m_lumiTree.reset(new TTree("LuminosityBlocks","LuminosityBlocks"));
-  m_lumiTree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+  m_lumiTree->SetAutoSave(0);
   m_commonLumiBranches.branch(*m_lumiTree);
 
   m_runTree.reset(new TTree("Runs","Runs"));
-  m_runTree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+  m_runTree->SetAutoSave(0);
   m_commonRunBranches.branch(*m_runTree);
   
   if (m_writeProvenance) {
       m_metaDataTree.reset(new TTree(edm::poolNames::metaDataTreeName().c_str(),"Job metadata"));
-      m_metaDataTree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+      m_metaDataTree->SetAutoSave(0);
       m_parameterSetsTree.reset(new TTree(edm::poolNames::parameterSetsTreeName().c_str(),"Parameter sets"));
-      m_parameterSetsTree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+      m_parameterSetsTree->SetAutoSave(0);
   }
 }
 void 
@@ -318,6 +354,8 @@ NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
         ->setComment("Save process provenance information, e.g. for edmProvDump");
   desc.addUntracked<bool>("fakeNameForCrab", false)
         ->setComment("Change the OutputModule name in the fwk job report to fake PoolOutputModule. This is needed to run on cran (and publish) till crab is fixed");
+  desc.addUntracked<int>("autoFlush", -10000000)
+        ->setComment("Autoflush parameter for ROOT file");
 
   //replace with whatever you want to get from the EDM by default
   const std::vector<std::string> keep = {"drop *", "keep nanoaodFlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep nanoaodMergeableCounterTable_*Table_*_*", "keep nanoaodUniqueString_nanoMetadata_*_*"};

@@ -38,7 +38,7 @@
     <PosPart copyNumber="1">
       <rParent name="CTPPS_Timing_Positive_Station:CTPPS_Timing_Positive_Station"/>
       <rChild name="CTPPS_Timing_Positive_Station_Vacuum_4"/>
-      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="0*mm"/>
+      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]+[RP_Dist_Beam_Cent:CTPPS_45_Det_Dist]" y="0*mm" z="0*mm"/>
       <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="116">

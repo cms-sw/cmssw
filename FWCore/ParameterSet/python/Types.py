@@ -3,6 +3,8 @@ from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
 import copy
+import math
+import six
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -110,6 +112,19 @@ class double(_SimpleParameterTypeBase):
         parameterSet.addDouble(self.isTracked(), myname, float(self.value()))
     def __nonzero__(self):
         return self.value()!=0.
+    def configValue(self, options=PrintOptions()):
+        return double._pythonValue(self._value)
+    @staticmethod
+    def _pythonValue(value):
+        if math.isinf(value):
+            if value > 0:
+                return "float('inf')"
+            else:
+                return "-float('inf')"
+        if math.isnan(value):
+            return "float('nan')"
+        return str(value)
+
 
 
 import __builtin__
@@ -174,7 +189,7 @@ class string(_SimpleParameterTypeBase):
 class EventID(_ParameterTypeBase):
     def __init__(self, run, *args):
         super(EventID,self).__init__()
-        if isinstance(run, basestring):
+        if isinstance(run, str):
             self.__run = self._valueFromString(run).__run
             self.__luminosityBlock = self._valueFromString(run).__luminosityBlock
             self.__event = self._valueFromString(run).__event
@@ -219,7 +234,7 @@ class EventID(_ParameterTypeBase):
 class LuminosityBlockID(_ParameterTypeBase):
     def __init__(self, run, block=None):
         super(LuminosityBlockID,self).__init__()
-        if isinstance(run, basestring):
+        if isinstance(run, str):
             self.__run = self._valueFromString(run).__run
             self.__block = self._valueFromString(run).__block
         else:
@@ -248,7 +263,7 @@ class LuminosityBlockID(_ParameterTypeBase):
 class LuminosityBlockRange(_ParameterTypeBase):
     def __init__(self, start, startSub=None, end=None, endSub=None):
         super(LuminosityBlockRange,self).__init__()
-        if isinstance(start, basestring):
+        if isinstance(start, str):
             parsed = self._valueFromString(start)
             self.__start    = parsed.__start
             self.__startSub = parsed.__startSub
@@ -309,7 +324,7 @@ class LuminosityBlockRange(_ParameterTypeBase):
 class EventRange(_ParameterTypeBase):
     def __init__(self, start, *args):
         super(EventRange,self).__init__()
-        if isinstance(start, basestring):
+        if isinstance(start, str):
             parsed = self._valueFromString(start)
             self.__start     = parsed.__start
             self.__startLumi = parsed.__startLumi
@@ -643,7 +658,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return config
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
-    def clone(self, *args, **params):
+    def clone(self, **params):
         myparams = self.parameters_()
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         returnValue = PSet(**myparams)
@@ -737,6 +752,9 @@ class vdouble(_ValidatingParameterListBase):
         return vdouble(*_ValidatingParameterListBase._itemsFromStrings(value,double._valueFromString))
     def insertInto(self, parameterSet, myname):
         parameterSet.addVDouble(self.isTracked(), myname, self.value())
+    def pythonValueForItem(self,item, options):
+        return double._pythonValue(item)
+
 
 
 
@@ -786,7 +804,7 @@ class VLuminosityBlockID(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = LuminosityBlockID._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVLuminosityBlockID(self.isTracked(), myname, cppIDs)
@@ -862,7 +880,7 @@ class VEventID(_ValidatingParameterListBase):
         return EventID.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
         # we tolerate strings as members
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             return '"'+item+'"'
         else:
             return item.dumpPython(options)
@@ -873,7 +891,7 @@ class VEventID(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = EventID._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVEventID(self.isTracked(), myname, cppIDs)
@@ -888,7 +906,7 @@ class VLuminosityBlockRange(_ValidatingParameterListBase):
     def configValueForItem(self,item,options):
         return LuminosityBlockRange.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             return '"'+item+'"'
         else:
             return item.dumpPython(options)
@@ -899,7 +917,7 @@ class VLuminosityBlockRange(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = LuminosityBlockRange._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVLuminosityBlockRange(self.isTracked(), myname, cppIDs)
@@ -914,7 +932,7 @@ class VEventRange(_ValidatingParameterListBase):
     def configValueForItem(self,item,options):
         return EventRange.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             return '"'+item+'"'
         else:
             return item.dumpPython(options)
@@ -925,7 +943,7 @@ class VEventRange(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = EventRange._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVEventRange(self.isTracked(), myname, cppIDs)
@@ -964,7 +982,7 @@ def makeCppPSet(module,cppPSetMaker):
     if not isinstance(module,dict):
         module = dict( ( (x,getattr(module,x)) for x in dir(module)) )  
         
-    for x,p in module.iteritems():
+    for x,p in six.iteritems(module):
         if isinstance(p,PSet):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
@@ -1113,7 +1131,7 @@ def convertToPSet(name,module):
 
 def convertToVPSet( **kw ):
     returnValue = VPSet()
-    for name,module in kw.iteritems():
+    for name,module in six.iteritems(kw):
         returnValue.append(convertToPSet(name,module))
     return returnValue
 
@@ -1140,7 +1158,7 @@ class EDAlias(_ConfigureComponent,_Labelable):
         return super(EDAlias,self).__delattr__(attr)
 
     def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+        for name,value in six.iteritems(parameters):
             self.__addParameter(name, value)
 
     def _place(self,name,proc):
@@ -1225,6 +1243,32 @@ if __name__ == "__main__":
             i = uint32._valueFromString("0xA")
             self.assertEqual(i.value(),10)
 
+        def testdouble(self):
+            d = double(1)
+            self.assertEqual(d.value(),1)
+            self.assertEqual(d.pythonValue(),'1')
+            d = double(float('Inf'))
+            self.assertEqual(d,float('Inf'))
+            self.assertEqual(d.pythonValue(),"float('inf')")
+            d = double(-float('Inf'))
+            self.assertEqual(d,-float('Inf'))
+            self.assertEqual(d.pythonValue(),"-float('inf')")
+            d = double(float('Nan'))
+            self.assert_(math.isnan(d.value()))
+            self.assertEqual(d.pythonValue(),"float('nan')")
+        def testvdouble(self):
+            d = vdouble(1)
+            self.assertEqual(d.value(),[1])
+            self.assertEqual(d.dumpPython(),'cms.vdouble(1)')
+            d = vdouble(float('inf'))
+            self.assertEqual(d,[float('inf')])
+            self.assertEqual(d.dumpPython(),"cms.vdouble(float('inf'))")
+            d = vdouble(-float('Inf'))
+            self.assertEqual(d,[-float('inf')])
+            self.assertEqual(d.dumpPython(),"cms.vdouble(-float('inf'))")
+            d = vdouble(float('nan'))
+            self.assert_(math.isnan(d[0]))
+            self.assertEqual(d.dumpPython(),"cms.vdouble(float('nan'))")
         def testvint32(self):
             v = vint32()
             self.assertEqual(len(v),0)
@@ -1373,6 +1417,10 @@ if __name__ == "__main__":
             self.assertEqual(p4.b.b.value(), 5)
             self.assertEqual(p4.a.b.value(), 1)
             self.assertEqual(p4.ui.value(), 2)
+            # couple of cases of "weird" arguments
+            self.assertRaises(TypeError, p4.clone, dict(b = None))
+            self.assertRaises(TypeError, p4.clone, [])
+            self.assertRaises(TypeError, p4.clone, 42)
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)

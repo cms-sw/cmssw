@@ -50,7 +50,7 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
           hitAndPositions.emplace_back(&(*it2),nLoc,glb,hitAndPositions.size());
 	  }
 
-      LogDebug("ME0Segment|ME0") << "found " << hitAndPositions.size() << " rechits in chamber " << *chIt;
+      LogDebug("ME0Segment|ME0") << "found " << hitAndPositions.size() << " rechits in chamber " << chId;
       //sort by layer
         auto getLayer =[&](int iL) ->const ME0Layer* { //function is broken in the geo currently
       	  for (auto layer : chamber->layers()){
@@ -69,7 +69,7 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
       // given the chamber select the appropriate algo... and run it
       std::vector<ME0Segment> segv = algo->run(chamber, hitAndPositions);
 
-      LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << *chIt;
+      LogDebug("ME0Segment|ME0") << "found " << segv.size() << " segments in chamber " << chId;
 
       // Add the segments to master collection
       if(!segv.empty())

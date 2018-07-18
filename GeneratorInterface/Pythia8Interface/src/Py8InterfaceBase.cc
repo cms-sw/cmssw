@@ -3,6 +3,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/path.hpp"
+
 // EvtGen plugin
 //
 //#include "Pythia8Plugins/EvtGen.h"
@@ -28,19 +31,47 @@ useEvtGen(false), evtgenDecays(nullptr)
   if ( ps.exists("useEvtGenPlugin") ) {
 
     useEvtGen = true;
-
     string evtgenpath(getenv("EVTGENDATA"));
     evtgenDecFile = evtgenpath + string("/DECAY_2010.DEC");
     evtgenPdlFile = evtgenpath + string("/evt.pdl");
 
-    if ( ps.exists( "evtgenDecFile" ) )
-      evtgenDecFile = ps.getParameter<string>("evtgenDecFile");
+    if (ps.exists("evtgenDecFile")) {
+       edm::FileInPath decay_table(ps.getParameter<std::string>("evtgenDecFile"));
+       evtgenDecFile = decay_table.fullPath();
+    }
 
-    if ( ps.exists( "evtgenPdlFile" ) )
-      evtgenPdlFile = ps.getParameter<string>("evtgenPdlFile");
+    if (ps.exists("evtgenPdlFile")) {      
+       edm::FileInPath pdt(ps.getParameter<std::string>("evtgenPdlFile"));
+       evtgenPdlFile = pdt.fullPath();
+    }
 
-    if ( ps.exists( "evtgenUserFile" ) )
-      evtgenUserFiles = ps.getParameter< std::vector<std::string> >("evtgenUserFile");
+    if (ps.exists("evtgenUserFile")) {
+       std::vector<std::string> user_decays = ps.getParameter<std::vector<std::string> >("evtgenUserFile");
+       for (unsigned int i=0;i<user_decays.size();i++) {
+          edm::FileInPath user_decay(user_decays.at(i)); 
+          evtgenUserFiles.push_back(user_decay.fullPath());
+       }
+	    //evtgenUserFiles = ps.getParameter< std::vector<std::string> >("evtgenUserFile");
+    }
+
+    if (ps.exists("evtgenUserFileEmbedded")) {
+       std::vector<std::string> user_decay_lines = ps.getParameter<std::vector<std::string> >("evtgenUserFileEmbedded");
+       auto tmp_dir = boost::filesystem::temp_directory_path();
+       tmp_dir += "/%%%%-%%%%-%%%%-%%%%";
+       auto tmp_path = boost::filesystem::unique_path(tmp_dir);
+       std::string user_decay_tmp = std::string(tmp_path.c_str());
+       FILE* tmpf = std::fopen(user_decay_tmp.c_str(), "w");
+       if (!tmpf) {
+          edm::LogError("Py8InterfaceBase::~Py8InterfaceBase") << "Py8InterfaceBase::Py8InterfaceBase fails when trying to open a temporary file for embedded user.dec for EvtGenPlugin. Terminating program ";
+          exit(0);
+       }
+       for (unsigned int i=0; i<user_decay_lines.size(); i++) {
+          user_decay_lines.at(i) += "\n";
+          std::fputs(user_decay_lines.at(i).c_str(), tmpf);
+       }
+       std::fclose(tmpf);
+       evtgenUserFiles.push_back(user_decay_tmp);
+    }
 
   }
 
@@ -74,8 +105,18 @@ bool Py8InterfaceBase::readSettings( int )
    //add settings for powheg resonance scale calculation
    fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
    fMasterGen->settings.addFlag("POWHEG:bb4l",false);
-   fMasterGen->settings.addFlag("POWHEG:bb4l:onlyDistance1",false);
-   fMasterGen->settings.addFlag("POWHEG:bb4l:useScaleResonanceInstead",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:onlyDistance1",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:veto",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:dryRun",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:vetoAtPL",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:vetoQED",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:PartonLevel:veto",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:PartonLevel:excludeFSRConflicting",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:DEBUG",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:ScaleResonance:veto",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:vetoDipoleFrame",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:pTpythiaVeto",false);
+   fMasterGen->settings.addParm("POWHEG:bb4l:pTminVeto",10.0,true,true,0.0, 10.);
    
    fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
    fDecayer->setRndmEnginePtr( &p8RndmEngine_ );

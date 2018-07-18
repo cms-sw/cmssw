@@ -256,7 +256,7 @@ class SVG:
     for ti, s in self:
       show = False
       if isinstance(ti[-1], (int, long)):
-        if isinstance(s, basestring): show = text
+        if isinstance(s, str): show = text
         else: show = sub
       else: show = attr
 
@@ -306,7 +306,7 @@ class SVG:
     for ti, s in self.depth_first(depth_limit):
       show = False
       if isinstance(ti[-1], (int, long)):
-        if isinstance(s, basestring): show = text
+        if isinstance(s, str): show = text
         else: show = sub
       else: show = attr
 
@@ -568,10 +568,10 @@ def load_stream(stream):
       self.stack.append(s)
 
     def characters(self, ch):
-      if not isinstance(ch, basestring) or self.all_whitespace.match(ch) == None:
+      if not isinstance(ch, str) or self.all_whitespace.match(ch) == None:
         if len(self.stack) > 0:
           last = self.stack[-1]
-          if len(last.sub) > 0 and isinstance(last.sub[-1], basestring):
+          if len(last.sub) > 0 and isinstance(last.sub[-1], str):
             last.sub[-1] = last.sub[-1] + "\n" + ch
           else:
             last.sub.append(ch)
@@ -579,7 +579,7 @@ def load_stream(stream):
     def endElement(self, name):
       if len(self.stack) > 0:
         last = self.stack[-1]
-        if isinstance(last, SVG) and last.t == "style" and "type" in last.attr and last.attr["type"] == "text/css" and len(last.sub) == 1 and isinstance(last.sub[0], basestring):
+        if isinstance(last, SVG) and last.t == "style" and "type" in last.attr and last.attr["type"] == "text/css" and len(last.sub) == 1 and isinstance(last.sub[0], str):
           last.sub[0] = "<![CDATA[\n" + last.sub[0] + "]]>"
 
       self.output = self.stack.pop()
@@ -733,7 +733,7 @@ class Fig:
   def __repr__(self):
     if self.trans == None:
       return "<Fig (%d items)>" % len(self.d)
-    elif isinstance(self.trans, basestring):
+    elif isinstance(self.trans, str):
       return "<Fig (%d items) x,y -> %s>" % (len(self.d), self.trans)
     else:
       return "<Fig (%d items) %s>" % (len(self.d), self.trans.__name__)
@@ -755,7 +755,7 @@ class Fig:
     """
 
     if trans == None: trans = self.trans
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     output = SVG("g")
     for s in self.d:
@@ -764,7 +764,7 @@ class Fig:
 
       elif isinstance(s, Fig):
         strans = s.trans
-        if isinstance(strans, basestring): strans = totrans(strans)
+        if isinstance(strans, str): strans = totrans(strans)
 
         if trans == None: subtrans = strans
         elif strans == None: subtrans = trans
@@ -856,7 +856,7 @@ class Plot:
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
     if trans == None: trans = self.trans
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     self.last_window = window(self.xmin, self.xmax, self.ymin, self.ymax, x=self.x, y=self.y, width=self.width, height=self.height, \
                               xlogbase=self.xlogbase, ylogbase=self.ylogbase, minusInfinity=self.minusInfinity, flipx=self.flipx, flipy=self.flipy)
@@ -1060,7 +1060,7 @@ class Path:
     return "<Path (%d nodes) %s>" % (len(self.d), self.attr)
 
   def __init__(self, d=[], **attr):
-    if isinstance(d, basestring): self.d = self.parse(d)
+    if isinstance(d, str): self.d = self.parse(d)
     else: self.d = list(d)
 
     self.attr = dict(self.defaults)
@@ -1225,7 +1225,7 @@ class Path:
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     x, y, X, Y = None, None, None, None
     output = []
@@ -1655,8 +1655,8 @@ class Curve:
     global coordinates.  If local=True, return a Path in local coordinates
     (which must be transformed again)."""
 
-    if isinstance(trans, basestring): trans = totrans(trans)
-    if isinstance(self.f, basestring): self.f = funcRtoR2(self.f)
+    if isinstance(trans, str): trans = totrans(trans)
+    if isinstance(self.f, str): self.f = funcRtoR2(self.f)
 
     self.sample(trans)
 
@@ -1734,7 +1734,7 @@ class Poly:
     """Apply the transformation "trans" and return a Path object in
     global coordinates.  If local=True, return a Path in local coordinates
     (which must be transformed again)."""
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     if self.mode[0] == "L" or self.mode[0] == "l": mode = "L"
     elif self.mode[0] == "B" or self.mode[0] == "b": mode = "B"
@@ -1853,7 +1853,7 @@ class Text:
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     X, Y = self.x, self.y
     if trans != None: X, Y = trans(X, Y)
@@ -1937,7 +1937,7 @@ class Dots:
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     output = SVG("g", SVG("defs", self.symbol))
     id = "#%s" % self.symbol["id"]
@@ -2011,7 +2011,7 @@ class Line(Curve):
         if isinstance(self.arrow_start, SVG):
           defs.append(self.arrow_start)
           line.attr["marker-start"] = "url(#%s)" % self.arrow_start["id"]
-        elif isinstance(self.arrow_start, basestring):
+        elif isinstance(self.arrow_start, str):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
           line.attr["marker-start"] = "url(#%s)" % self.arrow_start
         else:
@@ -2021,7 +2021,7 @@ class Line(Curve):
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
-        elif isinstance(self.arrow_end, basestring):
+        elif isinstance(self.arrow_end, str):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end
         else:
@@ -2083,7 +2083,7 @@ class LineGlobal:
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     X1, Y1, X2, Y2 = self.x1, self.y1, self.x2, self.y2
 
@@ -2099,7 +2099,7 @@ class LineGlobal:
         if isinstance(self.arrow_start, SVG):
           defs.append(self.arrow_start)
           line.attr["marker-start"] = "url(#%s)" % self.arrow_start["id"]
-        elif isinstance(self.arrow_start, basestring):
+        elif isinstance(self.arrow_start, str):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
           line.attr["marker-start"] = "url(#%s)" % self.arrow_start
         else:
@@ -2109,7 +2109,7 @@ class LineGlobal:
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end["id"]
-        elif isinstance(self.arrow_end, basestring):
+        elif isinstance(self.arrow_end, str):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
           line.attr["marker-end"] = "url(#%s)" % self.arrow_end
         else:
@@ -2411,7 +2411,7 @@ class Ticks:
 
     Normally only used internally.
     """
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
     if trans == None:
       f = self.f
     else:
@@ -2434,7 +2434,7 @@ class Ticks:
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans)
+    if isinstance(trans, str): trans = totrans(trans)
 
     self.last_ticks, self.last_miniticks = self.interpret()
     tickmarks = Path([], **self.attr)
@@ -2447,7 +2447,7 @@ class Ticks:
       if self.arrow_start != False and self.arrow_start != None:
         if isinstance(self.arrow_start, SVG):
           defs.append(self.arrow_start)
-        elif isinstance(self.arrow_start, basestring):
+        elif isinstance(self.arrow_start, str):
           defs.append(make_marker(self.arrow_start, "arrow_start"))
         else:
           raise TypeError("arrow_start must be False/None or an id string for the new marker")
@@ -2455,7 +2455,7 @@ class Ticks:
       if self.arrow_end != False and self.arrow_end != None:
         if isinstance(self.arrow_end, SVG):
           defs.append(self.arrow_end)
-        elif isinstance(self.arrow_end, basestring):
+        elif isinstance(self.arrow_end, str):
           defs.append(make_marker(self.arrow_end, "arrow_end"))
         else:
           raise TypeError("arrow_end must be False/None or an id string for the new marker")
@@ -2517,7 +2517,7 @@ class Ticks:
     elif self.labels == True:
       format = unumber
 
-    elif isinstance(self.labels, basestring):
+    elif isinstance(self.labels, str):
       format = lambda x: (self.labels % x)
 
     elif callable(self.labels):
@@ -2692,8 +2692,7 @@ class Ticks:
     Normally only used internally.
     """
     if len(original_ticks) < 2: original_ticks = ticks(self.low, self.high)
-    original_ticks = original_ticks.keys()
-    original_ticks.sort()
+    original_ticks = sorted(original_ticks.keys())
 
     if self.low > original_ticks[0] + _epsilon or self.high < original_ticks[-1] - _epsilon:
       raise ValueError("original_ticks {%g...%g} extend beyond [%g, %g]" % (original_ticks[0], original_ticks[-1], self.low, self.high))
@@ -2746,8 +2745,7 @@ class Ticks:
       if self.low <= x <= self.high: output[x] = label
 
     for i in range(1, len(output)):
-      keys = output.keys()
-      keys.sort()
+      keys = sorted(output.keys())
       keys = keys[::i]
       values = map(lambda k: output[k], keys)
       if len(values) <= N:
@@ -2836,13 +2834,13 @@ class CurveAxis(Curve, Ticks):
     ticks = Ticks.SVG(self, trans) # returns a <g />
 
     if self.arrow_start != False and self.arrow_start != None:
-      if isinstance(self.arrow_start, basestring):
+      if isinstance(self.arrow_start, str):
         func.attr["marker-start"] = "url(#%s)" % self.arrow_start
       else:
         func.attr["marker-start"] = "url(#%s)" % self.arrow_start.id
 
     if self.arrow_end != False and self.arrow_end != None:
-      if isinstance(self.arrow_end, basestring):
+      if isinstance(self.arrow_end, str):
         func.attr["marker-end"] = "url(#%s)" % self.arrow_end
       else:
         func.attr["marker-end"] = "url(#%s)" % self.arrow_end.id
@@ -2920,13 +2918,13 @@ class LineAxis(Line, Ticks):
     self.high = self.end
 
     if self.arrow_start != False and self.arrow_start != None:
-      if isinstance(self.arrow_start, basestring):
+      if isinstance(self.arrow_start, str):
         line.attr["marker-start"] = "url(#%s)" % self.arrow_start
       else:
         line.attr["marker-start"] = "url(#%s)" % self.arrow_start.id
 
     if self.arrow_end != False and self.arrow_end != None:
-      if isinstance(self.arrow_end, basestring):
+      if isinstance(self.arrow_end, str):
         line.attr["marker-end"] = "url(#%s)" % self.arrow_end
       else:
         line.attr["marker-end"] = "url(#%s)" % self.arrow_end.id
@@ -3310,7 +3308,7 @@ class XErrorBars:
     
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans) # only once
+    if isinstance(trans, str): trans = totrans(trans) # only once
 
     output = SVG("g")
     for p in self.d:
@@ -3356,7 +3354,7 @@ class YErrorBars:
     
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
-    if isinstance(trans, basestring): trans = totrans(trans) # only once
+    if isinstance(trans, str): trans = totrans(trans) # only once
 
     output = SVG("g")
     for p in self.d:

@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 siStripQualityConfigurableFakeESSource = cms.ESSource("SiStripQualityConfigurableFakeESSource",
     printDebug = cms.untracked.bool(False),
     appendToDataLabel = cms.string(''),
-    file = cms.untracked.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
     BadComponentList = cms.untracked.VPSet(cms.PSet(
         SubDet = cms.string('TIB'),  
         layer = cms.uint32(0),        ## SELECTION: layer = 1..4, 0(ALL)		    

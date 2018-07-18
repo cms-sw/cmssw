@@ -276,6 +276,10 @@ namespace pat {
       float mvaValue() const { return mvaValue_; }
       void  setMvaValue(float mva){ mvaValue_ = mva; }
 
+      /// Soft Muon MVA
+      float softMvaValue() const { return softMvaValue_; }
+      void  setSoftMvaValue(float softmva){ softMvaValue_ = softmva; }
+
       /// MC matching information
       reco::MuonSimType simType() const { return simType_; }
       reco::ExtendedMuonSimType simExtType() const { return simExtType_; }
@@ -307,6 +311,18 @@ namespace pat {
       void setSimPt(float pt){ simPt_ = pt;}
       void setSimEta(float eta){ simEta_ = eta;}
       void setSimPhi(float phi){ simPhi_ = phi;}
+      
+      /// Trigger information
+      const pat::TriggerObjectStandAlone* l1Object(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerL1Mu,idx);
+      }
+      const pat::TriggerObjectStandAlone* hltObject(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerMuon,idx);
+      }
+      bool triggered( const char * pathName ){
+	return triggerObjectMatchByPath(pathName,true,true)!=nullptr;
+      }
+
     protected:
 
       // ---- for content embedding ----
@@ -381,6 +397,7 @@ namespace pat {
 
       /// Muon MVA
       float mvaValue_;
+      float softMvaValue_;
 
       /// MC matching information
       reco::MuonSimType simType_;
@@ -395,7 +412,6 @@ namespace pat {
       float simPt_;
       float simEta_;
       float simPhi_;
-      
   };
 
 

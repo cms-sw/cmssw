@@ -60,7 +60,7 @@ int Muon::numberOfChambersCSCorDT() const
   return total;
 }
 
-int Muon::numberOfMatches( ArbitrationType type ) const
+int Muon::numberOfMatches( unsigned int type ) const
 {
    int matches(0);
    for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
@@ -133,7 +133,26 @@ int Muon::numberOfMatchedStations( ArbitrationType type ) const
    return stations;
 }
 
-unsigned int Muon::stationMask( ArbitrationType type ) const
+unsigned int Muon::expectedNnumberOfMatchedStations( float minDistanceFromEdge ) const 
+{
+  unsigned int stationMask = 0;
+  for( auto& chamberMatch : muMatches_ )
+    {
+      if (chamberMatch.detector()!=MuonSubdetId::DT && chamberMatch.detector()!=MuonSubdetId::CSC) continue;
+      float edgeX = chamberMatch.edgeX;
+      float edgeY = chamberMatch.edgeY;
+      // check we if the trajectory is well within the acceptance
+      if(edgeX<0 && fabs(edgeX)>fabs(minDistanceFromEdge) &&
+	 edgeY<0 && fabs(edgeY)>fabs(minDistanceFromEdge))
+	stationMask |= 1<<( (chamberMatch.station()-1)+4*(chamberMatch.detector()-1) );
+    }
+  unsigned int n = 0;
+  for(unsigned int i=0; i<8; ++i)
+    if (stationMask&(1<<i)) n++;
+  return n;
+}
+
+unsigned int Muon::stationMask( unsigned int type ) const
 {
    unsigned int totMask(0);
    unsigned int curMask(0);
@@ -328,7 +347,7 @@ unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
    return totMask;
 }
 
-int Muon::numberOfSegments( int station, int muonSubdetId, ArbitrationType type ) const
+int Muon::numberOfSegments( int station, int muonSubdetId, unsigned int type ) const
 {
    int segments(0);
    for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
@@ -385,7 +404,7 @@ const std::vector<const MuonChamberMatch*> Muon::chambers( int station, int muon
 }
 
 std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> Muon::pair( const std::vector<const MuonChamberMatch*> &chambers,
-     ArbitrationType type ) const
+     unsigned int type ) const
 {
    MuonChamberMatch* m = nullptr;
    MuonSegmentMatch* s = nullptr;

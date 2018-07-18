@@ -33,7 +33,7 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       RPCObjectKeysOnlineProd(const edm::ParameterSet&);
       ~RPCObjectKeysOnlineProd() override;
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType pL1TriggerKey ) override ;
    private:
       // ----------member data ---------------------------
   bool m_enableL1RPCConfig ;
@@ -77,7 +77,7 @@ RPCObjectKeysOnlineProd::~RPCObjectKeysOnlineProd()
 
 // ------------ method called to produce the data  ------------
 void
-RPCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+RPCObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
   std::string rpcKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kRPC ) ;
 

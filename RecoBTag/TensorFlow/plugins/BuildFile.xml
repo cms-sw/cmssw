@@ -1,0 +1,13 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<library file="*.cc" name="RecoBTagDeepFlavourPlugins">
+  <use name="DataFormats/BTauReco"/>
+  <use name="DataFormats/Common"/>
+  <use name="RecoBTag/Combined"/>
+  <use name="RecoBTag/TensorFlow"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="TrackingTools/IPTools"/>
+  <use name="PhysicsTools/TensorFlow"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -17,9 +17,8 @@ class  KFFittingSmootherESProducer: public edm::ESProducer{
  public:
   KFFittingSmootherESProducer(const edm::ParameterSet & p);
   virtual ~KFFittingSmootherESProducer(); 
-  std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
+  std::unique_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
-  std::shared_ptr<TrajectoryFitter> _fitter;
   edm::ParameterSet pset_;
 };
 

@@ -50,21 +50,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 from CondCore.CondDB.CondDB_cfi import *
 
-# new CPE
-
-from RecoLocalTracker.SiStripRecHitConverter.StripCPEgeometric_cfi import *
-TTRHBuilderGeometricAndTemplate = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
-StripCPE = cms.string('StripCPEfromTrackAngle'), # cms.string('StripCPEgeometric'),
-#StripCPE = cms.string('StripCPEgeometric'),
-ComponentName = cms.string('WithGeometricAndTemplate'),
-PixelCPE = cms.string('PixelCPEGeneric'),
-#PixelCPE = cms.string('PixelCPETemplateReco'),
-Matcher = cms.string('StandardMatcher'),
-ComputeCoarseLocalPositionFromDisk = cms.bool(False)
-)
-
-
-
 ##
 ## Message Logger
 ##
@@ -185,61 +170,61 @@ elif isData:
 ##
 ## Choose Alignment (w/o touching APE)
 if options.alignRcd=='design':
-	CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
-	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		CondDBAlignment,
-		timetype = cms.string("runnumber"),
-		toGet = cms.VPSet(
-			cms.PSet(
-				record = cms.string('TrackerAlignmentRcd'),
-				tag = cms.string('TrackerAlignment_Upgrade2017_design_v3')
-				)
-			)
-		)
-	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('TrackerAlignment_Upgrade2017_design_v3')
+                )
+            )
+        )
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
 
   
 elif options.alignRcd == 'misalTest':
-	CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
-	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		CondDBAlignment,
-		timetype = cms.string("runnumber"),
-		toGet = cms.VPSet(
-			cms.PSet(
-				record = cms.string('TrackerAlignmentRcd'),
-				tag = cms.string('TrackerAlignment_Phase1Realignment_CRUZET_2M'),
-			)
-		)
-	)
-	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    CondDBAlignment = CondDB.clone(connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('TrackerAlignment_Phase1Realignment_CRUZET_2M'),
+            )
+        )
+    )
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
 elif options.alignRcd == 'mp1799':
-	CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db'))
-	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		CondDBAlignment,
-		timetype = cms.string("runnumber"),
-		toGet = cms.VPSet(
-			cms.PSet(
-				record = cms.string('TrackerAlignmentRcd'),
-				tag = cms.string('Alignments'),
-			)
-		)
-	)
-	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('Alignments'),
+            )
+        )
+    )
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
    
 elif options.alignRcd == 'hp1370':
-	CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'))
-	process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
-		CondDBAlignment,
-		timetype = cms.string("runnumber"),
-		toGet = cms.VPSet(
-			cms.PSet(
-				record = cms.string('TrackerAlignmentRcd'),
-				tag = cms.string('Alignments'),
-			)
-		)
-	)
-	process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/xiaomeng/CMSSW_7_4_6_patch5/src/Alignment/HIPAlignmentAlgorithm/hp1370/alignments.db'))
+    process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
+        CondDBAlignment,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentRcd'),
+                tag = cms.string('Alignments'),
+            )
+        )
+    )
+    process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
 
 
@@ -255,19 +240,19 @@ else:
 
 ## APE
 if options.iterNumber!=0:
-	CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
-	process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
-		CondDBAlignmentError,
-		timetype = cms.string("runnumber"),
-		toGet = cms.VPSet(
-			cms.PSet(
-				record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-				tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
-			)
-		)
-	)
-	process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-	
+    CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
+    process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
+        CondDBAlignmentError,
+        timetype = cms.string("runnumber"),
+        toGet = cms.VPSet(
+            cms.PSet(
+                record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
+            )
+        )
+    )
+    process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
+    
 
 
 ##

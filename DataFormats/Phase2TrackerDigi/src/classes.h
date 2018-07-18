@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_Phase2TrackerDigi {
   struct dictionary {
     
     edm::Wrapper<Phase2TrackerDigi> zs0;
@@ -20,7 +20,7 @@ namespace {
 }
 
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
-namespace {
+namespace DataFormats_Phase2TrackerDigi {
   struct dictionary4 {
     edm::Wrapper<Phase2TrackerCommissioningDigi > pcom0;
     edm::Wrapper<edm::DetSet<Phase2TrackerCommissioningDigi> > pcom1;

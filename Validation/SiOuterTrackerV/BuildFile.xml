@@ -1,0 +1,11 @@
+<use name="DataFormats/Common"/>
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimTracker/TrackTriggerAssociation"/>
+<flags EDM_PLUGIN="1"/>

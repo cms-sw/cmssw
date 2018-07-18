@@ -11,5 +11,6 @@ ECALpedestalPCLHarvester = DQMEDHarvester('ECALpedestalPCLHarvester',
                                           labelG6G1   = cms.string('HLT'), #use the HLT tag as source for G6 and G1 pedestals
                                           threshDiffEB= cms.double(5.0), # if pedestal has changed more then this wrt old value, keep old value. Unit = ADC count
                                           threshDiffEE= cms.double(8.0),
+                                          threshChannelsAnalyzed = cms.double(0.3), # threshold for minimum percentage of channels analized to produce DQM plots
 
                                           )

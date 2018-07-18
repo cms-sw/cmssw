@@ -46,33 +46,65 @@ Implementation:
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 // ------------------------------------------------------------------------------------------
-class PileupJetIdProducer : public edm::stream::EDProducer<> {
-public:
-	explicit PileupJetIdProducer(const edm::ParameterSet&);
-	~PileupJetIdProducer() override;
 
-	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+class GBRForestsAndConstants {
+public:
+
+  GBRForestsAndConstants(edm::ParameterSet const&);
+
+  std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> const& vAlgoGBRForestsAndConstants() const {
+    return vAlgoGBRForestsAndConstants_;
+  }
+
+  bool runMvas() const { return runMvas_; }
+  bool produceJetIds() const { return produceJetIds_; }
+  bool inputIsCorrected() const { return inputIsCorrected_; }
+  bool applyJec() const { return applyJec_; }
+  std::string const& jec() const { return jec_; }
+  bool residualsFromTxt() const { return residualsFromTxt_; }
+  edm::FileInPath const& residualsTxt() const { return residualsTxt_; }
 
 private:
-	void produce(edm::Event&, const edm::EventSetup&) override;
+
+  std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> vAlgoGBRForestsAndConstants_;
+
+  bool runMvas_;
+  bool produceJetIds_;
+  bool inputIsCorrected_;
+  bool applyJec_;
+  std::string jec_;
+  bool residualsFromTxt_;
+  edm::FileInPath residualsTxt_;
+};
+
+class PileupJetIdProducer : public edm::stream::EDProducer<edm::GlobalCache<GBRForestsAndConstants>> {
+public:
+  explicit PileupJetIdProducer(const edm::ParameterSet&, GBRForestsAndConstants const*);
+  ~PileupJetIdProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  static std::unique_ptr<GBRForestsAndConstants> initializeGlobalCache(edm::ParameterSet const& pset) {
+    return std::make_unique<GBRForestsAndConstants>(pset);
+  }
+
+  static void globalEndJob(GBRForestsAndConstants*) { }
+
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
       
 
-	void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
+  void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
 
-	edm::InputTag jets_, vertexes_, jetids_, rho_;
-	std::string jec_;
-	bool runMvas_, produceJetIds_, inputIsCorrected_, applyJec_;
-	std::vector<std::pair<std::string, std::unique_ptr<PileupJetIdAlgo>> > algos_;
+  std::vector<std::pair<std::string, std::unique_ptr<PileupJetIdAlgo>> > algos_;
 	
-	bool residualsFromTxt_;
-	edm::FileInPath residualsTxt_;
-        std::unique_ptr<FactorizedJetCorrector> jecCor_;
-	std::vector<JetCorrectorParameters> jetCorPars_;
+  std::unique_ptr<FactorizedJetCorrector> jecCor_;
+  std::vector<JetCorrectorParameters> jetCorPars_;
 
-        edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
-        edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
-        edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > input_vm_pujetid_token_;
-        edm::EDGetTokenT<double> input_rho_token_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
+  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+  edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > input_vm_pujetid_token_;
+  edm::EDGetTokenT<double> input_rho_token_;
 
 };
 

@@ -194,7 +194,7 @@ namespace {
 	  for (auto it = track.recHitsBegin();  it != track.recHitsEnd(); ++it) {
 	    auto const & hit = *(*it);
 	    auto id = hit.rawId() ;
-	    if likely(hit.isValid()) { rhv.emplace_back(id,&hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
+	    if LIKELY(hit.isValid()) { rhv.emplace_back(id,&hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
 	  }
 	  std::sort_heap(rhv.begin(),rhv.end(),compById);
 	  

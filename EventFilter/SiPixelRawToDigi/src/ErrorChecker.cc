@@ -86,7 +86,7 @@ bool ErrorChecker::checkHeader(bool& errorsInEvent, int fedId, const Word64* hea
   return fedHeader.moreHeaders();
 }
 
-bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, const Word64* trailer, Errors& errors)
+bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, unsigned int nWords, const Word64* trailer, Errors& errors)
 {
   FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
   if ( !fedTrailer.check()) { 
@@ -100,8 +100,8 @@ bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, cons
       <<"fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
     return false; 
   } 
-  if ( fedTrailer.lenght()!= nWords) {
-    LogError("FedTrailerLenght")<< "fedTrailer.lenght()!= nWords !! Fed: " << fedId << ", errorType = 34";
+  if ( fedTrailer.fragmentLength()!= nWords) {
+    LogError("FedTrailerLenght")<< "fedTrailer.fragmentLength()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
     if(includeErrors) {
       int errorType = 34;
@@ -116,7 +116,7 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
 			    const SiPixelFedCabling* theCablingTree, Word32& errorWord, Errors& errors)
 {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
-  if likely(errorType<25) return true;
+  if LIKELY(errorType<25) return true;
 
  switch (errorType) {
     case(25) : {

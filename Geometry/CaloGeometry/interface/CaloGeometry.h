@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include <memory>
 #include <vector>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -31,10 +32,10 @@ class CaloGeometry
 			      const CaloSubdetectorGeometry* geom    ) ;
     
       /// Get the position of a given detector id
-      const GlobalPoint& getPosition( const DetId& id ) const ;
+      GlobalPoint getPosition( const DetId& id ) const;
 
       /// Get the cell geometry of a given detector id
-      const CaloCellGeometry* getGeometry( const DetId& id ) const ;
+      std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const;
 
       /// Get the list of all valid detector ids
       std::vector<DetId> getValidDetIds() const ;
@@ -43,7 +44,7 @@ class CaloGeometry
       const std::vector<DetId>& getValidDetIds( DetId::Detector det, int subdet ) const;
 
       /// is this detid present in the geometry?
-      bool present( const DetId& id ) const ;
+      bool present( const DetId& id ) const;
 
       /// access the subdetector geometry for the given subdetector directly
       const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const ;
@@ -65,11 +66,12 @@ class CaloGeometry
 			      int             subdet,
 			      bool&           ok      ) const ;
 
-      enum { kMaxDet = 6 ,
+      enum { kMaxDet = 10 ,
 	     kMinDet = 3 ,
 	     kNDets  = kMaxDet - kMinDet + 1 ,
 	     kMaxSub = 6 ,
-	     kLength = kNDets*kMaxSub } ;
+	     kNSubDets = kMaxSub + 1 ,
+	     kLength = kNDets*kNSubDets } ;
 };
 
 

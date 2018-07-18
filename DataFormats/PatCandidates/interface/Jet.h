@@ -47,6 +47,8 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 
+#include <numeric>
+
 
 // Define typedefs for convenience
 namespace pat {
@@ -439,6 +441,9 @@ namespace pat {
       ///    Else return the reco Jet number of constituents
       const reco::Candidate * daughter(size_t i) const override;
 
+      reco::CandidatePtr daughterPtr( size_t i ) const override;
+      const reco::CompositePtrCandidate::daughters & daughterPtrVector() const override;
+
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
 
       /// Return number of daughters:
@@ -498,13 +503,13 @@ namespace pat {
 
 
       /// String access to subjet list
-      pat::JetPtrCollection const & subjets( std::string label ) const ;
+      pat::JetPtrCollection const & subjets( std::string const & label ) const ;
 
       /// Add new set of subjets
-      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
+      void addSubjets( pat::JetPtrCollection const & pieces, std::string const & label = ""  );
 
       /// Check to see if the subjet collection exists
-      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      bool hasSubjets( std::string const & label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
       
       /// Number of subjet collections
       unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
@@ -512,7 +517,23 @@ namespace pat {
       /// Subjet collection names
       std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
 
-
+      /// Access to mass of subjets
+      double groomedMass(unsigned int index = 0) const{
+	auto const& sub = subjets(index);
+	return nSubjetCollections() > index && !sub.empty() ?
+	  std::accumulate( sub.begin(), sub.end(),
+			   reco::Candidate::LorentzVector(),
+			   [] (reco::Candidate::LorentzVector const & a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
+	  -1.0;
+      }
+      double groomedMass(std::string const & label) const{
+	auto const& sub = subjets(label);
+	return hasSubjets(label) && !sub.empty() ?
+	  std::accumulate( sub.begin(), sub.end(),
+			   reco::Candidate::LorentzVector(),
+			   [] (reco::Candidate::LorentzVector const & a, reco::CandidatePtr const & b){return a + b->p4();}).mass() :
+	  -1.0;
+      }
 
     protected:
 
@@ -532,7 +553,8 @@ namespace pat {
 
       // ---- Jet Substructure ----
       std::vector< pat::JetPtrCollection> subjetCollections_;
-      std::vector< std::string>          subjetLabels_; 
+      std::vector< std::string>          subjetLabels_;
+      edm::AtomicPtrCache<std::vector< reco::CandidatePtr > > daughtersTemp_;
 
       // ---- MC info ----
 
@@ -619,6 +641,7 @@ namespace pat {
       /// cache calo towers
       void cacheCaloTowers() const;
       void cachePFCandidates() const;
+      void cacheDaughters() const;
 
   };
 }

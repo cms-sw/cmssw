@@ -14,6 +14,7 @@ from os.path import join
 from urllib import quote
 from functools import reduce
 
+import six
 
 renaming = {
         'MessageLogger': 'Miscellanea', 'FourVector': 'Generic',
@@ -132,7 +133,7 @@ def get_folders(c, file_id, filename, dir_id, threshold):  # TODO: If folder [Eg
 
 def join_ranges(ranges, elem):
     '''To do less DB calls, joins [(from_id, till_id), ...] ranges.'''
-    if type(ranges) == tuple:
+    if isinstance(ranges, tuple):
         ranges = [ranges]
     if ranges[-1][-1] + 1 == elem[0]:
         ranges[-1] = (ranges[-1][0], elem[1])
@@ -245,7 +246,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
     # Fetch stats
     summary_stats = dict()
     detailed_stats = dict()
-    for name, ranges in cum_lvl3_dir_ranges.iteritems():
+    for name, ranges in six.iteritems(cum_lvl3_dir_ranges):
         successes, nulls, fails = get_stats(c, threshold, ranges)
         if name in detailed_stats:
             detailed_stats[name][0] += successes
@@ -263,13 +264,13 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     # Calculate ratio
     summary_ratios = []
-    for name, stats in summary_stats.iteritems():
+    for name, stats in six.iteritems(summary_stats):
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)
             summary_ratios.append((name, ratio))
     detailed_ratios = []
-    for name, stats in detailed_stats.iteritems():
+    for name, stats in six.iteritems(detailed_stats):
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)

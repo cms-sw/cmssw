@@ -26,7 +26,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,7 +66,7 @@
 
 namespace cms
 {
-  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
     Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
     fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag")),
     saveVtxTimes_(iConfig.getParameter<bool>("saveVtxTimes"))

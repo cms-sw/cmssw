@@ -89,6 +89,9 @@ if(part == 'kaon-') :
   listP = listPkn
   nE = int(8)
 
+if(var == 'NO') :
+  geom = 'SimG4CMS.HcalTestBeam.TB2006GeometryNoEcalXML_cfi'
+  
 #====================== event loop ==========================
 
 outf = fname + '.log'
@@ -124,6 +127,7 @@ for i in range( nE) :
   pfile.write('process.testbeam.MaxE = process.common_beam_parameters.MaxE \n')
   pfile.write('process.testbeam.PartID = process.common_beam_parameters.PartID \n')
   if(part == 'e-') : pfile.write('process.testbeam.ECAL = cms.bool(False) \n')
+  if(var == 'NO') : pfile.write('process.testbeam.ECAL = cms.bool(False) \n')
   pfile.write('process.testbeam.TestBeamAnalysis.EcalFactor = cms.double(' + ecal + ') \n')
   pfile.write('process.testbeam.TestBeamAnalysis.HcalFactor = cms.double(' + hcal + ') \n\n')
   pfile.write('process.maxEvents = cms.untracked.PSet( \n')

@@ -18,7 +18,7 @@
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 #include "DataFormats/TCDS/interface/TCDSRecord.h"
 
-#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 

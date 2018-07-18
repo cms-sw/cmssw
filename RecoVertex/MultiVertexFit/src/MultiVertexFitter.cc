@@ -617,8 +617,14 @@ void MultiVertexFitter::printWeights ( const reco::TransientTrack & t ) const
     for ( vector < pair < int, CachingVertex<5> > >::const_iterator seed=theVertexStates.begin();
           seed!=theVertexStates.end(); ++seed )
     {
+      double val = 0;
+      auto a = theWeights.find(t);
+      if ( a != theWeights.end()){
+        auto b = a->second.find(seed->first);
+        if (b != a->second.end()) val = b->second;
+      }
       cout << "  -- Vertex[" << seed->first << "] with " << setw(12)
-           << setprecision(3) << theWeights[t][seed->first];
+           << setprecision(3) << val;
     };
     cout << endl;
 }

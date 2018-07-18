@@ -118,5 +118,5 @@ MuEnrichType1Filter::endJob() {
   edm::LogVerbatim ("MuEnrichFltr")  << "Rejected events"<<nrejected;
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(MuEnrichType1Filter);

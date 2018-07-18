@@ -45,7 +45,7 @@ public:
   double secondAngle() const;
 
 private:
-  GlobalTrajectoryParameters *theH, *theL, *firstGTP, *secondGTP;
+  const GlobalTrajectoryParameters *theH, *theL, *firstGTP, *secondGTP;
   GlobalVector posDiff;
   GlobalVector theLp;
   double X, Y, Z, px, py, pz, px2, py2, pz2, baseFct, baseDer;
@@ -56,11 +56,11 @@ private:
 
   int themaxiter;
   bool updateCoeffs();
-  void finalPoints() const;
+  void finalPoints();
   bool oneIteration(double & thePhiH, double & fct, double & derivative ) const;
-  mutable GlobalPoint helixPoint, linePoint;
-  mutable double tL, linePath, helixPath;
-  mutable bool pointsUpdated;
+  GlobalPoint helixPoint, linePoint;
+  double tL, linePath, helixPath;
+  bool pointsUpdated;
 
 };
 #endif

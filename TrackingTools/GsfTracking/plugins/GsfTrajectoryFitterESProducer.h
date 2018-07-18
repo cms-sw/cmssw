@@ -6,7 +6,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h" 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include <boost/shared_ptr.hpp>
 
 /** Provides a GSF fitter algorithm */
 
@@ -14,7 +13,7 @@ class  GsfTrajectoryFitterESProducer: public edm::ESProducer{
  public:
   GsfTrajectoryFitterESProducer(const edm::ParameterSet & p);
   ~GsfTrajectoryFitterESProducer() override; 
-  std::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
+  std::unique_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
   edm::ParameterSet pset_;
 };

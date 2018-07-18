@@ -5,8 +5,6 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
-#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
-
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "DQM/TrackingMonitorClient/interface/TrackingUtility.h"
@@ -27,14 +25,6 @@ TrackingQualityChecker::TrackingQualityChecker(edm::ParameterSet const& ps) :
 
   bookedTrackingGlobalStatus_ = false;
   bookedTrackingLSStatus_     = false;
-
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") <<
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
 
   TopFolderName_ = pSet_.getUntrackedParameter<std::string>("TopFolderName","Tracking");
 

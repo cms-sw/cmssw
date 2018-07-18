@@ -23,7 +23,7 @@ class CSCGainsConditions: public edm::ESProducer, public edm::EventSetupRecordIn
   
   static CSCGains * prefillGains();
 
-  typedef const  CSCGains * ReturnType;
+  typedef std::unique_ptr<CSCGains> ReturnType;
   
   ReturnType produceGains(const CSCGainsRcd&);
   

@@ -1,6 +1,7 @@
 #ifndef SimTracker_TrackAssociation_trackHitsToClusterRefs_h
 #define SimTracker_TrackAssociation_trackHitsToClusterRefs_h
 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"

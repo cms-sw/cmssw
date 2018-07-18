@@ -266,14 +266,17 @@ namespace edm {
       
       iRegistry.watchPreModuleEvent(this,&MessageLogger::preModuleEvent);
       iRegistry.watchPostModuleEvent(this,&MessageLogger::postModuleEvent);
-      
+
+      iRegistry.watchPreModuleEventAcquire(this,&MessageLogger::preModuleEventAcquire);
+      iRegistry.watchPostModuleEventAcquire(this,&MessageLogger::postModuleEventAcquire);
+
       iRegistry.watchPreSourceEvent(this,&MessageLogger::preSourceEvent);
       iRegistry.watchPostSourceEvent(this,&MessageLogger::postSourceEvent);
       // change log 14:
-      iRegistry.watchPreSourceRun(this,&MessageLogger::preSourceRunLumi);
-      iRegistry.watchPostSourceRun(this,&MessageLogger::postSourceRunLumi);
-      iRegistry.watchPreSourceLumi(this,&MessageLogger::preSourceRunLumi);
-      iRegistry.watchPostSourceLumi(this,&MessageLogger::postSourceRunLumi);
+      iRegistry.watchPreSourceRun([this](RunIndex) { preSourceRunLumi(); });
+      iRegistry.watchPostSourceRun([this](RunIndex) { postSourceRunLumi(); });
+      iRegistry.watchPreSourceLumi([this](LuminosityBlockIndex) { preSourceRunLumi(); });
+      iRegistry.watchPostSourceLumi([this](LuminosityBlockIndex) { postSourceRunLumi(); });
       iRegistry.watchPreOpenFile(this,&MessageLogger::preFile);
       iRegistry.watchPostOpenFile(this,&MessageLogger::postFile);
       iRegistry.watchPreCloseFile(this,&MessageLogger::preFileClose);
@@ -604,7 +607,19 @@ namespace edm {
     {
       unEstablishModule(mod,"PostModuleEvent");
     }
-    
+
+    void
+    MessageLogger::preModuleEventAcquire(StreamContext const& stream, ModuleCallingContext const& mod)
+    {
+      establishModule (stream.streamID().value(),mod,
+                       s_streamTransitionNames[static_cast<int>(StreamContext::Transition::kEvent)]);
+    }
+
+    void MessageLogger::postModuleEventAcquire(StreamContext const& stream, ModuleCallingContext const& mod)
+    {
+      unEstablishModule(mod,"PostModuleEventAcquire");
+    }
+
     void
     MessageLogger::preModuleStreamEndLumi(StreamContext const& stream, ModuleCallingContext const& mod)
     {

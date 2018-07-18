@@ -6,7 +6,7 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 # It should be kept in synch with Express processing at Tier0: what the url
 # https://cmsweb.cern.ch/t0wmadatasvc/prod/express_config
 # would tell you.
-GlobalTag.globaltag = "92X_dataRun2_Express_v7"
+GlobalTag.globaltag = "101X_dataRun2_Express_v8"
 
 # ===== auto -> Automatically get the GT string from current Tier0 configuration via a Tier0Das call.
 #       This needs a valid proxy to access the cern.ch network from the .cms one.
@@ -130,8 +130,7 @@ class Tier0Handler( object ):
         Raises if connection error, bad response, timeout after retries occur, or if no Global Tags are available.
         """
         data = self._queryTier0DataSvc( os.path.join( self._uri, config ) )
-        gtnames = unique( [ str( di[ 'global_tag' ] ) for di in data['result'] if di[ 'global_tag' ] is not None ] )
-        gtnames.sort()
+        gtnames = sorted(unique( [ str( di[ 'global_tag' ] ) for di in data['result'] if di[ 'global_tag' ] is not None ] ))
         try:
             recentGT = gtnames[-1]
             return recentGT

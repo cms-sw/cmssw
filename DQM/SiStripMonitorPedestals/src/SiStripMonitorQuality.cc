@@ -59,11 +59,6 @@ SiStripMonitorQuality::~SiStripMonitorQuality()
 					  << " Destructing....... ";     
 }
 //
-// -- Begin Job
-//
-void SiStripMonitorQuality::beginJob() {
-}
-//
 void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup){
 
   unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();  

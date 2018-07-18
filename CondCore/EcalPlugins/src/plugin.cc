@@ -156,6 +156,9 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
 #include "CondFormats/DataRecord/interface/EcalPulseSymmCovariancesRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
 
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalCondObjectContainer<EcalPedestal>); 
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalCondObjectContainer<EcalXtalGroupId>);
@@ -173,12 +176,15 @@ REGISTER_PLUGIN(EcalLaserAlphasRcd,EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd,EcalLaserAPDPNRatios);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd,EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalChannelStatusRcd,EcalCondObjectContainer<EcalChannelStatusCode>);
+REGISTER_PLUGIN(EcalPFRecHitThresholdsRcd,EcalCondObjectContainer<float>);
+
 
 REGISTER_PLUGIN(EcalClusterCrackCorrParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterLocalContCorrParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyUncertaintyParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyCorrectionParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyCorrectionObjectSpecificParametersRcd,EcalFunParams);
+
 
 REGISTER_PLUGIN(EcalMappingElectronicsRcd,EcalCondObjectContainer<EcalMappingElement>);
 

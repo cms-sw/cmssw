@@ -30,7 +30,7 @@ RunRangeDependentPedeLabeler::RunRangeDependentPedeLabeler(const PedeLabelerBase
   : PedeLabelerBase(alignables, config),
     theMaxNumberOfParameterInstances(0)
 {
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   alis.push_back(alignables.aliTracker_);
   alis.push_back(alignables.aliMuon_);
 
@@ -410,7 +410,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
       selector.clear();
       selector.addSelection(decompSel[0], paramSelDummy);
 
-      const std::vector<Alignable*> &alis = selector.selectedAlignables();
+      const auto& alis = selector.selectedAlignables();
        
       for (const auto& iAli: alis) {
         
@@ -453,11 +453,11 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 }
 
 //_________________________________________________________________________
-unsigned int RunRangeDependentPedeLabeler::buildMap(const std::vector<Alignable*> &alis)
+unsigned int RunRangeDependentPedeLabeler::buildMap(const align::Alignables& alis)
 {
   theAlignableToIdMap.clear(); // just in case of re-use...
 
-  std::vector<Alignable*> allComps;
+  align::Alignables allComps;
   
   for (const auto& iAli: alis) {
     if (iAli) {

@@ -90,6 +90,7 @@ class testEvent: public CppUnit::TestFixture {
   CPPUNIT_TEST(putAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProduct);
   CPPUNIT_TEST(putAndGetAnIntProductByToken);
+  CPPUNIT_TEST(emplaceAndGetAnIntProductByToken);
   CPPUNIT_TEST(getByProductID);
   CPPUNIT_TEST(transaction);
   CPPUNIT_TEST(getByLabel);
@@ -110,6 +111,7 @@ class testEvent: public CppUnit::TestFixture {
   void putAnIntProduct();
   void putAndGetAnIntProduct();
   void putAndGetAnIntProductByToken();
+  void emplaceAndGetAnIntProductByToken();
   void getByProductID();
   void transaction();
   void getByLabel();
@@ -150,10 +152,15 @@ class testEvent: public CppUnit::TestFixture {
   std::unique_ptr<ProducerBase> putProductUsingToken(std::unique_ptr<T> product,
                                                      std::string const& productInstanceLabel,
                                                      bool doCommit=true);
+  template <class T>
+  std::unique_ptr<ProducerBase> emplaceProduct(T product,
+                                               std::string const& productInstanceLabel,
+                                               bool doCommit=true);
 
   std::shared_ptr<ProductRegistry>   availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<EventPrincipal>    principal_;
   std::shared_ptr<Event>             currentEvent_;
   std::shared_ptr<ModuleDescription> currentModuleDescription_;
@@ -284,6 +291,28 @@ testEvent::putProductUsingToken(std::unique_ptr<T> product,
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
   currentEvent_->setProducer(prod.get(),nullptr);
   currentEvent_->put(token,std::move(product));
+  if(doCommit) {
+    currentEvent_->commit_(std::vector<ProductResolverIndex>());
+  }
+  return prod;
+}
+
+template <class T>
+std::unique_ptr<ProducerBase>
+testEvent::emplaceProduct(T product,
+                          std::string const& productInstanceLabel,
+                          bool doCommit) {
+  auto prod = std::make_unique<ProducerBase>();
+  EDPutTokenT<edmtest::IntProduct> token = prod->produces<edmtest::IntProduct>(productInstanceLabel);
+  auto index =principal_->productLookup().index(PRODUCT_TYPE,
+                                                edm::TypeID(typeid(T)),
+                                                currentModuleDescription_->moduleLabel().c_str(),
+                                                productInstanceLabel.c_str(),
+                                                currentModuleDescription_->processName().c_str());
+  CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
+  const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
+  currentEvent_->setProducer(prod.get(),nullptr);
+  currentEvent_->emplace(token,std::move(product));
   if(doCommit) {
     currentEvent_->commit_(std::vector<ProductResolverIndex>());
   }
@@ -426,14 +455,14 @@ void testEvent::setUp() {
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   auto runAux = std::make_shared<RunAuxiliary>(id.run(), time, time);
   auto rp = std::make_shared<RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
-  auto lumiAux = std::make_shared<LuminosityBlockAuxiliary>(rp->run(), 1, time, time);
-  auto lbp = std::make_shared<LuminosityBlockPrincipal>(lumiAux, preg, pc, &historyAppender_,0);
-  lbp->setRunPrincipal(rp);
+  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_,0);
+  lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
+  lbp_->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_);
-  principal_->setLuminosityBlockPrincipal(lbp);
+  principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_, &mcc));
 }
@@ -499,6 +528,19 @@ void testEvent::putAndGetAnIntProduct() {
 
 void testEvent::putAndGetAnIntProductByToken() {
   auto p = putProductUsingToken(std::make_unique<edmtest::IntProduct>(4),"int1");
+  
+  InputTag should_match("modMulti", "int1", "CURRENT");
+  InputTag should_not_match("modMulti", "int1", "NONESUCH");
+  Handle<edmtest::IntProduct> h;
+  currentEvent_->getByLabel(should_match, h);
+  CPPUNIT_ASSERT(h.isValid());
+  CPPUNIT_ASSERT(!currentEvent_->getByLabel(should_not_match, h));
+  CPPUNIT_ASSERT(!h.isValid());
+  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+}
+
+void testEvent::emplaceAndGetAnIntProductByToken() {
+  auto p = emplaceProduct(edmtest::IntProduct{4},"int1");
   
   InputTag should_match("modMulti", "int1", "CURRENT");
   InputTag should_not_match("modMulti", "int1", "NONESUCH");

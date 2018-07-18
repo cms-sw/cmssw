@@ -24,7 +24,7 @@ class CSCNoiseMatrixDBConditions: public edm::ESProducer, public edm::EventSetup
   
   inline static CSCDBNoiseMatrix * prefillDBNoiseMatrix();
 
-  typedef const  CSCDBNoiseMatrix * ReturnType;
+  typedef std::unique_ptr<CSCDBNoiseMatrix> ReturnType;
   
   ReturnType produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd&);
   

@@ -98,3 +98,13 @@ l1t::Muon::~Muon()
 
 }
 
+bool l1t::Muon::operator==(const l1t::Muon& rhs) const
+{
+  return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate &>(rhs))
+      && hwCharge_ == rhs.hwCharge()
+      && hwChargeValid_ == rhs.hwChargeValid()
+      && tfMuonIndex_ == rhs.tfMuonIndex()
+      && hwEtaAtVtx_ == rhs.hwEtaAtVtx()
+      && hwPhiAtVtx_ == rhs.hwPhiAtVtx();
+}
+

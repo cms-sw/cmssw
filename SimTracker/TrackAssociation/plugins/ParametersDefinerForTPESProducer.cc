@@ -46,8 +46,7 @@ ParametersDefinerForTPESProducer::~ParametersDefinerForTPESProducer()
 ParametersDefinerForTPESProducer::ReturnType
 ParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  ReturnType parametersDefiner_ (new ParametersDefinerForTP(pset_));
-  return parametersDefiner_ ;
+  return std::make_unique<ParametersDefinerForTP>(pset_);
 }
 
 //define this as a plug-in

@@ -18,7 +18,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
-#include "G4PhysicalConstants.hh"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "Randomize.hh"
 #include "G4Electron.hh"
 #include "G4LossTableManager.hh"
@@ -30,6 +30,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 using namespace std;
+using namespace CLHEP;
 
 static const G4double kappa = 2.5;
 static const G4double kappapl1 = 3.5;

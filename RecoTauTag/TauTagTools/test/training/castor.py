@@ -243,7 +243,7 @@ def stagein( fileListPattern = None, nSlices = 10, verbose = True ) :
     to this pattern by bunchs of N (default=10) files.
     """
     files = nsls( fileListPattern )
-    if ( type(files) != type([]) or len(files) < 1 ) :
+    if ( not isinstance(files, type([])) or len(files) < 1 ) :
         raise Exception("Error, no file to stagein !!")
         return
 

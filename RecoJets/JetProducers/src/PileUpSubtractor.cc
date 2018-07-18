@@ -32,7 +32,6 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::Consum
 		fjActiveArea_ =  ActiveAreaSpecPtr(new fastjet::ActiveAreaSpec(ghostEtaMax,
 									     activeAreaRepeats,
 									     ghostArea));
-		fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
 		if ( ( ghostEtaMax < 0 ) || ( activeAreaRepeats < 0 ) || ( ghostArea < 0 ) )  
 			throw cms::Exception("doAreaFastjet or doRhoFastjet") << "Parameters ghostEtaMax, activeAreaRepeats or ghostArea for doAreaFastjet/doRhoFastjet are not defined." << std::endl;
 	} 

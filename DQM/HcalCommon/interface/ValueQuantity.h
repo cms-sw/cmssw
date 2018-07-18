@@ -34,7 +34,7 @@ namespace hcaldqm
 			fRatio2 = 19,
 			fdEtRatio = 20,
 			fSumdEt = 21,
-			fTiming_20TS = 22,
+			fTiming_100TS = 22,
 			fQIE10ADC_256 = 23,
 			fQIE10TDC_64 = 24,
 			fQIE10TDC_16 = 25,
@@ -62,6 +62,11 @@ namespace hcaldqm
 			fTimingRatio = 47,
 			fQIE10fC_100000Coarse = 48,
 			fBadTDC = 49,
+			fRBX = 50,
+			fTimingDiff_ns = 51,
+			ffC_1000000 = 52,
+			fTime_ns_250_coarse = 53,
+			fCapidMinusBXmod4 = 54,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -77,10 +82,10 @@ namespace hcaldqm
 			{ffC_1000,"fC (QIE8)"},
 			{ffC_3000,"fC (QIE8)"},
 			{ffC_10000,"fC (QIE8)"},
-			{fQIE8fC_1000_50,"fC (QIE8)"},
-			{fQIE10fC_2000,"fC (QIE10/11)"},
-			{fQIE10fC_10000,"fC (QIE10/11)"},
-			{fQIE10fC_400000,"fC (QIE10/11)"},
+			{fQIE8fC_1000_50,"fC"},
+			{fQIE10fC_2000,"fC"},
+			{fQIE10fC_10000,"fC"},
+			{fQIE10fC_400000,"fC"},
 			{ffC_generic_10000,"fC (QIE8/10/11)"},
 			{ffC_generic_400000,"fC (QIE8/10/11)"},			
 			{fTiming_TS,"Timing"},
@@ -95,7 +100,7 @@ namespace hcaldqm
 			{fRatio2,"Ratio"},
 			{fdEtRatio,"dEtRatio"},
 			{fSumdEt,"SumdEt"},
-			{fTiming_20TS,"Timing"},
+			{fTiming_100TS,"Timing"},
 			{fQIE10TDC_64,"TDC"},
 			{fQIE10TDC_16,"TDC"},
 			{fDiffAbs,"Q"},
@@ -112,8 +117,13 @@ namespace hcaldqm
 			{fTime_ns_250,"Time (ns)"},
 			{fDualAnodeAsymmetry, "(q_{1}-q_{2})/(q_{1}+q_{2})"},
 			{fTimingRatio, "q_{SOI+1}/q_{SOI}"},
-			{fQIE10fC_100000Coarse,"fC (QIE10/11)"},
+			{fQIE10fC_100000Coarse,"fC"},
 			{fBadTDC, "TDC"},
+			{fRBX, "RBX"},
+			{fTimingDiff_ns, "#Delta timing [ns]"},
+			{ffC_1000000, "fC"},
+			{fTime_ns_250_coarse, "Time (ns)"},
+			{fCapidMinusBXmod4, "(CapId - BX) % 4"},
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -127,7 +137,7 @@ namespace hcaldqm
 			{ffC_1000,0},
 			{ffC_3000,0},
 			{fTiming_TS,-0.5},
-			{fTiming_TS200,0},
+			{fTiming_TS200,-0.5},
 			{fLS,0.5},
 			{fEt_256,0},
 			{fEt_128,0},
@@ -138,7 +148,7 @@ namespace hcaldqm
 			{fRatio2,0.5},
 			{fdEtRatio,0},
 			{fSumdEt,0},
-			{fTiming_20TS,-0.5},
+			{fTiming_100TS,-0.5},
 			{fQIE10ADC_256,-0.5},
 			{fQIE10ADC_16,-0.5},
 			{fQIE10TDC_64,-0.5},
@@ -166,6 +176,11 @@ namespace hcaldqm
 			{fTimingRatio,0.},	
 			{fQIE10fC_100000Coarse,0},
 			{fBadTDC,49.5},
+			{fRBX, 0.5},
+			{fTimingDiff_ns, -125.},
+			{ffC_1000000,0.},
+			{fTime_ns_250_coarse, -0.5},
+			{fCapidMinusBXmod4, -0.5},			
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -190,7 +205,7 @@ namespace hcaldqm
 			{fRatio2,1.5},
 			{fdEtRatio,1},
 			{fSumdEt,1000},
-			{fTiming_20TS,9.5},
+			{fTiming_100TS,99.5},
 			{fQIE10ADC_256,255.5},
 			{fQIE10ADC_16,15.5},
 			{fQIE10TDC_64,63.5},
@@ -218,6 +233,11 @@ namespace hcaldqm
 			{fTimingRatio,2.5},	
 			{fQIE10fC_100000Coarse,100000},
 			{fBadTDC,61.5},
+			{fRBX, 18.5},
+			{fTimingDiff_ns, 125.},
+			{ffC_1000000,1.e6},
+			{fTime_ns_250_coarse, 249.5},
+			{fCapidMinusBXmod4, 3.5},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -242,7 +262,7 @@ namespace hcaldqm
 			{fRatio2,100},
 			{fdEtRatio,100},
 			{fSumdEt,100},
-			{fTiming_20TS,10},
+			{fTiming_100TS,100},
 			{fQIE10ADC_256,256},
 			{fQIE10TDC_64,64},
 			{fQIE10TDC_16,16},
@@ -256,7 +276,7 @@ namespace hcaldqm
 			{fBX,3601},
 			{fEnergy_1TeV,200},
 			{fState,flag::nState},
-			{fQIE10fC_400000,4000},
+			{fQIE10fC_400000,1000},
 			{fDataSize,100},
 			{fQIE10fC_2000,100},
 			{fQIE10fC_10000,500},
@@ -268,12 +288,17 @@ namespace hcaldqm
 			{fDualAnodeAsymmetry,40},
 			{fTimingRatio,50},
 			{fQIE10fC_100000Coarse,1000},
-			{fBadTDC,12}
+			{fBadTDC,12},
+			{fRBX, 18},
+			{fTimingDiff_ns, 40},
+			{ffC_1000000,1000},
+			{fTime_ns_250_coarse, 100},
+			{fCapidMinusBXmod4, 4}
 		};
 		class ValueQuantity : public Quantity
 		{
 			public:
-				ValueQuantity() : _type(){}
+				ValueQuantity() : _type() {}
 				ValueQuantity(ValueQuantityType type, bool isLog=false) :
 					Quantity(name_value.at(type), isLog), _type(type)
 				{}
@@ -284,9 +309,29 @@ namespace hcaldqm
 
 				//	get Value to be overriden
 				int getValue(int x) override
-				{return x;}
+				{
+					int ret_x = x;
+					if (_showOverflow) {
+						if (x < min()) {
+							ret_x = min();
+						} else if (x > max()) {
+							ret_x = max();
+						}
+					}
+					return ret_x;
+				}
 				double getValue(double x) override
-				{return x;}
+				{
+					double ret_x = x;
+					if (_showOverflow) {
+						if (x < min()) {
+							ret_x = min();
+						} else if (x > max()) {
+							ret_x = max();
+						}
+					}
+					return ret_x;
+				}
 
 				//	standard properties
 				QuantityType type() override {return fValueQuantity;}
@@ -302,7 +347,7 @@ namespace hcaldqm
 					{
 						//	for LS axis - set the bit
 						//	set extendable axes.
-						o->SetBit(BIT(BIT_OFFSET+BIT_AXIS_LS));
+						o->SetBit(BIT(constants::BIT_OFFSET+constants::BIT_AXIS_LS));
 		//				o->SetCanExtend(TH1::kXaxis);
 					}
 				}
@@ -314,7 +359,7 @@ namespace hcaldqm
 		class FlagQuantity : public ValueQuantity
 		{
 			public:
-				FlagQuantity(){}
+				FlagQuantity() {}
 				FlagQuantity(std::vector<flag::Flag> const& flags) :
 					_flags(flags) {}
 				~FlagQuantity() override {}
@@ -345,11 +390,8 @@ namespace hcaldqm
 		class LumiSection : public ValueQuantity
 		{
 			public:
-				LumiSection() : ValueQuantity(fLS), _n(4000)
-				{}
-				LumiSection(int n) : ValueQuantity(fLS), 
-					_n(n) 
-				{}
+				LumiSection() : ValueQuantity(fLS), _n(4000) {}
+				LumiSection(int n) : ValueQuantity(fLS), _n(n) {}
 				~LumiSection() override {}
 				
 				LumiSection* makeCopy() override
@@ -359,7 +401,9 @@ namespace hcaldqm
 				int nbins() override {return _n;}
 				double min() override {return 1;}
 				double max() override {return _n+1;}
-				int getValue(int l) override {return l;}
+				int getValue(int l) override {
+					return l;
+				}
 				uint32_t getBin(int l) override 
 				{return getValue(l);}
 				void setMax(double x) override {_n=x;}
@@ -368,12 +412,44 @@ namespace hcaldqm
 				int _n;
 		};
 
+		/**
+		 * Coarse LumiSection axis. Specify binning (default=10 LS)
+		 */
+		class LumiSectionCoarse : public ValueQuantity
+		{
+			public:
+				LumiSectionCoarse() : ValueQuantity(fLS), _n(4000), _binning(10)
+				{}
+				LumiSectionCoarse(int n, int binning) : ValueQuantity(fLS), 
+					_n(n), _binning(binning)
+				{}
+				~LumiSectionCoarse() override {}
+				
+				LumiSectionCoarse* makeCopy() override
+				{return new LumiSectionCoarse(_n, _binning);}
+
+				std::string name() override {return "LS";}
+				int nbins() override {return (_n + _binning - 1) / _binning;}
+				double min() override {return 1;}
+				double max() override {return _n+1;}
+				int getValue(int l) override {return l;}
+				uint32_t getBin(int l) override 
+				{
+					return (l + _binning - 1) / _binning;
+				}
+				void setMax(double x) override {_n=x;}
+
+			protected:
+				int _n;
+				int _binning;
+		};
+
 		class RunNumber : public ValueQuantity
 		{
 			public:
 				RunNumber() {}
 				RunNumber(std::vector<int> runs) :
-					_runs(runs) 
+					_runs(runs)
 				{}
 				~RunNumber() override {}
 
@@ -476,8 +552,7 @@ namespace hcaldqm
 					std::cout << "SIZE = " << _types.size() << std::endl;
 					BOOST_FOREACH(TypeMap::value_type &v, _types)
 					{
-						labels[v.second] = utilities::ogtype2string((OrbitGapType) 
-							v.first);
+						labels[v.second] = utilities::ogtype2string((constants::OrbitGapType)v.first);
 					}
 					return labels;
 				}

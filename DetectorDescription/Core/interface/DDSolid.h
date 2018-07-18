@@ -182,20 +182,6 @@ public:
   DDShapelessSolid( void ) = delete;
 };
 
-class DDReflectionSolid : public DDSolid
-{
-public:
-
-  DDReflectionSolid( const DDSolid & s );
-  DDReflectionSolid( void ) = delete; 
-
-  DDSolid unreflected( void ) const;
-
-private:
-
-  DDI::Reflection * reflected_; 
-}; 
-
 class DDBooleanSolid : public DDSolid
 {
 public:

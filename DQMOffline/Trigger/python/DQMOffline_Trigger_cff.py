@@ -177,7 +177,8 @@ offlineValidationHLTSourceOnAOD = cms.Sequence(
 # offline DQM for the HLTMonitoring stream
 ## ADD here only sequences/modules which rely on HLT collections which are stored in the HLTMonitoring stream
 ## and are not available in the standard RAW format
-dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoHLTMon = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('HLT')
     )
 

@@ -4,13 +4,16 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetId.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFGEMDetIdImpl.h"
 
-#include "helper.h"  // adjacent_cluster
 
-#define NUM_CSC_CHAMBERS 6*9   // 18 in ME1; 9 in ME2,3,4; 9 from neighbor sector.
+#include "helper.h"  // merge_map_into_map, assert_no_abort
+
+#define NUM_CSC_CHAMBERS 6*9   // 18 in ME1; 9x3 in ME2,3,4; 9 from neighbor sector.
                                // Arranged in FW as 6 stations, 9 chambers per station.
-#define NUM_RPC_CHAMBERS 7*6   // 6 in RE1,2; 12 in RE3,4; 6 from neighbor sector.
-                               // Arranged in FW as 7 stations, 6 chambers per station.
+#define NUM_RPC_CHAMBERS 7*8   // 6x2 in RE1,2; 12x2 in RE3,4; 6 from neighbor sector.
+                               // Arranged in FW as 7 stations, 6 chambers per station. (8 with iRPC)
 #define NUM_GEM_CHAMBERS 6*9   // 6 in GE1/1; 3 in GE2/1; 2 from neighbor sector.
                                // Arranged in FW as 6 stations, 9 chambers per station, mimicking CSC. (unconfirmed!)
 
@@ -53,9 +56,9 @@ void PrimitiveSelection::process(
     // Patch the CLCT pattern number
     // It should be 0-10, see: L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.cc
     bool patchPattern = true;
-    if (patchPattern) {
-      if (new_tp.getCSCData().pattern == 11 || new_tp.getCSCData().pattern == 12) {  // 11, 12 -> 10
-	edm::LogWarning("L1T") << "\nEMTF emulator patching corrupt CSC LCT pattern: changing " << new_tp.getCSCData().pattern << " to 10\n";
+    if (patchPattern && new_tp.subsystem() == TriggerPrimitive::kCSC) {
+      if (new_tp.getCSCData().pattern == 11 || new_tp.getCSCData().pattern == 12 || new_tp.getCSCData().pattern == 13 || new_tp.getCSCData().pattern == 14) {  // 11, 12, 13, 14 -> 10
+        edm::LogWarning("L1T") << "EMTF patching corrupt CSC LCT pattern: changing " << new_tp.getCSCData().pattern << " to 10";
         new_tp.accessCSCData().pattern = 10;
       }
     }
@@ -63,9 +66,9 @@ void PrimitiveSelection::process(
     // Patch the LCT quality number
     // It should be 1-15, see: L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.cc
     bool patchQuality = true;
-    if (patchQuality) {
-      if (new_tp.subsystem() == TriggerPrimitive::kCSC && new_tp.getCSCData().quality == 0) {  // 0 -> 1
-	edm::LogWarning("L1T") << "\nEMTF emulator patching corrupt CSC LCT quality: changing " << new_tp.getCSCData().quality << " to 1\n";
+    if (patchQuality && new_tp.subsystem() == TriggerPrimitive::kCSC) {
+      if (new_tp.getCSCData().quality == 0) {  // 0 -> 1
+        edm::LogWarning("L1T") << "EMTF patching corrupt CSC LCT quality: changing " << new_tp.getCSCData().quality << " to 1";
         new_tp.accessCSCData().quality = 1;
       }
     }
@@ -74,23 +77,23 @@ void PrimitiveSelection::process(
 
     if (selected_csc >= 0) {
       if (not(selected_csc < NUM_CSC_CHAMBERS))
-	{ edm::LogError("L1T") << "selected_csc = " << selected_csc << ", NUM_CSC_CHAMBERS = " << NUM_CSC_CHAMBERS; return; }
-      
+        { edm::LogError("L1T") << "selected_csc = " << selected_csc << ", NUM_CSC_CHAMBERS = " << NUM_CSC_CHAMBERS; return; }
+
       if (selected_csc_map[selected_csc].size() < 2) {
-	selected_csc_map[selected_csc].push_back(new_tp);
+        selected_csc_map[selected_csc].push_back(new_tp);
       }
       else {
-	edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
-	edm::LogWarning("L1T") << "Found 3 CSC trigger primitives in the same chamber";
-	for (int ii = 0; ii < 3; ii++) {
-	  TriggerPrimitive tp_err = (ii < 2 ? selected_csc_map[selected_csc].at(ii) : new_tp);
-	  edm::LogWarning("L1T") << "LCT #" << ii+1 << ": BX " << tp_err.getBX() 
-		    << ", endcap " << tp_err.detId<CSCDetId>().endcap() << ", sector " << tp_err.detId<CSCDetId>().triggerSector()
-		    << ", station " << tp_err.detId<CSCDetId>().station() << ", ring " << tp_err.detId<CSCDetId>().ring()
-		    << ", chamber " << tp_err.detId<CSCDetId>().chamber() << ", CSC ID " << tp_err.getCSCData().cscID
-		    << ": strip " << tp_err.getStrip() << ", wire " << tp_err.getWire();
-	}
-	edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
+        edm::LogWarning("L1T") << "\n******************* EMTF EMULATOR: SUPER-BIZZARE CASE *******************";
+        edm::LogWarning("L1T") << "Found 3 CSC trigger primitives in the same chamber";
+        for (int ii = 0; ii < 3; ii++) {
+          TriggerPrimitive tp_err = (ii < 2 ? selected_csc_map[selected_csc].at(ii) : new_tp);
+          edm::LogWarning("L1T") << "LCT #" << ii+1 << ": BX " << tp_err.getBX()
+                    << ", endcap " << tp_err.detId<CSCDetId>().endcap() << ", sector " << tp_err.detId<CSCDetId>().triggerSector()
+                    << ", station " << tp_err.detId<CSCDetId>().station() << ", ring " << tp_err.detId<CSCDetId>().ring()
+                    << ", chamber " << tp_err.detId<CSCDetId>().chamber() << ", CSC ID " << tp_err.getCSCData().cscID
+                    << ": strip " << tp_err.getStrip() << ", wire " << tp_err.getWire();
+        }
+        edm::LogWarning("L1T") << "************************* ONLY KEEP FIRST TWO *************************\n\n";
       }
 
     } // End conditional: if (selected_csc >= 0)
@@ -106,6 +109,16 @@ void PrimitiveSelection::process(
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       int selected = map_tp_it->first;
       TriggerPrimitiveCollection& tmp_primitives = map_tp_it->second;  // pass by reference
+
+      if (tmp_primitives.size() >= 4) {
+        edm::LogWarning("L1T") << "EMTF found 4 or more CSC LCTs in one chamber: keeping only two";
+        tmp_primitives.erase(tmp_primitives.begin() + 4, tmp_primitives.end());  // erase 5th element++
+        tmp_primitives.erase(tmp_primitives.begin() + 2);  // erase 3rd element
+        tmp_primitives.erase(tmp_primitives.begin() + 1);  // erase 2nd element
+      } else if (tmp_primitives.size() == 3) {
+        edm::LogWarning("L1T") << "EMTF found 3 CSC LCTs in one chamber: keeping only two";
+        tmp_primitives.erase(tmp_primitives.begin() + 2);  // erase 3rd element
+      }
       if (not(tmp_primitives.size() <= 2))  // at most 2 hits
 	{ edm::LogError("L1T") << "tmp_primitives.size()  = " << tmp_primitives.size() ; return; }
 
@@ -158,13 +171,8 @@ void PrimitiveSelection::process(
     const TriggerPrimitiveCollection& muon_primitives,
     std::map<int, TriggerPrimitiveCollection>& selected_rpc_map
 ) const {
-  // Cluster the RPC digis.
-  // Technically this is done by the CPPF, before the EMTF.
-  TriggerPrimitiveCollection clus_muon_primitives;
-  cluster_rpc(muon_primitives, clus_muon_primitives);
-
-  TriggerPrimitiveCollection::const_iterator tp_it  = clus_muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = clus_muon_primitives.end();
+  TriggerPrimitiveCollection::const_iterator tp_it  = muon_primitives.begin();
+  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     int selected_rpc = select_rpc(*tp_it);  // Returns RPC "link" index (0 - 41)
@@ -226,8 +234,8 @@ void PrimitiveSelection::process(
       int selected = map_tp_it->first;
       TriggerPrimitiveCollection& tmp_primitives = map_tp_it->second;  // pass by reference
 
-      int rpc_sub = selected / 6;
-      int rpc_chm = selected % 6;
+      int rpc_sub = selected / 8;
+      int rpc_chm = selected % 8;
 
       int pc_station = -1;
       int pc_chamber = -1;
@@ -253,16 +261,16 @@ void PrimitiveSelection::process(
         }
 
       } else {  // neighbor
-         pc_station = 5;
-         if (rpc_chm == 0) {  // RE1/2
-           pc_chamber = 1;
-         } else if (rpc_chm == 1) {  // RE2/2
-           pc_chamber = 4;
-         } else if (2 <= rpc_chm && rpc_chm <= 3) {  // RE3/2, RE3/3
-           pc_chamber = 6;
-         } else if (4 <= rpc_chm && rpc_chm <= 5) {  // RE4/2, RE4/3
-           pc_chamber = 8;
-         }
+	pc_station = 5;
+	if (rpc_chm == 0) {  // RE1/2
+	  pc_chamber = 1;
+	} else if (rpc_chm == 1) {  // RE2/2
+	  pc_chamber = 4;
+	} else if (2 <= rpc_chm && rpc_chm <= 3) {  // RE3/2, RE3/3
+	  pc_chamber = 6;
+	} else if (4 <= rpc_chm && rpc_chm <= 5) {  // RE4/2, RE4/3
+	  pc_chamber = 8;
+	}
       }
 
       if (not(pc_station != -1 && pc_chamber != -1))
@@ -271,22 +279,25 @@ void PrimitiveSelection::process(
       selected = (pc_station * 9) + pc_chamber;
 
       bool ignore_this_rpc_chm = false;
-      if (rpc_chm == 3 || rpc_chm == 5) { // special case of RE34/2 and RE34/3 chambers
-        // if RE34/2 exists, ignore RE34/3. In C++, this assumes that the loop
-        // over selected_rpc_map will always find RE34/2 before RE34/3
+      if (rpc_chm == 3 || rpc_chm == 5) { // special case of RE3,4/2 and RE3,4/3 chambers
+        // if RE3,4/2 exists, ignore RE3,4/3. In C++, this assumes that the loop
+        // over selected_rpc_map will always find RE3,4/2 before RE3,4/3
         if (tmp_selected_rpc_map.find(selected) != tmp_selected_rpc_map.end())
           ignore_this_rpc_chm = true;
       }
 
-      if (!ignore_this_rpc_chm) {
-        if (not(tmp_selected_rpc_map.find(selected) == tmp_selected_rpc_map.end()))  // make sure it does not exist
-	  { edm::LogError("L1T") << "tmp_selected_rpc_map.find(selected) != tmp_selected_rpc_map.end()"; return; }
-        tmp_selected_rpc_map[selected] = tmp_primitives;
-      }
-      else { // If both RE34/2 and RE34/3 exist, keep both for now - remove ring 3 hits in PrimitiveSelection::merge()
-	tmp_selected_rpc_map[selected].insert(tmp_selected_rpc_map[selected].end(), tmp_primitives.begin(), tmp_primitives.end());
+      if (ignore_this_rpc_chm) {
+        // Set RPC stubs as invalid
+        for (auto&& tp : tmp_primitives) {
+          tp.accessRPCData().valid = 0;
+        }
       }
 
+      if (tmp_selected_rpc_map.find(selected) == tmp_selected_rpc_map.end()) {
+        tmp_selected_rpc_map[selected] = tmp_primitives;
+      } else {
+        tmp_selected_rpc_map[selected].insert(tmp_selected_rpc_map[selected].end(), tmp_primitives.begin(), tmp_primitives.end());
+      }
     }  // end loop over selected_rpc_map
 
     std::swap(selected_rpc_map, tmp_selected_rpc_map);  // replace the original map
@@ -302,13 +313,8 @@ void PrimitiveSelection::process(
     const TriggerPrimitiveCollection& muon_primitives,
     std::map<int, TriggerPrimitiveCollection>& selected_gem_map
 ) const {
-  // Cluster the GEM digis.
-  // Technically this is done before the EMTF.
-  TriggerPrimitiveCollection clus_muon_primitives;
-  cluster_gem(muon_primitives, clus_muon_primitives);
-
-  TriggerPrimitiveCollection::const_iterator tp_it  = clus_muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = clus_muon_primitives.end();
+  TriggerPrimitiveCollection::const_iterator tp_it  = muon_primitives.begin();
+  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     int selected_gem = select_gem(*tp_it);  // Returns GEM "link" index (0 - 53)
@@ -326,7 +332,7 @@ void PrimitiveSelection::process(
     struct {
       typedef TriggerPrimitive value_type;
       bool operator()(const value_type& x) const {
-        int sz = x.getRPCData().strip_hi - x.getRPCData().strip_low + 1;
+        int sz = x.getGEMData().pad_hi - x.getGEMData().pad_low + 1;
         return sz > 8;
       }
     } cluster_size_cut;
@@ -344,13 +350,11 @@ void PrimitiveSelection::process(
           tmp_primitives.end()
       );
 
-      // Keep the first two clusters
+      // Keep the first 8 clusters
       if (tmp_primitives.size() > 8)
         tmp_primitives.erase(tmp_primitives.begin()+8, tmp_primitives.end());
     }
   }  // end if apply_truncation
-
-  //FIXME: What to do about the two layers?
 }
 
 
@@ -375,12 +379,11 @@ void PrimitiveSelection::process(
 // supplemental source of stubs for CSCs.
 
 void PrimitiveSelection::merge(
-    std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
-    std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
-    std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+    const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+    const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
+    const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
     std::map<int, TriggerPrimitiveCollection>& selected_prim_map
 ) const {
-
   // First, put CSC hits
   std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_it  = selected_csc_map.begin();
   std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_end = selected_csc_map.end();
@@ -395,7 +398,28 @@ void PrimitiveSelection::merge(
     selected_prim_map[selected_csc] = csc_primitives;
   }
 
-  // Second, insert RPC stubs if there is no CSC hits
+  // Second, insert GEM stubs if there is no CSC hits
+  map_tp_it  = selected_gem_map.begin();
+  map_tp_end = selected_gem_map.end();
+
+  for (; map_tp_it != map_tp_end; ++map_tp_it) {
+    int selected_gem = map_tp_it->first;
+    const TriggerPrimitiveCollection& gem_primitives = map_tp_it->second;
+    if (gem_primitives.empty())  continue;
+    if (not(gem_primitives.size() <= 8))  // at most 8 hits
+      { edm::LogError("L1T") << "gem_primitives.size() = " << gem_primitives.size(); return; }
+
+    bool found = (selected_prim_map.find(selected_gem) != selected_prim_map.end());
+    if (!found) {
+      // No CSC hits, insert all GEM hits
+      selected_prim_map[selected_gem] = gem_primitives;
+
+    } else {
+      // Do nothing
+    }
+  }
+
+  // Third, insert RPC stubs if there is no CSC/GEM hits
   map_tp_it  = selected_rpc_map.begin();
   map_tp_end = selected_rpc_map.end();
 
@@ -408,82 +432,36 @@ void PrimitiveSelection::merge(
 
     bool found = (selected_prim_map.find(selected_rpc) != selected_prim_map.end());
     if (!found) {
+      // No CSC/GEM hits, insert all RPC hits
+      //selected_prim_map[selected_rpc] = rpc_primitives;
 
-      int pc_station = selected_rpc / 9;
-      int pc_chamber = selected_rpc % 9;
-      int station    = std::max(1, (pc_station < 5 ? pc_station : pc_chamber / 2));
-
-      // For station 1 and 2 RPC chambers, insert all RPC hits
-      if ( station <= 2 )
-	selected_prim_map[selected_rpc] = rpc_primitives;
-      // Special case of RE34/2 and RE34/3 chambers: if RE34/2 exists, ignore RE34/3
-      else {
-	bool RPC_in_ring_2 = false; // >= 1 RPC hit found in ring 2
-	bool RPC_in_ring_3 = false; // >= 1 RPC hit found in ring 3
-
-	for (const auto& tp_it : rpc_primitives) {
-	  if (tp_it.detId<RPCDetId>().ring() == 2) RPC_in_ring_2 = true;
-	  if (tp_it.detId<RPCDetId>().ring() == 3) RPC_in_ring_3 = true;
-	}
-
-	if (!RPC_in_ring_2 || !RPC_in_ring_3) // RPCs not found in both rings
-	  selected_prim_map[selected_rpc] = rpc_primitives;
-	else {
-	  TriggerPrimitiveCollection rpc_primitives_ring_2;  // RPC hits in ring 2
-	  for (const auto& tp_it : rpc_primitives) {
-	    if (tp_it.detId<RPCDetId>().ring() == 2) {
-	      rpc_primitives_ring_2.push_back(tp_it);
-	    }
-	  }
-	  selected_prim_map[selected_rpc] = rpc_primitives_ring_2;
-	}
+      // No CSC/GEM hits, insert the valid RPC hits
+      TriggerPrimitiveCollection tmp_rpc_primitives;
+      for (const auto& tp : rpc_primitives) {
+        if (tp.getRPCData().valid != 0) {
+          tmp_rpc_primitives.push_back(tp);
+        }
       }
-
-      if (not(selected_prim_map[selected_rpc].size() <= 2))  // at most 2 hits
-	{ edm::LogError("L1T") << "selected_prim_map[selected_rpc].size() = " << selected_prim_map[selected_rpc].size(); return; }
-
-    } // End conditional: if (!found)
-    // else { // Initial FW in 2017; was disabled on June 7
-    //   // If only one CSC hit, insert the first RPC hit
-    //   TriggerPrimitiveCollection& tmp_primitives = selected_prim_map[selected_rpc];  // pass by reference
-
-    //   if (tmp_primitives.size() < 2) {
-    //     tmp_primitives.push_back(rpc_primitives.front());
-    //   }
-    // }
-  }
-
-  // Third, insert GEM stubs if there is no CSC/RPC hits
-  map_tp_it  = selected_gem_map.begin();
-  map_tp_end = selected_gem_map.end();
-
-  for (; map_tp_it != map_tp_end; ++map_tp_it) {
-    int selected_gem = map_tp_it->first;
-    const TriggerPrimitiveCollection& gem_primitives = map_tp_it->second;
-    if (gem_primitives.empty())  continue;
-    if (not(gem_primitives.size() <= 2))  // at most 2 hits
-      { edm::LogError("L1T") << "gem_primitives.size() = " << gem_primitives.size(); return; }
-
-    bool found = (selected_prim_map.find(selected_gem) != selected_prim_map.end());
-    if (!found) {
-      // No CSC/RPC hits, insert all GEM hits
-      selected_prim_map[selected_gem] = gem_primitives;
+      if (not(rpc_primitives.size() <= 2))  // at most 2 hits
+	{ edm::LogError("L1T") << "rpc_primitives.size() = " << rpc_primitives.size(); return; }
+      selected_prim_map[selected_rpc] = tmp_rpc_primitives;
 
     } else {
-      // If only one CSC/RPC hit, insert the first GEM hit
-      TriggerPrimitiveCollection& tmp_primitives = selected_prim_map[selected_gem];  // pass by reference
+      // Initial FW in 2017; was disabled on June 7.
+      // If only one CSC/GEM hit, insert the first RPC hit
+      //TriggerPrimitiveCollection& tmp_primitives = selected_prim_map[selected_rpc];  // pass by reference
 
-      if (tmp_primitives.size() < 2) {
-        tmp_primitives.push_back(gem_primitives.front());
-      }
+      //if (tmp_primitives.size() < 2) {
+      //  tmp_primitives.push_back(rpc_primitives.front());
+      //}
     }
   }
 }
 
 void PrimitiveSelection::merge_no_truncate(
-    std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
-    std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
-    std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+    const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+    const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
+    const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
     std::map<int, TriggerPrimitiveCollection>& selected_prim_map
 ) const {
   // First, put CSC hits
@@ -494,11 +472,6 @@ void PrimitiveSelection::merge_no_truncate(
 
   // Third, insert RPC hits
   merge_map_into_map(selected_rpc_map, selected_prim_map);
-
-  // Finally, clear the input maps to save memory
-  selected_csc_map.clear();
-  selected_rpc_map.clear();
-  selected_gem_map.clear();
 }
 
 
@@ -528,10 +501,6 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_station = " << tp_station; return selected; }
     if ( !(1 <= tp_csc_ID && tp_csc_ID <= 9) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_csc_ID = "  << tp_csc_ID; return selected; }
-    if ( !(tp_data.strip < 160) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.strip = "   << tp_data.strip ; return selected; }
-    if ( !(tp_data.keywire < 128) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.keywire = " << tp_data.keywire; return selected; }
     if ( !(tp_data.valid == true) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.valid = "   << tp_data.valid ; return selected; }
     if ( !(tp_data.pattern <= 10) ) {
@@ -539,20 +508,40 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
     if ( !(tp_data.quality > 0) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.quality = " << tp_data.quality; return selected; }
 
+    int max_strip = 0;
+    int max_wire  = 0;
+    if        (tp_station == 1 && tp_ring == 4) { // ME1/1a
+      max_strip =  96;
+      max_wire  =  48;
+    } else if (tp_station == 1 && tp_ring == 1) { // ME1/1b
+      max_strip = 128;
+      max_wire  =  48;
+    } else if (tp_station == 1 && tp_ring == 2) { // ME1/2
+      max_strip = 160;
+      max_wire  =  64;
+    } else if (tp_station == 1 && tp_ring == 3) { // ME1/3
+      max_strip = 128;
+      max_wire  =  32;
+    } else if (tp_station == 2 && tp_ring == 1) { // ME2/1
+      max_strip = 160;
+      max_wire  = 112;
+    } else if (tp_station >= 3 && tp_ring == 1) { // ME3/1, ME4/1
+      max_strip = 160;
+      max_wire  =  96;
+    } else if (tp_station >= 2 && tp_ring == 2) { // ME2/2, ME3/2, ME4/2
+      max_strip = 160;
+      max_wire  =  64;
+    }
 
-    // Check using ME1/1a --> ring 4 convention
-    if (tp_station == 1 && tp_ring == 1) {
-      if (not(tp_data.strip < 128))
-	{ edm::LogError("L1T") << "tp_data.strip = " << tp_data.strip; return selected; }
-      if (not(1 <= tp_csc_ID && tp_csc_ID <= 3))
-	{ edm::LogError("L1T") << "tp_csc_ID = " << tp_csc_ID; return selected; }
-    }
-    if (tp_station == 1 && tp_ring == 4) {
-      if (not(tp_data.strip < 128))
-	{ edm::LogError("L1T") << "tp_data.strip = " << tp_data.strip; return selected; }
-      if (not(1 <= tp_csc_ID && tp_csc_ID <= 3))
-	{ edm::LogError("L1T") << "tp_csc_ID = " << tp_csc_ID; return selected; }
-    }
+    if ( !(tp_data.strip < max_strip) ) {
+      edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
+			   << ": tp_data.strip = " << tp_data.strip << " (max = " << max_strip - 1 << ")" << std::endl;
+      return selected; }
+    if ( !(tp_data.keywire < max_wire) ) {
+      edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
+			   << ": tp_data.keywire = " << tp_data.keywire << " (max = " << max_wire - 1 << ")" << std::endl;
+      return selected; }
+
 
     // station 1 --> subsector 1 or 2
     // station 2,3,4 --> subsector 0
@@ -623,85 +612,6 @@ int PrimitiveSelection::get_index_csc(int tp_subsector, int tp_station, int tp_c
 
 // _____________________________________________________________________________
 // RPC functions
-void PrimitiveSelection::cluster_rpc(const TriggerPrimitiveCollection& muon_primitives, TriggerPrimitiveCollection& clus_muon_primitives) const {
-  // Define operator to select RPC digis
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& x) const {
-      return (x.subsystem() == TriggerPrimitive::kRPC);
-    }
-  } rpc_digi_select;
-
-  // Define operator to sort the RPC digis prior to clustering.
-  // Use rawId, bx and strip as the sorting id. RPC rawId fully specifies
-  // sector, subsector, endcap, station, ring, layer, roll. Strip is used as
-  // the least significant sorting id.
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getRPCData().bx), lhs.getRPCData().strip) <
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getRPCData().bx), rhs.getRPCData().strip)
-      );
-      return cmp;
-    }
-  } rpc_digi_less;
-
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getRPCData().bx), lhs.getRPCData().strip) ==
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getRPCData().bx), rhs.getRPCData().strip)
-      );
-      return cmp;
-    }
-  } rpc_digi_equal;
-
-  // Define operators for the nearest-neighbor clustering algorithm.
-  // If two digis are next to each other (check strip_hi on the 'left', and
-  // strip_low on the 'right'), cluster them (increment strip_hi on the 'left')
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          (lhs.rawId() == rhs.rawId()) &&
-          (lhs.getRPCData().bx == rhs.getRPCData().bx) &&
-          (lhs.getRPCData().strip_hi+1 == rhs.getRPCData().strip_low)
-      );
-      return cmp;
-    }
-  } rpc_digi_adjacent;
-
-  struct {
-    typedef TriggerPrimitive value_type;
-    void operator()(value_type& lhs, value_type& rhs) {  // pass by reference
-      lhs.accessRPCData().strip_hi += 1;
-    }
-  } rpc_digi_cluster;
-
-  // ___________________________________________________________________________
-  // Do clustering using C++ <algorithm> functions
-
-  // 1. Select RPC digis
-  std::copy_if(muon_primitives.begin(), muon_primitives.end(), std::back_inserter(clus_muon_primitives), rpc_digi_select);
-
-  // 2. Sort
-  std::sort(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_less);
-
-  // 3. Remove duplicates
-  clus_muon_primitives.erase(
-      std::unique(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_equal),
-      clus_muon_primitives.end()
-  );
-
-  // 4. Cluster adjacent digis
-  clus_muon_primitives.erase(
-      adjacent_cluster(clus_muon_primitives.begin(), clus_muon_primitives.end(), rpc_digi_adjacent, rpc_digi_cluster),
-      clus_muon_primitives.end()
-  );
-}
-
 int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
@@ -743,9 +653,9 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
 
     // Selection
     if (is_in_bx_rpc(tp_bx)) {
-      if (is_in_sector_rpc(tp_endcap, tp_sector, tp_subsector)) {
+      if (is_in_sector_rpc(tp_endcap, tp_station, tp_ring, tp_sector, tp_subsector)) {
         selected = get_index_rpc(tp_station, tp_ring, tp_subsector, false);
-      } else if (is_in_neighbor_sector_rpc(tp_endcap, tp_sector, tp_subsector)) {
+      } else if (is_in_neighbor_sector_rpc(tp_endcap, tp_station, tp_ring, tp_sector, tp_subsector)) {
         selected = get_index_rpc(tp_station, tp_ring, tp_subsector, true);
       }
     }
@@ -753,18 +663,23 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
   return selected;
 }
 
-bool PrimitiveSelection::is_in_sector_rpc(int tp_endcap, int tp_sector, int tp_subsector) const {
+bool PrimitiveSelection::is_in_sector_rpc(int tp_endcap, int tp_station, int tp_ring, int tp_sector, int tp_subsector) const {
   // RPC sector X, subsectors 1-2 corresponds to CSC sector X-1
   // RPC sector X, subsectors 3-6 corresponds to CSC sector X
-  auto get_real_sector = [](int sector, int subsector) {
-    int corr = (subsector < 3) ? (sector == 1 ? +5 : -1) : 0;
-    return sector + corr;
+  auto get_csc_sector = [](int tp_station, int tp_ring, int tp_sector, int tp_subsector) {
+    // 10 degree chamber
+    int corr = (tp_subsector < 3) ? (tp_sector == 1 ? +5 : -1) : 0;
+    return tp_sector + corr;
   };
-  return ((endcap_ == tp_endcap) && (sector_ == get_real_sector(tp_sector, tp_subsector)));
+  return ((endcap_ == tp_endcap) && (sector_ == get_csc_sector(tp_station, tp_ring, tp_sector, tp_subsector)));
 }
 
-bool PrimitiveSelection::is_in_neighbor_sector_rpc(int tp_endcap, int tp_sector, int tp_subsector) const {
-  return (includeNeighbor_ && (endcap_ == tp_endcap) && (sector_ == tp_sector) && (tp_subsector == 2));
+bool PrimitiveSelection::is_in_neighbor_sector_rpc(int tp_endcap, int tp_station, int tp_ring, int tp_sector, int tp_subsector) const {
+  auto get_csc_neighbor_subsector = [](int tp_station, int tp_ring) {
+    // 10 degree chamber
+    return 2;
+  };
+  return (includeNeighbor_ && (endcap_ == tp_endcap) && (sector_ == tp_sector) && (tp_subsector == get_csc_neighbor_subsector(tp_station, tp_ring)));
 }
 
 bool PrimitiveSelection::is_in_bx_rpc(int tp_bx) const {
@@ -802,98 +717,19 @@ int PrimitiveSelection::get_index_rpc(int tp_station, int tp_ring, int tp_subsec
   if (not(rpc_sub != -1 && rpc_chm != -1))
     { edm::LogError("L1T") << "rpc_sub = " << rpc_sub << ", rpc_chm = " << rpc_chm; return selected; }
 
-  selected = (rpc_sub * 6) + rpc_chm;
+  selected = (rpc_sub * 8) + rpc_chm;
   return selected;
 }
 
 
 // _____________________________________________________________________________
 // GEM functions
-void PrimitiveSelection::cluster_gem(const TriggerPrimitiveCollection& muon_primitives, TriggerPrimitiveCollection& clus_muon_primitives) const {
-  // Define operator to select GEM digis
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& x) const {
-      return (x.subsystem() == TriggerPrimitive::kGEM);
-    }
-  } gem_digi_select;
-
-  // Define operator to sort the GEM digis prior to clustering.
-  // Use rawId, bx and pad as the sorting id. GEM rawId fully specifies
-  // endcap, station, ring, layer, roll, chamber. Pad is used as
-  // the least significant sorting id.
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getGEMData().bx), lhs.getGEMData().pad) <
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getGEMData().bx), rhs.getGEMData().pad)
-      );
-      return cmp;
-    }
-  } gem_digi_less;
-
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          std::make_pair(std::make_pair(lhs.rawId(), lhs.getGEMData().bx), lhs.getGEMData().pad) ==
-          std::make_pair(std::make_pair(rhs.rawId(), rhs.getGEMData().bx), rhs.getGEMData().pad)
-      );
-      return cmp;
-    }
-  } gem_digi_equal;
-
-  // Define operators for the nearest-neighbor clustering algorithm.
-  // If two digis are next to each other (check pad_hi on the 'left', and
-  // pad_low on the 'right'), cluster them (increment pad_hi on the 'left')
-  struct {
-    typedef TriggerPrimitive value_type;
-    bool operator()(const value_type& lhs, const value_type& rhs) const {
-      bool cmp = (
-          (lhs.rawId() == rhs.rawId()) &&
-          (lhs.getGEMData().bx == rhs.getGEMData().bx) &&
-          (lhs.getGEMData().pad_hi+1 == rhs.getGEMData().pad_low)
-      );
-      return cmp;
-    }
-  } gem_digi_adjacent;
-
-  struct {
-    typedef TriggerPrimitive value_type;
-    void operator()(value_type& lhs, value_type& rhs) {  // pass by reference
-      lhs.accessGEMData().pad_hi += 1;
-    }
-  } gem_digi_cluster;
-
-  // ___________________________________________________________________________
-  // Do clustering using C++ <algorithm> functions
-
-  // 1. Select GEM digis
-  std::copy_if(muon_primitives.begin(), muon_primitives.end(), std::back_inserter(clus_muon_primitives), gem_digi_select);
-
-  // 2. Sort
-  std::sort(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_less);
-
-  // 3. Remove duplicates
-  clus_muon_primitives.erase(
-      std::unique(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_equal),
-      clus_muon_primitives.end()
-  );
-
-  // 4. Cluster adjacent digis
-  clus_muon_primitives.erase(
-      adjacent_cluster(clus_muon_primitives.begin(), clus_muon_primitives.end(), gem_digi_adjacent, gem_digi_cluster),
-      clus_muon_primitives.end()
-  );
-}
-
 int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const {
   int selected = -1;
 
   if (muon_primitive.subsystem() == TriggerPrimitive::kGEM) {
-    const GEMDetId& tp_detId = muon_primitive.detId<GEMDetId>();
-    const GEMData&  tp_data  = muon_primitive.getGEMData();
+    const EMTFGEMDetId& tp_detId = emtf::construct_EMTFGEMDetId(muon_primitive);
+    const GEMData&      tp_data  = muon_primitive.getGEMData();
 
     int tp_region    = tp_detId.region();     // 0 for Barrel, +/-1 for +/- Endcap
     int tp_endcap    = (tp_region == -1) ? 2 : tp_region;
@@ -913,9 +749,11 @@ int PrimitiveSelection::select_gem(const TriggerPrimitive& muon_primitive) const
       if( station > 1 && ring > 1 ) {
         result = ((static_cast<unsigned>(chamber-3) & 0x7f) / 6) + 1; // ch 3-8->1, 9-14->2, ... 1,2 -> 6
       }
+      else if( station == 1 && ring != 4 ) {
+        result = ((static_cast<unsigned>(chamber-3) & 0x7f) / 6) + 1; // ch 3-8->1, 9-14->2, ... 1,2 -> 6
+      }
       else {
-        result =  (station != 1) ? ((static_cast<unsigned>(chamber-2) & 0x1f) / 3) + 1 : // ch 2-4-> 1, 5-7->2, ...
-                               ((static_cast<unsigned>(chamber-3) & 0x7f) / 6) + 1;
+        result = ((static_cast<unsigned>(chamber-2) & 0x1f) / 3) + 1; // ch 2-4-> 1, 5-7->2, ...
       }
       return (result <= 6) ? result : 6; // max sector is 6, some calculations give a value greater than six but this is expected.
     };
@@ -1000,7 +838,7 @@ bool PrimitiveSelection::is_in_sector_gem(int tp_endcap, int tp_sector) const {
 
 bool PrimitiveSelection::is_in_neighbor_sector_gem(int tp_endcap, int tp_sector, int tp_subsector, int tp_station, int tp_csc_ID) const {
   // Identical to the corresponding CSC function
-  return is_in_neighbor_sector_gem(tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_ID);
+  return is_in_neighbor_sector_csc(tp_endcap, tp_sector, tp_subsector, tp_station, tp_csc_ID);
 }
 
 bool PrimitiveSelection::is_in_bx_gem(int tp_bx) const {

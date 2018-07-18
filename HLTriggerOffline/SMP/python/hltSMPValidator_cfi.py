@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # taken from hltHiggsValidator_cfi.py in HLTriggerOffline/Higgs/python
-hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltSMPValidator = DQMEDAnalyzer('HLTHiggsValidator',
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),
-    analysis       = cms.vstring("SinglePhoton","SingleEle"),
+    analyses       = cms.vstring("SinglePhoton","SingleEle"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),

@@ -47,12 +47,13 @@ displacedTracks = DuplicateListMerger.clone(
     candidateComponents = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
     )
 #for displaced global muons
-displacedTracksSequence = cms.Sequence(
-    duplicateDisplacedTrackCandidates*
-    mergedDuplicateDisplacedTracks*
-    duplicateDisplacedTrackClassifier*
+displacedTracksTask = cms.Task(
+    duplicateDisplacedTrackCandidates,
+    mergedDuplicateDisplacedTracks,
+    duplicateDisplacedTrackClassifier,
     displacedTracks
     )
+displacedTracksSequence = cms.Sequence(displacedTracksTask)
 
 # This customization will be removed once we get the templates for
 # phase2 pixel

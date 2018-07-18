@@ -316,7 +316,7 @@ class StatisticalTest(object):
     def do_test(self, h1, h2):
         if not h1 or not h2:
             raise ComparisonError('Missing histogram')
-        if type(h1) != type(h2):
+        if not isinstance(h1, type(h2)):
             return -104     # raise ComparisonError('Histograms have different types')
         if not h1.InheritsFrom('TH1'):
             return -105     # raise ComparisonError('Object is not a histogram')

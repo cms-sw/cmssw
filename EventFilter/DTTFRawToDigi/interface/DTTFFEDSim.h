@@ -59,8 +59,6 @@ class DTTFFEDSim : public edm::stream::EDProducer<> {
 
   int wheel(int channel);
 
-  void calcCRC(int myD1, int myD2, int &myC);
-
   edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
   edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }
 

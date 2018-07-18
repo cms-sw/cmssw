@@ -21,7 +21,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  EcalPart ecalPart,
 				  bool regional,
-				  const std::vector<EcalEtaPhiRegion>& regions)
+				  const std::vector<RectangularEtaPhiRegion>& regions)
 {
   seeds.clear();
   used_s.clear();
@@ -60,16 +60,16 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
 	double energy = it->energy();
 	if (energy < threshold) continue; // need to check to see if this line is useful!
 
-	auto const & thisCell = *geometry_p->getGeometry(it->id());
-	auto const &  position = thisCell.getPosition();
+	auto thisCell = geometry_p->getGeometry(it->id());
+	auto const &  position = thisCell->getPosition();
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
 	bool withinRegion = false;
 	if (regional) {
-	  std::vector<EcalEtaPhiRegion>::const_iterator region;
+	  std::vector<RectangularEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
+	    if (region->inRegion(thisCell->etaPos(),thisCell->phiPos())) {
 	      withinRegion =  true;
 	      break;
 	    }

@@ -56,6 +56,10 @@ namespace edm {
 
     StreamID const& streamID() const { return streamID_; }
     Transition transition() const { return transition_; }
+    bool isAtEndTransition() const {
+      return transition() ==Transition::kEndLuminosityBlock or
+             transition() ==Transition::kEndRun;
+    }
     EventID const& eventID() const { return eventID_; } // event#==0 is a lumi, event#==0&lumi#==0 is a run
     RunIndex const& runIndex() const { return runIndex_; }
     LuminosityBlockIndex const& luminosityBlockIndex() const { return luminosityBlockIndex_; }

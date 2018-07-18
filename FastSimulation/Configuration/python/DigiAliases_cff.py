@@ -1,27 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-# define some global variables
-# to be filled in by the load* functions below
-generalTracks = None
-ecalPreshowerDigis = None
-ecalDigis = None
-hcalDigis = None
-muonDTDigis = None
-muonCSCDigis = None
-muonRPCDigis = None
-caloStage1LegacyFormatDigis = None
-gtDigis = None
-gmtDigis = None
+# This is an ugly hack (but better what was before) to record if the
+# loadDigiAliases() was called with premixing or not. Unfortunately
+# which alias to use depends on that. If we had a premixing Modifier,
+# this hack would not be needed.
+_loadDigiAliasesWasCalledPremix = None
 
-loadDigiAliasesWasCalled = False
+def loadGeneralTracksAlias(process):
+    if _loadDigiAliasesWasCalledPremix is None:
+        raise Exception("This function may be called only after loadDigiAliases() has been called")
 
-def loadDigiAliases(premix=False):
-    nopremix = not premix
-
-    global generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis,loadDigiAliasesWasCalled
-
-    loadDigiAliasesWasCalled=True
-    generalTracks = cms.EDAlias(
+    nopremix = not _loadDigiAliasesWasCalledPremix
+    process.generalTracks = cms.EDAlias(
         **{"mix" if nopremix else "mixData" :
            cms.VPSet(
                 cms.PSet(
@@ -42,8 +32,13 @@ def loadDigiAliases(premix=False):
                 )
            }
           )
-    
-    ecalPreshowerDigis = cms.EDAlias(
+
+def loadDigiAliases(process, premix=False):
+    nopremix = not premix
+    global _loadDigiAliasesWasCalledPremix
+    _loadDigiAliasesWasCalledPremix = premix
+
+    process.ecalPreshowerDigis = cms.EDAlias(
         **{"simEcalPreshowerDigis" if nopremix else "DMEcalPreshowerDigis" :
                cms.VPSet(
                 cms.PSet(
@@ -53,7 +48,7 @@ def loadDigiAliases(premix=False):
            }
           )
     
-    ecalDigis = cms.EDAlias(
+    process.ecalDigis = cms.EDAlias(
         **{"simEcalDigis" if nopremix else "DMEcalDigis" : 
            cms.VPSet(
                 cms.PSet(
@@ -83,7 +78,7 @@ def loadDigiAliases(premix=False):
            }
           )
 
-    hcalDigis = cms.EDAlias(
+    process.hcalDigis = cms.EDAlias(
         **{"simHcalDigis" if nopremix else "DMHcalDigis" :
             cms.VPSet(
                 cms.PSet(type = cms.string("HBHEDataFramesSorted")),
@@ -103,7 +98,7 @@ def loadDigiAliases(premix=False):
            }
           )
 
-    muonDTDigis = cms.EDAlias(
+    process.muonDTDigis = cms.EDAlias(
         **{"simMuonDTDigis" if nopremix else "mixData" :
                cms.VPSet(
                 cms.PSet(
@@ -116,7 +111,7 @@ def loadDigiAliases(premix=False):
            }
           )
 
-    muonRPCDigis = cms.EDAlias(
+    process.muonRPCDigis = cms.EDAlias(
         **{"simMuonRPCDigis" if nopremix else "mixData" :
                cms.VPSet(
                 cms.PSet(
@@ -129,7 +124,7 @@ def loadDigiAliases(premix=False):
            }
           )
 
-    muonCSCDigis = cms.EDAlias(
+    process.muonCSCDigis = cms.EDAlias(
         **{"simMuonCSCDigis" if nopremix else "mixData" :
                cms.VPSet(
                 cms.PSet(
@@ -147,11 +142,8 @@ def loadDigiAliases(premix=False):
            }
           )
     
-def loadTriggerDigiAliases():
-
-    global gctDigis,gtDigis,gmtDigis,caloStage1LegacyFormatDigis
-
-    caloStage1LegacyFormatDigis = cms.EDAlias(
+def loadTriggerDigiAliases(process):
+    process.caloStage1LegacyFormatDigis = cms.EDAlias(
         **{ "simCaloStage1LegacyFormatDigis" :
                 cms.VPSet(
                 cms.PSet(type = cms.string("L1GctEmCands")),
@@ -166,7 +158,7 @@ def loadTriggerDigiAliases():
                 cms.PSet(type = cms.string("L1GctInternJetDatas")),
                 cms.PSet(type = cms.string("L1GctJetCands")))})
 
-    gctDigis = cms.EDAlias(
+    process.gctDigis = cms.EDAlias(
         **{ "simGctDigis" :
                 cms.VPSet(
                 cms.PSet(type = cms.string("L1GctEmCands")),
@@ -181,7 +173,7 @@ def loadTriggerDigiAliases():
                 cms.PSet(type = cms.string("L1GctInternJetDatas")),
                 cms.PSet(type = cms.string("L1GctJetCands")))})
 
-    gtDigis = cms.EDAlias(
+    process.gtDigis = cms.EDAlias(
         **{ "simGtDigis" :
                 cms.VPSet(
                 cms.PSet(type = cms.string("L1GlobalTriggerEvmReadoutRecord")),
@@ -194,7 +186,7 @@ def loadTriggerDigiAliases():
             })
     
 
-    gmtDigis = cms.EDAlias (
+    process.gmtDigis = cms.EDAlias (
         simGmtDigis = 
         cms.VPSet(
             cms.PSet(type = cms.string("L1MuGMTReadoutCollection")),

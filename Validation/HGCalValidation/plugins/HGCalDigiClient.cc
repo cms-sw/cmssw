@@ -1,9 +1,18 @@
-#include "Validation/HGCalValidation/plugins/HGCalDigiClient.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <unistd.h>
+
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -12,13 +21,27 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-HGCalDigiClient::HGCalDigiClient(const edm::ParameterSet& iConfig) {
 
-  nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
-  verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
-}
+class HGCalDigiClient : public DQMEDHarvester {
+ 
+private:
+  std::string nameDetector_;
+  int         verbosity_;
+  int         layers_;
 
-HGCalDigiClient::~HGCalDigiClient() { }
+public:
+  explicit HGCalDigiClient(const edm::ParameterSet&);
+  ~HGCalDigiClient() override { }
+
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) override;
+  void runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig);   
+  int  digisEndjob(const std::vector<MonitorElement*> &hcalMEs);
+};
+
+HGCalDigiClient::HGCalDigiClient(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) { }
 
 void HGCalDigiClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) { 
   
@@ -42,29 +65,28 @@ void HGCalDigiClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
 void HGCalDigiClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
 
   ig.setCurrentFolder("/"); 
-  if (verbosity_) edm::LogInfo("HGCalValidation") << "\nrunClient";
+  if (verbosity_) edm::LogVerbatim("HGCalValidation") << "\nrunClient";
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = ig.getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
     if (verbosity_) 
-      edm::LogInfo("HGCalValidation") << "\nfullPath: " << fullDirPath.at(i);
+      edm::LogVerbatim("HGCalValidation") << "\nfullPath: " << fullDirPath.at(i);
     ig.setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = ig.getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
       if (verbosity_) 
-	edm::LogInfo("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
-      std::string nameDirectory = "HGCalDigiV/"+nameDetector_;
+	edm::LogVerbatim("HGCalValidation") << "fullSubPath: " << fullSubDirPath.at(j);
+      std::string nameDirectory = "HGCAL/HGCalDigisV/"+nameDetector_;
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
         if (verbosity_) 
-	  edm::LogInfo("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
+	  edm::LogVerbatim("HGCalValidation") << "hgcalMES size : " << hgcalMEs.size();
         if (!digisEndjob(hgcalMEs)) 
-	  edm::LogInfo("HGCalValidation") << "\nError in DigisEndjob!";
+	  edm::LogVerbatim("HGCalValidation") << "\nError in DigisEndjob!";
       }
     }
-
   }
 }
 
@@ -79,7 +101,7 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
   std::vector<MonitorElement*> MeanDigiOccupancy_Minus_;
   std::ostringstream name;
   double nevent;
-  int nbinsx, nbinsy;
+  int    nbinsx, nbinsy;
   
   for (int ilayer = 0; ilayer < layers_; ilayer++ ){ 
     //charge

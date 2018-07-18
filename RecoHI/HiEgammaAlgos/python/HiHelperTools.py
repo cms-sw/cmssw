@@ -101,7 +101,7 @@ class CloneSequenceVisitor(object):
         return self._sequenceStack[-1]
 
     def __appendToTopSequence(self, visitee):#this is darn ugly because empty cms.Sequences are not supported
-        if isinstance(self._sequenceStack[-1], basestring):#we have the name of an empty sequence on the stack. create it!
+        if isinstance(self._sequenceStack[-1], str):#we have the name of an empty sequence on the stack. create it!
             oldSequenceLabel = self._sequenceStack.pop()
             newSequenceLabel = oldSequenceLabel + self._postfix
             self._sequenceStack.append(cms.Sequence(visitee))

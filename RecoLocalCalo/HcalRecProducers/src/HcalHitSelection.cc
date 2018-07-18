@@ -82,7 +82,7 @@ template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<C
   for (;hit!=end;++hit){
     //    edm::LogError("HcalHitSelection")<<"the hit pointer is"<<&(*hit);
     HcalDetId id = hit->detid();
-    if (theHcalTopology_->withSpecialRBXHBHE() && id.subdet() == HcalEndcap) {
+    if (theHcalTopology_->getMergePositionFlag() && id.subdet() == HcalEndcap) {
       id = theHcalTopology_->idFront(id);
     }
     const uint32_t & recHitFlag = hit->flags();

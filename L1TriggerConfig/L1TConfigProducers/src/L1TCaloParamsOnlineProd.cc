@@ -20,16 +20,17 @@ using namespace XERCES_CPP_NAMESPACE;
 class L1TCaloParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams> {
 private:
     unsigned int exclusiveLayer; // 0 - process calol1 and calol2, 1 - only calol1, 2 - only calol2
+    bool transactionSafe;
 
     bool readCaloLayer1OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
 l1t::Mask>& );
     bool readCaloLayer2OnlineSettings(l1t::CaloParamsHelperO2O& paramsHelper, std::map<std::string, l1t::Parameter>& conf, std::map<std::string, 
 l1t::Mask>& );
 public:
-    virtual std::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
+    std::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
 
     L1TCaloParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TCaloParamsOnlineProd(void){}
+    ~L1TCaloParamsOnlineProd(void) override{}
 };
 
 bool
@@ -50,7 +51,7 @@ std::map<std::string, l1t::Mask>& ) {
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
-      std::cerr << "Unable to locate expected CaloLayer1 parameter: " << param << " in L1 settings payload!";
+      edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "Unable to locate expected CaloLayer1 parameter: " << param << " in L1 settings payload!";
       return false;
     }
   }
@@ -114,7 +115,7 @@ std::map<std::string, l1t::Mask>& ) {
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
-      std::cerr << "Unable to locate expected CaloLayer2 parameter: " << param << " in L1 settings payload!";
+      edm::LogError("L1-O2O: L1TCaloParamsOnlineProd") << "Unable to locate expected CaloLayer2 parameter: " << param << " in L1 settings payload!";
       return false;
     }
   }
@@ -188,7 +189,8 @@ std::map<std::string, l1t::Mask>& ) {
 L1TCaloParamsOnlineProd::L1TCaloParamsOnlineProd(const edm::ParameterSet& iConfig) : 
     L1ConfigOnlineProdBaseExt<L1TCaloParamsO2ORcd,l1t::CaloParams>(iConfig)
 {
-    exclusiveLayer = iConfig.getParameter<uint32_t>("exclusiveLayer");
+    exclusiveLayer  = iConfig.getParameter<uint32_t>("exclusiveLayer");
+    transactionSafe = iConfig.getParameter<bool>("transactionSafe");
 }
 
 std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) {
@@ -200,15 +202,19 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
 
 
     if( objectKey.empty() ){
-        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Key is empty, returning empty l1t::CaloParams";
-        throw std::runtime_error("Empty objectKey");
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Key is empty";
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: Calo  | Faulty  | Empty objectKey");
+        else {
+            edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
+            return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+        }
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
     std::string  rsKey = objectKey.substr(   objectKey.find(":")+1, std::string::npos );
 
-    edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Producing L1TCaloParamsOnlineProd with TSC key = " << tscKey << " and RS key = " << rsKey 
-;
+    edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Producing L1TCaloParamsOnlineProd with TSC key = " << tscKey << " and RS key = " << rsKey;
 
     std::string calol1_top_key, calol1_algo_key;
     std::string calol1_algo_payload;
@@ -279,7 +285,12 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
 
     } catch ( std::runtime_error &e ) {
         edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << e.what();
-        throw std::runtime_error("Broken key");
+        if( transactionSafe )
+            throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
+        else {
+            edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
+            return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+        }
     }
 
     if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
@@ -303,48 +314,69 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     l1t::CaloParamsHelperO2O m_params_helper( *(baseSettings.product()) );
 
 
-  if( exclusiveLayer == 0 || exclusiveLayer == 1 ){
-    l1t::XmlConfigParser xmlReader1;
-    xmlReader1.readDOMFromString( calol1_algo_payload );
+    if( exclusiveLayer == 0 || exclusiveLayer == 1 ){
+        try {
+            l1t::XmlConfigParser xmlReader1;
+            xmlReader1.readDOMFromString( calol1_algo_payload );
 
-    l1t::TriggerSystem calol1;
-    calol1.addProcessor("processors", "processors","-1","-1");
-    xmlReader1.readRootElement( calol1, "calol1" );
-    calol1.setConfigured();
+            l1t::TriggerSystem calol1;
+            calol1.addProcessor("processors", "processors","-1","-1");
+            xmlReader1.readRootElement( calol1, "calol1" );
+            calol1.setConfigured();
 
-    std::map<std::string, l1t::Parameter> calol1_conf = calol1.getParameters("processors");
-    std::map<std::string, l1t::Mask>      calol1_rs   ;//= calol1.getMasks   ("processors");
+            std::map<std::string, l1t::Parameter> calol1_conf = calol1.getParameters("processors");
+            std::map<std::string, l1t::Mask>      calol1_rs   ;//= calol1.getMasks   ("processors");
 
-    if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
-        throw std::runtime_error("Parsing error for CaloLayer1");
-  }
+            if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
+                throw std::runtime_error("Parsing error for CaloLayer1");
 
-
-  if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
-    l1t::TriggerSystem calol2;
-
-    l1t::XmlConfigParser xmlReader2;
-    xmlReader2.readDOMFromString( calol2_hw_payload );
-    xmlReader2.readRootElement( calol2, "calol2" );
-
-    for(auto &conf : calol2_algo_payloads){ 
-        xmlReader2.readDOMFromString( conf.second );
-        xmlReader2.readRootElement( calol2, "calol2" );
+        } catch ( std::runtime_error &e ){
+            edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << e.what();
+            if( transactionSafe )
+                throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
+            else {
+                edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
+                return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+            }
+        }
     }
 
-//    calol2.setSystemId("calol2");
-    calol2.setConfigured();
 
-    // Perhaps layer 2 has to look at settings for demux and mp separately? // => No demux settings required
-    std::map<std::string, l1t::Parameter> calol2_conf = calol2.getParameters("MP1");
-    std::map<std::string, l1t::Mask>      calol2_rs   ;//= calol2.getMasks   ("processors");
+    if( exclusiveLayer == 0 || exclusiveLayer == 2 ){
+        try {
+            l1t::TriggerSystem calol2;
+            l1t::XmlConfigParser xmlReader2;
+            xmlReader2.readDOMFromString( calol2_hw_payload );
+            xmlReader2.readRootElement( calol2, "calol2" );
 
-    if( !readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs) )
-        throw std::runtime_error("Parsing error for CaloLayer2");
-  }
+            for(auto &conf : calol2_algo_payloads){ 
+                xmlReader2.readDOMFromString( conf.second );
+                xmlReader2.readRootElement( calol2, "calol2" );
+            }
+
+//            calol2.setSystemId("calol2");
+            calol2.setConfigured();
+
+            std::map<std::string, l1t::Parameter> calol2_conf = calol2.getParameters("MP1");
+            std::map<std::string, l1t::Mask>      calol2_rs   ;//= calol2.getMasks   ("processors");
+
+            if( !readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs) )
+                throw std::runtime_error("Parsing error for CaloLayer2");
+
+        } catch ( std::runtime_error &e ){
+            edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << e.what();
+            if( transactionSafe )
+                throw std::runtime_error(std::string("SummaryForFunctionManager: Calo  | Faulty  | ") + e.what());
+            else {
+                edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "returning unmodified prototype of l1t::CaloParams";
+                return std::make_shared< l1t::CaloParams >( *(baseSettings.product()) ) ;
+            }
+        }
+    }
     
-
     std::shared_ptr< l1t::CaloParams > retval = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
+    
+    edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "SummaryForFunctionManager: Calo  | OK      | All looks good";
     return retval;
 }
 

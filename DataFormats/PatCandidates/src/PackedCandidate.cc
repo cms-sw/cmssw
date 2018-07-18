@@ -1,10 +1,10 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "DataFormats/PatCandidates/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 using namespace logintpack;
 
 CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
@@ -354,13 +354,13 @@ bool pat::PackedCandidate::massConstraint() const {return false;}
 // puppiweight
 void pat::PackedCandidate::setPuppiWeight(float p, float p_nolep) {
   // Set both weights at once to avoid misconfigured weights if called in the wrong order
-  packedPuppiweight_ = pack8logClosed((p-0.5)*2,-2,0,64);
-  packedPuppiweightNoLepDiff_ = pack8logClosed((p_nolep-0.5)*2,-2,0,64) - packedPuppiweight_;
+  packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*p;
+  packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(p_nolep-p);
 }
 
-float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packedPuppiweight_,-2,0,64)/2. + 0.5;}
+float pat::PackedCandidate::puppiWeight() const { return 1.f*packedPuppiweight_/std::numeric_limits<uint8_t>::max();}
 
-float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(packedPuppiweightNoLepDiff_+packedPuppiweight_,-2,0,64)/2. + 0.5;}
+float pat::PackedCandidate::puppiWeightNoLep() const { return 1.f*packedPuppiweightNoLepDiff_/std::numeric_limits<int8_t>::max() + 1.f*packedPuppiweight_/std::numeric_limits<uint8_t>::max();}
 
 void pat::PackedCandidate::setRawCaloFraction(float p) {
   if(100*p>std::numeric_limits<uint8_t>::max())

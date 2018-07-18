@@ -341,14 +341,13 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // set seed energy
     aPhoton.setSeedEnergy( photonRef->superCluster()->seed()->energy() );
 
+    // set input variables for regression energy correction
+    if (saveRegressionData_) {
     EcalRegressionData ecalRegData;
     ecalRegData.fill(*(photonRef->superCluster()),
 		     recHitsEBHandle.product(),recHitsEEHandle.product(),
 		     ecalGeometry_,ecalTopology_,-1);
     
-
-    // set input variables for regression energy correction
-    if (saveRegressionData_) {
     aPhoton.setEMax( ecalRegData.eMax() );
     aPhoton.setE2nd( ecalRegData.e2nd() );
     aPhoton.setE3x3( ecalRegData.e3x3() );
@@ -415,21 +414,19 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
     // Get PFCluster Isolation
     if (addPFClusterIso_) {
+      reco::Photon::PflowIsolationVariables newPFIsol = aPhoton.getPflowIsolationVariables();
       edm::Handle<edm::ValueMap<float> > ecalPFClusterIsoMapH;
       iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
-      aPhoton.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[photonRef]);
+      newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[photonRef];
       edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
       if (not hcalPFClusterIsoT_.isUninitialized()){
 	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-	aPhoton.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[photonRef]);
+	newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[photonRef];
       }
-      else
-      {
-	aPhoton.setHcalPFClusterIso(-999.);
+      else{
+	newPFIsol.sumHcalClusterEt = -999.;
       }
-    } else {
-      aPhoton.setEcalPFClusterIso(-999.);
-      aPhoton.setHcalPFClusterIso(-999.);
+      aPhoton.setPflowIsolationVariables(newPFIsol);
     }
 
     // add the Photon to the vector of Photons

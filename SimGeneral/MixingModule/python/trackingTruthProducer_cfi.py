@@ -38,18 +38,19 @@ trackingParticles = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+fastSim.toModify(trackingParticles,
     # for unknown reasons, fastsim needs this flag on
-    trackingParticles.allowDifferentSimHitProcesses = True
+    allowDifferentSimHitProcesses = True,
     # fastsim labels for simhits, simtracks, simvertices
-    trackingParticles.simHitCollections = cms.PSet(
+    simHitCollections = cms.PSet(
         muon = cms.VInputTag( cms.InputTag('MuonSimHits','MuonDTHits'),
                               cms.InputTag('MuonSimHits','MuonCSCHits'),
                               cms.InputTag('MuonSimHits','MuonRPCHits') ),
-        trackerAndPixel = cms.VInputTag( cms.InputTag('famosSimHits','TrackerHits') )
-        )
-    trackingParticles.simTrackCollection = cms.InputTag('famosSimHits')
-    trackingParticles.simVertexCollection = cms.InputTag('famosSimHits')
+        trackerAndPixel = cms.VInputTag( cms.InputTag('fastSimProducer','TrackerHits') )
+    ),
+    simTrackCollection = 'fastSimProducer',
+    simVertexCollection = 'fastSimProducer'
+)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toModify(trackingParticles, simHitCollections = dict(

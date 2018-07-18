@@ -326,3 +326,6 @@ void AlignableDetUnit::restoreCachedTransformation(const align::RunNumber& run)
     }
   }
 }
+
+//______________________________________________________________________________
+const align::Alignables AlignableDetUnit::emptyComponents_{};

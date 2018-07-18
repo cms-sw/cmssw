@@ -346,64 +346,50 @@ bool SiStripFecKey::isInvalid( const sistrip::Granularity& gran ) const {
 void SiStripFecKey::initFromValue() {
 
   // FEC crate  
-  if ( fecCrate_ >= sistrip::FEC_CRATE_MIN &&
-       fecCrate_ <= sistrip::FEC_CRATE_MAX ) {
-    fecCrate_ = fecCrate_;
-  } else if ( fecCrate_ == 0 ) { 
-    fecCrate_ = 0;
-  } else { fecCrate_ = sistrip::invalid_; }
+  if ( not ( (fecCrate_ >= sistrip::FEC_CRATE_MIN &&
+              fecCrate_ <= sistrip::FEC_CRATE_MAX) || 
+             (fecCrate_ == 0) ) ) {
+    fecCrate_ = sistrip::invalid_; }
 
   // FEC slot
-  if ( fecSlot_ >= sistrip::CRATE_SLOT_MIN &&
-       fecSlot_ <= sistrip::CRATE_SLOT_MAX ) {
-    fecSlot_ = fecSlot_;
-  } else if ( fecSlot_ == 0 ) { 
-    fecSlot_ = 0;
-  } else { fecSlot_ = sistrip::invalid_; }
+  if ( not ( (fecSlot_ >= sistrip::CRATE_SLOT_MIN &&
+              fecSlot_ <= sistrip::CRATE_SLOT_MAX) || 
+             ( fecSlot_ == 0 ) ) ) { 
+    fecSlot_ = sistrip::invalid_; }
 
   // FEC ring
-  if ( fecRing_ >= sistrip::FEC_RING_MIN &&
-       fecRing_ <= sistrip::FEC_RING_MAX ) {
-    fecRing_ = fecRing_;
-  } else if ( fecRing_ == 0 ) { 
-    fecRing_ = 0;
-  } else { fecRing_ = sistrip::invalid_; }
+  if ( not ( (fecRing_ >= sistrip::FEC_RING_MIN &&
+             fecRing_ <= sistrip::FEC_RING_MAX ) ||
+             ( fecRing_ == 0 ) ) ) { 
+    fecRing_ = sistrip::invalid_; }
 
   // CCU addr
-  if ( ccuAddr_ >= sistrip::CCU_ADDR_MIN &&
-       ccuAddr_ <= sistrip::CCU_ADDR_MAX ) {
-    ccuAddr_ = ccuAddr_;
-  } else if ( ccuAddr_ == 0 ) { 
-    ccuAddr_ = 0;
-  } else { ccuAddr_ = sistrip::invalid_; }
+  if ( not ( (ccuAddr_ >= sistrip::CCU_ADDR_MIN &&
+              ccuAddr_ <= sistrip::CCU_ADDR_MAX ) ||
+             ( ccuAddr_ == 0 ) ) ) { 
+    ccuAddr_ = sistrip::invalid_; }
 
   // CCU chan
-  if ( ccuChan_ >= sistrip::CCU_CHAN_MIN &&
-       ccuChan_ <= sistrip::CCU_CHAN_MAX ) {
-    ccuChan_ = ccuChan_;
-  } else if ( ccuChan_ == 0 ) { 
-    ccuChan_ = 0;
-  } else { ccuChan_ = sistrip::invalid_; }
+  if ( not ( (ccuChan_ >= sistrip::CCU_CHAN_MIN &&
+              ccuChan_ <= sistrip::CCU_CHAN_MAX ) ||
+             ( ccuChan_ == 0 ) ) ) { 
+    ccuChan_ = sistrip::invalid_; }
   
   // LLD channel
-  if ( lldChan_ >= sistrip::LLD_CHAN_MIN &&
-       lldChan_ <= sistrip::LLD_CHAN_MAX ) {
-    lldChan_ = lldChan_;
-  } else if ( lldChan_ == 0 ) { 
-    lldChan_ = 0;
-  } else { lldChan_ = sistrip::invalid_; }
+  if ( not ( (lldChan_ >= sistrip::LLD_CHAN_MIN &&
+              lldChan_ <= sistrip::LLD_CHAN_MAX ) || 
+             ( lldChan_ == 0 ) ) ) { 
+    lldChan_ = sistrip::invalid_; }
   
   // APV I2C address
   if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
        i2cAddr_ <= sistrip::APV_I2C_MAX ) { 
-    i2cAddr_ = i2cAddr_; 
     if ( lldChan_ && lldChan( i2cAddr_ ) != lldChan_ ) { 
       i2cAddr_ = sistrip::invalid_;
       key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
     }
-  } else if ( i2cAddr_ == 0 ) { 
-    i2cAddr_ = 0;
-  } else { i2cAddr_ = sistrip::invalid_; }
+  } else if ( i2cAddr_ != 0 ) { 
+    i2cAddr_ = sistrip::invalid_; }
   
 }
 

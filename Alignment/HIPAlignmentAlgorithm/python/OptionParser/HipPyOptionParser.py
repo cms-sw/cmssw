@@ -3,6 +3,7 @@ from copy import copy
 from copy import deepcopy
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
+import six
 
 # Helper functions
 def getPSetDict(thePSet):
@@ -12,7 +13,7 @@ def insertValToPSet(name,val,thePSet):
    setattr(thePSet,name,val)
 
 def insertPSetToPSet(inPSet, outPSet):
-   for key,val in getPSetDict(inPSet).iteritems():
+   for key,val in getPSetDict(six.iteritems(inPSet)):
       insertValToPSet(key,val,outPSet)
 
 def insertPSetToVPSet(inPSet, outVPSet):
@@ -110,7 +111,7 @@ class HipPyOptionParser:
 
    def interpretOptions(self):
       gttogetpsets=[]
-      for key,val in self.optdict.iteritems():
+      for key,val in six.iteritems(self.optdict):
          # Get GT name
          if key=="gt":
             autofind=val.find("auto")
@@ -147,6 +148,26 @@ class HipPyOptionParser:
                   else:
                      raise RuntimeError("GT specification {} does not have size==2".format(namespec))
                gttogetpsets.append(apset)
+         # Get hits to drop or keep
+         elif key=="hitfiltercommands":
+            vallist=val.split(';')
+            for iv in range(0,len(vallist)):
+               keepdrop_det_pair=vallist[iv].split('=')
+               if len(keepdrop_det_pair)==2:
+                  if (keepdrop_det_pair[0]=="keep" or keepdrop_det_pair[0]=="drop"):
+                     strcmd = keepdrop_det_pair[0]
+
+                     keepdrop_det_pair[1]=keepdrop_det_pair[1].replace('/',' ') # e.g. 'PIX/2' instead of 'PIX 2'
+                     keepdrop_det_pair[1]=keepdrop_det_pair[1].upper()
+
+                     strcmd = strcmd + " " + keepdrop_det_pair[1]
+                     if not hasattr(self,"hitfiltercommands"):
+                        self.hitfiltercommands=[]
+                     self.hitfiltercommands.append(strcmd)
+                  else:
+                     raise RuntimeError("Keep/drop command {} is not keep or drop.".format(keepdrop_det_pair[0]))
+               else:
+                  raise RuntimeError("Keep/drop-det. pair {} does not have size==2 or has a command other than keep or drop.".format(vallist[iv]))
          # Get data type
          elif (key=="type" or key=="datatype" or key=="datagroup"):
             try:
@@ -175,13 +196,24 @@ class HipPyOptionParser:
          elif key=="uniformetaformula":
             self.uniformetaformula=val
          ## Options for mMin. bias
+         # Apply vertex constraint
+         elif (key=="primaryvertextpye" or key=="pvtype"):
+            val=val.lower()
+            if (val=="nobs" or val=="withbs"):
+               self.PVtype=val
+            else:
+               raise ValueError("PV type can only receive NoBS or WithBS.")
+         elif (key=="primaryvertexconstraint" or key=="pvconstraint"):
+            self.applyPVConstraint=parseBoolString(val)
+            if not hasattr(self,"PVtype"):
+               self.PVtype="nobs"
          # Get custom track selection for TBD
          elif (key=="twobodytrackselection" or key=="twobodydecayselection" or key=="tbdselection"):
             val=val.lower()
-            if (val=="zsel" or val=="y1sel"):
+            if (val=="zsel" or val=="y1ssel"):
                self.TBDsel=val
             else:
-               raise ValueError("TBD selection can only be Zsel or Y1sel at this time.")
+               raise ValueError("TBD selection can only be Zsel or Y1Ssel at this time.")
          ## Get options common in min. bias, Zmumu and Ymumu
          # Get TBD constraint type
          elif (key=="twobodytrackconstraint" or key=="twobodydecayconstraint" or key=="tbdconstraint"):
@@ -217,6 +249,10 @@ class HipPyOptionParser:
 
 
    def doCheckOptions(self,optstocheck):
+      # First check option consistencies overall
+      if (hasattr(self,"TBDconstraint") and hasattr(self,"applyPVConstraint")):
+         raise RuntimeError("Options TBDconstraint and applyPVConstraint cannot coexist.")
+      # Force presence of the options passed
       for oc in optstocheck:
          if not hasattr(self,oc):
             raise RuntimeError("Option {} needs to specified in {}.".format(oc, self.flag))

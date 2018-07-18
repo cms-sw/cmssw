@@ -1,3 +1,6 @@
+#ifndef Calibration_Tools_DetIdAssociator_h
+#define Calibration_Tools_DetIdAssociator_h
+
 //
 // Original Author:  Dmytro Kovalskyi
 // Modified for HCAL by Michal Szleper
@@ -93,3 +96,5 @@ class HDetIdAssociator{
    const double etaBinSize_;
    Propagator *ivProp_;
 };
+
+#endif // Calibration_Tools_DetIdAssociator_h

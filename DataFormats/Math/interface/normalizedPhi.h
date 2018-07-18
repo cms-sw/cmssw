@@ -5,12 +5,12 @@
 
 // return a value of phi into interval [-pi,+pi]
 template<typename T>
-inline
+constexpr
 T normalizedPhi(T phi) { return reco::reduceRange(phi);}
 
 // cernlib V306
 template<typename T>
-inline 
+constexpr 
 T proxim(T b, T a) {
         constexpr T c1 = 2.*M_PI;
         constexpr T c2 = 1/c1;
@@ -21,7 +21,7 @@ T proxim(T b, T a) {
 
 // smallest range
 template<typename T>
-inline
+constexpr
 bool checkPhiInSymRange(T phi, T phi1, T phi2, float maxDphi=float(M_PI)) {
   // symmetrize
   if (phi2<phi1) std::swap(phi1,phi2);
@@ -30,7 +30,7 @@ bool checkPhiInSymRange(T phi, T phi1, T phi2, float maxDphi=float(M_PI)) {
 
 // counterclock-wise range
 template<typename T>
-inline
+constexpr
 bool checkPhiInRange(T phi, T phi1, T phi2, float maxDphi=float(M_PI)) {
     phi2 = proxim(phi2,phi1);
     constexpr float c1 = 2.*M_PI;

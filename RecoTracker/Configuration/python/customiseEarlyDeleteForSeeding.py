@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import collections
+import six
 
 def customiseEarlyDeleteForSeeding(process, products):
     # Find the producers
@@ -9,7 +10,7 @@ def customiseEarlyDeleteForSeeding(process, products):
     def _branchName(productType, moduleLabel, instanceLabel=""):
         return "%s_%s_%s_%s" % (productType, moduleLabel, instanceLabel, process.name_())
 
-    for name, module in process.producers_().iteritems():
+    for name, module in six.iteritems(process.producers_()):
         cppType = module._TypedParameterizable__type
         if cppType == "HitPairEDProducer":
             if module.produceSeedingHitSets:
@@ -29,7 +30,7 @@ def customiseEarlyDeleteForSeeding(process, products):
                 _branchName("RegionsSeedingHitSets", name),
                 _branchName("BaseTrackerRecHitsOwned", name)
             ])
-        elif cppType in ["PixelQuadrupletEDProducer", "CAHitQuadrupletEDProducer", "CAHitTripletEDProducer"]:
+        elif cppType in ["CAHitQuadrupletEDProducer", "CAHitTripletEDProducer"]:
             products[name].append(_branchName("RegionsSeedingHitSets", name))
 
     if len(products) == 0:

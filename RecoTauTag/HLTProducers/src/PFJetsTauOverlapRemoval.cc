@@ -31,7 +31,7 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
   tauJets->getObjects(trigger::TriggerTau,taus);
 
   if(PFJets->size() > 1){
-    for(unsigned int iJet = 0; iJet < 2; iJet++){  
+    for(unsigned int iJet = 0; iJet < PFJets->size(); iJet++){  
       bool isMatched = false;  
       const reco::PFJet &  myPFJet = (*PFJets)[iJet];
       for(unsigned int iTau = 0; iTau < taus.size(); iTau++){  
@@ -42,7 +42,6 @@ void PFJetsTauOverlapRemoval::produce(edm::StreamID iSId, edm::Event& iEvent, co
       }
       if(isMatched == false) cleanedPFJets->push_back(myPFJet);
     }
-    if(PFJets->size() > 2) cleanedPFJets->push_back((*PFJets)[2]);
   }
   iEvent.put(std::move(cleanedPFJets));
 }

@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * This is a part of the TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *   Nicola Minafra
 *
@@ -39,23 +39,26 @@ namespace ctpps
       static constexpr unsigned int VFAT_HEADER_OF_EC = 0xC000;
 
       RawDataUnpacker() {}
-    
+
       RawDataUnpacker(const edm::ParameterSet &conf);
 
       /// Unpack data from FED with fedId into `coll' collection.
-      int Run(int fedId, const FEDRawData &data, std::vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const;
+      int run(int fedId, const FEDRawData &data, std::vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const;
 
       /// Process one Opto-Rx (or LoneG) frame.
-      int ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
+      int processOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
 
       /// Process one Opto-Rx frame in serial (old) format
-      int ProcessOptoRxFrameSerial(const word *buffer, unsigned int frameSize, SimpleVFATFrameCollection *fc) const;
+      int processOptoRxFrameSerial(const word *buffer, unsigned int frameSize, SimpleVFATFrameCollection *fc) const;
 
       /// Process one Opto-Rx frame in parallel (new) format
-      int ProcessOptoRxFrameParallel(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
+      int processOptoRxFrameParallel(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
+
+      /// Process one Opto-Rx frame that contains SAMPIC frames
+      int processOptoRxFrameSampic(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
 
       /// Process data from one VFAT in parallel (new) format
-      int ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
+      int processVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
 
     private:
       unsigned char verbosity;

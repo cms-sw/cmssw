@@ -67,7 +67,6 @@ for stream in sorted(process.streams.__dict__):
 # stream %s
 
 ''' % stream)
-    ds = process.streams.__dict__[stream]
-    ds.sort()
+    ds = sorted(process.streams.__dict__[stream])
     for dataset in ds:
       sys.stdout.write(dumpDataset(process, stream, dataset))

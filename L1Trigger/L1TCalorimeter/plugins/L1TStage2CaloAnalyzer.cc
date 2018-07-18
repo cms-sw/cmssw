@@ -697,6 +697,9 @@ namespace l1t {
       else if (*itr==MPSumHITowCount || *itr==SumHITowCount){
 	het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 5904, -0.5, 5903.5)));
       }
+      else if (*itr==EG || *itr==Tau || *itr==MPEG || *itr==MPTau){
+        het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 1500, -0.5, 1499.5) ));
+      }
       else {
         het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 100000, -0.5, 99999.5) ));
       }

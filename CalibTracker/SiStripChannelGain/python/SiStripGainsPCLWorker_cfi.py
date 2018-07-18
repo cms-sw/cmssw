@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripGainsPCLWorker = cms.EDAnalyzer(
+SiStripGainsPCLWorker = cms.EDAnalyzer( 
     "SiStripGainsPCLWorker",
     minTrackMomentum    = cms.untracked.double(2),
     maxNrStrips         = cms.untracked.uint32(8),

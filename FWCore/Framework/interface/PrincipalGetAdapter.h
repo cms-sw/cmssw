@@ -134,7 +134,7 @@ namespace edm {
   class PrincipalGetAdapter {
   public:
     PrincipalGetAdapter(Principal const& pcpl,
-		 ModuleDescription const& md);
+		 ModuleDescription const& md, bool isComplete);
 
     ~PrincipalGetAdapter();
 
@@ -157,7 +157,7 @@ namespace edm {
 
     size_t numberOfProductsConsumed() const ;
     
-    bool isComplete() const;
+    bool isComplete() const { return isComplete_;}
 
     template <typename PROD>
     bool 
@@ -267,6 +267,7 @@ namespace edm {
     EDConsumerBase const* consumer_;
     SharedResourcesAcquirer* resourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
     ProducerBase const* prodBase_ = nullptr;
+    bool isComplete_;
   };
 
   template <typename PROD>

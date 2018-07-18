@@ -26,11 +26,11 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELdestination.h"
-
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 #include "FWCore/MessageLogger/interface/ELmap.h"
 #include "FWCore/MessageLogger/interface/ELstring.h"
+#include "FWCore/MessageService/interface/ELdestination.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <set>
 
@@ -107,7 +107,7 @@ protected:
 
   bool           printAtTermination;
 
-  [[cms::thread_safe]] static std::set<std::string> groupedCategories;		// 8/16/07 mf 
+  CMS_THREAD_SAFE static std::set<std::string> groupedCategories;		// 8/16/07 mf 
   static ELstring formSummary(ELmap_stats & stats);		// 8/16/07 mf 
 
   // ----  Helper methods specific to MessageLogger applicaton

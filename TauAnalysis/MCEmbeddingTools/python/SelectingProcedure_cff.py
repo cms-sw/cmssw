@@ -65,7 +65,6 @@ ZmumuCandidates = cms.EDProducer("CandViewShallowCloneCombiner",
 ZmumuCandidatesFilter = cms.EDFilter("CandViewCountFilter",
     src = cms.InputTag("ZmumuCandidates"),
     minNumber = cms.uint32(1),
-    filter = cms.bool(True)
 )
 
 selectedMuonsForEmbedding = cms.EDProducer("MuMuForEmbeddingSelector",

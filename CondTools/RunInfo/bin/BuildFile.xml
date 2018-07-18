@@ -4,3 +4,7 @@
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
 </bin>
+<bin   file="conddb_dump_LHCInfo.cpp" name="conddb_dump_LHCInfo">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+</bin>

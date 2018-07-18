@@ -39,6 +39,6 @@ std::unique_ptr<EcalTPGSpike> EcalTrigPrimSpikeESProducer::produceSpike(const Ec
   {
     prod->setValue(*it, zeroThresh_);
   }
-  return std::move(prod);
+  return prod;
 }
 

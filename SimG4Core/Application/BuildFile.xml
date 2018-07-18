@@ -8,6 +8,7 @@
 <use   name="SimG4Core/Geometry"/>
 <use   name="SimG4Core/MagneticField"/>
 <use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/CustomPhysics"/>
 <use   name="SimG4Core/Physics"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Watcher"/>

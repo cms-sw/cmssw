@@ -7,7 +7,7 @@
 //     Tibshirani, and Friedman.                                        //
 //    *Greedy Function Approximation: A Gradient Boosting Machine.      //
 //     Friedman. The Annals of Statistics, Vol. 29, No. 5. Oct 2001.    //
-//    *Inductive Learning of Tree-based Regression Models. Luis Torgo.  //    
+//    *Inductive Learning of Tree-based Regression Models. Luis Torgo.  //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 //////////////////////////////////////////////////////////////////////////
 // _______________________Constructor(s)________________________________//
@@ -155,7 +156,7 @@ void Tree::setRootNode(Node *sRootNode)
 {
     rootNode = sRootNode;
 }
- 
+
 Node * Tree::getRootNode()
 {
      return rootNode;
@@ -184,19 +185,19 @@ int Tree::getNumTerminalNodes()
 // ______________________Performace_____________________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Tree::calcError() 
-{ 
-// Loop through the separate predictive regions (terminal nodes) and 
-// add up the errors to get the error of the entire space.  
- 
-    double totalSquaredError = 0; 
- 
-    for(std::list<Node*>::iterator it=terminalNodes.begin(); it!=terminalNodes.end(); it++) 
-    { 
-        totalSquaredError += (*it)->getTotalError();  
-    } 
-    rmsError = sqrt( totalSquaredError/rootNode->getNumEvents() ); 
-} 
+void Tree::calcError()
+{
+// Loop through the separate predictive regions (terminal nodes) and
+// add up the errors to get the error of the entire space.
+
+    double totalSquaredError = 0;
+
+    for(std::list<Node*>::iterator it=terminalNodes.begin(); it!=terminalNodes.end(); it++)
+    {
+        totalSquaredError += (*it)->getTotalError();
+    }
+    rmsError = sqrt( totalSquaredError/rootNode->getNumEvents() );
+}
 
 // ----------------------------------------------------------------------
 
@@ -207,20 +208,20 @@ void Tree::buildTree(int nodeLimit)
     Node* nodeToSplit = nullptr;
 
     if(numTerminalNodes == 1)
-    {   
+    {
         rootNode->calcOptimumSplit();
         calcError();
 //        std::cout << std::endl << "  " << numTerminalNodes << " Nodes : " << rmsError << std::endl;
     }
 
     for(std::list<Node*>::iterator it=terminalNodes.begin(); it!=terminalNodes.end(); it++)
-    {   
-       if( (*it)->getErrorReduction() > bestNodeErrorReduction ) 
-       {   
+    {
+       if( (*it)->getErrorReduction() > bestNodeErrorReduction )
+       {
            bestNodeErrorReduction = (*it)->getErrorReduction();
            nodeToSplit = (*it);
-       }    
-    }   
+       }
+    }
 
     //std::cout << "nodeToSplit size = " << nodeToSplit->getNumEvents() << std::endl;
 
@@ -233,7 +234,7 @@ void Tree::buildTree(int nodeLimit)
     // Get left and right daughters for reference.
     Node* left = nodeToSplit->getLeftDaughter();
     Node* right = nodeToSplit->getRightDaughter();
- 
+
     // Update the list of terminal nodes.
     terminalNodes.remove(nodeToSplit);
     terminalNodes.push_back(left);
@@ -241,7 +242,7 @@ void Tree::buildTree(int nodeLimit)
     numTerminalNodes++;
 
     // Filter the events from the parent into the daughters.
-    nodeToSplit->filterEventsToDaughters();  
+    nodeToSplit->filterEventsToDaughters();
 
     // Calculate the best splits for the new nodes.
     left->calcOptimumSplit();
@@ -249,7 +250,7 @@ void Tree::buildTree(int nodeLimit)
 
     // See if the error reduces as we add more nodes.
     calcError();
- 
+
     if(numTerminalNodes % 1 == 0)
     {
 //        std::cout << "  " << numTerminalNodes << " Nodes : " << rmsError << std::endl;
@@ -349,7 +350,7 @@ void Tree::rankVariablesRecursive(Node* node, std::vector<double>& v)
     v[sv] += er;
 
     rankVariablesRecursive(left, v);
-    rankVariablesRecursive(right, v); 
+    rankVariablesRecursive(right, v);
 
 }
 
@@ -387,7 +388,7 @@ void Tree::getSplitValuesRecursive(Node* node, std::vector<std::vector<double>>&
     v[sv].push_back(sp);
 
     getSplitValuesRecursive(left, v);
-    getSplitValuesRecursive(right, v); 
+    getSplitValuesRecursive(right, v);
 
 }
 
@@ -416,7 +417,7 @@ std::string numToStr( T num )
 
 void Tree::addXMLAttributes(TXMLEngine* xml, Node* node, XMLNodePointer_t np)
 {
-    // Convert Node members into XML attributes    
+    // Convert Node members into XML attributes
     // and add them to the XMLEngine.
     xml->NewAttr(np, nullptr, "splitVar", numToStr(node->getSplitVariable()).c_str());
     xml->NewAttr(np, nullptr, "splitVal", numToStr(node->getSplitValue()).c_str());
@@ -458,7 +459,7 @@ void Tree::saveToXMLRecursive(TXMLEngine* xml, Node* node, XMLNodePointer_t np)
 
     if(l==nullptr || r==nullptr) return;
 
-    // Add children to the XMLEngine. 
+    // Add children to the XMLEngine.
     XMLNodePointer_t left = xml->NewChild(np, nullptr, "left");
     XMLNodePointer_t right = xml->NewChild(np, nullptr, "right");
 
@@ -474,7 +475,7 @@ void Tree::saveToXMLRecursive(TXMLEngine* xml, Node* node, XMLNodePointer_t np)
 // ----------------------------------------------------------------------
 
 void Tree::loadFromXML(const char* filename)
-{   
+{
     // First create the engine.
     TXMLEngine* xml = new TXMLEngine;
 
@@ -483,7 +484,7 @@ void Tree::loadFromXML(const char* filename)
     if (xmldoc==nullptr)
     {
         delete xml;
-        return;  
+        return;
     }
 
     // Get access to main node of the xml file.
@@ -505,7 +506,7 @@ void Tree::loadFromXML(const char* filename)
     }
     // Recursively connect nodes together.
     loadFromXMLRecursive(xml, mainnode, rootNode);
-   
+
     // Release memory before exit
     xml->FreeDoc(xmldoc);
     delete xml;
@@ -513,7 +514,7 @@ void Tree::loadFromXML(const char* filename)
 
 // ----------------------------------------------------------------------
 
-void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* tnode) 
+void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* tnode)
 {
 
     // Get the split information from xml.
@@ -525,21 +526,21 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
           if(i==3 || i==4 || i==6){
               splitInfo[j++] = xml->GetAttrValue(attr);
           }
-          attr = xml->GetNextAttr(attr);  
+          attr = xml->GetNextAttr(attr);
         }
     } else {
         for(unsigned int i=0; i<3; i++)
         {
-            splitInfo[i] = xml->GetAttrValue(attr); 
-            attr = xml->GetNextAttr(attr);  
+            splitInfo[i] = xml->GetAttrValue(attr);
+            attr = xml->GetNextAttr(attr);
         }
     }
- 
+
     // Convert strings into numbers.
     std::stringstream converter;
     int splitVar;
     double splitVal;
-    double fitVal;  
+    double fitVal;
 
     converter << splitInfo[0];
     converter >> splitVar;
@@ -561,7 +562,7 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
     tnode->setSplitValue(splitVal);
     tnode->setFitValue(fitVal);
 
-    // Get the xml daughters of the current xml node. 
+    // Get the xml daughters of the current xml node.
     XMLNodePointer_t xleft = xml->GetChild(xnode);
     XMLNodePointer_t xright = xml->GetNext(xleft);
 

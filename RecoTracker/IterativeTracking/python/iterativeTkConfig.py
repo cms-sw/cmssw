@@ -4,7 +4,7 @@
 import FWCore.ParameterSet.Config as cms
 
 _defaultEraName = ""
-_nonDefaultEraNames = ["trackingLowPU", "trackingPhase1", "trackingPhase1QuadProp", "trackingPhase2PU140"]
+_nonDefaultEraNames = ["trackingLowPU", "trackingPhase1", "trackingPhase2PU140"]
 
 # name, postfix, era
 _defaultEra = (_defaultEraName, "", None)
@@ -48,7 +48,6 @@ _iterations_trackingPhase1 = [
     "TobTecStep",
     "JetCoreRegionalStep",
 ]
-_iterations_trackingPhase1QuadProp = _iterations_trackingPhase1
 _iterations_trackingPhase2PU140 = [
     "InitialStep",
     "HighPtTripletStep",
@@ -78,7 +77,6 @@ _multipleSeedProducers_trackingPhase1 = {
     "MixedTripletStep": ["A", "B"],
     "TobTecStep": ["Pair", "Tripl"],
 }
-_multipleSeedProducers_trackingPhase1QuadProp = _multipleSeedProducers_trackingPhase1
 _multipleSeedProducers_trackingPhase2PU140 = {}
 _oldStyleHasSelector = set([
     "InitialStep",
@@ -134,11 +132,11 @@ def allEras():
 def nonDefaultEras():
     return _nonDefaultEras
 
-def createEarlySequence(eraName, postfix, modDict):
-    seq = cms.Sequence()
+def createEarlyTask(eraName, postfix, modDict):
+    task = cms.Task()
     for it in globals()["_iterations"+postfix]:
-        seq += modDict[it]
-    return seq
+        task.add(modDict[it+'Task'])
+    return task
 
 def iterationAlgos(postfix, includeSequenceName=False):
     muonVariable = "_iterations_muonSeeded"+postfix

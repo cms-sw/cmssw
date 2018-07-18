@@ -44,6 +44,7 @@ private:
   //FakeDetLayer* theFakeDetLayer;
   void linkBarrelLayers( SymmetricLayerFinder& symFinder) override;
   //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
+  using SimpleNavigationSchool::establishInverseRelations;
   void establishInverseRelations( SymmetricLayerFinder& symFinder );
   void buildAdditionalBarrelLinks();
   void buildAdditionalForwardLinks(SymmetricLayerFinder& symFinder);
@@ -210,7 +211,6 @@ linkBarrelLayers( SymmetricLayerFinder& symFinder)
   }
 }
 
-
 // identical to  SimpleNavigationSchool but for the last additional stuff
 void CosmicNavigationSchool::establishInverseRelations(SymmetricLayerFinder& symFinder) {
     
@@ -372,7 +372,6 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-  std::shared_ptr<NavigationSchool> theNavigationSchool ;
 
 
 };
@@ -380,6 +379,7 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
 
 SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord){
   using namespace edm::es;
+  std::shared_ptr<NavigationSchool> theNavigationSchool ;
 
   // get the field
   edm::ESHandle<MagneticField>                field;

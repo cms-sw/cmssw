@@ -36,6 +36,7 @@ class DDCompactView;
 class FSimEvent;
 class FSimTrack;
 class HFShowerLibrary;
+class RandomEngineAndDistribution;
 
 class FastHFShowerLibrary {
   
@@ -49,8 +50,10 @@ public:
 
   void       const    initHFShowerLibrary(const edm::EventSetup& );
   void                recoHFShowerLibrary(const FSimTrack &myTrack);
-  void                modifyDepth(uint32_t &id);
+  void                modifyDepth(HcalNumberingFromDDD::HcalID& id);
   const std::map<CaloHitID,float>& getHitsMap() { return hitMap; };
+
+  void  SetRandom(const RandomEngineAndDistribution *);
 
 private:
 

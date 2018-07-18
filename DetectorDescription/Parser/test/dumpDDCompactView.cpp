@@ -1,20 +1,3 @@
-/***************************************************************************
-                          main.cpp  -  description
-                             -------------------
-    begin                : Wed Oct 24 17:36:15 PDT 2001
-    author               : 2001 Michael Case
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-
 #include <exception>
 #include <fstream>
 #include <memory>
@@ -37,11 +20,11 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
-#include "boost/smart_ptr/shared_ptr.hpp"
 
 int main(int argc, char *argv[])
 {
-  typedef DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+  using Graph = DDCompactView::Graph;
+  using adjl_iterator = Graph::const_adj_iterator;
 
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
@@ -56,9 +39,9 @@ int main(int argc, char *argv[])
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
-    boost::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-								 makePresence("MessageServicePresence").release());
+    std::shared_ptr<edm::Presence> theMessageServicePresence;
+    theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+							       makePresence("MessageServicePresence").release());
 
     // C.  Manufacture a configuration and establish it.
     std::string config =
@@ -109,42 +92,24 @@ int main(int argc, char *argv[])
 
     //  cpv.setRoot(DDLogicalPart(DDName("cms:World")));
 
-    std::cout << "edge size of produce graph:" << cpv.writeableGraph().edge_size() << std::endl;
-    const DDCompactView::graph_type& gt = cpv.graph();
+    std::cout << "edge size of produce graph:" << cpv.graph().edge_size() << std::endl;
+    const auto& gt = cpv.graph();
     adjl_iterator git = gt.begin();
     adjl_iterator gend = gt.end();    
 
-    DDCompactView::graph_type::index_type i=0;
+    Graph::index_type i=0;
     for (; git != gend; ++git) {
       const DDLogicalPart & ddLP = gt.nodeData(git);
       std::cout << ++i << " P " << ddLP.name() << std::endl;
       if (!git->empty()) { 
-	DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
-	DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
+	auto cit  = git->begin();
+	auto cend = git->end();
 	for (; cit != cend; ++cit) {
 	  const DDLogicalPart & ddcurLP = gt.nodeData(cit->first);
 	  std::cout << ++i << " c--> " << gt.edgeData(cit->second)->copyno() << " " << ddcurLP.name() << std::endl;
 	}
       }
     }
-
-    cpv.writeableGraph().clear();
-    //    cpv.clear();
-    std::cout << "cleared DDCompactView.  " << std::endl;
-
-
-    //   DDExpandedView ev(cpv);
-    //   std::cout << "== got the epv ==" << std::endl;
-
-    //   while ( ev.next() ) {
-    //     if ( ev.logicalPart().name().name() == "MBAT" ) {
-    //       std::cout << ev.geoHistory() << std::endl;
-    //     }
-    //     if ( ev.logicalPart().name().name() == "MUON" ) {
-    //       std::cout << ev.geoHistory() << std::endl;
-    //     }
-    //   }
-
   }
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {

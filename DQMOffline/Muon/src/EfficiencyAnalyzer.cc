@@ -72,6 +72,9 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder(theFolder+ID_);  
 
   h_allProbes_pt     = ibooker.book1D("allProbes_pt","All Probes Pt",              ptBin_, ptMin_, ptMax_);
+  h_allProbes_inner_pt  = ibooker.book1D("allProbes_inner_pt","All Probes inner Pt",   ptBin_, ptMin_, ptMax_);
+  h_allProbes_inner_eta  = ibooker.book1D("allProbes_inner_eta","All Probes inner eta",   etaBin_, etaMin_, etaMax_);
+  h_allProbes_inner_phi  = ibooker.book1D("allProbes_inner_phi","All Probes inner phi",   phiBin_, phiMin_, phiMax_);
   h_allProbes_EB_pt  = ibooker.book1D("allProbes_EB_pt","Barrel: all Probes Pt",   ptBin_, ptMin_, ptMax_);
   h_allProbes_EE_pt  = ibooker.book1D("allProbes_EE_pt","Endcap: all Probes Pt",   ptBin_, ptMin_, ptMax_);
   h_allProbes_eta    = ibooker.book1D("allProbes_eta","All Probes Eta",            etaBin_, etaMin_, etaMax_);
@@ -86,6 +89,9 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   h_allProbes_EE_ID_nVtx = ibooker.book1D("allProbes_EE_ID_nVtx","Endcap: All Probes (ID) nVtx", vtxBin_, vtxMin_, vtxMax_);
 
   h_passProbes_ID_pt     = ibooker.book1D("passProbes_ID_pt","ID Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_ID_inner_pt  = ibooker.book1D("passProbes_ID_inner_pt","ID Passing Probes inner Pt",   ptBin_, ptMin_, ptMax_);
+  h_passProbes_ID_inner_eta  = ibooker.book1D("passProbes_ID_inner_eta","ID Passing Probes inner eta",   etaBin_, etaMin_, etaMax_);
+  h_passProbes_ID_inner_phi  = ibooker.book1D("passProbes_ID_inner_phi","ID Passing Probes inner phi",   phiBin_, phiMin_, phiMax_);
   h_passProbes_ID_EB_pt  = ibooker.book1D("passProbes_ID_EB_pt","Barrel: ID Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
   h_passProbes_ID_EE_pt  = ibooker.book1D("passProbes_ID_EE_pt","Endcap: ID Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
   h_passProbes_ID_eta    = ibooker.book1D("passProbes_ID_eta","ID Passing Probes #eta", etaBin_, etaMin_, etaMax_);
@@ -114,7 +120,7 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   h_passProbes_EB_pfIsodBID_pt = ibooker.book1D("passProbes_EB_pfIsodBID_pt","Barrel: pfIsoID Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
   h_passProbes_EE_pfIsodBID_pt = ibooker.book1D("passProbes_EE_pfIsodBID_pt","Endcap: pfIsoID Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
   h_passProbes_pfIsodBID_nVtx     = ibooker.book1D("passProbes_pfIsodBID_nVtx",    "pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-h_passProbes_EB_pfIsodBID_nVtx  = ibooker.book1D("passProbes_EB_pfIsodBID_nVtx", "Barrel: pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_pfIsodBID_nVtx  = ibooker.book1D("passProbes_EB_pfIsodBID_nVtx", "Barrel: pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
   h_passProbes_EE_pfIsodBID_nVtx  = ibooker.book1D("passProbes_EE_pfIsodBID_nVtx", "Endcap: pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
 
 #ifdef DEBUG
@@ -264,7 +270,11 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       h_allProbes_pt->Fill(muon2->pt());
       h_allProbes_eta->Fill(muon2->eta());
       h_allProbes_phi->Fill(muon2->phi());
-      
+      if(muon2->innerTrack()->extra().isAvailable()) {
+          h_allProbes_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
+          h_allProbes_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
+          h_allProbes_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      }
       if (isMB)               h_allProbes_EB_pt->Fill(muon2->pt());
       if (isME)               h_allProbes_EE_pt->Fill(muon2->pt());
       if(muon2->pt() > 20 ) h_allProbes_hp_eta->Fill(muon2->eta());
@@ -279,6 +289,11 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       h_passProbes_ID_pt->Fill(muon2->pt());
       h_passProbes_ID_eta->Fill(muon2->eta());
       h_passProbes_ID_phi->Fill(muon2->phi());
+      if(muon2->innerTrack()->extra().isAvailable()) {
+          h_passProbes_ID_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
+          h_passProbes_ID_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
+          h_passProbes_ID_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      } 
       
       if (isMB) h_passProbes_ID_EB_pt->Fill(muon2->pt());
       if (isME) h_passProbes_ID_EE_pt->Fill(muon2->pt());

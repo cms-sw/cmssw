@@ -84,7 +84,9 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
       DTSectCollId scid(iwh,ise);
       SC_iterator it =  _cache1.find(scid);
       if ( it != _cache1.end()) {
-	std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
+      	if(_debug){
+	  std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
+	}
 	continue;
       }    
       DTSectColl* sc;

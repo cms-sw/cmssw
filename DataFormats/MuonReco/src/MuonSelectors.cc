@@ -38,6 +38,7 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "ME0MuonArbitrated", ME0MuonArbitrated },
       { "AllGEMMuons", AllGEMMuons },
       { "GEMMuonArbitrated", GEMMuonArbitrated },
+      { "TriggerIdLoose", TriggerIdLoose },
       { nullptr, (SelectionType)-1 }
    };
 
@@ -760,6 +761,9 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
     case muon::GEMMuonArbitrated:
 	  return muon.isGEMMuon() && isGoodMuon(muon, GEMMu, 1, 1e9, 1e9, 1e9, 1e9, 1e9, 1e9, arbitrationType, false, false);
       break;
+    case muon::TriggerIdLoose:
+      return isLooseTriggerMuon(muon);
+      break;
     default:
       return false;
     }
@@ -833,6 +837,19 @@ bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2,
   return false;
 }
 
+
+bool muon::isLooseTriggerMuon(const reco::Muon& muon){
+  // Requirements:
+  // - no depencence on information not availabe in the muon object
+  // - use only robust inputs
+  bool tk_id = muon::isGoodMuon(muon, TMOneStationTight);
+  if ( not tk_id ) return false;
+  bool layer_requirements = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
+  bool global_requirements = (not muon.isGlobalMuon()) or muon.globalTrack()->normalizedChi2()<20;
+  bool match_requirements = (muon.expectedNnumberOfMatchedStations()<2) or (muon.numberOfMatchedStations()>1) or (muon.pt()<8);
+  return layer_requirements and global_requirements and match_requirements;
+}
 
 bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
@@ -950,6 +967,24 @@ int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned 
     return ret; 
 }
 
+bool outOfTimeMuon(const reco::Muon& muon){
+  const auto& combinedTime = muon.time();
+  const auto& rpcTime      = muon.rpcTime();
+  bool combinedTimeIsOk = (combinedTime.nDof>7);
+  bool rpcTimeIsOk = (rpcTime.nDof>1 && fabs(rpcTime.timeAtIpInOutErr)<0.001);
+  bool outOfTime = false;
+  if (rpcTimeIsOk){
+    if ( (fabs(rpcTime.timeAtIpInOut)>10 ) &&
+	 !(combinedTimeIsOk && fabs(combinedTime.timeAtIpInOut)<10) )
+      outOfTime = true; 
+  } else {
+    if (combinedTimeIsOk && (combinedTime.timeAtIpInOut>20 || combinedTime.timeAtIpInOut<-45))
+      outOfTime = true; 
+  }
+  return outOfTime;
+}
+
+
 void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
 				    const reco::Vertex* vertex,
 				    bool run2016_hip_mitigation)
@@ -962,7 +997,7 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   double phoIso = muon.pfIsolationR04().sumPhotonEt;
   double puIso  = muon.pfIsolationR04().sumPUPt;
   double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
-  double dbCorectedRelIso = dbCorrectedIsolation/muon.pt();
+  double dbCorrectedRelIso = dbCorrectedIsolation/muon.pt();
   double tkRelIso = muon.isolationR03().sumPt/muon.pt();
 
   // Base selectors
@@ -982,15 +1017,22 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   }
 
   // PF isolation
-  if (dbCorectedRelIso<0.40)    selectors |= reco::Muon::PFIsoVeryLoose;
-  if (dbCorectedRelIso<0.25)    selectors |= reco::Muon::PFIsoLoose;
-  if (dbCorectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
-  if (dbCorectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
-  if (dbCorectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
+  if (dbCorrectedRelIso<0.40)    selectors |= reco::Muon::PFIsoVeryLoose;
+  if (dbCorrectedRelIso<0.25)    selectors |= reco::Muon::PFIsoLoose;
+  if (dbCorrectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
+  if (dbCorrectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
+  if (dbCorrectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
+  if (dbCorrectedRelIso<0.05)    selectors |= reco::Muon::PFIsoVeryVeryTight;
   
   // Tracker isolation
   if (tkRelIso<0.10)            selectors |= reco::Muon::TkIsoLoose;
   if (tkRelIso<0.05)            selectors |= reco::Muon::TkIsoTight;
+
+  // Trigger selectors
+  if (isLooseTriggerMuon(muon)) selectors |= reco::Muon::TriggerIdLoose;
+
+  // Timing
+  if (!outOfTimeMuon(muon))     selectors |= reco::Muon::InTimeMuon;
 
   muon.setSelectors(selectors);
 }

@@ -198,13 +198,7 @@ void DQMOfflineHLTEventInfoClient::beginRun(const Run& r, const EventSetup& cont
 }
 
 //--------------------------------------------------------
-void DQMOfflineHLTEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-   // optionally reset histograms here
-}
 
-void DQMOfflineHLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c){
-}
 
 //--------------------------------------------------------
 void DQMOfflineHLTEventInfoClient::analyze(const Event& e, const EventSetup& context){

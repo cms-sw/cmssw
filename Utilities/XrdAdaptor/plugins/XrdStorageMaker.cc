@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
@@ -188,7 +189,7 @@ public:
   }
 
 private:
-  [[cms::thread_safe]] mutable MakerResponseHandler m_null_handler;
+  CMS_THREAD_SAFE mutable MakerResponseHandler m_null_handler;
   mutable std::mutex m_envMutex;
   mutable std::atomic<unsigned int> m_lastDebugLevel;
   mutable std::atomic<unsigned int> m_lastTimeout;

@@ -65,3 +65,33 @@
 
 <bin file="testGraph.cpp">
 </bin>
+
+<bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
+  <use   name="cppunit"/>
+</bin>
+
+<architecture match="_amd64_">
+<bin file="cudaAtan2Test.cu" name="DFM_Atan2">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use   name="vdt_headers"/>
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+  <flags CXXFLAGS="-O3 -fwrapv"/>
+</bin>
+
+<bin file="cudaMathTest.cu" name="DFM_Math">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use   name="vdt_headers"/>
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+  <flags CXXFLAGS="-O3 -fwrapv"/>
+</bin>
+
+<bin file="cudaMathTest.cu" name="DFM_MathRepr">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+  <use   name="vdt_headers"/>
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr -fmad=false -ftz=false -prec-div=true -prec-sqrt=true"/>
+  <flags CXXFLAGS="-ffp-contract=off"/>
+</bin>
+</architecture>

@@ -123,7 +123,7 @@ namespace sistrip {
         LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was " << e.what();
         continue;
       }
-      if (!buffer->doChecks()) {
+      if (!buffer->doChecks(true)) {
         LogDebug(messageLabel_) << "Buffer check failed for FED ID " << *iFedId;
         continue;
       }
@@ -141,7 +141,7 @@ namespace sistrip {
           if (!iConn->isConnected()) {
             continue;
           }
-          if ( !buffer->channelGood(iConn->fedCh()) ) {
+          if ( !buffer->channelGood(iConn->fedCh(), true) ) {
             continue;
           } else {
             apvAddress = header->feUnitMajorityAddress(iConn->fedCh()/FEDCH_PER_FEUNIT);

@@ -53,6 +53,7 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/NoProxyException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 // system include files
@@ -68,6 +69,9 @@ namespace cms {
    class Exception;
 }
 
+class testEventsetup;
+class testEventsetupRecord;
+
 namespace edm {
    class ESHandleExceptionFactory;
    class ESInputTag;
@@ -80,21 +84,29 @@ namespace edm {
 
       class EventSetupRecord {
 
+        friend class ::testEventsetup;
+        friend class ::testEventsetupRecord;
       public:
          EventSetupRecord();
+         EventSetupRecord(EventSetupRecord&&) = default;
+         EventSetupRecord& operator=(EventSetupRecord&&) = default;
+
+         EventSetupRecord(EventSetupRecord const&) = default;
+         EventSetupRecord& operator=(EventSetupRecord const&) = default;
          virtual ~EventSetupRecord();
 
          // ---------- const member functions ---------------------
          ValidityInterval const& validityInterval() const {
-            return validity_;
+            return impl_->validityInterval();
          }
 
+        void setImpl( EventSetupRecordImpl const* iImpl ) { impl_ = iImpl; }
          template<typename HolderT>
          void get(HolderT& iHolder) const {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
+            impl_->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
 
             if(value) {
               iHolder = HolderT(value, desc);
@@ -108,7 +120,7 @@ namespace edm {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
+            impl_->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
 
             if(value) {
               iHolder = HolderT(value, desc);
@@ -121,7 +133,7 @@ namespace edm {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
+            impl_->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
 
             if(value) {
               iHolder = HolderT(value, desc);
@@ -135,7 +147,7 @@ namespace edm {
             typename HolderT::value_type const* value = nullptr;
             ComponentDescription const* desc = nullptr;
             std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
+            impl_->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
 
             if(value) {
               validate(desc, iTag);
@@ -172,35 +184,19 @@ namespace edm {
           denote that you have not yet checked the value.
           */
          unsigned long long cacheIdentifier() const {
-            return cacheIdentifier_;
+            return impl_->cacheIdentifier();
          }
 
          ///clears the oToFill vector and then fills it with the keys for all registered data keys
-         void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
-         // ---------- static member functions --------------------
-
-         // ---------- member functions ---------------------------
-
-         // The following member functions should only be used by EventSetupRecordProvider
-         bool add(DataKey const& iKey ,
-                  DataProxy const* iProxy) ;
-         void clearProxies();
-         void cacheReset() ;
-         /// returns 'true' if a transient request has occurred since the last call to transientReset.
-         bool transientReset() ;
-
-         void set(ValidityInterval const&);
-         void setEventSetup(EventSetup const* iEventSetup) {eventSetup_ = iEventSetup; }
-
-         void getESProducers(std::vector<ComponentDescription const*>& esproducers);
-         void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
-
+         void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
+           impl_->fillRegisteredDataKeys(oToFill);
+         }
       protected:
 
          DataProxy const* find(DataKey const& aKey) const ;
 
          EventSetup const& eventSetup() const {
-            return *eventSetup_;
+            return impl_->eventSetup();
          }
 
          void validate(ComponentDescription const*, ESInputTag const&) const;
@@ -208,44 +204,28 @@ namespace edm {
          void addTraceInfoToCmsException(cms::Exception& iException, char const* iName, ComponentDescription const*, DataKey const&) const;
          void changeStdExceptionToCmsException(char const* iExceptionWhatMessage, char const* iName, ComponentDescription const*, DataKey const&) const;
 
-         void transientAccessRequested() const { transientAccessRequested_ = true;}
+        EventSetupRecordImpl const* impl() const { return impl_;}
       private:
-         EventSetupRecord(EventSetupRecord const&); // stop default
-
-         EventSetupRecord const& operator=(EventSetupRecord const&); // stop default
 
          void const* getFromProxy(DataKey const& iKey ,
                                   ComponentDescription const*& iDesc,
                                   bool iTransientAccessOnly) const;
 
-         template <typename DataT>
-         void getImplementation(DataT const*& iData ,
-                                char const* iName,
-                                ComponentDescription const*& iDesc,
-                                bool iTransientAccessOnly,
-                                std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
-            DataKey dataKey(DataKey::makeTypeTag<DataT>(),
-                            iName,
-                            DataKey::kDoNotCopyMemory);
-
-            void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
-            if(nullptr == pValue) {
-              whyFailedFactory =
-                makeESHandleExceptionFactory([=]()->std::exception_ptr {
-                    NoProxyException<DataT> ex(this->key(), dataKey);
-                    return std::make_exception_ptr(ex);
-                });
-            }
-            iData = reinterpret_cast<DataT const*> (pValue);
-         }
 
          // ---------- member data --------------------------------
-         ValidityInterval validity_;
-         std::map<DataKey, DataProxy const*> proxies_ ;
-         EventSetup const* eventSetup_;
-         unsigned long long cacheIdentifier_;
-         mutable std::atomic<bool> transientAccessRequested_;
+         EventSetupRecordImpl const* impl_ = nullptr;
       };
+     
+     class EventSetupRecordGeneric : public EventSetupRecord {
+     public:
+       EventSetupRecordGeneric(EventSetupRecordImpl const* iImpl) {
+         setImpl(iImpl);
+       }
+       
+       EventSetupRecordKey key() const final {
+         return impl()->key();
+       }
+     };
    }
 }
 #endif

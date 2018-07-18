@@ -17,6 +17,7 @@ class SiStripCablingDQM: public SiStripBaseCondObjDQM{
   public:
 
   SiStripCablingDQM(const edm::EventSetup & eSetup,
+                    edm::RunNumber_t iRun,
 		    edm::ParameterSet const& hPSet,
 		    edm::ParameterSet const& fPSet);
   

@@ -330,10 +330,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       DTChamberId did(id.rawId());
       chamberId=did;
       
-      if ((*imrh)->recHits().size()>1) {
+      if ((*imrh)->dimension()>1) {
         std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
         for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
-          if ((*imrh)->recHits().size()>1) {
+          if ((*hit2d)->dimension()>1) {
             std::vector <const TrackingRecHit*> hits1d = (*hit2d)->recHits();
             for (std::vector <const TrackingRecHit*>::const_iterator hit1d = hits1d.begin(); hit1d!= hits1d.end(); hit1d++) {
               DetId id1 = (*hit1d)->geographicalId();
@@ -349,7 +349,17 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
               }
               if (layerHits>detRecHits) detRecHits=layerHits;
             }
-          }
+          } else {
+	    DTLayerId lid(id.rawId());
+	    // Get the 1d DT RechHits from this layer
+	    DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
+	    for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+	      double rhitDistance = fabs(ir->localPosition().x()-(**imrh).localPosition().x());
+	      if ( rhitDistance < coneSize ) detRecHits++;
+	      LogTrace(theCategory)<< "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
+				   << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+	    }
+	  }
         }
       
       } else {

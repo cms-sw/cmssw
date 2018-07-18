@@ -47,17 +47,18 @@ namespace edm {
     RunHelperBase* runHelper() {return runHelper_.get();}
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  protected:
+    ItemType getNextItemType() override;
+    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
+    std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+    void readEvent_(EventPrincipal& eventPrincipal) override;
 
   private:
-    void readEvent_(EventPrincipal& eventPrincipal) override;
-    std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) override;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;
     void readRun_(RunPrincipal& runPrincipal) override;
     std::unique_ptr<FileBlock> readFile_() override;
     void closeFile_() override;
     void endJob() override;
-    ItemType getNextItemType() override;
     bool readIt(EventID const& id, EventPrincipal& eventPrincipal, StreamContext& streamContext) override;
     void skip(int offset) override;
     bool goToEvent_(EventID const& eventID) override;
@@ -83,6 +84,7 @@ namespace edm {
     ProductSelectorRules productSelectorRules_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
+    bool delayReadingEventProducts_;
     
     edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.

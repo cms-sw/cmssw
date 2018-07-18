@@ -14,6 +14,7 @@ ootPhotonTask = cms.Task(
     particleFlowClusterOOTECAL, 
     particleFlowSuperClusterOOTECAL, 
     ootPhotonCore, 
+    ootPhotonsTmp,
     ootPhotons
     )
 

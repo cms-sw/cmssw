@@ -124,7 +124,7 @@ def checkFilter(raw_filter):
   if raw_filter != None:
     try:
       filter = eval(raw_filter)
-      if type("") != type(filter[0]) or type("") != type(filter[1]) or type("") != type(filter[2]):
+      if not isinstance("", type(filter[0])) or not isinstance("", type(filter[1])) or not isinstance("", type(filter[2])):
         raise TypeError('')
     except:
       print "Bad filter value ", raw_filter, ".\nFilter should be written in python tupple with 3 elements, i.e. \"('subsystem','folder','value')\". elements are in regexp format."

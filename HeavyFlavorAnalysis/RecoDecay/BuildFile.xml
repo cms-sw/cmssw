@@ -7,6 +7,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="PhysicsTools/CandUtils"/>
+<use   name="CommonTools/CandUtils"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="RecoVertex/KinematicFit"/>
 <use   name="RecoVertex/KinematicFitPrimitives"/>

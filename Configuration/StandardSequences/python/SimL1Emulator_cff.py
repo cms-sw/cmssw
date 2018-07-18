@@ -4,10 +4,9 @@ from L1Trigger.Configuration.SimL1Emulator_cff import *
 
 # make trigger digis available under with the raw2digi names
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+def _fastSimTriggerDigis(process):
     # pretend these digis have been through digi2raw and to the HLT internal raw2digi, by using the approprate aliases
     # consider moving these mods to the HLT configuration
     from FastSimulation.Configuration.DigiAliases_cff import loadTriggerDigiAliases
-    loadTriggerDigiAliases()
-    from FastSimulation.Configuration.DigiAliases_cff import gtDigis,gmtDigis,gctDigis,caloStage1LegacyFormatDigis
-    
+    loadTriggerDigiAliases(process)
+modifySimL1Emulator_fastSimTriggerDigis = fastSim.makeProcessModifier(_fastSimTriggerDigis)

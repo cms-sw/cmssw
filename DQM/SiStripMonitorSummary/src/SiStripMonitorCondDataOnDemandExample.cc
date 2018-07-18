@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,7 +53,7 @@ SiStripMonitorCondDataOnDemandExample::~SiStripMonitorCondDataOnDemandExample(){
 void SiStripMonitorCondDataOnDemandExample::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {  
   eventCounter_=0;
   condDataMonitoring_ = new SiStripClassToMonitorCondData(conf_);
-  condDataMonitoring_->beginRun(eSetup);
+  condDataMonitoring_->beginRun(run.run(),eSetup);
   
   
 

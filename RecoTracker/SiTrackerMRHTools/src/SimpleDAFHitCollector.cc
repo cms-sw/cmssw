@@ -167,7 +167,7 @@ void SimpleDAFHitCollector::Debug( const std::vector<TrajectoryMeasurement> TM )
       DetId hitId = itrajmeas->recHit()->geographicalId();
 
       if(hitId.det() == DetId::Tracker) {
-        switch (hitId.subdetid()) {
+        switch (hitId.subdetId()) {
           case StripSubdetector::TIB:
             LogTrace("MultiRecHitCollector") << "  I am TIB " << theTopology->tibLayer(hitId); break;
           case StripSubdetector::TOB:

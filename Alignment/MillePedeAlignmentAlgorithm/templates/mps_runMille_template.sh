@@ -63,9 +63,13 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   rfcp millePedeMonitor*root $MSSDIR/millePedeMonitorISN.root
 else
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  mkdir -p ${MSSCAFDIR}	# ensure the directory exists
-  echo "xrdcp -f milleBinaryISN.dat.gz ${MSSCAFDIR}/milleBinaryISN.dat.gz > /dev/null"
-  xrdcp -f milleBinaryISN.dat.gz    ${MSSCAFDIR}/milleBinaryISN.dat.gz  > /dev/null
-  xrdcp -f treeFile*root         ${MSSCAFDIR}/treeFileISN.root > /dev/null
-  xrdcp -f millePedeMonitor*root ${MSSCAFDIR}/millePedeMonitorISN.root > /dev/null
+  # ensure the directories exists
+  mkdir -p ${MSSCAFDIR}/binaries
+  mkdir -p ${MSSCAFDIR}/tree_files
+  mkdir -p ${MSSCAFDIR}/monitors
+  # copy the files
+  echo "xrdcp -f milleBinaryISN.dat.gz ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz > /dev/null"
+  xrdcp -f milleBinaryISN.dat.gz    ${MSSCAFDIR}/binaries/milleBinaryISN.dat.gz    > /dev/null
+  xrdcp -f treeFile.root            ${MSSCAFDIR}/tree_files/treeFileISN.root       > /dev/null
+  xrdcp -f millePedeMonitorISN.root ${MSSCAFDIR}/monitors/millePedeMonitorISN.root > /dev/null
 fi

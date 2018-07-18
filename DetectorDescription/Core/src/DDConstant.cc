@@ -37,9 +37,8 @@ std::ostream & operator<<(std::ostream & os, const DDConstant & cons)
 }
 
 void
-DDConstant::createConstantsFromEvaluator( void )
+DDConstant::createConstantsFromEvaluator( ClhepEvaluator& eval )
 {
-  auto& eval = DDI::Singleton<ClhepEvaluator>::instance();
   const auto& vars = eval.variables();
   const auto& vals = eval.values();
   if( vars.size() != vals.size()) {

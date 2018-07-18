@@ -2,6 +2,8 @@
 #include "Alignment/LaserAlignment/interface/LASGlobalData.h"
 #include <DataFormats/Common/interface/DetSetVector.h>
 #include <FWCore/Framework/interface/Event.h> 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Alignment/LaserAlignment/interface/LASGlobalLoop.h"
 
 // Forward declarations 
 class TFile;

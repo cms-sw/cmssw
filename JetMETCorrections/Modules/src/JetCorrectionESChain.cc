@@ -14,8 +14,7 @@
 #include <algorithm>
 
 JetCorrectionESChain::JetCorrectionESChain(edm::ParameterSet const& fParameters) 
-  : mCorrectors (fParameters.getParameter < std::vector<std::string> > ("correctors")),
-    mChainCorrector (new ChainedJetCorrector ())
+  : mCorrectors (fParameters.getParameter < std::vector<std::string> > ("correctors"))
 {
   std::string label(fParameters.getParameter<std::string>("@module_label"));
   if (std::find(mCorrectors.begin(), mCorrectors.end(), label) != mCorrectors.end()) {
@@ -27,13 +26,13 @@ JetCorrectionESChain::JetCorrectionESChain(edm::ParameterSet const& fParameters)
 
 JetCorrectionESChain::~JetCorrectionESChain() {}
 
-std::shared_ptr<JetCorrector> JetCorrectionESChain::produce(JetCorrectionsRecord const& fRecord) {
-  ChainedJetCorrector* corrector = dynamic_cast<ChainedJetCorrector*>(&*mChainCorrector);
+std::unique_ptr<JetCorrector> JetCorrectionESChain::produce(JetCorrectionsRecord const& fRecord) {
+  std::unique_ptr<ChainedJetCorrector> corrector{ new ChainedJetCorrector};
   corrector->clear ();
   for (size_t i = 0; i < mCorrectors.size(); ++i) {
     edm::ESHandle <JetCorrector> handle;
     fRecord.get(mCorrectors[i], handle);
     corrector->push_back(&*handle);
   }
-  return mChainCorrector;
+  return corrector;
 }

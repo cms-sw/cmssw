@@ -51,6 +51,7 @@ egammarecoFull_woHFElectrons = cms.Sequence(egammareco*interestingEgammaIsoDetId
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 #HI-specific algorithms needed in pp scenario special configurations 
@@ -62,5 +63,5 @@ _egammaHighLevelRecoPostPF_HI = egammaHighLevelRecoPostPF.copy()
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerpp
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppGED
 _egammaHighLevelRecoPostPF_HI += photonIsolationHIProducerppIsland
-for e in [pA_2016, peripheralPbPb, pp_on_XeXe_2017, ppRef_2017]:
+for e in [pA_2016, peripheralPbPb, pp_on_AA_2018, pp_on_XeXe_2017, ppRef_2017]:
     e.toReplaceWith(egammaHighLevelRecoPostPF, _egammaHighLevelRecoPostPF_HI)

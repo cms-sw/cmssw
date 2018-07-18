@@ -160,11 +160,11 @@ namespace sistrip {
     const uint16_t threshold = static_cast<uint16_t>( (2.0 * static_cast<double>(max-min)) / 3.0 );
 
     if (aPrintDebug){
-//       if ( edm::isDebugEnabled() ) {
-// 	LogDebug("SiStripSpyUtilities") << "Channel with key: " << lFrame.detId
-// 					<< " Min: " << min << " Max: " << max
-// 					<< " Range: " << (max-min) << " Threshold: " << threshold;
-//       }
+      if ( edm::isDebugEnabled() ) {
+	LogDebug("SiStripSpyUtilities") << "Channel with key: " << lFrame.detId
+					<< " Min: " << min << " Max: " << max
+					<< " Range: " << (max-min) << " Threshold: " << threshold;
+      }
       if (numzeroes>0 || numsats>0) {
 	edm::LogWarning("SiStripSpyUtilities") << "Channel with key: " << lFrame.detId << " has "
 					       << numzeroes << " zero and "

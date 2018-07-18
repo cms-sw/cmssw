@@ -14,7 +14,7 @@
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #else
 #include "SiPixelTemplate.h"
 #endif
@@ -78,6 +78,11 @@ private:
    int speed_ ;
    
    bool UseClusterSplitter_;
+
+   // Template file management (when not getting the templates from the DB)
+   int barrelTemplateID_ ;
+   int forwardTemplateID_ ;
+   std::string templateDir_ ;
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;

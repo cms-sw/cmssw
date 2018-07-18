@@ -1,0 +1,57 @@
+## CRAFT menu ##
+
+HLTriggerFirstPath
+HLTriggerFinalPath
+HLT_L1SingleMuOpen_v*
+HLT_L1SingleMuOpen_DT_v*
+HLT_L1SingleMuCosmics_v*
+HLT_L1SingleMu3_v*
+HLT_L1SingleMu5_v*
+HLT_L1SingleMu7_v*
+HLT_L1DoubleMu0_v*
+HLT_L1SingleEG10_v*
+HLT_L1SingleEG15_v*
+HLT_L1SingleJet16_v*
+HLT_L1SingleJet20_v*
+HLT_L1SingleJet35_v*
+HLT_L1SingleJet8erHE_v*
+HLT_L1SingleJet10erHE_v*
+HLT_L1SingleJet12erHE_v*
+HLT_L1SingleJet200_v*
+HLT_L1EXT_HCAL_LaserMon1_v*
+HLT_L1EXT_HCAL_LaserMon4_v*
+HLT_L2DoubleMu23_NoVertex_v*
+HLT_L2Mu10_NoVertex_NoBPTX3BX_v*
+HLT_L2Mu10_NoVertex_NoBPTX_v*
+HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v*
+HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v*
+HLT_L1FatEvents_v*
+HLT_Physics_v*
+DST_Physics_v*
+HLT_Random_v*
+HLT_ZeroBias_v*
+HLT_EcalCalibration_v*
+HLT_HcalCalibration_v*
+AlCa_EcalPhiSym_v*
+HLT_HcalNZS_v*
+HLT_HcalPhiSym_v*
+AlCa_RPCMuonNormalisation_v*
+
+## EndPath ##
+
+PhysicsCommissioningOutput
+DQMOutput
+DQMCalibrationOutput
+DQMEventDisplayOutput
+RPCMONOutput
+CalibrationOutput
+EcalCalibrationOutput
+ALCAPHISYMOutput
+ExpressCosmicsOutput
+NanoDSTOutput
+
+######## paths that are different between online and offline ################################
+
+HLTAnalyzerEndpath              # only in 'GRun', not in 'online'
+#RatesMonitoring                # only in 'online', not in 'GRun'
+#DQMHistograms                  # only in 'online', not in 'GRun'

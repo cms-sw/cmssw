@@ -17,7 +17,6 @@
 
 namespace hcaldqm
 {
-	using namespace mapper;
 	namespace filter
 	{
 		enum FilterType
@@ -27,22 +26,22 @@ namespace hcaldqm
 			nFilterType = 2
 		};
 
-		class HashFilter : public HashMapper
+		class HashFilter : public mapper::HashMapper
 		{
 			public:
 				HashFilter() : _ftype(fFilter)
 				{}
 				//	empty hash
-				HashFilter(FilterType ftype, HashType htype);
+				HashFilter(FilterType ftype, hashfunctions::HashType htype);
 				//	initialize with a vector of hashes
-				HashFilter(FilterType, HashType, 
+				HashFilter(FilterType, hashfunctions::HashType, 
 					std::vector<uint32_t> const&);
 				//	copy constructor
 				HashFilter(HashFilter const& hf);
 				~HashFilter() override {}
-				virtual void initialize(FilterType ftype, HashType htype,
+				virtual void initialize(FilterType ftype, hashfunctions::HashType htype,
 					std::vector<uint32_t> const&);
-				using HashMapper::initialize;
+				using mapper::HashMapper::initialize;
 
 				//	true if should filter out and false if not
 				//	true => should skip this hash

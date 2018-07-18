@@ -17,6 +17,6 @@ process.load("EventFilter.SiStripRawToDigi.test.SiStripDigiAnalyzer_cfi")
 
 process.p = cms.Path(process.DigiSource*process.SiStripDigiToRaw*process.siStripDigis*process.DigiAnalyzer)
 process.maxEvents.input = 2
-process.SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+process.SiStripDigiToRaw.InputDigis = cms.InputTag("DigiSource", "ZeroSuppressed")
 process.siStripDigis.ProductLabel = 'SiStripDigiToRaw'
 

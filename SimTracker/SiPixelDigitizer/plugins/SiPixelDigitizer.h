@@ -24,9 +24,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -49,7 +47,7 @@ namespace cms {
   class SiPixelDigitizer : public DigiAccumulatorMixMod {
   public:
 
-    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit SiPixelDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
 
     ~SiPixelDigitizer() override;
 
@@ -73,9 +71,7 @@ namespace cms {
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,
 			     size_t globalSimHitIndex,
 			     const unsigned int tofBin,
-			     CLHEP::HepRandomEngine*,
 			     edm::EventSetup const& c);
-    CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
     bool firstInitializeEvent_;
     bool firstFinalizeEvent_;
@@ -97,7 +93,7 @@ namespace cms {
     edm::ESHandle<TrackerGeometry> pDD;
     edm::ESHandle<MagneticField> pSetup;
     std::map<unsigned int, PixelGeomDetUnit const *> detectorUnits;
-    std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+    CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 
     PileupMixingContent* PileupInfo_;
     

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tidb.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tidb.xml">
+		<LogicalPart name="TIDB" category="unspecified">
+			<rSolid name="tid:TID"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIDWheelB" category="unspecified">
+			<rSolid name="tid:TIDWheel"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tidb.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tidb:TIDB"/>
+			<rChild name="tidb:TIDWheelB"/>
+			<Translation x="[zero]" y="[zero]" z="[tid:Wheel0Z]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tidb:TIDB"/>
+			<rChild name="tidb:TIDWheelB"/>
+			<Translation x="[zero]" y="[zero]" z="[tid:Wheel1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tidb:TIDB"/>
+			<rChild name="tidb:TIDWheelB"/>
+			<Translation x="[zero]" y="[zero]" z="[tid:Wheel2Z]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidb:TIDWheelB"/>
+			<rChild name="tidring0b:TIDRing0B"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tidb:TIDWheelB"/>
+			<rChild name="tidring1b:TIDRing1B"/>
+			<Translation x="[zero]" y="[zero]" z="[tid:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tidb:TIDWheelB"/>
+			<rChild name="tidring2:TIDRing2"/>
+			<Translation x="[zero]" y="[zero]" z="-[tid:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidb:TIDB"/>
+			<rChild name="tid:TIDSupport"/>
+			<Translation x="[zero]" y="[zero]" z="[tid:SupportZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tidb:TIDB"/>
+			<rChild name="tid:TIDSideDisk"/>
+			<Translation x="[zero]" y="[zero]" z="[tid:SideDiskZ]"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tidring0b:TIDRing0B"/>
+		<String name="ChildName" value="tid:TIDWheelFixCutted"/>
+		<Numeric name="N" value="3"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tid:WheelFixPhi]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[zero], [zero], -([tidringpar:StructureT]+[tid:WheelFixDZ])/2
+		</Vector>
+	</Algorithm>
+</DDDefinition>

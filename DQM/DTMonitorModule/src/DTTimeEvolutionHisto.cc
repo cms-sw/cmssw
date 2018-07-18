@@ -100,9 +100,7 @@ void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
       } else if(bin != nBookedBins) {
 	histo->setBinContent(bin, histo->getBinContent(bin+1));
 	histo->setBinError(bin, histo->getBinError(bin+1));
-	//JF to allow easy reading of x-axis
-	if (bin%(2*(int)theLSPrescale)==0){ histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); }
-	else  histo->setBinLabel(bin,"");
+	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); 
       }
     }
     histo->setBinContent(nBookedBins, value);
@@ -172,7 +170,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       if(nEventsInLastTimeSlot.size() > 1)
 	binLabel << "-" << lastLSinTimeSlot;
 
-      //if(nBookedBins%(int)theLSPrescale==0) 
+      //if(lastLSinTimeSlot%(3*(int)theLSPrescale)==0)
 	histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot

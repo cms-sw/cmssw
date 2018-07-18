@@ -42,3 +42,10 @@ phase2_hcal.toModify(digiPhase1Task,
     tagHO = cms.untracked.InputTag("simHcalDigis"),
     tagHF = cms.untracked.InputTag("simHcalDigis","HFQIE10DigiCollection")
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(premix_stage2 & phase2_hcal).toModify(digiPhase1Task,
+    tagHBHE = "DMHcalDigis:HBHEQIE11DigiCollection",
+    tagHO = "DMHcalDigis",
+    tagHF = "DMHcalDigis:HFQIE10DigiCollection"
+)

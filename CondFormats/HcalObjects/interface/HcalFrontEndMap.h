@@ -82,10 +82,10 @@ protected:
 namespace HcalFrontEndMapAddons {
   class LessById {
    public: 
-    bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId < b->mId;}
-    bool operator () (const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) {return a.mId < b.mId;}
-    bool equal (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) {return a->mId == b->mId;}
-    bool good (const HcalFrontEndMap::PrecisionItem& a) {return a.mId;}
+    bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) const {return a->mId < b->mId;}
+    bool operator () (const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) const {return a.mId < b.mId;}
+    bool equal (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) const {return a->mId == b->mId;}
+    bool good (const HcalFrontEndMap::PrecisionItem& a) const {return a.mId;}
   };
   class Helper {
    public:

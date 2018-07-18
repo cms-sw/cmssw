@@ -35,9 +35,13 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
     digitizer.ElectronsPerVcal_L1        = cms.double(50)   # L1:   49.6 +- 2.6
     digitizer.ElectronsPerVcal_Offset    = cms.double(-60)  # L2-4: -60 +- 130
     digitizer.ElectronsPerVcal_L1_Offset = cms.double(-670) # L1:   -670 +- 220
+    digitizer.UseReweighting = cms.bool(True)
 
 
 SiPixelSimBlock = cms.PSet(
+    UseReweighting = cms.bool(False),
+    PrintClusters = cms.bool(False),
+    PrintTemplates = cms.bool(False),
     DoPixelAging = cms.bool(False),
     ReadoutNoiseInElec = cms.double(350.0),
     deltaProductionCut = cms.double(0.03),
@@ -99,6 +103,13 @@ SiPixelSimBlock = cms.PSet(
 #
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(SiPixelSimBlock,
+    AddNoise = True,
+    AddNoisyPixels = False,
+    AddPixelInefficiency = False, #done in second step
+)
 
 # Threshold in electrons are the Official CRAFT09 numbers:
 # FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)

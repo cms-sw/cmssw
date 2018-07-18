@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterWildcardBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionTraits.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include <string>

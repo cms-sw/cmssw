@@ -33,7 +33,7 @@ class selectionParser(object):
         '''
         return self.__strresult
     def numruns(self):
-        return len(self.__result.keys())
+        return len(self.__result)
     def numls(self,run):
         return len(self.__result[run])
 if __name__ == "__main__":

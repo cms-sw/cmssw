@@ -429,6 +429,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::RunCache<Dummy>,edm::BeginRunProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     const unsigned int trans_; 
@@ -471,6 +472,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::RunCache<Dummy>,edm::EndRunProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_;
     mutable std::atomic<unsigned int> m_count{0};
@@ -512,6 +514,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::LuminosityBlockCache<void>,edm::BeginLuminosityBlockProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -553,6 +556,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::LuminosityBlockCache<void>,edm::EndLuminosityBlockProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -582,12 +586,36 @@ struct Dummy {
     ~TestEndLumiBlockProducer() {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
-          << "TestEndLumiBlockProducer transitions " 
+          << "TestEndLumiBlockProducer transitions "
           << m_count<< " but it was supposed to be " << trans_;
       }
     }
   };
 
+  class TestAccumulator : public edm::limited::EDProducer<edm::Accumulator> {
+  public:
+
+    explicit TestAccumulator(edm::ParameterSet const& p) :
+      edm::limited::EDProducerBase(p),
+      edm::limited::EDProducer<edm::Accumulator>(p),
+      m_expectedCount(p.getParameter<unsigned int>("expectedCount")) {
+    }
+
+    void accumulate(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override {
+      ++m_count;
+    }
+
+    ~TestAccumulator() {
+      if (m_count.load() != m_expectedCount) {
+        throw cms::Exception("TestCount")
+          << "TestAccumulator counter was "
+          << m_count << " but it was supposed to be " << m_expectedCount;
+      }
+    }
+
+    mutable std::atomic<unsigned int> m_count{0};
+    const unsigned int m_expectedCount;
+  };
 }
 }
 
@@ -600,4 +628,5 @@ DEFINE_FWK_MODULE(edmtest::limited::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::limited::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::limited::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::limited::TestEndLumiBlockProducer);
+DEFINE_FWK_MODULE(edmtest::limited::TestAccumulator);
 

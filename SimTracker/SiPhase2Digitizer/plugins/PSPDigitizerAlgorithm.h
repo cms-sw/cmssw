@@ -9,7 +9,7 @@ class TrackerTopology;
 
 class PSPDigitizerAlgorithm: public Phase2TrackerDigitizerAlgorithm {
  public:
-  PSPDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  PSPDigitizerAlgorithm(const edm::ParameterSet& conf);
   ~PSPDigitizerAlgorithm() override;
 
   // initialization that cannot be done in the constructor

@@ -370,12 +370,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 // Determine the number of phi bins to get cutoff at pi
     int phiBound = 0;
     if(cond0Categ == CondMuon || cond1Categ == CondMuon) {
-        GlobalScales::ScaleParameters par = m_gtScales->getMUScales();
+        const GlobalScales::ScaleParameters& par = m_gtScales->getMUScales();
         //phiBound = par.phiBins.size()/2;
 	phiBound = (int)((par.phiMax - par.phiMin)/par.phiStep)/2;
     } else {
         //Assumes all calorimeter objects are on same phi scale
-        GlobalScales::ScaleParameters par = m_gtScales->getEGScales();
+        const GlobalScales::ScaleParameters& par = m_gtScales->getEGScales();
         //phiBound = par.phiBins.size()/2;
 	phiBound = (int)((par.phiMax - par.phiMin)/par.phiStep)/2;
     }

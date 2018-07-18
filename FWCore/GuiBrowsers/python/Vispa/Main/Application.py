@@ -1296,7 +1296,7 @@ class Application(QApplication):
         self._window.statusBar().addPermanentWidget(self._progressWidget)
 
     def startWorking(self, message=""):
-        if len(self._workingMessages.keys()) == 0:
+        if len(self._workingMessages) == 0:
             self._progressWidget.start()
         self._window.statusBar().showMessage(message + "...")
         self._messageId+=1
@@ -1308,7 +1308,7 @@ class Application(QApplication):
         if not id in self._workingMessages.keys():
             logging.error(self.__class__.__name__ +": stopWorking() - Unknown id %s. Aborting..." % str(id))
             return
-        if len(self._workingMessages.keys()) > 1:
+        if len(self._workingMessages) > 1:
             self._window.statusBar().showMessage(self._workingMessages[self._workingMessages.keys()[0]] + "...")
             self._progressWidget.setToolTip(self._workingMessages[self._workingMessages.keys()[0]])
         else:

@@ -47,9 +47,11 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
-
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 #include <string>
@@ -153,7 +155,7 @@ namespace edm {
     void setLuminosityBlockNumber_t(LuminosityBlockNumber_t lb) {setLumi(lb);}
 
     /// issue an event report
-    void issueReports(EventID const& eventID);
+    void issueReports(EventID const& eventID, StreamID streamID);
 
     /// Register any produced products
     virtual void registerProducts();
@@ -217,14 +219,8 @@ namespace edm {
     /// Called by framework at beginning of lumi block
     virtual void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
 
-    /// Called by framework at end of lumi block
-    virtual void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
-
     /// Called by framework at beginning of run
     virtual void doBeginRun(RunPrincipal& rp, ProcessContext const*);
-
-    /// Called by framework at end of run
-    virtual void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -256,19 +252,6 @@ namespace edm {
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
 
-    class SourceSentry {
-    public:
-      typedef signalslot::Signal<void()> Sig;
-      SourceSentry(Sig& pre, Sig& post);
-      ~SourceSentry();
-
-      SourceSentry(SourceSentry const&) = delete; // Disallow copying and moving
-      SourceSentry& operator=(SourceSentry const&) = delete; // Disallow copying and moving
-
-    private:
-      Sig& post_;
-    };
-
     class EventSourceSentry {
     public:
       EventSourceSentry(InputSource const& source, StreamContext & sc);
@@ -284,16 +267,28 @@ namespace edm {
 
     class LumiSourceSentry {
     public:
-      explicit LumiSourceSentry(InputSource const& source);
+      LumiSourceSentry(InputSource const& source, LuminosityBlockIndex id);
+      ~LumiSourceSentry();
+
+      LumiSourceSentry(LumiSourceSentry const&) = delete; // Disallow copying and moving
+      LumiSourceSentry& operator=(LumiSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      LuminosityBlockIndex index_;
     };
 
     class RunSourceSentry {
     public:
-      explicit RunSourceSentry(InputSource const& source);
+      RunSourceSentry(InputSource const& source, RunIndex id);
+      ~RunSourceSentry();
+
+      RunSourceSentry(RunSourceSentry const&) = delete; // Disallow copying and moving
+      RunSourceSentry& operator=(RunSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      RunIndex index_;
     };
 
     class FileOpenSentry {

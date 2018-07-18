@@ -52,9 +52,7 @@ def new_log_file_id():
 	"""
 	# new id = number of log files + 1
 	# (primitive - matching the hash of the upload session may be a better idea)
-	log_files = filter(lambda file : "upload_log" in file,
-						os.listdir(os.path.join(os.getcwd(), "upload_logs"))
-					)
+	log_files = [file for file in os.listdir(os.path.join(os.getcwd(), "upload_logs")) if "upload_log" in file]
 	new_id = len(log_files)+1
 	return new_id
 
@@ -124,7 +122,7 @@ class uploader(object):
 		if self.metadata_source.get("destinationTags") == None:
 			self.exit_upload("No destination Tag was given.")
 		else:
-			if type(self.metadata_source.get("destinationTags")) == dict and self.metadata_source.get("destinationTags").keys()[0] == None:
+			if isinstance(self.metadata_source.get("destinationTags"), dict) and self.metadata_source.get("destinationTags").keys()[0] == None:
 				self.exit_upload("No destination Tag was given.")
 
 		# make sure a destination database was given
@@ -169,7 +167,7 @@ class uploader(object):
 			if iovs == None:
 				self.exit_upload("No IOVs found in the SQLite file given for Tag '%s'." % self.input_tag)
 			iovs = iovs.as_dicts(convert_timestamps=True)
-			iovs = [iovs] if type(iovs) != list else iovs
+			iovs = [iovs] if not isinstance(iovs, list) else iovs
 
 			"""
 			Finally, get the list of all Payload hashes of IOVs,
@@ -235,7 +233,7 @@ class uploader(object):
 		# look for deprecated metadata entries - give warnings
 		# Note - we only really support this format
 		try:
-			if type(result_dictionary["destinationTags"]) == dict:
+			if isinstance(result_dictionary["destinationTags"], dict):
 				self._outputter.write("WARNING: Multiple destination tags in a single metadata source is deprecated.")
 		except Exception as e:
 			self._outputter.write("ERROR: %s" % str(e))
@@ -253,7 +251,7 @@ class uploader(object):
 		If it is a dictionary, and one of its keys is "error", the server returned an error
 		"""
 		# if the decoded response data is a dictionary and has an error key in it, we should display an error and its traceback
-		if type(response_dict) == dict and "error" in response_dict.keys():
+		if isinstance(response_dict, dict) and "error" in response_dict.keys():
 			splitter_string = "\n%s\n" % ("-"*50)
 			self._outputter.write("\nERROR: %s" % splitter_string, ignore_verbose=True)
 			self._outputter.write(response_dict["error"], ignore_verbose=True)
@@ -601,7 +599,7 @@ class uploader(object):
 
 		# only select iovs that have sinces >= max_since_below_dest
 		# and then shift any IOVs left to the destination since
-		self.data_to_send["iovs"] = filter(lambda iov : iov["since"] >= max_since_below_dest, self.data_to_send["iovs"])
+		self.data_to_send["iovs"] = [iov for iov in self.data_to_send["iovs"] if iov["since"] >= max_since_below_dest]
 		for (i, iov) in enumerate(self.data_to_send["iovs"]):
 			if self.data_to_send["iovs"][i]["since"] < self.data_to_send["since"]:
 				self.data_to_send["iovs"][i]["since"] = self.data_to_send["since"]
@@ -643,7 +641,7 @@ class uploader(object):
 		else:
 			self._outputter.write("Sending payloads of hashes not found:")
 			# construct connection string for local SQLite database file
-			database = ("sqlite://%s" % os.path.abspath(self.sqlite_file_name)) if type(self.sqlite_file_name) == str else self.sqlite_file_name
+			database = ("sqlite://%s" % os.path.abspath(self.sqlite_file_name)) if isinstance(self.sqlite_file_name, str) else self.sqlite_file_name
 			# create CondDBFW connection that maps blobs - as we need to query for payload BLOBs (disabled by default in CondDBFW)
 			self._outputter.write("\tConnecting to input SQLite database.")
 			con = querying.connect(database, map_blobs=True)
@@ -710,7 +708,7 @@ class uploader(object):
 			return request_response
 		except Exception as e:
 			# make sure we don't try again - if a NoMoreRetriesException has been thrown, retries have run out
-			if type(e) == errors.NoMoreRetriesException:
+			if isinstance(e, errors.NoMoreRetriesException):
 				self._outputter.write("\t\t\tPayload with hash '%s' was not uploaded because the maximum number of retries was exceeded." % payload["hash"])
 				self._outputter.write("Payload with hash '%s' was not uploaded because the maximum number of retries was exceeded." % payload["hash"])
 			return json.dumps({"error" : str(e), "traceback" : traceback.format_exc()})

@@ -78,10 +78,6 @@ void DQMSourceEleCalib::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 }
 
 //--------------------------------------------------------
-void DQMSourceEleCalib::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
-}
 
 //-------------------------------------------------------------
 
@@ -158,9 +154,6 @@ void DQMSourceEleCalib::analyze(const Event& iEvent,
 
 
 //--------------------------------------------------------
-void DQMSourceEleCalib::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
 
 //------------------------------------------------
 

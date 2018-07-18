@@ -28,8 +28,8 @@ class VertexGhostTrackState : public BasicGhostTrackState {
 	                                bool withGhostTrackError) const override;
 
     private:
-	BasicGhostTrackState *clone() const override
-	{ return new VertexGhostTrackState(*this); }
+	pointer clone() const override
+	{ return build<VertexGhostTrackState>(*this); }
 
 	GlobalPoint		position_;
 	CovarianceMatrix	covariance_;

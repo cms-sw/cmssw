@@ -1,11 +1,12 @@
 // -*- C++ -*-
 //
-// Package:    IsolatedParticlesGeneratedJets
+// Package:    IsolatedParticles
 // Class:      IsolatedParticlesGeneratedJets
 // 
 /**\class IsolatedParticlesGeneratedJets IsolatedParticlesGeneratedJets.cc Calibration/IsolatedParticles/plugins/IsolatedParticlesGeneratedJets.cc
 
- Description: <one line class summary>
+ Description: Studies properties of jets at generator level in context of
+              isolated particles
 
  Implementation:
      <Notes on implementation>
@@ -16,19 +17,83 @@
 //
 //
 
-#include "Calibration/IsolatedParticles/plugins/IsolatedParticlesGeneratedJets.h"
+// user include files
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-IsolatedParticlesGeneratedJets::IsolatedParticlesGeneratedJets(const edm::ParameterSet& iConfig) {
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-  debug      = iConfig.getUntrackedParameter<bool>  ("Debug", false);
-  tok_jets_  = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"));
-  tok_parts_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"));
+//TFile Service
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "RecoJets/JetProducers/interface/JetMatchingTools.h"
+
+// root objects
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TProfile.h"
+#include "TDirectory.h"
+#include "TTree.h"
+
+class IsolatedParticlesGeneratedJets : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+
+public:
+  explicit IsolatedParticlesGeneratedJets(const edm::ParameterSet&);
+  ~IsolatedParticlesGeneratedJets() override { }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override { }
+
+  void bookHistograms();
+  void clearTreeVectors();
+  
+  const bool        debug_;
+  TTree            *tree_;
+
+  const edm::EDGetTokenT<reco::GenJetCollection>      tok_jets_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> tok_parts_;
+
+  std::vector<int>    *t_gjetN;
+  std::vector<double> *t_gjetE, *t_gjetPt, *t_gjetEta, *t_gjetPhi;
+  std::vector< std::vector<double> > *t_jetTrkP;
+  std::vector< std::vector<double> > *t_jetTrkPt;
+  std::vector< std::vector<double> > *t_jetTrkEta;
+  std::vector< std::vector<double> > *t_jetTrkPhi;
+  std::vector< std::vector<double> > *t_jetTrkPdg;
+  std::vector< std::vector<double> > *t_jetTrkCharge;
+
+};
+
+IsolatedParticlesGeneratedJets::IsolatedParticlesGeneratedJets(const edm::ParameterSet& iConfig) :
+  debug_(iConfig.getUntrackedParameter<bool>("Debug",false)),
+  tok_jets_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"))),
+  tok_parts_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("ParticleSource"))) {
+
+  usesResource(TFileService::kSharedResource);
+  
 }
 
-
-IsolatedParticlesGeneratedJets::~IsolatedParticlesGeneratedJets() {
-
+void IsolatedParticlesGeneratedJets::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("Debug",true);
+  desc.add<edm::InputTag>("JetSource",edm::InputTag("ak5GenJets"));
+  desc.add<edm::InputTag>("ParticleSource",edm::InputTag("genParticles"));
+  descriptions.add("isolatedParticlesGeneratedJets",desc);
 }
 
 void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -49,7 +114,7 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
 
   int njets = 0;
   for (unsigned iGenJet = 0; iGenJet < genJets->size(); ++iGenJet) {
-    const reco::GenJet& genJet = (*genJets) [iGenJet];
+    const reco::GenJet& genJet = (*genJets)[iGenJet];
 
     double genJetE   = genJet.energy();
     double genJetPt  = genJet.pt();
@@ -61,17 +126,19 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
       njets++;
 
       std::vector <const reco::GenParticle*> genJetConstituents = jetMatching.getGenParticles ((*genJets) [iGenJet]);
-
       std::vector<double> v_trkP, v_trkPt, v_trkEta, v_trkPhi, v_trkPdg, v_trkCharge;
     
-      if(debug) std::cout<<"Jet(pt,Eta,Phi) "<<genJetPt<<" "<<genJetEta<<" "<<genJetPhi <<std::endl;
+      if (debug_)
+	edm::LogVerbatim("IsoTrack") << "Jet(pt,Eta,Phi) " << genJetPt << " " 
+				     << genJetEta << " " << genJetPhi;
       for(unsigned int ic=0; ic<genJetConstituents.size(); ic++) {
 
-	if(debug) {
-	  std::cout << "p,pt,eta,phi "<<genJetConstituents[ic]->p()<<" "<<genJetConstituents[ic]->pt()
-		    <<" "<<genJetConstituents[ic]->eta()<<" "<<genJetConstituents[ic]->phi()
-		    <<std::endl;
-	}
+	if (debug_) 
+	  edm::LogVerbatim("IsoTrack") << "p,pt,eta,phi "
+				       << genJetConstituents[ic]->p() << " "
+				       << genJetConstituents[ic]->pt() << " "
+				       << genJetConstituents[ic]->eta() << " "
+				       << genJetConstituents[ic]->phi();
 
 	v_trkP.push_back(genJetConstituents[ic]->p());
 	v_trkPt.push_back(genJetConstituents[ic]->pt());
@@ -100,24 +167,25 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
 
   t_gjetN->push_back(njets);
 
-  unsigned int indx = 0;
-  for(reco::GenParticleCollection::const_iterator ig = genParticles->begin(); ig!= genParticles->end(); ++ig,++indx) {
- 
-    if (debug)
-      std::cout << "Track " << indx << " Status " << ig->status() << " charge "
-		<< ig->charge() << " pdgId " << ig->pdgId() << " mass "
-		<< ig->mass() << " P " << ig->momentum() << " E "
-		<< ig->energy() << " Origin " << ig->vertex() << std::endl;
+  if (debug_) {
+    unsigned int indx = 0;
+    reco::GenParticleCollection::const_iterator ig = genParticles->begin();
+    for (; ig!= genParticles->end(); ++ig,++indx) {
+      edm::LogVerbatim("IsoTrack") << "Track " << indx << " Status " 
+				   << ig->status() << " charge "
+				   << ig->charge() << " pdgId " << ig->pdgId()
+				   << " mass " << ig->mass() << " P " 
+				   << ig->momentum() << " E " << ig->energy()
+				   << " Origin " << ig->vertex();
+    }
   }
 
-
-  tree->Fill();
+  tree_->Fill();
 }
 
 void IsolatedParticlesGeneratedJets::beginJob() {
 
-  BookHistograms();
-
+  bookHistograms();
 }
 
 void IsolatedParticlesGeneratedJets::clearTreeVectors() {
@@ -135,9 +203,10 @@ void IsolatedParticlesGeneratedJets::clearTreeVectors() {
   t_jetTrkCharge ->clear();
 }
 
-void IsolatedParticlesGeneratedJets::BookHistograms(){
+void IsolatedParticlesGeneratedJets::bookHistograms(){
 
-  tree = fs->make<TTree>("tree", "tree");
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("tree", "tree");
 
   t_gjetN     = new std::vector<int>   ();
   t_gjetE     = new std::vector<double>();
@@ -152,22 +221,19 @@ void IsolatedParticlesGeneratedJets::BookHistograms(){
   t_jetTrkPdg = new std::vector<std::vector<double> >();
   t_jetTrkCharge = new std::vector<std::vector<double> >();
 
-  tree->Branch("t_gjetN",     "vector<int>",             &t_gjetN);
-  tree->Branch("t_gjetE",     "vector<double>",          &t_gjetE);
-  tree->Branch("t_gjetPt",    "vector<double>",          &t_gjetPt);
-  tree->Branch("t_gjetEta",   "vector<double>",          &t_gjetEta);
-  tree->Branch("t_gjetPhi",   "vector<double>",          &t_gjetPhi);
+  tree_->Branch("t_gjetN",     "std::vector<int>",             &t_gjetN);
+  tree_->Branch("t_gjetE",     "std::vector<double>",          &t_gjetE);
+  tree_->Branch("t_gjetPt",    "std::vector<double>",          &t_gjetPt);
+  tree_->Branch("t_gjetEta",   "std::vector<double>",          &t_gjetEta);
+  tree_->Branch("t_gjetPhi",   "std::vector<double>",          &t_gjetPhi);
 
-  tree->Branch("t_jetTrkP",   "vector<vector<double> >", &t_jetTrkP);
-  tree->Branch("t_jetTrkPt",  "vector<vector<double> >", &t_jetTrkPt);
-  tree->Branch("t_jetTrkEta", "vector<vector<double> >", &t_jetTrkEta);
-  tree->Branch("t_jetTrkPhi", "vector<vector<double> >", &t_jetTrkPhi);
-  tree->Branch("t_jetTrkPdg", "vector<vector<double> >", &t_jetTrkPdg);
-  tree->Branch("t_jetTrkCharge", "vector<vector<double> >", &t_jetTrkCharge);
+  tree_->Branch("t_jetTrkP",   "std::vector<vector<double> >", &t_jetTrkP);
+  tree_->Branch("t_jetTrkPt",  "std::vector<vector<double> >", &t_jetTrkPt);
+  tree_->Branch("t_jetTrkEta", "std::vector<vector<double> >", &t_jetTrkEta);
+  tree_->Branch("t_jetTrkPhi", "std::vector<vector<double> >", &t_jetTrkPhi);
+  tree_->Branch("t_jetTrkPdg", "std::vector<vector<double> >", &t_jetTrkPdg);
+  tree_->Branch("t_jetTrkCharge", "std::vector<vector<double> >", &t_jetTrkCharge);
 
-}
-
-void IsolatedParticlesGeneratedJets::endJob() {
 }
 
 //define this as a plug-in

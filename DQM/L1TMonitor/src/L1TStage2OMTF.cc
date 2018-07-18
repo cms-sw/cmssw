@@ -23,9 +23,6 @@ void L1TStage2OMTF::dqmBeginRun(const edm::Run& iRrun, const edm::EventSetup& ev
 {
 }
 
-void L1TStage2OMTF::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& eveSetup)
-{
-}
 
 void L1TStage2OMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& eveSetup)
 {

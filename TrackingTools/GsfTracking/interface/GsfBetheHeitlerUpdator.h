@@ -75,7 +75,7 @@ private:
   /// Read parametrization from file
   void readParameters (const std::string);
   /// Read coefficients of one polynomial from file
-  Polynomial readPolynomial (std::ifstream&,const int);
+  Polynomial readPolynomial (std::ifstream&,const unsigned int);
 
  
   /// Filling of mixture (in terms of z=E/E0)

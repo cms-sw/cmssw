@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-digiComparisonTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+digiComparisonTask = DQMEDAnalyzer(
 	"DigiComparisonTask",
 
 	name = cms.untracked.string("DigiComparisonTask"),

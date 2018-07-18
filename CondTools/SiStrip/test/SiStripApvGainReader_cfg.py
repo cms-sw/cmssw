@@ -1,5 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
+
+options = VarParsing('python')
+options.register('runN', 1,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.int,
+    "runN in the IOV"
+)
+
+options.parseArguments()
+
+if (not options.tag or not options.inputFiles):
+    raise ValueError('usage: cmsRun SiStripApvGainReader_cfg.py inputFiles=my_input_file  tag=my_tag')
 process = cms.Process("SiStripApvGainReader")
 
 process.MessageLogger = cms.Service(
@@ -15,7 +28,7 @@ process.MessageLogger = cms.Service(
 ##
 process.source = cms.Source("EmptySource",
                             numberEventsInRun = cms.untracked.uint32(1),
-                            firstRun = cms.untracked.uint32(1)
+                            firstRun = cms.untracked.uint32(options.runN)
                             )
 
 process.maxEvents = cms.untracked.PSet(
@@ -28,16 +41,19 @@ process.maxEvents = cms.untracked.PSet(
 ##
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
+
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+
 
 ##
 ## Prefer the SiStripApvGainRcd or SiStripApvGain2Rcd
 ## under test  
 ##
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
-                                      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'), 
+                                      #connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'), 
+                                      connect = cms.string(options.inputFiles[0]),
                                       toGet = cms.VPSet(cms.PSet(record = cms.string('SiStripApvGainRcd'),
-                                                                 tag = cms.string('SiStripApvGain_GR10_v1_hlt')
+                                                                 tag = cms.string(options.tag)
                                                                  )
                                                         )
                                       )
@@ -52,6 +68,11 @@ process.gainreader = cms.EDAnalyzer("SiStripApvGainReader",
                                     outputFile = cms.untracked.string("SiStripApvGains_dump.txt"),
                                     gainType   = cms.untracked.uint32(0)    #0 for G1, 1 for G2
                                     )
+
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("gain.root"),
+                                   closeFileFast = cms.untracked.bool(True)
+                                   )
 
 process.p1 = cms.Path(process.gainreader)
 

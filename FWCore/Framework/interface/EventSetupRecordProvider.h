@@ -20,6 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -39,7 +40,7 @@ namespace edm {
       class DataKey;
       class DataProxyProvider;
       class EventSetupProvider;
-      class EventSetupRecord;
+      class EventSetupRecordImpl;
       class ParameterSetIDHolder;
       
 class EventSetupRecordProvider {
@@ -48,7 +49,6 @@ class EventSetupRecordProvider {
       typedef std::map<DataKey, ComponentDescription> DataToPreferredProviderMap;
    
       EventSetupRecordProvider(EventSetupRecordKey const& iKey);
-      virtual ~EventSetupRecordProvider();
 
       // ---------- const member functions ---------------------
 
@@ -57,22 +57,25 @@ class EventSetupRecordProvider {
       }
       EventSetupRecordKey const& key() const { return key_; }      
 
+      EventSetupRecordImpl const& record() const {return record_;}
+      EventSetupRecordImpl& record() { return record_;}
+
       ///Returns the list of Records the provided Record depends on (usually none)
-      virtual std::set<EventSetupRecordKey> dependentRecords() const;
+      std::set<EventSetupRecordKey> dependentRecords() const;
       
       ///return information on which DataProxyProviders are supplying information
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-      
-      ///returns the first matching DataProxyProvider or a 'null' if not found
-      std::shared_ptr<DataProxyProvider> proxyProvider(ComponentDescription const&);
-
-      ///returns the first matching DataProxyProvider or a 'null' if not found
-      std::shared_ptr<DataProxyProvider> proxyProvider(ParameterSetIDHolder const&);
-
-
+  
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+
+      ///returns the first matching DataProxyProvider or a 'null' if not found
+      std::shared_ptr<DataProxyProvider> proxyProvider(ComponentDescription const&);
+  
+      ///returns the first matching DataProxyProvider or a 'null' if not found
+      std::shared_ptr<DataProxyProvider> proxyProvider(ParameterSetIDHolder const&);
+  
 
       void resetProxyProvider(ParameterSetIDHolder const&, std::shared_ptr<DataProxyProvider> const&);
 
@@ -112,9 +115,7 @@ class EventSetupRecordProvider {
       void addProxiesToRecord(std::shared_ptr<DataProxyProvider>,
                               DataToPreferredProviderMap const&);
       void cacheReset();
-   
-      virtual EventSetupRecord& record() = 0;
-      
+
       std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder());
         return iNew;
@@ -128,6 +129,7 @@ class EventSetupRecordProvider {
       void resetTransients();
       bool checkResetTransients();
       // ---------- member data --------------------------------
+      EventSetupRecordImpl record_;
       EventSetupRecordKey const key_;
       ValidityInterval validityInterval_;
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;

@@ -1,10 +1,11 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/RunInfo/src/headers.h"
 
 int main()
 {
     testSerialization<FillInfo>();
+    testSerialization<LHCInfo>();
     testSerialization<L1TriggerScaler>();
     testSerialization<L1TriggerScaler::Lumi>();
     testSerialization<MixingInputConfig>();

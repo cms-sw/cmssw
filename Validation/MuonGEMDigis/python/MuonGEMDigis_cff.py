@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-gemStripValidation = cms.EDAnalyzer('GEMStripDigiValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
   outputFile = cms.string(''),
-  stripLabel= cms.InputTag('simMuonGEMDigis'),
+  stripLabel= cms.InputTag('muonGEMDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
   # st1, st2 of xbin, st1, st2 of ybin
   nBinGlobalZR = cms.untracked.vdouble(200,200,150,250), 
@@ -11,7 +12,7 @@ gemStripValidation = cms.EDAnalyzer('GEMStripDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360),
   detailPlot = cms.bool(False), 
 )
-gemPadValidation = cms.EDAnalyzer('GEMPadDigiValidation',
+gemPadValidation = DQMEDAnalyzer('GEMPadDigiValidation',
   outputFile = cms.string(''),
   PadLabel = cms.InputTag('simMuonGEMPadDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
@@ -20,7 +21,7 @@ gemPadValidation = cms.EDAnalyzer('GEMPadDigiValidation',
   nBinGlobalXY = cms.untracked.int32(360), 
   detailPlot = cms.bool(False), 
 )
-gemCoPadValidation = cms.EDAnalyzer('GEMCoPadDigiValidation',
+gemCoPadValidation = DQMEDAnalyzer('GEMCoPadDigiValidation',
   outputFile = cms.string(''),
   CopadLabel = cms.InputTag('simCscTriggerPrimitiveDigis') ,
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
@@ -32,14 +33,14 @@ gemCoPadValidation = cms.EDAnalyzer('GEMCoPadDigiValidation',
   maxBXGEM = cms.int32(1),
 )
 
-gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
+gemDigiTrackValidation = DQMEDAnalyzer('GEMDigiTrackMatch',
   simInputLabel = cms.untracked.string('g4SimHits'),
   simTrackCollection = cms.InputTag('g4SimHits'),
   simVertexCollection = cms.InputTag('g4SimHits'),
   verboseSimHit = cms.untracked.int32(0),
   # GEM digi matching:
   verboseGEMDigi = cms.untracked.int32(0),
-  gemDigiInput = cms.InputTag("simMuonGEMDigis"),
+  gemDigiInput = cms.InputTag("muonGEMDigis"),
   gemPadDigiInput = cms.InputTag("simMuonGEMPadDigis"),
   gemCoPadDigiInput = cms.InputTag("simCscTriggerPrimitiveDigis"),
   minBXGEM = cms.untracked.int32(-1),
@@ -51,8 +52,16 @@ gemDigiTrackValidation = cms.EDAnalyzer('GEMDigiTrackMatch',
   detailPlot = cms.bool(False), 
 )
 
-gemGeometryChecker = cms.EDAnalyzer('GEMCheckGeometry',
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(premix_stage2 & phase2_muon).toModify(gemStripValidation, stripLabel = "mixData")
+(premix_stage2 & phase2_muon).toModify(gemDigiTrackValidation, gemDigiInput = "mixData")
+
+gemGeometryChecker = DQMEDAnalyzer('GEMCheckGeometry',
   detailPlot = cms.bool(False), 
 )
 
 gemDigiValidation = cms.Sequence( gemStripValidation+gemPadValidation+gemCoPadValidation+gemDigiTrackValidation+gemGeometryChecker)
+ 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith(gemDigiValidation, gemDigiValidation.copyAndExclude([gemPadValidation,gemCoPadValidation]))

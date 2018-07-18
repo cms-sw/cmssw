@@ -10,6 +10,7 @@
 #include <atomic>
 #endif
 #include <iosfwd>
+#include <array>
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -423,6 +424,12 @@ namespace reco {
     /// \set the timing information
     void setTime(float time, float timeError = 0.f) { time_ = time; timeError_ = timeError; }
 
+    /// fraction of hcal energy at a given depth  (depth = 1 .. 7)
+    float hcalDepthEnergyFraction(unsigned int depth) const { return hcalDepthEnergyFractions_[depth-1]; }
+    /// fraction of hcal energy at a given depth (index 0..6 for depth 1..7)
+    const std::array<float,7> & hcalDepthEnergyFractions() const { return hcalDepthEnergyFractions_; }
+    /// set the fraction of hcal energy as function of depth (index 0..6 for depth 1..7)
+    void setHcalDepthEnergyFractions(const std::array<float,7> & fracs) { hcalDepthEnergyFractions_ = fracs; }
   private:
     /// Polymorphic overlap
     bool overlap( const Candidate & ) const override;
@@ -523,6 +530,8 @@ namespace reco {
     float time_;
     /// timing information uncertainty (<0 if timing not available)
     float timeError_;
+
+    std::array<float,7> hcalDepthEnergyFractions_;
 
   };
 

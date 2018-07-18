@@ -35,13 +35,18 @@ int main(Int_t argc, Char_t *argv[]) {
 	    << "Output FIle Name " << outFileName << std::endl
 	    << "Process Name "     << processName << std::endl;
 
-  int flag(0), mode(4), maxDHB(5), maxDHE(7), runLo(0), runHi(9999999);
-  if (argc>4) flag   = atoi(argv[4]);
-  if (argc>5) mode   = atoi(argv[5]);
-  if (argc>6) maxDHB = atoi(argv[6]);
-  if (argc>7) maxDHE = atoi(argv[7]);
-  if (argc>8) runLo  = atoi(argv[8]);
-  if (argc>9) runHi  = atoi(argv[9]);
+  int flag(0), mode(4), maxDHB(5), maxDHE(7), runLo(1), int runHi(9999999);
+  int etaMin(1), etaMax(29);
+  if (argc>4)  flag   = atoi(argv[4]);
+  if (argc>5)  mode   = atoi(argv[5]);
+  if (argc>6)  maxDHB = atoi(argv[6]);
+  if (argc>7)  maxDHE = atoi(argv[7]);
+  if (argc>8)  runLo  = atoi(argv[8]);
+  if (argc>9)  runHi  = atoi(argv[9]);
+  if (argc>8)  runLo  = atoi(argv[8]);
+  if (argc>9)  runHi  = atoi(argv[9]);
+  if (argc>10) etaMin = atoi(argv[10]);
+  if (argc>11) etaMax = atoi(argv[11]);
   char treeName[400];
   sprintf (treeName, "%s/TREE", processName);
   std::cout << "try to create a chain for " << treeName << std::endl;
@@ -49,7 +54,7 @@ int main(Int_t argc, Char_t *argv[]) {
 
   if (FillChain(chain, inputFileList)) {
 
-    HBHEMuonOfflineAnalyzer* tree = new HBHEMuonOfflineAnalyzer(chain, outFileName, flag, mode, maxDHB, maxDHE, runLo, runHi);
+    HBHEMuonOfflineAnalyzer* tree = new HBHEMuonOfflineAnalyzer(chain, outFileName, flag, mode, maxDHB, maxDHE, runLo, runHi, etaMin, etaMax);
     tree->Loop();
     
   } 
@@ -59,9 +64,6 @@ int main(Int_t argc, Char_t *argv[]) {
 Bool_t FillChain(TChain *chain, const char* inputFileList) {
 
   ifstream infile(inputFileList);
-#if 0
-  std::string buffer;
-#endif
   if (!infile.is_open()) {
     std::cerr << "** ERROR: Can't open '" << inputFileList << "' for input" << std::endl;
     return kFALSE;
@@ -75,15 +77,7 @@ Bool_t FillChain(TChain *chain, const char* inputFileList) {
     std::cout << "Adding " << buffer << " to chain" << std::endl;
     chain->Add(buffer);
   }
-#if 0
-  while (1) {
-    infile >> buffer;
-    if (!infile.good()) break;
-    chain->Add(buffer.c_str());
-  }
-#endif
   std::cout << "No. of Entries in this tree : " << chain->GetEntries() << std::endl;
   infile.close();
   return kTRUE;
 }
-

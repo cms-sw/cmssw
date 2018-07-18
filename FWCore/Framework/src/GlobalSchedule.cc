@@ -3,6 +3,7 @@
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -10,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 
 #include <algorithm>
 #include <cassert>
@@ -30,10 +32,13 @@ namespace edm {
                                  std::shared_ptr<ActivityRegistry> areg,
                                  std::shared_ptr<ProcessConfiguration> processConfiguration,
                                  ProcessContext const* processContext) :
-    workerManager_(modReg,areg,actions),
     actReg_(areg),
     processContext_(processContext)
   {
+    workerManagers_.reserve(prealloc.numberOfLuminosityBlocks());
+    for(unsigned int i = 0; i<prealloc.numberOfLuminosityBlocks(); ++i) {
+      workerManagers_.emplace_back(modReg,areg,actions);
+    }
     for (auto const& moduleLabel : iModulesToUse) {
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
@@ -42,63 +47,75 @@ namespace edm {
         assert(isTracked);
 
         //side effect keeps this module around
-        addToAllWorkers(workerManager_.getWorker(*modpset, pregistry, &prealloc,processConfiguration, moduleLabel));
+        for(auto& wm: workerManagers_) {
+          wm.addToAllWorkers(wm.getWorker(*modpset, pregistry, &prealloc,processConfiguration, moduleLabel));
+        }
       }
     }
     if(inserter) {
-      results_inserter_ = WorkerPtr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions)); // propagate_const<T> has no reset() function
       inserter->doPreallocate(prealloc);
-      results_inserter_->setActivityRegistry(actReg_);
-      addToAllWorkers(results_inserter_.get());
+      for(auto& wm: workerManagers_) {
+        auto results_inserter = WorkerPtr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions)); // propagate_const<T> has no reset() function
+        results_inserter->setActivityRegistry(actReg_);
+        wm.addToAllWorkers(results_inserter.get());
+        extraWorkers_.emplace_back(std::move(results_inserter));
+      }
     }
 
     for(auto & pathStatusInserter : pathStatusInserters) {
       std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-      WorkerPtr workerPtr(new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr,
-                                                                           inserterPtr->moduleDescription(),
-                                                                           &actions));
-      pathStatusInserterWorkers_.emplace_back(workerPtr);
       inserterPtr->doPreallocate(prealloc);
-      workerPtr->setActivityRegistry(actReg_);
-      addToAllWorkers(workerPtr.get());
+      
+      for(auto& wm: workerManagers_) {
+        WorkerPtr workerPtr(new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr,
+                                                                             inserterPtr->moduleDescription(),
+                                                                             &actions));
+        workerPtr->setActivityRegistry(actReg_);
+        wm.addToAllWorkers(workerPtr.get());
+        extraWorkers_.emplace_back(std::move(workerPtr));
+      }
     }
 
     for(auto & endPathStatusInserter : endPathStatusInserters) {
       std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      WorkerPtr workerPtr(new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr,
-                                                                              inserterPtr->moduleDescription(),
-                                                                              &actions));
-      endPathStatusInserterWorkers_.emplace_back(workerPtr);
       inserterPtr->doPreallocate(prealloc);
-      workerPtr->setActivityRegistry(actReg_);
-      addToAllWorkers(workerPtr.get());
+      for(auto& wm: workerManagers_) {
+        WorkerPtr workerPtr(new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr,
+                                                                                inserterPtr->moduleDescription(),
+                                                                                &actions));
+        workerPtr->setActivityRegistry(actReg_);
+        wm.addToAllWorkers(workerPtr.get());
+        extraWorkers_.emplace_back(std::move(workerPtr));
+      }
     }
 
   } // GlobalSchedule::GlobalSchedule
 
   void GlobalSchedule::endJob(ExceptionCollector & collector) {
-    workerManager_.endJob(collector);
+    workerManagers_[0].endJob(collector);
   }
 
   void GlobalSchedule::beginJob(ProductRegistry const& iRegistry) {
-    workerManager_.beginJob(iRegistry);
+    workerManagers_[0].beginJob(iRegistry);
   }
   
   void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod,
                                      std::string const& iLabel) {
     Worker* found = nullptr;
-    for (auto const& worker : allWorkers()) {
-      if (worker->description().moduleLabel() == iLabel) {
-        found = worker;
-        break;
+    for(auto& wm: workerManagers_) {
+      for (auto const& worker : wm.allWorkers()) {
+        if (worker->description().moduleLabel() == iLabel) {
+          found = worker;
+          break;
+        }
       }
+      if (nullptr == found) {
+        return;
+      }
+      
+      iMod->replaceModuleFor(found);
+      found->beginJob();
     }
-    if (nullptr == found) {
-      return;
-    }
-    
-    iMod->replaceModuleFor(found);
-    found->beginJob();
   }
 
   std::vector<ModuleDescription const*>
@@ -112,10 +129,4 @@ namespace edm {
     }
     return result;
   }
-
-  void
-  GlobalSchedule::addToAllWorkers(Worker* w) {
-    workerManager_.addToAllWorkers(w);
-  }
-
 }

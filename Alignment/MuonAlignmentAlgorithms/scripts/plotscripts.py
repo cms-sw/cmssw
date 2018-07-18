@@ -401,8 +401,7 @@ def philines(name, window, abscissa):
             philine_tlines[-1].Draw()
     if "st" in name: # DT labels
         philine_labels = []
-        edges = edges[:]
-        edges.sort()
+        edges = sorted(edges[:])
         if "st4" in name:
             labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
         else: 
@@ -417,8 +416,7 @@ def philines(name, window, abscissa):
         philine_labels[-1].Draw()
     if "CSC" in name: # DT labels
         philine_labels = []
-        edges = edges[:]
-        edges.sort()
+        edges = sorted(edges[:])
         labels = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10", "11", "12", "13", "14", "15", "16", "17", "18",
                   "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36"]
         #else: 

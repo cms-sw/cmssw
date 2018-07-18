@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -44,7 +45,8 @@ public:
 
   IsolatedPixelTrackCandidateProducer (const edm::ParameterSet& ps);
   ~IsolatedPixelTrackCandidateProducer() override;
-  
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;

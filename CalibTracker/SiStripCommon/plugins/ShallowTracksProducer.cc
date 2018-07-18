@@ -70,7 +70,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto       algo        = std::make_unique<std::vector<int>>();
 
   edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByToken(tracks_token_, tracks);
-  
+
   *number = tracks->size();
   BOOST_FOREACH( const reco::Track track, *tracks) {
     chi2->push_back(      track.chi2()              );
@@ -98,8 +98,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     vy->push_back(        track.vy()                );
     vz->push_back(        track.vz()                );
     algo->push_back(      (int) track.algo()              );
-  }			  
-  			  
+  }
+
   iEvent.put(std::move(number),       Prefix + "number"     + Suffix );
   iEvent.put(std::move(chi2),         Prefix + "chi2"       + Suffix );
   iEvent.put(std::move(ndof),         Prefix + "ndof"       + Suffix );
@@ -128,4 +128,3 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(algo),         Prefix + "algo"       + Suffix );
 
 }
-

@@ -72,13 +72,13 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
     //Histograms drawn for single pion scan
     if(subdet_ != 0 && imc != 0) { // just not for noise  
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
-      meEnConeEtaProfile = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
+      meEnConeEtaProfile = ib.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
-      meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
+      meEnConeEtaProfile_E = ib.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");  
       
       sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
-      meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 82, -41., 41., -100., 2000., " ");  
+      meEnConeEtaProfile_EH = ib.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");  
     }
 
     // ************** HB **********************************
@@ -273,8 +273,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       for (; RecHit != RecHitEnd ; ++RecHit) {
 	EBDetId EBid = EBDetId(RecHit->id());
        
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (EBid)->getGeometry (EBid) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry (EBid) ;
 	double eta = cellGeometry->getPosition ().eta () ;
 	double phi = cellGeometry->getPosition ().phi () ;
 	double en  = RecHit->energy();
@@ -300,8 +299,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       for (; RecHit != RecHitEnd ; ++RecHit) {
 	EEDetId EEid = EEDetId(RecHit->id());
 	
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (EEid)->getGeometry (EEid) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry (EEid) ;
 	double eta = cellGeometry->getPosition ().eta () ;
 	double phi = cellGeometry->getPosition ().phi () ;	
 	double en   = RecHit->energy();
@@ -448,9 +446,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	if(sub != subdet_ && subdet_ != 5) continue; //If we are not looking at all of the subdetectors and the simhit doesn't come from the specific subdetector of interest, then we won't do any thing with it 
 	
 	const HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-	//const CaloCellGeometry* cellGeometry = 
-	//geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 	double etaS = cellGeometry->getPosition(cell).eta () ;
 	double phiS = cellGeometry->getPosition(cell).phi () ;
 	double en   = SimHits->energy();    
@@ -529,16 +525,13 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	
 	HcalDetId cell(j->id());
 	const HcalGeometry* cellGeometry = 
-	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
-	//      const CaloCellGeometry* cellGeometry =
-	//	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  dynamic_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
 	double eta  = cellGeometry->getPosition(cell).eta () ;
 	double phi  = cellGeometry->getPosition(cell).phi () ;
 	double zc   = cellGeometry->getPosition(cell).z ();
 	int sub     = cell.subdet();
 	int depth   = cell.depth();
 	int inteta  = cell.ieta();
-	if(inteta > 0) inteta -= 1;
 	int intphi  = cell.iphi()-1;
 	double en   = j->energy();
 	double t    = j->time();
@@ -569,8 +562,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
 	
 	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
@@ -578,7 +570,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
 	int intphi   = cell.iphi()-1;
 	double en    = j->energy();
 	double t     = j->time();
@@ -608,8 +599,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
       for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
 	
 	HcalDetId cell(j->id());
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	auto cellGeometry = geometry->getSubdetectorGeometry(cell)->getGeometry (cell) ;
 	
 	double eta   = cellGeometry->getPosition().eta () ;
 	double phi   = cellGeometry->getPosition().phi () ;
@@ -617,7 +607,6 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	int sub      = cell.subdet();
 	int depth    = cell.depth();
 	int inteta   = cell.ieta();
-	if(inteta > 0) inteta -= 1;
 	int intphi   = cell.iphi()-1;
 	double t     = j->time();
 	double en    = j->energy();

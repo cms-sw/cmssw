@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-ecalPileUpDepMonitor = cms.EDAnalyzer('EcalPileUpDepMonitor',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalPileUpDepMonitor = DQMEDAnalyzer('EcalPileUpDepMonitor',
 			   VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                            basicClusterCollection = cms.InputTag("particleFlowClusterECAL"),
                            superClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower"),

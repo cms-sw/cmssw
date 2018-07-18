@@ -2,6 +2,7 @@
 #define KDTreeLinkerToolsTemplated_h
 
 #include <algorithm>
+#include <vector>
 
 // Box structure used to define 2D field.
 // It's used in KDTree building step to divide the detector

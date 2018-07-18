@@ -91,5 +91,5 @@ edm::ParameterSet ConfigurableAdaptiveFitter::defaults() const
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfFitterBuilder.h"
 
 namespace {
-  ConfFitterBuilder < ConfigurableAdaptiveFitter > t ( "avf", "AdaptiveVertexFitter" );
+  const ConfFitterBuilder < ConfigurableAdaptiveFitter > t ( "avf", "AdaptiveVertexFitter" );
 }

@@ -37,7 +37,9 @@ protected :
 
   void init();
 
+private :
 
+  ClassDefOverride(TFitConstraintMGaus, 0)
 };
 
 #endif

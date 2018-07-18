@@ -17,7 +17,8 @@ from FWCore.Skeletons.utils import code_generator
 def config(tmpl, pkg_help, tmpl_dir):
     "Parse input arguments to mk-script"
     kwds  = {'author': '', 'tmpl': tmpl,
-             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+             'args': {}, 'debug': False,
+             'tmpl_dir': tmpl_dir, 'working_dir': ''}
     etags = []
     if  len(sys.argv) >= 2: # user give us arguments
         if  sys.argv[1] in ['-h', '--help', '-help']:
@@ -45,6 +46,23 @@ def config(tmpl, pkg_help, tmpl_dir):
     else:
         print pkg_help
         sys.exit(0)
+    kwds['tmpl_etags'] = etags
+    return kwds
+
+def config_with_parser(tmpl, args, tmpl_dir):
+    """
+    Inject arguments parsed upstream into mk-scripts.
+    The arguments are parsed by the different front-ends(binaries)
+    and passed here via the args object.
+    """
+
+    kwds  = {'author': '', 'tmpl': tmpl,
+             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+    etags = []
+    kwds['pname'] = args.subpackage_name
+    if args.author: kwds['author'] = args.author
+    if args.debug: kwds['debug'] = True
+    if args.example: etags.append('@%s' % args.example)
     kwds['tmpl_etags'] = etags
     return kwds
 
@@ -112,7 +130,12 @@ def generate(kwds):
         config.update({'subsystem': dirs[1]})
         config.update({'pkgname': kwds.get('pname')})
         if  whereami in ['src', 'plugins']:
+            config.update({'working_dir': whereami})
             config.update({'tmpl_files': '.cc'})
+            config.update({'pkgname': dirs[2]})
+        elif whereami == 'test':
+            config.update({'working_dir': whereami})
+            config.update({'tmpl_files':'.cc'})
             config.update({'pkgname': dirs[2]})
         elif whereami == 'subsystem':
             config.update({'tmpl_files': 'all'})

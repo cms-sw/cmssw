@@ -51,7 +51,7 @@ PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steer
 }
 
 //__________________________________________________________________________________________________
-bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
+bool PedeReader::read(align::Alignables& alignables, bool setUserVars)
 {
   alignables.clear();
   myPedeResult.seekg(0, std::ios::beg); // back to start

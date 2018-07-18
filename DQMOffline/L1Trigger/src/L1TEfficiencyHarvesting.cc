@@ -51,7 +51,7 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
 
   if (!num || !den) {
 
-    edm::LogError("L1TEfficiencyPlotHandler")
+    edm::LogWarning("L1TEfficiencyPlotHandler")
         << (!num && !den ? numeratorName + " && " + denominatorName : !num ? numeratorName : denominatorName)
         << " not gettable. Quitting booking" << endl;
     return;
@@ -62,7 +62,7 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
 
   if (!numH || !denH) {
 
-    edm::LogError("L1TEfficiencyPlotHandler")
+    edm::LogWarning("L1TEfficiencyPlotHandler")
         << (!numH && !denH ? numeratorName + " && " + denominatorName : !num ? numeratorName : denominatorName)
         << " is not TH1F. Quitting booking" << endl;
 
@@ -71,7 +71,7 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
   }
 
   if (numH->GetNbinsX() != denH->GetNbinsX()) {
-    edm::LogError(
+    edm::LogWarning(
       "L1TEfficiencyPlotHandler") << " # X bins in " <<
       numeratorName << " and " << denominatorName <<
       " are different. Quitting booking" << endl;
@@ -86,7 +86,7 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
 
   if (is2D) {
     if (numH->GetNbinsY() != denH->GetNbinsY()) {
-      edm::LogError(
+      edm::LogWarning(
         "L1TEfficiencyPlotHandler") << " # Y bins in " << numeratorName <<
         " and " << denominatorName << " are different. Quitting booking" <<
         endl;

@@ -27,6 +27,9 @@ Implementation:
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 
 #include "boost/bind.hpp"
 #include "boost/shared_ptr.hpp"
@@ -55,6 +58,7 @@ Implementation:
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -89,6 +93,7 @@ private:
   std::vector<std::string> args_;
   uint32_t npars_;
   uint32_t nEvents_;
+  bool storeXML_;
   unsigned int nThreads_{1};
   std::string outputContents_;
 
@@ -129,7 +134,8 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
   npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
-  nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents"))
+  nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents")),
+  storeXML_(iConfig.getUntrackedParameter<bool>("storeXML"))
 {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
@@ -163,7 +169,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nextEvent();
   if (!partonLevel) {
-    throw cms::Exception("ExternalLHEProducer") << "No lhe event found in ExternalLHEProducer::produce().  "
+    throw edm::Exception(edm::errors::EventGenerationFailure) << "No lhe event found in ExternalLHEProducer::produce().  "
     << "The likely cause is that the lhe file contains fewer events than were requested, which is possible "
     << "in case of phase space integration or uneweighting efficiency problems.";
   }
@@ -254,15 +260,19 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   
   //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
   std::unique_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);
-  std::ifstream instream(outputFile_);
-  if (!instream) {
-    throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
-  }  
-  instream.seekg (0, instream.end);
-  int insize = instream.tellg();
-  instream.seekg (0, instream.beg);  
-  p->fillCompressedContent(instream, 0.25*insize);
-  instream.close();
+
+  //store the XML file only if explictly requested
+  if (storeXML_) {
+    std::ifstream instream(outputFile_);
+    if (!instream) {
+      throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
+    }  
+    instream.seekg (0, instream.end);
+    int insize = instream.tellg();
+    instream.seekg (0, instream.beg);  
+    p->fillCompressedContent(instream, 0.25*insize);
+    instream.close();
+  }
   run.put(std::move(p), "LHEScriptOutput");
 
   // LHE C++ classes translation
@@ -309,7 +319,7 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
   
   nextEvent();
   if (partonLevel) {
-    throw cms::Exception("ExternalLHEProducer") << "Error in ExternalLHEProducer::endRunProduce().  "
+    throw edm::Exception(edm::errors::EventGenerationFailure) << "Error in ExternalLHEProducer::endRunProduce().  "
     << "Event loop is over, but there are still lhe events to process."
     << "This could happen if lhe file contains more events than requested.  This is never expected to happen.";
   }  
@@ -440,6 +450,14 @@ ExternalLHEProducer::executeScript()
       break;
     }
   } while (true);
+  edm::Service<edm::TimingServiceBase> ts;
+  if(ts.isAvailable()) {
+    struct rusage ru;
+    getrusage(RUSAGE_CHILDREN,&ru);
+    double time = static_cast<double>(ru.ru_stime.tv_sec) + (static_cast<double>(ru.ru_stime.tv_usec) * 1E-6) +
+                  static_cast<double>(ru.ru_utime.tv_sec) + (static_cast<double>(ru.ru_utime.tv_usec) * 1E-6);
+    ts->addToCPUTime(time);
+  }
   if (rc) {
     throw cms::Exception("ExternalLHEProducer") << "Child failed with exit code " << rc << ".";
   }
@@ -488,6 +506,7 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::vector<std::string> >("args");
   desc.add<uint32_t>("numberOfParameters");
   desc.addUntracked<uint32_t>("nEvents");
+  desc.addUntracked<bool>("storeXML", false);
 
   descriptions.addDefault(desc);
 }

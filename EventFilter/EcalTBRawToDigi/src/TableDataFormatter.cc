@@ -9,7 +9,7 @@ TableDataFormatter::TableDataFormatter () {
 void TableDataFormatter::interpretRawData( const FEDRawData & fedData, 
 					   EcalTBEventHeader& tbEventHeader)
 {
-  const unsigned long * buffer = ( reinterpret_cast<unsigned long*>(const_cast<unsigned char*> ( fedData.data())));
+  const unsigned long * buffer = reinterpret_cast<const unsigned long*>(fedData.data());
   int fedLenght                        = fedData.size(); // in Bytes
   
   // check ultimate fed size and strip off fed-header and -trailer

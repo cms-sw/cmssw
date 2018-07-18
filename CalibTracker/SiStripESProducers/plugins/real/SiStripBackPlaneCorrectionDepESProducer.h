@@ -23,7 +23,7 @@ class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
   SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet&);
   ~SiStripBackPlaneCorrectionDepESProducer() override{};
   
-  std::shared_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
+  std::unique_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
    
  private:
 
@@ -36,7 +36,6 @@ class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
   edm::ParameterSet getPeak;
   edm::ParameterSet getDeconv;
 
-  std::shared_ptr<SiStripBackPlaneCorrection> siStripBPC_;
 
 };
 

@@ -72,7 +72,7 @@ void BestTrackSelection::cancel_one_bx(
     const std::deque<EMTFTrackCollection>& extended_best_track_cands,
     EMTFTrackCollection& best_tracks
 ) const {
-  const int max_z = emtf::NUM_ZONES;        // = 4 zones
+  const int max_z = emtf::NUM_ZONES;  // = 4 zones
   const int max_n = maxRoadsPerZone_; // = 3 candidates per zone
   const int max_zn = max_z * max_n;   // = 12 total candidates
   if (not (maxTracks_ <= max_zn))
@@ -108,7 +108,7 @@ void BestTrackSelection::cancel_one_bx(
 	  { edm::LogError("L1T") << "conv_hit.Valid() = " << conv_hit.Valid(); return; }
 
         // A segment identifier (chamber, strip, bx)
-        const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), 0}};  // FW doesn't check whether a segment is CSC or RPC
+        const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), (conv_hit.PC_segment() % 2), 0}};  // FW doesn't check whether a segment is CSC or RPC
         //int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
         //chamber_index     += conv_hit.PC_station()*9;
         //chamber_index     += conv_hit.PC_chamber();
@@ -259,7 +259,7 @@ void BestTrackSelection::cancel_multi_bx(
     EMTFTrackCollection& best_tracks
 ) const {
   const int max_h = bxWindow_;        // = 3 bx history
-  const int max_z = emtf::NUM_ZONES;        // = 4 zones
+  const int max_z = emtf::NUM_ZONES;  // = 4 zones
   const int max_n = maxRoadsPerZone_; // = 3 candidates per zone
   const int max_zn = max_z * max_n;   // = 12 total candidates
   const int max_hzn = max_h * max_zn; // = 36 total candidates
@@ -318,7 +318,7 @@ void BestTrackSelection::cancel_multi_bx(
           // sector, then RPC hit may "trump" a CSC hit, or vice versa.
 
           // A segment identifier (chamber, strip, bx)
-          const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), conv_hit.Strip(), conv_hit.BX()}};  // FW doesn't check whether a segment is CSC or RPC
+          const segment_ref_t segment = {{conv_hit.PC_station()*9 + conv_hit.PC_chamber(), (conv_hit.PC_segment() % 2), conv_hit.BX()}};  // FW doesn't check whether a segment is CSC or RPC
           //int chamber_index  = int(conv_hit.Subsystem() == TriggerPrimitive::kRPC)*9*5;
           //chamber_index     += conv_hit.PC_station()*9;
           //chamber_index     += conv_hit.PC_chamber();

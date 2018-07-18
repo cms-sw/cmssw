@@ -11,6 +11,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class Alignable;
 class AlignableDet;
@@ -34,7 +35,7 @@ public:
   explicit AlignableNavigator(AlignableExtras* extras, Alignable* tracker, Alignable* muon = nullptr);
 
   /// Constructor from list of Alignbable
-  explicit AlignableNavigator( const std::vector<Alignable*>& alignables );
+  explicit AlignableNavigator(const align::Alignables&);
 
   typedef std::map<DetId, AlignableDetOrUnitPtr> MapType;
   typedef MapType::value_type PairType;

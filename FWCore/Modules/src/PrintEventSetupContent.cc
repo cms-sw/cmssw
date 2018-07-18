@@ -129,9 +129,9 @@ namespace edm {
     for(Records::iterator itrecords = records.begin(), itrecordsend = records.end();
        itrecords != itrecordsend; ++itrecords ) {
 
-      eventsetup::EventSetupRecord const* rec = iSetup.find(*itrecords);
+      auto rec = iSetup.find(*itrecords);
 
-      if (nullptr != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
+      if (rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
         cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
         rec->fillRegisteredDataKeys(data);
         if (compact_) {

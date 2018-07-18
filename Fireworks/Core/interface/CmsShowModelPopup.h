@@ -38,6 +38,7 @@ class FWSelectionManager;
 class FWColorManager;
 //class FWModelId;
 class FWColorSelect;
+class TGCheckButton;
 class TGLabel;
 class TGTextButton;
 class TGTextButton;

@@ -37,7 +37,8 @@ namespace edm {
   class ModuleCallingContext;
   class ActivityRegistry;
   class WaitingTask;
-  
+  class WaitingTaskWithArenaHolder;
+
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -67,10 +68,16 @@ namespace edm {
       EDFilterAdaptorBase(const EDFilterAdaptorBase&) =delete; // stop default
       
       const EDFilterAdaptorBase& operator=(const EDFilterAdaptorBase&) =delete; // stop default
-      
-      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+
+      bool doEvent(EventPrincipal const&, EventSetup const&,
                    ActivityRegistry*,
-                   ModuleCallingContext const*) ;
+                   ModuleCallingContext const*);
+
+      void doAcquire(EventPrincipal const&, EventSetup const&,
+                     ActivityRegistry*,
+                     ModuleCallingContext const*,
+                     WaitingTaskWithArenaHolder&);
+
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
 

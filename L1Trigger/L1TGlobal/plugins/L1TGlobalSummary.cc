@@ -106,48 +106,47 @@ void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup){
   gtUtil_->retrieveL1Setup(evSetup);
 
   int size = gtUtil_->decisionsInitial().size();
-  decisionCount_  .resize(size);
-  intermCount_ .resize(size);
-  finalCount_     .resize(size);
-  std::fill(decisionCount_.begin(),  decisionCount_.end(),  0);
-  std::fill(intermCount_.begin(), intermCount_.end(), 0);
-  std::fill(finalCount_.begin(),     finalCount_.end(),     0);
-
+  decisionCount_.resize(size);
+  intermCount_  .resize(size);
+  finalCount_   .resize(size);
+  std::fill(decisionCount_.begin(), decisionCount_.end(), 0);
+  std::fill(intermCount_.begin(),   intermCount_.end(),   0);
+  std::fill(finalCount_.begin(),    finalCount_.end(),    0);
 }
 
 void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
 
-  if(dumpTriggerSummary_) {
+  if (dumpTriggerSummary_) {
+    LogVerbatim out("L1TGlobalSummary");
+    if (gtUtil_->valid()) {
+      out << "==================  L1 Trigger Report  =====================================================================\n";
+      out << '\n';
+      out << " L1T menu Name   : " << gtUtil_->gtTriggerMenuName() << '\n';
+      out << " L1T menu Version: " << gtUtil_->gtTriggerMenuVersion() << '\n';
+      out << " L1T menu Comment: " << gtUtil_->gtTriggerMenuComment() << '\n';
+      out << '\n';
+      out << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Num Bx Masked\n";
+      out << "============================================================================================================\n";
+      auto const& prescales = gtUtil_->prescales();
+      auto const& masks = gtUtil_->masks();
+      for (unsigned int i = 0; i < prescales.size(); i++) {
+        // get the prescale and mask (needs some error checking here)
+        int resultInit = decisionCount_[i];
+        int resultPre = intermCount_[i];
+        int resultFin = finalCount_[i];
 
-    const std::vector<std::pair<std::string, int> >  prescales = gtUtil_->prescales();
-    const std::vector<std::pair<std::string, std::vector<int> > > masks = gtUtil_->masks();
-
-    // Dump the results
-    LogVerbatim("L1TGlobalSummary") << " " << "\n\n";
-    LogVerbatim("L1TGlobalSummary") << " =================  L1 Trigger Report  =====================================================================" << endl;
-    LogVerbatim("L1TGlobalSummary") << " " << endl;
-    LogVerbatim("L1TGlobalSummary") << " L1T menu Name   : " << gtUtil_->gtTriggerMenuName() << endl;
-    LogVerbatim("L1TGlobalSummary") << " L1T menu Version: " << gtUtil_->gtTriggerMenuVersion() << endl;
-    LogVerbatim("L1TGlobalSummary") << " L1T menu Comment: " << gtUtil_->gtTriggerMenuComment() << endl;
-    LogVerbatim("L1TGlobalSummary") << " " << endl;
-    LogVerbatim("L1TGlobalSummary") << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Num Bx Masked" << endl;
-    LogVerbatim("L1TGlobalSummary") << "============================================================================================================" << endl;
-    for(unsigned int i=0; i<prescales.size(); i++) {
-
-
-      // get the prescale and mask (needs some error checking here)
-      int resultInit = decisionCount_[i];
-      int resultPre = intermCount_[i];
-      int resultFin = finalCount_[i];
-
-      std::string name = (prescales.at(i)).first;
-      int prescale = (prescales.at(i)).second;
-      std::vector<int> mask    = (masks.at(i)).second;
-
-      if(name != "NULL") LogVerbatim("L1TGlobalSummary") << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask.size() << setw(9) << endl;
+        auto const& name = prescales.at(i).first;
+        if (name != "NULL") {
+          int prescale = prescales.at(i).second;
+          auto const& mask = masks.at(i).second;
+          out << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask.size() << '\n';
+        }
+      }
+      out << "                                                      Final OR Count = " << finalOrCount << '\n';
+      out << "============================================================================================================\n";
+    } else {
+      out << "==================  No Level-1 Trigger menu  ===============================================================\n";
     }
-    LogVerbatim("L1TGlobalSummary") << "                                                      Final OR Count = " << finalOrCount <<endl;
-    LogVerbatim("L1TGlobalSummary") << "===========================================================================================================" << endl;
   }
 
 }

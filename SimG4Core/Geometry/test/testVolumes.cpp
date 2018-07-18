@@ -3,11 +3,8 @@
 
 #include <DetectorDescription/Core/src/Box.h>
 #include <DetectorDescription/Core/src/Cons.h>
-#include <DetectorDescription/Core/src/Ellipsoid.h>
 #include <DetectorDescription/Core/src/EllipticalTube.h>
 #include <DetectorDescription/Core/src/ExtrudedPolygon.h>
-#include <DetectorDescription/Core/src/Orb.h>
-#include <DetectorDescription/Core/src/Parallelepiped.h>
 #include <DetectorDescription/Core/src/Polycone.h>
 #include <DetectorDescription/Core/src/Polyhedra.h>
 #include <DetectorDescription/Core/src/Sphere.h>
@@ -116,30 +113,6 @@ doCons( const std::string& name,
 }
 
 //
-// 4. Parallelepiped:
-//
-// G4Para(const G4String& pName,                                  
-//        G4double   dx,
-//        G4double   dy,
-//        G4double   dz,
-//        G4double   alpha,
-//        G4double   theta,
-//        G4double   phi)
-void
-doPara( const std::string& name, double xHalf, double yHalf, 
-	double zHalf, double alpha, double theta, double phi )
-{
-  G4Para g4(name, xHalf, yHalf, zHalf, alpha, theta, phi );
-  DDI::Parallelepiped dd( xHalf, yHalf, zHalf, alpha, theta, phi );
-  DDParallelepiped dds = DDSolidFactory::parallelepiped( name, xHalf, yHalf, zHalf, alpha, theta, phi );
-  dd.stream( std::cout );
-  std::cout << std::endl;
-  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
-  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
-}
-
-//
 // 5. Trapezoid:
 //
 // G4Trd(const G4String& pName,                            
@@ -224,29 +197,6 @@ doSphere( const std::string& name, double innerRadius, double outerRadius,
   std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
-}
-
-//
-// 8. Full Solid Sphere:
-//
-// G4Orb(const G4String& pName,                                   
-//       G4double  pRmax)
-void
-doOrb( const std::string& name, double radius )
-{  
-  G4Orb g4(name,radius);
-  DDI::Orb dd(radius);
-  DDI::Sphere dds(0.*deg, radius, 0.*deg, 360.*deg, 0., 180.*deg);
-  DDOrb ddo = DDSolidFactory::orb(name, radius);
-  dd.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
-  std::cout << "\tDD Information: " << ddo << " vol= " << ddo.volume() << std::endl;
-  std::cout << "\tcross check sphere " << std::endl;
-  dds.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tsphere volume = " << dds.volume()/cm3 << " cm3" << std::endl;
 }
 
 //
@@ -398,29 +348,6 @@ doEllipticalTube( const std::string& name, double xSemiaxis, double ySemiAxis, d
   std::cout << "\tcalc volume = " << 2 * zHeight * Geom::pi() * ySemiAxis*xSemiaxis / cm3 << " cm3 " <<std::endl;
   std::cout << "\tDD Information: ";
   std::cout << ddet << " vol= " << ddet.volume() << std::endl;
-}
-
-//
-// 13. General Ellipsoid:
-//
-// G4Ellipsoid(const G4String& pName,                   
-// 	       G4double  pxSemiAxis,
-// 	       G4double  pySemiAxis,
-// 	       G4double  pzSemiAxis,
-// 	       G4double  pzBottomCut=0,
-// 	       G4double  pzTopCut=0)
-void
-doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis, 
-	     double zSemiAxis, double zBottomCut, double zTopCut )
-{  
-  G4Ellipsoid g4(name,xSemiAxis,ySemiAxis,zSemiAxis,zBottomCut, zTopCut);
-  DDI::Ellipsoid dd(xSemiAxis,ySemiAxis,zSemiAxis,zBottomCut, zTopCut);
-  DDEllipsoid dde = DDSolidFactory::ellipsoid(name, xSemiAxis, ySemiAxis, zSemiAxis, zBottomCut, zTopCut);
-  dd.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
-  std::cout << "\tDD Information: " << dde << " vol= " << dde.volume() << std::endl;
 }
 
 //
@@ -636,13 +563,6 @@ main( int argc, char *argv[] )
   std::cout << std::endl;
 
 //
-// 4. Parallelepiped:
-//
-  std::cout << "\n\nParallelepiped tests\n" << std::endl;
-  std::cout << "This next should be the same as a xhalf=5cm, yhalf=6cm, zhalf=7cm, alpha=15deg, theta=30deg, phi=45deg" << std::endl;
-  doPara("fred1", 5.*cm, 6.*cm, 7.*cm, 15*deg, 30*deg, 45*deg);
-
-//
 // 5. Trapezoid:
 //
   std::cout << "\n\nTrapezoid tests\n" << std::endl;
@@ -700,13 +620,6 @@ main( int argc, char *argv[] )
   doSphere("fred1", 2.0*cm, 3.0*cm, 0.*deg, 360.*deg, 75.*deg, 30.*deg);
 
 //
-// 8. Full Solid Sphere:
-//
-  std::cout << "\n\nOrb\n" << std::endl;
-  std::cout << "This next should be the same as a 2cm ball (also the sphere above): " << std::endl;
-  doOrb("fred1", 2.0*cm);
-  
-//
 // 9. Torus:
 //
   std::cout << "\n\nTorus tests\n" << std::endl;
@@ -762,19 +675,6 @@ main( int argc, char *argv[] )
   ySemiAxis = 400.* cm;
   zHeight = 3000. * cm;
   doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
-
-//
-// 13. General Ellipsoid:
-//
-  std::cout << "\n\nEllipsoid tests\n" << std::endl;
-  std::cout << "This next should be the same as a x = 3cm; y = 2cm; and z = 5cm " << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, 0.*cm, 0.*cm);
-  std::cout << "\nThis one has a top cut off at z=1cm  and should be half of the above + some bit." << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, 0.*cm, 1.*cm);
-  std::cout << "\nThis has a bottom cut off at z= -1cm  and should be the same as the above (symmetric)" << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, -1.*cm, 0.*cm);
-  std::cout << "\nThis has a bottom cut off at z= -1cm  and top cut at z=1cm and should be smaller (just the fat bit around the middle)." << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, -1.*cm, 1.*cm);
 
 //
 // 14. Cone with Elliptical Cross Section:

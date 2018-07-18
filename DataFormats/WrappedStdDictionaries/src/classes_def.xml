@@ -47,6 +47,7 @@
  <class name="edm::Wrapper<std::vector<unsigned long long> >"/>
  <class name="edm::Wrapper<std::vector<unsigned short> >"/>
  <class name="edm::Wrapper<std::vector<std::pair<int,int>>>"/>
+ <class name="edm::Wrapper<std::vector<std::pair<unsigned int,float>>>"/>
  <class name="edm::Wrapper<unsigned char>"/>
  <class name="edm::Wrapper<unsigned int>"/>
  <class name="edm::Wrapper<unsigned long>"/>

@@ -1,6 +1,8 @@
 #ifndef RctDataDecoder_hh
 #define RctDataDecoder_hh
 
+#include <cstdint>
+#include <vector>
 #include "EventFilter/RctRawToDigi/src/RCTInfo.hh"
 
 /*

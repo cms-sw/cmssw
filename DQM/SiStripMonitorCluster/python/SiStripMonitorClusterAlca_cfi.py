@@ -28,7 +28,7 @@ SiStripCalZeroBiasMonitorCluster.PixelDCSfilter = cms.PSet()
 SiStripCalZeroBiasMonitorCluster.StripDCSfilter = cms.PSet()
 
 SiStripCalZeroBiasMonitorCluster.CreateTrendMEs = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.TrendVsLS = cms.bool(True)
+SiStripCalZeroBiasMonitorCluster.TrendVs10LS = cms.bool(False)
 SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise = cms.PSet(
     Nbinx          = cms.int32(20),
     xmin           = cms.double(-0.5),

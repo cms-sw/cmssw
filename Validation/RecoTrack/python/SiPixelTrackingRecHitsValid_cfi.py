@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelTrackingRecHitsValid = cms.EDAnalyzer("SiPixelTrackingRecHitsValid",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+PixelTrackingRecHitsValid = DQMEDAnalyzer('SiPixelTrackingRecHitsValid',
                                          src = cms.untracked.string('generalTracks'),
                                          runStandalone = cms.bool(False),
                                          outputFile = cms.untracked.string(''),
@@ -26,3 +27,8 @@ PixelTrackingRecHitsValid = cms.EDAnalyzer("SiPixelTrackingRecHitsValid",
                                          )
 
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(PixelTrackingRecHitsValid,
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
+)

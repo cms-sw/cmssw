@@ -2,6 +2,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 
 #include <vector>
 #include <iostream>
@@ -96,7 +97,7 @@ void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<CaloGeometry>& cal
         for(const auto& cell : cellIds)
         {
             HGCTriggerDetId cellId(cell);
-            triggercellVector += eeGeometry().getPosition(cellId).basicVector();
+            triggercellVector += eeGeometry()->getPosition(cellId).basicVector();
         }
         GlobalPoint triggercellPoint( triggercellVector/cellIds.size() );
         const auto& tc2mItr = trigger_cells_to_modules_.find(triggercellId);

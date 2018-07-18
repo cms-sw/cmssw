@@ -12,7 +12,7 @@ struct CSCDMBHeader2005: public CSCVDMBHeaderFormat  {
   
   CSCDMBHeader2005();
   
-  CSCDMBHeader2005(unsigned short * buf);
+  CSCDMBHeader2005(const uint16_t * buf);
 /*
   CSCDMBHeader2005(const CSCDMBStatusDigi & digi)
     {

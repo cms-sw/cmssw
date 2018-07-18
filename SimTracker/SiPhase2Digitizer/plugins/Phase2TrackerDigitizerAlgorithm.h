@@ -44,14 +44,12 @@ class TrackerTopology;
 
 class Phase2TrackerDigitizerAlgorithm  {
  public:
-  Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, const edm::ParameterSet& conf_specific, CLHEP::HepRandomEngine&);
+  Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, const edm::ParameterSet& conf_specific);
   virtual ~Phase2TrackerDigitizerAlgorithm(); 
 
   // initialization that cannot be done in the constructor
   virtual void init(const edm::EventSetup& es) = 0;
-  virtual void initializeEvent() {
-    _signal.clear();
-  }
+  virtual void initializeEvent(CLHEP::HepRandomEngine& eng);
   // run the algorithm to digitize a single det
   virtual void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
 				 const std::vector<PSimHit>::const_iterator inputEnd,
@@ -63,6 +61,8 @@ class Phase2TrackerDigitizerAlgorithm  {
 		       std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
 		       const TrackerTopology* tTopo);
 
+  // For premixing
+  void loadAccumulator(unsigned int detId, const std::map<int, float>& accumulator);
  protected:
   // Accessing Lorentz angle from DB:
   edm::ESHandle<SiPixelLorentzAngle> SiPixelLorentzAngle_;
@@ -200,12 +200,11 @@ class Phase2TrackerDigitizerAlgorithm  {
   const SubdetEfficiencies subdetEfficiencies_;
   
   // For random numbers
-  const std::unique_ptr<CLHEP::RandFlat> flatDistribution_;
-  const std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution_;
+  std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution_;
   
   // Threshold gaussian smearing:
-  const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_Endcap_;
-  const std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_Barrel_;
+  std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_Endcap_;
+  std::unique_ptr<CLHEP::RandGaussQ> smearedThreshold_Barrel_;
   
   //for engine passed into the constructor from Digitizer
   CLHEP::HepRandomEngine* rengine_;   

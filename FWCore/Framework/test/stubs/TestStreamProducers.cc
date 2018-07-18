@@ -346,6 +346,7 @@ struct UnsafeCache {
   class LumiSummaryIntProducer : public edm::stream::EDProducer<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<UnsafeCache>> {
   public:
     static std::atomic<unsigned int> m_count;
+    static std::atomic<unsigned int> m_lumiSumCalls;
     unsigned int trans_;
     static std::atomic<unsigned int> cvalue_;
     static std::atomic<bool> gbl;
@@ -400,10 +401,12 @@ struct UnsafeCache {
 
 
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, UnsafeCache* gCache) const override {
+      ++m_lumiSumCalls;
       bls=false;
       els=true;
-      gCache->value += luminosityBlockCache()->value;
-      luminosityBlockCache()->value = 0;
+      //This routine could be called at the same time as another stream is calling produce so must do the change atomically
+      auto v = luminosityBlockCache()->value.exchange(0);
+      gCache->value += v;
       if ( el ) {
         throw cms::Exception("end out of sequence")
           << "endLuminosityBlock seen before endLuminosityBlockSummary";
@@ -412,6 +415,7 @@ struct UnsafeCache {
     
    static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, UnsafeCache* gCache) {
      ++m_count;
+     auto nLumis =m_lumiSumCalls.load();
      gbls=false;
      gels=true;
       if ( !els ) {
@@ -420,7 +424,7 @@ struct UnsafeCache {
       }
      if ( gCache->value != cvalue_) {
         throw cms::Exception("cache value")
-          << gCache->value << " but it was supposed to be " << cvalue_;
+       << gCache->value << " but it was supposed to be " << cvalue_<<" endLumiBlockSummary called "<<nLumis;
      }
    }
 
@@ -465,6 +469,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     static std::shared_ptr<bool> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
@@ -529,6 +534,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -578,6 +584,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -634,6 +641,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -671,8 +679,41 @@ struct UnsafeCache {
     }
   };
 
+  struct Count {
+    Count() : m_value(0), m_expectedValue(0) {}
+    //Using mutable since we want to update the value.
+    mutable std::atomic<unsigned int> m_value;
+    mutable std::atomic<unsigned int> m_expectedValue;
+  };
 
-   
+  class TestAccumulator : public edm::stream::EDProducer<edm::GlobalCache<Count>, edm::Accumulator> {
+  public:
+
+
+    static std::atomic<unsigned int> m_expectedCount;
+
+    explicit TestAccumulator(edm::ParameterSet const& p, Count const* iCount) {
+      iCount->m_expectedValue = p.getParameter<unsigned int>("expectedCount");
+    }
+
+    static std::unique_ptr<Count> initializeGlobalCache(edm::ParameterSet const&) {
+      return std::unique_ptr<Count>(new Count());
+    }
+
+    void accumulate(edm::Event const&, edm::EventSetup const&) override {
+      ++(globalCache()->m_value);
+    }
+
+    static void globalEndJob(Count const* iCount) {
+      if (iCount->m_value != iCount->m_expectedValue) {
+        throw cms::Exception("CountEvents")
+          << "Number of events seen = " << iCount->m_value << " but it was supposed to be " << iCount->m_expectedValue;
+      }
+    }
+
+    ~TestAccumulator() {
+    }
+  };
 
 }
 }
@@ -708,6 +749,7 @@ std::atomic<bool> edmtest::stream::RunSummaryIntProducer::brs{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntProducer::ers{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntProducer::br{false};
 std::atomic<bool> edmtest::stream::RunSummaryIntProducer::er{false};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntProducer::m_lumiSumCalls{0};
 std::atomic<bool> edmtest::stream::LumiSummaryIntProducer::gbl{false};
 std::atomic<bool> edmtest::stream::LumiSummaryIntProducer::gel{false};
 std::atomic<bool> edmtest::stream::LumiSummaryIntProducer::gbls{false};
@@ -737,4 +779,5 @@ DEFINE_FWK_MODULE(edmtest::stream::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::stream::TestEndLumiBlockProducer);
+DEFINE_FWK_MODULE(edmtest::stream::TestAccumulator);
 

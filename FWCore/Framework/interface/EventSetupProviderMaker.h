@@ -6,13 +6,14 @@
 
 // forward declarations
 namespace edm {
+  class ActivityRegistry;
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupsController;
 
     std::unique_ptr<EventSetupProvider>
-    makeEventSetupProvider(ParameterSet const& params, unsigned subProcessIndex);
+    makeEventSetupProvider(ParameterSet const& params, unsigned subProcessIndex, ActivityRegistry*);
 
     void
     fillEventSetupProvider(EventSetupsController& esController,

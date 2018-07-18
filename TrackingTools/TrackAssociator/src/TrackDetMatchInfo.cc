@@ -16,9 +16,9 @@
 
 std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
 {
-   if ( ! caloGeometry.isValid() || 
+   if ( ! caloGeometry || 
 	! caloGeometry->getSubdetectorGeometry(id) ||
-	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
+	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)) {
       throw cms::Exception("FatalError")  << "Failed to access geometry for DetId: " << id.rawId();
    }
    std::ostringstream oss;
@@ -34,7 +34,7 @@ std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
 GlobalPoint TrackDetMatchInfo::getPosition( const DetId& id)
 {
    // this part might be slow
-   if ( ! caloGeometry.isValid() || 
+   if ( ! caloGeometry || 
 	! caloGeometry->getSubdetectorGeometry(id) ||
 	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
       throw cms::Exception("FatalError") << "Failed to access geometry for DetId: " << id.rawId();

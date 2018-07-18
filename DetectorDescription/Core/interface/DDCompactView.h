@@ -1,5 +1,5 @@
-#ifndef DDCompactView_h
-#define DDCompactView_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_H
+#define DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_H
 
 #include <cstddef>
 #include <memory>
@@ -19,8 +19,6 @@
 class DDCompactViewImpl;
 class DDDivision;
 class DDName;
-class DDPartSelector;
-class DDPhysicalPart;
 struct DDPosData;
 
 namespace DDI {
@@ -29,7 +27,6 @@ namespace DDI {
   class Solid;
   class Specific;
 }
-
 
 /**
   Navigation through the compact view of the detector ...
@@ -48,10 +45,6 @@ Updated: Michael Case [ MEC ] 2010-02-11
 //FIXME:
 //FIXME:    THIS IS NOT ALLOWED, but currently can be specified using DDL ....
 //FIXME:
-
-//typedef TreeNode<DDPhysicalPart,int> expnode_t;
-//! type of data representation of DDCompactView
-//typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
 
 //! Compact representation of the geometrical detector hierarchy
 /** A DDCompactView represents the detector as an acyclic directed multigraph.
@@ -88,24 +81,11 @@ MEC:
     these will be accessed via the DDCompactView.
 */
 class DDCompactView
-{
- 
+{ 
 public:
-  //! container-type of children of a given node in the compact-view
-  typedef std::vector<DDLogicalPart> logchild_type;
+  using Graph = math::Graph<DDLogicalPart, DDPosData* >;
+  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData* >;
   
-  //! container-type of pairs of children nodes and their relative position data of a given node in the compact-view
-  typedef std::vector< std::pair<DDLogicalPart,DDPosData*> > poschildren_type;
-  
-  //! pair ...
-  typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
-  
-  typedef math::GraphWalker<DDLogicalPart,DDPosData*> walker_type;
-  
-  //! type of representation of the compact-view (acyclic directed multigraph)
-  /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef math::Graph<DDLogicalPart,DDPosData*> graph_type;
-    
   //! Creates a compact-view 
   explicit DDCompactView();
   
@@ -115,16 +95,14 @@ public:
   ~DDCompactView();
   
   //! Provides read-only access to the data structure of the compact-view.
-  const graph_type & graph() const;
+  const Graph & graph() const;
+  GraphWalker walker() const;
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
   
   //! The absolute position of the world
   const DDPosData * worldPosition() const;
-
-  //! Prototype version of calculating the weight of a detector component
-  double weight(const DDLogicalPart & p) const;
 
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
@@ -147,15 +125,9 @@ public:
   //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
 
-  //! \b dont't \b use ! Proper implementation missing ...
-  walker_type walker() const;
-
   // ---------------------------------------------------------------
   // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
     
-  // to modify the structure! DDCore internal!
-  graph_type & writeableGraph();
-
   void swap( DDCompactView& );
 
   void lockdown();
@@ -164,16 +136,11 @@ public:
   std::unique_ptr<DDCompactViewImpl> rep_;
   std::unique_ptr<DDPosData> worldpos_ ;
   
-    // 2010-01-27 memory patch
-    // for copying and protecting DD Store's after parsing is complete.
-    DDI::Store<DDName, DDI::Material*> matStore_;
-    DDI::Store<DDName, DDI::Solid*> solidStore_;
-    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
-    DDI::Store<DDName, DDI::Specific*> specStore_;
-    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
-
+  DDI::Store<DDName, DDI::Material*> matStore_;
+  DDI::Store<DDName, DDI::Solid*> solidStore_;
+  DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
+  DDI::Store<DDName, DDI::Specific*> specStore_;
+  DDI::Store<DDName, DDRotationMatrix*> rotStore_;
 };
 
-//! global type for a compact-view walker
-typedef DDCompactView::walker_type walker_type;
 #endif

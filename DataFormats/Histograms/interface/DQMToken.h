@@ -25,5 +25,4 @@ class DQMToken
       DQMToken() {}
 };
 
-
 #endif

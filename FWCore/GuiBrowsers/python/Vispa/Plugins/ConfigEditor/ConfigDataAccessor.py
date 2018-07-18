@@ -12,6 +12,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
 import FWCore.ParameterSet.Types as typ
 
+import six
 imported_configs = {}
 file_dict = {}
 
@@ -118,7 +119,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             if self._cancelOperationsFlag:
                 break
             try:
-                if (not connection in checkedObjects) and (not self._connections.has_key(connection)):
+                if (not connection in checkedObjects) and (connection not in self._connections):
                     checkedObjects.add(connection)
                     for key, value in self.inputTags(connection[1]):
                         s = str(value)
@@ -130,12 +131,12 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                         if module == self.label(connection[0]):
                             product = ".".join(str(value).split(":")[1:])
                             self._connections[connection]=(product, key)
-                if self._connections.has_key(connection):
+                if connection in self._connections:
                     connections[connection]=self._connections[connection]
-                    if not self._motherRelationsDict.has_key(connection[1]):
+                    if connection[1] not in self._motherRelationsDict:
                         self._motherRelationsDict[connection[1]]=[]
                     self._motherRelationsDict[connection[1]]+=[connection[0]]
-                    if not self._daughterRelationsDict.has_key(connection[0]):
+                    if connection[0] not in self._daughterRelationsDict:
                         self._daughterRelationsDict[connection[0]]=[]
                     self._daughterRelationsDict[connection[0]]+=[connection[1]]
             except TypeError:
@@ -177,12 +178,12 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             del imported_configs[i]
         
 # make dictionary that connects every cms-object with the file in which it is defined
-        for j in imported_configs.itervalues():
+        for j in six.itervalues(imported_configs):
           setj = set(dir(j))
           for entry in setj:
               if entry[0] != "_" and entry != "cms":
                 source = 1
-                for k in imported_configs.itervalues():
+                for k in six.itervalues(imported_configs):
                     if hasattr(k, entry):
                       setk = set(dir(k))
                       if len(setk) < len(setj) and setk < setj:
@@ -236,8 +237,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if self.process().schedule != None:
             folder_list += [("paths", self.process().schedule)]
         else:
-            folder_list += [("paths", self.process().paths.itervalues())]
-        folder_list += [("endpaths", self.process().endpaths.itervalues())]
+            folder_list += [("paths", six.itervalues(self.process().paths))]
+        folder_list += [("endpaths", six.itervalues(self.process().endpaths))]
         folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
         folder_list += [("services", self._sort_list(self.process().services.values()))]
         folder_list += [("psets", self._sort_list(self.process().psets.values()))]
@@ -459,7 +460,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         """ Add alls inputtags of value to a list """
         if isinstance(value, cms.VInputTag):
             for i in range(len(value)):
-                if type(value[i])==str:
+                if isinstance(value[i], str):
                     self._addInputTag(cms.InputTag(value[i]), this_key+"["+str(i)+"]", this_inputtags)
                 else:
                     self._addInputTag(value[i], this_key+"["+str(i)+"]", this_inputtags)

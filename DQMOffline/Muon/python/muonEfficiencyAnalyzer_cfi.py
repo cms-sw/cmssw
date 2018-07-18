@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-TightMuonEfficiencyAnalyzer = cms.EDAnalyzer("EfficiencyAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+TightMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              MuonServiceProxy,
                                              MuonCollection  = cms.InputTag("muons"),
                                              TrackCollection = cms.InputTag("generalTracks"),
@@ -30,7 +31,7 @@ TightMuonEfficiencyAnalyzer = cms.EDAnalyzer("EfficiencyAnalyzer",
                                              ID = cms.string("Tight"),
                                              folder = cms.string("Muons/EfficiencyAnalyzer/")
                                              )
-TightMuonEfficiencyAnalyzer_miniAOD = cms.EDAnalyzer("EfficiencyAnalyzer",
+TightMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      MuonServiceProxy,
                                                      MuonCollection  = cms.InputTag("slimmedMuons"),
                                                      TrackCollection = cms.InputTag("generalTracks"),
@@ -60,7 +61,7 @@ TightMuonEfficiencyAnalyzer_miniAOD = cms.EDAnalyzer("EfficiencyAnalyzer",
                                                      )
 
 
-LooseMuonEfficiencyAnalyzer = cms.EDAnalyzer("EfficiencyAnalyzer",
+LooseMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                              MuonServiceProxy,
                                              MuonCollection  = cms.InputTag("muons"),
                                              TrackCollection = cms.InputTag("generalTracks"),
@@ -89,7 +90,7 @@ LooseMuonEfficiencyAnalyzer = cms.EDAnalyzer("EfficiencyAnalyzer",
                                              folder = cms.string("Muons/EfficiencyAnalyzer/")
                                              
                                              )
-LooseMuonEfficiencyAnalyzer_miniAOD = cms.EDAnalyzer("EfficiencyAnalyzer",
+LooseMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                      MuonServiceProxy,
                                                      MuonCollection  = cms.InputTag("slimmedMuons"),
                                                      TrackCollection = cms.InputTag("generalTracks"),
@@ -120,7 +121,7 @@ LooseMuonEfficiencyAnalyzer_miniAOD = cms.EDAnalyzer("EfficiencyAnalyzer",
                                                      )
 
 
-MediumMuonEfficiencyAnalyzer = cms.EDAnalyzer("EfficiencyAnalyzer",
+MediumMuonEfficiencyAnalyzer = DQMEDAnalyzer('EfficiencyAnalyzer',
                                               MuonServiceProxy,
                                               MuonCollection  = cms.InputTag("muons"),
                                               TrackCollection = cms.InputTag("generalTracks"),
@@ -148,7 +149,7 @@ MediumMuonEfficiencyAnalyzer = cms.EDAnalyzer("EfficiencyAnalyzer",
                                               ID = cms.string("Medium"),
                                               folder = cms.string("Muons/EfficiencyAnalyzer/")
                                               )
-MediumMuonEfficiencyAnalyzer_miniAOD = cms.EDAnalyzer("EfficiencyAnalyzer",
+MediumMuonEfficiencyAnalyzer_miniAOD = DQMEDAnalyzer('EfficiencyAnalyzer',
                                                       MuonServiceProxy,
                                                       MuonCollection  = cms.InputTag("slimmedMuons"),
                                                       TrackCollection = cms.InputTag("generalTracks"),

@@ -4,7 +4,10 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/Records"/>
 <bin file="HcalShapeIntegrator.cpp"/>
-<bin file="HcalPulseContainmentTest.cpp"/>
 <library name="MapTester" file="MapTester.cc">
     <flags EDM_PLUGIN="1"/>
 </library>
+<bin   name="testHcalPulseContainmentTest" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash CalibCalorimetry/HcalAlgos/test HcalPulseContainmentTest.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>

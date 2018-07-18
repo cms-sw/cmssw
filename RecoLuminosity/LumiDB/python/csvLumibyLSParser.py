@@ -89,7 +89,7 @@ class csvLumibyLSParser(object):
 #        '''
 #        return self.__strresult
     def numruns(self):
-        return len(self.__result.keys())
+        return len(self.__result)
     def numls(self,run):
         return len(self.__result[run])
         

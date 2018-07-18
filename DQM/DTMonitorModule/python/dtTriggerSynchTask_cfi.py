@@ -1,11 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerSynchMonitor = cms.EDAnalyzer("DTLocalTriggerSynchTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtTriggerSynchMonitor = DQMEDAnalyzer('DTLocalTriggerSynchTask',
     staticBooking = cms.untracked.bool(True),
     # labels of DDU/TM data and 4D segments
     TMInputTag    = cms.InputTag('dttfDigis'),
     DDUInputTag    = cms.InputTag('muonDTDigis'),
     SEGInputTag    = cms.InputTag('dt4DSegments'),
+    processDDU     = cms.untracked.bool(True),
     bxTimeInterval = cms.double(25),
     rangeWithinBX  = cms.bool(True),
     nBXHigh        = cms.int32(0),
@@ -25,5 +27,9 @@ dtTriggerSynchMonitor = cms.EDAnalyzer("DTLocalTriggerSynchTask",
     ),
     tTrigMode = cms.string('DTTTrigSyncFromDB')
 )
+
+from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
+run2_DT_2018.toModify(dtTriggerSynchMonitor,processDDU = False)
+
 
 

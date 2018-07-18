@@ -42,12 +42,12 @@ public:
 
   ~JetCorrectionESProducer() override {}
 
-  std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord)
+  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord)
   {
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
     iRecord.get(mAlgo,JetCorParColl); 
     JetCorrectorParameters const& JetCorPar = (*JetCorParColl)[mLevel];
-    return std::make_shared<Corrector>(JetCorPar, mParameterSet);
+    return std::make_unique<Corrector>(JetCorPar, mParameterSet);
   }
 };
 #endif

@@ -9,6 +9,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include <vector>
 
 class RazorVarProducer : public edm::EDProducer {

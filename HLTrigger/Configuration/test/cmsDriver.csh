@@ -55,7 +55,8 @@ set NNPRRD = 20
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
 set EraRun2pp2016  = " --era=Run2_2016 "
-set EraRun2pp      = " --era=Run2_2017 "
+set EraRun2pp2017  = " --era=Run2_2017 "
+set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HImc    = " --era=Run2_HI "
 set EraRun2HIrd    = " --era=Run2_2016,Run2_HI "
  
@@ -110,7 +111,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2e34v22 2e34v31 2e34v40 )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 2018v22 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -120,7 +121,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( Fake Fake1 Fake2 )
+    set tables = ( Fake Fake1 Fake2 2018v22 )
   else
     set tables = ( $1 )
   endif
@@ -137,8 +138,8 @@ foreach gtag ( MC DATA )
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
+      set InputLHCRaw = $InputLHCRawGRun3
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == Fake ) then
@@ -177,40 +178,16 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
-    else if ( $table == 2e34v22 ) then
+    else if ( $table == 2018v22 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2e34v22
-      set GTAG = ${BASE2}_2e34v22
-      set RTAG = ${BASE2RD}_2e34v22
+      set XHLT = HLT:2018v22
+      set GTAG = ${BASE2}_2018v22
+      set RTAG = ${BASE2RD}_2018v22
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:Full
-    else if ( $table == 2e34v31 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:2e34v31
-      set GTAG = ${BASE2}_2e34v31
-      set RTAG = ${BASE2RD}_2e34v31
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun3
-      set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:Full
-    else if ( $table == 2e34v40 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:2e34v40
-      set GTAG = ${BASE2}_2e34v40
-      set RTAG = ${BASE2RD}_2e34v40
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun3
-      set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
@@ -222,7 +199,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == HIon ) then
@@ -246,7 +223,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon3
       set InputLHCRaw = $InputLHCRawPIon3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == PRef ) then
@@ -258,7 +235,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2018
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else

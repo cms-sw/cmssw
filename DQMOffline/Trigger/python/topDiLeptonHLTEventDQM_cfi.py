@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-topDiLeptonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topDiLeptonHLTOfflineDQM = DQMEDAnalyzer('TopDiLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -136,7 +137,7 @@ topDiLeptonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
 
 
 
-DiMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
+DiMuonHLTOfflineDQM = DQMEDAnalyzer('TopDiLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -271,7 +272,7 @@ DiMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
   ),
 )
 
-DiElectronHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
+DiElectronHLTOfflineDQM = DQMEDAnalyzer('TopDiLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -409,7 +410,7 @@ DiElectronHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
   ),
 )
 
-ElecMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
+ElecMuonHLTOfflineDQM = DQMEDAnalyzer('TopDiLeptonHLTOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

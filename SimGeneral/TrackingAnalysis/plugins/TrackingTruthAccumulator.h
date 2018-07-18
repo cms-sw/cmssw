@@ -13,9 +13,7 @@ namespace edm
 {
 	class ParameterSet;
         class ConsumesCollector;
-  namespace stream {
-	class EDProducerBase;
-  }
+	class ProducerBase;
 	class Event;
 	class EventSetup;
         class StreamID;
@@ -75,7 +73,7 @@ class PSimHit;
 class TrackingTruthAccumulator : public DigiAccumulatorMixMod
 {
 public:
-	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+	explicit TrackingTruthAccumulator( const edm::ParameterSet& config, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
 private:
 	void initializeEvent( const edm::Event& event, const edm::EventSetup& setup ) override;
 	void accumulate( const edm::Event& event, const edm::EventSetup& setup ) override;

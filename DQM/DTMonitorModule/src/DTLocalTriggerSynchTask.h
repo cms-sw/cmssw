@@ -90,6 +90,7 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
 
   float bxTime;
   bool rangeInBX;
+  bool processDDU;
   int nBXLow;
   int nBXHigh;
   float angleRange;

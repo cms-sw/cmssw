@@ -20,7 +20,7 @@ public:
 
   int getGMTEta(int theta, int endcap) const;
 
-  int getGMTQuality(int mode, int theta, bool promoteMode7) const;
+  int getGMTQuality(int mode, int theta, bool promoteMode7, int version) const;
 
   std::pair<int,int> getGMTCharge(int mode, const std::vector<int>& phidiffs) const;
 

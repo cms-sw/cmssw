@@ -18,7 +18,15 @@ OutALCARECOEcalUncalElectron.outputCommands += cms.untracked.vstring(
     'drop recoSuperClusters_*_*_*',
     'drop recoPreshowerCluster*_*_*_*',
     'drop *EcalRecHit*_reducedEcalRecHitsES*_*_*',
-    'keep reco*Clusters_pfElectronTranslator_*_*'
+    'keep reco*Clusters_pfElectronTranslator_*_*',
+    'drop TrajectorysToOnerecoGsfTracksAssociation_electronGsfTracks_*_*',
+    'drop TrajectorysToOnerecoGsfTracksAssociation_uncleanedOnlyElectronGsfTracks_*_*',
+    'drop recoGsfElectronsrecoGsfElectronrecoGsfElectronsrecoGsfElectronedmrefhelperFindUsingAdvanceedmRefedmValueMap_gedGsfElectronsTmp_*_*',
+    'drop recoConversions_conversions_uncleanedConversions_*',
+    'drop recoGsfElectrons_gedGsfElectronsTmp_*_*',
+    'drop recoGsfTracks_uncleanedOnlyElectronGsfTracks_*_*',
+    'drop recoGsfTrackExtras_uncleanedOnlyElectronGsfTracks_*_*'
+
     )
 
 OutALCARECOEcalUncalElectron.SelectEvents = cms.untracked.PSet(

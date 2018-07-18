@@ -144,9 +144,9 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
   g4_simTk_Token_  = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   g4_simVtx_Token_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
   famos_simTk_Token_  = consumes<edm::SimTrackContainer>(
-      edm::InputTag("famosSimHits"));
+      edm::InputTag("fastSimProducer"));
   famos_simVtx_Token_ = consumes<edm::SimVertexContainer>(
-      edm::InputTag("famosSimHits"));
+      edm::InputTag("fastSimProducer"));
   hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   genjets_Token_ = consumes<reco::GenJetCollection>(
       edm::InputTag("ak4GenJets"));
@@ -3480,29 +3480,35 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	  if ( theConvTP_.size() < 2 )   continue;
 
-	  reco::RecoToSimCollection p1 =  trackAssociator->associateRecoToSim(tc1,theConvTP_);
-	  reco::RecoToSimCollection p2 =  trackAssociator->associateRecoToSim(tc2,theConvTP_);
+	  reco::RecoToSimCollection const& p1 =  trackAssociator->associateRecoToSim(tc1,theConvTP_);
+	  reco::RecoToSimCollection const& p2 =  trackAssociator->associateRecoToSim(tc2,theConvTP_);
 	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
-          try {
-            std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
-            std::vector<std::pair<TrackingParticleRef, double> > tp2 = p2[tk2];
 
-            if (!tp1.empty()&&!tp2.empty()) {
-              TrackingParticleRef tpr1 = tp1.front().first;
-              TrackingParticleRef tpr2 = tp2.front().first;
+          auto itP1 = p1.find(tk1);
+          auto itP2 = p2.find(tk2);
+          bool good = (itP1 != p1.end()) and (not itP1->val.empty()) and (itP2 != p2.end()) and (not itP2->val.empty());
+          if(not good) {
+            itP1 = p1.find(tk2);
+            itP2 = p2.find(tk1);
+            good = (itP1 != p1.end()) and (not itP1->val.empty()) and (itP2 != p2.end()) and (not itP2->val.empty());
+          }
+          if(good) {
+            std::vector<std::pair<TrackingParticleRef, double> > const& tp1 = itP1->val;
+            std::vector<std::pair<TrackingParticleRef, double> > const& tp2 = itP2->val;
 
-              if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11) {
-                if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
-                     (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
-                  if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
-                    nAssT2 = 2;
-                    break;
-                  }
+            TrackingParticleRef tpr1 = tp1.front().first;
+            TrackingParticleRef tpr2 = tp2.front().first;
+            
+            if (abs(tpr1->pdgId())==11&&abs(tpr2->pdgId())==11) {
+              if ( (tpr1->parentVertex()->sourceTracks_end()-tpr1->parentVertex()->sourceTracks_begin()==1) &&
+                   (tpr2->parentVertex()->sourceTracks_end()-tpr2->parentVertex()->sourceTracks_begin()==1)) {
+                if (tpr1->parentVertex().key()==tpr2->parentVertex().key() && ((*tpr1->parentVertex()->sourceTracks_begin())->pdgId()==22)) {
+                  nAssT2 = 2;
+                  break;
                 }
               }
             }
 
-	  } catch (Exception event) {
 	  }
 
 	} // end loop over simulated photons

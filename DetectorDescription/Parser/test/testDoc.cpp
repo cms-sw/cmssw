@@ -343,19 +343,6 @@ testSolids( void )
   std::cout << "\nz scale: ";
   for( auto i : zs )
     std::cout << i << ", ";
-  std::cout << std::endl;
-  std::cout << "multiunionsolid is a Multi Union solid:" << std::endl;
-  std::cout << DDSolid(DDName("multiunionsolid", "testSolids")) << std::endl;
-  std::cout << std::endl;
-  std::cout << "verify parameters interface\n";
-  DDMultiUnion multiUnion(DDSolid(DDName("multiunionsolid", "testSolids")));
-  std::cout << " Solids:\n";
-  for( auto s : multiUnion.solids())
-    std::cout << s << "\n";
-  for( auto t : multiUnion.translations())
-    std::cout << t << "\n";
-  for( auto r : multiUnion.rotations())
-    std::cout << r << "\n";
 }
 
 void

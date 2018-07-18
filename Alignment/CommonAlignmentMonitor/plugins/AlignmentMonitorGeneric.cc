@@ -26,7 +26,7 @@ void AlignmentMonitorGeneric::book()
   auto alignableObjectId =
     AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
 
-  const std::vector<Alignable*>& alignables = pStore()->alignables();
+  const auto& alignables = pStore()->alignables();
 
   unsigned int nAlignable = alignables.size();
   unsigned int nResidName = residNames.size();

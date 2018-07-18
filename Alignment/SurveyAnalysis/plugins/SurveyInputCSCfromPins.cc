@@ -39,7 +39,7 @@ SurveyInputCSCfromPins::SurveyInputCSCfromPins(const edm::ParameterSet& cfg)
   , m_stationErrorPhiZ(cfg.getParameter<double>("stationErrorPhiZ"))
 {}
 
-void SurveyInputCSCfromPins::orient(LocalVector LC1, LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ) {
+void SurveyInputCSCfromPins::orient(align::LocalVector LC1, align::LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ) {
    double cosPhX, sinPhX, cosPhZ, sinPhZ;
 
    LocalPoint LP1(LC1.x(), LC1.y() + a, LC1.z() + b);
@@ -150,13 +150,12 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
  
  	AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
  	AlignableNavigator* theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
- 
-  	std::vector<Alignable*> theEndcaps = theAlignableMuon->CSCEndcaps();
- 
-	for (std::vector<Alignable*>::const_iterator aliiter = theEndcaps.begin();  aliiter != theEndcaps.end();  ++aliiter) {
-     
- 		addComponent(*aliiter);
-    	}
+
+        const auto& theEndcaps = theAlignableMuon->CSCEndcaps();
+
+        for (const auto& aliiter: theEndcaps) {
+                addComponent(aliiter);
+        }
     
 	
 	while (in.good())
@@ -264,10 +263,9 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
 
 	file1->Close();
    
-	for (std::vector<Alignable*>::const_iterator aliiter = theEndcaps.begin();  aliiter != theEndcaps.end();  ++aliiter) {
-     
- 		fillAllRecords(*aliiter);
-    	} 
+        for (const auto& aliiter: theEndcaps) {
+                fillAllRecords(aliiter);
+        }
 
 	delete theAlignableMuon;
 	delete theAlignableNavigator;
@@ -343,11 +341,9 @@ void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
 	   }
    	}
 
-   	std::vector<Alignable*> components = ali->components();
-   	for (std::vector<Alignable*>::const_iterator iter = components.begin();  iter != components.end();  ++iter) {
-	
-      		fillAllRecords(*iter);
-   	}
+        for (const auto& iter: ali->components()) {
+                fillAllRecords(iter);
+        }
 }
 
 

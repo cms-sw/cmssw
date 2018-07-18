@@ -10,12 +10,13 @@ import eostools as castortools
 from timeout import timed_out, TimedOutExc
 from castorBaseDir import castorBaseDir
 from dataset import CMSDataset
+import six
 
 class PublishToFileSystem(object):
     """Write a report to storage"""
     
     def __init__(self, parent):
-        if type(parent) == type(""):
+        if isinstance(parent, type("")):
             self.parent = parent
         else:
             self.parent = parent.__class__.__name__
@@ -106,8 +107,8 @@ class IntegrityCheck(object):
         import re
         
         filemask = {}
-        for dirname, files in self.test_result.iteritems():
-            for name, status in files.iteritems():
+        for dirname, files in six.iteritems(self.test_result):
+            for name, status in six.iteritems(files):
                 fname = os.path.join(dirname, name)
                 filemask[fname] = status
         
@@ -144,8 +145,7 @@ class IntegrityCheck(object):
         sum_dup = 0
         for i in xrange(mmin, mmax+1):
             if i in files:
-                duplicates = files[i]
-                duplicates.sort()
+                duplicates = sorted(files[i])
 
                 fname = duplicates[-1][1]
                 if len(duplicates) > 1:
@@ -167,11 +167,11 @@ class IntegrityCheck(object):
         #support updating to speed things up
         prev_results = {}
         if previous is not None:
-            for name, status in previous['Files'].iteritems():
+            for name, status in six.iteritems(previous['Files']):
                 prev_results[name] = status
         
         filesToTest = self.sortByBaseDir(self.listRootFiles(self.directory))
-        for dir, filelist in filesToTest.iteritems():
+        for dir, filelist in six.iteritems(filesToTest):
             filemask = {}
             #apply a UNIX wildcard if specified
             filtered = filelist
@@ -216,9 +216,9 @@ class IntegrityCheck(object):
         print 'DBS Dataset name: %s' % self.options.name
         print 'Storage path: %s' % self.topdir
         
-        for dirname, files in self.test_result.iteritems():
+        for dirname, files in six.iteritems(self.test_result):
             print 'Directory: %s' % dirname
-            for name, status in files.iteritems():
+            for name, status in six.iteritems(files):
                 fname = os.path.join(dirname, name)
                 if not fname in self.duplicates:
                     print '\t\t %s: %s' % (name, str(status))
@@ -257,9 +257,9 @@ class IntegrityCheck(object):
                   'DateCreated':datetime.datetime.now().strftime("%s"),
                   'Files':{}}
         
-        for dirname, files in self.test_result.iteritems():
+        for dirname, files in six.iteritems(self.test_result):
             report['PathList'].append(dirname)
-            for name, status in files.iteritems():
+            for name, status in six.iteritems(files):
                 fname = os.path.join(dirname, name)
                 report['Files'][fname] = status
                 if status[0]:

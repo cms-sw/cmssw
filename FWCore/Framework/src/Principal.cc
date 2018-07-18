@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -128,8 +129,7 @@ namespace edm {
     reader_(),
     branchType_(bt),
     historyAppender_(historyAppender),
-    cacheIdentifier_(nextIdentifier()),
-    atEndTransition_(false)
+    cacheIdentifier_(nextIdentifier())
   {
     productResolvers_.resize(reg->getNextIndexValue(bt));
     //Now that these have been set, we can create the list of Branches we need.
@@ -205,7 +205,17 @@ namespace edm {
                 //only one choice so use a special resolver
                 productResolvers_.at(productResolverIndex) = std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
               } else {
-                std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous);
+                bool productMadeAtEnd = false;
+                //Need to know if the product from this processes is added at end of transition
+                for(unsigned int i=0; i< matchingHolders.size();++i) {
+                  if( (not ambiguous[i]) and
+                     ProductResolverIndexInvalid != matchingHolders[i] and
+                     productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+                    productMadeAtEnd = true;
+                    break;
+                  }
+                }
+                std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
                 productResolvers_.at(productResolverIndex) = newHolder;
               }
               matchingHolders.assign(lookupProcessNames.size(), ProductResolverIndexInvalid);
@@ -231,8 +241,24 @@ namespace edm {
           }
         }
       }
-      std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous);
-      productResolvers_.at(productResolverIndex) = newHolder;
+      //Need to know if the product from this processes is added at end of transition
+      if ((numberOfMatches == 1) and
+          (lastMatchIndex != ProductResolverIndexAmbiguous)) {
+        //only one choice so use a special resolver
+        productResolvers_.at(productResolverIndex) = std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
+      } else {
+        bool productMadeAtEnd = false;
+        for(unsigned int i=0; i< matchingHolders.size();++i) {
+          if( (not ambiguous[i]) and
+             ProductResolverIndexInvalid != matchingHolders[i] and
+             productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+            productMadeAtEnd = true;
+            break;
+          }
+        }
+        std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
+        productResolvers_.at(productResolverIndex) = newHolder;
+      }
     }
   }
 
@@ -322,11 +348,6 @@ namespace edm {
   }
 
   void
-  Principal::setAtEndTransition(bool iAtEnd) {
-    atEndTransition_ = iAtEnd;
-  }
-  
-  void
   Principal::deleteProduct(BranchID const& id) const {
     auto phb = getExistingProduct(id);
     assert(nullptr != phb);
@@ -348,7 +369,6 @@ namespace edm {
                            DelayedReader* reader) {
     //increment identifier here since clearPrincipal isn't called for Run/Lumi
     cacheIdentifier_=nextIdentifier();
-    atEndTransition_=false;
     if(reader) {
       reader_ = reader;
     }
@@ -380,6 +400,8 @@ namespace edm {
         } else {
           //Since this is static we don't want it deleted
           inputProcessHistory = std::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
+          //no need to do any ordering since it is empty
+          orderProcessHistoryID_ = hist;
         }
         processHistoryID_ = hist;
         processHistoryPtr_ = inputProcessHistory;
@@ -565,10 +587,11 @@ namespace edm {
   Principal::prefetchAsync(WaitingTask * task,
                       ProductResolverIndex index,
                       bool skipCurrentProcess,
+                      ServiceToken const& token,
                       ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(nullptr!=productResolver.get());
-    productResolver->prefetchAsync(task,*this, skipCurrentProcess,nullptr,mcc);
+    productResolver->prefetchAsync(task,*this, skipCurrentProcess,token, nullptr,mcc);
   }
 
   void
@@ -580,7 +603,7 @@ namespace edm {
 
     assert(results.empty());
 
-    if(unlikely(consumer and (not consumer->registeredToConsumeMany(typeID,branchType())))) {
+    if(UNLIKELY(consumer and (not consumer->registeredToConsumeMany(typeID,branchType())))) {
       failedToRegisterConsumesMany(typeID);
     }
 
@@ -707,7 +730,7 @@ namespace edm {
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
-    if(unlikely( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
+    if(UNLIKELY( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),
                                appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
     }
@@ -745,7 +768,7 @@ namespace edm {
       return nullptr;
     }
     
-    if(unlikely( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {
+    if(UNLIKELY( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,label,instance,process);
     }
     
@@ -895,13 +918,6 @@ namespace edm {
     
     for(auto & prod : *this) {
       prod->retrieveAndMerge(*this);
-    }
-  }
-  
-  void
-  Principal::resetFailedFromThisProcess() {
-    for( auto & prod : *this) {
-      prod->resetFailedFromThisProcess();
     }
   }
 }

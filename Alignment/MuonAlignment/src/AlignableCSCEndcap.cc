@@ -4,8 +4,10 @@
  *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
- 
- 
+
+
+#include <memory>
+
 #include "Alignment/MuonAlignment/interface/AlignableCSCEndcap.h"
 #include "CondFormats/Alignment/interface/Alignments.h" 
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h" 
@@ -20,18 +22,15 @@ AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*>&
 
   theCSCStations.insert( theCSCStations.end(), cscStations.begin(), cscStations.end() );
 
+  // maintain also list of components
+  for (const auto& station: cscStations) {
+    const auto mother = station->mother();
+    this->addComponent(station); // components will be deleted by dtor of AlignableComposite
+    station->setMother(mother); // restore previous behaviour where mother is not set
+  }
+
   setSurface( computeSurface() );
   compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
-}
-      
-
-/// Clean delete of the vector and its elements
-AlignableCSCEndcap::~AlignableCSCEndcap() 
-{
-  for ( std::vector<AlignableCSCStation*>::iterator iter = theCSCStations.begin(); 
-	iter != theCSCStations.end(); iter++)
-    delete *iter;
-
 }
 
 /// Return AlignableCSCEndcap station at given index
@@ -109,46 +108,37 @@ void AlignableCSCEndcap::dump( void ) const
 
 Alignments* AlignableCSCEndcap::alignments( void ) const
 {
-
-  std::vector<Alignable*> comp = this->components();
   Alignments* m_alignments = new Alignments();
+
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-    {
-      Alignments* tmpAlignments = (*i)->alignments();
-      std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
-				 std::back_inserter(m_alignments->m_align) );
-	  delete tmpAlignments;
-    }
+  for (const auto& i: this->components()) {
+    std::unique_ptr<Alignments> tmpAlignments{i->alignments()};
+    std::copy(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(),
+              std::back_inserter(m_alignments->m_align));
+  }
 
   std::sort( m_alignments->m_align.begin(), m_alignments->m_align.end(), 
 			 lessAlignmentDetId<AlignTransform>() );
 
   return m_alignments;
-
 }
 
 //__________________________________________________________________________________________________
 
 AlignmentErrorsExtended* AlignableCSCEndcap::alignmentErrors( void ) const
 {
-
-  std::vector<Alignable*> comp = this->components();
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
-    {
-	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
-      std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
-				 std::back_inserter(m_alignmentErrors->m_alignError) );
-	  delete tmpAlignmentErrorsExtended;
-    }
+  for (const auto& i: this->components()) {
+    std::unique_ptr<AlignmentErrorsExtended> tmpAlignmentErrorsExtended{i->alignmentErrors()};
+    std::copy(tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(),
+              std::back_inserter(m_alignmentErrors->m_alignError) );
+  }
 
   std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 
 			 lessAlignmentDetId<AlignTransformErrorExtended>() );
 
   return m_alignmentErrors;
-
 }
 

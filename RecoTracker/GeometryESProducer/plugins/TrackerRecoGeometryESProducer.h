@@ -12,9 +12,8 @@ class  TrackerRecoGeometryESProducer: public edm::ESProducer{
  public:
   TrackerRecoGeometryESProducer(const edm::ParameterSet & p);
   ~TrackerRecoGeometryESProducer() override; 
-  std::shared_ptr<GeometricSearchTracker> produce(const TrackerRecoGeometryRecord &);
+  std::unique_ptr<GeometricSearchTracker> produce(const TrackerRecoGeometryRecord &);
  private:
- std::shared_ptr<GeometricSearchTracker> _tracker;
  std::string geoLabel;
 };
 

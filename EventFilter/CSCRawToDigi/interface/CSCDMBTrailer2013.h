@@ -36,9 +36,8 @@
 
 #include <iostream>
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCVDMBTrailerFormat.h"
-
-class CSCDMBHeader;
 
 struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
 // public:
@@ -49,7 +48,7 @@ struct CSCDMBTrailer2013: public CSCVDMBTrailerFormat {
       bits.ddu_code_5 = bits.ddu_code_6 = bits.ddu_code_7 = bits.ddu_code_8 = 0xE;
     }
  
-  CSCDMBTrailer2013(unsigned short * buf)
+  CSCDMBTrailer2013(const uint16_t * buf)
     {
       memcpy(data(), buf, sizeInWords()*2);
     }
