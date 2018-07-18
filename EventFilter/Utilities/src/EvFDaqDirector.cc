@@ -1126,7 +1126,7 @@ namespace evf {
           path = spath.str();
           edm::LogWarning("EvFDaqDirector") << "Stop LS requested " << maxLS;
         }
-        request_stream << "GET " << path << " HTTP/1.0\r\n";
+        request_stream << "GET " << path << " HTTP/1.1\r\n";
         request_stream << "Host: " << fileBrokerHost_ << "\r\n";
         request_stream << "Accept: */*\r\n";
         request_stream << "Connection: close\r\n\r\n";
