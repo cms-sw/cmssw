@@ -7,6 +7,7 @@
                 - which algorithms (shrinkingConePFTauDecayModeProducer, etc)
         Define locations of train/test ROOT files
 """
+from __future__ import print_function
 
 import sys
 import six
@@ -15,7 +16,7 @@ import os
 try:
    Project_Area = os.environ["CMSSW_BASE"]
 except KeyError:
-   print "$CMSSW_BASE enviroment variable not set!  Please run eval `scramv1 ru -[c]sh`"
+   print("$CMSSW_BASE enviroment variable not set!  Please run eval `scramv1 ru -[c]sh`")
    sys.exit(1)
 
 import FWCore.ParameterSet.Config as cms

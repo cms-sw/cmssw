@@ -5,6 +5,7 @@ TaNC MVA trainer
 Author: Evan K. Friis (UC Davis)
 
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -35,14 +36,14 @@ options.register(
 options.parseArguments()
 
 if options.tracks < 0 or options.pizeros < 0:
-    print "You must specify the [tracks] and [pizeros] arguments."
+    print("You must specify the [tracks] and [pizeros] arguments.")
     sys.exit(1)
 
 # Make a nice tuple of the decay mode
 _decay_mode = (options.tracks, options.pizeros)
 # Map the XML file name to a nice computer name
 _computer_name = os.path.basename(os.path.splitext(options.xml)[0])
-print _computer_name
+print(_computer_name)
 
 # We need to turn off the track based quality cuts, since we don't save them
 # in the skim.
@@ -133,9 +134,9 @@ selectedDecayModes = cms.VPSet()
 for decayMode in _combinatoricTauConfig.decayModes:
     decay_mode_tuple = (decayMode.nCharged.value(), decayMode.nPiZeros.value())
     if decay_mode_tuple == _decay_mode:
-        print "Decay mode:", decay_mode_tuple
-        print " tau prod. max tracks:", decayMode.maxTracks
-        print " tau prod. max pizeros:", decayMode.maxPiZeros
+        print("Decay mode:", decay_mode_tuple)
+        print(" tau prod. max tracks:", decayMode.maxTracks)
+        print(" tau prod. max pizeros:", decayMode.maxPiZeros)
         selectedDecayModes.append(decayMode)
         break
 

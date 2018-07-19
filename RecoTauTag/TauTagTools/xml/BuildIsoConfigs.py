@@ -8,6 +8,7 @@ Author: Evan K. Friis, UC Davis friis@physics.ucdavis.edu
 Usage: Prepare copies of all MVA configuration files (*.mvac) with the isolation inputs removed.
        New copies will be titled *Iso.xml
 """
+from __future__ import print_function
 import os
 import glob
 import string
@@ -20,7 +21,7 @@ for aFile in filesToConvert:
       os.system("cp %s %s.bak" % (xmlFileName, xmlFileName))
       os.remove(xmlFileName)
 
-   print "Building %s..." % xmlFileName
+   print("Building %s..." % xmlFileName)
    os.system("cat Preamble.xml.fragment >  %s" %         xmlFileName)  
    os.system("cat Inputs.xml.fragment   >> %s" %         xmlFileName)  
    os.system("cat Helpers.xml.fragment  >> %s" %         xmlFileName)  

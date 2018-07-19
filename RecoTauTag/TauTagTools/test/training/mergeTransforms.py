@@ -9,6 +9,7 @@ file that can be read by RecoTauMVATransform
 Author: Evan K. Friis (UC Davis)
 
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import sys
@@ -68,5 +69,5 @@ output.write('transforms = %s\n' % output_object.dumpPython())
 output.write('cuts = %s\n' % cuts.dumpPython())
 output.close()
 
-print "Transform file %s created" % output_file
+print("Transform file %s created" % output_file)
 sys.exit(0)
