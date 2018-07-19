@@ -961,21 +961,200 @@ namespace evf {
     }
   }
 
-  int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound, bool unlock)
+  int EvFDaqDirector::grabNextJsonFile(std::string const& jsonSourcePath, std::string const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound)
+  {
+    fileFound=true;
+
+    //should be ported to use fffnaming
+    std::ostringstream fileNameWithPID;
+    fileNameWithPID << boost::filesystem::path(rawSourcePath).stem().string() << "_pid"
+                    << std::setfill('0') << std::setw(5) << pid_ << ".jsn";
+
+    // assemble json destination path
+    std::string jsonDestPath = baseRunDir() + "/" + fileNameWithPID.str();
+
+    LogDebug("EvFDaqDirector") << "JSON rename -: " << jsonSourcePath << " to " << jsonDestPath;
+
+    int infile=-1, outfile=-1;
+
+    if ((infile = ::open(jsonSourcePath.c_str(), O_RDONLY))< 0) {
+      edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - failed to open input file -: " << jsonSourcePath << " : " <<  strerror(errno);
+      usleep(100000);
+      if ((infile = ::open(jsonSourcePath.c_str(), O_RDONLY))< 0) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open input file (on retry) -: " << jsonSourcePath << " : " <<  strerror(errno);
+        if (errno==ENOENT) fileFound=false; 
+        return -1;
+      }
+    }
+
+    int oflag = O_CREAT | O_WRONLY | O_TRUNC | O_EXCL; //file should not exist
+    int omode =  S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH;
+    if ((outfile = ::open(jsonDestPath.c_str(), oflag, omode))< 0)
+    {
+      if (errno==EEXIST) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFile - destination file already exists -: " << jsonDestPath << " : ";
+        ::close(infile);
+        return -1;
+      }
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open output file -: " << jsonDestPath << " : " <<  strerror(errno);
+      usleep(100000);
+      struct stat out_stat;
+      if (stat(jsonDestPath.c_str(),&out_stat)==0) {
+        edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - output file possibly got created with error, deleting and retry -: " << jsonDestPath;
+        if (unlink(jsonDestPath.c_str())==-1) {
+          edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - failed to remove -: " << jsonDestPath << " : "<< strerror(errno);
+        }
+      }
+      if ((outfile = ::open(jsonDestPath.c_str(), oflag, omode))< 0) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open output file (on retry) -: " << jsonDestPath << " : " <<  strerror(errno);
+        ::close(infile);
+        return -1;
+      } 
+    }
+    //copy contents
+    const std::size_t buf_sz = 512;
+    std::size_t tot_written = 0;
+    std::unique_ptr<char> buf(new char [buf_sz]);
+ 
+    ssize_t sz, sz_read=1, sz_write;
+    while (sz_read > 0 && (sz_read = ::read(infile, buf.get(), buf_sz)) > 0)
+    {
+      sz_write = 0;
+      do {
+        assert(sz_read - sz_write > 0);
+        if ((sz = ::write(outfile, buf.get() + sz_write,sz_read - sz_write)) < 0)
+        {
+          sz_read = sz; // cause read loop termination
+          break;
+        }
+        assert(sz > 0); 
+        sz_write += sz;
+        tot_written+=sz;
+      } while (sz_write < sz_read);
+    }
+    close(infile);
+    close(outfile);
+
+    if (tot_written>0) {
+      //leave file if it was empty for diagnosis
+      if (unlink(jsonSourcePath.c_str()) == -1) {
+        edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to remove -: " << jsonSourcePath << " : "<< strerror(errno);
+        return -1;
+      }
+    } else {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to copy json file or file was empty -: " << jsonSourcePath;
+      return -1;
+    }
+
+    Json::Value deserializeRoot;
+    Json::Reader reader;
+
+    std::string data;
+    std::stringstream ss;
+    bool result;
+    try {
+      if (tot_written<=buf_sz) {
+        result = reader.parse(buf.get(), deserializeRoot);
+      }
+      else {
+        //json will normally not be bigger than buf_sz bytes
+        try {
+          boost::filesystem::ifstream ij(jsonDestPath);
+          ss << ij.rdbuf();
+        }
+        catch (boost::filesystem::filesystem_error& ex) {
+          edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+          return -1;
+        }
+        result = reader.parse(ss.str(), deserializeRoot);
+      }
+      if (!result) {
+        if (tot_written<=buf_sz) ss << buf.get(); 
+        edm::LogError("EvFDaqDirector") << "Failed to deserialize JSON file -: " << jsonDestPath
+                                        << "\nERROR:\n" << reader.getFormatedErrorMessages()
+                                        << "CONTENT:\n" << ss.str()<<".";
+        return -1;
+      }
+
+      //read BU JSON
+      DataPoint dp;
+      dp.deserialize(deserializeRoot);
+      bool success = false;
+      for (unsigned int i=0;i<dpd_->getNames().size();i++) {
+        if (dpd_->getNames().at(i)=="NEvents")
+          if (i<dp.getData().size()) {
+	    data = dp.getData()[i];
+	    success=true;
+            break;
+	  }
+      }
+      if (!success) {
+        if (!dp.getData().empty())
+          data = dp.getData()[0];
+        else {
+          edm::LogError("EvFDaqDirector::grabNextJsonFile") << "grabNextJsonFile - " <<
+	    " error reading number of events from BU JSON; No input value. data -: " << data;
+          return -1;
+        }
+      }
+
+      //try to read raw file size
+      fileSizeFromJson=-1;
+      for (unsigned int i=0;i<dpd_->getNames().size();i++) {
+        if (dpd_->getNames().at(i)=="NBytes") {
+          if (i<dp.getData().size()) {
+	    data = dp.getData()[i];
+            try {
+              fileSizeFromJson = boost::lexical_cast<long>(data);
+	    }
+            catch( boost::bad_lexical_cast const& ) {
+              //non-fatal currently, processing can continue without this value
+              edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - error parsing number of Bytes from BU JSON. "
+                                                << "Input value is -: " << data;
+            }
+            break;
+          }
+        }
+      }
+      return boost::lexical_cast<int>(data);
+    }
+    catch( boost::bad_lexical_cast const& e) {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+                                      << "Input value is -: " << data;
+    }
+    catch (std::runtime_error e)
+    {
+      //Can be thrown by Json parser
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - std::runtime_error exception -: " << e.what();
+    }
+
+    catch (std::exception &e)
+    {
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - SOME OTHER EXCEPTION OCCURED! -: " << e.what();
+    }
+    catch (...)
+    {
+      //unknown exception
+      edm::LogError("EvFDaqDirector") << "grabNextJsonFile - SOME OTHER EXCEPTION OCCURED!";
+    }
+
+    return -1;
+  }
+
+  int EvFDaqDirector::grabNextJsonFileAndUnlock(boost::filesystem::path const& jsonSourcePath)
   {
     std::string data;
-    fileFound=true;
     try {
       // assemble json destination path
       boost::filesystem::path jsonDestPath(baseRunDir());
 
       //should be ported to use fffnaming
       std::ostringstream fileNameWithPID;
-      fileNameWithPID << rawSourcePath.stem().string() << "_pid"
-                    << std::setfill('0') << std::setw(5) << pid_ << ".jsn";
+      fileNameWithPID << jsonSourcePath.stem().string() << "_pid"
+                      << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
       jsonDestPath /= fileNameWithPID.str();
 
-      LogDebug("FedRawDataInputSource") << "JSON rename -: " << jsonSourcePath << " to "
+      LogDebug("EvFDaqDirector") << "JSON rename -: " << jsonSourcePath << " to "
                                           << jsonDestPath;
       try {
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
@@ -983,12 +1162,12 @@ namespace evf {
       catch (const boost::filesystem::filesystem_error& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+        edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
         //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
         sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
-      if (unlock) unlockFULocal();
+      unlockFULocal();
 
       try {
         //sometimes this fails but file gets deleted
@@ -997,12 +1176,12 @@ namespace evf {
       catch (const boost::filesystem::filesystem_error& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+        edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
       }
       catch (std::exception& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile std::exception CAUGHT -: " << ex.what();
+        edm::LogError("EvFDaqDirector") << "grabNextFile std::exception CAUGHT -: " << ex.what();
       }
 
       boost::filesystem::ifstream ij(jsonDestPath);
@@ -1013,7 +1192,7 @@ namespace evf {
       ss << ij.rdbuf();
       if (!reader.parse(ss.str(), deserializeRoot)) {
 
-        edm::LogError("FedRawDataInputSource") << "Failed to deserialize JSON file -: " << jsonDestPath
+        edm::LogError("EvFDaqDirector") << "grabNextFile Failed to deserialize JSON file -: " << jsonDestPath
                                                << "\nERROR:\n" << reader.getFormatedErrorMessages()
                                                << "CONTENT:\n" << ss.str()<<".";
         throw std::runtime_error("Cannot deserialize input JSON file");
@@ -1029,67 +1208,38 @@ namespace evf {
 	  if (i<dp.getData().size()) {
 	    data = dp.getData()[i];
 	    success=true;
-            break;
 	  }
       }
       if (!success) {
         if (!dp.getData().empty())
 	  data = dp.getData()[0];
         else
-	  throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
+	  throw cms::Exception("EvFDaqDirector::grabNextJsonFileUnlock") <<
 	    " error reading number of events from BU JSON -: No input value " << data;
       }
-
-      //try to read raw file size
-      fileSizeFromJson=-1;
-      for (unsigned int i=0;i<dpd_->getNames().size();i++) {
-        if (dpd_->getNames().at(i)=="NBytes") {
-	  if (i<dp.getData().size()) {
-	    data = dp.getData()[i];
-            try {
-              fileSizeFromJson = boost::lexical_cast<long>(data);
-	    }
-            catch( boost::bad_lexical_cast const& ) {
-              edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - error parsing number of Bytes from BU JSON. "
-                                                     << "Input value is -: " << data;
-            }
-            break;
-          }
-        }
-      }
-
       return boost::lexical_cast<int>(data);
-
     }
     catch (const boost::filesystem::filesystem_error& ex)
     {
       // Input dir gone?
-      if (unlock) unlockFULocal();
-      edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
-      std::stringstream sst;
-      sst << ex.code();
-      if (sst.str()== "system:38") {
-        fileFound=false;
-      }
-
+      unlockFULocal();
+      edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
     }
     catch (std::runtime_error e)
     {
       // Another process grabbed the file and NFS did not register this
-      if (unlock) unlockFULocal();
-      edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - runtime Exception -: " << e.what();
+      unlockFULocal();
+      edm::LogError("EvFDaqDirector") << "grabNextFile runtime Exception -: " << e.what();
     }
-
     catch( boost::bad_lexical_cast const& ) {
-      edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+      edm::LogError("EvFDaqDirector") << "grabNextFile error parsing number of events from BU JSON. "
                                              << "Input value is -: " << data;
     }
-
     catch (std::exception e)
     {
       // BU run directory disappeared?
-      if (unlock) unlockFULocal();
-      edm::LogError("FedRawDataInputSource") << "grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! -: " << e.what();
+      unlockFULocal();
+      edm::LogError("EvFDaqDirector") << "grabNextFile SOME OTHER EXCEPTION OCCURED!!!! -: " << e.what();
     }
 
     return -1;
@@ -1419,10 +1569,10 @@ namespace evf {
     bool fileFound=true;
 
     if (fileStatus == newFile)
-      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,fileFound,false);
+      serverEventsInNewFile = grabNextJsonFile(nextFileJson,nextFileRaw,fileSizeFromJson,fileFound);
 
     if (!fileFound) {
-      //possible if directory gets deleted
+      //catch condition where directory got deleted
       fileStatus = noFile;
       struct stat buf;
       if (stat(bu_run_dir_.c_str(),&buf)!=0) {
