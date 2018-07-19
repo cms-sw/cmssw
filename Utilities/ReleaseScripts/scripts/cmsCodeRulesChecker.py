@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 __author__="Aurelija"
 __date__ ="$2010-07-14 16.48.55$"
 
@@ -26,7 +27,7 @@ def splitPaths(listRule, pathHead):
             path, linesNumbers = listRule[i]
             listRule[i] = (path.replace(pathHead, '', 1), linesNumbers)
     except TypeError:
-        print "Error: given wrong type of parameter in function splitPaths."
+        print("Error: given wrong type of parameter in function splitPaths.")
     return listRule
 
 def runRules(ruleNumberList, directory):
@@ -36,8 +37,8 @@ def runRules(ruleNumberList, directory):
     
     for rule in ruleNumberList:
         if str(rule) not in RULES:
-            print 'Error: wrong rule parameter. There is no such rule: "'+rule+'"\n\n' + rulesDescription
-            print '\nWrite -h for help'
+            print('Error: wrong rule parameter. There is no such rule: "'+rule+'"\n\n' + rulesDescription)
+            print('\nWrite -h for help')
             return -1
 
     for rule in configuration.keys():
@@ -130,14 +131,14 @@ def printOut(listOfResult, filePath = None):
                 file.close()
             else:
                 if not result or result == -1:
-                    print 'No results for rule %s'%rule
+                    print('No results for rule %s'%rule)
                 else:
-                    print 'Rule %s:' %rule
+                    print('Rule %s:' %rule)
                     for path, lineNumbers in result:
-                        print path
-                        print lineNumbers
+                        print(path)
+                        print(lineNumbers)
     except TypeError:
-        print "Error: wrong type of parameter in function printOut"
+        print("Error: wrong type of parameter in function printOut")
 
 if __name__ == "__main__":
 
@@ -167,7 +168,7 @@ if __name__ == "__main__":
                 ruleNumbers = sys.argv[i].split(',')
             else:
                 goodParameters = False
-                print 'Error: missing rule parameters. Write -h for help'
+                print('Error: missing rule parameters. Write -h for help')
                 break
         elif (arg == '-d'):
             i+=1
@@ -175,11 +176,11 @@ if __name__ == "__main__":
                 checkPath = sys.argv[i]
                 if not isdir(checkPath):
                     goodParameters = False
-                    print 'Error: wrong directory "%s"' %checkPath
+                    print('Error: wrong directory "%s"' %checkPath)
                     break
             else:
                 goodParameters = False
-                print 'Error: missing rule parameters. Write -h for help'
+                print('Error: missing rule parameters. Write -h for help')
                 break
         elif (arg == '-S'):
             createPickle = True
@@ -188,7 +189,7 @@ if __name__ == "__main__":
                 picklePath = sys.argv[i]
                 if not isdir(picklePath):
                     goodParameters = False
-                    print 'Error: wrong directory "%s"' %picklePath
+                    print('Error: wrong directory "%s"' %picklePath)
                     break
         elif (arg == '-s'):
             createTxt = True
@@ -197,7 +198,7 @@ if __name__ == "__main__":
                 txtPath = sys.argv[i]
                 if not isdir(txtPath):
                     goodParameters = False
-                    print 'Error: wrong directory "%s"' %txtPath
+                    print('Error: wrong directory "%s"' %txtPath)
                     break
         elif (arg == '-html'):
             html = True
@@ -206,14 +207,14 @@ if __name__ == "__main__":
             printResult = True
         else:
             goodParameters = False
-            print 'Error: there is no parameter like "%s". Write -h for help' %arg
+            print('Error: there is no parameter like "%s". Write -h for help' %arg)
             break
         i+=1
 
     if goodParameters == True:
 
         if argvLen == 2 and help == True:
-            print helpMsg
+            print(helpMsg)
         else:
             result = runRules(ruleNumbers, checkPath)
                     
@@ -229,4 +230,4 @@ if __name__ == "__main__":
             if html:
                 run(picklePath, picklePath, picklePath)
             if help:
-                print helpMsg
+                print(helpMsg)
