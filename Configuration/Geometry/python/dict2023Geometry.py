@@ -562,7 +562,7 @@ forwardDict = {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
-            'Geometry/ForwardCommonData/data/brm/2023/v1/brm.xml',
+            'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
             'Geometry/ForwardCommonData/data/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
