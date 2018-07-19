@@ -1,4 +1,4 @@
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
+#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalTriggerCellCalibration.h"
 
 //class constructor
 HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet& beCodecConfig){

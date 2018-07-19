@@ -15,6 +15,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
+
+
+
 namespace {
   constexpr char hgcalee_sens[] = "HGCalEESensitive";
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
@@ -51,7 +54,6 @@ namespace {
     check_ddd(ddd);
     return ddd;
   }
-
 }
 
 void 
@@ -123,7 +125,8 @@ layer(const DetId& id) const {
 unsigned 
 HGCalTriggerTools::
 layerWithOffset(const DetId& id) const {
-  unsigned int l = layer(id);
+  
+  unsigned int l = layer(id);  
   if( id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
     l += eeLayers_;
   } else if( (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
@@ -189,3 +192,6 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
   }
   return layerGlobalZ;
 }
+
+
+

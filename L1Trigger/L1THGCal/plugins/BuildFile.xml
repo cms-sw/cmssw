@@ -16,7 +16,7 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   name="L1TriggerL1THGCalPlugins_fe_be" file="fe_codecs/*.cc,be_algorithms/*.cc">
+<library   name="L1TriggerL1THGCalPlugins_fe_be" file="veryfrontend/*.cc, concentrator/*.cc, backend/*.cc">
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="Geometry/CaloTopology"/>
