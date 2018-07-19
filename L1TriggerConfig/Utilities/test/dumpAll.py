@@ -17,7 +17,7 @@ process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_cfi')
 
 # 2016_3_3 and 3_3_HI
 
-process.l1ew = cms.EDAnalyzer("L1TMuonEndcapWriter")
+process.l1ew = cms.EDAnalyzer("L1TMuonEndCapParamsWriter") ## What does this string match / refer to? - AWB 10.04.18
 process.l1bw = cms.EDAnalyzer("L1TMuonBarrelParamsWriter")
 process.l1gw = cms.EDAnalyzer("L1TMuonGlobalParamsWriter")
 process.l1cw = cms.EDAnalyzer("L1TCaloStage2ParamsWriter")
