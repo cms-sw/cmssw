@@ -31,7 +31,9 @@ HltVertexValidationVertices= DQMEDAnalyzer('HLTVertexPerformanceAnalyzer',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_',
-	'HLT_IsoMu24_eta2p1_v'
+	'HLT_IsoMu24_eta2p1_v',
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5',
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5'
 	),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
@@ -50,14 +52,18 @@ hltbTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 	'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_',
 	'HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_',
-	'HLT_IsoMu24_eta2p1_v'
+	'HLT_IsoMu24_eta2p1_v',
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5',
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5'
 	),
 	JetTag = cms.VInputTag(
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF"),
-		cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
+		cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
 		),
 	MinJetPT = cms.double(20),
 	mcFlavours = cms.PSet(
