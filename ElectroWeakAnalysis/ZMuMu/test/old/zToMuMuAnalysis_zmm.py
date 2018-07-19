@@ -1,3 +1,4 @@
+from __future__ import print_function
 #analysis code.
 #It produces plot for Fit study
 #author Luca Lista
@@ -206,7 +207,7 @@ setattr(process, "nonIsolatedZToMuMuPlots", nonIsolatedZToMuMuPlots)
 etaBounds = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2.0]
 
 def addModulesFromTemplate(sequence, moduleLabel, src, probeSelection):
-    print "selection for: ", moduleLabel   
+    print("selection for: ", moduleLabel)   
     for i in range(len(etaBounds)-1):
         etaMin = etaBounds[i]
         etaMax = etaBounds[i+1]
@@ -215,7 +216,7 @@ def addModulesFromTemplate(sequence, moduleLabel, src, probeSelection):
             cut = "%5.3f < daughter(1).eta < %5.3f" %(etaMin, etaMax)
         elif probeSelection == "double":
             cut = "%5.3f < daughter(0).eta < %5.3f | %5.3f < daughter(1).eta < %5.3f" %(etaMin, etaMax, etaMin, etaMax)
-        print i, ") cut = ",  cut 
+        print(i, ") cut = ",  cut) 
         setattr(module, "cut", cut)
         setattr(module, "src", cms.InputTag(src))
         copyModuleLabel = moduleLabel + str(i)
