@@ -8,6 +8,7 @@ e-mail:  albertasgim@gmail.com
 
 Note: balcklist support not implemented.
 """
+from __future__ import print_function
 import sys
 import sqlite3
 from datetime import datetime
@@ -69,7 +70,7 @@ class RootFileComparison(object):
                         if not from_id or comp_id < from_id:
                             from_id = comp_id
                     except ComparisonError as e:
-                        print 'Error comparing %s: %s' % (hist1, e)
+                        print('Error comparing %s: %s' % (hist1, e))
         if from_id and till_id:
             c.execute('''UPDATE Directory SET from_histogram_id=?, till_histogram_id=?
                            WHERE id=?''', (from_id, till_id, dir_id))
@@ -132,13 +133,13 @@ if __name__ == '__main__':
         parser.error('Specify SQLite3 database file for the comparison.')
 
     if opts.clear_db:
-        print 'Clearing DB: %s...' % opts.db_name,
+        print('Clearing DB: %s...' % opts.db_name, end=' ')
         open(opts.db_name, 'w').close()
-        print 'Done.'
+        print('Done.')
 
     init_database(opts.db_name)
 
-    print 'Comparing files:\n%s\n%s\n' % (basename(args[0]), basename(args[1]))
+    print('Comparing files:\n%s\n%s\n' % (basename(args[0]), basename(args[1])))
     file_cmp = RootFileComparison(opts.db_name, opts.dir)
     file_cmp.compare(args[0], args[1], tests[opts.st_test]())
 
