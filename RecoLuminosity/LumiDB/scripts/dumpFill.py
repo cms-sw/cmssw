@@ -6,6 +6,7 @@
 # dumpFill -o outputdir
 # dumpFill -f fillnum generate runlist for the given fill
 #
+from __future__ import print_function
 import os,os.path,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,sessionManager,lumiCalcAPI
@@ -16,14 +17,14 @@ allfillname='allfills.txt'
 def tofiles(allfills,runsperfill,runtimes,outdir):
     f=open(os.path.join(outdir,allfillname),'w')
     for fill in allfills:
-        print >>f,'%d'%(fill)
+        print('%d'%(fill), file=f)
     f.close()
     for fill,runs in runsperfill.items():
         filename='fill_'+str(fill)+'.txt'
         if len(runs)!=0:
             f=open(os.path.join(outdir,filename),'w')
             for run in runs:
-                print >>f,'%d,%s'%(run,runtimes[run])
+                print('%d,%s'%(run,runtimes[run]), file=f)
             f.close()
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Dump Fill",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     session.transaction().start(True)
     allfills=lumiCalcAPI.fillInRange(session.nominalSchema(),fillmin=options.minfill,fillmax=options.maxfill,amodetag=options.amodetag)
     if len(allfills)==0:
-        print 'no qualified fills found, do nothing... '
+        print('no qualified fills found, do nothing... ')
         exit(-1)
     allfills.sort()
     runsperfill={}
