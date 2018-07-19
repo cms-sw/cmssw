@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import object
 import argparse
 import subprocess
 import socket, fcntl, select, atexit, signal, asyncore

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import range
 import logging
 
 from PyQt4.QtCore import SIGNAL,QRect,QSize,QPoint

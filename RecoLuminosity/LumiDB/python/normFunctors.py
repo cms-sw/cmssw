@@ -1,3 +1,4 @@
+from builtins import object
 import re,ast
 class normFunctionFactory(object):
     '''

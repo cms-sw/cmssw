@@ -1,3 +1,4 @@
+from builtins import object
 def plotSequences(seq,filename):
     from sys import stderr, argv
     from os import popen

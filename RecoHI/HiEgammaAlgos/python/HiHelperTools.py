@@ -1,3 +1,4 @@
+from builtins import object
 import FWCore.ParameterSet.Config as cms
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter

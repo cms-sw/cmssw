@@ -6,6 +6,7 @@ A moving average function using @guvectorize.
 # from examples in numba documentaiton
 # http://numba.pydata.org/numba-doc/dev/user/examples.html (0.33.0)
 
+from builtins import range
 import numpy as np
 
 from numba import guvectorize

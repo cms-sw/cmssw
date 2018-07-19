@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
@@ -44,7 +46,7 @@ class WF(list):
 
 
 def expandLsInterval(lumis):
-    return range(lumis[0],(lumis[1]+1))
+    return list(range(lumis[0],(lumis[1]+1)))
 
 from DPGAnalysis.Skims.golden_json_2015 import * 
 jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_50ns_JSON.txt")

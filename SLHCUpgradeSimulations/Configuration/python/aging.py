@@ -1,3 +1,4 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 # handle normal mixing or premixing

@@ -3,6 +3,7 @@
 #author Luca Lista
 #modificated by Noli Pasquale 21-10-2008 
 
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 import copy
 

@@ -1,3 +1,4 @@
+from builtins import range
 import itertools
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -51,7 +52,7 @@ class ProvenanceAnalyzer( Analyzer ):
         if eid != self.lastId:
             #import pdb; pdb.set_trace()
             history = event.input.object().processHistory()
-            for i in reversed(range(history.size())):
+            for i in reversed(list(range(history.size()))):
                 conf = history.at(i)
                 release = conf.releaseVersion().replace('"',"")
                 vnums = self.cmsswVNums(release)

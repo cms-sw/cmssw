@@ -4,6 +4,8 @@ benedikt.hegner@cern.ch
 
 """
 from __future__ import absolute_import
+from builtins import range
+from builtins import object
 import re
 import ROOT
 import exceptions
@@ -28,7 +30,7 @@ def all(container):
   if hasattr(container,'GetEntries'):
     try:
       entries = container.GetEntries()
-      for entry in xrange(entries):
+      for entry in range(entries):
         yield entry
     except:
         raise cmserror("Looping of %s failed" %container) 
@@ -37,7 +39,7 @@ def all(container):
   elif hasattr(container, 'size'):
     try:
       entries = container.size()
-      for entry in xrange(entries):
+      for entry in range(entries):
         yield container[entry]
     except:
       pass
@@ -132,7 +134,7 @@ class EventTree(object):
           self.__setBranchIndicies()
           self._tree.GetEntry(self._index,0)
           # the real loop
-          for entry in xrange(self._tree.GetEntries()):
+          for entry in range(self._tree.GetEntries()):
               self._index = entry
               self.__setBranchIndicies()
               self._tree.GetEntry(self._index,0)

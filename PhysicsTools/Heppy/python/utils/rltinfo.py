@@ -1,3 +1,4 @@
+from builtins import object
 from ROOT import TFile
 from PhysicsTools.HeppyCore.statistics.tree import Tree as Tree
 import six

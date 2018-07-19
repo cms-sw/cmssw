@@ -20,6 +20,7 @@ Notes:
 	OUTPUT is always unique in a per row bases
 """
 ################################################################################
+from builtins import range
 import sys, os.path
 from xml.dom import minidom
 ################################################################################

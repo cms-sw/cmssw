@@ -1,4 +1,6 @@
 
+from builtins import range
+from builtins import object
 import copy, datetime, inspect, fnmatch, os, re, subprocess, sys, tempfile, time
 import glob
 import gzip
@@ -604,7 +606,7 @@ class MonitorJobs(Task):
             """Parse the header from bjobs"""
             tokens = [t for t in header.split(' ') if t]
             result = {}
-            for i in xrange(len(tokens)):
+            for i in range(len(tokens)):
                 result[tokens[i]] = i          
 
             return result

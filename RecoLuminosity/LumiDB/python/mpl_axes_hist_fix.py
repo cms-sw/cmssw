@@ -4,6 +4,7 @@
 
 # This is used by the create_public_lumi_plots.py script.
 
+from builtins import range
 import numpy as np
 import itertools
 import matplotlib.cbook as cbook
@@ -196,7 +197,7 @@ def hist(self, x, bins=10, range=None, normed=False, weights=None,
 
     if color is None:
         color = [next(self._get_lines.color_cycle)
-                                        for i in xrange(nx)]
+                                        for i in range(nx)]
     else:
         color = mcolors.colorConverter.to_rgba_array(color)
         if len(color) != nx:
@@ -217,7 +218,7 @@ def hist(self, x, bins=10, range=None, normed=False, weights=None,
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
-        for i in xrange(nx):
+        for i in range(nx):
             if len(w[i]) != len(x[i]):
                 raise ValueError(
                     'weights should have the same shape as x')
@@ -259,7 +260,7 @@ def hist(self, x, bins=10, range=None, normed=False, weights=None,
         hist_kwargs['new'] = True
 
     n = []
-    for i in xrange(nx):
+    for i in range(nx):
         # this will automatically overwrite bins,
         # so that each histogram uses the same bins
         m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)

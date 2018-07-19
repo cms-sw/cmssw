@@ -4,6 +4,7 @@ Update the bookkeeping tables for G1 O2O.
 @author: hqu
 '''
 
+from builtins import object
 from CondTools.SiStrip.o2o_db_manager import make_dbtype, DbManager
 import os
 import sys

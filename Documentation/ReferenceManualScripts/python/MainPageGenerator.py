@@ -1,3 +1,4 @@
+from builtins import range
 import json, urllib2, os, sys
 from BeautifulSoup import *
 

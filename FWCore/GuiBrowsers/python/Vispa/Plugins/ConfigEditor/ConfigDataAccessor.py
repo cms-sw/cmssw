@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import sys
 import os.path
 import logging

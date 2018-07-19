@@ -1,3 +1,4 @@
+from builtins import object
 import unittest
 import os
 import shutil

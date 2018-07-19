@@ -1,3 +1,4 @@
+from builtins import object
 from DataFormats.FWLite import Events as FWLiteEvents
 
 from ROOT import gROOT, gSystem, AutoLibraryLoader

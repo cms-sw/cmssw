@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from builtins import range
+from builtins import object
 import os, sys, stat
 from operator import itemgetter
 

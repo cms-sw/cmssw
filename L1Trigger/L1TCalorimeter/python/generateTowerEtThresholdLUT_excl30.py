@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import os
 import sys
 import math
@@ -51,8 +52,8 @@ towerAreas = [0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,
                   1.03,1.15,1.3,1.48,1.72,2.05,1.72,4.02,
                   3.29,2.01,2.02,2.01,2.02,2.0,2.03,1.99,2.02,2.04,2.00,3.47];
   
-etaRange = xrange(0,41) # dummy entry for ieta=0, do not count ieta=29, so count 40 towers
-compNTT4Range = xrange(0,32) #  use compressed pileup estimate from EG LUT
+etaRange = range(0,41) # dummy entry for ieta=0, do not count ieta=29, so count 40 towers
+compNTT4Range = range(0,32) #  use compressed pileup estimate from EG LUT
 addr = 0
 printBins = ""
 
@@ -90,7 +91,7 @@ for compNTT4 in compNTT4Range:
             extraCount +=1
 
 if addr < 2047:
-    for addr in xrange(addr,2047):
+    for addr in range(addr,2047):
         towEtThreshLUTFile.write(str(addr) + " " + str(0) + " # dummy\n")
         addr+=1
 

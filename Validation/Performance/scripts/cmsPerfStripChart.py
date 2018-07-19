@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import os, sys
 try: import simplejson as json
 except ImportError: import json

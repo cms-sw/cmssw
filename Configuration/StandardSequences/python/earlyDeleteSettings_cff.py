@@ -1,5 +1,6 @@
 # Abstract all early deletion settings here
 
+from builtins import range
 import collections
 
 import FWCore.ParameterSet.Config as cms

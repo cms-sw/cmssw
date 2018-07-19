@@ -10,6 +10,7 @@ to generate CMSSW class from given template
 """
 
 # system modules
+from builtins import object
 import os
 import sys
 import time

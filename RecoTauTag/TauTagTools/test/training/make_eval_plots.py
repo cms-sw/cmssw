@@ -7,6 +7,7 @@ tau ID discriminator.
 Author: Evan K. Friis
 
 '''
+from builtins import range
 import math
 
 import sys

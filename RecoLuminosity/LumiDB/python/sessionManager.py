@@ -1,3 +1,4 @@
+from builtins import object
 import coral,os,os.path
 from RecoLuminosity.LumiDB import cacheconfigParser,connectstrParser
 

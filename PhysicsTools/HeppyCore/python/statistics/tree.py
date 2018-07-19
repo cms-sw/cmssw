@@ -1,3 +1,4 @@
+from builtins import object
 import numpy
 from ROOT import TTree
 import ROOT

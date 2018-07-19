@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from builtins import range
 import os,time,sys,zipfile,re,shutil,stat
 from fcntl import lockf, LOCK_EX, LOCK_UN
 from hashlib import md5

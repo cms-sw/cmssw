@@ -9,6 +9,7 @@ e-mail:  albertasgim@gmail.com
 Note: default Pool size for file comparison is 7.
 Note: did NOT finish static HTML generation implementation.
 """
+from builtins import object
 import sqlite3
 from datetime import datetime
 from multiprocessing import Pool, Queue, Process

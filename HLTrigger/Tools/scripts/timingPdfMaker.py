@@ -17,6 +17,7 @@
 ## Imports
 ############################################
 
+from builtins import range
 import os, glob
 import os.path
 import operator

@@ -13,6 +13,7 @@ Authors: Evan K. Friis, Christian Veelken (UC Davis)
 
 '''
 
+from builtins import range
 from RecoLuminosity.LumiDB import argparse
 
 parser = argparse.ArgumentParser(

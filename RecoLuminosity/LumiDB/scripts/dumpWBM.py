@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import object
 VERSION='1.02'
 import os,sys
 import coral

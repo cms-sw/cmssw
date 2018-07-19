@@ -10,6 +10,7 @@ it creates a MuScleFit_cfg.py from the template with them.
 It does not replace the parFix and parOrder.
 """
 
+from builtins import range
 functionNumber = 0
 value = []
 error = []

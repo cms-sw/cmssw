@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 import cmsPerfPublish as cspp
 import cmsPerfSuite      as cps
 import cmsPerfHarvest    as cph

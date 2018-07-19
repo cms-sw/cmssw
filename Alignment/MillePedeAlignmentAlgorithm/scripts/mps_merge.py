@@ -6,6 +6,7 @@
 #
 #  mps_merge.pl [-c] inCfg mergeCfg mergeDir njobs
 
+from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import re
 import os
@@ -73,7 +74,7 @@ else:
 # build list of binary files
 binaryList = ''
 firstentry = True
-for i in xrange(nJobs):
+for i in range(nJobs):
     separator = ',\n                '
     if firstentry:
         separator = '\n                '
@@ -104,7 +105,7 @@ else:
 # build list of tree files
 treeList =''
 firstentry = True
-for i in xrange(nJobs):
+for i in range(nJobs):
     separator = ',\n                '
     if firstentry:
         separator = '\n                '

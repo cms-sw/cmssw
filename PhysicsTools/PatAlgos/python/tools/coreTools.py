@@ -1,3 +1,4 @@
+from builtins import range
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *

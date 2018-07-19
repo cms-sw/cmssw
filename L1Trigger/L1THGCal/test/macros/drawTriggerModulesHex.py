@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT
 from DrawingUtilities import Cell, TriggerCell, Module
 
@@ -26,7 +27,7 @@ entryList1.__class__ = ROOT.TEntryList
 nentry = entryList1.GetN()
 treeCells.SetEntryList(entryList1)
 print '>> Reading cell tree'
-for ie in xrange(nentry):
+for ie in range(nentry):
     if ie%10000==0: print " Entry {0}/{1}".format(ie, nentry)
     entry = entryList1.GetEntry(ie)
     treeCells.GetEntry(entry)
@@ -58,7 +59,7 @@ entryList2.__class__ = ROOT.TEntryList
 nentry = entryList2.GetN()
 treeTriggerCells.SetEntryList(entryList2)
 print '>> Reading trigger cell tree'
-for ie in xrange(nentry):
+for ie in range(nentry):
     if ie%10000==0: print " Entry {0}/{1}".format(ie, nentry)
     entry = entryList2.GetEntry(ie)
     treeTriggerCells.GetEntry(entry)
@@ -85,7 +86,7 @@ entryList3.__class__ = ROOT.TEntryList
 nentry = entryList3.GetN()
 treeModules.SetEntryList(entryList3)
 print '>> Reading module tree'
-for ie in xrange(nentry):
+for ie in range(nentry):
     if ie%10000==0: print " Entry {0}/{1}".format(ie, nentry)
     entry = entryList3.GetEntry(ie)
     treeModules.GetEntry(entry)

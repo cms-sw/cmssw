@@ -1,3 +1,4 @@
+from builtins import object
 import os
 import coral,datetime
 from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil,lumiCorrections

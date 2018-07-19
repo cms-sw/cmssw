@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import time, os, sys, math, re, gzip
 import tempfile as tmp
 import optparse as opt

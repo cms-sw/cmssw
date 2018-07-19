@@ -7,6 +7,7 @@
 #######
 
 #do all import
+from builtins import range
 import os, sys
 
 try:

@@ -5,6 +5,7 @@ Created on Mon Feb 21 12:38:26 2011
 @author: -
 """
 
+from builtins import range
 functionNumber = 0
 value = []
 error = []

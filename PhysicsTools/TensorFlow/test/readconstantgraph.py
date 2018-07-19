@@ -5,6 +5,7 @@ Test script that reads the constant graph created by "createconstantgraph.py".
 """
 
 
+from builtins import range
 import os
 import sys
 import tensorflow as tf
@@ -27,4 +28,4 @@ with graph.as_default():
 
 sess = tf.Session(graph=graph)
 
-print(sess.run("output:0", feed_dict={"scale:0": 1.0, "input:0": [range(10)]})[0][0])
+print(sess.run("output:0", feed_dict={"scale:0": 1.0, "input:0": [list(range(10))]})[0][0])

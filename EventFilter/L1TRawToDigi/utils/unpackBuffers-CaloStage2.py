@@ -3,6 +3,7 @@
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: SingleElectronPt10_cfi.py -s GEN,SIM,DIGI,L1 --pileup=NoPileUp --geometry DB --conditions=auto:startup -n 1 --no_exec
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 
 
@@ -195,7 +196,7 @@ mpLatencies = cms.untracked.vint32()
 for i in range (0,options.nMP):
     mpLatencies.append(0)
 
-boardIds = cms.untracked.vint32(range(0,options.nMP))
+boardIds = cms.untracked.vint32(list(range(0,options.nMP)))
 
 boardOffset = options.skipEvents % options.nMP
 

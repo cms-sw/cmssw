@@ -1,4 +1,5 @@
 
+from builtins import object
 class TauDecayModes( object ): 
 
     def __init__(self):

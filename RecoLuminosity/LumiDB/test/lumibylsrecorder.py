@@ -1,3 +1,4 @@
+from builtins import object
 import sys,os,os.path,csv,coral,commands,glob
 from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager,nameDealer,argparse
 def getrunsInResult(schema,minrun=132440,maxrun=500000):

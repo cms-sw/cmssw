@@ -1,3 +1,4 @@
+from builtins import range
 from optparse import OptionParser
 import sys, os, operator
 from pprint import pprint

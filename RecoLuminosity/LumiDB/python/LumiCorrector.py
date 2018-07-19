@@ -1,6 +1,7 @@
 ##
 ##identical copy from online. no drift correction
 ##
+from builtins import object
 class LumiCorrector(object):
     def __init__(self,occ1norm=5.714e3,occ2norm=7.97e3,etnorm=1.59e3,occ1constfactor=1.0,punorm=6.37e3,alpha1=0.063,alpha2=-0.0037):
         self.Occ1Norm_=occ1norm

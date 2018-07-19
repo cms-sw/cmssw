@@ -1,3 +1,4 @@
+from builtins import object
 import copy
 from ROOT import heppy
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan

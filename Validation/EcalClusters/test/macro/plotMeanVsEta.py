@@ -1,3 +1,4 @@
+from builtins import range
 import re, sys, os
 
 file = open("output", "r")

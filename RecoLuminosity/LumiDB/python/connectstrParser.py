@@ -1,3 +1,4 @@
+from builtins import object
 import re
 class connectstrParser(object):
     def __init__(self,connectstr):

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from builtins import range
+from builtins import object
 import os
 import re
 import sys
@@ -541,7 +543,7 @@ class FileListCreator(object):
         name += "_JSON.txt"
         print_msg("Creating JSON file: "+name)
 
-        json_file = LumiList.LumiList(runs = xrange(first, last+1))
+        json_file = LumiList.LumiList(runs = range(first, last+1))
         if self._args.json:
             global_json = LumiList.LumiList(filename = self._args.json)
             json_file = json_file & global_json
@@ -869,7 +871,7 @@ def das_client(query, check_key = None):
     """
 
     error = True
-    for i in xrange(5):         # maximum of 5 tries
+    for i in range(5):         # maximum of 5 tries
         das_data = cmssw_das_client.get_data(query, limit = 0)
 
         if das_data["status"] == "ok":
@@ -1062,7 +1064,7 @@ def get_chunks(long_list, chunk_size):
     - `chunk_size`: maximum size of created sub-lists
     """
 
-    for i in xrange(0, len(long_list), chunk_size):
+    for i in range(0, len(long_list), chunk_size):
         yield long_list[i:i+chunk_size]
 
 

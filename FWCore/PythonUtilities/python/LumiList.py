@@ -10,6 +10,8 @@ This code began life in COMP/CRAB/python/LumiList.py
 """
 
 
+from builtins import range
+from builtins import object
 import copy
 import json
 import re

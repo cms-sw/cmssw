@@ -1,3 +1,4 @@
+from builtins import object
 import math
 from ROOT import TLorentzVector       
 from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR2

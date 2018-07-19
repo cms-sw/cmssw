@@ -8,6 +8,7 @@
 #
 #____________________________________________________________
 
+from builtins import range
 import sys
 import math
 import commands
@@ -55,7 +56,7 @@ def main():
     MCefferrarray_alleta = array('d')
         
 
-    for ipt in xrange(0,ptNbins):
+    for ipt in range(0,ptNbins):
         SF_alleta = 0.
         SFerr_alleta = 0.
         Eff_alleta = 0.
@@ -67,7 +68,7 @@ def main():
         ptarray.append( apt )
         pterrarray.append( ptbinwidth*0.5 )
                     
-        for ieta in xrange(0,etaNbins):
+        for ieta in range(0,etaNbins):
 
             aeta = etamin = ieta*etabinwidth
 

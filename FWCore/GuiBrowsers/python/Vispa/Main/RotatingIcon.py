@@ -1,3 +1,4 @@
+from builtins import range
 from PyQt4.QtCore import QTimeLine,SIGNAL,Qt
 from PyQt4.QtGui import QLabel,QPixmap,QMatrix,QPainter
 

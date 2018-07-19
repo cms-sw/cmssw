@@ -2,6 +2,7 @@
 ## Tung, released under PSF license.
 ## http://code.activestate.com/recipes/534109/
 
+from builtins import object
 import re
 import os
 import xml.sax.handler

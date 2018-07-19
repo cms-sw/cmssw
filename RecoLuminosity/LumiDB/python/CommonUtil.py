@@ -1,5 +1,6 @@
 '''This module collects some frequently used helper functions
 '''
+from builtins import range
 import time,ast,re,json,coral,array
 def flatten(obj):
     '''Given nested lists or tuples, returns a single flattened list'''

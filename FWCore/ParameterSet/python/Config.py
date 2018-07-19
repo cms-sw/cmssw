@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ### command line options helper
+from builtins import object
 import six
 from  Options import Options
 options = Options()

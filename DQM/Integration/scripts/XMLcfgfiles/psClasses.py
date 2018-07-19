@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from builtins import range
+from builtins import object
 import os,subprocess,sys,re,time,random
 from threading import *
 from subprocess import call
 #Some Constants
-STATE_CREATED,STATE_COMPLETED,STATE_ERROR=range(3) 
+STATE_CREATED,STATE_COMPLETED,STATE_ERROR=list(range(3)) 
 
 ### Classes
 class BuildThread(Thread):

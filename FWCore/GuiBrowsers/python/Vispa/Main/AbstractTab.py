@@ -1,3 +1,4 @@
+from builtins import object
 class AbstractTab(object):
     """ Abstract class for tabs to which a TabController can be attached.
     """

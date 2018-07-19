@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 from Page1Parser import Page1Parser
 import sys
 import os
@@ -81,7 +82,7 @@ def TrendingWithLumi(ColLumi,PrescaleTable):
 def isMonotonic(array, ignoreCols):  # return 0 if not, 1 if true and 2 if the array is constant
     lastEntry = array[0]
     returnVal=2
-    for entry,i in zip(array[0:],range(len(array[0:]))):
+    for entry,i in zip(array[0:],list(range(len(array[0:])))):
         if i in ignoreCols:
             continue
         if lastEntry<entry and lastEntry!=0:

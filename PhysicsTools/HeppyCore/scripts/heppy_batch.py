@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from builtins import range
 import sys
 import imp
 import copy
@@ -361,7 +362,7 @@ if __name__ == '__main__':
     handle.close()
 
     components = split( [comp for comp in config.components if len(comp.files)>0] )
-    listOfValues = range(0, len(components))
+    listOfValues = list(range(0, len(components)))
     listOfNames = [comp.name for comp in components]
 
     batchManager.PrepareJobs( listOfValues, listOfNames )

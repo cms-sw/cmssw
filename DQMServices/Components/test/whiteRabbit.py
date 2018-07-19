@@ -1,5 +1,6 @@
 #!/usr/bin/env python -u
 
+from builtins import range
 import os, sys, re, time, commands, glob
 from optparse import OptionParser, OptionGroup
 from threading import Thread

@@ -1,3 +1,4 @@
+from builtins import range
 import sys
 from colors import *
 write = sys.stdout.write

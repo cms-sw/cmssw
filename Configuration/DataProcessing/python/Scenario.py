@@ -13,6 +13,7 @@ configurations for the various types of job
 
 """
 
+from builtins import object
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.Merge import mergeProcess
 from Configuration.DataProcessing.Repack import repackProcess

@@ -1,3 +1,4 @@
+from builtins import object
 import copy
 import inspect
 import FWCore.ParameterSet.Config as cms

@@ -1,6 +1,7 @@
 # Note: this is specifically to parse a .csv file generated from a command like
 # pixelLumiCalc.py lumibyls -i json_DCSONLY_pp.txt --hltpath "HLT_Photon75_CaloIdVL_IsoL*" -o myHLTtest.out
 # format: Run,LS,HLTpath,L1bit,HLTpresc,L1presc,Recorded(/ub),Effective(/ub)
+from builtins import object
 import csv
 import re
 def is_intstr(s):

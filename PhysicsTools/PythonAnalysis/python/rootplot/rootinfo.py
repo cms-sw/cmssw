@@ -3,6 +3,7 @@ Print information about objects in a ROOT file.
 """
 from __future__ import absolute_import
 
+from builtins import range
 from .version import __version__
 
 from ROOT import Double
@@ -45,7 +46,7 @@ def recurse_thru_file(in_tfile, options, full_path='/'):
                         if obj.InheritsFrom('TH2'):
                             # Print contents as they would look on the 2D graph
                             # Left to right, top to bottom.  Start in upper left corner.
-                            for j in reversed(range(obj.GetNbinsY())):
+                            for j in reversed(list(range(obj.GetNbinsY()))):
                                 print
                                 print " %s" % ' '.join(
                                     [str(obj.GetBinContent(i+1, j+1)) for i in range(obj.GetNbinsX())]),
@@ -54,7 +55,7 @@ def recurse_thru_file(in_tfile, options, full_path='/'):
                                 [str(obj.GetBinContent(i+1)) for i in range(obj.GetNbinsX())]),
                     if "errors" == arg:
                         if obj.InheritsFrom('TH2'):
-                            for j in reversed(range(obj.GetNbinsY())):
+                            for j in reversed(list(range(obj.GetNbinsY()))):
                                 print
                                 print " %s" % ' '.join(
                                     [str(obj.GetBinError(i+1, j+1)) for i in range(obj.GetNbinsX())]),

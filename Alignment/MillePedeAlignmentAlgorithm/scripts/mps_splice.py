@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import range
 import re
 import argparse
 import math
@@ -58,7 +59,7 @@ numberOfFiles   = len(fileNames)
 numberOfExtends = int(math.ceil(numberOfFiles/255.))
 
 # Create and insert the readFile.extend lines
-for j in xrange(numberOfExtends):
+for j in range(numberOfExtends):
     insertBlock = "readFiles.extend([\n    "
     i=0
     currentStart = j*255

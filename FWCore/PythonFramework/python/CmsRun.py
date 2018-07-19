@@ -1,3 +1,4 @@
+from builtins import object
 import libFWCorePythonFramework as _pf
 import libFWCorePythonParameterSet as _pp
 

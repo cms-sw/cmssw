@@ -1,3 +1,4 @@
+from builtins import object
 __author__ = 'Giacomo Govi'
 
 import sqlalchemy

@@ -11,6 +11,8 @@
 #            However, copytree does not use ignore patterns (for filtering files)
 #            before python v2.6, when we upgrade to python 2.6 we should use this
 #            functionality.
+from builtins import range
+from builtins import object
 import tempfile as tmp
 import optparse as opt
 import cmsPerfRegress as cpr

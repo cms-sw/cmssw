@@ -2,6 +2,7 @@
 #Script to parse the output of ManualO2O.py for various debugging tasks
 #First use case is to debug issue with HV1/HV2 channels handling
 
+from builtins import range
 import os,datetime, pickle
 def GetLogTimestamps(ManualO2Ologfilename):
     """
@@ -332,7 +333,7 @@ class TrkVoltageStatus:
         #Make the startTime of the initialization an attribute of the object:
         self.startTime=startTime
         #Basic structure of the internal history dictionary, based on query results
-        self.PSUChannelHistory={startTime:range(len(self.PSUChannels))}
+        self.PSUChannelHistory={startTime:list(range(len(self.PSUChannels)))}
         #NOTE:
         #Using the indeces to the self.PSUChannels list of PSUChannels to spare memory...
         #Strategy:

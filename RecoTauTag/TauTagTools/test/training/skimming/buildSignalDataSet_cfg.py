@@ -1,3 +1,4 @@
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.RecoTauCommonJetSelections_cfi as common
 import sys

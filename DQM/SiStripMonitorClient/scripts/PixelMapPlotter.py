@@ -1,5 +1,6 @@
 #!/usr/bin/python 
 
+from builtins import range
 import ROOT
 import sys
 import getopt
@@ -450,7 +451,7 @@ def GetAffectedRocs(rocString):
         if iHyphen!=-1:
             start=int(rocString[0:iHyphen])
             end=int(rocString[iHyphen+1:len(rocString)])+1
-            listOfRocs.extend(range(start,end))
+            listOfRocs.extend(list(range(start,end)))
         else:
             return [int(rocString)]
         

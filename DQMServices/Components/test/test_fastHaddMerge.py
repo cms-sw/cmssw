@@ -6,6 +6,8 @@ Produce a custom number of identical ROOT files and check that their
 final merged output matches what is expected.
 """
 
+from builtins import range
+from builtins import object
 from optparse import OptionParser
 import sys
 import commands

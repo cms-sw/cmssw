@@ -1,6 +1,7 @@
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
+from builtins import object
 import math
 import pickle
 from PhysicsTools.HeppyCore.utils.diclist import diclist

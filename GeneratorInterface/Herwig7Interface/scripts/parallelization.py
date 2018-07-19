@@ -38,6 +38,7 @@
 # Author: Dominik Beutel
 
 
+from builtins import range
 import argparse
 import sys
 import os
@@ -119,9 +120,9 @@ def cleanupandexit(filelist):
 parser = argparse.ArgumentParser()
 
 parser.add_argument('cmsRunfile', help='filename of the cmsRun configuration')
-parser.add_argument('-b', '--build', help='set the number of build jobs', type=int, choices=range(0,11), default=0)
+parser.add_argument('-b', '--build', help='set the number of build jobs', type=int, choices=list(range(0,11)), default=0)
 parser.add_argument('-i', '--integrate', help='set the maximal number of integration jobs', type=uint, default=0)
-parser.add_argument('-r', '--run', help='set the number of run jobs', type=int, choices=range(0,11), default=0)
+parser.add_argument('-r', '--run', help='set the number of run jobs', type=int, choices=list(range(0,11)), default=0)
 parser.add_argument('--nointegration', help='build -i integration jobs without actually integrating', action='store_true')
 parser.add_argument('--keepfiles', help='don\'t delete temporary files', action='store_true')
 parser.add_argument('--stoprun', help='stop after creating the cmsRun files for the run step', action='store_true')

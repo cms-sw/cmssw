@@ -8,6 +8,8 @@ Note: some things done in methods written in classes rely on the querying module
       so these will not work in a normal context outside the framework.
 
 """
+from builtins import range
+#from builtins import object
 import json
 import datetime
 
@@ -849,7 +851,7 @@ def generate(map_blobs=False, class_name=None):
                     else:
                         # otherwise, iterate down from n to find the last sqlite iov,
                         # and assign that hash
-                        for i in reversed(range(0,n)):
+                        for i in reversed(list(range(0,n))):
                             if new_iovs_list[i].source == "sqlite":
                                 print("change %s to %s at since %d" % (iov.payload_hash, new_iovs_list[i].payload_hash, iov.since))
                                 iov.payload_hash = new_iovs_list[i].payload_hash

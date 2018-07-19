@@ -56,11 +56,8 @@ process.load("Validation.TrackerDigis.trackerDigisValidation_cff")
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-<<<<<<< Muon_FullChain_cfg.py
 #process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
-=======
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
->>>>>>> 1.4
 
 process.load("Validation.TrackerRecHits.trackerRecHitsValidation_cff")
 

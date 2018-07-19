@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from builtins import range
+from builtins import object
 __version__ = "$Revision: 1.19 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 

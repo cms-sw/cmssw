@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from builtins import range
 import os, time, sys, glob, re, shutil, stat, smtplib, socket
 from email.MIMEText import MIMEText
 from fcntl import lockf, LOCK_EX, LOCK_UN

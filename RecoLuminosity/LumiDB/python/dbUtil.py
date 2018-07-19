@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 import coral
 from RecoLuminosity.LumiDB import nameDealer        
 class dbUtil(object):

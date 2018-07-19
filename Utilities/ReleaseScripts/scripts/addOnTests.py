@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from builtins import range
+from builtins import object
 import os
 import time
 import sys

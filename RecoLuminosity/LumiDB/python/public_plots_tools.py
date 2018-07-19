@@ -2,6 +2,7 @@
 ## File: public_plots_tools.py
 ######################################################################
 
+from builtins import object
 import os
 import math
 from colorsys import hls_to_rgb, rgb_to_hls

@@ -2,6 +2,7 @@
 # Original Author:  Marco Rovere
 #         Created:  Tue Feb 9 10:06:02 CEST 2010
 
+from builtins import range
 import re
 import sys, os
 import sqlite3

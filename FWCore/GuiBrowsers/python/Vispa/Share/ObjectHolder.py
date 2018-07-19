@@ -1,3 +1,4 @@
+from builtins import object
 import logging
 
 class ObjectHolder(object):

@@ -1,3 +1,4 @@
+from builtins import range
 from optparse import OptionParser
 from random import gauss
 from math import sqrt

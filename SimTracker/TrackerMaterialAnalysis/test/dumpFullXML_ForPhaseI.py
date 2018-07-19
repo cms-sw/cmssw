@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import argparse
 import os, sys
 import pprint
@@ -144,7 +145,7 @@ def compareNewXMLWithOld(format_for_twiki):
                                                                                      differences[group]['TrackerRadLength'][1],
                                                                                      differences[group]['TrackerXi'][1]))
 #    pprint.pprint(differences)
-    for i in xrange(len(ordered_keys)):
+    for i in range(len(ordered_keys)):
         key = ordered_keys[i]
         if format_for_twiki:
             print "| %s | %f | %f | %f%% | %f | %f | %f%% |" % (key,

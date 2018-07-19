@@ -14,6 +14,7 @@
 #
 #____________________________________________________________
 
+from builtins import range
 import sys,os,re,string
 import commands
 

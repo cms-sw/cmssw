@@ -1,3 +1,4 @@
+from builtins import object
 class PileUpSummaryInfo( object ):
     def __init__(self, object ):
         self.object = object

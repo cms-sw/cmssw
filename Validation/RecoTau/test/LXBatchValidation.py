@@ -2,6 +2,7 @@
 
 # Script to submit Tau Validation jobs to lxbatch
 #  Author: Evan Friis evan.klose.friis@cern.ch
+from builtins import range
 import time
 import random
 from Validation.RecoTau.ValidationOptions_cff import *
@@ -72,7 +73,7 @@ cleanupCommands = ""
 if options.writeEDMFile != "":
    cleanupCommand += " rfcp *.root %s;" % options.copyToCastorDir
 
-for iJob in xrange(0, options.nJobs):
+for iJob in range(0, options.nJobs):
    options.batchNumber = iJob #increment batch number
    #setupCommands = "cd $PWD; scramv1 runtime -sh > tempEnvs_%s_%i; source tempEnvs_%s_%i; rm tempEnvs_%s_%i; export PYTHONPATH=$PWD:$PYTHONPATH; cd -;" % (options.eventType, iJob, options.eventType, iJob, options.eventType, iJob)
    #cmsRunCommand = "cmsRun $PWD/RunValidation_cfg.py %s;" % returnOptionsString()

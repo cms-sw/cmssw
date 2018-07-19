@@ -1,3 +1,4 @@
+from builtins import range
 import sys, os
 import FWCore.ParameterSet.Config as cms
 

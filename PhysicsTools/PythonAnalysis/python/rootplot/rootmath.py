@@ -3,6 +3,8 @@ rootmath description
 """
 from __future__ import absolute_import
 
+from builtins import range
+from builtins import object
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
 

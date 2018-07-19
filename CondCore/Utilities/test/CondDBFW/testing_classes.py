@@ -9,6 +9,7 @@ TODO: Change code so that all connections are used when testing queries - if thi
 
 """
 
+from builtins import range
 import unittest
 import sys
 import datetime

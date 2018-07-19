@@ -6,6 +6,7 @@
 #modified by Michele de Gruttola 08-10-2009
 
 
+from builtins import range
 import FWCore.ParameterSet.Config as cms
 import copy
 

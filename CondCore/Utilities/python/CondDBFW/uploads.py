@@ -7,6 +7,7 @@ This module holds classes to help with uploading conditions to the drop box web 
 
 """
 
+#from builtins import object
 import os
 import json
 import base64

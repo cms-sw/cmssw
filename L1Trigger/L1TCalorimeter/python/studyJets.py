@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import os
 import sys
 import math
@@ -28,7 +29,7 @@ def getJetProperties(jetSeed,etaFwd,etaCen):
     etaFwdSize = 0
     etaCenSize = 0
 
-    for ring in xrange(jetSeed-etaCen,jetSeed+etaFwd+1):
+    for ring in range(jetSeed-etaCen,jetSeed+etaFwd+1):
 
         if ring < 1:
             ring = abs(ring-1)
@@ -101,8 +102,8 @@ print "9xN fwd  = larger area on side of jet closer to beam pipe"
 print "=============================================================================================================================================================================================================================="
 
 
-beEtaRange = xrange(16,29)
-hfEtaRange = xrange(29,41)
+beEtaRange = range(16,29)
+hfEtaRange = range(29,41)
 
 
 jetEtaSizes = [9,8,7,6,5,4,3]

@@ -1,3 +1,4 @@
+from builtins import object
 class EventFileAccessor(object):
     """ This class provides access to the underlying data model.
     """

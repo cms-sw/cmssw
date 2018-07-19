@@ -1,3 +1,4 @@
+from builtins import range
 import ROOT, os, math, sys
 import numpy as num
 from DataFormats.FWLite import Events, Handle

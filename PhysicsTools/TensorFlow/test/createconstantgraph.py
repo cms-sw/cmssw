@@ -8,6 +8,7 @@ https://www.tensorflow.org/api_docs/python/tf/graph_util/convert_variables_to_co
 """
 
 
+from builtins import range
 import os
 import sys
 import tensorflow as tf
@@ -30,7 +31,7 @@ y = tf.multiply(h, scale_, name="output")
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-print(sess.run(y, feed_dict={scale_: 1.0, x_: [range(10)]})[0][0])
+print(sess.run(y, feed_dict={scale_: 1.0, x_: [list(range(10))]})[0][0])
 
 
 outputs = ["output"]

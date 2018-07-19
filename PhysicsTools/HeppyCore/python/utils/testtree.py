@@ -1,3 +1,4 @@
+from builtins import range
 from ROOT import TFile
 from PhysicsTools.HeppyCore.statistics.tree import Tree
 

@@ -1,6 +1,7 @@
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
+from builtins import object
 from weight import Weight
 import copy
 import glob

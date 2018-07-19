@@ -1,6 +1,7 @@
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
+from builtins import object
 def printWeights( weights ):
     import six
     for key, value in six.iteritems(weights):

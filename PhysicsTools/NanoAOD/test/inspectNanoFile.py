@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from builtins import range
 import sys, os.path, json
 from collections import defaultdict
 import six
@@ -93,7 +94,7 @@ def inspectRootFile(infile):
         entries = tree.GetEntries()
         trees[treeName] = tree
         branchList = tree.GetListOfBranches()
-        allbranches = [ Branch(tree,branchList.At(i)) for i in xrange(branchList.GetSize()) ]
+        allbranches = [ Branch(tree,branchList.At(i)) for i in range(branchList.GetSize()) ]
         branchmap = dict((b.name,b) for b in allbranches)
         branchgroups = {}
         # make list of counters and countees
