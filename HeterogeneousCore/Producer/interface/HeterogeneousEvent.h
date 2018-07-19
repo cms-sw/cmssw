@@ -33,13 +33,13 @@ namespace edm {
 
 
     template <typename Product, typename Token, typename Type>
-    void getByToken(const Token& token, edm::Handle<Type>& handle) const {
+    bool getByToken(const Token& token, edm::Handle<Type>& handle) const {
       edm::Handle<HeterogeneousProduct> tmp;
       constEvent_->getByToken(token, tmp);
       if(tmp.failedToGet()) {
         auto copy = tmp.whyFailedFactory();
         handle = edm::Handle<Type>(std::move(copy));
-        return;
+        return false;
       }
       if(tmp.isValid()) {
 #define CASE(ENUM) case ENUM: this->template get<ENUM, Product>(handle, tmp, 0); break
@@ -51,13 +51,15 @@ namespace edm {
           throw cms::Exception("LogicError") << "edm::HeterogeneousEvent::getByToken(): no case statement for device " << static_cast<unsigned int>(location().deviceType()) << ". If you are calling getByToken() from produceX() where X != CPU, please move the call to acquireX().";
         }
 #undef CASE
+        return true;
       }
+      return false;
     }
 
     // Delegate standard getByToken to edm::Event
     template <typename Token, typename Type>
-    void getByToken(const Token& token, edm::Handle<Type>& handle) const {
-      constEvent_->getByToken(token, handle);
+    bool getByToken(const Token& token, edm::Handle<Type>& handle) const {
+      return constEvent_->getByToken(token, handle);
     }
 
     template <typename PROD>
