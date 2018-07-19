@@ -5,7 +5,7 @@
 #include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,40 +22,39 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTIslandClusterProducer : public edm::global::EDProducer<> {
+class EgammaHLTIslandClusterProducer : public edm::stream::EDProducer<> {
  public:
   EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTIslandClusterProducer() override;
-  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 
-  IslandClusterAlgo::VerbosityLevel verbosity;
-
-  bool doBarrel_;
-  bool doEndcaps_;
-  bool doIsolated_;
+  const bool doBarrel_;
+  const bool doEndcaps_;
+  const bool doIsolated_;
   
-  edm::InputTag barrelHitCollection_;
-  edm::InputTag endcapHitCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
-  edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
+  const edm::InputTag barrelHitCollection_;
+  const edm::InputTag endcapHitCollection_;
+  const edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
   
-  std::string barrelClusterCollection_;
-  std::string endcapClusterCollection_;
+  const std::string barrelClusterCollection_;
+  const std::string endcapClusterCollection_;
   
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagIsolated_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagNonIsolated_;
-  double l1LowerThr_;
-  double l1UpperThr_;
-  double l1LowerThrIgnoreIsolation_;
+  const edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagIsolated_;
+  const edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagNonIsolated_;
+  const double l1LowerThr_;
+  const double l1UpperThr_;
+  const double l1LowerThrIgnoreIsolation_;
   
-  double regionEtaMargin_;
-  double regionPhiMargin_;
+  const double regionEtaMargin_;
+  const double regionPhiMargin_;
   
-  PositionCalc posCalculator_; // position calculation algorithm
-  IslandClusterAlgo * island_p;
+  const PositionCalc posCalculator_; // position calculation algorithm
+  const std::string verb_;
+  IslandClusterAlgo * const island_p;
   
   const EcalRecHitCollection * getCollection(edm::Event& evt,
 					     const edm::EDGetTokenT<EcalRecHitCollection>& hitToken) const ;

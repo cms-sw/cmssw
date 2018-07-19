@@ -50,17 +50,17 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<reco::BasicClusterCollection> bcBarrelProducer_;
-  edm::EDGetTokenT<reco::BasicClusterCollection> bcEndcapProducer_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandBarrelProducer_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
+  const edm::ParameterSet conf_;
 
-  edm::ParameterSet conf_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<reco::BasicClusterCollection> bcBarrelProducer_;
+  const edm::EDGetTokenT<reco::BasicClusterCollection> bcEndcapProducer_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> scIslandBarrelProducer_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
 
-  double  egEcalIsoEtMin_;
-  double  egEcalIsoConeSize_;
-  int algoType_;
-  EgammaHLTEcalIsolation* test_;
+  const double  egEcalIsoEtMin_;
+  const double  egEcalIsoConeSize_;
+  const int algoType_;
+  EgammaHLTEcalIsolation const * const test_;
 };
 

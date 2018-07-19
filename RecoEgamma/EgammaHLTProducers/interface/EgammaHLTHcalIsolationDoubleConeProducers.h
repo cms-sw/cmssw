@@ -43,16 +43,16 @@ public:
 
 private:
 
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<HBHERecHitCollection> hbRecHitProducer_;
-  edm::EDGetTokenT<HFRecHitCollection> hfRecHitProducer_;
+  const edm::ParameterSet conf_;
 
-  double egHcalIsoPtMin_;
-  double egHcalIsoConeSize_;
-  double egHcalExclusion_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbRecHitProducer_;
+  const edm::EDGetTokenT<HFRecHitCollection> hfRecHitProducer_;
 
-  edm::ParameterSet conf_;
+  const double egHcalIsoPtMin_;
+  const double egHcalIsoConeSize_;
+  const double egHcalExclusion_;
   
-  EgammaHLTHcalIsolationDoubleCone* test_;
+  EgammaHLTHcalIsolationDoubleCone const * const test_;
 };
 

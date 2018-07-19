@@ -34,51 +34,46 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
 
 EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps)
-{
-  // The verbosity level
-  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = IslandClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = IslandClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = IslandClusterAlgo::pINFO;
-  else                                   verbosity = IslandClusterAlgo::pERROR;
-
-  doBarrel_   = ps.getParameter<bool>("doBarrel");
-  doEndcaps_  = ps.getParameter<bool>("doEndcaps");
-  doIsolated_ = ps.getParameter<bool>("doIsolated");
+  : doBarrel_   (ps.getParameter<bool>("doBarrel"))
+  , doEndcaps_  (ps.getParameter<bool>("doEndcaps"))
+  , doIsolated_ (ps.getParameter<bool>("doIsolated"))
 
   // Parameters to identify the hit collections
-  barrelHitCollection_   = ps.getParameter<edm::InputTag>("barrelHitProducer");
-  endcapHitCollection_   = ps.getParameter<edm::InputTag>("endcapHitProducer");
-  barrelHitToken_   = consumes<EcalRecHitCollection>(barrelHitCollection_);
-  endcapHitToken_   = consumes<EcalRecHitCollection>(endcapHitCollection_);
+  , barrelHitCollection_   (ps.getParameter<edm::InputTag>("barrelHitProducer"))
+  , endcapHitCollection_   (ps.getParameter<edm::InputTag>("endcapHitProducer"))
+  , barrelHitToken_   (consumes<EcalRecHitCollection>(barrelHitCollection_))
+  , endcapHitToken_   (consumes<EcalRecHitCollection>(endcapHitCollection_))
 
   // The names of the produced cluster collections
-  barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
-  endcapClusterCollection_  = ps.getParameter<std::string>("endcapClusterCollection");
-
-  // Island algorithm parameters
-  double barrelSeedThreshold = ps.getParameter<double>("IslandBarrelSeedThr");
-  double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
+  , barrelClusterCollection_  (ps.getParameter<std::string>("barrelClusterCollection"))
+  , endcapClusterCollection_  (ps.getParameter<std::string>("endcapClusterCollection"))
 
   // L1 matching parameters
-  l1TagIsolated_    = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated"));
-  l1TagNonIsolated_ = consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated"));
-  l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
-  l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
-  l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
+  , l1TagIsolated_    (consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagIsolated")))
+  , l1TagNonIsolated_ (consumes<l1extra::L1EmParticleCollection>(ps.getParameter< edm::InputTag > ("l1TagNonIsolated")))
+  , l1LowerThr_ (ps.getParameter<double> ("l1LowerThr"))
+  , l1UpperThr_ (ps.getParameter<double> ("l1UpperThr"))
+  , l1LowerThrIgnoreIsolation_ (ps.getParameter<double> ("l1LowerThrIgnoreIsolation"))
 
-  regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
-  regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
+  , regionEtaMargin_   (ps.getParameter<double>("regionEtaMargin"))
+  , regionPhiMargin_   (ps.getParameter<double>("regionPhiMargin"))
 
    // Parameters for the position calculation:
-  posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
-
+  , posCalculator_ (PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") ))
+  // Island algorithm parameters
+  , verb_ (ps.getParameter<std::string>("VerbosityLevel"))
+  , island_p (new IslandClusterAlgo(ps.getParameter<double>("IslandBarrelSeedThr"),
+                                     ps.getParameter<double>("IslandEndcapSeedThr"),
+                                     posCalculator_,
+                                     verb_ == "DEBUG" ? IslandClusterAlgo::pDEBUG :
+                                     (verb_ == "WARNING" ? IslandClusterAlgo::pWARNING :
+                                      (verb_ == "INFO" ? IslandClusterAlgo::pINFO :
+                                       IslandClusterAlgo::pERROR)))
+                                     )
+{
   // Produces a collection of barrel and a collection of endcap clusters
-
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
-
-  island_p = new IslandClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
 }
 
 EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
@@ -109,7 +104,7 @@ void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescript
   descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
 
-void EgammaHLTIslandClusterProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
+void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;

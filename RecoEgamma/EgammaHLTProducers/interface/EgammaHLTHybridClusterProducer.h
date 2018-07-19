@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,34 +20,33 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTHybridClusterProducer : public edm::global::EDProducer<>  {
+class EgammaHLTHybridClusterProducer : public edm::stream::EDProducer<>  {
  public:
   EgammaHLTHybridClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTHybridClusterProducer() override;
-  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
+ private:
   
-  bool doIsolated_;
-  
-  std::string basicclusterCollection_;
-  std::string superclusterCollection_;
-  edm::EDGetTokenT<EcalRecHitCollection> hittoken_;
-  edm::InputTag hitcollection_;
+  const std::string basicclusterCollection_;
+  const std::string superclusterCollection_;
+  const edm::EDGetTokenT<EcalRecHitCollection> hittoken_;
+  const edm::InputTag hitcollection_;
 
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagIsolated_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagNonIsolated_;
-  //edm::InputTag l1Tag_;
-  double l1LowerThr_;
-  double l1UpperThr_;
-  double l1LowerThrIgnoreIsolation_;
+  const edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagIsolated_;
+  const edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1TagNonIsolated_;
+
+  const bool doIsolated_;
+  const double l1LowerThr_;
+  const double l1UpperThr_;
+  const double l1LowerThrIgnoreIsolation_;
   
-  double regionEtaMargin_;
-  double regionPhiMargin_;
+  const double regionEtaMargin_;
+  const double regionPhiMargin_;
   
-  HybridClusterAlgo * hybrid_p; // clustering algorithm
-  PositionCalc posCalculator_; // position calculation algorithm
+  const PositionCalc posCalculator_; // position calculation algorithm
+  HybridClusterAlgo * const hybrid_p; // clustering algorithm
   
 };
 #endif
