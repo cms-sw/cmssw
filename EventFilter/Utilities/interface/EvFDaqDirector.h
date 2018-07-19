@@ -123,7 +123,8 @@ namespace evf{
       void unlockFULocal2();
       void createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const;
       void createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection, bool doCreateBoLS = true);
-      int grabNextJsonFile(boost::filesystem::path const& jsonSourcePath, boost::filesystem::path const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound, bool unlock=true);
+      int grabNextJsonFile(std::string const& jsonSourcePath, std::string const& rawSourcePath, int64_t& fileSizeFromJson, bool& fileFound);
+      int grabNextJsonFileAndUnlock(boost::filesystem::path const& jsonSourcePath);
 
       EvFDaqDirector::FileStatus contactFileBroker(unsigned int& serverHttpStatus, bool& serverState,
                                                 uint32_t& serverLS, uint32_t& closedServerLS,
