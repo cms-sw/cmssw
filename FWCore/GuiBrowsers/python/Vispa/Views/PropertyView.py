@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 import sys
 import os.path
@@ -313,7 +314,7 @@ class PropertyView(QTableWidget, AbstractView):
                 if result==True:
                     self.emit(SIGNAL('valueChanged'),property.name(), newvalue, oldValue, property.categoryName())
                 else:
-                    print "valueChanged() result = ", result, type(result)
+                    print("valueChanged() result = ", result, type(result))
                     property.setToolTip(result)
                     QMessageBox.critical(self.parent(), 'Error', result)
                     bad=True

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from copy import deepcopy
 import inspect
 import six
@@ -112,7 +113,7 @@ def new_dumpHistory(self,withImports=True):
         if isinstance(item,(str,unicode)):
             dumpHistory.append(item +"\n")
         else: # isTool
-	    print item
+	    print(item)
             dump=item.dumpPython()
             if isinstance(dump,tuple):
                 if withImports and dump[0] not in dumpHistory:

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import os.path
 import logging
@@ -254,7 +255,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             for path in entry:
                 self._readRecursive(folder, path)
 	if True:
-            print "Creating schedule...",
+            print("Creating schedule...", end=' ')
             self.readConnections(self.allChildren(folders["modules"]))
 	    self._scheduleRecursive(folders["paths"])
 	    self._scheduledObjects.reverse()
@@ -267,7 +268,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             folders["paths"]._configChildren.remove(scheduled_folder)
             folders["paths"]._configChildren.insert(0,scheduled_folder)
 	    scheduled_folder._configChildren=self._scheduledObjects
-	    print "done"
+	    print("done")
         else:
 	    self._scheduledObjects=self._allObjects
 
