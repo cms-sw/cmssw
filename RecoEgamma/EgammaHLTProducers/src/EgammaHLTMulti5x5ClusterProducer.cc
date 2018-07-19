@@ -119,7 +119,7 @@ void EgammaHLTMulti5x5ClusterProducer::fillDescriptions(edm::ConfigurationDescri
   descriptions.add(("hltEgammaHLTMulti5x5ClusterProducer"), desc);  
 }
 
-void EgammaHLTMulti5x5ClusterProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const {
+void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   //Get the L1 EM Particle Collection
   edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
