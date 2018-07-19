@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ### command line options helper
+from __future__ import print_function
 import six
 from  Options import Options
 options = Options()
@@ -1009,10 +1010,10 @@ class Process(object):
             unneededSeqLabels.append(s.label_())
             delattr(self,s.label_())
         if verbose:
-            print "prune removed the following:"
-            print "  modules:"+",".join(unneededModules)
-            print "  sequences:"+",".join(unneededSeqLabels)
-            print "  paths/endpaths:"+",".join(unneededPaths)
+            print("prune removed the following:")
+            print("  modules:"+",".join(unneededModules))
+            print("  sequences:"+",".join(unneededSeqLabels))
+            print("  paths/endpaths:"+",".join(unneededPaths))
     def _pruneModules(self, d, scheduledNames):
         moduleNames = set(d.keys())
         junk = moduleNames - scheduledNames

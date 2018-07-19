@@ -1,3 +1,4 @@
+from __future__ import print_function
 #------------------------------------------------------------
 #
 #
@@ -428,6 +429,6 @@ if __name__ == "__main__":
 
     txt = file(filename).read()
     cfg = cmsconfig(txt)
-    print cfg.asConfigurationString()
+    print(cfg.asConfigurationString())
     
 
