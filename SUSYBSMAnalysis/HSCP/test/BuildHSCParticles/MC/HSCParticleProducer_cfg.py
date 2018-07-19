@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HSCPAnalysis")
@@ -173,7 +174,7 @@ if CMSSW4_2: process.p1 = cms.Path(process.nEventsBefEDM + process.HSCPTrigger +
 #else:        process.p1 = cms.Path(process.nEventsBefEDM + process.HSCPTrigger + process.ak5PFJetsPt15 + process.HSCParticleProducerSeq)
 else:        process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 
-print "You are going to run the following sequence: " + str(process.p1)
+print("You are going to run the following sequence: " + str(process.p1))
 
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
