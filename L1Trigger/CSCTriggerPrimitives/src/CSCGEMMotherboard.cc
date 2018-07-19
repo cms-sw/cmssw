@@ -127,6 +127,10 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
 
   // make a new LCT
   CSCCorrelatedLCTDigi thisLCT;
+  if (not alct.isValid() and not clct.isValid()) {
+    LogTrace("CSCGEMCMotherboard") << "Warning!!! either ALCT or CLCT not valid, return invalid LCT \n";
+    return thisLCT;
+  }
 
   // Determine the case and assign properties depending on the LCT dataformat (old/new)
   if (alct.isValid() and clct.isValid() and gem1.isValid() and not gem2.isValid()) {
@@ -154,19 +158,20 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
   }
-  else if (alct.isValid() and gem2.isValid()) {
+  else if (alct.isValid() and gem2.isValid() and not clct.isValid()) {
     const auto& mymap1 = getLUT()->get_gem_pad_to_csc_hs(par, p);
     pattern = promoteALCTGEMpattern_ ? 10 : 0;
     quality = promoteALCTGEMquality_ ? 15 : 11;
     bx = alct.getBX();
-    keyStrip = mymap1[gem2.pad(2)];
+    // GEM pad number is counting from 1
+    keyStrip = mymap1[gem2.pad(2) - 1];
     keyWG = alct.getKeyWG();
     thisLCT.setALCT(getBXShiftedALCT(alct));
     thisLCT.setGEM1(gem2.first());
     thisLCT.setGEM2(gem2.second());
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   }
-  else if (clct.isValid() and gem2.isValid()) {
+  else if (clct.isValid() and gem2.isValid() and not alct.isValid()) {
     const auto& mymap2 = getLUT()->get_gem_roll_to_csc_wg(par, p);
     pattern = encodePattern(clct.getPattern(), clct.getStripType());
     quality = promoteCLCTGEMquality_ ? 15 : 11;
