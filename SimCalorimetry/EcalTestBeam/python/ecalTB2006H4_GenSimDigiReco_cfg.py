@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os
 
@@ -245,7 +246,7 @@ if mySample == "gf":
         tuning_pList = myParList
     )
 
-print "physics type : ", process.g4SimHits.Physics.type
+print("physics type : ", process.g4SimHits.Physics.type)
 
 # sequences
 process.doSimHits = cms.Sequence(process.ProductionFilterSequence*process.VtxSmeared*process.g4SimHits)
