@@ -14,21 +14,19 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTEcalIsolationProducersRegional::EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config) {
+EgammaHLTEcalIsolationProducersRegional::EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet& config)
+  : conf_(config)
+  , recoEcalCandidateProducer_  (consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer")))
+  , bcBarrelProducer_           (consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcBarrelProducer")))
+  , bcEndcapProducer_           (consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcEndcapProducer")))
+  , scIslandBarrelProducer_     (consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandBarrelProducer")))
+  , scIslandEndcapProducer_     (consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer")))
+  , egEcalIsoEtMin_    (conf_.getParameter<double>("egEcalIsoEtMin"))
+  , egEcalIsoConeSize_ (conf_.getParameter<double>("egEcalIsoConeSize"))
+  , algoType_          (conf_.getParameter<int>("SCAlgoType"))
+  , test_ (new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_,algoType_))
+{
   
-  // use configuration file to setup input/output collection names
-  
-  bcBarrelProducer_           = consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcBarrelProducer"));
-  bcEndcapProducer_           = consumes<reco::BasicClusterCollection>(conf_.getParameter<edm::InputTag>("bcEndcapProducer"));
-  scIslandBarrelProducer_     = consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandBarrelProducer"));
-  scIslandEndcapProducer_     = consumes<reco::SuperClusterCollection>(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
-  recoEcalCandidateProducer_  = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-
-  egEcalIsoEtMin_       = conf_.getParameter<double>("egEcalIsoEtMin");
-  egEcalIsoConeSize_    = conf_.getParameter<double>("egEcalIsoConeSize");
-  algoType_ = conf_.getParameter<int>("SCAlgoType");
-  test_ = new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_,algoType_);
-
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }

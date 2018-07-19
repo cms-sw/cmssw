@@ -40,19 +40,19 @@ public:
   
  private:
   reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx) const;
-  bool m_correct;
-  double m_e9e25Cut;
-  double m_intercept2DCut;
-  double m_intercept2DSlope;
-  double m_e1e9Cuthi;
-  double m_eCOREe9Cuthi;
-  double m_eSeLCuthi;
-  double m_e1e9Cutlo;
-  double m_eCOREe9Cutlo;
-  double m_eSeLCutlo;
-  int m_era;
-  bool m_correctForPileup;
-  reco::HFValueStruct m_hfvv;
+
+  const bool m_correct;
+  const double m_e9e25Cut;
+  const double m_intercept2DCut;
+  const double m_intercept2DSlope;
+  const double m_e1e9Cuthi;
+  const double m_eCOREe9Cuthi;
+  const double m_eSeLCuthi;
+  const double m_e1e9Cutlo;
+  const double m_eCOREe9Cutlo;
+  const double m_eSeLCutlo;
+  const int m_era;
+  const reco::HFValueStruct m_hfvv;
  
 };
 

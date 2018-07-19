@@ -44,20 +44,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  EgammaHLTHcalIsolationProducersRegional(const EgammaHLTHcalIsolationProducersRegional& rhs){}
-  EgammaHLTHcalIsolationProducersRegional& operator=(const EgammaHLTHcalIsolationProducersRegional& rhs){return *this;}
   
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
-  edm::EDGetTokenT<double> rhoProducer_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<HBHERecHitCollection> hbheRecHitProducer_;
+  const edm::EDGetTokenT<double> rhoProducer_;
 
-  bool doRhoCorrection_;
-  float rhoScale_;
-  float rhoMax_;
-  bool doEtSum_;
-  float effectiveAreaBarrel_;
-  float effectiveAreaEndcap_;
+  const bool doRhoCorrection_;
+  const float rhoMax_;
+  const float rhoScale_;
+  const bool doEtSum_;
+  const float effectiveAreaBarrel_;
+  const float effectiveAreaEndcap_;
 
-  EgammaHLTHcalIsolation* isolAlgo_;
+  EgammaHLTHcalIsolation const * const isolAlgo_;
 };
 
