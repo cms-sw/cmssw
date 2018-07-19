@@ -327,6 +327,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 jetCollectionUnskimmed,
                 pfCandCollection,
                 [electronCollection,muonCollection,tauCollection,photonCollection],
+                patMetModuleSequence,
                 postfix,
             )
 
@@ -1767,7 +1768,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return cms.InputTag("cleanedPatJets"+postfix)
 
     # function to implement the 2017 EE fix
-    def runFixEE2017(self,process,params,jets,cands,goodcolls,postfix):
+    def runFixEE2017(self,process,params,jets,cands,goodcolls,patMetModuleSequence,postfix):
 
         task = getPatAlgosToolsTask(process)
 
@@ -1779,20 +1780,24 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             MaxEtaThreshold = cms.double(params["MaxEtaThreshold"]),
         )
         addToProcessAndTask("PFCandidateJetsWithEEnoise"+postfix, PFCandidateJetsWithEEnoise, process, task)
+        patMetModuleSequence += getattr(process,"PFCandidateJetsWithEEnoise"+postfix)
         pfcandidateClustered = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(goodcolls+[jets])
         )
         addToProcessAndTask("pfcandidateClustered"+postfix, pfcandidateClustered, process, task)
+        patMetModuleSequence += getattr(process,"pfcandidateClustered"+postfix)
         pfcandidateForUnclusteredUnc = cms.EDProducer("CandPtrProjector",
             src  = cands,
             veto = cms.InputTag("pfcandidateClustered"+postfix),
         )
         addToProcessAndTask("pfcandidateForUnclusteredUnc"+postfix, pfcandidateForUnclusteredUnc, process, task)
+        patMetModuleSequence += getattr(process,"pfcandidateForUnclusteredUnc"+postfix)
         badUnclustered = cms.EDFilter("CandPtrSelector",
             src = cms.InputTag("pfcandidateForUnclusteredUnc"+postfix),
             cut = cms.string("abs(eta) > "+str(params["MinEtaThreshold"])+" && abs(eta) < "+str(params["MaxEtaThreshold"])),
         )
         addToProcessAndTask("badUnclustered"+postfix, badUnclustered, process, task)
+        patMetModuleSequence += getattr(process,"badUnclustered"+postfix)
         superbad = cms.EDProducer("CandViewMerger",
             src = cms.VInputTag(
                 cms.InputTag("badUnclustered"+postfix),
@@ -1800,11 +1805,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             )
         )
         addToProcessAndTask("superbad"+postfix, superbad, process, task)
+        patMetModuleSequence += getattr(process,"superbad"+postfix)
         pfCandidatesGoodEE2017 = cms.EDProducer("CandPtrProjector",
             src  = cands,
             veto = cms.InputTag("superbad"+postfix),
         )
         addToProcessAndTask("pfCandidatesGoodEE2017"+postfix, pfCandidatesGoodEE2017, process, task)
+        patMetModuleSequence += getattr(process,"pfCandidatesGoodEE2017"+postfix)
         # return good cands and jets
         return (cms.InputTag("pfCandidatesGoodEE2017"+postfix), cms.InputTag("PFCandidateJetsWithEEnoise"+postfix,"jets"))
 
