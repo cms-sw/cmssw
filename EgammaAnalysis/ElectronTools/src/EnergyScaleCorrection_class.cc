@@ -198,12 +198,12 @@ void EnergyScaleCorrection_class::AddScale(TString category_, int runMin_, int r
   cat.runmax = runMax_;
   
   // the following check is not needed, can be removed
-  if(scales.count(cat) != 0) { 
-    std::cerr << "[ERROR] Category already defined!" << std::endl;
-    std::cerr << "        Adding category:  " << cat << std::endl;
-    std::cerr << "        Defined category: " << scales[cat] << std::endl;
-    exit(1);
-  }
+  // if(scales.count(cat) != 0) { 
+  //   std::cerr << "[ERROR] Category already defined!" << std::endl;
+  //   std::cerr << "        Adding category:  " << cat << std::endl;
+  //   std::cerr << "        Defined category: " << scales[cat] << std::endl;
+  //   exit(1);
+  // }
   
   correctionValue_class corr; // define the correction values
   corr.scale = deltaP_;
@@ -227,12 +227,12 @@ void EnergyScaleCorrection_class::AddSmearing(TString category_, int runMin_, in
   cat.runmin = (runMin_ < 0) ? 0 : runMin_;
   cat.runmax = runMax_;
   
-  if(smearings.count(cat) != 0) {
-    std::cerr << "[ERROR] Smearing category already defined!" << std::endl;
-    std::cerr << "        Adding category:  " << cat << std::endl;
-    std::cerr << "        Defined category: " << smearings[cat] << std::endl;
-    exit(1);
-  }
+  // if(smearings.count(cat) != 0) {
+  //   std::cerr << "[ERROR] Smearing category already defined!" << std::endl;
+  //   std::cerr << "        Adding category:  " << cat << std::endl;
+  //   std::cerr << "        Defined category: " << smearings[cat] << std::endl;
+  //   exit(1);
+  // }
   
   correctionValue_class corr;
   corr.rho    = rho;
