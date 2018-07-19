@@ -15,6 +15,9 @@
 
 #include <array>
 #include <cmath>
+#include <vector>
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
@@ -30,7 +33,7 @@ namespace edm {
 class HGCalTriggerTools {
   public:
     HGCalTriggerTools() : geom_(nullptr),
-      eeLayers_(0), fhLayers_(0), bhLayers_(0), totalLayers_(0){}
+    eeLayers_(0), fhLayers_(0), bhLayers_(0), totalLayers_(0){}
     ~HGCalTriggerTools() {}
 
     void eventSetup(const edm::EventSetup&);
@@ -58,7 +61,16 @@ class HGCalTriggerTools {
     float getLayerZ(const unsigned& layerWithOffset) const;
     float getLayerZ(const int& subdet, const unsigned& layer) const;
 
-
+    template<typename T> 
+    std::vector<T> bxVectorToVector(const BXVector<T>& inputBXVector){    
+      std::vector<T> outputVector;     
+      //loop over collection for a given bx and put the objects into a std::vector
+      for( typename std::vector<T>::const_iterator it = inputBXVector.begin(0) ; it != inputBXVector.end(0) ; ++it )
+      { 
+        outputVector.push_back(*it); 
+      }
+      return outputVector;
+    }
 
   private:
     const HGCalTriggerGeometryBase* geom_;
