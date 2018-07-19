@@ -5,7 +5,7 @@
 #include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,11 +24,11 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTMulti5x5ClusterProducer : public edm::global::EDProducer<> {
+class EgammaHLTMulti5x5ClusterProducer : public edm::stream::EDProducer<> {
  public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTMulti5x5ClusterProducer() override;
-  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

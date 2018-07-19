@@ -104,7 +104,7 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
 }
 
 // Functions that gets called by framework every event
-void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const
+void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // resulting collection
