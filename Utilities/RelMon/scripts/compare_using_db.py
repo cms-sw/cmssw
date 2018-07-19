@@ -9,6 +9,7 @@
 #                                                                              
 ################################################################################
 
+from __future__ import print_function
 from sys import argv,exit
 from optparse import OptionParser
 import cPickle
@@ -174,9 +175,9 @@ if options.compare:
   base2="%s/%s/%s/%s/DQM/" %(db_base_url,options.run2,options.sample,options.cmssw_release2)
 
 
-  print "Analysing Histograms located in directory %s at: " %options.dir_name
+  print("Analysing Histograms located in directory %s at: " %options.dir_name)
   for base in base1,base2:
-    print " o %s (server= %s)" %(base,options.dqm_server)
+    print(" o %s (server= %s)" %(base,options.dqm_server))
 
   # Set up the communicators
   comm1 = DQMcommunicator(server=options.dqm_server)
@@ -195,9 +196,9 @@ if options.compare:
 
   # Set the blacklist, if needed
   if len(black_list)>0:
-    print "We have a Blacklist:"
+    print("We have a Blacklist:")
     for dirid in black_list:
-      print " o %s" %dirid
+      print(" o %s" %dirid)
     dirwalker.black_list=black_list
 
   # Start the walker
@@ -228,7 +229,7 @@ if options.compare:
 
   # Dump the directory structure on disk in a pickle
   original_pickle_name="%s.pkl" %fulldirname
-  print "Pickleing the directory as %s in dir %s" %(original_pickle_name,os.getcwd())
+  print("Pickleing the directory as %s in dir %s" %(original_pickle_name,os.getcwd()))
   output = open(original_pickle_name,"w")
   cPickle.dump(directory, output, -1)# use highest protocol available for the pickle
   output.close()
@@ -246,7 +247,7 @@ if options.report:
   if len(options.pklfile)==0:
     pickle_name=original_pickle_name  
 
-  print "Reading directory from %s" %(pickle_name)
+  print("Reading directory from %s" %(pickle_name))
   ifile=open(pickle_name,"rb")
   directory=cPickle.load(ifile)
   ifile.close()
@@ -255,12 +256,12 @@ if options.report:
     os.chdir(options.outdir_name)
   
   # Calculate the results of the tests for each directory
-  print "Calculating stats for the directory..."
+  print("Calculating stats for the directory...")
   directory.calcStats()
   
-  print "Producing html..."
+  print("Producing html...")
   directory2html(directory)
   
 if not (options.report or options.compare):
-  print "Neither comparison nor report to be executed. A typo?"
+  print("Neither comparison nor report to be executed. A typo?")
 
