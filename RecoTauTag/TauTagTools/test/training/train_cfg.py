@@ -5,6 +5,7 @@ TaNC MVA trainer
 Author: Evan K. Friis (UC Davis)
 
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -23,7 +24,7 @@ options.parseArguments()
 
 # Map the XML file name to a nice computer name
 _computer_name = os.path.basename(os.path.splitext(options.xml)[0])
-print _computer_name
+print(_computer_name)
 
 decay_mode_map = {
     '1prong0pi0' : 0,
