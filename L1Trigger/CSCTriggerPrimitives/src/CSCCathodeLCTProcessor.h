@@ -46,10 +46,10 @@ class CSCCathodeLCTProcessor
  public:
   /** Normal constructor. */
   CSCCathodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
-			 unsigned subsector, unsigned chamber,
-			 const edm::ParameterSet& conf,
-			 const edm::ParameterSet& comm,
-			 const edm::ParameterSet& ctmb);
+                         unsigned subsector, unsigned chamber,
+                         const edm::ParameterSet& conf,
+                         const edm::ParameterSet& comm,
+                         const edm::ParameterSet& ctmb);
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
@@ -83,6 +83,10 @@ class CSCCathodeLCTProcessor
   /** Returns vector of CLCTs in the read-out time window, if any. */
   std::vector<CSCCLCTDigi> readoutCLCTs();
 
+  /** read out CLCTs in ME1a , ME1b */
+  std::vector<CSCCLCTDigi> readoutCLCTsME1a();
+  std::vector<CSCCLCTDigi> readoutCLCTsME1b();
+
   /** Returns vector of all found CLCTs, if any. */
   std::vector<CSCCLCTDigi> getCLCTs();
 
@@ -90,10 +94,9 @@ class CSCCathodeLCTProcessor
 
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const {return thePreTriggerDigis; }
 
-  /** Set ring number
-   * Has to be done for upgrade ME1a!
-   **/
-  void setRing(unsigned r) {theRing = r;}
+  /** read out CLCTs in ME1a , ME1b */
+  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1a();
+  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigisME1b();
 
   /** Pre-defined patterns. */
   static const int pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
@@ -157,7 +160,7 @@ class CSCCathodeLCTProcessor
   int start_bx_shift;
 
   /** VK: special configuration parameters for ME1a treatment */
-  bool smartME1aME1b, disableME1a, gangedME1a;
+  bool disableME1a, gangedME1a;
 
   /** VK: separate handle for early time bins */
   int early_tbins;
@@ -190,9 +193,6 @@ class CSCCathodeLCTProcessor
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  /** Number of di-strips/half-strips per CFEB. */
-  static const int cfeb_strips[2];
-
   //---------------- Methods common to all firmware versions ------------------
   void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
   void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
@@ -221,12 +221,9 @@ class CSCCathodeLCTProcessor
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;
 
-  /** Dump digis on half-strips */
+  /** Dump half-strip digis */
   void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-                 const int stripType, const int nStrips) const;
-
-  //--------------------------- Methods for tests -----------------------------
-  void testLCTs();
+                 const int nStrips) const;
 };
 
 #endif
