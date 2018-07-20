@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.RecoTauCommonJetSelections_cfi as common
 import sys
@@ -29,7 +30,7 @@ sampleId = -999
 conditions="ErrorParsingCLI"
 
 if not hasattr(sys, "argv"):
-    print "ERROR: Can't extract CLI arguments!"
+    print("ERROR: Can't extract CLI arguments!")
 else:
     argOffset = 0
     if sys.argv[0] != 'cmsRun':
@@ -37,12 +38,12 @@ else:
     # Stupid crab
     rawOptions = sys.argv[2-argOffset]
     filterType = rawOptions.split(',')[0]
-    print "Using %s filter type!" % filterType
+    print("Using %s filter type!" % filterType)
     sampleId = int(rawOptions.split(',')[1])
-    print "Found %i for sample id" % sampleId
+    print("Found %i for sample id" % sampleId)
     conditions = rawOptions.split(',')[2]
 
-print "Loading filter type"
+print("Loading filter type")
 
 process.load(filterType)
 
@@ -56,7 +57,7 @@ process.TFileService = cms.Service(
 
 # Check if we need to modify triggers for MC running
 if 'GR' not in conditions:
-    print "Using MC mode"
+    print("Using MC mode")
     process.filterConfig.hltPaths = cms.vstring(
         process.filterConfig.hltPaths[0])
 
@@ -68,7 +69,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
 process.trigger = hltHighLevel.clone()
 process.trigger.HLTPaths = process.filterConfig.hltPaths # <-- defined in filterType.py
 process.trigger.throw = False
-print process.trigger.HLTPaths
+print(process.trigger.HLTPaths)
 
 #################################################################
 # Select good data events - based on TauCommissinon sequence

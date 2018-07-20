@@ -5,6 +5,7 @@ Adapted from PhysicsTools/MVATrainer/test/testWriteMVAComputerCondDB_cfg.py
 Original author: Christopher Saout
 Modifications by Evan Friis
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.TauMVAConfigurations_cfi
@@ -35,15 +36,15 @@ algorithm = myTauAlgorithms[0]
 myconnect   = cms.string(options.db)  #or frontier, etc
 mytag       = cms.string(options.tag)
 mytimetype  = cms.untracked.string('runnumber')
-print ""
-print "***************************************************"
-print "******  Upload Tau Neural Classifier to DB   ******"
-print "***************************************************"
-print "*  Using the %s algorithm                         " % algorithm
-print "*  DB tag:       %s                               " % mytag.value()
-print "*  Database:     %s                               " % myconnect.value()
-print "*  Timetype:     %s                               " % mytimetype.value()
-print "* ----------------------------------------------- "
+print("")
+print("***************************************************")
+print("******  Upload Tau Neural Classifier to DB   ******")
+print("***************************************************")
+print("*  Using the %s algorithm                         " % algorithm)
+print("*  DB tag:       %s                               " % mytag.value())
+print("*  Database:     %s                               " % myconnect.value())
+print("*  Timetype:     %s                               " % mytimetype.value())
+print("* ----------------------------------------------- ")
 
 # Unpack the TaNC neural nets into a parameter set
 tempPSet   = cms.PSet()
@@ -59,7 +60,7 @@ for aNeuralNet in RecoTauTag.TauTagTools.TauMVAConfigurations_cfi.TaNC.value():
    # god bless you, python
    tempPSet.__setattr__(aNeuralNet.computerName.value(), cms.string(mvaFileLocation))
    toCopyList.append(neuralNetName)
-   print "* %-20s %-20s      " % (neuralNetName, mvaFileLocation )
+   print("* %-20s %-20s      " % (neuralNetName, mvaFileLocation ))
 
 process = cms.Process("TaNCCondUpload")
 
