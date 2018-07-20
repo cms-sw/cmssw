@@ -10,6 +10,7 @@
 # The output will be all the matching lines and a final count of them
 # The check is positive if the total number of lines matches the total number of detids in the log
 
+from __future__ import print_function
 import sys
 
 fileIN = open(sys.argv[1], "r")
@@ -29,17 +30,17 @@ while line:
     while line2:
         if( detId == int(line2.split()[2].strip(',')) ):
             if( flag == int(line2.split()[5]) ):
-                print "matching:",
-                print "detId1 = ", detId, " detId2 = ", line2.split()[2].strip(','),
-                print "flag1 = ", flag, "flag2 = ", line2.split()[5]
+                print("matching:", end=' ')
+                print("detId1 = ", detId, " detId2 = ", line2.split()[2].strip(','), end=' ')
+                print("flag1 = ", flag, "flag2 = ", line2.split()[5])
                 matching = 1
                 matchCount += 1
                 break
         line2 = fileIN2.readline()
     if( matching == 0 ):
-        print "no match found"
+        print("no match found")
 
 
     line = fileIN.readline()
 
-print "MatchCount = ", matchCount
+print("MatchCount = ", matchCount)
