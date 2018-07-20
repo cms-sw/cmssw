@@ -90,7 +90,7 @@ print "Selected %d files and %d LS." % (len(readFiles), len(lumirange))
 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles, lumisToProcess = lumirange)
 maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 # Fix to allow scram to compile
