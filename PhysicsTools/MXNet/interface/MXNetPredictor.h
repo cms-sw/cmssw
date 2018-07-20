@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <mutex>
 #include "mxnet/c_predict_api.h"
 
 namespace mxnet{
@@ -44,6 +45,8 @@ private:
   std::vector<mx_uint> input_shapes_data_;
 
   PredictorHandle pred_hnd_ = nullptr;
+
+  static std::mutex mutex_;
 };
 
 }
