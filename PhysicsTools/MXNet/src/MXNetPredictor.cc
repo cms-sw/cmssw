@@ -22,6 +22,7 @@ BufferFile::BufferFile(std::string file_path) : file_path_(file_path) {
   ifs.close();
 }
 
+std::mutex MXNetPredictor::mutex_;
 
 MXNetPredictor::MXNetPredictor() {
 }
@@ -72,18 +73,23 @@ void MXNetPredictor::load_model(const BufferFile* model_data, const BufferFile* 
   // Create Predictor
   int dev_type = 1;  // 1: cpu, 2: gpu
   int dev_id = 0;  // arbitrary.
-  int status = MXPredCreate(model_data->GetBuffer(),
-      param_data->GetBuffer(),
-      param_data->GetLength(),
-      dev_type,
-      dev_id,
-      num_input_nodes_,
-      (const char**) input_keys_.data(),
-      input_shapes_indices_.data(),
-      input_shapes_data_.data(),
-      &pred_hnd_);
-  if (status != 0)
-    throw cms::Exception("RuntimeError") << "Cannot create predictor!";
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    int status = MXPredCreate(model_data->GetBuffer(),
+        param_data->GetBuffer(),
+        param_data->GetLength(),
+        dev_type,
+        dev_id,
+        num_input_nodes_,
+        (const char**) input_keys_.data(),
+        input_shapes_indices_.data(),
+        input_shapes_data_.data(),
+        &pred_hnd_);
+    if (status != 0){
+      throw cms::Exception("RuntimeError") << "Cannot create predictor! " << MXGetLastError();
+    }
+
+  }
 }
 
 std::vector<float> MXNetPredictor::predict(const std::vector<std::vector<mx_float> >& input_data, mx_uint output_index) {
@@ -93,13 +99,13 @@ std::vector<float> MXNetPredictor::predict(const std::vector<std::vector<mx_floa
   // set input data
   for (unsigned i=0; i<input_names_.size(); ++i){
     if (MXPredSetInput(pred_hnd_, input_names_.at(i).data(), input_data.at(i).data(), input_data.at(i).size()) != 0){
-      throw cms::Exception("RuntimeError") << "Cannot set input " << input_names_.at(i);
+      throw cms::Exception("RuntimeError") << "Cannot set input " << input_names_.at(i) << "! " << MXGetLastError();
     }
   }
 
   // Do Predict Forward
   if (MXPredForward(pred_hnd_) != 0){
-    throw cms::Exception("RuntimeError") << "Error running forward!";
+    throw cms::Exception("RuntimeError") << "Error running forward! " << MXGetLastError();
   }
 
   mx_uint *shape = nullptr;
@@ -107,7 +113,7 @@ std::vector<float> MXNetPredictor::predict(const std::vector<std::vector<mx_floa
 
   // Get Output Result
   if (MXPredGetOutputShape(pred_hnd_, output_index, &shape, &shape_len) != 0){
-    throw cms::Exception("RuntimeError") << "Error getting output shape!";
+    throw cms::Exception("RuntimeError") << "Error getting output shape! " << MXGetLastError();
   }
 
   size_t size = 1;
@@ -116,7 +122,7 @@ std::vector<float> MXNetPredictor::predict(const std::vector<std::vector<mx_floa
   std::vector<float> prediction(size);
 
   if (MXPredGetOutput(pred_hnd_, output_index, &(prediction[0]), size) != 0){
-    throw cms::Exception("RuntimeError") << "Error getting output values!";
+    throw cms::Exception("RuntimeError") << "Error getting output values! " << MXGetLastError();
   }
 
   return prediction;
