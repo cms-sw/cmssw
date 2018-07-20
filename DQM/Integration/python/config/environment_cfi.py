@@ -22,7 +22,7 @@ dqmRunConfigDefaults = {
     'userarea': cms.PSet(
         type = cms.untracked.string("userarea"),
         collectorPort = cms.untracked.int32(9190),
-        collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
+        collectorHost = cms.untracked.string('127.0.0.1'),
     ),
     'playback': cms.PSet(
         type = cms.untracked.string("playback"),
