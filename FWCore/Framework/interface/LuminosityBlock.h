@@ -274,7 +274,8 @@ namespace edm {
     
     assert(index < putProducts().size());
     
-    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::forward<Args>(args)...));
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(WrapperBase::Emplace{},
+                                                         std::forward<Args>(args)...));
     
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.

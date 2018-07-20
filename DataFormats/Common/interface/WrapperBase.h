@@ -22,6 +22,9 @@ namespace edm {
   
   class WrapperBase : public ViewTypeChecker {
   public:
+    //used by inheriting classes to force construction via emplace
+    struct Emplace {};
+
     WrapperBase();
     ~WrapperBase() override;
     bool isPresent() const {return isPresent_();}

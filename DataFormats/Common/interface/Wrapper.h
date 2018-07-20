@@ -30,7 +30,7 @@ namespace edm {
     explicit Wrapper(std::unique_ptr<T> ptr);
     
     template<typename... Args>
-    explicit Wrapper( Args&&... );
+    explicit Wrapper( Emplace, Args&&... );
     ~Wrapper() override {}
     T const* product() const {return (present ? &obj : nullptr);}
     T const* operator->() const {return product();}
@@ -93,7 +93,7 @@ private:
 
   template<typename T>
   template<typename... Args>
-  Wrapper<T>::Wrapper(Args&&... args) :
+  Wrapper<T>::Wrapper(Emplace, Args&&... args) :
   WrapperBase(),
   present(true),
   obj(std::forward<Args>(args)...) {
