@@ -1,3 +1,4 @@
+from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 ## Original Author: Andrea Carlo Marini
@@ -11,16 +12,16 @@ options = VarParsing ('analysis')
 options.parseArguments()
 
 if True:
-    print '-> You are using a 2 process file to unzip/untar events on the fly'
+    print('-> You are using a 2 process file to unzip/untar events on the fly')
     #cmd = "mkfifo /tmp/amarini/hepmc10K.dat"
     #cmd = "cat hepmc10K.dat.gz | gunzip -c > /tmp/amarini/hepmc10K.dat"
     from subprocess import call, check_output
     import threading
     import time
     def call_exe(cmd):
-        print "-> Executing cmd: '"+cmd+"'"
+        print("-> Executing cmd: '"+cmd+"'")
         st=call(cmd,shell=True)
-        print "-> End cmd: status=",st
+        print("-> End cmd: status=",st)
         return
     cmd="rm /tmp/"+os.environ['USER']+"/hepmc10K.dat"
     call(cmd,shell=True)
@@ -29,7 +30,7 @@ if True:
     exe="cat /tmp/"+os.environ['USER']+"/hepmc.dat.tgz | gunzip -c > /tmp/"+os.environ['USER']+"/hepmc10K.dat &"
     t = threading.Thread(target=call_exe, args= ( [exe] )  )
     t.start()
-    print "(sleep 1s to allow start of pipes)"
+    print("(sleep 1s to allow start of pipes)")
     time.sleep(1)
 
 
