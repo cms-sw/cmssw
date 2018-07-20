@@ -13,6 +13,7 @@ given beta-star and beam energy estimate: gamma, emittance, and beam width
 at Z = 0
 
 """
+from __future__ import print_function
 
 import math
 
@@ -26,6 +27,6 @@ emittance = normemittance/(gamma*math.sqrt(1.-1/(gamma*gamma)))
 
 width = math.sqrt(emittance*betastar)
 
-print " emittance in m: " + str(emittance)
-print " beam width in m: " + str(width)
+print(" emittance in m: " + str(emittance))
+print(" beam width in m: " + str(width))
 
