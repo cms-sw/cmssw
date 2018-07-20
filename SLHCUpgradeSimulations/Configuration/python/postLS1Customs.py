@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 def customisePostLS1_Common(process):
@@ -43,7 +44,7 @@ def customisePostLS1_Common(process):
 
 def customisePostLS1(process,displayDeprecationWarning=True):
     if displayDeprecationWarning :
-        print """
+        print("""
         #
         # -- Warning! You are using a deprecated customisation function. --
         #
@@ -60,7 +61,7 @@ def customisePostLS1(process,displayDeprecationWarning=True):
         #
         # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
         #
-        """
+        """)
     # common customisation
     process = customisePostLS1_Common(process)
 
@@ -87,7 +88,7 @@ def customisePostLS1_lowPU(process):
 
 def customisePostLS1_50ns(process,displayDeprecationWarning=True):
     if displayDeprecationWarning :
-        print """
+        print("""
         #
         # -- Warning! You are using a deprecated customisation function. --
         #
@@ -104,7 +105,7 @@ def customisePostLS1_50ns(process,displayDeprecationWarning=True):
         #
         # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
         #
-        """
+        """)
 
     # common customisations
     process = customisePostLS1_Common(process)
@@ -118,7 +119,7 @@ def customisePostLS1_50ns(process,displayDeprecationWarning=True):
 
 def customisePostLS1_HI(process,displayDeprecationWarning=True):
     if displayDeprecationWarning :
-        print """
+        print("""
         #
         # -- Warning! You are using a deprecated customisation function. --
         #
@@ -135,7 +136,7 @@ def customisePostLS1_HI(process,displayDeprecationWarning=True):
         #
         # There is more information at https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCmsDriverEras
         #
-        """
+        """)
 
     # common customisation
     process = customisePostLS1_Common(process)
