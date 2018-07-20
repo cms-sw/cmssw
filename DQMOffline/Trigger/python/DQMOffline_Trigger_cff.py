@@ -195,6 +195,15 @@ OfflineHLTMonitoring = cms.Sequence(
     vertexingMonitorHLT # vertexing
     )
 
+OfflineHLTMonitoringNoTRK = cms.Sequence(
+    dqmInfoHLTMon *
+    lumiMonitorHLTsequence * # lumi                                                                                                                                                                                   
+    BTVHLTOfflineSource *
+    trackingMonitorHLTDisplacedJet* #DisplacedJet Tracking
+    egmTrackingMonitorHLT * # egm tracking
+    vertexingMonitorHLT # vertexing                       
+    )
+
 # sequences run @tier0 on HLTMonitor PD w/ HI (PbPb, XeXe), pPb, ppRef
 OfflineHLTMonitoringPA = cms.Sequence(
     dqmInfoHLTMon *
