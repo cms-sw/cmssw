@@ -1165,7 +1165,7 @@ void L1TMuonBarrelKalmanAlgo::calculateEta(L1MuKBMTrack& track) {
 
   int sumweights=0;
   int sums=0;
-  uint rankv=0;
+
   for (const auto& stub : track.stubs()) {
     uint rank = etaStubRank(stub);
     if (rank==0)
