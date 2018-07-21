@@ -5,6 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -144,18 +145,28 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  int u    = HGCalWaferIndex::waferU(copy);
 	  int v    = HGCalWaferIndex::waferV(copy);
 	  int type = topology.dddConstants().getTypeHex(layer,u,v);
-	  DetId detId = (DetId)(HGCSiliconDetId(det,zside,type,layer,u,v,0,0));
+	  DetId detId = (topology.isHFNose() ? 
+			 (DetId)(HFNoseDetId(zside,type,layer,u,v,0,0)) :
+			 (DetId)(HGCSiliconDetId(det,zside,type,layer,u,v,0,0)));
 	  const auto &  w = topology.dddConstants().waferPosition(u,v,true);
 	  double xx = (zside > 0) ? w.first : -w.first;
 	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
 	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader:: Wafer:Type "
-					<< wafer << ":" << type << " DetId " 
-					<< HGCSiliconDetId(detId) << std::hex
-					<< " " << detId.rawId() << std::dec 
-					<< " transf " << ht3d.getTranslation()
-					<< " and " << ht3d.getRotation();
+	  if (topology.isHFNose()) 
+	    edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::Wafer:Type "
+					  << wafer << ":" << type << " DetId " 
+					  << HFNoseDetId(detId) << std::hex
+					  << " " << detId.rawId() << std::dec 
+					  << " trans " << ht3d.getTranslation()
+					  << " and " << ht3d.getRotation();
+	  else
+	    edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::Wafer:Type "
+					  << wafer << ":" << type << " DetId " 
+					  << HGCSiliconDetId(detId) << std::hex
+					  << " " << detId.rawId() << std::dec 
+					  << " trans " << ht3d.getTranslation()
+					  << " and " << ht3d.getRotation();
 #endif
 	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(type,false,true);
 	  params[0] = vol.dz;
