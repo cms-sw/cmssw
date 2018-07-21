@@ -13,6 +13,7 @@ L1TMuonBarrelKalmanAlgo::L1TMuonBarrelKalmanAlgo(const edm::ParameterSet& settin
   aPhiBNLO_(settings.getParameter<std::vector<double> >("aPhiBNLO")),
   bPhi_(settings.getParameter<std::vector<double> >("bPhi")),
   bPhiB_(settings.getParameter<std::vector<double> >("bPhiB")),
+  phiAt2_(settings.getParameter<std::vector<double> >("phiAt2")),
   globalChi2Cut_(settings.getParameter<unsigned int>("globalChi2Cut")),
   chiSquare_(settings.getParameter<std::vector<double> >("chiSquare")),
   chiSquareCutPattern_(settings.getParameter<std::vector<int> >("chiSquareCutPattern")),
@@ -99,7 +100,7 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
   int processor=track.sector();
   int HF = track.hasFineEta();
   
-  int quality=rank(track)/16;
+  int quality=12|(rank(track)>>6);
 
   int dxy=abs(track.dxy())>>9;
 
@@ -497,8 +498,6 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     if (absK>4095)
       absK = 4095;
 
-
-
     std::vector<float> GAIN;
     //For the three stub stuff use only gains 0 and 4
     if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  {
@@ -525,14 +524,20 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
 
     int phiNew  = phi;
 
-    int pb_0 = fp_product(fabs(GAIN[2]),residualPhi,5);
+    //different products for different firmware logic
+    int pbdouble_0 = fp_product(fabs(GAIN[2]),residualPhi,9);
+    int pb_0 = fp_product(GAIN[2],residualPhi,9);
     int pb_1 = fp_product(GAIN[3],residualPhiB,9);
 
     if (verbose_)
       printf("phiupdate: %d %d\n",pb_0,pb_1);
 
+    int phiBNew;
+    if (!(mask==3 || mask ==5 || mask==9 ||mask==6|| mask==10 ||mask==12))  
+      phiBNew = wrapAround(trackPhiB+pb_0,2048);
+    else
+      phiBNew = wrapAround(trackPhiB+pb_1-pbdouble_0,2048);
 
-    int phiBNew = wrapAround(trackPhiB-pb_0+pb_1,2048);
     track.setCoordinates(track.step(),KNew,phiNew,phiBNew);
     track.addStub(stub);
     track.setHitPattern(hitPattern(track));
@@ -765,10 +770,14 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 
     }
 
+    int phiAtStation2=0;
+
     while(track.step()>0) {
       // muon station 1 
       if (track.step()==1) {
 	track.setCoordinatesAtMuon(track.curvature(),track.positionAngle(),track.bendingAngle());
+	phiAtStation2=phiAt2(track);
+	estimateChiSquare(track);
 	calculateEta(track);
 	setFloatingPointValues(track,false);
 	//calculate coarse eta
@@ -792,11 +801,12 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	    printf("updated Coordinates step:%d,phi=%d,phiB=%d,K=%d\n",track.step(),track.positionAngle(),track.bendingAngle(),track.curvature());
 	  }
 	}
+    
+
       if (track.step()==0) {
 	track.setCoordinatesAtVertex(track.curvature(),track.positionAngle(),track.bendingAngle());
 	if (verbose_)
 	  printf(" Coordinates before vertex constraint step:%d,phi=%d,dxy=%d,K=%d\n",track.step(),track.phiAtVertex(),track.dxy(),track.curvatureAtVertex());
-	estimateChiSquare(track);
 	if (verbose_)
 	  printf("Chi Square = %d\n",track.approxChi2());
 
@@ -809,6 +819,8 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	  printf("------------------------------------------------------\n");
 	}
 	setFloatingPointValues(track,true);
+	//rset the coordinates at muon to include phi at station 2
+	track.setCoordinatesAtMuon(track.curvatureAtMuon(),phiAtStation2,track.phiBAtMuon());
 	track.setRank(rank(track));
 	if (verbose_)
 	  printf ("Floating point coordinates at vertex: pt=%f, eta=%f phi=%f\n",track.pt(),track.eta(),track.phi());
@@ -840,14 +852,14 @@ void L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   int K = track.curvatureAtMuon();
 
   int chi=0;
-
-  int coords = (track.phiAtMuon()+track.phiBAtMuon())/8;
+  //  printf("Starting Chi calculation\n");
+  int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
   for (const auto& stub: track.stubs()) {   
     int AK = fp_product(-chiSquare_[stub->stNum()-1],K>>3,8);
-
     int stubCoords =   (correctedPhi(stub,track.sector())>>3)+stub->phiB();
     uint delta = abs(stubCoords-coords+AK);
-    //    printf("station=%d %d %d %d\n",stub->stNum(),stubCoords,coords,AK);
+    // printf("station=%d AK=%d delta=%d\n",stub->stNum(),AK,delta);
+
     chi=chi+abs(delta);    
    }
   //  chi=chi/2;
@@ -860,9 +872,9 @@ void L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
 int L1TMuonBarrelKalmanAlgo::rank(const L1MuKBMTrack& track) {
   //    int offset=0;
     if (hitPattern(track)==customBitmask(0,0,1,1))
-      return 15;
+      return 60;
     //    return offset+(track.stubs().size()*2+track.quality())*80-track.approxChi2();
-    return 105+(track.stubs().size())*20-track.approxChi2();
+    return 160+(track.stubs().size())*20-track.approxChi2();
 
 }
 
@@ -1158,12 +1170,73 @@ void L1TMuonBarrelKalmanAlgo::calculateEta(L1MuKBMTrack& track) {
     uint rank = etaStubRank(stub);
     if (rank==0)
       continue;
+    //    printf("Stub station=%d rank=%d values=%d %d\n",stub->stNum(),rank,stub->eta1(),stub->eta2());
     sumweights+=rank;
     sums+=rank*stub->eta1();
   }
-  int eta=int(float(sums)/float(sumweights));
+
+  //0.5  0.332031 0.25 0.199219 0.164063
+  float factor;
+  if (sumweights==1)
+    factor=1.0;
+  else if (sumweights==2)
+    factor = 0.5;
+  else if (sumweights==3)
+    factor=0.332031;
+  else if (sumweights==4)
+    factor=0.25;
+  else if (sumweights==5)
+    factor=0.199219;
+  else if (sumweights==6)
+    factor=0.164063;
+  else
+    factor=0.0;
+
+  
+
+  
+  int eta=0;
+  if (sums>0)
+    eta=fp_product(factor,sums,10);
+  else
+    eta=-fp_product(factor,abs(sums),10);
+  
+
+  //int eta=int(factor*sums);
+  //    printf("Eta debug %f *%d=%d\n",factor,sums,eta);
+
   if (sumweights>0)
     track.setFineEta(eta);
 }
 
 
+int L1TMuonBarrelKalmanAlgo::phiAt2(const L1MuKBMTrack& track) {
+
+  //If there is stub at station 2 use this else propagate from 1
+  for (const auto& stub:track.stubs())
+    if (stub->stNum()==2)
+      return correctedPhi(stub,track.sector());
+
+
+  int K = track.curvature();
+  int phi = track.positionAngle();
+  int phiB = track.bendingAngle();
+
+  //phi propagation
+  int phi11 = fp_product(phiAt2_[0],K,10);
+  int phi12 = fp_product(phiAt2_[1],phiB,10);
+  
+  int phiNew =phi+phi11+phi12;
+  if (phiNew>2047)
+    phiNew=2047;
+  if (phiNew<-2048)
+    phiNew=-2048;
+
+
+  if (verbose_) {
+    printf("phi at station 2  = %d* %f = %d, %d* %f =%d , final=%d\n",K,phiAt2_[0],phi11,phiB,phiAt2_[1],phi12,phiNew);
+  }
+
+  return phiNew;
+
+}

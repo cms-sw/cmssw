@@ -61,7 +61,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::process(L1TMuonBarrelKal
     if (stub->bxNum()!=bx)
       continue;
 
-    if ((stub->scNum()==nextSector_ && stub->phi()>=111)||(stub->scNum()==previousSector_ && stub->phi()<=-112))
+    if ((stub->scNum()==nextSector_ && stub->phi()>=-112)||(stub->scNum()==previousSector_ && stub->phi()<=111))
       continue;
     
     if (stub->whNum()==wheel_  && stub->scNum()==sector_) {
