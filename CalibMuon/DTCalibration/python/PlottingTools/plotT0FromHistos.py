@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 from drawHistoAllChambers import drawHisto
 
@@ -35,18 +36,18 @@ def plot(fileName,sl,run,ymin=-5,ymax=5,option="HISTOP",draw=True):
         nSectors = 12
         if st == 4: nSectors = 14 
         if st == 4 and sl == 2: continue
-        if verbose: print "Station",st
+        if verbose: print("Station",st)
         for wh in wheels:
-            if verbose: print "Wheel",wh 
+            if verbose: print("Wheel",wh) 
             for sec in range(1,nSectors+1):
-                if verbose: print "Sector",sec
+                if verbose: print("Sector",sec)
                 binHisto = binNumber(st,sl)
-                if verbose: print "Bin from histos:",binHisto 
+                if verbose: print("Bin from histos:",binHisto) 
                 histoName = path+'Wheel%d/TTrigDifference_W%d_Sec%d' % (wh,wh,sec)
                 value = file.Get(histoName).GetBinContent(binHisto)
 
                 binHistoNew = (st - 1)*60 + (wh + 2)*nSectors + sec
-                if verbose: print "Bin final",binHistoNew,value
+                if verbose: print("Bin final",binHistoNew,value)
                 histo.SetBinContent(binHistoNew,value) 
   
                 if sec == 1:
