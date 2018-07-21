@@ -183,7 +183,7 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         try{
                 reco::TrackRef  PrimaryTrackRef     = m_TrajToTrackCollection->operator[]( InTrajRef );
 	        Output_tracktrackmap->insert(TrackRef,PrimaryTrackRef);
-        }catch(edm::Exception event){}
+        }catch(edm::Exception const&){}
 	
   }
   iEvent.put(std::move(Output_trajmap));

@@ -46,7 +46,7 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
     parser_ = new MonitorXMLParser( xmlFile_ );
     try {
       parser_->load();
-    } catch( const std::runtime_error e ) {
+    } catch( std::runtime_error const& e ) {
       delete parser_;
       parser_ = nullptr;
       std::cerr << "Error loading parser: " << e.what() << std::endl;

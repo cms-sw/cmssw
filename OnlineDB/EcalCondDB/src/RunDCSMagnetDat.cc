@@ -84,7 +84,7 @@ ResultSet *RunDCSMagnetDat::getMagnetRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     throw(std::runtime_error(std::string("RunDCSMagnetDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else

@@ -212,7 +212,7 @@ void ProcMLP::trainBegin()
 					getOutputs().size(), layout));
 			mlp->init(count);
 			row = 0;
-		} catch(cms::Exception e) {
+		} catch(cms::Exception const&) {
 			// MLP probably busy (or layout invalid, aaaack)
 			iteration = ITER_WAIT;
 		}
