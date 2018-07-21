@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 bmtfKalmanTrackingSettings = cms.PSet(
-    verbose = cms.bool(False),
+    verbose = cms.bool(False),  # 
     lutFile = cms.string("L1Trigger/L1TMuonBarrel/data/kalmanLUTs.root"),
     initialK = cms.vdouble(-1.196,-1.581,-2.133,-2.263),
     initialK2 = cms.vdouble(-3.26e-4,-7.165e-4,2.305e-3,-5.63e-3),
@@ -14,17 +14,14 @@ bmtfKalmanTrackingSettings = cms.PSet(
 
     bPhi = cms.vdouble(-1,0.154297,0.173828,0.147461),
     bPhiB = cms.vdouble(-1,1.15332,1.17285,1.14648),
+    phiAt2 = cms.vdouble(0.214844,0.218750),
     etaLUT0 = cms.vdouble(8.946,7.508,6.279,6.399),
     etaLUT1 = cms.vdouble(0.159,0.116,0.088,0.128),
     chiSquare = cms.vdouble(0.0,0.109375,0.234375,0.359375),   
-#    chiSquareCutPattern = cms.vint32(3,6),
-#    chiSquareCutCurvMax = cms.vint32(273,273),
-    globalChi2Cut = cms.uint32(126),
+    globalChi2Cut = cms.uint32(127),
     chiSquareCutPattern = cms.vint32(3,6,12),
     chiSquareCutCurvMax = cms.vint32(273,273,273),
     chiSquareCut = cms.vint32(25,31,31),
-
-#    chiSquareCut = cms.vint32(1000,1000,1000,1000,1000,1000,1200,1200,1200,1200,1200,8192,8192,8192),
 
 
     combos4=cms.vint32(9,10,11,12,13,14,15),
@@ -35,18 +32,8 @@ bmtfKalmanTrackingSettings = cms.PSet(
     useOfflineAlgo = cms.bool(False),
     
     ###Only for the offline algo -not in firmware --------------------
-
-#    mScatteringPhi = cms.vdouble(0.9322,8.384e-5,5.406e-5,1.786e-5),
-#    mScatteringPhiB = cms.vdouble(7.92e-3,3.580e-3,6.634e-3,5.478e-3),
-#    pointResolutionPhi = cms.double(1.),
-#    pointResolutionPhiB = cms.double(500.),
-
     mScatteringPhi = cms.vdouble(2.49e-3,5.47e-5,3.49e-5,1.37e-5),
     mScatteringPhiB = cms.vdouble(7.22e-3,3.461e-3,4.447e-3,4.12e-3),
-
-#    mScatteringPhi = cms.vdouble(0,0,0,0),
-#    mScatteringPhiB = cms.vdouble(0,0,0,0),
-
     pointResolutionPhi = cms.double(1.),
     pointResolutionPhiB = cms.double(500.),
     pointResolutionVertex = cms.double(1.)
@@ -64,7 +51,7 @@ simKBmtfDigis = cms.EDProducer("L1TMuonBarrelKalmanTrackProducer",
 #        sectorsToProcess = cms.vint32(9),
         verbose = cms.int32(0),
         sectorSettings = cms.PSet(
-#           verbose = cms.int32(1),
+#            verbose = cms.int32(1),
             verbose = cms.int32(0),
             wheelsToProcess = cms.vint32(-2,-1,0,1,2),
             regionSettings = cms.PSet(
