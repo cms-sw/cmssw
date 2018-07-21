@@ -6,6 +6,7 @@ a result of the query to the database so big that the machine runs out of memory
 By splitting it in smaller intervals of a given DeltaT it is possible to keep
 under control the memory used.
 """
+from __future__ import print_function
 
 import os
 import datetime
@@ -73,11 +74,11 @@ def main():
         targetFile = 'dcs_%s_to_%s_cfg.py' % (dt_begin.strftime('%Y-%m-%d__%H_%M_%S'), dt_next.strftime('%Y-%m-%d__%H_%M_%S'))
         replace_dict={'_TMIN_':tmin_str, '_TMAX_':tmax_str, '_DBFILE_':args.dbfile, '_TAG_':args.tag}
         insert_to_file(args.template, targetFile, replace_dict)
-        print 'Running %s' % targetFile
+        print('Running %s' % targetFile)
         command = 'cmsRun %s' % targetFile
         #print command
         subprocess.Popen(command, shell=True).communicate()
-        print '='*50
+        print('='*50)
         dt_begin = dt_next
 
 if __name__ == '__main__':
