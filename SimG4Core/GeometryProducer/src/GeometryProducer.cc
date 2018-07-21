@@ -38,7 +38,7 @@ void createWatchers(const edm::ParameterSet& iP, SimActivityRegistry& iReg,
     using namespace edm;
     std::vector<ParameterSet> watchers;
     try { watchers = iP.getParameter<vector<ParameterSet> >("Watchers"); } 
-    catch(edm::Exception) {}
+    catch(edm::Exception const&) {}
   
     for(std::vector<ParameterSet>::iterator itWatcher = watchers.begin();
 	itWatcher != watchers.end(); ++itWatcher) 

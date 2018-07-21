@@ -552,7 +552,7 @@ void DTKeyedConfigHandler::chkConfigList() {
       if ( brickCheck.get() ) brickFound =
                              ( brickCheck->getId() == brickConfigId );
     }
-    catch ( std::exception e ) {
+    catch ( std::exception const& ) {
     }
     if ( !brickFound ) {
       std::cout << "brick " << brickConfigId << " missing, copy request"
