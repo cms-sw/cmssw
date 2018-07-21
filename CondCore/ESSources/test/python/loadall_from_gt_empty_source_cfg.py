@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 
 import FWCore.ParameterSet.Config as cms
@@ -157,6 +158,6 @@ if process.schedule_() is not None:
     process.schedule_().append( process.esout )
 
 for name, module in six.iteritems(process.es_sources_()):
-    print "ESModules> provider:%s '%s'" % ( name, module.type_() )
+    print("ESModules> provider:%s '%s'" % ( name, module.type_() ))
 for name, module in six.iteritems(process.es_producers_()):
-    print "ESModules> provider:%s '%s'" % ( name, module.type_() )
+    print("ESModules> provider:%s '%s'" % ( name, module.type_() ))

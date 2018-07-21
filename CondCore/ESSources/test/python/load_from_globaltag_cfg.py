@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
@@ -33,8 +34,8 @@ globalTag = GlobalTag("BASEGT", "sqlite_file:/afs/cern.ch/user/a/alcaprod/public
 process.GlobalTag.connect = cms.string(globalTag.connect())
 process.GlobalTag.globaltag = globalTag.gt()
 
-print "Final connection string =", process.GlobalTag.connect
-print "Final globalTag =", process.GlobalTag.globaltag
+print("Final connection string =", process.GlobalTag.connect)
+print("Final globalTag =", process.GlobalTag.globaltag)
 
 
 # process.GlobalTag.connect = cms.string(connectString)
