@@ -57,6 +57,7 @@ class L1TMuonBarrelKalmanAlgo {
   int customBitmask(unsigned int,unsigned int,unsigned int,unsigned int);
   bool getBit(int,int);
   void setFloatingPointValues(L1MuKBMTrack&,bool);
+  int phiAt2(const L1MuKBMTrack& track);
   void estimateChiSquare(L1MuKBMTrack&);
   int rank(const L1MuKBMTrack&);
   int wrapAround(int,int);
@@ -88,6 +89,7 @@ class L1TMuonBarrelKalmanAlgo {
   std::vector<double> aPhiBNLO_;
   std::vector<double> bPhi_;
   std::vector<double> bPhiB_;
+  std::vector<double> phiAt2_;
   std::vector<double> etaLUT0_;
   std::vector<double> etaLUT1_;
 

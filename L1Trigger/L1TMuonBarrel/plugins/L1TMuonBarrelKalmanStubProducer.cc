@@ -35,6 +35,7 @@ class L1TMuonBarrelKalmanStubProducer : public edm::stream::EDProducer<> {
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+
    private:
       virtual void beginStream(edm::StreamID) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -106,12 +107,15 @@ L1TMuonBarrelKalmanStubProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 
    L1MuKBMTCombinedStubCollection stubs = proc_->makeStubs(phiIn.product(),thetaIn.product(),bmtfParams);
+   if (verbose_==1)
+     for (const auto& stub : stubs) {
+       printf("Stub: wheel=%d sector=%d station =%d tag=%d eta1=%d qeta1=%d eta2=%d qeta2=%d\n",stub.whNum(),stub.scNum(),stub.stNum(),stub.tag(),stub.eta1(),stub.qeta1(),stub.eta2(),stub.qeta2());  
+     }
 
    if (verbose_==2) {
      std::cout<< "NEW"<<std::endl;
-     for (uint sector=8;sector<11;++sector)
-       for (int wheel=-2;wheel<3;++wheel)
-	 proc_->printWord(phiIn.product(),thetaIn.product(),sector,wheel);
+     for (uint sector=0;sector<12;++sector)
+	 proc_->makeInputPattern(phiIn.product(),thetaIn.product(),sector);
    }
 
    iEvent.put(std::make_unique<L1MuKBMTCombinedStubCollection>(stubs));
