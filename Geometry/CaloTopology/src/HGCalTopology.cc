@@ -1,3 +1,4 @@
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -25,6 +26,11 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
     subdet_     = (ForwardSubdetector)(det);
     kHGeomHalf_ = sectors_*layers_;
     types_      = 2;
+  } else if (det == (int)(DetId::Forward)) {
+    det_        = DetId::Forward;
+    subdet_     = HFNose;
+    kHGeomHalf_ = sectors_*layers_;
+    types_      = 3;
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
@@ -163,11 +169,11 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
 		     (id.iLay-1)*sectors_+id.iSec1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" << id.iLay
-				  << ":" << id.iSec1 << ":" << id.iType 
-				  << " Constants " << kHGeomHalf_ << ":" 
-				  << layers_ << ":" << sectors_ << " o/p " 
-				  << idx;
+    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" 
+				  << id.iLay << ":" << id.iSec1 << ":" 
+				  << id.iType << " Constants " << kHGeomHalf_ 
+				  << ":" << layers_ << ":" << sectors_ 
+				  << " o/p " << idx;
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
@@ -176,10 +182,11 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Geom Trap I/P " << id.zSide << ":" 
 				  << id.iLay  << ":" << id.iSec1 << ":" 
-				  << id.iCell1 << ":" << id.iType << " Constants "
-				  << kHGeomHalf_ << ":" << layers_ << ":" 
-				  << firstLay_ << ":" << sectors_ << ":"
-				  << cellMax_ << " o/p " << idx;
+				  << id.iCell1 << ":" << id.iType 
+				  << " Constants " << kHGeomHalf_ << ":" 
+				  << layers_ << ":" << firstLay_ << ":" 
+				  << sectors_ << ":" << cellMax_ 
+				  << " o/p " << idx;
 #endif
   } else {
     idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) +
@@ -188,10 +195,10 @@ uint32_t HGCalTopology::detId2denseGeomId(const DetId& idin) const {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Geom Hex8 I/P " << id.zSide << ":" 
 				  << id.iLay  << ":" << id.iSec1 << ":" 
-				  << id.iSec2 << ":" << id.iType << " Constants " 
-				  << kHGeomHalf_ << ":" << layers_ << ":"
-				  << waferMax_ << ":" << waferOff_ << " o/p "
-				  << idx;
+				  << id.iSec2 << ":" << id.iType 
+				  << " Constants " << kHGeomHalf_ << ":" 
+				  << layers_ << ":" << waferMax_ << ":"
+				  << waferOff_ << " o/p " << idx;
 #endif
   }
   return idx;
@@ -308,6 +315,16 @@ HGCalTopology::DecodedDetId HGCalTopology::decode(const DetId& startId) const {
     idx.iType  = id.type();
     idx.zSide  = id.zside();
     idx.det    = (int)(id.subdet());
+  } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
+    HFNoseDetId id(startId);
+    idx.iCell1 = id.cellU();
+    idx.iCell2 = id.cellV();
+    idx.iLay   = id.layer();
+    idx.iSec1  = id.waferU();
+    idx.iSec2  = id.waferV();
+    idx.iType  = id.type();
+    idx.zSide  = id.zside();
+    idx.det    = (int)(id.subdet());
   } else {
     HGCSiliconDetId id(startId);
     idx.iCell1 = id.cellU();
@@ -330,6 +347,8 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
     id = HGCalDetId((ForwardSubdetector)(idx.det),idx.zSide,idx.iLay,((idx.iType > 0) ? 1 : 0),idx.iSec1,idx.iCell1).rawId();
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     id = HGCScintillatorDetId(idx.iType,idx.iLay,idx.zSide*idx.iSec1,idx.iCell1).rawId();
+  } else if (det_ == DetId::Forward && subdet_ == ForwardSubdetector::HFNose) {
+    id = HFNoseDetId(idx.zSide,idx.iType,idx.iLay,idx.iSec1,idx.iSec2,idx.iCell1,idx.iCell2).rawId();
   } else {
     id = HGCSiliconDetId((DetId::Detector)(idx.det),idx.zSide,idx.iType,idx.iLay,idx.iSec1,idx.iSec2,idx.iCell1,idx.iCell2).rawId();
   }
