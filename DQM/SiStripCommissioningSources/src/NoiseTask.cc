@@ -229,7 +229,7 @@ void NoiseTask::book()
         << ( out << pedestals 
 	<< "   Noises: " << noises, out.str());
       */
-    } catch( std::out_of_range) {
+    } catch( std::out_of_range const& ) {
       // Hmm, didn't find appropriate Apv :((( -> VERY, VERY BAD
       LogTrace( mlDqmSource_)
         << "[NoiseTask::" << __func__ << "] "
