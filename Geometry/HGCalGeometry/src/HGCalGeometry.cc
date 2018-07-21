@@ -83,7 +83,9 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 				  << " GEOM " << HGCScintillatorDetId(geomId);
 #endif
   } else {
-    geomId = (DetId)(HGCSiliconDetId(detId).geometryCell());
+    geomId = (m_topology.isHFNose() ?
+	      (DetId)(HFNoseDetId(detId).geometryCell()) :
+	      (DetId)(HGCSiliconDetId(detId).geometryCell()));
     cells  = m_topology.dddConstants().numberCellsHexagon(id.iLay,id.iSec1,
 							  id.iSec2,false);
 #ifdef EDM_ML_DEBUG
@@ -192,6 +194,10 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     edm::LogVerbatim("HGCalGeom") << "ID: " << HGCScintillatorDetId(detId) 
 				  << " with valid DetId from " << nOld 
 				  << " to " << nNew;
+  } else if (m_topology.isHFNose()) {
+    edm::LogVerbatim("HGCalGeom") << "ID: " << HFNoseDetId(detId) 
+				  << " with valid DetId from " << nOld 
+				  << " to " << nNew;
   } else {
     edm::LogVerbatim("HGCalGeom") << "ID: " << HGCSiliconDetId(detId) 
 				  << " with valid DetId from " << nOld 
@@ -212,6 +218,8 @@ std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& 
     geoId = (DetId)(HGCalDetId(id).geometryCell());
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+  } else if (m_topology.isHFNose()) {
+    geoId = (DetId)(HFNoseDetId(id).geometryCell());
   } else {
     geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
   }
@@ -229,6 +237,8 @@ bool HGCalGeometry::present(const DetId& id) const {
     geoId = (DetId)(HGCalDetId(id).geometryCell());
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+  } else if (m_topology.isHFNose()) {
+    geoId = (DetId)(HFNoseDetId(id).geometryCell());
   } else {
     geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
   }
@@ -406,6 +416,8 @@ unsigned int HGCalGeometry::indexFor(const DetId& id) const {
       geoId = (DetId)(HGCalDetId(id).geometryCell());
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
       geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+    } else if (m_topology.isHFNose()) {
+      geoId = (DetId)(HFNoseDetId(id).geometryCell());
     } else {
       geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
     }
@@ -606,6 +618,8 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
       layer     = HGCalDetId(detId).layer();
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
       layer     = HGCScintillatorDetId(detId).layer();
+    } else if (m_topology.isHFNose()) {
+      layer     = HFNoseDetId(detId).layer();
     } else {
       layer     = HGCSiliconDetId(detId).layer();
     }
