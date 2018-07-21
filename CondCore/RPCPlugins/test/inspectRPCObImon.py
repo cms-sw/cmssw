@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os,sys, DLFCN, time, datetime
 import matplotlib
 import numpy
@@ -32,7 +33,7 @@ tags = db.allTags()
 try:
     iov = inspect.Iov(db,tagPVSS)
     iovlist=iov.list()
-    print iovlist
+    print(iovlist)
     detMapName = {}
 
     for p in iovlist:
@@ -54,11 +55,11 @@ try:
                 pass
 
     for (k,v) in detMapName.items():
-        print k,v
+        print(k,v)
 
 
 except Exception as er :
-    print er
+    print(er)
 
 ##--------------------- Current reading -----------------------------------------
 
