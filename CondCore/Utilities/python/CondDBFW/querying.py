@@ -6,6 +6,7 @@ Also sets up ORM with SQLAlchemy.
 connection class can also take a pre-constructed engine - useful for web services.
 
 """
+from __future__ import print_function
 
 import sqlalchemy
 from sqlalchemy import create_engine, text, or_

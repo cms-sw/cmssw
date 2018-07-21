@@ -3,6 +3,7 @@
 This file contains the base DataSource class, and all sub classes that implement their own methods for parsing data.
 
 """
+from __future__ import print_function
 
 import json
 
@@ -365,7 +366,7 @@ class json_list(json_data_node):
 		#ascii_string += "\n"
 		ascii_string += horizontal_border
 		ascii_string += "Showing %d rows\n\n" % len(data)
-		print ascii_string
+		print(ascii_string)
 
 class json_dict(json_data_node):
 

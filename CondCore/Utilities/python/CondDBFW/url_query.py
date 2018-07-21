@@ -6,6 +6,7 @@ File provides a class that handles pycurl requests.
 Provides methods for performing/closing the request, as well as getting the request response.
 Note: user agent string from current version of cmsDbUpload
 """
+from __future__ import print_function
 
 import pycurl
 from StringIO import StringIO

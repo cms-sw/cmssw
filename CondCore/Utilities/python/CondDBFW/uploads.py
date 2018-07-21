@@ -6,6 +6,7 @@ Joshua Dawes - CERN, CMS - The University of Manchester
 This module holds classes to help with uploading conditions to the drop box web service, which also uses CondDBFW to read and write data.
 
 """
+from __future__ import print_function
 
 import os
 import json
