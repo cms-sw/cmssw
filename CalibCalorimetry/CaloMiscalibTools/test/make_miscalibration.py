@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import commands,string,time,thread,random,math,sys
 
 #global variables
@@ -129,13 +130,13 @@ def miscalibhcal(lumi,det,etaindex,phiindex,depth,randval):
             else:
             	return 0.02
     else:
-    	print 'lumi must be 0, 1 or 10'
+    	print('lumi must be 0, 1 or 10')
 
 
 #main
 if len(sys.argv)==1:
-    print 'Usage: '+sys.argv[0]+' <ecalbarrel|ecalendcap|HCAL> <lumi> <filename> <validcell for hcal> [MINRES=0.02] [SEED=random]'
-    print '       put lumi=0 for precalibration values (CSA07)'
+    print('Usage: '+sys.argv[0]+' <ecalbarrel|ecalendcap|HCAL> <lumi> <filename> <validcell for hcal> [MINRES=0.02] [SEED=random]')
+    print('       put lumi=0 for precalibration values (CSA07)')
     sys.exit(1)
 
 ecalbarrel=0
@@ -151,13 +152,13 @@ elif sys.argv[1]=='ecalendcap':
 elif sys.argv[1]=='HCAL':
     hcal=1
 else:
-    print 'please specify one of <barrel|endcap|HCAL>'
+    print('please specify one of <barrel|endcap|HCAL>')
     sys.exit(1)
 
 lumi=string.atof(sys.argv[2])
 
 if lumi<0:
-    print 'lumi = '+str(lumi)+' not valid'
+    print('lumi = '+str(lumi)+' not valid')
     sys.exit(1)
     
 fileout=sys.argv[3]
@@ -193,7 +194,7 @@ if hcal==1:
         hcalcells=hcalcells+1
 
     hcalcell.close()
-    print 'Read ',hcalcells,' valid cells for hcal'
+    print('Read ',hcalcells,' valid cells for hcal')
 # read non existing cells file, not needed anymore
 #    necell=open('non_existing_cell_endcap','r')
 
@@ -213,11 +214,11 @@ if len(sys.argv)>=6:
     MINRES=string.atof(sys.argv[5])
 
 if (hcal==0) or (lumi==0):
-    print 'Using minimal resolution: '+str(MINRES)
+    print('Using minimal resolution: '+str(MINRES))
 
 if len(sys.argv)>=7:
     SEED=string.atoi(sys.argv[6])
-    print 'Using fixed seed for random generation: '+str(SEED)
+    print('Using fixed seed for random generation: '+str(SEED))
     random.seed(SEED)
     
 # now open file
@@ -350,9 +351,9 @@ xmlfileinv.write('</CalibrationConstants>\n')
 xmlfile.close()
 xmlfileinv.close()
 txtfile.close()
-print 'File '+fileout+'.xml'+' written with '+str(count)+' lines'
-print 'File inv_'+fileout+'.xml'+' written with '+str(count)+' lines'
-print 'File '+fileout+'.txt'+' written with '+str(count)+' lines'
+print('File '+fileout+'.xml'+' written with '+str(count)+' lines')
+print('File inv_'+fileout+'.xml'+' written with '+str(count)+' lines')
+print('File '+fileout+'.txt'+' written with '+str(count)+' lines')
 #print miscalibecal(5,0,1,85,1,0)
 #print miscalibecal(5,1,-1,10,1,0)
 #print miscalibecal(5,1,-1,10,1,1)
