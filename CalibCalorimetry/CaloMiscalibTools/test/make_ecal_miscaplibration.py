@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import commands,string,time,thread,random,math,sys
 
 #global variables
@@ -75,8 +76,8 @@ def miscalib(lumi,endcap,z,etaindex,phiindex,randval):
 
 #main
 if len(sys.argv)==1:
-    print 'Usage: '+sys.argv[0]+' <barrel|endcap> <lumi> <filename> [MINRES=0.02] [SEED=random]'
-    print '       put lumi=0 for precalibration values (random at MINRES)'
+    print('Usage: '+sys.argv[0]+' <barrel|endcap> <lumi> <filename> [MINRES=0.02] [SEED=random]')
+    print('       put lumi=0 for precalibration values (random at MINRES)')
     sys.exit(1)
 
 if sys.argv[1]=='barrel':
@@ -84,7 +85,7 @@ if sys.argv[1]=='barrel':
 elif sys.argv[1]=='endcap':
     endcap=1
 else:
-    print 'please specify one of <barrel|endcap>'
+    print('please specify one of <barrel|endcap>')
     sys.exit(1)
 
 if endcap==1:
@@ -109,7 +110,7 @@ if endcap==1:
 lumi=string.atof(sys.argv[2])
 
 if lumi<0:
-    print 'lumi = '+str(lumi)+' not valid'
+    print('lumi = '+str(lumi)+' not valid')
     sys.exit(1)
     
 fileout=sys.argv[3]
@@ -117,11 +118,11 @@ fileout=sys.argv[3]
 if len(sys.argv)>=5:
     MINRES=string.atof(sys.argv[4])
 
-print 'Using minimal resolution: '+str(MINRES)
+print('Using minimal resolution: '+str(MINRES))
 
 if len(sys.argv)>=6:
     SEED=string.atoi(sys.argv[5])
-    print 'Using fixed seed for random generation: '+str(SEED)
+    print('Using fixed seed for random generation: '+str(SEED))
     random.seed(SEED)
     
 # now open file
@@ -188,7 +189,7 @@ else:
     xmlfile.write('  </EcalEndcap>\n')
 xmlfile.write('</CalibrationConstants>\n')
 xmlfile.close()
-print 'File '+fileout+' written with '+str(count)+' lines'
+print('File '+fileout+' written with '+str(count)+' lines')
 #print miscalib(5,0,1,85,1,0)
 #print miscalib(5,1,-1,10,1,0)
 #print miscalib(5,1,-1,10,1,1)
