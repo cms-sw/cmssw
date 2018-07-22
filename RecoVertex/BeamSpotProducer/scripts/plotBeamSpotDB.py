@@ -41,6 +41,7 @@
    Fermilab 2010
    
 """
+from __future__ import print_function
 
 
 import os, string, re, sys, math
@@ -52,12 +53,12 @@ from CommonMethods import *
 try:
     import ROOT
 except:
-    print "\nCannot load PYROOT, make sure you have setup ROOT in the path"
-    print "and pyroot library is also defined in the variable PYTHONPATH, try:\n"
+    print("\nCannot load PYROOT, make sure you have setup ROOT in the path")
+    print("and pyroot library is also defined in the variable PYTHONPATH, try:\n")
     if (os.getenv("PYTHONPATH")):
-        print " setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n"
+        print(" setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n")
     else:
-        print " setenv PYTHONPATH $ROOTSYS/lib\n"
+        print(" setenv PYTHONPATH $ROOTSYS/lib\n")
         sys.exit()
 
 from ROOT import TFile, TGraphErrors, TGaxis, TDatime
@@ -141,7 +142,7 @@ if __name__ == '__main__':
     
     tag = ''
     if not option.tag and not option.data: 
-	print " need to provide DB tag name or beam spot data file"
+	print(" need to provide DB tag name or beam spot data file")
 	exit()
     else:
 	tag = option.tag
@@ -160,7 +161,7 @@ if __name__ == '__main__':
     IOVbase = 'runbase'
     if option.IOVbase:
         if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
-            print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
+            print("\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n")
             exit()
 	IOVbase = option.IOVbase
     
@@ -180,7 +181,7 @@ if __name__ == '__main__':
 
     if getDBdata:
 
-        print " read DB to get list of IOVs for the given tag"
+        print(" read DB to get list of IOVs for the given tag")
 	mydestdb = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'
 	if option.destDB:
 		mydestdb = option.destDB
@@ -207,7 +208,7 @@ if __name__ == '__main__':
                 iovlist.append( aIOV )
             iline += 1
     
-        print " total number of IOVs = " + str(len(iovlist))
+        print(" total number of IOVs = " + str(len(iovlist)))
 
 
         #  GET DATA
@@ -219,7 +220,7 @@ if __name__ == '__main__':
             if option.auth:
                 otherArgs = otherArgs + " -a "+ option.auth
         
-        print " get beam spot data from DB for IOVs. This can take a few minutes ..."
+        print(" get beam spot data from DB for IOVs. This can take a few minutes ...")
 
         tmpfile = open(datafilename,'w')
 
@@ -238,10 +239,10 @@ if __name__ == '__main__':
                 tmprunlast  = pack( int(lastRun.split(":")[0]) , int(lastRun.split(":")[1]) )
 	    #print "since = " + str(iIOV.since) + " till = "+ str(iIOV.till)
             if iIOV.since >= int(tmprunfirst) and int(tmprunlast) < 0 and iIOV.since <= int(tmprunfirst):
-                print " IOV: " + str(iIOV.since)
+                print(" IOV: " + str(iIOV.since))
                 passiov = True
             if iIOV.since >= int(tmprunfirst) and int(tmprunlast) > 0 and iIOV.till <= int(tmprunlast):
-                print " a IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
+                print(" a IOV: " + str(iIOV.since) + " to " + str(iIOV.till))
                 passiov = True
             #if iIOV.since >= int(tmprunlast) and iIOV.till >= 4294967295:
             #    print " b IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
@@ -252,11 +253,11 @@ if __name__ == '__main__':
                     tmprun = unpack(iIOV.since)[0]
                     tmplumi = unpack(iIOV.since)[1]
                     acommand = 'getBeamSpotDB.py -t '+ tag + " -r " + str(tmprun) +" -l "+str(tmplumi) +otherArgs
-		    print acommand
+		    print(acommand)
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
-        print " beam spot data collected and stored in file " + datafilename
+        print(" beam spot data collected and stored in file " + datafilename)
     
         tmpfile.close()
 
@@ -276,12 +277,12 @@ if __name__ == '__main__':
                 input = open(option.data +"/"+f)
                 output.writelines(input.readlines())
             output.close()
-            print " data files have been collected in "+datafilename
+            print(" data files have been collected in "+datafilename)
             
         elif os.path.exists(option.data):
             datafilename = option.data
         else:
-            print " input beam spot data DOES NOT exist, file " + option.data
+            print(" input beam spot data DOES NOT exist, file " + option.data)
             exit()
 
     listbeam = []
@@ -289,8 +290,8 @@ if __name__ == '__main__':
     if option.xcrossing:
         listmap = readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
         # bx
-        print "List of bunch crossings in the file:"
-        print listmap.keys()
+        print("List of bunch crossings in the file:")
+        print(listmap.keys())
         listbeam = listmap[option.Xrossing]
     else:
         readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
@@ -303,7 +304,7 @@ if __name__ == '__main__':
             weighted = False
         createWeightedPayloads(option.payload,listbeam,weighted)
     if option.noplot:
-        print " no plots requested, exit now."
+        print(" no plots requested, exit now.")
         sys.exit()
     # MAKE PLOTS
     ###################################    
@@ -389,7 +390,7 @@ if __name__ == '__main__':
                             ## print local time
                             da_first.Print()
                             ## print gmt time
-                            print "GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(first - time.timezone)))
+                            print("GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(first - time.timezone))))
                             reftime = first
                             ptm = time.localtime(reftime)
                             da = TDatime(time.strftime('%Y-%m-%d %H:%M:%S',ptm))
@@ -415,7 +416,7 @@ if __name__ == '__main__':
 	if option.Time:
             ## print local time
             da_last.Print()
-            print "GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(last - time.timezone)))
+            print("GMT = " + str(time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime(last - time.timezone))))
             graphlist[ig].GetXaxis().SetTimeDisplay(1);
             graphlist[ig].GetXaxis().SetTimeFormat("#splitline{%Y/%m/%d}{%H:%M}")           
 	if option.graph:
@@ -442,7 +443,7 @@ if __name__ == '__main__':
             ig.Write()
 
         outroot.Close()
-        print " plots have been written to "+option.output
+        print(" plots have been written to "+option.output)
         
     
 
