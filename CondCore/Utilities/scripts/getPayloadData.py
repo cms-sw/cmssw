@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
 import shutil
 import glob
 import json
@@ -175,8 +176,8 @@ def discover():
 
 def output(description, param):
     if args.verbose:
-        print ''
-        print description, param
+        print('')
+        print(description, param)
 
 if __name__ == '__main__':
 
