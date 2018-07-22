@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from CalibTracker.SiStripCommon.shallowTree_test_template import *
@@ -66,13 +67,13 @@ options.register('runNumber',
 
 options.parseArguments()
 
-print "conditionGT       : ", options.conditionGT
-print "conditionOverwrite: ", options.conditionOverwrite
-print "inputCollection   : ", options.inputCollection
-print "maxEvents         : ", options.maxEvents
-print "outputFile        : ", options.outputFile
-print "inputFiles        : ", options.inputFiles
-print "runNumber         : ", options.runNumber
+print("conditionGT       : ", options.conditionGT)
+print("conditionOverwrite: ", options.conditionOverwrite)
+print("inputCollection   : ", options.inputCollection)
+print("maxEvents         : ", options.maxEvents)
+print("outputFile        : ", options.outputFile)
+print("inputFiles        : ", options.inputFiles)
+print("runNumber         : ", options.runNumber)
 
 
 process = cms.Process('CALIB')
@@ -106,8 +107,8 @@ if options.runNumber == -1:
      fileNames = cms.untracked.vstring( options.inputFiles )
    )
 else:
-   print "Restricting to the following events :"
-   print '%s:1-%s:MAX'%(options.runNumber,options.runNumber)
+   print("Restricting to the following events :")
+   print('%s:1-%s:MAX'%(options.runNumber,options.runNumber))
    process.source = cms.Source (
         "PoolSource",
          fileNames = cms.untracked.vstring( options.inputFiles ),
