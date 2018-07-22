@@ -15,6 +15,7 @@ Takes user arguments and passes them to the main upload module CondDBFW.uploads,
 4. Invoke the CondDBFW.uploads module with the arguments given to this script.
 
 """
+from __future__ import print_function
 
 import pycurl
 from StringIO import StringIO
