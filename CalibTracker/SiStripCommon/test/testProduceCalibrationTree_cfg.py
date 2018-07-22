@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -46,12 +47,12 @@ options.register('maxEvents',
 
 options.parseArguments()
 
-print "conditionGT       : ", options.conditionGT
-print "conditionOverwrite: ", options.conditionOverwrite
-print "inputCollection   : ", options.inputCollection
-print "maxEvents         : ", options.maxEvents
-print "outputFile        : ", options.outputFile
-print "inputFiles        : ", options.inputFiles
+print("conditionGT       : ", options.conditionGT)
+print("conditionOverwrite: ", options.conditionOverwrite)
+print("inputCollection   : ", options.inputCollection)
+print("maxEvents         : ", options.maxEvents)
+print("outputFile        : ", options.outputFile)
+print("inputFiles        : ", options.inputFiles)
 
 process = cms.Process('CALIB')
 #from CalibTracker.SiStripChannelGain.ntuple_cff import *
