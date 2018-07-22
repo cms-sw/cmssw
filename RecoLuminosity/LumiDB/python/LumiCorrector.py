@@ -1,3 +1,4 @@
+from __future__ import print_function
 ##
 ##identical copy from online. no drift correction
 ##
@@ -92,6 +93,6 @@ class LumiCorrector(object):
         return Afterglow
 if __name__=='__main__':
     lcorr=LumiCorrector()
-    print lcorr.AfterglowFactor(500)
-    print lcorr.TotalNormOcc1(0.3,700)
-    print lcorr.PixelAfterglowFactor(500)
+    print(lcorr.AfterglowFactor(500))
+    print(lcorr.TotalNormOcc1(0.3,700))
+    print(lcorr.PixelAfterglowFactor(500))

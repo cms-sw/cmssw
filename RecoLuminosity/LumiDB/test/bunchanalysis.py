@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys,os,os.path,csv
 #analyse result from lumicalc2 cmmd to find perbunchlumi after subtracting noise
 #the following example analyses the output from:
@@ -61,9 +62,9 @@ if __name__ == "__main__" :
     bxreader.parse()
     collidingbx=[i for i in range(0,3564) if bxreader.iscollidingbx(i)]
     noncollidingbx=[i for i in range(0,3564) if i not in collidingbx]
-    print 'colliding bx ',collidingbx
+    print('colliding bx ',collidingbx)
     noise=0.
-    print 'bxidx,rawbxlumi,truebxlumi'
+    print('bxidx,rawbxlumi,truebxlumi')
     totlumi=0.
     totncolliding=0
     for i in collidingbx:
@@ -74,5 +75,5 @@ if __name__ == "__main__" :
         truebxlumi=rawbxlumi-noise
         totncolliding+=1
         totlumi+=truebxlumi
-        print i,rawbxlumi,truebxlumi
-    print '==n clean colliding bx, lumi ',totncolliding,totlumi
+        print(i,rawbxlumi,truebxlumi)
+    print('==n clean colliding bx, lumi ',totncolliding,totlumi)
