@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import ROOT
 from ROOT import TCanvas,TH1F,gROOT,TFile,gStyle,gDirectory,TDatime,TLegend
@@ -7,7 +8,7 @@ try:
     import Tkinter as Tk
     root=Tk.Tk()
 except ImportError:
-    print 'unable to import GUI backend, switch to batch only mode'
+    print('unable to import GUI backend, switch to batch only mode')
     batchonly=True
 
 def destroy(e) :

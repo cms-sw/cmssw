@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 from numpy import arange,sin,pi,random
 
@@ -13,7 +14,7 @@ try:
     root=Tk.Tk()
     root.wm_title("Embedding in TK")
 except ImportError:
-    print 'unable to import GUI backend, switch to batch only mode'
+    print('unable to import GUI backend, switch to batch only mode')
     matplotlib.use('Agg',warn=False)
     from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
     batchonly=True
@@ -34,7 +35,7 @@ def drawBatch(fig,filename):
     
 def drawInteractive(fig):
     if batchonly:
-        print 'interactive mode is not available for your setup, exit'
+        print('interactive mode is not available for your setup, exit')
         sys.exit()    
     canvas=CanvasBackend(fig,master=root)
     canvas.show()
@@ -89,7 +90,7 @@ def plotHist(fig):
     ax=fig.add_subplot(111)
     ax.set_xlabel(r'Run')
     ax.set_ylabel(r'Luminosity $\mu$b$^{-1}$')
-    print binsize
+    print(binsize)
     #ax.bar(x,y,width=binsize,drawstyle='steps',edgecolor='r',fill=False,label='Recorded')
     ax.plot(x,y,drawstyle='steps')
     ax.grid(True)

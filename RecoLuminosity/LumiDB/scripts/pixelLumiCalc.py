@@ -6,6 +6,7 @@
 # Author:      Zhen Xie                                                #
 ########################################################################
 
+from __future__ import print_function
 import os,sys,time
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,revisionDML,normDML,lumiReport,lumiCorrections,RegexValidator
 
@@ -221,7 +222,7 @@ if __name__ == '__main__':
         from RecoLuminosity.LumiDB import checkforupdate
         cmsswWorkingBase=os.environ['CMSSW_BASE']
         if not cmsswWorkingBase:
-            print 'Please check out RecoLuminosity/LumiDB from CVS,scram b,cmsenv'
+            print('Please check out RecoLuminosity/LumiDB from CVS,scram b,cmsenv')
             sys.exit(11)
         c=checkforupdate.checkforupdate('pixeltagstatus.txt')
         workingversion=c.runningVersion(cmsswWorkingBase,'pixelLumiCalc.py',isverbose=False)
@@ -267,17 +268,17 @@ if __name__ == '__main__':
 
     dataidmap=lumiCalcAPI.runList(session.nominalSchema(),datatagid,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=None,requiretrg=reqTrg,requirehlt=reqHlt,preselectedruns=filerunlist,lumitype='PIXEL')
     if not dataidmap:
-        print '[INFO] No qualified run found, do nothing'
+        print('[INFO] No qualified run found, do nothing')
         sys.exit(14)
     rruns=[]
     for irun,(lid,tid,hid) in dataidmap.items():
         if not lid:
-            print '[INFO] No qualified lumi data found for run, ',irun
+            print('[INFO] No qualified lumi data found for run, ',irun)
         if reqTrg and not tid:
-            print '[INFO] No qualified trg data found for run ',irun
+            print('[INFO] No qualified trg data found for run ',irun)
         #    continue
         if reqHlt and not hid:
-            print '[INFO] No qualified hlt data found for run ',irun
+            print('[INFO] No qualified hlt data found for run ',irun)
         #    continue
         rruns.append(irun)
     if not irunlsdict: #no file
@@ -287,7 +288,7 @@ if __name__ == '__main__':
             if selectedrun not in rruns:
                 del irunlsdict[selectedrun]
     if not irunlsdict:
-        print '[INFO] No qualified run found, do nothing'
+        print('[INFO] No qualified run found, do nothing')
         sys.exit(13)
     ###############################################################
     # check normtag and get norm values if required
