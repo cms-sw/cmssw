@@ -13,20 +13,17 @@
 
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
-#include "PhysicsTools/MXNet/interface/MXNetPredictor.h"
+#include "PhysicsTools/MXNet/interface/MXNetCppPredictor.h"
 
 #include <iostream>
 #include <fstream>
 
-// Currently hold the raw model/param data in the edm::GlobalCache.
-// Can be improved by holding the mxnet Symbol/NDArrays in the cache
-// when moving to the MXNet C++ API.
-struct MXBufferFileCache {
-  MXBufferFileCache() : model_data(nullptr), param_data(nullptr) {
+// Hold the mxnet model block (symbol + params) in the edm::GlobalCache.
+struct MXBlockCache {
+  MXBlockCache() : block(nullptr) {
   }
 
-  std::atomic<mxnet::BufferFile*> model_data;
-  std::atomic<mxnet::BufferFile*> param_data;
+  std::atomic<mxnet::cpp::Block*> block;
 };
 
 // struct to hold preprocessing parameters
@@ -52,16 +49,16 @@ struct PreprocessParams {
   }
 };
 
-class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<MXBufferFileCache>> {
+class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<MXBlockCache>> {
 
   public:
-    explicit DeepBoostedJetTagsProducer(const edm::ParameterSet&, const MXBufferFileCache*);
+    explicit DeepBoostedJetTagsProducer(const edm::ParameterSet&, const MXBlockCache*);
     ~DeepBoostedJetTagsProducer() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-    static std::unique_ptr<MXBufferFileCache> initializeGlobalCache(const edm::ParameterSet&);
-    static void globalEndJob(const MXBufferFileCache*);
+    static std::unique_ptr<MXBlockCache> initializeGlobalCache(const edm::ParameterSet&);
+    static void globalEndJob(const MXBlockCache*);
 
   private:
     typedef std::vector<reco::DeepBoostedJetTagInfo> TagInfoCollection;
@@ -84,12 +81,12 @@ class DeepBoostedJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCac
     std::unordered_map<std::string, PreprocessParams> prep_info_map_; // preprocessing info for each input group
 
     std::vector<std::vector<float>> data_;
-    std::unique_ptr<mxnet::MXNetPredictor> predictor_;
+    std::unique_ptr<mxnet::cpp::MXNetCppPredictor> predictor_;
 
     bool debug_ = false;
 };
 
-DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& iConfig, const MXBufferFileCache* cache)
+DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& iConfig, const MXBlockCache* cache)
 : src_(consumes<TagInfoCollection>(iConfig.getParameter<edm::InputTag>("src")))
 , debug_(iConfig.getUntrackedParameter<bool>("debugMode", false))
 {
@@ -130,9 +127,8 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
   }
 
   // init MXNetPredictor
-  predictor_ = std::make_unique<mxnet::MXNetPredictor>();
+  predictor_.reset(new mxnet::cpp::MXNetCppPredictor(*cache->block));
   predictor_->set_input_shapes(input_names_, input_shapes_);
-  predictor_->load_model(cache->model_data, cache->param_data);
 
   // get output names from flav_table
   const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
@@ -190,7 +186,7 @@ void DeepBoostedJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions
   descriptions.add("pfDeepBoostedJetTags", desc);
 }
 
-std::unique_ptr<MXBufferFileCache> DeepBoostedJetTagsProducer::initializeGlobalCache(
+std::unique_ptr<MXBlockCache> DeepBoostedJetTagsProducer::initializeGlobalCache(
   const edm::ParameterSet& iConfig)
 {
   // get the model files
@@ -198,19 +194,15 @@ std::unique_ptr<MXBufferFileCache> DeepBoostedJetTagsProducer::initializeGlobalC
   std::string param_file = iConfig.getParameter<edm::FileInPath>("param_path").fullPath();
 
   // load the model and params and save it in the cache
-  MXBufferFileCache* cache = new MXBufferFileCache();
-  cache->model_data = new mxnet::BufferFile(model_file);
-  cache->param_data = new mxnet::BufferFile(param_file);
-  return std::unique_ptr<MXBufferFileCache>(cache);
+  MXBlockCache* cache = new MXBlockCache();
+  cache->block = new mxnet::cpp::Block(model_file, param_file);
+  return std::unique_ptr<MXBlockCache>(cache);
 }
 
-void DeepBoostedJetTagsProducer::globalEndJob(const MXBufferFileCache* cache)
+void DeepBoostedJetTagsProducer::globalEndJob(const MXBlockCache* cache)
 {
-  if (cache->model_data != nullptr) {
-    delete cache->model_data;
-  }
-  if (cache->param_data != nullptr) {
-    delete cache->param_data;
+  if (cache->block != nullptr) {
+    delete cache->block;
   }
 }
 
