@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,sys, DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
@@ -19,7 +20,7 @@ tag = 'l1triggerscaler_test_v2'
 
 try :
     log = db.lastLogEntry(tag)
-    print log.getState()
+    print(log.getState())
 
     #for printing all log info present into log db 
     #print log.getState()
@@ -29,11 +30,11 @@ try :
 
     #for inspecting only last payload/run
     iov = inspect.Iov(db,tag,1,1,1,0)
-    print iov.list()
+    print(iov.list())
     for x in  iov.summaries():
-        print x[1], x[2] ,x[3]
+        print(x[1], x[2] ,x[3])
     #        print iov.trend("",[0,2,12])
 except RuntimeError :
-    print " no iov? in", tag
+    print(" no iov? in", tag)
 
 
