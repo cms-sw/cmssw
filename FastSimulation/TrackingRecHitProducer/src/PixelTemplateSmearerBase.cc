@@ -58,8 +58,13 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
 
     //--- Resolution file names.
     theBigPixelResolutionFileName     = config.getParameter<string>( "BigPixelResolutionFile" );
+    theBigPixelResolutionFileName     = edm::FileInPath( theBigPixelResolutionFileName ).fullPath();
+
     theEdgePixelResolutionFileName    = config.getParameter<string>( "EdgePixelResolutionFile" );
+    theEdgePixelResolutionFileName    = edm::FileInPath( theEdgePixelResolutionFileName ).fullPath();
+
     theRegularPixelResolutionFileName = config.getParameter<string>( "RegularPixelResolutionFile" );
+    theRegularPixelResolutionFileName = edm::FileInPath( theRegularPixelResolutionFileName ).fullPath();
 
 
     //--- Create the resolution histogram objects, which will load the histograms
@@ -67,7 +72,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     //
     int status = 0;
     theRegularPixelResolutions = 
-      std::make_shared<PixelResolutionHistograms>( edm::FileInPath( theRegularPixelResolutionFileName ).fullPath().c_str(), "" );
+      std::make_shared<PixelResolutionHistograms>( theRegularPixelResolutionFileName, "" );
     if (( status = theRegularPixelResolutions->status()) != 0 ) {
       throw cms::Exception("PixelTemplateSmearerBase:")
 	<< " constructing PixelResolutionHistograms file " << theRegularPixelResolutionFileName
@@ -75,7 +80,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     }
     
     theBigPixelResolutions =
-      std::make_shared<PixelResolutionHistograms>( edm::FileInPath( theBigPixelResolutionFileName ).fullPath().c_str(), "", detType, (!isBarrel), false, true );  // can miss qBin
+      std::make_shared<PixelResolutionHistograms>( theBigPixelResolutionFileName, "", detType, (!isBarrel), false, true );  // can miss qBin
     if (( status = theBigPixelResolutions->status()) != 0 ) {
       throw cms::Exception("PixelTemplateSmearerBase:")
 	<< " constructing PixelResolutionHistograms file " << theBigPixelResolutionFileName
@@ -83,7 +88,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     }
     
     theEdgePixelResolutions =
-      std::make_shared<PixelResolutionHistograms>( edm::FileInPath( theEdgePixelResolutionFileName ).fullPath().c_str(), "", detType, false, true, true );  // can miss both single & qBin
+      std::make_shared<PixelResolutionHistograms>( theEdgePixelResolutionFileName, "", detType, false, true, true );  // can miss both single & qBin
     if (( status = theEdgePixelResolutions->status()) != 0 ) {
       throw cms::Exception("PixelTemplateSmearerBase:")
 	<< " constructing PixelResolutionHistograms file " << theEdgePixelResolutionFileName
@@ -94,11 +99,16 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     
     //--- Merging info.
     theMergingProbabilityFileName     = config.getParameter<string>( "MergingProbabilityFile" );
-    theMergingProbabilityFile         = std::make_unique<TFile>( edm::FileInPath( theMergingProbabilityFileName ).fullPath().c_str()  ,"READ");
+    theMergingProbabilityFileName     = edm::FileInPath( theMergingProbabilityFileName ).fullPath();
+    theMergingProbabilityFile         = std::make_unique<TFile>( theMergingProbabilityFileName.c_str(), "READ");
+
     theMergedPixelResolutionXFileName = config.getParameter<string>( "MergedPixelResolutionXFile" );
-    theMergedPixelResolutionXFile     = std::make_unique<TFile>( edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionXFileName = edm::FileInPath( theMergedPixelResolutionXFileName ).fullPath();
+    theMergedPixelResolutionXFile     = std::make_unique<TFile>( theMergedPixelResolutionXFileName.c_str(), "READ");
+
     theMergedPixelResolutionYFileName = config.getParameter<string>( "MergedPixelResolutionYFile" );
-    theMergedPixelResolutionYFile     = std::make_unique<TFile>( edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath().c_str()  ,"READ");
+    theMergedPixelResolutionYFileName = edm::FileInPath( theMergedPixelResolutionYFileName ).fullPath();
+    theMergedPixelResolutionYFile     = std::make_unique<TFile>( theMergedPixelResolutionYFileName.c_str(), "READ");
 
 
     // const SiPixelTemplateDBObject & dbobject;

@@ -64,9 +64,9 @@ const float cmtomicron = 10000.0;
 //  definition of the binning.)
 //------------------------------------------------------------------------------
 PixelResolutionHistograms::
-PixelResolutionHistograms( const char * filename,   // ROOT file for histograms
-			   const char * rootdir,    // Subdirectory in the file, "" if none
-			   const char * descTitle,  // Descriptive title	     
+PixelResolutionHistograms( std::string filename,   // ROOT file for histograms
+			   std::string rootdir,    // Subdirectory in the file, "" if none
+			   std::string descTitle,  // Descriptive title	     
 			   unsigned int detType,    // Where we are... (&&& do we need this?)
 			   double 	cotbetaBinWidth,
 			   double 	cotbetaLowEdge,
@@ -97,7 +97,7 @@ PixelResolutionHistograms( const char * filename,   // ROOT file for histograms
     qbinGen_()
 {
 
-  file_ = std::make_unique<TFile>( filename, "RECREATE" );
+  file_ = std::make_unique<TFile>( filename.c_str(), "RECREATE" );
   //Resolution binning
   // const double 	cotbetaBinWidth = 1.0;
   // const double 	cotbetaLowEdge	= -11.5 ;
@@ -109,7 +109,7 @@ PixelResolutionHistograms( const char * filename,   // ROOT file for histograms
   // const int	qbins		= 4;
 
   // Dummy 2D histogram to store binning:
-  binningHisto_ = new TH2F( "ResHistoBinning", descTitle,
+  binningHisto_ = new TH2F( "ResHistoBinning", descTitle.c_str(),
 			    cotbetaBins,  cotbetaLowEdge,  cotbetaLowEdge  + cotbetaBins*cotbetaBinWidth,
 			    cotalphaBins, cotalphaLowEdge, cotalphaLowEdge + cotalphaBins*cotalphaBinWidth );
 
@@ -191,8 +191,8 @@ PixelResolutionHistograms( const char * filename,   // ROOT file for histograms
 //  to the histograms we are loading from the file.
 //------------------------------------------------------------------------------
 PixelResolutionHistograms::
-PixelResolutionHistograms( const char * filename, 
-			   const char * rootdir,
+PixelResolutionHistograms( std::string filename, 
+			   std::string rootdir,
 			   int   detType,
 			   bool  ignore_multi,
 			   bool  ignore_single, 
@@ -222,15 +222,15 @@ PixelResolutionHistograms( const char * filename,
   TH1F * tmphist = nullptr;  // cache for histo pointer
 
   //--- Open the file for reading.
-  file_ = std::make_unique<TFile>( filename  ,"READ");
+  file_ = std::make_unique<TFile>( filename.c_str()  ,"READ");
   if ( !file_ ) {
     status_ = 1;
-    LOGERROR << "PixelResolutionHistograms:: Error, file " << std::string(filename) << " not found.";
+    LOGERROR << "PixelResolutionHistograms:: Error, file " << filename << " not found.";
     return;          // PixelTemplateSmearerBase will throw an exception upon our return.
   }
 
   //--- The dummy 2D histogram with the binning of cot\beta and cot\alpha:
-  binningHisto_ = (TH2F*) file_->Get( Form( "%s%s" , rootdir, "ResHistoBinning" ) );
+  binningHisto_ = (TH2F*) file_->Get( Form( "%s%s" , rootdir.c_str(), "ResHistoBinning" ) );
   if ( !binningHisto_ ) {
     status_ = 11;
     LOGERROR << "PixelResolutionHistograms:: Error, binning histogrram ResHistoBinning not found.";
@@ -258,7 +258,7 @@ PixelResolutionHistograms( const char * filename,
   //--- We want the following information to show up in *every* log file!
   // LOGINFO << std::endl 
   std::cout << std::endl
-	  << "Loading pixel resolution file = " << std::string(filename) << std::endl 
+	  << "Loading pixel resolution file = " << filename << std::endl 
 	  << " cotBeta[" << cotbetaLowEdge_ <<","<< cotbetaBinWidth_ <<","<< cotbetaBins_ << "]" << std::endl 
 	  << " cotAlpha[" << cotalphaLowEdge_ <<","<< cotalphaBinWidth_ <<","<< cotalphaBins_ << "]" 
 	  << std::endl;
@@ -279,7 +279,7 @@ PixelResolutionHistograms( const char * filename,
 		   cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_,
 		   kk+1 );
 	  //
-	  tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
+	  tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir.c_str(), histo ) );
 	  if ( !tmphist ) {
 	    status_ = 2;
 	    LOGERROR << "Failed to find histogram=" << std::string( histo );
@@ -301,7 +301,7 @@ PixelResolutionHistograms( const char * filename,
 		   cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_,
 		   kk+1 );
 	  //
-	  tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
+	  tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir.c_str(), histo ) );
 	  if ( !tmphist ) {
 	    status_ = 3;
 	    LOGERROR << "Failed to find histogram=" << std::string( histo );
@@ -336,7 +336,7 @@ PixelResolutionHistograms( const char * filename,
 	       cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 	       cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_ );
       //
-      tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
+      tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir.c_str(), histo ) );
       if ( !tmphist ) {
 	if ( !ignore_single ) {
 	  LOGERROR << "Failed to find histogram=" << std::string( histo );
@@ -364,7 +364,7 @@ PixelResolutionHistograms( const char * filename,
 	       cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 	       cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_ );
       //
-      tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
+      tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir.c_str(), histo ) );
       if ( !tmphist ) {
 	if ( !ignore_single ) {
 	  LOGERROR << "Failed to find histogram=" << std::string( histo );
@@ -391,7 +391,7 @@ PixelResolutionHistograms( const char * filename,
 	       cotbetaLowEdge_ + ii*cotbetaBinWidth_ , cotbetaLowEdge_ + (ii+1)*cotbetaBinWidth_,
 	       cotalphaLowEdge_ +jj*cotalphaBinWidth_, cotalphaLowEdge_ +(jj+1)*cotalphaBinWidth_ );
       //
-      tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir, histo ) );
+      tmphist = (TH1F*) file_->Get( Form( "%s%s" , rootdir.c_str(), histo ) );
       if ( !tmphist ) {
 	if ( !ignore_qBin ) {
 	  LOGERROR << "Failed to find histogram=" << std::string( histo );
@@ -437,7 +437,7 @@ PixelResolutionHistograms::~PixelResolutionHistograms()
   else {
     //--- We made the histograms, so first write them inthe output ROOT file and close it.
     LOGINFO
-      << "PixelResHistoStore: Writing the histograms to the output file. " // << std::string( filename )
+      << "PixelResHistoStore: Writing the histograms to the output file. " // << filename 
       << std::endl;
     file_->Write();
     file_->Close();
