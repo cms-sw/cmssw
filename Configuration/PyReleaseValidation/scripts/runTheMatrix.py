@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
@@ -24,14 +25,14 @@ def runSelected(opt):
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
-        if opt.testList : print 'testListected items:', opt.testList
+        if opt.testList : print('testListected items:', opt.testList)
     else:
         mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
         if ret!=0:
-            print 'Cannot go on with wmagent injection with failing workflows'
+            print('Cannot go on with wmagent injection with failing workflows')
         else:
             wfInjector = MatrixInjector(opt,mode=opt.wmcontrol,options=opt.wmoptions)
             ret= wfInjector.prepare(mrd,
@@ -268,8 +269,8 @@ if __name__ == '__main__':
         err, out = run_cmd("curl -L -s -o %s https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/ibeos.txt" % ibeos_cache)
         if err:
           run_cmd("rm -f %s" % ibeos_cache)
-          print "Error: Unable to download ibeos cache information"
-          print out
+          print("Error: Unable to download ibeos cache information")
+          print(out)
           sys.exit(err)
 
       for cmssw_env in [ "CMSSW_BASE", "CMSSW_RELEASE_BASE" ]:
@@ -280,10 +281,10 @@ if __name__ == '__main__':
           os.environ["PATH"]=cmssw_base+":"+os.getenv("PATH")
           os.environ["CMS_PATH"]="/cvmfs/cms-ib.cern.ch"
           os.environ["CMSSW_USE_IBEOS"]="true"
-          print ">> WARNING: You are using SITECONF from /cvmfs/cms-ib.cern.ch"
+          print(">> WARNING: You are using SITECONF from /cvmfs/cms-ib.cern.ch")
           break
     if opt.restricted:
-        print 'Deprecated, please use -l limited'
+        print('Deprecated, please use -l limited')
         if opt.testList:            opt.testList+=',limited'
         else:            opt.testList='limited'
 
@@ -313,7 +314,7 @@ if __name__ == '__main__':
                 try:
                     testList.append(float(entry))
                 except:
-                    print entry,'is not a possible selected entry'
+                    print(entry,'is not a possible selected entry')
             
         opt.testList = list(set(testList))
 
