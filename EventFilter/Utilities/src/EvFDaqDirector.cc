@@ -45,7 +45,7 @@ namespace evf {
     useFileBroker_(pset.getUntrackedParameter<bool> ("useFileBroker", false)),
     fileBrokerHost_(pset.getUntrackedParameter<std::string>("fileBrokerHost","")),
     fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort","8080")),
-    fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", false)),
+    fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
     fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock",true)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
@@ -349,7 +349,7 @@ namespace evf {
     desc.addUntracked<bool> ("useFileBroker", false)->setComment("Use BU file service to grab input data instead of NFS file locking");
     desc.addUntracked<std::string> ("fileBrokerHost", "")->setComment("BU file service host");
     desc.addUntracked<std::string> ("fileBrokerPort", "8080")->setComment("BU file service port");
-    desc.addUntracked<bool> ("fileBrokerKeepAlive", false)->setComment("Use keep alive to avoid using large number of sockets");
+    desc.addUntracked<bool> ("fileBrokerKeepAlive", true)->setComment("Use keep alive to avoid using large number of sockets");
     desc.addUntracked<bool> ("fileBrokerUseLocalLock", true)->setComment("Use local lock file to synchronize appearance of index and EoLS file markers for hltd");
     desc.addUntracked<bool>("outputAdler32Recheck",false)->setComment("Check Adler32 of per-process output files while micro-merging");
     desc.addUntracked<bool>("requireTransfersPSet",false)->setComment("Require complete transferSystem PSet in the process configuration");
@@ -1284,7 +1284,6 @@ namespace evf {
         boost::asio::write(*socket_, request,ec);
         if (ec) {
           if (fileBrokerKeepAlive_ && ec == boost::asio::error::connection_reset) {
-            //debug!
             edm::LogInfo("EvFDaqDirector") << "reconnecting socket on received connection_reset";
             //we got disconnected, try to reconnect to the server before writing the request
             boost::asio::connect(*socket_,*endpoint_iterator_,ec);
@@ -1293,8 +1292,9 @@ namespace evf {
               serverError = true;
               break;
             }
+            continue;
           }
-          edm::LogWarning("EvFDaqDirector") << "boost::asio::wrote error -:" << ec;
+          edm::LogWarning("EvFDaqDirector") << "boost::asio::write error -:" << ec;
           serverError = true;
           break;
         }
@@ -1327,14 +1327,6 @@ namespace evf {
           edm::LogWarning("EvFDaqDirector") << "Response returned with status code " << serverHttpStatus;
           serverError = true;
           break;
-        }
-
-        // Read the response headers, which are terminated by a blank line.
-        boost::asio::read_until(*socket_, response, "\r\n\r\n",ec);
-        if (ec) {
-         edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec;
-         serverError = true;
-         break;
         }
 
         // Process the response headers.
@@ -1454,13 +1446,14 @@ namespace evf {
         }
 
         // Read until EOF, writing data to output as we go.
-        while (boost::asio::read(*socket_, response,
-          boost::asio::transfer_at_least(1), ec)) {
-        }
-
-        if (ec != boost::asio::error::eof) {
-         edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec;
-         serverError = true;
+        if (!fileBrokerKeepAlive_) {
+          while (boost::asio::read(*socket_, response,
+            boost::asio::transfer_at_least(1), ec)) {
+          }
+          if (ec != boost::asio::error::eof) {
+           edm::LogWarning("EvFDaqDirector") << "boost::asio::read_until error -:" << ec;
+           serverError = true;
+          }
         }
         break;
       }
@@ -1483,6 +1476,10 @@ namespace evf {
     }
 
     if (serverError) {
+      if (socket_->is_open()) socket_->close(ec);
+      if (ec) {
+        edm::LogWarning("EvFDaqDirector") << "socket close error -:" << ec;
+      }
       fileStatus = noFile;
       sleep(1);//back-off if error detected
     }
