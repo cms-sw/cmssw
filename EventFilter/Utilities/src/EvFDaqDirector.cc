@@ -406,7 +406,7 @@ namespace evf {
           //rarely this fails but file gets deleted
           boost::filesystem::remove(filePath);
         }
-        catch (const boost::filesystem::filesystem_error const& ex)
+        catch (boost::filesystem::filesystem_error const& ex)
         {
           edm::LogError("EvFDaqDirector") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
           usleep(10000);
@@ -1159,7 +1159,7 @@ namespace evf {
       try {
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
-      catch (const boost::filesystem::filesystem_error const& ex)
+      catch (boost::filesystem::filesystem_error const& ex)
       {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
@@ -1173,7 +1173,7 @@ namespace evf {
         //sometimes this fails but file gets deleted
         boost::filesystem::remove(jsonSourcePath);
       }
-      catch (const boost::filesystem::filesystem_error const& ex)
+      catch (boost::filesystem::filesystem_error const& ex)
       {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
@@ -1219,7 +1219,7 @@ namespace evf {
       }
       return boost::lexical_cast<int>(data);
     }
-    catch (const boost::filesystem::filesystem_error const& ex)
+    catch (boost::filesystem::filesystem_error const& ex)
     {
       // Input dir gone?
       unlockFULocal();
