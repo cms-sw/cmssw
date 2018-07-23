@@ -147,10 +147,16 @@ namespace l1t {
     int egMaxPtJetIsolation() const { return egp_.maxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egp_.maxPtHOverEIsolation_; }
-    unsigned egBypassEGVetos() const { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
-    unsigned egBypassExtHOverE() const { return pnode_[egBypassExtHoE].uparams_[0]; }
-    unsigned egBypassShape() const { return pnode_[egBypassShapeFlag].uparams_[0]; }
-    unsigned egBypassECALFG() const { return pnode_[egBypassECALFGFlag].uparams_[0]; }
+    unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
+    unsigned egBypassExtHOverE() { return pnode_[egBypassExtHoE].uparams_[0]; }
+    unsigned egBypassShape() {
+      if(pnode_[egBypassShapeFlag].uparams_.size()==0) return 0;
+      else return pnode_[egBypassShapeFlag].uparams_[0];
+    }
+    unsigned egBypassECALFG() {
+      if(pnode_[egBypassECALFGFlag].uparams_.size()==0) return 0;
+      else return pnode_[egBypassECALFGFlag].uparams_[0];
+    }
     int egHOverEcutBarrel() const {return pnode_[egHOverEBarrel].iparams_[0]; }
     int egHOverEcutEndcap() const {return pnode_[egHOverEEndcap].iparams_[0]; }
 
