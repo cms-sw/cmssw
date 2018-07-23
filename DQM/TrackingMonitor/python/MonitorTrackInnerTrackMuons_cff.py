@@ -51,9 +51,9 @@ MonitorTrackMuonsInnerTrack.PVMax = 79.5 ## it might need to be adjust if CMS as
 
 MonitorTrackMuonsInnerTrack.doRecHitVsPhiVsEtaPerTrack           = True
 MonitorTrackMuonsInnerTrack.doRecHitVsPtVsEtaPerTrack            = True
-MonitorTrackMuonsInnerTrack.doGoodTrackRecHitVsPhiVsEtaPerTrack  = True
+#MonitorTrackMuonsInnerTrack.doGoodTrackRecHitVsPhiVsEtaPerTrack  = True
 MonitorTrackMuonsInnerTrack.doLayersVsPhiVsEtaPerTrack           = True
-MonitorTrackMuonsInnerTrack.doGoodTrackLayersVsPhiVsEtaPerTrack  = True
+#MonitorTrackMuonsInnerTrack.doGoodTrackLayersVsPhiVsEtaPerTrack  = True
 
 MonitorTrackMuonsInnerTrack.Eta2DBin   = 16
 MonitorTrackMuonsInnerTrack.Phi2DBin   = 16
