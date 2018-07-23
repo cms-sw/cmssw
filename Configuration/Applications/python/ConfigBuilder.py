@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 __version__ = "$Revision: 1.19 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
@@ -121,11 +122,11 @@ def filesFromList(fileName,s=None):
 				s.secondaryFileNames=cms.untracked.vstring(sec)
 			else:
 				s.secondaryFileNames.extend(sec)
-	print "found files: ",prim
+	print("found files: ",prim)
 	if len(prim)==0:
 		raise Exception("There are not files in input from the file list")
 	if len(sec)!=0:
-		print "found parent files:",sec
+		print("found parent files:",sec)
 	return (prim,sec)
 	
 def filesFromDASQuery(query,option="",s=None):
@@ -133,12 +134,12 @@ def filesFromDASQuery(query,option="",s=None):
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
 	sec=[]
-	print "the query is",query
+	print("the query is",query)
 	eC=5
 	count=0
 	while eC!=0 and count<3:
 		if count!=0:
-			print 'Sleeping, then retrying DAS'
+			print('Sleeping, then retrying DAS')
 			time.sleep(100)
 		p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
                 pipe=p.stdout.read()
@@ -146,9 +147,9 @@ def filesFromDASQuery(query,option="",s=None):
 		eC=tupleP[1]
 		count=count+1
 	if eC==0:
-		print "DAS succeeded after",count,"attempts",eC
+		print("DAS succeeded after",count,"attempts",eC)
 	else:
-		print "DAS failed 3 times- I give up"
+		print("DAS failed 3 times- I give up")
 	for line in pipe.split('\n'):
 		if line.count(".root")>=2:
 			#two files solution...
@@ -171,9 +172,9 @@ def filesFromDASQuery(query,option="",s=None):
 				s.secondaryFileNames=cms.untracked.vstring(sec)
 			else:
 				s.secondaryFileNames.extend(sec)
-	print "found files: ",prim
+	print("found files: ",prim)
 	if len(sec)!=0:
-		print "found parent files:",sec
+		print("found parent files:",sec)
 	return (prim,sec)
 
 def anyOf(listOfKeys,dict,opt=None):
@@ -210,7 +211,7 @@ class ConfigBuilder(object):
 		    (hasattr(self._options,"datatier") and \
 		    self._options.datatier and \
 		    'DQMIO' in self._options.datatier):
-			print "removing ENDJOB from steps since not compatible with DQMIO dataTier" 
+			print("removing ENDJOB from steps since not compatible with DQMIO dataTier") 
 			self._options.step=self._options.step.replace(',ENDJOB','')
 
 
@@ -372,7 +373,7 @@ class ConfigBuilder(object):
 
 	def filesFromOption(self):
 		for entry in self._options.filein.split(','):
-			print "entry",entry
+			print("entry",entry)
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:") or entry.startswith("das:"):
@@ -383,7 +384,7 @@ class ConfigBuilder(object):
 			if not hasattr(self.process.source,"secondaryFileNames"):
 				raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
 			for entry in self._options.secondfilein.split(','):
-				print "entry",entry
+				print("entry",entry)
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
 				elif entry.startswith("dbs:") or entry.startswith("das:"):
@@ -406,7 +407,7 @@ class ConfigBuilder(object):
 			   #list the article directory automatically
 			   args=self._options.filein.split(':')
 			   article=args[1]
-			   print 'LHE input from article ',article
+			   print('LHE input from article ',article)
 			   location='/store/lhe/'
 			   import os
 			   textOfFiles=os.popen('cmsLHEtoEOSManager.py -l '+article)
@@ -415,11 +416,11 @@ class ConfigBuilder(object):
 					   self.process.source.fileNames.append(location+article+'/'+fileName)
 			   #check first if list of LHE files is loaded (not empty)
 			   if len(line)<2:
-				   print 'Issue to load LHE files, please check and try again.'
+				   print('Issue to load LHE files, please check and try again.')
 				   sys.exit(-1)
 			   #Additional check to protect empty fileNames in process.source
 			   if len(self.process.source.fileNames)==0:
-				   print 'Issue with empty filename, but can pass line check'
+				   print('Issue with empty filename, but can pass line check')
 				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
@@ -499,7 +500,7 @@ class ConfigBuilder(object):
 	result=""
 	if self._options.outputDefinition:
 		if self._options.datatier:
-			print "--datatier & --eventcontent options ignored"
+			print("--datatier & --eventcontent options ignored")
 							
 		#new output convention with a list of dict
 		outList = eval(self._options.outputDefinition)
@@ -705,7 +706,7 @@ class ConfigBuilder(object):
 		if 'file:' in pileupSpec:
 			#the file is local
 			self.process.load(mixingDict['file'])
-			print "inlining mixing module configuration"
+			print("inlining mixing module configuration")
 			self._options.inlineObjets+=',mix'
 		else:
 			self.loadAndRemember(mixingDict['file'])
@@ -735,7 +736,7 @@ class ConfigBuilder(object):
 				if self.geometryDBLabel:
 					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
         except ImportError:
-                print "Geometry option",self._options.geometry,"unknown."
+                print("Geometry option",self._options.geometry,"unknown.")
                 raise
 
 	if len(self.stepMap):
@@ -743,7 +744,7 @@ class ConfigBuilder(object):
 
 	for stepName in self.stepKeys:
 		stepSpec = self.stepMap[stepName]
-		print "Step:", stepName,"Spec:",stepSpec
+		print("Step:", stepName,"Spec:",stepSpec)
 		if stepName.startswith('re'):
 			##add the corresponding input content
 			if stepName[2:] not in self._options.donotDropOnInput:
@@ -807,7 +808,7 @@ class ConfigBuilder(object):
 	if not self._options.conditions: return
 	
 	if 'FrontierConditions_GlobalTag' in self._options.conditions:
-		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
+		print('using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line')
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
 						
         self.loadAndRemember(self.ConditionsDefaultCFF)
@@ -874,7 +875,7 @@ class ConfigBuilder(object):
 		else:
 			final_snippet += 'from %s import %s \n'%(packageName,','.join(custMap[f]))
 		for fcn in custMap[f]:
-			print "customising the process with",fcn,"from",f
+			print("customising the process with",fcn,"from",f)
 			if not hasattr(package,fcn):
 				#bound to fail at run time
 				raise Exception("config "+f+" has no function "+fcn)
@@ -909,8 +910,8 @@ class ConfigBuilder(object):
         if len(self.stepMap):
 		self.loadAndRemember('Configuration/StandardSequences/Services_cff')
         if self._options.particleTable not in defaultOptions.particleTableList:
-            print 'Invalid particle table provided. Options are:'
-            print defaultOptions.particleTable
+            print('Invalid particle table provided. Options are:')
+            print(defaultOptions.particleTable)
             sys.exit(-1)
         else:
 	    if len(self.stepMap):
@@ -1045,7 +1046,7 @@ class ConfigBuilder(object):
         # the magnetic field
 	if self._options.isData:
 		if self._options.magField==defaultOptions.magField:
-			print "magnetic field option forced to: AutoFromDBCurrent"
+			print("magnetic field option forced to: AutoFromDBCurrent")
 		self._options.magField='AutoFromDBCurrent'
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
@@ -1079,7 +1080,7 @@ class ConfigBuilder(object):
 		if (geoms[0].startswith('DB:')):
 			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
 			self.geometryDBLabel=geoms[0][3:]
-			print "with DB:"
+			print("with DB:")
 		else:
 			if '/' in geoms[0] or '_cff' in geoms[0]:
 								self.SimGeometryCFF=geoms[0]
@@ -1192,8 +1193,8 @@ class ConfigBuilder(object):
                     l=self.loadAndRemember(sequence.split('.')[0])
                     sequence=sequence.split('.')[1]
             else:
-                    print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
-                    print sequence,"not recognized"
+                    print("sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a")
+                    print(sequence,"not recognized")
                     raise
             return l
 
@@ -1285,8 +1286,8 @@ class ConfigBuilder(object):
                         alcastream = getattr(alcaConfig,name)
                         if isinstance(alcastream,cms.FilteredStream):
                                 available.append(name.replace('ALCARECOStream',''))
-                print "The following alcas could not be found "+str(alcaList)
-                print "available ",available
+                print("The following alcas could not be found "+str(alcaList))
+                print("available ",available)
                 #print "verify your configuration, ignoring for now"
                 raise Exception("The following alcas could not be found "+str(alcaList))
 
@@ -1294,7 +1295,7 @@ class ConfigBuilder(object):
 	    #load the fragment
 	    ##make it loadable
 	    loadFragment = self._options.evt_type.replace('.py','',).replace('.','_').replace('python/','').replace('/','.')
-	    print "Loading lhe fragment from",loadFragment
+	    print("Loading lhe fragment from",loadFragment)
 	    __import__(loadFragment)
 	    self.process.load(loadFragment)
 	    ##inline the modules
@@ -1320,7 +1321,7 @@ class ConfigBuilder(object):
         else:
                 loadFragment=loadFragment.replace('/','.')
 	try:
-		print "Loading generator fragment from",loadFragment
+		print("Loading generator fragment from",loadFragment)
 		__import__(loadFragment)
 	except:
 		loadFailure=True
@@ -1475,14 +1476,14 @@ class ConfigBuilder(object):
 			self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
 		self.scheduleSequence('SimL1Emulator','L1RePack_step')
 	    else:
-                print "L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported
+                print("L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported)
                 raise Exception('unsupported feature')
 
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         if not sequence:
-                print "no specification of the hlt menu has been given, should never happen"
+                print("no specification of the hlt menu has been given, should never happen")
                 raise  Exception('no HLT sequence provided')
 
         if '@' in sequence:
@@ -1539,7 +1540,7 @@ class ConfigBuilder(object):
                     seqReco=sequence.split(',')[1]
                     seqDigi=sequence.split(',')[0]
             else:
-                    print "RAW2RECO requires two specifications",sequence,"insufficient"
+                    print("RAW2RECO requires two specifications",sequence,"insufficient")
 
 	    self.prepare_RAW2DIGI(seqDigi)
 	    self.prepare_RECO(seqReco)
@@ -1562,7 +1563,7 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with L1 HW validation '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1HwValDefaultCFF)
 	#self.scheduleSequence(sequence.split('.')[-1],'l1hwval_step')
-	print '\n\n\n DEPRECATED this has no action \n\n\n'
+	print('\n\n\n DEPRECATED this has no action \n\n\n')
         return
 
     def prepare_L1Reco(self, sequence = "L1Reco"):
@@ -1624,7 +1625,7 @@ class ConfigBuilder(object):
     def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
         ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
         if not self._options.fast:
-                print "ERROR: this step is only implemented for FastSim"
+                print("ERROR: this step is only implemented for FastSim")
                 sys.exit()
         self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
         self.scheduleSequence(sequence.split('.')[-1],'reconstruction_befmix_step')
@@ -1734,7 +1735,7 @@ class ConfigBuilder(object):
 
 
         if (skimlist.__len__()!=0 and sequence!="all"):
-                print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
+                print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
                 raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
     def prepare_USER(self, sequence = None):
@@ -1751,7 +1752,7 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-	    print sequence,"in preparing validation"
+	    print(sequence,"in preparing validation")
             self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
 	    from Validation.Configuration.autoValidation import autoValidation
             #in case VALIDATION:something:somethingelse -> something,somethingelse
@@ -1846,7 +1847,7 @@ class ConfigBuilder(object):
                                         for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
                                     elif type in ('cms.string', 'cms.untracked.string'):
                                         if value.value() == self._paramSearch:
-                                            if self._verbose: print "set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace)
+                                            if self._verbose: print("set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace))
                                             setattr(pset, name,self._paramReplace)
                                     elif type in ('cms.VInputTag', 'cms.untracked.VInputTag'):
                                             for (i,n) in enumerate(value):
@@ -1854,7 +1855,7 @@ class ConfigBuilder(object):
                                                             n=cms.InputTag(n)
                                                     if n.processName == self._paramSearch:
                                                             # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
-                                                            if self._verbose:print "set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace)
+                                                            if self._verbose:print("set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace))
                                                             setattr(n,"processName",self._paramReplace)
                                                             value[i]=n
 				    elif type in ('cms.vstring', 'cms.untracked.vstring'):
@@ -1863,7 +1864,7 @@ class ConfigBuilder(object):
 							    getattr(pset,name)[i]=self._paramReplace
 				    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
                                             if value.processName == self._paramSearch:
-                                                    if self._verbose: print "set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace)
+                                                    if self._verbose: print("set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace))
                                                     setattr(getattr(pset, name),"processName",self._paramReplace)
 
             def enter(self,visitee):
@@ -1881,7 +1882,7 @@ class ConfigBuilder(object):
 
     #visit a sequence to repalce all input tags
     def renameInputTagsInSequence(self,sequence,oldT="rawDataCollector",newT="rawDataRepacker"):
-	    print "Replacing all InputTag %s => %s"%(oldT,newT)
+	    print("Replacing all InputTag %s => %s"%(oldT,newT))
 	    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	    massSearchReplaceAnyInputTag(getattr(self.process,sequence),oldT,newT)
 	    loadMe='from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag'
@@ -1897,7 +1898,7 @@ class ConfigBuilder(object):
 		    proc=self.process.name_()
 	    if proc==HLTprocess:    return
             # look up all module in dqm sequence
-            print "replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc)
+            print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc))
             getattr(self.process,sequence).visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess,proc,whitelist = ("subSystemFolder",)))
             if 'from Configuration.Applications.ConfigBuilder import ConfigBuilder' not in self.additionalCommands:
                     self.additionalCommands.append('from Configuration.Applications.ConfigBuilder import ConfigBuilder')
@@ -1935,7 +1936,7 @@ class ConfigBuilder(object):
 	
 	if len(set(sequenceList))!=len(sequenceList):
 		sequenceList=list(set(sequenceList))
-		print "Duplicate entries for DQM:, using",sequenceList
+		print("Duplicate entries for DQM:, using",sequenceList)
 
 	pathName='dqmoffline_step'
 	for (i,sequence) in enumerate(sequenceList):
@@ -1979,11 +1980,11 @@ class ConfigBuilder(object):
 	
 	if len(set(harvestingList))!=len(harvestingList):
 		harvestingList=list(set(harvestingList))
-		print "Duplicate entries for HARVESTING, using",harvestingList
+		print("Duplicate entries for HARVESTING, using",harvestingList)
 
 	for name in harvestingList:
 		if not name in harvestingConfig.__dict__:
-			print name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys()
+			print(name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys())
 			continue
 		harvestingstream = getattr(harvestingConfig,name)
 		if isinstance(harvestingstream,cms.Path):
@@ -2026,7 +2027,7 @@ class ConfigBuilder(object):
 	self.schedule.append(lastStep)
 
         if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
-            print "The following harvesting could not be found : ", harvestingList
+            print("The following harvesting could not be found : ", harvestingList)
             raise Exception("The following harvesting could not be found : "+str(harvestingList))
 
 
@@ -2159,7 +2160,7 @@ class ConfigBuilder(object):
                 if not object:
                         continue
                 if not hasattr(self.process,object):
-                        print 'cannot inline -'+object+'- : not known'
+                        print('cannot inline -'+object+'- : not known')
                 else:
                         self.pythonCfgCode +='\n'
                         self.pythonCfgCode +=dumpPython(self.process,object)
