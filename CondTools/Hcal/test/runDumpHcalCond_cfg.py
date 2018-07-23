@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -57,20 +58,20 @@ allconds = [
 
 #custom help message
 if options.info:
-    print "dumplist possibilities:"
-    print allconds
-    print "dbfile format: sqlite_file:foo.db"
-    print "frontierloc possibilities: frontier://FrontierProd/CMS_CONDITIONS (default), frontier://FrontierDev/CMS_COND_HCAL, etc."
-    print "dblist/frontierlist entry format: HcalPedestalsRcd:hcal_pedestals_fC_v6_mc or HcalPedestalsRcd:effective:HcalPedestals_2018_v2.0_mc_effective for labeled records"
-    print "asciilist entry format: Pedestals:CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt"
-    print "command can be used to execute extra settings, newline separated, e.g.: process.es_hardcode.useHEUpgrade=cms.bool(True)\\nprocess.es_hardcode.useHFUpgrade=cms.bool(True)"
-    print "dump will do the equivalent of edmConfigDump: use with python instead of cmsRun"
-    print "specifying globaltag without the proper geometry may cause errors"
+    print("dumplist possibilities:")
+    print(allconds)
+    print("dbfile format: sqlite_file:foo.db")
+    print("frontierloc possibilities: frontier://FrontierProd/CMS_CONDITIONS (default), frontier://FrontierDev/CMS_COND_HCAL, etc.")
+    print("dblist/frontierlist entry format: HcalPedestalsRcd:hcal_pedestals_fC_v6_mc or HcalPedestalsRcd:effective:HcalPedestals_2018_v2.0_mc_effective for labeled records")
+    print("asciilist entry format: Pedestals:CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt")
+    print("command can be used to execute extra settings, newline separated, e.g.: process.es_hardcode.useHEUpgrade=cms.bool(True)\\nprocess.es_hardcode.useHFUpgrade=cms.bool(True)")
+    print("dump will do the equivalent of edmConfigDump: use with python instead of cmsRun")
+    print("specifying globaltag without the proper geometry may cause errors")
     
     sys.exit(0)
 
 if not options.dumplist:
-    print "Nothing to do!"
+    print("Nothing to do!")
     sys.exit(0)
     
 process = cms.Process("DUMP")
@@ -188,7 +189,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if options.dump:
-    print process.dumpPython()
+    print(process.dumpPython())
     sys.exit(0)
 else:
     process.p = cms.Path(process.prod)
