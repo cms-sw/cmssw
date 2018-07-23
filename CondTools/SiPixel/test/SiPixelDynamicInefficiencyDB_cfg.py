@@ -1,3 +1,4 @@
+from __future__ import print_function
 #import os
 import shlex, shutil, getpass
 #import subprocess
@@ -15,7 +16,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 from Configuration.AlCa.autoCond_condDBv2 import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
-print process.GlobalTag.globaltag
+print(process.GlobalTag.globaltag)
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
@@ -45,7 +46,7 @@ user = getpass.getuser()
 #file = "/tmp/" + user + "/SiPixelDynamicInefficiency.db"
 file = "siPixelDynamicInefficiency.db"
 sqlfile = "sqlite_file:" + file
-print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
+print('\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile))
 
 
 #standard python libraries instead of spawn processes
