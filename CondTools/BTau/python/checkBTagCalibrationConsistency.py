@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import itertools
 import unittest
 import sys
@@ -117,7 +118,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def _check_sys_side(self, op, flav):
         region = "op=%d, flav=%d" % (op, flav)
         if verbose:
-            print "Checking sys side correctness for", region
+            print("Checking sys side correctness for", region)
 
         res = []
         for eta, pt, discr, entries in _eta_pt_discr_entries_generator(
@@ -184,7 +185,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def _check_coverage(self, op, syst, flav):
         region = "op=%d, %s, flav=%d" % (op, syst, flav)
         if verbose:
-            print "Checking coverage for", region
+            print("Checking coverage for", region)
 
         # walk over all testpoints
         res = []
@@ -229,10 +230,10 @@ def run_check_data(data_loaders,
     all_res = []
     for dat in data_loaders:
         data = dat
-        print '\n\n'
-        print '# Checking csv data for type / op / flavour:', \
-            data.meas_type, data.op, data.flav
-        print '='*60 + '\n'
+        print('\n\n')
+        print('# Checking csv data for type / op / flavour:', \
+            data.meas_type, data.op, data.flav)
+        print('='*60 + '\n')
         if verbose:
             data.print_data()
         testsuite = unittest.TestLoader().loadTestsFromTestCase(
@@ -244,13 +245,13 @@ def run_check_data(data_loaders,
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'Need csv data file as first argument.'
-        print 'Options:'
-        print '    --light (do not check op, sys, flav)'
-        print '    --separate-by-op'
-        print '    --separate-by-flav'
-        print '    --separate-all (both of the above)'
-        print 'Exit.'
+        print('Need csv data file as first argument.')
+        print('Options:')
+        print('    --light (do not check op, sys, flav)')
+        print('    --separate-by-op')
+        print('    --separate-by-flav')
+        print('    --separate-all (both of the above)')
+        print('Exit.')
         exit(-1)
 
     ck_op = ck_sy = ck_fl = not '--light' in sys.argv
