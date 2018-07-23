@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys, time
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
@@ -38,11 +39,11 @@ class MatrixRunner(object):
     	report=''
         noRun=(self.maxThreads==0)
         if noRun:
-            print 'Not running the wf, only creating cfgs and logs'
-            print 'resetting to default number of threads'
+            print('Not running the wf, only creating cfgs and logs')
+            print('resetting to default number of threads')
             self.maxThreads=4
 
-    	print 'Running in %s thread(s)' % self.maxThreads
+    	print('Running in %s thread(s)' % self.maxThreads)
 
             
         for wf in self.workFlows:
@@ -56,7 +57,7 @@ class MatrixRunner(object):
     	    while self.activeThreads() >= self.maxThreads:
                 time.sleep(1)
     	    
-    	    print '\nPreparing to run %s %s' % (wf.numId, item)
+    	    print('\nPreparing to run %s %s' % (wf.numId, item))
             sys.stdout.flush()
             current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads, opt.maxSteps)
     	    self.threadList.append(current)
@@ -91,7 +92,7 @@ class MatrixRunner(object):
                 report += msg
                 
         report+=' '.join(map(str,totpassed))+' tests passed, '+' '.join(map(str,totfailed))+' failed\n'
-        print report
+        print(report)
         sys.stdout.flush()
 
         runall_report_name='runall-report-step123-.log'
