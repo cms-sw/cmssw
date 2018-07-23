@@ -315,7 +315,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
     std::string MEBSFolderName = conf_->getParameter<std::string>("BSFolderName"); 
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     int    TKHitBin     = conf_->getParameter<int>(   "RecHitBin");
@@ -681,7 +681,7 @@ void TrackAnalyzer::bookHistosForLScertification(DQMStore::IBooker & ibooker) {
     std::string AlgoName       = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
 
     // book LS analysis related histograms
@@ -720,7 +720,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
     std::string AlgoName       = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     // book the Beam Spot related histograms
     // ---------------------------------------------------------------------------------//
@@ -1351,7 +1351,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     std::string AlgoName       = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     double Chi2NDFMin = conf_->getParameter<double>("Chi2NDFMin");
@@ -1838,7 +1838,7 @@ void TrackAnalyzer::bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker)
     std::string AlgoName     = conf_->getParameter<std::string>("AlgoName");
 
     // use the AlgoName and Quality Name 
-    std::string CategoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
 
     int    PhiBin     = conf_->getParameter<int>(   "PhiBin");
     double PhiMin     = conf_->getParameter<double>("PhiMin");
