@@ -16,7 +16,6 @@
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/Phase2L1CaloTrig"/>
 <use   name="SimCalorimetry/EcalEBTrigPrimProducers"/>
-<use   name="RecoLocalCalo/Configuration"/>
 <use   name="FastSimulation/CaloGeometryTools"/>
 <use   name="root"/>
 <use   name="boost"/>

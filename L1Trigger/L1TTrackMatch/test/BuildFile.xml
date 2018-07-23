@@ -8,7 +8,7 @@
     <use   name="FWCore/ServiceRegistry"/>
     <use   name="CommonTools/UtilAlgos"/>
     <use   name="DataFormats/L1Trigger"/>
-    <use   name="L1TrackTrigger/L1TTrackMatch"/>    
+    <use   name="L1Trigger/L1TTrackMatch"/>    
     <use   name="SimDataFormats/TrackingAnalysis"/>
     <use   name="root"/>
     <flags   CXXFLAGS="-g -O0"/>
@@ -22,7 +22,7 @@
     <use   name="FWCore/ServiceRegistry"/>
     <use   name="DataFormats/L1Trigger"/>
     <use   name="CommonTools/UtilAlgos"/>
-    <use   name="L1TrackTrigger/L1TTrackMatch"/>    
+    <use   name="L1Trigger/L1TTrackMatch"/>    
     <use   name="SimDataFormats/TrackingAnalysis"/>
     <use   name="root"/>
     <flags   CXXFLAGS="-g -O0"/>
@@ -36,7 +36,7 @@
     <use   name="FWCore/ServiceRegistry"/>
     <use   name="CommonTools/UtilAlgos"/>
     <use   name="DataFormats/L1Trigger"/>
-    <use   name="L1TrackTrigger/L1TTrackMatch"/>    
+    <use   name="L1Trigger/L1TTrackMatch"/>    
     <use   name="SimDataFormats/TrackingAnalysis"/>
     <use   name="root"/>
     <flags   CXXFLAGS="-g -O0"/>
