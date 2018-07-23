@@ -6,6 +6,7 @@ Test wrapper to generate a reco config and actually push it into cmsRun for
 testing with a few input files etc from the command line
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -53,28 +54,28 @@ class RunPromptReco:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Using Global Tag: %s" % self.globalTag
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Using Global Tag: %s" % self.globalTag)
 
         dataTiers = []
         if self.writeRECO:
             dataTiers.append("RECO")
-            print "Configuring to Write out RECO"
+            print("Configuring to Write out RECO")
         if self.writeAOD:
             dataTiers.append("AOD")
-            print "Configuring to Write out AOD"
+            print("Configuring to Write out AOD")
         if self.writeMINIAOD:
             dataTiers.append("MINIAOD")
-            print "Configuring to Write out MiniAOD"
+            print("Configuring to Write out MiniAOD")
 	if self.writeDQM:
             dataTiers.append("DQM")
-            print "Configuring to Write out DQM"
+            print("Configuring to Write out DQM")
 	if self.writeDQMIO:
             dataTiers.append("DQMIO")
-            print "Configuring to Write out DQMIO"
+            print("Configuring to Write out DQMIO")
         if self.alcaRecos:
             dataTiers.append("ALCARECO")
-            print "Configuring to Write out ALCARECO"
+            print("Configuring to Write out ALCARECO")
 
         try:
             kwds = {}
@@ -103,7 +104,7 @@ class RunPromptReco:
             process = scenario.promptReco(self.globalTag, **kwds)
 
         except NotImplementedError as ex:
-            print "This scenario does not support Prompt Reco:\n"
+            print("This scenario does not support Prompt Reco:\n")
             return
         except Exception as ex:
             msg = "Error creating Prompt Reco config:\n"
@@ -135,7 +136,7 @@ class RunPromptReco:
             pklFile.close()
 
         cmsRun = "cmsRun -e RunPromptRecoCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
 
 
 
@@ -173,8 +174,8 @@ python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 
