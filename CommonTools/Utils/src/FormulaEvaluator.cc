@@ -91,7 +91,7 @@ namespace {
         info.nextParseIndex = endIndex;
         info.evaluator = std::make_shared<reco::formula::ConstantEvaluator>(value);
         info.top = info.evaluator;
-      } catch ( std::invalid_argument ) {}
+      } catch ( std::invalid_argument const& ) {}
 
       return info;
 
@@ -130,7 +130,7 @@ namespace {
         info.maxNumParameters = value+1;
         info.evaluator = std::make_shared<reco::formula::ParameterEvaluator>(value);
         info.top = info.evaluator;
-      } catch ( std::invalid_argument ) {}
+      } catch ( std::invalid_argument const& ) {}
       
       return info;
 

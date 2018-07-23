@@ -103,6 +103,7 @@ private:
 
   double maxDeltaRForL1Matching_;
   double maxDeltaRForHLTMatching_;
+  double recoToL1TThresholdFactor_;
 
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;

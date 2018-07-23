@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys,os
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML
 
@@ -36,9 +37,9 @@ if __name__ == "__main__":
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     session.transaction().start(True)
     lumiIdInDATA=dataDML.guessLumiDataIdByRunInBranch(session.nominalSchema(),options.runnum,nameDealer.lumidataTableName(),branchName='DATA')
-    print lumiIdInDATA
+    print(lumiIdInDATA)
     lumiIdInPIXELLUMI=dataDML.guessLumiDataIdByRunInBranch(session.nominalSchema(),options.runnum,nameDealer.lumidataTableName(),branchName='PIXELLUMI')
-    print lumiIdInPIXELLUMI
+    print(lumiIdInPIXELLUMI)
     session.transaction().commit()
     del session
     del svc

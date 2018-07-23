@@ -475,12 +475,6 @@ def create2DPlots(detector, plot):
     minY = 1.03*hist_X0_total.GetYaxis().GetXmin()
     maxY = 1.03*hist_X0_total.GetYaxis().GetXmax()
 
-    frame = TH2F("frame", "", 10, minX, maxX, 10, minY, maxY);
-    frame.SetMinimum(0.1)
-    frame.SetMaximum(10.)
-    frame.GetXaxis().SetTickLength(frame.GetXaxis().GetTickLength()*0.50)
-    frame.GetYaxis().SetTickLength(frame.GetXaxis().GetTickLength()/4.)
-
     # Ratio
     if plots[plot].iRebin:
         hist_X0_total.Rebin2D()
@@ -492,14 +486,13 @@ def create2DPlots(detector, plot):
                                        plots[plot].ordinate,
                                        plots[plot].quotaName))
 
-    hist2d_X0_total = hist_X0_total
-    frame.SetTitle(hist2dTitle)
-    frame.SetTitleOffset(0.5,"Y")
+    hist_X0_total.SetTitle(hist2dTitle)
+    hist_X0_total.SetTitleOffset(0.5,"Y")
 
     if plots[plot].histoMin != -1.:
-        hist2d_X0_total.SetMinimum(plots[plot].histoMin)
+        hist_X0_total.SetMinimum(plots[plot].histoMin)
     if plots[plot].histoMax != -1.:
-        hist2d_X0_total.SetMaximum(plots[plot].histoMax)
+        hist_X0_total.SetMaximum(plots[plot].histoMax)
 
     #
     can2name = "MBCan_2D_%s_%s" % (detector, plot)
@@ -520,14 +513,13 @@ def create2DPlots(detector, plot):
     can2.SetLogz(plots[plot].zLog)
 
     # Draw in colors
-    frame.Draw()
-    hist2d_X0_total.Draw("COLZsame") #Dummy draw to create the palette object
+    hist_X0_total.Draw("COLZ")
 
     # Store
     can2.Update()
 
     #Aesthetic
-    palette = hist2d_X0_total.GetListOfFunctions().FindObject("palette")
+    palette = hist_X0_total.GetListOfFunctions().FindObject("palette")
     if palette:
         palette.__class__ = TPaletteAxis
         palette.SetX1NDC(0.945)
@@ -543,11 +535,11 @@ def create2DPlots(detector, plot):
     paletteTitle.SetTextSize(0.05)
     paletteTitle.SetTextAlign(31)
     paletteTitle.Draw()
-    hist2d_X0_total.GetYaxis().SetTickLength(hist2d_X0_total.GetXaxis().GetTickLength()/4.)
-    hist2d_X0_total.GetYaxis().SetTickLength(hist2d_X0_total.GetXaxis().GetTickLength()/4.)
-    hist2d_X0_total.SetTitleOffset(0.5,"Y")
-    hist2d_X0_total.GetXaxis().SetNoExponent(True)
-    hist2d_X0_total.GetYaxis().SetNoExponent(True)
+    hist_X0_total.GetYaxis().SetTickLength(hist_X0_total.GetXaxis().GetTickLength()/4.)
+    hist_X0_total.GetYaxis().SetTickLength(hist_X0_total.GetXaxis().GetTickLength()/4.)
+    hist_X0_total.SetTitleOffset(0.5,"Y")
+    hist_X0_total.GetXaxis().SetNoExponent(True)
+    hist_X0_total.GetYaxis().SetNoExponent(True)
 
     #Add eta labels
     keep_alive = []
@@ -555,7 +547,7 @@ def create2DPlots(detector, plot):
         keep_alive.extend(drawEtaValues())
 
     can2.Modified()
-    hist2d_X0_total.SetContour(255)
+    hist_X0_total.SetContour(255)
 
     # Store
     can2.Update()

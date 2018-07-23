@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,json,sys
 
 
@@ -58,17 +59,17 @@ def generateJSON():
   os.system("wget http://vocms061.cern.ch/event_display/RunList/status.Collisions17.html -O .certif_temp.html > /dev/null 2>&1") 
   
   if not os.path.isfile(".certif_temp.html"):
-    print "Unable to download file"
+    print("Unable to download file")
     return(1)
   
   runQuality = getRunQuality()
   
   if runQuality == {}:
-    print "Warning, no %s found. Creating new list."%JSON_NAME
+    print("Warning, no %s found. Creating new list."%JSON_NAME)
   
   (title,table)=getHTMLtable()
   if table==0:
-    print "Error, Unable to download run table."
+    print("Error, Unable to download run table.")
     return(1)
   runQuality["Last update"] = title[title.find("(")+1:title.find(")")]
   
@@ -92,7 +93,7 @@ def generateJSON():
         comment=getComment(entry[colNumber])
         runQuality[entry[0]]={"qual":entry[colNumber][:4],"comment":comment}
       elif len(entry)>0:
-        print "Error, unrecognized line !"
+        print("Error, unrecognized line !")
         return 1
     
 
@@ -105,22 +106,22 @@ def generateJSON():
 
 def get():
    if generateJSON()!=0:
-      print "ERROR, JSON file not updated... Loading old file."
+      print("ERROR, JSON file not updated... Loading old file.")
    
    if not JSON_NAME in os.listdir("."):
-      print "ERROR, no JSON file available..."
+      print("ERROR, no JSON file available...")
       return({})
    else:
       return getRunQuality()
 
 def checkRun(runNumber, runQuality):
    if not str(runNumber) in runQuality.keys():
-      print "WARNING : no certification info for run %s"%runNumber
+      print("WARNING : no certification info for run %s"%runNumber)
       return(0)
    else:
-      print "Data certification for run %s is %s"%(runNumber,runQuality[str(runNumber)]["qual"])
+      print("Data certification for run %s is %s"%(runNumber,runQuality[str(runNumber)]["qual"]))
       if not "GOOD" in runQuality[str(runNumber)]["qual"]:
-         print "Reason : %s"%runQuality[str(runNumber)]["comment"]
+         print("Reason : %s"%runQuality[str(runNumber)]["comment"])
       return("GOOD" in runQuality[str(runNumber)]["qual"])
 
 if __name__ == "__main__":

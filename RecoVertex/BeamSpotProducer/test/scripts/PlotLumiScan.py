@@ -14,6 +14,7 @@
 #
 #____________________________________________________________
 
+from __future__ import print_function
 import sys,os
 import string
 from array import array
@@ -51,7 +52,7 @@ def plot_trending(type,label,x,xe):
 def main():
     
     if len(sys.argv) < 4:
-        print "\n [Usage] python PlotLumiScan.py <LumiScanLists.txt> <data dir> <verbose:True/False>"
+        print("\n [Usage] python PlotLumiScan.py <LumiScanLists.txt> <data dir> <verbose:True/False>")
         sys.exit()
 
     lumilistfile = sys.argv[1]
@@ -153,10 +154,10 @@ def main():
 
     if verbose == "True":
         for i in range(len(x0)):
-            print "     x0 = "+str(x0[i])+" +/- %1.8f (stats) [cm]" % (x0Err[i])
-            print "     y0 = "+str(y0[i])+" +/- %1.8f (stats) [cm]" % (y0Err[i])
-            print "     z0 = "+str(z0[i])+" +/- %1.6f (stats) [cm]" % (z0Err[i])
-            print "sigmaZ0 = "+str(sigZ[i])+" +/- %1.6f (stats) [cm]" % (sigZErr[i])
+            print("     x0 = "+str(x0[i])+" +/- %1.8f (stats) [cm]" % (x0Err[i]))
+            print("     y0 = "+str(y0[i])+" +/- %1.8f (stats) [cm]" % (y0Err[i]))
+            print("     z0 = "+str(z0[i])+" +/- %1.6f (stats) [cm]" % (z0Err[i]))
+            print("sigmaZ0 = "+str(sigZ[i])+" +/- %1.6f (stats) [cm]" % (sigZErr[i]))
 
     ## Make plots and save to root file
     rootFile = TFile("Summary.root","RECREATE");

@@ -8,6 +8,7 @@ Author     : Valentin Kuznetsov <vkuznet@gmail.com>
 Description: AbstractGenerator class provides basic functionality
 to generate CMSSW class from given template
 """
+from __future__ import print_function
 
 # system modules
 import os
@@ -70,7 +71,7 @@ class AbstractPkg(object):
     def print_etags(self):
         "Print out template example tags"
         for key in self.tmpl_etags():
-            print key
+            print(key)
 
     def tmpl_tags(self):
         "Scan template files and return template tags"
@@ -91,7 +92,7 @@ class AbstractPkg(object):
     def print_tags(self):
         "Print out template keys"
         for key in self.tmpl_tags():
-            print key
+            print(key)
 
     def parse_etags(self, line):
         """
@@ -152,7 +153,7 @@ class AbstractPkg(object):
         args = self.config.get('args', None)
         kwds.update(args)
         if  self.debug:
-            print "Template tags:"
+            print("Template tags:")
             pprint.pprint(kwds)
         return kwds
 
@@ -173,7 +174,7 @@ class AbstractPkg(object):
             if  os.path.isdir(self.pname):
                 msg  = "Can't create package '%s'\n" % self.pname
                 msg += "Directory %s is already exists" % self.pname
-                print msg
+                print(msg)
                 sys.exit(1)
             os.makedirs(self.pname)
             os.chdir(self.pname)
@@ -199,7 +200,7 @@ class AbstractPkg(object):
                 kwds = self.get_kwds()
                 if  not sources:
                     msg = 'Unable to find skeleton for extension "%s"' % ext
-                    print msg
+                    print(msg)
                     sys.exit(1)
             bdir = os.environ.get('CMSSW_BASE', '')
             dirs = os.getcwd().replace(bdir, '').split('/')
@@ -233,7 +234,7 @@ class AbstractPkg(object):
                     continue
                 src = src.split('/')[-1]
             if  self.debug:
-                print "Read", src
+                print("Read", src)
             items = src.split('/')
             if  items[-1] == '/':
                 items = items[:-1]
@@ -250,7 +251,7 @@ class AbstractPkg(object):
                 name2gen  = name2gen.replace(self.tmpl, self.pname)
             name2gen  = os.path.join(os.getcwd(), name2gen)
             if  self.debug:
-                print "Create", name2gen
+                print("Create", name2gen)
             if  ftype == 'dir':
                 if  not os.path.isdir(name2gen):
                     os.makedirs(name2gen)
@@ -267,7 +268,7 @@ class AbstractPkg(object):
             msg = 'Generated %s file' % ', '.join(gen_files)
             if  len(gen_files) > 1:
                 msg += 's'
-        print msg
+        print(msg)
         # return back where we started
         os.chdir(cdir)
         if  msg.find('New package') != -1:

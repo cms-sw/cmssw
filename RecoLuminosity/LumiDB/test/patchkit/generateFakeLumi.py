@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 def main(*args):
     filename=args[1]
@@ -7,7 +8,7 @@ def main(*args):
     f=open(filename,'w')
     for i in range(int(startLS),int(stopLS)+1):
         value=str(i)+' '+str(lumiVal)+' '
-        print value
+        print(value)
         f.write(value)
     f.close()
 if __name__=='__main__':

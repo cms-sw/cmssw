@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQM")
@@ -23,7 +24,7 @@ process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff"
 #process.GlobalTag.globaltag = 'GR_R_52_V4::All'
 
 # use this tag for 42
-print "\n\n\n------ WARNING USING GLOBAL TAG FOR 42X------\n\n\n\n"
+print("\n\n\n------ WARNING USING GLOBAL TAG FOR 42X------\n\n\n\n")
 process.GlobalTag.globaltag = 'GR_R_42_V22::All'
 
 process.prefer("GlobalTag")
@@ -135,7 +136,7 @@ process.options = cms.untracked.PSet(
 
 
 outfile = open('config.py','w')
-print >> outfile,process.dumpPython()
+print(process.dumpPython(), file=outfile)
 outfile.close()
 
 																						           

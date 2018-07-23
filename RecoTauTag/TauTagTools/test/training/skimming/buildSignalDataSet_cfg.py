@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.TauTagTools.RecoTauCommonJetSelections_cfi as common
 import sys
@@ -21,17 +22,17 @@ sampleName = "ErrorParsingCLI"
 
 if not hasattr(sys, "argv"):
     #raise ValueError, "Can't extract CLI arguments!"
-    print "ERROR: Can't extract CLI arguments!"
+    print("ERROR: Can't extract CLI arguments!")
 else:
-    print sys.argv
+    print(sys.argv)
     argOffset = 0
     if sys.argv[0] != 'cmsRun':
         argOffset = 1
     args = sys.argv[2 - argOffset]
     sampleId = int(args.split(',')[1])
     sampleName = args.split(',')[0]
-    print "Found %i for sample id" % sampleId
-    print "Running on sample: %s" % sampleName
+    print("Found %i for sample id" % sampleId)
+    print("Running on sample: %s" % sampleName)
 
 process = cms.Process("TANC")
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import subprocess
 import sys
 import os
@@ -13,4 +14,4 @@ castor_dir = '/castor/cern.ch/cms'+caf_directory
 p = subprocess.Popen(['nsls', castor_dir], stdout=subprocess.PIPE)
 
 for line in p.stdout.readlines():
-    print os.path.join(caf_directory, line.strip())
+    print(os.path.join(caf_directory, line.strip()))

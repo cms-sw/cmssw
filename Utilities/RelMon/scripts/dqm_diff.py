@@ -5,6 +5,7 @@ Script prints out histogram names that are in one ROOT file but not in another.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
+from __future__ import print_function
 from datetime import datetime, timedelta
 from optparse import OptionParser
 
@@ -32,16 +33,16 @@ def get_content(root_file_name):
 
 def dqm_diff(filename1, filename2):
     """Prints file (histogram) names that are in <file1> and not in <file2>."""
-    print "Missing files:"
+    print("Missing files:")
     content1 = get_content(filename1)
     content2 = get_content(filename2)
     printed = False
     for name in content1:
         if name not in content2:
-            print "  ->", name
+            print("  ->", name)
             printed = True
     if not printed:
-        print "    All files match."
+        print("    All files match.")
 
 
 ## Define commandline options
@@ -58,4 +59,4 @@ if len(args) != 2:
 start = datetime.now()
 dqm_diff(*args)
 if options.show_exec_time:
-    print 'Execution time:', str(timedelta(seconds=(datetime.now() - start).seconds))
+    print('Execution time:', str(timedelta(seconds=(datetime.now() - start).seconds)))

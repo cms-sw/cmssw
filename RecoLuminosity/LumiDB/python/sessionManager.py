@@ -1,3 +1,4 @@
+from __future__ import print_function
 import coral,os,os.path
 from RecoLuminosity.LumiDB import cacheconfigParser,connectstrParser
 
@@ -65,12 +66,12 @@ class sessionManager(object):
 
 if __name__ == "__main__":
     svc=sessionManager('oracle://cms_orcoff_prep/cms_lumi_dev_offline',authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
-    print svc.realConnectString()
+    print(svc.realConnectString())
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     session.transaction().start(True)
     session.transaction().commit()
     del session
     svc=sessionManager('frontier://LumiPrep/CMS_LUMI_DEV_OFFLINE',debugON=False)
-    print svc.realConnectString()
+    print(svc.realConnectString())
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     del session

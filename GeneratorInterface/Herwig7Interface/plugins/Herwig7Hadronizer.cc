@@ -106,9 +106,11 @@ bool Herwig7Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 
 void Herwig7Hadronizer::statistics()
 {
+  if(eg_) {
 	runInfo().setInternalXSec(GenRunInfoProduct::XSec(
 		eg_->integratedXSec() / ThePEG::picobarn,
 		eg_->integratedXSecErr() / ThePEG::picobarn));
+  }
 }
 
 bool Herwig7Hadronizer::generatePartonsAndHadronize()

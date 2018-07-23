@@ -1,11 +1,12 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys
 import material
 import ROOT
 
 def usage():
-  print "Usage..."
+  print("Usage...")
 
 def plot():
   if (len(sys.argv) < 2) or (sys.argv[1] not in ("r", "z", "eta")):

@@ -7,12 +7,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -122,11 +116,11 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   double destep = weight_*wt1*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalSim")  << "HGCalSD: weights= " << weight_ << ":" 
-				<< wt1 << ":" << wt2 << " Total weight " 
-				<< weight_*wt1*wt2 << " deStep: "
-				<<aStep->GetTotalEnergyDeposit()
-				<< ":" <<destep;
+  edm::LogVerbatim("HGCSim")  << "HGCalSD: weights= " << weight_ << ":" 
+			      << wt1 << ":" << wt2 << " Total weight " 
+			      << weight_*wt1*wt2 << " deStep: "
+			      << aStep->GetTotalEnergyDeposit()
+			      << ":" <<destep;
 #endif
   return destep;
 }
