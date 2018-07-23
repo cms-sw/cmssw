@@ -1,3 +1,4 @@
+from __future__ import print_function
 from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
@@ -32,7 +33,7 @@ class WorkFlowRunner(Thread):
         if self.dryRun: msg += " dryRun for '"
         else:      msg += " going to execute "
         msg += cmd.replace(';','\n')
-        print msg
+        print(msg)
 
         cmdLog = open(self.wfDir+'/cmdLog','a')
         cmdLog.write(msg+'\n')
@@ -43,7 +44,7 @@ class WorkFlowRunner(Thread):
             p = Popen(cmd, shell=True)
             ret = os.waitpid(p.pid, 0)[1]
             if ret != 0:
-                print "ERROR executing ",cmd,'ret=', ret
+                print("ERROR executing ",cmd,'ret=', ret)
 
         return ret
     
@@ -54,7 +55,7 @@ class WorkFlowRunner(Thread):
         if not os.path.exists(self.wfDir):
             os.makedirs(self.wfDir)
         elif not self.dryRun: # clean up to allow re-running in the same overall devel area, then recreate the dir to make sure it exists
-            print "cleaning up ", self.wfDir, ' in ', os.getcwd()
+            print("cleaning up ", self.wfDir, ' in ', os.getcwd())
             shutil.rmtree(self.wfDir) 
             os.makedirs(self.wfDir)
 
@@ -96,7 +97,7 @@ class WorkFlowRunner(Thread):
                 continue
             if not isinstance(com,str):
                 if self.cafVeto and (com.location == 'CAF' and not onCAF):
-                    print "You need to be no CAF to run",self.wf.numId
+                    print("You need to be no CAF to run",self.wf.numId)
                     self.npass.append(0)
                     self.nfail.append(0)
                     self.retStep.append(0)
@@ -131,7 +132,7 @@ class WorkFlowRunner(Thread):
                   isInputOk = False
                  
                 inFile = 'filelist:' + basename(dasOutputPath)
-                print "---"
+                print("---")
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
                 cmd += com
