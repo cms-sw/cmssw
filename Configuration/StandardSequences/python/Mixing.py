@@ -1,10 +1,11 @@
+from __future__ import print_function
 Mixing = {}
 
 
 def addMixingScenario(label,dict):
     global Mixing
     if label in Mixing:
-        print 'duplicated definition of',label
+        print('duplicated definition of',label)
     else:
         #try:
         #    m=__import__(dict['file'])
@@ -174,7 +175,7 @@ def printMe():
     keys = sorted(Mixing.keys())
     fskeys=[]
     for key in keys:
-        print 'addMixingScenario("%s",%s)'%(key,repr(Mixing[key]))
+        print('addMixingScenario("%s",%s)'%(key,repr(Mixing[key])))
 
 def defineMixing(dict):
     commands=[]
