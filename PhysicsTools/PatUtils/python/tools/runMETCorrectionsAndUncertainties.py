@@ -1400,7 +1400,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
         
         patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
-            src = cms.InputTag("slimmedJets" if not self._parameters["Puppi"].value else "slimmedJetsPuppi"),
+            src = jetCollection if not self._parameters["Puppi"].value else cms.InputTag("slimmedJetsPuppi"),
             levels = ['L1FastJet', 
                       'L2Relative', 
                       'L3Absolute'],
@@ -1411,7 +1411,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
         patJetsReapplyJEC = updatedPatJets.clone(
-            jetSource = cms.InputTag("slimmedJets" if not self._parameters["Puppi"].value else "slimmedJetsPuppi"),
+            jetSource = jetCollection if not self._parameters["Puppi"].value else cms.InputTag("slimmedJetsPuppi"),
             jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"+postfix))
             )
 
