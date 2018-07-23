@@ -6,6 +6,7 @@ Test wrapper to generate an express processing config and actually push
 it into cmsRun for testing with a few input files etc from the command line
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -49,28 +50,28 @@ class RunExpressProcessing:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Using Global Tag: %s" % self.globalTag
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Using Global Tag: %s" % self.globalTag)
 
         dataTiers = []
         if self.writeRAW:
             dataTiers.append("RAW")
-            print "Configuring to Write out RAW"
+            print("Configuring to Write out RAW")
         if self.writeRECO:
             dataTiers.append("RECO")
-            print "Configuring to Write out RECO"
+            print("Configuring to Write out RECO")
         if self.writeFEVT:
             dataTiers.append("FEVT")
-            print "Configuring to Write out FEVT"
+            print("Configuring to Write out FEVT")
         if self.writeDQM:
             dataTiers.append("DQM")
-            print "Configuring to Write out DQM"
+            print("Configuring to Write out DQM")
         if self.writeDQMIO:
             dataTiers.append("DQMIO")
-            print "Configuring to Write out DQMIO"
+            print("Configuring to Write out DQMIO")
         if self.alcaRecos:
             dataTiers.append("ALCARECO")
-            print "Configuring to Write out ALCARECO"
+            print("Configuring to Write out ALCARECO")
 
 
         try:
@@ -93,7 +94,7 @@ class RunExpressProcessing:
             process = scenario.expressProcessing(self.globalTag, **kwds)
 
         except NotImplementedError as ex:
-            print "This scenario does not support Express Processing:\n"
+            print("This scenario does not support Express Processing:\n")
             return
         except Exception as ex:
             msg = "Error creating Express Processing config:\n"
@@ -125,7 +126,7 @@ class RunExpressProcessing:
             pklFile.close()
 
         cmsRun = "cmsRun -e RunExpressProcessingCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
 
 
 
@@ -157,8 +158,8 @@ python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 
