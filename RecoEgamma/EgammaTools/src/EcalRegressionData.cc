@@ -12,6 +12,12 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+namespace {
+  inline bool isHGCalDet(DetId::Detector thedet){
+    return (thedet == DetId::Forward || thedet == DetId::Hcal || thedet == DetId::HGCalEE || thedet == DetId::HGCalHSi || thedet == DetId::HGCalHSc);
+  }
+}
+
 float EcalRegressionData::seedLeftRightAsym()const
 {
   float eLeftRightSum = eLeft()+eRight();
@@ -55,7 +61,7 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   isEB_ = ( seedid.subdetId()==EcalBarrel );
   
   // skip HGCal
-  if( seedid.det() == DetId::Forward ) return;
+  if( isHGCalDet(seedid.det()) ) return;
   
   const EcalRecHitCollection* recHits = isEB_ ? ebRecHits : eeRecHits;
 
