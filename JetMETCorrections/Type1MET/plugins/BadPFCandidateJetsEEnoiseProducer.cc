@@ -44,8 +44,8 @@ pat::BadPFCandidateJetsEEnoiseProducer::BadPFCandidateJetsEEnoiseProducer(const 
   userawPt_(iConfig.getParameter<bool>("userawPt"))
 {
   
-  produces<edm::PtrVector<reco::Candidate> >();
-  produces<std::vector<pat::Jet> >("jets");
+  produces<std::vector<edm::Ptr<reco::Candidate>>>();
+  produces<std::vector<pat::Jet>>("jets");
   
 }
 
@@ -53,7 +53,7 @@ pat::BadPFCandidateJetsEEnoiseProducer::~BadPFCandidateJetsEEnoiseProducer() {}
 
 void pat::BadPFCandidateJetsEEnoiseProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
-  auto badPFCandidates = std::make_unique<edm::PtrVector<reco::Candidate>>();
+  auto badPFCandidates = std::make_unique<std::vector<edm::Ptr<reco::Candidate>>>();
   auto goodJets = std::make_unique<std::vector<pat::Jet>>();
   
   edm::Handle<edm::View<pat::Jet> > jetcandidates;
