@@ -420,7 +420,7 @@ TrackMon.Eta2DBin = cms.int32(26)
 # track phi 2D histo
 TrackMon.Phi2DBin = cms.int32(32)
 # track pt 2D histo
-TrackMon.TrackPtBin = cms.int32(100)
+TrackMon.TrackPt2DBin = cms.int32(100)
 
 # TrackingRegion monitoring
 TrackMon.PVBin = cms.int32 ( 40 )
