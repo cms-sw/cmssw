@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Example using L1RCTParameters
 
 import FWCore.ParameterSet.Config as cms
@@ -144,25 +145,25 @@ if options.genFromOMDS == 0:
     # Optional customization for RPC objects
     if options.rpcFileDir != "":
         process.rpcconf.filedir = options.rpcFileDir
-        print "New rpcconf.filedir =", process.rpcconf.filedir
+        print("New rpcconf.filedir =", process.rpcconf.filedir)
     if options.rpcPACsPerTower != -999:
         process.rpcconf.PACsPerTower = options.rpcPACsPerTower
-        print "New rpcconf.PACsPerTower =", process.rpcconf.PACsPerTower
+        print("New rpcconf.PACsPerTower =", process.rpcconf.PACsPerTower)
     if options.rpcBxOrFirstBx != -999:
         process.l1RPCBxOrConfig.firstBX = options.rpcBxOrFirstBx
-        print "New l1RPCBxOrConfig.firstBX =", process.l1RPCBxOrConfig.firstBX
+        print("New l1RPCBxOrConfig.firstBX =", process.l1RPCBxOrConfig.firstBX)
     if options.rpcBxOrLastBx != -999:
         process.l1RPCBxOrConfig.lastBX = options.rpcBxOrLastBx
-        print "New l1RPCBxOrConfig.lastBX =", process.l1RPCBxOrConfig.lastBX
+        print("New l1RPCBxOrConfig.lastBX =", process.l1RPCBxOrConfig.lastBX)
     if options.rpcHsb0Mask != [[-999]]:
         process.l1RPCHsbConfig.hsb0Mask = options.rpcHsb0Mask
-        print "New l1RPCHsbConfig.hsb0Mask =", process.l1RPCHsbConfig.hsb0Mask
+        print("New l1RPCHsbConfig.hsb0Mask =", process.l1RPCHsbConfig.hsb0Mask)
     if options.rpcHsb1Mask != [[-999]]:
         process.l1RPCHsbConfig.hsb1Mask = options.rpcHsb1Mask
-        print "New l1RPCHsbConfig.hsb1Mask =", process.l1RPCHsbConfig.hsb1Mask
+        print("New l1RPCHsbConfig.hsb1Mask =", process.l1RPCHsbConfig.hsb1Mask)
     if options.gmtVersionSortRankEtaQLUT != -999:
         process.L1MuGMTParameters.VersionSortRankEtaQLUT = options.gmtVersionSortRankEtaQLUT
-        print "New L1MuGMTParameters.VersionSortRankEtaQLUT =", options.gmtVersionSortRankEtaQLUT
+        print("New L1MuGMTParameters.VersionSortRankEtaQLUT =", options.gmtVersionSortRankEtaQLUT)
 else:
     # Generate configuration data from OMDS
     process.load("CondTools.L1Trigger.L1ConfigTSCPayloads_cff")
