@@ -707,7 +707,7 @@ class HTMLExport(FileExportPlugin):
                    elif isinstance(vv, str):
                      v_it.append(cms.InputTag(vv))
                    else:
-                      raise "Unsupported type in VInputTag", type(vv)
+                      raise ValueError("Unsupported type in VInputTag "+ type(vv))
                 item['value'] = [(vv.moduleLabel, vv.productInstanceLabel, vv.processName) for vv in v_it]
                 item['list'] = True
             elif typename == 'InputTag':

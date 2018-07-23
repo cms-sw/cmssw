@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: latin-1 -*-
+from __future__ import print_function
 import re
 import collections
 import FWCore.ParameterSet.Config as cms
@@ -52,8 +53,8 @@ class unscheduled:
       
       return True
     else:
-      print "---Nothing found for file %s."\
-           " No computation done.---"%(fileName)
+      print("---Nothing found for file %s."\
+           " No computation done.---"%(fileName))
       return False
 
   def _getData(self,objs):
@@ -63,14 +64,14 @@ class unscheduled:
       name = self._config.label(each)
       kids = self._config.children(each)
       if(not kids):
-        if(not self._quiet):print name, "is empty."
+        if(not self._quiet):print(name, "is empty.")
         continue
       # Taking liberty of assuming all are of same type.
       ty = type(kids[0])
       if(ty is ConfigDataAccessor.ConfigFolder):
         objs.extend(kids)
       else:
-        if(not self._quiet):print "computing %s.."%(name)
+        if(not self._quiet):print("computing %s.."%(name))
         if(isinstance(kids[0], seq._ModuleSequenceType)):
           # e.g.it's a path, sequence or endpath
           self._doSequenceTypes(kids,name)
@@ -79,7 +80,7 @@ class unscheduled:
           self._doNonSequenceType(kids,name)
         calc.append(name)
     # now i will print out producers/consumers.
-    if(self._quiet):print "calculated: %s."%(", ".join(calc))
+    if(self._quiet):print("calculated: %s."%(", ".join(calc)))
     self._producersConsumers()
 
   # Get the data for items which are SequenceTypes
@@ -174,8 +175,7 @@ class unscheduled:
   def _producersConsumers(self):
     if(not self._mother and not self._daughter):
       return  
-    for name,theDict in {"producer":self._mother, 
-                         six.iteritems("consumer":self._daughter}):
+    for name,theDict in six.iteritems({"producer":self._mother, "consumer":self._daughter}):
       thedataFile , fulldataFile = self._calcFilenames(name)
       self._saveData(name.capitalize(),
                       self._parents[self._prodConsP]["creator"],
@@ -1417,7 +1417,7 @@ def main(args,helperDir,htmlFile,quiet, noServer):
   lis=""
   found =0
   for x in pyconfigs:
-    print "-----"
+    print("-----")
     # for every config file
     name = os.path.split(x)[1].replace(".py", "")
     dirN =  dirName%(name)
@@ -1437,14 +1437,14 @@ def main(args,helperDir,htmlFile,quiet, noServer):
     helperdir = os.path.join(baseDir, helper, "")
     if not os.path.exists(helperdir):
       os.makedirs(helperdir)
-    print "Calculating", x
+    print("Calculating", x)
     try:
       u = unscheduled(x, lowerHTML, quiet, helper,helperdir)
     except Exception as e:
-      print "File %s is a config file but something went wrong"%(x)
-      print "%s"%(e)
+      print("File %s is a config file but something went wrong"%(x))
+      print("%s"%(e))
       continue
-    print "Finished with", x
+    print("Finished with", x)
     if(not u._computed and dirCreated):
       # remove any directories created
       shutil.rmtree(baseDir)
@@ -1468,13 +1468,13 @@ def main(args,helperDir,htmlFile,quiet, noServer):
 </html>
     """%("".join(lis)))
   if(found == 0):
-    print "Sorry, no configuration files were found."
+    print("Sorry, no configuration files were found.")
     return
-  print "Finished dealing with configuration files."
+  print("Finished dealing with configuration files.")
   server("cfgServer.py")
   if(not noServer):
-    print "-----"
-    print "Starting the python server.."
+    print("-----")
+    print("Starting the python server..")
     import  cfgServer
     cfgServer.main()
 
@@ -1523,7 +1523,7 @@ if __name__ == "__main__":
   distBinaryBaseDirectory=os.path.join(baseDirectory,"dist")
   sys.path.append(distBinaryBaseDirectory)
   from FWCore.GuiBrowsers.Vispa.Plugins.ConfigEditor import ConfigDataAccessor
-  print "starting.."
+  print("starting..")
   recurse = opts._recurse
   doesNotExist = [x for x in args if not os.path.exists(x)]
   if(len(doesNotExist)):
@@ -1531,15 +1531,15 @@ if __name__ == "__main__":
     for x in doesNotExist:
       args.remove(x)
       s += "%s does not exist.\n"%(x)
-    print s
+    print(s)
     
   if(len(args)==0 or len(doesNotExist)== len(args)):
-    print """
+    print("""
     Either you provided no arguments, or the arguments provided do not exist.
     Please try again.
     If you need help finding files, provide arguments "." -r and I will search
     recursively through the directories in the current directory.
-    """
+    """)
   else:
     main(args,"cfgViewerJS","main.html",opts._quiet, opts._server)
   
