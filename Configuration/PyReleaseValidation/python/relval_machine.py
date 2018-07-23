@@ -1,3 +1,4 @@
+from __future__ import print_function
 from  Configuration.PyReleaseValidation.relval_steps import Matrix, InputInfo, Steps
 import os
 import json
@@ -29,7 +30,7 @@ def fix_run(run):
         if item.isdigit():
             int_runs.append(int(item))
         else:
-            print "WARNING: run is in bad format: {0}".format(run)
+            print("WARNING: run is in bad format: {0}".format(run))
     return int_runs
 
 def convert_keys_to_string(dictionary):
