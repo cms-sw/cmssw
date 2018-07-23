@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Test CSCValidation running on raw relval file - Tim Cox - 09.09.2013 
 # For raw relval in 700, with useDigis ON, and request only 100 events.
 
@@ -40,7 +41,7 @@ myconds = [
 
 from CalibMuon.Configuration.getCSCConditions_frontier_cff import cscConditions
 for (classname, tag) in myconds:
-      print classname, tag
+      print(classname, tag)
       sourcename = 'unganged_' + classname
       process.__setattr__(sourcename, cscConditions.clone())
       process.__getattribute__(sourcename).toGet = cms.VPSet( cms.PSet( record = cms.string(classname), tag = cms.string(tag)) )
