@@ -4,6 +4,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -11,12 +12,6 @@
 #include <vdt/vdtMath.h>
 
 using namespace reco;
-
-namespace {
-  inline bool isHGCalDet(DetId::Detector thedet){
-    return (thedet == DetId::Forward || thedet == DetId::Hcal || thedet == DetId::HGCalEE || thedet == DetId::HGCalHSi || thedet == DetId::HGCalHSc);
-  }
-}
 
 //--------------------------------------------------------------------------------------------------
 SCEnergyCorrectorSemiParm::SCEnergyCorrectorSemiParm() :
@@ -109,7 +104,7 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
   p.second=-1;
 
   // protect against HGCal, don't mod the object
-  if( isHGCalDet(sc.seed()->seed().det()) ) return p;
+  if( EcalTools::isHGCalDet(sc.seed()->seed().det()) ) return p;
 
   const reco::CaloCluster &seedCluster = *(sc.seed());
   const bool iseb = seedCluster.hitsAndFractions()[0].first.subdetId() == EcalBarrel;

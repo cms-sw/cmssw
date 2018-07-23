@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaTools/interface/EcalRegressionData.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -11,12 +12,6 @@
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-
-namespace {
-  inline bool isHGCalDet(DetId::Detector thedet){
-    return (thedet == DetId::Forward || thedet == DetId::Hcal || thedet == DetId::HGCalEE || thedet == DetId::HGCalHSi || thedet == DetId::HGCalHSc);
-  }
-}
 
 float EcalRegressionData::seedLeftRightAsym()const
 {
@@ -61,7 +56,7 @@ void EcalRegressionData::fill(const reco::SuperCluster& superClus,
   isEB_ = ( seedid.subdetId()==EcalBarrel );
   
   // skip HGCal
-  if( isHGCalDet(seedid.det()) ) return;
+  if( EcalTools::isHGCalDet(seedid.det()) ) return;
   
   const EcalRecHitCollection* recHits = isEB_ ? ebRecHits : eeRecHits;
 
