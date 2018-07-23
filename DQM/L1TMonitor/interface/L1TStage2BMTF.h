@@ -75,6 +75,7 @@ private:
   //  edm::InputTag bmtfSourceTwinMux1;
   //  edm::InputTag bmtfSourceTwinMux2;
   bool verbose ;
+  bool kalman;
   edm::EDGetToken bmtfToken;
   // edm::EDGetToken bmtfTokenTwinMux1;
   //  edm::EDGetToken bmtfTokenTwinMux2; 
@@ -99,6 +100,9 @@ private:
   MonitorElement* bmtf_hwPt_bx;   
   MonitorElement* bmtf_hwQual_bx; 
 
+
+  MonitorElement* kbmtf_hwDXY;
+  MonitorElement* kbmtf_hwPt2;
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhiB; */
