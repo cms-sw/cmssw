@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -116,9 +117,9 @@ egOffset  = jetOffset + options.egDelay
 
 
 # print some debug info
-print "egOffset      = ", egOffset
-print "jetOffset     = ", jetOffset
-print " "
+print("egOffset      = ", egOffset)
+print("jetOffset     = ", jetOffset)
+print(" ")
 
 
 # pack into arrays
