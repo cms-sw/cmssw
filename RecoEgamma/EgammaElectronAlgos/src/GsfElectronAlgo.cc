@@ -53,6 +53,12 @@ using namespace edm ;
 using namespace std ;
 using namespace reco ;
 
+namespace {
+  inline bool isHGCalDet(DetId::Detector thedet){
+    return (thedet == DetId::Forward || thedet == DetId::Hcal || thedet == DetId::HGCalEE || thedet == DetId::HGCalHSi || thedet == DetId::HGCalHSc);
+  }
+}
+
 
 //===================================================================
 // GsfElectronAlgo::GeneralData
@@ -1389,7 +1395,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     if (EEDetId::isNextToDBoundary(eedetid))
      { fiducialFlags.isEEDeeGap = true ; }
    }
-  else if ( region==DetId::Forward || region == DetId::Hcal )
+  else if ( isHGCalDet((DetId::Detector)region) )
    {
     fiducialFlags.isEE = true ;
     //HGCalDetId eeDetid(seedXtalId);    
@@ -1412,7 +1418,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
 
   reco::GsfElectron::ShowerShape showerShape;
   reco::GsfElectron::ShowerShape full5x5_showerShape;
-  if( !(region==DetId::Forward || region == DetId::Hcal) ) {    
+  if( !isHGCalDet((DetId::Detector)region) ) {
     calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;    
     calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
   }
@@ -1504,7 +1510,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
     }
   else  // original implementation
     {
-      if( region!=DetId::Forward && region != DetId::Hcal ) {
+      if( !isHGCalDet((DetId::Detector)region) ) {
 	if (ele->core()->ecalDrivenSeed())
 	  {
 	    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
@@ -1540,7 +1546,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   dr03.tkSumPt = tkIsol03Calc_.calIsolPt(*ele->gsfTrack(),*eventData_->currentCtfTracks);
   dr04.tkSumPt = tkIsol04Calc_.calIsolPt(*ele->gsfTrack(),*eventData_->currentCtfTracks);
  
-  if( !(region==DetId::Forward || region == DetId::Hcal) ) {  
+  if( !isHGCalDet((DetId::Detector)region) ) {
     dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth2TowerSumEt = eventData_->hadDepth2Isolation03->getTowerEtSum(ele) ;
     dr03.hcalDepth1TowerSumEtBc = eventData_->hadDepth1Isolation03Bc->getTowerEtSum(ele,&(showerShape.hcalTowersBehindClusters)) ;
