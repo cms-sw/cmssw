@@ -12,6 +12,12 @@
 
 using namespace reco;
 
+namespace {
+  inline bool isHGCalDet(DetId::Detector thedet){
+    return (thedet == DetId::Forward || thedet == DetId::Hcal || thedet == DetId::HGCalEE || thedet == DetId::HGCalHSi || thedet == DetId::HGCalHSc);
+  }
+}
+
 //--------------------------------------------------------------------------------------------------
 SCEnergyCorrectorSemiParm::SCEnergyCorrectorSemiParm() :
 foresteb_(nullptr),
@@ -103,7 +109,7 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
   p.second=-1;
 
   // protect against HGCal, don't mod the object
-  if( sc.seed()->seed().det() == DetId::Forward ) return p;
+  if( isHGCalDet(sc.seed()->seed().det()) ) return p;
 
   const reco::CaloCluster &seedCluster = *(sc.seed());
   const bool iseb = seedCluster.hitsAndFractions()[0].first.subdetId() == EcalBarrel;
