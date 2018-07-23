@@ -1,9 +1,9 @@
 #!/bin/bash
 
-rm -r AllPlots-PNG
-mkdir AllPlots-PNG
+#rm -r AllPlots-PNG
+#mkdir AllPlots-PNG
 
-rm -r *.png
+#rm -r *.png
 
 
 
@@ -11,9 +11,13 @@ rm -r *.png
 #*HcalGains
 #HcalGainsPlot
 #HcalGainsDiff
-./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsPlot --tag HcalGains_2018_HEHFRaddam_20fb_data --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test -v
-mv *.png plot_HcalGainsPlot.png
-mv *.png AllPlots-PNG/
+#./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsPlot --tag HcalGains_2018_HEHFRaddam_10fb --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test -v
+#./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsPlot --tag HcalGains_2017_HEHFRaddam_6fb --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test -v
+#./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsPlot --tag HcalGains_Apr2016_38T  --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test -v
+#./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsPlot --tag HcalGains_updateOct2015_38T --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test -v
+#mv *.png plot_HcalGainsPlot.png
+#mv *.png AllPlots-PNG/
+./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag HcalGains_2018_HEHFRaddam_10fb --time_type Run --iovs '{"start_iov": "1", "end_iov": "100"}' --db Prod --test -v
 #./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag gains_HBHEHOHF_2011_test --time_type Run --iovs '{"start_iov": "1", "end_iov": "164748"}' --db Prod --test -v
 #mv *.png plot_HcalGainsDiff.png
 #mv *.png AllPlots-PNG/
