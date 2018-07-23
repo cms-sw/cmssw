@@ -406,7 +406,7 @@ namespace evf {
           //rarely this fails but file gets deleted
           boost::filesystem::remove(filePath);
         }
-        catch (const boost::filesystem::filesystem_error& ex)
+        catch (const boost::filesystem::filesystem_error const& ex)
         {
           edm::LogError("EvFDaqDirector") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
           usleep(10000);
@@ -415,13 +415,13 @@ namespace evf {
           }
             catch (const boost::filesystem::filesystem_error&) {/*file gets deleted first time but exception is still thrown*/}
         }
-        catch (std::exception& ex)
+        catch (std::exception const& ex)
         {
           edm::LogError("EvFDaqDirector") << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
           usleep(10000);
           try {
 	    boost::filesystem::remove(filePath);
-          } catch (std::exception&) {/*file gets deleted first time but exception is still thrown*/}
+          } catch (std::exception const&) {/*file gets deleted first time but exception is still thrown*/}
         }
         
         delete it->second;
@@ -1062,7 +1062,7 @@ namespace evf {
           boost::filesystem::ifstream ij(jsonDestPath);
           ss << ij.rdbuf();
         }
-        catch (boost::filesystem::filesystem_error& ex) {
+        catch (boost::filesystem::filesystem_error const& ex) {
           edm::LogError("EvFDaqDirector") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
           return -1;
         }
@@ -1122,13 +1122,13 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - error parsing number of events from BU JSON. "
                                       << "Input value is -: " << data;
     }
-    catch (std::runtime_error e)
+    catch (std::runtime_error const& e)
     {
       //Can be thrown by Json parser
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - std::runtime_error exception -: " << e.what();
     }
 
-    catch (std::exception &e)
+    catch (std::exception const& e)
     {
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - SOME OTHER EXCEPTION OCCURED! -: " << e.what();
     }
@@ -1159,7 +1159,7 @@ namespace evf {
       try {
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
-      catch (const boost::filesystem::filesystem_error& ex)
+      catch (const boost::filesystem::filesystem_error const& ex)
       {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
@@ -1173,12 +1173,12 @@ namespace evf {
         //sometimes this fails but file gets deleted
         boost::filesystem::remove(jsonSourcePath);
       }
-      catch (const boost::filesystem::filesystem_error& ex)
+      catch (const boost::filesystem::filesystem_error const& ex)
       {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
       }
-      catch (std::exception& ex)
+      catch (std::exception const& ex)
       {
         // Input dir gone?
         edm::LogError("EvFDaqDirector") << "grabNextFile std::exception CAUGHT -: " << ex.what();
@@ -1219,13 +1219,13 @@ namespace evf {
       }
       return boost::lexical_cast<int>(data);
     }
-    catch (const boost::filesystem::filesystem_error& ex)
+    catch (const boost::filesystem::filesystem_error const& ex)
     {
       // Input dir gone?
       unlockFULocal();
       edm::LogError("EvFDaqDirector") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
     }
-    catch (std::runtime_error e)
+    catch (std::runtime_error const& e)
     {
       // Another process grabbed the file and NFS did not register this
       unlockFULocal();
@@ -1235,7 +1235,7 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << "grabNextFile error parsing number of events from BU JSON. "
                                              << "Input value is -: " << data;
     }
-    catch (std::exception e)
+    catch (std::exception const& e)
     {
       // BU run directory disappeared?
       unlockFULocal();
@@ -1458,7 +1458,7 @@ namespace evf {
         break;
       }
     }
-    catch (std::exception& e)
+    catch (std::exception const& e)
     {
       edm::LogWarning("EvFDaqDirector") << "Exception in socket handling";
       serverError= true;
