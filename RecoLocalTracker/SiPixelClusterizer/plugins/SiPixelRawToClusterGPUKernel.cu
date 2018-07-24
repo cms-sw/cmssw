@@ -90,10 +90,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaMalloc((void**) & moduleStart_d, (MaxNumModules+1)*sizeof(uint32_t) ));
     cudaCheck(cudaMalloc((void**) & clusInModule_d,(MaxNumModules)*sizeof(uint32_t) ));
     cudaCheck(cudaMalloc((void**) & moduleId_d,    (MaxNumModules)*sizeof(uint32_t) ));
-
-    cudaCheck(cudaMalloc((void**) & debug_d,        MAX_WORD32_SIZE));
   }
-
  
   SiPixelRawToClusterGPUKernel::~SiPixelRawToClusterGPUKernel() {
     // free device memory used for RawToDigi on GPU
@@ -114,7 +111,6 @@ namespace pixelgpudetails {
     cudaCheck(cudaFree(clus_d));
     cudaCheck(cudaFree(clusInModule_d));
     cudaCheck(cudaFree(moduleId_d));
-    cudaCheck(cudaFree(debug_d));
   }
 
   void SiPixelRawToClusterGPUKernel::initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length) {
@@ -662,7 +658,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaGetLastError());
 
     // calibrated adc
-    cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
 
     /*
     std::cout
@@ -700,13 +696,11 @@ namespace pixelgpudetails {
                  moduleStart_d,
                  clusInModule_d, moduleId_d,
                  clus_d,
-                 debug_d,
                  wordCounter
     );
 
     // clusters
     cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-
 
     cudaStreamSynchronize(stream.id());
     cudaCheck(cudaGetLastError());

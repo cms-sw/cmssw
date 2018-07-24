@@ -1,10 +1,10 @@
 #ifndef HeterogeneousCore_CUDAServices_CUDAService_h
 #define HeterogeneousCore_CUDAServices_CUDAService_h
 
-#include "FWCore/Utilities/interface/StreamID.h"
-
 #include <utility>
 #include <vector>
+
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edm {
   class ParameterSet;
@@ -23,6 +23,7 @@ namespace edm {
 class CUDAService {
 public:
   CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry);
+  ~CUDAService();
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -49,7 +50,7 @@ public:
 private:
   int numberOfDevices_ = 0;
   unsigned int numberOfStreamsTotal_ = 0;
-  std::vector<std::pair<int, int> > computeCapabilities_;
+  std::vector<std::pair<int, int>> computeCapabilities_;
   bool enabled_ = false;
 };
 

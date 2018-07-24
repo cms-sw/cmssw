@@ -36,7 +36,7 @@ namespace gpuClustering {
                            uint16_t const * adc,
                            uint32_t const * moduleStart,
                            uint32_t * clusInModule, uint32_t * moduleId,
-                           int32_t * clus, uint32_t * debug,
+                           int32_t * clus,
                            int numElements)
   {
     __shared__ bool go;
@@ -98,7 +98,6 @@ namespace gpuClustering {
         if (id[i] == InvId)             // not valid
           continue;
         assert(id[i] == me); // break;  // end of module
-        ++debug[i];
         auto js = i + 1;
         auto jm = jmax[k];
         jmax[k] = i + 1;

@@ -108,9 +108,11 @@ namespace pixelgpudetails {
     for (int i=0;i<10;++i) hitsLayerStart_[i]=hitsModuleStart_[phase1PixelTopology::layerStart[i]];
     hitsLayerStart_[10]=nhits;
 
+#ifdef GPU_DEBUG
     std::cout << "hit layerStart "; 
     for (int i=0;i<10;++i) std::cout << phase1PixelTopology::layerName[i] << ':' << hitsLayerStart_[i] << ' ';
     std::cout << "end:" << hitsLayerStart_[10] << std::endl;
+#endif
 
     cudaCheck(cudaMemcpyAsync(gpu_.hitsLayerStart_d, hitsLayerStart_, (11) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 

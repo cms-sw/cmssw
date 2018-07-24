@@ -1,15 +1,13 @@
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
 #include <cuda.h>
 #include <cuda/api_wrappers.h>
-#include "HeterogeneousCore/CUDAUtilities/interface/getCudaDrvErrorString.h"
 
-#include <dlfcn.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/getCudaDrvErrorString.h"
 
 CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry) {
   bool configEnabled = iConfig.getUntrackedParameter<bool>("enabled");
@@ -62,6 +60,15 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
 
   edm::LogInfo("CUDAService") << "CUDAService fully initialized";
   enabled_ = true;
+}
+
+CUDAService::~CUDAService() {
+  if (enabled_) {
+    // Explicitly destroys and cleans up all resources associated with the current device in the
+    // current process. Any subsequent API call to this device will reinitialize the device.
+    // Useful to check for memory leaks with `cuda-memcheck --tool memcheck --leak-check full`.
+    cudaCheck(cudaDeviceReset());
+  }
 }
 
 void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {

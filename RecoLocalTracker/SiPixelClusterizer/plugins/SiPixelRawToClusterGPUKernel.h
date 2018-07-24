@@ -208,9 +208,7 @@ namespace pixelgpudetails {
     int32_t *  clus_d;
     uint32_t * clusInModule_d;
     uint32_t * moduleId_d;
-    uint32_t * debug_d;
   };
-
   
   // configuration and memory buffers alocated on the GPU
   struct context {
@@ -233,18 +231,6 @@ namespace pixelgpudetails {
     uint32_t * moduleId_d;
     uint32_t * debug_d;
   };
-
-  // wrapper function to call RawToDigi on the GPU from host side
-  void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevice,
-                         SiPixelGainForHLTonGPU * const ped,
-                         const uint32_t wordCounter, uint32_t *word,
-                         const uint32_t fedCounter,  uint8_t *fedId_h,
-                         bool convertADCtoElectrons, uint32_t * pdigi_h,
-                         uint32_t *rawIdArr_h, GPU::SimpleVector<error_obj> *error_h,
-                         GPU::SimpleVector<error_obj> *error_h_tmp, error_obj *data_h,
-                         uint16_t * adc_h, int32_t * clus_h,
-                         bool useQualityInfo, bool includeErrors, bool debug,
-                         uint32_t & nModulesActive);
 
   // void initCablingMap();
   context initDeviceMemory();

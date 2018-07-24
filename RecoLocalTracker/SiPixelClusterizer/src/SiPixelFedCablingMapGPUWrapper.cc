@@ -154,7 +154,7 @@ void SiPixelFedCablingMapGPUWrapper::ModulesToUnpack::fillAsync(SiPixelFedCablin
     }
   }
 
-  cuda::memory::async::copy(modToUnpHost.data(), modToUnpDevice.get(), modToUnpHost.size() * sizeof(unsigned char), cudaStream.id());
+  cuda::memory::async::copy(modToUnpDevice.get(), modToUnpHost.data(), modToUnpHost.size() * sizeof(unsigned char), cudaStream.id());
 }
 
 

@@ -196,7 +196,6 @@ int main(void)
                d_moduleStart.get(),
                d_clusInModule.get(), d_moduleId.get(),
                d_clus.get(),
-               d_debug.get(),
                n
                );
 
