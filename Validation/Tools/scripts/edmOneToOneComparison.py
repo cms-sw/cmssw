@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] config.txt file1.root [file2.root]\nVisit https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison\nfor full documentation.")
@@ -118,7 +119,7 @@ if __name__ == "__main__":
         for arg in options.alias:
             aliasMatch = doubleColonRE.match (arg)
             if aliasMatch:
-                print "aM", aliasMatch
+                print("aM", aliasMatch)
                 GenObject.changeAlias (aliasMatch.group (1),
                                        aliasMatch.group (2),
                                        aliasMatch.group (3))
@@ -169,14 +170,14 @@ if __name__ == "__main__":
         problems = \
                  GenObject.compareTwoTrees (chain1, chain2,
                                             diffOutputName = options.compRoot)
-        print "Summary"
+        print("Summary")
         pprint.pprint (problems)
     if options.saveAs:
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
                                          options.numEvents1)
         GenObject.saveTupleAs (chain1, options.saveAs)
     if options.printTuple:
-        print "printing tuple"
+        print("printing tuple")
         GenObject.setGlobalFlag ('printEvent', True)
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
                                          options.numEvents1)

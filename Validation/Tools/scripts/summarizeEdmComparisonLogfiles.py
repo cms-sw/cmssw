@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import os
 from glob import glob
@@ -203,36 +204,36 @@ if __name__ == "__main__":
     mismatches = problemTypes.get('mismatch', 0)
     if problemTypes.has_key ('mismatch'):
         del problemTypes['mismatch']
-    print "total:      ", len (files)
-    print "success:    ", succeeded
-    print "mismatches: ", mismatches
-    print "weird:      ", weird
-    print "Tool issue types:"
+    print("total:      ", len (files))
+    print("success:    ", succeeded)
+    print("mismatches: ", mismatches)
+    print("weird:      ", weird)
+    print("Tool issue types:")
     total = 0
     for key, value in sorted (problemTypes.iteritems()):
-        print "  %-15s: %4d" % (key, value)
+        print("  %-15s: %4d" % (key, value))
         total += value
-    print " ", '-'*13, " : ----"
-    print "  %-15s: %4d + %d + %d + %d = %d" \
+    print(" ", '-'*13, " : ----")
+    print("  %-15s: %4d + %d + %d + %d = %d" \
           % ('total', total, succeeded, mismatches, weird,
-             total + succeeded + mismatches + weird)
+             total + succeeded + mismatches + weird))
     
     if not options.counts:
-        print "\nDetailed Problems list:"
+        print("\nDetailed Problems list:")
         for key, problemList in sorted (problems.iteritems()):
             if options.problem and problemList[0] != options.problem:
                 continue
             if options.mismatch and not isinstance (problemList, str):
                 continue
             #if options.mismatch and 
-            print "   %s:\n   %s\n" % (key, problemList)
+            print("   %s:\n   %s\n" % (key, problemList))
             if options.mismatch and goShlib and compRoot:
-                print "diffTree %s %s" % (goShlib, compRoot)
+                print("diffTree %s %s" % (goShlib, compRoot))
             diffCmd = diffOutput.get(key)
             if diffCmd:                
-                print commands.getoutput (diffCmd)
+                print(commands.getoutput (diffCmd))
         if not options.problem and not options.mismatch:
-            print "\n", '='*78, '\n'
-            print "Success list:"
+            print("\n", '='*78, '\n')
+            print("Success list:")
             for key, successesList in sorted (successes.iteritems()):
-                print "   %s:\n   %s\n" % (key, successesList)
+                print("   %s:\n   %s\n" % (key, successesList))
