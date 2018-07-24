@@ -1,3 +1,4 @@
+from __future__ import print_function
 # The following comments couldn't be translated into the new config version:
 #! /bin/env cmsRun
 
@@ -20,10 +21,10 @@ runOnMC    = True
 tag =  'START70_V4::All'
 
 ###prints###
-print "jet collcetion asked : ", whichJets
-print "trigger will be used ? : ", useTrigger
-print "is it MC ? : ", runOnMC
-print "Global Tag : ", tag
+print("jet collcetion asked : ", whichJets)
+print("trigger will be used ? : ", useTrigger)
+print("is it MC ? : ", runOnMC)
+print("Global Tag : ", tag)
 ############
 
 process = cms.Process("validation")
@@ -65,7 +66,7 @@ process.softPFElectronsTagInfos.jets          = newjetID
 process.AK5byRef.jets                         = newjetID
 
 ###
-print "inputTag : ", process.myak5JetTracksAssociatorAtVertex.jets
+print("inputTag : ", process.myak5JetTracksAssociatorAtVertex.jets)
 ###
 
 if runOnMC:
