@@ -1,14 +1,15 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import os
 import re
 
 if os.getenv('LOCAL_TOP_DIR') == None:
-    print "The environment variable LOCAL_TOP_DIR must be set to run this script"
-    print "Usually setting it equal to the value of CMSSW_BASE will do what you want"
-    print "In the context of a unit test this variable is always set automatically"
+    print("The environment variable LOCAL_TOP_DIR must be set to run this script")
+    print("Usually setting it equal to the value of CMSSW_BASE will do what you want")
+    print("In the context of a unit test this variable is always set automatically")
     sys.exit(1)
 
 # get the list of XML files from the cfi file
@@ -55,9 +56,9 @@ else:
     # It is an error if the file is not there but the package is
     packageDirectory = os.environ['LOCAL_TOP_DIR'] + '/src/DetectorDescription/Schema'
     if os.path.isdir(packageDirectory):
-        print 'Error, schema file not found'
-        print 'DDLSchema.xsd not found in ' + packageDirectory
-        print 'Quitting, cannot test XML files without a schema'
+        print('Error, schema file not found')
+        print('DDLSchema.xsd not found in ' + packageDirectory)
+        print('Quitting, cannot test XML files without a schema')
         sys.exit(0)
 
     # if there is a base release then try to find the file there
@@ -65,12 +66,12 @@ else:
     if os.path.isfile(schema):
         pass
     else:
-        print 'Error, schema file not found'
-        print 'DetectorDescription/Schema/DDLSchema.xsd'
-        print 'Quitting, cannot test XML files without a schema'
+        print('Error, schema file not found')
+        print('DetectorDescription/Schema/DDLSchema.xsd')
+        print('Quitting, cannot test XML files without a schema')
         sys.exit(0)
-print "schema file is:"
-print schema
+print("schema file is:")
+print(schema)
 sys.stdout.flush()
 
 # Loop over the XML files listed in the cfi file and find them
