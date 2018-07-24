@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ROOT import *
 import re
 
@@ -101,7 +102,7 @@ def producePlots():
         for f in file_handles:
             histo = f.Get(h['name'])
             if not histo:
-                print 'Failed to get histograms %s', h
+                print('Failed to get histograms %s', h)
             else:
                 if counter == 0:
                     counter += 1
