@@ -8,10 +8,10 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
 {
   //Check number of weight files given
   if (ExpectedNBins != cfg_.vweightsfiles.size() ) {
-    std::cout << "Error: Expected Number of bins = " << ExpectedNBins << " does not equal to weightsfiles.size() = "
-              << cfg_.vweightsfiles.size() << std::endl;
-
-    assert(ExpectedNBins == cfg_.vweightsfiles.size());
+    edm::LogError  ("Soft Electron MVA Error") <<
+        "Expected Number of bins = " << ExpectedNBins <<
+        " does not equal to weightsfiles.size() = " << 
+        cfg_.vweightsfiles.size() << std::endl;
   }
 
   for(auto& weightsfile : cfg_.vweightsfiles) {
