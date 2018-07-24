@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import print_function
 import re, json, datetime
 from .rrapi import RRApi, RRApiError
 
@@ -30,11 +31,11 @@ def getRunsNewer(run, minLumis):
             return runs
 
         else :
-            print "RunRegistry API 'app' != user, who knows why... :<"
+            print("RunRegistry API 'app' != user, who knows why... :<")
 
     except RRApiError as e:
-        print e
+        print(e)
 
 if __name__ == '__main__' :
     # Test run
-    print json.dumps(getRunsNewer(250400, 10), indent=4)
+    print(json.dumps(getRunsNewer(250400, 10), indent=4))
