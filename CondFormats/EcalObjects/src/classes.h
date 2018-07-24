@@ -64,6 +64,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 
 namespace CondFormats_EcalObjects {
   struct dictionary {
@@ -198,10 +199,6 @@ namespace CondFormats_EcalObjects {
     EcalTPGTowerStatus spike;
     
     EcalSRSettings ecalSRSettings;
-    //    std::vector<std::vector<short> > ecalSRSettings_srpMasksFromConfig;
-    //    std::vector<std::vector<float> > ecalSRSettings_dccNormalizedWeights_0;
-    //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
-    //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     
     EcalTimeBiasCorrections timeBiasCorrections;
 
@@ -222,5 +219,6 @@ namespace CondFormats_EcalObjects {
     EcalContainer<EBDetId,EcalPulseSymmCovariance> ec_ebDetId_ecalPulseSymmCovariance;
     EcalCondObjectContainer<EcalPulseSymmCovariance> ecalSPCmap; //typedef EcalPulseSymmCovariance
 
+    EcalSimPulseShape ecal_sim_pulse_shapes;
   };
 }
