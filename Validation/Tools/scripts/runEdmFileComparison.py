@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import commands
 import pprint
@@ -195,7 +196,7 @@ if __name__ == "__main__":
     if options.verboseDebug:
         options.verbose = True
     if options.verbose:
-        print "files", filename1, filename2
+        print("files", filename1, filename2)
     if options.singletons and not options.describeOnly:
         raise RuntimeError("--singletons can only be used with "\
               "--describeOnly option")
@@ -208,18 +209,18 @@ if __name__ == "__main__":
     #############################
     ## Run edmDumpEventContent ##
     #############################
-    print "Getting edmDumpEventContent output"
+    print("Getting edmDumpEventContent output")
     regexLine = ""
     for regex in options.regex:
         regexLine += ' "--regex=%s"' % regex
     dumpCommand = 'edmDumpEventContent %s %s' % (regexLine, filename1)
     if options.verboseDebug:
-        print dumpCommand, '\n'
+        print(dumpCommand, '\n')
     output = commands.getoutput (dumpCommand).split("\n")
     if not len(output):
         raise RuntimeError("No output from edmDumpEventContent.")
     if options.verboseDebug:
-        print "output:\n", "\n".join(output)
+        print("output:\n", "\n".join(output))
     collection = {}
     total = failed = skipped = useless = 0
     for line in output:
@@ -245,7 +246,7 @@ if __name__ == "__main__":
                and os.path.getsize (descriptionName) \
                and not options.forceDescribe:
             if options.verbose:
-                print '%s exists.  Skipping' % descriptionName
+                print('%s exists.  Skipping' % descriptionName)
             continue
         #print name, prettyName, key
         describeCmd = "%s %s %s useReflexToDescribeForGenObject.py %s '--type=%s'" \
@@ -256,23 +257,23 @@ if __name__ == "__main__":
         if options.precision:
             describeCmd += " --precision=" + options.precision
         if options.verbose:
-            print "describing %s" % name
+            print("describing %s" % name)
         if options.verboseDebug:
-            print describeCmd, '\n'
+            print(describeCmd, '\n')
         returnCode = os.system (describeCmd)
         if returnCode:
             # return codes are shifted by 8 bits:
             if returnCode == GenObject.uselessReturnCode << 8:
                 useless += 1
             else:
-                print "Error trying to describe '%s'.  Continuing.\n" % \
-                      (name)
+                print("Error trying to describe '%s'.  Continuing.\n" % \
+                      (name))
                 failed += 1
     if options.describeOnly:
-        print "Total: %3d  Skipped: %3d   Failed: %3d  Useless: %3d" % \
-              (total, skipped, failed, useless)
+        print("Total: %3d  Skipped: %3d   Failed: %3d  Useless: %3d" % \
+              (total, skipped, failed, useless))
         if not options.noQueue:
-            print "Note: Failed not recorded when using queuing system."
+            print("Note: Failed not recorded when using queuing system.")
         sys.exit()
 
     ##################################
@@ -310,9 +311,9 @@ if __name__ == "__main__":
             if options.strictPairing:
                 fullCompareCmd += ' --strictPairing'
             if options.verbose:
-                print "comparing branch %s %s" % (name, obj.label())
+                print("comparing branch %s %s" % (name, obj.label()))
             if options.verboseDebug:
-                print fullCompareCmd,'\n'
+                print(fullCompareCmd,'\n')
             os.system (fullCompareCmd)
 
     ##################################
@@ -329,5 +330,5 @@ if __name__ == "__main__":
             summaryOptions = '--counts'
         summaryCmd = 'summarizeEdmComparisonLogfiles.py %s %s logfiles' \
                      % (summaryOptions, summaryMask)
-        print summaryCmd
-        print commands.getoutput (summaryCmd)
+        print(summaryCmd)
+        print(commands.getoutput (summaryCmd))
