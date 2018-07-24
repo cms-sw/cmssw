@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #Little script to get the number of cpus (cores) in the machine one is running on:
 #Information is parsed from /proc/cpuinfo file
+from __future__ import print_function
 import os
 
 def get_NumOfCores():
@@ -13,6 +14,6 @@ def get_NumOfCores():
                     cores=cores+1;
         return cores
     else:
-        print "Could not open file /proc/cpuinfo!\n"
+        print("Could not open file /proc/cpuinfo!\n")
         return NULL
  #Further functions to parse other information will come (RAM, Cache etc)   
