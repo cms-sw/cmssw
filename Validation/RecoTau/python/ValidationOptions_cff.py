@@ -1,10 +1,11 @@
+from __future__ import print_function
 import os
 import sys
 try:
    ReleaseBase = os.path.join(os.environ['CMSSW_BASE'], "src")
    ReleaseVersion = os.environ['CMSSW_VERSION']
 except KeyError:
-   print "CMSSW enviroment not set, please run cmsenv!"
+   print("CMSSW enviroment not set, please run cmsenv!")
    sys.exit()
 
 import FWCore.ParameterSet.Config as cms
@@ -151,7 +152,7 @@ def checkOptionsForBadInput():
    # Sanity check
    for optionName, allowedValues in allowedOptions.iteritems():
       if not getattr(options, optionName) in allowedValues:
-         print "Bad input to option: %s" % optionName
+         print("Bad input to option: %s" % optionName)
          sys.exit()
 
 def calledBycmsRun():
