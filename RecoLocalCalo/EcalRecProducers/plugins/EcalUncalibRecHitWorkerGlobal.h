@@ -38,7 +38,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBa
         public:
                 EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
 		EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
-		EcalUncalibRecHitWorkerGlobal() {};
+		EcalUncalibRecHitWorkerGlobal():useDBShape(false),testbeamEEShape(EEShape(useDBShape)), testbeamEBShape(EBShape(useDBShape)){;}
                 ~EcalUncalibRecHitWorkerGlobal() override {};
 
                 void set(const edm::EventSetup& es) override;
@@ -66,8 +66,9 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBa
                 const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
                 EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
                 EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
-                const EEShape testbeamEEShape; // used in the chi2
-                const EBShape testbeamEBShape; // can be replaced by simple shape arrays of float in the future
+                bool useDBShape;
+                EEShape testbeamEEShape; // used in the chi2
+                EBShape testbeamEBShape; // can be replaced by simple shape arrays of float in the future
 
                 // determie which of the samples must actually be used by ECAL local reco
 		edm::ESHandle<EcalSampleMask> sampleMaskHand_;
