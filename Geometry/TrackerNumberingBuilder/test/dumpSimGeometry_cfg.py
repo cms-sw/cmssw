@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -6,18 +7,18 @@ from FWCore.Utilities.Enumerate import Enumerate
 varType = Enumerate ("Run1 Ideal2015 Ideal2015dev 2015 2015dev GEMDev RPC4RE11 2017 2019 2023 2023dev 2023sim 2023Muon MaPSA CRack DB")
 
 def help():
-   print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
-   print "   tag=tagname"
-   print "       indentify geometry condition database tag"
-   print "      ", varType.keys()
-   print ""
-   print "   out=outputFileName"
-   print "       default is cmsSimGeom<tag>.root"
-   print 
+   print("Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG ")
+   print("   tag=tagname")
+   print("       indentify geometry condition database tag")
+   print("      ", varType.keys())
+   print("")
+   print("   out=outputFileName")
+   print("       default is cmsSimGeom<tag>.root")
+   print() 
    exit(1);
 
 def simGeoLoad(score):
-    print "Loading configuration for tag ", options.tag ,"...\n"
+    print("Loading configuration for tag ", options.tag ,"...\n")
     if score == "Run1":
        process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
