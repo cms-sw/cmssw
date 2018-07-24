@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -104,7 +105,7 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag):
     global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
     global cfg, macro, Tracksname
-    print 'Tag: ' + GlobalTag
+    print('Tag: ' + GlobalTag)
 
 
     #build the New Selection name
@@ -116,7 +117,7 @@ def do_validation(samples, GlobalTag):
     for sample in samples :
         templatecfgFile = open(cfg, 'r')
 
-        print 'Get information from DBS for sample', sample
+        print('Get information from DBS for sample', sample)
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample
 	cfgFileName=sample
         #check if the sample is already done
@@ -133,9 +134,9 @@ def do_validation(samples, GlobalTag):
             #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
                     cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* order by dataset.createdate "'
                     cmd+='|grep '+sample+'|grep -v test|tail -1 '
-                    print cmd
+                    print(cmd)
                     dataset= os.popen(cmd).readline().strip()
-                    print 'DataSet:  ', dataset, '\n'
+                    print('DataSet:  ', dataset, '\n')
 
                     #Check if a dataset is found
                     if dataset!="":
@@ -148,7 +149,7 @@ def do_validation(samples, GlobalTag):
                             filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
                             filenames+='readFiles.extend( [\n'
                             first=True
-                            print cmd2
+                            print(cmd2)
                             for line in os.popen(cmd2).readlines():
                                 filename=line.strip()
                                 if first==True:
@@ -166,7 +167,7 @@ def do_validation(samples, GlobalTag):
                             if(Sequence!="harvesting"):
                                     cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                                     parentdataset=os.popen(cmd3).readline()
-                                    print 'Parent DataSet:  ', parentdataset, '\n'
+                                    print('Parent DataSet:  ', parentdataset, '\n')
 
                             #Check if a dataset is found
                                     if parentdataset!="":
@@ -187,7 +188,7 @@ def do_validation(samples, GlobalTag):
                                                     filenames+="'"
                                             filenames+=']);\n'
                                     else :
-                                            print "No primary dataset found skipping sample: ", sample
+                                            print("No primary dataset found skipping sample: ", sample)
                                             continue
                             else :
                                     filenames+='secFiles.extend( (               ) )\n'
@@ -217,12 +218,12 @@ def do_validation(samples, GlobalTag):
                             retcode=os.system(cmdrun)
 
                     else:      
-                            print 'No dataset found skipping sample: '+ sample, '\n'  
+                            print('No dataset found skipping sample: '+ sample, '\n')  
                             continue
             else: 
                     retcode=0
             if (retcode!=0):
-                    print 'Job for sample '+ sample + ' failed. \n'
+                    print('Job for sample '+ sample + ' failed. \n')
             else:
                     for seedcollection in SeedCollections :
                         rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"val.' +sample+'.root\\\",\\\"val.' +sample+'_'+seedcollection+'.root\\\",\\\"'+ seedcollection+'_AssociatorByHits\\\",\\\"Seed\\\"\\) >& /dev/null'
@@ -243,7 +244,7 @@ def do_validation(samples, GlobalTag):
                                         os.makedirs(RefRelease+'/'+RefSelection)
                                 os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
                         else:
-                                print "No reference file found at: ", RefRelease+'/'+RefSelection
+                                print("No reference file found at: ", RefRelease+'/'+RefSelection)
                                 replace_map = { 'NEW_FILE':'val.'+sample+'_'+seedcollection+'.root', 'REF_FILE':'val.'+sample+'_'+seedcollection+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': sample+'_'+seedcollection, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
                         templatemacroFile = open(macro, 'r')
@@ -257,18 +258,18 @@ def do_validation(samples, GlobalTag):
                         if(os.path.exists(dir)==False):
                                 os.makedirs(dir)
 
-                        print "moving pdf files for sample: " , sample
+                        print("moving pdf files for sample: " , sample)
                         os.system('mv  *.pdf ' + dir)
 
-                        print "copying root file for sample: " , sample
+                        print("copying root file for sample: " , sample)
                         os.system('cp val.'+ sample+ '.root ' + dir)
 
-                        print "copy py file for sample: " , sample
+                        print("copy py file for sample: " , sample)
                         os.system('cp '+cfgFileName+'.py ' + dir)
 	
 	
         else:
-            print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
+            print('Validation for sample ' + sample + ' already done. Skipping this sample. \n')
 
 
 
@@ -282,8 +283,8 @@ if(NewRelease==''):
         NewRelease     = os.environ["CMSSW_VERSION"]
         
     except KeyError:
-        print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
-        print >>sys.stderr, '       Please run cmsenv'
+        print('Error: The environment variable CMSSW_VERSION is not available.', file=sys.stderr)
+        print('       Please run cmsenv', file=sys.stderr)
         sys.exit()
 else:
     try:
@@ -291,8 +292,8 @@ else:
         os.environ["CMSSW_VERSION"]
         
     except KeyError:
-        print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
-        print >>sys.stderr, '       Please run cmsenv'
+        print('Error: CMSSW environment variables are not available.', file=sys.stderr)
+        print('       Please run cmsenv', file=sys.stderr)
         sys.exit()
 
 

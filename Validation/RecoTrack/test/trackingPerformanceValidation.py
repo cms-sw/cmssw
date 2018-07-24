@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -177,7 +178,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
 
             if( Sequence=="harvesting"):
             	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
-                print harvestedfile
+                print(harvestedfile)
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
             elif( Sequence=="comparison_only"):
@@ -186,10 +187,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__DQM.root'
                 if (sampleType == 'FastSim' and PileUp == 'PU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim-' + Version + '__DQM.root'
 
-            print 'Sample:  ', sample, sampleType, PileUp, trackquality, trackalgorithm, '\n'
+            print('Sample:  ', sample, sampleType, PileUp, trackquality, trackalgorithm, '\n')
 
             if (Sequence != "comparison_only"):
-                print 'Get information from DBS for sample', sample
+                print('Get information from DBS for sample', sample)
                 #search the primary dataset
                 cmd='dbsql "find  dataset where dataset like /'
                 if (sampleType == 'FullSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
@@ -197,10 +198,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                 if (sampleType == 'FastSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
                 if (sampleType == 'FastSim' and PileUp == 'PU'): cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
                 cmd+='|grep '+sample+'|grep -v test|tail -1'
-                print cmd
+                print(cmd)
                 #Check if a dataset is found
                 dataset= os.popen(cmd).readline().strip()
-                print 'DataSet:  ', dataset, '\n'
+                print('DataSet:  ', dataset, '\n')
 
                 if dataset!="":
                         listofdatasets.write(dataset)
@@ -212,7 +213,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                         filenames+='source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)\n'
                         filenames+='readFiles.extend( [\n'
                         first=True
-                        print cmd2
+                        print(cmd2)
                         for line in os.popen(cmd2).readlines():
                             filename=line.strip()
                             if first==True:
@@ -230,7 +231,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                         if(Sequence!="preproduction" and sampleType=="FullSim"):
                                 cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                                 parentdataset=os.popen(cmd3).readline()
-                                print 'Parent DataSet:  ', parentdataset, '\n'
+                                print('Parent DataSet:  ', parentdataset, '\n')
 
                         #Check if a dataset is found
                                 if parentdataset!="":
@@ -251,7 +252,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                                                 filenames+="'"
                                         filenames+='\n ]);\n'
                                 else :
-                                        print "No primary dataset found skipping sample: ", sample
+                                        print("No primary dataset found skipping sample: ", sample)
                                         continue
                         else :
                                 filenames+='secFiles.extend( (               ) )'
@@ -285,11 +286,11 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                             retcode=0
 
                 else:      
-                        print 'No dataset found skipping sample: '+ sample, '\n'  
+                        print('No dataset found skipping sample: '+ sample, '\n')  
                         continue
 
                 if (retcode!=0):
-                       print 'Job for sample '+ sample + ' failed. \n'
+                       print('Job for sample '+ sample + ' failed. \n')
             if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
                     #copy only the needed histograms
                     if(trackquality==""):
@@ -309,7 +310,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
                             os.makedirs(RefRelease+'/'+RefSelection)
                     os.system('cp ' + referenceSample+ ' '+RefRelease+'/'+RefSelection)  
             else:
-                    print "No reference file found at: ", RefRelease+'/'+RefSelection
+                    print("No reference file found at: ", RefRelease+'/'+RefSelection)
                     replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':'val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
 
@@ -323,19 +324,19 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
             if(os.path.exists(newdir)==False):
                     os.makedirs(newdir)
 
-            print "moving pdf files for sample: " , sample
+            print("moving pdf files for sample: " , sample)
             os.system('mv  *.pdf ' + newdir)
 
-            print "moving root file for sample: " , sample
+            print("moving root file for sample: " , sample)
             os.system('mv val.'+ sample+ '.root ' + newdir)
 
-            print "copy py file for sample: " , sample
+            print("copy py file for sample: " , sample)
             if (Sequence!="comparison_only"): 
                 os.system('cp '+cfgFileName+'.py ' + newdir)
 	
 	
         else:
-            print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
+            print('Validation for sample ' + sample + ' already done. Skipping this sample. \n')
 
 
 
@@ -349,8 +350,8 @@ if(NewRelease==''):
         NewRelease     = os.environ["CMSSW_VERSION"]
         
     except KeyError:
-        print >>sys.stderr, 'Error: The environment variable CMSSW_VERSION is not available.'
-        print >>sys.stderr, '       Please run cmsenv'
+        print('Error: The environment variable CMSSW_VERSION is not available.', file=sys.stderr)
+        print('       Please run cmsenv', file=sys.stderr)
         sys.exit()
 else:
     try:
@@ -358,8 +359,8 @@ else:
         os.environ["CMSSW_VERSION"]
         
     except KeyError:
-        print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
-        print >>sys.stderr, '       Please run cmsenv'
+        print('Error: CMSSW environment variables are not available.', file=sys.stderr)
+        print('       Please run cmsenv', file=sys.stderr)
         sys.exit()
 
 
