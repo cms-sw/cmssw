@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ViewDigi")
@@ -46,7 +47,7 @@ myconds = [
 
 from CalibMuon.Configuration.getCSCConditions_frontier_cff import cscConditions
 for (classname, tag) in myconds:
-      print classname, tag
+      print(classname, tag)
       sourcename = 'unganged_' + classname
       process.__setattr__(sourcename, cscConditions.clone())
       process.__getattribute__(sourcename).toGet = cms.VPSet( cms.PSet( record = cms.string(classname), tag = cms.string(tag)) )
