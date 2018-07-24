@@ -12,6 +12,7 @@
      Example: ./MergeFilesAndCalculateEfficiencies.py CMSSW_3_1_0_Signal.root CMSSW_3_1_0_ZTT_*.root
 
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -19,7 +20,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoTau.ValidationOptions_cff import allowedOptions
 
 if len(sys.argv) < 5:
-   print "Error. Expected at least 3 arguments\n\nUsage: MergeFilesAndCalculateEfficiencies.py dataType OutputFile InputFileGlob"
+   print("Error. Expected at least 3 arguments\n\nUsage: MergeFilesAndCalculateEfficiencies.py dataType OutputFile InputFileGlob")
    sys.exit()
 
 dataType   = sys.argv[2]
@@ -27,13 +28,13 @@ OutputFile = sys.argv[3]
 Inputs     = sys.argv[4:]
 
 if not dataType in allowedOptions['eventType']:
-   print "Error. The first argument must be the dataType. Types availables are:"
-   print allowedOptions['eventType']
+   print("Error. The first argument must be the dataType. Types availables are:")
+   print(allowedOptions['eventType'])
    sys.exit()
 
 for aFile in Inputs:
    if not os.path.exists(aFile):
-      print "Input file %s does not exist!" % aFile
+      print("Input file %s does not exist!" % aFile)
       sys.exit()
 
 if os.path.exists(OutputFile):
@@ -42,7 +43,7 @@ if os.path.exists(OutputFile):
    while not GotGoodValue:
       userInput = raw_input("Output file %s exists; replace it? [yn] " % OutputFile).strip()
       if userInput != 'y' and userInput != 'n':
-         print "Please enter y or n"
+         print("Please enter y or n")
       else:
          GotGoodValue = True
    if userInput == 'n':
@@ -56,7 +57,7 @@ for aFile in Inputs:
 
 os.system(commandString)
 
-print "Running cmsRun command to generate efficiencies"
+print("Running cmsRun command to generate efficiencies")
 
 process = cms.Process("TEST")
 
