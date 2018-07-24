@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -71,10 +72,10 @@ elif (RefCondition=='POSTLS1'):
     RefLabel='POSTLS161_V12'
 
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
-    print "*** Did you remind doing:"
+    print("*** Did you remind doing:")
 #    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
-    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
-    print " > voms-proxy-init"
+    print(" > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh")
+    print(" > voms-proxy-init")
 
 
 ValidateHLT=True
@@ -160,13 +161,13 @@ for sample in samples :
     if (RefFastSim):
         checkFile = NewRelease+'/'+NewTag+'/'+sample+'/general_tpToTkmuAssociationFS.pdf'
     if (os.path.isfile(checkFile)==True):
-        print "Files of type "+checkFile+' exist alredy: delete them first, if you really want to overwrite them'
+        print("Files of type "+checkFile+' exist alredy: delete them first, if you really want to overwrite them')
     else:
         newSampleOnWeb=WebRepository+'/'+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root'
         refSampleOnWeb=WebRepository+'/'+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
 
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
-            print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
+            print("New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one')
         elif (GetFilesFrom=='GUI'):
             theGuiSample = sample
             
@@ -184,22 +185,22 @@ for sample in samples :
                 
 #            newGuiFileName='DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
             newGuiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
-            print "New file on the GUI: "+DqmGuiNewRepository+newGuiFileName
+            print("New file on the GUI: "+DqmGuiNewRepository+newGuiFileName)
 #            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+newGuiFileName)
             os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+newGuiFileName)
             os.system('mv '+newGuiFileName+' '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetFilesFrom=='CASTOR'):
-            print '*** Getting new file from castor'
+            print('*** Getting new file from castor')
             NewCondition=NewCondition+isFastSimNew
             os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetFilesFrom=='WEB') & (os.path.isfile(newSampleOnWeb))) :
-            print "New file found at: "+newSample+' -> Copy that one'
+            print("New file found at: "+newSample+' -> Copy that one')
             os.system('cp '+newSampleOnWeb+' '+NewRelease+'/'+NewTag+'/'+sample)
         else:
-            print '*** WARNING: no signal file was found'
+            print('*** WARNING: no signal file was found')
         
         if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root')==True):
-            print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
+            print("Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one')
         elif (GetRefsFrom=='GUI'):
             theGuiSample = sample
 
@@ -217,21 +218,21 @@ for sample in samples :
 
 #            refGuiFileName='DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
             refGuiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
-            print "Ref file on the GUI: "+DqmGuiRefRepository+refGuiFileName
-            print '*** Getting reference file from the DQM GUI server'
+            print("Ref file on the GUI: "+DqmGuiRefRepository+refGuiFileName)
+            print('*** Getting reference file from the DQM GUI server')
 #            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+refGuiFileName)
             os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiRefRepository+refGuiFileName)
             os.system('mv '+refGuiFileName+' '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetRefsFrom=='CASTOR'):
-            print '*** Getting reference file from castor'
+            print('*** Getting reference file from castor')
             RefCondition=RefCondition+isFastSimOld
-            print 'rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
+            print('rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
             os.system('rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetRefsFrom=='WEB') & (os.path.isfile(refSampleOnWeb))):
-            print '*** Getting reference file from '+RefRelease
+            print('*** Getting reference file from '+RefRelease)
             os.system('cp '+refSampleOnWeb+' '+RefRelease+'/'+RefTag+'/'+sample)
         else:
-            print '*** WARNING: no reference file was found'
+            print('*** WARNING: no reference file was found')
 
 
         cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
@@ -253,7 +254,7 @@ for sample in samples :
             if (ValidateRECO):
                 replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'IS_FSIM':'', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'RecoMuonValHistoPublisher': recomuoncfgFileName} 
         else:
-            print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
+            print("No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample)
             replace_map = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
             if (ValidateHLT):
                 replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
