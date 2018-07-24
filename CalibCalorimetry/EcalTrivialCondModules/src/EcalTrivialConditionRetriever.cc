@@ -112,6 +112,13 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   EEG6samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG6samplesCorrelation", std::vector<double>() );
   EEG1samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG1samplesCorrelation", std::vector<double>() );
 
+
+  sim_pulse_shape_EB_thresh_  = ps.getParameter<double>("sim_pulse_shape_EB_thresh" );
+  sim_pulse_shape_EE_thresh_  = ps.getParameter<double>("sim_pulse_shape_EE_thresh" );
+  sim_pulse_shape_APD_thresh_ = ps.getParameter<double>("sim_pulse_shape_APD_thresh");
+
+  sim_pulse_shape_TI_ = ps.getUntrackedParameter<double>("sim_pulse_shape_TI",  1.0);
+
   nTDCbins_ = 1;
 
   weightsForAsynchronousRunning_ = ps.getUntrackedParameter<bool>("weightsForTB",false);
@@ -303,6 +310,19 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     }
     findingRecord<EcalTimeCalibErrorsRcd> () ;
   }
+
+  // sim pulse shape 
+  getSimPulseShapeFromFile_ = ps.getUntrackedParameter<bool>("getSimPulseShapeFromFile",false);
+  producedEcalSimPulseShape_ = ps.getUntrackedParameter<bool>("producedEcalSimPulseShape",true);
+  EBSimPulseShapeFile_ = ps.getUntrackedParameter<std::string>("EBSimPulseShapeFile","") ;
+  EESimPulseShapeFile_ = ps.getUntrackedParameter<std::string>("EESimPulseShapeFile","") ;
+  APDSimPulseShapeFile_ = ps.getUntrackedParameter<std::string>("APDSimPulseShapeFile","") ;
+
+  if (producedEcalSimPulseShape_) { // user asks to produce constants
+    setWhatProduced (this, &EcalTrivialConditionRetriever::getEcalSimPulseShapeFromConfiguration ) ;
+    findingRecord<EcalSimPulseShapeRcd> () ;
+  }
+
 
   // cluster corrections
   producedEcalClusterLocalContCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterLocalContCorrParameters", false);
@@ -999,6 +1019,7 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
   //   }
   return tbwgt;
 }
+
 
 
 // cluster functions/corrections
@@ -3271,3 +3292,62 @@ EcalTrivialConditionRetriever::produceEcalSamplesCorrelation( const EcalSamplesC
        back_inserter(ipar->EEG1SamplesCorrelation));
   return ipar;
 }
+
+std::unique_ptr<EcalSimPulseShape>
+EcalTrivialConditionRetriever::getEcalSimPulseShapeFromConfiguration 
+( const EcalSimPulseShapeRcd& )
+{
+  auto result = std::make_unique<EcalSimPulseShape>();
+
+  // save time interval to be used for the pulse shape 
+  result->time_interval = sim_pulse_shape_TI_; 
+
+  // containers to store the shape info
+  std::vector<double> EBshape; 
+  std::vector<double> EEshape;
+  std::vector<double> APDshape;
+
+  // --- get the 3 shapes from the user provided txt files 
+  if (!EBSimPulseShapeFile_.empty() )
+    {
+      std::ifstream shapeEBFile;
+      shapeEBFile.open(EBSimPulseShapeFile_.c_str());
+      double ww;
+      while (shapeEBFile >> ww) EBshape.push_back(ww);
+      shapeEBFile.close(); 
+    } 
+  if (!EESimPulseShapeFile_.empty() )
+    {
+      std::ifstream shapeEEFile;
+      shapeEEFile.open(EESimPulseShapeFile_.c_str());
+      double ww;
+      while (shapeEEFile >> ww) EEshape.push_back(ww);
+      shapeEEFile.close(); 
+    } 
+  if (!APDSimPulseShapeFile_.empty()) {
+      std::ifstream shapeAPDFile;
+      shapeAPDFile.open(APDSimPulseShapeFile_.c_str());
+      double ww;
+      while (shapeAPDFile >> ww) APDshape.push_back(ww);
+      shapeAPDFile.close(); 
+    } 
+
+  // --- save threshold
+  result->barrel_thresh = sim_pulse_shape_EB_thresh_;
+  result->endcap_thresh = sim_pulse_shape_EE_thresh_;
+  result->apd_thresh = sim_pulse_shape_APD_thresh_;
+
+  // --- copy
+  copy(EBshape.begin(), EBshape.end(),
+       back_inserter(result->barrel_shape));
+  copy(EEshape.begin(), EEshape.end(),
+       back_inserter(result->endcap_shape));
+  copy(APDshape.begin(), APDshape.end(),
+       back_inserter(result->apd_shape));
+
+  return result; 
+}
+
+
+
+

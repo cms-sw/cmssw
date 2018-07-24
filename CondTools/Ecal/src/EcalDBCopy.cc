@@ -82,6 +82,9 @@
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
+
 #include <vector>
 
 EcalDBCopy::EcalDBCopy(const edm::ParameterSet& iConfig) :
@@ -196,6 +199,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalSampleMaskRcd>().cacheIdentifier();
   } else if (container == "EcalTimeBiasCorrections") {
     cacheID = evtSetup.get<EcalTimeBiasCorrectionsRcd>().cacheIdentifier();
+  } else if (container == "EcalSimPulseShape") {
+    cacheID = evtSetup.get<EcalSimPulseShapeRcd>().cacheIdentifier();
   } else if (container == "EcalSamplesCorrelation") {
     cacheID = evtSetup.get<EcalSamplesCorrelationRcd>().cacheIdentifier();
   }
@@ -455,6 +460,12 @@ else if (container == "EcalIntercalibConstantsMC") {
    const EcalSampleMask* obj = handle.product();
    std::cout << "sample mask pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const EcalSampleMask>( new EcalSampleMask(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+ }  else if (container == "EcalSimPulseShape") {
+  edm::ESHandle<EcalSimPulseShape> handle;
+  evtSetup.get<EcalSimPulseShapeRcd>().get(handle);
+  const EcalSimPulseShape* obj = handle.product();
+  dbOutput->createNewIOV<const EcalSimPulseShape>( new EcalSimPulseShape(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
  } else if (container == "EcalTimeBiasCorrections") {
    edm::ESHandle<EcalTimeBiasCorrections> handle;
