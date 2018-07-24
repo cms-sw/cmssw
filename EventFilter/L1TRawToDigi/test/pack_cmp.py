@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import sys
 
@@ -10,9 +11,9 @@ def compare_bx_vector(xs, ys):
     y_total_size = ys.getLastBX() - ys.getLastBX() + 1
 
     if x_total_size != y_total_size:
-        print "> BX count mismatch:", x_total_size, "vs", y_total_size
-        print ">", xs.getFirstBX(), ",", ys.getFirstBX()
-        print ">", xs.getLastBX(), ",", ys.getLastBX()
+        print("> BX count mismatch:", x_total_size, "vs", y_total_size)
+        print(">", xs.getFirstBX(), ",", ys.getFirstBX())
+        print(">", xs.getLastBX(), ",", ys.getLastBX())
         return
 
     for bx in range(xs.getFirstBX(), xs.getLastBX() + 1):
@@ -20,24 +21,24 @@ def compare_bx_vector(xs, ys):
         y_size = ys.size(bx)
 
         if x_size != y_size:
-            print ">> BX size mismatch:", x_size, "vs", y_size, "@", bx
+            print(">> BX size mismatch:", x_size, "vs", y_size, "@", bx)
 
         for i in range(min(x_size, y_size)):
             x = xs.at(bx, i)
             y = ys.at(bx, i)
 
             if x.hwPt() != y.hwPt():
-                print ">>> Pt mismatch:", x.hwPt(), "vs", y.hwPt()
+                print(">>> Pt mismatch:", x.hwPt(), "vs", y.hwPt())
             if x.hwEta() != y.hwEta():
-                print ">>> Eta mismatch:", x.hwEta(), "vs", y.hwEta()
+                print(">>> Eta mismatch:", x.hwEta(), "vs", y.hwEta())
             if x.hwPhi() != y.hwPhi():
-                print ">>> Phi mismatch:", x.hwPhi(), "vs", y.hwPhi()
+                print(">>> Phi mismatch:", x.hwPhi(), "vs", y.hwPhi())
             #if ((x.hwQual()>>0)&0x1) != ((y.hwQual()>>0)&0x1):
             #    print ">>> Qual bit 0 mismatch:", ((x.hwQual()>>0)&0x1), "vs", ((y.hwQual()>>0)&0x1)
             if ((x.hwQual()>>1)&0x1) != ((y.hwQual()>>1)&0x1):
-                print ">>> Qual bit 1 mismatch:", ((x.hwQual()>>1)&0x1), "vs", ((y.hwQual()>>1)&0x1)
+                print(">>> Qual bit 1 mismatch:", ((x.hwQual()>>1)&0x1), "vs", ((y.hwQual()>>1)&0x1))
             if x.hwIso() != y.hwIso():
-                print ">>> Iso mismatch:", x.hwIso(), "vs", y.hwIso()
+                print(">>> Iso mismatch:", x.hwIso(), "vs", y.hwIso())
 
             yield x, y
 
@@ -48,7 +49,7 @@ def compare_bx_vector(xs, ys):
         #             x.hwPt(), x.hwEta(), x.hwPhi(), ((x.hwQual()>>0)&0x1), ((x.hwQual()>>1)&0x1), x.hwIso(),
         #             y.hwPt(), y.hwEta(), y.hwPhi(), ((y.hwQual()>>0)&0x1), ((y.hwQual()>>1)&0x1), y.hwIso())
 
-        print "<< Compared", x_size, "quantities"
+        print("<< Compared", x_size, "quantities")
 
 class Test(object):
     def __init__(self, msg, type, inlabel, outlabel, tests):
@@ -63,14 +64,14 @@ class Test(object):
         event.getByLabel(*(list(self.inlabel) + [self.inhandle]))
         event.getByLabel(*(list(self.outlabel) + [self.outhandle]))
 
-        print self.msg
+        print(self.msg)
         for a, b in compare_bx_vector(self.inhandle.product(), self.outhandle.product()):
             for t in self.tests:
                 t(a, b)
 
 def test_type(a, b):
     if a.getType() != b.getType():
-        print ">>> Type different:", a.getType(), "vs", b.getType()
+        print(">>> Type different:", a.getType(), "vs", b.getType())
 
 events = Events(sys.argv[1])
 
@@ -127,6 +128,6 @@ run = [
 ]
 
 for event in events:
-    print "< New event"
+    print("< New event")
     for test in run:
         test(event)
