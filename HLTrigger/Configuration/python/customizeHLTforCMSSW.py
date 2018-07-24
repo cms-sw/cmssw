@@ -187,6 +187,41 @@ def customiseForEcalTestPR22254thresholdC(process):
 
 
 
+def customizeHLTForL3OIPR(process):
+   for seedproducer in producers_by_type(process, "TSGForOI"):
+           seedproducer.hitsToTry = cms.int32( 1 )
+           seedproducer.adjustErrorsDynamicallyForHitless = cms.bool( True )
+           seedproducer.SF4 = cms.double( 7.0 )
+           seedproducer.SF5 = cms.double( 10.0 )
+           seedproducer.SF6=cms.double( 2.0 )
+           seedproducer.propagatorName = cms.string("PropagatorWithMaterialParabolicMf")
+           seedproducer.SF3 = cms.double( 5.0 )
+           seedproducer.SF1 = cms.double( 3.0 )
+           seedproducer.fixedErrorRescaleFactorForHits = cms.double( 1.0 )
+           seedproducer.maxSeeds = cms.uint32( 20 )
+           seedproducer.maxHitlessSeeds =cms.uint32( 5 )
+           seedproducer.maxHitSeeds = cms.uint32( 1 )
+           seedproducer.layersToTry = cms.int32( 2 )
+           seedproducer.fixedErrorRescaleFactorForHitless = cms.double( 2.0 )
+           seedproducer.SF2 = cms.double( 4.0 )
+           seedproducer.adjustErrorsDynamicallyForHits = cms.bool( False )
+           seedproducer.tsosDiff1 = cms.double( 0.2 )
+           seedproducer.tsosDiff2 = cms.double( 0.02 )
+           if hasattr(seedproducer, "tsosDiff"):
+              del seedproducer.tsosDiff
+           seedproducer.eta1 = cms.double( 0.2 )
+           seedproducer.eta2 = cms.double( 0.3 )
+           seedproducer.eta3 = cms.double( 1.0 )
+           seedproducer.eta4 = cms.double( 1.2 )
+           seedproducer.eta5 = cms.double( 1.6 )
+           seedproducer.eta6 = cms.double( 1.4 )
+           seedproducer.UseHitLessSeeds = cms.bool( True )
+           if hasattr(seedproducer, "UseStereoLayersInTEC"):
+              del seedproducer.UseStereoLayersInTEC
+   for trackproducer in producers_by_type(process, "CkfTrackCandidateMaker"):
+       if "hltIterL3OITrackCandidates" in trackproducer.label():
+           trackproducer.reverseTrajectories  =cms.bool(True) 
+
 
 
 # CMSSW version specific customizations
@@ -194,5 +229,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
+    customizeHLTForL3OIPR(process)
     return process
