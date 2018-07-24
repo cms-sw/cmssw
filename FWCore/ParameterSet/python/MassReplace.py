@@ -24,12 +24,12 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                     for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
                 elif type == 'cms.VInputTag':
                     for (i,n) in enumerate(value):
-                         # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
-                         n = self.standardizeInputTagFmt(n)
-                         if (n == self._paramSearch):
+                        # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
+                        n = self.standardizeInputTagFmt(n)
+                        if (n == self._paramSearch):
                             if self._verbose:print("Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace))
                             value[i] = self._paramReplace
-                         elif self._moduleLabelOnly and n.moduleLabel == self._paramSearch.moduleLabel:
+                        elif self._moduleLabelOnly and n.moduleLabel == self._paramSearch.moduleLabel:
                             nrep = n; nrep.moduleLabel = self._paramReplace.moduleLabel
                             if self._verbose:print("Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep))
                             value[i] = nrep
@@ -53,16 +53,16 @@ class MassSearchReplaceAnyInputTagVisitor(object):
 
     @staticmethod
     def standardizeInputTagFmt(inputTag):
-       ''' helper function to ensure that the InputTag is defined as cms.InputTag(str) and not as a plain str '''
-       if not isinstance(inputTag, cms.InputTag):
-          return cms.InputTag(inputTag)
-       return inputTag
+        ''' helper function to ensure that the InputTag is defined as cms.InputTag(str) and not as a plain str '''
+        if not isinstance(inputTag, cms.InputTag):
+            return cms.InputTag(inputTag)
+        return inputTag
 
     def enter(self,visitee):
         label = ''
         if (not self._skipLabelTest):
             if hasattr(visitee,"hasLabel_") and visitee.hasLabel_():
-		label = visitee.label_()
+                label = visitee.label_()
             else: label = '<Module not in a Process>'
         else:
             label = '<Module label not tested>'
