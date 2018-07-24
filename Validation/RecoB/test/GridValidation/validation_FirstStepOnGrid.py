@@ -1,3 +1,4 @@
+from __future__ import print_function
 # The following comments couldn't be translated into the new config version:
 #! /bin/env cmsRun
 
@@ -23,11 +24,11 @@ runOnMC    = True
 flavPlots = "allbcldusg"
 
 ###prints###
-print "jet collcetion asked : ", whichJets
-print "JEC applied?", applyJEC, ", correction:", corrLabel 
-print "trigger will be used ? : ", useTrigger, ", Trigger paths:", triggerPath
-print "is it MC ? : ", runOnMC, ", Flavours:", flavPlots
-print "Global Tag : ", tag.globaltag
+print("jet collcetion asked : ", whichJets)
+print("JEC applied?", applyJEC, ", correction:", corrLabel) 
+print("trigger will be used ? : ", useTrigger, ", Trigger paths:", triggerPath)
+print("is it MC ? : ", runOnMC, ", Flavours:", flavPlots)
+print("Global Tag : ", tag.globaltag)
 ############
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
@@ -60,7 +61,7 @@ process.btagSequence = cms.Sequence(
 process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
 
 ###
-print "inputTag : ", process.ak4JetTracksAssociatorAtVertexPF.jets
+print("inputTag : ", process.ak4JetTracksAssociatorAtVertexPF.jets)
 ###
 
 process.load("Validation.RecoB.bTagAnalysis_firststep_cfi")
