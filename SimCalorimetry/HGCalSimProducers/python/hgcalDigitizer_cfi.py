@@ -211,6 +211,17 @@ def HGCal_setEndOfLifeNoise(digitizer,process):
         values = cms.vdouble([x for x in endOfLifeNoises])
         )
 
+def HGCal_disableNoise(digitizer,process):
+    process.HGCAL_noise_fC = cms.PSet(
+        values = cms.vdouble(0,0,0), #100,200,300 um
+    )
+    process.HGCAL_noise_MIP = cms.PSet(
+        value = cms.double(0)
+    )
+    process.HGCAL_noises = cms.PSet(
+        values = cms.vdouble(0,0,0)
+    )
+
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 
 phase2_hgcalV9.toModify( hgceeDigitizer,
