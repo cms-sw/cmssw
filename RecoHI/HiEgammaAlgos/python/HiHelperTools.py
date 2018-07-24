@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## Helpers to perform some technically boring tasks like looking for all modules with a given parameter
@@ -13,7 +14,7 @@ def applyPostfix(process, label, postfix):
     if label in defaultLabels and hasattr(process, label+postfix):
         result = getattr(process, label+postfix)
     elif hasattr(process, label):
-        print "WARNING: called applyPostfix for module/sequence %s which is not in patHeavyIonDefaultSequence%s!"%(label,postfix)
+        print("WARNING: called applyPostfix for module/sequence %s which is not in patHeavyIonDefaultSequence%s!"%(label,postfix))
         result = getattr(process, label)    
     return result
 
@@ -42,7 +43,7 @@ class MassSearchReplaceParamVisitor(object):
     def enter(self,visitee):
         if (hasattr(visitee,self._paramName)):
             if getattr(visitee,self._paramName) == self._paramSearch:
-                if self._verbose:print "Replaced %s.%s: %s => %s" % (visitee,self._paramName,getattr(visitee,self._paramName),self._paramValue)
+                if self._verbose:print("Replaced %s.%s: %s => %s" % (visitee,self._paramName,getattr(visitee,self._paramName),self._paramValue))
                 setattr(visitee,self._paramName,self._paramValue)
     def leave(self,visitee):
         pass
@@ -72,15 +73,15 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                          # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
                          n = self.standardizeInputTagFmt(n)
                          if (n == self._paramSearch):
-                            if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace)
+                            if self._verbose:print("Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace))
                             value[i] = self._paramReplace
                          elif self._moduleLabelOnly and n.moduleLabel == self._paramSearch.moduleLabel:
                             nrep = n; nrep.moduleLabel = self._paramReplace.moduleLabel
-                            if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep)
+                            if self._verbose:print("Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep))
                             value[i] = nrep
                 elif type == 'cms.InputTag':
                     if value == self._paramSearch:
-                        if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
+                        if self._verbose:print("Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace))
                         from copy import deepcopy
                         setattr(pset, name, deepcopy(self._paramReplace) )
                     elif self._moduleLabelOnly and value.moduleLabel == self._paramSearch.moduleLabel:
@@ -88,7 +89,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                         repl = deepcopy(getattr(pset, name))
                         repl.moduleLabel = self._paramReplace.moduleLabel
                         setattr(pset, name, repl)
-                        if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, value, repl)
+                        if self._verbose:print("Replace %s.%s %s ==> %s " % (base, name, value, repl))
                         
 
     @staticmethod 
