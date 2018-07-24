@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import sys
 
 from DQMServices.FileIO.DQM import DQMReader
@@ -99,19 +100,19 @@ def displayDirectoryStatistics(stats, args):
         as_list = as_list[:display]
 
     if args.human:
-        print "*" * 80
-        print (" DQM level %d folder breakdown " % args.depth).center(80, "*")
+        print("*" * 80)
+        print((" DQM level %d folder breakdown " % args.depth).center(80, "*"))
         if cutoff:
-            print ("* Size cutoff: %s" % kibisize(cutoff,args)).ljust(79) + "*"
+            print(("* Size cutoff: %s" % kibisize(cutoff,args)).ljust(79) + "*")
         if display:
-            print ("* Showing top %d entries." % display).ljust(79) + "*"
-        print "*" * 80
+            print(("* Showing top %d entries." % display).ljust(79) + "*")
+        print("*" * 80)
 
     for v, k in as_list:
         if args.human:
-            print kibisize(v,args).ljust(16, " "), k
+            print(kibisize(v,args).ljust(16, " "), k)
         else:
-            print v, k
+            print(v, k)
 
 if __name__ == '__main__':
     import argparse
@@ -150,6 +151,6 @@ if __name__ == '__main__':
 
     total = stats.group(0, args.count)
     if args.human:
-        print "Total bytes: %s" % kibisize(total[""],args)
+        print("Total bytes: %s" % kibisize(total[""],args))
     else:
-        print total[""]
+        print(total[""])
