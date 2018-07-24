@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
 #Documentation needs to follow... but for now just know that
@@ -149,7 +150,7 @@ def optionparse():
     else:
         for cmscmdfile in cmscmdfiles:
             cmdfile = os.path.abspath(cmscmdfile)
-            print cmdfile
+            print(cmdfile)
             if os.path.isfile(cmdfile):
                 try:
                     execfile(cmdfile)
@@ -230,14 +231,14 @@ def request_benchmark(perfcmds,shost,sport):
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
         return server.request_benchmark(perfcmds)
     except socket.error, detail:
-        print "ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail
+        print("ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail)
     except xml.parsers.expat.ExpatError, detail:
-        print "ERROR: XML-RPC could not be parsed:", detail
+        print("ERROR: XML-RPC could not be parsed:", detail)
     except xmlrpclib.ProtocolError, detail:
-        print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
+        print("ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward")
     except exceptions, detail:
-        print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
-        print detail
+        print("ERROR: There was a runtime error thrown by server %s; detail follows." % shost)
+        print(detail)
 
 #################
 # Worker
@@ -256,12 +257,12 @@ class Worker(threading.Thread):
         try:
             data = request_benchmark(self.__perfcmds, self.__host, self.__port)
             #Debugging
-            print "data is %s"%data
-            print "Puttin it in the queue as (%s,%s)"%(self.__host,data)
+            print("data is %s"%data)
+            print("Puttin it in the queue as (%s,%s)"%(self.__host,data))
             self.__queue.put((self.__host, data))
         except (exceptions.Exception, xmlrpclib.Fault), detail:
-            print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
-            print detail
+            print("Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:")
+            print(detail)
             sys.stdout.flush()
 
 ##########################
@@ -273,11 +274,11 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
     # start all threads
     workers = []
     for host in hosts:
-        print "Submitting jobs to %s..." % host
+        print("Submitting jobs to %s..." % host)
         w = Worker(host, port, perfcmds[cmdindex[host]], queue)
         w.start()                
         workers.append(w)
-    print "All jobs submitted, waiting for results..."
+    print("All jobs submitted, waiting for results...")
     sys.stdout.flush()
     # run until all servers have returned data
     while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),workers)):
@@ -292,8 +293,8 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
             #cleanup
             presentBenchmarkData(queue,outfile)
             raise
-    print "All job results received"
-    print "The size with the queue containing all data is: %s "%queue.qsize()
+    print("All job results received")
+    print("The size with the queue containing all data is: %s "%queue.qsize())
     presentBenchmarkData(queue,outfile)    
 
 ########################################
@@ -316,14 +317,14 @@ def runclient(perfcmds, hosts, port, outfile, cmdindex):
 # We now massage the data
 #
 def presentBenchmarkData(q,outfile):
-    print "Pickling data to file %s"%outfile
+    print("Pickling data to file %s"%outfile)
     out = []            # match up the commands with each
                         # command that was passed in the config file
     while not q.empty():
-        print "Queue size is still %s"%q.qsize()
+        print("Queue size is still %s"%q.qsize())
         (host, data) = q.get()
         out.append((host,data))
-    print "Dumping at screen the output!\n%s"%out
+    print("Dumping at screen the output!\n%s"%out)
     oh = open(outfile,"wb")
     pickle.dump(out,oh)
     oh.close() 
