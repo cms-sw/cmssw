@@ -105,6 +105,7 @@ public:
   std::vector<int>                cellCoarse_;
   double                          waferR_;
   std::vector<int>                levelT_;
+  int                             levelZSide_;
   HGCalGeometryMode::GeometryMode mode_;
   double                          slopeMin_;
   layer_map                       copiesInLayers_;
