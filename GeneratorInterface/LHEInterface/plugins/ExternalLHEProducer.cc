@@ -58,7 +58,6 @@ Implementation:
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -450,14 +449,6 @@ ExternalLHEProducer::executeScript()
       break;
     }
   } while (true);
-  edm::Service<edm::TimingServiceBase> ts;
-  if(ts.isAvailable()) {
-    struct rusage ru;
-    getrusage(RUSAGE_CHILDREN,&ru);
-    double time = static_cast<double>(ru.ru_stime.tv_sec) + (static_cast<double>(ru.ru_stime.tv_usec) * 1E-6) +
-                  static_cast<double>(ru.ru_utime.tv_sec) + (static_cast<double>(ru.ru_utime.tv_usec) * 1E-6);
-    ts->addToCPUTime(time);
-  }
   if (rc) {
     throw cms::Exception("ExternalLHEProducer") << "Child failed with exit code " << rc << ".";
   }
