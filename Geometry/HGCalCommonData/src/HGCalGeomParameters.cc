@@ -480,15 +480,15 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
   bool dodet(true);
   std::map<int,HGCalGeomParameters::layerParameters>     layers;
   std::map<std::pair<int,int>,HGCalParameters::hgtrform> trforms;
-  
+  int levelTop = 3+std::max(php.levelT_[0],php.levelT_[1]);
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
     std::string name = sol.name();
     // Layers first
     std::vector<int> copy = fv.copyNumbers();
     int nsiz = (int)(copy.size());
-    int lay  = (nsiz > 0) ? copy[nsiz-1] : 0;
-    int zside= (nsiz > 3) ? copy[3] : -1;
+    int lay  = (nsiz > levelTop) ? copy[nsiz-4] : copy[nsiz-1];
+    int zside= (nsiz > php.levelZSide_) ? copy[php.levelZSide_] : -1;
     if (zside != 1) zside = -1;
     if (lay == 0) {
       edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp "
