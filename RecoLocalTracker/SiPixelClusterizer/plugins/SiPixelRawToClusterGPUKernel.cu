@@ -91,7 +91,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaMalloc((void**) & clusInModule_d,(MaxNumModules)*sizeof(uint32_t) ));
     cudaCheck(cudaMalloc((void**) & moduleId_d,    (MaxNumModules)*sizeof(uint32_t) ));
   }
- 
+
   SiPixelRawToClusterGPUKernel::~SiPixelRawToClusterGPUKernel() {
     // free device memory used for RawToDigi on GPU
     // free the GPU memory
@@ -118,7 +118,6 @@ namespace pixelgpudetails {
     std::memset(fedId_h+wordCounterGPU/2, fedId - 1200, length/2);
   }
 
-  
   ////////////////////
 
   __device__ uint32_t getLink(uint32_t ww)  {
@@ -140,14 +139,11 @@ namespace pixelgpudetails {
     return (1==((rawId>>25)&0x7));
   }
 
-
-
   __device__ pixelgpudetails::DetIdGPU getRawId(const SiPixelFedCablingMapGPU * Map, uint32_t fed, uint32_t link, uint32_t roc) {
     uint32_t index = fed * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
     pixelgpudetails::DetIdGPU detId = { Map->RawId[index], Map->rocInDet[index], Map->moduleId[index] };
     return detId;
   }
-
 
   //reference http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_2_0/doc/html/dd/d31/FrameConversion_8cc_source.html
   //http://cmslxr.fnal.gov/source/CondFormats/SiPixelObjects/src/PixelROC.cc?v=CMSSW_9_2_0#0071
@@ -232,141 +228,132 @@ namespace pixelgpudetails {
 
   __device__ uint32_t conversionError(uint32_t fedId, uint32_t status, bool debug = false)
   {
-
     uint32_t errorType = 0;
 
     // debug = true;
 
     switch (status) {
-        case(1) : {
-          if (debug) printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId );
-          errorType = 35;
-          break;
-        }
-        case(2) : {
-          if (debug) printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
-          errorType = 36;
-          break;
-        }
-        case(3) : {
-          if (debug) printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
-          errorType = 37;
-          break;
-        }
-        case(4) : {
-          if (debug) printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
-          errorType = 38;
-          break;
-        }
-        default: if (debug) printf("Cabling check returned unexpected result, status = %i\n", status);
+      case(1) : {
+        if (debug) printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId );
+        errorType = 35;
+        break;
+      }
+      case(2) : {
+        if (debug) printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
+        errorType = 36;
+        break;
+      }
+      case(3) : {
+        if (debug) printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
+        errorType = 37;
+        break;
+      }
+      case(4) : {
+        if (debug) printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
+        errorType = 38;
+        break;
+      }
+      default:
+        if (debug) printf("Cabling check returned unexpected result, status = %i\n", status);
     };
 
     return errorType;
-
   }
-
 
   __device__ bool rocRowColIsValid(uint32_t rocRow, uint32_t rocCol)
   {
-      uint32_t numRowsInRoc = 80;
-      uint32_t numColsInRoc = 52;
+    uint32_t numRowsInRoc = 80;
+    uint32_t numColsInRoc = 52;
 
-      /// row and collumn in ROC representation
-      return ((rocRow < numRowsInRoc) & (rocCol < numColsInRoc));
+    /// row and collumn in ROC representation
+    return ((rocRow < numRowsInRoc) & (rocCol < numColsInRoc));
   }
-
 
   __device__ bool dcolIsValid(uint32_t dcol, uint32_t pxid)
   {
-      return ((dcol < 26) &  (2 <= pxid) & (pxid < 162));
+    return ((dcol < 26) &  (2 <= pxid) & (pxid < 162));
   }
-
 
   __device__ uint32_t checkROC(uint32_t errorWord, uint32_t fedId, uint32_t link, const SiPixelFedCablingMapGPU *Map, bool debug = false)
   {
+    int errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
+    if (errorType < 25) return false;
+    bool errorFound = false;
 
-   int errorType = (errorWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ERROR_mask;
-   if (errorType < 25) return false;
-   bool errorFound = false;
-
-   switch (errorType) {
+    switch (errorType) {
       case(25) : {
-       errorFound = true;
-       uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + 1;
-       if (index > 1 && index <= Map->size){
-         if (!(link == Map->link[index] && 1 == Map->roc[index])) errorFound = false;
-       }
-       if (debug&errorFound) printf("Invalid ROC = 25 found (errorType = 25)\n");
-       break;
-     }
-     case(26) : {
-       if (debug) printf("Gap word found (errorType = 26)\n");
-       errorFound = true;
-       break;
-     }
-     case(27) : {
-       if (debug) printf("Dummy word found (errorType = 27)\n");
-       errorFound = true;
-       break;
-     }
-     case(28) : {
-       if (debug) printf("Error fifo nearly full (errorType = 28)\n");
-       errorFound = true;
-       break;
-     }
-     case(29) : {
-       if (debug) printf("Timeout on a channel (errorType = 29)\n");
-       if ((errorWord >> pixelgpudetails::OMIT_ERR_shift) & pixelgpudetails::OMIT_ERR_mask) {
-         if (debug) printf("...first errorType=29 error, this gets masked out\n");
-       }
-       errorFound = true;
-       break;
-     }
-     case(30) : {
-       if (debug) printf("TBM error trailer (errorType = 30)\n");
-       int StateMatch_bits = 4;
-       int StateMatch_shift = 8;
-       uint32_t StateMatch_mask = ~(~uint32_t(0) << StateMatch_bits);
-       int StateMatch = (errorWord >> StateMatch_shift) & StateMatch_mask;
-       if ( StateMatch != 1 && StateMatch != 8 ) {
-         if (debug) printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
-       }
-       if ( StateMatch == 1 ) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30
-       errorFound = true;
-       break;
-     }
-     case(31) : {
-       if (debug) printf("Event number error (errorType = 31)\n");
-       errorFound = true;
-       break;
-     }
-     default: errorFound = false;
+        errorFound = true;
+        uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + 1;
+        if (index > 1 && index <= Map->size) {
+          if (!(link == Map->link[index] && 1 == Map->roc[index])) errorFound = false;
+        }
+        if (debug&errorFound) printf("Invalid ROC = 25 found (errorType = 25)\n");
+        break;
+      }
+      case(26) : {
+        if (debug) printf("Gap word found (errorType = 26)\n");
+        errorFound = true;
+        break;
+      }
+      case(27) : {
+        if (debug) printf("Dummy word found (errorType = 27)\n");
+        errorFound = true;
+        break;
+      }
+      case(28) : {
+        if (debug) printf("Error fifo nearly full (errorType = 28)\n");
+        errorFound = true;
+        break;
+      }
+      case(29) : {
+        if (debug) printf("Timeout on a channel (errorType = 29)\n");
+        if ((errorWord >> pixelgpudetails::OMIT_ERR_shift) & pixelgpudetails::OMIT_ERR_mask) {
+          if (debug) printf("...first errorType=29 error, this gets masked out\n");
+        }
+        errorFound = true;
+        break;
+      }
+      case(30) : {
+        if (debug) printf("TBM error trailer (errorType = 30)\n");
+        int StateMatch_bits = 4;
+        int StateMatch_shift = 8;
+        uint32_t StateMatch_mask = ~(~uint32_t(0) << StateMatch_bits);
+        int StateMatch = (errorWord >> StateMatch_shift) & StateMatch_mask;
+        if ( StateMatch != 1 && StateMatch != 8 ) {
+          if (debug) printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
+        }
+        if ( StateMatch == 1 ) errorType = 40; // 1=Overflow -> 40, 8=number of ROCs -> 30
+        errorFound = true;
+        break;
+      }
+      case(31) : {
+        if (debug) printf("Event number error (errorType = 31)\n");
+        errorFound = true;
+        break;
+      }
+      default:
+        errorFound = false;
+    };
 
-   };
-
-   return errorFound? errorType : 0;
-
+    return errorFound? errorType : 0;
   }
-
 
   __device__ uint32_t getErrRawID(uint32_t fedId, uint32_t errWord, uint32_t errorType, const SiPixelFedCablingMapGPU *Map, bool debug = false)
   {
-
     uint32_t rID = 0xffffffff;
 
     switch (errorType) {
-      case  25 : case  30 : case  31 : case  36 : case 40 : {
+      case 25 : case 30 : case 31 : case 36 : case 40 : {
         //set dummy values for cabling just to get detId from link
         //cabling.dcol = 0;
         //cabling.pxid = 2;
         uint32_t roc  = 1;
         uint32_t link = (errWord >> pixelgpudetails::LINK_shift) & pixelgpudetails::LINK_mask;
-
         uint32_t rID_temp = getRawId(Map, fedId, link, roc).RawId;
-        if(rID_temp != 9999) rID = rID_temp;
+        if (rID_temp != 9999) rID = rID_temp;
         break;
       }
-      case  29 : {
+      case 29 : {
         int chanNmbr = 0;
         const int DB0_shift = 0;
         const int DB1_shift = DB0_shift + 1;
@@ -398,7 +385,7 @@ namespace pixelgpudetails {
         if(rID_temp != 9999) rID = rID_temp;
         break;
       }
-      case  37 : case  38: {
+      case 37 : case 38: {
         //cabling.dcol = 0;
         //cabling.pxid = 2;
         uint32_t roc  = (errWord >> pixelgpudetails::ROC_shift) & pixelgpudetails::ROC_mask;
@@ -407,25 +394,22 @@ namespace pixelgpudetails {
         if(rID_temp != 9999) rID = rID_temp;
         break;
       }
-
-    default : break;
-
+      default:
+        break;
     };
 
     return rID;
-
   }
 
-
   /*----------
-  * Name: applyADCthreshold_kernel()
-  * Desc: converts adc count to electrons and then applies the
-  * threshold on each channel.
-  * make pixel to 0 if it is below the threshold
-  * Input: xx_d[], yy_d[], layer_d[], wordCounter, adc[], ADCThreshold
-  *-----------
-  * Output: xx_adc[], yy_adc[] with pixel threshold applied
-  */
+   * Name: applyADCthreshold_kernel()
+   * Desc: converts adc count to electrons and then applies the
+   * threshold on each channel.
+   * make pixel to 0 if it is below the threshold
+   * Input: xx_d[], yy_d[], layer_d[], wordCounter, adc[], ADCThreshold
+   *-----------
+   * Output: xx_adc[], yy_adc[] with pixel threshold applied
+   */
   // kernel to apply adc threshold on the channels
 
 
@@ -465,28 +449,28 @@ namespace pixelgpudetails {
 
   // Kernel to perform Raw to Digi conversion
   __global__ void RawToDigi_kernel(const SiPixelFedCablingMapGPU *Map, const unsigned char *modToUnp,
-                                   const uint32_t wordCounter, const uint32_t *Word, const uint8_t *fedIds,
-                                   uint16_t * XX, uint16_t * YY, uint16_t * ADC,
-                                   uint32_t * pdigi, uint32_t *rawIdArr, uint16_t * moduleId,
-                                   GPU::SimpleVector<pixelgpudetails::error_obj> *err,
-                                   bool useQualityInfo, bool includeErrors, bool debug)
+      const uint32_t wordCounter, const uint32_t *Word, const uint8_t *fedIds,
+      uint16_t * XX, uint16_t * YY, uint16_t * ADC,
+      uint32_t * pdigi, uint32_t *rawIdArr, uint16_t * moduleId,
+      GPU::SimpleVector<pixelgpudetails::error_obj> *err,
+      bool useQualityInfo, bool includeErrors, bool debug)
   {
     uint32_t blockId  = blockIdx.x;
     uint32_t threadId  = threadIdx.x;
 
     bool skipROC = false;
     //if (threadId==0) printf("Event: %u blockId: %u start: %u end: %u\n", eventno, blockId, begin, end);
-    
+
     for (int aaa=0; aaa<1; ++aaa) {  // too many coninue below.... (to be fixed)
       auto gIndex = threadId + blockId*blockDim.x;
       if (gIndex < wordCounter) {
-     
-        uint32_t fedId = fedIds[gIndex/2]; // +1200;    
+
+        uint32_t fedId = fedIds[gIndex/2]; // +1200;
 
         // initialize (too many coninue below)
         pdigi[gIndex]  = 0;
         rawIdArr[gIndex] = 0;
-        moduleId[gIndex] = 9999; 
+        moduleId[gIndex] = 9999;
 
         uint32_t ww = Word[gIndex]; // Array containing 32 bit raw data
         if (ww == 0) {
@@ -517,8 +501,8 @@ namespace pixelgpudetails {
         uint32_t index = fedId * MAX_LINK * MAX_ROC + (link-1) * MAX_ROC + roc;
         if (useQualityInfo) {
 
-            skipROC = Map->badRocs[index];
-            if (skipROC) continue;
+          skipROC = Map->badRocs[index];
+          if (skipROC) continue;
 
         }
         skipROC = modToUnp[index];
@@ -581,9 +565,8 @@ namespace pixelgpudetails {
         moduleId[gIndex] = detId.moduleId;
         rawIdArr[gIndex] = rawId;
       } // end of if (gIndex < end)
-     } // end fake loop
+    } // end fake loop
   } // end of Raw to Digi kernel
-
 
   // Interface to outside
   void SiPixelRawToClusterGPUKernel::makeClustersAsync(
@@ -591,7 +574,7 @@ namespace pixelgpudetails {
       const unsigned char *modToUnp,
       const SiPixelGainForHLTonGPU *gains,
       const uint32_t wordCounter, const uint32_t fedCounter,
-      bool convertADCtoElectrons, 
+      bool convertADCtoElectrons,
       bool useQualityInfo, bool includeErrors, bool debug,
       cuda::stream_t<>& stream)
   {
@@ -605,11 +588,11 @@ namespace pixelgpudetails {
     // wordCounter is the total no of words in each event to be trasfered on device
     cudaCheck(cudaMemcpyAsync(&word_d[0],     &word[0],     wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaMemcpyAsync(&fedId_d[0], &fedId_h[0], wordCounter*sizeof(uint8_t)/2, cudaMemcpyDefault, stream.id()));
-      
+
     constexpr uint32_t vsize = sizeof(GPU::SimpleVector<pixelgpudetails::error_obj>);
     constexpr uint32_t esize = sizeof(pixelgpudetails::error_obj);
     cudaCheck(cudaMemcpyAsync(error_d, error_h_tmp, vsize, cudaMemcpyDefault, stream.id()));
-      
+
     // Launch rawToDigi kernel
     RawToDigi_kernel<<<blocks, threadsPerBlock, 0, stream.id()>>>(
         cablingMap,
@@ -633,80 +616,64 @@ namespace pixelgpudetails {
     cudaCheck(cudaMemcpyAsync(rawIdArr_h, rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
     if (includeErrors) {
-        cudaCheck(cudaMemcpyAsync(error_h, error_d, vsize, cudaMemcpyDefault, stream.id()));
-        cudaStreamSynchronize(stream.id());
-        error_h->set_data(data_h);
-        int size = error_h->size();
-        cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(error_h, error_d, vsize, cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaStreamSynchronize(stream.id()));
+      error_h->set_data(data_h);
+      int size = error_h->size();
+      cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
     }
     // End  of Raw2Digi and passing data for cluserisation
 
-   {
-     // clusterizer ...
-     using namespace gpuClustering;
-    int threadsPerBlock = 256;
-    int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;
+    {
+      // clusterizer ...
+      using namespace gpuClustering;
+      int threadsPerBlock = 256;
+      int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;
 
 
-    gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream.id()>>>(
-                 moduleInd_d,
-                 xx_d, yy_d, adc_d,
-                 gains,
-                 wordCounter
-               );
+      gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream.id()>>>(
+          moduleInd_d,
+          xx_d, yy_d, adc_d,
+          gains,
+          wordCounter);
+      cudaCheck(cudaGetLastError());
 
-    cudaCheck(cudaGetLastError());
+      // calibrated adc
+      cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
 
-    // calibrated adc
-    cudaCheck(cudaMemcpyAsync(adc_h, adc_d, wordCounter*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
+      /*
+         std::cout
+         << "CUDA countModules kernel launch with " << blocks
+         << " blocks of " << threadsPerBlock << " threads\n";
+       */
 
-    /*
-    std::cout
-      << "CUDA countModules kernel launch with " << blocks
-      << " blocks of " << threadsPerBlock << " threads\n";
-    */
+      cudaCheck(cudaMemsetAsync(moduleStart_d, 0x00, sizeof(uint32_t), stream.id()));
 
-    nModulesActive = 0;
-    cudaCheck(cudaMemcpyAsync(moduleStart_d, &nModulesActive, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      countModules<<<blocks, threadsPerBlock, 0, stream.id()>>>(moduleInd_d, moduleStart_d, clus_d, wordCounter);
+      cudaCheck(cudaGetLastError());
 
-    countModules<<<blocks, threadsPerBlock, 0, stream.id()>>>(moduleInd_d, moduleStart_d, clus_d, wordCounter);
-    cudaCheck(cudaGetLastError());
+      // read the number of modules into a data member, used by getProduct())
+      cudaCheck(cudaMemcpyAsync(&nModulesActive, moduleStart_d, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
-    cudaCheck(cudaMemcpyAsync(&nModulesActive, moduleStart_d, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      threadsPerBlock = 256;
+      blocks = MaxNumModules;
+      /*
+         std::cout << "CUDA findClus kernel launch with " << blocks
+         << " blocks of " << threadsPerBlock << " threads\n";
+       */
+      cudaCheck(cudaMemsetAsync(clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t), stream.id()));
+      findClus<<<blocks, threadsPerBlock, 0, stream.id()>>>(
+          moduleInd_d,
+          xx_d, yy_d,
+          moduleStart_d,
+          clusInModule_d, moduleId_d,
+          clus_d,
+          wordCounter);
+      cudaCheck(cudaGetLastError());
 
-    // std::cout << "found " << nModulesActive << " Modules active" << std::endl;
-
-    // In order to avoid the cudaStreamSynchronize, create a new kernel which launches countModules and findClus.
-    cudaStreamSynchronize(stream.id());
-    
-    threadsPerBlock = 256;
-    blocks = nModulesActive;
-
-    /*
-    std::cout
-      << "CUDA findClus kernel launch with " << blocks
-      << " blocks of " << threadsPerBlock << " threads\n";
-    */
-
-    cudaCheck(cudaMemsetAsync(clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t), stream.id()));
-
-    findClus<<<blocks, threadsPerBlock, 0, stream.id()>>>(
-                 moduleInd_d,
-                 xx_d, yy_d, adc_d,
-                 moduleStart_d,
-                 clusInModule_d, moduleId_d,
-                 clus_d,
-                 wordCounter
-    );
-
-    // clusters
-    cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-
-    cudaStreamSynchronize(stream.id());
-    cudaCheck(cudaGetLastError());
-
-   } // end clusterizer scope
-
+      // clusters
+      cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+    } // end clusterizer scope
   }
 
 }

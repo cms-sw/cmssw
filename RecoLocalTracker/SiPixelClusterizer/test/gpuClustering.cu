@@ -192,7 +192,7 @@ int main(void)
   cuda::launch(
                findClus,
                { blocksPerGrid, threadsPerBlock },
-               d_id.get(), d_x.get(), d_y.get(),  d_adc.get(),
+               d_id.get(), d_x.get(), d_y.get(),
                d_moduleStart.get(),
                d_clusInModule.get(), d_moduleId.get(),
                d_clus.get(),
