@@ -41,7 +41,11 @@ namespace reco {
       double evaluate(double const* iVariables, double const* iParameters) const final {
         return -1. * m_arg->evaluate(iVariables,iParameters) ;
       }
-
+      std::vector<std::string> abstractSyntaxTree() const final {
+        auto ret = shiftAST(m_arg->abstractSyntaxTree());
+        ret.emplace(ret.begin(), "unary minus");
+        return ret;
+      }
     private:
       UnaryMinusEvaluator(const UnaryMinusEvaluator&) = delete;
       
