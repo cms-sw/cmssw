@@ -1,11 +1,12 @@
+from __future__ import print_function
 
 import sys
 import os
 import DQMOffline.EGamma.electronDataDiscovery as dd
 import FWCore.ParameterSet.Config as cms
 
-print 'Number of arguments:', len(sys.argv), 'arguments.'
-print 'Argument List:', str(sys.argv)
+print('Number of arguments:', len(sys.argv), 'arguments.')
+print('Argument List:', str(sys.argv))
 # first arg : cmsRun
 # second arg : name of the _cfg file
 # third arg : sample name (ex. ZEE_14)

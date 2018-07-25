@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 #-*-coding: utf-8 -*-
 
+from __future__ import print_function
 import os,sys
 
 class env:
@@ -9,11 +10,11 @@ class env:
             if ( len(sys.argv) > 2 ): # no else part since if sample does not exist, we had quit previously
                 sampleName = str(sys.argv[2])
                 os.environ['DD_SAMPLE'] = 'RelVal' + sampleName
-                print 'Sample name:', sampleName, ' - ', os.environ['DD_SAMPLE']
+                print('Sample name:', sampleName, ' - ', os.environ['DD_SAMPLE'])
             else:
-                print '===================='
-                print 'no sample name, quit'
-                print '===================='
+                print('====================')
+                print('no sample name, quit')
+                print('====================')
                 quit()
 
     def beginTag(self):
@@ -47,13 +48,13 @@ class env:
         return dd_cond
 
     def checkValues(self):
-        print '-----'
-        print self.dd_tier()
-        print self.tag_startup()
-        print self.data_version()
-        print self.test_global_tag()
-        print self.dd_cond()
-        print '-----'
+        print('-----')
+        print(self.dd_tier())
+        print(self.tag_startup())
+        print(self.data_version())
+        print(self.test_global_tag())
+        print(self.dd_cond())
+        print('-----')
         
         os.environ['beginTag'] = self.beginTag()
 
@@ -71,23 +72,23 @@ class env:
         os.environ['DD_RELEASE'] = os.environ['CMSSW_VERSION']
 	    #os.environ['DD_RELEASE'] = "CMSSW_9_3_0_pre3" 
 
-        print '====='
+        print('=====')
         if ( 'DD_SAMPLE_OUT' not in os.environ ) or ( os.environ['DD_SAMPLE_OUT'] == '' ):
             os.environ['DD_SAMPLE_OUT'] = os.environ['DD_SAMPLE'].replace("RelVal", "ValFull")
-        print '====='
+        print('=====')
 
         os.environ['DD_SOURCE'] = '/eos/cms/store/relval/' + os.environ['DD_RELEASE'] + '/' + os.environ['DD_SAMPLE'] + '/' + os.environ['DD_TIER'] + '/' + os.environ['DD_COND']
         os.environ['outputFile'] = 'electronHistos.' + os.environ['DD_SAMPLE_OUT'] + '_gedGsfE.root'
         if ( 'inputPostFile' not in os.environ ) or ( os.environ['inputPostFile'] == '' ):
             os.environ['inputPostFile'] = os.environ['outputFile']
         
-        print 'DD_RELEASE', os.environ['DD_RELEASE']
-        print 'DD_SAMPLE', os.environ['DD_SAMPLE']
-        print 'DD_SAMPLE_OUT', os.environ['DD_SAMPLE_OUT']
-        print 'DD_COND', os.environ['DD_COND']
-        print 'DD_TIER', os.environ['DD_TIER']
-        print 'DD_SOURCE', os.environ['DD_SOURCE']
-        print 'outputFile    :', os.environ['outputFile']
-        print 'inputPostFile :', os.environ['inputPostFile']
-        print 'beginTag : ', self.beginTag()
+        print('DD_RELEASE', os.environ['DD_RELEASE'])
+        print('DD_SAMPLE', os.environ['DD_SAMPLE'])
+        print('DD_SAMPLE_OUT', os.environ['DD_SAMPLE_OUT'])
+        print('DD_COND', os.environ['DD_COND'])
+        print('DD_TIER', os.environ['DD_TIER'])
+        print('DD_SOURCE', os.environ['DD_SOURCE'])
+        print('outputFile    :', os.environ['outputFile'])
+        print('inputPostFile :', os.environ['inputPostFile'])
+        print('beginTag : ', self.beginTag())
  
