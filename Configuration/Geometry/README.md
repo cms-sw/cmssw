@@ -28,6 +28,7 @@ Fast Timing system:
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
 * F2: modifications needed to accommodate detailed cavern, ZDC description is removed.
+* F3: same as F2 but with added HFNose
 
 Several detector combinations have been generated:
 * D17 = T5+C3+M2+I1+O2+F2 
@@ -42,7 +43,7 @@ Several detector combinations have been generated:
 * D28 = T6+C4+M2+I1+O2+F2
 * D29 = T11+C3+M2+I1+O2+F2 
 * D30 = T6+C5+M2+I1+O2+F2
+* D31 = T6+C4+M2+I1+O2+F3
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
-
 
