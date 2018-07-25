@@ -1,6 +1,6 @@
-(1) cmsrel CMSSW_7_6_0_pre4 (for instance)
+(1) cmsrel CMSSW_10_2_0 (for instance)
 
-(2) cd CMSSW_7_6_0_pre4/src
+(2) cd CMSSW_10_2_0/src
 
 (3) cmsenv
 
@@ -17,13 +17,13 @@
 NB: it uses batch submission (batch.csh) to lxbatch at CERN 
 with input file 
 /afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/620/mc_pi50_eta05.root
-Each of 25 job uses 2K out of total 50K input.
+Each of 50 job uses 1K out of total 50K input.
 
-In 1-1.5 hour (in the submission directory, /scan in this case)
-the results of 25 batch jobs will be arriving. 
-Once all 25 jobs finished and 25 *.root files appeared locally, 
+In ~30-40 min (in the submission directory, /scan in this case)
+the results of 50 batch jobs will be arriving. 
+Once all 50 jobs finished and 50  *.root files appeared locally, 
 
-(9) ./Merge.sh 760pre3_postLS1
+(9) ./Merge.sh 10_2_0  (e.g the extension name for resulting DQM file)
 
 It will do following things:
 
@@ -38,37 +38,37 @@ Rename DQMxxx.root file to a convenient name
 NB: there is naming convention  pi50scan<...>_ECALHCAL_CaloTowers.root
 where <...> can be any meaningful string (to appear in the legend of histos). It generally indicates the release or upgrade status.
 
-For example here it is 760pre3_postLS1 which need to be given as the argument for Merge.sh
+For example here it's 10_2_0 which needs to be given as the argument for Merge.sh
 
 move this pi50scan<...>_ECALHCAL_CaloTowers.root to Validation/CaloTowers/test/macros
 
 
 (10) to compare two sets of histos, for instance if you have in 
 Validation/CaloTowers/test/macros 
-pi50scan760pre3_postLS1_ECALHCAL_CaloTowers.root    and
-pi50scan760pre2_postLS1_ECALHCAL_CaloTowers.root
+pi50scan10_2_0_ECALHCAL_CaloTowers.root    and
+pi50scan10_2_0_pre6_ECALHCAL_CaloTowers.root
 
-(here "760pre3_postLS1" and "760pre2_postLS1" are mentioned <...> strings) - 
+(here "10_2_0" and "10_2_0_pre6" are mentioned <...> strings) - 
 
-./RunPions.csh 760pre3_postLS1 760pre2_postLS1
+./RunPions.csh 10_2_0 10_2_0_pre6
 
 
 (11) the result appear as the local directory 
-760pre3_postLS1_vs_760pre2_postLS1_SinglePi
+10_2_0_vs_10_2_0_pre6_SinglePi 
   
 which can be 
 (i) viewed with web browser locally, e.g.
-firefox 760pre3_postLS1_vs_760pre2_postLS1_SinglePi/index.html
+firefox 10_2_0_vs_10_2_0_pre6_SinglePi/index.html
 
 (ii) uploaded to some web server and viewed from anywhere:
 
-https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HCAL/calo_scan_single_pi/760pre3_postLS1_vs_760pre2_postLS1_SinglePi/
+https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HCAL/calo_scan_single_pi/10_2_0_vs_10_2_0_pre6_SinglePi
 
-(in this case, the results from the two releases are just identical)
-NB:  hitso labels correspond to aforementioned <...> strings, here 760pre3_postLS1/760pre2_postLS1
+NB:  hitso labels correspond to aforementioned <...> strings, here
+10_2_0 and 10_2_0_pre6 (as a reference)
 
 --------------------------------------------------
-NB: recent changes in the template since 760pre6
+NB: changes in the template since 760pre6
 to cope with a massive generator/smearing rearrangement in
 https://github.com/cms-sw/cmssw/pull/10858
 
