@@ -10,6 +10,8 @@ setenv MYWORKDIR $LS_SUBCWD
 setenv MYOUT ${MYWORKDIR}
 #----------------
 cd ${MYWORKDIR}
+###setenv SCRAM_ARCH slc5_amd64_gcc434
+###setenv SCRAM_ARCH slc5_ia32_gcc434
 eval `scramv1 runtime -csh`
 cp ${MYWORKDIR}/${name}_${num}.py   ${WORKDIR}/conf.py
 #
