@@ -53,7 +53,8 @@ namespace l1t {
 	   tauTrimmingShapeVeto=41,
 	   egBypassShapeFlag=42,
 	   egBypassECALFGFlag=43,
-	   NUM_CALOPARAMNODES=44
+	   egBypassHoEFlag=44,
+	   NUM_CALOPARAMNODES=45
     };
 
     CaloParamsHelper() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -152,6 +153,11 @@ namespace l1t {
       if(pnode_[egBypassECALFGFlag].uparams_.size()==0) return 0;
       else return pnode_[egBypassECALFGFlag].uparams_[0];
     }
+    unsigned egBypassHoE() {
+      if(pnode_[egBypassHoEFlag].uparams_.size()==0) return 0;
+      else return pnode_[egBypassHoEFlag].uparams_[0];
+    }
+
     int egHOverEcutBarrel() const {return pnode_[egHOverEBarrel].iparams_[0]; }
     int egHOverEcutEndcap() const {return pnode_[egHOverEEndcap].iparams_[0]; }
 
@@ -202,6 +208,10 @@ namespace l1t {
     void setEgBypassECALFG(unsigned flag) {
       pnode_[egBypassECALFGFlag].uparams_.resize(1);
       pnode_[egBypassECALFGFlag].uparams_[0] = flag;
+    }
+    void setEgBypassHoE(unsigned flag) {
+      pnode_[egBypassHoEFlag].uparams_.resize(1);
+      pnode_[egBypassHoEFlag].uparams_[0] = flag;
     }
     void setEgHOverEcutBarrel(int cut) { 
       pnode_[egHOverEBarrel].iparams_.resize(1);
