@@ -5,6 +5,7 @@
 # In python everything is an object, even if we don't know. 
 # os and time will become 2 objects for us.
 
+from __future__ import print_function
 import os,sys
 import time
 
@@ -15,7 +16,7 @@ IgProfProfile={'PERF_TICKS':'IgProfPerf',
                }
 
 def execute(command):
-    print '[IgAnalysis] %s ...' %command
+    print('[IgAnalysis] %s ...' %command)
     sys.stdout.flush()
     exitstate=os.system(command)
     return exitstate
@@ -58,13 +59,13 @@ def simple_igprof_analysis(profile_name,AnalysisType,output_type):
         exit=execute(command)
         #Let's manipulate the ASCII output to only keep the top 7 lines:
         # we open and read the txt ascii file
-        print "Reading the res file"
+        print("Reading the res file")
         txt_file=open(outfile,'r')
         txt_file_content=txt_file.readlines()#again:everything is an object
-        print "res file has %s lines!"%len(txt_file_content)
+        print("res file has %s lines!"%len(txt_file_content))
         txt_file.close()
         #overwrite the file to only save the first 7 lines:
-        print "Overwriting the res file, to reduce it to 7 lines"
+        print("Overwriting the res file, to reduce it to 7 lines")
         out_file=open(outfile,'w')
         line_num=0
         for line in txt_file_content:
@@ -153,7 +154,7 @@ if __name__ == '__main__':
 
     AnalysisType=options.counter
 
-    print "Input file is %s and AnalysisType is %s"%(options.profile,AnalysisType)
+    print("Input file is %s and AnalysisType is %s"%(options.profile,AnalysisType))
     
     #launch the function!
     if options.regressionprofile:

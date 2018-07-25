@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.usedOutput import *
 
@@ -42,9 +43,9 @@ if __name__ == "__main__":
 	(sequenceWithModules, sequenceWithModulesString) = assignModulesToSeqs()
 	for seq, mods  in sequenceWithModules.items():
 	#for seq, mods  in sequenceWithModulesString.items():
-	    print "sequence: %s" % (seq)
+	    print("sequence: %s" % (seq))
 	    for module in mods:
-	        print "  module: %s" % (module)
+	        print("  module: %s" % (module))
 
 
 
