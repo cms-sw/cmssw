@@ -1,0 +1,2 @@
+#U ADC  << this is the unit 
+#             eta             phi             dep             det     cap0     cap1     cap2     cap3 widthcap0 widthcap1 widthcap2 widthcap3      DetId

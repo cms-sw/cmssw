@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#rm -r AllPlots-PNG
-#mkdir AllPlots-PNG
+rm -r AllPlots-PNG
+mkdir AllPlots-PNG
 
-#rm -r *.png
+rm -r *.png
 
 
 
@@ -17,10 +17,18 @@
 #./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsPlot --tag HcalGains_updateOct2015_38T --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test -v
 #mv *.png plot_HcalGainsPlot.png
 #mv *.png AllPlots-PNG/
-./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag HcalGains_2018_HEHFRaddam_10fb --time_type Run --iovs '{"start_iov": "1", "end_iov": "100"}' --db Prod --test -v
-#./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag gains_HBHEHOHF_2011_test --time_type Run --iovs '{"start_iov": "1", "end_iov": "164748"}' --db Prod --test -v
-#mv *.png plot_HcalGainsDiff.png
-#mv *.png AllPlots-PNG/
+./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag HcalGains_2018_HEHFRaddam_10fb --time_type Run --iovs '{"start_iov": "1", "end_iov": "1000"}' --db Prod --test -v
+mv *.png plot_HcalGainsDiff2018.png
+mv *.png AllPlots-PNG/
+./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag HcalGains_2017_HEHFRaddam_6fb --time_type Run --iovs '{"start_iov": "1", "end_iov": "1000"}' --db Prod --test -v
+mv *.png plot_HcalGainsDiff2017.png
+mv *.png AllPlots-PNG/
+./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag HcalGains_Apr2016_38T --time_type Run --iovs '{"start_iov": "1", "end_iov": "1000"}' --db Prod --test -v
+mv *.png plot_HcalGainsDiff2016.png
+mv *.png AllPlots-PNG/
+./getPayloadData.py --plugin pluginHcalGains_PayloadInspector --plot plot_HcalGainsDiff --tag HcalGains_updateOct2015_38T --time_type Run --iovs '{"start_iov": "1", "end_iov": "1000"}' --db Prod --test -v
+mv *.png plot_HcalGainsDiff2015.png
+mv *.png AllPlots-PNG/
 
 
 
@@ -41,8 +49,9 @@
 ##EcalPedestalsEERMS6Map
 ##EcalPedestalsEERMS1Map
 ##EcalPedestalsSummaryPlot
-#./getPayloadData.py --plugin pluginEcalPedestals_PayloadInspector --plot plot_EcalPedestalsHist --tag EcalPedestals_hlt --time_type Run --iovs '{"start_iov": "297681", "end_iov": "297681"}' --db Prod --test
-#mv *.png plot_EcalPedestalsHist.png
+./getPayloadData.py --plugin pluginHcalPedestals_PayloadInspector --plot plot_HcalPedestalsPlot --tag HcalPedestals_2018_v3.0_data --time_type Run --iovs '{"start_iov": "1", "end_iov": "1"}' --db Prod --test
+mv *.png plot_HcalPedestalsPlot2018.png
+mv *.png AllPlots-PNG/
 #mv *.png AllPlots-PNG/
 #./getPayloadData.py --plugin pluginEcalPedestals_PayloadInspector --plot plot_EcalPedestalsPlot --tag EcalPedestals_hlt --time_type Run --iovs '{"start_iov": "297681", "end_iov": "297681"}' --db Prod --test
 #mv *.png plot_EcalPedestalsPlot.png
