@@ -92,6 +92,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		std::vector< std::map<std::string, std::map<HCALSpecials, MonitorElement *> > > H2mod_;
 		std::vector< std::map<std::string, MonitorElement *> > H2Eta_;
 		std::vector< std::map<std::string, MonitorElement *> > H2Phi_;
+		std::vector< std::map<std::string, MonitorElement *> > H2EtaPhi_;
 
 		// Other variables
 		edm::EDConsumerBase::Labels label;

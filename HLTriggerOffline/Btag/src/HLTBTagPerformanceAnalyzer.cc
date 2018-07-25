@@ -174,6 +174,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					label+=flavour_str;
 					std::string labelEta = label;
 					std::string labelPhi = label;
+					std::string labelEtaPhi = label;
 					label+="_disc_pT";
 					H2_.at(ind)[label]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->pt());	//fill 2D btag, jetPt plot for 'b,c,uds'
 					for (auto j: HCALSpecialsNames){
@@ -183,7 +184,9 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					labelEta+="_disc_eta";
 					H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->eta());	//fill 2D btag, jetEta plot for 'b,c,uds'
 					labelPhi+="_disc_phi";
+					labelEtaPhi+="_eta_phi";
 					H2Phi_.at(ind)[labelPhi]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->phi());	//fill 2D btag, jetPhi plot for 'b,c,uds'
+					H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),BtagJT.first->phi());	//fill 2D btag, jetPhi plot for 'b,c,uds'
 				} /// for flavour
 			} /// if MCOK
 		} /// for BtagJT
@@ -211,6 +214,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		H2mod_.push_back(std::map<std::string, std::map<HCALSpecials, MonitorElement *> > ());
 		H2Eta_.push_back(std::map<std::string, MonitorElement *>());
 		H2Phi_.push_back(std::map<std::string, MonitorElement *>());
+		H2EtaPhi_.push_back(std::map<std::string, MonitorElement *>());
 		ibooker.setCurrentFolder(dqmFolder);
 		
 		//book 1D btag plot for 'all'
@@ -240,6 +244,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 			std::string label;
 			std::string labelEta;
 			std::string labelPhi;
+			std::string labelEtaPhi;
 			if ( JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" ) {
 				label=JetTagCollection_Label[ind]+"__";
 				label+=flavour;
@@ -256,9 +261,11 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				label=JetTagCollection_Label[ind]+"___";
 				labelEta=label;
 				labelPhi=label;
+				labelEtaPhi=label;
 				label+=flavour+"_disc_pT";
 				labelEta+=flavour+"_disc_eta";
 				labelPhi+=flavour+"_disc_phi";
+				labelEtaPhi+=flavour+"_eta_phi";
 
 				//book 2D btag plot for 'b,c,light,g'
 				H2_.back()[label] =  ibooker.book2D( label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax );
@@ -277,6 +284,9 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				H2Phi_.back()[labelPhi] =  ibooker.book2D( labelPhi, labelPhi, btagBins, btagL, btagU, nBinsPhi, phimin, phiMax );
 				H2Phi_.back()[labelPhi]->setAxisTitle("phi",2);
 				H2Phi_.back()[labelPhi]->setAxisTitle("disc",1);
+				H2EtaPhi_.back()[labelEtaPhi] =  ibooker.book2D( labelEtaPhi, labelEtaPhi, nBinsEta, etamin, etaMax, nBinsPhi, phimin, phiMax );
+				H2EtaPhi_.back()[labelEtaPhi]->setAxisTitle("phi",2);
+				H2EtaPhi_.back()[labelEtaPhi]->setAxisTitle("eta",1);
 			}
 		} /// for mc.size()
 	} /// for hltPathNames_.size()

@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("HLTBTAG")
-
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("HLTriggerOffline.Btag.HltBtagValidation_cff")
 #process.load("HLTriggerOffline.Btag.HltBtagValidationFastSim_cff")
 process.load("HLTriggerOffline.Btag.HltBtagPostValidation_cff")
+
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500)   )
 
 process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal + process.dqmSaver)
 
@@ -36,7 +37,7 @@ add_rawRelVals(process, str(sys.argv[-1]))
 
 #process.source = cms.Source("PoolSource",
 #	fileNames = cms.untracked.vstring(
-#'root://cms-xrd-global.cern.ch//store/relval/CMSSW_10_2_0_pre6/RelValTTbar_13/GEN-SIM-DIGI-RAW/102X_upgrade2018_realistic_v7-v1/10000/103778EC-A27B-E811-8D04-0CC47A4D76AA.root',
+#'root://cms-xrd-global.cern.ch//store/user/mdefranc/RelValTTbar_13/ttbarRelVal_noPU_3/180715_094624/0000/step2_50.root',
 #)
 #)
 
