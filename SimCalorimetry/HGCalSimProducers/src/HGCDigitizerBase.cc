@@ -15,26 +15,19 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
 
   if( myCfg_.existsAs<edm::ParameterSet>( "chargeCollectionEfficiencies" ) ) {
     cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").template getParameter<std::vector<double>>("values");
-  } else {
-    std::vector<double>().swap(cce_);
   }
 
   if(myCfg_.existsAs<double>("noise_fC")) {
-    noise_fC_.resize(1);
-    noise_fC_[0] = myCfg_.getParameter<double>("noise_fC");
+    noise_fC_.reserve(1);
+    noise_fC_.push_back(myCfg_.getParameter<double>("noise_fC"));
   } else if ( myCfg_.existsAs<std::vector<double> >("noise_fC") ) {
     const auto& noises = myCfg_.getParameter<std::vector<double> >("noise_fC");
-    noise_fC_.resize(0);
-    noise_fC_.reserve(noises.size());
-    for( auto noise : noises ) { noise_fC_.push_back( noise ); }
+    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
   } else if(myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
     const auto& noises = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double> >("values");
-    noise_fC_.resize(0);
-    noise_fC_.reserve(noises.size());
-    for( auto noise : noises ) { noise_fC_.push_back( noise ); }
+    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
   } else {
-    noise_fC_.resize(1);
-    noise_fC_[0] = 1.f;
+    noise_fC_.resize(1,1.f);
   }
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
