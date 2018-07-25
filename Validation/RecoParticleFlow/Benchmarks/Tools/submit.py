@@ -2,6 +2,7 @@
 # to submit a benchmark webpage to the validation website
 # author: Colin
 
+from __future__ import print_function
 import shutil, sys, os, valtools
 
 from optparse import OptionParser
@@ -33,13 +34,13 @@ if len(args)!=0:
 website = valtools.website()
 bench = valtools.benchmark( options.extension ) 
 localBench = valtools.benchmark()
-print 'submitting  from local: ', localBench
-print '                    to: ', bench
+print('submitting  from local: ', localBench)
+print('                    to: ', bench)
 
 comparisons = website.listComparisons( bench )
 if len(comparisons)>0:
-    print 'You are about to make the following list of comparison pages obsolete. These pages will thus be removed:' 
-    print comparisons
+    print('You are about to make the following list of comparison pages obsolete. These pages will thus be removed:') 
+    print(comparisons)
 
     answer = None
     while answer != 'y' and answer != 'n':
@@ -55,20 +56,20 @@ bench.makeRelease( website )
 
 if bench.exists( website ) == True:
     if options.force == False:
-        print 'please use the -e option to choose another extension'
-        print '  e.g: submit.py -e Feb10'
-        print 'or force it.'
+        print('please use the -e option to choose another extension')
+        print('  e.g: submit.py -e Feb10')
+        print('or force it.')
         sys.exit(1)
     else:
-        print 'overwriting...'
+        print('overwriting...')
         shutil.rmtree(bench.benchmarkOnWebSite(website))
 
 
 # local benchmark. this one does not have an extension!
 
 shutil.copytree(localBench.fullName(), bench.benchmarkOnWebSite(website) )
-print 'done. Access your benchmark here:'
-print bench.benchmarkUrl( website )
+print('done. Access your benchmark here:')
+print(bench.benchmarkUrl( website ))
     
 # removing comparisons
 # COMPARISONS COULD ALSO BE REDONE. 
