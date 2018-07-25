@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("MCMisalignmentScaler")
 
@@ -30,7 +31,7 @@ process.mcMisalignmentScaler.outlierPullToIdealCut = 0.1
 
 
 usedGlobalTag = process.GlobalTag.globaltag.value()
-print "Using Global Tag:", usedGlobalTag
+print("Using Global Tag:", usedGlobalTag)
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
