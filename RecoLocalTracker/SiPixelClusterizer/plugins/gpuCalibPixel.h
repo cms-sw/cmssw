@@ -52,9 +52,6 @@ namespace gpuCalibPixel {
 
     // if (threadIdx.x==0)
     //  printf ("calibrated %d\n",id[i]);
-
-   __syncthreads();
-
 }
 
  __global__ void calibADCByModule(uint16_t * id,
