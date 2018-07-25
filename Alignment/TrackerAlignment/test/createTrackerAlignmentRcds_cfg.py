@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("Alignment")
 
@@ -17,7 +18,7 @@ process.createIdealTkAlRecords.skipSubDetectors = cms.untracked.vstring("P1PXB",
 
 
 usedGlobalTag = process.GlobalTag.globaltag.value()
-print "Using Global Tag:", usedGlobalTag
+print("Using Global Tag:", usedGlobalTag)
 
 from CondCore.CondDB.CondDB_cfi import *
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
