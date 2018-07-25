@@ -69,6 +69,7 @@ caloParams = cms.ESProducer(
     egBypassExtHOverE          = cms.uint32(1),
     egBypassShape              = cms.uint32(0),
     egBypassECALFG             = cms.uint32(0),
+    egBypassHoE                = cms.uint32(0),
 
     # Tau
     tauRegionMask                 = cms.int32(0),
