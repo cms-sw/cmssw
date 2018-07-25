@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # LUT generator process
@@ -65,7 +66,7 @@ process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 # For a known subsystem key (MySubsystemKey):
 # [x] Works!
 
-print "Specifying GMT key"
+print("Specifying GMT key")
 process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
 process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
 process.L1TriggerKeyDummy.label = cms.string('SubsystemKeysOnly')
@@ -120,9 +121,9 @@ process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersOnlineProducer
 process.L1MuGMTParametersOnlineProducer.ignoreVersionMismatch = True
 
 # load the GMT simulator 
-print "Before load"
+print("Before load")
 process.load("L1Trigger.GlobalMuonTrigger.gmtDigis_cfi")
-print "After load"
+print("After load")
 
 # Clear event data
 process.gmtDigis.DTCandidates = cms.InputTag("none", "")
