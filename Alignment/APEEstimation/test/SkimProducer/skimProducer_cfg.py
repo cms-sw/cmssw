@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 import FWCore.ParameterSet.Config as cms
@@ -22,9 +23,9 @@ if( hasattr(sys, "argv") ):
             if(len(val)==2):
                 setattr(options,val[0], val[1])
 
-print "Input sample: ", options.sample
-print "Use list of preselected tracks: ", options.useTrackList
-print "Test run: ", options.isTest
+print("Input sample: ", options.sample)
+print("Use list of preselected tracks: ", options.useTrackList)
+print("Test run: ", options.isTest)
 
 
 ##
@@ -95,7 +96,7 @@ elif options.sample == 'zmumu50':
     isMc = True
 
 else:
-    print 'ERROR --- incorrect data sammple: ', options.sample
+    print('ERROR --- incorrect data sammple: ', options.sample)
     exit(8888)
 
 
@@ -121,7 +122,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
-print "Using global tag "+process.GlobalTag.globaltag._value
+print("Using global tag "+process.GlobalTag.globaltag._value)
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
