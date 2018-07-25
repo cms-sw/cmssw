@@ -1,3 +1,4 @@
+from __future__ import print_function
 from officialStyle import officialStyle
 from array import array
 from ROOT import gROOT, gStyle, TH1F, TH1D, TF1, TFile, TCanvas, TH2F, TLegend, TGraphAsymmErrors, Double, TLatex
@@ -15,11 +16,11 @@ argvs = sys.argv
 argc = len(argvs)
 
 if argc != 2:
-    print 'Please specify the runtype : python tauPOGplot.py <ZTT, ZEE, ZMM, QCD>'
+    print('Please specify the runtype : python tauPOGplot.py <ZTT, ZEE, ZMM, QCD>')
     sys.exit(0)
 
 runtype = argvs[1]
-print 'You selected', runtype
+print('You selected', runtype)
 
 
 tlabel = 'Z #rightarrow #tau#tau'
@@ -119,7 +120,7 @@ def makeCompareVars(tree, var, sel, leglist, nbin, xmin, xmax, xtitle, ytitle, s
     
 def overlay(hists, ytitle, header, addon):
 
-    print 'number of histograms = ', len(hists)
+    print('number of histograms = ', len(hists))
 
     canvas = TCanvas()
     leg = TLegend(0.2,0.7,0.5,0.9)

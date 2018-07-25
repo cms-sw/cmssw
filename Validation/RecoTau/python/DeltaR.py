@@ -1,3 +1,4 @@
+from __future__ import print_function
 #ROOTTOOLS
 import math
 import copy
@@ -188,8 +189,8 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     fargs = map( float, args )
 
-    print 'dR2 = ', deltaR2( *fargs )
-    print 'dR = ', deltaR( *fargs )
+    print('dR2 = ', deltaR2( *fargs ))
+    print('dR = ', deltaR( *fargs ))
     
 
     
