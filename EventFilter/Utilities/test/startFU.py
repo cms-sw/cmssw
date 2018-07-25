@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
@@ -65,7 +66,7 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
 try:
   os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
 except Exception as ex:
-  print str(ex)
+  print(str(ex))
   pass
 
 process.PrescaleService = cms.Service( "PrescaleService",
