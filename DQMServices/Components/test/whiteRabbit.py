@@ -1,5 +1,6 @@
 #!/usr/bin/env python -u
 
+from __future__ import print_function
 import os, sys, re, time, commands, glob
 from optparse import OptionParser, OptionGroup
 from threading import Thread
@@ -107,7 +108,7 @@ class TestRunner(Thread):
             cmssw_version = m.group(1).replace('-', '_')
         else:
             cmssw_version = 'Unknown'
-        print 'Performing test %s on directory %s' % (self.testNumber, wdir)
+        print('Performing test %s on directory %s' % (self.testNumber, wdir))
         # do not perform actual test if already done at the same time
         # and with the same test number.
         if os.path.exists(wdir):
@@ -126,15 +127,15 @@ class TestRunner(Thread):
                 l.write('\n')
                 (status,output) = commands.getstatusoutput('cp -p %s %s ' % (self.mainDir+'/'+test, wdir+'/'+test))
                 if self.numev != 0:
-                    print 'Customizing Event to process/generate %d' % self.numev
-                    print "sed -i -e '#^numev.*#numev=%d#' %s/%s " % (self.numev, wdir, test)
+                    print('Customizing Event to process/generate %d' % self.numev)
+                    print("sed -i -e '#^numev.*#numev=%d#' %s/%s " % (self.numev, wdir, test))
                     (status,output) = commands.getstatusoutput("sed -i -e 's#^numev.*#numev=%d#' %s/%s " % (self.numev, wdir, test))
                 if self.source and s==0:
-                    print 'Customizing source sequence with %s' % self.source
-                    print "sed -i -e '#^DQMSEQUENCE.*#DQMSEQUENCE=%s#' %s/%s " % (self.source, wdir, test)
+                    print('Customizing source sequence with %s' % self.source)
+                    print("sed -i -e '#^DQMSEQUENCE.*#DQMSEQUENCE=%s#' %s/%s " % (self.source, wdir, test))
                     (status,output) = commands.getstatusoutput("sed -i -e 's#^DQMSEQUENCE.*#DQMSEQUENCE=%s#' %s/%s " % (self.source, wdir, test))
                 if self.client and (s==1 or s==2):
-                    print 'Customizing client sequence with %s' % self.client
+                    print('Customizing client sequence with %s' % self.client)
                     (status,output) = commands.getstatusoutput("sed -i -e 's#^DQMSEQUENCE.*#DQMSEQUENCE=%s#\' %s/%s " % (self.client, wdir, test))
                 l.write(time.ctime(time.time()) + ' cd %s && source %s/%s' % (wdir, wdir, test))
                 (status,output) = commands.getstatusoutput('cd %s && source %s/%s' % (wdir, wdir, test) )
@@ -163,7 +164,7 @@ class TestRunner(Thread):
                 testPackages += "{'package': '%s', 'current':'%s', 'base':'%s'}," %(fields[2], fields[0], fields[1])
         for single in xmls:
             filename = "%s/%s" %(self.cwd, single.split('/')[-1])
-            print 'Analyzing %s' % single
+            print('Analyzing %s' % single)
             fwjr = FWJRParser(single)
             resRun = fwjr.getReport(FWJRParser.Run)
             if resRun:
@@ -358,7 +359,7 @@ if __name__ == '__main__':
                 source = m.group(1)
                 client = m.group(2)
             else:
-                print "Error, wrong DQM sequence format supplied: source_sequence,client_sequence."
+                print("Error, wrong DQM sequence format supplied: source_sequence,client_sequence.")
                 sys.exit(1)
         if parser.f():
             ts = parser.f()
@@ -367,16 +368,16 @@ if __name__ == '__main__':
             fakeRun = 1
         if parser.j():
             threads = parser.j()
-            print "Running ", threads, " threads in parallel."
+            print("Running ", threads, " threads in parallel.")
         if parser.n():
             jobs = parser.n().split(',')
             for test in jobs:
                 # make sure we don't run more than the allowed number of threads:
                 while True:
-                    print 'Active threads: ', tm.activeThreads()
+                    print('Active threads: ', tm.activeThreads())
                     if tm.activeThreads() < threads:
                         break
-                    print 'Sleeping...'
+                    print('Sleeping...')
                     time.sleep(10)
 
                 a_thread = TestRunner(mainDir,ts,test, cwd, forceTest, fakeRun, Num=numev, Source=source, Client=client)
@@ -402,14 +403,14 @@ if __name__ == '__main__':
                 ff.close()
 
         # Now parse all log files, showtags info and send around 1 gigantic email...
-        print "Assembling final report on %s" % cwd
+        print("Assembling final report on %s" % cwd)
         if os.path.exists('%s' % cwd ):
             putAtTheEnd = ''
             command = 'find %s/*log -cnewer %s/%d | sort -n -k 1 -t _' % (cwd, cwd, ts)
-            print 'Running command %s' % command
+            print('Running command %s' % command)
             logs = commands.getoutput(command).split('\n')
             for l in logs:
-                print "Processing log file: %s" % l
+                print("Processing log file: %s" % l)
                 f.write('****************** %s' % l )
                 ff = open(l)
                 archiveIt = 0
@@ -438,5 +439,5 @@ if __name__ == '__main__':
         if not parser.noMail():
             send_mail(mailFile)
     except:
-        print "Error executing whiteRabbit.py: exiting."
+        print("Error executing whiteRabbit.py: exiting.")
         sys.exit(1)
