@@ -1,15 +1,12 @@
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
-//#include "DataFormats/EcalDetId/interface/EBDetId.h"
-//#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-//#include "Geometry/HcalCommonData/interface/HcalTopologyMode.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondCore/HcalPlugins/interface/HcalObjRepresent.h"
 
 // the data format of the condition to be inspected
-#include "CondFormats/HcalObjects/interface/HcalGains.h" //or Gain.h???
+#include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -23,83 +20,73 @@
 
 namespace {
 
+  //TODO: Check these
+  enum{ HBmaxAbsEta = 19, maxPhi = 72 };
+
   /******************************************
-     2d plot of ECAL GainRatios of 1 IOV
+     2d plot of ECAL PedestalRatios of 1 IOV
   ******************************************/
-  class HcalGainsPlot : public cond::payloadInspector::PlotImage<HcalGains> {
+  class HcalPedestalsPlot : public cond::payloadInspector::PlotImage<HcalPedestals> {
   public:
-    HcalGainsPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") {
+    HcalPedestalsPlot() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios - map ") {
       setSingleIov( true );
     }
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      //TODO: Shift binning by 0.5
       
+//
+//      auto iov = iovs.front();
+//      std::shared_ptr<HcalPedestals> payload = fetchPayload( std::get<1>(iov) );
+//      //unsigned int run = std::get<0>(iov);
+//      
+//
+//
+//      std::vector<TH2F> depth;
+//
+//      
+//      if( payload.get() ){
+//        std::vector<DetId> channels = (*payload).getAllChannels();
+//        std::vector< std::pair< std::string, std::vector<HcalPedestal> >> containers = (*payload).getAllContainers();
+//
+//        for( std::pair< std::string, std::vector<HcalPedestal> > cont : containers){  
+//            //std::cout << "Container for " << std::get<0>(cont) <<  "has content " << std::to_string(std::get<1>(cont).getValues()) << std::endl;
+//            std::vector<HcalPedestal> gainsVec = std::get<1>(cont);
+//            for(HcalPedestal gain : gainsVec){
+//              //HcalDetId detId = HcalDetId(gain.rawId());
+//              //float gainVal = (*gain.getValues());
+//             // std::cout << "detId Vals: (det, eta, phi, depth, val) = (" << std::get<0>(cont) << ", " << std::to_string(ieta) << ", " << std::to_string(iphi) << ", " << std::to_string(depth) << ", " << std::to_string((*gain.getValues())) << ")" << std::endl;
+//            }
+//        }
+        TCanvas *cv1 = new TCanvas("cv1", "HBHO", 1000, 1000);
+//        cv1->cd();
+//        depth.at(0).Draw("colz");
+//        //for( HcalDetId channelId : channels) {
+//        //    if(channelId.subdetId()==HcalBarrel){
+//        //      std::cout << "Channel content is:" << (*payload).(channelId) << std::endl;
+//        //      
+//        //      float gainVal = payload->getValues(channelId, true)->getValue(0);
+//        //      hHB_d1->Fill(channelId.ieta(), channelId.iphi(), gainVal);
+//        //    }
+//        //}
+//          //canvas->cd()
+//          //hHB_d1->Draw();
+         std::string ImageName(m_imageFileName);//         cv1->SaveAs(ImageName.c_str());
+         cv1->SaveAs(ImageName.c_str());
+         return true;
+  //      } else return false;
+     
 
-      //TODO: Set these wisely, based on data
-      //float mr = 0.2; // z-range amplitude
-      //float r_a = 1 - 1 * mr, r_b = 1 + 1 * mr;//hb
-      //float r3_a = 1 - 1 * mr, r3_b = 1 + 1 * mr;//he
-      //float r4_a = 1 - 1 * mr, r4_b = 1 + 1 * mr;//ho
-      //float r2_a = 1 - 1 * mr, r2_b = 1 + 1 * mr;//hf
-
-
-      gStyle->SetOptStat(0);
-      gStyle->SetOptFit(0);
-      gStyle->SetLabelFont(42);
-      gStyle->SetLabelFont(42);
-      gStyle->SetTitleFont(42);
-      gStyle->SetTitleFont(42);
-      gStyle->SetMarkerSize(0);
-      gStyle->SetTitleOffset(1.3,"Y");
-      gStyle->SetTitleOffset(1.0,"X");
-      gStyle->SetNdivisions(510);
-      gStyle->SetStatH(0.11);
-      gStyle->SetStatW(0.33);
-      gStyle->SetTitleW(0.4);
-      gStyle->SetTitleX(0.13);
-      //gROOT->ForceStyle();
-      gStyle->SetPadTickX(1);
-      gStyle->SetPadTickY(1);
-
-      auto iov = iovs.front();
-      std::shared_ptr<HcalGains> payload = fetchPayload( std::get<1>(iov) );
-      std::map<std::pair<std::string,int>,TH2F>* filledHists;
-      //class HcalGainsDataContainer : public HcalObjRepresent::HcalDataContainer {
-      //public:
-      //  virtual ~HcalGainsObjRepresent(){};
-      //  virtual float getValue(HcalGain gain) {
-      //    return gain.getValue(0) + gain.getValue(1) + gain.getValue(2) + gain.getValue(3);
-      //  }
-      //};
-      //HcalObjRepresent::HcalDataContainer objContainer = new HcalGainsDataContainer(payload, &filledHists);
-      //HcalObjRepresent::HcalDataContainer<HcalGains> objContainer = new HcalObjRepresent::HcalDataContainer(payload, &filledHists);
-      if(payload.get()) HcalObjRepresent::HcalDataContainer<HcalGains,HcalGain>* objContainer = new HcalObjRepresent::HcalDataContainer<HcalGains,HcalGain>(payload, filledHists);
-      	
-
-
-      TCanvas canvas("CC map","CC map",1680,1320);
-      canvas.cd();
-      filledHists->at(std::pair<std::string,int>("HB",1)).Draw();
-
-      //if( payload.get() ){ 
-        //payload->fillValConts();
-        
- 
-     // }
-
-      std::string ImageName(m_imageFileName);
-      canvas.SaveAs(ImageName.c_str());
-      return true;
     }// fill method
   };
 
   /**********************************************************
-     2d plot of ECAL GainRatios difference between 2 IOVs
+     2d plot of ECAL PedestalRatios difference between 2 IOVs
   **********************************************************/
-  class HcalGainsDiff : public cond::payloadInspector::PlotImage<HcalGains> {
+  class HcalPedestalsDiff : public cond::payloadInspector::PlotImage<HcalPedestals> {
 
   public:
-    HcalGainsDiff() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios difference") {
+    HcalPedestalsDiff() : cond::payloadInspector::PlotImage<HcalPedestals>("HCAL Pedestal Ratios difference") {
       setSingleIov(false);
     }
 
@@ -108,8 +95,8 @@ namespace {
       auto iov1 = iovs.front();
       auto iov2 = iovs.back();
 
-      std::shared_ptr<HcalGains> payload1 = fetchPayload( std::get<1>(iov1) );
-      std::shared_ptr<HcalGains> payload2 = fetchPayload( std::get<1>(iov2) );
+      std::shared_ptr<HcalPedestals> payload1 = fetchPayload( std::get<1>(iov1) );
+      std::shared_ptr<HcalPedestals> payload2 = fetchPayload( std::get<1>(iov2) );
       //unsigned int run1 = std::get<0>(iov1);
       //unsigned int run2 = std::get<0>(iov2);
 
@@ -177,16 +164,16 @@ namespace {
 
       if( payload1.get() ){
         std::vector<DetId> channels1 = (*payload1).getAllChannels();
-        std::vector< std::pair< std::string, std::vector<HcalGain> >> containers1 = (*payload1).getAllContainers();
+        std::vector< std::pair< std::string, std::vector<HcalPedestal> >> containers1 = (*payload1).getAllContainers();
         int iphi1;
         int ieta1;
         int depth1;
         float gainVal1;
         HcalDetId detId1;
-        for( std::pair< std::string, std::vector<HcalGain> > cont : containers1){  
+        for( std::pair< std::string, std::vector<HcalPedestal> > cont : containers1){  
             //std::cout << "Container for " << std::get<0>(cont) <<  "has content " << std::to_string(std::get<1>(cont).getValues()) << std::endl;
-            std::vector<HcalGain> gainsVals1 = std::get<1>(cont);
-            for(HcalGain gain : gainsVals1){
+            std::vector<HcalPedestal> gainsVals1 = std::get<1>(cont);
+            for(HcalPedestal gain : gainsVals1){
               detId1 = HcalDetId(gain.rawId());
               iphi1 = detId1.iphi();
               ieta1 = detId1.ieta();
@@ -223,16 +210,16 @@ namespace {
 
       if( payload2.get() ){
         std::vector<DetId> channels2 = (*payload2).getAllChannels();
-        std::vector< std::pair< std::string, std::vector<HcalGain> >> containers2 = (*payload2).getAllContainers();
+        std::vector< std::pair< std::string, std::vector<HcalPedestal> >> containers2 = (*payload2).getAllContainers();
         int iphi2;
         int ieta2;
         int depth2;
         float gainVal2;
         HcalDetId detId2;
-        for( std::pair< std::string, std::vector<HcalGain> > cont : containers2){  
+        for( std::pair< std::string, std::vector<HcalPedestal> > cont : containers2){  
             //std::cout << "Container for " << std::get<0>(cont) <<  "has content " << std::to_string(std::get<1>(cont).getValues()) << std::endl;
-            std::vector<HcalGain> gainsVals2 = std::get<1>(cont);
-            for(HcalGain gain : gainsVals2){
+            std::vector<HcalPedestal> gainsVals2 = std::get<1>(cont);
+            for(HcalPedestal gain : gainsVals2){
               detId2 = HcalDetId(gain.rawId());
               iphi2 = detId2.iphi();
               ieta2 = detId2.ieta();
@@ -565,7 +552,7 @@ namespace {
 } // close namespace
 
   // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE(HcalGains){
-  PAYLOAD_INSPECTOR_CLASS(HcalGainsPlot);
-  PAYLOAD_INSPECTOR_CLASS(HcalGainsDiff);
+PAYLOAD_INSPECTOR_MODULE(HcalPedestals){
+  PAYLOAD_INSPECTOR_CLASS(HcalPedestalsPlot);
+  PAYLOAD_INSPECTOR_CLASS(HcalPedestalsDiff);
 }
