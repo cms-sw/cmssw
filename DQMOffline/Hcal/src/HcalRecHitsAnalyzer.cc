@@ -328,7 +328,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
       sevLvl_HB = ibooker.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HB" ) ;
-      meRecHitsEnergyHB = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
+      meRecHitsEnergyHB = ibooker.book1DD(histo, histo, 2010 , -10. , 2000.); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M0_HB" ) ;
       meRecHitsEnergyHBM0 = ibooker.book1D(histo, histo, 2010 , -10. , 2000.); 
@@ -384,7 +384,7 @@ HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf)
       sevLvl_HE = ibooker.book1D(histo, histo, 25, -0.5, 24.5); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
-      meRecHitsEnergyHE = ibooker.book1D(histo, histo, 2010, -10., 2000.);
+      meRecHitsEnergyHE = ibooker.book1DD(histo, histo, 2010, -10., 2000.);
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_M0_HE" ) ;
       meRecHitsEnergyHEM0 = ibooker.book1D(histo, histo, 2010, -10., 2000.);
