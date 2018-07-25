@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 
@@ -55,8 +56,8 @@ def getSequence(process, collection,
     if usePixelQualityFlag is None:
         if "Template" not in TTRHBuilder:
             usePixelQualityFlag = False # not defined without templates
-            print "Using 'TTRHBuilder' without templates:", TTRHBuilder
-            print " --> Turning off pixel quality flag in hit filter."
+            print("Using 'TTRHBuilder' without templates:", TTRHBuilder)
+            print(" --> Turning off pixel quality flag in hit filter.")
         else:
             usePixelQualityFlag = True # default for usage with templates
 
@@ -337,7 +338,7 @@ def getSequence(process, collection,
     else:
         if mods[-1][-1]["method"] is "load" and \
                 not mods[-1][-1].get("clone", False):
-            print "Name of the last module needs to be modifiable."
+            print("Name of the last module needs to be modifiable.")
             sys.exit(1)
         src = _getModule(process, src, mods[-1][0], "FinalTrackRefitter",
                          options[mods[-1][0]][mods[-1][1]],
@@ -412,7 +413,7 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
             obj = getattr(process, objTuple[1])
             moduleName = objTuple[1]
     else:
-        print "Unknown method:", method
+        print("Unknown method:", method)
         sys.exit(1)
 
     if modType == "TrackSplitting":
