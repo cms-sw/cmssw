@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import copy
 import math
 import array
@@ -531,7 +532,7 @@ def main():
         plotMemory("90x_ttbar_phase1_vs_pu", peakrss_trajectory, ["2017 90X IB", "2017 90X IB+#17098"], [stylePhase1, stylePhase1CA])
 
     printEffFake(files1, pileup)
-    print "With CA"
+    print("With CA")
     printEffFake(files1ca, pileup)
 
    
@@ -883,7 +884,7 @@ def plotFake(files, prefix, pileup):
                 vreco = d[coll]
                 vassoc = dassoc[coll]
                 vfake = vreco[0]-vassoc[0]
-                print vfake, norm
+                print(vfake, norm)
                 hnew.SetBinContent(i+1, vfake)
                 hnew.SetBinError(i+1, math.sqrt(vfake))
         newhistos.append(hnew)
@@ -1173,7 +1174,7 @@ def plotTime(fileCollections, prefix, pileups, legends, styles):
         gr = ROOT.TGraph(len(pileups), array.array("d", pileups), array.array("d", [t*normfactor for t in times]))
         graphs.append(gr)
 
-    print "Time normalization factor", normfactor
+    print("Time normalization factor", normfactor)
 
 
     plot = Plot(graphs, legends, styles)
@@ -1317,7 +1318,7 @@ def plotMemory(prefix, data, legends, styles):
 ################################################################################
 ################################################################################
 def printEffFake(files, pileup):
-    print "For pileup", pileup
+    print("For pileup", pileup)
     for f, l in zip(files.getFiles(), files.getLegends()):
         eff_h = f.Get("DQMData/Run 1/Tracking/Run summary/Track/effic_vs_coll")
         fake_h = f.Get("DQMData/Run 1/Tracking/Run summary/Track/fakerate_vs_coll")
@@ -1325,16 +1326,16 @@ def printEffFake(files, pileup):
         eff_d = plotting._th1ToOrderedDict(eff_h)
         fake_d = plotting._th1ToOrderedDict(fake_h)
 
-        print l
+        print(l)
 
         #coll = "generalTracks"
         #collPt = coll
         coll = "cutsRecoTracksHp"
         collPt = "cutsRecoTracksPt09Hp"
-        print "Efficiency", eff_d[coll]
-        print "Fake rate ", fake_d[coll]
-        print "Efficiency (track pt>0.9)", eff_d[collPt]
-        print "Fake rate  (track pt>0.9)", fake_d[collPt]
+        print("Efficiency", eff_d[coll])
+        print("Fake rate ", fake_d[coll])
+        print("Efficiency (track pt>0.9)", eff_d[collPt])
+        print("Fake rate  (track pt>0.9)", fake_d[collPt])
 
 
 

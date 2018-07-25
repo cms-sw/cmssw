@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import argparse
 
@@ -70,12 +71,12 @@ def main(opts):
         other.extend([vertexPlots.plotterExt, trackingPlots.plotterHLTExt])
     val.doPlots(trk, plotterDrawArgs=drawArgs, **kwargs_tracking)
     val.doPlots(other, plotterDrawArgs=drawArgs)
-    print
+    print()
     if opts.no_html:
-        print "Plots created into directory '%s'." % opts.outputDir
+        print("Plots created into directory '%s'." % opts.outputDir)
     else:
         htmlReport.write()
-        print "Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir
+        print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.")
@@ -122,13 +123,13 @@ if __name__ == "__main__":
             parser.error("DQM file %s does not exist" % f)
 
     if opts.ignoreMissing:
-        print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
+        print("--ignoreMissing is now the only operation mode, so you can stop using this parameter")
 
     if opts.ratio:
-        print "--ratio is now the default, so you can stop using this parameter"
+        print("--ratio is now the default, so you can stop using this parameter")
 
     if opts.html:
-        print "--html is now the default, so you can stop using this parameter"
+        print("--html is now the default, so you can stop using this parameter")
 
     if opts.limit_tracking_algo is not None:
         if opts.limit_relval:
@@ -136,6 +137,6 @@ if __name__ == "__main__":
         opts.limit_tracking_algo = opts.limit_tracking_algo.split(",")
 
     if opts.limit_relval and opts.ptcut:
-        print "With --limit-relval enabled, --ptcut option does not have any effect"
+        print("With --limit-relval enabled, --ptcut option does not have any effect")
 
     main(opts)
