@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
@@ -13,7 +14,7 @@ for argument in sys.argv[2:]:
       fileToRead = "file:"+argument
       readFiles.append(fileToRead)
 
-print "readFiles : \n", readFiles
+print("readFiles : \n", readFiles)
 
 process = cms.Process("CONV")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
