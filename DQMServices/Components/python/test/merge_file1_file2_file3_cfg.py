@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -22,7 +23,7 @@ process.add_(cms.Service("DQMStore"))
 
 if len(sys.argv) > 2:
     if sys.argv[2] != 1: 
-        print "selecting on run %s"% (sys.argv[2])
+        print("selecting on run %s"% (sys.argv[2]))
         process.source.filterOnRun = cms.untracked.uint32(int(sys.argv[2]))
         process.out.filterOnRun = cms.untracked.uint32(int(sys.argv[2]))
 
