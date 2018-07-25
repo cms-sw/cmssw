@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ConfigParser
 import os
 import re
