@@ -84,6 +84,14 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
     // ************** HB **********************************
     if (subdet_ == 1 || subdet_ == 5 ){
 
+
+      sprintf (histo, "HcalRecHitTask_M2Log10Chi2_of_rechits_HB" ) ;   //   Chi2
+      meRecHitsM2Chi2HB = ib.book1D(histo, histo, 120 , -2. , 10.);       
+
+      sprintf (histo, "HcalRecHitTask_Log10Chi2_vs_energy_profile_HB" ) ;
+      meLog10Chi2profileHB = ib.bookProfile(histo, histo, 300, -5., 295., -2., 9.9, " ");
+
+
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HB" ) ;
       meRecHitsEnergyHB = ib.book1D(histo, histo, 2010 , -10. , 2000.); 
       
@@ -107,6 +115,14 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
     
     // ********************** HE ************************************
     if ( subdet_ == 2 || subdet_ == 5 ){
+
+
+      sprintf (histo, "HcalRecHitTask_M2Log10Chi2_of_rechits_HE" ) ;   //   Chi2
+      meRecHitsM2Chi2HE = ib.book1D(histo, histo, 120 , -2. , 10.);       
+
+      sprintf (histo, "HcalRecHitTask_Log10Chi2_vs_energy_profile_HE" ) ;
+      meLog10Chi2profileHE = ib.bookProfile(histo, histo, 1000, -5., 995., -2., 9.9, " ");
+
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
       meRecHitsEnergyHE = ib.book1D(histo, histo, 2010, -10., 2000.);
@@ -344,6 +360,10 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       double en  = cen[i]; 
       double t   = ctime[i];
       int   ieta = cieta[i];
+      double chi2 = cchi2[i];
+
+      double chi2_log10 = 9.99;                // initial value above histos limits , keep it if chi2 <= 0.
+      if (chi2 > 0.) chi2_log10 = log10(chi2);
 
       nrechits++;	    
       eHcal += en;
@@ -375,6 +395,10 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       //The energy and overall timing histos are drawn while
       //the ones split by depth are not
       if(sub == 1 && (subdet_ == 1 || subdet_ == 5)) {  
+
+        meRecHitsM2Chi2HB->Fill(chi2_log10);
+        meLog10Chi2profileHB->Fill(en,chi2_log10);
+
 	meRecHitsEnergyHB->Fill(en);
 	
 	meTEprofileHB_Low->Fill(en, t);
@@ -383,6 +407,12 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       }     
       if(sub == 2 && (subdet_ == 2 || subdet_ == 5)) {  
+
+
+        meRecHitsM2Chi2HE->Fill(chi2_log10);
+        meLog10Chi2profileHE->Fill(en,chi2_log10);
+
+
 	meRecHitsEnergyHE->Fill(en);
 
 	meTEprofileHE_Low->Fill(en, t);
@@ -513,6 +543,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   ciphi.clear();
   cdepth.clear();
   cz.clear();
+  cchi2.clear();
 
   if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     
@@ -535,6 +566,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	int intphi  = cell.iphi()-1;
 	double en   = j->energy();
 	double t    = j->time();
+        double chi2 = j->chi2();
 	
 	if((iz > 0 && eta > 0.) || (iz < 0 && eta <0.) || iz == 0) { 
 	  
@@ -547,6 +579,8 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	  ciphi.push_back(intphi);
 	  cdepth.push_back(depth);
 	  cz.push_back(zc);
+	  cchi2.push_back(chi2);
+
 	}
       }
     }
@@ -585,6 +619,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	  ciphi.push_back(intphi);
 	  cdepth.push_back(depth);
 	  cz.push_back(zc);
+	  cchi2.push_back(0.);
 	}
       }
     }
@@ -621,6 +656,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
 	  ciphi.push_back(intphi);
 	  cdepth.push_back(depth);
 	  cz.push_back(zc);
+	  cchi2.push_back(0.);
 	}
       }
     }
