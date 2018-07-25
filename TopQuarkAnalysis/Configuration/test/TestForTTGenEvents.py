@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
@@ -31,9 +32,9 @@ if( hasattr(sys, "argv") ):
                 setattr(options,val[0], val[1])
 
 if options.runOnPythia8:
-    print 'Running on Pythia8'
+    print('Running on Pythia8')
 else:
-    print 'Running on Pythia6'
+    print('Running on Pythia6')
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
