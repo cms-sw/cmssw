@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import sys, ROOT
 ROOT.gROOT.SetBatch(1)
 
@@ -10,17 +11,17 @@ execfile("plotscripts.py")
 cargs = sys.argv[:]
 
 if len(cargs) < 5 or len(cargs) > 7:
-  print "Draws differences between two xml geometries (or between single xml geometry and ideal) for all six variables."
-  print "usage: ./diffTwoXMLs.py label selector geom2.xml geom1.xml report2.py report1.py"
-  print "or     ./diffTwoXMLs.py label selector geom2.xml geom1.xml report.py"
-  print "or     ./diffTwoXMLs.py label selector geom.xml report.py"
-  print "where selector is one of ALL, DT, CSC, CSCE1, CSCE2"
-  print "The label will be included into the filename as diffTwoXMLs_label_selector.png"
-  print ""
-  print "Special consistency test mode with respect to corrections in the report:"
-  print "If the label starts with \"vsReport_\", the delta corrections from report2 would be substracted from the XML differences."
-  print "Example:"
-  print "./diffTwoXMLs.py diffReport_label selector geom2.xml geom1.xml report.py"
+  print("Draws differences between two xml geometries (or between single xml geometry and ideal) for all six variables.")
+  print("usage: ./diffTwoXMLs.py label selector geom2.xml geom1.xml report2.py report1.py")
+  print("or     ./diffTwoXMLs.py label selector geom2.xml geom1.xml report.py")
+  print("or     ./diffTwoXMLs.py label selector geom.xml report.py")
+  print("where selector is one of ALL, DT, CSC, CSCE1, CSCE2")
+  print("The label will be included into the filename as diffTwoXMLs_label_selector.png")
+  print("")
+  print("Special consistency test mode with respect to corrections in the report:")
+  print("If the label starts with \"vsReport_\", the delta corrections from report2 would be substracted from the XML differences.")
+  print("Example:")
+  print("./diffTwoXMLs.py diffReport_label selector geom2.xml geom1.xml report.py")
   sys.exit()
 
 

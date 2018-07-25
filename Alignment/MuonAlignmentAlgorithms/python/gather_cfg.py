@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +9,7 @@ except:
     try:
         import simplejson as json
     except:
-        print "Please use lxplus or set an environment (for example crab) with json lib available"
+        print("Please use lxplus or set an environment (for example crab) with json lib available")
         sys.exit(1)
 
 inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
