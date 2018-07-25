@@ -43,7 +43,7 @@ valOmtfDigis.srcRPC = cms.InputTag('omtfStage2Digis')
 
 # EMTF
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
-valEmtfStage2Digis = simEmtfDigis.clone()
+valEmtfStage2Digis = simEmtfDigisData.clone()
 valEmtfStage2Digis.CSCInput = "emtfStage2Digis"
 valEmtfStage2Digis.RPCInput = "muonRPCDigis"
 
