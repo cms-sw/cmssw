@@ -3,7 +3,6 @@
 // user include files
 
 
-#include "EventFilter/EcalDigiToRaw/interface/EcalDigiToRaw.h"
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
@@ -11,37 +10,37 @@
 
 using namespace std;
 
-BlockFormatter::BlockFormatter() {
+BlockFormatter::BlockFormatter(Config const& iC):
+  plistDCCId_{iC.plistDCCId_},
+  debug_{iC.debug_},
+  doBarrel_{iC.doBarrel_},
+  doEndCap_{iC.doEndCap_},
+  doTCC_{iC.doTCC_},
+  doSR_{iC.doSR_},
+  doTower_{iC.doTower_}
+{
 }
 
 BlockFormatter::~BlockFormatter() {
 }
 
 
-void BlockFormatter::SetParam(EcalDigiToRaw* base) {
+void BlockFormatter::SetParam(Params& base) {
 
- pcounter_ = (base -> GetCounter());
- debug_   = base -> GetDebug();
- porbit_number_ = (base -> GetOrbit());
- plv1_ = (base -> GetLV1());
- pbx_  = (base -> GetBX());
- prunnumber_ = (base -> GetRunNumber());
- doBarrel_ = base -> GetDoBarrel();
- doEndCap_ = base -> GetDoEndCap();
- plistDCCId_ = base -> GetListDCCId();
- doTCC_ = base -> GetDoTCC();
- doSR_ = base -> GetDoSR();
- doTower_ = base -> GetDoTower();
-
+  counter_ = base.counter_;
+  orbit_number_ = base.orbit_number_;
+  lv1_ = base.lv1_;
+  bx_  = base.bx_;
+  runnumber_ = base.runnumber_;
 }
 
 
 void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
 
- int run_number = *prunnumber_;
- int orbit_number_ = *porbit_number_;
- int bx = *pbx_;
- int lv1 = *plv1_;
+ int run_number = runnumber_;
+ int orbit_number_ = orbit_number_;
+ int bx = bx_;
+ int lv1 = lv1_;
 
  if (debug_) cout << "in BlockFormatter::DigiToRaw  run_number orbit_number bx lv1 " << dec << run_number << " " <<
          orbit_number_ << " " << bx << " " << lv1 << endl;
