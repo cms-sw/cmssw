@@ -10,6 +10,7 @@
 #  Questions and comments to: volker.adler@cern.ch
 
 
+from __future__ import print_function
 import sys
 import os
 import string
@@ -236,14 +237,14 @@ def Func_FillInfoRunRegistry():
       bool_foundRun = True
       break
   if not bool_foundRun:
-    print '> getRunInfo.py > run %s not found in run registry' %(Str_run)
+    print('> getRunInfo.py > run %s not found in run registry' %(Str_run))
     return False
   dict_tagsRunRegistry = Func_GetHtmlTags(str_runRunRegistry)
   for str_tagRunRegistry in dict_tagsRunRegistry.keys():
     if dict_tagsRunRegistry[str_tagRunRegistry] == False:
       Dict_runRegistry[str_tagRunRegistry] = Func_GetHtmlTagValue(str_tagRunRegistry, str_runRunRegistry)
   if Dict_runRegistry['SUBSYSTEMS'].find(STR_SiStrip) < 0:
-    print '> getRunInfo.py > SiStrip was not in this run'
+    print('> getRunInfo.py > SiStrip was not in this run')
     return False
   return True
   
@@ -379,9 +380,9 @@ def Func_FillInfoDBS(str_dbsInstance):
  
 ## MAIN PROGRAM
 
-print
-print '> getRunInfo.py > information on run \t*** %s ***' %(Str_run)
-print
+print()
+print('> getRunInfo.py > information on run \t*** %s ***' %(Str_run))
+print()
 
 # enter online password
 
@@ -395,12 +396,12 @@ bool_runRegistry = Func_FillInfoRunRegistry()
 # print run RunRegistry info
 
 if bool_runRegistry:
-  print
-  print '> getRunInfo.py > * information from run registry *'
-  print
+  print()
+  print('> getRunInfo.py > * information from run registry *')
+  print()
   for str_htmlTag in DICT_tagsRunRegistry.keys():
     if str_htmlTag in Dict_runRegistry:
-      print '> getRunInfo.py > %s: %s' %(DICT_tagsRunRegistry[str_htmlTag],Dict_runRegistry[str_htmlTag])
+      print('> getRunInfo.py > %s: %s' %(DICT_tagsRunRegistry[str_htmlTag],Dict_runRegistry[str_htmlTag]))
   
 # get run RunSummary entries
 
@@ -408,15 +409,15 @@ Func_FillInfoRunSummary()
 
 # print run RunSummary info
 
-print
-print '> getRunInfo.py > * information from run summary *'
-print
+print()
+print('> getRunInfo.py > * information from run summary *')
+print()
 for str_key in DICT_keysRunSummary.keys():
   if str_key in Dict_wbmRunSummary:
-    print '> getRunInfo.py > %s: %s' %(DICT_keysRunSummary[str_key],Dict_wbmRunSummary[str_key])
+    print('> getRunInfo.py > %s: %s' %(DICT_keysRunSummary[str_key],Dict_wbmRunSummary[str_key]))
 for str_key in DICT_keysRunSummaryTrigger.keys():
   if str_key in Dict_wbmRunSummary:
-    print '> getRunInfo.py > %s: %s' %(DICT_keysRunSummaryTrigger[str_key],Dict_wbmRunSummary[str_key])
+    print('> getRunInfo.py > %s: %s' %(DICT_keysRunSummaryTrigger[str_key],Dict_wbmRunSummary[str_key]))
     
 # get run MagnetHistory info
 
@@ -426,10 +427,10 @@ if STR_runStart in Dict_wbmRunSummary and STR_runEnd in Dict_wbmRunSummary: # ne
 # print run MagnetHistory info
 
 if Float_magneticField >= 0.0:
-  print
-  print '> getRunInfo.py > * information from magnet history *'
-  print
-  print '> getRunInfo.py > (average) magnetic field: %s T' %(str(Float_magneticField))
+  print()
+  print('> getRunInfo.py > * information from magnet history *')
+  print()
+  print('> getRunInfo.py > (average) magnetic field: %s T' %(str(Float_magneticField)))
   
 # get run HLT info
 
@@ -440,18 +441,18 @@ if STR_htlConfig in Dict_wbmRunSummary: # need HLT config ID from run summary he
 # print run HLT info
 
 if bool_hlt:
-  print
-  print '> getRunInfo.py > * information from HLT configuration %s *' %(Dict_wbmRunSummary[STR_htlConfig])
-  print
-  print '> getRunInfo.py > HLT paths included:'
-  print '> -----------------------------------'
+  print()
+  print('> getRunInfo.py > * information from HLT configuration %s *' %(Dict_wbmRunSummary[STR_htlConfig]))
+  print()
+  print('> getRunInfo.py > HLT paths included:')
+  print('> -----------------------------------')
   for str_hltPaths in Lstr_hltPaths:
     if str_hltPaths.find('CandHLTTrackerCosmics') >= 0 or str_hltPaths.find('HLT_TrackerCosmics') >= 0 or str_hltPaths.find('HLTTrackerCosmics') >= 0: 
-      print '                  %s \t<====== FOR SURE!' %(str_hltPaths)
+      print('                  %s \t<====== FOR SURE!' %(str_hltPaths))
     elif str_hltPaths.find('Tracker') >= 0:
-      print '                  %s \t<====== maybe?' %(str_hltPaths)
+      print('                  %s \t<====== maybe?' %(str_hltPaths))
     else:
-      print '                  %s' %(str_hltPaths)
+      print('                  %s' %(str_hltPaths))
 
 # get run DBS entries
 
@@ -460,23 +461,23 @@ for str_dbsInstance in LSTR_dbsInstances:
 
 # print run DBS info
 
-print
-print '> getRunInfo.py > * information from DBS *'
+print()
+print('> getRunInfo.py > * information from DBS *')
 for str_dbsInstance in LSTR_dbsInstances:
-  print
-  print '> getRunInfo.py > DBS instance: %s' %(str_dbsInstance)
+  print()
+  print('> getRunInfo.py > DBS instance: %s' %(str_dbsInstance))
   if str_dbsInstance == LSTR_dbsInstances[0]:
-    print '                  (This is the instance used at CAF!)'
+    print('                  (This is the instance used at CAF!)')
   str_print = '> getRunInfo.py > ' + STR_headDatasets
   for int_i in range(Dict_maxLenDbsDatasets[str_dbsInstance]-len(STR_headDatasets)):
     str_print += ' '
   str_print += ' '
   int_length = len(str_print)
-  print '%s%s' %(str_print,STR_headFiles)
+  print('%s%s' %(str_print,STR_headFiles))
   str_print = '                  '
   for int_i in range(int_length-16+len(STR_headFiles)/2+INT_offset+8):
     str_print += '-'
-  print str_print
+  print(str_print)
   for str_dbsDataset in Dict_dbsDatasets[str_dbsInstance]:
     str_print = '                  ' + str_dbsDataset
     for int_i in range(Dict_maxLenDbsDatasets[str_dbsInstance]-len(str_dbsDataset)):
@@ -487,6 +488,6 @@ for str_dbsInstance in LSTR_dbsInstances:
     str_print += DictDict_dbsDatasets[str_dbsInstance][str_dbsDataset] + ' ('
     for int_i in range(INT_offset-len(DictDict_dbsEvents[str_dbsInstance][str_dbsDataset])):
       str_print += ' '
-    print '%s%s events)' %(str_print,DictDict_dbsEvents[str_dbsInstance][str_dbsDataset])
+    print('%s%s events)' %(str_print,DictDict_dbsEvents[str_dbsInstance][str_dbsDataset]))
 
-print  
+print()  
