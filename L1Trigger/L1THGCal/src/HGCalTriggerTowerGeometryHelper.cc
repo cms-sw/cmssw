@@ -50,7 +50,7 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
       for(unsigned int bin2 = 0; bin2 != nBinsPhi_; bin2++) {
         l1t::HGCalTowerID towerId(zside, bin1, bin2);
         tower_coords_.emplace_back(towerId.rawId(),
-                                   (binsEta_[bin1+1] + binsEta_[bin1])/2,
+                                   zside*((binsEta_[bin1+1] + binsEta_[bin1])/2),
                                    (binsPhi_[bin2+1] + binsPhi_[bin2])/2);
       }
     }
