@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
 import ConfigParser
@@ -13,7 +14,7 @@ def loadDQMRunConfigFromFile():
     config = ConfigParser.ConfigParser()
     files_read = config.read(conf_locations)
 
-    print "Loaded configuration file from:", files_read
+    print("Loaded configuration file from:", files_read)
     return config
 
 # default values, config in file overrides parts of it
@@ -53,7 +54,7 @@ if dqmFileConfig.has_option("host", "collectorHost"):
 
 
 # now start the actual configuration
-print "dqmRunConfig:", dqmRunConfig
+print("dqmRunConfig:", dqmRunConfig)
 
 from DQMServices.Core.DQMStore_cfi import *
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from contentValuesLib import *
 
 class OptionParser(optparse.OptionParser):
@@ -20,7 +21,7 @@ if __name__ == "__main__":
 
   # Check if at least one root file defined (can be many!)
   if len(args) == 0:
-    print "At least one ROOT file must be priovided, use --help for hit"
+    print("At least one ROOT file must be priovided, use --help for hit")
     sys.exit(1)
 
   # Check if all files exists and are accessible
@@ -28,7 +29,7 @@ if __name__ == "__main__":
     try:
       os.stat(rfile)
     except:
-      print "File [", rfile, "] not exists or is not accessible?"
+      print("File [", rfile, "] not exists or is not accessible?")
       sys.exit(2)
 
   # Take the filter
@@ -44,27 +45,27 @@ if __name__ == "__main__":
     dataset = getDatasetName(rfile)
 
     if run_number == None:
-      print "Run number does not determined. Skipping file: %s" % rfile
+      print("Run number does not determined. Skipping file: %s" % rfile)
       continue
     
     if dataset == None:
-      print "Dataset name do not determined. Skipping file: %s" % rfile
+      print("Dataset name do not determined. Skipping file: %s" % rfile)
       continue
 
     if values == None or len(values) == 0:
-      print "No content summary values found. Skipping file: %s" % rfile
+      print("No content summary values found. Skipping file: %s" % rfile)
       continue
 
     try:
       if opts['debug']:
-        print "Run number: %d" % run_number
-        print "Dataset: %s" % dataset
-        print "Data: ", values
+        print("Run number: %d" % run_number)
+        print("Dataset: %s" % dataset)
+        print("Data: ", values)
       else:
         result = server.insertdq_auto(run_number, dataset, values)
-        print "DBS DQM: %d rows modified for run %d dataset %s" % (result, run_number, dataset)
+        print("DBS DQM: %d rows modified for run %d dataset %s" % (result, run_number, dataset))
     except xmlrpclib.Error as errstring:
-      print "ERROR", errstring
+      print("ERROR", errstring)
       sys.exit(3)
   
   sys.exit(0)

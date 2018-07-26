@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
@@ -25,7 +26,7 @@ if process.dqmRunConfig.type.value() == "production":
     rid = process.source.runInputDir.value()
     process.source.runInputDir = rid + ":" + "/cmsnfsscratch/globalscratch/cmsbril/PLT/DQM/"
     
-    print "Modified input source:", process.source
+    print("Modified input source:", process.source)
 
 # remove EventInfo
 process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
