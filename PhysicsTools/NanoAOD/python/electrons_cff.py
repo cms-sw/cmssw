@@ -175,8 +175,6 @@ run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
     eCorr = cms.InputTag("energyCorrForEle80X","eCorr")
 )
 run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userFloats,
-    mvaSpring16GP = None,
-    mvaSpring16HZZ = None,
     mvaFall17Iso = None,
     mvaFall17noIso = None,
 )
