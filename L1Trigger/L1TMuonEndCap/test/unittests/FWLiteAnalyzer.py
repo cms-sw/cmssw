@@ -4,6 +4,7 @@
 # Based on https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookFWLitePython
 # Some snippets of codes are stolen from PhysicsTools/Heppy
 
+from __future__ import print_function
 from ROOT import gROOT, gSystem, AutoLibraryLoader
 from DataFormats.FWLite import Events, Handle
 
@@ -79,7 +80,7 @@ class FWLiteAnalyzer(object):
 # ______________________________________________________________________________
 if __name__ == "__main__":
 
-  print "Loading FW Lite"
+  print("Loading FW Lite")
   gSystem.Load("libFWCoreFWLite")
   gROOT.ProcessLine("FWLiteEnabler::enable();")
 
