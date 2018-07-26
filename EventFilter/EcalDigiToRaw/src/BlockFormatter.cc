@@ -10,8 +10,13 @@
 
 using namespace std;
 
-BlockFormatter::BlockFormatter(Config const& iC):
+BlockFormatter::BlockFormatter(Config const& iC, Params const& iP):
   plistDCCId_{iC.plistDCCId_},
+  counter_{iP.counter_},
+  orbit_number_{iP.orbit_number_},
+  bx_{iP.bx_},
+  lv1_{iP.lv1_},
+  runnumber_{iP.runnumber_},
   debug_{iC.debug_},
   doBarrel_{iC.doBarrel_},
   doEndCap_{iC.doEndCap_},
@@ -21,24 +26,9 @@ BlockFormatter::BlockFormatter(Config const& iC):
 {
 }
 
-BlockFormatter::~BlockFormatter() {
-}
-
-
-void BlockFormatter::SetParam(Params& base) {
-
-  counter_ = base.counter_;
-  orbit_number_ = base.orbit_number_;
-  lv1_ = base.lv1_;
-  bx_  = base.bx_;
-  runnumber_ = base.runnumber_;
-}
-
-
 void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
 
  int run_number = runnumber_;
- int orbit_number_ = orbit_number_;
  int bx = bx_;
  int lv1 = lv1_;
 

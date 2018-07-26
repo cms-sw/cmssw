@@ -35,9 +35,7 @@ class BlockFormatter {
           int runnumber_;
         };
 
-	explicit BlockFormatter(Config const& iC);
-	~BlockFormatter();
-	void SetParam(Params& base);
+	explicit BlockFormatter(Config const& iC, Params const& iP);
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
 	void DigiToRaw(FEDRawDataCollection* productRawData);
 	void print(FEDRawData& rawdata);

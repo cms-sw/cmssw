@@ -1,8 +1,6 @@
 #include <memory>
 #include <list>
 
-// #include "DataFormats/Common/interface/Handle.h"
-
 #include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -12,14 +10,9 @@
 using namespace std;
 
 
-TowerBlockFormatter::TowerBlockFormatter(Config const& iC): BlockFormatter(iC) {
+TowerBlockFormatter::TowerBlockFormatter(Config const& iC, Params const& iP): BlockFormatter(iC, iP) {
 
 }
-
-TowerBlockFormatter::~TowerBlockFormatter() {
-
-}
-
 
 
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
@@ -47,15 +40,15 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 		"TowerBlockFormatter::DigiToRaw : Invalid iFE " << iFE << endl;
 
 
-        map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-        map<int, map<int,int> >::iterator fed = FEDmap -> find(FEDid);
+        map<int, map<int,int> >::iterator fen = FEDorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = FEDmap.find(FEDid);
 
-        if (fen == FEDorder -> end()) {
+        if (fen == FEDorder.end()) {
                 if (debug_) cout << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
 		map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder -> insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
 		map<int,int> FEmap;
-		pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap -> insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+		pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
 		fed = t2.first;
         }
@@ -376,23 +369,10 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
 // -- clean up
 
- // FEDmap -> empty();
- // FEDorder -> empty();
- FEDmap -> clear();
- FEDorder -> clear();
- delete FEDmap;
- delete FEDorder;
- FEDmap = nullptr;
- FEDorder = nullptr;
+ // FEDmap.empty();
+ // FEDorder.empty();
 
  // cout << "end of EndEvent " << endl;
-}
-
-void TowerBlockFormatter::StartEvent() {
-
- FEDmap = new map<int, map<int,int> >;
- FEDorder = new map<int, map<int,int> >;
- 
 }
 
 
@@ -430,15 +410,15 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	}
 
 
-        map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-        map<int, map<int,int> >::iterator fed = FEDmap -> find(FEDid);
+        map<int, map<int,int> >::iterator fen = FEDorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = FEDmap.find(FEDid);
 
-        if (fen == FEDorder -> end()) {
+        if (fen == FEDorder.end()) {
                 if (debug_) cout << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
                 map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder -> insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
                 map<int,int> FEmap;
-                pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap -> insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+                pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
                 fed = t2.first;
         }
