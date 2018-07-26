@@ -1,5 +1,6 @@
 #!python
 
+from __future__ import print_function
 histos={}
 missing={}
 
@@ -19,15 +20,15 @@ for h in f:
 
 a=sorted(histos.keys())
 for h in a:
-  print h,
+  print(h, end=' ')
   if histos[h] != 0:
-    print "\t\t\t\t\t",  histos[h]
+    print("\t\t\t\t\t",  histos[h])
   else:
-    print ""
+    print("")
 
-print "========================= MISSING ============================"
+print("========================= MISSING ============================")
 
 a=missing.keys()
 a.sort()
 for h in a:
-  print h, missing[h]
+  print(h, missing[h])
