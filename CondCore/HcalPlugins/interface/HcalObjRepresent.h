@@ -1176,19 +1176,19 @@ namespace HcalObjRepresent{
 
 
 		pad1.cd();
-		graphData[0].SetStats(0);
+		graphData[0].SetStats(false);
 		graphData[0].Draw("colz");
 
 		pad2.cd();
-		graphData[1].SetStats(0);
+		graphData[1].SetStats(false);
 		graphData[1].Draw("colz");
 
 		pad3.cd();
-		graphData[2].SetStats(0);
+		graphData[2].SetStats(false);
 		graphData[2].Draw("colz");
 
 		pad4.cd();
-		graphData[3].SetStats(0);
+		graphData[3].SetStats(false);
 		graphData[3].Draw("colz");
 
 		canvas.SaveAs(filename.c_str());

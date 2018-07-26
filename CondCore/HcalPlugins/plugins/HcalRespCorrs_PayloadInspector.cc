@@ -24,7 +24,7 @@ namespace {
   class HcalRespCorrContainer : public HcalObjRepresent::HcalDataContainer<HcalRespCorrs,HcalRespCorr> {
   public:
     HcalRespCorrContainer(std::shared_ptr<HcalRespCorrs> payload, unsigned int run) : HcalObjRepresent::HcalDataContainer<HcalRespCorrs,HcalRespCorr>(payload, run) {}
-    float getValue(HcalRespCorr* rCor) {
+    float getValue(HcalRespCorr* rCor) override {
       return rCor->getValue();
     }
   };
