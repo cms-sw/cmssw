@@ -39,7 +39,7 @@ calibrate(reco::Photon &photon,const unsigned int runNumber,
   const float scEtaAbs = std::abs(photon.superCluster()->eta());
   const float et = photon.getCorrectedEnergy(reco::Photon::P4type::regression2) / cosh(scEtaAbs);
 
-  if (et < minEt_) {
+  if (et < minEt_ || std::isnan(et) ) {
     std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
     retVal.fill(photon.getCorrectedEnergy(reco::Photon::P4type::regression2));
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
