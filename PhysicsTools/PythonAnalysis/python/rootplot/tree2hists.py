@@ -4,6 +4,7 @@ Create ROOT Histograms from one or more ROOT TTrees or TNtuples.
 
 Options are specified in the given configuration file.
 """
+from __future__ import print_function
 
 # Create configuration file:
 #   tree2hists.py
@@ -36,19 +37,19 @@ THE SOFTWARE.
 
 import sys                              # For exiting program
 if '-h' in sys.argv or '--help' in sys.argv:
-    print '''\
+    print('''\
 Create ROOT Histograms from one or more ROOT TTrees or TNtuples.
 
 Run by specifying configuration file:
   tree2hists config.py
 
 Create default config file by running with no arguments:
-  tree2hists'''
+  tree2hists''')
     sys.exit(0)
 try:
     from ROOT import TFile, TTree, TH1F, TH2F, TH3F, gROOT
 except Exception as e:
-    print e
+    print(e)
     print ("Use a python that has PyROOT installed.")
     sys.exit(0)
 from copy import deepcopy     # For copying histograms
@@ -143,9 +144,9 @@ list_of_plots = [
     f = open('t2h_config.py', 'w')
     f.write(defaultConfig)
     f.close()
-    print "Created default configuration file: t2h_config.py"
-    print "Edit it, then run by typing:"
-    print "  tree2hists t2h_config.py"
+    print("Created default configuration file: t2h_config.py")
+    print("Edit it, then run by typing:")
+    print("  tree2hists t2h_config.py")
 ##############################################################################
 
 def make_all_hists_all_files(list_of_RootTrees, list_of_Plots, cut_for_all_files, list_of_cutSets):
@@ -164,25 +165,25 @@ def make_all_hists_all_files(list_of_RootTrees, list_of_Plots, cut_for_all_files
     for j, rootTree in enumerate(list_of_RootTrees):
         rootTree.tfile = TFile(rootTree.fileName, "read")           # Open TFile
         if rootTree.tfile.IsZombie():
-            print "Error opening %s, exiting..." % rootTree.fileName
+            print("Error opening %s, exiting..." % rootTree.fileName)
             sys.exit(0)
         try:                                      # Try to get TTree from file.
             rootTree.tfile.GetObject(rootTree.treeName, rootTree.ttree)
         except:
-            print "Error: %s not found in %s, exiting..." % (rootTree.treeName,
-                                                             rootTree.fileName)
+            print("Error: %s not found in %s, exiting..." % (rootTree.treeName,
+                                                             rootTree.fileName))
             sys.exit(1)
 
-        print "\n%s: Opened %s  %i MB" % (datetime.now().strftime("%I:%M%p"),
+        print("\n%s: Opened %s  %i MB" % (datetime.now().strftime("%I:%M%p"),
                                           rootTree.fileName,
-                                          path.getsize(rootTree.fileName)/1048576)
-        print " %s has %i entries, will plot with scale=%.2e, cuts='%s'" % (rootTree.treeName,
+                                          path.getsize(rootTree.fileName)/1048576))
+        print(" %s has %i entries, will plot with scale=%.2e, cuts='%s'" % (rootTree.treeName,
                                                                             rootTree.ttree.GetEntries(),
                                                                             rootTree.scale,
-                                                                            rootTree.cuts)
+                                                                            rootTree.cuts))
         
         # Loop over plots
-        print "   # entries                  var >> histogram"
+        print("   # entries                  var >> histogram")
         for i, (plot, set_of_cuts) in enumerate(list_of_plots_to_write):
             histname_fix, title_fix, current_cut_set = set_of_cuts
             tmp_hist = plot.histogram.Clone("temp")    # Create temp hist
@@ -194,16 +195,16 @@ def make_all_hists_all_files(list_of_RootTrees, list_of_Plots, cut_for_all_files
             entries_before = plot.histogram.GetEntries()
             plot.histogram.Add(tmp_hist)               # Add temp hist to total
             entries_after = plot.histogram.GetEntries()
-            print " %3i %7i %20s >> %s/%s" % (i, entries_after-entries_before,
+            print(" %3i %7i %20s >> %s/%s" % (i, entries_after-entries_before,
                                               plot.treeVariable, histname_fix,
-                                              plot.histogram.GetName()),
+                                              plot.histogram.GetName()), end=' ')
             if plot.cuts:
-                print "\textra cuts: %s" % plot.cuts, # plot-specific cuts
-            print
+                print("\textra cuts: %s" % plot.cuts, end=' ') # plot-specific cuts
+            print()
             
         rootTree.tfile.Close()                                    # Close TFile
-        print "%s: Closed %s" % (datetime.now().strftime("%I:%M%p"),
-                                 rootTree.fileName)
+        print("%s: Closed %s" % (datetime.now().strftime("%I:%M%p"),
+                                 rootTree.fileName))
     return list_of_plots_to_write
 
 
@@ -222,37 +223,37 @@ def tree2hists_main(config_file):
         list_of_plots     = _temp.list_of_plots
         for rootTree in list_of_files:
             if not path.isfile(rootTree.fileName):
-                print "Error:\n  %s\nnot found for input." % rootTree.fileName
+                print("Error:\n  %s\nnot found for input." % rootTree.fileName)
                 sys.exit(1)
         hist_names = [plot.name for plot in list_of_plots]
         if len(hist_names)>len(set(hist_names)):
-            print hist_names
-            print "Error: Each plot needs a unique name, exiting..."
+            print(hist_names)
+            print("Error: Each plot needs a unique name, exiting...")
             sys.exit(1)
         if path.isfile(output_filename):
-            print "Warning: %s exists" % output_filename
+            print("Warning: %s exists" % output_filename)
     except Exception as e:
-        print e
-        print "Error with %s" % config_file
+        print(e)
+        print("Error with %s" % config_file)
         sys.exit(1)
 
     if path.isfile('rootlogon.C'):
-        print "Loading rootlogon.C"
+        print("Loading rootlogon.C")
         gROOT.Macro('rootlogon.C')    # Load functions from rootlogon script
 
     if cut_sets:
-        print "\n%i defined cut sets:" % len(cut_sets)
+        print("\n%i defined cut sets:" % len(cut_sets))
         for cut in cut_sets:
             name, title_fix, current_cut_set = cut
-            print "  %s\t: '%s'" % (name, current_cut_set)
+            print("  %s\t: '%s'" % (name, current_cut_set))
         cut_names = [name for name,num,cut in cut_sets]
         if len(cut_names)>len(set(cut_names)):
-            print "Error: Each cut set needs a unique name, exiting..."
+            print("Error: Each cut set needs a unique name, exiting...")
             sys.exit(1)
     else:
         cut_sets = [("","","")] # Make all plots, no extra cuts
 
-    print "\nCuts to apply to all files:\n\t'%s'" % cut_for_all_files
+    print("\nCuts to apply to all files:\n\t'%s'" % cut_for_all_files)
 
     start_time = datetime.now()
     list_of_plots_to_write = make_all_hists_all_files(list_of_files,
@@ -260,27 +261,27 @@ def tree2hists_main(config_file):
                                                       cut_for_all_files,
                                                       cut_sets)
     end_time = datetime.now()
-    print "Done drawing all plots after %s." % duration_to_string(start_time, end_time)
+    print("Done drawing all plots after %s." % duration_to_string(start_time, end_time))
 
     #   Store and save/close files
     outputFile = TFile(output_filename, "recreate")
     if outputFile.IsZombie():
-        print "Error opening %s for output exiting..." % output_filename
+        print("Error opening %s for output exiting..." % output_filename)
         sys.exit(1)
-    print "\nOpened output file. Saving histograms..."
+    print("\nOpened output file. Saving histograms...")
     outputFile.cd()
     for set_of_cuts in cut_sets:
         outputFile.mkdir(set_of_cuts[0])
-    print "   # entries  histogram"
+    print("   # entries  histogram")
     for i, (plot, cutset) in enumerate(list_of_plots_to_write):
         outputFile.cd(cutset[0])
-        print " %3i %7i  %s/%s" % (i, plot.histogram.GetEntries(),
+        print(" %3i %7i  %s/%s" % (i, plot.histogram.GetEntries(),
                                    cutset[0],
-                                   plot.histogram.GetName())
+                                   plot.histogram.GetName()))
         plot.histogram.Write()
     outputFile.Close()
-    print "Done saving."
-    print "\nScaled & added histograms from %i TTrees saved in\n  %s" % (len(list_of_files), output_filename)
+    print("Done saving.")
+    print("\nScaled & added histograms from %i TTrees saved in\n  %s" % (len(list_of_files), output_filename))
 ##############################################################################
 
 def main():
@@ -289,14 +290,14 @@ def main():
             config_file = sys.argv[1].split('.')[0]
             tree2hists_main(config_file)
         else:
-            print "%s not found." % sys.argv[1]
+            print("%s not found." % sys.argv[1])
             print("Create default config file by running tree2hists "
                   "with no argument.")
             sys.exit(1)
     else:
         if path.exists('t2h_config.py'):
-            print "Run with specific config file, like:"
-            print "  tree2hists t2h_config.py"
+            print("Run with specific config file, like:")
+            print("  tree2hists t2h_config.py")
             sys.exit(1)
         write_default_T2H_config()
         sys.exit(0)    

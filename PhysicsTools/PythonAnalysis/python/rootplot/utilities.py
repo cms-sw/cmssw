@@ -1,6 +1,7 @@
 """
 Utilities for rootplot including histogram classes.
 """
+from __future__ import print_function
 
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
@@ -346,7 +347,7 @@ class HistStack(object):
             return max([sum([h[i] for h in self.hists])
                        for i in range(self.hists[0].nbins)])
         except:
-            print [h.nbins for h in self.hists]
+            print([h.nbins for h in self.hists])
     def scale(self, factor):
         """Scale all Hists by factor."""
         for hist in self.hists:
@@ -439,13 +440,13 @@ def loadROOT(batch=True):
     try:
         import ROOT
     except ImportError:
-        print """\
+        print("""\
 The program was unable to access PyROOT.  Usually, this just requires switching
 to the same major version of python that used when compiling ROOT.  To
 determine which version that is, try the following command:
     root -config 2>&1 | tr ' ' '\\n' | egrep 'python|PYTHON'
 If this is different from the python version you are currently using, try
-changing your PATH to point to the new one."""
+changing your PATH to point to the new one.""")
         sys.exit(1)
     ## Enter batch mode, unless outputting to C macros
     ## There is a bug in pyROOT that fails to export colors in batch mode
