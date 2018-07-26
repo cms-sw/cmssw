@@ -54,7 +54,6 @@ namespace cond {
       psets.push_back(pSet);
       static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
       static const edm::ServiceRegistry::Operate operate(services);
-      //TODO: difference here
       m_tagTimeType = cond::time::timeTypeFromName(timeType);
       cond::persistency::ConnectionPool connection;
       m_dbSession = connection.createSession( connectionString );
