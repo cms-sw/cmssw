@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
-print 'Starting cmsLHEtoEOSManager.py'
+from __future__ import print_function
+print('Starting cmsLHEtoEOSManager.py')
 
 __version__ = "$Revision: 1.13 $"
 
@@ -66,18 +67,18 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
         result = exeFullList.stdout.readlines()
         if result[0].rstrip('\n') == 'The file exists.':
             addFile = False
-            print 'File '+newFileName+' already exists: do you want to overwrite? [y/n]'
+            print('File '+newFileName+' already exists: do you want to overwrite? [y/n]')
             reply = raw_input()
             if reply == 'y' or reply == 'Y':
                 addFile = True
                 additionalOption = ' -f '
-                print ''
-                print 'Overwriting file '+newFileName+'\n'
+                print('')
+                print('Overwriting file '+newFileName+'\n')
         # add the file
         if addFile:
 #            print 'Adding file '+str(f)+'\n'
             inUploadScript = defaultEOScpCommand + additionalOption + ' ' + str(f) + ' ' + defaultEOSLoadPath+uploadPath + '/' + str(realFileName)
-            print 'Uploading file %s...' % str(f)
+            print('Uploading file %s...' % str(f))
             if reallyDoIt:
                 exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
                 exeRealUpload.communicate()
@@ -87,13 +88,13 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
                 assert exeEosCheckSum.wait() == 0
                # print 'checksum: eos = ' + EosCheckSum + 'orig file = ' + checkSumList[index] + '\n'
                 if checkSumList[index] not in EosCheckSum:
-                    print 'WARNING! The checksum for file ' + str(realFileName) + ' in EOS\n'
-                    print EosCheckSum + '\n'
-                    print 'does not match the checksum of the original one\n'
-                    print checkSumList[index] + '\n'
-                    print 'please try to re-upload file ' + str(realFileName) + ' to EOS.\n'
+                    print('WARNING! The checksum for file ' + str(realFileName) + ' in EOS\n')
+                    print(EosCheckSum + '\n')
+                    print('does not match the checksum of the original one\n')
+                    print(checkSumList[index] + '\n')
+                    print('please try to re-upload file ' + str(realFileName) + ' to EOS.\n')
                 else:
-                    print 'Checksum OK for file ' + str(realFileName)
+                    print('Checksum OK for file ' + str(realFileName))
         index = index+1            
  
 # launch the upload shell script        
@@ -102,7 +103,7 @@ def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
 #    if reallyDoIt:  
 #      exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
 #      exeRealUpload.communicate()
-    print '\n Upload ended at '+time.asctime(time.localtime(time.time()))
+    print('\n Upload ended at '+time.asctime(time.localtime(time.time())))
 
 #################################################################################################    
         
@@ -153,11 +154,11 @@ if __name__ == '__main__':
 
     # print banner
 
-    print ''
-    print 'cmsLHEtoEOSmanager '+__version__[1:-1]
-    print ''
-    print 'Running on ',time.asctime(time.localtime(time.time()))
-    print ''
+    print('')
+    print('cmsLHEtoEOSmanager '+__version__[1:-1])
+    print('')
+    print('Running on ',time.asctime(time.localtime(time.time())))
+    print('')
     
     reallyDoIt = not options.dryRun
 
@@ -172,11 +173,11 @@ if __name__ == '__main__':
         raise Exception('Options "-n", "-u" and "-l" are mutually exclusive, please choose only one!')
 
     if options.newId:
-        print 'Action: create new article\n'
+        print('Action: create new article\n')
     elif options.artIdUp != 0:
-        print 'Action: update article '+str(options.artIdUp)+'\n'
+        print('Action: update article '+str(options.artIdUp)+'\n')
     elif options.artIdLi != 0:
-        print 'Action: list content of article '+str(options.artIdLi)+'\n'
+        print('Action: list content of article '+str(options.artIdLi)+'\n')
 
     if options.artIdLi==0:
         theList = []
@@ -198,13 +199,13 @@ if __name__ == '__main__':
         theCheckSumList = []
         for f in theList: 
             # Check the file name extension
-            print f
+            print(f)
             if not ( f.lower().endswith(".lhe") or f.lower().endswith(".lhe.xz") ):
                 raise Exception('Input file name must have the "lhe" or "lhe.xz" final extension!')
             if( f.lower().endswith(".lhe.xz") ):
-                print "Important! Input file "+f+" is already zipped: please make sure you verified its integrity with xmllint before zipping it. You can do it with:\n"
-                print "xmllint file.lhe\n"
-                print "Otherwise it is best to pass the unzipped file to this script and let it check its integrity and compress the file with the --compress option\n"
+                print("Important! Input file "+f+" is already zipped: please make sure you verified its integrity with xmllint before zipping it. You can do it with:\n")
+                print("xmllint file.lhe\n")
+                print("Otherwise it is best to pass the unzipped file to this script and let it check its integrity and compress the file with the --compress option\n")
             # Check the local file existence
             if not os.path.exists(f):
                 raise Exception('Input file '+f+' does not exists')
@@ -215,7 +216,7 @@ if __name__ == '__main__':
                 if(intCode is not 0):
                     raise Exception('Input file '+f+ ' is corrupted')
             if reallyDoIt and options.compress:
-              print "Compressing file",f
+              print("Compressing file",f)
               if( f.lower().endswith(".lhe.xz") ):
                   raise Exception('Input file '+f+' is already compressed! This is inconsistent with the --compress option!')
               theCompressionCommand = 'xz '+f
@@ -239,7 +240,7 @@ if __name__ == '__main__':
     if options.newId:
         oldArt = lastArticle()
         newArt = oldArt+1
-        print 'Creating new article with identifier '+str(newArt)+' ...\n'
+        print('Creating new article with identifier '+str(newArt)+' ...\n')
         uploadPath = defaultEOSRootPath+'/'+str(newArt)
         theCommand = defaultEOSmkdirCommand+' '+uploadPath
         if reallyDoIt:
@@ -263,18 +264,18 @@ if __name__ == '__main__':
         exeList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
         for line in exeList.stdout.readlines():
             if findXrdDir(line) != None:
-                print findXrdDir(line)
+                print(findXrdDir(line))
 
 
     if newArt > 0:
         fileUpload(uploadPath,theList, theCheckSumList, reallyDoIt)
         listPath = defaultEOSRootPath+'/'+str(newArt)
-        print ''
-        print 'Listing the '+str(newArt)+' article content after upload:'
+        print('')
+        print('Listing the '+str(newArt)+' article content after upload:')
         theCommand = defaultEOSlistCommand+' '+listPath
         if reallyDoIt:
           exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand])
           exeFullList.communicate()
         else:
-          print 'Dry run, nothing was done'
+          print('Dry run, nothing was done')
         
