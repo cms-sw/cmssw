@@ -15,6 +15,7 @@ import difflib
 import argparse
 import functools
 import subprocess
+import collections
 import multiprocessing
 import FWCore.PythonUtilities.LumiList as LumiList
 import Utilities.General.cmssw_das_client as cmssw_das_client
@@ -182,13 +183,11 @@ class FileListCreator(object):
                             action = "store_true", default = False,
                             help = ("create dataset ini file based on the "
                                     "created file lists"))
-        parser.add_argument("--rereco", action = "store_true", default = False,
-                            help = ("create JSON files to model IOV-wise "
-                                    "splitting of datasets because rereco "
-                                    "datasets are not ordered by run"))
         parser.add_argument("--force", action = "store_true", default = False,
                             help = ("remove output directory from previous "
                                     "runs, if existing"))
+        parser.add_argument("--hippy-events-per-job", type = int, default = 1,
+                            help = ("approximate number of events in each job for HipPy"))
         parser.add_argument("--test-mode", dest = "test_mode",
                             action = "store_true", default = False,
                             help = argparse.SUPPRESS) # hidden option
@@ -253,18 +252,20 @@ class FileListCreator(object):
                                          for iov in self._iovs)
 
 
-    def _get_iov(self, run):
+    def _get_iovs(self, runs):
         """
         Return the IOV start for `run`. Returns 'None' if the run is before any
         defined IOV.
 
         Arguments:
-        - `run`: run number
+        - `runs`: run numbers
         """
 
-        iov_index = bisect.bisect(self._iovs, run)
-        if iov_index > 0: return self._iovs[iov_index-1]
-        else: return None
+        iovs = []
+        for run in runs:
+          iov_index = bisect.bisect(self._iovs, run)
+          if iov_index > 0: iovs.append(self._iovs[iov_index-1])
+        return iovs
 
 
     def _prepare_run_datastructures(self):
@@ -273,40 +274,43 @@ class FileListCreator(object):
         self._run_info = {}
 
 
-    def _add_file_info(self, container, key, file_name):
+    def _add_file_info(self, container, keys, fileinfo):
         """Add file with `file_name` to `container` using `key`.
 
         Arguments:
         - `container`: dictionary holding information on files and event counts
-        - `key`: key to which the info should be added; will be created if not
-                 existing
+        - `keys`: keys to which the info should be added; will be created if not
+                  existing
         - `file_name`: name of a dataset file
         """
 
-        if key not in container:
-            container[key] = {"events": 0,
-                              "files": []}
-        container[key]["events"] += self._file_info[file_name]
-        container[key]["files"].append(file_name)
+        for key in keys:
+            if key not in container:
+                container[key] = {"events": 0,
+                                  "files": []}
+            container[key]["events"] += fileinfo.nevents / len(keys)
+            if fileinfo not in container[key]["files"]:
+                container[key]["files"].append(fileinfo)
 
 
-    def _remove_file_info(self, container, key, file_name):
+    def _remove_file_info(self, container, keys, fileinfo):
         """Remove file with `file_name` to `container` using `key`.
 
         Arguments:
         - `container`: dictionary holding information on files and event counts
-        - `key`: key from which the info should be removed
+        - `keys`: keys from which the info should be removed
         - `file_name`: name of a dataset file
         - `event_count`: number of events in `file_name`
         """
 
-        if key not in container: return
-        try:
-            index = container[key]["files"].index(file_name)
-        except ValueError:      # file not found
-            return
-        del container[key]["files"][index]
-        container[key]["events"] -= self._file_info[file_name]
+        for key in keys:
+            if key not in container: continue
+            try:
+                index = container[key]["files"].index(fileinfo)
+            except ValueError:      # file not found
+                return
+            del container[key]["files"][index]
+            container[key]["events"] -= fileinfo.nevents / len(keys)
 
 
     def _request_dataset_information(self):
@@ -318,6 +322,7 @@ class FileListCreator(object):
              self._files,
              self._file_info,
              self._max_run) = self._cache.get()
+            self.rereco = any(len(fileinfo.runs)>1 for fileinfo in self._file_info)
             if self._args.random: random.shuffle(self._files)
             return
 
@@ -347,19 +352,23 @@ class FileListCreator(object):
                                           filters = ["nevents > 0"],
                                           entity = "dataset",
                                           sub_entity = "file")
-        result = pool.map_async(get_file_info, self._datasets).get(sys.maxsize)
-        self._file_info = {}
-        for item in result: self._file_info.update(dict(item))
-        self._files = sorted(self._file_info.keys())
+        result = sum(pool.map_async(get_file_info, self._datasets).get(sys.maxint), [])
+        files = pool.map_async(_make_file_info, result).get(sys.maxint)
+        self._file_info = sorted(fileinfo for fileinfo in files)
+
+        self.rereco = any(len(fileinfo.runs)>1 for fileinfo in self._file_info)
+
         if self._args.test_mode:
-            self._files = self._files[-200:] # take only last chunk of files
+            self._file_info = self._file_info[-200:] # take only last chunk of files
+        self._files = [fileinfo.name for fileinfo in self._file_info]
 
         # write information to cache
         self._cache.set(self._events_in_dataset, self._files, self._file_info,
                         self._max_run)
         self._cache.dump()
-        if self._args.random: random.shuffle(self._files)
-
+        if self._args.random:
+          random.shuffle(self._file_info)
+          self._files = [fileinfo.name for fileinfo in self._file_info]
 
     def _create_file_lists(self):
         """Create file lists for alignment and validation."""
@@ -370,43 +379,36 @@ class FileListCreator(object):
         self._events_for_alignment = 0
         self._events_for_validation = 0
 
-        # for rereco datasets the runs are spread over all files,
-        # i.e. file-based splitting makes no sense
-        if self._args.rereco:
-            self._files_alignment = self._files
-            self._files_validation = self._files
-            self._events_for_alignment = self._events_in_dataset
-            self._events_for_validation = self._events_in_dataset
-            return
-
         max_range = (0
                      if self._args.events <= 0
                      else int(math.ceil(len(self._files)*self._args.fraction)))
         use_for_alignment = True
-        for i, f in enumerate(self._files):
+        for i, fileinfo in enumerate(self._file_info):
             enough_events = self._events_for_alignment >= self._args.events
             fraction_exceeded = i >= max_range
             if enough_events or fraction_exceeded: use_for_alignment = False
 
-            number_of_events = self._file_info[f]
-            run = guess_run(f)
-            iov = self._get_iov(run)
+            f, number_of_events, runs = fileinfo
+
+            iovs = self._get_iovs(runs)
             if use_for_alignment:
-                if iov:
+                if iovs:
                     self._events_for_alignment += number_of_events
-                    self._files_alignment.append(f)
-                    self._add_file_info(self._iov_info_alignment, iov, f)
+                    self._files_alignment.append(fileinfo)
+                    self._add_file_info(self._iov_info_alignment, iovs, fileinfo)
                 else:
                     max_range += 1 # not used -> discard in fraction calculation
             else:
-                if iov:
+                if iovs:
                     self._events_for_validation += number_of_events
-                    self._files_validation.append(f)
-                    self._add_file_info(self._iov_info_validation, iov, f)
+                    self._files_validation.append(fileinfo)
+                    self._add_file_info(self._iov_info_validation, iovs, fileinfo)
                     if self._args.run_by_run:
-                        self._add_file_info(self._run_info, run, f)
+                        self._add_file_info(self._run_info, runs, fileinfo)
 
         self._fulfill_iov_eventcount()
+
+        self._split_hippy_jobs()
 
 
     def _fulfill_iov_eventcount(self):
@@ -420,26 +422,39 @@ class FileListCreator(object):
             if (self._iov_info_alignment[iov]["events"]
                 < self._args.minimum_events_in_iov)]
         for iov in not_enough_events:
-            for f in self._files_validation:
-                run = guess_run(f)
-                if self._get_iov(run) == iov:
-                    self._files_alignment.append(f)
-                    number_of_events = self._file_info[f]
+            for fileinfo in self._files_validation:
+                f, number_of_events, runs = fileinfo
+                iovs = self._get_iovs(runs)
+                if iov in iovs:
+                    self._files_alignment.append(fileinfo)
                     self._events_for_alignment += number_of_events
-                    self._add_file_info(self._iov_info_alignment, iov, f)
+                    self._add_file_info(self._iov_info_alignment, iovs, fileinfo)
 
                     self._events_for_validation -= number_of_events
-                    self._remove_file_info(self._iov_info_validation, iov, f)
+                    self._remove_file_info(self._iov_info_validation, iovs, fileinfo)
                     if self._args.run_by_run:
-                        self._remove_file_info(self._run_info, run, f)
+                        self._remove_file_info(self._run_info, runs, fileinfo)
+                    self._files_validation.remove(fileinfo)
 
                     if (self._iov_info_alignment[iov]["events"]
                         >= self._args.minimum_events_in_iov):
                         break   # break the file loop if already enough events
 
-        self._files_validation = [f for f in self._files_validation
-                                  if f not in self._files_alignment]
-
+    def _split_hippy_jobs(self):
+        self._hippy_jobs = {}
+        for iov in self._iovs:
+            jobsforiov = []
+            self._hippy_jobs[iov] = jobsforiov
+            eventsinthisjob = float("inf")
+            for fileinfo in self._files_alignment:
+                iovs = self._get_iovs(fileinfo.runs)
+                if iov not in iovs: continue
+                if eventsinthisjob >= self._args.hippy_events_per_job:
+                    currentjob = []
+                    jobsforiov.append(currentjob)
+                    eventsinthisjob = 0
+                currentjob.append(fileinfo)
+                eventsinthisjob += fileinfo.nevents
 
     def _print_eventcounts(self):
         """Print the event counts per file list and per IOV."""
@@ -451,42 +466,41 @@ class FileListCreator(object):
                           100.0*
                           self._events_for_alignment/self._events_in_dataset),
                   log_file = log)
-        if not self._args.rereco:
-            for iov in sorted(self._iov_info_alignment):
-                print_msg("Events for alignment in IOV since {0:d}: {1:d}"
-                          .format(iov, self._iov_info_alignment[iov]["events"]),
-                          log_file = log)
+        for iov in sorted(self._iov_info_alignment):
+            print_msg(("Approximate events" if self.rereco else "Events") + " for alignment in IOV since {0:d}: {1:d}"
+                      .format(iov, self._iov_info_alignment[iov]["events"]),
+                      log_file = log)
 
         print_msg("Using {0:d} events for validation ({1:.2f}%)."
                   .format(self._events_for_validation,
                           100.0*
                           self._events_for_validation/self._events_in_dataset),
                   log_file = log)
-        if not self._args.rereco:
-            for iov in sorted(self._iov_info_validation):
-                msg = "Events for validation in IOV since {0:d}: {1:d}".format(
-                    iov, self._iov_info_validation[iov]["events"])
-                if (self._iov_info_validation[iov]["events"]
-                    < self._args.minimum_events_validation):
-                    msg += " (not enough events -> no dataset file will be created)"
-                print_msg(msg, log_file = log)
 
-            for run in sorted(self._run_info):
-                msg = "Events for validation in run {0:d}: {1:d}".format(
-                    run, self._run_info[run]["events"])
-                if (self._run_info[run]["events"]
-                    < self._args.minimum_events_validation):
-                    msg += " (not enough events -> no dataset file will be created)"
-                print_msg(msg, log_file = log)
+        for iov in sorted(self._iov_info_validation):
+            msg = ("Approximate events" if self.rereco else "Events") + " for validation in IOV since {0:d}: {1:d}".format(
+                iov, self._iov_info_validation[iov]["events"])
+            if (self._iov_info_validation[iov]["events"]
+                < self._args.minimum_events_validation):
+                msg += " (not enough events -> no dataset file will be created)"
+            print_msg(msg, log_file = log)
 
-            unused_events = (self._events_in_dataset
-                             - self._events_for_validation
-                             - self._events_for_alignment)
-            if unused_events > 0 != self._events_in_dataset:
-                print_msg("Unused events: {0:d} ({1:.2f}%)"
-                          .format(unused_events,
-                                  100.0*unused_events/self._events_in_dataset),
-                          log_file = log)
+        for run in sorted(self._run_info):
+            msg = ("Approximate events" if self.rereco else "Events") + " for validation in run {0:d}: {1:d}".format(
+                run, self._run_info[run]["events"])
+            if (self._run_info[run]["events"]
+                < self._args.minimum_events_validation):
+                msg += " (not enough events -> no dataset file will be created)"
+            print_msg(msg, log_file = log)
+
+        unused_events = (self._events_in_dataset
+                         - self._events_for_validation
+                         - self._events_for_alignment)
+        if unused_events > 0 != self._events_in_dataset:
+            print_msg("Unused events: {0:d} ({1:.2f}%)"
+                      .format(unused_events,
+                              100.0*unused_events/self._events_in_dataset),
+                      log_file = log)
 
 
     def _create_dataset_ini_section(self, name, collection, json_file = None):
@@ -615,6 +629,7 @@ class FileListCreator(object):
         """Write file lists to disk."""
 
         self._create_dataset_txt(self._formatted_dataset, self._files_alignment)
+        self._create_hippy_txt(self._formatted_dataset, sum(self._hippy_jobs.values(), []))
         self._create_dataset_cff(
             "_".join(["Alignment", self._formatted_dataset]),
             self._files_alignment)
@@ -648,7 +663,7 @@ class FileListCreator(object):
             iov_str = "since{0:d}".format(iov)
             iov_str = "_".join([self._formatted_dataset, iov_str])
 
-            if self._args.rereco:
+            if self.rereco:
                 if i == len(self._iovs) - 1:
                     last = None
                 else:
@@ -662,26 +677,21 @@ class FileListCreator(object):
                                                                  collection,
                                                                  local_json)
 
-            if self._args.rereco:
-                self._create_dataset_cff(
-                    "_".join(["Alignment", iov_str]),
-                    self._files_alignment, local_json)
-                self._create_dataset_cff(
-                    "_".join(["Validation", iov_str]),
-                    self._files_validation, local_json)
-            else:
-                self._create_dataset_txt(iov_str,
-                                         self._iov_info_alignment[iov]["files"])
-                self._create_dataset_cff(
-                    "_".join(["Alignment", iov_str]),
-                    self._iov_info_alignment[iov]["files"])
+            self._create_dataset_txt(iov_str,
+                                     self._iov_info_alignment[iov]["files"])
+            self._create_hippy_txt(iov_str, self._hippy_jobs[iov])
+            self._create_dataset_cff(
+                "_".join(["Alignment", iov_str]),
+                self._iov_info_alignment[iov]["files"],
+                json_file=local_json)
 
-                if (self._iov_info_validation[iov]["events"]
-                    < self._args.minimum_events_validation):
-                    continue
-                self._create_dataset_cff(
-                    "_".join(["Validation", iov_str]),
-                    self._iov_info_validation[iov]["files"])
+            if (self._iov_info_validation[iov]["events"]
+                < self._args.minimum_events_validation):
+                continue
+            self._create_dataset_cff(
+                "_".join(["Validation", iov_str]),
+                self._iov_info_validation[iov]["files"],
+                json_file=local_json)
 
         if self._args.create_ini and iov_wise_ini != dataset_ini_general:
             ini_path = self._formatted_dataset + "_IOVs.ini"
@@ -689,9 +699,8 @@ class FileListCreator(object):
             ini_path = os.path.join(self._output_dir, ini_path)
             with open(ini_path, "w") as f: f.write(iov_wise_ini)
 
-        if self._args.rereco: return
-
         for run in sorted(self._run_info):
+            if args.rereco: continue #need to implement more jsons
             if (self._run_info[run]["events"]
                 < self._args.minimum_events_validation):
                 continue
@@ -711,7 +720,14 @@ class FileListCreator(object):
         name += ".txt"
         print_msg("Creating dataset file list: "+name)
         with open(os.path.join(self._output_dir, name), "w") as f:
-            f.write("\n".join(file_list))
+            f.write("\n".join(fileinfo.name for fileinfo in file_list))
+
+
+    def _create_hippy_txt(self, name, job_list):
+        name += "_hippy.txt"
+        print_msg("Creating dataset file list for HipPy: "+name)
+        with open(os.path.join(self._output_dir, name), "w") as f:
+            f.write("\n".join(",".join("'"+fileinfo.name+"'" for fileinfo in job) for job in job_list))
 
 
     def _create_dataset_cff(self, name, file_list, json_file = None):
@@ -734,7 +750,7 @@ class FileListCreator(object):
         file_list_str = ""
         for sub_list in get_chunks(file_list, 255):
             file_list_str += ("readFiles.extend([\n'"+
-                              "',\n'".join(sub_list)+
+                              "',\n'".join(fileinfo.name for fileinfo in sub_list)+
                               "'\n])\n")
 
         fragment = FileListCreator._dataset_template.format(
@@ -811,7 +827,7 @@ class _DasCache(object):
         Get the content of the cache as tuple:
            result = (total number of events in dataset,
                      list of files in dataset,
-                     dictionary with numbers of events per file)
+                     dictionary with numbers of events and runs per file)
         """
 
         return self._events_in_dataset, self._files, self._file_info, self._max_run
@@ -941,18 +957,19 @@ def print_msg(text, line_break = True, log_file = None):
     return msg
 
 
-def guess_run(file_name):
+def get_runs(file_name):
     """
     Try to guess the run number from `file_name`. If run could not be
-    determined, 'sys.maxsize' is returned.
+    determined, gets the run numbers from DAS (slow!)
 
     Arguments:
     - `file_name`: name of the considered file
     """
     try:
-        return int("".join(file_name.split("/")[-4:-2]))
+        return [int("".join(file_name.split("/")[-4:-2]))]
     except ValueError:
-        return sys.maxsize
+        query = "run file="+file_name+" system=dbs3"
+        return [int(_) for _ in find_key(das_client(query), ["run", "run_number"])]
 
 
 def get_max_run(dataset_name):
@@ -1052,6 +1069,11 @@ def _get_properties(name, entity, properties, filters = None, sub_entity = None,
                               ", ".join(props+conditions), add_ons), sub_entity)
     return [[find_key(f[sub_entity], [prop]) for prop in properties] for f in data]
 
+
+FileInfo = collections.namedtuple("FileInfo", "name nevents runs")
+
+def _make_file_info(name_and_nevents):
+    return FileInfo(*name_and_nevents, runs=get_runs(name_and_nevents[0]))
 
 def get_chunks(long_list, chunk_size):
     """
