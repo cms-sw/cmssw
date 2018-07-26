@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -123,13 +124,13 @@ process.debug_step = cms.Path(
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.l1reco_step,process.debug_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
 
-print "L1T Emulation Sequence is:  "
-print process.SimL1Emulator
+print("L1T Emulation Sequence is:  ")
+print(process.SimL1Emulator)
 #print "L1T DigiToRaw Sequence is:  "
 #print process.L1TDigiToRaw
 #print "L1T RawToDigi Sequence is:  "
 #print process.L1TRawToDigi
 #print "L1T Reco Sequence is:  "
 #print process.L1Reco
-print "DigiToRaw is:  "
-print process.DigiToRaw
+print("DigiToRaw is:  ")
+print(process.DigiToRaw)
