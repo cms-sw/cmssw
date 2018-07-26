@@ -11,7 +11,9 @@
 
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSTimingLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
+#include "DataFormats/CTPPSReco/interface/TotemTimingLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
@@ -102,6 +104,16 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<std::vector<CTPPSDiamondLocalTrack> > wrp_vec_ctd_lt;
     edm::DetSetVector<CTPPSDiamondLocalTrack> dsv_ctd_lt;
     edm::Wrapper<edm::DetSetVector<CTPPSDiamondLocalTrack> > wrp_dsv_ctd_lt;
+
+    TotemTimingLocalTrack ttd_lt;
+    edm::Ptr<TotemTimingLocalTrack> ptr_ttd_lt;
+    edm::Wrapper<TotemTimingLocalTrack> wrp_ttd_lt;
+    std::vector<TotemTimingLocalTrack> vec_ttd_lt;
+    edm::DetSet<TotemTimingLocalTrack> ds_ttd_lt;
+    std::vector<edm::DetSet<TotemTimingLocalTrack> > vec_ds_ttd_lt;
+    edm::Wrapper<std::vector<TotemTimingLocalTrack> > wrp_vec_ttd_lt;
+    edm::DetSetVector<TotemTimingLocalTrack> dsv_ttd_lt;
+    edm::Wrapper<edm::DetSetVector<TotemTimingLocalTrack> > wrp_dsv_ttd_lt;
 
     //--- pixel objects
 

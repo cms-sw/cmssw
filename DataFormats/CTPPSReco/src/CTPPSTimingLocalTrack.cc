@@ -3,7 +3,7 @@
  * This is a part of CTPPS offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
- *   Nicola Minafra nicola.minafra@cern.ch)
+ *   Nicola Minafra (nicola.minafra@cern.ch)
  *   Mateusz Szpyrka (mateusz.szpyrka@cern.ch)
  *
  ****************************************************************************/
@@ -44,16 +44,13 @@ CTPPSTimingLocalTrack::CTPPSTimingLocalTrack(
   t_sigma_(t_sigma) {}
 
 
-//--- destructor
-
-CTPPSTimingLocalTrack::~CTPPSTimingLocalTrack() {}
-
-
 //--- interface member functions
 
 bool CTPPSTimingLocalTrack::containsHit(
     const CTPPSTimingRecHit& recHit,
-    float tolerance) const {
+    float tolerance,
+    CheckDimension check
+  ) const {
 
   float xTolerance = pos0_sigma_.x() + (0.5 * recHit.getXWidth()) + tolerance;
   float yTolerance = pos0_sigma_.y() + (0.5 * recHit.getYWidth()) + tolerance;
@@ -62,6 +59,12 @@ bool CTPPSTimingLocalTrack::containsHit(
   float xDiff = fabs(pos0_.x() - recHit.getX());
   float yDiff = fabs(pos0_.y() - recHit.getY());
   float zDiff = fabs(pos0_.z() - recHit.getZ());
+
+  if(check == CHECK_X)
+    return xDiff < xTolerance;
+
+  if(check == CHECK_Y)
+    return yDiff < yTolerance;
 
   return (xDiff < xTolerance && yDiff < yTolerance && zDiff < zTolerance);
 }
@@ -77,6 +80,11 @@ bool operator<( const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& r
   if ( lhs.getT() < rhs.getT() ) return true;
   if ( lhs.getT() > rhs.getT() ) return false;
   // then sort by x-position
-  // TODO checking other dimensions
-  return ( lhs.getX0() < rhs.getX0() );
+  if ( lhs.getX0() < rhs.getX0() ) return true;
+  if ( lhs.getX0() > rhs.getX0() ) return false;
+  // ...and y-position
+  if ( lhs.getY0() < rhs.getY0() ) return true;
+  if ( lhs.getY0() > rhs.getY0() ) return false;
+  // ...and z-position
+  return ( lhs.getZ0() < rhs.getZ0() );
 }

@@ -3,7 +3,7 @@
  * This is a part of CTPPS offline software.
  * Authors:
  *   Laurent Forthomme (laurent.forthomme@cern.ch)
- *   Nicola Minafra nicola.minafra@cern.ch)
+ *   Nicola Minafra (nicola.minafra@cern.ch)
  *   Mateusz Szpyrka (mateusz.szpyrka@cern.ch)
  *
  ****************************************************************************/
@@ -13,26 +13,20 @@
 #define DataFormats_CTPPSReco_CTPPSTimingLocalTrack
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
 
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSTimingLocalTrack
 {
   public:
-
     CTPPSTimingLocalTrack();
+    CTPPSTimingLocalTrack( const math::XYZPoint& pos0, const math::XYZPoint& pos0_sigma,
+                           float t, float t_sigma );
+    virtual ~CTPPSTimingLocalTrack() {}
 
-    CTPPSTimingLocalTrack(
-      const math::XYZPoint& pos0,
-      const math::XYZPoint& pos0_sigma,
-      float t,
-      float t_sigma
-    );
-
-    virtual ~CTPPSTimingLocalTrack();
-
-    bool containsHit(const CTPPSTimingRecHit& recHit, float tolerance = 0.1) const;
+    enum CheckDimension { CHECK_X, CHECK_Y, CHECK_ALL };
+    bool containsHit( const CTPPSTimingRecHit& recHit, float tolerance = 0.1, CheckDimension check = CHECK_ALL ) const;
 
     //--- spatial get'ters
 
@@ -50,16 +44,16 @@ class CTPPSTimingLocalTrack
 
     //--- spatial set'ters
 
-    inline void setPosition(const math::XYZPoint& pos0) { pos0_ = pos0; }
-    inline void setPositionSigma(const math::XYZPoint& pos0_sigma) { pos0_sigma_ = pos0_sigma; }
+    inline void setPosition( const math::XYZPoint& pos0 ) { pos0_ = pos0; }
+    inline void setPositionSigma( const math::XYZPoint& pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
 
-    inline void setNumOfHits(const int num_hits)  { num_hits_ = num_hits; }
-    inline void setNumOfPlanes(const int num_planes) { num_planes_ = num_planes; }
+    inline void setNumOfHits( int num_hits )  { num_hits_ = num_hits; }
+    inline void setNumOfPlanes( int num_planes ) { num_planes_ = num_planes; }
 
     //--- validity related members
 
     inline bool isValid() const { return valid_; }
-    inline void setValid(bool valid) { valid_ = valid; }
+    inline void setValid( bool valid ) { valid_ = valid; }
 
     //--- temporal get'ters
 
@@ -68,14 +62,10 @@ class CTPPSTimingLocalTrack
 
     //--- temporal set'ters
 
-    inline void setT(const float t) { t_ = t; }
-    inline void setTSigma(const float t_sigma) { t_sigma_ = t_sigma; }
-
-    //--- comparison operators
-    //inline bool operator<(const CTPPSTimingLocalTrack& other) const;
+    inline void setT( float t ) { t_ = t; }
+    inline void setTSigma( float t_sigma ) { t_sigma_ = t_sigma; }
 
   protected:
-
     //--- spatial information
 
     /// initial track position
@@ -97,6 +87,8 @@ class CTPPSTimingLocalTrack
     float t_sigma_;
 };
 
+/// Comparison operator
 bool operator<( const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs );
 
 #endif
+
