@@ -15,5 +15,5 @@ hltHCALRecHitsAnalyzer.hep17                     = cms.untracked.bool(False)
 
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toModify(hltHCALRecHitsAnalyzer,
-      hep17 = cms.untracked.bool(True)
+      hep17 = cms.untracked.bool(False)
 )
