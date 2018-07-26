@@ -43,7 +43,7 @@ calibrate(reco::GsfElectron &ele, unsigned int runNumber,
   const float scEtaAbs = std::abs(ele.superCluster()->eta());
   const float et = ele.ecalEnergy() / cosh(scEtaAbs);
 
-  if (et < minEt_) {
+  if (et < minEt_ || std::isnan(et) ) {
     std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
     retVal.fill(ele.energy());
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
