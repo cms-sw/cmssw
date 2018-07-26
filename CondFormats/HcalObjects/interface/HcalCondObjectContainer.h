@@ -67,8 +67,6 @@ public:
   typedef std::pair< std::string, std::vector<Item> > tHcalCont;
   typedef std::vector< tHcalCont > tAllContWithNames;
 
-
-
   const tAllContWithNames getAllContainers() const{
     tAllContWithNames allContainers;
     allContainers.push_back(tHcalCont("HB",HBcontainer));
@@ -83,13 +81,7 @@ public:
   }
 
  private:
-
-
   void initContainer(DetId container);
-
-
-  
-
 
   std::vector<Item> HBcontainer;
   std::vector<Item> HEcontainer;
@@ -147,12 +139,6 @@ HcalCondObjectContainer<Item>::initContainer(DetId fId) {
     }
   }
 }
-
-
-//TODO: Reorder definitions correctly
-
-
-
 
 
 template<class Item> const Item*
