@@ -419,7 +419,7 @@ namespace edm {
     if (nStreams == 0) {
       nStreams = nThreads;
     }
-    if(nThreads > 1) {
+    if (nThreads > 1 or nStreams > 1) {
       edm::LogInfo("ThreadStreamSetup") <<"setting # threads "<<nThreads<<"\nsetting # streams "<<nStreams;
     }
     unsigned int nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
