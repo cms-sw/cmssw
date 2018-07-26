@@ -14,3 +14,11 @@
   <use   name="boost_python"/>
 </library>
 
+<library   file="HcalRespCorrs_PayloadInspector.cc" name="HcalRespCorrs_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
