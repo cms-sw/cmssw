@@ -12,7 +12,7 @@
 using namespace std;
 
 
-TowerBlockFormatter::TowerBlockFormatter() {
+TowerBlockFormatter::TowerBlockFormatter(Config const& iC): BlockFormatter(iC) {
 
 }
 
@@ -27,8 +27,8 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 
 {
 
- int bx = *pbx_;
- int lv1 = *plv1_ - 1;
+ int bx = bx_;
+ int lv1 = lv1_ - 1;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64
@@ -385,8 +385,6 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
  FEDmap = nullptr;
  FEDorder = nullptr;
 
- debug_ = false;
-
  // cout << "end of EndEvent " << endl;
 }
 
@@ -409,8 +407,8 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 
  // debug_ = false;
 
- int bx = *pbx_;
- int lv1 = *plv1_;
+ int bx = bx_;
+ int lv1 = lv1_;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64

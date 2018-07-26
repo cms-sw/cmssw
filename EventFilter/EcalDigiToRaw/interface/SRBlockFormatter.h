@@ -16,14 +16,14 @@
 class SRBlockFormatter : public BlockFormatter {
  public :
 
-	SRBlockFormatter();
-	~SRBlockFormatter();
-        void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata);
-
-	void StartEvent();
-
+  SRBlockFormatter(BlockFormatter::Config const& );
+  ~SRBlockFormatter();
+  void DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata);
+  
+  void StartEvent();
+  
  private :
-	std::map<int, int> header_;
+  std::map<int, int> header_;
 };
 
 

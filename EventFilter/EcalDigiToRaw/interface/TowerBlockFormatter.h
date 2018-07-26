@@ -21,20 +21,20 @@
 
 class TowerBlockFormatter : public BlockFormatter {
  public :
-
-	TowerBlockFormatter();
-	~TowerBlockFormatter();
-        static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
-        void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
-        void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
-	void StartEvent();
-	void EndEvent(FEDRawDataCollection* productRawData);
-
-	std::map<int, std::map<int,int> >* GetFEDorder() {return FEDorder; }
-
+  
+  TowerBlockFormatter(BlockFormatter::Config const&);
+  ~TowerBlockFormatter();
+  static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
+  void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
+  void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
+  void StartEvent();
+  void EndEvent(FEDRawDataCollection* productRawData);
+  
+  std::map<int, std::map<int,int> >* GetFEDorder() {return FEDorder; }
+  
  private :
-        std::map<int, std::map<int,int> >* FEDmap;
-	std::map<int, std::map<int,int> >* FEDorder;
+  std::map<int, std::map<int,int> >* FEDmap;
+  std::map<int, std::map<int,int> >* FEDorder;
 
 
 };
