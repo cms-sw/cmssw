@@ -32,7 +32,7 @@ namespace DataFormats_CTPPSReco {
     edm::Wrapper<edm::DetSetVector<TotemRPRecHit> > w_dsv_rp_reco_hit;
     std::vector<TotemRPRecHit> sv_rp_reco_hit;
     std::vector<const TotemRPRecHit*> sv_cp_rp_reco_hit;
-    
+
     TotemRPCluster dc;
     edm::DetSet<TotemRPCluster> dsdc;
     std::vector<TotemRPCluster> svdc;
@@ -62,7 +62,7 @@ namespace DataFormats_CTPPSReco {
     edm::DetSetVector<CTPPSTimingRecHit> dsv_ctdm_rh;
     edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> > wrp_dsv_ctdm_rh;
     edm::Wrapper<std::vector<CTPPSTimingRecHit> > wrp_vec_ctdm_rh;
-    
+
     CTPPSDiamondRecHit ctd_rh;
     edm::Ptr<CTPPSDiamondRecHit> ptr_ctd_rh;
     edm::Wrapper<CTPPSDiamondRecHit> wrp_ctd_rh;
@@ -72,7 +72,7 @@ namespace DataFormats_CTPPSReco {
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
     edm::Wrapper<std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;
-    
+
     TotemTimingRecHit ttd_rh;
     edm::Ptr<TotemTimingRecHit> ptr_ttd_rh;
     edm::Wrapper<TotemTimingRecHit> wrp_ttd_rh;
@@ -82,6 +82,16 @@ namespace DataFormats_CTPPSReco {
     edm::DetSetVector<TotemTimingRecHit> dsv_ttd_rh;
     edm::Wrapper<edm::DetSetVector<TotemTimingRecHit> > wrp_dsv_ttd_rh;
     edm::Wrapper<std::vector<TotemTimingRecHit> > wrp_vec_ttd_rh;
+
+    CTPPSTimingLocalTrack ctdm_lt;
+    edm::Ptr<CTPPSTimingLocalTrack> ptr_ctdm_lt;
+    edm::Wrapper<CTPPSTimingLocalTrack> wrp_ctdm_lt;
+    std::vector<CTPPSTimingLocalTrack> vec_ctdm_lt;
+    edm::DetSet<CTPPSTimingLocalTrack> ds_ctdm_lt;
+    std::vector<edm::DetSet<CTPPSTimingLocalTrack> > vec_ds_ctdm_lt;
+    edm::Wrapper<std::vector<CTPPSTimingLocalTrack> > wrp_vec_ctdm_lt;
+    edm::DetSetVector<CTPPSTimingLocalTrack> dsv_ctdm_lt;
+    edm::Wrapper<edm::DetSetVector<CTPPSTimingLocalTrack> > wrp_dsv_ctdm_lt;
 
     CTPPSDiamondLocalTrack ctd_lt;
     edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;
