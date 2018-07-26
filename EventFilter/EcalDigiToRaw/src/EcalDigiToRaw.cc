@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,11 +54,11 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
-class EcalDigiToRaw : public edm::EDProducer {
+class EcalDigiToRaw : public edm::global::EDProducer<> {
    public:
       EcalDigiToRaw(const edm::ParameterSet& pset);
 
-      void produce(edm::Event& e, const edm::EventSetup& c) override;
+      void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
       typedef long long Word64;
       typedef unsigned int Word32;
@@ -124,7 +124,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig):
 
 // ------------ method called to for each event  ------------
 void
-EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
   if (config_.debug_) cout << "Enter in EcalDigiToRaw::produce ... " << endl;
@@ -306,9 +306,4 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-
-
-
-
-
-
+DEFINE_FWK_MODULE(EcalDigiToRaw);
