@@ -38,13 +38,13 @@ void L1EGammaEEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   // here we loop on the TPGs
   for(auto cl3d = multiclusters.begin(0); cl3d != multiclusters.end(0); cl3d++) {
      //std::cout << "CL3D is EG: " <<  cl3d->hwQual() << "   "<<l1t::EGamma(cl3d->p4()).eta()<<"   "<<l1t::EGamma(cl3d->p4()).pt()<<std::endl;
-     if(cl3d->hwQual()) { 
+//     if(cl3d->hwQual()) { 
       if(cl3d->et() > minEt_) {
         l1t::EGamma eg=l1t::EGamma(cl3d->p4());    
         eg.setHwQual(cl3d->hwQual()); // saved for filtering later here 
         eg.setHwIso(1); // for now 
         l1EgammaBxCollection->push_back(0,eg);
-      }
+//      }
     }
   }
 

@@ -111,6 +111,7 @@ namespace L1Analysis
       tkEGBx.clear();
       tkEGTrkIso.clear();
       tkEGzVtx.clear();
+      tkEGHwQual.clear();
 
       nTkEM = 0;
       tkEMEt.clear();
@@ -119,6 +120,7 @@ namespace L1Analysis
       tkEMBx.clear();
       tkEMTrkIso.clear();
       tkEMzVtx.clear();
+      tkEMHwQual.clear();
 
       // TkTaus
       nTkTau = 0;
@@ -144,19 +146,19 @@ namespace L1Analysis
       tkCaloJetPhi.clear();
       tkCaloJetBx.clear();
 
-      // tkTkMuons
-      nTkMuons = 0;
-      tkMuonEt.clear();
-      tkMuonEta.clear();
-      tkMuonPhi.clear();
-      tkMuonChg.clear();
-      tkMuonTrkIso.clear();
-      tkMuonFwd.clear();
-      tkMuonMip.clear();
-      tkMuonRPC.clear();
-      tkMuonBx.clear();
-      tkMuonQuality.clear();
-      tkMuonzVtx.clear();
+      // tkTkGlbMuons
+      nTkGlbMuons = 0;
+      tkGlbMuonEt.clear();
+      tkGlbMuonEta.clear();
+      tkGlbMuonPhi.clear();
+      tkGlbMuonChg.clear();
+      tkGlbMuonTrkIso.clear();
+      tkGlbMuonFwd.clear();
+      tkGlbMuonMip.clear();
+      tkGlbMuonRPC.clear();
+      tkGlbMuonBx.clear();
+      tkGlbMuonQuality.clear();
+      tkGlbMuonzVtx.clear();
 
       // TrackerMet
       nTrackerMet = 0;
@@ -170,7 +172,6 @@ namespace L1Analysis
       trackerHT.clear();
       trackerMHT.clear();
       trackerMHTPhi.clear();
-      trackerMHTBx.clear();
 
       // New Jet Collections
       nPuppiJets = 0;
@@ -183,10 +184,10 @@ namespace L1Analysis
 
       puppiMETEt=0;
       puppiMETPhi=0;
-      puppiHT=0;
-      puppiMHTEt=0;
-      puppiMHTPhi=0;
-
+      puppiHT.clear();
+      puppiMHTEt.clear();
+      puppiMHTPhi.clear();
+      nPuppiMHT=0;
     }
   
     unsigned short int nTaus;
@@ -278,6 +279,8 @@ namespace L1Analysis
     std::vector<int>    tkEGBx;
     std::vector<double> tkEGTrkIso;
     std::vector<double> tkEGzVtx;
+    std::vector<double> tkEGHwQual;
+
 
     unsigned int nTkEM;
     std::vector<double> tkEMEt;
@@ -286,6 +289,8 @@ namespace L1Analysis
     std::vector<int>    tkEMBx;
     std::vector<double> tkEMTrkIso;
     std::vector<double> tkEMzVtx;
+    std::vector<double> tkEMHwQual;
+
 
     unsigned int nTkTau;
     std::vector<double> tkTauEt;
@@ -309,19 +314,19 @@ namespace L1Analysis
     std::vector<int>    tkCaloJetBx;
     std::vector<double> tkCaloJetzVtx;
 
-    unsigned int nTkMuons;
-    std::vector<double>   tkMuonEt;
-    std::vector<double>   tkMuonEta;
-    std::vector<double>   tkMuonPhi;
-    std::vector<int>      tkMuonChg;
-    std::vector<unsigned int> tkMuonIso;
-    std::vector<double> tkMuonTrkIso;
-    std::vector<unsigned int> tkMuonFwd;
-    std::vector<unsigned int> tkMuonMip;
-    std::vector<unsigned int> tkMuonRPC;
-    std::vector<int>      tkMuonBx;
-    std::vector<unsigned int>      tkMuonQuality;
-    std::vector<double>   tkMuonzVtx;
+    unsigned int nTkGlbMuons;
+    std::vector<double>   tkGlbMuonEt;
+    std::vector<double>   tkGlbMuonEta;
+    std::vector<double>   tkGlbMuonPhi;
+    std::vector<int>      tkGlbMuonChg;
+    std::vector<unsigned int> tkGlbMuonIso;
+    std::vector<double> tkGlbMuonTrkIso;
+    std::vector<unsigned int> tkGlbMuonFwd;
+    std::vector<unsigned int> tkGlbMuonMip;
+    std::vector<unsigned int> tkGlbMuonRPC;
+    std::vector<int>      tkGlbMuonBx;
+    std::vector<unsigned int>      tkGlbMuonQuality;
+    std::vector<double>   tkGlbMuonzVtx;
 
     unsigned int nTrackerMet;
     std::vector<double> trackerMetSumEt;
@@ -333,7 +338,7 @@ namespace L1Analysis
     std::vector<double> trackerHT;
     std::vector<double> trackerMHT;
     std::vector<double> trackerMHTPhi;
-    std::vector<double> trackerMHTBx;
+
 
     unsigned int nPuppiJets;
     std::vector<double> puppiJetEt;
@@ -345,10 +350,11 @@ namespace L1Analysis
 
     double puppiMETEt;
     double puppiMETPhi;
-    double puppiHT;
-    double puppiMHTEt;
-    double puppiMHTPhi;
 
+    std::vector<double> puppiHT;
+    std::vector<double> puppiMHTEt;
+    std::vector<double> puppiMHTPhi;
+     unsigned int nPuppiMHT;
 
   }; 
 }

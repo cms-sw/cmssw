@@ -12,11 +12,11 @@ l1PhaseIITree = cms.EDAnalyzer("L1PhaseIITreeProducer",
    tkEMTokens = cms.VInputTag( cms.InputTag("L1TkPhotonsCrystal","EG"),cms.InputTag("L1TkPhotonsHGC","EG") ),
 
    tkTauToken = cms.InputTag("L1TkTauFromCalo",""), # ?
-   tkMuonToken = cms.InputTag("L1TkMuons",""),                                            
+   TkGlbMuonToken = cms.InputTag("L1TkGlbMuons",""),                                            
    tkTrackerJetToken = cms.InputTag("L1TrackerJets","L1TrackerJets"),                                            
    tkCaloJetToken = cms.InputTag("L1TkCaloJets","L1TkCaloJets"),
    tkMetToken = cms.InputTag("L1TrackerEtMiss","MET"),
-   tkMhtToken = cms.InputTag("L1TrackerHTMiss","L1TrackerHTMiss"),
+   tkMhtTokens = cms.VInputTag( cms.InputTag("L1TrackerHTMiss5GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss10GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss20GeV","L1TrackerHTMiss"),cms.InputTag("L1TrackerHTMiss30GeV","L1TrackerHTMiss")),
 
    ak4L1PF = cms.InputTag("ak4L1Puppi"),
  

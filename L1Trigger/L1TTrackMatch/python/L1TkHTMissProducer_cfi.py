@@ -16,4 +16,9 @@ L1TkCaloHTMiss.DoVtxConstrain = cms.bool(True)
 
 L1TrackerHTMiss = L1TkCaloHTMiss.clone()
 L1TrackerHTMiss.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
+L1TrackerHTMiss.jet_maxEta = cms.double(2.4)
+L1TrackerHTMiss.jet_minPt = cms.double(15.0)
 L1TrackerHTMiss.UseCaloJets = cms.bool(False)
+
+
+

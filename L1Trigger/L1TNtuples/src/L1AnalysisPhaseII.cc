@@ -163,6 +163,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEG(const edm::Handle<l1t::L1TkElectronP
     l1extra_.tkEGPhi.push_back(it->phi());
     l1extra_.tkEGzVtx.push_back(it->getTrkzVtx());
     l1extra_.tkEGTrkIso.push_back(it->getTrkIsol());
+    l1extra_.tkEGHwQual.push_back(it->getEGRef()->hwQual());
     l1extra_.tkEGBx.push_back(0);//it->bx());
     l1extra_.nTkEG++;
   }}
@@ -177,6 +178,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticl
     l1extra_.tkEMPhi.push_back(it->phi());
     l1extra_.tkEMTrkIso.push_back(it->getTrkIsol());
     l1extra_.tkEMBx.push_back(0);//it->bx());
+    l1extra_.tkEMHwQual.push_back(it->getEGRef()->hwQual());
     l1extra_.nTkEM++;
   }}
 }
@@ -225,27 +227,27 @@ void L1Analysis::L1AnalysisPhaseII::SetTkCaloJet(const edm::Handle<l1t::L1TkJetP
 }
 
 
-void L1Analysis::L1AnalysisPhaseII::SetTkMuon(const edm::Handle<l1t::L1TkMuonParticleCollection> muon, unsigned maxL1Extra)
+void L1Analysis::L1AnalysisPhaseII::SetTkGlbMuon(const edm::Handle<l1t::L1TkGlbMuonParticleCollection> muon, unsigned maxL1Extra)
 {
-  for(l1t::L1TkMuonParticleCollection::const_iterator it=muon->begin(); it!=muon->end() && l1extra_.nTkMuons<maxL1Extra; it++){
+  for(l1t::L1TkGlbMuonParticleCollection::const_iterator it=muon->begin(); it!=muon->end() && l1extra_.nTkGlbMuons<maxL1Extra; it++){
 
-    l1extra_.tkMuonEt .push_back( it->pt());
-    l1extra_.tkMuonEta.push_back(it->eta());
-    l1extra_.tkMuonPhi.push_back(it->phi());
-    l1extra_.tkMuonChg.push_back(it->charge());
-    l1extra_.tkMuonTrkIso.push_back(it->getTrkIsol());
-    //    l1extra_.tkMuonIso.push_back(it->isIsolated());
-    // l1extra_.tkMuonMip.push_back(it->isMip());
-    // l1extra_.tkMuonFwd.push_back(it->isForward());
-    //l1extra_.tkMuonRPC.push_back(it->isRPC());
-    l1extra_.tkMuonzVtx.push_back(it->getTrkzVtx());
-    l1extra_.tkMuonBx .push_back(0); //it->bx());
+    l1extra_.tkGlbMuonEt .push_back( it->pt());
+    l1extra_.tkGlbMuonEta.push_back(it->eta());
+    l1extra_.tkGlbMuonPhi.push_back(it->phi());
+    l1extra_.tkGlbMuonChg.push_back(it->charge());
+    l1extra_.tkGlbMuonTrkIso.push_back(it->getTrkIsol());
+    //    l1extra_.tkGlbMuonIso.push_back(it->isIsolated());
+    // l1extra_.tkGlbMuonMip.push_back(it->isMip());
+    // l1extra_.tkGlbMuonFwd.push_back(it->isForward());
+    //l1extra_.tkGlbMuonRPC.push_back(it->isRPC());
+    l1extra_.tkGlbMuonzVtx.push_back(it->getTrkzVtx());
+    l1extra_.tkGlbMuonBx .push_back(0); //it->bx());
     /*
     const edm::Ref<l1t::L1MuonParticleCollection> MuRef = it->getMuRef();
     unsigned int qualityBis = MuRef -> gmtMuonCand().quality();
-    l1extra_.tkMuonQuality .push_back(qualityBis);
+    l1extra_.tkGlbMuonQuality .push_back(qualityBis);
     */
-    l1extra_.tkMuonQuality .push_back(it->quality());
+    l1extra_.tkGlbMuonQuality .push_back(it->quality());
     /*
     std::cout << "ptExtra pt " << it->pt()
 	      << "; etaExtra " << it->eta()
@@ -253,7 +255,7 @@ void L1Analysis::L1AnalysisPhaseII::SetTkMuon(const edm::Handle<l1t::L1TkMuonPar
 	      << std::endl;
     */
 
-    l1extra_.nTkMuons++;
+    l1extra_.nTkGlbMuons++;
   }
 }
 
@@ -270,20 +272,23 @@ void L1Analysis::L1AnalysisPhaseII::SetTkMET(const edm::Handle<l1t::L1TkEtMissPa
 }
 
 
-void L1Analysis::L1AnalysisPhaseII::SetTkMHT(const edm::Handle<l1t::L1TkHTMissParticleCollection> trackerMHTs)
-{
+void L1Analysis::L1AnalysisPhaseII::SetTkMHT(const edm::Handle<l1t::L1TkHTMissParticleCollection > trackerMHTs){
+   // Hardcoding it like this, but this needs to be changed to a vector
+
   for(l1t::L1TkHTMissParticleCollection::const_iterator it=trackerMHTs->begin(); it!=trackerMHTs->end(); it++) {
     l1extra_.trackerHT.    push_back( it->EtTotal() );
     l1extra_.trackerMHT.   push_back( it->EtMiss() );
     l1extra_.trackerMHTPhi.push_back( it->phi() );
-    l1extra_.trackerMHTBx. push_back( it->bx() );
     l1extra_.nTrackerMHT++;
   }
+
 }
 
 void L1Analysis::L1AnalysisPhaseII::SetPFJet(const edm::Handle<reco::PFJetCollection> PFJet, unsigned maxL1Extra)
 {
-  double mht_px=0, mht_py=0, ht=0;
+  double mHT15_px=0, mHT15_py=0, HT15=0;
+  double mHT20_px=0, mHT20_py=0, HT20=0;
+  double mHT30_px=0, mHT30_py=0, HT30=0;
 
   // This should not be hardcoded here!!! 
    double offset[10]={-12.058, -12.399, -11.728, -10.557, -5.391,  4.586,  3.542,  1.825, -6.946, -17.857};
@@ -293,7 +298,8 @@ void L1Analysis::L1AnalysisPhaseII::SetPFJet(const edm::Handle<reco::PFJetCollec
   for(reco::PFJetCollection::const_iterator it=PFJet->begin(); it!=PFJet->end() && l1extra_.nPuppiJets<maxL1Extra; it++){
     double corrBin=1, offsetBin=0;
     for(int j=0; j<10; j++) {if(corrBin==1 && fabs(it->eta())<etaBin[j]) {corrBin=scale[j]; offsetBin=offset[j];}}
-    reco::Particle::PolarLorentzVector corrP4= reco::Particle::PolarLorentzVector(it->et()*corrBin+offsetBin,it->eta(),it->phi(),it->mass());
+    double ptcorr=(it->pt()-offsetBin)/corrBin;
+    reco::Particle::PolarLorentzVector corrP4= reco::Particle::PolarLorentzVector(ptcorr,it->eta(),it->phi(),it->mass());
     l1extra_.puppiJetEt .push_back(corrP4.pt());
     l1extra_.puppiJetEtUnCorr .push_back(it->et());
     l1extra_.puppiJetEta.push_back(it->eta());
@@ -301,15 +307,37 @@ void L1Analysis::L1AnalysisPhaseII::SetPFJet(const edm::Handle<reco::PFJetCollec
 //    l1extra_.puppiJetzVtx.push_back(it->getJetVtx());
     l1extra_.puppiJetBx .push_back(0);//it->bx());
     l1extra_.nPuppiJets++;
-    if(it->et()>30 && fabs(it->eta())<4.7) { 
-                  ht+=corrP4.pt();
-                  mht_px+=corrP4.px();
-                  mht_py+=corrP4.py();
+    if(it->et()>15 && fabs(it->eta())<2.4) { // this needs to be done in a nicer way
+                   HT15+=corrP4.pt();
+                  mHT15_px+=corrP4.px();
+                  mHT15_py+=corrP4.py();
+    }
+    if(it->et()>20 && fabs(it->eta())<2.4) {
+                  HT20+=corrP4.pt();
+                  mHT20_px+=corrP4.px();
+                  mHT20_py+=corrP4.py();
+
+    }
+    if(it->et()>30 && fabs(it->eta())<2.4) { 
+                  HT30+=corrP4.pt();
+                  mHT30_px+=corrP4.px();
+                  mHT30_py+=corrP4.py();
       }
   }
-  l1extra_.puppiMHTEt = sqrt(mht_px*mht_px+mht_py*mht_py);
-  l1extra_.puppiMHTPhi = atan(mht_py/mht_px);
-  l1extra_.puppiHT = ht;
+  l1extra_.puppiMHTEt.push_back( sqrt(mHT15_px*mHT15_px+mHT15_py*mHT15_py) );
+  l1extra_.puppiMHTPhi.push_back( atan(mHT15_py/mHT15_px) );
+  l1extra_.puppiHT.push_back( HT15 );
+
+  l1extra_.puppiMHTEt.push_back( sqrt(mHT20_px*mHT20_px+mHT20_py*mHT20_py) );
+  l1extra_.puppiMHTPhi.push_back( atan(mHT20_py/mHT20_px) );
+  l1extra_.puppiHT.push_back( HT20 );
+
+  l1extra_.puppiMHTEt.push_back( sqrt(mHT30_px*mHT30_px+mHT30_py*mHT30_py) );
+  l1extra_.puppiMHTPhi.push_back( atan(mHT30_py/mHT30_px) );
+  l1extra_.puppiHT.push_back( HT30 );
+
+  l1extra_.nPuppiMHT=3;
+
 }
 
 void L1Analysis::L1AnalysisPhaseII::SetL1METPF(const edm::Handle< std::vector<reco::PFMET> > l1MetPF)
