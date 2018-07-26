@@ -1563,28 +1563,33 @@ void PlotHistCorrFactors(char* infile1, std::string text1,
   const char* blank("");
   if (infile1 != blank) {    
     readCorrFactors(infile1,1.0,cfacs[nfile],etamin,etamax,maxdepth);
-    texts.push_back(text1);
-    ++nfile;
+    if (cfacs[nfile].size() > 0) {
+      texts.push_back(text1); ++nfile;
+    }
   }
   if (infile2 != blank) {    
     readCorrFactors(infile2,1.0,cfacs[nfile],etamin,etamax,maxdepth);
-    texts.push_back(text2);
-    ++nfile;
+    if (cfacs[nfile].size() > 0) {
+      texts.push_back(text2); ++nfile;
+    }
   }
   if (infile3 != blank) {    
     readCorrFactors(infile3,1.0,cfacs[nfile],etamin,etamax,maxdepth);
-    texts.push_back(text3);
-    ++nfile;
+    if (cfacs[nfile].size() > 0) {
+      texts.push_back(text3); ++nfile;
+    }
   }
   if (infile4 != blank) {    
     readCorrFactors(infile4,1.0,cfacs[nfile],etamin,etamax,maxdepth);
-    texts.push_back(text4);
-    ++nfile;
+    if (cfacs[nfile].size() > 0) {
+      texts.push_back(text4); ++nfile;
+    }
   }
   if (infile5 != blank) {    
-    readCorrFactors(infile3,1.0,cfacs[nfile],etamin,etamax,maxdepth);
-    texts.push_back(text5);
-    ++nfile;
+    readCorrFactors(infile5,1.0,cfacs[nfile],etamin,etamax,maxdepth);
+    if (cfacs[nfile].size() > 0) {
+      texts.push_back(text5); ++nfile;
+    }
   }
 
   if (nfile > 1) {
