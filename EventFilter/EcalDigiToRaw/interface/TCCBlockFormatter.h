@@ -22,8 +22,8 @@
 class TCCBlockFormatter : public BlockFormatter {
  public :
 
-  TCCBlockFormatter(BlockFormatter::Config const&);
-  ~TCCBlockFormatter();
+  TCCBlockFormatter(BlockFormatter::Config const&, BlockFormatter::Params const&);
+
   static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
   void DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
   

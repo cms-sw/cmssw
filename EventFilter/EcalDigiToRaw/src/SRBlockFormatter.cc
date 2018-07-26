@@ -6,20 +6,8 @@
 using namespace std;
 
 
-SRBlockFormatter::SRBlockFormatter(Config const& iC): BlockFormatter(iC) {
+SRBlockFormatter::SRBlockFormatter(Config const& iC, Params const& iP): BlockFormatter(iC,iP) {
 
-}
-
-SRBlockFormatter::~SRBlockFormatter() {
-
-}
-
-
-void SRBlockFormatter::StartEvent() {
-  if (debug_) cout << "enter in StartEvent. header_ size is  " << header_.size() << endl;
-  header_ .clear() ;
-  if (debug_) cout << "after empty : header_ size is  " << header_.size() << endl;
-  return;
 }
 
 void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawData& rawdata)

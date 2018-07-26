@@ -12,13 +12,9 @@
 using namespace std;
 
 
-TCCBlockFormatter::TCCBlockFormatter(Config const& iC): BlockFormatter(iC) {
+TCCBlockFormatter::TCCBlockFormatter(Config const& iC, Params const& iP): BlockFormatter(iC, iP) {
 
  AllTPsamples_ = false;
-}
-
-TCCBlockFormatter::~TCCBlockFormatter() {
-
 }
 
 void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim, 
