@@ -4,7 +4,8 @@
 //  CalibMonitor c1(fname, dirname, dupFileName, comFileName, outFileName,
 //                  prefix, corrFileName, rcorFileName, puCorr, flag, numb,
 //                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside, rbx, exclude, etamax);
+//                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbx,
+//                  exclude, etamax);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -75,6 +76,8 @@
 //   phimax          (int)     = maximum iphi value (72)
 //   zside           (int)     = the side of the detector if phimin and phimax
 //                               differ from 1-72 (1)
+//   nvxlo           (int)     = minimum # of vertex in event to be used (0)
+//   nvxhi           (int)     = maximum # of vertex in event to be used (1000)
 //   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
 //   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
 //                               considered (false)
@@ -234,7 +237,8 @@ public :
 	       int truncateFlag=0, bool useGen=false, double scale=1.0, 
 	       int useScale=0, int etalo=0, int etahi=30, int runlo=0, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
-	       int rbx=0, bool exclude=false, bool etamax=false);
+	       int nvxlo=0, int nvxhi=1000, int rbx=0, bool exclude=false,
+	       bool etamax=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -263,7 +267,7 @@ private:
   const int                     truncateFlag_, useScale_;
   const int                     etalo_, etahi_;
   int                           runlo_, runhi_;
-  const int                     phimin_,phimax_,zside_, rbx_;
+  const int                     phimin_,phimax_,zside_, nvxlo_, nvxhi_, rbx_;
   const double                  scale_;
   bool                          exclude_, corrE_, cutL1T_, selRBX_,includeRun_;
   int                           coarseBin_, etamp_, etamn_, plotType_;
@@ -294,7 +298,8 @@ CalibMonitor::CalibMonitor(const char*        fname,
 			   int flag, int numb, bool dataMC, int truncate, 
 			   bool useGen, double scale, int useScale,
 			   int etalo, int etahi, int runlo, int runhi, 
-			   int phimin, int phimax, int zside, int rbx, bool exc,
+			   int phimin, int phimax, int zside, int nvxlo,
+			   int nvxhi, int rbx, bool exc,
 			   bool etam) : cFactor_(nullptr), cSelect_(nullptr),
 					fname_(fname), dirnm_(dirnm), 
 					prefix_(prefix), 
@@ -307,6 +312,7 @@ CalibMonitor::CalibMonitor(const char*        fname,
 					etahi_(etahi), runlo_(runlo), 
 					runhi_(runhi), phimin_(phimin), 
 					phimax_(phimax), zside_(zside), 
+					nvxlo_(nvxlo), nvxhi_(nvxhi),
 					rbx_(rbx), scale_(scale), 
 					exclude_(exc), includeRun_(true) {
   // if parameter tree is not specified (or zero), connect the file
@@ -334,7 +340,8 @@ CalibMonitor::CalibMonitor(const char*        fname,
 	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
 	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
 	    << " (inclusion flag " << includeRun_ << ") Selection of RBX " 
-	    << selRBX_ << " EtaMax " << etaMax_  << std::endl;
+	    << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
+	    << " EtaMax " << etaMax_  << std::endl;
   if (!fillChain(chain,fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
@@ -812,12 +819,14 @@ void CalibMonitor::Loop() {
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
 		   ((t_Run < runlo_) || (t_Run > runhi_)));
     select      = (selRun && (fabs(t_ieta) >= etalo_) &&
-		   (fabs(t_ieta) <= etahi_));
+		   (fabs(t_ieta) <= etahi_) && (t_nVtx >= nvxlo_) && 
+		   (t_nVtx <= nvxhi_));
     if (!select) {
       if (debug)
 	std::cout << "Run # " << t_Run << " out of range of " << runlo_ << ":" 
-		  << runhi_ << " or " << t_ieta << " out of range of " 
-		  << etalo_ << ":" << etahi_ << std::endl;
+		  << runhi_ << " or ieta " << t_ieta << " (" << etalo_ << ":" 
+		  << etahi_ << ") or nvtx " << t_nVtx << " (" << nvxlo_ << ":"
+		  << nvxhi_ << ") out of range" << std::endl;
       continue;
     }
     if (cSelect_ != nullptr) {
