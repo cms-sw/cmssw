@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 
@@ -149,11 +150,11 @@ if auto:
     try:
         # Get the express GT from Tie0 DataService API
         GlobalTag.globaltag = cms.string( t0.getGlobalTag( 'express_config' ) )
-        print "The query to the Tier0 DataService returns the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), )
+        print("The query to the Tier0 DataService returns the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), ))
     except Tier0Error as error:
         # the web query did not succeed, fall back to the default
-        print "Error in querying the Tier0 DataService"
-        print error
-        print "Falling back to the default value of the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), )
+        print("Error in querying the Tier0 DataService")
+        print(error)
+        print("Falling back to the default value of the express GT: \"%s\"" % ( GlobalTag.globaltag.value(), ))
 else:
-    print "Using hardcoded GT: \"%s\"" % GlobalTag.globaltag.value()
+    print("Using hardcoded GT: \"%s\"" % GlobalTag.globaltag.value())
