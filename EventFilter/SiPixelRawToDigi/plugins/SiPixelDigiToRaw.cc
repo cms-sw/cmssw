@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,6 +17,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -28,10 +30,19 @@
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
-#include "TH1D.h"
-#include "TFile.h"
+#include <atomic>
+#include <memory>
 
-class SiPixelDigiToRaw final : public edm::EDProducer {
+namespace sipixeldigitoraw {
+  struct Cache {
+    std::unique_ptr<SiPixelFedCablingTree> cablingTree_;
+    std::unique_ptr<SiPixelFrameReverter> frameReverter_;
+  };
+}
+
+namespace pr = sipixeldigitoraw;
+
+class SiPixelDigiToRaw final : public edm::global::EDProducer<edm::LuminosityBlockCache<pr::Cache>> {
 public:
 
   /// ctor
@@ -39,16 +50,22 @@ public:
 
 
   /// get data, convert to raw event, attach again to Event
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const final;
 
+  std::shared_ptr<pr::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, 
+                                                        edm::EventSetup const& iES) const final;
+
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&,
+                                edm::EventSetup const& iES) const final {}
+  
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
 
-  std::unique_ptr<SiPixelFedCablingTree> cablingTree_;
-  std::unique_ptr<SiPixelFrameReverter> frameReverter_;
-  edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  mutable std::atomic_flag lock_{ ATOMIC_FLAG_INIT };
+  CMS_THREAD_GUARD(lock_) mutable edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  CMS_THREAD_GUARD(lock_) mutable std::shared_ptr<pr::Cache> previousCache_;
   const edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi; 
   const edm::EDPutTokenT<FEDRawDataCollection> putToken_;
   const bool usePilotBlade = false;  // I am not yet sure we need it here?
@@ -58,7 +75,6 @@ private:
 using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
-  frameReverter_(),
   tPixelDigi{ consumes<edm::DetSetVector<PixelDigi> >(pset.getParameter<edm::InputTag>("InputLabel")) },
   putToken_{produces<FEDRawDataCollection>()},
   usePhase1{ pset.getParameter<bool> ("UsePhase1") }
@@ -72,10 +88,28 @@ SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
 }
 
 // -----------------------------------------------------------------------------
+std::shared_ptr<pr::Cache> 
+SiPixelDigiToRaw::globalBeginLuminosityBlock(edm::LuminosityBlock const&, 
+                                             edm::EventSetup const& es) const {
+  while(lock_.test_and_set(std::memory_order_acquire)); //spin
+  auto rel = [](std::atomic_flag* f) { f->clear(std::memory_order_release); };
+  std::unique_ptr<std::atomic_flag, decltype(rel)> guard(&lock_, rel);
+
+  if (recordWatcher.check( es )) {
+    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+    es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+    previousCache_ = std::make_shared<pr::Cache>();
+    previousCache_->cablingTree_= cablingMap->cablingTree();
+    previousCache_->frameReverter_ = std::make_unique<SiPixelFrameReverter>( es, cablingMap.product() );
+  }
+  return previousCache_;
+}
+
+
 
 // -----------------------------------------------------------------------------
-void SiPixelDigiToRaw::produce( edm::Event& ev,
-                              const edm::EventSetup& es)
+void SiPixelDigiToRaw::produce( edm::StreamID, edm::Event& ev,
+                                const edm::EventSetup& es) const
 {
   using namespace sipixelobjects;
 
@@ -91,19 +125,15 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     digis[ di.id] = di.data;
   }
 
-  if (recordWatcher.check( es )) {
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-    cablingTree_= cablingMap->cablingTree();
-    frameReverter_ = std::make_unique<SiPixelFrameReverter>( es, cablingMap.product() );
-  }
+  auto cache =  luminosityBlockCache(ev.getLuminosityBlock().index());
 
-  LogDebug("SiPixelDigiToRaw") << cablingTree_->version();
+
+  LogDebug("SiPixelDigiToRaw") << cache->cablingTree_->version();
 
   //PixelDataFormatter formatter(cablingTree_.get());
-  PixelDataFormatter formatter(cablingTree_.get(), usePhase1);
+  PixelDataFormatter formatter(cache->cablingTree_.get(), usePhase1);
 
-  formatter.passFrameReverter(frameReverter_.get());
+  formatter.passFrameReverter(cache->frameReverter_.get());
 
   // create product (raw data)
   FEDRawDataCollection buffers;
@@ -112,7 +142,7 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   formatter.formatRawData( ev.id().event(), rawdata, digis );
 
   // pack raw data into collection
-  for (auto const* fed: cablingTree_->fedList()) {
+  for (auto const* fed: cache->cablingTree_->fedList()) {
     LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << fed->id();
     FEDRawData& fedRawData = buffers.FEDData( fed->id() );
     PixelDataFormatter::RawData::iterator fedbuffer = rawdata.find( fed->id() );
@@ -134,6 +164,7 @@ void SiPixelDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions & descrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputLabel");
   desc.add<bool>("UsePhase1", false);
+  desc.addUntracked<bool>("Timing", false)->setComment("deprecated");
   descriptions.add("siPixelRawData",desc);
 }
 
