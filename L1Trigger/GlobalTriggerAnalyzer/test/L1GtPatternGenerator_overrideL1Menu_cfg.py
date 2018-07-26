@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # L1 Pattern Generator
 # ====================
@@ -302,7 +303,7 @@ process.MessageLogger.L1GtPatternGenerator_error = cms.untracked.PSet(
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
        )
 
-print "Setup complete."
+print("Setup complete.")
 
 ## output - disabled by default, the pattern generator writes to a text file
 #process.outputL1GtPatternGen = cms.OutputModule("PoolOutputModule",
