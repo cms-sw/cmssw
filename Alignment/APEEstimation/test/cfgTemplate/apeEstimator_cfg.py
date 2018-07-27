@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 import FWCore.ParameterSet.Config as cms
@@ -28,11 +29,11 @@ if( hasattr(sys, "argv") ):
             if(len(val)==2):
                 setattr(options,val[0], val[1])
 
-print "Input sample: ", options.sample
-print "Input file number", options.fileNumber
-print "Iteration number: ", options.iterNumber
-print "Last iteration: ", options.lastIter
-print "AlignmentRcd: ", options.alignRcd
+print("Input sample: ", options.sample)
+print("Input file number", options.fileNumber)
+print("Iteration number: ", options.iterNumber)
+print("Last iteration: ", options.lastIter)
+print("AlignmentRcd: ", options.alignRcd)
 
 
 
@@ -114,9 +115,9 @@ elif options.sample == 'zmumu50':
     isMc = True
 elif "MC" in options.sample:
     isMc = True
-    print options.sample
+    print(options.sample)
 else:
-    print 'ERROR --- incorrect data sammple: ', options.sample
+    print('ERROR --- incorrect data sammple: ', options.sample)
     exit(8888)
 
 
@@ -235,7 +236,7 @@ elif options.alignRcd == 'useStartGlobalTagForAllConditions':
 elif options.alignRcd == '':
   pass
 else:
-  print 'ERROR --- incorrect alignment: ', options.alignRcd
+  print('ERROR --- incorrect alignment: ', options.alignRcd)
   exit(8888)
 
 ## APE

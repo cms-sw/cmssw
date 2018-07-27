@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 import FWCore.ParameterSet.Config as cms
@@ -24,8 +25,8 @@ if( hasattr(sys, "argv") ):
             if(len(val)==2):
                 setattr(options,val[0], val[1])
 
-print "Iteration number: ", options.iterNumber
-print "Set baseline: ", options.setBaseline
+print("Iteration number: ", options.iterNumber)
+print("Set baseline: ", options.setBaseline)
 
 
 
