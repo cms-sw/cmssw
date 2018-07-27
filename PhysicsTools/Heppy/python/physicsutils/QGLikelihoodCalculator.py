@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import math
 
@@ -28,7 +29,7 @@ class QGLikelihoodCalculator:
 
   def init(self, filename) :
 
-    print "[QGLikelihoodCalculator]: Initializing from file: " + filename
+    print("[QGLikelihoodCalculator]: Initializing from file: " + filename)
 
     f = ROOT.TFile.Open(filename)
     if f.IsZombie() : return False
@@ -56,7 +57,7 @@ class QGLikelihoodCalculator:
 
 
 
-    print "[QGLikelihoodCalculator]: Initialized binning of pdfs..."
+    print("[QGLikelihoodCalculator]: Initialized binning of pdfs...")
 
     keys = f.GetListOfKeys()
     for key in keys :
@@ -76,7 +77,7 @@ class QGLikelihoodCalculator:
         histogram.SetDirectory(0)
         self.pdfs[qgType][varName][etaBin][ptBin][rhoBin] = histogram
 
-    print "[QGLikelihoodCalculator]: pdfs initialized..."
+    print("[QGLikelihoodCalculator]: pdfs initialized...")
 
 
     return True

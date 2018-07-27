@@ -1,3 +1,4 @@
+from __future__ import print_function
 import operator
 import itertools
 import copy
@@ -249,19 +250,19 @@ class IsoTrackAnalyzer( Analyzer ):
 
 
     def printInfo(self, event):
-        print 'event to Veto'
-        print '----------------'
+        print('event to Veto')
+        print('----------------')
 
         if len(event.selectedIsoTrack)>0:
-            print 'lenght: ',len(event.selectedIsoTrack)
-            print 'track candidate pt: ',event.selectedIsoTrack[0].pt()
-            print 'track candidate eta: ',event.selectedIsoTrack[0].eta()
-            print 'track candidate phi: ',event.selectedIsoTrack[0].phi()
-            print 'track candidate mass: ',event.selectedIsoTrack[0].mass()
-            print 'pdgId candidate : ',event.selectedIsoTrack[0].pdgId()
-            print 'dz: ',event.selectedIsoTrack[0].dz()
-            print 'iso: ',event.selectedIsoTrack[0].absIso
-            print 'matchId: ',event.selectedIsoTrack[0].mcMatchId 
+            print('lenght: ',len(event.selectedIsoTrack))
+            print('track candidate pt: ',event.selectedIsoTrack[0].pt())
+            print('track candidate eta: ',event.selectedIsoTrack[0].eta())
+            print('track candidate phi: ',event.selectedIsoTrack[0].phi())
+            print('track candidate mass: ',event.selectedIsoTrack[0].mass())
+            print('pdgId candidate : ',event.selectedIsoTrack[0].pdgId())
+            print('dz: ',event.selectedIsoTrack[0].dz())
+            print('iso: ',event.selectedIsoTrack[0].absIso)
+            print('matchId: ',event.selectedIsoTrack[0].mcMatchId) 
                 
 #        for lepton in event.selectedLeptons:
 #            print 'good lepton type: ',lepton.pdgId()
@@ -271,7 +272,7 @@ class IsoTrackAnalyzer( Analyzer ):
 #            print 'good lepton type: ',tau.pdgId()
 #            print 'pt: ',tau.pt()
             
-        print '----------------'
+        print('----------------')
 
 
     def process(self, event):
