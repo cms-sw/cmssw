@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import argparse
 import FWCore.ParameterSet.Config as cms
 from importlib import import_module
@@ -19,9 +20,9 @@ def parseOfflineLUTfile(aRelPath):
     searchPaths = os.getenv('CMSSW_SEARCH_PATH').split(':')
     resolvedPath = None
     for baseDir in searchPaths:
-        print "Looking for '" + aRelPath + "' under '" + baseDir + "'"
+        print("Looking for '" + aRelPath + "' under '" + baseDir + "'")
         if os.path.isfile(os.path.join(baseDir, aRelPath)):
-            print "   success!"
+            print("   success!")
             resolvedPath = os.path.join(baseDir, aRelPath)
             break
     if resolvedPath is None:
@@ -42,7 +43,7 @@ def parseOfflineLUTfile(aRelPath):
             # Split line into list of whitespace-separated items
             items = stripped_line.split()
             if len(items) != 2:
-               print "ERROR parsing file", resolvedPath, "on line", line_nr, "'" + line + "' : Splitting on whitespace produced", len(items), "items"
+               print("ERROR parsing file", resolvedPath, "on line", line_nr, "'" + line + "' : Splitting on whitespace produced", len(items), "items")
                sys.exit(1)
 
             entries.append( (int(items[0]), int(items[1])) )
@@ -51,17 +52,17 @@ def parseOfflineLUTfile(aRelPath):
         entries.sort(key= lambda x : x[0])  
         # Check that the LUT is not empty
         if len(entries) == 0:
-            print "ERROR parsing file", resolvedPath, ": No LUT entries defined in the file"
+            print("ERROR parsing file", resolvedPath, ": No LUT entries defined in the file")
             sys.exit(1)
 
         # Check that no items from the LUT are missing
         if entries[0][0] != 0:
-            print "ERROR parsing file", resolvedPath, ": LUT entries before index", entries[0][0], "are not defined"
+            print("ERROR parsing file", resolvedPath, ": LUT entries before index", entries[0][0], "are not defined")
             sys.exit(1)
          
         for x1, x2 in pairwiseGen(entries):
             if x1[0] != (x2[0]-1):
-                print "ERROR parsing file", resolvedPath, ": ", x2[0] - x1[0] - 1,"LUT entries between indices", x1[0], "and", x2[0], "are not defined"
+                print("ERROR parsing file", resolvedPath, ": ", x2[0] - x1[0] - 1,"LUT entries between indices", x1[0], "and", x2[0], "are not defined")
                 sys.exit(1)
 
         return [x[1] for x in entries]
@@ -170,7 +171,7 @@ def indent(elem, level=0):
             elem.tail = i
 
 def createMIF(aFilePath, aValue):
-    print "Writing MIF file:", aFilePath
+    print("Writing MIF file:", aFilePath)
     with open(aFilePath, 'w') as f:
         if isinstance(aValue, bool):
             aValue = (1 if aValue else 0)
@@ -199,7 +200,7 @@ def createXML(parameters, contextId, outputFilePath):
             raise RuntimeError("Do not know how to deal with parameter '" + paramId + "' of type " + str(type(value)))
     indent(topNode)
 
-    print "Writing XML file:", outputFilePath
+    print("Writing XML file:", outputFilePath)
     with open(outputFilePath, 'w') as f:
         f.write(ET.tostring(topNode))
 
@@ -219,12 +220,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     moduleName = 'L1Trigger.L1TCalorimeter.' + args.params_cfi
-    print "Importing calo params from module:", moduleName
+    print("Importing calo params from module:", moduleName)
     caloParams = import_module(moduleName).caloStage2Params
 
-    print caloParams.egCalibrationLUTFile.value()
-    print caloParams.egIsoLUTFile.value()
-    print caloParams.egIsoLUTFile2.value()
+    print(caloParams.egCalibrationLUTFile.value())
+    print(caloParams.egIsoLUTFile.value())
+    print(caloParams.egIsoLUTFile2.value())
     os.mkdir(args.output_dir)
 
     if args.mif:
