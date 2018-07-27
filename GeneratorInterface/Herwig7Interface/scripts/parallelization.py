@@ -38,6 +38,7 @@
 # Author: Dominik Beutel
 
 
+from __future__ import print_function
 import argparse
 import sys
 import os
@@ -161,21 +162,21 @@ if args.build != 0:
     cleanupfiles.append(build_name)
 
     # Start build job
-    print 'Setting up {0} build jobs.'.format(str(args.build))
-    print 'Setting up a maximum of {0} integration jobs.'.format(str(args.integrate))
-    print 'Calling\t\'cmsRun ' + build_name + '\''
+    print('Setting up {0} build jobs.'.format(str(args.build)))
+    print('Setting up a maximum of {0} integration jobs.'.format(str(args.integrate)))
+    print('Calling\t\'cmsRun ' + build_name + '\'')
 
     if args.log:
-        print 'Writing ouput to log file: ' + build_name[:-2] + 'log'
+        print('Writing ouput to log file: ' + build_name[:-2] + 'log')
         with open(build_name[:-2] + 'log', 'w') as build_log:
             process = subprocess.Popen(['cmsRun', build_name], stdout=build_log, stderr=subprocess.STDOUT)
     else:
         process = subprocess.Popen(['cmsRun ' + build_name], shell=True)
     process.wait()
 
-    print '--------------------'
-    print 'Build step finished.'
-    print '--------------------'
+    print('--------------------')
+    print('Build step finished.')
+    print('--------------------')
 
 
 
@@ -183,7 +184,7 @@ if args.build != 0:
 
 # Stop in case no integration is desired
 if args.nointegration:
-    print '--nointegration: Run will be stopped here.'
+    print('--nointegration: Run will be stopped here.')
     cleanupandexit(cleanupfiles)
 
 if args.integrate != 0:
@@ -192,15 +193,15 @@ if args.integrate != 0:
     
     # Stop if this number exceeds the given parameter
     if actual_int_jobs > args.integrate:
-        print 'Actual number of integration jobs {0} exceeds \'--integrate {1}\'.'.format(actual_int_jobs, args.integrate)
-        print 'Integration will not be performed.'
+        print('Actual number of integration jobs {0} exceeds \'--integrate {1}\'.'.format(actual_int_jobs, args.integrate))
+        print('Integration will not be performed.')
         cleanupandexit(cleanupfiles)
 
     # Start the integration jobs
-    print 'Found {0} integration jobs, a maxiumum of {1} was given.'.format(actual_int_jobs, args.integrate)
-    print 'Starting all jobs.'
+    print('Found {0} integration jobs, a maxiumum of {1} was given.'.format(actual_int_jobs, args.integrate))
+    print('Starting all jobs.')
     if not args.log:
-        print '--- Output may be cluttered. (Try the option -l/--log) ---'
+        print('--- Output may be cluttered. (Try the option -l/--log) ---')
     processes = []
     for i in range(actual_int_jobs):
         # Set up parameters
@@ -212,9 +213,9 @@ if args.integrate != 0:
 
         cleanupfiles.append(integration_name)
     
-        print 'Calling\t\'cmsRun ' + integration_name + '\''
+        print('Calling\t\'cmsRun ' + integration_name + '\'')
         if args.log:
-            print 'Writing ouput to log file: ' + integration_name[:-2] + 'log'
+            print('Writing ouput to log file: ' + integration_name[:-2] + 'log')
             with open(integration_name[:-2] + 'log', 'w') as integration_log:
                 processes.append( subprocess.Popen(['cmsRun', integration_name], stdout=integration_log, stderr=subprocess.STDOUT) )
         else:
@@ -224,9 +225,9 @@ if args.integrate != 0:
     # Wait for all processes to finish
     for process in processes:
         process.wait()
-    print '--------------------------'
-    print 'Integration step finished.'
-    print '--------------------------'
+    print('--------------------------')
+    print('Integration step finished.')
+    print('--------------------------')
 
 
 
@@ -258,14 +259,14 @@ if args.integrate != 0:
 
 
 if args.stoprun and args.resumerun:
-    print '--stoprun AND --resumerun are chosen: run step will be omitted.'
+    print('--stoprun AND --resumerun are chosen: run step will be omitted.')
     cleanupandexit(cleanupfiles)
 
 if args.run != 0:
     # Start the run jobs
-    print 'Setting up {0} runs.'.format(args.run)
+    print('Setting up {0} runs.'.format(args.run))
     if not args.log:
-        print '--- Output may be cluttered. (Try the option -l/--log) ---'
+        print('--- Output may be cluttered. (Try the option -l/--log) ---')
     processes = []
     for i in range(args.run):
         run_name = template_name + '_run_' + str(i) + '.py'
@@ -284,12 +285,12 @@ if args.run != 0:
                 cleanupfiles.append(run_name)
 
             if not os.path.isfile(run_name):
-                print '\'' + run_name + '\' not found. It will be skipped.'
+                print('\'' + run_name + '\' not found. It will be skipped.')
                 continue
 
-            print 'Calling\t\'cmsRun ' + run_name + '\''
+            print('Calling\t\'cmsRun ' + run_name + '\'')
             if args.log:
-                print 'Writing ouput to log file: ' + run_name[:-2] + 'log'
+                print('Writing ouput to log file: ' + run_name[:-2] + 'log')
                 with open(run_name[:-2] + 'log', 'w') as run_log:
                     processes.append( subprocess.Popen(['cmsRun', run_name], stdout=run_log, stderr=subprocess.STDOUT) )
             else:
@@ -300,10 +301,10 @@ if args.run != 0:
     for process in processes:
         process.wait()
     if args.stoprun:
-        print '--stoprun: kept run files and stopped before calling cmsRun'
-    print '------------------'
-    print 'Run step finished.'
-    print '------------------'
+        print('--stoprun: kept run files and stopped before calling cmsRun')
+    print('------------------')
+    print('Run step finished.')
+    print('------------------')
 
 
 
