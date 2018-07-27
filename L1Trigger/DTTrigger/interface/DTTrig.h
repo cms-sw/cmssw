@@ -55,10 +55,10 @@ class DTTrig {
 
   public:
 
-    typedef std::map< DTChamberId,std::unique_ptr<DTSCTrigUnit>,std::less<DTChamberId> > TUcontainer;
+    typedef std::map< DTChamberId,DTSCTrigUnit,std::less<DTChamberId> > TUcontainer;
     typedef TUcontainer::iterator TU_iterator;
     typedef TUcontainer::const_iterator TU_const_iterator;
-    typedef std::map< DTSectCollId,std::unique_ptr<DTSectColl>,std::less<DTSectCollId> > SCcontainer;
+    typedef std::map< DTSectCollId,DTSectColl,std::less<DTSectCollId> > SCcontainer;
     typedef SCcontainer::iterator SC_iterator;
     typedef SCcontainer::const_iterator SC_const_iterator;
     typedef std::pair<TU_iterator,TU_iterator> Range;
@@ -229,16 +229,16 @@ class DTTrig {
 
     // const version of the methods to access TUs and SCs are private to avoid misuse
     //! Return a trigger unit - Muon numbering - const version
-    DTSCTrigUnit* constTrigUnit(DTChamberId sid) const;
+    DTSCTrigUnit const* constTrigUnit(DTChamberId sid) const;
 
     //! Return a trigger unit - Muon numbering, MTTF numbering - const version
-    DTSCTrigUnit* constTrigUnit(int wheel, int stat, int sect) const;
+    DTSCTrigUnit const* constTrigUnit(int wheel, int stat, int sect) const;
 
     //! Return a SC unit - Muon numbering - const version
-    DTSectColl* SCUnit(DTSectCollId scid) const;
+    DTSectColl const* SCUnit(DTSectCollId scid) const;
 
     //! Return a SC Unit Muon Numbering, MTTF numbering - const version
-    DTSectColl* SCUnit(int wheel, int sect) const;
+    DTSectColl const* SCUnit(int wheel, int sect) const;
  
   private:
 
