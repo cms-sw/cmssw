@@ -90,9 +90,9 @@ iterHLTTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
 iterHLTTracksMonitoringHLT.doEffFromHitPatternVsBX   = True
 iterHLTTracksMonitoringHLT.doEffFromHitPatternVsLUMI = True
 iterHLTTracksMonitoringHLT.doDCAPlots                = True
-iterHLTTracksMonitoringHLT.doPVPlots                 = True
-iterHLTTracksMonitoringHLT.doBSPlots                 = True
-iterHLTTracksMonitoringHLT.doSIPPlots                = True
+iterHLTTracksMonitoringHLT.doPVPlots                 = cms.bool(True)
+iterHLTTracksMonitoringHLT.doBSPlots                 = cms.bool(True)
+iterHLTTracksMonitoringHLT.doSIPPlots                = cms.bool(True)
 
 iter3TracksMonitoringHLT = trackingMonHLT.clone()
 iter3TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter3Merged'
