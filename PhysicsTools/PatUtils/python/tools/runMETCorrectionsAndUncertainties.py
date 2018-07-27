@@ -77,6 +77,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                   "Flag to enable/disable JEC update", Type=bool)
         self.addParameter(self._defaultParameters, 'reclusterJets', False,
                   "Flag to enable/disable the jet reclustering", Type=bool)
+        self.addParameter(self._defaultParameters, 'computeMETSignificance', True,
+                  "Flag to enable/disable the MET significance computation", Type=bool)
         self.addParameter(self._defaultParameters, 'CHS', False,
                   "Flag to enable/disable the CHS jets", Type=bool)
         self.addParameter(self._defaultParameters, 'runOnData', False,
@@ -128,6 +130,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  recoMetFromPFCs         =None,
                  reapplyJEC              =None,
                  reclusterJets           =None,
+                 computeMETSignificance  =None,
                  CHS                     =None,
                  runOnData               =None,
                  onMiniAOD               =None,
@@ -192,6 +195,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         reclusterJetsIsNone = (reclusterJets is None)
         if reclusterJets is None :
             reclusterJets = self._defaultParameters['reclusterJets'].value
+        if computeMETSignificance is None :
+            computeMETSignificance = self._defaultParameters['computeMETSignificance'].value
         if CHS is None :
             CHS = self._defaultParameters['CHS'].value
         if runOnData is None :
@@ -229,6 +234,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('jetSelection',jetSelection),
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
         self.setParameter('reclusterJets',reclusterJets),
+        self.setParameter('computeMETSignificance',computeMETSignificance),
         self.setParameter('reapplyJEC',reapplyJEC),
         self.setParameter('CHS',CHS),
         self.setParameter('runOnData',runOnData),
@@ -304,6 +310,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         recoMetFromPFCs         = self._parameters['recoMetFromPFCs'].value
         reapplyJEC              = self._parameters['reapplyJEC'].value
         reclusterJets           = self._parameters['reclusterJets'].value
+        computeMETSignificance  = self._parameters['computeMETSignificance'].value
         onMiniAOD               = self._parameters['onMiniAOD'].value
         postfix                 = self._parameters['postfix'].value
         fixEE2017               = self._parameters['fixEE2017'].value
@@ -602,7 +609,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
-            getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(True)
+            getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
             getattr(process, "pat"+metType+"Met"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
             if postfix=="NoHF":
                 getattr(process, "pat"+metType+"Met"+postfix).computeMETSignificance = cms.bool(False)
@@ -618,7 +625,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #MET significance bypass for the patMETs from AOD
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
-            getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+            getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
             getattr(process, "patMETs"+postfix).srcPFCands=self._parameters["pfCandCollection"].value
 
         if hasattr(process, "patCaloMet"):
@@ -1367,7 +1374,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
                 addToProcessAndTask('patMETs'+postfix, getattr(process,'patMETs' ).clone(), process, task)
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
-                getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
+                getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(self._parameters["computeMETSignificance"].value)
                 if postfix=="NoHF":
                     getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(False)
 
@@ -1923,6 +1930,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                CHS=False,
                                reapplyJEC=True,
                                jecUncFile="",
+                               computeMETSignificance=True,
                                fixEE2017=False,
                                fixEE2017Params=None,
                                postfix=""):
@@ -1953,6 +1961,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jetCorLabelUpToL3=jetCorLabelL3,
                                       jetCorLabelL3Res=jetCorLabelRes,
                                       jecUncertaintyFile=jecUncFile,
+                                      computeMETSignificance=computeMETSignificance,
                                       CHS=CHS,
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
@@ -1983,6 +1992,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jetCorLabelUpToL3=jetCorLabelL3,
                                       jetCorLabelL3Res=jetCorLabelRes,
                                       jecUncertaintyFile=jecUncFile,
+                                      computeMETSignificance=computeMETSignificance,
                                       CHS=CHS,
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
@@ -2012,6 +2022,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jetCorLabelUpToL3=jetCorLabelL3,
                                       jetCorLabelL3Res=jetCorLabelRes,
                                       jecUncertaintyFile=jecUncFile,
+                                      computeMETSignificance=computeMETSignificance,
                                       CHS=CHS,
                                       postfix=postfix,
                                       fixEE2017=fixEE2017,
