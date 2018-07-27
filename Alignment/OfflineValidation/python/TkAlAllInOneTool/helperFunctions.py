@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 import ROOT
@@ -155,7 +156,7 @@ def cache(function):
         try:
             return cache[args, tuple(sorted(six.iteritems(kwargs)))]
         except TypeError:
-            print args, tuple(sorted(six.iteritems(kwargs)))
+            print(args, tuple(sorted(six.iteritems(kwargs))))
             raise
         except KeyError:
             cache[args, tuple(sorted(six.iteritems(kwargs)))] = function(*args, **kwargs)
