@@ -70,7 +70,8 @@ class FileListCreator(object):
 
         self._datasets = sorted([dataset
                                  for pattern in self._args.datasets
-                                 for dataset in get_datasets(pattern)])
+                                 for dataset in get_datasets(pattern)
+                                 if re.search(self._args.dataset_filter, dataset)])
         if len(self._datasets) == 0:
             print_msg("Found no dataset matching the pattern(s):")
             for d in self._args.datasets: print_msg("\t"+d)
@@ -131,10 +132,13 @@ class FileListCreator(object):
                             metavar = "DATASET", action = "append",
                             help = ("CMS dataset name; supports wildcards; "
                                     "use multiple times for multiple datasets"))
+        parser.add_argument("--dataset-filter", default = "",
+                            help = "regex to match within in the datasets matched,"
+                                   "in case the wildcard isn't flexible enough")
         parser.add_argument("-j", "--json", dest = "json", metavar = "PATH",
                             help = "path to JSON file (optional)")
         parser.add_argument("-f", "--fraction", dest = "fraction",
-                            type = float, default = 0.5,
+                            type = float, default = 1,
                             help = "max. fraction of files used for alignment")
         parser.add_argument("--iov", dest = "iovs", metavar = "RUN", type = int,
                             action = "append", default = [],
@@ -144,12 +148,14 @@ class FileListCreator(object):
                                     "IOV are discarded (default: 1)"))
         parser.add_argument("-r", "--random", action = "store_true",
                             default = False, help = "select files randomly")
-        parser.add_argument("-n", "--events-for-alignment", dest = "events",
-                            type = int, metavar = "NUMBER",
+        parser.add_argument("-n", "--events-for-alignment", "--maxevents",
+                            dest = "events", type = int, metavar = "NUMBER",
                             help = ("number of events needed for alignment; the"
                                     " remaining events in the dataset are used "
                                     "for validation; if n<=0, all events are "
                                     "used for validation"))
+        parser.add_argument("--all-events", action = "store_true",
+                            help = "Use all events for alignment")
         parser.add_argument("--tracks-for-alignment", dest = "tracks",
                             type = int, metavar = "NUMBER",
                             help = "number of tracks needed for alignment")
@@ -198,25 +204,29 @@ class FileListCreator(object):
         """Validate command line arguments."""
 
         if self._args.events is None:
-            if (self._args.tracks is None) and (self._args.rate is None):
+            if self._args.all_events:
+                self._args.events = float("inf")
+                print_msg("Using all tracks for alignment")
+            elif (self._args.tracks is None) and (self._args.rate is None):
                 msg = ("either -n/--events-for-alignment or both of "
                        "--tracks-for-alignment and --track-rate are required")
                 self._parser.error(msg)
-            if (((self._args.tracks is not None) and (self._args.rate is None)) or
+            elif (((self._args.tracks is not None) and (self._args.rate is None)) or
                 ((self._args.rate is not None)and (self._args.tracks is None))):
                 msg = ("--tracks-for-alignment and --track-rate must be used "
                        "together")
                 self._parser.error(msg)
-            self._args.events = int(math.ceil(self._args.tracks /
-                                              self._args.rate))
-            print_msg("Requested {0:d} tracks with {1:.2f} tracks/event "
-                      "-> {2:d} events for alignment."
-                      .format(self._args.tracks, self._args.rate,
-                              self._args.events))
+            else:
+                self._args.events = int(math.ceil(self._args.tracks /
+                                                  self._args.rate))
+                print_msg("Requested {0:d} tracks with {1:.2f} tracks/event "
+                          "-> {2:d} events for alignment."
+                          .format(self._args.tracks, self._args.rate,
+                                  self._args.events))
         else:
-            if (self._args.tracks is not None) or (self._args.rate is not None):
+            if (self._args.tracks is not None) or (self._args.rate is not None) or self._args.all_events:
                 msg = ("-n/--events-for-alignment must not be used with "
-                       "--tracks-for-alignment or --track-rate")
+                       "--tracks-for-alignment, --track-rate, or --all-events")
                 self._parser.error(msg)
             print_msg("Requested {0:d} events for alignment."
                       .format(self._args.events))
@@ -412,12 +422,9 @@ class FileListCreator(object):
         in the alignment file list by picking files from the validation list.
         """
 
-        not_enough_events = [
-            iov for iov in self._iovs
-            if (self._iov_info_alignment[iov]["events"]
-                < self._args.minimum_events_in_iov)]
-        for iov in not_enough_events:
-            for fileinfo in self._files_validation:
+        for iov in self._iovs:
+            if self._iov_info_alignment[iov]["events"] >= self._args.minimum_events_in_iov: continue
+            for fileinfo in self._files_validation[:]:
                 dataset, f, number_of_events, runs = fileinfo
                 iovs = self._get_iovs(runs)
                 if iov in iovs:
@@ -724,7 +731,7 @@ class FileListCreator(object):
         name += "_hippy.txt"
         print_msg("Creating dataset file list for HipPy: "+name)
         with open(os.path.join(self._output_dir, name), "w") as f:
-            f.write("\n".join(",".join("'"+fileinfo.name+"'" for fileinfo in job) for job in job_list))
+            f.write("\n".join(",".join("'"+fileinfo.name+"'" for fileinfo in job) for job in job_list)+"\n")
 
 
     def _create_dataset_cff(self, name, file_list, json_file = None):
