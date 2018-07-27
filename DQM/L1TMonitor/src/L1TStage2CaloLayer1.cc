@@ -29,7 +29,7 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet & ps) :
   fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
   histFolder_(ps.getParameter<std::string>("histFolder")),
   tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
-  ignoreHFfb2_(ps.getUntrackedParameter<bool>("ignoreHFfb2", false))
+  ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false))
 {
   ecalTPSentRecd_.reserve(28*2*72);
   hcalTPSentRecd_.reserve(41*2*72);
@@ -268,9 +268,9 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
     }
 
     const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-    const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
+    const bool Hfb1Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain()) || ignoreHFfbs_);
     // Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
-    const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)) || ignoreHFfb2_);
+    const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)) || ignoreHFfbs_);
     if ( HetAgreement && Hfb1Agreement && Hfb2Agreement ) {
       // Full match
       if ( sentTp.SOI_compressedEt() > tpFillThreshold_ ) {
