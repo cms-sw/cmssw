@@ -68,7 +68,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
 	  if(xTalk_*x!=1) nPixel=(uint32_t) std::max( nTotalPE_*(1.f-x)/(1.f-xTalk_*x), 0.f );
 
 	  //update signal
-	  nPixel = (uint32_t)std::max( CLHEP::RandGaussQ::shoot(engine,(double)nPixel,sdPixels_), 0. );
+	  if(sdPixels_ != 0) nPixel = (uint32_t)std::max( CLHEP::RandGaussQ::shoot(engine,(double)nPixel,sdPixels_), 0. );
 
 	  //convert to MIP again and saturate
           float totalMIPs(0.f), xtalk = 0.f;
@@ -80,7 +80,8 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
           }
 
 	  //add noise (in MIPs)
-	  chargeColl[i] = totalMIPs+std::max( CLHEP::RandGaussQ::shoot(engine,0.,noise_MIP_), 0. );
+	  chargeColl[i] = totalMIPs;
+      if(noise_MIP_ != 0) chargeColl[i] += std::max( CLHEP::RandGaussQ::shoot(engine,0.,noise_MIP_), 0. );
 	  if(debug && cell.hit_info[0][i]>0)
 	    std::cout << "[runCaliceLikeDigitizer] xtalk=" << xtalk << " En=" << cell.hit_info[0][i] << " keV -> " << totalIniMIPs << " raw-MIPs -> " << chargeColl[i] << " digi-MIPs" << std::endl;
 	}

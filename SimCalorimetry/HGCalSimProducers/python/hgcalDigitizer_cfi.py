@@ -190,6 +190,8 @@ hgchebackDigitizer = cms.PSet(
             )
         )
     )
+
+# this bypasses the noise simulation
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer]:
     premix_stage1.toModify(_m, premixStage1 = True)
@@ -197,7 +199,7 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer]:
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(digitizer,process):
+def HGCal_setEndOfLifeNoise(process):
     process.HGCAL_noise_fC = cms.PSet(
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
@@ -210,6 +212,19 @@ def HGCal_setEndOfLifeNoise(digitizer,process):
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])
         )
+    return process
+
+def HGCal_disableNoise(process):
+    process.HGCAL_noise_fC = cms.PSet(
+        values = cms.vdouble(0,0,0), #100,200,300 um
+    )
+    process.HGCAL_noise_MIP = cms.PSet(
+        value = cms.double(0)
+    )
+    process.HGCAL_noises = cms.PSet(
+        values = cms.vdouble(0,0,0)
+    )
+    return process
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 
