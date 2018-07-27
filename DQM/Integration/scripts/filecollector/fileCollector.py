@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import os, time, sys, glob, re, shutil, stat, smtplib, socket
 from email.MIMEText import MIMEText
 from fcntl import lockf, LOCK_EX, LOCK_UN
@@ -28,7 +29,7 @@ lastEmailSent = datetime.now()
 # --------------------------------------------------------------------
 def logme(msg, *args):
   procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
-  print datetime.now(), procid, msg % args
+  print(datetime.now(), procid, msg % args)
   
 def filecheck(rootfile):
   cmd = 'root -l -b -q %s/filechk.C"(\\"%s\\")"' % (SBASEDIR,rootfile)

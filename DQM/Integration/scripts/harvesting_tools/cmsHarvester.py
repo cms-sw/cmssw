@@ -31,6 +31,7 @@ see the setup_harvesting_info() and option_handler_list_types()
 methods.
 
 """
+from __future__ import print_function
 
 ###########################################################################
 
@@ -1167,34 +1168,34 @@ class CMSHarvester(object):
         sep_line = "-" * 50
         sep_line_short = "-" * 20
 
-        print sep_line
-        print "The following harvesting types are available:"
-        print sep_line
+        print(sep_line)
+        print("The following harvesting types are available:")
+        print(sep_line)
 
-        print "`RelVal' maps to:"
-        print "  pre-3_3_0           : HARVESTING:validationHarvesting"
-        print "  3_4_0_pre2 and later: HARVESTING:validationHarvesting+dqmHarvesting"
-        print "  Exceptions:"
-        print "    3_3_0_pre1-4        : HARVESTING:validationHarvesting"
-        print "    3_3_0_pre6          : HARVESTING:validationHarvesting"
-        print "    3_4_0_pre1          : HARVESTING:validationHarvesting"
+        print("`RelVal' maps to:")
+        print("  pre-3_3_0           : HARVESTING:validationHarvesting")
+        print("  3_4_0_pre2 and later: HARVESTING:validationHarvesting+dqmHarvesting")
+        print("  Exceptions:")
+        print("    3_3_0_pre1-4        : HARVESTING:validationHarvesting")
+        print("    3_3_0_pre6          : HARVESTING:validationHarvesting")
+        print("    3_4_0_pre1          : HARVESTING:validationHarvesting")
 
-        print sep_line_short
+        print(sep_line_short)
 
-        print "`RelValFS' maps to:"
-        print "  always              : HARVESTING:validationHarvestingFS"
+        print("`RelValFS' maps to:")
+        print("  always              : HARVESTING:validationHarvestingFS")
 
-        print sep_line_short
+        print(sep_line_short)
 
-        print "`MC' maps to:"
-        print "    always          : HARVESTING:validationprodHarvesting"
+        print("`MC' maps to:")
+        print("    always          : HARVESTING:validationprodHarvesting")
 
-        print sep_line_short
+        print(sep_line_short)
 
-        print "`DQMOffline' maps to:"
-        print "  always              : HARVESTING:dqmHarvesting"
+        print("`DQMOffline' maps to:")
+        print("  always              : HARVESTING:dqmHarvesting")
 
-        print sep_line
+        print(sep_line)
 
         # We're done, let's quit. (This is the same thing optparse
         # does after printing the help.)
@@ -3381,7 +3382,7 @@ class CMSHarvester(object):
                              input_name)
             try:
                 listfile = open("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/bin/%s" %input_name, "r")
-		print "open listfile"
+		print("open listfile")
                 for dataset in listfile:
                     # Skip empty lines.
                     dataset_stripped = dataset.strip()
@@ -3661,7 +3662,7 @@ class CMSHarvester(object):
 
             if self.todofile != "YourToDofile.txt":
 		runs_todo = []
-                print "Reading runs from file /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/%s" %self.todofile
+                print("Reading runs from file /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/%s" %self.todofile)
                 cmd="grep %s /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/harvesting/%s | cut -f5 -d' '" %(dataset_name,self.todofile)
                 (status, output)=commands.getstatusoutput(cmd)
 		for run in runs:
@@ -4329,7 +4330,7 @@ class CMSHarvester(object):
 	UserName = output
 
 	if self.caf_access == True:
-	    print "Extracting %s as user name" %UserName 
+	    print("Extracting %s as user name" %UserName) 
 
         number_max_sites = self.nr_max_sites + 1
 
