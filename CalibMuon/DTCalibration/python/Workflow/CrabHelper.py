@@ -35,6 +35,9 @@ class CrabHelper(object):
 
         task = self.crabFunctions.CrabTask(crab_config = full_crab_config_filename)
         task.update()
+        if task.state =="UNKNOWN":
+            time.sleep( 30 )
+            task.update()
         success_states = ( 'QUEUED', 'SUBMITTED', "COMPLETED", "FINISHED")
         if task.state in success_states:
             log.info("Job in state %s" % task.state )

@@ -49,7 +49,7 @@ protected:
 
 private:
 
-  DTSegmentSelector select_;
+  DTSegmentSelector *select_;
 
   // The class containing TMax information
   typedef DTTMax::TMax TMax;
