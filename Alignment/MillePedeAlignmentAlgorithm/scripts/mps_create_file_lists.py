@@ -14,6 +14,7 @@ import cPickle
 import difflib
 import argparse
 import functools
+import itertools
 import subprocess
 import collections
 import multiprocessing
@@ -347,11 +348,6 @@ class FileListCreator(object):
         result = pool.map_async(get_max_run, self._datasets).get(sys.maxsize)
         self._max_run = max(result)
 
-        get_file_info = functools.partial(_get_properties,
-                                          properties = ["name", "nevents"],
-                                          filters = ["nevents > 0"],
-                                          entity = "dataset",
-                                          sub_entity = "file")
         result = sum(pool.map_async(get_file_info, self._datasets).get(sys.maxint), [])
         files = pool.map_async(_make_file_info, result).get(sys.maxint)
         self._file_info = sorted(fileinfo for fileinfo in files)
@@ -388,7 +384,7 @@ class FileListCreator(object):
             fraction_exceeded = i >= max_range
             if enough_events or fraction_exceeded: use_for_alignment = False
 
-            f, number_of_events, runs = fileinfo
+            dataset, f, number_of_events, runs = fileinfo
 
             iovs = self._get_iovs(runs)
             if use_for_alignment:
@@ -423,7 +419,7 @@ class FileListCreator(object):
                 < self._args.minimum_events_in_iov)]
         for iov in not_enough_events:
             for fileinfo in self._files_validation:
-                f, number_of_events, runs = fileinfo
+                dataset, f, number_of_events, runs = fileinfo
                 iovs = self._get_iovs(runs)
                 if iov in iovs:
                     self._files_alignment.append(fileinfo)
@@ -442,11 +438,12 @@ class FileListCreator(object):
 
     def _split_hippy_jobs(self):
         self._hippy_jobs = {}
-        for iov in self._iovs:
+        for dataset, iov in itertools.product(self._datasets, self._iovs):
             jobsforiov = []
-            self._hippy_jobs[iov] = jobsforiov
+            self._hippy_jobs[dataset,iov] = jobsforiov
             eventsinthisjob = float("inf")
             for fileinfo in self._files_alignment:
+                if fileinfo.dataset != dataset: continue
                 iovs = self._get_iovs(fileinfo.runs)
                 if iov not in iovs: continue
                 if eventsinthisjob >= self._args.hippy_events_per_job:
@@ -679,7 +676,7 @@ class FileListCreator(object):
 
             self._create_dataset_txt(iov_str,
                                      self._iov_info_alignment[iov]["files"])
-            self._create_hippy_txt(iov_str, self._hippy_jobs[iov])
+            self._create_hippy_txt(iov_str, sum((self._hippy_jobs[dataset,iov] for dataset in self._datasets), []))
             self._create_dataset_cff(
                 "_".join(["Alignment", iov_str]),
                 self._iov_info_alignment[iov]["files"],
@@ -1069,11 +1066,20 @@ def _get_properties(name, entity, properties, filters = None, sub_entity = None,
                               ", ".join(props+conditions), add_ons), sub_entity)
     return [[find_key(f[sub_entity], [prop]) for prop in properties] for f in data]
 
+def get_file_info(dataset):
+    result = _get_properties(name=dataset,
+                             properties = ["name", "nevents"],
+                             filters = ["nevents > 0"],
+                             entity = "dataset",
+                             sub_entity = "file")
+    return [(dataset, name, nevents) for name, nevents in result]
 
-FileInfo = collections.namedtuple("FileInfo", "name nevents runs")
 
-def _make_file_info(name_and_nevents):
-    return FileInfo(*name_and_nevents, runs=get_runs(name_and_nevents[0]))
+
+FileInfo = collections.namedtuple("FileInfo", "dataset name nevents runs")
+
+def _make_file_info(dataset_name_nevents):
+    return FileInfo(*dataset_name_nevents, runs=get_runs(dataset_name_nevents[1]))
 
 def get_chunks(long_list, chunk_size):
     """
