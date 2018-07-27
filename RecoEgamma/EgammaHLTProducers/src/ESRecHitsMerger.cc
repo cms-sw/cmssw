@@ -64,7 +64,7 @@ void ESRecHitsMerger::beginJob(){
 void ESRecHitsMerger::endJob(){
 }
 
-void ESRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
+void ESRecHitsMerger::produce(edm::StreamID, edm::Event & e, const edm::EventSetup& iSetup) const {
 
  if (debug_) std::cout << " ESRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << std::endl;
 
