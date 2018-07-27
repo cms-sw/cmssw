@@ -32,7 +32,7 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
     void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
              l1t::HGCalClusterBxCollection& collCluster2D,
              const edm::EventSetup& es) 
-    {
+    { //std::cout << " HGCalBackendLayer1Processor2DClustering::run" << " collHandle->size = " << collHandle->size() << std::endl;
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       clustering_.eventSetup(es);
 
@@ -42,6 +42,14 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
         edm::Ptr<l1t::HGCalTriggerCell> ptr(collHandle,i);
         triggerCellsPtrs.push_back(ptr);
       }
+
+      sort(triggerCellsPtrs.begin(), triggerCellsPtrs.end(),
+           [](const edm::Ptr<l1t::HGCalTriggerCell>& a, 
+              const  edm::Ptr<l1t::HGCalTriggerCell>& b) -> bool
+            {
+              return a->mipPt() > b->mipPt();
+            }
+          );
 
       /* call to C2d clustering */
       switch(clusteringAlgorithmType_){

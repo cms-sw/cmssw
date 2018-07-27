@@ -53,7 +53,6 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
           // Should not happen, clustering type checked in constructor
           break;
       }
-
     }
     
   private:

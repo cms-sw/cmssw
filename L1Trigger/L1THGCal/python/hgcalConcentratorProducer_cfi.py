@@ -8,7 +8,7 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                      Method = cms.string('thresholdSelect'),
                      NData = cms.uint32(999),
-                     MaxCellsInModule = cms.uint32(116),
+                     MaxCellsInModule = cms.uint32(288),
                      linLSB = cms.double(100./1024.),
                      adcsaturationBH = adcSaturationBH_MIP,
                      adcnBitsBH = adcNbitsBH,
