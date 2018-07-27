@@ -63,14 +63,6 @@ DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
 }
 
 
-//--------------
-// Destructor --
-//--------------
-DTTrig::~DTTrig(){
-
-  clear();
-
-}
 
 void 
 DTTrig::createTUs(const edm::EventSetup& iSetup ){
