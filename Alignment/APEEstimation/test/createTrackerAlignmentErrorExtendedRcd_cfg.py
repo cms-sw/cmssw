@@ -1,3 +1,4 @@
+from __future__ import print_function
 ########################################################################################
 ###
 ###  Read and write APEs to and from database and ASCII files
@@ -67,9 +68,9 @@ process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag,GT)
-print "Using Global Tag:", process.GlobalTag.globaltag._value
+print("Using Global Tag:", process.GlobalTag.globaltag._value)
 if readAPEFromDB and readDBOverwriteGT:
-    print "Overwriting APE payload with "+readDBTag
+    print("Overwriting APE payload with "+readDBTag)
     process.GlobalTag.toGet.append(
         cms.PSet(
             record = cms.string("TrackerAlignmentErrorExtendedRcd"),
