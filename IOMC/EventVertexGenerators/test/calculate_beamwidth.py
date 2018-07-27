@@ -16,9 +16,9 @@ at Z = 0
 
 import math
 
-beam = eval(input("beam energy in GeV: "))
-betastar = eval(input("beta-star in m: "))
-normemittance = eval(input("normalized emittance in m: "))
+beam = eval(str(input("beam energy in GeV: ")))
+betastar = eval(str(input("beta-star in m: ")))
+normemittance = eval(str(input("normalized emittance in m: ")))
 
 gamma = beam/0.9383
 
