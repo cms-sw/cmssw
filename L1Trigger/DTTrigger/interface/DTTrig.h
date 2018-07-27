@@ -72,9 +72,6 @@ class DTTrig {
     //! Constructors
     DTTrig(const edm::ParameterSet &params, edm::ConsumesCollector && ix);
 
-    //! Destructor
-    ~DTTrig();
-    
     //! Create the trigger units and store them in the cache
     void createTUs(const edm::EventSetup& iSetup);
 
