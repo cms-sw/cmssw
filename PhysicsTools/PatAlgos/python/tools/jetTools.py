@@ -1,3 +1,4 @@
+from __future__ import print_function
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
@@ -634,7 +635,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo))
     ## setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
     for discriminator_name in btagDiscriminators :			
@@ -669,7 +670,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
     #update meta-taggers, if any
     for meta_tagger in present_meta:
         btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
@@ -694,7 +695,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     replace.doIt(getattr(process, newDiscr), newDiscr)
             acceptedBtagDiscriminators.append(meta_tagger)            
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
         
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )
