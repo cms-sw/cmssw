@@ -38,11 +38,9 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
              const std::vector<T> & values,
              const std::string    & label) const ;
 
-  // for AOD case
-  edm::EDGetToken src_;
-
-  // for miniAOD case
-  edm::EDGetToken srcMiniAOD_;
+  // for AOD and miniAOD case
+  const edm::EDGetToken src_;
+  const edm::EDGetToken srcMiniAOD_;
 
   // MVA estimator
   std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
@@ -56,13 +54,10 @@ class MVAValueMapProducer : public edm::stream::EDProducer<> {
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
-{
-
-  //
   // Declare consummables, handle both AOD and miniAOD case
-  //
-  src_        = mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("src"));
-  srcMiniAOD_ = mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
+  : src_        (mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("src")))
+  , srcMiniAOD_ (mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD")))
+{
 
   // Loop over the list of MVA configurations passed here from python and
   // construct all requested MVA estimators.
