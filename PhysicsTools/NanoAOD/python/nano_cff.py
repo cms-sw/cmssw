@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.jets_cff import *
@@ -133,7 +134,7 @@ nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nano
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 def nanoAOD_addDeepBTagFor80X(process):
-    print "Updating process to run DeepCSV btag on legacy 80X datasets"
+    print("Updating process to run DeepCSV btag on legacy 80X datasets")
     updateJetCollection(
                process,
                jetSource = cms.InputTag('slimmedJets'),
