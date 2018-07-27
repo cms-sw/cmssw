@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os, sys, optparse, math
 
 prog = sys.argv[0]
@@ -27,7 +28,7 @@ Options for sqlite-->xml conversion:
 """ % vars()
 
 if len(sys.argv) < 3:
-  print "Too few arguments!\n\n"+usage
+  print("Too few arguments!\n\n"+usage)
   sys.exit()
 
 parser=optparse.OptionParser(usage)
@@ -141,12 +142,12 @@ process.MuonGeometryDBConverter.outputXML.suppressCSCLayers = %(supLayers)s
 """ % vars())
 
 if not ok:
-  print usage
+  print(usage)
   sys.exit()
 
 exit_code = os.system("cmsRun tmp_converter_cfg.py")
 
 if exit_code>0:
-  print "problem: cmsRun exited with code:", exit_code
+  print("problem: cmsRun exited with code:", exit_code)
 else: 
   os.system("rm tmp_converter_cfg.py")
