@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import string
 from ROOT import *
@@ -209,7 +210,7 @@ deadROCList_online = list(set(BPIX_list(filename_online))) + list(set(FPIX_list(
 deadROCList_offline = list(set(BPIX_list(filename_offline))) + list(set(FPIX_list(filename_offline)))
 
 MaskedROC_DuringRun = list(set(deadROCList_online) - set(deadROCList_offline))
-print 'Number of New Dead ROC: '+ str(len(MaskedROC_DuringRun))
+print('Number of New Dead ROC: '+ str(len(MaskedROC_DuringRun)))
 
 outFileName = 'DeadROC_Diff.txt'
 outFileName_online = 'DeadROC_online.txt'

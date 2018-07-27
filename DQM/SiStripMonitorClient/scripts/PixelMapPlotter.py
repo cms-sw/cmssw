@@ -1,5 +1,6 @@
 #!/usr/bin/python 
 
+from __future__ import print_function
 import ROOT
 import sys
 import getopt
@@ -132,7 +133,7 @@ class HistogramManager:
 
     name = hist.GetName()[0:3]
     isBarrel = True if name != "PXF" else False
-    print(name, isBarrel)
+    print((name, isBarrel))
 
     xBaseStep = 1
     xRange = (nBinsX - 1) // (rocsInRow * 2) + 1
