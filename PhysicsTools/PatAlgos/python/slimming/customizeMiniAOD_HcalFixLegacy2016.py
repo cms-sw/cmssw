@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import MassSearchReplaceAnyInputTagVisitor, addKeepStatement
@@ -96,7 +97,7 @@ def addDiscardedPFCandidates(process, inputCollection, verbose=False):
 def customizeAll(process, verbose=False):
 
     if verbose:
-        print "===>>> customizing the process for legacy rereco 2016"
+        print("===>>> customizing the process for legacy rereco 2016")
 
     loadJetMETBTag(process)
 
