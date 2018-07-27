@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os,subprocess,sys,re,time,random
 from threading import *
 from subprocess import call
@@ -40,7 +41,7 @@ class BuildThread(Thread):
     if rValue == 0: 
       self.BuildNode.State=STATE_COMPLETED
     else:
-      print "Build failed for %s"  % self.BuildNode.LibName
+      print("Build failed for %s"  % self.BuildNode.LibName)
       self.BuildNode.State=STATE_ERROR
     self.QueueList[self.Queue].QueueSem.release()
   

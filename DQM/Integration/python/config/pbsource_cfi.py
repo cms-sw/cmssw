@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -73,4 +74,4 @@ source = cms.Source("DQMProtobufReader",
     endOfRunKills  = cms.untracked.bool(endOfRunKills),
 )
 
-print "Source:", source
+print("Source:", source)
