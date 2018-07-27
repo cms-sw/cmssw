@@ -66,8 +66,6 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       void analyze(const edm::Event&, const edm::EventSetup&) override;
       void endJob() override;
 
-      void findFirstNonElectronMother2(const reco::Candidate *particle, int &ancestorPID, int &ancestorStatus);
-
       template<class T, class V>
       int matchToTruth(const T &el, const V &genParticles, int &genIdx);
 
@@ -421,28 +419,10 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 }
 
-void ElectronMVANtuplizer::findFirstNonElectronMother2(const reco::Candidate *particle,
-                         int &ancestorPID, int &ancestorStatus){
-
-  if( particle == nullptr ){
-    edm::LogError  ("ElectronNtuplizer") << "ElectronNtuplizer: ERROR! null candidate pointer, this should never happen";
-    return;
-  }
-
-  // Is this the first non-electron parent? If yes, return, otherwise
-  // go deeper into recursion
-  if( abs(particle->pdgId()) == 11 ){
-    findFirstNonElectronMother2(particle->mother(0), ancestorPID, ancestorStatus);
-  }else{
-    ancestorPID = particle->pdgId();
-    ancestorStatus = particle->status();
-  }
-
-  return;
-}
-
 template<class T, class V>
-int ElectronMVANtuplizer::matchToTruth(const T &el, const V &prunedGenParticles, int &genIdx){
+int ElectronMVANtuplizer::matchToTruth(const T &el, const V &genParticles, int &genIdx){
+
+  genIdx = -1;
 
   //
   // Explicit loop and geometric matching method (advised by Josh Bendavid)
@@ -450,9 +430,8 @@ int ElectronMVANtuplizer::matchToTruth(const T &el, const V &prunedGenParticles,
 
   // Find the closest status 1 gen electron to the reco electron
   double dR = 999;
-  const reco::Candidate *closestElectron = nullptr;
-  for(size_t i=0; i<prunedGenParticles->size();i++){
-    const reco::Candidate *particle = &(*prunedGenParticles)[i];
+  for(size_t i=0; i<genParticles->size();i++){
+    const auto particle = genParticles->ptrAt(i);
     // Drop everything that is not electron or not status 1
     if( abs(particle->pdgId()) != 11 || particle->status() != 1 )
       continue;
@@ -460,36 +439,24 @@ int ElectronMVANtuplizer::matchToTruth(const T &el, const V &prunedGenParticles,
     double dRtmp = ROOT::Math::VectorUtil::DeltaR( el->p4(), particle->p4() );
     if( dRtmp < dR ){
       dR = dRtmp;
-      closestElectron = particle;
       genIdx = i;
     }
   }
-  // See if the closest electron (if it exists) is close enough.
-  // If not, no match found.
-  if( !(closestElectron != nullptr && dR < deltaR_) ) {
+  // See if the closest electron is close enough. If not, no match found.
+  if( genIdx == -1 || dR >= deltaR_ ) {
     return UNMATCHED;
   }
 
-  //
-  int ancestorPID = -999;
-  int ancestorStatus = -999;
-  findFirstNonElectronMother2(closestElectron, ancestorPID, ancestorStatus);
+  const auto closestElectron = genParticles->ptrAt(genIdx);
 
-  if( ancestorPID == -999 && ancestorStatus == -999 ){
-    // No non-electron parent??? This should never happen.
-    // Complain.
-    edm::LogError  ("ElectronNtuplizer") << "ElectronNtuplizer: ERROR! null candidate pointer, this should never happen";
-    return UNMATCHED;
-  }
+  if( closestElectron->fromHardProcessFinalState() )
+    return TRUE_PROMPT_ELECTRON;
 
-  if( abs(ancestorPID) > 50 && ancestorStatus == 2 )
-    return TRUE_NON_PROMPT_ELECTRON;
-
-  if( abs(ancestorPID) == 15 && ancestorStatus == 2 )
+  if( closestElectron->isDirectHardProcessTauDecayProductFinalState() )
     return TRUE_ELECTRON_FROM_TAU;
 
-  // What remains is true prompt electrons
-  return TRUE_PROMPT_ELECTRON;
+  // What remains is true non-prompt electrons
+  return TRUE_NON_PROMPT_ELECTRON;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
