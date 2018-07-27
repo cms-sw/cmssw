@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -6,32 +7,32 @@ from FWCore.Utilities.Enumerate import Enumerate
 varType = Enumerate ("Run1 2015 2017 2019 2023D17 2023D19 MaPSA")
 
 def help():
-   print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
-   print "   tag=tagname"
-   print "       indentify geometry condition database tag"
-   print "      ", varType.keys()
-   print ""
-   print "   tgeo=bool"
-   print "       dump in TGeo format to borwse it geomtery viewer"
-   print "       import this will in Fireworks with option --sim-geom-file"
-   print ""
-   print "   tracker=bool"
-   print "       include Tracker subdetectors"
-   print ""
-   print "   muon=bool"
-   print "       include Muon subdetectors"
-   print ""
-   print "   calo=bool"
-   print "       include Calo subdetectors"
-   print ""
-   print "   timing=bool"
-   print "       include Timing subdetectors"
-   print ""
-   print ""
+   print("Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG ")
+   print("   tag=tagname")
+   print("       indentify geometry condition database tag")
+   print("      ", varType.keys())
+   print("")
+   print("   tgeo=bool")
+   print("       dump in TGeo format to borwse it geomtery viewer")
+   print("       import this will in Fireworks with option --sim-geom-file")
+   print("")
+   print("   tracker=bool")
+   print("       include Tracker subdetectors")
+   print("")
+   print("   muon=bool")
+   print("       include Muon subdetectors")
+   print("")
+   print("   calo=bool")
+   print("       include Calo subdetectors")
+   print("")
+   print("   timing=bool")
+   print("       include Timing subdetectors")
+   print("")
+   print("")
    exit(1);
 
 def recoGeoLoad(score):
-    print "Loading configuration for tag ", options.tag ,"...\n"
+    print("Loading configuration for tag ", options.tag ,"...\n")
 
     if score == "Run1":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -188,7 +189,7 @@ else:
                        outputFileName = cms.untracked.string(options.out)
                               )
 
-print "Dumping geometry in " , options.out, "\n"; 
+print("Dumping geometry in " , options.out, "\n"); 
 process.p = cms.Path(process.dump)
 
 
