@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -19,7 +20,7 @@ class TriggerBitAnalyzer( Analyzer ):
         self.checkL1prescale = getattr(self.cfg_ana,"checkL1prescale",False)
         self.force1prescale = False
         if self.cfg_comp.isMC and self.saveIsUnprescaled:
-            print 'Cannot save prescale information in MC: will put everything to unprescaled'
+            print('Cannot save prescale information in MC: will put everything to unprescaled')
             self.saveIsUnprescaled = False
             self.checkL1prescale = False
             self.force1prescale = True

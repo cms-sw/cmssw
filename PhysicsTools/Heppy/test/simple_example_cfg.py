@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
@@ -15,9 +16,9 @@ inputSample = cfg.MCComponent(
     )
 
 if 'RelValZMM' not in inputSample.files[0]:
-    print '''WARNING: this tutorial is supposed to run on Z->mumu events.
-Do not expect meaningful results for this sample:'''
-    print inputSample
+    print('''WARNING: this tutorial is supposed to run on Z->mumu events.
+Do not expect meaningful results for this sample:''')
+    print(inputSample)
 
 if multi_thread: 
     inputSample.splitFactor = len(inputSample.files)
@@ -87,7 +88,7 @@ config = cfg.Config( components = selectedComponents,
                      services = [],
                      events_class = Events)
 
-print config
+print(config)
 
 if __name__ == '__main__':
     # can either run this configuration through heppy, 
@@ -104,12 +105,12 @@ if __name__ == '__main__':
     looper.write()
 
     # and now, let's play with the contents of the event
-    print looper.event
+    print(looper.event)
     pz = LorentzVector()
     for imu, mu in enumerate(looper.event.muons): 
-        print 'muon1', mu, 'abs iso=', mu.relIso()*mu.pt()
+        print('muon1', mu, 'abs iso=', mu.relIso()*mu.pt())
         pz += mu.p4()
-    print 'z candidate mass = ', pz.M()
+    print('z candidate mass = ', pz.M())
 
     # you can stay in ipython on a given event 
     # and paste more and more code as you need it until 
