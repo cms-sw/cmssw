@@ -16,7 +16,17 @@ Implementation:
 //
 
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
+#include <unordered_set>
 
+namespace {
+	struct ptr_hash : public std::unary_function<reco::CandidatePtr, std::size_t> {
+		std::size_t operator()(const reco::CandidatePtr& k) const
+		{
+			if(k.refCore().isTransient()) return (unsigned long)k.refCore().productPtr() ^ k.key();
+			else return k.refCore().id().processIndex() ^ k.refCore().id().productIndex() ^ k.key();
+		}
+	};
+}
 
 metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
 
@@ -55,7 +65,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    double cov_yy = 0;
  
    // for lepton and jet subtraction
-   std::set<reco::CandidatePtr> footprint;
+   std::unordered_set<reco::CandidatePtr,ptr_hash> footprint;
 
    // subtract leptons out of sumPt
    for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
@@ -93,8 +103,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      if(footprint.find( pfCandidates->ptrAt(i) )==footprint.end()) {
 
        //dP4 recovery
-       for( std::set<reco::CandidatePtr>::const_iterator it=footprint.begin();it!=footprint.end();it++) {
-	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+       for( const auto& it : footprint) {
+	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
 	   cleancand = false;
 	   break;
 	 }
