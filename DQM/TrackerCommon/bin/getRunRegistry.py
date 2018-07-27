@@ -2,12 +2,13 @@
 
 # For documentation of the RR XML-RPC handler, look into https://twiki.cern.ch/twiki//bin/view/CMS/DqmRrApi
 
+from __future__ import print_function
 import sys
 import xmlrpclib
 
 
 def displayHelp():
-  print """
+  print("""
   getRunRegistry.py
 
   CMSSW package DQM/TrackerCommon
@@ -46,7 +47,7 @@ def displayHelp():
   Valid options are:
     -h
       display this help and exit
-  """
+  """)
 
 
 # Option handling (very simple, no validity checks)
