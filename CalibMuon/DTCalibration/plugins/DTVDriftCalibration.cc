@@ -44,12 +44,10 @@ using namespace edm;
 using namespace dttmaxenums;
 
 
-DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset):
-  select_(pset),
-  // Get the synchronizer
-  theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
-                                            pset.getParameter<ParameterSet>("tTrigModeConfig"))}
-{
+DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
+
+  edm::ConsumesCollector collector(consumesCollector());
+  select_ = std::make_unique<DTSegmentSelector>(pset,collector);
 
   // The name of the 4D rec hits collection
   theRecHits4DToken = (consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel")));
@@ -79,6 +77,9 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset):
   // the txt file which will contain the calibrated constants
   theVDriftOutputFile = pset.getUntrackedParameter<string>("vDriftFileName");
 
+  // Get the synchronizer
+  theSync{DTTTrigSyncFactory::get()->create(pset.getParameter<string>("tTrigMode"),
+                                            pset.getParameter<ParameterSet>("tTrigModeConfig"))}
   // get parameter set for DTCalibrationMap constructor
   theCalibFilePar =  pset.getUntrackedParameter<ParameterSet>("calibFileConfig");
 
@@ -170,7 +171,7 @@ void DTVDriftCalibration::analyze(const Event & event, const EventSetup& eventSe
       LogTrace("Calibration") << "Segment local pos (in chamber RF): " << (*segment).localPosition()
                               << "\nSegment global pos: " << chamber->toGlobal((*segment).localPosition());
 
-      if( !select_(*segment, event, eventSetup) ) continue;
+      if( !((*select_)(*segment, event, eventSetup)) ) continue;
 
       LocalPoint phiSeg2DPosInCham;  
       LocalVector phiSeg2DDirInCham;
