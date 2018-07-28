@@ -187,7 +187,7 @@ def customiseForEcalTestPR22254thresholdC(process):
 
 
 
-def customizeHLTForL3OIPR(process):
+def customizeHLTForL3OIPR23988(process):
    for seedproducer in producers_by_type(process, "TSGForOI"):
            seedproducer.hitsToTry = cms.int32( 1 )
            seedproducer.adjustErrorsDynamicallyForHitless = cms.bool( True )
@@ -229,5 +229,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    customizeHLTForL3OIPR(process)
+    customizeHLTForL3OIPR23988(process)
     return process
