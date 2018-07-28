@@ -13,7 +13,7 @@ class connectstrParser(object):
         if result is not None:
             protocol=result.group(1)
             if protocol!='frontier' and protocol!='oracle':
-                raise 'unsupported technology',protocol
+                raise RuntimeError('unsupported technology '+protocol)
             self.__protocol=protocol
             self.__schemaname=result.group(5)
             self.__servicename=result.group(3)
