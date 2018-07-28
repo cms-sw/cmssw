@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_1_0/PRef --type PRef
 
-# /dev/CMSSW_10_1_0/PRef/V56 (CMSSW_10_1_7)
+# /dev/CMSSW_10_1_0/PRef/V60 (CMSSW_10_1_7)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_1_0/PRef/V56')
+  tableName = cms.string('/dev/CMSSW_10_1_0/PRef/V60')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -7445,7 +7445,7 @@ fragment.hltIterL3MuonsNoID = cms.EDProducer( "MuonIdProducer",
 fragment.hltIterL3Muons = cms.EDFilter( "MuonSelector",
     filter = cms.bool( False ),
     src = cms.InputTag( "hltIterL3MuonsNoID" ),
-    cut = cms.string( "isTrackerMuon && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0 && (!isGlobalMuon || globalTrack.normalizedChi2 < 20 ) && (expectedNnumberOfMatchedStations < 2 || numberOfMatchedStations > 1 || pt < 8)" )
+    cut = cms.string( "isTrackerMuon && innerTrack.hitPattern.trackerLayersWithMeasurement > 5 && innerTrack.hitPattern.pixelLayersWithMeasurement > 0 && (expectedNnumberOfMatchedStations < 2 || numberOfMatchedStations > 1 || pt < 8)" )
 )
 fragment.hltL3MuonsIterL3Links = cms.EDProducer( "MuonLinksProducer",
     inputCollection = cms.InputTag( "hltIterL3Muons" )
