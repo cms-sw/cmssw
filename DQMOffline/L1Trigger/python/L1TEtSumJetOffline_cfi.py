@@ -83,6 +83,13 @@ goodPFJetsForL1T = cms.EDFilter(
     filter=cms.bool(True),
 )
 
+from L1Trigger.L1TNtuples.L1TPFMetNoMuProducer_cfi import l1tPFMetNoMu
+
+l1tPFMetNoMuForDQM = l1tPFMetNoMu.clone(
+    pfMETCollection=cms.InputTag('pfMETT1'),
+    muonCollection=cms.InputTag('muons'),
+)
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tEtSumJetOfflineDQM = DQMEDAnalyzer(
     "L1TStage2CaloLayer2Offline",
@@ -91,6 +98,7 @@ l1tEtSumJetOfflineDQM = DQMEDAnalyzer(
     caloMETCollection=cms.InputTag("caloMetBE"),
     # MET collection including HF
     caloETMHFCollection=cms.InputTag("caloMet"),
+    pfMETNoMuCollection=cms.InputTag('l1tPFMetNoMuForDQM'),
     conversionsCollection=cms.InputTag("allConversions"),
     PVCollection=cms.InputTag("offlinePrimaryVerticesWithBS"),
     beamSpotCollection=cms.InputTag("offlineBeamSpot"),

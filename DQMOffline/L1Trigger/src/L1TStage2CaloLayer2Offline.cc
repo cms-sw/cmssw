@@ -27,6 +27,7 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
             consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloMETCollection"))),
         thecaloETMHFCollection_(
             consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloETMHFCollection"))),
+        thePFMETNoMuCollection_(consumes < reco::PFMETCollection > (ps.getParameter < edm::InputTag > ("pfMETNoMuCollection"))),
         thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
         theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
         triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
@@ -154,6 +155,9 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   edm::Handle<reco::CaloMETCollection> caloETMHFs;
   e.getByToken(thecaloETMHFCollection_, caloETMHFs);
 
+  edm::Handle<reco::PFMETCollection> pfMETNoMus;
+  e.getByToken(thePFMETNoMuCollection_, pfMETNoMus);
+
   if (!pfJets.isValid()) {
     edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: PF jets " << std::endl;
     return;
@@ -164,6 +168,10 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   }
   if (!caloETMHFs.isValid()) {
     edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
+    return;
+  }
+  if (!pfMETNoMus.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline PF E_{T}^{miss} No Mu" << std::endl;
     return;
   }
   if (!l1EtSums.isValid()) {
@@ -214,6 +222,8 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double recoMETPhi(caloMETs->front().phi());
   double recoETMHF(caloETMHFs->front().et());
   double recoETMHFPhi(caloETMHFs->front().phi());
+  double recoPFMetNoMu(pfMETNoMus->front().et());
+  double recoPFMetNoMuPhi(pfMETNoMus->front().phi());
   double recoMHT(0);
   double recoMHTPhi(0);
   double recoETT(caloMETs->front().sumEt());
@@ -247,6 +257,9 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double resolutionETMHF = recoETMHF > 0 ? (l1ETMHF - recoETMHF) / recoETMHF : outOfBounds;
   double resolutionETMHFPhi = reco::deltaPhi(l1ETMHFPhi, recoETMHFPhi);
 
+  double resolutionPFMetNoMu = recoETMHF > 0 ? (l1MET - recoPFMetNoMu) / recoPFMetNoMu : outOfBounds;
+  double resolutionPFMetNoMuPhi = reco::deltaPhi(l1METPhi, recoPFMetNoMuPhi);
+
   double resolutionMHT = recoMHT > 0 ? (l1MHT - recoMHT) / recoMHT : outOfBounds;
   double resolutionMHTPhi = reco::deltaPhi(l1MHTPhi, recoMHTPhi);
 
@@ -260,38 +273,46 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   fillWithinLimits(h_controlPlots_[ControlPlots::L1MHT], l1MHT);
   fillWithinLimits(h_controlPlots_[ControlPlots::L1ETT], l1ETT);
   fillWithinLimits(h_controlPlots_[ControlPlots::L1HTT], l1HTT);
+  fillWithinLimits(h_controlPlots_[ControlPlots::OfflineMET], recoMET);
   fillWithinLimits(h_controlPlots_[ControlPlots::OfflineETMHF], recoETMHF);
+  fillWithinLimits(h_controlPlots_[ControlPlots::OfflinePFMetNoMu], recoPFMetNoMu);
   fillWithinLimits(h_controlPlots_[ControlPlots::OfflineMHT], recoMHT);
   fillWithinLimits(h_controlPlots_[ControlPlots::OfflineETT], recoETT);
   fillWithinLimits(h_controlPlots_[ControlPlots::OfflineHTT], recoHTT);
 
   fill2DWithinLimits(h_L1METvsCaloMET_, recoMET, l1MET);
   fill2DWithinLimits(h_L1ETMHFvsCaloETMHF_, recoETMHF, l1ETMHF);
+  fill2DWithinLimits(h_L1METvsPFMetNoMu_, recoPFMetNoMu, l1MET);
   fill2DWithinLimits(h_L1MHTvsRecoMHT_, recoMHT, l1MHT);
   fill2DWithinLimits(h_L1METTvsCaloETT_, recoETT, l1ETT);
   fill2DWithinLimits(h_L1HTTvsRecoHTT_, recoHTT, l1HTT);
 
   fill2DWithinLimits(h_L1METPhivsCaloMETPhi_, recoMETPhi, l1METPhi);
   fill2DWithinLimits(h_L1ETMHFPhivsCaloETMHFPhi_, recoETMHFPhi, l1ETMHFPhi);
+  fill2DWithinLimits(h_L1METPhivsPFMetNoMuPhi_, recoPFMetNoMuPhi, l1METPhi);
   fill2DWithinLimits(h_L1MHTPhivsRecoMHTPhi_, recoMHTPhi, l1MHTPhi);
 
   fillWithinLimits(h_resolutionMET_, resolutionMET);
   fillWithinLimits(h_resolutionETMHF_, resolutionETMHF);
+  fillWithinLimits(h_resolutionPFMetNoMu_, resolutionPFMetNoMu);
   fillWithinLimits(h_resolutionMHT_, resolutionMHT);
   fillWithinLimits(h_resolutionETT_, resolutionETT);
   fillWithinLimits(h_resolutionHTT_, resolutionHTT);
 
   fillWithinLimits(h_resolutionMETPhi_, resolutionMETPhi);
   fillWithinLimits(h_resolutionETMHFPhi_, resolutionETMHFPhi);
+  fillWithinLimits(h_resolutionPFMetNoMuPhi_, resolutionPFMetNoMuPhi);
   fillWithinLimits(h_resolutionMHTPhi_, resolutionMHTPhi);
 
   // efficiencies
   for (auto threshold : metEfficiencyThresholds_) {
     fillWithinLimits(h_efficiencyMET_total_[threshold], recoMET);
     fillWithinLimits(h_efficiencyETMHF_total_[threshold], recoETMHF);
+    fillWithinLimits(h_efficiencyPFMetNoMu_total_[threshold], recoPFMetNoMu);
     if (l1MET > threshold){
       fillWithinLimits(h_efficiencyMET_pass_[threshold], recoMET);
       fillWithinLimits(h_efficiencyETMHF_pass_[threshold], recoETMHF);
+      fillWithinLimits(h_efficiencyPFMetNoMu_pass_[threshold], recoPFMetNoMu);
     }
   }
 
@@ -505,6 +526,8 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "Offline E_{T}^{miss}; Offline E_{T}^{miss} (GeV); events", 500, -0.5, 4999.5);
   h_controlPlots_[ControlPlots::OfflineETMHF] = ibooker.book1D("OfflineETMHF",
       "Offline E_{T}^{miss} (HF); Offline E_{T}^{miss} (HF) (GeV); events", 500, -0.5, 4999.5);
+  h_controlPlots_[ControlPlots::OfflinePFMetNoMu] = ibooker.book1D("OfflinePFMetNoMu",
+      "Offline E_{T}^{miss} (PFMetNoMu); Offline E_{T}^{miss} (PFMetNoMu) (GeV); events", 500, -0.5, 4999.5);
   h_controlPlots_[ControlPlots::OfflineMHT] = ibooker.book1D("OfflineMHT", "Offline MHT; Offline MHT (GeV); events",
       500, -0.5, 4999.5);
   h_controlPlots_[ControlPlots::OfflineETT] = ibooker.book1D("OfflineETT", "Offline ETT; Offline ETT (GeV); events",
@@ -520,6 +543,9 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
   h_L1ETMHFvsCaloETMHF_ = ibooker.book2D("L1ETMHFvsCaloETMHF",
       "L1 E_{T}^{miss} vs Offline E_{T}^{miss} (HF);Offline E_{T}^{miss} (HF) (GeV);L1 E_{T}^{miss} (HF) (GeV)",
       templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1METvsPFMetNoMu_ = ibooker.book2D("L1METvsPFMetNoMu",
+          "L1 E_{T}^{miss} vs Offline E_{T}^{miss} (PFMetNoMu);Offline E_{T}^{miss} (PFMetNoMu) (GeV);L1 E_{T}^{miss} (GeV)",
+          templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)",
       templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)",
@@ -537,6 +563,10 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} (HF) #phi;Offline E_{T}^{miss} (HF) #phi;L1 E_{T}^{miss} #phi",
       templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
       templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
+  h_L1METPhivsPFMetNoMuPhi_ = ibooker.book2D("L1METPhivsPFMetNoMuPhi",
+      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} (PFMetNoMu) #phi;Offline E_{T}^{miss} (PFMetNoMu) #phi;L1 E_{T}^{miss} #phi",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1MHTPhivsRecoMHTPhi_ = ibooker.book2D("L1MHTPhivsRecoMHTPhi",
       "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi",
       templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
@@ -547,6 +577,8 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "MET resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss}; events", 50, -1, 1.5);
   h_resolutionETMHF_ = ibooker.book1D("resolutionETMHF",
       "MET resolution (HF); (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (HF); events", 50, -1, 1.5);
+  h_resolutionPFMetNoMu_ = ibooker.book1D("resolutionPFMetNoMu",
+          "PFMetNoMu resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (PFMetNoMu); events", 50, -1, 1.5);
   h_resolutionMHT_ = ibooker.book1D("resolutionMHT", "MHT resolution; (L1 MHT - reco MHT)/reco MHT; events", 50, -1,
       1.5);
   h_resolutionETT_ = ibooker.book1D("resolutionETT", "ETT resolution; (L1 ETT - calo ETT)/calo ETT; events", 50, -1,
@@ -556,8 +588,10 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 
   h_resolutionMETPhi_ = ibooker.book1D("resolutionMETPhi",
       "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi; events", 120, -0.3, 0.3);
-  h_resolutionETMHFPhi_ = ibooker.book1D("resolutionEMTHFPhi",
+  h_resolutionETMHFPhi_ = ibooker.book1D("resolutionETMHFPhi",
       "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (HF); events", 120, -0.3, 0.3);
+  h_resolutionPFMetNoMuPhi_ = ibooker.book1D("resolutionPFMetNoMuPhi",
+      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (PFMetNoMu); events", 120, -0.3, 0.3);
   h_resolutionMHTPhi_ = ibooker.book1D("resolutionMHTPhi",
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
 
@@ -580,6 +614,11 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
         "MET efficiency (numerator); Offline E_{T}^{miss} (GeV) (HF);", metBins.size() - 1, &(metBins[0]));
     h_efficiencyETMHF_total_[threshold] = ibooker.book1D("efficiencyETMHF_threshold_" + str_threshold + "_Den",
         "MET efficiency (denominator); Offline E_{T}^{miss} (GeV) (HF);", metBins.size() - 1, &(metBins[0]));
+
+    h_efficiencyPFMetNoMu_pass_[threshold] = ibooker.book1D("efficiencyPFMetNoMu_threshold_" + str_threshold + "_Num",
+        "MET efficiency (numerator); Offline E_{T}^{miss} (GeV) (PFMetNoMu);", metBins.size() - 1, &(metBins[0]));
+    h_efficiencyPFMetNoMu_total_[threshold] = ibooker.book1D("efficiencyPFMetNoMu_threshold_" + str_threshold + "_Den",
+        "MET efficiency (denominator); Offline E_{T}^{miss} (GeV) (PFMetNoMu);", metBins.size() - 1, &(metBins[0]));
   }
 
   for (auto threshold : mhtEfficiencyThresholds_) {
