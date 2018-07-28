@@ -199,34 +199,36 @@ void HBHEPulseShapeFlagSetter::SetPulseShapeFlags(
        }
    }
 
-   if(mCharge[4] + mCharge[5] > mTS4TS5ChargeThreshold && mTS4TS5ChargeThreshold>0) // silly protection against negative charge values
+   int soi = digi.presamples();
+
+   if(mCharge[soi] + mCharge[soi+1] > mTS4TS5ChargeThreshold && mTS4TS5ChargeThreshold>0) // silly protection against negative charge values
    {
-      double TS4TS5 = (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]);
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false)
+      double TS4TS5 = (mCharge[soi] - mCharge[soi+1]) / (mCharge[soi] + mCharge[soi+1]);
+      if(CheckPassFilter(mCharge[soi] + mCharge[soi+1], TS4TS5, mTS4TS5UpperCut, 1) == false)
          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false)
+      if(CheckPassFilter(mCharge[soi] + mCharge[soi+1], TS4TS5, mTS4TS5LowerCut, -1) == false)
          hbhe.setFlagField(1, HcalCaloFlagLabels::HBHETS4TS5Noise);
       
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5UpperCut, 1) == false            && // TS4TS5 is above envelope
-         mCharge[3] + mCharge[4] > mTS3TS4ChargeThreshold       &&       mTS3TS4ChargeThreshold>0 && // enough charge in 34
-         mCharge[5] + mCharge[6] < mTS5TS6UpperChargeThreshold  &&  mTS5TS6UpperChargeThreshold>0 && // low charge in 56
-      	 fabs( (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]) - 1.0 ) < mR45PlusOneRange    ) // R45 is around +1
+      if(CheckPassFilter(mCharge[soi] + mCharge[soi+1], TS4TS5, mTS4TS5UpperCut, 1) == false            && // TS4TS5 is above envelope
+         mCharge[soi-1] + mCharge[soi] > mTS3TS4ChargeThreshold       &&       mTS3TS4ChargeThreshold>0 && // enough charge in 34
+         mCharge[soi+1] + mCharge[soi+2] < mTS5TS6UpperChargeThreshold  &&  mTS5TS6UpperChargeThreshold>0 && // low charge in 56
+      	 fabs( (mCharge[soi] - mCharge[soi+1]) / (mCharge[soi] + mCharge[soi+1]) - 1.0 ) < mR45PlusOneRange    ) // R45 is around +1
    	{
-           double TS3TS4 = (mCharge[3] - mCharge[4]) / (mCharge[3] + mCharge[4]);
-           if(CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
-	      CheckPassFilter(mCharge[3] + mCharge[4], TS3TS4, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
+           double TS3TS4 = (mCharge[soi-1] - mCharge[soi]) / (mCharge[soi-1] + mCharge[soi]);
+           if(CheckPassFilter(mCharge[soi-1] + mCharge[soi], TS3TS4, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
+	      CheckPassFilter(mCharge[soi-1] + mCharge[soi], TS3TS4, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
 	      TS3TS4>(mR45MinusOneRange-1)                                                   ) // horizontal cut on R34 (R34>-0.8)
 	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS3TS4.
    	}
 
-      if(CheckPassFilter(mCharge[4] + mCharge[5], TS4TS5, mTS4TS5LowerCut, -1) == false            && // TS4TS5 is below envelope
-         mCharge[3] + mCharge[4] < mTS3TS4UpperChargeThreshold  &&  mTS3TS4UpperChargeThreshold>0  && // low charge in 34
-         mCharge[5] + mCharge[6] > mTS5TS6ChargeThreshold       &&       mTS5TS6ChargeThreshold>0  && // enough charge in 56
-         fabs( (mCharge[4] - mCharge[5]) / (mCharge[4] + mCharge[5]) + 1.0 ) < mR45MinusOneRange    ) // R45 is around -1
+      if(CheckPassFilter(mCharge[soi] + mCharge[soi+1], TS4TS5, mTS4TS5LowerCut, -1) == false            && // TS4TS5 is below envelope
+         mCharge[soi-1] + mCharge[soi] < mTS3TS4UpperChargeThreshold  &&  mTS3TS4UpperChargeThreshold>0  && // low charge in 34
+         mCharge[soi+1] + mCharge[soi+2] > mTS5TS6ChargeThreshold       &&       mTS5TS6ChargeThreshold>0  && // enough charge in 56
+         fabs( (mCharge[soi] - mCharge[soi+1]) / (mCharge[soi] + mCharge[soi+1]) + 1.0 ) < mR45MinusOneRange    ) // R45 is around -1
         {
-           double TS5TS6 = (mCharge[5] - mCharge[6]) / (mCharge[5] + mCharge[6]);
-           if(CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
-	      CheckPassFilter(mCharge[5] + mCharge[6], TS5TS6, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
+           double TS5TS6 = (mCharge[soi+1] - mCharge[soi+2]) / (mCharge[soi+1] + mCharge[soi+2]);
+           if(CheckPassFilter(mCharge[soi+1] + mCharge[soi+2], TS5TS6, mTS4TS5UpperCut,  1) == true && // use the same envelope as TS4TS5
+	      CheckPassFilter(mCharge[soi+1] + mCharge[soi+2], TS5TS6, mTS4TS5LowerCut, -1) == true && // use the same envelope as TS4TS5
 	      TS5TS6<(1-mR45PlusOneRange)                                                    ) // horizontal cut on R56 (R56<+0.8)
 	       hbhe.setFlagField(1, HcalCaloFlagLabels::HBHEOOTPU); // set to 1 if there is a pulse-shape-wise good OOTPU in TS5TS6.
         }
