@@ -190,25 +190,16 @@ def customiseForEcalTestPR22254thresholdC(process):
 def customizeHLTForL3OIPR23988(process):
    for seedproducer in producers_by_type(process, "TSGForOI"):
            seedproducer.hitsToTry = cms.int32( 1 )
-           seedproducer.SF6=cms.double( 2.0 )
            seedproducer.propagatorName = cms.string("PropagatorWithMaterialParabolicMf")
            seedproducer.fixedErrorRescaleFactorForHits = cms.double( 1.0 )
            seedproducer.maxSeeds = cms.uint32( 20 )
-           seedproducer.maxHitlessSeeds =cms.uint32( 5 )
-           seedproducer.maxHitSeeds = cms.uint32( 1 )
            seedproducer.layersToTry = cms.int32( 2 )
            seedproducer.fixedErrorRescaleFactorForHitless = cms.double( 2.0 )
            seedproducer.adjustErrorsDynamicallyForHits = cms.bool( False )
-           seedproducer.tsosDiff1 = cms.double( 0.2 )
-           seedproducer.tsosDiff2 = cms.double( 0.02 )
            if hasattr(seedproducer, "tsosDiff"):
               del seedproducer.tsosDiff
            seedproducer.eta1 = cms.double( 0.2 )
            seedproducer.eta2 = cms.double( 0.3 )
-           seedproducer.eta3 = cms.double( 1.0 )
-           seedproducer.eta4 = cms.double( 1.2 )
-           seedproducer.eta5 = cms.double( 1.6 )
-           seedproducer.eta6 = cms.double( 1.4 )
            if hasattr(seedproducer, "UseStereoLayersInTEC"):
               del seedproducer.UseStereoLayersInTEC
    for trackproducer in producers_by_type(process, "CkfTrackCandidateMaker"):
