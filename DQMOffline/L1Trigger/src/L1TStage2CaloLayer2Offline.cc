@@ -20,6 +20,7 @@ const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfig
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
+
 L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps) :
         thePFJetCollection_(
             consumes < reco::PFJetCollection > (ps.getParameter < edm::InputTag > ("pfJetCollection"))),
@@ -58,10 +59,70 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         triggerResults_(),
         triggerEvent_(),
         histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
-        h_controlPlots_()
+        h_nVertex_(),
+        h_controlPlots_(),
+        h_L1METvsCaloMET_(),
+        h_L1ETMHFvsCaloETMHF_(),
+        h_L1METvsPFMetNoMu_(),
+        h_L1MHTvsRecoMHT_(),
+        h_L1METTvsCaloETT_(),
+        h_L1HTTvsRecoHTT_(),
+        h_L1METPhivsCaloMETPhi_(),
+        h_L1ETMHFPhivsCaloETMHFPhi_(),
+        h_L1METPhivsPFMetNoMuPhi_(),
+        h_L1MHTPhivsRecoMHTPhi_(),
+        h_resolutionMET_(),
+        h_resolutionETMHF_(),
+        h_resolutionPFMetNoMu_(),
+        h_resolutionMHT_(),
+        h_resolutionETT_(),
+        h_resolutionHTT_(),
+        h_resolutionMETPhi_(),
+        h_resolutionETMHFPhi_(),
+        h_resolutionPFMetNoMuPhi_(),
+        h_resolutionMHTPhi_(),
+        h_efficiencyMET_pass_(),
+        h_efficiencyETMHF_pass_(),
+        h_efficiencyPFMetNoMu_pass_(),
+        h_efficiencyMHT_pass_(),
+        h_efficiencyETT_pass_(),
+        h_efficiencyHTT_pass_(),
+        h_efficiencyMET_total_(),
+        h_efficiencyETMHF_total_(),
+        h_efficiencyPFMetNoMu_total_(),
+        h_efficiencyMHT_total_(),
+        h_efficiencyETT_total_(),
+        h_efficiencyHTT_total_(),
+        h_L1JetETvsPFJetET_HB_(),
+        h_L1JetETvsPFJetET_HE_(),
+        h_L1JetETvsPFJetET_HF_(),
+        h_L1JetETvsPFJetET_HB_HE_(),
+        h_L1JetPhivsPFJetPhi_HB_(),
+        h_L1JetPhivsPFJetPhi_HE_(),
+        h_L1JetPhivsPFJetPhi_HF_(),
+        h_L1JetPhivsPFJetPhi_HB_HE_(),
+        h_L1JetEtavsPFJetEta_(),
+        h_resolutionJetET_HB_(),
+        h_resolutionJetET_HE_(),
+        h_resolutionJetET_HF_(),
+        h_resolutionJetET_HB_HE_(),
+        h_resolutionJetPhi_HB_(),
+        h_resolutionJetPhi_HE_(),
+        h_resolutionJetPhi_HF_(),
+        h_resolutionJetPhi_HB_HE_(),
+        h_resolutionJetEta_(),
+        h_efficiencyJetEt_HB_pass_(),
+        h_efficiencyJetEt_HE_pass_(),
+        h_efficiencyJetEt_HF_pass_(),
+        h_efficiencyJetEt_HB_HE_pass_(),
+        h_efficiencyJetEt_HB_total_(),
+        h_efficiencyJetEt_HE_total_(),
+        h_efficiencyJetEt_HF_total_(),
+        h_efficiencyJetEt_HB_HE_total_()
 {
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
-      << "L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline " << std::endl;
+    edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
+                                               << "L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline "
+                                               << std::endl;
 }
 
 //
@@ -728,6 +789,34 @@ bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & j
   const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(l1Eta, l1Phi, 0.3, hltObjects);
 
   return matchedObjects.empty();
+}
+
+void L1TStage2CaloLayer2Offline::endJob(){
+  normalise2DHistogramsToBinArea();
+}
+
+void L1TStage2CaloLayer2Offline::normalise2DHistogramsToBinArea() {
+  std::vector<MonitorElement *> monElementstoNormalize = {
+    h_L1METvsCaloMET_,         h_L1ETMHFvsCaloETMHF_,
+    h_L1METvsPFMetNoMu_,       h_L1MHTvsRecoMHT_,
+    h_L1METTvsCaloETT_,        h_L1HTTvsRecoHTT_,
+    h_L1METPhivsCaloMETPhi_,   h_L1ETMHFPhivsCaloETMHFPhi_,
+    h_L1METPhivsPFMetNoMuPhi_, h_L1MHTPhivsRecoMHTPhi_,
+    h_L1JetETvsPFJetET_HB_,    h_L1JetETvsPFJetET_HE_,
+    h_L1JetETvsPFJetET_HF_,    h_L1JetETvsPFJetET_HB_HE_,
+    h_L1JetPhivsPFJetPhi_HB_,  h_L1JetPhivsPFJetPhi_HE_,
+    h_L1JetPhivsPFJetPhi_HF_,  h_L1JetPhivsPFJetPhi_HB_HE_,
+    h_L1JetEtavsPFJetEta_,
+};
+
+  for (auto mon : monElementstoNormalize) {
+    if (mon != nullptr) {
+      auto h = mon->getTH2F();
+      if (h != nullptr) {
+        h->Scale(1, "width");
+      }
+    }
+  }
 }
 
 //define this as a plug-in
