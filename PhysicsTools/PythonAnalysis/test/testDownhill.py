@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import downhill
 import numpy as np
 import theano
@@ -54,5 +55,5 @@ downhill.minimize(
     monitor_gradients=True)
 
 # Print out the optimized coefficients u and basis v.
-print('u =', u.get_value())
-print('v =', v.get_value())
+print(('u =', u.get_value()))
+print(('v =', v.get_value()))
