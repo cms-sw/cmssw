@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 import sys
 import imp
 import copy
@@ -135,8 +136,8 @@ fi
           srm = (""+remoteDir+jobDir[ jobDir.rfind("/") : (jobDir.find("_Chunk") if '_Chunk' in jobDir else len(jobDir)) ]).replace("root://eoscms.cern.ch/","")
           )
    else:
-       print "chosen location not supported yet: ", remoteDir
-       print 'path must start with /store/'
+       print("chosen location not supported yet: ", remoteDir)
+       print('path must start with /store/')
        sys.exit(1)
 
    script = """#!/bin/bash
@@ -193,8 +194,8 @@ done
 rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $SUBMISIONDIR""".format(idx=index, srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")])
    else:
-      print "remote directory not supported yet: ", remoteDir
-      print 'path must start with "/pnfs/psi.ch"'
+      print("remote directory not supported yet: ", remoteDir)
+      print('path must start with "/pnfs/psi.ch"')
       sys.exit(1)
       
 
@@ -297,8 +298,8 @@ class MyBatchManager( BatchManager ):
          
    def PrepareJobUser(self, jobDir, value ):
        '''Prepare one job. This function is called by the base class.'''
-       print value
-       print components[value]
+       print(value)
+       print(components[value])
 
        #prepare the batch script
        scriptFileName = jobDir+'/batchScript.sh'
