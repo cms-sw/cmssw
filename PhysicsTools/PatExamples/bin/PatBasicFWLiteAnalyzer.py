@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
@@ -23,7 +24,7 @@ muonPhi = ROOT.TH1F("muonPhi","phi",   100, -5.,  5.)
 i = 0
 for event in events:
     i = i + 1
-    print  i
+    print(i)
     # use getByLabel, just like in cmsRun
     event.getByLabel (label, handle)
     # get the product
