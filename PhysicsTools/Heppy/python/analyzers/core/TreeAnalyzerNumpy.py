@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.statistics.tree import Tree as Tree
 from ROOT import TFile
@@ -18,13 +19,13 @@ class TreeAnalyzerNumpy( Analyzer ):
     def beginLoop(self, setup) :
         super(TreeAnalyzerNumpy, self).beginLoop(setup)
         if self.outservicename in setup.services:
-            print "Using outputfile given in", self.outservicename
+            print("Using outputfile given in", self.outservicename)
             self.file = setup.services[self.outservicename].file
         else :
             fileName = '/'.join([self.dirName,
                              'tree.root'])
             isCompressed = self.cfg_ana.isCompressed if hasattr(self.cfg_ana,'isCompressed') else 1
-            print 'Compression', isCompressed
+            print('Compression', isCompressed)
             self.file = TFile( fileName, 'recreate', '', isCompressed )
         self.file.cd()
         if self.file.Get(self.treename) :
@@ -34,7 +35,7 @@ class TreeAnalyzerNumpy( Analyzer ):
         self.declareVariables(setup)
         
     def declareVariables(self,setup):
-        print 'TreeAnalyzerNumpy.declareVariables : overload this function.'
+        print('TreeAnalyzerNumpy.declareVariables : overload this function.')
         pass
 
     def write(self, setup):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os 
 import logging 
 
@@ -21,7 +22,7 @@ class Analyzer(CoreAnalyzer):
         '''Automatically called by Looper, for all analyzers.
         each analyzer in the sequence will be passed the same event instance.
         each analyzer can access, modify, and store event information, of any type.'''
-        print self.cfg_ana.name
+        print(self.cfg_ana.name)
         self.readCollections( event.input )
 
     def readCollections(self, iEvent ):
