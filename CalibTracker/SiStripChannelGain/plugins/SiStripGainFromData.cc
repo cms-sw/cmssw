@@ -637,7 +637,7 @@ SiStripGainFromData::algoEndJob() {
 
    if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
       TH1D* Proj = nullptr;
-      double* FitResults = new double[5];
+      double FitResults[5];
       I=0;
       for(auto it = APVsColl.begin();it!=APVsColl.end();it++){
          if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());

@@ -95,14 +95,11 @@ void Fit_Results::push (double chisq,
 {
   assert (list_flags.size() == _v.size());
 
-  Fit_Result* res = new Fit_Result (chisq, ev, pullx, pully,
-                                    umwhad, utmass, mt, sigmt);
-  res->incref ();
+  auto res = std::make_shared<Fit_Result>(chisq, ev, pullx, pully, umwhad, utmass, mt, sigmt);
   for (std::vector<Fit_Result_Vec>::size_type i=0; i < _v.size(); i++) {
     if (list_flags[i])
-      _v[i].push (res);
+      _v[i].push(res);
   }
-  res->decref ();
 }
 
 

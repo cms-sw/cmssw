@@ -25,6 +25,7 @@ RawFile* RawFile::open(const char* path) {
   strcpy(chaux,path);
   char* prefix = strtok(chaux,":");
   //cout << " Prefix: " << prefix << endl;
+  delete chaux;
 
   char* filename = prefix;
   if (strlen(prefix)<strlen(path)) filename = strtok(nullptr,":");

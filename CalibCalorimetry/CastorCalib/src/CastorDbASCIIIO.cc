@@ -79,7 +79,7 @@ void dumpId (std::ostream& fOutput, DetId id) {
 }
 
 template <class T,class S> 
-bool getCastorObject (std::istream& fInput, T* fObject, S* fCondObject) {
+bool getCastorObject (std::istream& fInput, T* fObject) {
   if (!fObject) fObject = new T;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -96,7 +96,7 @@ bool getCastorObject (std::istream& fInput, T* fObject, S* fCondObject) {
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
-	fCondObject = new S(id, atof (items [4].c_str()), atof (items [5].c_str()), 
+    S* fCondObject = new S(id, atof (items [4].c_str()), atof (items [5].c_str()), 
 			   atof (items [6].c_str()), atof (items [7].c_str()));
 	fObject->addValues(*fCondObject);
 	delete fCondObject;
@@ -128,7 +128,7 @@ bool dumpCastorObject (std::ostream& fOutput, const T& fObject) {
 }
 
 template <class T,class S> 
-bool getCastorSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObject) {
+bool getCastorSingleFloatObject (std::istream& fInput, T* fObject) {
   if (!fObject) fObject = new T;
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -145,7 +145,7 @@ bool getCastorSingleFloatObject (std::istream& fInput, T* fObject, S* fCondObjec
 //      edm::LogWarning("Redefining Channel") << "line: " << buffer << "\n attempts to redefine data. Ignored" << std::endl;
 //    else
 //      {
-	fCondObject = new S(id, atof (items [4].c_str()) );
+	S* fCondObject = new S(id, atof (items [4].c_str()) );
 	fObject->addValues(*fCondObject);
 	delete fCondObject;
 	//      }
@@ -218,12 +218,12 @@ bool dumpCastorSingleIntObject (std::ostream& fOutput, const T& fObject) {
 }
 
 
-bool getObject (std::istream& fInput, CastorGains* fObject) {return getCastorObject (fInput, fObject, new CastorGain);}
+bool getObject (std::istream& fInput, CastorGains* fObject) {return getCastorObject<CastorGains,CastorGain> (fInput, fObject);}
 bool dumpObject (std::ostream& fOutput, const CastorGains& fObject) {return dumpCastorObject (fOutput, fObject);}
-bool getObject (std::istream& fInput, CastorGainWidths* fObject) {return getCastorObject (fInput, fObject, new CastorGainWidth);}
+bool getObject (std::istream& fInput, CastorGainWidths* fObject) {return getCastorObject<CastorGainWidths,CastorGainWidth> (fInput, fObject);}
 bool dumpObject (std::ostream& fOutput, const CastorGainWidths& fObject) {return dumpCastorObject (fOutput, fObject);}
 
-bool getObject (std::istream& fInput, CastorSaturationCorrs* fObject) {return getCastorSingleFloatObject (fInput, fObject, new CastorSaturationCorr);}
+bool getObject (std::istream& fInput, CastorSaturationCorrs* fObject) {return getCastorSingleFloatObject<CastorSaturationCorrs,CastorSaturationCorr> (fInput, fObject);}
 bool dumpObject (std::ostream& fOutput, const CastorSaturationCorrs& fObject) {return dumpCastorSingleFloatObject (fOutput, fObject);}
 
 

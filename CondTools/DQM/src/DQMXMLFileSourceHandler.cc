@@ -75,6 +75,7 @@ namespace popcon {
       this->m_to_transfer.push_back(std::make_pair(XMLFile,m_since));
     } else {
       edm::LogError("DQMSummarySourceHandler") << "XML file " << m_file << " does not exist" << std::endl;
+      delete XMLFile;
     }
     edm::LogInfo("DQMSummarySourceHandler") << "------- " 
 					    << m_name << " - > getNewObjects" 

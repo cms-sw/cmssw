@@ -78,8 +78,12 @@ void RivetHarvesting::beginJob(){
   std::string rivetref, rivetinfo;
   rivetref = "RIVET_REF_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
   rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) + "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) + "/src/GeneratorInterface/RivetInterface/data";
-  putenv(strdup(rivetref.c_str()));
-  putenv(strdup(rivetinfo.c_str()));
+  char *rivetrefCstr = strdup(rivetref.c_str());
+  putenv(rivetrefCstr);
+  free(rivetrefCstr);
+  char *rivetinfoCstr = strdup(rivetinfo.c_str());
+  putenv(rivetinfoCstr);
+  free(rivetinfoCstr);
 }
 
 void RivetHarvesting::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){

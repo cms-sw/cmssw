@@ -29,7 +29,6 @@ void popcon::EcalTPGSpikeThresholdfromFile::getNewObjects() {
   
   // here popcon tells us which is the last since of the last object in the offline DB
 
-  EcalTPGSpike *lut=new EcalTPGSpike();
   int fileIOV;
   std::cout << "LinPed which input IOV do you want " << std::endl;
   std::cin >> fileIOV; 
@@ -47,6 +46,7 @@ void popcon::EcalTPGSpikeThresholdfromFile::getNewObjects() {
   for(int i = 0; i < 365223; i++) getline (fLin, line);
   char tow[8];
   unsigned int towerId, Threshold;
+  EcalTPGSpike *lut=new EcalTPGSpike();
   for (int istrip = 0; istrip < 2448; istrip++) {
     getline (fLin, line);
     sscanf(line.c_str(), "%s %u", tow, &towerId);
@@ -62,7 +62,7 @@ void popcon::EcalTPGSpikeThresholdfromFile::getNewObjects() {
   }   // end loop over EB towers
   fLin.close();
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGSpike*)lut, fileIOV));
+  m_to_transfer.push_back(std::make_pair(lut, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

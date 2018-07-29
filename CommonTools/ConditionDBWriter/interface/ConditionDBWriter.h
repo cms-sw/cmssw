@@ -358,10 +358,13 @@ protected:
       objPointer = getNewObject();
       
       if (!objPointer ) {
-	edm::LogError("ConditionDBWriter::storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is algo driven based IOV), but received NULL pointer...will not store anything on the DB") << std::endl;
-	return;
+        edm::LogError("ConditionDBWriter::storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is algo driven based IOV), but received NULL pointer...will not store anything on the DB") << std::endl;
+        return;
       }
-      else {storeOnDb(objPointer);}
+      else {
+        storeOnDb(objPointer);
+        delete objPointer;
+      }
       
     }
     else {

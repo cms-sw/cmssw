@@ -84,6 +84,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
     bufferSize_ = (dataVector.size() ) * 4 ;      //buffer size in bytes (note:each char is an hex number)
 
     uint32_t *myData = new uint32_t[dataVector.size()];       //allocate memory for a new data buffer
+    uint32_t * const myDataBeginning = myData;                //pointer that stays at the beginning of the allocated memory
     
     //fill buffer data with data from file lines
     for(uint32_t i = 1; i <= dataVector.size() ; i++, myData++ ){
@@ -96,7 +97,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
     inputFile.close();                              //close file
     
     parseBuffer( myData,bufferSize_,singleEvent);  //parse data from the newly filled myData
-    delete [] myData;
+    delete [] myDataBeginning;
   }
   else{ 
     std::string errorMessage = std::string(" Error::Unable to open file :") + fileName;
