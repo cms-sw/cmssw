@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import copy, datetime, inspect, fnmatch, os, re, subprocess, sys, tempfile, time
 import glob
@@ -553,7 +554,7 @@ class RunCMSBatch(Task):
             if self.options.group is not None:
                 user_group = '-G %s' % self.options.group
             cmd.extend(['-b',"'bsub -q %s -J %s -u cmgtoolslsf@gmail.com %s < ./batchScript.sh | tee job_id.txt'" % (self.options.queue,jname,user_group)])
-        print " ".join(cmd)
+        print(" ".join(cmd))
         
         pwd = os.getcwd()
         
@@ -589,7 +590,7 @@ class MonitorJobs(Task):
                     try:
                         result = c.split('<')[1].split('>')[0]
                     except Exception as e:
-                        print >> sys.stderr, 'Job ID parsing error',str(e),c
+                        print('Job ID parsing error',str(e),c, file=sys.stderr)
         return result
     
     def monitor(self, jobs, previous):
@@ -615,7 +616,7 @@ class MonitorJobs(Task):
             if lines:
                 header = parseHeader(lines[0])                                 
                 if not 'STAT' in header or not 'JOBID' in header:
-                    print >> sys.stderr, 'Problem parsing bjobs header\n',lines
+                    print('Problem parsing bjobs header\n',lines, file=sys.stderr)
                     return result
                 for line in lines[1:]:
                     #TODO: Unreliable for some fields, e.g. dates
@@ -637,7 +638,7 @@ class MonitorJobs(Task):
                             if id not in result and id not in previous:
                                 result[id] = 'FORGOTTEN'
                         except Exception as e:
-                            print >> sys.stderr, 'Job ID parsing error in STDERR',str(e),line
+                            print('Job ID parsing error in STDERR',str(e),line, file=sys.stderr)
         
         #after one hour the status is no longer available     
         if result:
@@ -725,7 +726,7 @@ bkill -u %s %s
             status = self.monitor(jobs,status)
             monitorable = writeKillScript(countJobs(status))
             if not (count % 3):
-                print '%s: Monitoring %i jobs (%s)' % (self.name,len(monitorable),self.dataset)
+                print('%s: Monitoring %i jobs (%s)' % (self.name,len(monitorable),self.dataset))
             count += 1
             
         return {'LSFJobStatus':checkStatus(status),'LSFJobIDs':jobs}  
