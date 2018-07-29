@@ -1065,7 +1065,7 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   std::vector<unsigned int> BadStripList;
   unsigned short NStrips;
   unsigned int id1;
-  SiStripQuality* pQuality = new SiStripQuality;
+  std::unique_ptr<SiStripQuality> pQuality = std::make_unique<SiStripQuality>();
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
   //are bad!

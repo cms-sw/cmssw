@@ -298,6 +298,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
   }
   else{
     std::cout << "No recomuon selected so no access to generated info"<<std::endl;
+    delete genPatParticles;
     // Fill it in any case, otherwise it will not be in sync with the event number
     // genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
     genPair.push_back( GenMuonPair(lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.), 0 ) );    

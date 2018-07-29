@@ -78,7 +78,7 @@ int DTROS8FileReader::fillRawData(Event& e,
     
 
     // Check that the event data size corresponds to the 1st word datum 
-    if ( eventData[numberOfWords-1] != numberOfWords ) {
+    if ( numberOfWords <= 0 || eventData[numberOfWords-1] != numberOfWords ) {
       cout << "[DTROS8FileReader]: word counter mismatch exception: "
 	   << numberOfWords << " " << eventData[numberOfWords-1] << endl;
       throw 99;

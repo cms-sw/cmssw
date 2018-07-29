@@ -10,6 +10,7 @@
 #include <fstream>
 
 #include <chrono>
+#include <memory>
 
 #include <boost/thread/mutex.hpp>
 #include "tbb/parallel_for_each.h"
@@ -414,7 +415,7 @@ public:
     const cond::Binary &buffer = p->getBuffer();
     const cond::Binary &streamerInfo = p->getStreamerInfo();
   
-    auto result = new std::pair< std::string, std::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
+    auto result = std::make_unique<std::pair< std::string, std::shared_ptr<void> > >(cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
     payload = result->second;
 
     return;

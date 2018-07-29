@@ -106,7 +106,7 @@ namespace ecaldqm
           double* edges(new double[xaxis_->nbins + 1]);
           std::copy(xaxis_->edges, xaxis_->edges + xaxis_->nbins + 1, edges);
           me = _ibooker.bookProfile(name, name, xaxis_->nbins, edges, ylow, yhigh, "");
-          delete edges;
+          delete[] edges;
         }
         else
           me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");

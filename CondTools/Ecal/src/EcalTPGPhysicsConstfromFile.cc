@@ -25,7 +25,6 @@ void popcon::EcalTPGPhysicsConstfromFile::getNewObjects() {
   Ref payload= lastPayload();  
   // here popcon tells us which is the last since of the last object in the offline DB
 
-  EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
   int fileIOV;
   std::cout << "LinPed which input IOV do you want " << std::endl;
   std::cin >> fileIOV; 
@@ -59,6 +58,7 @@ void popcon::EcalTPGPhysicsConstfromFile::getNewObjects() {
   item.FG_highThreshold = FG_highThreshold; 
   item.FG_lowRatio = FG_lowRatio; 
   item.FG_highRatio = FG_highRatio; 
+  EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
   physC->setValue(eb.rawId(), item);
 
   // Ecal endcap detector	  	              
@@ -81,7 +81,7 @@ void popcon::EcalTPGPhysicsConstfromFile::getNewObjects() {
   item.FG_highRatio = FG_highRatio; 
   physC->setValue(ee.rawId(), item); 
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGPhysicsConst*)physC, fileIOV));
+  m_to_transfer.push_back(std::make_pair(physC, fileIOV));
 
   std::cout << "EcalTPGPhysicsConstfromFile - > end of getNewObjects -----------\n";
 	

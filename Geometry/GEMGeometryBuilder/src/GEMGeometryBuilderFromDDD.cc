@@ -67,12 +67,13 @@ GEMGeometryBuilderFromDDD::build( const std::shared_ptr<GEMGeometry>& theGeometr
       GEMSuperChamber *gemSuperChamber = buildSuperChamber(fv, detIdCh);
       theGeometry->add(gemSuperChamber);
     }
-    GEMChamber *gemChamber = buildChamber(fv, detIdCh);
     
     // loop over chambers
     // only 1 chamber
     bool doChambers = fv.firstChild();
     while (doChambers){
+
+    GEMChamber *gemChamber = buildChamber(fv, detIdCh);
       
     // loop over GEMEtaPartitions
       bool doEtaPart = fv.firstChild();

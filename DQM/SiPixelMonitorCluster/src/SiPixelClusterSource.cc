@@ -309,12 +309,12 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
       if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
          (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 
         uint32_t id = detId();
-        SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
         if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
           if(isPIB) continue;
 	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
           int layer = PixelBarrelName(DetId(id),pTT,isUpgrade).layerName();
           if (layer > noOfLayers) noOfLayers = layer;
+      SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
         }else if ( detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap ) ) {
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
@@ -338,6 +338,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	  // clutch to take all of FPIX, but no BPIX:
 	  mask = false;
 	  if(isPIB && mask) continue;
+      SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
         }
       }

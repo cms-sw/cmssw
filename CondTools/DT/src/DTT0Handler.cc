@@ -128,8 +128,10 @@ void DTT0Handler::getNewObjects() {
   cond::Time_t snc = runNumber;
   if ( runNumber > last )
        m_to_transfer.push_back( std::make_pair( t0, snc ) );
-  else
+  else {
        std::cout << "More recent data already present - skipped" << std::endl;
+       delete t0;
+  }
 
   return;
 
