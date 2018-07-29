@@ -1,8 +1,9 @@
+from __future__ import print_function
 from DataFormats.FWLite import Events as FWLiteEvents
 
 from ROOT import gROOT, gSystem, AutoLibraryLoader
 
-print "Loading FW Lite"
+print("Loading FW Lite")
 gSystem.Load("libFWCoreFWLite");
 gROOT.ProcessLine('FWLiteEnabler::enable();')
 

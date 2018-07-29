@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
@@ -48,18 +49,18 @@ class TriggerMatchAnalyzer( Analyzer ):
             for lep in tcoll: setattr(lep,'matchedTrgObj'+self.label,pairs[lep])
 
         if self.verbose:
-            print 'Verbose debug for triggerMatchAnalyzer %s'%self.label
+            print('Verbose debug for triggerMatchAnalyzer %s'%self.label)
             for ob in getattr(event,'trgObjects_'+self.label):
                 types = ", ".join([str(f) for f in ob.filterIds()])
                 filters = ", ".join([str(f) for f in ob.filterLabels()])
                 paths = ", ".join([("%s***" if f in set(ob.pathNames(True)) else "%s")%f for f in ob.pathNames()]) # asterisks indicate final paths fired by this object, see pat::TriggerObjectStandAlone class
-                print 'Trigger object: pt=%.2f, eta=%.2f, phi=%.2f, collection=%s, type_ids=%s, filters=%s, paths=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection(),types,filters,paths)
+                print('Trigger object: pt=%.2f, eta=%.2f, phi=%.2f, collection=%s, type_ids=%s, filters=%s, paths=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection(),types,filters,paths))
             if self.collToMatch:
                 for lep in tcoll:
                     mstring = 'None'
                     ob = getattr(lep,'matchedTrgObj'+self.label)
                     if ob: mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection())
-                    print 'Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring)
+                    print('Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring))
 
         return True
 
