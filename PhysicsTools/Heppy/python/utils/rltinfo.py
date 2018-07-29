@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ROOT import TFile
 from PhysicsTools.HeppyCore.statistics.tree import Tree as Tree
 import six
@@ -54,6 +55,6 @@ if __name__ == '__main__':
     rltinfo.add('HLT2', 129, 2)
 
     for rlt, count in six.iteritems(rltinfo.dict):
-        print rlt, count
+        print(rlt, count)
 
     rltinfo.write('.')
