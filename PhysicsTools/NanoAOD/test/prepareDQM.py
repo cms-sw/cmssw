@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os
 from collections import defaultdict
 from math import ceil, pi, log
@@ -111,9 +112,9 @@ def autoPlot1D(name, col, branch):
 for head in sorted(branchgroups.iterkeys()):
     pset = getattr(nanoDQM.vplots, head, None)
     if not pset:
-        if options.verbose: print "%s <skipped as it's not in vplots>" % head
+        if options.verbose: print("%s <skipped as it's not in vplots>" % head)
         continue
-    if options.verbose: print "%s" % head
+    if options.verbose: print("%s" % head)
     vpset = pset.plots
     allplots = [ (x.name.value(),x) for x in vpset ]
     existing = set(x[0] for x in allplots)
