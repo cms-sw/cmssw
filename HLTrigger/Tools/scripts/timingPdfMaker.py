@@ -17,6 +17,7 @@
 ## Imports
 ############################################
 
+from __future__ import print_function
 import os, glob
 import os.path
 import operator
@@ -35,21 +36,21 @@ gStyle.SetHistFillColor(kBlue)
 ###############################################################
 def usage():
 ###############################################################
-	print "\nThis is the usage function\n"
-	print 'Usage: '+sys.argv[0]+' -i <file1> [option]'
-	print 'e.g.:  '+sys.argv[0]+' -i outputTiming.root -t'
-	print 'e.g.:  '+sys.argv[0]+' -i outputTiming.root -s HLT_Jet300_v5\n'
+	print("\nThis is the usage function\n")
+	print('Usage: '+sys.argv[0]+' -i <file1> [option]')
+	print('e.g.:  '+sys.argv[0]+' -i outputTiming.root -t')
+	print('e.g.:  '+sys.argv[0]+' -i outputTiming.root -s HLT_Jet300_v5\n')
 
-	print '\n-----Options-----'
-	print ' -i		 	Input File'
-	print ' -o 			Output File (optional)'
-	print ' -t 			For only main time info per event. It will take less than 1 min.'
-	print ' -p			For path time info. It will take approx 25 min.'
-	print ' -m 			For module time info. It will take approx 25 min.'
-	print ' -s Path_Name            (For an specific path). Ti will take less than 1 min.'
-	print '\n For -p or -m option, the process needs like 200 Mb in disk space,'
-	print ' but please dont be afraid. Before the process ends, all the temporal files'
-	print ' will be erased.'
+	print('\n-----Options-----')
+	print(' -i		 	Input File')
+	print(' -o 			Output File (optional)')
+	print(' -t 			For only main time info per event. It will take less than 1 min.')
+	print(' -p			For path time info. It will take approx 25 min.')
+	print(' -m 			For module time info. It will take approx 25 min.')
+	print(' -s Path_Name            (For an specific path). Ti will take less than 1 min.')
+	print('\n For -p or -m option, the process needs like 200 Mb in disk space,')
+	print(' but please dont be afraid. Before the process ends, all the temporal files')
+	print(' will be erased.')
 
 
 ###############################################################
@@ -342,9 +343,9 @@ def get_plot2(infile,allnames):
 ###############################################################
 def main(argv):
 ###############################################################
-        print "\nPython script that creates Timing Summary pdf files"
-        print "For more info, please contact Alejandro Gomez"
-        print "email: alejandro.gomez@cern.ch\n"
+        print("\nPython script that creates Timing Summary pdf files")
+        print("For more info, please contact Alejandro Gomez")
+        print("email: alejandro.gomez@cern.ch\n")
 
 	infile = None
 	outfile = None
@@ -356,10 +357,10 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv, 'hi:o:tbpms:', ['help', 'input=', 'output='])
 		if not opts:
-			print 'No options supplied'
+			print('No options supplied')
 			usage()
 	except getopt.GetoptError as e:
-		print e
+		print(e)
 		usage()
 		sys.exit(2)
 	for opt, arg in opts:
@@ -367,7 +368,7 @@ def main(argv):
 			usage()
 			sys.exit(2)
 		elif opt == '-b':
-			print 'Running in batch mode' 
+			print('Running in batch mode') 
 		elif opt in ('-i', '--input'):
 			infile = arg
 			outfile = infile.replace('.root','')
@@ -388,14 +389,14 @@ def main(argv):
 		 
 	
 	if call_maininfo:
-		print 'Creating the Main Info Timing Summary pdf'
-		print 'Creating plots...'
+		print('Creating the Main Info Timing Summary pdf')
+		print('Creating plots...')
 		maininfo(infile,outfile)
-		print 'Compiling tex file......'
+		print('Compiling tex file......')
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-main.tex'])
-		print 'Verifing......' 
+		print('Verifing......') 
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-main.tex'])    #twice for better compilation
-		print 'Removing temp files.........'
+		print('Removing temp files.........')
 		os.remove(outfile+'-main.aux')
 		os.remove(outfile+'-main.log')
 		os.remove(outfile+'-main.out')
@@ -403,18 +404,18 @@ def main(argv):
                 os.remove(outfile+'-main.toc')
 		for filename in glob.glob('*temp.png'):
 			os.remove(filename)
-		print '{0}-main.pdf is done'.format(outfile)
+		print('{0}-main.pdf is done'.format(outfile))
 
 	if call_pathsinfo:
-		print 'Creating the Paths Info Timing Summary pdf'
-		print 'This process takes awhile... please be patient'
-		print 'Creating plots...'
+		print('Creating the Paths Info Timing Summary pdf')
+		print('This process takes awhile... please be patient')
+		print('Creating plots...')
 		pathsinfo(infile,outfile)
-		print 'Compiling tex file......'
+		print('Compiling tex file......')
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-paths.tex'])
-		print 'Verifing......' 
+		print('Verifing......') 
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-paths.tex'])    #twice for better compilation
-		print 'Removing temp files.........'
+		print('Removing temp files.........')
 		os.remove(outfile+'-paths.aux')
 		os.remove(outfile+'-paths.log')
 		os.remove(outfile+'-paths.out')
@@ -422,20 +423,20 @@ def main(argv):
 		os.remove(outfile+'-paths.toc')
 		for filename in glob.glob('*temp.png'):
 			os.remove(filename)
-		print '{0}-paths.pdf is done'.format(outfile)
+		print('{0}-paths.pdf is done'.format(outfile))
 
         if call_modulesinfo:
-                print 'Creating the Modules Info Timing Summary pdf'
-                print 'This process takes awhile... please be patient'
-                print 'Creating plots...'
+                print('Creating the Modules Info Timing Summary pdf')
+                print('This process takes awhile... please be patient')
+                print('Creating plots...')
                 moduleinfo(infile,outfile)
-                print 'Compiling tex file......'
+                print('Compiling tex file......')
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-modules.tex'])
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-runningModules.tex'])
-                print 'Verifing......'
+                print('Verifing......')
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-modules.tex'])    #twice for better compilation
 		subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-runningModules.tex'])    #twice for better compilation
-                print 'Removing temp files.........'
+                print('Removing temp files.........')
                 os.remove(outfile+'-modules.aux')
                 os.remove(outfile+'-runningModules.aux')
                 os.remove(outfile+'-modules.log') 
@@ -448,19 +449,19 @@ def main(argv):
                 os.remove(outfile+'-runningModules.toc')
                 for filename in glob.glob('*temp.png'):
                         os.remove(filename) 
-                print '{0}-modules.pdf is done'.format(outfile) 
-                print '{0}-runningModules.pdf is done'.format(outfile) 
+                print('{0}-modules.pdf is done'.format(outfile)) 
+                print('{0}-runningModules.pdf is done'.format(outfile)) 
 
         if call_specificinfo:
-                print 'Creating the Main Info + '+ path +' Timing Summary pdf'
-                print 'This process takes awhile... please be patient'
-                print 'Creating plots...'
+                print('Creating the Main Info + '+ path +' Timing Summary pdf')
+                print('This process takes awhile... please be patient')
+                print('Creating plots...')
                 specificpathinfo(infile,outfile,path)
-                print 'Compiling tex file......'
+                print('Compiling tex file......')
                 subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-'+path+'.tex'])
-                print 'Verifing......'
+                print('Verifing......')
                 subprocess.call(['pdflatex', '-interaction=batchmode', outfile+'-'+path+'.tex'])    #twice for better compilation
-                print 'Removing temp files.........'
+                print('Removing temp files.........')
                 os.remove(outfile+'-'+path+'.aux')
                 os.remove(outfile+'-'+path+'.log')
                 os.remove(outfile+'-'+path+'.out')
@@ -468,7 +469,7 @@ def main(argv):
                 os.remove(outfile+'-'+path+'.toc')
                 for filename in glob.glob('*temp.png'):
                         os.remove(filename)
-                print '{0}-'.format(outfile)+path+'.pdf is done'
+                print('{0}-'.format(outfile)+path+'.pdf is done')
 
 
 #######################################################

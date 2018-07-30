@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import sys, imp
 import os
 import commands
@@ -35,15 +36,15 @@ def PrimaryDatasets(Run):
 	rows = commands.getoutput(dbs_cmd)
 	lines = rows.split("\n")
 	j=0
-	print "\nThe primary datasets for this run are: \n"
+	print("\nThe primary datasets for this run are: \n")
 	for Line in lines:
 		j=j+1
 		if j <=4:
 			continue
-		print Line
+		print(Line)
 		line=Line.split()
 		Datasets.append(line[0])
-	print " "
+	print(" ")
 
 
 
@@ -91,7 +92,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 		size_per_event = (Size / Evts) / 1000.
 	else:
 		size_per_event=-1
-	print "Rate in \t",PrimaryDataset,"\t is : \t",rate," Hz", " \t size is : \t",size_per_event, "kB / event "
+	print("Rate in \t",PrimaryDataset,"\t is : \t",rate," Hz", " \t size is : \t",size_per_event, "kB / event ")
 
 	lsmin=9999999
 	lsmax=-1
@@ -104,17 +105,17 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 		if int(LS) < lsmin:
 			lsmin=int(LS)
 	if printLS:
-		print "lsmin lsmax",lsmin,lsmax
+		print("lsmin lsmax",lsmin,lsmax)
 		for ls in range(lsmin,lsmax):
 			if not repr(ls) in RatePerLS.keys():
 				RatePerLS[LS] = 0
-				print "Missing LS ",ls
+				print("Missing LS ",ls)
 
 
 if __name__ == "__main__":
 
   if not options.RunNumber:
-	print "wrong usage"
+	print("wrong usage")
 	exit(2)
 
   lsMin = -1
@@ -127,7 +128,7 @@ if __name__ == "__main__":
 #	lsMax = options.lsMax
 
 
-  print "\nRun Number: ",options.RunNumber
+  print("\nRun Number: ",options.RunNumber)
   if options.PrimaryDataset:
 	Run = options.RunNumber
 	PrimaryDataset = options.PrimaryDataset
@@ -167,7 +168,7 @@ if __name__ == "__main__":
 		if not options.saveplot:
                 	TempFile.write(" pause -1")
 		else:
-			print "The plot is saved under tmp.eps"
+			print("The plot is saved under tmp.eps")
                 TempFile.close()
 
 		os.system("gnuplot tmp.gnuplot.txt")
