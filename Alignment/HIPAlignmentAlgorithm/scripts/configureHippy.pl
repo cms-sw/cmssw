@@ -50,7 +50,7 @@ cp python/upload_tpl_py.txt $odir/ &&
 cp scripts/runScript.csh $odir/ &&
 cp scripts/runControl.csh $odir/main/ &&
 cp scripts/checkError.sh $odir/main/;
-") or die("Couldn't find all the scripts to copy, see ^^^");
+") and die("Couldn't find all the scripts to copy, see ^^^");
 $success*=replace( "$odir/common_cff_py.txt", "<iovs>", "$iovstr" );
 $success*=replace( "$odir/common_cff_py.txt", "<SURFDEFOPT>", "$strUseSD" );
 $success*=replace( "$odir/runScript.csh", "<PROXYREDIRECT>", "$inredirectProxy" );
@@ -92,7 +92,7 @@ foreach $data1 ( @dataFileInput1 ) {
 
    system( "
    cp $intrkselcfg/$trkselfile $odir/;
-   " ) or die("Couldn't find the track selection for '$flaglower', see ^^^");
+   " ) and die("Couldn't find the track selection for '$flaglower', see ^^^");
 
 
    # open common_cff.py
