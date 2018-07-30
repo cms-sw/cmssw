@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+from __future__ import print_function
 from sys import stderr, exit
 import commands
 
@@ -76,18 +77,18 @@ for run in runs:
 			Absent.append(run)
 			absent=1
     if absent==0:
-    	print "%s\t%s" % (run, psfactor)
+    	print("%s\t%s" % (run, psfactor))
     else:
-	print "%s\t%s\t (*)" % (run, psfactor)
+	print("%s\t%s\t (*)" % (run, psfactor))
     jsout[run] = psfactor
 
 if len(Absent)>0:
-	print ""
-	print "(*) The following runs were not found in columns.txt (the run may be too recent, or the prescale index is not in OMDS)."
-     	print "For these runs, the prescale_index was assumed to be zero. You need to check independently."
+	print("")
+	print("(*) The following runs were not found in columns.txt (the run may be too recent, or the prescale index is not in OMDS).")
+     	print("For these runs, the prescale_index was assumed to be zero. You need to check independently.")
 	for r in Absent:
-		print "\t",r
-	print ""
+		print("\t",r)
+	print("")
 
 if options.jsonOut:
     stderr.write("Exporting to JSON file %s...\n" % (options.jsonOut))
