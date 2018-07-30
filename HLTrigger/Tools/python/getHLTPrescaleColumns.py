@@ -1,4 +1,5 @@
 #!/usr/bin/env python 
+from __future__ import print_function
 from sys import stderr, exit
 import commands
 
@@ -46,7 +47,7 @@ for run in runs:
         prescaleTable[key] = getPrescalesFromKey(key)
     psfactor = 1
     if path in prescaleTable[key]: psfactor = prescaleTable[key][path]
-    print "%s\t%s" % (run, psfactor)
+    print("%s\t%s" % (run, psfactor))
     jsout[run] = psfactor
 
 if options.jsonOut:
