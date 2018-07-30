@@ -238,7 +238,7 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 			}
 
 			//count if the output is nan
-			for(auto entry : nnout) {
+			for(const auto& entry: nnout) {
 				if(std::isnan(entry.second)) {
 					nanoutput++;
 				}
