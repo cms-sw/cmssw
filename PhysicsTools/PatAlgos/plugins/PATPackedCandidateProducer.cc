@@ -260,7 +260,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, ptTrk, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
           outPtrP->back().setCovarianceVersion(covarianceVersion_);
-          if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
+          if(cand.trackRef().isNonnull() && PVOrig.isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
           }
           // properties of the best track 
