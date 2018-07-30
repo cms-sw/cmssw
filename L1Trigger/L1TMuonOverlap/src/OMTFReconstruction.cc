@@ -6,7 +6,6 @@
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 
-#include "L1Trigger/L1TMuonOverlap/plugins/L1TMuonOverlapTrackProducer.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFProcessor.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinput.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFReconstruction.h"
