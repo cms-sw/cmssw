@@ -18,7 +18,7 @@ import FWCore.ParameterSet.Config as cms
 #    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
 #
 #  PREMIX
-#    extension of GENRAW with special Digi collection(s) for pre-mixing minbias events for pileup simulation
+#    contains special Digi collection(s) for pre-mixing minbias events for pileup simulation
 #    Raw2Digi step is done on this file.
 #
 #  PREMIXRAW
@@ -527,19 +527,35 @@ GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-PREMIXEventContent.outputCommands.extend(RAWEventContent.outputCommands)
-PREMIXEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
-PREMIXEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 PREMIXEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-PREMIXEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-PREMIXEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 PREMIXEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-PREMIXEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 PREMIXEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+PREMIXEventContent.outputCommands.extend([
+        # Tracker
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+        'keep *_simSiStripDigis_ZeroSuppressed_*',
+        'keep *_mix_AffectedAPVList_*',
+        # ECAL
+        'keep EBDigiCollection_simEcalDigis_*_*',
+        'keep EEDigiCollection_simEcalDigis_*_*',
+        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
+        # HCAL
+        'keep *_simHcalDigis_*_*',
+        'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
+        # DT
+        'keep *_simMuonDTDigis_*_*',
+        # CSC
+        'keep *_simMuonCSCDigis_*_*',
+        'keep *_simMuonCscTriggerPrimitiveDigis_*_*',
+        # RPC
+        'keep *_simMuonRPCDigis_*_*',
+        # GEM
+        'keep *_simMuonGEMDigis_*_*',
+        'keep *_*_GEMDigiSimLink_*',
+        'keep *_*_GEMStripDigiSimLink_*',
+])
 PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
-PREMIXEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
 PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
