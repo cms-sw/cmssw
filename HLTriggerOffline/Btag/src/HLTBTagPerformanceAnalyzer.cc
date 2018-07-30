@@ -24,6 +24,8 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& 
 	mainFolder_                     = iConfig.getParameter<std::string>("mainFolder");
 	hlTriggerResults_   		= consumes<edm::TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	JetTagCollection_ 			= edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "JetTag" ), [this](edm::InputTag const & tag){return mayConsume< reco::JetTagCollection>(tag);});
+        shallowTagInfosTokenCalo_ = consumes<std::vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
+        shallowTagInfosTokenPf_ = consumes<std::vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
 	m_mcPartons 				= consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("mcPartons") ); 
 	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
 	edm::ParameterSet mc 		= iConfig.getParameter<edm::ParameterSet>("mcFlavours");
@@ -131,6 +133,8 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		if (JetTagCollection_Label[ind] != "" && JetTagCollection_Label[ind] != "NULL" )
 		{
 			iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
+                        iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+                        iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
 			if (JetTagHandler.isValid())   BtagOK=true;
 		}
 		
@@ -184,9 +188,10 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 					labelEta+="_disc_eta";
 					H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->eta());	//fill 2D btag, jetEta plot for 'b,c,uds'
 					labelPhi+="_disc_phi";
-					labelEtaPhi+="_eta_phi";
 					H2Phi_.at(ind)[labelPhi]->Fill(std::fmax(0.0,BtagJT.second),BtagJT.first->phi());	//fill 2D btag, jetPhi plot for 'b,c,uds'
-					H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),BtagJT.first->phi());	//fill 2D btag, jetPhi plot for 'b,c,uds'
+					labelEtaPhi+="_eta_phi";
+	                                H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),BtagJT.first->phi());  //fill 2D btag, jetPhi plot for 'b,c,uds'
+
 				} /// for flavour
 			} /// if MCOK
 		} /// for BtagJT
@@ -285,8 +290,9 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 				H2Phi_.back()[labelPhi]->setAxisTitle("phi",2);
 				H2Phi_.back()[labelPhi]->setAxisTitle("disc",1);
 				H2EtaPhi_.back()[labelEtaPhi] =  ibooker.book2D( labelEtaPhi, labelEtaPhi, nBinsEta, etamin, etaMax, nBinsPhi, phimin, phiMax );
-				H2EtaPhi_.back()[labelEtaPhi]->setAxisTitle("phi",2);
-				H2EtaPhi_.back()[labelEtaPhi]->setAxisTitle("eta",1);
+                                H2EtaPhi_.back()[labelEtaPhi]->setAxisTitle("phi",2);
+                                H2EtaPhi_.back()[labelEtaPhi]->setAxisTitle("eta",1);
+
 			}
 		} /// for mc.size()
 	} /// for hltPathNames_.size()
