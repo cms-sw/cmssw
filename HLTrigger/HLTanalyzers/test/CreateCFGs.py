@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #
 
+from __future__ import print_function
 import sys,string,time,os
 
 ### parameters ###
@@ -30,7 +31,7 @@ def OpenFile(file_in,iodir):
         ifile=open(file_in, iodir)
         # print "Opened file: ",file_in," iodir ",iodir
     except:
-        print "Could not open file: ",file_in
+        print("Could not open file: ",file_in)
         sys.exit(1)
     return ifile
 
@@ -41,7 +42,7 @@ def createCFGFiles(i,orgFile,basename,dir):
 
     newFile=basename + "_" + str(i) + ".py"
     newFile=os.path.join(dir,newFile)
-    print newFile
+    print(newFile)
     outFile = open(newFile,'w')
     
     for iline in orgFile:
@@ -49,7 +50,7 @@ def createCFGFiles(i,orgFile,basename,dir):
         if (indx == 0):
             indx2=string.find(iline,searchInput)
             if (indx2 < 0):
-                print "Problem"
+                print("Problem")
                 sys.exit(1)
             else:
                 iline=string.replace(iline,searchInput,str(i))
@@ -58,7 +59,7 @@ def createCFGFiles(i,orgFile,basename,dir):
         if (indx == 0):
             indx2=string.find(iline,searchOutput)
             if (indx2 < 0):
-                print "Problem"
+                print("Problem")
                 sys.exit(1)
             else:
                 replString="_" + str(i) + searchOutput
@@ -119,7 +120,7 @@ if __name__ == '__main__':
 
     narg=len(sys.argv)
     if narg < 3 :
-        print usage.__doc__
+        print(usage.__doc__)
         sys.exit(1)
 
 
