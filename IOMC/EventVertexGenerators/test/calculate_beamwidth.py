@@ -17,9 +17,9 @@ from __future__ import print_function
 
 import math
 
-beam = input("beam energy in GeV: ")
-betastar = input("beta-star in m: ")
-normemittance = input("normalized emittance in m: ")
+beam = eval(str(input("beam energy in GeV: ")))
+betastar = eval(str(input("beta-star in m: ")))
+normemittance = eval(str(input("normalized emittance in m: ")))
 
 gamma = beam/0.9383
 
