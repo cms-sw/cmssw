@@ -34,12 +34,14 @@
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
 using namespace std::string_literals;
 
@@ -330,6 +332,9 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const & config, edm::Acti
   concurrentStreams_(0),
   domains_(this)
 {
+  // make sure that CUDA is initialised, and that the CUDAService destructor is called after this service's destructor
+  edm::Service<CUDAService> cudaService;
+
   std::sort(highlightModules_.begin(), highlightModules_.end());
 
   // enables profile collection; if profiling is already enabled, has no effect
