@@ -25,11 +25,7 @@ run2_HEPlan1_2017.toModify(hcalRecHitsAnalyzer,
 )
 
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
-run2_HE_2018.toModify(hltHCALRecHitsAnalyzer,
+run2_HE_2018.toModify(hcalRecHitsAnalyzer,
       hep17 = cms.untracked.bool(False)
 )
 
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-run2_HE_2018.toModify(hltHCALRecHitsAnalyzer,
-      hep17 = cms.untracked.bool(False)
-)
