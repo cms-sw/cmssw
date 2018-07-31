@@ -24,7 +24,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,7 +54,7 @@
 
 using namespace l1t;
 
-  class L1TStage2Layer2Producer : public edm::EDProducer {
+ class L1TStage2Layer2Producer : public edm::stream::EDProducer<> {
   public:
     explicit L1TStage2Layer2Producer(const edm::ParameterSet& ps);
     ~L1TStage2Layer2Producer() override;
