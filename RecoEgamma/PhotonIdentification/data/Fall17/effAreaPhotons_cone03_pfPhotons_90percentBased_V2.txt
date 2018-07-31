@@ -1,0 +1,9 @@
+#  The constants are based on 90% contours of isolation.
+# |eta| min   |eta| max   effective area
+0.0000         1.0000        0.111
+1.0000         1.4790        0.095
+1.4790         2.0000        0.062
+2.0000         2.2000        0.084
+2.2000         2.3000        0.107
+2.3000         2.4000        0.121
+2.4000         5.0000        0.147
