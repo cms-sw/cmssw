@@ -539,19 +539,24 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay,
 std::pair<float,float> HGCalDDDConstants::locateCell(int lay, int waferU,
 						     int waferV, int cellU,
 						     int cellV, bool reco,
-						     bool all,
-						     bool debug) const {
+						     bool all, bool
+#ifdef EDM_ML_DEBUG
+						     debug
+#endif
+						     ) const {
 
   float x(0), y(0);
   int  indx = HGCalWaferIndex::waferIndex(lay,waferU,waferV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
   int  type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : 
 	       hgpar_->waferTypeL_[itr->second]);
+#ifdef EDM_ML_DEBUG
   if (debug) 
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << waferU
 				  << ":" << waferV << ":" << indx << ":"
 				  << (itr == hgpar_->typesInLayers_.end())
 				  << ":" << type;
+#endif
   int  kndx = cellV*100 + cellU;
   if (type == 0) {
     auto ktr = hgpar_->cellFineIndex_.find(kndx);
@@ -559,20 +564,24 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int lay, int waferU,
       x = hgpar_->cellFineX_[ktr->second];
       y = hgpar_->cellFineY_[ktr->second];
     }
+#ifdef EDM_ML_DEBUG
     if (debug) 
       edm::LogVerbatim("HGCalGeom") << "Fine " << cellU << ":" << cellV << ":"
 				    << kndx << ":" << x << ":" << y << ":"
 				    << (ktr != hgpar_->cellFineIndex_.end());
+#endif
   } else {
     auto ktr = hgpar_->cellCoarseIndex_.find(kndx);
     if (ktr != hgpar_->cellCoarseIndex_.end()) {
       x = hgpar_->cellCoarseX_[ktr->second];
       y = hgpar_->cellCoarseY_[ktr->second];
     }
+#ifdef EDM_ML_DEBUG
     if (debug) 
       edm::LogVerbatim("HGCalGeom") << "Coarse " << cellU << ":" << cellV <<":"
 				    << kndx << ":" << x << ":" << y << ":"
 				    << (ktr != hgpar_->cellCoarseIndex_.end());
+#endif
   }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
@@ -582,9 +591,11 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int lay, int waferU,
     const auto & xy = waferPosition(waferU, waferV, reco);
     x += xy.first;
     y += xy.second;
+#ifdef EDM_ML_DEBUG
     if (debug) 
       edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << ":"
 				    << xy.first << ":" << xy.second;
+#endif
   }
   return std::make_pair(x,y);
 }
@@ -944,8 +955,11 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
 void HGCalDDDConstants::waferFromPosition(const double x, const double y,
 					  const int layer, int& waferU,
 					  int& waferV, int& cellU, int& cellV,
-					  int& celltype, double& wt,
-					  bool debug) const {
+					  int& celltype, double& wt, bool 
+#ifdef EDM_ML_DEBUG
+					  debug
+#endif
+					  ) const {
 
   double xx(HGCalParameters::k_ScaleFromDDD*x);
   double yy(HGCalParameters::k_ScaleFromDDD*y);
@@ -960,6 +974,7 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
 	auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer,waferU,waferV));
 	celltype = ((itr == hgpar_->typesInLayers_.end()) ? 2 : 
 		    hgpar_->waferTypeL_[itr->second]);
+#ifdef EDM_ML_DEBUG
 	if (debug) 
 	  edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << xx
 					<< ":" << yy << " compared with "
@@ -971,6 +986,7 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
 					<< rmax_ << ":"	<< hexside_ <<" wafer "
 					<< waferU << ":" << waferV << ":"
 					<< celltype;
+#endif
 	xx      -= hgpar_->waferPosX_[k];
 	yy      -= hgpar_->waferPosY_[k];
 	break;
@@ -978,7 +994,11 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
     }
   }
   if (std::abs(waferU) <= hgpar_->waferUVMax_) {
-    cellHex(xx, yy, celltype, cellU, cellV, debug);
+    cellHex(xx, yy, celltype, cellU, cellV
+#ifdef EDM_ML_DEBUG
+	    , debug
+#endif
+	    );
     wt    = ((celltype < 2) ? 
 	     (hgpar_->cellThickness_[celltype]/hgpar_->waferThick_) : 1.0);
   } else {
@@ -1127,7 +1147,11 @@ int HGCalDDDConstants::cellHex(double xx, double yy,
 }
 
 void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, 
-				int& cellU, int& cellV, bool debug) const {
+				int& cellU, int& cellV, bool 
+#ifdef EDM_ML_DEBUG
+				debug
+#endif
+				) const {
   int N     = (cellType == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   double Rc = 2*rmax_/(3*N);
   double rc = 0.5*Rc*sqrt3_;
@@ -1138,11 +1162,13 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType,
   cu0       = std::max(0,std::min(cu0,2*N-1));
   cv0       = std::max(0,std::min(cv0,2*N-1));
   if (cv0-cu0 >= N) cv0 = cu0+N-1;
+#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "cellHex: input " << xloc << ":"
 				  << yloc << ":" << cellType << " parameter "
 				  << rc << ":" << Rc << " u0 " << u0 << ":"
 				  << cu0 << " v0 " << v0 << ":" << cv0;
+#endif
   bool found(false);
   static const int shift[3] = {0,1,-1};
   for (int i1=0; i1<3; ++i1) {
@@ -1156,6 +1182,7 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType,
 	if ((std::abs(yloc-yc) <= rc) && (std::abs(xloc-xc) <= Rc) &&
 	    ((std::abs(xloc-xc) <= 0.5*Rc) ||
 	     (std::abs(yloc-yc) <= sqrt3_*(Rc-std::abs(xloc-xc))))) {
+#ifdef EDM_ML_DEBUG
 	  if (debug)
 	    edm::LogVerbatim("HGCalGeom") << "cellHex: local " << xc << ":" 
 					  << yc	<< " difference " 
@@ -1165,6 +1192,7 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType,
 					  << " comparator " << rc << ":" << Rc
 					  << " (u,v) = (" << cellU << ","
 					  << cellV << ")";
+#endif
 	  found = true; break;
 	}
       }
