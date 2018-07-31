@@ -43,7 +43,7 @@ namespace {
       if(payload.get()) {
         HcalPedestalContainer* objContainer = new HcalPedestalContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
-        objContainer->getCanvasHBHO()->SaveAs(ImageName.c_str());
+        objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -71,7 +71,7 @@ namespace {
         HcalPedestalContainer* objContainer2 = new HcalPedestalContainer(payload2, std::get<0>(iov2));
         objContainer1->Subtract(objContainer2);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasHBHO()->SaveAs(ImageName.c_str());
+        objContainer1->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };

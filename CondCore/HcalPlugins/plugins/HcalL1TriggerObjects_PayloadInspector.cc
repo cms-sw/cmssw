@@ -9,7 +9,7 @@
 #include "CondCore/HcalPlugins/interface/HcalObjRepresent.h"
 
 // the data format of the condition to be inspected
-#include "CondFormats/HcalObjects/interface/HcalGains.h" //or Gain.h???
+#include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h" //or L1TriggerObject.h???
 
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -23,20 +23,20 @@
 
 namespace {
 
-  class HcalGainContainer : public HcalObjRepresent::HcalDataContainer<HcalGains,HcalGain> {
+  class HcalL1TriggerObjectContainer : public HcalObjRepresent::HcalDataContainer<HcalL1TriggerObjects,HcalL1TriggerObject> {
   public:
-    HcalGainContainer(std::shared_ptr<HcalGains> payload, unsigned int run) : HcalObjRepresent::HcalDataContainer<HcalGains,HcalGain>(payload, run) {}
-    float getValue(HcalGain* gain) override {
-      return gain->getValue(0) + gain->getValue(1) + gain->getValue(2) + gain->getValue(3);
+    HcalL1TriggerObjectContainer(std::shared_ptr<HcalL1TriggerObjects> payload, unsigned int run) : HcalObjRepresent::HcalDataContainer<HcalL1TriggerObjects,HcalL1TriggerObject>(payload, run) {}
+    float getValue(HcalL1TriggerObject* trig) override {
+      return trig->getRespGain();
     }
   };
 
   /******************************************
-     2d plot of ECAL GainRatios of 1 IOV
+     2d plot of ECAL L1TriggerObjectRatios of 1 IOV
   ******************************************/
-  class HcalGainsPlot : public cond::payloadInspector::PlotImage<HcalGains> {
+  class HcalL1TriggerObjectsPlot : public cond::payloadInspector::PlotImage<HcalL1TriggerObjects> {
   public:
-    HcalGainsPlot() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios - map ") {
+    HcalL1TriggerObjectsPlot() : cond::payloadInspector::PlotImage<HcalL1TriggerObjects>("HCAL L1TriggerObject Ratios - map ") {
       setSingleIov( true );
     }
 
@@ -44,9 +44,9 @@ namespace {
       
 
       auto iov = iovs.front();
-      std::shared_ptr<HcalGains> payload = fetchPayload( std::get<1>(iov) );
+      std::shared_ptr<HcalL1TriggerObjects> payload = fetchPayload( std::get<1>(iov) );
       if(payload.get()) {
-        HcalGainContainer* objContainer = new HcalGainContainer(payload, std::get<0>(iov));
+        HcalL1TriggerObjectContainer* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
@@ -54,12 +54,12 @@ namespace {
   };
 
   /**********************************************************
-     2d plot of ECAL GainRatios difference between 2 IOVs
+     2d plot of ECAL L1TriggerObjectRatios difference between 2 IOVs
   **********************************************************/
-  class HcalGainsRatio : public cond::payloadInspector::PlotImage<HcalGains> {
+  class HcalL1TriggerObjectsRatio : public cond::payloadInspector::PlotImage<HcalL1TriggerObjects> {
 
   public:
-    HcalGainsRatio() : cond::payloadInspector::PlotImage<HcalGains>("HCAL Gain Ratios difference") {
+    HcalL1TriggerObjectsRatio() : cond::payloadInspector::PlotImage<HcalL1TriggerObjects>("HCAL L1TriggerObject Ratios difference") {
       setSingleIov(false);
     }
 
@@ -68,12 +68,12 @@ namespace {
       auto iov1 = iovs.front();
       auto iov2 = iovs.back();
 
-      std::shared_ptr<HcalGains> payload1 = fetchPayload( std::get<1>(iov1) );
-      std::shared_ptr<HcalGains> payload2 = fetchPayload( std::get<1>(iov2) );
+      std::shared_ptr<HcalL1TriggerObjects> payload1 = fetchPayload( std::get<1>(iov1) );
+      std::shared_ptr<HcalL1TriggerObjects> payload2 = fetchPayload( std::get<1>(iov2) );
 
       if(payload1.get() && payload2.get()) {
-        HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
-        HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
+        HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
+        HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
  
         objContainer1->Divide(objContainer2);
   
@@ -88,7 +88,7 @@ namespace {
 } // close namespace
 
   // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE(HcalGains){
-  PAYLOAD_INSPECTOR_CLASS(HcalGainsPlot);
-  PAYLOAD_INSPECTOR_CLASS(HcalGainsRatio);
+PAYLOAD_INSPECTOR_MODULE(HcalL1TriggerObjects){
+  PAYLOAD_INSPECTOR_CLASS(HcalL1TriggerObjectsPlot);
+  PAYLOAD_INSPECTOR_CLASS(HcalL1TriggerObjectsRatio);
 }
