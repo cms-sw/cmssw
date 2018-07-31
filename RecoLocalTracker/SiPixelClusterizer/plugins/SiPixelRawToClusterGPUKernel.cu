@@ -38,7 +38,7 @@
 
 namespace pixelgpudetails {
 
-  SiPixelRawToClusterGPUKernel::SiPixelRawToClusterGPUKernel() {
+  SiPixelRawToClusterGPUKernel::SiPixelRawToClusterGPUKernel(cuda::stream_t<>& cudaStream) {
     int WSIZE = pixelgpudetails::MAX_FED * pixelgpudetails::MAX_WORD;
     cudaMallocHost(&word,       sizeof(unsigned int)*WSIZE);
     cudaMallocHost(&fedId_h,    sizeof(unsigned char)*WSIZE);
@@ -90,6 +90,12 @@ namespace pixelgpudetails {
     cudaCheck(cudaMalloc((void**) & moduleStart_d, (MaxNumModules+1)*sizeof(uint32_t) ));
     cudaCheck(cudaMalloc((void**) & clusInModule_d,(MaxNumModules)*sizeof(uint32_t) ));
     cudaCheck(cudaMalloc((void**) & moduleId_d,    (MaxNumModules)*sizeof(uint32_t) ));
+
+    cudaCheck(cudaMalloc((void**) & gpuProduct_d, sizeof(GPUProduct)));
+    gpuProduct = getProduct();
+    assert(xx_d==gpuProduct.xx_d);
+
+    cudaCheck(cudaMemcpyAsync(gpuProduct_d, &gpuProduct, sizeof(GPUProduct), cudaMemcpyDefault,cudaStream.id()));
   }
 
   SiPixelRawToClusterGPUKernel::~SiPixelRawToClusterGPUKernel() {
@@ -111,6 +117,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaFree(clus_d));
     cudaCheck(cudaFree(clusInModule_d));
     cudaCheck(cudaFree(moduleId_d));
+    cudaCheck(cudaFree(gpuProduct_d));
   }
 
   void SiPixelRawToClusterGPUKernel::initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length) {
@@ -478,7 +485,7 @@ namespace pixelgpudetails {
           XX[gIndex]    = 0;  // 0 is an indicator of a noise/dead channel
           YY[gIndex]    = 0; // skip these pixels during clusterization
           ADC[gIndex]   = 0;
-          continue ; // 0: bad word
+          continue; // 0: bad word
         }
 
         uint32_t link  = getLink(ww);            // Extract link
@@ -521,9 +528,9 @@ namespace pixelgpudetails {
           // endcap ids
           layer = 0;
           panel = (rawId >> pixelgpudetails::panelStartBit) & pixelgpudetails::panelMask;
-          //disk  = (rawId >> diskStartBit_)  & diskMask_ ;
+          //disk  = (rawId >> diskStartBit_) & diskMask_;
           side  = (panel == 1)? -1 : 1;
-          //blade = (rawId>>bladeStartBit_) & bladeMask_;
+          //blade = (rawId >> bladeStartBit_) & bladeMask_;
         }
 
         // ***special case of layer to 1 be handled here
@@ -558,8 +565,8 @@ namespace pixelgpudetails {
         }
 
         pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
-        XX[gIndex]    = globalPix.row  ; // origin shifting by 1 0-159
-        YY[gIndex]    = globalPix.col ; // origin shifting by 1 0-415
+        XX[gIndex]    = globalPix.row;  // origin shifting by 1 0-159
+        YY[gIndex]    = globalPix.col;  // origin shifting by 1 0-415
         ADC[gIndex]   = getADC(ww);
         pdigi[gIndex] = pixelgpudetails::pack(globalPix.row,globalPix.col,ADC[gIndex]);
         moduleId[gIndex] = detId.moduleId;
@@ -582,7 +589,6 @@ namespace pixelgpudetails {
 
     const int threadsPerBlock = 512;
     const int blocks = (wordCounter + threadsPerBlock-1) /threadsPerBlock; // fill it all
-
 
     assert(0 == wordCounter%2);
     // wordCounter is the total no of words in each event to be trasfered on device
@@ -629,7 +635,6 @@ namespace pixelgpudetails {
       using namespace gpuClustering;
       int threadsPerBlock = 256;
       int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;
-
 
       gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, stream.id()>>>(
           moduleInd_d,
