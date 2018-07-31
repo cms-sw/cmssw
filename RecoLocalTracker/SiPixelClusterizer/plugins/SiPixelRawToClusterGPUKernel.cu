@@ -27,6 +27,9 @@
 #include <thrust/unique.h>
 #include <thrust/execution_policy.h>
 
+// cub includes
+#include <cub/cub.cuh>
+
 // CMSSW includes
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuCalibPixel.h"
@@ -96,6 +99,12 @@ namespace pixelgpudetails {
     assert(xx_d==gpuProduct.xx_d);
 
     cudaCheck(cudaMemcpyAsync(gpuProduct_d, &gpuProduct, sizeof(GPUProduct), cudaMemcpyDefault,cudaStream.id()));
+
+    // originally from rechits
+    cudaCheck(cudaMalloc((void**) & clusModuleStart_d, (MaxNumModules+1)*sizeof(uint32_t) ));
+    uint32_t *tmp = nullptr;
+    cudaCheck(cub::DeviceScan::InclusiveSum(nullptr, tempScanStorageSize, tmp, tmp, MaxNumModules));
+    cudaCheck(cudaMalloc(&tempScanStorage_d, tempScanStorageSize));
   }
 
   SiPixelRawToClusterGPUKernel::~SiPixelRawToClusterGPUKernel() {
@@ -118,6 +127,10 @@ namespace pixelgpudetails {
     cudaCheck(cudaFree(clusInModule_d));
     cudaCheck(cudaFree(moduleId_d));
     cudaCheck(cudaFree(gpuProduct_d));
+
+    // originally from rechits
+    cudaCheck(cudaFree(tempScanStorage_d));
+    cudaCheck(cudaFree(clusModuleStart_d));
   }
 
   void SiPixelRawToClusterGPUKernel::initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length) {
@@ -623,10 +636,19 @@ namespace pixelgpudetails {
 
     if (includeErrors) {
       cudaCheck(cudaMemcpyAsync(error_h, error_d, vsize, cudaMemcpyDefault, stream.id()));
-      cudaCheck(cudaStreamSynchronize(stream.id()));
-      error_h->set_data(data_h);
-      int size = error_h->size();
-      cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(data_h, data_d, MAX_FED*pixelgpudetails::MAX_WORD*esize, cudaMemcpyDefault, stream.id()));
+      // If we want to transfer only the minimal amount of data, we
+      // need a synchronization point. A single ExternalWork (of
+      // SiPixelRawToClusterHeterogeneous) does not help because it is
+      // already used to synchronize the data movement. So we'd need
+      // two ExternalWorks (or explicit use of TBB tasks). The
+      // prototype of #100 would allow this easily (as there would be
+      // two ExternalWorks).
+      //
+      //error_h->set_data(data_h);
+      //cudaCheck(cudaStreamSynchronize(stream.id()));
+      //int size = error_h->size();
+      //cudaCheck(cudaMemcpyAsync(data_h, data_d, size*esize, cudaMemcpyDefault, stream.id()));
     }
     // End  of Raw2Digi and passing data for cluserisation
 
@@ -675,6 +697,21 @@ namespace pixelgpudetails {
           clus_d,
           wordCounter);
       cudaCheck(cudaGetLastError());
+
+      // count the module start indices already here (instead of
+      // rechits) so that the number of clusters/hits can be made
+      // available in the rechit producer without additional points of
+      // synchronization/ExternalWork
+      //
+      // Set first the first element to 0
+      cudaCheck(cudaMemsetAsync(clusModuleStart_d, 0, sizeof(uint32_t), stream.id()));
+      // Then use inclusive_scan to get the partial sum to the rest
+      cudaCheck(cub::DeviceScan::InclusiveSum(tempScanStorage_d, tempScanStorageSize,
+                                              clusInModule_d, &clusModuleStart_d[1], gpuClustering::MaxNumModules,
+                                              stream.id()));
+      // last element holds the number of all clusters
+      cudaCheck(cudaMemcpyAsync(&nClusters, clusModuleStart_d+gpuClustering::MaxNumModules, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+
 
       // clusters
       cudaCheck(cudaMemcpyAsync(clus_h, clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
