@@ -117,6 +117,11 @@ phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.output
                                                                                             'keep *_simMuonME0PadDigiClusters_*_*'] )
 phase2_muon.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
 phase2_muon.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
+phase2_muon.toModify( SimMuonPREMIX, outputCommands = SimMuonPREMIX.outputCommands + ['keep *_simMuonME0Digis_*_*',
+                                                                                      'keep *_mix_g4SimHitsMuonME0Hits_*',
+                                                                                      'keep *_*_ME0DigiSimLink_*',
+                                                                                      'keep *_*_ME0StripDigiSimLink_*'] )
+
 
 # For phase2 premixing switch the sim digi collections to the ones including pileup
 (premix_stage2 & phase2_muon).toModify(SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + [

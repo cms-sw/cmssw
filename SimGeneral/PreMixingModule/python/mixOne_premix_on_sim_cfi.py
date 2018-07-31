@@ -243,26 +243,13 @@ phase2_tracker.toModify(mixData,
 )
 
 # ECAL
-phase2_ecal.toModify(mixData,
-    workers = dict(
-        ecal = dict(
-            doES = False,
-            EBPileInputTag = "simEcalDigis:ebDigis",
-            EEPileInputTag = "simEcalDigis:eeDigis",
-        )
-    )
-)
+phase2_ecal.toModify (mixData, workers=dict(ecal=dict(doES=False)))
 phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
 
 # HCAL
 phase2_hcal.toModify(mixData,
     workers = dict(
         hcal = dict(
-            HBHEPileInputTag = "simHcalDigis",
-            HOPileInputTag = "simHcalDigis",
-            HFPileInputTag = "simHcalDigis",
-            QIE10PileInputTag = "simHcalDigis:HFQIE10DigiCollection",
-            QIE11PileInputTag = "simHcalDigis:HBHEQIE11DigiCollection",
             ZDCPileInputTag = "simHcalUnsuppressedDigis",
         )
     )
@@ -312,13 +299,6 @@ phase2_hfnose.toModify(mixData,
 # Muon
 phase2_muon.toModify(mixData,
     workers = dict(
-        dt = dict(pileInputTag = "simMuonDTDigis"),
-        rpc = dict(pileInputTag = "simMuonRPCDigis"),
-        csc = dict(
-            strip = dict(pileInputTag = "simMuonCSCDigis:MuonCSCStripDigi"),
-            wire = dict(pileInputTag = "simMuonCSCDigis:MuonCSCWireDigi"),
-            comparator = dict(pileInputTag = "simMuonCSCDigis:MuonCSCComparatorDigi"),
-        ),
         gem = cms.PSet(
             workerType = cms.string("PreMixingGEMWorker"),
             digiTagSig = cms.InputTag("simMuonGEMDigis"),

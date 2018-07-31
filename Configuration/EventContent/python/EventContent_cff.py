@@ -533,46 +533,8 @@ PREMIXEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 PREMIXEventContent.outputCommands.extend(SimTrackerPREMIX.outputCommands)
 PREMIXEventContent.outputCommands.extend(SimCalorimetryPREMIX.outputCommands)
 PREMIXEventContent.outputCommands.extend(SimMuonPREMIX.outputCommands)
+PREMIXEventContent.outputCommands.extend(SimGeneralPREMIX.outputCommands)
 fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
-# Phase2 essentially extends the content to DIGI
-# We could split this by subdetector-eras, but let's start with simple
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+[
-        # Tracker
-        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
-        'keep *_*_Phase2OTDigiSimLink_*',
-        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
-        # MTD
-        # ???
-        # ECAL
-        'keep *_simEcalDigis_ebDigis_*',
-        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
-        # HCAL
-        'keep *_simHcalDigis_*_*',
-        'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
-        # HGCAL
-        'keep *_simHGCalUnsuppressedDigis_EE_*',
-        'keep *_simHGCalUnsuppressedDigis_HEfront_*',
-        'keep *_simHGCalUnsuppressedDigis_HEback_*',
-        # DT
-        'keep *_simMuonDTDigis_*_*',
-        # CSC
-        'keep *_simMuonCSCDigis_*_*',
-        'keep *_simMuonCscTriggerPrimitiveDigis_*_*',
-        # RPC
-        'keep *_simMuonRPCDigis_*_*',
-        # GEM
-        'keep *_simMuonGEMDigis_*_*',
-        'keep *_*_GEMDigiSimLink_*',
-        'keep *_*_GEMStripDigiSimLink_*',
-        # ME0
-        'keep *_simMuonME0Digis_*_*',
-        'keep *_mix_g4SimHitsMuonME0Hits_*',
-        'keep *_*_ME0DigiSimLink_*',
-        'keep *_*_ME0StripDigiSimLink_*',
-        # CaloParticles
-        'keep *_mix_MergedCaloTruth_*',
-])
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
