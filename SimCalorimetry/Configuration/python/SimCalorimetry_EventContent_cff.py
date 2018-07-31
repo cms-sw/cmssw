@@ -28,6 +28,15 @@ SimCalorimetryRECO = cms.PSet(
 SimCalorimetryAOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
+SimCalorimetryPREMIX = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep EBDigiCollection_simEcalDigis_*_*',
+        'keep EEDigiCollection_simEcalDigis_*_*',
+        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
+        'keep *_simHcalDigis_*_*',
+        'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
+    )
+)
 
 #
 # Add extra event content if running in Run 2
