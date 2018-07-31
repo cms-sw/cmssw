@@ -1,16 +1,18 @@
+//***************************************************
+//		 CastorRecHitMonitor
+//	 Author: Dmytro Volyanskyy
+//	 Date  : 23.09.2008 (first version)
+// last modification: Pedro Cipriano 09.07.2013 
+//----------------------------------------------
+//	critical revision 26.06.2014 (Vladimir Popov)
+//***************************************************
+
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <string>
 
-//***************************************************//
-//********** CastorRecHitMonitor: *******************//
-//********** Author: Dmytro Volyanskyy   ************//
-//********** Date  : 23.09.2008 (first version) ******// 
-////---- energy and time of Castor RecHits 
-////---- last revision: Pedro Cipriano 09.07.2013 
-//***************************************************//
-//---- critical revision 26.06.2014 (Vladimir Popov)
-//==================================================================//
+using namespace std;
 
 CastorRecHitMonitor::CastorRecHitMonitor(const edm::ParameterSet& ps)
 {
@@ -42,9 +44,9 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   for(int j=1; j<nySec; j++) ySec[j+1] = E0sec*exp(j*lnBsec);
   for(int i=0; i<=N_Sec; i++) xSec[i]=i;
 
-  sprintf(s,"CastorRecHit by Sectors");
+  sprintf(s,"Castor Energy by Sectors #Phi");
     h2RHvsSec = ibooker.book2D(s,s, N_Sec, xSec, nySec, ySec);
-    h2RHvsSec->getTH2F()->GetXaxis()->SetTitle("sectorPhi");
+    h2RHvsSec->getTH2F()->GetXaxis()->SetTitle("sector #Phi");
     h2RHvsSec->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
     h2RHvsSec->getTH2F()->SetOption("colz");
 
@@ -54,37 +56,39 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
  float xCh[nxCh+1];
  float yErh[nyE+1];
  for(int i=0; i<=nxCh; i++) xCh[i]=i;
- double E0 = 1./1024.;
+ double E0 = 0.1/1024.;
  double lnA = log(2.);
  yErh[0] = 0.; yErh[1] = E0;
  for(int j=1; j<nyE; j++) yErh[j+1] = E0*exp(j*lnA);
 
-  sprintf(s,"CastorTileRecHit");
-    h2RHchan = ibooker.book2D(s,s, nxCh, xCh, nyE, yErh);
-    h2RHchan->getTH2F()->GetXaxis()->SetTitle("sector*14+module");
-    h2RHchan->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
+  string st = "Castor Cell Energy Map (cell-wise)";
+    h2RHchan = ibooker.book2D(st,st+";moduleZ*16 + sector #Phi;RecHit / GeV",
+	nxCh, xCh, nyE, yErh);
+//    h2RHchan->getTH2F()->GetXaxis()->SetTitle("moduleZ*16 + sector #Phi");
+//    h2RHchan->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
     h2RHchan->getTH2F()->SetOption("colz");  
 
-  sprintf(s,"Reco all tiles");
+  sprintf(s,"Castor Cell Energy");
    hallchan = ibooker.book1D(s,s,nyE,yErh);
    hallchan->getTH1F()->GetXaxis()->SetTitle("GeV");
- 
-  sprintf(s,"CastorRecHitMap(cumulative)");
+/* 
+  sprintf(s,"Castor Cell Energy Map Z-#Phi (cumulative)");
     h2RHmap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
-    h2RHmap->getTH2F()->GetXaxis()->SetTitle("moduleZ");  
-    h2RHmap->getTH2F()->GetYaxis()->SetTitle("sectorPhi");
+    h2RHmap->getTH2F()->GetXaxis()->SetTitle("module Z");  
+    h2RHmap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
     h2RHmap->getTH2F()->SetOption("colz");
-
-  sprintf(s,"CastorRecHitOccMap");
-    h2RHoccmap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
-    h2RHoccmap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
-    h2RHoccmap->getTH2F()->GetYaxis()->SetTitle("sectorPhi");
-    h2RHoccmap->getTH2F()->SetOption("colz");
+*/
+    st = "Castor cell avr Energy per event Map Z-Phi";
+    h2RHoccmap = ibooker.bookProfile2D(st,st+";module Z;sector Phi",
+	14, 0,14, 16, 0,16,0.,1.e10,"");
+//    h2RHoccmap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
+//    h2RHoccmap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
+    h2RHoccmap->getTProfile2D()->SetOption("colz");
 
   sprintf(s,"CastorRecHitEntriesMap");
     h2RHentriesMap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
     h2RHentriesMap->getTH2F()->GetXaxis()->SetTitle("moduleZ");
-    h2RHentriesMap->getTH2F()->GetYaxis()->SetTitle("sectorPhi");
+    h2RHentriesMap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
     h2RHentriesMap->getTH2F()->SetOption("colz");
 
   sprintf(s,"CastorRecHitTime");
@@ -192,24 +196,26 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
     double es = 0.;
     for (int z=0; z<14; z++) {
       float rh = energyInEachChannel[z][phi]*0.001;
-      int ind = phi*14 + z +1;
+      int ind = z*16 + phi +1;
+//    int ind = phi*14 + z +1;
       h2RHchan->Fill(ind,rh);
       hallchan->Fill(rh);
       if(rh < 0.) continue;      
-      h2RHmap->Fill(z,phi,rh); 
+//      h2RHmap->Fill(z,phi,rh);
+      h2RHoccmap->Fill(z,phi,rh);
       es += rh;
     }
     h2RHvsSec->Fill(phi,es);
     etot += es;
   } // end for(int phi=0;
-
+/*
   if(ievt_ %100 == 0) 
     for(int mod=1; mod<=14; mod++) 
       for(int sec=1; sec<=16;sec++) {
 	double a= h2RHmap->getTH2F()->GetBinContent(mod,sec);
 	h2RHoccmap->getTH2F()->SetBinContent(mod,sec,a/double(ievt_));
       }
-
+*/
   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (end)"<< std::endl;
   return;
 }

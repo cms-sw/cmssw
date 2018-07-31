@@ -5,65 +5,37 @@ process = cms.Process("CASTORDQM")
 # Event Source
 #================================+
 
-### to use a dat file
-#process.source = cms.Source("NewEventStreamFileReader",
-#    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/c/campbell/scratch0/first100M_MWGR_41.00116713.0001.A.storageManager.00.0000.dat')
-# )
 
-### to use a root file
-
-#old data p-p 2011
-#process.source = cms.Source("PoolSource",
-#                            fileNames = cms.untracked.vstring(
-#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/182AF1D2-41CB-E011-8661-002354EF3BE0.root',
-#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/1E7A9033-0EC2-E011-9191-001A928116F4.root',
-#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/3284739C-0DC2-E011-966C-002618943842.root',
-#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/3E80B615-3BCB-E011-B288-0018F3D09670.root',
-#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/441707B7-42CB-E011-A2D3-00261894384A.root',
-#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/468F37BA-F8C1-E011-B2D1-0018F3D09706.root'),
-#                            )
-
-#new data p-Pb 2013
+### data root file
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    'root://eoscms//eos/cms/store/hidata/HIRun2013/PAMinBiasUPC/RAW/v1/000/210/885/00000/0AC926B5-7268-E211-91F3-BCAEC5329708.root'),
+#'root://eoscms//eos/cms/store/hidata/HIRun2013/PAMinBiasUPC/RAW/v1/000/210/885/00000/0AC926B5-7268-E211-91F3-BCAEC5329708.root'),
+#'file:/tmp/popov/1257F374-8BB0-E611-A096-02163E0145DD-f10.root'),
+#'file:/afs/cern.ch/user/p/popov/scratch_bk/data/4C7A69AE-6692-E511-A446-02163E0119EB-RAW262272.root'),
+
+#'file:/afs/cern.ch/user/p/popov/scratch_bk/data/64E2F5E1-5892-E511-B421-02163E0137E8-RAW262270.root'),
+#'file:/eos/user/p/popov/HI2015/AOD-665ED244-96AB-E511-9A9E-02163E011E5B.root'),
+
+#'file:/eos/cms/store/data/Run2018C/ZeroBias/RAW/v1/000/320/260/00000/80A7FA82-AD90-E811-B3B3-FA163EE997B7.root'),
+#'file:/eos/cms/store/data/Run2018C/ZeroBias/RAW/v1/000/320/285/00000/6C275008-4490-E811-9AB4-FA163E7FC1F6.root'),
+#'file:/eos/cms/store/data/Run2018C/MinimumBias/RAW/v1/000/320/317/00000/3AA90BCE-6390-E811-8093-FA163E3A93BC.root'),
+#'file:/eos/cms/store/data/Run2018C/ZeroBias/RAW/v1/000/320/317/00000/525D2460-6A90-E811-AF46-FA163E9626F3.root'),
+'file:/eos/user/p/popov/rundata/Castor2018/525D2460-6A90-E811-RAWrun320317.root'),
                             )
 
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10000)
 )
 
-
 #================================
-# DQM Environment
+# DQM framework
 #================================
-process.load("DQMServices.Core.DQM_cfg")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-#process.DQMStore.referenceFileName = 'castor_reference.root'
-
-#depreciated use the next block
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
-process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-#process.load("DQM.Integration.test.environment_cfi")
-
-from DQMServices.Core.DQM_cfg import *
-
-
-DQM.collectorHost = 'dqm-prod-local.cms'
-DQM.collectorPort = 9090
-
-from DQMServices.Components.DQMEnvironment_cfi import *
-
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "Castor"
+process.dqmEnv.eventInfoFolder = "EventInfo"
+#process.dqmSaver.producer = 'DQM'
+process.dqmSaver.path = ""
+process.dqmSaver.tag = "Castor"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -72,104 +44,46 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #============================================
 
 #get from global tag
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag.globaltag = 'GR_R_61_V7::All'
-
+#process.GlobalTag.globaltag = 'GR_R_61_V7::All' #autoCond['run2_data']
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_data']
 
 #get explicit from db
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+#process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
+
 #process.castor_db_producer = cms.ESProducer("CastorDbProducer") 
-
-#process.es_pool = cms.ESSource(
-#   "PoolDBESSource",
-#   process.CondDBSetup,
-#   timetype = cms.string('runnumber'),
-   # connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierPrep/CMS_COND_30X_HCAL'),
-#   connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL'),
-#   authenticationMethod = cms.untracked.uint32(0),
-#   toGet = cms.VPSet(
-#       cms.PSet(
-#           record = cms.string('CastorPedestalsRcd'),
-#           tag = cms.string('castor_pedestals_v1.0')
-#           ),
-#       cms.PSet(
-#          record = cms.string('CastorPedestalWidthsRcd'),
-#           tag = cms.string('castor_pedestalwidths_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorGainsRcd'),
-#           tag = cms.string('castor_gains_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorGainWidthsRcd'),
-#           tag = cms.string('castor_gainwidths_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorQIEDataRcd'),
-#           tag = cms.string('castor_qie_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorChannelQualityRcd'),
-#           tag = cms.string('castor_channelquality_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorElectronicsMapRcd'),
-#           tag = cms.string('castor_emap_dcc_v1.0')
-#           )
-#   )
-#)
-
 
 #-----------------------------
 # Castor DQM Source + SimpleReconstrctor
 #-----------------------------
 #process.load("DQM.CastorMonitor.CastorMonitorModule_cfi")
-#process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cfi")
 process.load("RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi")
 
 process.castorreco.tsFromDB = cms.bool(False)
 
-process.castorDigis = cms.EDProducer("CastorRawToDigi",
-    # Optional filter to remove any digi with "data valid" off, "error" on, 
-    # or capids not rotating
-    FilterDataQuality = cms.bool(True),
-    # Number of the first CASTOR FED.  If this is not specified, the
-    # default from FEDNumbering is used.
-    CastorFirstFED = cms.untracked.int32(690),
-    # FED numbers to unpack.  If this is not specified, all FEDs from
-    # FEDNumbering will be unpacked.
-    FEDs = cms.untracked.vint32( 690, 691, 692 ),
-    # Do not complain about missing FEDs
-    ExceptionEmptyData = cms.untracked.bool(False),
-    # Do not complain about missing FEDs
-    ComplainEmptyData = cms.untracked.bool(False),
-    # At most ten samples can be put into a digi, if there are more
-    # than ten, firstSample and lastSample select which samples
-    # will be copied to the digi
-    firstSample = cms.int32(0),
-    lastSample = cms.int32(9),
-    # castor technical trigger processor
-    UnpackTTP = cms.untracked.bool(True),
-    # report errors
-    silent = cms.untracked.bool(False),
-    #
-    InputLabel = cms.InputTag("rawDataCollector")
-)
+#process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cfi")
+from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
+#process.castorDigis = castorDigis.clone( UnpackZDC = cms.bool(False))
+process.castorDigis = castorDigis.clone()
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-process.castorMonitor = DQMEDAnalyzer('CastorMonitorModule',
+process.castorMonitor = DQMEDAnalyzer("CastorMonitorModule",
                            ### GLOBAL VARIABLES
-                           debug = cms.untracked.int32(0), # make debug an int so that different
-                                                           # values can trigger different levels of messaging
-							   # 0 - no debug infomration
-							   # 1 - Program flow in/out
-							   # 2 - All major computations
-                           # Turn on/off timing diagnostic info
+   debug = cms.untracked.int32(1), #(=0 - no messages)
+                           # Turn on/off timing diagnostic
                            showTiming          = cms.untracked.bool(False),
-                           dump2database       = cms.untracked.bool(False),
-                           pedestalsInFC = cms.untracked.bool(False),
+#                      dump2database       = cms.untracked.bool(False),
+#                      pedestalsInFC = cms.untracked.bool(False),
 
 			   # Define Labels
+     l1tStage2uGtSource = cms.InputTag("gtStage2Digis"),
+#     tagTriggerResults   = cms.InputTag("TriggerResults"),
+     tagTriggerResults   = cms.InputTag('TriggerResults','','HLT'),
+    HltPaths  = cms.vstring("HLT_ZeroBias","HLT_Random"),
+
                            digiLabel            = cms.InputTag("castorDigis"),
                            rawLabel 		= cms.InputTag("rawDataCollector"),
                            unpackerReportLabel  = cms.InputTag("castorDigis"),
@@ -182,39 +96,20 @@ process.castorMonitor = DQMEDAnalyzer('CastorMonitorModule',
 			   TowerJetMonitor= cms.untracked.bool(True),
 
                            DigiMonitor = cms.untracked.bool(True),
-                           DigiPerChannel = cms.untracked.bool(True), 
-                           DigiInFC = cms.untracked.bool(False),
                           
                            RecHitMonitor = cms.untracked.bool(True), 
-			   RecHitsPerChannel = cms.untracked.bool(True),
 
-                           ChannelQualityMonitor= cms.untracked.bool(True),
-                           nThreshold = cms.untracked.double(60),
-                           dThreshold = cms.untracked.double(0.1),
-                           OfflineMode = cms.untracked.bool(True),
-                           averageEnergyMethod = cms.untracked.bool(True),
-                                     
-                           PSMonitor= cms.untracked.bool(True),
-                           numberSigma = cms.untracked.double(1.5),
-                           thirdRegionThreshold =  cms.untracked.double(999999.0),        
-                           HIMonitor= cms.untracked.bool(True),
-                                       
-                           diagnosticPrescaleTime = cms.untracked.int32(-1),
-                           diagnosticPrescaleUpdate = cms.untracked.int32(-1),
-                           diagnosticPrescaleLS = cms.untracked.int32(-1),
                              
-                           LEDMonitor = cms.untracked.bool(True),
-                           LEDPerChannel = cms.untracked.bool(True),
+#                           LEDMonitor = cms.untracked.bool(True),
+#                           LEDPerChannel = cms.untracked.bool(True),
                            FirstSignalBin = cms.untracked.int32(0),
-                           LastSignalBin = cms.untracked.int32(9),
-                           LED_ADC_Thresh = cms.untracked.double(-1000.0)      
-                           )
+                           LastSignalBin = cms.untracked.int32(9)
+)
 
 ### the filename prefix 
-process.dqmSaver.producer = 'DQM'
-process.dqmSaver.dirName = '.'
-process.dqmSaver.convention = 'Online'
-process.dqmSaver.saveByRun = True
+#process.dqmSaver.dirName = '.'
+#convention does not already exist# process.dqmSaver.convention = 'Online'
+#saveByRun does not already exist# process.dqmSaver.saveByRun = True
 
 #-----------------------------
 # Scheduling
@@ -228,6 +123,21 @@ process.options = cms.untracked.PSet(
 # castorDigis   -> CastorRawToDigi_cfi
 # castorreco    -> CastorSimpleReconstructor_cfi
 # castorMonitor -> CastorMonitorModule_cfi
+process.out = cms.OutputModule("PoolOutputModule",
+  fileName = cms.untracked.string('my.root')
+)
 
 #process.p = cms.Path(process.castorMonitor*process.dqmEnv*process.dqmSaver)
-process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor*process.dqmEnv*process.dqmSaver)
+process.p = cms.Path(process.castorDigis*process.castorreco*process.castorMonitor)
+#process.p = cms.Path(process.castorMonitor)
+
+process.end_path = cms.EndPath(
+  process.dqmEnv +
+  process.dqmSaver
+)
+
+process.schedule = cms.Schedule(
+  process.p,
+  process.end_path
+)
+
