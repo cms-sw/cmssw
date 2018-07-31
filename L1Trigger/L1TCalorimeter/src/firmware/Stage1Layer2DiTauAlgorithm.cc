@@ -12,12 +12,9 @@
 //#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
 
-l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsHelper* params) : params_(params)
+l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsHelper const* params) : params_(params)
 {
 }
-
-
-l1t::Stage1Layer2DiTauAlgorithm::~Stage1Layer2DiTauAlgorithm() {}
 
 
 void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
@@ -25,22 +22,22 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
 						   const std::vector<l1t::Tau> * taus,
 						   l1t::CaloSpare * spares) {
 
-  std::vector<l1t::Tau> *isoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> isoTaus;
   for(std::vector<l1t::Tau>::const_iterator itTau = taus->begin();
       itTau != taus->end(); ++itTau){
     if( !itTau->hwIso() ) continue;
-    isoTaus->push_back( *itTau );
+    isoTaus.push_back( *itTau );
   }
 
   int isoPtMax=0;
   int diIsoPtMax=0;
   int triIsoPtMax=0;
   int quadIsoPtMax=0;
-  if(!isoTaus->empty()) {
-    isoPtMax= (*isoTaus).at(0).hwPt();
-    if (isoTaus->size()>1) diIsoPtMax  = (*isoTaus).at(1).hwPt();
-    if (isoTaus->size()>2) triIsoPtMax = (*isoTaus).at(2).hwPt();
-    if (isoTaus->size()>3) quadIsoPtMax= (*isoTaus).at(3).hwPt();
+  if(!isoTaus.empty()) {
+    isoPtMax= isoTaus[0].hwPt();
+    if (isoTaus.size()>1) diIsoPtMax  = isoTaus[1].hwPt();
+    if (isoTaus.size()>2) triIsoPtMax = isoTaus[2].hwPt();
+    if (isoTaus.size()>3) quadIsoPtMax= isoTaus[3].hwPt();
   }
 
   int rankIso     = 0;
@@ -88,6 +85,4 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   s.setEtSum(3, rankQuadIso);
   uint16_t raw = s.raw();
   spares->setHwPt(raw);
-
-  delete isoTaus;
 }
