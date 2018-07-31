@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,7 +56,7 @@ using namespace l1tcalo;
 // class declaration
 //
 
-class L1TCaloLayer1 : public edm::EDProducer {
+class L1TCaloLayer1 : public edm::stream::EDProducer<> {
 public:
   explicit L1TCaloLayer1(const edm::ParameterSet&);
 
