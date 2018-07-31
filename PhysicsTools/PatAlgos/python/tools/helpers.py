@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import six
@@ -285,11 +286,11 @@ def listDependencyChain(process, module, sources, verbose=False):
                 inputs = [ MassSearchReplaceAnyInputTagVisitor.standardizeInputTagFmt(it) for it in value ]
                 inputLabels = [ tag.moduleLabel for tag in inputs if tag.processName == '' or tag.processName == process.name_() ]
                 ret.update(inputLabels)
-                if verbose and inputLabels: print "%s depends on %s via %s" % (moduleName, inputLabels, attrName+"."+name)
+                if verbose and inputLabels: print("%s depends on %s via %s" % (moduleName, inputLabels, attrName+"."+name))
             elif type.endswith('.InputTag'):
                 if value.processName == '' or value.processName == process.name_():
                     ret.add(value.moduleLabel)
-                    if verbose: print "%s depends on %s via %s" % (moduleName, value.moduleLabel, attrName+"."+name)
+                    if verbose: print("%s depends on %s via %s" % (moduleName, value.moduleLabel, attrName+"."+name))
         ret.discard("")
         return ret
     def fillDirectDepGraphs(root,fwdepgraph,revdepgraph):
@@ -357,8 +358,8 @@ def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
             if oldKeep in out.outputCommands:
                 out.outputCommands += newKeeps
             if verbose:
-                print "Adding the following keep statements to output module %s: " % name
-                for k in newKeeps: print "\t'%s'," % k
+                print("Adding the following keep statements to output module %s: " % name)
+                for k in newKeeps: print("\t'%s'," % k)
 
 
 if __name__=="__main__":
