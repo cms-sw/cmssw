@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <TROOT.h>
+#include <TChain.h>
 
 void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta, 
 		 int& iphi, int& depth) {
@@ -90,6 +92,30 @@ double puFactorRho(int type, int ieta, double rho, double eHcal) {
     energy -= (rho*ea);
   }
   return energy;
+}
+
+bool fillChain(TChain *chain, const char* inputFileList) {
+
+  std::string fname(inputFileList);
+  if (fname.substr(fname.size()-5,5) == ".root") {
+    chain->Add(fname.c_str());
+  } else {
+    ifstream infile(inputFileList);
+    if (!infile.is_open()) {
+      std::cout << "** ERROR: Can't open '" << inputFileList << "' for input" 
+		<< std::endl;
+      return false;
+    }
+    while (1) {
+      infile >> fname;
+      if (!infile.good()) break;
+      chain->Add(fname.c_str());
+    }
+    infile.close();
+  }
+  std::cout << "No. of Entries in this tree : " << chain->GetEntries()
+	    << std::endl;
+  return true;
 }
 
 class CalibCorr {

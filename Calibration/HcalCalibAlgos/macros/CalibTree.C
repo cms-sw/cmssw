@@ -4,13 +4,14 @@
 //  Run(inFileName, dirName, treeName, outFileName, corrFileName, dupFileName,
 //      rcorFileName, useweight, useMean, nMin, inverse, ratMin, ratMax, 
 //      ietaMax, sysmode, puCorr, applyL1Cut, l1Cut, truncateFlag, maxIter, 
-//      useGen, runlo, runhi, phimin, phimax, zside, rbx, exclude, higheta,
-//      fraction, writeDebugHisto, debug);
+//      useGen, runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbx,
+//      exclude, higheta, fraction, writeDebugHisto, debug);
 //
 //  where:
 //
-//  inFileName  (std::string) = name of the input file without ".root"
-//                              extension ("Silver")
+//  inFileName  (const char*) = file name of the input ROOT tree or name of
+//                              the file containing a list of file names of
+//                              input ROOT trees ("Silver.root")
 //  dirName     (std::string) = name of the directory where the Tree resides
 //                              ("HcalIsoTrkAnalyzer")
 //  treeName    (std::string) = name of the Tree ("CalibTree")
@@ -49,12 +50,16 @@
 //                              all depths as depth 1 (2) (Default 0)
 //  maxIter         (int)     = number of iterations (30)
 //  useGen          (bool)    = use generator level momentum information (False)
-//  runlo           (int)     = lower value of run number (def -1)
-//  runhi           (int)     = higher value of run number (def 9999999)
+//  runlo           (int)     = lower value of run number to be included (+ve)
+//                              or excluded (-ve) (default 0)
+//  runhi           (int)     = higher value of run number to be included 
+//                              (+ve) or excluded (-ve) (def 9999999)
 //  phimin          (int)     = minimum iphi value (1)
 //  phimax          (int)     = maximum iphi value (72)
 //  zside           (int)     = the side of the detector (0)
 //                              (if 0 no selection on zside will be made)
+//  nvxlo           (int)     = minimum # of vertex in event to be used (0)
+//  nvxhi           (int)     = maximum # of vertex in event to be used (1000)
 //  rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
 //  exclude         (bool)    = RBX specified by *rbx* to be exluded or only
 //                              considered (false)
@@ -92,7 +97,7 @@
 
 #include "CalibCorr.C"
 
-void Run(const char *inFileName="Silver",
+void Run(const char *inFileName="Silver.root",
 	 const char *dirName="HcalIsoTrkAnalyzer",
 	 const char *treeName="CalibTree",
 	 const char *outFileName="Silver_out.root",
@@ -103,16 +108,17 @@ void Run(const char *inFileName="Silver",
 	 double ratMin=0.25, double ratMax=3., int ietaMax=23, 
 	 int sysmode=-1, int puCorr=-1, int applyL1Cut=1, double l1Cut=0.5, 
 	 int truncateFlag=0, int maxIter=30, bool useGen=false, 
-	 int runlo=-1, int runhi=99999999, int phimin=1, int phimax=72,
-	 int zside=0, int rbx=0, bool exclude=true, int higheta=1,
-	 double fraction=1.0, bool writeDebugHisto=false, bool debug=false);
+	 int runlo=0, int runhi=99999999, int phimin=1, int phimax=72,
+	 int zside=0, int nvxlo=0, int nvxhi=1000, int rbx=0, bool exclude=true,
+	 int higheta=1, double fraction=1.0, bool writeDebugHisto=false, 
+	 bool debug=false);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class CalibTree {
 public :
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
+  TChain                    *fChain;  //!pointer to the analyzed TTree or TChain
+  Int_t                      fCurrent;//!current Tree number in a TChain
 
   // Declaration of leaf types
   Int_t                      t_Run;
@@ -200,11 +206,13 @@ public :
   CalibSelectRBX                                   *cSelect_;
   const int                                         truncateFlag_;
   const bool                                        useMean_;
-  const int                                         runlo_, runhi_;
-  const int                                         phimin_, phimax_, zside_;
+  int                                               runlo_, runhi_;
+  const int                                         phimin_, phimax_;
+  const int                                         zside_, nvxlo_, nvxhi_;
   const int                                         sysmode_, rbx_, puCorr_;
   const bool                                        useGen_, exclude_;
   const int                                         higheta_;
+  bool                                              includeRun_;
   double                                            log2by18_, eHcalDelta_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
@@ -212,21 +220,21 @@ public :
   std::map<unsigned int, std::pair<double,double> > Cprev;
 
   struct myEntry {
-    myEntry (int k=0, double f0=0, double f1=0, double f2=0) : kount(k), fact0(f0),
-							       fact1(f1), fact2(f2) {}
+    myEntry (int k=0, double f0=0, double f1=0, 
+	     double f2=0) : kount(k), fact0(f0), fact1(f1), fact2(f2) {}
     int    kount;
     double fact0, fact1, fact2;
   };
 
   CalibTree(const char *dupFileName, const char* rcorFileName, int truncateFlag,
 	    bool useMean, int runlo, int runhi, int phimin, int phimax,
-	    int zside, int sysmode, int rbx, int puCorr, bool useGen, 
-	    bool exclude, int higheta, TTree *tree=0);
+	    int zside, int nvxlo, int nvxhi, int sysmode, int rbx, int puCorr,
+	    bool useGen, bool exclude, int higheta, TChain *tree);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree, const char *dupFileName);
+  virtual void     Init(TChain *tree, const char *dupFileName);
   virtual Double_t Loop(int k, TFile *fout, bool useweight, int nMin, 
 			bool inverse, double rMin, double rMax, int ietaMax,
 			int applyL1Cut, double l1Cut, bool last, 
@@ -264,89 +272,94 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 bool useweight, bool useMean, int nMin, bool inverse, double ratMin, 
 	 double ratMax, int ietaMax, int sysmode, int puCorr, int applyL1Cut,
 	 double l1Cut, int truncateFlag, int maxIter, bool useGen, int runlo,
-	 int runhi, int phimin, int phimax, int zside, int rbx, bool exclude,
-	 int higheta, double fraction, bool writeHisto, bool debug) {
+	 int runhi, int phimin, int phimax, int zside, int nvxlo, int nvxhi, 
+	 int rbx, bool exclude, int higheta, double fraction, bool writeHisto,
+	 bool debug) {
  
-  char name[500];
-  sprintf(name, "%s.root",inFileName);
-  TFile *infile = TFile::Open(name);
-  TDirectory *dir = (TDirectory*)infile->FindObjectAny(dirName);
-  TTree *tree = (TTree*)dir->FindObjectAny(treeName);
-  Long64_t nentryTot = tree->GetEntriesFast();
-  Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
-    (Long64_t)(fraction*nentryTot) : nentryTot;
-  std::cout << "Tree " << treeName << " " << tree << " in directory " 
-	    << dirName << " from file " << name << " with nentries (tracks): " 
-	    << nentries << std::endl;
-  unsigned int k(0), kmax(maxIter);
-  CalibTree t(dupFileName, rcorFileName, truncateFlag, useMean, runlo, runhi, 
-	      phimin, phimax, zside, sysmode, rbx, puCorr, useGen, exclude, 
-	      higheta, tree); 
-  t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
-  t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
-  t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
-  t.h_cvg       = new TH1D("Cvg0", "Convergence", kmax, 0, kmax);
-  t.h_cvg->SetMarkerStyle(7);
-  t.h_cvg->SetMarkerSize(5.0);
-  
-  TFile *fout = new TFile(outFileName, "RECREATE");
-  std::cout << "Output file: " << outFileName << " opened in recreate mode" 
+  char    name[500];
+  sprintf (name, "%s/%s", dirName, treeName);
+  TChain *chain = new TChain(name);
+  std::cout << "Create a chain for " << name << " from " << inFileName
 	    << std::endl;
-  fout->cd();
+  if (!fillChain(chain,inFileName)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Long64_t nentryTot = chain->GetEntries();
+    Long64_t nentries = (fraction > 0.01 && fraction < 0.99) ? 
+      (Long64_t)(fraction*nentryTot) : nentryTot;
+    std::cout << "Tree " << name << " " << chain << " in directory " 
+	      << dirName << " from file " << inFileName 
+	      << " with nentries (tracks): " << nentries << std::endl;
+    unsigned int k(0), kmax(maxIter);
+    CalibTree t(dupFileName, rcorFileName, truncateFlag, useMean, runlo, runhi, 
+		phimin, phimax, zside, nvxlo, nvxhi, sysmode, rbx, puCorr, 
+		useGen, exclude, higheta, chain); 
+    t.h_pbyE      = new TH1D("pbyE", "pbyE", 100, -1.0, 9.0);
+    t.h_Ebyp_bfr  = new TProfile("Ebyp_bfr","Ebyp_bfr",60,-30,30,0,10);
+    t.h_Ebyp_aftr = new TProfile("Ebyp_aftr","Ebyp_aftr",60,-30,30,0,10);
+    t.h_cvg       = new TH1D("Cvg0", "Convergence", kmax, 0, kmax);
+    t.h_cvg->SetMarkerStyle(7);
+    t.h_cvg->SetMarkerSize(5.0);
+  
+    TFile *fout = new TFile(outFileName, "RECREATE");
+    std::cout << "Output file: " << outFileName << " opened in recreate mode" 
+	      << std::endl;
+    fout->cd();
 
-  double cvgs[100], itrs[100]; 
-  for (; k<=kmax; ++k) {
-    std::cout << "Calling Loop() "  << k << "th time" << std::endl; 
-    double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
-			ietaMax, applyL1Cut, l1Cut, k==kmax, fraction, 
-			writeHisto, debug);
-    itrs[k] = k;
-    cvgs[k] = cvg;
-    if (cvg < 0.00001) break;
+    double cvgs[100], itrs[100]; 
+    for (; k<=kmax; ++k) {
+      std::cout << "Calling Loop() "  << k << "th time" << std::endl; 
+      double cvg = t.Loop(k, fout, useweight, nMin, inverse, ratMin, ratMax, 
+			  ietaMax, applyL1Cut, l1Cut, k==kmax, fraction, 
+			  writeHisto, debug);
+      itrs[k] = k;
+      cvgs[k] = cvg;
+      if (cvg < 0.00001) break;
+    }
+
+    t.writeCorrFactor(corrFileName, ietaMax);
+
+    fout->cd();
+    TGraph *g_cvg;
+    g_cvg = new TGraph(k, itrs, cvgs);
+    g_cvg->SetMarkerStyle(7);
+    g_cvg->SetMarkerSize(5.0);
+    g_cvg->Draw("AP");
+    g_cvg->Write("Cvg");
+    std::cout << "Finish looping after " << k << " iterations" << std::endl;
+    t.makeplots(ratMin, ratMax, ietaMax, useweight, fraction, debug);
+    fout->Close();
   }
-
-  t.writeCorrFactor(corrFileName, ietaMax);
-
-  fout->cd();
-  TGraph *g_cvg;
-  g_cvg = new TGraph(k, itrs, cvgs);
-  g_cvg->SetMarkerStyle(7);
-  g_cvg->SetMarkerSize(5.0);
-  g_cvg->Draw("AP");
-  g_cvg->Write("Cvg");
-  std::cout << "Finish looping after " << k << " iterations" << std::endl;
-  t.makeplots(ratMin, ratMax, ietaMax, useweight, fraction, debug);
-  fout->Close();
 }
 
 CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
-		     int flag, bool useMean, int runlo, int runhi, 
-		     int phimin, int phimax, int zside, int mode, 
+		     int flag, bool useMean, int runlo, int runhi, int phimin,
+		     int phimax, int zside, int nvxlo, int nvxhi, int mode,
 		     int rbx, int pu, bool gen, bool exclude, int higheta,
-		     TTree *tree) : fChain(nullptr), cFactor_(nullptr),
+		     TChain *tree) : fChain(nullptr), cFactor_(nullptr),
 				    cSelect_(nullptr), truncateFlag_(flag),
 				    useMean_(useMean), runlo_(runlo), 
 				    runhi_(runhi), phimin_(phimin),
 				    phimax_(phimax), zside_(zside), 
+				    nvxlo_(nvxlo), nvxhi_(nvxhi), 
 				    sysmode_(mode), rbx_(rbx), puCorr_(pu),
 				    useGen_(gen), exclude_(exclude),
-				    higheta_(higheta) {
-  // if parameter tree is not specified (or zero), connect the file
-  // used to generate this class and read the Tree.
-  if (tree == 0) {
-    TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root");
-    if (!f || !f->IsOpen()) {
-      f = new TFile("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root");
-    }
-    TDirectory * dir = (TDirectory*)f->Get("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root:/isopf");
-    dir->GetObject("CalibTree",tree);
+				    higheta_(higheta), includeRun_(true) {
+  
+  if (runlo_ < 0 || runhi_ < 0) {
+    runlo_         = std::abs(runlo_);
+    runhi_         = std::abs(runhi_);
+    includeRun_    = false;
   }
   log2by18_  = std::log(2.5)/18.0;
   eHcalDelta_= 0;
   std::cout << "Initialize CalibTree with TruncateFlag " << truncateFlag_
 	    << " UseMean " << useMean_ << " Run Range " << runlo_ << ":"
 	    << runhi_ << " Phi Range " << phimin_ << ":" << phimax_ << ":" 
-	    << zside_ << " Mode " << sysmode_ << " PU " << puCorr_ << " Gen " 
+	    << zside_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
+	    << " Mode " << sysmode_ << " PU " << puCorr_ << " Gen " 
 	    << useGen_ << " High Eta " << higheta_ << std::endl;
   std::cout << "Duplicate events read from " << dupFileName 
 	    << " RadDam Corrections read from " << rcorFileName
@@ -383,7 +396,7 @@ Long64_t CalibTree::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibTree::Init(TTree *tree, const char *dupFileName) {
+void CalibTree::Init(TChain *tree, const char *dupFileName) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -502,7 +515,9 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // Find DetIds contributing to the track
-      if ((t_Run >= runlo_) && (t_Run <= runhi_)) {
+      bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
+		     ((t_Run < runlo_) || (t_Run > runhi_)));
+      if (selRun && (t_nVtx >= nvxlo_) && (t_nVtx <= nvxhi_)) {
 	bool isItRBX = (cSelect_ && exclude_ && cSelect_->isItRBX(t_DetIds));
 	++kprint;
 	if (!isItRBX) {
@@ -585,10 +600,14 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
   int ntkgood(0);
   for (Long64_t jentry=0; jentry<nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
-    if (ientry < 0)                                                       break;
+    if (ientry < 0)                               break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    if (std::find(entries.begin(),entries.end(),jentry) != entries.end()) continue;
-    if ((t_Run < runlo_) || (t_Run > runhi_))                             continue;
+    if (std::find(entries.begin(),entries.end(),jentry) !=
+	entries.end())                            continue;
+    bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
+		   ((t_Run < runlo_) || (t_Run > runhi_)));
+    if (!selRun)                                  continue;
+    if ((t_nVtx < nvxlo_) || (t_nVtx > nvxhi_))   continue;
     if (cSelect_ != nullptr) {
       if (exclude_) {
 	if (cSelect_->isItRBX(t_DetIds))          continue;
