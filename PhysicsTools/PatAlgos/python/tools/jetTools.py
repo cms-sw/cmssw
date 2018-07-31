@@ -64,8 +64,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
         if x == 'L1FastJet' :
             if not error :
                 if _type == "JPT" :
@@ -80,14 +80,14 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
     patJets.jetCorrFactorsSource=cms.VInputTag(cms.InputTag('patJetCorrFactors'+labelName+postfix))
     ## configure MET(Type1) corrections
     if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
         if not jetCorrections[2].lower() == 'type-1' and not jetCorrections[2].lower() == 'type-2':
-            raise valueError, "In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
-            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: ", jetCorrections[2]
+            raise ValueError("In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
+            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: "+ jetCorrections[2])
         if _type == "JPT":
             raise ValueError("In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
             marks) and use raw tcMET together with JPTJets.")

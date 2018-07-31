@@ -794,7 +794,7 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         dbsession.transaction().start (True)
         schema = dbsession.schema (parameters.lumischema)
         if not schema:
-            raise 'cannot connect to schema ', parameters.lumischema
+            raise RuntimeError('cannot connect to schema '+ parameters.lumischema)
         detailOutput = coral.AttributeList()
         detailOutput.extend ('startorbit',    'unsigned int')
         detailOutput.extend ('cmslsnum',      'unsigned int')
@@ -930,7 +930,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
     '''
     if not requireRunsummary and not requireLumiummary and not requireTrg and not requireHlt:
         print('must require at least one table')
-        raise
+        raise RuntimeError('one table')
     runresult=[]
     runlist=[]
     numdups=0

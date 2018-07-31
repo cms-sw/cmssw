@@ -16,7 +16,7 @@ def beamintensityForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
-            raise 'cannot connect to schema ',c.lumischema
+            raise RuntimeError('cannot connect to schema '+c.lumischema)
         myOutput=coral.AttributeList()
         myOutput.extend('cmslsnum','unsigned int')
         myOutput.extend('bxindexBlob','blob')
@@ -80,7 +80,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
-            raise 'cannot connect to schema ',c.lumischema
+            raise RuntimeError('cannot connect to schema '+c.lumischema)
         detailOutput=coral.AttributeList()
         detailOutput.extend('cmslsnum','unsigned int')
         detailOutput.extend('bxlumivalue','blob')
@@ -147,7 +147,7 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.lumischema)
         if not schema:
-            raise 'cannot connect to schema ',c.lumischema
+            raise RuntimeError('cannot connect to schema '+c.lumischema)
         detailOutput=coral.AttributeList()
         detailOutput.extend('cmslsnum','unsigned int')
         detailOutput.extend('bxlumivalue','blob')
