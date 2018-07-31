@@ -59,7 +59,7 @@ namespace edm {
     ~MergeableRunProductMetadata() override;
 
     // Called each time a new input file is opened
-    void readFile();
+    void preReadFile();
 
     // Called each time a run entry is read from an input file. This
     // should be called before the run products themselves are read

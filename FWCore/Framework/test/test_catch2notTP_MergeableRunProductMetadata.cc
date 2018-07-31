@@ -458,7 +458,7 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       REQUIRE(!APRODMetadataForProcess->useIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
     }
-    mergeableRunProductMetadata.readFile();
+    mergeableRunProductMetadata.preReadFile();
     {
       std::vector<edm::LuminosityBlockNumber_t> expected { 91, 92, 95, 101, 102, 105, 121, 122 };
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
@@ -473,7 +473,7 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       REQUIRE(APRODMetadataForProcess->useIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
     }
-    mergeableRunProductMetadata.readFile();
+    mergeableRunProductMetadata.preReadFile();
     {
       std::vector<edm::LuminosityBlockNumber_t> expected { 91, 92, 95, 101, 102, 105, 121, 122, 1001, 1003 };
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
@@ -508,7 +508,7 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       REQUIRE(!APRODMetadataForProcess->useIndexIntoFile());
       REQUIRE(!APRODMetadataForProcess->allLumisProcessed());
     }
-    mergeableRunProductMetadata.readFile();
+    mergeableRunProductMetadata.preReadFile();
     mergeableRunProductMetadata.postWriteRun();
     {
       std::vector<edm::LuminosityBlockNumber_t> expected3;
@@ -528,7 +528,7 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       REQUIRE(expected2 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
       REQUIRE(mergeableRunProductMetadata.gotLumisFromIndexIntoFile());
     }
-    mergeableRunProductMetadata.readFile();
+    mergeableRunProductMetadata.preReadFile();
     {
       std::vector<edm::LuminosityBlockNumber_t> expected3;
       REQUIRE(expected3 == mergeableRunProductMetadata.lumisFromIndexIntoFile());
@@ -561,7 +561,7 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
       mergeableRunProductMetadata.readRun(2, storedMetadata, edm::IndexIntoFileItrHolder(iter));
       REQUIRE(APRODMetadataForProcess->lumis() == expected);
-      mergeableRunProductMetadata.readFile();
+      mergeableRunProductMetadata.preReadFile();
       std::vector<edm::LuminosityBlockNumber_t> expected2 { 1000, 1001, 1002, 1003, 1004 };
       REQUIRE(APRODMetadataForProcess->lumis() == expected2);
     }

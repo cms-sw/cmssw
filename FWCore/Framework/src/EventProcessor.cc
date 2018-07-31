@@ -827,7 +827,7 @@ namespace edm {
     size_t size = preg_->size();
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
-    principalCache_.readFile();
+    principalCache_.preReadFile();
 
     fb_ = input_->readFile();
     if(size < preg_->size()) {

@@ -55,9 +55,9 @@ namespace edm {
   }
 
   void
-  RunPrincipal::readFile() {
+  RunPrincipal::preReadFile() {
     if (mergeableRunProductMetadataPtr_) {
-      mergeableRunProductMetadataPtr_->readFile();
+      mergeableRunProductMetadataPtr_->preReadFile();
     }
   }
 

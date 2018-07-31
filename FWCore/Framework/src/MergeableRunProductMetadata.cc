@@ -20,7 +20,7 @@ namespace edm {
   MergeableRunProductMetadata::~MergeableRunProductMetadata() {
   }
 
-  void MergeableRunProductMetadata::readFile() {
+  void MergeableRunProductMetadata::preReadFile() {
     mergeLumisFromIndexIntoFile();
   }
 
