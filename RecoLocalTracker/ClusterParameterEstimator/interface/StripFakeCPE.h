@@ -30,7 +30,7 @@ class StripFakeCPE final : public StripClusterParameterEstimator
   using LocalValues = std::pair<LocalPoint,LocalError>;
 
   LocalValues localParameters( const SiStripCluster& cl , const GeomDetUnit& gd) const override {
-     return fakeCPE().map().get(cl,gd)l      
+     return fakeCPE().map().get(cl,gd);
   }
 
   // used by Validation....
