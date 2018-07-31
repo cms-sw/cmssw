@@ -76,7 +76,7 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps) :
   iSample_(ps.getUntrackedParameter<int>("Sample",5)),
   geomType_(ps.getUntrackedParameter<int>("GeometryType",0)),
   threshold_(ps.getUntrackedParameter<double>("Threshold",12.0)),
-  ifHCAL_(ps.getUntrackedParameter<bool>("ifHCAL",false)), etaMax_(0) {
+  ifHCAL_(ps.getUntrackedParameter<bool>("ifHCAL",false)), etaMax_(100) {
 
   usesResource(TFileService::kSharedResource);
 
@@ -101,7 +101,7 @@ void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.addUntracked<int>("GeometryType",0);
   desc.addUntracked<double>("Threshold",15.0);
   desc.addUntracked<bool>("ifHCAL",false);
-  descriptions.add("hgcalBHValidation",desc);
+  descriptions.add("hgcalBHAnalysis",desc);
 }
 
 void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
@@ -280,4 +280,3 @@ void HGCalBHValidation::analyzeDigi(const T& cell,double const& energy,
 }
 
 DEFINE_FWK_MODULE(HGCalBHValidation);
-
