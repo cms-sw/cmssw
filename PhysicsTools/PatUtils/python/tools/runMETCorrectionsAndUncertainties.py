@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
@@ -497,7 +498,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         for cor in correctionLevel:
             if cor not in corNames.keys():
                 if cor != "":
-                    print "ERROR : ",cor," is not a proper MET correction name! aborting the MET correction production"
+                    print("ERROR : ",cor," is not a proper MET correction name! aborting the MET correction production")
                 return patMetCorrectionSequence, metModName
 
         corModNames = {
@@ -733,7 +734,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # jet energy resolution shifts
         #===================================================================================
         if not isValidInputTag(jetCollection): #or jetCollection=="":
-            print "INFO : jet collection %s does not exists, no energy resolution shifting will be performed in MET uncertainty tools" % jetCollection
+            print("INFO : jet collection %s does not exists, no energy resolution shifting will be performed in MET uncertainty tools" % jetCollection)
         else: 
             preId=""
             if "Smear" in metModName:
@@ -803,7 +804,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
         for obj in objectCollections.keys():
             if not isValidInputTag(objectCollections[obj]): # or objectCollections[obj]=="":
-                print "INFO : %s collection %s does not exists, no energy scale shifting will be performed in MET uncertainty tools" %(obj, objectCollections[obj])
+                print("INFO : %s collection %s does not exists, no energy scale shifting will be performed in MET uncertainty tools" %(obj, objectCollections[obj]))
             else:
                 metObjUncModules = self.getVariations(process, metModName, obj,"", objectCollections[obj], "En", metUncSequence, jetUncInfos, postfix )
                 
