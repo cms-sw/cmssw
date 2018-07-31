@@ -90,14 +90,14 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   using namespace Rivet;
   typedef reco::Candidate::LorentzVector LorentzVector;
 
-  std::unique_ptr<reco::GenParticleCollection> neutrinos(new reco::GenParticleCollection);
-  std::unique_ptr<reco::GenParticleCollection> photons(new reco::GenParticleCollection);
-  std::unique_ptr<reco::GenJetCollection> leptons(new reco::GenJetCollection);
-  std::unique_ptr<reco::GenJetCollection> jets(new reco::GenJetCollection);
-  std::unique_ptr<reco::GenJetCollection> fatjets(new reco::GenJetCollection);
-  std::unique_ptr<reco::GenParticleCollection> consts(new reco::GenParticleCollection);
-  std::unique_ptr<reco::GenParticleCollection> tags(new reco::GenParticleCollection);
-  std::unique_ptr<reco::METCollection> mets(new reco::METCollection);
+  auto neutrinos = std::make_unique<reco::GenParticleCollection>();
+  auto photons = std::make_unique<reco::GenParticleCollection>  ();
+  auto leptons = std::make_unique<reco::GenJetCollection>       ();
+  auto jets    = std::make_unique<reco::GenJetCollection>       ();
+  auto fatjets = std::make_unique<reco::GenJetCollection>       ();
+  auto consts  = std::make_unique<reco::GenParticleCollection>  ();
+  auto tags    = std::make_unique<reco::GenParticleCollection>  ();
+  auto mets    = std::make_unique<reco::METCollection>          ();  
   auto constsRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("consts");
   auto tagsRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("tags");
 
