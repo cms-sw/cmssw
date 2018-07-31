@@ -56,7 +56,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
  float xCh[nxCh+1];
  float yErh[nyE+1];
  for(int i=0; i<=nxCh; i++) xCh[i]=i;
- double E0 = 0.1/1024.;
+ double E0 = 1./1024.;
  double lnA = log(2.);
  yErh[0] = 0.; yErh[1] = E0;
  for(int j=1; j<nyE; j++) yErh[j+1] = E0*exp(j*lnA);

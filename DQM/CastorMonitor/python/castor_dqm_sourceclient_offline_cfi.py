@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 castorOfflineMonitor = DQMEDAnalyzer('CastorMonitorModule',
-   debug = cms.untracked.int32(1), #(=0 - no messages)
+   debug = cms.untracked.int32(0), #(=0 - no messages)
                            # Turn on/off timing diagnostic
                            showTiming          = cms.untracked.bool(False),
 
