@@ -133,6 +133,7 @@ CastorDumpConditions::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(std::vector<std::string>::const_iterator it=mDumpRequest.begin();it!=mDumpRequest.end();it++)
       std::cout << *it << std::endl;
 
+   // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
    dumpIt<CastorElectronicsMap , CastorElectronicsMapRcd> (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
    dumpIt<CastorQIEData        , CastorQIEDataRcd>        (mDumpRequest, iEvent,iSetup,"ElectronicsMap" );
    dumpIt<CastorPedestals      , CastorPedestalsRcd>      (mDumpRequest, iEvent,iSetup,"Pedestals"      );
@@ -166,12 +167,12 @@ void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
         int myrun = e.id().run();
         edm::ESHandle<S> p;
         context.get<SRcd>().get(p);
-        S* myobject = new S(*p.product());
+        S myobject(*p.product());
 
         std::ostringstream file;
         file << file_prefix << name.c_str() << "_Run" << myrun << ".txt";
         std::ofstream outStream(file.str().c_str() );
-        CastorDbASCIIIO::dumpObject (outStream, (*myobject) );
+        CastorDbASCIIIO::dumpObject (outStream, myobject );
     }
 }
 

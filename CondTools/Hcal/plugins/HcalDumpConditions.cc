@@ -61,7 +61,7 @@ namespace edmtest
                                               const edm::Event& e,
                                               const edm::EventSetup& context,
                                               const std::string name);
-    template<class S> void writeToFile(const S* myS, const edm::Event& e, const std::string name);
+    template<class S> void writeToFile(const S& myS, const edm::Event& e, const std::string name);
 
   private:
     std::string front;
@@ -80,8 +80,8 @@ namespace edmtest
     edm::ESHandle<S> p;
     if(!label.empty()) context.get<SRcd>().get(label, p);
     else context.get<SRcd>().get(p);
-    S* myobject = new S(*p.product());
-    if( topo ) myobject->setTopo(topo);
+    S myobject(*p.product());
+    if( topo ) myobject.setTopo(topo);
     
     writeToFile(myobject, e, name);
     
@@ -101,7 +101,7 @@ namespace edmtest
     {
         edm::ESHandle<S> p;
         context.get<SRcd>().get(p);
-        S* myobject = new S(*p.product());
+        S myobject(*p.product());
 
         writeToFile(myobject, e, name);
         
@@ -111,13 +111,13 @@ namespace edmtest
 
   }
 
-  template<class S> void HcalDumpConditions::writeToFile(const S* myS, const edm::Event& e, const std::string name){
+  template<class S> void HcalDumpConditions::writeToFile(const S& myS, const edm::Event& e, const std::string name){
     int myrun = e.id().run();
     std::ostringstream file;
     file << front << name.c_str() << "_Run" << myrun << ".txt";
     std::ofstream outStream(file.str().c_str() );
     std::cout << "HcalDumpConditions: ---- Dumping " << name << " ----" << std::endl;
-    HcalDbASCIIIO::dumpObject (outStream, (*myS) );
+    HcalDbASCIIIO::dumpObject (outStream, myS );
   }
 
   void
@@ -132,6 +132,7 @@ namespace edmtest
 
     if (mDumpRequest.empty()) return;
 
+    // dumpIt called for all possible ValueMaps. The function checks if the dump is actually requested.
     dumpIt<HcalElectronicsMap,       HcalElectronicsMapRcd>      (mDumpRequest, e, context,"ElectronicsMap"               );
     dumpIt<HcalFrontEndMap,          HcalFrontEndMapRcd>         (mDumpRequest, e, context,"FrontEndMap"                  );
     dumpIt<HcalQIEData,              HcalQIEDataRcd>             (mDumpRequest, e, context,"QIEData",                 topo);
@@ -170,10 +171,10 @@ namespace edmtest
     {
         context.get<HcalDbRecord>().get( pSetup );
         if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationsSet")) != mDumpRequest.end()){
-          writeToFile(pSetup->getHcalCalibrationsSet(),e,"CalibrationsSet");
+          writeToFile(*pSetup->getHcalCalibrationsSet(),e,"CalibrationsSet");
         }
         if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CalibrationWidthsSet")) != mDumpRequest.end()){
-          writeToFile(pSetup->getHcalCalibrationWidthsSet(),e,"CalibrationWidthsSet");
+          writeToFile(*pSetup->getHcalCalibrationWidthsSet(),e,"CalibrationWidthsSet");
         }
     }
   }
