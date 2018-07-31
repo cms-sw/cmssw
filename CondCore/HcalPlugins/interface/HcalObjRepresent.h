@@ -146,10 +146,13 @@ namespace HcalObjRepresent{
 
            /////////////////// Building Graphics //////////////////////
 
-
+           //TODO: remove zero entries from doing divide and subtract
 
            // To generate Ratios of two IOVs        
            void Divide(HcalDataContainer* dataCont2) {
+
+             //TODO: Do something like looping over this and that depths setting every empty bin (which I think means content=0) to -999. Then replacing the divide call with another manual loop that sets all bins with content -999 to 0
+
              PlotMode_ = "Ratio";
              DepthMap::iterator depth1;
              std::pair<std::string,int> key;
@@ -186,7 +189,7 @@ namespace HcalObjRepresent{
 
 
            // wisely determines what range to set histogram axis to
-           std::pair< float, float > GetRange(TH2F* hist) {
+           std::pair< float, float > GetRange(TH1* hist) {
 
                if(PlotMode_ == "Ratio") {
                  int amp;
@@ -220,18 +223,24 @@ namespace HcalObjRepresent{
           // fills a canvas with given subdetector information, plotting all depths
           void FillCanv(TCanvas* canvas, std::string subDetName, int startDepth=1, int startCanv=1, std::string plotForm= "2DHist") {
 
+
              const char* newName;
              std::pair< float, float> range;
              int padNum;
              int maxDepth = (subDetName=="HO")?4:subDetDepths_[subDetName];
-             TProfile* profile;
+             TH1D* projection;
              for(int i = startDepth; i <= maxDepth ; i++){
+               //skip if data not obtained; TODO: Maybe add text on plot saying data not found?
+               if(depths_.count(std::make_pair(subDetName,i)) == 0) {
+                 return; 
+               }
                range = GetRange( depths_[std::make_pair(subDetName,i)]);
                padNum = i+startCanv-1;
                if(subDetName=="HO") padNum = padNum - 3;
                canvas->cd(padNum);
                canvas->GetPad(padNum)->SetGridx(1);
                canvas->GetPad(padNum)->SetGridy(1);
+
                if(plotForm == "2DHist"){
                  depths_[std::make_pair(subDetName,i)]->Draw("colz");
                  depths_[std::make_pair(subDetName,i)]->SetContour(100);
@@ -248,14 +257,26 @@ namespace HcalObjRepresent{
                  depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetLabelSize(0.055);
                } else if(plotForm == "EtaProfile"){
                  newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_ieta").c_str();
-                 profile = depths_[std::make_pair(subDetName,i)]->ProfileX(newName,-42.5,41.5);
-                 profile->Draw("colz");
-                 profile->GetXaxis()->SetTitle("ieta");
-                 profile->GetXaxis()->CenterTitle();
-                 profile->GetYaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
-                 profile->GetXaxis()->SetTitleSize(0.06);
-                 profile->GetXaxis()->SetTitleOffset(0.80);
-                 profile->GetXaxis()->SetLabelSize(0.055);
+                 projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName);
+                 range = GetRange(projection);
+                 projection->Draw("colz hist");
+                 projection->GetXaxis()->SetTitle("ieta");
+                 projection->GetXaxis()->CenterTitle();
+                 //projection->GetYaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
+                 projection->GetXaxis()->SetTitleSize(0.06);
+                 projection->GetXaxis()->SetTitleOffset(0.80);
+                 projection->GetXaxis()->SetLabelSize(0.055);
+               } else if(plotForm == "PhiProfile"){
+                 newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_iphi").c_str();
+                 projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionY(newName);
+                 range = GetRange(projection);
+                 projection->Draw("colz hist");
+                 projection->GetXaxis()->SetTitle("iphi");
+                 projection->GetXaxis()->CenterTitle();
+                 //projection->GetYaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
+                 projection->GetXaxis()->SetTitleSize(0.06);
+                 projection->GetXaxis()->SetTitleOffset(0.80);
+                 projection->GetXaxis()->SetLabelSize(0.055);
                }
              }
 
@@ -269,13 +290,12 @@ namespace HcalObjRepresent{
            
              fillValConts();
              initGraphics();
-             TCanvas *HAll = new TCanvas("HAll", "HAll", 1680, 2500);
-             //TODO Set back to 5:6
-             HAll->Divide(3, (GetTopoMode()=="2015/2016")?6:6);
+             TCanvas *HAll = new TCanvas("HAll", "HAll", 1680, (GetTopoMode()=="2015/2016")?1680:2500);
+             HAll->Divide(3, (GetTopoMode()=="2015/2016")?3:6);
              FillCanv(HAll,"HB");
              FillCanv(HAll,"HO",4,3);
              FillCanv(HAll,"HF",1,4);
-             FillCanv(HAll,"HE",1,10);
+             FillCanv(HAll,"HE",1,(GetTopoMode()=="2015/2016")?7:10);
              return HAll;
            }           
            
@@ -283,8 +303,8 @@ namespace HcalObjRepresent{
            
              fillValConts();
              initGraphics();
-             TCanvas *HF = new TCanvas("HF", "HF", 1000, 1000);
-             HF->Divide(3, 3);
+             TCanvas *HF = new TCanvas("HF", "HF", 1600, 1000);
+             HF->Divide(3, 2);
              FillCanv(HF,"HF");
              return HF;
            }           
@@ -292,21 +312,22 @@ namespace HcalObjRepresent{
            
              fillValConts();
              initGraphics();
-             TCanvas *HE = new TCanvas("HE", "HE", 1000, 1000);
+             TCanvas *HE = new TCanvas("HE", "HE", 1680, 1680);
              HE->Divide(3, 3);
              FillCanv(HE,"HE");
              return HE;
            }           
            TCanvas* getCanvasHBHO() {
-           
              fillValConts();
              initGraphics();
-             TCanvas *HBHO = new TCanvas("HBHO", "HBHO", 1680, 1280);
-             HBHO->Divide(3, 2);
+             TCanvas *HBHO = new TCanvas("HBHO", "HBHO", 1680, 1680);
+             HBHO->Divide(3, 3);
              FillCanv(HBHO,"HB");
              FillCanv(HBHO,"HO",4,3);
              FillCanv(HBHO,"HB",1,4,"EtaProfile");
              FillCanv(HBHO,"HO",4,6,"EtaProfile");
+             FillCanv(HBHO,"HB",1,7,"PhiProfile");
+             FillCanv(HBHO,"HO",4,9,"PhiProfile");
              return HBHO;
            }           
 
@@ -365,7 +386,7 @@ namespace HcalObjRepresent{
              } else if(TopoMode_ == "2015/2016") {
                subDetDepths_.insert(std::pair<std::string,int>("HB",2));
                subDetDepths_.insert(std::pair<std::string,int>("HE",3));
-               subDetDepths_.insert(std::pair<std::string,int>("HF",4));
+               subDetDepths_.insert(std::pair<std::string,int>("HF",2));
                subDetDepths_.insert(std::pair<std::string,int>("HO",1));
              }
     
