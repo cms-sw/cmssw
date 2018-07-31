@@ -23,11 +23,10 @@ process.dqmSaver.tag = "Castor"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-
-'file:/eos/user/p/popov/rundata/Castor2018/525D2460-6A90-E811-RAWrun320317.root'),
-                            )
+#process.source = cms.Source("PoolSource",
+#                            fileNames = cms.untracked.vstring(
+#'file:/eos/user/p/popov/rundata/Castor2018/525D2460-6A90-E811-RAWrun320317.root'),
+#                            )
 
 #============================================
 # Castor Conditions: from Global Conditions Tag 
