@@ -12,6 +12,7 @@
 <use   name="HeterogeneousCore/CUDACore"/>
 <use   name="cuda"/>
 <use   name="cuda-api-wrappers"/>
+<use   name="cub"/>
 <library   file="*.cc *.cu" name="RecoLocalTrackerSiPixelClusterizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
