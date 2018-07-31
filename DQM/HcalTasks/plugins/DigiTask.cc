@@ -577,6 +577,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
+		if (did.subdet() != HcalBarrel) {
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
@@ -706,13 +709,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = digi.detid();
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		if (rawid==0) {
+			meUnknownIds1LS->Fill(1);
+			_unknownIdsPresent=true;
+			continue;
+		}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalBarrel) // Note: since this is HEP17, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection may someday expand.
+		if (did.subdet() != HcalEndcap) {
+			continue;
+		}
+		if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
 			rawidHBValid = did.rawId();
-		else if (did.subdet()==HcalEndcap) 
+		} else if (did.subdet()==HcalEndcap) {
 			rawidHEValid = did.rawId();
+		}
 
 		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
