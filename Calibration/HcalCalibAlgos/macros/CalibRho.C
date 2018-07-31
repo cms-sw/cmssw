@@ -11,6 +11,8 @@
 //  PlotEvsRho(inFile, eta, type, save);          Make the plots
 //
 //  inpFileName   (const char*)  File name of the input ROOT tree
+//                               or name of the file containing a list of
+//                               file names of input ROOT trees
 //  dupFileName   (const char*)  Name of the file containing list of entries 
 //                               of duplicate events
 //  maxEta        (int)          Maximum value of |iEta|
@@ -55,9 +57,11 @@
 #include <fstream>
 #include <vector>
 
+#include "CalibCorr.C"
+
 class EHcalVsRho {
 public :
-  TTree                    *fChain;   //!pointer to the analyzed TTree or TChain
+  TChain                   *fChain;   //!pointer to the analyzed TTree or TChain
   Int_t                     fCurrent; //!current Tree number in a TChain
   
   EHcalVsRho(const char *inFile, const char *dupFile);
@@ -65,7 +69,7 @@ public :
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree, const char* dupFile);
+  virtual void     Init(TChain *tree, const char* dupFile);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
   void    LoopFill(int maxEta, const char *outFile, const char *logFile);
@@ -159,10 +163,18 @@ private:
 };
 
 EHcalVsRho::EHcalVsRho(const char *inFile, const char *dupFile) : fChain(0) {
-  TFile *infile = TFile::Open(inFile);
-  TDirectory *dir = (TDirectory*)infile->FindObjectAny("HcalIsoTrkAnalyzer");
-  TTree *tree = (TTree*)dir->FindObjectAny("CalibTree");
-  Init(tree, dupFile);
+  char treeName[400];
+  sprintf (treeName, "HcalIsoTrkAnalyzer/CalibTree");
+  TChain    *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << inFile
+	    << std::endl;
+  if (!fillChain(chain,inFile)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain, dupFile);
+  }
 }
 
 EHcalVsRho::~EHcalVsRho() {
@@ -188,7 +200,7 @@ Long64_t EHcalVsRho::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void EHcalVsRho::Init(TTree *tree, const char* dupFile) {
+void EHcalVsRho::Init(TChain *tree, const char* dupFile) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
