@@ -43,7 +43,7 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
 
 
 ####################--- Classes ---############################
-class ParallelMergeJob:
+class ParallelMergeJob(object):
     
     def __init__(self, _name, _path, _dependency):
         self.name=_name
@@ -70,7 +70,7 @@ class ParallelMergeJob:
             "-w %(conditions)s "
             "%(script)s"%repMap)
 
-class ValidationJob:
+class ValidationJob(object):
 
     # these count the jobs of different varieties that are being run
     crabCount = 0
@@ -133,18 +133,18 @@ class ValidationJob:
             if len( firstAlignList ) > 1:
                 firstRun = firstAlignList[1]
             else:
-                firstRun = "1"
+                raise AllInOneError("Have to provide a run number for geometry comparison")
             firstAlign = Alignment( firstAlignName, self.__config, firstRun )
             firstAlignName = firstAlign.name
             secondAlignList = alignmentsList[1].split()
             secondAlignName = secondAlignList[0].strip()
-            if len( secondAlignList ) > 1:
-                secondRun = secondAlignList[1]
-            else:
-                secondRun = "1"
             if secondAlignName == "IDEAL":
                 secondAlign = secondAlignName
             else:
+                if len( secondAlignList ) > 1:
+                    secondRun = secondAlignList[1]
+                else:
+                    raise AllInOneError("Have to provide a run number for geometry comparison")
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
                 secondAlignName = secondAlign.name
@@ -374,7 +374,7 @@ def createMergeScript( path, validations, options ):
                 repMapTemp["RunValidationPlots"] = validationType.doRunPlots(validations)
                 
                 #create script file
-                fileName="TkAlMerge"+validation.alignmentToValidate.name
+                fileName="TkAlMergeOfflineValidation"+validation.name+validation.alignmentToValidate.name
                 filePath = os.path.join(path, fileName+".sh")
                 theFile = open( filePath, "w" )
                 theFile.write( replaceByMap( configTemplates.mergeParallelOfflineTemplate, repMapTemp ) )
