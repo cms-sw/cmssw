@@ -235,6 +235,3 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCGeometryCheck);
-
-
-
