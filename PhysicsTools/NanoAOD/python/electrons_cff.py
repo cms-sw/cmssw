@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 from math import ceil,log
@@ -222,8 +223,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(CandVars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the associated photon (-1 if none)"),
-        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorr')",float,doc="energy error of the cluster-track combination",precision=6),
-        eCorr = Var("userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+        energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
@@ -262,7 +262,13 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
     ),
 )
-electronTable.variables.pt = Var("pt*userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')",  float, precision=-1, doc="p_{T}")
+# scale and smearing only when available
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+    modifier.toModify(electronTable.variables,
+        pt = Var("pt*userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
+        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorr')", float, precision=6, doc="energy error of the cluster-track combination"),
+        eCorr = Var("userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')", float, doc="ratio of the calibrated energy/miniaod energy"),
+    )
 run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     cutBased_HLTPreSel = Var("userInt('cutbasedID_HLT')",int,doc="cut-based HLT pre-selection ID"),
     mvaSpring16GP = Var("userFloat('mvaSpring16GP')",float,doc="MVA general-purpose ID score"),
@@ -281,11 +287,6 @@ run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing"),
     energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
     eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
-)
-run2_nanoAOD_92X.toModify(electronTable.variables,
-    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
-    energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
-    eCorr = None,
 )
 
 electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
