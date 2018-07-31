@@ -60,8 +60,8 @@ def isGoodEntry(var):
 class HipPyOptionParser:
    def __init__(self, strflag, stropt):
       # input file
-      self.flag=strflag.lower()
-      self.rawopt = stropt
+      self.flag=strflag.lower().strip()
+      self.rawopt = stropt.strip()
       self.optdict=dict()
 
       self.datatype=-1
