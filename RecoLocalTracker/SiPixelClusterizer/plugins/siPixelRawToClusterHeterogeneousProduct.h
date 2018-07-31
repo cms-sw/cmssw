@@ -57,8 +57,12 @@ namespace siPixelRawToClusterHeterogeneousProduct {
     uint32_t const * clusInModule_d;
     uint32_t const * moduleId_d;
 
+    // originally from rechits
+    uint32_t const * clusModuleStart_d;
+
     uint32_t nDigis;
     uint32_t nModules;
+    uint32_t nClusters;
   };
 
   using HeterogeneousDigiCluster = HeterogeneousProductImpl<heterogeneous::CPUProduct<CPUProduct>,

@@ -16,7 +16,7 @@ namespace siPixelRecHitsHeterogeneousProduct {
 
   struct HitsOnGPU{
      float * bs_d;
-     uint32_t * hitsModuleStart_d;
+     const uint32_t * hitsModuleStart_d; // forwarded from clusters
      uint32_t * hitsLayerStart_d;
      int32_t  * charge_d;
      uint16_t * detInd_d;

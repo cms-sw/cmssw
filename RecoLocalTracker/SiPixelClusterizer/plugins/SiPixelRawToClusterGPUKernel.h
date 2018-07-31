@@ -170,19 +170,20 @@ namespace pixelgpudetails {
 
     void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length);
 
-    // Not really very async yet...
     void makeClustersAsync(const SiPixelFedCablingMapGPU *cablingMap, const unsigned char *modToUnp,
                            const SiPixelGainForHLTonGPU *gains,
                            const uint32_t wordCounter, const uint32_t fedCounter, bool convertADCtoElectrons,
                            bool useQualityInfo, bool includeErrors, bool debug,
                            cuda::stream_t<>& stream);
 
-    auto getProduct() const {
+    auto getProduct() {
+      error_h->set_data(data_h);
       return siPixelRawToClusterHeterogeneousProduct::GPUProduct{
         pdigi_h, rawIdArr_h, clus_h, adc_h, error_h,
         gpuProduct_d,
         xx_d, yy_d, adc_d, moduleInd_d, moduleStart_d,clus_d, clusInModule_d, moduleId_d,
-        nDigis, nModulesActive
+        clusModuleStart_d,
+        nDigis, nModulesActive, nClusters
       };
     }
 
@@ -205,6 +206,7 @@ namespace pixelgpudetails {
 
     uint32_t nDigis = 0;
     uint32_t nModulesActive = 0;
+    uint32_t nClusters = 0;
 
     // scratch memory buffers
     uint32_t * word_d;
@@ -224,6 +226,11 @@ namespace pixelgpudetails {
     int32_t *  clus_d;
     uint32_t * clusInModule_d;
     uint32_t * moduleId_d;
+
+    // originally in rechit, moved here
+    uint32_t *clusModuleStart_d = nullptr;
+    void *tempScanStorage_d = nullptr;
+    size_t tempScanStorageSize = 0;
   };
 
   // configuration and memory buffers alocated on the GPU
