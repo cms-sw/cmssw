@@ -9,53 +9,32 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/getCudaDrvErrorString.h"
 
-CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry) {
-  bool configEnabled = iConfig.getUntrackedParameter<bool>("enabled");
-  if(!configEnabled) {
+CUDAService::CUDAService(edm::ParameterSet const& config, edm::ActivityRegistry& iRegistry) {
+  bool configEnabled = config.getUntrackedParameter<bool>("enabled");
+  if (not configEnabled) {
     edm::LogInfo("CUDAService") << "CUDAService disabled by configuration";
     return;
   }
 
-  auto ret = cuInit(0);
-  if(CUDA_SUCCESS != ret) {
-    edm::LogWarning("CUDAService") << "Failed to initialize the CUDA driver API by calling cuInit, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
+  auto status = cudaGetDeviceCount(&numberOfDevices_);
+  if (cudaSuccess != status) {
+    edm::LogWarning("CUDAService") << "Failed to initialize the CUDA runtime.\n" << ".\n" << "Disabling the CUDAService.";
     return;
   }
-  edm::LogInfo("CUDAService") << "cuInit succeeded";
+  edm::LogInfo("CUDAService") << "CUDA runtime successfully initialised, found " << numberOfDevices_ << " compute devices";
 
-  ret = cuDeviceGetCount(&numberOfDevices_);
-  if(CUDA_SUCCESS != ret) {
-    edm::LogWarning("CUDAService") << "Failed to call cuDeviceGetCount from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
-    return;
-  }
-  edm::LogInfo("CUDAService") << "cuDeviceGetCount succeeded, found " << numberOfDevices_ << " devices";
-  if(numberOfDevices_ < 1) {
-    edm::LogWarning("CUDAService") << "Number of devices < 1, disabling CUDAService";
-    return;
-  }
-
-  auto numberOfStreamsPerDevice = iConfig.getUntrackedParameter<unsigned int>("numberOfStreamsPerDevice");
-  if(numberOfStreamsPerDevice > 0) {
+  auto numberOfStreamsPerDevice = config.getUntrackedParameter<unsigned int>("numberOfStreamsPerDevice");
+  if (numberOfStreamsPerDevice > 0) {
     numberOfStreamsTotal_ = numberOfStreamsPerDevice * numberOfDevices_;
     edm::LogSystem("CUDAService") << "Number of edm::Streams per CUDA device has been set to " << numberOfStreamsPerDevice << ". With " << numberOfDevices_ << " CUDA devices, this means total of " << numberOfStreamsTotal_ << " edm::Streams for all CUDA devices."; // TODO: eventually silence to LogDebug
   }
 
   computeCapabilities_.reserve(numberOfDevices_);
-  for(int i=0; i<numberOfDevices_; ++i) {
-    int major, minor;
-    ret = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, i);
-    if(CUDA_SUCCESS != ret) {
-      edm::LogWarning("CUDAService") << "Failed to call cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR) for device " << i << " from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
-      return;
-    }
-    ret = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, i);
-    if(CUDA_SUCCESS != ret) {
-      edm::LogWarning("CUDAService") << "Failed to call cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR) for device " << i << " from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
-      return;
-    }
-
-    edm::LogInfo("CUDAService") << "Device " << i << " compute capability major " << major << " minor " << minor;
-    computeCapabilities_.emplace_back(major, minor);
+  for (int i = 0; i < numberOfDevices_; ++i) {
+    cudaDeviceProp properties;
+    cudaCheck(cudaGetDeviceProperties(&properties, i)); 
+    edm::LogInfo("CUDAService") << "Device " << i << " with compute capability " << properties.major << "." << properties.minor;
+    computeCapabilities_.emplace_back(properties.major, properties.minor);
   }
 
   edm::LogInfo("CUDAService") << "CUDAService fully initialized";
@@ -64,10 +43,14 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
 
 CUDAService::~CUDAService() {
   if (enabled_) {
-    // Explicitly destroys and cleans up all resources associated with the current device in the
-    // current process. Any subsequent API call to this device will reinitialize the device.
-    // Useful to check for memory leaks with `cuda-memcheck --tool memcheck --leak-check full`.
-    cudaCheck(cudaDeviceReset());
+    for (int i = 0; i < numberOfDevices_; ++i) {
+      cudaCheck(cudaSetDevice(i));
+      cudaCheck(cudaDeviceSynchronize());
+      // Explicitly destroys and cleans up all resources associated with the current device in the
+      // current process. Any subsequent API call to this device will reinitialize the device.
+      // Useful to check for memory leaks with `cuda-memcheck --tool memcheck --leak-check full`.
+      cudaDeviceReset();
+    }
   }
 }
 
@@ -82,7 +65,7 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
 int CUDAService::deviceWithMostFreeMemory() const {
   size_t freeMem = 0;
   int devId = -1;
-  for(int i=0; i<numberOfDevices_; ++i) {
+  for(int i = 0; i < numberOfDevices_; ++i) {
     // TODO: understand why the api-wrappers version gives same value for all devices
     /*
     auto device = cuda::device::get(i);
