@@ -10,8 +10,8 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 
-
-#include<map>
+#include <cstdint>
+#include <unordered_map>
 
 class FakeCPE {
 public:
@@ -22,25 +22,26 @@ public:
   class Map {
      public: 
      using LocalValues = std::pair<LocalPoint,LocalError>;
-     void clear() {m_map.clear());
-     void error() const;
+     void clear() {m_map.clear();}
+     void error() const {}
      template<typename Cluster>
-     void add(const Cluster& cluster, const GeomDetUnit& gd,LocalValues const & lv) { m_map[encode(cluster,gd) = lv; }
+     void add(const Cluster& cluster, const GeomDetUnit& gd,LocalValues const & lv) { m_map[encode(cluster,gd)] = lv; }
+
      template<typename Cluster>
      LocalValues const & get(const Cluster& cluster, const GeomDetUnit& gd) const {
        auto p = m_map.find(encode(cluster,gd));
-       if (p!=m_map.end) return (*p).second;
+       if (p!=m_map.end()) return (*p).second;
        error();
        return dummy;
      }
 
-     static uint64_t encode(const SiPixelCluster& cluster, const GeomDetUnit& gd) {
+     static uint64_t encode(const SiPixelCluster& cluster, const GeomDetUnit& det) {
           uint64_t u1 = det.geographicalId().rawId();
           uint64_t u2 = cluster.minPixelRow();
           uint64_t u3 = cluster.minPixelCol();
           return (u1<<32) & (u2<<16) & u3;
      }
-     static uint64_t encode(const SaiStripCluster& cluster, const GeomDetUnit& gd) {
+     static uint64_t encode(const SiStripCluster& cluster, const GeomDetUnit& det) {
           uint64_t u1 = det.geographicalId().rawId();
           uint64_t u2 = cluster.firstStrip();
        	  return (u1<<32) & u2;
@@ -52,8 +53,8 @@ public:
   };
  
 
-  m_map & map() { return m_map;}
-  m_map const & map() const { return m_map;}
+  Map & map() { return m_map;}
+  Map const & map() const { return m_map;}
 
 private:
 

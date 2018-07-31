@@ -20,8 +20,8 @@ class PixelFakeCPE final : public PixelClusterParameterEstimator
 {
   public:
 
-  PixelFakeCPE = default;
-  ~PixelFakeCPE = default;
+  PixelFakeCPE() = default;
+  ~PixelFakeCPE() = default;
 
   typedef std::pair<LocalPoint,LocalError>  LocalValues;
   typedef std::vector<LocalValues> VLocalValues;
@@ -39,7 +39,7 @@ class PixelFakeCPE final : public PixelClusterParameterEstimator
 
   ReturnType getParameters(const SiPixelCluster & cl, 
 				   const GeomDetUnit    & det, 
-				   const LocalTrajectoryParameters) const override{
+				   const LocalTrajectoryParameters &) const override{
       return getParameters(cl,det);
    }
 
