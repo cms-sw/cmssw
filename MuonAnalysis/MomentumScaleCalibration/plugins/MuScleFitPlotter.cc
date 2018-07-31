@@ -45,7 +45,7 @@ MuScleFitPlotter::~MuScleFitPlotter(){
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen(const reco::GenParticleCollection* genParticles, bool PATmuons)
+void MuScleFitPlotter::fillGen(const reco::GenParticleCollection& genParticles, bool PATmuons)
 {
   //  bool prova = false;
   //Loop on generated particles
@@ -54,7 +54,7 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection* genParticles, 
 
   int mothersFound[] = {0, 0, 0, 0, 0, 0};
 
-  for( reco::GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter!=genParticles->end(); ++mcIter ) {
+  for( reco::GenParticleCollection::const_iterator mcIter=genParticles.begin(); mcIter!=genParticles.end(); ++mcIter ) {
     int status = mcIter->status();
     int pdgId = std::abs(mcIter->pdgId());
     //Check if it's a resonance
@@ -119,10 +119,10 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection* genParticles, 
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen(const edm::HepMCProduct* evtMC, bool sherpaFlag_)
+void MuScleFitPlotter::fillGen(const edm::HepMCProduct& evtMC, bool sherpaFlag_)
 {
   //Loop on generated particles
-  const HepMC::GenEvent* Evt = evtMC->GetEvent();
+  const HepMC::GenEvent* Evt = evtMC.GetEvent();
   std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes; 
   reco::Particle::LorentzVector genRes;
   
