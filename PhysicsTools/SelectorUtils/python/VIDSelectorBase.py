@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import string
 import random
@@ -83,7 +84,7 @@ class VIDSelectorBase:
         
     def initialize(self,pythonpset):
         if( self.__initialized ): 
-            print 'VID Selector is already initialized, doing nothing!'
+            print('VID Selector is already initialized, doing nothing!')
             return
         del process.__instance
         if hasattr(pythonpset,'isPOGApproved'):
