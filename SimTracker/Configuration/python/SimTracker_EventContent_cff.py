@@ -57,3 +57,8 @@ SimTrackerPREMIX = cms.PSet(
         'keep *_mix_AffectedAPVList_*',
     )
 )
+phase2_tracker.toModify(SimTrackerPREMIX, outputCommands = [
+        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_*_Phase2OTDigiSimLink_*',
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+])
