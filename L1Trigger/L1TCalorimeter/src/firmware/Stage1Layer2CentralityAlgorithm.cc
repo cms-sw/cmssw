@@ -11,12 +11,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2CentralityAlgorithm::Stage1Layer2CentralityAlgorithm(CaloParamsHelper* params)
+l1t::Stage1Layer2CentralityAlgorithm::Stage1Layer2CentralityAlgorithm(CaloParamsHelper const* params)
   : params_(params)
-{}
-
-
-l1t::Stage1Layer2CentralityAlgorithm::~Stage1Layer2CentralityAlgorithm()
 {}
 
 

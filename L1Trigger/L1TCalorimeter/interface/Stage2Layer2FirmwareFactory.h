@@ -24,9 +24,9 @@ namespace l1t {
 
   class Stage2Layer2FirmwareFactory {
   public:
-    typedef std::shared_ptr<Stage2MainProcessor> ReturnType;
+    typedef std::unique_ptr<Stage2MainProcessor> ReturnType;
 
-    ReturnType create(unsigned fwv, CaloParamsHelper* params);
+    ReturnType create(unsigned fwv, CaloParamsHelper const* params);
 
   };
 

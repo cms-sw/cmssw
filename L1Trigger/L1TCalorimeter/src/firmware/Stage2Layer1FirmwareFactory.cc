@@ -16,7 +16,7 @@ using namespace std;
 using namespace edm;
 
 l1t::Stage2Layer1FirmwareFactory::ReturnType
-l1t::Stage2Layer1FirmwareFactory::create(unsigned fwv, CaloParamsHelper* params) {
+l1t::Stage2Layer1FirmwareFactory::create(unsigned fwv, CaloParamsHelper const* params) {
 
   ReturnType p;
   unsigned v = fwv;
