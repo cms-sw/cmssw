@@ -61,7 +61,7 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1Clusters_cfi import *
 
 # Raw data errors
 from DQM.SiPixelPhase1Common.SiPixelPhase1RawData_cfi import *
-from DQM.SiPixelPhase1COmmon.SiPixelPhase1DeadFEDChannels_cfi import *
+from DQM.SiPixelPhase1Common.SiPixelPhase1DeadFEDChannels_cfi import *
 
 from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 
