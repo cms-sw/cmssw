@@ -150,7 +150,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale
+            raise RuntimeError('unsupported yscale '+yscale)
         ax.set_xlabel(r'Run',position=(0.95,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         xticklabels=ax.get_xticklabels()
@@ -252,7 +252,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale
+            raise RuntimeError('unsupported yscale '+yscale)
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
@@ -521,7 +521,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale        
+            raise RuntimeError('unsupported yscale '+yscale)        
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
@@ -666,7 +666,7 @@ class matplotRender():
         elif yscale=='log':
             ax.set_yscale('log')
         else:
-            raise 'unsupported yscale ',yscale
+            raise RuntimeError('unsupported yscale '+yscale)
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)

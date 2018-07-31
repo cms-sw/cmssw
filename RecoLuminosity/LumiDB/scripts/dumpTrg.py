@@ -25,9 +25,9 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.gtmonschema)
         if not schema:
-            raise 'cannot connect to schema',c.gtmonschema
+            raise RuntimeError('cannot connect to schema '+c.gtmonschema)
         if not schema.existsView(c.algoviewname):
-            raise 'non-existing view',c.algoviewname
+            raise RuntimeError('non-existing view '+c.algoviewname)
 
         bitOutput=coral.AttributeList()
         bitOutput.extend("lsnr","unsigned int")
@@ -69,9 +69,9 @@ def deadcountForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.gtmonschema)
         if not schema:
-            raise 'cannot connect to schema',c.gtmonschema
+            raise RuntimeError('cannot connect to schema '+c.gtmonschema)
         if not schema.existsView(c.deadviewname):
-            raise 'non-existing view',c.deadviewname
+            raise RuntimeError('non-existing view '+c.deadviewname)
 
         deadOutput=coral.AttributeList()
         deadOutput.extend("lsnr","unsigned int")

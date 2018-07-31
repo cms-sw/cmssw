@@ -118,27 +118,27 @@ class inputFilesetParser(object):
             fieldidx=self.__inputResultHeader.index(fieldname)
         except:
             print('field ',fieldname,' not found')
-            raise
+            raise RuntimeError('field')
         for r in self.__inputResult:
             stringvalue=r[fieldidx]
             if fieldtype in ['int','unsigned int']:
                 if not CommonUtil.is_intstr(stringvalue):
                     print('field ',fieldname,' is not integer type')
-                    raise
+                    raise RuntimeError('field')
                 else:
                     result.append(int(stringvalue))
                     continue
             elif fieldtype in ['float']:
                 if not CommonUtil.is_floatstr(stringvalue):
                     print('field ',fieldname,' is not float type')
-                    raise
+                    raise RuntimeError('field')
                 else:
                     result.append(float(stringvalue))
                     contine
             elif  fieldtype in ['string','str']:
                 result.append(stringvalue)
             else:
-                raise 'unsupported type ',fieldtype
+                raise RuntimeError('unsupported type '+fieldtype)
         return result
     def fieldtotal(self,fieldname,fieldtype):
         '''
@@ -168,7 +168,7 @@ class inputFilesetParser(object):
                     result=float(result)+float(stringvalue)
                     continue
             else:
-                raise 'cannot sum types other than int ,float'
+                raise RunTimeError('cannot sum types other than int ,float')
         return result
     def runs(self):
         if not self.__inputSelectionFileparsingResult:
