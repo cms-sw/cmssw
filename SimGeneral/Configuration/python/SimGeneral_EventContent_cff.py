@@ -28,8 +28,12 @@ SimGeneralAOD = cms.PSet(
                                            'keep int_*_bunchSpacing_*',
                                            'keep *_genPUProtons_*_*') 
 )
+# Event content for premixing library
+SimGeneralPREMIX = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+)
 
-# mods for HGCAL
+# mods for HGCAL; should these be moved under SimCalorimetry?
 _phase2_hgc_extraCommands = cms.PSet( # using PSet in order to customize with Modifier
     v = cms.vstring('keep *_simHGCalUnsuppressedDigis_EE_*', 'keep *_simHGCalUnsuppressedDigis_HEfront_*', 'keep *_simHGCalUnsuppressedDigis_HEback_*', 'keep *_mix_MergedCaloTruth_*'),
 )
@@ -42,6 +46,7 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _phase2_hgc_extraCommands.v )
 phase2_hgcal.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_hgc_extraCommands.v )
 phase2_hgcal.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_hgc_extraCommands.v )
+phase2_hgcal.toModify( SimGeneralPREMIX, outputCommands = SimGeneralPREMIX.outputCommands + _phase2_hgc_extraCommands.v )
 
 _phase2_timing_extraCommands = [ 'keep *_mix_FTLBarrel_*','keep *_mix_FTLEndcap_*','keep *_mix_InitialVertices_*' ]
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing

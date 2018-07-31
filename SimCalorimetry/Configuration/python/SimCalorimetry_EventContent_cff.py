@@ -58,3 +58,7 @@ phase2_timing.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputComma
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
 phase2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+# TODO: Also the ES digi collection could be removed?
+phase2_hgcal.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputCommands: outputCommands.append('drop EEDigiCollection_simEcalDigis_*_*') )
