@@ -26,7 +26,7 @@ namespace l1t {
   class Stage1Layer2EGammaAlgorithmImpPP : public Stage1Layer2EGammaAlgorithm {
   public:
     Stage1Layer2EGammaAlgorithmImpPP(CaloParamsHelper const* params);
-    ~Stage1Layer2EGammaAlgorithmImpPP() =default;
+    ~Stage1Layer2EGammaAlgorithmImpPP() override =default;
     void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
@@ -46,7 +46,7 @@ namespace l1t {
   class Stage1Layer2EGammaAlgorithmImpHI : public Stage1Layer2EGammaAlgorithm {
   public:
     Stage1Layer2EGammaAlgorithmImpHI(CaloParamsHelper const* params);
-    ~Stage1Layer2EGammaAlgorithmImpHI() =default;
+    ~Stage1Layer2EGammaAlgorithmImpHI() override =default;
     void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
@@ -66,7 +66,7 @@ namespace l1t {
   class Stage1Layer2EGammaAlgorithmImpHW : public Stage1Layer2EGammaAlgorithm {
   public:
     Stage1Layer2EGammaAlgorithmImpHW(CaloParamsHelper const* params);
-    ~Stage1Layer2EGammaAlgorithmImpHW() = default;
+    ~Stage1Layer2EGammaAlgorithmImpHW() override = default;
     void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,

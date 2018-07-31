@@ -37,7 +37,7 @@ namespace l1t {
   public:
     Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper const* params);
 
-    ~Stage2MainProcessorFirmwareImp1() = default;
+    ~Stage2MainProcessorFirmwareImp1() override = default;
 
     void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers,

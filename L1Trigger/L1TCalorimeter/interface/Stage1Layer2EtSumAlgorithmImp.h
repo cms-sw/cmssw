@@ -30,7 +30,7 @@ namespace l1t {
   class Stage1Layer2EtSumAlgorithmImpPP : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpPP(CaloParamsHelper const* params);
-    ~Stage1Layer2EtSumAlgorithmImpPP() = default;
+    ~Stage1Layer2EtSumAlgorithmImpPP() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Jet> * jets,
@@ -49,7 +49,7 @@ namespace l1t {
   class Stage1Layer2EtSumAlgorithmImpHW : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper const* params);
-    ~Stage1Layer2EtSumAlgorithmImpHW() = default;
+    ~Stage1Layer2EtSumAlgorithmImpHW() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Jet> * jets,
@@ -88,7 +88,7 @@ namespace l1t {
   class Stage1Layer2EtSumAlgorithmImpHI : public Stage1Layer2EtSumAlgorithm {
   public:
     Stage1Layer2EtSumAlgorithmImpHI(CaloParamsHelper const* params);
-    ~Stage1Layer2EtSumAlgorithmImpHI() = default;
+    ~Stage1Layer2EtSumAlgorithmImpHI() override = default;
     void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::Jet> * jets,
