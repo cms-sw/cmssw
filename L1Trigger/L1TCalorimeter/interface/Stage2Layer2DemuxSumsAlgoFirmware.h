@@ -23,7 +23,7 @@ namespace l1t {
   class Stage2Layer2DemuxSumsAlgoFirmwareImp1 : public Stage2Layer2DemuxSumsAlgo {
   public:
     Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParamsHelper const* params);
-    ~Stage2Layer2DemuxSumsAlgoFirmwareImp1() = default;
+    ~Stage2Layer2DemuxSumsAlgoFirmwareImp1() override = default;
     void processEvent(const std::vector<l1t::EtSum> & inputSums,
 			      std::vector<l1t::EtSum> & outputSums) override;
   private:

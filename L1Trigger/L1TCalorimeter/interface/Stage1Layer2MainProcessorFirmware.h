@@ -32,7 +32,7 @@ namespace l1t {
   public:
     //Stage1Layer2MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParamsHelper & dbPars*/);
     Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParamsHelper const* dbPars);
-    ~Stage1Layer2MainProcessorFirmwareImp1() = default;
+    ~Stage1Layer2MainProcessorFirmwareImp1() override = default;
     void processEvent(const std::vector<CaloEmCand> &,
                               const std::vector<CaloRegion> &,
 			      std::vector<EGamma> * egammas,
