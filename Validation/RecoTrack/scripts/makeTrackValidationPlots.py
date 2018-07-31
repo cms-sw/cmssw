@@ -79,7 +79,7 @@ def main(opts):
         print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % opts.outputDir)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.")
+    parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files.\nNote that for timing plots you have to include FastTimerService (typically it gets included via DQM/VALIDATION), and set\nprocess.FastTimerService.enableDQMbyPath = True")
     parser.add_argument("files", metavar="file", type=str, nargs="+",
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default="plots",
