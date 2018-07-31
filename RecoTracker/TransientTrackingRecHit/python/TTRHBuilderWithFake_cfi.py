@@ -2,7 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 pixelFake = cms.ESProducer("FakePixelCPEESProducer",
     ComponentName = cms.string('FakePixelCPE')
-}
+)
+
+from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import *
+StripCPEfromFake = stripCPEESProducer.clone()
+StripCPEfromFake.ComponentName = 'FakeStripCPE'
+StripCPEfromFake.ComponentType = 'FakeStripCPE'
+
 
 TTRHBuilderFake = cms.ESProducer("TkTransientTrackingRecHitBuilderESProducer",
     StripCPE = cms.string('FakeStripCPE'),
