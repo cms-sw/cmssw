@@ -250,9 +250,9 @@ _sequenceForEachEra(_addSelectorsByHp, args=["_algos"], names="_selectorsByAlgoH
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_selectorsByAlgoAndHp"+_postfix] = locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix]
     # For ByAlgoMask
-    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = filter(lambda n: n not in ["generalTracks", "cutsRecoTracksHp"], locals()["_selectorsByAlgoAndHp"+_postfix])
+    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = [n for n in locals()["_selectorsByAlgoAndHp"+_postfix] if n not in ["generalTracks", "cutsRecoTracksHp"]]
     # For ByOriginalAlgo
-    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = filter(lambda n: n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"], locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix])
+    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = [n for n in locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] if n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"]]
 _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
                     args = ["_selectorsByAlgoAndHpNoGenTkDupMerge"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
                     names = "_selectorsByOriginalAlgo", sequence = "_tracksValidationSelectorsByOriginalAlgo")
@@ -709,9 +709,13 @@ tracksValidationTrackingOnly = cms.Sequence(
 
 
 ### Pixel tracking only mode (placeholder for now)
-tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
-    pixelClusterSrc = "siPixelClustersPreSplitting"
+
+tpClusterProducerHeterogeneousPixelTrackingOnly = tpClusterProducerHeterogeneous.clone(
+   pixelClusterSrc = "siPixelClustersPreSplitting"
 )
+tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone()
+# Need to use the modifier to customize because the exact EDProducer type depends on the modifier
+gpu.toModify(tpClusterProducerPixelTrackingOnly, src = "tpClusterProducerHeterogeneousPixelTrackingOnly")
 
 quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
     cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
@@ -740,10 +744,16 @@ tracksValidationTruthPixelTrackingOnly.replace(tpClusterProducer, tpClusterProdu
 tracksValidationTruthPixelTrackingOnly.replace(quickTrackAssociatorByHits, quickTrackAssociatorByHitsPixelTrackingOnly)
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
+
+_tracksValidationTruthPixelTrackingOnlyGPU = tracksValidationTruthPixelTrackingOnly.copy()
+_tracksValidationTruthPixelTrackingOnlyGPU.insert(0, tpClusterProducerHeterogeneousPixelTrackingOnly)
+gpu.toReplaceWith(tracksValidationTruthPixelTrackingOnly, _tracksValidationTruthPixelTrackingOnlyGPU)
+
 tracksValidationPixelTrackingOnly = cms.Sequence(
     tracksValidationTruthPixelTrackingOnly +
     trackValidatorPixelTrackingOnly
 )
+
 
 
 ### Lite mode (only generalTracks and HP)
