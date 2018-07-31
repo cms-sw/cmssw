@@ -158,9 +158,9 @@ namespace edm {
   }
 
   void
-  PrincipalCache::readFile() {
+  PrincipalCache::preReadFile() {
     if (runPrincipal_) {
-      runPrincipal_->readFile();
+      runPrincipal_->preReadFile();
     }
   }
 

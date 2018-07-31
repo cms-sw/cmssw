@@ -99,7 +99,7 @@ namespace edm {
 
     MergeableRunProductMetadata* mergeableRunProductMetadata() {return mergeableRunProductMetadataPtr_.get();}
 
-    void readFile();
+    void preReadFile();
 
   private:
 

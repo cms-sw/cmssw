@@ -76,7 +76,7 @@ namespace edm {
 
     void setProcessHistoryRegistry(ProcessHistoryRegistry const& phr) {processHistoryRegistry_ = &phr;}
 
-    void readFile();
+    void preReadFile();
 
   private:
 
