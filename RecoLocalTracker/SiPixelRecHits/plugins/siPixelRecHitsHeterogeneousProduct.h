@@ -1,15 +1,12 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_plugins_siPixelRecHitsHeterogeneousProduct_h
 #define RecoLocalTracker_SiPixelRecHits_plugins_siPixelRecHitsHeterogeneousProduct_h
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "HeterogeneousCore/Product/interface/HeterogeneousProduct.h"
-
-
 #include <cstdint>
 #include <vector>
 
-// #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "HeterogeneousCore/Product/interface/HeterogeneousProduct.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 namespace siPixelRecHitsHeterogeneousProduct {
 
@@ -31,15 +28,26 @@ namespace siPixelRecHitsHeterogeneousProduct {
      uint16_t * mr_d;
      uint16_t * mc_d;
 
-     // using Hist = HistoContainer<int16_t,7,8>;
-     // Hist * hist_d;
-  };
+     using Hist = HistoContainer<int16_t,7,8>;
+     Hist * hist_d;
 
+     HitsOnGPU const * me_d = nullptr;
+  };
 
   struct HitsOnCPU {
     HitsOnCPU() = default;
+
     explicit HitsOnCPU(uint32_t nhits) :
-      charge(nhits),xl(nhits),yl(nhits),xe(nhits),ye(nhits), mr(nhits), mc(nhits){}
+      charge(nhits),
+      xl(nhits),
+      yl(nhits),
+      xe(nhits),
+      ye(nhits),
+      mr(nhits),
+      mc(nhits),
+      nHits(nhits)
+    { }
+
     uint32_t hitsModuleStart[2001];
     std::vector<int32_t> charge;
     std::vector<float> xl, yl;
@@ -47,19 +55,14 @@ namespace siPixelRecHitsHeterogeneousProduct {
     std::vector<uint16_t> mr;
     std::vector<uint16_t> mc;
 
-    HitsOnGPU const * gpu_d=nullptr;
+    uint32_t nHits;
+    HitsOnGPU const * gpu_d = nullptr;
   };
-
 
   using GPUProduct = HitsOnCPU;  // FIXME fill cpu vectors on demand
 
-
   using HeterogeneousPixelRecHit = HeterogeneousProductImpl<heterogeneous::CPUProduct<CPUProduct>,
                                                             heterogeneous::GPUCudaProduct<GPUProduct> >;
-
-
 }
 
-
-
-#endif
+#endif // RecoLocalTracker_SiPixelRecHits_plugins_siPixelRecHitsHeterogeneousProduct_h

@@ -3,6 +3,8 @@
 
 #include <utility>
 
+#include <cuda_runtime.h>
+
 // reimplementation of std algorithms able to compile with CUDA and run on GPUs,
 // mostly by declaringthem constexpr
 
@@ -10,6 +12,7 @@ namespace cuda_std  {
 
   template<typename T = void>
   struct less {
+    __host__ __device__
     constexpr bool operator()(const T &lhs, const T &rhs) const {
       return lhs < rhs;
     }
@@ -18,10 +21,12 @@ namespace cuda_std  {
   template<>
   struct less<void> {
     template<typename T, typename U>
+    __host__ __device__
     constexpr bool operator()(const T &lhs, const U &rhs ) const { return lhs < rhs;}
   };
 
   template<typename RandomIt, typename T, typename Compare = less<T>>
+  __host__ __device__
   constexpr
   RandomIt lower_bound(RandomIt first, RandomIt last, const T& value, Compare comp={})
   {
@@ -43,6 +48,7 @@ namespace cuda_std  {
   }
 
   template<typename RandomIt, typename T, typename Compare = less<T>>
+  __host__ __device__
   constexpr
   RandomIt upper_bound(RandomIt first, RandomIt last, const T& value, Compare comp={})
   {
@@ -64,6 +70,7 @@ namespace cuda_std  {
   }
 
   template<typename RandomIt, typename T, typename Compare = cuda_std::less<T>>
+  __host__ __device__
   constexpr
   RandomIt binary_find(RandomIt first, RandomIt last, const T& value, Compare comp={})
   {

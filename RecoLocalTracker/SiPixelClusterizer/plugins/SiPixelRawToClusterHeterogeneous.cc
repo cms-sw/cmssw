@@ -67,14 +67,14 @@ namespace {
     UShort xmin=16000;
     UShort ymin=16000;
     unsigned int isize=0;
-    int charge=0;    
+    int charge=0;
 
     void clear() {
       isize=0;
       charge=0;
       xmin=16000;
       ymin=16000;
-    } 
+    }
 
     bool add(SiPixelCluster::PixelPos const & p, UShort const iadc) {
       if (isize==MAXSIZE) return false;
@@ -117,12 +117,12 @@ private:
 
   // Commonalities
   const FEDRawDataCollection *initialize(const edm::Event& ev, const edm::EventSetup& es);
-  
+
   std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality *badPixelInfo_ = nullptr;
   const SiPixelFedCablingMap *cablingMap_ = nullptr;
 std::unique_ptr<PixelUnpackingRegions> regions_;
-  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
+  edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection;
 
   bool includeErrors;
   bool useQuality;
@@ -144,7 +144,7 @@ std::unique_ptr<PixelUnpackingRegions> regions_;
   PixelThresholdClusterizer clusterizer_;
   const TrackerGeometry *geom_ = nullptr;
   const TrackerTopology *ttopo_ = nullptr;
-  
+
   //  gain calib
   SiPixelGainCalibrationForHLTService  theSiPixelGainCalibration_;
 
@@ -336,7 +336,7 @@ void SiPixelRawToClusterHeterogeneous::produceCPU(edm::HeterogeneousEvent& ev, c
 	  errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());
 	  // Fill detid of the detectors where there is error AND the error number is listed
 	  // in the configurable error list in the job option cfi.
-	  // Code needs to be here, because there can be a set of errors for each 
+	  // Code needs to be here, because there can be a set of errors for each
 	  // entry in the for loop over PixelDataFormatter::Errors
 
 	  std::vector<PixelFEDChannel> disabledChannelsDetSet;
@@ -405,7 +405,7 @@ void SiPixelRawToClusterHeterogeneous::produceCPU(edm::HeterogeneousEvent& ev, c
 
     // Comment: At the moment the clusterizer depends on geometry
     // to access information as the pixel topology (number of columns
-    // and rows in a detector module). 
+    // and rows in a detector module).
     // In the future the geometry service will be replaced with
     // a ES service.
     const GeomDetUnit      * geoUnit = geom_->idToDetUnit( detId );
@@ -417,15 +417,15 @@ void SiPixelRawToClusterHeterogeneous::produceCPU(edm::HeterogeneousEvent& ev, c
     }
   }
   output->outputClusters.shrink_to_fit();
-  
-  //send digis and errors back to framework 
+
+  //send digis and errors back to framework
   ev.put<Output>(std::move(output));
 }
 
 // -----------------------------------------------------------------------------
 void SiPixelRawToClusterHeterogeneous::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream) {
   // Allocate GPU resources here
-  gpuAlgo_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel>();
+  gpuAlgo_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel>(cudaStream);
   gpuModulesToUnpack_ = std::make_unique<SiPixelFedCablingMapGPUWrapper::ModulesToUnpack>();
 }
 
@@ -523,6 +523,7 @@ void SiPixelRawToClusterHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEv
 
 void SiPixelRawToClusterHeterogeneous::produceGPUCuda(edm::HeterogeneousEvent& ev, const edm::EventSetup& es, cuda::stream_t<>& cudaStream) {
   auto output = std::make_unique<GPUProduct>(gpuAlgo_->getProduct());
+  assert(output->me_d);
   ev.put<Output>(std::move(output), [this](const GPUProduct& gpu, CPUProduct& cpu) {
       this->convertGPUtoCPU(gpu, cpu);
     });
@@ -560,7 +561,7 @@ void SiPixelRawToClusterHeterogeneous::convertGPUtoCPU(const SiPixelRawToCluster
       std::push_heap(spc.begin(),spc.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
     }
     for (int32_t ic=0; ic<nclus+1;++ic) aclusters[ic].clear();
-    nclus=-1;                                         
+    nclus = -1;
     // sort by row (x)
     std::sort_heap(spc.begin(),spc.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
     if ( spc.empty() ) spc.abort();
@@ -682,7 +683,6 @@ void SiPixelRawToClusterHeterogeneous::convertGPUtoCPU(const SiPixelRawToCluster
     errorDetSet.data = nodeterrors;
   }
 }
-
 
 // define as framework plugin
 DEFINE_FWK_MODULE(SiPixelRawToClusterHeterogeneous);

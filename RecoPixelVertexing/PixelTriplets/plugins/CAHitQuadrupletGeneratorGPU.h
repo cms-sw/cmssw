@@ -1,5 +1,5 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATORGPU_H
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATORGPU_H
+#ifndef RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorGPU_h
+#define RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorGPU_h
 
 #include <cuda_runtime.h>
 
@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
+#include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
@@ -32,6 +33,10 @@ namespace edm {
 
 class CAHitQuadrupletGeneratorGPU {
 public:
+
+    using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
+    using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
+
     typedef LayerHitMapCache LayerCacheType;
 
     static constexpr unsigned int minLayers = 4;
@@ -48,6 +53,8 @@ public:
     static const char *fillDescriptionsLabel() { return "caHitQuadrupletGPU"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
+
+    void buildDoublets(HitsOnCPU const & hh, float phicut, cudaStream_t stream);
 
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                      const edm::EventSetup& es,
@@ -180,4 +187,4 @@ private:
     GPULayerDoublets* tmp_layerDoublets_ = nullptr;
 };
 
-#endif
+#endif // RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorGPU_h

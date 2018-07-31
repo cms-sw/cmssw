@@ -709,9 +709,14 @@ tracksValidationTrackingOnly = cms.Sequence(
 
 
 ### Pixel tracking only mode (placeholder for now)
-tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
-    pixelClusterSrc = "siPixelClustersPreSplitting"
+
+tpClusterProducerHeterogeneousPixelTrackingOnly = tpClusterProducerHeterogeneous.clone(
+   pixelClusterSrc = "siPixelClustersPreSplitting"
 )
+tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone()
+# Need to use the modifier to customize because the exact EDProducer type depends on the modifier
+gpu.toModify(tpClusterProducerPixelTrackingOnly, src = "tpClusterProducerHeterogeneousPixelTrackingOnly")
+
 quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
     cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
 )
@@ -739,10 +744,16 @@ tracksValidationTruthPixelTrackingOnly.replace(tpClusterProducer, tpClusterProdu
 tracksValidationTruthPixelTrackingOnly.replace(quickTrackAssociatorByHits, quickTrackAssociatorByHitsPixelTrackingOnly)
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
+
+_tracksValidationTruthPixelTrackingOnlyGPU = tracksValidationTruthPixelTrackingOnly.copy()
+_tracksValidationTruthPixelTrackingOnlyGPU.insert(0, tpClusterProducerHeterogeneousPixelTrackingOnly)
+gpu.toReplaceWith(tracksValidationTruthPixelTrackingOnly, _tracksValidationTruthPixelTrackingOnlyGPU)
+
 tracksValidationPixelTrackingOnly = cms.Sequence(
     tracksValidationTruthPixelTrackingOnly +
     trackValidatorPixelTrackingOnly
 )
+
 
 
 ### Lite mode (only generalTracks and HP)

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
 from SimTracker.TrackerHitAssociation.tpClusterProducerDefault_cfi import tpClusterProducerDefault as _tpClusterProducerDefault
 
@@ -18,3 +19,12 @@ premix_stage2.toModify(tpClusterProducer,
     stripSimLinkSrc = "mixData:StripDigiSimLink",
     phase2OTSimLinkSrc = "mixData:Phase2OTDigiSimLink",
 )
+
+
+from SimTracker.TrackerHitAssociation.tpClusterProducerHeterogeneousDefault_cfi import tpClusterProducerHeterogeneousDefault as _tpClusterProducerHeterogeneous
+tpClusterProducerHeterogeneous = _tpClusterProducerHeterogeneous.clone()
+
+from SimTracker.TrackerHitAssociation.tpClusterHeterogeneousConverter_cfi import tpClusterHeterogeneousConverter as _tpHeterogeneousConverter
+
+gpu.toReplaceWith(tpClusterProducer, _tpHeterogeneousConverter.clone())
+

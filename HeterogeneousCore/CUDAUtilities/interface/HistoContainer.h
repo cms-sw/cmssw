@@ -8,14 +8,6 @@
 #include <atomic>
 #endif // __CUDA_ARCH__
 
-#ifdef __CUDACC__
-#include <cuda_runtime.h>
-#else
-#define __device__
-#define __global__
-#define __host__
-#endif // __CUDACC__
-
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
 
 #ifdef __CUDACC__

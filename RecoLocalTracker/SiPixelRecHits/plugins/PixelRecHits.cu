@@ -36,11 +36,10 @@ namespace pixelgpudetails {
     cudaCheck(cudaMalloc((void**) & gpu_.sortIndex_d,(gpuClustering::MaxNumModules*256)*sizeof(uint16_t)));
     cudaCheck(cudaMalloc((void**) & gpu_.mr_d,(gpuClustering::MaxNumModules*256)*sizeof(uint16_t)));
     cudaCheck(cudaMalloc((void**) & gpu_.mc_d,(gpuClustering::MaxNumModules*256)*sizeof(uint16_t)));
-//    cudaCheck(cudaMalloc((void**) & gpu_.hist_d, 10*sizeof(HitsOnGPU::Hist)));
-
+    cudaCheck(cudaMalloc((void**) & gpu_.hist_d, 10*sizeof(HitsOnGPU::Hist)));
     cudaCheck(cudaMalloc((void**) & gpu_d, sizeof(HitsOnGPU)));
+    gpu_.me_d = gpu_d;
     cudaCheck(cudaMemcpyAsync(gpu_d, &gpu_, sizeof(HitsOnGPU), cudaMemcpyDefault,cudaStream.id()));
-
   }
 
   PixelRecHitGPUKernel::~PixelRecHitGPUKernel() {
@@ -59,8 +58,7 @@ namespace pixelgpudetails {
     cudaCheck(cudaFree(gpu_.sortIndex_d));
     cudaCheck(cudaFree(gpu_.mr_d));
     cudaCheck(cudaFree(gpu_.mc_d));
-    // cudaCheck(cudaFree(gpu_.hist_d));
-
+    cudaCheck(cudaFree(gpu_.hist_d));
     cudaCheck(cudaFree(gpu_d));
   }
 
@@ -78,7 +76,7 @@ namespace pixelgpudetails {
                            input.clusInModule_d,
                            input.clusInModule_d + gpuClustering::MaxNumModules,
                            &gpu_.hitsModuleStart_d[1]);
-  
+
     int threadsPerBlock = 256;
     int blocks = input.nModules; // active modules (with digis)
     gpuPixelRecHits::getHits<<<blocks, threadsPerBlock, 0, stream.id()>>>(
@@ -96,20 +94,20 @@ namespace pixelgpudetails {
       gpu_.xg_d, gpu_.yg_d, gpu_.zg_d, gpu_.rg_d,
       gpu_.iphi_d,
       gpu_.xl_d, gpu_.yl_d,
-      gpu_.xerr_d, gpu_.yerr_d, 
+      gpu_.xerr_d, gpu_.yerr_d,
       gpu_.mr_d, gpu_.mc_d
     );
 
     // needed only if hits on CPU are required...
     cudaCheck(cudaMemcpyAsync(hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-   
+
     // to be moved to gpu?
     auto nhits = hitsModuleStart_[gpuClustering::MaxNumModules];
     for (int i=0;i<10;++i) hitsLayerStart_[i]=hitsModuleStart_[phase1PixelTopology::layerStart[i]];
     hitsLayerStart_[10]=nhits;
 
 #ifdef GPU_DEBUG
-    std::cout << "hit layerStart "; 
+    std::cout << "hit layerStart ";
     for (int i=0;i<10;++i) std::cout << phase1PixelTopology::layerName[i] << ':' << hitsLayerStart_[i] << ' ';
     std::cout << "end:" << hitsLayerStart_[10] << std::endl;
 #endif
@@ -119,9 +117,7 @@ namespace pixelgpudetails {
     // for timing test
     // radixSortMultiWrapper<int16_t><<<10, 256, 0, c.stream>>>(gpu_.iphi_d,gpu_.sortIndex_d,gpu_.hitsLayerStart_d);
 
-    // fillManyFromVector(gpu_.hist_d,10,gpu_.iphi_d, gpu_.hitsLayerStart_d, nhits,256,c.stream);
-
-
+    cudautils::fillManyFromVector(gpu_.hist_d,10,gpu_.iphi_d, gpu_.hitsLayerStart_d, nhits,256,stream.id());
   }
 
   HitsOnCPU PixelRecHitGPUKernel::getOutput(cuda::stream_t<>& stream) const {
