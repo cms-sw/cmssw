@@ -24,15 +24,15 @@
 
 namespace {
 
-class  FakePixelCPERecoESProducer final : public edm::ESProducer{
+class  FakePixelCPEESProducer final : public edm::ESProducer{
 public:
 
-  FakePixelCPERecoESProducer(const edm::ParameterSet & p) {
+  FakePixelCPEESProducer(const edm::ParameterSet & p) {
     std::string myname = p.getParameter<std::string>("ComponentName");
     setWhatProduced(this,myname);
   }
 
-  ~FakePixelCPERecoESProducer() = default; 
+  ~FakePixelCPEESProducer() = default; 
 
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &) {
      return std::make_unique<PixelFakeCPE>();
@@ -48,5 +48,5 @@ private:
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-DEFINE_FWK_EVENTSETUP_MODULE(FakePixelCPERecoESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FakePixelCPEESProducer);
 
