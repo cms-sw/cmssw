@@ -66,6 +66,10 @@ namespace pixelgpudetails {
     assert(error_h_tmp->size() == 0);
     assert(error_h_tmp->capacity() == static_cast<int>(MAX_FED*pixelgpudetails::MAX_WORD));
 
+    // Need these in pinned memory to be truly asynchronous
+    cudaCheck(cudaMallocHost(&nModulesActive, sizeof(uint32_t)));
+    cudaCheck(cudaMallocHost(&nClusters, sizeof(uint32_t)));
+
     // allocate memory for RawToDigi on GPU
     using namespace gpuClustering;
 
@@ -108,6 +112,19 @@ namespace pixelgpudetails {
   }
 
   SiPixelRawToClusterGPUKernel::~SiPixelRawToClusterGPUKernel() {
+    // free the host memory
+    cudaCheck(cudaFreeHost(word));
+    cudaCheck(cudaFreeHost(fedId_h));
+    cudaCheck(cudaFreeHost(pdigi_h));
+    cudaCheck(cudaFreeHost(rawIdArr_h));
+    cudaCheck(cudaFreeHost(adc_h));
+    cudaCheck(cudaFreeHost(clus_h));
+    cudaCheck(cudaFreeHost(error_h));
+    cudaCheck(cudaFreeHost(error_h_tmp));
+    cudaCheck(cudaFreeHost(data_h));
+    cudaCheck(cudaFreeHost(nModulesActive));
+    cudaCheck(cudaFreeHost(nClusters));
+
     // free device memory used for RawToDigi on GPU
     // free the GPU memory
     cudaCheck(cudaFree(word_d));
@@ -680,7 +697,7 @@ namespace pixelgpudetails {
       cudaCheck(cudaGetLastError());
 
       // read the number of modules into a data member, used by getProduct())
-      cudaCheck(cudaMemcpyAsync(&nModulesActive, moduleStart_d, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(nModulesActive, moduleStart_d, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
       threadsPerBlock = 256;
       blocks = MaxNumModules;
@@ -710,7 +727,7 @@ namespace pixelgpudetails {
                                               clusInModule_d, &clusModuleStart_d[1], gpuClustering::MaxNumModules,
                                               stream.id()));
       // last element holds the number of all clusters
-      cudaCheck(cudaMemcpyAsync(&nClusters, clusModuleStart_d+gpuClustering::MaxNumModules, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(nClusters, clusModuleStart_d+gpuClustering::MaxNumModules, sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
 
 
       // clusters

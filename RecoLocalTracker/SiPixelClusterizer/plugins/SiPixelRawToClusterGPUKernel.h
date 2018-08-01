@@ -183,7 +183,7 @@ namespace pixelgpudetails {
         gpuProduct_d,
         xx_d, yy_d, adc_d, moduleInd_d, moduleStart_d,clus_d, clusInModule_d, moduleId_d,
         clusModuleStart_d,
-        nDigis, nModulesActive, nClusters
+        nDigis, *nModulesActive, *nClusters
       };
     }
 
@@ -205,8 +205,8 @@ namespace pixelgpudetails {
     GPU::SimpleVector<pixelgpudetails::error_obj> *error_h_tmp = nullptr;
 
     uint32_t nDigis = 0;
-    uint32_t nModulesActive = 0;
-    uint32_t nClusters = 0;
+    uint32_t *nModulesActive = nullptr;
+    uint32_t *nClusters = nullptr;
 
     // scratch memory buffers
     uint32_t * word_d;
