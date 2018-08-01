@@ -185,10 +185,10 @@ LocalFileSystem::initFSInfo(void *arg)
   size_t totlen = infolen + fslen + dirlen + typelen + originlen;
   FSInfo *i = (FSInfo *) malloc(totlen);
   char *p = (char *) i;
-  i->fsname = strncpy(p += infolen, m->mnt_fsname, fslen);
-  i->type = strncpy(p += fslen, m->mnt_type, typelen);
-  i->dir = strncpy(p += typelen, m->mnt_dir, dirlen);
-  i->origin = strncpy(p += dirlen, m->mnt_fsname, originlen);
+  i->fsname = static_cast<char*>(memcpy(p += infolen, m->mnt_fsname, fslen));
+  i->type = static_cast<char*>(memcpy(p += fslen, m->mnt_type, typelen));
+  i->dir = static_cast<char*>(memcpy(p += typelen, m->mnt_dir, dirlen));
+  i->origin = static_cast<char*>(memcpy(p += dirlen, m->mnt_fsname, originlen));
   i->dev = -1;
   i->fstype = -1;
   i->freespc = 0;
