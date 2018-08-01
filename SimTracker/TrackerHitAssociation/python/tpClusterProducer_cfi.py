@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.ProcessModifiers.gpu_cff import gpu
 
 from SimTracker.TrackerHitAssociation.tpClusterProducerDefault_cfi import tpClusterProducerDefault as _tpClusterProducerDefault
 
@@ -25,6 +24,5 @@ from SimTracker.TrackerHitAssociation.tpClusterProducerHeterogeneousDefault_cfi 
 tpClusterProducerHeterogeneous = _tpClusterProducerHeterogeneous.clone()
 
 from SimTracker.TrackerHitAssociation.tpClusterHeterogeneousConverter_cfi import tpClusterHeterogeneousConverter as _tpHeterogeneousConverter
-
-gpu.toReplaceWith(tpClusterProducer, _tpHeterogeneousConverter.clone())
+tpClusterProducerConverter = _tpHeterogeneousConverter.clone()
 
