@@ -23,17 +23,11 @@ namespace l1t {
 
 
 /*****************************************************************/
-l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper* params) :
+l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper const* params) :
   params_(params)
 /*****************************************************************/
 {
 
-}
-
-/*****************************************************************/
-l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::~Stage2Layer2EGammaAlgorithmFirmwareImp1() 
-/*****************************************************************/
-{
 }
 
 /*****************************************************************/
