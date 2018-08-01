@@ -2,18 +2,17 @@
 #include <string>
 #include <vector>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DetectorDescription/Core/interface/Store.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 using DDI::Material;
 
-DDMaterial::DDMaterial() : DDBase<DDName,Material*>() { }
+DDMaterial::DDMaterial() : DDBase< DDName, Material* >() { }
 
 /**
    If a DDMaterial with \a name was already defined, this constructor creates a
@@ -23,11 +22,11 @@ DDMaterial::DDMaterial() : DDBase<DDName,Material*>() { }
    For further details concerning the usage of reference-objects refere
    to the documentation of DDLogicalPart.
 */
-DDMaterial::DDMaterial(const DDName & name) : DDBase<DDName,Material*>()
+DDMaterial::DDMaterial( const DDName & name )
+  : DDBase< DDName, Material* >()
 { 
-  prep_ = StoreT::instance().create(name);
+  create( name );
 }
- 
 
 /** 
    \arg \c z atomic number
@@ -42,12 +41,11 @@ DDMaterial::DDMaterial(const DDName & name) : DDBase<DDName,Material*>()
                           density=2*g/cm3);
    \endcode  
 */
-DDMaterial::DDMaterial(const DDName & name, double z, double a, double d)
- : DDBase<DDName,Material*>()
+DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
+ : DDBase< DDName, Material* >()
 { 
-  prep_ = StoreT::instance().create(name, new Material(z, a, d));
+  create( name, new Material( z, a, d ));
 }
-              
 
 /** 
    For a mixture material it is sufficient to specify the \a density of the
@@ -61,49 +59,47 @@ DDMaterial::DDMaterial(const DDName & name, double z, double a, double d)
    For further details concerning the usage of reference-objects refere
    to the documentation of DDLogicalPart.      
 */
-DDMaterial::DDMaterial(const DDName & name, double density)
- : DDBase<DDName,Material*>()
+DDMaterial::DDMaterial( const DDName & name, double density )
+ : DDBase< DDName, Material* >()
 { 
-  prep_ = StoreT::instance().create(name, new Material(0,0,density));
+  create( name, new Material( 0, 0, density ));
 }
-
 
 /** 
   The fraction-masses of all compounds must sum up to 1
 */
-int DDMaterial::addMaterial(const DDMaterial & m, double fm)
+int
+DDMaterial::addMaterial( const DDMaterial & m, double fm )
 {  
-  if (m.ddname() == ddname()) {
+  if( m.ddname() == ddname()) {
     throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material " << m << " to itself! ";
   }  
-  rep().addMaterial(m,fm);
+  rep().addMaterial( m, fm );
   return rep().noOfConstituents();
 }
 
-
-int DDMaterial::noOfConstituents() const
+int
+DDMaterial::noOfConstituents() const
 {
    return rep().noOfConstituents();
 }
 
-
-DDMaterial::FractionV::value_type DDMaterial::constituent(int i) const 
+DDMaterial::FractionV::value_type DDMaterial::constituent( int i ) const 
 { 
-  return rep().constituent(i);
+  return rep().constituent( i );
 }
 
-
-double DDMaterial::a() const
+double
+DDMaterial::a() const
 {
   return rep().a(); 
 }
 
-
-double DDMaterial::z() const
+double
+DDMaterial::z() const
 {
   return rep().z(); 
 }
-
 
 double DDMaterial::density() const
 {
@@ -135,6 +131,6 @@ namespace {
 
 std::ostream & operator<<(std::ostream & os, const DDMaterial & mat)
 { 
-  return doStream(os, mat, 0);
+  return doStream( os, mat, 0 );
 }
 
