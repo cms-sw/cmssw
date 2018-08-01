@@ -15,7 +15,7 @@ mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
 )
 
 mssmHbbBtagSL40noMu = mssmHbbBtag.clone()
-mssmHbbBtagSL40noMu..subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40_noMuon")
+mssmHbbBtagSL40noMu.subDirs = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40_noMuon")
 
 mssmHbbBtagSL40 = mssmHbbBtag.clone()
 #mssmHbbBtagSL40.subDirs = cms.untracked.vstring("HLT/Higgs/MssmHbb/semileptonic/BtagTrigger/pt40/")
