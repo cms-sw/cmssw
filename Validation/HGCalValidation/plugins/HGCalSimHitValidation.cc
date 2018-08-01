@@ -300,7 +300,7 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       hinfo.cell   = cell;
       hinfo.cell2  = cell;
       hinfo.type   = type;
-      hinfo.layer  = layer;
+      hinfo.layer  = std::min((unsigned)layer,layers_);
       hinfo.phi    = gcoord.getPhi();
       hinfo.eta    = gcoord.getEta();
     }
@@ -342,12 +342,12 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
   for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
     int layer     = (*itr).first;
     int occupancy = (*itr).second;
-    HitOccupancy_Plus_.at(layer)->Fill(occupancy);
+    HitOccupancy_Plus_.at(std::min((unsigned)layer,layers_-1))->Fill(occupancy);
   }
   for (auto itr = OccupancyMap_minus.begin() ; itr != OccupancyMap_minus.end(); ++itr) {
     int layer     = (*itr).first;
     int occupancy = (*itr).second;
-    HitOccupancy_Minus_.at(layer)->Fill(occupancy);
+    HitOccupancy_Minus_.at(std::min((unsigned)layer,layers_-1))->Fill(occupancy);
   }
 }
 
