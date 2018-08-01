@@ -147,5 +147,6 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   
 }
 
-// -----------------------------------------------------------------------------
-
+// declare this as a framework plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiPixelDigiToRaw);
