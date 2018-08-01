@@ -4,7 +4,7 @@
 /**
  \class    TSGForOI
  \brief    Create L3MuonTrajectorySeeds from L2 Muons updated at vertex in an outside-in manner
- \author   Santiago Folgueras, Bibhuprasad Mahakud, Jan Frederik Schulte (Purdue University, West Lafayette)
+ \author   Santiago Folgueras,Benjamin, Bibhuprasad Mahakud, Jan Frederik Schulte (Purdue University, West Lafayette)
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -60,6 +60,10 @@ class TSGForOI : public edm::global::EDProducer<> {
     /// How many hits to try per layer
     const unsigned int numOfHitsToTry_;
 
+    ///L2 valid hit cuts to decide seed creation by both states
+    const unsigned int numL2ValidHitsCutAllEta_;
+    const unsigned int numL2ValidHitsCutAllEndcap_;
+
     /// Rescale L2 parameter uncertainties (fixed error vs pT, eta)
     const double fixedErrorRescalingForHits_;
     const double fixedErrorRescalingForHitless_;
@@ -88,7 +92,7 @@ class TSGForOI : public edm::global::EDProducer<> {
 
     /// pT, eta ranges and scale factor values
     const double pT1_,pT2_,pT3_;
-    const double eta1_,eta2_,eta3_,eta4_,eta5_,eta6_;
+    const double eta1_,eta2_,eta3_,eta4_,eta5_,eta6_,eta7_;
     const double SF1_,SF2_,SF3_,SF4_,SF5_,SF6_;
 
     /// Distance of L2 TSOSs before and after updated with vertex
@@ -103,7 +107,6 @@ class TSGForOI : public edm::global::EDProducer<> {
     void makeSeedsWithoutHits(
         const GeometricSearchDet& layer,
         const TrajectoryStateOnSurface& tsos,
-        const reco::TrackRef l2,
         const Propagator& propagatorAlong,
         edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
         double errorSF,
@@ -115,7 +118,6 @@ class TSGForOI : public edm::global::EDProducer<> {
     void makeSeedsFromHits(
         const GeometricSearchDet& layer,
         const TrajectoryStateOnSurface& tsos,
-        const reco::TrackRef l2,
         const Propagator& propagatorAlong,
         edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
         edm::Handle<MeasurementTrackerEvent>& measurementTracker,
