@@ -13,6 +13,9 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include<iostream>
+
 class FakeCPE {
 public:
 
@@ -23,15 +26,15 @@ public:
      public: 
      using LocalValues = std::pair<LocalPoint,LocalError>;
      void clear() {m_map.clear();}
-     void error() const {}
+     void error(const GeomDetUnit& gd) const {edm::LogError("FakeCPE") << "hit not found in det " << gd.geographicalId().rawId();  }
      template<typename Cluster>
      void add(const Cluster& cluster, const GeomDetUnit& gd,LocalValues const & lv) { m_map[encode(cluster,gd)] = lv; }
 
      template<typename Cluster>
      LocalValues const & get(const Cluster& cluster, const GeomDetUnit& gd) const {
        auto p = m_map.find(encode(cluster,gd));
-       if (p!=m_map.end()) return (*p).second;
-       error();
+       if (p!=m_map.end()) { return (*p).second; }
+       error(gd);
        return dummy;
      }
 
@@ -39,12 +42,12 @@ public:
           uint64_t u1 = det.geographicalId().rawId();
           uint64_t u2 = cluster.minPixelRow();
           uint64_t u3 = cluster.minPixelCol();
-          return (u1<<32) & (u2<<16) & u3;
+          return (u1<<32) | (u2<<16) | u3;
      }
      static uint64_t encode(const SiStripCluster& cluster, const GeomDetUnit& det) {
           uint64_t u1 = det.geographicalId().rawId();
           uint64_t u2 = cluster.firstStrip();
-       	  return (u1<<32) & u2;
+       	  return (u1<<32) | u2;
      }
 
 
