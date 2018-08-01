@@ -16,7 +16,17 @@ Implementation:
 //
 
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
+#include <unordered_set>
 
+namespace {
+	struct ptr_hash : public std::unary_function<reco::CandidatePtr, std::size_t> {
+		std::size_t operator()(const reco::CandidatePtr& k) const
+		{
+			if(k.refCore().isTransient()) return (unsigned long)k.refCore().productPtr() ^ k.key();
+			else return k.refCore().id().processIndex() ^ k.refCore().id().productIndex() ^ k.key();
+		}
+	};
+}
 
 metsig::METSignificance::METSignificance(const edm::ParameterSet& iConfig) {
 
@@ -55,30 +65,29 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    double cov_yy = 0;
  
    // for lepton and jet subtraction
-   std::set<reco::CandidatePtr> footprint;
+   std::unordered_set<reco::CandidatePtr,ptr_hash> footprint;
 
    // subtract leptons out of sumPt
-   for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
-         lep_i != leptons.end(); ++lep_i ) {
-     for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
-       if( lep->pt() > 10 ){
-	 for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
-	   if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
-	     footprint.insert(lep->sourceCandidatePtr(n));
+   for ( const auto& lep_i : leptons ) {
+     for( const auto& lep : *lep_i ) {
+       if( lep.pt() > 10 ){
+	 for( unsigned int n=0; n < lep.numberOfSourceCandidatePtrs(); n++ ){
+	   if( lep.sourceCandidatePtr(n).isNonnull() and lep.sourceCandidatePtr(n).isAvailable() ){
+	     footprint.insert(lep.sourceCandidatePtr(n));
 	   } 
 	 }
        }
      }
    }
    // subtract jets out of sumPt
-   for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+   for(const auto& jet : jets) {
 
      // disambiguate jets and leptons
-     if(!cleanJet(*jet, leptons) ) continue;
-     for( unsigned int n=0; n < jet->numberOfSourceCandidatePtrs(); n++){
-       if( jet->sourceCandidatePtr(n).isNonnull() and jet->sourceCandidatePtr(n).isAvailable() ){
+     if(!cleanJet(jet, leptons) ) continue;
+     for( unsigned int n=0; n < jet.numberOfSourceCandidatePtrs(); n++){
+       if( jet.sourceCandidatePtr(n).isNonnull() and jet.sourceCandidatePtr(n).isAvailable() ){
 
-	 footprint.insert(jet->sourceCandidatePtr(n));
+	 footprint.insert(jet.sourceCandidatePtr(n));
        }
      }
 
@@ -93,8 +102,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      if(footprint.find( pfCandidates->ptrAt(i) )==footprint.end()) {
 
        //dP4 recovery
-       for( std::set<reco::CandidatePtr>::const_iterator it=footprint.begin();it!=footprint.end();it++) {
-	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+       for( const auto& it : footprint) {
+	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
 	   cleancand = false;
 	   break;
 	 }
@@ -107,16 +116,16 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    }
    
    // add jets to metsig covariance matrix and subtract them from sumPt
-   for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+   for(const auto& jet : jets) {
      
      // disambiguate jets and leptons
-     if(!cleanJet(*jet, leptons) ) continue;
+     if(!cleanJet(jet, leptons) ) continue;
 
-      double jpt  = jet->pt();
-      double jeta = jet->eta();
+      double jpt  = jet.pt();
+      double jeta = jet.eta();
       double feta = std::abs(jeta);
-      double c = jet->px()/jet->pt();
-      double s = jet->py()/jet->pt();
+      double c = jet.px()/jet.pt();
+      double s = jet.py()/jet.pt();
 
       JME::JetParameters parameters;
       parameters.setJetPt(jpt).setJetEta(jeta).setRho(rho);
@@ -192,10 +201,9 @@ bool
 metsig::METSignificance::cleanJet(const reco::Jet& jet, 
       const std::vector< edm::Handle<reco::CandidateView> >& leptons ){
 
-  for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
-        lep_i != leptons.end(); ++lep_i ) {
-     for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
-        if ( reco::deltaR2(*lep, jet) < dR2match_ ) {
+  for ( const auto& lep_i : leptons ) {
+    for( const auto& lep : *lep_i ) {
+        if ( reco::deltaR2(lep, jet) < dR2match_ ) {
            return false;
         }
      }
