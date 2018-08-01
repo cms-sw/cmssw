@@ -1,22 +1,3 @@
-/***************************************************************************
-                          main.cpp  -  description
-                             -------------------
-    begin                : Wed Oct 24 17:36:15 PDT 2001
-    author               : Michael Case
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   mec: 2008-08-05 : need to make this an analyzer instead?              *
- *                     for now use the "main" of cmssw                     *
- ***************************************************************************/
-
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -27,7 +8,7 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
