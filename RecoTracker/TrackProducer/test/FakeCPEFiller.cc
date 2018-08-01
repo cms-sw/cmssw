@@ -60,8 +60,6 @@ class FakeCPEFiller final : public edm::one::EDFilter<> {
       // ----------member data ---------------------------
   
   edm::EDGetTokenT<std::vector<Trajectory> >      inputTraj_;
-  edm::EDGetTokenT< edm::DetSetVector<StripDigiSimLink> > stripdigi_token_;
-  edm::EDGetTokenT< edm::DetSetVector<PixelDigiSimLink> > pxldigi_token_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   FakeCPE fakeCPE;
@@ -80,14 +78,10 @@ class FakeCPEFiller final : public edm::one::EDFilter<> {
 //
 // constructors and destructor
 //
-FakeCPEFiller::FakeCPEFiller(const edm::ParameterSet& iConfig):  trackerHitAssociatorConfig_(iConfig,consumesCollector())
-
+FakeCPEFiller::FakeCPEFiller(const edm::ParameterSet& iConfig):
+inputTraj_(consumes<std::vector<Trajectory> >(edm::InputTag("FinalTracks"))),
+  trackerHitAssociatorConfig_(iConfig,consumesCollector())
 {
-   //now do what ever initialization is needed
-  inputTraj_ = consumes<std::vector<Trajectory> >(edm::InputTag("FinalTracks"));
-  stripdigi_token_=consumes< edm::DetSetVector<StripDigiSimLink> >(iConfig.getParameter<edm::InputTag>("stripSimLinkSrc"));
-  pxldigi_token_=consumes< edm::DetSetVector<PixelDigiSimLink> >(iConfig.getParameter<edm::InputTag>("pixelSimLinkSrc"));
-
 }
 
 
@@ -116,7 +110,9 @@ FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(inputTraj_,trajH);
    
    TrackerHitAssociator HitAssoc(iEvent, trackerHitAssociatorConfig_);
-   
+  
+   using LocalValues = std::pair<LocalPoint,LocalError>;
+
    for (unsigned int j =0 ; j<trajH->size();++j) {
 
      const std::vector<TrajectoryMeasurement> &tms = (*trajH)[j].measurements();
@@ -130,24 +126,35 @@ FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
        auto const & thit = static_cast<BaseTrackerRecHit const&>(*tms[i].recHit());
        auto const & clus = thit.firstClusterRef();
-//       if (clus.isPixel())
-          
+
        auto const & simHits = HitAssoc.associateHit(*(tms[i].recHit()));
 
+       std::cout << "rechit " << thit.detUnit()->geographicalId().rawId() << ' '
+                   << thit.localPosition() <<' ' << thit.localPositionError() << ' ' << simHits.size() << std::endl;
+
+/*        
+        if (simHits.empty()) {
+          LocalValues lv(thit.localPosition(),thit.localPositionError());
+         // Fill The Map
+         if (clus.isPixel())
+              fakeCPE.map().add(clus.pixelCluster(), *thit.detUnit(),lv);
+         else
+             fakeCPE.map().add(clus.stripCluster(), *thit.detUnit(),lv);
+        }
+
+*/
        for (auto const & sh : simHits) {
 	 
 	 if(sh.processType() !=0) continue;
 
-	 std::cout << sh.localPosition().x() << std::endl;
-	 std::cout << sh.localPosition().y() << std::endl;
-	 std::cout << sh.localPosition().z() << std::endl;
+	 std::cout << "simhit " << sh.localPosition() << std::endl;
 
-         using LocalValues = std::pair<LocalPoint,LocalError>;
          //void add(const Cluster& cluster, const GeomDetUnit& gd,LocalValues const & lv) { m_map[encode(cluster,gd)] = lv; }
 
          LocalValues lv(sh.localPosition(),thit.localPositionError());
+         //LocalValues lv(thit.localPosition(),thit.localPositionError());
 	 // Fill The Map
-         if (clus.isPixel())
+         if (clus.isPixel()) 
               fakeCPE.map().add(clus.pixelCluster(), *thit.detUnit(),lv);
          else
              fakeCPE.map().add(clus.stripCluster(), *thit.detUnit(),lv);
