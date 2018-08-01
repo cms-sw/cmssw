@@ -94,7 +94,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
             multiclustersTmp.emplace_back( *clu );
         }
         else{
-            unsigned minDist = 1;
+            double minDist = 1;
             unsigned targetMulticlu = 0; 
             for( int imclu : tcPertinentMulticlusters ){
                 double d = ( multiclustersTmp.at(imclu).centreProj() - (*clu)->centreProj() ).mag() ;
