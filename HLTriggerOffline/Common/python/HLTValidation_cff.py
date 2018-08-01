@@ -50,7 +50,7 @@ hltvalidationWithMC    = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
-    +topHLTriggerOfflineDQM
+    +topHLTriggerOfflineDQM ## why is this here ?!?! (it is DQM !)
     +topHLTriggerValidation
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
