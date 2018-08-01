@@ -26,6 +26,10 @@ upgradeKeys[2023] = [
     '2023D19PU',
     '2023D20',
     '2023D20PU',
+    '2023D24',
+    '2023D24PU',
+    '2023D25',
+    '2023D25PU',
 ]
 
 # pre-generation of WF numbers
@@ -192,8 +196,22 @@ upgradeProperties[2023] = {
         'GT' : 'auto:phase2_realistic',
         'HLTmenu': '@fake2',
         'Era' : 'Phase2',
-        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullGlobal','HARVESTFullGlobal'],
-    },
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
+    '2023D24' : {
+        'Geom' : 'Extended2023D17',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     },
+    '2023D25' : {
+        'Geom' : 'Extended2023D17',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+     }
 }
 
 
@@ -205,6 +223,11 @@ upgradeProperties[2023]['2023D19PU'] = deepcopy(upgradeProperties[2023]['2023D19
 upgradeProperties[2023]['2023D19PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D20PU'] = deepcopy(upgradeProperties[2023]['2023D20'])
 upgradeProperties[2023]['2023D20PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D24PU'] = deepcopy(upgradeProperties[2023]['2023D24'])
+upgradeProperties[2023]['2023D24PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D25PU'] = deepcopy(upgradeProperties[2023]['2023D25'])
+upgradeProperties[2023]['2023D25PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+
 
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
