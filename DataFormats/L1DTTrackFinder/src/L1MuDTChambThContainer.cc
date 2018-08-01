@@ -33,19 +33,15 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTChambThContainer::L1MuDTChambThContainer() {}
-
-//--------------
-// Destructor --
-//--------------
-L1MuDTChambThContainer::~L1MuDTChambThContainer() {}
+L1MuDTChambThContainer::L1MuDTChambThContainer(The_Container c):
+ theSegments{std::move(c)} {}
 
 //--------------
 // Operations --
 //--------------
-void L1MuDTChambThContainer::setContainer(const The_Container& inputSegments) {
+void L1MuDTChambThContainer::setContainer(The_Container inputSegments) {
 
-  theSegments = inputSegments;
+  theSegments = std::move(inputSegments);
 }
 
 L1MuDTChambThContainer::The_Container const* L1MuDTChambThContainer::getContainer() const {

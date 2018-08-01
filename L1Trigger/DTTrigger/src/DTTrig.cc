@@ -63,14 +63,6 @@ DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
 }
 
 
-//--------------
-// Destructor --
-//--------------
-DTTrig::~DTTrig(){
-
-  clear();
-
-}
 
 void 
 DTTrig::createTUs(const edm::EventSetup& iSetup ){
@@ -82,22 +74,24 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
       if(_debug){
 	std::cout << "calling sectcollid wh sc " << iwh <<  " " << ise << std::endl;}
       DTSectCollId scid(iwh,ise);
-      SC_iterator it =  _cache1.find(scid);
-      if ( it != _cache1.end()) {
-      	if(_debug){
-	  std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
-	}
-	continue;
-      }    
-      DTSectColl* sc;
-      sc = new DTSectColl(scid);
-      if(_debug){
-	std::cout << " DTTrig::createTUs new SC sc = " << sc  
-		  << " at scid.sector() " << scid.sector() 
-		  << " at scid.wheel() " << scid.wheel()   
-		  << std::endl;
+      {
+        SC_iterator it =  _cache1.find(scid);
+        if ( it != _cache1.end()) {
+          if(_debug){
+            std::cout << "DTTrig::createTUs: Sector Collector unit already exists"<<std::endl;
+          }
+          continue;
+        }
+      } 
+      {
+        auto element = _cache1.emplace(scid, scid);
+        if(_debug){
+          std::cout << " DTTrig::createTUs new SC sc = " << &(element.first->second)
+                    << " at scid.sector() " << scid.sector() 
+                    << " at scid.wheel() " << scid.wheel()   
+                    << std::endl;
+        }
       }
-      _cache1[scid] = sc;  
     }
   }
   
@@ -113,8 +107,8 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
       continue;
     }
 
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb);
-    _cache[chid] = tru;
+    auto info = _cache.emplace(chid, chamb);
+    auto tru = &(info.first->second);
     
     //----------- add TU to corresponding SC
     // returning correspondent SC id
@@ -130,14 +124,14 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     
     if ( it1 != _cache1.end()) {
       
-      DTSectColl* sc = (*it1).second;
+      auto& sc = (*it1).second;
       if(_debug) {
 	std::cout << "DTTrig::init:  adding TU in SC << " 
 		  << " sector = " << scid.sector() 
 		  << " wheel = " << scid.wheel() 
 		  << std::endl;
       }
-      sc->addTU(tru);    
+      sc.addTU(tru);    
     }
     else {
       std::cout << "DTTrig::createTUs: Trigger Unit not in the map: ";
@@ -182,50 +176,50 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   //Run reconstruct for single trigger subsystem (Bti, Traco TS)
   for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-    DTSCTrigUnit* thisTU=(*it).second;
-    if (thisTU->BtiTrigs()->size()>0){
-      thisTU->BtiTrigs()->clearCache();
-      thisTU->TSThTrigs()->clearCache();
-      thisTU->TracoTrigs()->clearCache();
-      thisTU->TSPhTrigs()->clearCache();
+    DTSCTrigUnit& thisTU=(*it).second;
+    if (thisTU.BtiTrigs()->size()>0){
+      thisTU.BtiTrigs()->clearCache();
+      thisTU.TSThTrigs()->clearCache();
+      thisTU.TracoTrigs()->clearCache();
+      thisTU.TSPhTrigs()->clearCache();
     }
-    DTChamberId chid=thisTU->statId();
+    DTChamberId chid=thisTU.statId();
     DTDigiMap_iterator dmit = digiMap.find(chid);
     if (dmit !=digiMap.end()){
-      thisTU->BtiTrigs()->reconstruct((*dmit).second); 
-      if(thisTU->BtiTrigs()->size()>0){
-	thisTU->TSThTrigs()->reconstruct();
-	thisTU->TracoTrigs()->reconstruct();
-	if(thisTU->TracoTrigs()->size()>0)
-	  thisTU->TSPhTrigs()->reconstruct();
+      thisTU.BtiTrigs()->reconstruct((*dmit).second); 
+      if(thisTU.BtiTrigs()->size()>0){
+	thisTU.TSThTrigs()->reconstruct();
+	thisTU.TracoTrigs()->reconstruct();
+	if(thisTU.TracoTrigs()->size()>0)
+	  thisTU.TSPhTrigs()->reconstruct();
       }
     }
   }
   //Run reconstruct for Sector Collector
   for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
-    DTSectColl* sectcoll = (*it).second;
+    DTSectColl& sectcoll = (*it).second;
     DTSectCollId scid = (*it).first;
-    if (sectcoll->sizePh()>0 || sectcoll->sizeTh()>0)
-      sectcoll->clearCache();
+    if (sectcoll.sizePh()>0 || sectcoll.sizeTh()>0)
+      sectcoll.clearCache();
     bool mustreco = false;
     for (int i=1;i<5;i++) {
-      if (sectcoll->getTSPhi(i)->size()>0) {
+      if (sectcoll.getTSPhi(i)->size()>0) {
 	mustreco = true;
 	break;
       }
     }
     for (int i=1;i<4;i++) {
-      if (sectcoll->getTSTheta(i)->size()>0) {
+      if (sectcoll.getTSTheta(i)->size()>0) {
 	mustreco = true;
 	break;
       }
     }
     if (scid.sector()==4 || scid.sector()==10){
-      if (sectcoll->getTSPhi(5)->size()>0)
+      if (sectcoll.getTSPhi(5)->size()>0)
 	mustreco = true;
     }
     if (mustreco)
-      sectcoll->reconstruct();
+      sectcoll.reconstruct();
   }
 
 }
@@ -246,10 +240,10 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
     iSetup.get<DTConfigManagerRcd>().get(confHandle);
     _conf_manager = confHandle.product();
     for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-      (*it).second->setConfig(_conf_manager);
+      (*it).second.setConfig(_conf_manager);
     }
     for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
-      (*it).second->setConfig(_conf_manager);
+      (*it).second.setConfig(_conf_manager);
     }
 
   }
@@ -262,7 +256,7 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
     _geomid = iSetup.get<MuonGeometryRecord>().cacheIdentifier();
     iSetup.get<MuonGeometryRecord>().get(geomHandle);
     for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-      (*it).second->setGeom(geomHandle->chamber((*it).second->statId()));
+      (*it).second.setGeom(geomHandle->chamber((*it).second.statId()));
     }
 
   }
@@ -273,29 +267,20 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
 void
 DTTrig::clear() {
   // Delete the map
-  for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-    // Delete all the trigger units 
-    delete (*it).second;
-  }
   _cache.clear(); 
-
-  for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
-    // Delete all the Sector Collectors
-    delete (*it).second;
-  }
   _cache1.clear();
 
 }
 
 DTSCTrigUnit*
 DTTrig::trigUnit(DTChamberId chid) {
-  /*check();*/  return constTrigUnit(chid);
+  /*check();*/  return const_cast<DTSCTrigUnit*>(constTrigUnit(chid));
 
 }
 
 
 
-DTSCTrigUnit*
+DTSCTrigUnit const*
 DTTrig::constTrigUnit(DTChamberId chid) const {
 //    std::cout << " SC: running DTTrig::constTrigUnit(DTChamberId chid)" << std::endl;
   TU_const_iterator it = _cache.find(chid);
@@ -308,10 +293,10 @@ DTTrig::constTrigUnit(DTChamberId chid) const {
     return nullptr;
   }
 
-  return (*it).second;
+  return &(*it).second;
 }
 
-DTSectColl*
+DTSectColl const*
 DTTrig::SCUnit(DTSectCollId scid) const {
 SC_const_iterator it = _cache1.find(scid);
   if ( it == _cache1.end()) {
@@ -322,22 +307,22 @@ SC_const_iterator it = _cache1.find(scid);
     return nullptr;
   }
 
-  return (*it).second;
+  return &(*it).second;
 }
 
-DTSCTrigUnit*
+DTSCTrigUnit *
 DTTrig::trigUnit(int wheel, int stat, int sect) {
-  return constTrigUnit(wheel, stat, sect);
+  return const_cast<DTSCTrigUnit*>(constTrigUnit(wheel, stat, sect));
 }
 
-DTSectColl*
+DTSectColl const*
 DTTrig::SCUnit(int wheel, int sect) const {
   sect++;
   return SCUnit(DTSectCollId(wheel,sect));
 }
 
 
-DTSCTrigUnit*
+DTSCTrigUnit const*
 DTTrig::constTrigUnit(int wheel, int stat, int sect) const {
   sect++;   // offset 1 for sector number ([0,11] --> [1,12])
   return constTrigUnit(DTChamberId(wheel,stat,sect));
@@ -428,7 +413,7 @@ DTTrig::chSectCollPhSegm2(DTSectColl* unit, int step) {
 DTSectCollPhSegm*
 DTTrig::chSectCollPhSegm1(int wheel, int sect, int step) {
 
-  return chSectCollPhSegm1(SCUnit(wheel,sect),step);
+  return chSectCollPhSegm1(const_cast<DTSectColl*>(SCUnit(wheel,sect)),step);
 }
 
 DTSectCollPhSegm* 
@@ -437,7 +422,7 @@ DTTrig::chSectCollPhSegm2(int wheel, int sect, int step) {
     // if hrizontal chambers of MB4 get first track of twin chamber (flag=1)
   //return chSectCollSegm1(trigUnit(wheel,stat,sect,1),step);
   //} else {
-    return chSectCollPhSegm2(SCUnit(wheel,sect),step);
+  return chSectCollPhSegm2(const_cast<DTSectColl*>(SCUnit(wheel,sect)),step);
     //}
 }
 
@@ -452,31 +437,31 @@ DTTrig::chSectCollThSegm(DTSectColl* unit, int step) {
 DTSectCollThSegm*
 DTTrig::chSectCollThSegm(int wheel, int sect, int step) {
 
-  return chSectCollThSegm(SCUnit(wheel,sect),step);
+  return chSectCollThSegm(const_cast<DTSectColl*>(SCUnit(wheel,sect)),step);
 }
 
   // end SM
 
 
 void 
-DTTrig::dumpGeom() {
+DTTrig::dumpGeom() const {
   /*check();*/
   for (TU_const_iterator it=_cache.begin();it!=_cache.end();it++){
-    ((*it).second)->dumpGeom();
+    ((*it).second).dumpGeom();
   }
 }
 
 void 
-DTTrig::dumpLuts(short int lut_btic, const DTConfigManager *conf) {
+DTTrig::dumpLuts(short int lut_btic, const DTConfigManager *conf) const {
   for (TU_const_iterator it=_cache.begin();it!=_cache.end();it++){
 
-    DTSCTrigUnit* thisTU = (*it).second;
+    const DTSCTrigUnit& thisTU = (*it).second;
 
     // dump lut command file from geometry
-    thisTU->dumpLUT(lut_btic);
+    thisTU.dumpLUT(lut_btic);
 
     // dump lut command file from parameters (DB or CMSSW)
-    DTChamberId chid = thisTU->statId();
+    DTChamberId chid = thisTU.statId();
     conf->dumpLUTParam(chid);
 
   }
@@ -486,15 +471,13 @@ DTTrig::dumpLuts(short int lut_btic, const DTConfigManager *conf) {
 }
 
 std::vector<DTBtiTrigData> 
-DTTrig::BtiTrigs() {
+DTTrig::BtiTrigs() const {
   /*check();*/
   std::vector<DTBtiTrigData> trigs;
-  TU_iterator ptu;
-  for(ptu=_cache.begin();ptu!=_cache.end();ptu++) {
-    DTSCTrigUnit* tu = (*ptu).second;
-    std::vector<DTBtiTrigData>::const_iterator p; //p=0;
-    std::vector<DTBtiTrigData>::const_iterator peb=tu->BtiTrigs()->end();
-    for(p=tu->BtiTrigs()->begin();p!=peb;p++){
+  for(auto ptu=_cache.begin();ptu!=_cache.end();ptu++) {
+    const DTSCTrigUnit& tu = (*ptu).second;
+    auto peb=tu.BtiTrigs()->end();
+    for(auto p=tu.BtiTrigs()->begin();p!=peb;p++){
       trigs.push_back(*p);
     }
   }
@@ -502,15 +485,13 @@ DTTrig::BtiTrigs() {
 }
 
 std::vector<DTTracoTrigData> 
-DTTrig::TracoTrigs()  {
+DTTrig::TracoTrigs() const {
   std::vector<DTTracoTrigData> trigs;
-  TU_iterator ptu;
   /*check();*/
-  for(ptu=_cache.begin();ptu!=_cache.end();ptu++) {
-    DTSCTrigUnit* tu = (*ptu).second;
-    std::vector<DTTracoTrigData>::const_iterator p; //p=0;
-    std::vector<DTTracoTrigData>::const_iterator peb=tu->TracoTrigs()->end();
-    for(p=tu->TracoTrigs()->begin();p!=peb;p++){
+  for(auto ptu=_cache.begin();ptu!=_cache.end();ptu++) {
+    const DTSCTrigUnit& tu = (*ptu).second;
+    auto peb=tu.TracoTrigs()->end();
+    for(auto p=tu.TracoTrigs()->begin();p!=peb;p++){
       trigs.push_back(*p);
     }
   }
@@ -518,15 +499,13 @@ DTTrig::TracoTrigs()  {
 }
 
 std::vector<DTChambPhSegm> 
-DTTrig::TSPhTrigs()  {
+DTTrig::TSPhTrigs() const {
   /*check();*/
   std::vector<DTChambPhSegm> trigs;
-  TU_iterator ptu;
-  for(ptu=_cache.begin();ptu!=_cache.end();ptu++) {
-    DTSCTrigUnit* tu = (*ptu).second;
-    std::vector<DTChambPhSegm>::const_iterator p; //p=0;
-    std::vector<DTChambPhSegm>::const_iterator peb=tu->TSPhTrigs()->end();
-    for(p=tu->TSPhTrigs()->begin();p!=peb;p++){
+  for(auto ptu=_cache.begin();ptu!=_cache.end();ptu++) {
+    const DTSCTrigUnit& tu = (*ptu).second;
+    auto peb=tu.TSPhTrigs()->end();
+    for(auto p=tu.TSPhTrigs()->begin();p!=peb;p++){
       trigs.push_back(*p);
     }
   }
@@ -534,15 +513,13 @@ DTTrig::TSPhTrigs()  {
 }
 
 std::vector<DTChambThSegm> 
-DTTrig::TSThTrigs()  {
+DTTrig::TSThTrigs() const {
   /*check();*/
   std::vector<DTChambThSegm> trigs;
-  TU_iterator ptu;
-  for(ptu=_cache.begin();ptu!=_cache.end();ptu++) {
-    DTSCTrigUnit* tu = (*ptu).second;
-    std::vector<DTChambThSegm>::const_iterator p; //p=0;
-    std::vector<DTChambThSegm>::const_iterator peb=tu->TSThTrigs()->end();
-    for(p=tu->TSThTrigs()->begin();p!=peb;p++){
+  for(auto ptu=_cache.begin();ptu!=_cache.end();ptu++) {
+    const DTSCTrigUnit& tu = (*ptu).second;
+    auto peb=tu.TSThTrigs()->end();
+    for(auto p=tu.TSThTrigs()->begin();p!=peb;p++){
       trigs.push_back(*p);
     }
   }
@@ -550,12 +527,10 @@ DTTrig::TSThTrigs()  {
 }
 
 std::vector<DTSectCollPhSegm> 
-DTTrig::SCPhTrigs()  {
+DTTrig::SCPhTrigs()  const {
   /*check();*/
   std::vector<DTSectCollPhSegm> trigs;
-  //  SC_iterator ptu;
-  SC_iterator psc;
-  for(psc=_cache1.begin();psc!=_cache1.end();psc++) {
+  for(auto psc=_cache1.begin();psc!=_cache1.end();psc++) {
     //    DTSCTrigUnit* tu = (*ptu).second;
     //
     // old SMDB:    
@@ -566,10 +541,9 @@ DTTrig::SCPhTrigs()  {
     //        trigs.push_back(*p);
     //      } 
 
-    DTSectColl* sc = (*psc).second;
-    std::vector<DTSectCollPhSegm>::const_iterator p;
-    std::vector<DTSectCollPhSegm>::const_iterator peb=sc->endPh();
-    for(p=sc->beginPh();p!=peb;p++){
+    const DTSectColl& sc = (*psc).second;
+    auto peb=sc.endPh();
+    for(auto p=sc.beginPh();p!=peb;p++){
       trigs.push_back(*p);
     }
 
@@ -579,18 +553,15 @@ DTTrig::SCPhTrigs()  {
 
 
 std::vector<DTSectCollThSegm> 
-DTTrig::SCThTrigs()  {
+DTTrig::SCThTrigs() const {
   /*check();*/
   std::vector<DTSectCollThSegm> trigs;
-  SC_iterator psc;
-  for(psc=_cache1.begin();psc!=_cache1.end();psc++) {
-    DTSectColl* sc = (*psc).second;
-    std::vector<DTSectCollThSegm>::const_iterator p; //p=0;
-    std::vector<DTSectCollThSegm>::const_iterator peb=sc->endTh();
-    for(p=sc->beginTh();p!=peb;p++){
+  for(auto psc=_cache1.begin();psc!=_cache1.end();psc++) {
+    const DTSectColl& sc = (*psc).second;
+    auto peb=sc.endTh();
+    for(auto p=sc.beginTh();p!=peb;p++){
       trigs.push_back(*p);
     }
-
   }
   return trigs;
 }
