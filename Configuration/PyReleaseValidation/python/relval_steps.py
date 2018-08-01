@@ -2697,7 +2697,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--conditions':gt,
                                       '--datatier':'NANOAODSIM',
                                       '-n':'10',
-                                      '--eventcontent':'NANOAODSIM',
+                                      '--eventcontent':'NANOEDMAODSIM',
 				      '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
