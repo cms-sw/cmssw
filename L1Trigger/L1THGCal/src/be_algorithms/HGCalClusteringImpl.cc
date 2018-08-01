@@ -87,7 +87,7 @@ void HGCalClusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTri
         }
         else if ( !tcPertinentClusters.empty() ){
          
-            unsigned minDist(300);
+            double minDist(300);
             unsigned targetClu(0);
                         
             for( int iclu : tcPertinentClusters){
