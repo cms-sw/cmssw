@@ -24,7 +24,8 @@ b2gjetEfficiency = cms.EDProducer("DQMGenericClient",
 )
 
 b2gEfficiency_ElMu = cms.EDProducer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/B2GHLTOffline/Dileptonic/Dimuon/CrossTriggers"),
+#    subDirs        = cms.untracked.vstring("HLT/B2GHLTOffline/Dileptonic/Dimuon/CrossTriggers"),
+    subDirs        = cms.untracked.vstring("HLT/B2G/Dileptonic/Dimuon/CrossTriggers"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
                                       
     resolution     = cms.vstring(),
@@ -39,7 +40,8 @@ b2gEfficiency_ElMu = cms.EDProducer("DQMGenericClient",
 )
 
 b2gEfficiency_diMu = cms.EDProducer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/B2GHLTOffline/Dileptonic/Dimuon/"),
+#    subDirs        = cms.untracked.vstring("HLT/B2GHLTOffline/Dileptonic/Dimuon/"),
+    subDirs        = cms.untracked.vstring("HLT/B2G/Dileptonic/Dimuon/"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
                                       
     resolution     = cms.vstring(),

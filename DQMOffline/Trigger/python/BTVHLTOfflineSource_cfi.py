@@ -42,5 +42,3 @@ BTVHLTOfflineSource = DQMEDAnalyzer(
     )
 )
 
-btvHLTDQMSourceExtra = cms.Sequence(
-)
