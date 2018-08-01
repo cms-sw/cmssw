@@ -78,8 +78,7 @@ MonopoleTransportation::MonopoleTransportation(const Monopole* mpl,
   //  is constructed.
   // Instead later the method DoesGlobalFieldExist() is called
 
-  static G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
-  fCurrentTouchableHandle = nullTouchableHandle; 
+  fCurrentTouchableHandle = nullptr; 
 
   fEndGlobalTimeComputed  = false;
   fCandidateEndGlobalTime = 0;

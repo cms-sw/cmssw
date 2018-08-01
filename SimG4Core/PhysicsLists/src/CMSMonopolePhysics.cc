@@ -97,8 +97,8 @@ void CMSMonopolePhysics::ConstructProcess() {
       if(!pmanager) {
         std::ostringstream o;
         o << "Monopole without a Process Manager";
-        G4Exception("CMSMonopolePhysics::ConstructProcess()","",
-                    FatalException,o.str().c_str());
+        throw edm::Exception( edm::errors::Configuration, o.str().c_str());
+        return;
       }
 
       G4double magn = mpl->MagneticCharge();
@@ -112,9 +112,9 @@ void CMSMonopolePhysics::ConstructProcess() {
       }
   
       if (magn != 0.0) {
-	pmanager->RemoveProcess(0);
-	pmanager->AddProcess(new MonopoleTransportation(mpl,chordFinderSetter,verbose),
-                                                        -1, 0, 0);
+        G4int idxt(0);
+        pmanager->RemoveProcess(idxt);
+        pmanager->AddProcess(new MonopoleTransportation(mpl,chordFinderSetter,verbose),-1,0,0);
       }
 
       if (mpl->GetPDGCharge() != 0.0) {
