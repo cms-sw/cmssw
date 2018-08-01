@@ -155,7 +155,7 @@ DiphotonMass55EBnoPV_monitoring.histoPSet.massBinning = cms.vdouble(50.,51.,52.,
 
 DiphotonMass55NewAND_monitoring = hltPhotonmonitoring.clone()
 #DiphotonMass55NewAND_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55NewAND/')
-DiphotonMass55NewAND_monitoring.FolderName = cms.string('HLT/EGM/Photon/diphotonMass55NewAND/')
+DiphotonMass55NewAND_monitoring.FolderName = cms.string('HLT/HIG/DiPhoton/diphotonMass55NewAND/')
 DiphotonMass55NewAND_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v*")
 DiphotonMass55NewAND_monitoring.nphotons = cms.uint32(2)
 DiphotonMass55NewAND_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
@@ -163,7 +163,7 @@ DiphotonMass55NewAND_monitoring.histoPSet.massBinning = cms.vdouble(50.,51.,52.,
 
 DiphotonMass55NewANDnoPV_monitoring = hltPhotonmonitoring.clone()
 #DiphotonMass55NewANDnoPV_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55NewANDnoPV/')
-DiphotonMass55NewANDnoPV_monitoring.FolderName = cms.string('HLT/EGM/Photon/diphotonMass55NewANDnoPV/')
+DiphotonMass55NewANDnoPV_monitoring.FolderName = cms.string('HLT/HIG/DiPhoton/diphotonMass55NewANDnoPV/')
 DiphotonMass55NewANDnoPV_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30_18_PVrealAND_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v*")
 DiphotonMass55NewANDnoPV_monitoring.nphotons = cms.uint32(2)
 DiphotonMass55NewANDnoPV_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
