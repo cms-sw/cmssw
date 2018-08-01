@@ -26,7 +26,8 @@ higPhotonJetHLTOfflineSource = DQMEDAnalyzer(
         "HLT_Photon300_NoHE_v",
     ),
     # Location of plots in DQM
-    dirname = cms.untracked.string("HLT/Higgs/PhotonJet"), 
+#    dirname = cms.untracked.string("HLT/Higgs/PhotonJet"), 
+    dirname = cms.untracked.string("HLT/HIG/PhotonJet"), 
     verbose = cms.untracked.bool(False), # default: False
     triggerAccept = cms.untracked.bool(True), # default: True 
     triggerResultsToken = cms.InputTag("TriggerResults","","HLT"),

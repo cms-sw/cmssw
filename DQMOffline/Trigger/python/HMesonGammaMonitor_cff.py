@@ -4,7 +4,8 @@ from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 
 # HLT_
 HMesonGammamonitoring = hltobjmonitoring.clone()
-HMesonGammamonitoring.FolderName = cms.string('HLT/Higgs/HMesonGamma/')
+#HMesonGammamonitoring.FolderName = cms.string('HLT/Higgs/HMesonGamma/')
+HMesonGammamonitoring.FolderName = cms.string('HLT/HIG/HMesonGamma/')
 HMesonGammamonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults","","HLT" )
 HMesonGammamonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon35_TwoProngs35_v*")
 #HMesonGammamonitoring.metSelection = cms.string("")
