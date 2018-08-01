@@ -9,7 +9,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithmFirmware.h"
 //#include "DataFormats/Math/interface/LorentzVector.h "
 
-l1t::Stage2TowerCompressAlgorithmFirmwareImp1::Stage2TowerCompressAlgorithmFirmwareImp1(CaloParamsHelper* params) :
+l1t::Stage2TowerCompressAlgorithmFirmwareImp1::Stage2TowerCompressAlgorithmFirmwareImp1(CaloParamsHelper const* params) :
   params_(params)
 {
 
@@ -24,7 +24,7 @@ l1t::Stage2TowerCompressAlgorithmFirmwareImp1::~Stage2TowerCompressAlgorithmFirm
 
 void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & inTowers,
 								 std::vector<l1t::CaloTower> & outTowers) {
-
+  outTowers.reserve(outTowers.size()+inTowers.size());
   for ( auto tow = inTowers.begin();
 	tow != inTowers.end();
 	++tow ) {

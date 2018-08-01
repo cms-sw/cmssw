@@ -23,7 +23,7 @@ using namespace edm;
 namespace l1t {
 
   Stage1Layer2FirmwareFactory::ReturnType
-  Stage1Layer2FirmwareFactory::create(const int m_fwv ,CaloParamsHelper* dbPars){
+  Stage1Layer2FirmwareFactory::create(const int m_fwv ,CaloParamsHelper const* dbPars){
     ReturnType p;
     //unsigned fwv = m_fwv.firmwareVersion();
     //unsigned fwv = 1;

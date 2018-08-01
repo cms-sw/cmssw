@@ -21,8 +21,8 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class Stage2Layer2JetAlgorithmFirmwareImp1 : public Stage2Layer2JetAlgorithm {
   public:
-    Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper* params);
-    ~Stage2Layer2JetAlgorithmFirmwareImp1() override;
+    Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper const* params);
+    ~Stage2Layer2JetAlgorithmFirmwareImp1() override = default;
     void processEvent(const std::vector<CaloTower> & towers,
 			      std::vector<Jet> & jets, std::vector<Jet> & alljets) override;
 
@@ -44,7 +44,7 @@ namespace l1t {
 
   private:
 
-    CaloParamsHelper* const params_;
+    CaloParamsHelper const* const params_;
 
   };
 
