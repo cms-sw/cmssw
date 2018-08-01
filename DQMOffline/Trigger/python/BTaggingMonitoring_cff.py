@@ -569,5 +569,3 @@ AK8PFJetFwd500.histoPSet.jetEtaBinning2D = cms.vdouble(-5.0,-4.7,-4.4,-4.1,-3.8,
 AK8PFJetFwd500.histoPSet.etaPSet = cms.PSet(nbins=cms.uint32(50), xmin=cms.double(-5.0), xmax=cms.double(5.0))
 
 
-btagMonitorHLT = cms.Sequence(
-)

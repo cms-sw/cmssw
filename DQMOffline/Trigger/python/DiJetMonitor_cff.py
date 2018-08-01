@@ -143,5 +143,20 @@ DiPFjetAve300_HFJEC_Prommonitoring.histoPSet.dijetPtThrPSet = cms.PSet(
 DiPFjetAve300_HFJEC_Prommonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DiPFJetAve300_HFJEC_v*")
 
 HLTDiJetmonitoring = cms.Sequence(
+    DiPFjetAve40_Prommonitoring
+    *DiPFjetAve60_Prommonitoring
+    *DiPFjetAve80_Prommonitoring
+    *DiPFjetAve140_Prommonitoring
+    *DiPFjetAve200_Prommonitoring
+    *DiPFjetAve260_Prommonitoring
+    *DiPFjetAve320_Prommonitoring
+    *DiPFjetAve400_Prommonitoring
+    *DiPFjetAve500_Prommonitoring
+    *DiPFjetAve60_HFJEC_Prommonitoring
+    *DiPFjetAve80_HFJEC_Prommonitoring
+    *DiPFjetAve100_HFJEC_Prommonitoring
+    *DiPFjetAve160_HFJEC_Prommonitoring
+    *DiPFjetAve220_HFJEC_Prommonitoring
+    *DiPFjetAve300_HFJEC_Prommonitoring
 )
 
