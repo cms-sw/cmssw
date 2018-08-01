@@ -269,10 +269,10 @@ class LumiList(object):
             lumis = self.compactList[run]
             for lumiPair in sorted(lumis):
                 if lumiPair[0] == lumiPair[1]:
-                    parts.append("%s:%s" % (run, lumiPair[0]))
+                    parts.append(str("%s:%s" % (run, lumiPair[0])))
                 else:
-                    parts.append("%s:%s-%s:%s" %
-                                 (run, lumiPair[0], run, lumiPair[1]))
+                    parts.append(str("%s:%s-%s:%s" %
+                                 (run, lumiPair[0], run, lumiPair[1])))
         return parts
 
 
