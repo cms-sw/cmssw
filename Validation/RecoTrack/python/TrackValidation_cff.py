@@ -713,9 +713,13 @@ tracksValidationTrackingOnly = cms.Sequence(
 tpClusterProducerHeterogeneousPixelTrackingOnly = tpClusterProducerHeterogeneous.clone(
    pixelClusterSrc = "siPixelClustersPreSplitting"
 )
-tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone()
-# Need to use the modifier to customize because the exact EDProducer type depends on the modifier
-gpu.toModify(tpClusterProducerPixelTrackingOnly, src = "tpClusterProducerHeterogeneousPixelTrackingOnly")
+tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
+   pixelClusterSrc = "siPixelClustersPreSplitting"
+)
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toReplaceWith(tpClusterProducerPixelTrackingOnly, tpClusterProducerConverter.clone(
+    src = "tpClusterProducerHeterogeneousPixelTrackingOnly"
+))
 
 quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
     cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
