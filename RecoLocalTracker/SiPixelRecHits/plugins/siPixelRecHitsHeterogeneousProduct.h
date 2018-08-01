@@ -7,6 +7,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "HeterogeneousCore/Product/interface/HeterogeneousProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 
 namespace siPixelRecHitsHeterogeneousProduct {
 
@@ -49,11 +50,11 @@ namespace siPixelRecHitsHeterogeneousProduct {
     { }
 
     uint32_t hitsModuleStart[2001];
-    std::vector<int32_t> charge;
-    std::vector<float> xl, yl;
-    std::vector<float> xe, ye;
-    std::vector<uint16_t> mr;
-    std::vector<uint16_t> mc;
+    std::vector<int32_t,  CUDAHostAllocator<int32_t>> charge;
+    std::vector<float,    CUDAHostAllocator<float>> xl, yl;
+    std::vector<float,    CUDAHostAllocator<float>> xe, ye;
+    std::vector<uint16_t, CUDAHostAllocator<uint16_t>> mr;
+    std::vector<uint16_t, CUDAHostAllocator<uint16_t>> mc;
 
     uint32_t nHits;
     HitsOnGPU const * gpu_d = nullptr;

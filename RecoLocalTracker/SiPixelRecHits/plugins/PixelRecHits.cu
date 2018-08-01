@@ -55,6 +55,11 @@ namespace pixelgpudetails {
     // Would it be better to use "constant memory"?
     cudaCheck(cudaMalloc((void**) & d_phase1TopologyLayerStart_, 11*sizeof(uint32_t)));
     cudaCheck(cudaMemcpyAsync(d_phase1TopologyLayerStart_, phase1PixelTopology::layerStart, 11*sizeof(uint32_t), cudaMemcpyDefault, cudaStream.id()));
+
+    cudaCheck(cudaMallocHost(&h_hitsModuleStart_, (gpuClustering::MaxNumModules+1)*sizeof(uint32_t)));
+#ifdef GPU_DEBUG
+    cudaCheck(cudaMallocHost(&h_hitsLayerStart_, 11*sizeof(uint32_t)));
+#endif
   }
 
   PixelRecHitGPUKernel::~PixelRecHitGPUKernel() {
@@ -76,6 +81,11 @@ namespace pixelgpudetails {
     cudaCheck(cudaFree(gpu_d));
 
     cudaCheck(cudaFree(d_phase1TopologyLayerStart_));
+
+    cudaCheck(cudaFreeHost(h_hitsModuleStart_));
+#ifdef GPU_DEBUG
+    cudaCheck(cudaFreeHost(h_hitsLayerStart_));
+#endif
   }
 
   void PixelRecHitGPUKernel::makeHitsAsync(const siPixelRawToClusterHeterogeneousProduct::GPUProduct& input,
@@ -111,8 +121,10 @@ namespace pixelgpudetails {
     setHitsLayerStart<<<1, 32, 0, stream.id()>>>(gpu_.hitsModuleStart_d, d_phase1TopologyLayerStart_, gpu_.hitsLayerStart_d);
 
     // needed only if hits on CPU are required...
-    cudaCheck(cudaMemcpyAsync(hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(hitsLayerStart_, gpu_.hitsLayerStart_d, 11*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(h_hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+#ifdef GPU_DEBUG
+    cudaCheck(cudaMemcpyAsync(h_hitsLayerStart_, gpu_.hitsLayerStart_d, 11*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+#endif
     auto nhits = input.nClusters;
     cpu_ = std::make_unique<HitsOnCPU>(nhits);
     cudaCheck(cudaMemcpyAsync(cpu_->charge.data(), gpu_.charge_d, nhits*sizeof(int32_t), cudaMemcpyDefault, stream.id()));
@@ -127,13 +139,13 @@ namespace pixelgpudetails {
     cudaStreamSynchronize(stream.id());
 
     std::cout << "hit layerStart ";
-    for (int i=0;i<10;++i) std::cout << phase1PixelTopology::layerName[i] << ':' << hitsLayerStart_[i] << ' ';
-    std::cout << "end:" << hitsLayerStart_[10] << std::endl;
+    for (int i=0;i<10;++i) std::cout << phase1PixelTopology::layerName[i] << ':' << h_hitsLayerStart_[i] << ' ';
+    std::cout << "end:" << h_hitsLayerStart_[10] << std::endl;
 #endif
 
     // for timing test
     // cudaStreamSynchronize(stream.id());
-    // auto nhits = hitsLayerStart_[10];
+    // auto nhits = h_hitsLayerStart_[10];
     // radixSortMultiWrapper<int16_t><<<10, 256, 0, c.stream>>>(gpu_.iphi_d,gpu_.sortIndex_d,gpu_.hitsLayerStart_d);
 
     cudautils::fillManyFromVector(gpu_.hist_d,10,gpu_.iphi_d, gpu_.hitsLayerStart_d, nhits,256,stream.id());
@@ -141,7 +153,7 @@ namespace pixelgpudetails {
 
   std::unique_ptr<HitsOnCPU>&& PixelRecHitGPUKernel::getOutput(cuda::stream_t<>& stream) {
     cpu_->gpu_d = gpu_d;
-    memcpy(cpu_->hitsModuleStart, hitsModuleStart_, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t));
+    memcpy(cpu_->hitsModuleStart, h_hitsModuleStart_, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t));
     return std::move(cpu_);
   }
 }

@@ -43,8 +43,10 @@ namespace pixelgpudetails {
     HitsOnGPU gpu_;
     std::unique_ptr<HitsOnCPU> cpu_;
     uint32_t *d_phase1TopologyLayerStart_ = nullptr;
-    uint32_t hitsModuleStart_[gpuClustering::MaxNumModules+1];
-    uint32_t hitsLayerStart_[11];
+    uint32_t *h_hitsModuleStart_ = nullptr;
+#ifdef GPU_DEBUG
+    uint32_t *h_hitsLayerStart_ = nullptr;
+#endif
   };
 }
 
