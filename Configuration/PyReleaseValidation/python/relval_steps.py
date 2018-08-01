@@ -1149,6 +1149,10 @@ step1LHEGenSimDefault = { '--relval':'9000,50',
                           '--era'         : 'Run2_2016',
                         }
 
+# LHE-GEN-SIM with DQM
+step1LHEGenSimDQM = merge([{'-s':'LHE,GEN,SIM','--datatier'    : 'GEN-SIM,LHE,DQMIO','--eventcontent': 'LHE,RAWSIM,DQM'},step1LHEGenSimDefault])
+                        
+
 def lhegensim(fragment,howMuch):
     global step1LHEGenSimDefault
     return merge([{'cfg':fragment},howMuch,step1LHEGenSimDefault])
@@ -1168,7 +1172,6 @@ steps['VBFHToBB_M125_Pow_py8_Evt_13']=lhegensim('Configuration/Generator/python/
 steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/GGHZZ4L_JHUGen_Pow_NNPDF30_LHE_13TeV_cfi.py', Kby(9,100))
 steps['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/VBFHZZ4Nu_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
 steps['VBFHToBB_M125_Pow_py8_Evt_13UP17']=lhegensim2017('Configuration/Generator/python/VBFHbb_Pow_NNPDF30_LHE_13TeV_cfi.py',Kby(9,100))
-steps['TTbar_13TeV_Pow_herwig7']=lhegensim2017('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',Kby(9,100))
 #GEN-SIM inputs for LHE-GEN-SIM workflows
 #steps['TTbar012Jets_NLO_Mad_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar012Jets_NLO_Mad_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 #steps['GluGluHToZZTo4L_M125_Pow_py8_Evt_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToZZTo4L_M125_Pow_py8_Evt_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -1179,6 +1182,10 @@ steps['TTbar_13TeV_Pow_herwig7']=lhegensim2017('Configuration/Generator/python/T
 #Sherpa
 steps['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER_cff',step1GenDefaults)
 steps['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER']=genvalid('sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER_cff',step1GenDefaults)
+
+#Herwig7
+steps['TTbar_13TeV_Pow_herwig7']=genvalid('Configuration/Generator/python/TT_13TeV_Pow_Herwig7_cff',step1LHEGenSimDQM)
+
 
 # Heavy Ion
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
@@ -1728,15 +1735,6 @@ step3_pixelTrackingOnly = {
     '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
-}
-step3_riemannFit = {
-    '--procModifiers': 'riemannFit',
-}
-step3_riemannFitGPU = {
-    '--procModifiers': 'riemannFitGPU',
-}
-step3_gpu = {
-    '--procModifiers': 'gpu',
 }
 step3_trackingLowPU = {
     '--era': 'Run2_2016_trackingLowPU'
@@ -2698,7 +2696,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--conditions':gt,
                                       '--datatier':'NANOAODSIM',
                                       '-n':'10',
-                                      '--eventcontent':'NANOAODSIM',
+                                      '--eventcontent':'NANOEDMAODSIM',
 				      '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
@@ -2719,21 +2717,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     for step in upgradeSteps['pixelTrackingOnly']['steps']:
         stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['pixelTrackingOnlyRiemannFit']['steps']:
-        stepName = step + upgradeSteps['pixelTrackingOnlyRiemannFit']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_riemannFit, step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['pixelTrackingOnlyRiemannFitGPU']['steps']:
-        stepName = step + upgradeSteps['pixelTrackingOnlyRiemannFitGPU']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_riemannFitGPU, step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['pixelTrackingOnlyGPU']['steps']:
-        stepName = step + upgradeSteps['pixelTrackingOnlyGPU']['suffix']
-        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_gpu, step3_pixelTrackingOnly, upgradeStepDict[step][k]])
         elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['trackingRun2']['steps']:

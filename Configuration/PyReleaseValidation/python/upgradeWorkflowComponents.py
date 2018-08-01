@@ -146,39 +146,6 @@ upgradeSteps['pixelTrackingOnly'] = {
     'suffix' : '_pixelTrackingOnly',
     'offset' : 0.5,
 }
-upgradeSteps['pixelTrackingOnlyRiemannFit'] = {
-    'steps' : [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
-    ],
-    'PU' : [],
-    'suffix' : '_pixelTrackingOnlyRiemannFit',
-    'offset' : 0.7,
-}
-upgradeSteps['pixelTrackingOnlyGPU'] = {
-    'steps' : [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
-    ],
-    'PU' : [],
-    'suffix' : '_pixelTrackingOnlyGPU',
-    'offset' : 0.8,
-}
-upgradeSteps['pixelTrackingOnlyRiemannFitGPU'] = {
-    'steps' : [
-        'RecoFull',
-        'HARVESTFull',
-        'RecoFullGlobal',
-        'HARVESTFullGlobal',
-    ],
-    'PU' : [],
-    'suffix' : '_pixelTrackingOnlyRiemannFitGPU',
-    'offset' : 0.9,
-}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],
@@ -255,7 +222,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
         'BeamSpot': 'Realistic25ns13TeVEarly2018Collision',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull','NanoFull'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
@@ -287,7 +254,7 @@ upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','Rec
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
-upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
 upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
 upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
@@ -432,7 +399,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'DoubleMuPt1000Extended_pythia8_cfi',
                   'TenMuE_0_200_pythia8_cfi',
                   'SinglePiE50HCAL_pythia8_cfi',
-                  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi',
+                  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
                   'TTbar_13TeV_TuneCUETP8M1_cfi',
                   'ZEE_13TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',
