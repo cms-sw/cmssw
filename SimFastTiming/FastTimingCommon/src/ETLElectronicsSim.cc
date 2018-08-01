@@ -90,11 +90,6 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame &dataFrame,
       newSample.set(chargeColl[it] > adcThreshold_MIP_,false,tdc_time,adc);
       dataFrame.setSample(it,newSample);
 
-      //std::cout << it << " " << chargeColl[it] << " " << toa[it] << std::endl;
-      //std::cout << "    " << adc << " " <<  tdc_time << std::endl;
-
-
-
       if(debug) edm::LogVerbatim("ETLElectronicsSim") << adc << " (" << chargeColl[it] << "/" << adcLSB_MIP_ << ") ";
     }
 
