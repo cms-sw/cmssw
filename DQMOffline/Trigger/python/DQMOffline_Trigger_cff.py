@@ -101,7 +101,6 @@ offlineHLTSourceOnAOD = cms.Sequence(
     * HLTTauDQMOffline
     * hltInclusiveVBFSource
     * higPhotonJetHLTOfflineSource # plots are filled, but I'm not sure who is really looking at them and what you can get from them ... good candidates to be moved in offlineHLTSourceOnAODextra
-    * topHLTriggerOfflineDQM # plots are filled, but I'm not sure who is really looking at them and what you can get from them ... good candidates to be moved in offlineHLTSourceOnAODextra
 #    eventshapeDQMSequence * ## OBSOLETE !!!! (looks for HLT_HIQ2Top005_Centrality1030_v, HLT_HIQ2Bottom005_Centrality1030_v, etc)
 #    HeavyIonUCCDQMSequence * ## OBSOLETE !!!! (looks for HLT_HIUCC100_v and HLT_HIUCC020_v)
 #    hotlineDQMSequence * ## ORPHAN !!!!
@@ -146,6 +145,7 @@ offlineHLTSourceOnAODextra = cms.Sequence(
     * smpHLTDQMSourceExtra # empty in 10_2_0
     * susHLTDQMSourceExtra
     * topHLTDQMSourceExtra
+    * topHLTriggerOfflineDQM # plots are filled, but I'm not sure who is really looking at them and what you can get from them ... good candidates to be moved in offlineHLTSourceOnAODextra
     * fsqHLTDQMSourceExtra # empty in 10_2_0
 #    * hinHLTDQMSourceExtra
 )
