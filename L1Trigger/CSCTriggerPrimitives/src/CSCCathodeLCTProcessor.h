@@ -218,48 +218,6 @@ class CSCCathodeLCTProcessor
  const int nStrips,
  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
-  //------------- Functions for idealized version for MC studies --------------
-  std::vector<CSCCLCTDigi> findLCTs(
-     const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-     int stripType);
-  bool preTrigger(
-     const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-     const int stripType, const int nStrips, int& first_bx);
-  void getKeyStripData(
-     const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-     int keystrip_data[CSCConstants::NUM_HALF_STRIPS_7CFEBS][7],
-     int nStrips, int first_bx, int& best_strip, int stripType);
-  void getPattern(int pattern_num, int strip_value[CSCConstants::MAX_STRIPS_IN_PATTERN],
-		  int bx_time, int &quality, int &bend);
-  bool hitIsGood(int hitTime, int BX);
-
-  //-------------------- Functions for pre-2007 firmware ----------------------
-  std::vector<CSCCLCTDigi> findLCTs(
-  const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-  const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-  bool preTrigger(
-      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-      const int stripType, const int nStrips,
-      const int start_bx, int& first_bx);
-  bool preTrigLookUp(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		     const int stripType, const int nStrips,
-		     const unsigned int bx_time);
-  void latchLCTs(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		 int keyStrip[CSCConstants::MAX_CFEBS], unsigned int nhits[CSCConstants::MAX_CFEBS],
-		 const int stripType, const int nStrips, const int bx_time);
-  void priorityEncode(const int h_keyStrip[CSCConstants::MAX_CFEBS],
-		      const unsigned int h_nhits[CSCConstants::MAX_CFEBS],
-		      const int d_keyStrip[CSCConstants::MAX_CFEBS],
-		      const unsigned int d_nhits[CSCConstants::MAX_CFEBS],
-		      int keystrip_data[2][7]);
-  void getKeyStripData(const unsigned int h_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		       const unsigned int d_pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-		       int keystrip_data[2][7], const int first_bx);
-  void getPattern(unsigned int pattern_num,
-		  const int strip_value[CSCConstants::MAX_STRIPS_IN_PATTERN],
-		  unsigned int& quality, unsigned int& bend);
-
   //--------------- Functions for 2007 version of the firmware ----------------
   std::vector<CSCCLCTDigi> findLCTs(
  const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
@@ -295,8 +253,6 @@ class CSCCathodeLCTProcessor
   //--------------------------- Methods for tests -----------------------------
   void testDistripStagger();
   void testLCTs();
-  void printPatterns();
-  void testPatterns();
   int findNumLayersHit(std::vector<int> stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 };
 
