@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <CLHEP/Random/RandGaussQ.h>
 
 const EnergyScaleCorrection::ScaleCorrection PhotonEnergyCalibrator::defaultScaleCorr_;
@@ -39,7 +40,7 @@ calibrate(reco::Photon &photon,const unsigned int runNumber,
   const float scEtaAbs = std::abs(photon.superCluster()->eta());
   const float et = photon.getCorrectedEnergy(reco::Photon::P4type::regression2) / cosh(scEtaAbs);
 
-  if (et < minEt_) {
+  if (et < minEt_ || edm::isNotFinite(et) ) {
     std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
     retVal.fill(photon.getCorrectedEnergy(reco::Photon::P4type::regression2));
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
