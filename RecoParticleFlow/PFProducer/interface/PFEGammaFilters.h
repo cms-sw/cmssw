@@ -51,6 +51,7 @@ class PFEGammaFilters {
   bool isPhotonSafeForJetMET(const reco::Photon &, 
 			     const reco::PFCandidate &);
 
+  void setDebug( bool debug ) { debug_ = debug; }
   
 
  private:
@@ -88,6 +89,6 @@ class PFEGammaFilters {
   static readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) ;
   // Event variables 
   
-
+  bool debug_;
 };
 #endif

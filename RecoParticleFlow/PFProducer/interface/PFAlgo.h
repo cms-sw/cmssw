@@ -63,7 +63,7 @@ class PFAlgo {
   void setAlgo( int algo ) {algo_ = algo;}
   void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
-  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_);}
+  void setDebug( bool debug ) {debug_ = debug; connector_.setDebug(debug_); if (pfegamma_) pfegamma_->setDebug(debug); }
 
   void setParameters(double nSigmaECAL,
                      double nSigmaHCAL, 
