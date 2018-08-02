@@ -7,7 +7,9 @@
 <use   name="DataFormats/SiPixelDigi"/>
 <use   name="CalibTracker/Records"/>
 <use   name="MagneticField/VolumeBasedEngine"/>
+<use   name="HeterogeneousCore/CUDACore"/>
 <use   name="boost"/>
+<use   name="cuda-api-wrappers"/>
 <export>
   <lib   name="1"/>
 </export>

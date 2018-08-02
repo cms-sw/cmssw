@@ -1,5 +1,14 @@
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/Producer"/>
+<use name="HeterogeneousCore/Product"/>
 <use name="SimTracker/TrackerHitAssociation" />
 <use name="SimDataFormats/TrackingAnalysis" />
-<library file="*.cc" name="SimTrackerTrackerHitAssociationPlugins">
+
+<use name="Geometry/TrackerGeometryBuilder" />
+<use name="Geometry/Records" />
+
+<library file="*.cc *.cu" name="SimTrackerTrackerHitAssociationPlugins">
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
   <flags EDM_PLUGIN="1"/>
 </library>

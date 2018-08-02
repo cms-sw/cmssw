@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
   //NOTE: with new version of TBB (44_20160316oss) we can only construct 1 tbb::task_scheduler_init per job
   // else we get a crash. So for now we can't have any services use tasks in their constructors.
   bool setNThreadsOnCommandLine = false;
-  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads);
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(edm::s_defaultNumberOfThreads, kDefaultSizeOfStackForThreadsInKB * 1024);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
   std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
