@@ -105,6 +105,7 @@ private:
   std::vector<MonitorElement*> EtaPhi_Plus_,  EtaPhi_Minus_;
   MonitorElement              *MeanHitOccupancy_Plus_, *MeanHitOccupancy_Minus_;
   std::vector<MonitorElement*> energy_[6];
+  static const int         emptyScintLayer = 8;
 };
 
 HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig) :
@@ -165,8 +166,8 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
     if (heRebuild_ && testNumber_) {
       for (unsigned int i=0; i<caloHits.size(); ++i) {
 	unsigned int id_ = caloHits[i].id();
-    HcalDetId hid = HcalHitRelabeller::relabel(id_,hcons_);
-    if(hid.subdet()!=int(HcalEndcap)) hid = HcalDetId(HcalEmpty,hid.ieta(),hid.iphi(),hid.depth());
+	HcalDetId hid = HcalHitRelabeller::relabel(id_,hcons_);
+	if(hid.subdet()!=int(HcalEndcap)) hid = HcalDetId(HcalEmpty,hid.ieta(),hid.iphi(),hid.depth());
 	caloHits[i].setID(hid.rawId());
 	if (verbosity_>0)
 	  edm::LogVerbatim("HGCalValidation") << "Hit[" << i << "] " << hid;
@@ -225,7 +226,7 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       sector           = detId.iphi();
       subsector        = 1;
       type             = detId.type();
-      layer            = detId.layer();
+      layer            = detId.layer() - emptyScintLayer;
       zside            = detId.zside();
     } else {
       HGCalTestNumbering::unpackHexagonIndex(id_, subdet, zside, layer, sector, type, cell);
@@ -270,7 +271,7 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 	  (hgcons_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
 	xy = hgcons_->locateCell(layer,sector,subsector,cell,cell2,false,true);
       } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
-	xy = hgcons_->locateCellTrap(layer,sector,cell,false);
+	xy = hgcons_->locateCellTrap(layer+emptyScintLayer,sector,cell,false);
       } else {
 	xy = hgcons_->locateCell(cell,layer,sector,false);
       }

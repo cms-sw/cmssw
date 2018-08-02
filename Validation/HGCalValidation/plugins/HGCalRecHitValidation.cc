@@ -87,6 +87,7 @@ private:
   std::vector<MonitorElement*> HitOccupancy_Minus_;
   MonitorElement* MeanHitOccupancy_Plus_;
   MonitorElement* MeanHitOccupancy_Minus_;
+  static const int emptyScintLayer = 8;
 };
 
 HGCalRecHitValidation::HGCalRecHitValidation(const edm::ParameterSet& iConfig):
@@ -204,7 +205,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
 	  DetId detId = it.id();
 	  int layer   = ((geomType == 0) ? HGCalDetId(detId).layer() :
 			 ((geomType == 1) ? HGCSiliconDetId(detId).layer() :
-			  HGCScintillatorDetId(detId).layer()));
+			  HGCScintillatorDetId(detId).layer()+emptyScintLayer));
 	  recHitValidation(detId, layer, geom0, &it);
 	}
       } else {
@@ -244,7 +245,8 @@ void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer,
     edm::LogVerbatim("HGCalValidation") << "--------------------------   gx = "
 					<< globalx << " gy = "  << globaly   
 					<< " gz = " << globalz << " phi = " 
-					<< hinfo.phi << " eta = " << hinfo.eta << " lay = " << hinfo.layer;
+					<< hinfo.phi << " eta = " << hinfo.eta
+					<< " lay = " << hinfo.layer;
       
   fillHitsInfo(hinfo);
       
