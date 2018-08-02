@@ -93,7 +93,13 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemLabel = cms.string("Calo Layer2"),
                         HwValLabel = cms.string("Stage2CaloLayer2"),
                         SystemDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet()
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                  QualityTestName = cms.string("caloLayer2vsuGT_MismatchRatioMax0"),
+                                  QualityTestHist = cms.string("L1T/L1TStage2uGT/calol2ouput_vs_uGTinput/mismatchRatio"),
+                                  QualityTestSummaryEnabled = cms.uint32(1)
+                                  ),
+                            )
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("BMTF"),
