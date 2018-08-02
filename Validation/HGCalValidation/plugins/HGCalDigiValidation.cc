@@ -92,6 +92,7 @@ private:
   std::vector<MonitorElement*> DigiOccupancy_Minus_;
   MonitorElement* MeanDigiOccupancy_Plus_;
   MonitorElement* MeanDigiOccupancy_Minus_;
+  static const int emptyScintLayer = 8;
 };
 
 HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
@@ -195,7 +196,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	DetId      detId     = it.id();
 	int        layer     = ((geomType == 0) ? HGCalDetId(detId).layer() :
 				((geomType == 1) ? HGCSiliconDetId(detId).layer() :
-				 HGCScintillatorDetId(detId).layer()));
+				 HGCScintillatorDetId(detId).layer()+emptyScintLayer));
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
