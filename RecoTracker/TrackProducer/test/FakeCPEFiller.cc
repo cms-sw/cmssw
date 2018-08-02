@@ -143,13 +143,13 @@ FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
 */
+
+       bool ok=false;
        for (auto const & sh : simHits) {
 	 
 	 if(sh.processType() !=0) continue;
 
 	 std::cout << "simhit " << sh.localPosition() << std::endl;
-
-         //void add(const Cluster& cluster, const GeomDetUnit& gd,LocalValues const & lv) { m_map[encode(cluster,gd)] = lv; }
 
          LocalValues lv(sh.localPosition(),thit.localPositionError());
          //LocalValues lv(thit.localPosition(),thit.localPositionError());
@@ -158,11 +158,11 @@ FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
               fakeCPE.map().add(clus.pixelCluster(), *thit.detUnit(),lv);
          else
              fakeCPE.map().add(clus.stripCluster(), *thit.detUnit(),lv);
- 
+         ok=true;
          break; 
 
        } // closes loop on simHits
-       
+       if (!ok) std::cout << "SimHit non found in det " << thit.detUnit()->geographicalId().rawId() << std::endl;
     
      } // closes loop on trajectory measurements
      
