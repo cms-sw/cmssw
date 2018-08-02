@@ -16,6 +16,9 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
         void reset() final;
 
         unsigned getTriggerCellFromCell( const unsigned ) const final;
@@ -112,6 +115,24 @@ HGCalTriggerGeometryHexImp2::
 initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 {
     setCaloGeometry(calo_geometry);
+    fillMaps();
+    fillNeighborMaps();
+    fillInvalidTriggerCells();
+
+}
+
+void
+HGCalTriggerGeometryHexImp2::
+// initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
+initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+{
+    // setCaloGeometry(calo_geometry);
+    setEEGeometry(hgc_ee_geometry);
+    setHSiGeometry(hgc_hsi_geometry);
+    setHScGeometry(hgc_hsc_geometry);
     fillMaps();
     fillNeighborMaps();
     fillInvalidTriggerCells();

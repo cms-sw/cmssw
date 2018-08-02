@@ -47,12 +47,34 @@ HGCalTriggerGeometryESProducer::ReturnType
 HGCalTriggerGeometryESProducer::
 produce(const CaloGeometryRecord& iRecord)
 {
+    std::cout<<"Producing geometry\n";
     //using namespace edm::es;
     ReturnType geometry(HGCalTriggerGeometryFactory::get()->create(geometry_name_,geometry_config_));
     geometry->reset();
     edm::ESHandle<CaloGeometry> calo_geometry;
     iRecord.get(calo_geometry);
-    geometry->initialize(calo_geometry);
+    if(calo_geometry.isValid() &&
+       calo_geometry->getSubdetectorGeometry(DetId::Forward,HGCEE) &&
+       calo_geometry->getSubdetectorGeometry(DetId::Forward,HGCHEF) &&
+       calo_geometry->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)
+            )
+    {
+        std::cout<<"Found HGCAL geometries in CaloGeometry\n";
+        geometry->initialize(calo_geometry);
+    }
+    else
+    {
+        std::cout<<"Cannot find the HGCAL geometry in the calo geometry\n";
+        edm::ESHandle<HGCalGeometry> ee_geometry;
+        edm::ESHandle<HGCalGeometry> hsi_geometry;
+        edm::ESHandle<HGCalGeometry> hsc_geometry;
+        iRecord.getRecord<IdealGeometryRecord>().get("HGCalEESensitive",ee_geometry);
+        iRecord.getRecord<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hsi_geometry);
+        iRecord.getRecord<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",hsc_geometry);
+        // throw cms::Exception("InvalidGeometry")
+            // << "Cannot retrieve the HGCAL geometry";
+        geometry->initialize(ee_geometry, hsi_geometry, hsc_geometry);
+    }
     return geometry;
 
 }
