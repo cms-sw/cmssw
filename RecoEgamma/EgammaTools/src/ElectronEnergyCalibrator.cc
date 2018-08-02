@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <CLHEP/Random/RandGaussQ.h>
 
 const EnergyScaleCorrection::ScaleCorrection ElectronEnergyCalibrator::defaultScaleCorr_;
@@ -42,7 +43,7 @@ calibrate(reco::GsfElectron &ele, unsigned int runNumber,
   const float scEtaAbs = std::abs(ele.superCluster()->eta());
   const float et = ele.ecalEnergy() / cosh(scEtaAbs);
 
-  if (et < minEt_) {
+  if (et < minEt_ || edm::isNotFinite(et) ) {
     std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
     retVal.fill(ele.energy());
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
