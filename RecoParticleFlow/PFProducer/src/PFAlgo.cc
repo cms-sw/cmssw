@@ -850,7 +850,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
   vector<unsigned> hfEmIs;
   vector<unsigned> hfHadIs;
-  
+
+  vector<bool> deadArea(elements.size(), false);
 
   for(unsigned iEle=0; iEle<elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
@@ -872,6 +873,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       continue;
     case PFBlockElement::HCAL:
       if ( active[iEle] ) { 
+	if (elements[iEle].clusterRef()->flags() == 0xDEAD) {
+	  if(debug_) cout<<"HCAL DEAD AREA: remember and skip."<<endl;
+	  active[iEle] = false;
+	  deadArea[iEle] = true;
+	  continue;
+	}
 	hcalIs.push_back( iEle );
 	if(debug_) cout<<"HCAL, stored index, continue"<<endl;
       }
@@ -950,6 +957,30 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                               hcalElems,
                               reco::PFBlockElement::HCAL,
                               reco::PFBlock::LINKTEST_ALL );
+
+    // there's 3 possible options possible here, in principle:
+    //    1) flag everything that may be associated to a dead hcal marker
+    //    2) flag everything whose closest hcal link is a dead hcal marker
+    //    3) flag only things that are linked only to dead hcal marker
+    // in our first test we go for (2)
+    //--- option (1) --
+    //bool hasDeadHcal = false;
+    //for (auto it = hcalElems.begin(), ed = hcalElems.end(); it != ed; /*NOTE NO ++it HERE */ ) {
+    //    if (deadArea[it->second]) { hasDeadHcal = true; it = hcalElems.erase(it); } // std::multimap::erase returns iterator to next
+    //    else ++it;
+    //}
+    //--- option (2) --
+    bool hasDeadHcal = false;
+    if (!hcalElems.empty() && deadArea[hcalElems.begin()->second]) {
+        hasDeadHcal = true;
+        hcalElems.clear();
+    }
+    //--- option (3) --
+    //bool hasDeadHcal = true;
+    //for (auto it = hcalElems.begin(), ed = hcalElems.end(); it != ed; /*NOTE NO ++it HERE */ ) {
+    //    if (deadArea[it->second]) { it = hcalElems.erase(it); } // std::multimap::erase returns iterator to next
+    //    else { hasDeadHcal = false; }
+    //}
 
     // When a track has no HCAL cluster linked, but another track is linked to the same
     // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for 
