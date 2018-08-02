@@ -30,7 +30,7 @@ namespace {
   };
 
   /******************************************
-     2d plot of ECAL RespCorrRatios of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV
   ******************************************/
   class HcalRespCorrsPlotAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
@@ -50,7 +50,7 @@ namespace {
   };
 
   /**********************************************************
-     2d plot of ECAL RespCorrRatios difference between 2 IOVs
+     2d plot of HCAL RespCorrs difference between 2 IOVs
   **********************************************************/
   class HcalRespCorrsRatioAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
 
@@ -77,7 +77,101 @@ namespace {
     }// fill method
   };
   /******************************************
-     2d plot of ECAL RespCorrRatios of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV
+  ******************************************/
+  class HcalRespCorrsEtaPlotAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+  public:
+    HcalRespCorrsEtaPlotAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload( std::get<1>(iov) );
+      if(payload.get()) {
+        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        std::string ImageName(m_imageFileName);
+        objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
+        return true;} else return false;
+    }// fill method
+  };
+
+  /**********************************************************
+     2d plot of HCAL RespCorrs difference between 2 IOVs
+  **********************************************************/
+  class HcalRespCorrsEtaRatioAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+
+  public:
+    HcalRespCorrsEtaRatioAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
+      setSingleIov(false);
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      auto iov1 = iovs.front();
+      auto iov2 = iovs.back();
+
+      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload( std::get<1>(iov1) );
+      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload( std::get<1>(iov2) );
+
+      if(payload1.get() && payload2.get()) {
+        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        objContainer1->Divide(objContainer2);
+        std::string ImageName(m_imageFileName);
+        objContainer1->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
+        return true;} else return false;
+    }// fill method
+  };
+  /******************************************
+     2d plot of HCAL RespCorr of 1 IOV
+  ******************************************/
+  class HcalRespCorrsPhiPlotAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+  public:
+    HcalRespCorrsPhiPlotAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios - map ") {
+      setSingleIov( true );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      auto iov = iovs.front();
+      std::shared_ptr<HcalRespCorrs> payload = fetchPayload( std::get<1>(iov) );
+      if(payload.get()) {
+        HcalRespCorrContainer* objContainer = new HcalRespCorrContainer(payload, std::get<0>(iov));
+        std::string ImageName(m_imageFileName);
+        objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
+        return true;} else return false;
+    }// fill method
+  };
+
+  /**********************************************************
+     2d plot of HCAL RespCorrs difference between 2 IOVs
+  **********************************************************/
+  class HcalRespCorrsPhiRatioAll : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
+
+  public:
+    HcalRespCorrsPhiRatioAll() : cond::payloadInspector::PlotImage<HcalRespCorrs>("HCAL RespCorr Ratios difference") {
+      setSingleIov(false);
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      auto iov1 = iovs.front();
+      auto iov2 = iovs.back();
+
+      std::shared_ptr<HcalRespCorrs> payload1 = fetchPayload( std::get<1>(iov1) );
+      std::shared_ptr<HcalRespCorrs> payload2 = fetchPayload( std::get<1>(iov2) );
+
+      if(payload1.get() && payload2.get()) {
+        HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
+        HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
+        objContainer1->Divide(objContainer2);
+        std::string ImageName(m_imageFileName);
+        objContainer1->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
+        return true;} else return false;
+    }// fill method
+  };
+  /******************************************
+     2d plot of HCAL RespCorrs of 1 IOV
   ******************************************/
   class HcalRespCorrsPlotHBHO : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
@@ -97,7 +191,7 @@ namespace {
   };
 
   /**********************************************************
-     2d plot of ECAL RespCorrRatios difference between 2 IOVs
+     2d plot of HCAL RespCorr difference between 2 IOVs
   **********************************************************/
   class HcalRespCorrsRatioHBHO : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
 
@@ -124,7 +218,7 @@ namespace {
     }// fill method
   };
   /******************************************
-     2d plot of ECAL RespCorrRatios of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV
   ******************************************/
   class HcalRespCorrsPlotHE : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
@@ -144,7 +238,7 @@ namespace {
   };
 
   /**********************************************************
-     2d plot of ECAL RespCorrRatios difference between 2 IOVs
+     2d plot of HCAL RespCorr difference between 2 IOVs
   **********************************************************/
   class HcalRespCorrsRatioHE : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
 
@@ -171,7 +265,7 @@ namespace {
     }// fill method
   };
   /******************************************
-     2d plot of ECAL RespCorrRatios of 1 IOV
+     2d plot of HCAL RespCorr of 1 IOV
   ******************************************/
   class HcalRespCorrsPlotHF : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
   public:
@@ -191,7 +285,7 @@ namespace {
   };
 
   /**********************************************************
-     2d plot of ECAL RespCorrRatios difference between 2 IOVs
+     2d plot of HCAL RespCorrRatios difference between 2 IOVs
   **********************************************************/
   class HcalRespCorrsRatioHF : public cond::payloadInspector::PlotImage<HcalRespCorrs> {
 
@@ -223,6 +317,10 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(HcalRespCorrs){
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsPlotAll);
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsRatioAll);
+  PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsEtaPlotAll);
+  PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsEtaRatioAll);
+  PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsPhiPlotAll);
+  PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsPhiRatioAll);
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsPlotHBHO);
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsRatioHBHO);
   PAYLOAD_INSPECTOR_CLASS(HcalRespCorrsPlotHE);

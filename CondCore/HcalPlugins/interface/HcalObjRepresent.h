@@ -44,7 +44,6 @@ namespace HcalObjRepresent{
            virtual ~HcalDataContainer(){};
            // For easier channel mapping
            typedef std::tuple<int, int, int> Coord;
-           //template <class Item>
            typedef std::map< Coord, Item > tHcalValCont;
            // mapping of pair of subdetector name (e.g, "HE") and depth number (e.g. 3) to Histogram of data for that subdetector/depth pair
            typedef std::map< std::pair< std::string, int >, TH2F* > DepthMap;
@@ -191,11 +190,12 @@ namespace HcalObjRepresent{
            // wisely determines what range to set histogram axis to
            std::pair< float, float > GetRange(TH1* hist) {
 
-               if(PlotMode_ == "Ratio") {
-                 int amp;
-                 amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
-                 return std::make_pair( 1 - amp, 1 + amp);
-               } else return std::make_pair(hist->GetMinimum(),hist->GetMaximum());
+               //if(PlotMode_ == "Ratio") {
+               //  int amp;
+               //  amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
+               //  return std::make_pair( 1 - amp, 1 + amp);
+               //} else 
+               return std::make_pair(hist->GetMinimum(),hist->GetMaximum());
            }
 
            // set style
@@ -286,16 +286,16 @@ namespace HcalObjRepresent{
 
            //// functions called in Payload Inspector classes to import final canvases to be plotted
 
-           TCanvas* getCanvasAll() {
-           
+           // profile = "EtaProfile" || "PhiProfile"
+           TCanvas* getCanvasAll(std::string profile="2DHist") {
              fillValConts();
              initGraphics();
              TCanvas *HAll = new TCanvas("HAll", "HAll", 1680, (GetTopoMode()=="2015/2016")?1680:2500);
              HAll->Divide(3, (GetTopoMode()=="2015/2016")?3:6);
-             FillCanv(HAll,"HB");
-             FillCanv(HAll,"HO",4,3);
-             FillCanv(HAll,"HF",1,4);
-             FillCanv(HAll,"HE",1,(GetTopoMode()=="2015/2016")?7:10);
+             FillCanv(HAll,"HB",1,1,profile);
+             FillCanv(HAll,"HO",4,3,profile);
+             FillCanv(HAll,"HF",1,4,profile);
+             FillCanv(HAll,"HE",1,(GetTopoMode()=="2015/2016")?7:10,profile);
              return HAll;
            }           
            
@@ -371,10 +371,11 @@ namespace HcalObjRepresent{
 
            void setTopoModeFromValConts(bool throwOnFail=false) {
                 
+
+             // Check HEP17 alternate channel for 2017, just by checking if the 7th depth is there, or if HF has 4 depths
+             if(depths_.count(std::make_pair("HF",4))!=0 || depths_.count(std::make_pair("HE",7))!=0) TopoMode_ = "2017";
              // Check endcap depth unique to 2018
-             if(HEvalContainer.count(std::make_tuple(7,-26,63))!=0) TopoMode_ = "2018";
-             // Check HEP17 alternate channel for 2017
-             else if(HEvalContainer.count(std::make_tuple(7,26,63)) != 0) TopoMode_ = "2017";
+             else if(HEvalContainer.count(std::make_tuple(7,-26,63))!=0) TopoMode_ = "2018";
              // if not 2017 or 2018, 2015 and 2016 are the same
              else TopoMode_ = "2015/2016"; 
              //NOTE: HO's one depth is labeled depth 4
