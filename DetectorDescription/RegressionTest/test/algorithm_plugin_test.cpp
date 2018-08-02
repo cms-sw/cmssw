@@ -16,6 +16,12 @@ int main(int, char **argv)
   std::string name("test:DDTestAlgorithm");
   algo = DDAlgorithmFactory::get()->create(name);
   if (algo) {
+    const DDNumericArguments nArgs;
+    const DDVectorArguments vArgs;
+    const DDMapArguments mArgs;
+    const DDStringArguments sArgs;
+    const DDStringVectorArguments vsArgs;
+    algo->initialize( nArgs, vArgs, mArgs, sArgs, vsArgs );
     algo->execute( cpv );
     std::cout << "OK\n";
   }
