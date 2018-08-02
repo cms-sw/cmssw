@@ -1,6 +1,8 @@
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
 
 #define DEBUG 0
 
@@ -114,5 +116,6 @@ void PixelTrackReconstructionGPU::launchKernelFit(float * hits_and_covariancesGP
   // 12(3+9) * hits_in_fit
   int num_blocks = cumulative_size/(hits_in_fit*12)/threads_per_block.x + 1;
   KernelFullFitAllHits<<<num_blocks, threads_per_block>>>(hits_and_covariancesGPU, hits_in_fit, cumulative_size, B, results);
+  cudaCheck(cudaGetLastError());
 }
 

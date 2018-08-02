@@ -447,6 +447,7 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
       device_isOuterHitOfCell_, d_foundNtupletsVec_[regionIndex],
       region.origin().x(), region.origin().y(), maxNumberOfDoublets_,
       maxNumberOfHits_);
+  cudaCheck(cudaGetLastError());
 
   kernel_connect<<<numberOfBlocks_connect, 512, 0, cudaStream>>>(
       numberOfLayerPairs_, d_doublets_, device_theCells_,
@@ -454,11 +455,13 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(const TrackingRegion &region,
       region.ptMin(), region.origin().x(), region.origin().y(),
       region.originRBound(), caThetaCut, caPhiCut, caHardPtCut,
       maxNumberOfDoublets_, maxNumberOfHits_);
+  cudaCheck(cudaGetLastError());
 
   kernel_find_ntuplets<<<numberOfBlocks_find, 1024, 0, cudaStream>>>(
       numberOfRootLayerPairs_, d_doublets_, device_theCells_,
       d_foundNtupletsVec_[regionIndex],
       d_rootLayerPairs_, 4, maxNumberOfDoublets_);
+  cudaCheck(cudaGetLastError());
 
   cudaCheck(cudaMemcpyAsync(h_foundNtupletsVec_[regionIndex], d_foundNtupletsVec_[regionIndex],
                             sizeof(GPU::SimpleVector<Quadruplet>),
@@ -499,4 +502,5 @@ void CAHitQuadrupletGeneratorGPU::buildDoublets(HitsOnCPU const & hh, float phic
   int blocks = (nhits + threadsPerBlock - 1) / threadsPerBlock;
 
   gpuPixelDoublets::getDoubletsFromHisto<<<blocks, threadsPerBlock, 0, stream>>>(hh.gpu_d,phiCut);
+  cudaCheck(cudaGetLastError());
 }

@@ -116,9 +116,11 @@ namespace pixelgpudetails {
       gpu_.xerr_d, gpu_.yerr_d,
       gpu_.mr_d, gpu_.mc_d
     );
+    cudaCheck(cudaGetLastError());
 
     // assuming full warp of threads is better than a smaller number...
     setHitsLayerStart<<<1, 32, 0, stream.id()>>>(gpu_.hitsModuleStart_d, d_phase1TopologyLayerStart_, gpu_.hitsLayerStart_d);
+    cudaCheck(cudaGetLastError());
 
     // needed only if hits on CPU are required...
     cudaCheck(cudaMemcpyAsync(h_hitsModuleStart_, gpu_.hitsModuleStart_d, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t), cudaMemcpyDefault, stream.id()));

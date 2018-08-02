@@ -9,6 +9,7 @@
 #endif // __CUDA_ARCH__
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudastdAlgorithm.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #ifdef __CUDACC__
 namespace cudautils {
@@ -50,6 +51,7 @@ namespace cudautils {
   void zero(Histo * h, uint32_t nh, int nthreads, cudaStream_t stream) {
     auto nblocks = (nh * Histo::nbins() + nthreads - 1) / nthreads;
     zeroMany<<<nblocks, nthreads, 0, stream>>>(h, nh);
+    cudaCheck(cudaGetLastError());
   }
 
   template<typename Histo, typename T>
@@ -57,6 +59,7 @@ namespace cudautils {
     zero(h, 1, nthreads, stream);
     auto nblocks = (size + nthreads - 1) / nthreads;
     fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, v, size);
+    cudaCheck(cudaGetLastError());
   }
 
   template<typename Histo, typename T>
@@ -64,6 +67,7 @@ namespace cudautils {
     zero(h, nh, nthreads, stream);
     auto nblocks = (totSize + nthreads - 1) / nthreads;
     fillFromVector<<<nblocks, nthreads, 0, stream>>>(h, nh, v, offsets);
+    cudaCheck(cudaGetLastError());
   }
 
 } // namespace cudautils

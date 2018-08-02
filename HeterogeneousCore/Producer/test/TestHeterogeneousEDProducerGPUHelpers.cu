@@ -1,10 +1,10 @@
-#include "TestHeterogeneousEDProducerGPUHelpers.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "cuda/api_wrappers.h"
+#include <cuda/api_wrappers.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "TestHeterogeneousEDProducerGPUHelpers.h"
 
 //
 // Vector Addition Kernel
@@ -85,6 +85,7 @@ int TestAcceleratorServiceProducerGPUHelpers_simple_kernel(int input) {
   int blocksPerGrid = (NUM_VALUES + threadsPerBlock - 1) / threadsPerBlock;
 
   vectorAdd<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_a.get(), d_b.get(), d_c.get(), NUM_VALUES);
+  cudaCheck(cudaGetLastError());
   /*
     // doesn't work with header-only?
   cuda::launch(vectorAdd, {blocksPerGrid, threadsPerBlock},
@@ -153,8 +154,10 @@ TestHeterogeneousEDProducerGPUTask::runAlgo(const std::string& label, int input,
 
   edm::LogPrint("TestHeterogeneousEDProducerGPU") << "  " << label << " GPU launching kernels device " << current_device.id() << " CUDA stream " << stream.id();
   vectorAdd<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_a.get(), d_b.get(), d_c.get(), NUM_VALUES);
+  cudaCheck(cudaGetLastError());
   if(inputArrays.second != nullptr) {
     vectorAdd<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(inputArrays.second, d_c.get(), d_d.get(), NUM_VALUES);
+    cudaCheck(cudaGetLastError());
     std::swap(d_c, d_d);
   }
 
@@ -167,10 +170,13 @@ TestHeterogeneousEDProducerGPUTask::runAlgo(const std::string& label, int input,
     blocksPerGrid3.y = ceil(double(NUM_VALUES)/double(threadsPerBlock3.y));
   }
   vectorProd<<<blocksPerGrid3, threadsPerBlock3, 0, stream.id()>>>(d_a.get(), d_b.get(), d_ma.get(), NUM_VALUES);
+  cudaCheck(cudaGetLastError());
   vectorProd<<<blocksPerGrid3, threadsPerBlock3, 0, stream.id()>>>(d_a.get(), d_c.get(), d_mb.get(), NUM_VALUES);
+  cudaCheck(cudaGetLastError());
   matrixMul<<<blocksPerGrid3, threadsPerBlock3, 0, stream.id()>>>(d_ma.get(), d_mb.get(), d_mc.get(), NUM_VALUES);
-
+  cudaCheck(cudaGetLastError());
   matrixMulVector<<<blocksPerGrid, threadsPerBlock, 0, stream.id()>>>(d_mc.get(), d_b.get(), d_c.get(), NUM_VALUES);
+  cudaCheck(cudaGetLastError());
 
   edm::LogPrint("TestHeterogeneousEDProducerGPU") << "  " << label << " GPU kernels launched, returning return pointer device " << current_device.id() << " CUDA stream " << stream.id();
   return std::make_pair(std::move(d_a), std::move(d_c));

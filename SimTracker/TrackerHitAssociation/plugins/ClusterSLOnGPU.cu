@@ -197,12 +197,13 @@ namespace clusterSLOnGPU {
 
     int blocks = (nhits + threadsPerBlock - 1) / threadsPerBlock;
     verifyZero<<<blocks, threadsPerBlock, 0, stream.id()>>>(ev, dd.me_d, hh.gpu_d, nhits, sl.me_d);
-
+    cudaCheck(cudaGetLastError());
 
     blocks = (ndigis + threadsPerBlock - 1) / threadsPerBlock;
 
     assert(sl.me_d);
     simLink<<<blocks, threadsPerBlock, 0, stream.id()>>>(dd.me_d,ndigis, hh.gpu_d, sl.me_d,n);
+    cudaCheck(cudaGetLastError());
 
     if (doDump) {
       cudaStreamSynchronize(stream.id());	// flush previous printf
@@ -210,11 +211,11 @@ namespace clusterSLOnGPU {
       blocks = 16; // (nhits + threadsPerBlock - 1) / threadsPerBlock;
       for (int first=0; first<int(nhits); first+=blocks*threadsPerBlock) {
         dumpLink<<<blocks, threadsPerBlock, 0, stream.id()>>>(first, ev, hh.gpu_d, nhits, sl.me_d);
+        cudaCheck(cudaGetLastError());
         cudaStreamSynchronize(stream.id());
       }
     }
     cudaCheck(cudaGetLastError());
-
   }
 
 }

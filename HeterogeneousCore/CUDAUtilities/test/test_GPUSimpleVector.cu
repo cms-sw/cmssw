@@ -1,10 +1,12 @@
 //  author: Felice Pantaleo, CERN, 2018
-#include "../interface/GPUSimpleVector.h"
 #include <cassert>
-#include <cuda.h>
-#include <cuda_runtime.h>
 #include <iostream>
 #include <new>
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+
+#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 
 __global__ void vector_pushback(GPU::SimpleVector<int> *foo) {
   auto index = threadIdx.x + blockIdx.x * blockDim.x;
@@ -52,6 +54,7 @@ int main() {
   int numThreadsPerBlock = 256;
   assert(success);
   vector_pushback<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
+  success = success && cudaGetLastError();
 
   cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault);
 
@@ -59,12 +62,14 @@ int main() {
                                  ? numBlocks * numThreadsPerBlock
                                  : maxN));
   vector_reset<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
+  success = success && cudaGetLastError();
 
   cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault);
 
   assert(obj_ptr->size() == 0);
 
   vector_emplace_back<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
+  success = success && cudaGetLastError();
 
   cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault);
 
