@@ -44,11 +44,11 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase
 
     private:
         edm::FileInPath l1tCellsMapping_;
-        edm::FileInPath l1tCellsBHMapping_;
+        edm::FileInPath l1tCellsSciMapping_;
         edm::FileInPath l1tWafersMapping_;
         edm::FileInPath l1tModulesMapping_;
         edm::FileInPath l1tCellNeighborsMapping_;
-        edm::FileInPath l1tCellNeighborsBHMapping_;
+        edm::FileInPath l1tCellNeighborsSciMapping_;
 
         // module related maps
         std::unordered_map<unsigned, unsigned> wafer_to_module_;
@@ -57,10 +57,10 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase
         // trigger cell related maps
         std::unordered_map<unsigned, unsigned> cells_to_trigger_cells_;
         std::unordered_multimap<unsigned, unsigned> trigger_cells_to_cells_;
-        std::unordered_map<unsigned, unsigned> cells_to_trigger_cells_bh_;
-        std::unordered_multimap<unsigned, unsigned> trigger_cells_to_cells_bh_;
+        std::unordered_map<unsigned, unsigned> cells_to_trigger_cells_sci_;
+        std::unordered_multimap<unsigned, unsigned> trigger_cells_to_cells_sci_;
         std::unordered_map<unsigned, unsigned short> number_trigger_cells_in_wafers_; 
-        std::unordered_map<unsigned, unsigned short> number_trigger_cells_in_wafers_bh_; 
+        std::unordered_map<unsigned, unsigned short> number_trigger_cells_in_wafers_sci_; 
         std::unordered_map<unsigned, unsigned> wafers_to_wafers_old_;
         std::unordered_map<unsigned, unsigned> wafers_old_to_wafers_;
         std::unordered_set<unsigned> invalid_triggercells_;
@@ -70,7 +70,7 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase
         // - The key includes the module and trigger cell id
         // - The value is a set of (module_id, trigger_cell_id)
         std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_;
-        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_bh_;
+        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_sci_;
 
         // Disconnected modules and layers
         std::unordered_set<unsigned> disconnected_modules_;
@@ -109,11 +109,11 @@ HGCalTriggerGeometryV9Imp1::
 HGCalTriggerGeometryV9Imp1(const edm::ParameterSet& conf):
     HGCalTriggerGeometryBase(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
-    l1tCellsBHMapping_(conf.getParameter<edm::FileInPath>("L1TCellsBHMapping")),
+    l1tCellsSciMapping_(conf.getParameter<edm::FileInPath>("L1TCellsSciMapping")),
     l1tWafersMapping_(conf.getParameter<edm::FileInPath>("L1TWafersMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
     l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
-    l1tCellNeighborsBHMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsBHMapping"))
+    l1tCellNeighborsSciMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsSciMapping"))
 {
     std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedModules");
     std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_modules_, disconnected_modules_.end()));
@@ -127,16 +127,16 @@ reset()
 {
     cells_to_trigger_cells_.clear();
     trigger_cells_to_cells_.clear();
-    cells_to_trigger_cells_bh_.clear();
-    trigger_cells_to_cells_bh_.clear();
+    cells_to_trigger_cells_sci_.clear();
+    trigger_cells_to_cells_sci_.clear();
     wafers_to_wafers_old_.clear();
     wafers_old_to_wafers_.clear();
     wafer_to_module_.clear();
     module_to_wafers_.clear();
     number_trigger_cells_in_wafers_.clear();
-    number_trigger_cells_in_wafers_bh_.clear();
+    number_trigger_cells_in_wafers_sci_.clear();
     trigger_cell_neighbors_.clear();
-    trigger_cell_neighbors_bh_.clear();
+    trigger_cell_neighbors_sci_.clear();
 }
 
 void
@@ -176,7 +176,7 @@ initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
     }
     fillMaps();
     fillNeighborMapSilicon(l1tCellNeighborsMapping_, trigger_cell_neighbors_);
-    fillNeighborMapScintillator(l1tCellNeighborsBHMapping_, trigger_cell_neighbors_bh_);
+    fillNeighborMapScintillator(l1tCellNeighborsSciMapping_, trigger_cell_neighbors_sci_);
     fillInvalidTriggerCells();
 
 }
@@ -192,7 +192,7 @@ getTriggerCellFromCell( const unsigned cell_id ) const
     unsigned layer = 0;
     unsigned wafer_trigger_cell = 0;
     unsigned trigger_cell = 0;
-    // BH
+    // Scintillator
     if(det == DetId::HGCalHSc)
     {
         HGCScintillatorDetId cell_det_id(cell_id);
@@ -202,8 +202,8 @@ getTriggerCellFromCell( const unsigned cell_id ) const
         layer = cell_det_id.layer();
         subdet = ForwardSubdetector::HGCHEB;
         zside = cell_det_id.zside();
-        auto trigger_cell_itr = cells_to_trigger_cells_bh_.find(packIetaIphi(ieta, iphi));
-        if(trigger_cell_itr==cells_to_trigger_cells_bh_.end())
+        auto trigger_cell_itr = cells_to_trigger_cells_sci_.find(packIetaIphi(ieta, iphi));
+        if(trigger_cell_itr==cells_to_trigger_cells_sci_.end())
         {
             throw cms::Exception("BadGeometry")
                 << "HGCalTriggerGeometry: scintillator cell ieta=" << ieta << ", iphi="<<iphi<<" is not mapped to any trigger cell. The trigger cell mapping should be modified.\n";
@@ -212,7 +212,7 @@ getTriggerCellFromCell( const unsigned cell_id ) const
         wafer_trigger_cell = 0;
         unpackWaferCellId(trigger_cell_itr->second, wafer_trigger_cell, trigger_cell);
     }
-    // EE or FH
+    // Silicon
     else if(det == DetId::HGCalEE || det == DetId::HGCalHSi)
     {
         HGCSiliconDetId cell_det_id(cell_id);
@@ -239,12 +239,6 @@ getTriggerCellFromCell( const unsigned cell_id ) const
         }
         trigger_cell = trigger_cell_itr->second;
         wafer_trigger_cell = wafer_trigger_cell_itr->second;
-        // if(type==2 || type!=wafer_type)
-        // {
-            // std::cout<<"getTriggerCellFromCell: "<<HGCalDetId((ForwardSubdetector)subdet, zside, layer, 1, wafer_trigger_cell, trigger_cell)<<"\n";
-            // std::cout<<"    "<<cell_det_id<<"\n";
-            // std::cout<<"    Wafer type = "<<type<<", "<<wafer_type<<"\n";
-        // }
     }
     return HGCalDetId((ForwardSubdetector)subdet, zside, layer, tc_type, wafer_trigger_cell, trigger_cell).rawId();
 
@@ -263,13 +257,13 @@ getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
 {
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
     unsigned module = 0;
-    // BH
+    // Scintillator
     if(trigger_cell_det_id.subdetId()==ForwardSubdetector::HGCHEB)
     {
-        // For BH, the module ID is currently encoded as the wafer in HGCalDetId
+        // For scintillator, the module ID is currently encoded as the wafer in HGCalDetId
         module = trigger_cell_det_id.wafer();
     }
-    // EE or FH
+    // Silicon
     else
     {
         auto module_itr = wafer_to_module_.find(trigger_cell_det_id.wafer());
@@ -291,28 +285,24 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
     geom_set cell_det_ids;
     unsigned subdet = trigger_cell_det_id.subdetId();
-    // BH
+    // Scintillator
     if(subdet==ForwardSubdetector::HGCHEB)
     {
         unsigned trigger_wafer = trigger_cell_det_id.wafer();
         unsigned trigger_cell = trigger_cell_det_id.cell();
         unsigned layer = trigger_cell_det_id.layer();
         int type =  hscTopology().dddConstants().getTypeTrap(layer);
-        const auto& cell_range = trigger_cells_to_cells_bh_.equal_range(packWaferCellId(subdet, trigger_wafer, trigger_cell));
-        // std::cout<<" Cells from TC "<<trigger_cell_det_id<<"\n";
+        const auto& cell_range = trigger_cells_to_cells_sci_.equal_range(packWaferCellId(subdet, trigger_wafer, trigger_cell));
         for(auto tc_c_itr=cell_range.first; tc_c_itr!=cell_range.second; tc_c_itr++)
         {
             unsigned ieta = 0;
             unsigned iphi = 0;
             unpackIetaIphi(tc_c_itr->second, ieta, iphi);
             unsigned cell_det_id = HGCScintillatorDetId(type, layer, trigger_cell_det_id.zside()*ieta, iphi).rawId();
-            // std::cout<<"    "<<HGCScintillatorDetId(cell_det_id);
             if(validCellId(subdet, cell_det_id)) cell_det_ids.emplace(cell_det_id);
-            // else std::cout<<"(Invalid)";
-            // std::cout<<"\n";
         }
     }
-    // EE or FH
+    // Silicon
     else
     {
         int waferu = 0;
@@ -331,32 +321,13 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
         unsigned subdet = trigger_cell_det_id.subdetId();
         unsigned trigger_cell = trigger_cell_det_id.cell();
         const auto& cell_range = trigger_cells_to_cells_.equal_range(packCellId(wafer_type, trigger_cell));
-        // if(det==DetId::HGCalHSi)
-        // {
-            // std::cout<<"Trigger cell "<<trigger_cell_det_id<<"\n";
-            // std::cout<<"   Wafer type = "<<wafer_type<<"\n";
-        // }
         for(auto tc_c_itr=cell_range.first; tc_c_itr!=cell_range.second; tc_c_itr++)
         {
             unsigned cellu = 0;
             unsigned cellv = 0;
             unpackCellId(tc_c_itr->second, cellu, cellv);
             unsigned cell_det_id = HGCSiliconDetId(det, trigger_cell_det_id.zside(), wafer_type, layer, waferu, waferv, cellu, cellv).rawId();
-            if(validCellId(subdet, cell_det_id)) 
-            {
-                // if(det==DetId::HGCalHSi)
-                // {
-                    // std::cout<<"    "<<HGCSiliconDetId(cell_det_id)<<"\n";
-                // }
-                cell_det_ids.emplace(cell_det_id);
-            }
-            // else
-            // {
-                // if(det==DetId::HGCalHSi)
-                // {
-                    // std::cout<<"    Invalid cell ID "<<HGCSiliconDetId(cell_det_id)<<"\n";
-                // }
-            // }
+            if(validCellId(subdet, cell_det_id)) cell_det_ids.emplace(cell_det_id);
         }
     }
     return cell_det_ids;
@@ -396,18 +367,18 @@ getTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     geom_set trigger_cell_det_ids;
-    // BH
+    // Scintillator
     if(module_det_id.subdetId()==ForwardSubdetector::HGCHEB)
     {
         unsigned module = module_det_id.wafer();
         // loop on the trigger cells in each module
-        for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_bh_.at(module); trigger_cell++)
+        for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_sci_.at(module); trigger_cell++)
         {
             HGCalDetId trigger_cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), module_det_id.waferType(), module, trigger_cell);
             if(validTriggerCell(trigger_cell_id)) trigger_cell_det_ids.emplace(trigger_cell_id.rawId());
         }
     }
-    // EE or FH
+    // Silicon
     else
     {
         unsigned module = module_det_id.wafer();
@@ -441,12 +412,12 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     geom_ordered_set trigger_cell_det_ids;
-    // BH
+    // Scintillator
     if(module_det_id.subdetId()==ForwardSubdetector::HGCHEB)
     {
         unsigned module = module_det_id.wafer();
         // loop on the trigger cells in each module
-        for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_bh_.at(module); trigger_cell++)
+        for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_sci_.at(module); trigger_cell++)
         {
             HGCalDetId trigger_cell_id((ForwardSubdetector)module_det_id.subdetId(), module_det_id.zside(), module_det_id.layer(), module_det_id.waferType(), module, trigger_cell);
             if(validTriggerCell(trigger_cell_id)) trigger_cell_det_ids.emplace(trigger_cell_id.rawId());
@@ -488,7 +459,7 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
 {
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
     // Choose scintillator or silicon map
-    const auto& neighbors_map = (trigger_cell_det_id.subdetId()==ForwardSubdetector::HGCHEB ? trigger_cell_neighbors_bh_ : trigger_cell_neighbors_);
+    const auto& neighbors_map = (trigger_cell_det_id.subdetId()==ForwardSubdetector::HGCHEB ? trigger_cell_neighbors_sci_ : trigger_cell_neighbors_);
     unsigned layer = trigger_cell_det_id.layer();
     unsigned type = (trigger_cell_det_id.subdetId()==ForwardSubdetector::HGCHEB ? hscTopology().dddConstants().getTypeTrap(layer):  1);
     unsigned module = trigger_cell_det_id.wafer();
@@ -526,7 +497,7 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
     // Position: barycenter of the trigger cell.
     Basic3DVector<float> triggerCellVector(0.,0.,0.);
     const auto cell_ids = getCellsFromTriggerCell(trigger_cell_det_id);
-    // BH
+    // Scintillator
     if(subdet==ForwardSubdetector::HGCHEB)
     {
         for(const auto& cell : cell_ids)
@@ -535,14 +506,12 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
             triggerCellVector += hscGeometry()->getPosition(cellDetId).basicVector();
         }
     }
-    // EE or FH
+    // Silicon
     else
     {
-        // std::cout<<HGCalDetId(trigger_cell_det_id)<<"\n";
         for(const auto& cell : cell_ids)
         {
             HGCSiliconDetId cellDetId(cell);
-            // std::cout<<"   cell "<<cellDetId<<"\n";
             triggerCellVector += (cellDetId.det()==DetId::HGCalEE ? eeGeometry()->getPosition(cellDetId) : hsiGeometry()->getPosition(cellDetId)).basicVector();
         }
     }
@@ -558,7 +527,7 @@ getModulePosition(const unsigned module_det_id) const
     // Position: barycenter of the module.
     Basic3DVector<float> moduleVector(0.,0.,0.);
     const auto cell_ids = getCellsFromModule(module_det_id);
-    // BH
+    // Scintillator
     if(subdet==ForwardSubdetector::HGCHEB)
     {
         for(const auto& cell : cell_ids)
@@ -567,7 +536,7 @@ getModulePosition(const unsigned module_det_id) const
             moduleVector += hscGeometry()->getPosition(cellDetId).basicVector();
         }
     }
-    // EE or FH
+    // Silicon
     else
     {
         for(const auto& cell : cell_ids)
@@ -626,40 +595,32 @@ fillMaps()
         auto itr_insert = number_trigger_cells_in_wafers_.emplace(type, 0);
         if(trigger_cell+1 > itr_insert.first->second) itr_insert.first->second = trigger_cell+1;
     }
-    for(auto& type_nb : number_trigger_cells_in_wafers_)
-    {
-        std::cout<<"Number of trigger cells in wafer type "<<type_nb.first<<" = "<<type_nb.second<<"\n";
-    }
-    for(auto& tc_cells : trigger_cells_to_cells_)
-    {
-        std::cout<<"Number of cells in TC "<<tc_cells.first<<" = "<<trigger_cells_to_cells_.count(tc_cells.first)<<"\n";
-    }
     if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping '"<<type<<" "<<cellu<<" "<<cellv<<" "<<trigger_cell<<"' \n";
     l1tCellsMappingStream.close();
-    // read BH trigger cell mapping file
-    std::ifstream l1tCellsBHMappingStream(l1tCellsBHMapping_.fullPath());
-    if(!l1tCellsBHMappingStream.is_open())
+    // read scintillator trigger cell mapping file
+    std::ifstream l1tCellsSciMappingStream(l1tCellsSciMapping_.fullPath());
+    if(!l1tCellsSciMappingStream.is_open())
     {
         throw cms::Exception("MissingDataFile")
-            << "Cannot open HGCalTriggerGeometry L1TCellsBHMapping file\n";
+            << "Cannot open HGCalTriggerGeometry L1TCellsSciMapping file\n";
     }
     short ieta = 0;
     short iphi = 0;
     trigger_wafer = 0;
     trigger_cell = 0;
-    for(; l1tCellsBHMappingStream>>ieta>>iphi>>trigger_wafer>>trigger_cell; )
+    for(; l1tCellsSciMappingStream>>ieta>>iphi>>trigger_wafer>>trigger_cell; )
     { 
         unsigned cell_key = packIetaIphi(ieta,iphi);
         unsigned trigger_cell_key = packWaferCellId(ForwardSubdetector::HGCHEB,trigger_wafer,trigger_cell);
         // fill cell <-> trigger cell mappings
-        cells_to_trigger_cells_bh_.emplace(cell_key, trigger_cell_key);
-        trigger_cells_to_cells_bh_.emplace(trigger_cell_key, cell_key);
+        cells_to_trigger_cells_sci_.emplace(cell_key, trigger_cell_key);
+        trigger_cells_to_cells_sci_.emplace(trigger_cell_key, cell_key);
         // fill number of trigger cells in wafers
-        auto itr_insert = number_trigger_cells_in_wafers_bh_.emplace(trigger_wafer, 0);
+        auto itr_insert = number_trigger_cells_in_wafers_sci_.emplace(trigger_wafer, 0);
         if(trigger_cell+1 > itr_insert.first->second) itr_insert.first->second = trigger_cell+1;
     }
-    if(!l1tCellsBHMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsBHMapping '"<<ieta<<" "<<iphi<<" "<<trigger_wafer<<" "<<trigger_cell<<"' \n";
-    l1tCellsBHMappingStream.close();
+    if(!l1tCellsSciMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsSciMapping '"<<ieta<<" "<<iphi<<" "<<trigger_wafer<<" "<<trigger_cell<<"' \n";
+    l1tCellsSciMappingStream.close();
     // read wafer mapping file
     std::ifstream l1tWafersMappingStream(l1tWafersMapping_.fullPath());
     if(!l1tWafersMappingStream.is_open()) 
@@ -884,7 +845,7 @@ fillInvalidTriggerCells()
     for(unsigned layer=first_layer_hsc; layer<=first_layer_hsc+n_layers_hsc; layer++)
     {
         int type =  hscTopology().dddConstants().getTypeTrap(layer);
-        for(const auto& module_ncells : number_trigger_cells_in_wafers_bh_)
+        for(const auto& module_ncells : number_trigger_cells_in_wafers_sci_)
         {
             unsigned trigger_wafer = module_ncells.first;
             // loop on the trigger cells in each wafer
