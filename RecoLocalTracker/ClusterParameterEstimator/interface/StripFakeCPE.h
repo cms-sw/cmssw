@@ -25,7 +25,7 @@ class StripFakeCPE final : public StripClusterParameterEstimator
  public:
 
   StripFakeCPE() = default; 
-  ~StripFakeCPE() = default;
+  ~StripFakeCPE() override = default;
 
   using LocalValues = std::pair<LocalPoint,LocalError>;
 
