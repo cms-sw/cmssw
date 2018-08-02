@@ -10,7 +10,7 @@ from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoA
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
-from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
+from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cff import *
 from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import *

@@ -9,7 +9,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 // This template function finds whether theCandidate is in thefootprint
@@ -368,26 +370,25 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
 }
 
-void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
-    // The following says we do not know what parameters are allowed so do no validation
-    // Please change this to state exactly what you do use, even if it is no parameters
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("ebReducedRecHitCollection");
-    desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD");
-    desc.add<edm::InputTag>("eeReducedRecHitCollection");
-    desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD");
-    desc.add<edm::InputTag>("esReducedRecHitCollection", edm::InputTag("reducedEcalRecHitsES"));
-    desc.add<edm::InputTag>("esReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma:reducedESRecHits"));
-    desc.add<edm::InputTag>("vertices");
-    desc.add<edm::InputTag>("verticesMiniAOD");
-    desc.add<edm::InputTag>("src");
-    desc.add<edm::InputTag>("srcMiniAOD");
-    desc.add<edm::InputTag>("particleBasedIsolation");
-    desc.add<edm::InputTag>("pfCandidates");
-    desc.add<edm::InputTag>("pfCandidatesMiniAOD");
-    descriptions.addDefault(desc);
+void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // photonIDValueMapProducer
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("particleBasedIsolation",           edm::InputTag("particleBasedIsolation","gedPhotons"));
+  desc.add<edm::InputTag>("src",                              edm::InputTag("gedPhotons"));
+  desc.add<edm::InputTag>("srcMiniAOD",                       edm::InputTag("slimmedPhotons","","@skipCurrentProcess"));
+  desc.add<edm::InputTag>("esReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedESRecHits"));
+  desc.add<edm::InputTag>("eeReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEE"));
+  desc.add<edm::InputTag>("pfCandidates",                     edm::InputTag("particleFlow"));
+  desc.add<edm::InputTag>("vertices",                         edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEBRecHits"));
+  desc.add<edm::InputTag>("eeReducedRecHitCollectionMiniAOD", edm::InputTag("reducedEgamma","reducedEERecHits"));
+  desc.add<edm::InputTag>("esReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsES"));
+  desc.add<edm::InputTag>("pfCandidatesMiniAOD",              edm::InputTag("packedPFCandidates"));
+  desc.add<edm::InputTag>("verticesMiniAOD",                  edm::InputTag("offlineSlimmedPrimaryVertices"));
+  desc.add<edm::InputTag>("ebReducedRecHitCollection",        edm::InputTag("reducedEcalRecHitsEB"));
+  descriptions.add("photonIDValueMapProducer", desc);
 }
+
 
 // Charged isolation with respect to the worst vertex. See more
 // comments above at the function declaration.
