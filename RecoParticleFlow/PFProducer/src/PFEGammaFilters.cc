@@ -24,7 +24,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ele_noniso_mva,
 				 unsigned int ele_missinghits,
 				 const string& ele_iso_path_mvaWeightFile,
-				 const edm::ParameterSet& ele_protectionsForJetMET
+				 const edm::ParameterSet& ele_protectionsForJetMET,
+		                 const edm::ParameterSet& ele_protectionsForBadHcal
 				 ):
   ph_Et_(ph_Et),
   ph_combIso_(ph_combIso),
@@ -54,7 +55,19 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
   ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
 {
+    readEBEEParams_(ele_protectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
+    readEBEEParams_(ele_protectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
+    readEBEEParams_(ele_protectionsForBadHcal, "dEta", badHcal_dEta_);
+    readEBEEParams_(ele_protectionsForBadHcal, "dPhi", badHcal_dPhi_);
 }
+
+PFEGammaFilters::readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) {
+    const auto & vals = pset.getParameter<std::vector<double>>(name);
+    if (vals.size() != 2) throw cms::Exception("Configuration") << "Parameter " << name << " does not contain exactly 2 values (EB, EE)\n";
+    out[0] = vals[0]; 
+    out[1] = vals[1]; 
+}
+ 
 
 bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
   // First simple selection, same as the Run1 to be improved in CMSSW_710
@@ -88,7 +101,9 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 					    const reco::PFCandidate & pfcand, 
 					    const int & nVtx) {
   // First simple selection, same as the Run1 to be improved in CMSSW_710
-  
+ 
+  bool validHoverE = (electron.hcalOverEcal() >= 0);
+
   bool passEleSelection = false;
   
   // Electron ET
@@ -111,7 +126,17 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
   //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
   if(electron.mva_e_pi() > ele_noniso_mva_) {
-    passEleSelection = true; 
+    if (validHoverE) {
+        passEleSelection = true; 
+    } else {
+        bool EE = (std::abs(electron.eta()) > 1.485); // for prefer consistency with above than with E/gamma for now
+        if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
+            (std::abs(1.0-electron.eSuperClusterOverP())/electron.ecalEnergy()  < badHcal_eInvPInv_[EE]) && 
+            (std::abs(electron.deltaEtaSuperClusterTrackAtVtx() - electron.superCluster()->eta() + electron.superCluster()->seed()->eta())  < badHcal_dEta_[EE]) && // looser in case of misalignment
+            (std::abs(electron.deltaPhiSuperClusterTrackAtVtx())  < badHcal_dPhi_[EE])) {
+            passEleSelection = true; 
+        } 
+    }
   }
   
   return passEleSelection;
