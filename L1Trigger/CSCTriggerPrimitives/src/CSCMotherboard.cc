@@ -74,23 +74,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // is it (non-upgrade algorithm) run along with upgrade one?
   isSLHC = commonParams.getParameter<bool>("isSLHC");
 
-  // Choose the appropriate set of configuration parameters depending on
-  // isTMB07 and isMTCC flags.
-  // Starting with CMSSW_3_1_X, these settings are overwritten by the
-  // ones delivered by the EventSetup mechanism.
-  edm::ParameterSet alctParams, clctParams;
-  if (isTMB07) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParam07");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParam07");
-  }
-  else if (isMTCC) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamMTCC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamMTCC");
-  }
-  else {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctParamOldMC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctParamOldMC");
-  }
+  // ALCT and CLCT configs
+  edm::ParameterSet alctParams = conf.getParameter<edm::ParameterSet>("alctParam07");
+  edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctParam07");
 
   // Motherboard parameters:
   edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
