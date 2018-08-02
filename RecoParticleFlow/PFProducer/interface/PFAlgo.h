@@ -85,7 +85,9 @@ class PFAlgo {
 
 
   void setPFMuonAndFakeParameters(const edm::ParameterSet& pset);
-  
+
+  void setBadHcalTrackParams(const edm::ParameterSet& pset);
+   
   PFMuonAlgo*  getPFMuonAlgo();
   
   void setPFEleParameters(double mvaEleCut,
@@ -395,6 +397,23 @@ class PFAlgo {
   double nSigmaTRACK_;
   double ptError_;
   std::vector<double> factors45_;
+
+  /// Variables for track cleaning in bad HCal areas
+  float goodTrackDeadHcal_ptErrRel_;
+  float goodTrackDeadHcal_chi2n_;
+  int   goodTrackDeadHcal_layers_;
+  float goodTrackDeadHcal_validFr_;
+  float goodTrackDeadHcal_dxy_;
+
+  float goodPixelTrackDeadHcal_minEta_;
+  float goodPixelTrackDeadHcal_maxPt_;
+  float goodPixelTrackDeadHcal_ptErrRel_;
+  float goodPixelTrackDeadHcal_chi2n_;
+  int   goodPixelTrackDeadHcal_maxLost3Hit_;
+  int   goodPixelTrackDeadHcal_maxLost4Hit_;
+  float goodPixelTrackDeadHcal_dxy_;
+  float goodPixelTrackDeadHcal_dz_;
+
 
   // Parameters for post HF cleaning
   bool postHFCleaning_;

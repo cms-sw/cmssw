@@ -326,6 +326,24 @@ PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset)
 
 }
 
+void 
+PFAlgo::setBadHcalTrackParams(const edm::ParameterSet& pset) 
+{
+  goodTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodTrackDeadHcal_ptErrRel");
+  goodTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodTrackDeadHcal_chi2n");
+  goodTrackDeadHcal_layers_ = pset.getParameter<uint32_t>("goodTrackDeadHcal_layers");
+  goodTrackDeadHcal_validFr_ = pset.getParameter<double>("goodTrackDeadHcal_validFr");
+  goodTrackDeadHcal_dxy_ = pset.getParameter<double>("goodTrackDeadHcal_dxy");
+
+  goodPixelTrackDeadHcal_minEta_ = pset.getParameter<double>("goodPixelTrackDeadHcal_minEta");
+  goodPixelTrackDeadHcal_maxPt_ = pset.getParameter<double>("goodPixelTrackDeadHcal_maxPt");
+  goodPixelTrackDeadHcal_ptErrRel_ = pset.getParameter<double>("goodPixelTrackDeadHcal_ptErrRel");
+  goodPixelTrackDeadHcal_chi2n_ = pset.getParameter<double>("goodPixelTrackDeadHcal_chi2n");
+  goodPixelTrackDeadHcal_maxLost3Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost3Hit");
+  goodPixelTrackDeadHcal_maxLost4Hit_ = pset.getParameter<int32_t>("goodPixelTrackDeadHcal_maxLost4Hit");
+  goodPixelTrackDeadHcal_dxy_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dxy");
+  goodPixelTrackDeadHcal_dz_ = pset.getParameter<double>("goodPixelTrackDeadHcal_dz");
+}
 
 void 
 PFAlgo::setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) {
@@ -982,10 +1000,48 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     //    else { hasDeadHcal = false; }
     //}
 
+    // for tracks with bad Hcal, check the quality
+    bool goodTrackDeadHcal = false;
+    if (hasDeadHcal) {
+       goodTrackDeadHcal = ( trackRef->ptError() < goodTrackDeadHcal_ptErrRel_ * trackRef->pt() &&
+                             trackRef->normalizedChi2() < goodTrackDeadHcal_chi2n_ &&
+                             trackRef->hitPattern().trackerLayersWithMeasurement() >= goodTrackDeadHcal_layers_ &&
+                             trackRef->validFraction() > goodTrackDeadHcal_validFr_ &&
+                             std::abs(trackRef->dxy(primaryVertex_.position())) < goodTrackDeadHcal_dxy_ );
+       // now we add an extra block for tracks at high |eta|
+       if (!goodTrackDeadHcal &&
+            std::abs(trackRef->eta()) > goodPixelTrackDeadHcal_minEta_ && // high eta
+            trackRef->hitPattern().pixelLayersWithMeasurement() >= 3   && // pixel track
+            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS) == 0 &&
+            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS) == 0 &&
+            trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS) <= (
+                trackRef->hitPattern().pixelLayersWithMeasurement() > 3 ?
+                goodPixelTrackDeadHcal_maxLost4Hit_ : goodPixelTrackDeadHcal_maxLost3Hit_  ) &&
+            trackRef->normalizedChi2() < goodPixelTrackDeadHcal_chi2n_ && // tighter cut
+            std::abs(trackRef->dxy(primaryVertex_.position())) < goodPixelTrackDeadHcal_dxy_  &&
+            std::abs(trackRef->dz(primaryVertex_.position()))  < goodPixelTrackDeadHcal_dz_  &&
+            trackRef->ptError() < goodPixelTrackDeadHcal_ptErrRel_*trackRef->pt() && // sanity
+            trackRef->pt() < goodPixelTrackDeadHcal_maxPt_) {                        // sanity
+            goodTrackDeadHcal = true;
+            // FIXME: may decide to do something to the track pT
+       }
+       //if (!goodTrackDeadHcal && trackRef->hitPattern().trackerLayersWithMeasurement() == 4 && trackRef->validFraction() == 1
+       if (debug_) cout << " track pt " << trackRef->pt() << " +- " << trackRef->ptError()
+          << " layers valid " << trackRef->hitPattern().trackerLayersWithMeasurement()
+                << ", lost " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS)
+                << ", lost outer " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)
+                << ", lost inner " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)
+                << "(valid fraction " << trackRef->validFraction() << ")"
+          << " chi2/ndf " << trackRef->normalizedChi2()
+          << " |dxy| " << std::abs(trackRef->dxy(primaryVertex_.position())) << " +- " << trackRef->dxyError()
+          << " |dz| " << std::abs(trackRef->dz(primaryVertex_.position())) << " +- " << trackRef->dzError()
+          << (goodTrackDeadHcal ? " passes " : " fails ") << "quality cuts" << std::endl;
+    }
+
     // When a track has no HCAL cluster linked, but another track is linked to the same
     // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for 
     // later analysis
-    if ( hcalElems.empty() && !ecalElems.empty() ) {
+    if ( hcalElems.empty() && !ecalElems.empty() && !hasDeadHcal) {
       // debug_ = true;
       unsigned ntt = 1;
       unsigned index = ecalElems.begin()->second;
@@ -1145,11 +1201,21 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
 
-	if ( deficit > nSigmaTRACK_*resol && !isPrimary) { 
+	if ( deficit > nSigmaTRACK_*resol && !isPrimary && !goodTrackDeadHcal) { 
 	  rejectFake = true;
 	  active[iTrack] = false;
 	  if ( debug_ )  
 	    std::cout << elements[iTrack] << std::endl
+		       << " deficit " << deficit << " > " << nSigmaTRACK_ << " x " << resol
+		       << " track pt " << trackRef->pt() << " +- " << trackRef->ptError()
+		       << " layers valid " << trackRef->hitPattern().trackerLayersWithMeasurement()
+		             << ", lost " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS)
+		             << ", lost outer " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)
+		             << ", lost inner " << trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)
+		             << "(valid fraction " << trackRef->validFraction() <<")"
+		       << " chi2/ndf " << trackRef->normalizedChi2()
+		       << " |dxy| " << std::abs(trackRef->dxy(primaryVertex_.position())) << " +- " << trackRef->dxyError()
+                       << " |dz| " << std::abs(trackRef->dz(primaryVertex_.position())) << " +- " << trackRef->dzError()
 		      << "is probably a fake (1) --> lock the track" 
 		      << std::endl;
 	}
@@ -1168,7 +1234,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
 	   trackMomentum > 30. && Dpt > 0.5 && 
-	   ( PFTrackAlgoTools::step45(trackRef->algo())) ) {  
+	   ( PFTrackAlgoTools::step45(trackRef->algo()) 
+	    && !goodTrackDeadHcal) ) {  
 
 	double dptRel = Dpt/trackRef->pt()*100;
 	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
@@ -1266,7 +1333,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
 								    clusterRef->positionREP().Eta());
 	  resol *= (trackMomentum+trackRef->p());
-	  if ( deficit > nSigmaTRACK_*resol ) { 
+	  if ( deficit > nSigmaTRACK_*resol  && !goodTrackDeadHcal) { 
  	    rejectFake = true;
 	    kTrack.push_back(jTrack);
 	    active[jTrack] = false;
