@@ -53,7 +53,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEcalEOverP_1(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_1")),
   ele_maxEcalEOverP_2(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_2")), 
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
-  ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
+  ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN")),
+  debug_(false)
 {
     readEBEEParams_(ele_protectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
     readEBEEParams_(ele_protectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
@@ -103,6 +104,19 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
   // First simple selection, same as the Run1 to be improved in CMSSW_710
  
   bool validHoverE = (electron.hcalOverEcal() >= 0);
+  if (debug_) std::cout << "PFEGammaFilters:: Electron pt " << electron.pt()
+		     << " eta, phi " << electron.eta() << ", " << electron.phi() 
+		     << " charge " << electron.charge() 
+		     << " isoDr03 " << (electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt()) 
+		     << " mva_isolated " << electron.mva_Isolated() 
+		     << " mva_e_pi " << electron.mva_e_pi() 
+		     << " H/E_valid " << validHoverE 
+		     << " s(ieie) " << electron.full5x5_sigmaIetaIeta()
+		     << " H/E " << electron.hcalOverEcal()
+		     << " 1/e-1/p " << (1.0-electron.eSuperClusterOverP())/electron.ecalEnergy()
+		     << " deta " << std::abs(electron.deltaEtaSuperClusterTrackAtVtx() - electron.superCluster()->eta() + electron.superCluster()->seed()->eta())
+		     << " dphi " << std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) 
+		     << endl;
 
   bool passEleSelection = false;
   
