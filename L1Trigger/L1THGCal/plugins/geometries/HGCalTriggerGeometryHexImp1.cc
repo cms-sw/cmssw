@@ -15,6 +15,9 @@ class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryGenericMapping
         HGCalTriggerGeometryHexImp1(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -34,7 +37,6 @@ HGCalTriggerGeometryHexImp1::HGCalTriggerGeometryHexImp1(const edm::ParameterSet
 {
 }
 
-
 /*****************************************************************/
 void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 /*****************************************************************/
@@ -43,6 +45,26 @@ void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& 
                                             << "WARNING: There is no neighbor information.\n";
 
     setCaloGeometry(calo_geometry);
+    fillMaps();
+    buildTriggerCellsAndModules();
+
+}
+
+/*****************************************************************/
+// void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
+ void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+/*****************************************************************/
+{
+    edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
+                                            << "WARNING: There is no neighbor information.\n";
+
+    // setCaloGeometry(calo_geometry);
+    setEEGeometry(hgc_ee_geometry);
+    setHSiGeometry(hgc_hsi_geometry);
+    setHScGeometry(hgc_hsc_geometry);
     fillMaps();
     buildTriggerCellsAndModules();
 
