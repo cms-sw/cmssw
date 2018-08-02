@@ -246,15 +246,7 @@ phase2_tracker.toModify(mixData,
 phase2_ecal.toModify (mixData, workers=dict(ecal=dict(doES=False)))
 phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
 
-# HCAL
-phase2_hcal.toModify(mixData,
-    workers = dict(
-        hcal = dict(
-            ZDCPileInputTag = "simHcalUnsuppressedDigis",
-        )
-    )
-)
-
+# HGCAL
 phase2_hgcal.toModify(mixData,
     workers = dict(
         hgcee = cms.PSet(
