@@ -1215,10 +1215,21 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( !ecalElems.empty() ) { 
 	  unsigned thisEcal = ecalElems.begin()->second;
 	  reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
-	  deficit -= clusterRef->energy();
-	  resol = neutralHadronEnergyResolution(trackMomentum,
-						clusterRef->positionREP().Eta());
-	  resol *= trackMomentum;
+          bool useCluster = true;
+          if (hasDeadHcal) {
+            std::multimap<double, unsigned> sortedTracks;
+            block.associatedElements( thisEcal,  linkData,
+				sortedTracks,
+				reco::PFBlockElement::TRACK,
+				reco::PFBlock::LINKTEST_ALL );
+            useCluster = (sortedTracks.begin()->second == iTrack);
+          }
+          if (useCluster) {
+            deficit -= clusterRef->energy();
+            resol = neutralHadronEnergyResolution(trackMomentum,
+                                                  clusterRef->positionREP().Eta());
+            resol *= trackMomentum;
+          }
 	}
 
 	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
@@ -1325,6 +1336,24 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				reco::PFBlock::LINKTEST_ALL );
       if (debug_) cout << "the closest ECAL cluster, id " << thisEcal << ", has " << sortedTracks.size() << " associated tracks, now processing them. " << endl;
    
+      if (hasDeadHcal && !sortedTracks.empty()) {
+          // GP: only allow the ecal cluster closest to this track to be considered
+          if (debug_) cout << " the closest track to ECAL " << thisEcal << " is " << sortedTracks.begin()->second << " (distance " << sortedTracks.begin()->first << ")" << endl;
+          if (sortedTracks.begin()->second != iTrack) {
+            if (debug_) cout << " the closest track to ECAL " << thisEcal << " is " << sortedTracks.begin()->second << " which is not the one being processed. Will skip ECAL linking for this track" << endl;
+            (*pfCandidates_)[tmpi[0]].setEcalEnergy( 0., 0. );
+            (*pfCandidates_)[tmpi[0]].setHcalEnergy( 0., 0. );
+            (*pfCandidates_)[tmpi[0]].setHoEnergy( 0., 0. );
+            (*pfCandidates_)[tmpi[0]].setPs1Energy( 0 );
+            (*pfCandidates_)[tmpi[0]].setPs2Energy( 0 );
+            (*pfCandidates_)[tmpi[0]].addElementInBlock( blockref, kTrack[0] );
+            continue;
+          } else {
+            if (debug_) cout << " the closest track to ECAL " << thisEcal << " is " << sortedTracks.begin()->second << " which is the one being processed. Will skip ECAL linking for all other track" << endl;
+            sortedTracks.clear();
+          }
+      }
+
       for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
 	unsigned jTrack = ie->second;
 
