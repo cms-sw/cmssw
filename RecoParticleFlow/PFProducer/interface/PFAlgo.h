@@ -127,6 +127,7 @@ class PFAlgo {
 			   unsigned int ele_missinghits,
 			   bool useProtectionsForJetMET,
 			   const edm::ParameterSet& ele_protectionsForJetMET,
+			   const edm::ParameterSet& ele_protectionsForBadHcal,
 			   double ph_MinEt,
 			   double ph_combIso,
 			   double ph_HoE,

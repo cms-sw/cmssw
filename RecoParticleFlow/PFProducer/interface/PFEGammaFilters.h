@@ -31,7 +31,8 @@ class PFEGammaFilters {
 		  float ele_noniso_mva,
 		  unsigned int ele_missinghits,
 		  const std::string& ele_iso_path_mvaWeightFile,
-		  const edm::ParameterSet& ele_protectionsForJetMET
+		  const edm::ParameterSet& ele_protectionsForJetMET,
+		  const edm::ParameterSet& ele_protectionsForBadHcal
 		  );
   
   ~PFEGammaFilters(){};
@@ -78,8 +79,13 @@ class PFEGammaFilters {
     ele_maxEleHcalEOverEcalE, ele_maxEcalEOverPRes, ele_maxEeleOverPoutRes,
     ele_maxHcalEOverP, ele_maxHcalEOverEcalE, ele_maxEcalEOverP_1,
     ele_maxEcalEOverP_2, ele_maxEeleOverPout, ele_maxDPhiIN;
-  
-  
+
+  // dead hcal selections
+  std::array<float,2> badHcal_full5x5_sigmaIetaIeta_;
+  std::array<float,2> badHcal_eInvPInv_;
+  std::array<float,2> badHcal_dEta_;
+  std::array<float,2> badHcal_dPhi_;
+  static readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) ;
   // Event variables 
   
 

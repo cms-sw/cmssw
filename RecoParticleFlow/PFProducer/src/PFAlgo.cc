@@ -220,6 +220,7 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
 				 unsigned int ele_missinghits,
 				 bool useProtectionsForJetMET,
 				 const edm::ParameterSet& ele_protectionsForJetMET,
+				 const edm::ParameterSet& ele_protectionsForBadHcal,
 				 double ph_MinEt,
 				 double ph_combIso,
 				 double ph_HoE,
@@ -260,7 +261,8 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
 				   ele_noniso_mva,
 				   ele_missinghits,
 				   ele_iso_path_mvaWeightFile,
-				   ele_protectionsForJetMET);
+				   ele_protectionsForJetMET,
+				   ele_protectionsForBadHcal);
 
   return;
 }
