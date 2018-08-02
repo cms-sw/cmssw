@@ -650,7 +650,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   if(useEGammaFilters_) {
 
     // const edm::ValueMap<reco::GsfElectronRef> & myGedElectronValMap(*valueMapGedElectrons_);
-    bool egmLocalDebug = false;
+    bool egmLocalDebug = debug_;
     bool egmLocalBlockDebug = false;
 
     unsigned int negmcandidates = pfEgammaCandidates_->size();
@@ -684,7 +684,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 		cout << "** Good Electron, pt " << gedEleRef->pt()
 		     << " eta, phi " << gedEleRef->eta() << ", " << gedEleRef->phi() 
 		     << " charge " << gedEleRef->charge() 
-		     << " isPrimary " << isPrimaryElectron  << endl;
+		     << " isPrimary " << isPrimaryElectron
+		     << " isoDr03 " << (gedEleRef->dr03TkSumPt() + gedEleRef->dr03EcalRecHitSumEt() + gedEleRef->dr03HcalTowerSumEt())
+		     << " mva_isolated " << gedEleRef->mva_Isolated()
+		     << " mva_e_pi " << gedEleRef->mva_e_pi()
+		     << endl;
 	    }
 
 	   
@@ -746,7 +750,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  for (PFCandidate::ElementsInBlocks::const_iterator ieb = theElements.begin(); 
 	       ieb<theElements.end(); ++ieb) {
 	    active[ieb->second] = false;
-	    if(egmLocalBlockDebug)
+	    if(egmLocalBlockDebug||(debug_&&egmLocalDebug))
 	      cout << " Elements used " <<  ieb->second << endl;
 	  }
 	  
@@ -755,6 +759,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    const PFCandidate::ElementsInBlocks& extraTracks = myPFElectron.egammaExtraRef()->extraNonConvTracks();
 	    for (PFCandidate::ElementsInBlocks::const_iterator itrk = extraTracks.begin(); 
 		 itrk<extraTracks.end(); ++itrk) {
+              if(egmLocalBlockDebug||(debug_&&egmLocalDebug))
+                  cout << " Extra locked track " <<  itrk->second << endl;
 	      active[itrk->second] = false;
 	    }
 	  }
@@ -798,7 +804,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  for (PFCandidate::ElementsInBlocks::const_iterator ieb = theElements.begin(); 
 	       ieb<theElements.end(); ++ieb) {
 	    active[ieb->second] = false;
-	    if(egmLocalBlockDebug)
+	    if(egmLocalBlockDebug||(debug_&&egmLocalDebug))
 	      cout << " Elements used " <<  ieb->second << endl;
 	  }
 	  pfCandidates_->push_back(myPFPhoton);
@@ -928,6 +934,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // we're now dealing with a track
     unsigned iTrack = iEle;
     reco::MuonRef muonRef = elements[iTrack].muonRef();    
+    if (debug_ && muonRef.isNonnull()) {
+        cout << "track " << iTrack << " has a valid muon reference. " << std::endl;
+        cout << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl;
+        cout << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl;
+        cout << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl;
+        cout << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef) << endl;
+    }
 
     //Check if the track is a primary track of a secondary interaction
     //If that is the case reconstruct a charged hadron noly using that
@@ -976,6 +989,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                               reco::PFBlockElement::HCAL,
                               reco::PFBlock::LINKTEST_ALL );
 
+    if (debug_ ) {
+        std::cout << "\tTrack " << iTrack << " is linked to " << ecalElems.size() << " ecal and " << hcalElems.size() << " hcal elements" << std::endl;
+        for (const auto & pair : ecalElems) {
+            std::cout << "ecal: dist " << pair.first << "\t elem " << pair.second << std::endl;
+        }
+        for (const auto & pair : hcalElems) {
+            std::cout << "hcal: dist " << pair.first << "\t elem " << pair.second << (deadArea[pair.second] ? "  DEAD AREA MARKER" : "") <<  std::endl;
+        }
+    }
     // there's 3 possible options possible here, in principle:
     //    1) flag everything that may be associated to a dead hcal marker
     //    2) flag everything whose closest hcal link is a dead hcal marker
@@ -1050,12 +1072,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				sortedTracks,
 				reco::PFBlockElement::TRACK,
 				reco::PFBlock::LINKTEST_ALL );
-      // std::cout << "The ECAL is linked to " << sortedTracks.size() << std::endl;
+      if (debug_ ) std::cout << "The closest ECAL cluster is linked to " << sortedTracks.size() << " tracks, with distance = " << ecalElems.begin()->first << std::endl;
 
       // Loop over all tracks
       for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
 	unsigned jTrack = ie->second;
-	// std::cout << "Track " << jTrack << std::endl;
+	//std::cout << "Track " << jTrack << std::endl;
 	// Track must be active
 	if ( !active[jTrack] ) continue;
 	//std::cout << "Active " << std::endl;
@@ -1072,7 +1094,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
 	if ( sortedECAL.begin()->second != index ) continue;
-	//std::cout << "With closest ECAL identical " << std::endl;
+	if (debug_ ) std::cout << "  track " << jTrack << " with closest ECAL identical " << std::endl;
 
 	
 	// Check if this track is also linked to an HCAL 
@@ -1082,7 +1104,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
 	if ( sortedHCAL.empty() ) continue;
-	//std::cout << "With an HCAL cluster " << sortedHCAL.begin()->first << std::endl;
+	if (debug_ ) std::cout << "  and with an HCAL cluster " << sortedHCAL.begin()->second << std::endl;
 	ntt++;
 	
 	// In that case establish a link with the first track 
@@ -1165,7 +1187,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     if( hcalElems.empty() ) {
       
       if ( debug_ ) 
-	std::cout << "Now deals with tracks linked to no HCAL clusters" << std::endl; 
+	std::cout << "Now deals with tracks linked to no HCAL clusters. Was HCal active? " << (!hasDeadHcal) << std::endl; 
       // vector<unsigned> elementIndices;
       // elementIndices.push_back(iTrack); 
 
@@ -1301,7 +1323,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				sortedTracks,
 				reco::PFBlockElement::TRACK,
 				reco::PFBlock::LINKTEST_ALL );
-    
+      if (debug_) cout << "the closest ECAL cluster, id " << thisEcal << ", has " << sortedTracks.size() << " associated tracks, now processing them. " << endl;
+   
       for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
 	unsigned jTrack = ie->second;
 
@@ -1314,6 +1337,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Check if the ECAL cluster closest to this track is 
 	// indeed the current ECAL cluster. Only tracks not 
 	// linked to an HCAL cluster are considered here
+        // (GP: this is because if there's a jTrack linked 
+        // to the same Ecal cluster and that also has an Hcal link
+        // we would have also linked iTrack to that Hcal above)
 	std::multimap<double, unsigned> sortedECAL;
 	block.associatedElements( jTrack,  linkData,
 				  sortedECAL,
@@ -1323,12 +1349,17 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	// Check if this track is a muon
 	bool thatIsAMuon = PFMuonAlgo::isMuon(elements[jTrack]);
+        if (debug_) {
+            cout << " found track " << jTrack << (thatIsAMuon ? " (muon) " : " (non-muon)") << ", with distance = " << sortedECAL.begin()->first << std::endl;
+        }
 
 
 	// Check if this track is not a fake
 	bool rejectFake = false;
 	reco::TrackRef trackRef = elements[jTrack].trackRef();
 	if ( !thatIsAMuon && trackRef->ptError() > ptError_) { 
+          // GP: FIXME this selection should be adapted depending on hasDeadHcal
+          //     but we don't know if jTrack is linked to a dead Hcal or not
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
 								    clusterRef->positionREP().Eta());
@@ -1340,6 +1371,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    if ( debug_ )  
 	      std::cout << elements[jTrack] << std::endl
 			<< "is probably a fake (2) --> lock the track" 
+                        << "(trackMomentum = " << trackMomentum << ", clusterEnergy = " << clusterRef->energy() <<
+                                ", deficit = " << deficit << " > " << nSigmaTRACK_ << " x " << resol <<
+                                " assuming neutralHadronEnergyResolution " << neutralHadronEnergyResolution(trackMomentum+trackRef->p(), clusterRef->positionREP().Eta()) << ") "
 			<< std::endl; 
 	  }
 	}
@@ -1456,7 +1490,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( totalEcal > 0.) slopeEcal = calibEcal/totalEcal;
 
 	if ( debug_ )
-	  std::cout << "The total calibrated energy so far amounts to = " << calibEcal << std::endl;
+	  std::cout << "The total calibrated energy so far amounts to = " << calibEcal << " (slope = " << slopeEcal << ")" << std::endl;
 	
 
 	// Stop the loop when adding more ECAL clusters ruins the compatibility
@@ -1599,7 +1633,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	}
       }
 
-    }
+    } // end if( hcalElems.empty() )
 
 
     // In case several HCAL elements are linked to this track, 
@@ -2360,7 +2394,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
       }
     }
-    /*    
+          
     if(debug_){
       cout<<"\tBefore Cleaning "<<endl;
       cout<<"\tCompare Calo Energy to total charged momentum "<<endl;
@@ -2369,10 +2403,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       cout<<"\t\tsum hcal = "<<totalHcal<<endl;
       cout<<"\t\t => Calo Energy = "<<caloEnergy<<" +- "<<Caloresolution<<endl;
       cout<<"\t\t => Calo Energy- total charged momentum = "
-	  <<caloEnergy-totalChargedMomentum<<" +- "<<TotalError<<endl;
+	  <<caloEnergy-totalChargedMomentum<<" +- "<<sqrt(sumpError2 + Caloresolution*Caloresolution)<<endl;
       cout<<endl;
     }
-    */
+      
 
     // Second consider bad tracks (if still needed after muon removal)
     unsigned corrTrack = 10000000;
@@ -2655,7 +2689,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
           cout<<"\t\tno track -> hadron "<<endl;
         else 
           cout<<"\t\t"<<sortedTracks.size()
-              <<"tracks -> check if the excess is photonic or hadronic"<<endl;
+              <<" tracks -> check if the excess is photonic or hadronic"<<endl;
       }
         
 
@@ -3222,6 +3256,9 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
   double py = track.py();
   double pz = track.pz();
   double energy = sqrt(track.p()*track.p() + 0.13957*0.13957);
+
+  if (debug_) cout << "Reconstructing PF candidate from track of pT = " << track.pt() << " eta = " << track.eta() << " phi = " << track.phi() << " px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+ 
 
   // Create a PF Candidate
   ::math::XYZTLorentzVector momentum(px,py,pz,energy);
