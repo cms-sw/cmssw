@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,27 +35,27 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
+#include<iostream>
+// #define COUT(x) edm::LogVerbatim(x)
+#define COUT(x) std::cout<<x<<' '
 
-using namespace std;
 
 //
 // class decleration
 //
 
 
-class TrajectoryAnalyzer : public edm::EDAnalyzer {
+class TrajectoryAnalyzer : public edm::stream::EDAnalyzer<> {
    public:
       explicit TrajectoryAnalyzer(const edm::ParameterSet&);
       ~TrajectoryAnalyzer();
 
 
    private:
-      virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-  edm::ParameterSet param_;
+   edm::EDGetTokenT<std::vector<Trajectory>> trajTag;
 };
 
 //
@@ -69,13 +69,8 @@ class TrajectoryAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-TrajectoryAnalyzer::TrajectoryAnalyzer(const edm::ParameterSet& iConfig)
-{
-  param_ = iConfig;
-
-   //now do what ever initialization is needed
-
-}
+TrajectoryAnalyzer::TrajectoryAnalyzer(const edm::ParameterSet& iConfig) :
+  trajTag(consumes<std::vector<Trajectory>>(iConfig.getParameter<edm::InputTag>("trajectoryInput"))){}
 
 
 TrajectoryAnalyzer::~TrajectoryAnalyzer()
@@ -97,39 +92,28 @@ TrajectoryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
    using namespace edm;
   
-   Handle<vector<Trajectory> > trajCollectionHandle;
-   iEvent.getByLabel(param_.getParameter<string>("trajectoryInput"),trajCollectionHandle);
-   //iEvent.getByType(trajCollection);
+   Handle<std::vector<Trajectory> > trajCollectionHandle;
+   iEvent.getByToken(trajTag,trajCollectionHandle);
    
-   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;
-   for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
-     edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
-					    << "isValid: " << it->isValid() ;
+   COUT("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() << std::endl;
+   for(auto it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
+     COUT("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
+					    << "isValid: " << it->isValid() << std::endl;
 
-     vector<TrajectoryMeasurement> tmColl = it->measurements();
-     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
+     auto const & tmColl = it->measurements();
+     for(auto itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
        if(! itTraj->updatedState().isValid()) continue;
-       edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
+       COUT("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
 					      << "tm.backwardState.pt: " << itTraj->backwardPredictedState().globalMomentum().perp() << " , "
 					      << "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() << " , "
 					      << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp()  << " , "
-					      << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp() ;       
+					      << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp() << std::endl;       
      }
    }
 
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrajectoryAnalyzer::beginRun(edm::Run & run, const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrajectoryAnalyzer::endJob() {
-}
 
 //define this as a plug-in
 

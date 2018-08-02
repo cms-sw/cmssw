@@ -3,6 +3,8 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTemplate.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripFakeCPE.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -24,6 +26,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
   enumMap[std::string("StripCPEfromTrackAngle")]=TRACKANGLE;
   enumMap[std::string("StripCPEgeometric")]=GEOMETRIC;
   enumMap[std::string("StripCPEfromTemplate")]=TEMPLATE;
+  enumMap[std::string("FakeStripCPE")]=FAKE;
   if(enumMap.find(type)==enumMap.end()) 
     throw cms::Exception("Unknown StripCPE type") << type;
 
@@ -62,6 +65,10 @@ produce(const TkStripCPERecord & iRecord)
 
   case TEMPLATE: 
     cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTemplate( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    break;
+
+  case FAKE:
+    cpe = std::make_unique<StripFakeCPE>();
     break;
 
   }
