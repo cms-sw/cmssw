@@ -123,9 +123,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
         << " failed to find a standard AOD or miniAOD particle collection " << std::endl;
   }
 
-  // Passed by reference to the mvaValue function to store the category
-  int cat = -1;
-
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
 
@@ -136,7 +133,7 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
     // Loop over particles
     for (size_t i = 0; i < src->size(); ++i){
       auto iCand = src->ptrAt(i);
-      cat = -1;
+      int cat = -1; // Passed by reference to the mvaValue function to store the category
       const float response = mvaEstimators_[iEstimator]->mvaValue( iCand, iEvent, cat );
       mvaRawValues.push_back( response ); // The MVA score
       mvaValues.push_back( 2.0/(1.0+exp(-2.0*response))-1 ); // MVA output between -1 and 1
