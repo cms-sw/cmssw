@@ -102,11 +102,8 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryV9Imp1')
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_8inch_aligned_192_432_V9_0.txt")
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TWafersMapping = cms.FileInPath("L1Trigger/L1THGCal/data/wafer_mapping_V9_0.txt")
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellsBHMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_BH_2x2_V9_0.txt")
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellNeighborsBHMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_neighbor_mapping_BH_2x2_V9_0.txt")
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
+process = custom_geometry_V9(process)
 
 process.hgcaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTesterV9"
