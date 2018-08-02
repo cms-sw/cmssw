@@ -13,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "RecoEgamma/EgammaTools/interface/Utils.h"
 
 // This template function finds whether theCandidate is in thefootprint
 // collection. It is templated to be able to handle both reco and pat
@@ -60,29 +62,17 @@ private:
     void getImpactParameters(
         const edm::Ptr<reco::Candidate>& candidate, const reco::Vertex& pv, float& dxy, float& dz);
 
-    // The object that will compute 5x5 quantities
-    std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
-
     // check whether a non-null preshower is there
     const bool usesES_;
 
-    // for AOD case
-    const edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
-    const edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
-    const edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
-    const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-    const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationToken_;
-    const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsToken_;
-    const edm::EDGetToken src_;
-
-    // for miniAOD case
-    const edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionMiniAOD_;
-    const edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
-    const edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
-    const edm::EDGetTokenT<reco::VertexCollection> vtxTokenMiniAOD_;
-    const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationTokenMiniAOD_;
-    const edm::EDGetTokenT<edm::View<reco::Candidate>> pfCandsTokenMiniAOD_;
-    const edm::EDGetToken srcMiniAOD_;
+    // Dual Tokens for AOD and MiniAOD case
+    MultiToken<EcalRecHitCollection> ebReducedRecHitCollection_;
+    MultiToken<EcalRecHitCollection> eeReducedRecHitCollection_;
+    MultiToken<EcalRecHitCollection> esReducedRecHitCollection_;
+    MultiToken<reco::VertexCollection> vtxToken_;
+    MultiToken<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationToken_;
+    MultiToken<edm::View<reco::Candidate>> pfCandsToken_;
+    MultiToken<edm::View<reco::Photon>> src_;
 
     bool isAOD_;
 };
@@ -130,34 +120,26 @@ const unsigned char PT_MIN_THRESH = 0x8;
 PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& cfg)
     : usesES_(!cfg.getParameter<edm::InputTag>("esReducedRecHitCollection").label().empty()
           || !cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD").label().empty())
-    // Declare consummables, handle both AOD and miniAOD case
     , ebReducedRecHitCollection_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection")))
-    , eeReducedRecHitCollection_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection")))
-    , esReducedRecHitCollection_(
-          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection")))
-    , vtxToken_(mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")))
-    // The particleBasedIsolation object is relevant only for AOD, RECO format
-    , particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
-          cfg.getParameter<edm::InputTag>("particleBasedIsolation")))
-    // AOD has reco::PFCandidate vector, and miniAOD has pat::PackedCandidate
-    // vector. Both inherit from reco::Candidate, so we go to the base class.
-    // We can cast into the full type later if needed. Since the collection
-    // names are different, we introduce both collections
-    , pfCandsToken_(mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates")))
-    // reco photons are castable into pat photons, so no need to handle reco/pat seprately
-    , src_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")))
-    , ebReducedRecHitCollectionMiniAOD_(
+          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollection")),
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("ebReducedRecHitCollectionMiniAOD")))
-    , eeReducedRecHitCollectionMiniAOD_(
+    , eeReducedRecHitCollection_(
+          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollection")),
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("eeReducedRecHitCollectionMiniAOD")))
-    , esReducedRecHitCollectionMiniAOD_(
+    , esReducedRecHitCollection_(
+          mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollection")),
           mayConsume<EcalRecHitCollection>(cfg.getParameter<edm::InputTag>("esReducedRecHitCollectionMiniAOD")))
-    , vtxTokenMiniAOD_(mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("verticesMiniAOD")))
-    , pfCandsTokenMiniAOD_(
+    , vtxToken_(
+          mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices")),
+          mayConsume<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("verticesMiniAOD")))
+    , particleBasedIsolationToken_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(
+          cfg.getParameter<edm::InputTag>("particleBasedIsolation"))
+          /* ...only for AOD... */                                 )
+    , pfCandsToken_(
+          mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidates")),
           mayConsume<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("pfCandidatesMiniAOD")))
-    , srcMiniAOD_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("srcMiniAOD")))
+    , src_(mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("src")),
+           mayConsume<edm::View<reco::Photon>>(cfg.getParameter<edm::InputTag>("srcMiniAOD")))
 {
 
     // Declare producibles
@@ -169,57 +151,16 @@ PhotonIDValueMapProducer::~PhotonIDValueMapProducer() {}
 
 void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    edm::Handle<edm::View<reco::Photon>> src;
+    // Get the handles
+    auto src           = src_.getValidHandle(iEvent);
+    auto vertices      = vtxToken_.getValidHandle(iEvent);
+    auto pfCandsHandle = pfCandsToken_.getValidHandle(iEvent);
 
-    isAOD_ = true;
-    iEvent.getByToken(src_, src);
-    if (!src.isValid()) {
-        isAOD_ = false;
-        iEvent.getByToken(srcMiniAOD_, src);
-    }
-    if (!src.isValid()) {
-        throw cms::Exception("IllDefinedDataTier") << "DataFormat does not contain a photon source!";
-    }
-
-    // Configure Lazy Tools
-    if (usesES_) {
-        if (isAOD_)
-            lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
-        else
-            lazyToolnoZS
-                = std::make_unique<noZS::EcalClusterLazyTools>(iEvent, iSetup, ebReducedRecHitCollectionMiniAOD_,
-                    eeReducedRecHitCollectionMiniAOD_, esReducedRecHitCollectionMiniAOD_);
-    } else {
-        if (isAOD_)
-            lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_);
-        else
-            lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
-                iEvent, iSetup, ebReducedRecHitCollectionMiniAOD_, eeReducedRecHitCollectionMiniAOD_);
-    }
-
-    // Get PV
-    edm::Handle<reco::VertexCollection> vertices;
-    iEvent.getByToken(vtxToken_, vertices);
-    if (!vertices.isValid())
-        iEvent.getByToken(vtxTokenMiniAOD_, vertices);
-    if (vertices->empty())
-        return; // skip the event if no PV found
-    const reco::Vertex& pv = vertices->front();
-
+    isAOD_ = src_.getGoodTokenIndex() == 0;
     edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationMap;
-    if (isAOD_) {
-        // this exists only in AOD
-        iEvent.getByToken(particleBasedIsolationToken_, particleBasedIsolationMap);
+    if (isAOD_) { // this exists only in AOD
+        particleBasedIsolationMap = particleBasedIsolationToken_.getValidHandle(iEvent);
     }
-
-    edm::Handle<edm::View<reco::Candidate>> pfCandsHandle;
-
-    iEvent.getByToken(pfCandsToken_, pfCandsHandle);
-    if (!pfCandsHandle.isValid())
-        iEvent.getByToken(pfCandsTokenMiniAOD_, pfCandsHandle);
-
     if (!isAOD_ && !src->empty()) {
         edm::Ptr<pat::Photon> test(src->ptrAt(0));
         if (test.isNull() || !test.isAvailable()) {
@@ -227,6 +168,22 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
                 << "DataFormat is detected as miniAOD but cannot cast to pat::Photon!";
         }
     }
+
+    // Configure Lazy Tools, which will compute 5x5 quantities
+    std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
+
+    if (usesES_) {
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
+            iEvent, iSetup, ebReducedRecHitCollection_.get(iEvent), eeReducedRecHitCollection_.get(iEvent), esReducedRecHitCollection_.get(iEvent));
+    } else {
+        lazyToolnoZS = std::make_unique<noZS::EcalClusterLazyTools>(
+            iEvent, iSetup, ebReducedRecHitCollection_.get(iEvent), eeReducedRecHitCollection_.get(iEvent));
+    }
+
+    // Get PV
+    if (vertices->empty())
+        return; // skip the event if no PV found
+    const reco::Vertex& pv = vertices->front();
 
     std::vector<float> vars[nVars_];
 
@@ -357,16 +314,11 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
             vars[17].push_back(patPhotonPtr->hcalPFClusterIso());
             vars[18].push_back(patPhotonPtr->ecalPFClusterIso());
         }
-
     }
 
     // write the value maps
     for (int i = 0; i < nVars_; ++i) {
-        auto valMap = std::make_unique<edm::ValueMap<float>>();
-        edm::ValueMap<float>::Filler filler(*valMap);
-        filler.insert(src, vars[i].begin(), vars[i].end());
-        filler.fill();
-        iEvent.put(std::move(valMap), names[i]);
+        writeValueMap(iEvent, src, vars[i], names[i]);
     }
 }
 
