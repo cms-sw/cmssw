@@ -52,7 +52,10 @@ class ElectronHcalHelper {
   std::vector<CaloTowerDetId> hcalTowersBehindClusters( const reco::SuperCluster & sc ) ;
   double hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
   double hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
-  
+
+  // forward EgammaHadTower methods, if available
+  bool hasActiveHcal( const reco::SuperCluster & sc ) ;
+
  private:
   
   const Configuration cfg_ ;

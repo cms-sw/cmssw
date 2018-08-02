@@ -11,6 +11,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
+class HcalChannelQuality;
 
 class EgammaHadTower {
  public:
@@ -26,12 +27,16 @@ class EgammaHadTower {
   std::vector<CaloTowerDetId> towersOf(const reco::SuperCluster& sc) const ;
   CaloTowerDetId  towerOf(const reco::CaloCluster& cluster) const ;
   void setTowerCollection(const CaloTowerCollection* towercollection);
+  bool hasActiveHcal( const reco::SuperCluster & sc ) const ;
+  bool hasActiveHcal( const std::vector<CaloTowerDetId> & towers ) const ;
+
 
  private:
   const CaloTowerConstituentsMap * towerMap_;
   HoeMode mode_;
   const CaloTowerCollection * towerCollection_;
   unsigned int NMaxClusters_;
+  const HcalChannelQuality * hcalQuality_;
 };
 
 bool ClusterGreaterThan(const reco::CaloClusterPtr& c1, const reco::CaloClusterPtr& c2) ;
