@@ -353,6 +353,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   // Set muon and fake track parameters
   pfAlgo_->setPFMuonAndFakeParameters(iConfig);
+  pfAlgo_->setBadHcalTrackParams(iConfig);
   
   //Post cleaning of the HF
   postHFCleaning_
