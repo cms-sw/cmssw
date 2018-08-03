@@ -26,12 +26,12 @@
 
   <LINK name="*/L1TStage2uGMT/ugmtMuonEta">
       <TestName activate="true">muon_etaMeanAt0</TestName>
-      <TestName activate="true">muon_etaSpectrum</TestName>
+      <TestName activate="false">muon_etaSpectrum</TestName>
   </LINK>
 
   <LINK name="*/L1TStage2uGMT/ugmtMuonEtaAtVtx">
       <TestName activate="true">muon_etaMeanAt0</TestName>
-      <TestName activate="true">muon_etaSpectrum</TestName>
+      <TestName activate="false">muon_etaSpectrum</TestName>
   </LINK>
 
   <!-- phi and phi at vertex-->
@@ -70,7 +70,7 @@
 
   <LINK name="*/L1TStage2uGMT/ugmtMuonPt">
       <TestName activate="true">muon_PtRange</TestName>
-      <TestName activate="true">muon_PtSpectrum</TestName>
+      <TestName activate="false">muon_PtSpectrum</TestName>
   </LINK>
 
 
