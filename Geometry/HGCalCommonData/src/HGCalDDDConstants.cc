@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -800,28 +801,18 @@ int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV,
 std::pair<double,double> HGCalDDDConstants::rangeR(double z, bool reco) const {
   double zz   = (reco ? std::abs(z) : 
 		 HGCalParameters::k_ScaleFromDDD*std::abs(z));
-  double rmin = zz*hgpar_->slopeMin_;
-  double rmax(0);
-#ifdef EDM_ML_DEBUG
-  unsigned int ik(0);
-#endif
-  for (unsigned int k=0; k<hgpar_->slopeTop_.size(); ++k) {
-    if (zz < hgpar_->zFront_[k]) break;
-    rmax = (hgpar_->rMaxFront_[k] + (zz-hgpar_->zFront_[k]) *
-	    hgpar_->slopeTop_[k]);
-#ifdef EDM_ML_DEBUG
-    ik = k;
-#endif
-  }
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo:rangeR: " << z << ":" << zz
-				<< " Zone " << ik << " R " << rmin << ":" 
-				<< rmax;
-#endif
+  double rmin = HGCalGeomTools::radius(zz,hgpar_->zFrontMin_,
+				       hgpar_->rMinFront_,hgpar_->slopeMin_);
+  double rmax = HGCalGeomTools::radius(zz,hgpar_->zFrontTop_,
+				       hgpar_->rMaxFront_,hgpar_->slopeTop_);
   if (!reco) {
     rmin *= HGCalParameters::k_ScaleToDDD;
     rmax *= HGCalParameters::k_ScaleToDDD;
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo:rangeR: " << z << ":" << zz
+				<< " R " << rmin << ":" << rmax;
+#endif
   return std::pair<double,double>(rmin,rmax);
 }
 

@@ -80,10 +80,14 @@
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
-      [etaMax:slope], [etaMax:slope]</Vector>
-    <Vector name="SlopeTop" type="numeric" nEntries="4">
+      [hgcal:slope1], [hgcal:slope1]</Vector> 
+    <Vector name="ZFrontBottom" type="numeric" nEntries="2">
+      [hgcal:zHGCal1], [hgcal:zHGCal4]</Vector>
+    <Vector name="RMinFront" type="numeric" nEntries="2">
+      [hgcal:zHGCal1]*[hgcal:slope1], [hgcal:zHGCal4]*[hgcal:slope1]</Vector>
+   <Vector name="SlopeTop" type="numeric" nEntries="4">
       [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
-    <Vector name="ZFront" type="numeric" nEntries="4">
+    <Vector name="ZFrontTop" type="numeric" nEntries="4">
       [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], 
       [hgcal:zHGCal4]</Vector>
     <Vector name="RMaxFront" type="numeric" nEntries="4">
