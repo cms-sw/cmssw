@@ -830,29 +830,25 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 			   << " ); from " << m_name << "::getNewObjects";
   }
 
-  cond::Time_t lastIov = tagInfo().lastInterval.first; 
-  if( lastIov == 0 ){
+  cond::Time_t lastSince = tagInfo().lastInterval.first; 
+  if( lastSince == 0 ){
     // for a new or empty tag, an empty payload should be added on top with since=1
     addEmptyPayload( 1 );
   } else {
     edm::LogInfo( m_name ) << "The last Iov in tag " << tagInfo().name 
-			   << " valid since " << lastIov
+			   << " valid since " << lastSince
 			   << "from " << m_name << "::getNewObjects";
   }
 
-  cond::Time_t targetIov = cond::time::from_boost( boost::posix_time::second_clock::local_time() );  
-  cond::Time_t endIov = cond::time::MAX_VAL;
-  //if( m_endFill ){
-    if( !m_startTime.is_not_a_date_time() ){
-      targetIov = cond::time::from_boost(m_startTime);
-    }
-    if( lastIov > targetIov ) targetIov = lastIov;
+  boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
+  cond::Time_t targetSince = 0;  
+  cond::Time_t endIov = cond::time::from_boost( executionTime );  
+  if( !m_startTime.is_not_a_date_time() ){
+    targetSince = cond::time::from_boost(m_startTime);
+  }
+  if( lastSince > targetSince ) targetSince = lastSince;
 
-    if( !m_endTime.is_not_a_date_time() ){
-      endIov = cond::time::from_boost(m_endTime);
-    }
-    //}
-  edm::LogInfo(m_name) <<"Starting sampling at "<<boost::posix_time::to_simple_string(cond::time::to_boost(targetIov));
+  edm::LogInfo(m_name) <<"Starting sampling at "<<boost::posix_time::to_simple_string(cond::time::to_boost(targetSince));
   
   //retrieve the data from the relational database source
   cond::persistency::ConnectionPool connection;
@@ -875,18 +871,20 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     session3.transaction().commit();
   }
 
+  bool iovAdded = false;
   while( true ){
-    if( targetIov >= endIov ){
+    if( targetSince >= endIov ){
       edm::LogInfo( m_name ) <<"Sampling ended at the time "<<boost::posix_time::to_simple_string(cond::time::to_boost( endIov ));
       break;
     }
     bool updateEcal=false;
-    boost::posix_time::ptime targetTime = cond::time::to_boost( targetIov );
+    boost::posix_time::ptime targetTime = cond::time::to_boost( targetSince );
     boost::posix_time::ptime startSampleTime; 
     boost::posix_time::ptime endSampleTime;
     if( !m_endFill and m_prevPayload->fillNumber() and m_prevPayload->endTime()==0ULL){
       // execute the query for the current fill 
       session.transaction().start(true);
+      edm::LogInfo( m_name ) <<"Searching started fill #"<<m_prevPayload->fillNumber();
       bool foundFill = getFillData( session, m_prevPayload->fillNumber() );
       session.transaction().commit();
       if(!foundFill ){
@@ -894,9 +892,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	break;
       }
       updateEcal = true;
-      startSampleTime = cond::time::to_boost(lastIov);
-      // if fill is going, no further query to do...
-      if(m_fillPayload->endTime()==0ULL) endIov = targetIov;
+      startSampleTime = cond::time::to_boost(lastSince);
     } else {
       session.transaction().start(true);
       edm::LogInfo( m_name ) <<"Searching new fill after "<<boost::posix_time::to_simple_string(targetTime);
@@ -904,7 +900,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
       session.transaction().commit();
       if ( !foundFill ){
 	edm::LogInfo( m_name )<<"No fill found - END of job.";
-	addEmptyPayload( targetIov );
+	if( iovAdded ) addEmptyPayload( targetSince );
 	break;
       }
       startSampleTime = cond::time::to_boost(m_fillPayload->createTime());
@@ -914,11 +910,12 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     unsigned short lhcFill = m_fillPayload->fillNumber();
     if( endFillTime == 0ULL ){
       edm::LogInfo( m_name ) <<"Found ongoing fill "<<lhcFill<<" created at "<<cond::time::to_boost(startFillTime);
-      endSampleTime = cond::time::to_boost(targetIov);
+      endSampleTime = executionTime;
+      targetSince = endIov;
     } else {
       edm::LogInfo( m_name ) <<"Found fill "<<lhcFill<<" created at "<<cond::time::to_boost(startFillTime)<<" ending at "<<cond::time::to_boost(endFillTime);
       endSampleTime = cond::time::to_boost(endFillTime);
-      targetIov = endFillTime;
+      targetSince = endFillTime;
     }
 
     session.transaction().start(true);
@@ -937,7 +934,9 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     size_t niovs = LHCInfoImpl::transferPayloads( m_tmpBuffer, m_payloadBuffer, m_to_transfer, m_prevPayload );
     edm::LogInfo( m_name ) <<"Added "<<niovs<<" iovs within the Fill time";
     m_tmpBuffer.clear();
-    if(m_prevPayload->fillNumber() and m_prevPayload->endTime()!=0ULL) addEmptyPayload( m_fillPayload->endTime() );
+    iovAdded = true;
+    //if(m_prevPayload->fillNumber() and m_prevPayload->endTime()!=0ULL) addEmptyPayload( m_fillPayload->endTime() );
+    if(m_prevPayload->fillNumber() and m_fillPayload->endTime()!=0ULL) addEmptyPayload( m_fillPayload->endTime() );
   }
 }
 
