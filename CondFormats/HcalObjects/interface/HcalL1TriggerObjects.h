@@ -12,8 +12,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-constexpr std::size_t charArraySize = 128;
-
 class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
 {
  public:
@@ -21,6 +19,8 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
  HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(nullptr) { }
 #endif
   HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
+
+  static constexpr std::size_t charArraySize = 128;
 
   //fill the chars and read them
   void setTagString(std::string const& fTag) {
