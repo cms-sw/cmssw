@@ -6,11 +6,11 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 using DDI::Material;
+using namespace dd::operators;
 
 DDMaterial::DDMaterial() : DDBase< DDName, Material* >() { }
 
@@ -112,8 +112,8 @@ namespace {
     ++level; 
     if (mat) {
       os << '[' << mat.name() <<']' << " z=" << mat.z()
-                       << " a=" << mat.a()/g*mole << "*g/mole"
-                       << " d=" << mat.density()/g*cm3 << "*g/cm3";
+	 << " a=" << CONVERT_TO( mat.a(), g_per_mole ) << "*g/mole"
+	 << " d=" << CONVERT_TO( mat.density(), g_per_cm3 ) << "*g/cm3";
       std::string s(2*level,' ');
       for (int i=0; i<mat.noOfConstituents(); ++i) {
          DDMaterial::FractionV::value_type f = mat.constituent(i);
@@ -133,4 +133,3 @@ std::ostream & operator<<(std::ostream & os, const DDMaterial & mat)
 { 
   return doStream( os, mat, 0 );
 }
-

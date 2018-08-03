@@ -4,18 +4,19 @@
 #include <sstream>
 #include <string>
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Math/GenVector/AxisAngle.h"
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
+
+using namespace dd::operators;
 
 std::ostream & operator<<(std::ostream & os, const DDRotation & r)
 {
@@ -25,9 +26,9 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
     if (defined.second) {
       const DDRotationMatrix & rm = *(r.rotation());
       DDAxisAngle   ra(rm);
-      os << "t=" << ra.Axis().Theta()/deg << "deg "
-         << "p=" << ra.Axis().Phi()/deg << "deg "
-	 << "a=" << ra.Angle()/deg << "deg"; 
+      os << "t=" << CONVERT_TO( ra.Axis().Theta(), deg ) << "deg "
+         << "p=" << CONVERT_TO( ra.Axis().Phi(), deg ) << "deg "
+	 << "a=" << CONVERT_TO( ra.Angle(), deg ) << "deg"; 
     }
     else {
       os << "* rotation not defined * ";  
@@ -158,9 +159,9 @@ DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
   if ((1.-fabs(check))>tol) {
     std::ostringstream o;
     o << "matrix is not an (left or right handed) orthonormal matrix! (in deg)" << std::endl
-      << " thetaX=" << thetaX/deg << " phiX=" << phiX/deg << std::endl
-      << " thetaY=" << thetaY/deg << " phiY=" << phiY/deg << std::endl
-      << " thetaZ=" << thetaZ/deg << " phiZ=" << phiZ/deg << std::endl;
+      << " thetaX=" << CONVERT_TO( thetaX, deg ) << " phiX=" << CONVERT_TO( phiX, deg ) << std::endl
+      << " thetaY=" << CONVERT_TO( thetaY, deg ) << " phiY=" << CONVERT_TO( phiY, deg ) << std::endl
+      << " thetaZ=" << CONVERT_TO( thetaZ, deg ) << " phiZ=" << CONVERT_TO( phiZ, deg ) << std::endl;
     edm::LogError("DDRotation") << o.str() << std::endl;
      
     throw cms::Exception("DDException") << o.str();
