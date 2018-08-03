@@ -15,6 +15,8 @@
 
 #include <cmath>
 
+using namespace dd::operators;
+
 class DDLinear : public DDAlgorithm
 {
 public:
@@ -65,9 +67,9 @@ DDLinear::initialize( const DDNumericArguments & nArgs,
 
   LogDebug( "DDAlgorithm" ) << "DDLinear: Parameters for position"
 			    << "ing:: n " << m_n << " Direction Theta, Phi, Offset, Delta " 
-			    << ConvertTo( m_theta, deg ) << " " 
-			    << ConvertTo( m_phi, deg ) << " "
-			    << " " << ConvertTo( m_delta, deg )
+			    << CONVERT_TO( m_theta, deg ) << " " 
+			    << CONVERT_TO( m_phi, deg ) << " "
+			    << " " << CONVERT_TO( m_delta, deg )
 			    << " Base " << m_base[0] 
 			    << ", " << m_base[1] << ", " << m_base[2];
   
