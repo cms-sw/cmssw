@@ -629,11 +629,10 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   php.layerGroup_  = dbl_to_int(getDDDArray("GroupingZFine",sv,0));
   php.layerGroupM_ = dbl_to_int(getDDDArray("GroupingZMid",sv,0));
   php.layerGroupO_ = dbl_to_int(getDDDArray("GroupingZOut",sv,0));
-  std::vector<double> slp = getDDDArray("Slope",sv,1);
-  php.slopeMin_    = slp[0];
+  php.slopeMin_    = getDDDArray("Slope",sv,1);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: minimum slope " 
-				<< php.slopeMin_ << " and layer groupings "
+				<< php.slopeMin_[0] << " and layer groupings "
 				<< "for the 3 ranges:";
   for (int k=0; k<nmin; ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerGroup_[k] 
@@ -721,23 +720,29 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv,
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mix[" << k << "] R = "
 				  << php.radiusMixBoundary_[k];
 #endif
-  const auto & dummy2 = getDDDArray("SlopeBottom",sv,0);
-  php.slopeMin_   = dummy2[0];
+  php.slopeMin_  = getDDDArray("SlopeBottom",sv,0);
+  php.zFrontMin_ = getDDDArray("ZFrontBottom",sv,0);
+  std::for_each(php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.rMinFront_ = getDDDArray("RMinFront",sv,0);
+  std::for_each(php.rMinFront_.begin(), php.rMinFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
-				<< php.slopeMin_;
+  for (unsigned int k = 0; k < php.zFrontMin_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
+				  << "] Bottom Z = " << php.zFrontMin_[k] 
+				  << " Slope = " << php.slopeMin_[k] 
+				  << " rMax = " << php.rMinFront_[k];
 #endif
-  php.slopeTop_ = getDDDArray("SlopeTop",sv,0);
-  php.zFront_   = getDDDArray("ZFront",sv,0);
-  std::for_each(php.zFront_.begin(), php.zFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.slopeTop_  = getDDDArray("SlopeTop",sv,0);
+  php.zFrontTop_ = getDDDArray("ZFrontTop",sv,0);
+  std::for_each(php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
   php.rMaxFront_ = getDDDArray("RMaxFront",sv,0);
   std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
 #ifdef EDM_ML_DEBUG
-  for (unsigned int k = 0; k < php.zFront_.size(); ++k)
+  for (unsigned int k = 0; k < php.zFrontTop_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
-				  << "] Z = " << php.zFront_[k] << " Slope = "
-				  << php.slopeTop_[k] << " rMax = "
-				  << php.rMaxFront_[k];
+				  << "] Top Z = " << php.zFrontTop_[k] 
+				  << " Slope = " << php.slopeTop_[k] 
+				  << " rMax = " << php.rMaxFront_[k];
 #endif
   php.zRanges_   = DDVectorGetter::get("ZRanges");
   std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
@@ -777,23 +782,29 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv,
 				  << " NphiBin = " << php.nPhiBinBH_[k]
 				  << " dPhiEta = " << php.dPhiEtaBH_[k];
 #endif
-  const auto & dummy2 = getDDDArray("SlopeBottom",sv,0);
-  php.slopeMin_   = dummy2[0];
+  php.slopeMin_  = getDDDArray("SlopeBottom",sv,0);
+  php.zFrontMin_ = getDDDArray("ZFrontBottom",sv,0);
+  std::for_each(php.zFrontMin_.begin(), php.zFrontMin_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.rMinFront_ = getDDDArray("RMinFront",sv,0);
+  std::for_each(php.rMinFront_.begin(), php.rMinFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
-				<< php.slopeMin_;
+  for (unsigned int k = 0; k < php.zFrontMin_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
+				  << "] Bottom Z = " << php.zFrontMin_[k] 
+				  << " Slope = " << php.slopeMin_[k] 
+				  << " rMax = " << php.rMinFront_[k];
 #endif
-  php.slopeTop_ = getDDDArray("SlopeTop",sv,0);
-  php.zFront_   = getDDDArray("ZFront",sv,0);
-  std::for_each(php.zFront_.begin(), php.zFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.slopeTop_  = getDDDArray("SlopeTop",sv,0);
+  php.zFrontTop_ = getDDDArray("ZFrontTop",sv,0);
+  std::for_each(php.zFrontTop_.begin(), php.zFrontTop_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
   php.rMaxFront_ = getDDDArray("RMaxFront",sv,0);
   std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
 #ifdef EDM_ML_DEBUG
-  for (unsigned int k = 0; k < php.zFront_.size(); ++k)
+  for (unsigned int k = 0; k < php.zFrontTop_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
-				  << "] Z = " << php.zFront_[k] << " Slope = "
-				  << php.slopeTop_[k] << " rMax = " 
-				  << php.rMaxFront_[k];
+				  << "] Top Z = " << php.zFrontTop_[k] 
+				  << " Slope = " << php.slopeTop_[k] 
+				  << " rMax = "  << php.rMaxFront_[k];
 #endif
   php.zRanges_   = DDVectorGetter::get("ZRanges");
   std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });

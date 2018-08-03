@@ -9,8 +9,8 @@
     [hgcal:radMixL12],[hgcal:radMixL13],[hgcal:radMixL14],[hgcal:radMixL15]
   </Vector>
   <Vector name="NPhiBinBH" type="numeric" nEntries="16">
-    360, 360, 360, 360, 240, 240, 240, 240, 240, 240,
-    240, 240, 240, 240, 240, 240 </Vector>
+    360, 360, 360, 360, 288, 288, 288, 288, 288, 288,
+    288, 288, 288, 288, 288, 288 </Vector>
   <Vector name="ZRanges" type="numeric" nEntries="4">
     [hgcal:zMinEE], [hgcal:zMinHEsil], [hgcal:zMinHEmix], 
     [hgcal:zMaxHEmix]</Vector>
@@ -41,15 +41,20 @@
     <Parameter name="RadiusCuts"          value="[hgcal:NCornerCut]"/>
     <Parameter name="RadiusCuts"          value="[hgcal:FracAreaMin]"/>
     <Parameter name="RadiusCuts"          value="[hgcal:zMinForRadPar]"/>
-    <Parameter name="SlopeBottom"         value="[etaMax:slope]"/>
+    <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
+    <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal4]"/>
+    <Parameter name="RMinFront"           value="([hgcal:slope1]*[hgcal:zHGCal1])"/>
+    <Parameter name="RMinFront"           value="([hgcal:slope1]*[hgcal:zHGCal4])"/>
     <Parameter name="SlopeTop"            value="[hgcal:slope2]"/>
     <Parameter name="SlopeTop"            value="[hgcal:slope3]"/>
     <Parameter name="SlopeTop"            value="0"/>
     <Parameter name="SlopeTop"            value="0"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal1]"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal2]"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal3]"/> 
-    <Parameter name="ZFront"              value="[hgcal:zHGCal4]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal2]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal3]"/> 
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal4]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal1]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal2]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
@@ -79,15 +84,20 @@
     <Parameter name="RadiusCuts"          value="[hgcal:NCornerCut]"/>
     <Parameter name="RadiusCuts"          value="[hgcal:FracAreaMin]"/>
     <Parameter name="RadiusCuts"          value="[hgcal:zMinForRadPar]"/>
-    <Parameter name="SlopeBottom"         value="[etaMax:slope]"/>
+    <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
+    <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal4]"/>
+    <Parameter name="RMinFront"           value="([hgcal:slope1]*[hgcal:zHGCal1])"/>
+    <Parameter name="RMinFront"           value="([hgcal:slope1]*[hgcal:zHGCal4])"/>
     <Parameter name="SlopeTop"            value="[hgcal:slope2]"/>
     <Parameter name="SlopeTop"            value="[hgcal:slope3]"/>
     <Parameter name="SlopeTop"            value="0"/>
     <Parameter name="SlopeTop"            value="0"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal1]"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal2]"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal3]"/> 
-    <Parameter name="ZFront"              value="[hgcal:zHGCal4]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal2]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal3]"/> 
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal4]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal1]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal2]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
@@ -103,15 +113,20 @@
     <Parameter name="LevelTop"            value="7"/>
     <Parameter name="FirstLayer"          value="9"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
-    <Parameter name="SlopeBottom"         value="[etaMax:slope]"/>
+    <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
+    <Parameter name="SlopeBottom"         value="[hgcal:slope1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontBottom"        value="[hgcal:zHGCal4]"/>
+    <Parameter name="RMinFront"           value="([hgcal:slope1]*[hgcal:zHGCal1])"/>
+    <Parameter name="RMinFront"           value="([hgcal:slope1]*[hgcal:zHGCal4])"/>
     <Parameter name="SlopeTop"            value="[hgcal:slope2]"/>
     <Parameter name="SlopeTop"            value="[hgcal:slope3]"/>
     <Parameter name="SlopeTop"            value="0"/>
     <Parameter name="SlopeTop"            value="0"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal1]"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal2]"/>
-    <Parameter name="ZFront"              value="[hgcal:zHGCal3]"/> 
-    <Parameter name="ZFront"              value="[hgcal:zHGCal4]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal1]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal2]"/>
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal3]"/> 
+    <Parameter name="ZFrontTop"           value="[hgcal:zHGCal4]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal1]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal2]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal3]"/>
