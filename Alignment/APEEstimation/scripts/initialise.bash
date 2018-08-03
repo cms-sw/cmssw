@@ -10,6 +10,7 @@ mkdir $DIRBASE/hists/
 mkdir $DIRBASE/hists/apeObjects/
 mkdir $DIRBASE/hists/workingArea/
 mkdir $DIRBASE/test/batch/workingArea/
+mkdir $DIRBASE/test/autoSubmitter/workingArea/
 mkdir $DIRBASE/test/cfgTemplateDesign/workingArea/
 mkdir $DIRBASE/test/cfgTemplateMc/workingArea/
 mkdir $DIRBASE/test/cfgTemplateData/workingArea/
