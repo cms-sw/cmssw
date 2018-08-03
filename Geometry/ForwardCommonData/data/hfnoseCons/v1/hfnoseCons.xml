@@ -3,8 +3,8 @@
 
 <SpecParSection label="hfnoseCons.xml" eval="true">
   <SpecPar name="hfnose">
-    <PartSelector path="//HFNoseSensitive.*"/>  
-    <Parameter name="Volume" value="HFNoseSensitive" eval="false"/>
+    <PartSelector path="//HGCalHFNoseSensitive.*"/>  
+    <Parameter name="Volume" value="HGCalHFNoseSensitive" eval="false"/>
     <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
     <Parameter name="LevelZSide"          value="2"/>
     <Parameter name="LevelTop"            value="4"/>

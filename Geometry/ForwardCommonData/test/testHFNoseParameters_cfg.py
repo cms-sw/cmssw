@@ -34,7 +34,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
  
 process.testNose = cms.EDAnalyzer("HGCalParameterTester",
-                                  Name = cms.untracked.string("HFNoseSensitive"),
+                                  Name = cms.untracked.string("HGCalHFNoseSensitive"),
                                   Mode = cms.untracked.int32(1)
 )
  
