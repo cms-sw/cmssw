@@ -95,17 +95,12 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       finalToA2 += smearing_stat_thr1 + smearing_stat_thr2;
 
 
-      // --- Uncertainty due to the SiPM timing resolution:
-      float sigma2_tot_thr1 = SPTR2_/TimeThreshold1_;
-      float sigma2_tot_thr2 = SPTR2_/TimeThreshold2_;
-
-
-      // --- Add in quadrature the uncertainties due to the SiPM DCR, 
+      // --- Add in quadrature the uncertainties due to the SiPM timing resolution, the SiPM DCR,
       //     the electronic noise and the clock distribution:
       float slew2 = ScintillatorDecayTime2_/Npe/Npe;
 
-      sigma2_tot_thr1 += ( (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_ );
-      sigma2_tot_thr2 += ( (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_ );
+      float sigma2_tot_thr1 = SPTR2_/TimeThreshold1_ + (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_;
+      float sigma2_tot_thr2 = SPTR2_/TimeThreshold2_ + (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_;
 
 
       // --- Smear the arrival times using the correlated uncertainties:
