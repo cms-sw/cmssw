@@ -82,26 +82,26 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
     int iclu = 0;
     for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
 
-      HGCalDetId cluDetId( (**clu).detId() );
-      int z_side = cluDetId.zside();
+        HGCalDetId cluDetId( (**clu).detId() );
+        int z_side = cluDetId.zside();
 
-      double minDist = dr_;
-      int targetMulticlu = -1;
+        double minDist = dr_;
+        int targetMulticlu = -1;
 
-      for(unsigned imclu=0; imclu<multiclustersTmp.size(); imclu++){
+        for(unsigned imclu=0; imclu<multiclustersTmp.size(); imclu++){
 
-	HGCalDetId MClusterDetId( multiclustersTmp.at(imclu).detId() );
-	if( z_side*MClusterDetId.zside()<0) continue;
+            HGCalDetId MClusterDetId( multiclustersTmp.at(imclu).detId() );
+            if( z_side*MClusterDetId.zside()<0) continue;
 
-	double d = ( multiclustersTmp.at(imclu).centreProj() - (*clu)->centreProj() ).mag() ;
-	if(d<minDist){
-	  minDist = d;
-	  targetMulticlu = int(imclu);
-	}
-      }
+            double d = ( multiclustersTmp.at(imclu).centreProj() - (*clu)->centreProj() ).mag() ;
+            if(d<minDist){
+                minDist = d;
+                targetMulticlu = int(imclu);
+            }
+        }
 
-      if(targetMulticlu<0) multiclustersTmp.emplace_back( *clu );
-      else multiclustersTmp.at( targetMulticlu ).addConstituent( *clu );
+        if(targetMulticlu<0) multiclustersTmp.emplace_back( *clu );
+        else multiclustersTmp.at( targetMulticlu ).addConstituent( *clu );
 
     }
 
