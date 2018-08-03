@@ -19,11 +19,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # Parameters common for all boards
     commonParam = cms.PSet(
-        isTMB07 = cms.bool(True),
-        isMTCC = cms.bool(False),
-
         # Flag for SLHC studies (upgraded ME11, MPC)
-        # (if true, isTMB07 should be true as well)
         isSLHC = cms.bool(False),
 
         # ME1a configuration:

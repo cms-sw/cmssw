@@ -10,12 +10,10 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     dataLctsIn = cms.bool(True),
     emulLctsIn = cms.bool(True),
     printps = cms.bool(True),
-    # Flag to indicate MTCC data (used only when dataLctsIn = true).
-    isMTCCData = cms.bool(False),
     # Labels to retrieve LCTs from the event (optional)
-    #                                       produced by unpacker
+    # produced by unpacker
     CSCLCTProducerData = cms.untracked.string("muonCSCDigis"),
-    #                                       produced by emulator
+    # produced by emulator
     CSCLCTProducerEmul = cms.untracked.string("cscTriggerPrimitiveDigis"),
     # Labels to retrieve simHits, comparator and wire digis.
     #  (Used only when emulLctsIn = true.)

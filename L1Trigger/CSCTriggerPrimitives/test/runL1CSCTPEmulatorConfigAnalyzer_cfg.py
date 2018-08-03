@@ -13,14 +13,14 @@ options.parseArguments()
 
 if str(options.type) == "Data": globalTag = 'auto:run2_data'
 elif str(options.type) == "MC": globalTag = 'auto:run2_mc'
-else: 
-    print("Please choose \"Data\" or \"MC\" ") 
+else:
+    print("Please choose \"Data\" or \"MC\" ")
     sys.exit(1)
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("TEST",eras.Run2_2016)
+process = cms.Process("TEST",eras.Run2_2018)
 
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi')

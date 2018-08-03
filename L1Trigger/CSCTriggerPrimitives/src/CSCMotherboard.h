@@ -11,7 +11,7 @@
  * The output is up to two Correlated LCTs.
  *
  * It can be run in either a test mode, where the arguments are a collection
- * of wire times and arrays of halfstrip and distrip times, or
+ * of wire times and arrays of halfstrip times, or
  * for general use, with wire digi and comparator digi collections as
  * arguments.  In the latter mode, the wire & strip info is passed on the
  * LCTProcessors, where it is decoded and converted into a convenient form.
@@ -56,8 +56,7 @@ class CSCMotherboard
 
   /** Test version of run function. */
   void run(const std::vector<int> w_time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
-	   const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-	   const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+           const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
@@ -103,12 +102,6 @@ class CSCMotherboard
   unsigned theRing;
 
   const CSCGeometry* csc_g;
-
-  /** Flag for MTCC data. */
-  bool isMTCC;
-
-  /** Flag for new (2007) version of TMB firmware. */
-  bool isTMB07;
 
   /** Flag for SLHC studies. */
   bool isSLHC;

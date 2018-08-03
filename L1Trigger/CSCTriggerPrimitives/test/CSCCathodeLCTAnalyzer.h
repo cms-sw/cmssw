@@ -51,7 +51,6 @@ class CSCCathodeLCTAnalyzer
 
  private:
   static bool debug;
-  static bool isTMB07;
 
   /** Flag to decide whether to analyze stubs in ME1/A or not. */
   static bool doME1A;
@@ -61,18 +60,17 @@ class CSCCathodeLCTAnalyzer
 
   /* Find the list of ComparatorDigis belonging to this CLCT. */
   std::vector<CSCCathodeLayerInfo> lctDigis(const CSCCLCTDigi& clct,
-       const CSCDetId& clctId, const CSCComparatorDigiCollection* compdc);
+                                            const CSCDetId& clctId, const CSCComparatorDigiCollection* compdc);
   int preselectDigis(const int clct_bx, const CSCDetId& layerId,
-		     const CSCComparatorDigiCollection* compdc,
-		     std::vector<CSCComparatorDigi>& digiMap,
-		     int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
-		     int distripDigis[CSCConstants::NUM_HALF_STRIPS],
-		     int time[CSCConstants::MAX_NUM_STRIPS],
-		     int comp[CSCConstants::MAX_NUM_STRIPS],
-		     int digiNum[CSCConstants::MAX_NUM_STRIPS]);
+                     const CSCComparatorDigiCollection* compdc,
+                     std::vector<CSCComparatorDigi>& digiMap,
+                     int hfstripDigis[CSCConstants::NUM_HALF_STRIPS],
+                     int time[CSCConstants::MAX_NUM_STRIPS],
+                     int comp[CSCConstants::MAX_NUM_STRIPS],
+                     int digiNum[CSCConstants::MAX_NUM_STRIPS]);
 
   /* Find SimHits closest to each ComparatorDigi on CLCT. */
   void digiSimHitAssociator(CSCCathodeLayerInfo& info,
-			    const edm::PSimHitContainer* allSimHits);
+                            const edm::PSimHitContainer* allSimHits);
 };
 #endif

@@ -51,7 +51,6 @@ class CSCAnodeLCTAnalyzer
 
  private:
   static bool debug;
-  static bool isMTCCMask;
 
   /** Flag to decide whether to analyze stubs in ME1/A or not. */
   static bool doME1A;
@@ -61,10 +60,10 @@ class CSCAnodeLCTAnalyzer
 
   /* Find the list of WireDigis belonging to this ALCT. */
   std::vector<CSCAnodeLayerInfo> lctDigis(const CSCALCTDigi& alct,
-       const CSCDetId& alctId, const CSCWireDigiCollection* wiredc);
+                                          const CSCDetId& alctId, const CSCWireDigiCollection* wiredc);
   void preselectDigis(const int alct_bx, const CSCDetId& layerId,
-		      const CSCWireDigiCollection* wiredc,
-		      std::map<int, CSCWireDigi>& digiMap);
+                      const CSCWireDigiCollection* wiredc,
+                      std::map<int, CSCWireDigi>& digiMap);
 
   /* Find SimHits closest to each WireDigi on ALCT. */
   void digiSimHitAssociator(CSCAnodeLayerInfo& info,
