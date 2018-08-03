@@ -77,36 +77,6 @@ const int CSCAnodeLCTProcessor::time_weights[CSCConstants::MAX_WIRES_IN_PATTERN]
             1,  1,  0};
 
 
-// These mask the pattern envelope to give the desired accelerator pattern
-// and collision patterns A and B.  These masks were meant to be the default
-// ones in early 200X, but were never implemented because of limited FPGA
-// resources.
-const int CSCAnodeLCTProcessor::pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
-  // Accelerator pattern
-  {0,  0,  1,
-       0,  1,
-           1,
-           1,  0,
-           1,  0,  0,
-           1,  0,  0},
-
-  // Collision pattern A
-  {0,  1,  0,
-       1,  1,
-           1,
-           1,  0,
-           0,  1,  0,
-           0,  1,  0},
-
-  // Collision pattern B
-  {1,  1,  0,
-       1,  1,
-           1,
-           1,  1,
-           0,  1,  1,
-           0,  0,  1}
-};
-
 // Since the test beams in 2003, both collision patterns are "completely
 // open".  This is our current default.
 const int CSCAnodeLCTProcessor::pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN] = {
@@ -211,10 +181,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   infoV        = conf.getParameter<int>("verbosity");
 
   // Other parameters.
-  // Use open pattern instead of more restrictive (slim) ones.
-  isMTCC       = comm.getParameter<bool>("isMTCC");
-  // Use TMB07 flag for DAQ-2006 firmware version (implemented in late 2007).
-  isTMB07      = comm.getParameter<bool>("isTMB07");
 
   // Flag for SLHC studies
   isSLHC       = comm.getParameter<bool>("isSLHC");
@@ -271,8 +237,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   runME3141ILT_ = comm.existsAs<bool>("runME3141ILT")?
     comm.getParameter<bool>("runME3141ILT"):false;
 
-  //if (theStation==1 && theRing==2) infoV = 3;
-
   // Load appropriate pattern mask.
   loadPatternMask();
 }
@@ -286,8 +250,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
   // ALCT parameters.
   setDefaultConfigParameters();
   infoV = 2;
-  isMTCC  = false;
-  isTMB07 = true;
 
   isSLHC = false;
   disableME1a = false;
@@ -315,24 +277,21 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
 }
 
 
-void CSCAnodeLCTProcessor::loadPatternMask() {
+void CSCAnodeLCTProcessor::loadPatternMask()
+{
   // Load appropriate pattern mask.
   for (int i_patt = 0; i_patt < CSCConstants::NUM_ALCT_PATTERNS; i_patt++) {
     for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN; i_wire++) {
-      if (isMTCC || isTMB07) {
-        pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
-        if (narrow_mask_r1 && (theRing == 1 || theRing == 4))
-          pattern_mask[i_patt][i_wire] = pattern_mask_r1[i_patt][i_wire];
-      }
-      else {
-        pattern_mask[i_patt][i_wire] = pattern_mask_slim[i_patt][i_wire];
-      }
+      pattern_mask[i_patt][i_wire] = pattern_mask_open[i_patt][i_wire];
+      if (narrow_mask_r1 && (theRing == 1 || theRing == 4))
+        pattern_mask[i_patt][i_wire] = pattern_mask_r1[i_patt][i_wire];
     }
   }
 }
 
 
-void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
+void CSCAnodeLCTProcessor::setDefaultConfigParameters()
+{
   // Set default values for configuration parameters.
   fifo_tbins   = def_fifo_tbins;
   fifo_pretrig = def_fifo_pretrig;
@@ -347,7 +306,8 @@ void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCAnodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf) {
+void CSCAnodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf)
+{
   static std::atomic<bool> config_dumped{false};
 
   fifo_tbins   = conf->alctFifoTbins();
@@ -964,21 +924,14 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
     if (temp_quality >= pattern_thresh[i_pattern]) {
       trigger = true;
 
-      if (!isTMB07) {
-        // Quality reported by the pattern detector is defined as the number
-        // of the layers hit in a pattern minus (pattern_thresh-1) value.
-        temp_quality -= (pattern_thresh[i_pattern]-1);
-      }
-      else {
-        // Quality definition changed on 22 June 2007: it no longer depends
-        // on pattern_thresh.
-        int Q;
-        // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
-        if (temp_quality == 3 and (runME21ILT_ or runME3141ILT_)) Q = 4;
-        else if (temp_quality > 3) Q = temp_quality - 3;
-        else                  Q = 0; // quality code 0 is valid!
-        temp_quality = Q;
-      }
+      // Quality definition changed on 22 June 2007: it no longer depends
+      // on pattern_thresh.
+      int Q;
+      // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+      if (temp_quality == 3 and (runME21ILT_ or runME3141ILT_)) Q = 4;
+      else if (temp_quality > 3) Q = temp_quality - 3;
+      else                  Q = 0; // quality code 0 is valid!
+      temp_quality = Q;
 
       if (i_pattern == 0) {
         // Accelerator pattern
@@ -1293,23 +1246,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
     }
     else if (isBetterALCT(*plct, secondALCT[bx])) {
       secondALCT[bx] = *plct;
-    }
-  }
-
-  if (!isTMB07) {
-    // Prior to DAQ-2006 format, only ALCTs at the earliest bx were reported.
-    int first_bx = CSCConstants::MAX_ALCT_TBINS;
-    for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
-      if (bestALCT[bx].isValid()) {
-        first_bx = bx;
-        break;
-      }
-    }
-    if (first_bx < CSCConstants::MAX_ALCT_TBINS) {
-      for (int bx = first_bx + 1; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
-        if (bestALCT[bx].isValid())   bestALCT[bx].clear();
-        if (secondALCT[bx].isValid()) secondALCT[bx].clear();
-      }
     }
   }
 

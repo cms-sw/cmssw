@@ -75,11 +75,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   bool dataLctsIn_;
   bool emulLctsIn_;
 
-  // Flag to indicate MTCC data (used only when dataLctsIn_ = true).
-  bool isMTCCData_;
-
-  bool isTMB07;
-
   // Flag to plot or not plot ME1/A as a separate chamber.
   bool plotME1A;
 
@@ -129,7 +124,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int NCHAMBERS[CSC_TYPES];
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
-  static const int ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07];
   static const int ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS];
 
   // LCT counters
