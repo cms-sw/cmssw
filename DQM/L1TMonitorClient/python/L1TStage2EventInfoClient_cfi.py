@@ -90,6 +90,12 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             )
                         ),
                     cms.PSet(
+                        SystemLabel = cms.string("Calo Layer2"),
+                        HwValLabel = cms.string("Stage2CaloLayer2"),
+                        SystemDisable  = cms.uint32(0),
+                        QualityTests = cms.VPSet()
+                        ),
+                    cms.PSet(
                         SystemLabel = cms.string("BMTF"),
                         HwValLabel = cms.string("Stage2BMTF"),
                         SystemDisable  = cms.uint32(0),
@@ -345,8 +351,6 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             )
                         )
                     ),
-
-
 
     #
     # for each L1 trigger object, give:
