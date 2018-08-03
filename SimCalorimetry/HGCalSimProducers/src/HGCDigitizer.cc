@@ -21,6 +21,8 @@
 #include <boost/foreach.hpp>
 #include "FWCore/Utilities/interface/transform.h"
 
+//#define EDM_ML_DEBUG
+
 using namespace hgc_digi;
 
 namespace {
@@ -278,19 +280,31 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     if( producesEEDigis() ) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " 
+				   << digiResult->size() <<  " EE hits";
+#ifdef EDM_ML_DEBUG
+      checkPosition(&(*digiResult));
+#endif
       e.put(std::move(digiResult),digiCollection());
     }
     if( producesHEfrontDigis()) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " 
+				   << digiResult->size() <<  " HE front hits";
+#ifdef EDM_ML_DEBUG
+      checkPosition(&(*digiResult));
+#endif
       e.put(std::move(digiResult),digiCollection());
     }
     if( producesHEbackDigis() ) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " 
+				   << digiResult->size() <<  " HE back hits";
+#ifdef EDM_ML_DEBUG
+      checkPosition(&(*digiResult));
+#endif
       e.put(std::move(digiResult),digiCollection());
     }
   }
@@ -621,6 +635,45 @@ bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset,
     }
   }
 return weightToAbyEnergy;
+}
+
+void HGCDigitizer::checkPosition(const HGCalDigiCollection* digis) const {
+
+  const double tol(0.5);
+  if (geometryType_ != 0 && nullptr != gHGCal_) {
+    for (const auto & digi : *(digis)) {
+      const DetId&       id     = digi.id();
+      const GlobalPoint& global = gHGCal_->getPosition(id);
+      double             r      = global.perp();
+      double             z      = std::abs(global.z());
+      std::pair<double,double> zrange = gHGCal_->topology().dddConstants().rangeZ(true);
+      std::pair<double,double> rrange = gHGCal_->topology().dddConstants().rangeR(z,true);
+      bool        ok = ((r >= rrange.first) && (r <= rrange.second) &&
+			(z >= zrange.first) && (z <= zrange.second));
+      std::string ck = (((r < rrange.first-tol) || (r > rrange.second+tol) ||
+			 (z < zrange.first-tol) || (z > zrange.second+tol)) ?
+			"***** ERROR *****" : "");
+      if (!ok) {
+	if (id.det() == DetId::HGCalHSi) {
+	  edm::LogVerbatim("HGCDigitizer") << "Check " << HGCSiliconDetId(id)
+					   << " " << global << " R " << r 
+					   << ":" << rrange.first << ":" 
+					   << rrange.second << " Z " << z 
+					   << ":" << zrange.first << ":"
+					   << zrange.second << " Flag "
+					   << ok << " " << ck;
+	} else {
+	  edm::LogVerbatim("HGCDigitizer") << "Check " << HGCScintillatorDetId(id)
+					   << " " << global << " R " << r 
+					   << ":"  << rrange.first << ":" 
+					   << rrange.second << " Z " << z 
+					   << ":" << zrange.first << ":" 
+					   << zrange.second << " Flag "
+					   << ok << " " << ck;
+	}
+      }
+    }
+  }
 }
 
 template void HGCDigitizer::accumulate<HcalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HcalGeometry *geom, CLHEP::HepRandomEngine* hre);
