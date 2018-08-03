@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 
 #include <map>
 
