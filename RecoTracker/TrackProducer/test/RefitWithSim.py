@@ -155,7 +155,7 @@ process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_ste
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
-#Setup FWK for multithreaded
+#Setup FWK NOT for multithreaded
 process.options.numberOfThreads=cms.untracked.uint32(1)
 process.options.numberOfStreams=cms.untracked.uint32(1)
 
@@ -168,10 +168,6 @@ from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
 process = setCrossingFrameOn(process)
 
 # End of customisation functions
-#do not add changes to your config after this point (unless you know what you are doing)
-from FWCore.ParameterSet.Utilities import convertToUnscheduled
-process=convertToUnscheduled(process)
-
 
 # Customisation from command line
 

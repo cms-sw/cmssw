@@ -90,6 +90,7 @@ bool
 FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+   bool accept = true;
    fakeCPE.map().clear();
 
    edm::ESHandle<TransientTrackingRecHitBuilder> theB;
@@ -151,8 +152,8 @@ FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 std::cout << "simhit " << sh.localPosition() << std::endl;
 
-         LocalValues lv(sh.localPosition(),thit.localPositionError());
-         //LocalValues lv(thit.localPosition(),thit.localPositionError());
+         LocalValues lv(sh.localPosition(),thit.localPositionError());  // fill with simhit and rechit error (in alternative hand-made error)
+         //LocalValues lv(thit.localPosition(),thit.localPositionError());  // fill with rechit (to verify nothing changes!)
 	 // Fill The Map
          if (clus.isPixel()) 
               fakeCPE.map().add(clus.pixelCluster(), *thit.detUnit(),lv);
@@ -162,13 +163,15 @@ FakeCPEFiller::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          break; 
 
        } // closes loop on simHits
-       if (!ok) std::cout << "SimHit non found in det " << thit.detUnit()->geographicalId().rawId() << std::endl;
-    
+       if (!ok) {
+        std::cout << "SimHit non found in det " << thit.detUnit()->geographicalId().rawId() << std::endl;
+        accept=false;
+       }
      } // closes loop on trajectory measurements
      
    } // closes loop on trajectories
 
-  return true; // can be false if no good traj found?   
+  return accept; // false if  just one hit did not match
 }
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
