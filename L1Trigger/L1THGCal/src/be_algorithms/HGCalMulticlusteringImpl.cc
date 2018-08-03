@@ -82,16 +82,12 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
     int iclu = 0;
     for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
 
-        HGCalDetId cluDetId( (**clu).detId() );
-        int z_side = cluDetId.zside();
-
         double minDist = dr_;
         int targetMulticlu = -1;
 
         for(unsigned imclu=0; imclu<multiclustersTmp.size(); imclu++){
 
-            HGCalDetId MClusterDetId( multiclustersTmp.at(imclu).detId() );
-            if( z_side*MClusterDetId.zside()<0) continue;
+            if(!this->isPertinent(**clu, multiclustersTmp.at(imclu), dr_)) continue;
 
             double d = ( multiclustersTmp.at(imclu).centreProj() - (*clu)->centreProj() ).mag() ;
             if(d<minDist){
