@@ -1,17 +1,14 @@
 #include <exception>
-#include <fstream>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/src/DDCheckMaterials.cc"
-#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
@@ -20,12 +17,10 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "boost/smart_ptr/shared_ptr.hpp"
 
 int main(int argc, char *argv[])
 {
-  using Graph = DDCompactView::Graph;
-  using adjl_iterator = Graph::const_adj_iterator;
-
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
   int rc = 0;
@@ -39,9 +34,9 @@ int main(int argc, char *argv[])
     //     In particular, the job hangs as soon as the output buffer fills up.
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
-    std::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-							       makePresence("MessageServicePresence").release());
+    boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+								 makePresence("MessageServicePresence").release());
 
     // C.  Manufacture a configuration and establish it.
     std::string config =
@@ -73,43 +68,35 @@ int main(int argc, char *argv[])
 
     std::cout << "main::initialize DDL parser" << std::endl;
     DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
 
-    //   std::cout << "main:: about to start parsing field configuration..." << std::endl;
-    //   FIPConfiguration dp2;
-    //   dp2.readConfig("Geometry/CMSCommonData/data/FieldConfiguration.xml");
-    //   myP->parse(dp2);
+    DDLParser myP(cpv); // = DDLParser::instance();
 
-    std::cout << "main::about to start parsing main configuration... " << std::endl;
     FIPConfiguration dp(cpv);
-    dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
-    myP.parse(dp);
-  
-    std::cout << "main::completed Parser" << std::endl;
 
+    dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
+
+    std::cout << "main::about to start parsing" << std::endl;
+ 
+    myP.parse(dp);
+
+    std::cout << "main::completed Parser" << std::endl;
+  
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
     DDCheckMaterials(std::cout);
 
-    //  cpv.setRoot(DDLogicalPart(DDName("cms:World")));
+    DDExpandedView ev(cpv);
+    std::cout << "== got the epv ==" << std::endl;
 
-    std::cout << "edge size of produce graph:" << cpv.graph().edge_size() << std::endl;
-    const auto& gt = cpv.graph();
-    adjl_iterator git = gt.begin();
-    adjl_iterator gend = gt.end();    
-
-    Graph::index_type i=0;
-    for (; git != gend; ++git) {
-      const DDLogicalPart & ddLP = gt.nodeData(git);
-      std::cout << ++i << " P " << ddLP.name() << std::endl;
-      if (!git->empty()) { 
-	auto cit  = git->begin();
-	auto cend = git->end();
-	for (; cit != cend; ++cit) {
-	  const DDLogicalPart & ddcurLP = gt.nodeData(cit->first);
-	  std::cout << ++i << " c--> " << gt.edgeData(cit->second)->copyno() << " " << ddcurLP.name() << std::endl;
-	}
+    while ( ev.next() ) {
+      if ( ev.logicalPart().name().name() == "MBAT" ) {
+	std::cout << ev.geoHistory() << std::endl;
+      }
+      if ( ev.logicalPart().name().name() == "MUON" ) {
+	std::cout << ev.geoHistory() << std::endl;
       }
     }
+    //    cpv.clear();
+    std::cout << "cleared DDCompactView.  " << std::endl;
   }
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {

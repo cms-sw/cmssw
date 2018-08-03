@@ -1,15 +1,8 @@
-/***************************************************************************
-                          testNew.cpp  -  description
-                             -------------------
-    begin                : Wed Feb 25 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
 #include <cstdlib>
 #include <iostream>
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
