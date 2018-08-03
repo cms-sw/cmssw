@@ -4,14 +4,16 @@
 PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
   : AnyMVAEstimatorRun2Base(conf)
   , mvaVarMngr_ (conf.getParameter<std::string>("variableDefinition"))
-  // So far only used in Run2Spring16NonTrigV1
-  , effectiveAreas_        (conf.exists("effAreasConfigFile") ?
-          std::make_unique<EffectiveAreas>((
-                  conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath()) : nullptr)
-  , phoIsoPtScalingCoeff_  (conf.exists("phoIsoPtScalingCoeff") ?
-          conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff") : std::vector<double>{0.0, 0.0})
-  , phoIsoCutoff_          (conf.exists("phoIsoCutoff") ? conf.getParameter<double>("phoIsoCutoff") : 0.0)
 {
+
+  //
+  // Construct the MVA estimators
+  //
+  if (getTag() == "Run2Spring16NonTrigV1") {
+      effectiveAreas_ = std::make_unique<EffectiveAreas>((conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath());
+      phoIsoPtScalingCoeff_ = conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff");
+      phoIsoCutoff_ = conf.getParameter<double>("phoIsoCutoff");
+  }
 
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
@@ -40,9 +42,6 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
     std::vector<std::string> variableNamesInCategory;
     std::vector<int> variablesInCategory;
 
-    // Use unique_ptr so that all readers are properly cleaned up
-    // when the vector clear() is called in the destructor
-
     gbrForests_.push_back( GBRForestTools::createGBRForest( weightFileNames[i], variableNamesInCategory ) );
 
     nVariables_.push_back(variableNamesInCategory.size());
@@ -61,10 +60,6 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf)
 
     }
   }
-}
-
-PhotonMVAEstimator::
-~PhotonMVAEstimator(){
 }
 
 float PhotonMVAEstimator::
@@ -138,15 +133,10 @@ int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Photon>& phoPtr) cons
 
 }
 
-void PhotonMVAEstimator::setConsumes(edm::ConsumesCollector&& cc) const {
+void PhotonMVAEstimator::setConsumes(edm::ConsumesCollector&& cc) {
   // All tokens for event content needed by this MVA
   // Tags from the variable helper
-  for (auto &tag : mvaVarMngr_.getHelperInputTags()) {
-      cc.consumes<edm::ValueMap<float>>(tag);
-  }
-  for (auto &tag : mvaVarMngr_.getGlobalInputTags()) {
-      cc.consumes<double>(tag);
-  }
+  mvaVarMngr_.setConsumes(std::move(cc));
 }
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,

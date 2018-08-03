@@ -20,20 +20,19 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
+
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -257,12 +256,7 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
 
    // All tokens for event content needed by this MVA
    // Tags from the variable helper
-   for (auto &tag : mvaVarMngr_.getHelperInputTags()) {
-       consumes<edm::ValueMap<float>>(tag);
-   }
-   for (auto &tag : mvaVarMngr_.getGlobalInputTags()) {
-       consumes<double>(tag);
-   }
+   mvaVarMngr_.setConsumes(consumesCollector());
 }
 
 

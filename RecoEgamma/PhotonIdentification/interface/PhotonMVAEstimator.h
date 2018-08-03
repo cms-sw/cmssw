@@ -2,13 +2,13 @@
 #define RecoEgamma_PhotonIdentification_PhotonMVAEstimator_H
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
 class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   
@@ -16,16 +16,18 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
 
   // Constructor and destructor
   PhotonMVAEstimator(const edm::ParameterSet& conf);
-  ~PhotonMVAEstimator() override;
+  ~PhotonMVAEstimator() override {};
 
   // Calculation of the MVA value
   float mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent, int &iCategory) const override;
   
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) const override;
+  void setConsumes(edm::ConsumesCollector&&) override;
   
   int findCategory( const edm::Ptr<reco::Candidate>& candPtr) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 
@@ -47,8 +49,8 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   MVAVariableManager<reco::Photon> mvaVarMngr_;
 
   // Other objects needed by the MVA
-  const std::unique_ptr<EffectiveAreas> effectiveAreas_;
-  const std::vector<double> phoIsoPtScalingCoeff_;
+  std::unique_ptr<EffectiveAreas> effectiveAreas_;
+  std::vector<double> phoIsoPtScalingCoeff_;
   double phoIsoCutoff_;
 
 };
