@@ -71,19 +71,10 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
   }
 }
 
-ElectronMVAEstimatorRun2::
-~ElectronMVAEstimatorRun2(){
-}
-
-void ElectronMVAEstimatorRun2::setConsumes(edm::ConsumesCollector&& cc) const {
+void ElectronMVAEstimatorRun2::setConsumes(edm::ConsumesCollector&& cc) {
   // All tokens for event content needed by this MVA
   // Tags from the variable helper
-  for (auto &tag : mvaVarMngr_.getHelperInputTags()) {
-      cc.consumes<edm::ValueMap<float>>(tag);
-  }
-  for (auto &tag : mvaVarMngr_.getGlobalInputTags()) {
-      cc.consumes<double>(tag);
-  }
+  mvaVarMngr_.setConsumes(std::move(cc));
 }
 
 float ElectronMVAEstimatorRun2::

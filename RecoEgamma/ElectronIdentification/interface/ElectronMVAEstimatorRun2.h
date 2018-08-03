@@ -12,7 +12,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
   // Constructor and destructor
   ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2() override;
+  ~ElectronMVAEstimatorRun2() override {};
   // For use with FWLite/Python
   ElectronMVAEstimatorRun2(const std::string &mvaTag,
                            const std::string &mvaName,
@@ -25,7 +25,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) const final;
+  void setConsumes(edm::ConsumesCollector&&) final;
 
   int findCategory( const edm::Ptr<reco::Candidate>& candPtr) const override;
 

@@ -54,7 +54,7 @@ class AnyMVAEstimatorRun2Base {
   // for certainty).
 
   // This method needs to be used only once after this MVA estimator is constructed
-  virtual void setConsumes(edm::ConsumesCollector &&cc) const {};
+  virtual void setConsumes(edm::ConsumesCollector &&cc) {};
 
  private:
 
