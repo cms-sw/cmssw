@@ -80,13 +80,13 @@ void HGCalClusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTri
 
         for(unsigned iclu=0; iclu<clustersTmp.size(); iclu++){
 
-          if(!this->isPertinent(**tc, clustersTmp.at(iclu), dr_)) continue;
+            if(!this->isPertinent(**tc, clustersTmp.at(iclu), dr_)) continue;
 
-          double d = clustersTmp.at(iclu).distance(**tc);
-          if(d<minDist){
-            minDist = d;
-            targetClu = int(iclu);
-          }
+            double d = clustersTmp.at(iclu).distance(**tc);
+            if(d<minDist){
+                minDist = d;
+                targetClu = int(iclu);
+            }
         }
 
         if(targetClu<0 && isSeed[itc]) clustersTmp.emplace_back( *tc );
