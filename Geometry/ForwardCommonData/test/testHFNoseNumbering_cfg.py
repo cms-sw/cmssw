@@ -35,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.prodNose = cms.EDAnalyzer("HGCalNumberingTester",
-    NameSense     = cms.string("HFNoseSensitive"),
+    NameSense     = cms.string("HGCalHFNoseSensitive"),
     NameDevice    = cms.string("HFNose"),
     LocalPositionX= cms.vdouble(50.0,80.0,110.0,130.0),
     LocalPositionY= cms.vdouble(50.0,0.0,0.0,0.0),

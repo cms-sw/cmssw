@@ -30,7 +30,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 //
 // class decleration
