@@ -72,7 +72,7 @@ namespace dd {
     constexpr long double operator "" _mg( long double mass ) 
     { return mass * 1.e-3_g; }
     constexpr long double operator "" _mole( long double mass ) 
-    { return mass * 1._mole; }
+    { return mass * 1.; }
 
     // Material properties
     constexpr long double operator"" _mg_per_cm3( long double density )
