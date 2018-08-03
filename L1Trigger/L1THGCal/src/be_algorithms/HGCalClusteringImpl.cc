@@ -75,26 +75,26 @@ void HGCalClusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTri
                       the tc will not be clusterized  
         */
 
-	HGCalDetId tcDetId( (**tc).detId() );
-	int z_side = tcDetId.zside();
+        HGCalDetId tcDetId( (**tc).detId() );
+        int z_side = tcDetId.zside();
 
-	double minDist = dr_;
-	int targetClu = -1;
+        double minDist = dr_;
+        int targetClu = -1;
 
-	for(unsigned iclu=0; iclu<clustersTmp.size(); iclu++){
+        for(unsigned iclu=0; iclu<clustersTmp.size(); iclu++){
 
-	  HGCalDetId cluDetId( clustersTmp.at(iclu).detId() );
-	  if( z_side*cluDetId.zside()<0) continue;
+          HGCalDetId cluDetId( clustersTmp.at(iclu).detId() );
+          if( z_side*cluDetId.zside()<0) continue;
 
-	  double d = clustersTmp.at(iclu).distance(**tc);
-	  if(d<minDist){
-	    minDist = d;
-	    targetClu = int(iclu);
-	  }
-	}
+          double d = clustersTmp.at(iclu).distance(**tc);
+          if(d<minDist){
+            minDist = d;
+            targetClu = int(iclu);
+          }
+        }
 
-	if(targetClu<0 && isSeed[itc]) clustersTmp.emplace_back( *tc );
-	else if(targetClu>=0) clustersTmp.at( targetClu ).addConstituent( *tc );
+        if(targetClu<0 && isSeed[itc]) clustersTmp.emplace_back( *tc );
+        else if(targetClu>=0) clustersTmp.at( targetClu ).addConstituent( *tc );
 
     }
 
