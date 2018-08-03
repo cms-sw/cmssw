@@ -1,0 +1,5 @@
+<use   name="DataFormats/HGCRecHit"/>
+
+<export>
+  <lib   name="1"/>
+</export>
