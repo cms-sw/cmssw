@@ -198,7 +198,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.firstLayer_      = (int)(getDDDValue("FirstLayer", sv));
       php.waferThick_      = HGCalParameters::k_ScaleFromDDD*getDDDValue("WaferThickness", sv);
       php.waferSize_       = php.waferR_          = 0;
-      php.waferThick_      = php.sensorSeparation_= php.mouseBite_       = 0;
+      php.sensorSeparation_= php.mouseBite_       = 0;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" 
 				    << php.levelT_[1] << " EtaMinBH "

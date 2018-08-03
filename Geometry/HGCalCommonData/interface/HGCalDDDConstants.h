@@ -66,7 +66,8 @@ public:
   std::pair<float,float> locateCell(int cell, int lay, int type, 
 				    bool reco) const;
   std::pair<float,float> locateCell(int lay, int waferU, int waferV, int cellU,
-				    int cellV, bool reco, bool all) const;
+				    int cellV, bool reco, bool all,
+				    bool debug=false) const;
   std::pair<float,float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
 					bool reco) const;
@@ -88,6 +89,8 @@ public:
   int                 numberCellsHexagon(int wafer) const;
   int                 numberCellsHexagon(int lay, int waferU, int waferV,
 					 bool flag) const;
+  std::pair<double,double> rangeR(double z, bool reco) const;
+  std::pair<double,double> rangeZ(bool reco) const;
   std::pair<int,int>  rowColumnWafer(const int wafer) const;
   int                 scintType(const float dPhi) const 
   { return ((dPhi < dPhiMin) ? 0 : 1); }
@@ -101,7 +104,8 @@ public:
   void                waferFromPosition(const double x, const double y,
 					const int layer, int& waferU,
 					int& waferV, int& cellU, int& cellV,
-					int& celltype, double& wt) const;
+					int& celltype, double& wt,
+					bool debug=false) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
   bool                waferFullInLayer(int wafer, int lay, bool reco) const;
   int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
@@ -127,7 +131,7 @@ private:
 	       const std::vector<double>& posX,
 	       const std::vector<double>& posY) const;  
   void cellHex(double xloc, double yloc, int cellType, int& cellU, 
-	       int& cellV) const;
+	       int& cellV, bool debug=false) const;
   std::pair<int,float>   getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
