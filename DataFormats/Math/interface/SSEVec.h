@@ -60,8 +60,9 @@ namespace mathSSE {
     v4 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 1, 0, 1));
     
     v3 = _mm_mul_ps(v3, v4);
-    const  __m128 neg = _mm_set_ps(0.0f,0.0f,-0.0f,0.0f);
-    return _mm_xor_ps(_mm_sub_ps(v5, v3), neg);
+    const __m128i neg = _mm_set_epi32(0,0,0x80000000,0);
+    __m128i ret = __m128i(_mm_sub_ps(v5, v3));
+    return __m128(_mm_xor_si128(ret,neg));
   }
 #endif // CMS_USE_SSE
 
