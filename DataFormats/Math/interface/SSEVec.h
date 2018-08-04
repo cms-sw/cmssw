@@ -95,9 +95,9 @@ namespace mathSSE {
     v4 = _mm256_permute_pd(v4,5);
     
     v3 = _mm256_mul_pd(v3, v4);
-    const  __m256d neg = _mm256_set_pd(0.0,0.0,-0.0,0.0);
-    return _mm256_xor_pd(_mm256_sub_pd(v5, v3), neg);
- 
+     __m256d ret = _mm256_sub_pd(v5, v3);
+    const  __m256i neg = _mm256_set_epi64x(0,0,0x8000000000000000,0);
+    return __m256d(_mm256_xor_si256(__m256i(ret), neg));
   }
 
 #endif //  CMS_USE_AVX
@@ -885,14 +885,14 @@ inline double dot(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) __attribute__((always_inline)) __attribute__ ((pure));
 
 inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
+  const __m128i neg = _mm_set_epi64x( 0, 0x8000000000000000 );
   // lh .z * rh .x , lh .z * rh .y
   __m128d l1 = _mm_mul_pd ( _mm_unpacklo_pd ( a.vec[1] , a.vec[1] ), b.vec[0] );
   // rh .z * lh .x , rh .z * lh .y
   __m128d l2 = _mm_mul_pd ( _mm_unpacklo_pd (  b.vec[1],  b.vec[1] ),  a.vec[0] );
   __m128d m1 = _mm_sub_pd ( l1 , l2 ); // l1 - l2
   m1 = _mm_shuffle_pd ( m1 , m1 , 1 ); // switch the elements
-  m1 = _mm_xor_pd ( m1 , neg ); // change the sign of the first element
+  m1 = __m128d(_mm_xor_si128 ( __m128i(m1) , neg )); // change the sign of the first element
   // lh .x * rh .y , lh .y * rh .x
   l1 = _mm_mul_pd (  a.vec[0] , _mm_shuffle_pd (  b.vec[0] ,  b.vec[0] , 1 ) );
   // lh .x * rh .y - lh .y * rh .x
