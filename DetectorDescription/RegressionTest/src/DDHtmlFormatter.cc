@@ -1,5 +1,3 @@
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/Singleton.h"
@@ -17,6 +15,7 @@
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 
@@ -30,6 +29,7 @@
 #include <vector>
 
 using namespace std;
+using namespace dd::operators;
 
 ostream & operator<<(ostream & o, const DDHtmlFormatter & f)
 {
@@ -155,12 +155,12 @@ bool DDHtmlRoDetails::details(ostream & os, const DDName & nm)
   os << f_.h2("Rotation: " + nm.fullname());
   os << f_.h3("GEANT3 style:"); 
   os << "<table border=\"0\">" << endl
-     << "<tr><td>thetaX =</td><td>" << x.Theta()/deg << " deg</td><tr>" << endl
-     << "<tr><td>phiX =</td><td>" << x.Phi()/deg << " deg</td><tr>" << endl
-     << "<tr><td>thetaY =</td><td>" << y.Theta()/deg << " deg</td><tr>" << endl
-     << "<tr><td>phiY =</td><td>" << y.Phi()/deg << " deg</td><tr>" << endl     
-     << "<tr><td>thetaZ =</td><td>" << z.Theta()/deg << " deg</td><tr>" << endl
-     << "<tr><td>phiZ =</td><td>" << z.Phi()/deg << " deg</td><tr>" << endl     
+     << "<tr><td>thetaX =</td><td>" << CONVERT_TO( x.Theta(), deg ) << " deg</td><tr>" << endl
+     << "<tr><td>phiX =</td><td>" << CONVERT_TO( x.Phi(), deg ) << " deg</td><tr>" << endl
+     << "<tr><td>thetaY =</td><td>" << CONVERT_TO( y.Theta(), deg ) << " deg</td><tr>" << endl
+     << "<tr><td>phiY =</td><td>" << CONVERT_TO( y.Phi(), deg ) << " deg</td><tr>" << endl     
+     << "<tr><td>thetaZ =</td><td>" << CONVERT_TO( z.Theta(), deg ) << " deg</td><tr>" << endl
+     << "<tr><td>phiZ =</td><td>" << CONVERT_TO( z.Phi(), deg ) << " deg</td><tr>" << endl     
      << "</table>";
      
   os << f_.h3("Rotation axis & angle (theta,phi,angle)") << endl;   
@@ -192,7 +192,7 @@ bool DDHtmlMaDetails::details(ostream & os, const DDName & nm)
     return false;
   }
   
-  os << "<p>density = " << ma.density()/g*cm3 << " g/cm3 </p>" << endl;
+  os << "<p>density = " << CONVERT_TO( ma.density(), g_per_cm3 ) << " g/cm3 </p>" << endl;
   int co = ma.noOfConstituents();
   if ( co ) {
     os << f_.p("Composites by fraction-mass:");
@@ -219,7 +219,7 @@ bool DDHtmlMaDetails::details(ostream & os, const DDName & nm)
   else { // if ( co ) ...
     os << f_.p("ElementaryMaterial:");
     os << "<p>z = " << ma.z() << "</p>" << endl;
-    os << "<p>a = " << ma.a()/g*mole << "g/mole</p>" << endl;
+    os << "<p>a = " << CONVERT_TO( ma.a(), g_per_mole ) << "g/mole</p>" << endl;
   }
   
    
