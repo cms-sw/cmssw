@@ -15,7 +15,8 @@ class DDAlgorithm
   friend class  DDAlgorithmHandler;
   
  public:
-  virtual ~DDAlgorithm( void );
+  virtual ~DDAlgorithm() {}
+
   //! fetch the algorithm parameters 
   /** an implementation of the initialize() method should initialize the algorithm
       by processing the provided parameters. Typically, data members of the
@@ -27,19 +28,21 @@ class DDAlgorithm
 			   const DDMapArguments & mArgs,
 			   const DDStringArguments & sArgs,
 			   const DDStringVectorArguments & vsArgs ) = 0;
-  
+
   //! execute the algorithm
   /** an implementation of the execute() method creates detector description
       objects such as DDLogicalPart, DDSolid, ... */
   virtual void execute( DDCompactView& ) = 0;
-  
+
+ protected:
+   
   //! returns the parent logical-part under which the algorithm creates sub-structures
   const DDLogicalPart & parent() const { return parent_; }
-  
- protected:
+
   //! the algorithm may only create sub-detector elements within on parent
   void setParent( const DDLogicalPart & parent ) { parent_ = parent; }
-  
+
+ private:  
   //! parent part in which the algorithm creates sub-structures
   DDLogicalPart parent_;
 };
