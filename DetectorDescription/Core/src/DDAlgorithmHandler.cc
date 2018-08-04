@@ -5,12 +5,6 @@
 
 class DDCompactView;
 
-DDAlgorithmHandler::DDAlgorithmHandler( void )
-{}
-
-DDAlgorithmHandler::~DDAlgorithmHandler( void )
-{}
-
 void
 DDAlgorithmHandler::initialize( const std::string & algoName,
 				const DDLogicalPart & parent,
