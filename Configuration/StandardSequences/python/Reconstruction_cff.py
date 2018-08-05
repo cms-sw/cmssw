@@ -157,8 +157,7 @@ from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompati
 _highlevelreco_HI = highlevelreco.copy()
 _highlevelreco_HI += hiCentrality
 _highlevelreco_HI += hiClusterCompatibility
-for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
-    e.toReplaceWith(highlevelreco, _highlevelreco_HI)
+(pp_on_XeXe_2017 | pp_on_AA_2018).toReplaceWith(highlevelreco, _highlevelreco_HI)
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
