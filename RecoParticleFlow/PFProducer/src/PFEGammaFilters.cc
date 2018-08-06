@@ -16,6 +16,7 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ph_sietaieta_eb,
 				 float ph_sietaieta_ee,
 				 const edm::ParameterSet& ph_protectionsForJetMET,
+				 const edm::ParameterSet& ph_protectionsForBadHcal,
 				 float ele_iso_pt,
 				 float ele_iso_mva_eb,
 				 float ele_iso_mva_ee,
@@ -54,6 +55,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEcalEOverP_2(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_2")), 
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
   ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN")),
+  badHcal_phoTrkSolidConeIso_offs_(ph_protectionsForBadHcal.getParameter<double>("solidConeTrkIsoOffset")),
+  badHcal_phoTrkSolidConeIso_slope_(ph_protectionsForBadHcal.getParameter<double>("solidConeTrkIsoSlope")),
   debug_(false)
 {
     readEBEEParams_(ele_protectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
@@ -62,7 +65,7 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
     readEBEEParams_(ele_protectionsForBadHcal, "dPhi", badHcal_dPhi_);
 }
 
-PFEGammaFilters::readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) {
+void PFEGammaFilters::readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) {
     const auto & vals = pset.getParameter<std::vector<double>>(name);
     if (vals.size() != 2) throw cms::Exception("Configuration") << "Parameter " << name << " does not contain exactly 2 values (EB, EE)\n";
     out[0] = vals[0]; 
@@ -76,14 +79,24 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
 
   // Photon ET
   if(photon.pt()  < ph_Et_ ) return false;
-//   std::cout<< "Cuts " << ph_combIso_ << " H/E " << ph_loose_hoe_ 
-// 	   << " SigmaiEtaiEta_EB " << ph_sietaieta_eb_  
-// 	   << " SigmaiEtaiEta_EE " << ph_sietaieta_ee_ << std::endl;
+  bool validHoverE = (photon.hadTowOverEm() >= 0);
+  if (debug_) std::cout<< "PFEGammaFilters:: photon pt " << photon.pt()
+		     << "   eta, phi " << photon.eta() << ", " << photon.phi() 
+		     << "   isoDr03 " << (photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03())  << " (cut: " << ph_combIso_ << ")"
+		     << "   H/E " << photon.hadTowOverEm() << " (valid? " << validHoverE << ", cut: " << ph_loose_hoe_ << ")"
+		     << "   s(ieie) " << photon.sigmaIetaIeta()  << " (cut: " << (photon.isEB() ? ph_sietaieta_eb_ : ph_sietaieta_ee_) << ")"
+		     << "   isoTrkDr03Solid " << (photon.trkSumPtSolidConeDR03())  << " (cut: " << (validHoverE ? -1 : badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) << ")"
+ << std::endl;
 
   if (photon.hadTowOverEm() >ph_loose_hoe_ ) return false;
   //Isolation variables in 0.3 cone combined
   if(photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03() > ph_combIso_)
-    return false;		
+    return false;
+
+  //patch for bad hcal
+  if (!validHoverE && photon.trkSumPtSolidConeDR03() > badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) {
+    return false;
+  }
   
   if(photon.isEB()) {
     if(photon.sigmaIetaIeta() > ph_sietaieta_eb_) 
