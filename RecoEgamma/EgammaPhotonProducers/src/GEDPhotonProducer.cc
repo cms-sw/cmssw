@@ -562,6 +562,18 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       TowersBehindClus = towerIsoBehindClus.towersOf(*scRef);
       hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
       hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
+
+      // FIXME this should get its own flag, but nevermind for now
+      if (HoE1 == 0 && HoE2 == 0) {
+          if (!towerIsoBehindClus.hasActiveHcal(*scRef)) {
+              HoE1 = HoE2 = -1e-6; // set to negative value
+          }
+      }
+      if (hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
+          if (!towerIsoBehindClus.hasActiveHcal(TowersBehindClus)) {
+              hcalDepth1OverEcalBc = hcalDepth2OverEcalBc = -1e-6; // set to negative value
+          }
+      }
     }
 
     //    std::cout << " GEDPhotonProducer calculation of HoE with towers in a cone " << HoE1  << "  " << HoE2 << std::endl;
