@@ -701,9 +701,6 @@ Status NTSession::PRunSetup(const std::vector<string>& input_names,
   }
 
   *handle = run_state_args.handle;
-
-  delete barrier;
-
   return Status::OK();
 }
 
