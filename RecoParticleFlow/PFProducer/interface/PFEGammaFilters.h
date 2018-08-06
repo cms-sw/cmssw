@@ -23,6 +23,7 @@ class PFEGammaFilters {
 		  float ph_sietaieta_eb,
 		  float ph_sietaieta_ee,
 		  const edm::ParameterSet& ph_protectionsForJetMET,
+		  const edm::ParameterSet& ph_protectionsForBadHcal,
 		  float ele_iso_pt,
 		  float ele_iso_mva_eb,
 		  float ele_iso_mva_ee,
@@ -81,12 +82,16 @@ class PFEGammaFilters {
     ele_maxHcalEOverP, ele_maxHcalEOverEcalE, ele_maxEcalEOverP_1,
     ele_maxEcalEOverP_2, ele_maxEeleOverPout, ele_maxDPhiIN;
 
-  // dead hcal selections
+  // dead hcal selections (electrons)
   std::array<float,2> badHcal_full5x5_sigmaIetaIeta_;
   std::array<float,2> badHcal_eInvPInv_;
   std::array<float,2> badHcal_dEta_;
   std::array<float,2> badHcal_dPhi_;
-  static readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) ;
+  static void readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) ;
+
+  // dead hcal selections (photons)
+  float badHcal_phoTrkSolidConeIso_offs_, badHcal_phoTrkSolidConeIso_slope_;
+
   // Event variables 
   
   bool debug_;

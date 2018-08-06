@@ -82,6 +82,10 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     photon_HoE =  cms.double(0.05),
     photon_SigmaiEtaiEta_barrel = cms.double(0.0125),
     photon_SigmaiEtaiEta_endcap = cms.double(0.034),                             
+    photon_protectionsForBadHcal = cms.PSet(
+        solidConeTrkIsoOffset = cms.double(10.),
+        solidConeTrkIsoSlope  = cms.double(0.3),
+    ),
 
     # sumPtTrackIso, sumPtTrackIsoSlope                          
     photon_protectionsForJetMET = cms.PSet(
