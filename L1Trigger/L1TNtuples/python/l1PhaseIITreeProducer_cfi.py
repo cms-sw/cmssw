@@ -9,6 +9,7 @@ l1PhaseIITree = cms.EDAnalyzer("L1PhaseIITreeProducer",
 
    egTokens = cms.VInputTag(cms.InputTag("l1EGammaCrystalsProducer","L1EGammaCollectionBXVWithCuts"),cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts")),
    tkEGTokens = cms.VInputTag( cms.InputTag("L1TkElectronsCrystal","EG"),cms.InputTag("L1TkElectronsHGC","EG") ),
+   tkEGLooseTokens = cms.VInputTag( cms.InputTag("L1TkElectronsLooseCrystal","EG"),cms.InputTag("L1TkElectronsLooseHGC","EG") ),
    tkEMTokens = cms.VInputTag( cms.InputTag("L1TkPhotonsCrystal","EG"),cms.InputTag("L1TkPhotonsHGC","EG") ),
 
    tkTauToken = cms.InputTag("L1TkTauFromCalo",""), # ?

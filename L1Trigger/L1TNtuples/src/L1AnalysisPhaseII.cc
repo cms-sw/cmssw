@@ -157,7 +157,7 @@ void L1Analysis::L1AnalysisPhaseII::SetEG(const edm::Handle<l1t::EGammaBxCollect
 void L1Analysis::L1AnalysisPhaseII::SetTkEG(const edm::Handle<l1t::L1TkElectronParticleCollection> tkEG, unsigned maxL1Extra)
 {
   for(l1t::L1TkElectronParticleCollection::const_iterator it=tkEG->begin(); it!=tkEG->end() && l1extra_.nTkEG<maxL1Extra; it++){
-    if (it->et() > 10){
+    if (it->et() > 5){
     l1extra_.tkEGEt .push_back(it->et());
     l1extra_.tkEGEta.push_back(it->eta());
     l1extra_.tkEGPhi.push_back(it->phi());
@@ -168,6 +168,25 @@ void L1Analysis::L1AnalysisPhaseII::SetTkEG(const edm::Handle<l1t::L1TkElectronP
     l1extra_.nTkEG++;
   }}
 }
+
+void L1Analysis::L1AnalysisPhaseII::SetTkEGLoose(const edm::Handle<l1t::L1TkElectronParticleCollection> tkEGLoose, unsigned maxL1Extra)
+{
+  for(l1t::L1TkElectronParticleCollection::const_iterator it=tkEGLoose->begin(); it!=tkEGLoose->end() && l1extra_.ntkEGLoose<maxL1Extra; it++){
+    if (it->et() > 5){
+    l1extra_.tkEGLooseEt .push_back(it->et());
+    l1extra_.tkEGLooseEta.push_back(it->eta());
+    l1extra_.tkEGLoosePhi.push_back(it->phi());
+    l1extra_.tkEGLoosezVtx.push_back(it->getTrkzVtx());
+    l1extra_.tkEGLooseTrkIso.push_back(it->getTrkIsol());
+    l1extra_.tkEGLooseHwQual.push_back(it->getEGRef()->hwQual());
+    l1extra_.tkEGLooseBx.push_back(0);//it->bx());
+    l1extra_.ntkEGLoose++;
+  }}
+}
+
+
+
+
 
 void L1Analysis::L1AnalysisPhaseII::SetTkEM(const edm::Handle<l1t::L1TkEmParticleCollection> tkEM, unsigned maxL1Extra)
 {
@@ -307,18 +326,18 @@ void L1Analysis::L1AnalysisPhaseII::SetPFJet(const edm::Handle<reco::PFJetCollec
 //    l1extra_.puppiJetzVtx.push_back(it->getJetVtx());
     l1extra_.puppiJetBx .push_back(0);//it->bx());
     l1extra_.nPuppiJets++;
-    if(it->et()>15 && fabs(it->eta())<2.4) { // this needs to be done in a nicer way
+    if(corrP4.pt()>15 && fabs(it->eta())<2.4) { // this needs to be done in a nicer way
                    HT15+=corrP4.pt();
                   mHT15_px+=corrP4.px();
                   mHT15_py+=corrP4.py();
     }
-    if(it->et()>20 && fabs(it->eta())<2.4) {
+    if(corrP4.pt()>20 && fabs(it->eta())<2.4) {
                   HT20+=corrP4.pt();
                   mHT20_px+=corrP4.px();
                   mHT20_py+=corrP4.py();
 
     }
-    if(it->et()>30 && fabs(it->eta())<2.4) { 
+    if(corrP4.pt()>30 && fabs(it->eta())<2.4) { 
                   HT30+=corrP4.pt();
                   mHT30_px+=corrP4.px();
                   mHT30_py+=corrP4.py();

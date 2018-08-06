@@ -116,7 +116,7 @@ process.L1TkPhotonsCrystal = cms.EDProducer("L1TkEmParticleProducer",
     DRmin = cms.double(0.07),
     DeltaZMax = cms.double(999.0),
     ETmin = cms.double(-1),
-    IsoCut = cms.double(0.23),
+    IsoCut = cms.double(-0.1),
     L1EGammaInputTag = cms.InputTag("l1EGammaCrystalsProducer","L1EGammaCollectionBXVWithCuts"),
     L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks"),
     L1VertexInputTag = cms.InputTag("NotUsed"),
@@ -151,7 +151,7 @@ process.L1TkPhotonsHGC = cms.EDProducer("L1TkEmParticleProducer",
     DRmin = cms.double(0.07),
     DeltaZMax = cms.double(999.0),
     ETmin = cms.double(-1),
-    IsoCut = cms.double(0.23),
+    IsoCut = cms.double(-0.1),
     L1EGammaInputTag = cms.InputTag("l1EGammaEEProducer","L1EGammaCollectionBXVWithCuts"),
     L1TrackInputTag = cms.InputTag("TTTracksFromTracklet","Level1TTTracks"),
     L1VertexInputTag = cms.InputTag("NotUsed"),
@@ -162,13 +162,58 @@ process.L1TkPhotonsHGC = cms.EDProducer("L1TkEmParticleProducer",
     label = cms.string('EG')
 )
 
+process.L1TkElectronsLooseHGC = process.L1TkElectronsHGC.clone()
+process.L1TkElectronsLooseHGC.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
+process.L1TkElectronsLooseHGC.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
+process.L1TkElectronsLooseHGC.TrackMinPt = cms.double( 3.0 )
 
+process.L1TkElectronsLooseCrystal = process.L1TkElectronsHGC.clone()
+process.L1TkElectronsLooseCrystal.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
+process.L1TkElectronsLooseCrystal.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
+process.L1TkElectronsLooseCrystal.TrackMinPt = cms.double( 3.0 )
+
+
+from L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi import L1TkCaloHTMiss 
+
+process.L1TrackerHTMiss5GeV = L1TkCaloHTMiss.clone()
+process.L1TrackerHTMiss5GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
+process.L1TrackerHTMiss5GeV.jet_maxEta = cms.double(2.4)
+process.L1TrackerHTMiss5GeV.jet_minPt = cms.double(5.0)
+process.L1TrackerHTMiss5GeV.UseCaloJets = cms.bool(False)
+
+process.L1TrackerHTMiss10GeV = L1TkCaloHTMiss.clone()
+process.L1TrackerHTMiss10GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
+process.L1TrackerHTMiss10GeV.jet_maxEta = cms.double(2.4)
+process.L1TrackerHTMiss10GeV.jet_minPt = cms.double(10.0)
+process.L1TrackerHTMiss10GeV.UseCaloJets = cms.bool(False)
+
+process.L1TrackerHTMiss20GeV = L1TkCaloHTMiss.clone()
+process.L1TrackerHTMiss20GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
+process.L1TrackerHTMiss20GeV.jet_maxEta = cms.double(2.4)
+process.L1TrackerHTMiss20GeV.jet_minPt = cms.double(20.0)
+process.L1TrackerHTMiss20GeV.UseCaloJets = cms.bool(False)
+
+process.L1TrackerHTMiss30GeV = L1TkCaloHTMiss.clone()
+process.L1TrackerHTMiss30GeV.L1TkJetInputTag = cms.InputTag("L1TrackerJets","L1TrackerJets")
+process.L1TrackerHTMiss30GeV.jet_maxEta = cms.double(2.4)
+process.L1TrackerHTMiss30GeV.jet_minPt = cms.double(30.0)
+process.L1TrackerHTMiss30GeV.UseCaloJets = cms.bool(False)
 
 #process.load('L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi')
 
 #process.phase2_SimL1Emulator = cms.Sequence(process.SimL1EmulatorCore+process.hgcalTriggerPrimitives+process.VertexProducer+process.simKBmtfStubs+process.simKBmtfDigis+process.l1EGammaCrystalsProducer+process.l1EGammaEEProducer+process.L1TkElectrons+process.L1TkIsoElectrons+process.L1TkPhotons+process.L1TkMatchedJets+process.L1TkPrimaryVertex+process.L1TkEtMiss+process.L1TkMuons+process.L1TkTauFromCalo+process.l1ParticleFlow+process.l1PFMets+process.l1PFJets+process.L1TkJets)
 
-process.runmenutree=cms.Path(process.L1TkElectronsCrystal*process.L1TkPhotonsCrystal*process.L1TkElectronsHGC*process.L1TkPhotonsHGC*process.l1PhaseIITree)
+process.genTree = cms.EDAnalyzer(
+    "L1GenTreeProducer",
+    genJetToken     = cms.untracked.InputTag("ak4GenJetsNoNu"),
+    genMETTrueToken = cms.untracked.InputTag("genMetTrue"),
+    genMETCaloToken     = cms.untracked.InputTag("genMetCalo"),
+    genParticleToken = cms.untracked.InputTag("genParticles"),
+    pileupInfoToken     = cms.untracked.InputTag("addPileupInfo")
+)
+
+
+process.runmenutree=cms.Path(process.L1TrackerHTMiss5GeV* process.L1TrackerHTMiss10GeV*process.L1TrackerHTMiss20GeV*process.L1TrackerHTMiss30GeV*process.L1TkElectronsCrystal*process.L1TkPhotonsCrystal*process.L1TkElectronsHGC*process.L1TkPhotonsHGC*process.L1TkElectronsLooseCrystal*process.L1TkElectronsLooseHGC*process.l1PhaseIITree*process.genTree)
 
 # Schedule definition
 #process.schedule = cms.Schedule(process.EcalEBtp_step,process.hgcl1tpg_step,process.L1TrackTrigger_step,process.L1simulation_step,process.endjob_step,process.FEVTDEBUGHLToutput_step)
@@ -181,14 +226,6 @@ associatePatAlgosToolsTask(process)
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('L1Ntuple.root')
 )
-
-
-
-# Automatic addition of the customisation function from L1Trigger.L1TNtuples.customiseL1Ntuple
-from L1Trigger.L1TNtuples.customiseL1Ntuple import L1NtupleGEN
-
-#call to customisation function L1NtupleEMU imported from L1Trigger.L1TNtuples.customiseL1Ntuple
-process = L1NtupleGEN(process)
 
 # End of customisation functions
 

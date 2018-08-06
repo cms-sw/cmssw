@@ -113,6 +113,15 @@ namespace L1Analysis
       tkEGzVtx.clear();
       tkEGHwQual.clear();
 
+      ntkEGLoose = 0;
+      tkEGLooseEt.clear();
+      tkEGLooseEta.clear();
+      tkEGLoosePhi.clear();
+      tkEGLooseBx.clear();
+      tkEGLooseTrkIso.clear();
+      tkEGLoosezVtx.clear();
+      tkEGLooseHwQual.clear();
+
       nTkEM = 0;
       tkEMEt.clear();
       tkEMEta.clear();
@@ -281,6 +290,14 @@ namespace L1Analysis
     std::vector<double> tkEGzVtx;
     std::vector<double> tkEGHwQual;
 
+    unsigned int ntkEGLoose;
+    std::vector<double> tkEGLooseEt;
+    std::vector<double> tkEGLooseEta;
+    std::vector<double> tkEGLoosePhi;
+    std::vector<int>    tkEGLooseBx;
+    std::vector<double> tkEGLooseTrkIso;
+    std::vector<double> tkEGLoosezVtx;
+    std::vector<double> tkEGLooseHwQual;
 
     unsigned int nTkEM;
     std::vector<double> tkEMEt;

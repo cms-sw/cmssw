@@ -108,6 +108,7 @@ private:
 
   std::vector<edm::EDGetTokenT<l1t::EGammaBxCollection> > egToken_;
   std::vector<edm::EDGetTokenT<l1t::L1TkElectronParticleCollection> > tkEGToken_;
+  std::vector<edm::EDGetTokenT<l1t::L1TkElectronParticleCollection> > tkEGLooseToken_;
   std::vector< edm::EDGetTokenT<l1t::L1TkEmParticleCollection> > tkEMToken_;
 
   edm::EDGetTokenT<l1t::L1TkGlbMuonParticleCollection> TkGlbMuonToken_;
@@ -146,6 +147,10 @@ L1PhaseIITreeProducer::L1PhaseIITreeProducer(const edm::ParameterSet& iConfig){
   const auto& eletokens=iConfig.getParameter<std::vector<edm::InputTag>>("tkEGTokens");
   for (const auto& eletoken: eletokens) {
       tkEGToken_.push_back(consumes<l1t::L1TkElectronParticleCollection>(eletoken));
+      }
+  const auto& eleloosetokens=iConfig.getParameter<std::vector<edm::InputTag>>("tkEGLooseTokens");
+  for (const auto& eleloosetoken: eleloosetokens) {
+      tkEGLooseToken_.push_back(consumes<l1t::L1TkElectronParticleCollection>(eleloosetoken));
       }
   const auto& photokens=iConfig.getParameter<std::vector<edm::InputTag>>("tkEMTokens");
   for (const auto& photoken: photokens) {
@@ -281,6 +286,19 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     edm::LogWarning("MissingProduct") << "L1PhaseII TkEG not found. Branch will not be filled" << std::endl;
   }
   }
+
+  for (auto & eleloosetoken: tkEGLooseToken_){
+  edm::Handle<l1t::L1TkElectronParticleCollection> tkEGLoose;
+  iEvent.getByToken(eleloosetoken, tkEGLoose);
+
+  if (tkEGLoose.isValid()){
+    l1Extra->SetTkEGLoose(tkEGLoose, maxL1Extra_);
+  } else {
+    edm::LogWarning("MissingProduct") << "L1PhaseII tkEGLoose not found. Branch will not be filled" << std::endl;
+  }
+  }
+
+
 
   for (auto & egtoken: egToken_){
   edm::Handle<l1t::EGammaBxCollection> eg;
