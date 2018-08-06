@@ -133,7 +133,8 @@ class PFAlgo {
 			   double ph_HoE,
 			   double ph_sietaieta_eb,
 			   double ph_sietaieta_ee,
-			   const edm::ParameterSet& ph_protectionsForJetMET);
+			   const edm::ParameterSet& ph_protectionsForJetMET,
+			   const edm::ParameterSet& ph_protectionsForBadHcal);
 
   
   void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
