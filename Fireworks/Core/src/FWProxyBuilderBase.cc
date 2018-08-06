@@ -495,8 +495,8 @@ FWProxyBuilderBase::increaseComponentTransparency(unsigned int index, TEveElemen
 {
    // Helper function to increse transparency of certain components.
 
-   const FWDisplayProperties& dp = item()->modelInfo(index).displayProperties();
-   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * dp.transparency() / 100);
+   Char_t transparency = item()->modelInfo(index).displayProperties().transparency();
+   Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * transparency / 100);
    TEveElement::List_t matches;
    holder->FindChildren(matches, name.c_str());
    for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m)
