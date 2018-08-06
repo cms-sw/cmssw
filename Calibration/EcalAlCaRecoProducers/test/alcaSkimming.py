@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import os, sys, imp, re
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -60,7 +61,7 @@ options.maxEvents = -1 # -1 means all events
 ### get and parse the command line arguments
 options.parseArguments()
 
-print options
+print(options)
 
 ############################################################
 # Use the options
@@ -81,7 +82,7 @@ elif(options.skim=="ZmmgSkim"):
     ZmmgSkim=True
 else:
     if(options.type=="ALCARAW"):
-        print "[ERROR] no skim selected"
+        print("[ERROR] no skim selected")
         sys.exit(-1)
     
 
@@ -100,12 +101,12 @@ elif(options.type == 'SKIMEFFTEST'):
     processName = 'SKIMEFFTEST'
     MC = True
 else:
-    print "[ERROR] wrong type defined"
+    print("[ERROR] wrong type defined")
     sys.exit(-1)
     
 doTreeOnly=False
 if(options.doTree>0 and options.doTreeOnly==1):
-    print "doTreeOnly"
+    print("doTreeOnly")
     doTreeOnly=True
     processName = processName+'DUMP'
     
@@ -232,47 +233,47 @@ if(len(options.tagFile)>0):
     process.GlobalTag = RerecoGlobalTag 
 else:
     if(options.type=="ALCARERECO" and not doTreeOnly):
-        print "******************************"
-        print "[ERROR] no file with tags specified, but rereco requested"
+        print("******************************")
+        print("[ERROR] no file with tags specified, but rereco requested")
         sys.exit(1)
         
     if(re.match("CMSSW_4_2_.*",CMSSW_VERSION)):
         if (MC):
-            print "[INFO] Using GT START42_V17::All"
+            print("[INFO] Using GT START42_V17::All")
             process.GlobalTag.globaltag = 'START42_V17::All'
         else:
-            print "[INFO] Using GT FT_R_42_V24::All" #GR_P_V22::All"
+            print("[INFO] Using GT FT_R_42_V24::All") #GR_P_V22::All"
             process.GlobalTag.globaltag = 'FT_R_42_V24::All' #'GR_P_V22::All' #GR_R_42_V21B::All' # rereco30Nov
     elif(re.match("CMSSW_4_4_.*", CMSSW_VERSION)):
         if (MC):
-            print "[INFO] Using GT START44_V13::All"
+            print("[INFO] Using GT START44_V13::All")
             process.GlobalTag.globaltag = 'START44_V13::All'
         else:
-            print "[INFO] Using GT GR_R_44_V15C::All"
+            print("[INFO] Using GT GR_R_44_V15C::All")
             #process.GlobalTag.globaltag = 'GR_R_44_V12::All'
             process.GlobalTag.globaltag = 'GR_R_44_V15C::All'
     elif(re.match("CMSSW_5_2_.*",CMSSW_VERSION)):
         if(MC):
-            print "[INFO] Using GT START52_V16::All"
+            print("[INFO] Using GT START52_V16::All")
             process.GlobalTag.globaltag = 'START52_V16::All'
         else:
             process.GlobalTag.globaltag = 'GR_P_V32::All' # 5_2_0 Prompt
             #            process.GlobalTag.globaltag = 'GR_R_52_V7::All' # 5_2_0
     elif(re.match("CMSSW_5_3_11_patch3",CMSSW_VERSION)):
         if(MC):
-            print "[INFO] Using GT START53_LV4::All"
+            print("[INFO] Using GT START53_LV4::All")
             process.GlobalTag.globaltag = 'START53_V7C::All'
 #            process.GlobalTag.globaltag = 'START53_LV4::All'
         else:
             process.GlobalTag.globaltag = 'FT_R_53_V21::All' #22Jan rereco
     elif(re.match("CMSSW_5_3_.*",CMSSW_VERSION)):
         if(MC):
-            print "[INFO] Using GT START53_V7N::All"
+            print("[INFO] Using GT START53_V7N::All")
             process.GlobalTag.globaltag = 'START53_V7N::All' # run dep MC
             #            print "[INFO] Using GT START53_V7G::All"
             #            process.GlobalTag.globaltag = 'START53_V7G::All' # suggested for analysis std. MC
         else:
-            print "[INFO] Using GT FT_R_53_V21N::All"
+            print("[INFO] Using GT FT_R_53_V21N::All")
             process.GlobalTag.globaltag = 'FT_R_53_V21::All' #GR_P_V42B::All' # 5_3_3 Prompt
             #process.GlobalTag.globaltag = 'FT_R_53_LV3::All' #21Jun rereco 53X 2011 data
             #process.GlobalTag.globaltag = 'GR_R_53_V9F::All' # GT for 53 rereco (2011)
@@ -280,13 +281,13 @@ else:
                 process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012A/DoubleElectron/AOD/22Jan2013-v1/20000/003EC246-5E67-E211-B103-00259059642E.root' ]
     elif(re.match("CMSSW_6_1_.*",CMSSW_VERSION)):
         if(MC):
-            print "[INFO] Using GT START61_V11::All"
+            print("[INFO] Using GT START61_V11::All")
             process.GlobalTag.globaltag = 'START61_V11::All'
         else:
             process.GlobalTag.globaltag = 'GR_P_V42B::All' # 5_3_3 Prompt
     elif(re.match("CMSSW_7_0_.*",CMSSW_VERSION)):
         if(MC):
-            print "[INFO] Using GT POSTLS162_V5::All"
+            print("[INFO] Using GT POSTLS162_V5::All")
             process.GlobalTag.globaltag = 'POSTLS162_V5::All'
         else:
             process.GlobalTag.globaltag = 'GR_R_62_V3::All'
@@ -294,7 +295,7 @@ else:
                 process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]
     elif(re.match("CMSSW_7_4_.*",CMSSW_VERSION)):
         if(MC):
-            print "[INFO] Using GT POSTLS162_V5::All"
+            print("[INFO] Using GT POSTLS162_V5::All")
             process.GlobalTag.globaltag = 'POSTLS162_V5::All'
         else:
             from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -302,7 +303,7 @@ else:
             if(options.files==""):
                 process.source.fileNames=[ 'root://cms-xrd-global.cern.ch//store/data/Run2012D/DoubleElectron/AOD/15Apr2014-v1/00000/0EA11D35-0CD5-E311-862E-0025905A6070.root' ]
     else:
-        print "[ERROR]::Global Tag not set for CMSSW_VERSION: ", CMSSW_VERSION
+        print("[ERROR]::Global Tag not set for CMSSW_VERSION: ", CMSSW_VERSION)
         sys.exit(1)
 
 if(re.match("CMSSW_7_.*",CMSSW_VERSION)):
@@ -424,7 +425,7 @@ except NameError:
     #print "well, it WASN'T defined after all!"
     process.trivialCond = cms.Sequence()
 else:
-    print "** TrivialConditionRetriver defined"
+    print("** TrivialConditionRetriver defined")
     process.trivialCond = cms.Sequence( EcalTrivialConditionRetriever )
 
 
@@ -814,7 +815,7 @@ if(options.isCrab==1):
     pathPrefix=""
 else:
     pathPrefix=CMSSW_BASE+'/' #./src/Calibration/EleNewEnergiesProducer' #CMSSW_BASE+'/src/Calibration/EleNewEnergiesProducer/'
-    print "[INFO] Running locally: pathPrefix="+pathPrefix
+    print("[INFO] Running locally: pathPrefix="+pathPrefix)
 
 process.eleNewEnergiesProducer.regrPhoFile=pathPrefix+process.eleNewEnergiesProducer.regrPhoFile.value()
 process.eleNewEnergiesProducer.regrEleFile=pathPrefix+process.eleNewEnergiesProducer.regrEleFile.value()
@@ -843,7 +844,7 @@ if(re.match("CMSSW_4_4_.*", CMSSW_VERSION)):
     process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2011Weights_V1.root")
 if(re.match("CMSSW_4_2_.*", CMSSW_VERSION)):
     pathPrefix=CMSSW_BASE+'/src/Calibration/EleNewEnergiesProducer/'
-    print '[INFO] Using v2 regression for CMSSW_4_2_X' 
+    print('[INFO] Using v2 regression for CMSSW_4_2_X') 
     process.eleNewEnergiesProducer.regrPhoFile=cms.string(pathPrefix+'data/gbrv2ph.root')
     process.eleNewEnergiesProducer.regrEleFile=cms.string(pathPrefix+'data/gbrv2ele.root')
     process.eleNewEnergiesProducer.regrEleFile_fra=cms.string('nocorrections')
@@ -940,4 +941,4 @@ process.eleRegressionEnergy.recHitCollectionEE = process.eleNewEnergiesProducer.
 ## Dump the output Python ##
 ############################
 processDumpFile = open('processDump.py', 'w')
-print >> processDumpFile, process.dumpPython()
+print(process.dumpPython(), file=processDumpFile)

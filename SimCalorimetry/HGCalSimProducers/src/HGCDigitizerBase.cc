@@ -3,43 +3,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 using namespace hgc_digi;
-
-namespace {
-  void addCellMetadata(HGCCellInfo& info,
-		       const HcalGeometry* geom,
-		       const DetId& detid ) {
-    //base time samples for each DetId, initialized to 0
-    info.size = 1.0;
-    info.thickness = 1.0;
-  }
-
-  void addCellMetadata(HGCCellInfo& info,
-		       const HGCalGeometry* geom,
-		       const DetId& detid ) {
-    const auto& dddConst = geom->topology().dddConstants();
-    bool isHalf = (((dddConst.geomMode() == HGCalGeometryMode::Hexagon) ||
-		    (dddConst.geomMode() == HGCalGeometryMode::HexagonFull)) ?
-		   dddConst.isHalfCell(HGCalDetId(detid).wafer(),HGCalDetId(detid).cell()) :
-		   false);
-    //base time samples for each DetId, initialized to 0
-    info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = dddConst.waferType(detid);
-  }
-
-  void addCellMetadata(HGCCellInfo& info,
-		       const CaloSubdetectorGeometry* geom,
-		       const DetId& detid ) {
-    if( DetId::Hcal == detid.det() ) {
-      const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
-      addCellMetadata(info,hc,detid);
-    } else {
-      const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
-      addCellMetadata(info,hg,detid);
-    }
-  }
-
-}
-
+using namespace hgc_digi_utils;
 
 template<class DFr>
 HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
@@ -51,26 +15,19 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
 
   if( myCfg_.existsAs<edm::ParameterSet>( "chargeCollectionEfficiencies" ) ) {
     cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").template getParameter<std::vector<double>>("values");
-  } else {
-    std::vector<double>().swap(cce_);
   }
 
   if(myCfg_.existsAs<double>("noise_fC")) {
-    noise_fC_.resize(1);
-    noise_fC_[0] = myCfg_.getParameter<double>("noise_fC");
+    noise_fC_.reserve(1);
+    noise_fC_.push_back(myCfg_.getParameter<double>("noise_fC"));
   } else if ( myCfg_.existsAs<std::vector<double> >("noise_fC") ) {
     const auto& noises = myCfg_.getParameter<std::vector<double> >("noise_fC");
-    noise_fC_.resize(0);
-    noise_fC_.reserve(noises.size());
-    for( auto noise : noises ) { noise_fC_.push_back( noise ); }
+    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
   } else if(myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
     const auto& noises = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double> >("values");
-    noise_fC_.resize(0);
-    noise_fC_.reserve(noises.size());
-    for( auto noise : noises ) { noise_fC_.push_back( noise ); }
+    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
   } else {
-    noise_fC_.resize(1);
-    noise_fC_[0] = 1.f;
+    noise_fC_.resize(1,1.f);
   }
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
@@ -123,7 +80,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
       //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately
-      totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
+      if (noise_fC_[cell.thickness-1] != 0)
+        totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
       if(totalCharge<0.f) totalCharge=0.f;
 
       chargeColl[i]= totalCharge;
@@ -164,3 +122,4 @@ void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCDigitizerBase<HGCEEDataFrame>;
 template class HGCDigitizerBase<HGCBHDataFrame>;
+template class HGCDigitizerBase<HGCalDataFrame>;

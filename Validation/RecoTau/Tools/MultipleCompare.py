@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import os
@@ -164,7 +165,7 @@ def FindParents(histoPath):
         effNameCut = effName[effName.find('_'):effName.find('#')]
         if effNameCut in histoPath:
             if found == 1:
-                print 'More than one pair of parents found for ' + histopath + ':'
+                print('More than one pair of parents found for ' + histopath + ':')
                 assert(False)
             num = root + effpset.numerator.value()[effName.find('_'):].replace('#PAR#',par)
             den = root + effpset.denominator.value()[effName.find('_'):].replace('#PAR#',par)
@@ -175,13 +176,13 @@ def Rebin(tfile, histoPath, rebinVal):
     parents = FindParents(histoPath)
     num = tfile.Get(parents[0])
     if not isinstance(num, TH1F):
-        print 'Looking for ' + num
-        print 'Plot now found! What the hell are you doing? Exiting...'
+        print('Looking for ' + num)
+        print('Plot now found! What the hell are you doing? Exiting...')
         sys.exit()
     denSingle = tfile.Get(parents[1])
     if not isinstance(denSingle, TH1F):
-        print 'Looking for '+denSingle
-        print 'Plot now found! What the hell are you doing? Exiting...'
+        print('Looking for '+denSingle)
+        print('Plot now found! What the hell are you doing? Exiting...')
         sys.exit()
     num.Rebin(rebinVal)
     den = denSingle.Rebin(rebinVal,'denClone')
@@ -346,12 +347,12 @@ def main(argv=None):
 
 #  print "options: ",options
 #  print "toPlot: ",toPlot
-  print histoList
+  print(histoList)
 
   if len(histoList)<1:
-    print '\tError: Please specify at least one histogram.'
+    print('\tError: Please specify at least one histogram.')
     if len(toPlot)>0:
-      print 'Check your plot list:', toPlot
+      print('Check your plot list:', toPlot)
     sys.exit()
 
 
@@ -426,8 +427,8 @@ def main(argv=None):
     else:
         testH = Rebin(testFile,histoPath,options.rebin)
     if not isinstance(testH, TH1F):
-        print 'Looking for '+histoPath
-        print 'Test plot now found! What the hell are you doing? Exiting...'
+        print('Looking for '+histoPath)
+        print('Test plot now found! What the hell are you doing? Exiting...')
         sys.exit()
     testHs.append(testH)
     xAx = histoPath[histoPath.find('Eff')+len('Eff'):]
@@ -467,7 +468,7 @@ def main(argv=None):
               testH.Sumw2()
               testH.DrawNormalized('ex0 P')
             else:
-              print "--> Warning! You tried to normalize a histogram which seems to be already scaled properly. Draw it unscaled."
+              print("--> Warning! You tried to normalize a histogram which seems to be already scaled properly. Draw it unscaled.")
               scaleToIntegral = False
               testH.Draw('ex0')
         else:

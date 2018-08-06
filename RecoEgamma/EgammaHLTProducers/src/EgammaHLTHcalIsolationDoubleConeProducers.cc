@@ -20,18 +20,16 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTHcalIsolationDoubleConeProducers::EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet& config) : conf_(config)
+EgammaHLTHcalIsolationDoubleConeProducers::EgammaHLTHcalIsolationDoubleConeProducers(const edm::ParameterSet& config)
+  : conf_(config)
+  , recoEcalCandidateProducer_  (consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer")))
+  , hbRecHitProducer_           (consumes<HBHERecHitCollection>(conf_.getParameter<edm::InputTag>("hbRecHitProducer")))
+  , hfRecHitProducer_           (consumes<HFRecHitCollection>(conf_.getParameter<edm::InputTag>("hfRecHitProducer")))
+  , egHcalIsoPtMin_             (conf_.getParameter<double>("egHcalIsoPtMin"))
+  , egHcalIsoConeSize_          (conf_.getParameter<double>("egHcalIsoConeSize"))
+  , egHcalExclusion_            (conf_.getParameter<double>("egHcalExclusion"))
+  , test_  (new EgammaHLTHcalIsolationDoubleCone(egHcalIsoPtMin_,egHcalIsoConeSize_,egHcalExclusion_))
 {
- // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_  = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  hbRecHitProducer_           = consumes<HBHERecHitCollection>(conf_.getParameter<edm::InputTag>("hbRecHitProducer"));
-  hfRecHitProducer_           = consumes<HFRecHitCollection>(conf_.getParameter<edm::InputTag>("hfRecHitProducer"));
-
-  egHcalIsoPtMin_             = conf_.getParameter<double>("egHcalIsoPtMin");
-  egHcalIsoConeSize_          = conf_.getParameter<double>("egHcalIsoConeSize");
-  egHcalExclusion_            = conf_.getParameter<double>("egHcalExclusion");
-
-  test_ = new EgammaHLTHcalIsolationDoubleCone(egHcalIsoPtMin_,egHcalIsoConeSize_,egHcalExclusion_);
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
@@ -51,7 +49,7 @@ void EgammaHLTHcalIsolationDoubleConeProducers::fillDescriptions(edm::Configurat
   descriptions.add(("hltEgammaHLTHcalIsolationDoubleConeProducers"), desc);
 }
 
-void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);

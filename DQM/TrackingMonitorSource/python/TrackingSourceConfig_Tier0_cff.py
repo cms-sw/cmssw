@@ -1,12 +1,45 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
+import six
 
 ### load which are the tracks collection 2 be monitored
 from DQM.TrackingMonitorSource.TrackCollections2monitor_cff import *
 
 ### load the different flavour of settings of the TrackingMonitor module
 from DQM.TrackingMonitorSource.TrackerCollisionTrackingMonitor_cff import *
+
+#import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackMon_ckf 					   = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackMon_ckf.TKTrackCollection                     = 'generalTracks'#ctfWithMaterialTracksBeamHaloMuon'#rsWithMaterialTracksP5'#muons'#globalCosmicMuons'#ctfWithMaterialTracksP5'
+TrackMon_ckf.AlgoName                              = 'CKFTk'
+TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters'
+
+# Clone for RS Tracks
+#import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+#TrackEffMon_rs = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+#TrackEffMon_rs.TKTrackCollection                   = 'rsWithMaterialTracksP5'
+#TrackEffMon_rs.AlgoName                            = 'RSTk'
+#TrackEffMon_rs.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
+
+# Clone for Beam Halo  Tracks
+#import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+#TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+#TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
+#TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
+#TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
+
+# Split Tracking
+from  DQM.TrackingMonitor.TrackSplittingMonitor_cfi import *
+TrackSplitMonitor.FolderName = 'Tracking/TrackParameters/SplitTracks'
+
+
+# DQM Services
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoTracking = DQMEDAnalyzer('DQMEventInfo',
+     subSystemFolder = cms.untracked.string('Tracking')
+)
 
 
 ### define one EDAnalyzer per each track collection
@@ -227,7 +260,7 @@ from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 def _copyIfExists(mod, pset, name):
     if hasattr(pset, name):
         setattr(mod, name, getattr(pset, name))
-for _step, _pset in seedMonitoring.iteritems():
+for _step, _pset in six.iteritems(seedMonitoring):
     _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
     )
@@ -315,7 +348,8 @@ from DQM.TrackingMonitor.primaryVertexResolution_cfi import *
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
-TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon   
+TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon   * TrackMon_ckf * TrackSplitMonitor * dqmInfoTracking
+#TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoTracking
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
 # track collections
@@ -352,7 +386,8 @@ TrackingDQMSourceTier0 += dqmInfoTracking
 
 TrackingDQMSourceTier0Common = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
-TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon)    
+TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * TrackSplitMonitor * dqmInfoTracking)
+#TrackEffMon_ckf*TrackSplitMonitor*dqmInfoTracking)    
 ## monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
@@ -372,7 +407,8 @@ TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
-TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon    
+TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * TrackSplitMonitor * dqmInfoTracking
+#TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoTracking#TrackMon_ckf*TrackEffMon_ckf 
 #    * lumiProducer
 # monitor track collections
 for tracks in selectedTracks :

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,csv
 from RecoLuminosity.LumiDB import csvSelectionParser,selectionParser,CommonUtil
 def filehasHeader(f):
@@ -116,28 +117,28 @@ class inputFilesetParser(object):
         try:
             fieldidx=self.__inputResultHeader.index(fieldname)
         except:
-            print 'field ',fieldname,' not found'
-            raise
+            print('field ',fieldname,' not found')
+            raise RuntimeError('field')
         for r in self.__inputResult:
             stringvalue=r[fieldidx]
             if fieldtype in ['int','unsigned int']:
                 if not CommonUtil.is_intstr(stringvalue):
-                    print 'field ',fieldname,' is not integer type'
-                    raise
+                    print('field ',fieldname,' is not integer type')
+                    raise RuntimeError('field')
                 else:
                     result.append(int(stringvalue))
                     continue
             elif fieldtype in ['float']:
                 if not CommonUtil.is_floatstr(stringvalue):
-                    print 'field ',fieldname,' is not float type'
-                    raise
+                    print('field ',fieldname,' is not float type')
+                    raise RuntimeError('field')
                 else:
                     result.append(float(stringvalue))
                     contine
             elif  fieldtype in ['string','str']:
                 result.append(stringvalue)
             else:
-                raise 'unsupported type ',fieldtype
+                raise RuntimeError('unsupported type '+fieldtype)
         return result
     def fieldtotal(self,fieldname,fieldtype):
         '''
@@ -148,26 +149,26 @@ class inputFilesetParser(object):
         try:
             fieldidx=self.__inputResultHeader.index(fieldname)
         except:
-            print 'field ',fieldname,' not found'
+            print('field ',fieldname,' not found')
             raise
         for r in self.__inputResult:
             stringvalue=r[fieldidx]
             if fieldtype in ['int','unsigned int']:
                 if not CommonUtil.is_intstr(stringvalue):
-                    print 'field ',fieldname,' is not integer type'
+                    print('field ',fieldname,' is not integer type')
                     raise
                 else:
                     result=int(result)+int(stringvalue)
                     continue
             elif fieldtype in ['float'] :
                 if not CommonUtil.is_floatstr(stringvalue):
-                    print 'field ',fieldname,' is not float type'
+                    print('field ',fieldname,' is not float type')
                     raise
                 else:
                     result=float(result)+float(stringvalue)
                     continue
             else:
-                raise 'cannot sum types other than int ,float'
+                raise RunTimeError('cannot sum types other than int ,float')
         return result
     def runs(self):
         if not self.__inputSelectionFileparsingResult:
@@ -186,23 +187,23 @@ if __name__ == '__main__':
     result={}
     filename='163664-v2-overview.csv+163665-v2-overview.csv+163668-v2-overview.csv+../json_DCSONLY.txt'
     p=inputFilesetParser(filename)
-    print 'selection file ',p.selectionfilename()
-    print 'old result files ',p.resultfiles()
+    print('selection file ',p.selectionfilename())
+    print('old result files ',p.resultfiles())
     #print p.runs()
     #print p.runsandls()
-    print 'do I only need to merge the results? ',p.mergeResultOnly()
+    print('do I only need to merge the results? ',p.mergeResultOnly())
     resultheader=p.resultHeader()
-    print resultheader
-    print p.runsWithresult()
-    print 'selected runs with result ',p.selectedRunsWithresult()
-    print 'selected runs without result ',p.selectedRunsWithoutresult()
+    print(resultheader)
+    print(p.runsWithresult())
+    print('selected runs with result ',p.selectedRunsWithresult())
+    print('selected runs without result ',p.selectedRunsWithoutresult())
     #result=p.resultInput()
     alreadyprocessedRuns=p.fieldvalues('Run','int')
-    print 'runs already have results ', alreadyprocessedRuns
-    print 'total delivered ',p.fieldtotal('Delivered(/ub)','float')
-    print 'total recorded ',p.fieldtotal('Recorded(/ub)','float')
-    print 'result header ',p.resultheader()
-    print 'result lines ',p.resultlines()
+    print('runs already have results ', alreadyprocessedRuns)
+    print('total delivered ',p.fieldtotal('Delivered(/ub)','float'))
+    print('total recorded ',p.fieldtotal('Recorded(/ub)','float'))
+    print('result header ',p.resultheader())
+    print('result lines ',p.resultlines())
     #newrunsandls={}
     #for run,cmslslist in p.runsandls().items():
     #    if run in alreadyprocessedRuns:

@@ -16,4 +16,4 @@ void PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>::addPileups(PileUpEvent
 
 using PreMixingDTDigiSimLinkWorker = PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingDTDigiSimLinkWorker , "PreMixingDTDigiSimLinkWorker");
+DEFINE_PREMIXING_WORKER(PreMixingDTDigiSimLinkWorker);

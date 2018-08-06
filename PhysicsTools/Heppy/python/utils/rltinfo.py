@@ -1,5 +1,7 @@
+from __future__ import print_function
 from ROOT import TFile
 from PhysicsTools.HeppyCore.statistics.tree import Tree as Tree
+import six
 
 class MyInteger(object):
     def __init__(self, integer ):
@@ -24,7 +26,7 @@ class RLTInfo( object ):
 
     def __str__(self):
         lines = []
-        for rlt, count in self.dict.iteritems():
+        for rlt, count in six.iteritems(self.dict):
             lines.append( ': '.join( [str(rlt), str(count)] ))
         return '\n'.join(lines)
 
@@ -35,7 +37,7 @@ class RLTInfo( object ):
         t.var('lumi', int )
         t.var('counts', int )
         t.var('trigger', int )
-        for rlt, count in self.dict.iteritems():
+        for rlt, count in six.iteritems(self.dict):
             t.fill('run', rlt[1])
             t.fill('lumi', rlt[2])
             t.fill( 'counts', count.integer)
@@ -52,7 +54,7 @@ if __name__ == '__main__':
     rltinfo.add('HLT1', 129, 2)
     rltinfo.add('HLT2', 129, 2)
 
-    for rlt, count in rltinfo.dict.iteritems():
-        print rlt, count
+    for rlt, count in six.iteritems(rltinfo.dict):
+        print(rlt, count)
 
     rltinfo.write('.')

@@ -7,12 +7,13 @@ Convert an MVA training stored in a sqlite database to a .mva binary file.
 Author: Evan K. Friis (UC Davis)
 
 '''
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 import sys
 import os
 
-print sys.argv
+print(sys.argv)
 
 db_file = sys.argv[2]
 mva_file = db_file.replace('.db', '.mva')

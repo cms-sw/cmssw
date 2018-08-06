@@ -43,7 +43,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    // service variables
    //
    //Profiles
-   const int Nprof   = 15;
+   const int Nprof   = 14;  // insetad of 12 to include Chi2 prof for HB/HE
 
    TProfile* f1_prof[Nprof];
    TProfile* f2_prof[Nprof];
@@ -51,7 +51,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    char labelp[Nprof][64];
 
    //1D Histos
-   const int Nhist1  = 11;
+   const int Nhist1  = 13;  // insetad of 11 to include Chi2 hist for HB/HE
 
    TH1* f1_hist1[Nhist1];
    TH1* f2_hist1[Nhist1];
@@ -76,9 +76,14 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    sprintf(labelp[10], "RecHitsTask_timing_vs_energy_profile_HE.gif");
    sprintf(labelp[11], "RecHitsTask_timing_vs_energy_profile_HF.gif");
 
+   sprintf(labelp[12], "RecHitsTask_Chi2_vs_energy_HE.gif");
+   sprintf(labelp[13], "RecHitsTask_Chi2_vs_energy_HB.gif");
+
+   /*
    sprintf(labelp[12], "CaloTowersTask_emean_vs_ieta_E.gif");
    sprintf(labelp[13], "CaloTowersTask_emean_vs_ieta_H.gif");
    sprintf(labelp[14], "CaloTowersTask_emean_vs_ieta_EH.gif");
+   */
 
    //1D Histos
    sprintf(label1[0], "N_calotowers_HB.gif");
@@ -89,6 +94,10 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    sprintf(label1[4], "RecHits_energy_HE.gif");
    sprintf(label1[5], "RecHits_energy_HO.gif");
    sprintf(label1[6], "RecHits_energy_HF.gif");
+
+   sprintf(label1[11], "RecHits_Chi2_HE.gif");
+   sprintf(label1[12], "RecHits_Chi2_HB.gif");
+
 
    sprintf(label1[7], "Ndigis_HB.gif" );
    sprintf(label1[8], "Ndigis_HE.gif" );
@@ -105,9 +114,11 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_prof[1] = (TProfile*)td->Get("emean_vs_ieta_H1");
    f1_prof[2] = (TProfile*)td->Get("emean_vs_ieta_EH1");
 
+   /*
    f1_prof[12] = (TProfile*)td->Get("emean_vs_ieta_E");
    f1_prof[13] = (TProfile*)td->Get("emean_vs_ieta_H");
    f1_prof[14] = (TProfile*)td->Get("emean_vs_ieta_EH");
+   */
 
    f1_hist1[0] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HB");
    f1_hist1[1] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HE");
@@ -123,10 +134,17 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_prof[10] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HE");
    f1_prof[11] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HF");
 
+   f1_prof[12] = (TProfile*)td->Get("HcalRecHitTask_Log10Chi2_vs_energy_profile_HE");
+   f1_prof[13] = (TProfile*)td->Get("HcalRecHitTask_Log10Chi2_vs_energy_profile_HB");
+
+
    f1_hist1[3] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HB");
    f1_hist1[4] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HE");
    f1_hist1[5] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HO");
    f1_hist1[6] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HF");   
+
+   f1_hist1[11] = (TH1*)td->Get("HcalRecHitTask_M2Log10Chi2_of_rechits_HE");   
+   f1_hist1[12] = (TH1*)td->Get("HcalRecHitTask_M2Log10Chi2_of_rechits_HB");   
 
 
    td = fileDirectory(&f1, "HcalDigiTask");
@@ -154,9 +172,11 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f2_prof[1] = (TProfile*)td->Get("emean_vs_ieta_H1");
    f2_prof[2] = (TProfile*)td->Get("emean_vs_ieta_EH1");
 
+   /*
    f2_prof[12] = (TProfile*)td->Get("emean_vs_ieta_E");
    f2_prof[13] = (TProfile*)td->Get("emean_vs_ieta_H");
    f2_prof[14] = (TProfile*)td->Get("emean_vs_ieta_EH");
+   */
 
    f2_hist1[0] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HB");
    f2_hist1[1] = (TH1*)td->Get("CaloTowersTask_number_of_fired_towers_HE");
@@ -172,12 +192,21 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f2_prof[10] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HE");
    f2_prof[11] = (TProfile*)td->Get("HcalRecHitTask_timing_vs_energy_profile_Low_HF"); 
 
+   f2_prof[12] = (TProfile*)td->Get("HcalRecHitTask_Log10Chi2_vs_energy_profile_HE");
+   f2_prof[13] = (TProfile*)td->Get("HcalRecHitTask_Log10Chi2_vs_energy_profile_HB");
+
+
    f2_hist1[3] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HB");
    f2_hist1[4] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HE");
    f2_hist1[5] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HO");
    f2_hist1[6] = (TH1*)td->Get("HcalRecHitTask_energy_of_rechits_HF");
 
-   td = fileDirectory(&f1, "HcalDigiTask");
+
+   f2_hist1[11] = (TH1*)td->Get("HcalRecHitTask_M2Log10Chi2_of_rechits_HE");   
+   f2_hist1[12] = (TH1*)td->Get("HcalRecHitTask_M2Log10Chi2_of_rechits_HB");   
+
+
+   td = fileDirectory(&f2, "HcalDigiTask");
    f2_hist1[7] =  (TH1*)td->Get("HcalDigiTask_Ndigis_HB");
    f2_hist1[8] =  (TH1*)td->Get("HcalDigiTask_Ndigis_HE");
    f2_hist1[9] =  (TH1*)td->Get("HcalDigiTask_Ndigis_HO");
@@ -213,9 +242,14 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_prof[10]->GetXaxis()->SetTitle("HE RecHits timing (ns) vs Energy (GeV)");
    f1_prof[11]->GetXaxis()->SetTitle("HF RecHits timing (ns) vs Energy (GeV)");
 
+   f1_prof[12]->GetXaxis()->SetTitle("HE log_10(Chi2) vs Energy (GeV)");
+   f1_prof[13]->GetXaxis()->SetTitle("HB log_10(Chi2) vs Energy (GeV)");
+
+   /*
    f1_prof[12]->GetXaxis()->SetTitle("CaloTowers eE Rcone sum (GeV) vs ieta");
    f1_prof[13]->GetXaxis()->SetTitle("CaloTowers hE Rcone sumn (GeV) vs ieta");
    f1_prof[14]->GetXaxis()->SetTitle("CaloTowers eE+hE Rcone sum (GeV) vs ieta ");
+   */
 
 
    //1D Histos titles
@@ -233,6 +267,8 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_hist1[9]->GetXaxis()->SetTitle("N_H0 Digis");
    f1_hist1[10]->GetXaxis()->SetTitle("N_HF Digis");
 
+   f1_hist1[11]->GetXaxis()->SetTitle("HE log_10(Chi2)");
+   f1_hist1[12]->GetXaxis()->SetTitle("HB log_10(Chi2)");
 
 
    //
@@ -256,7 +292,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
      f1_prof[7]->SetMinimum(0.);
      f1_prof[8]->SetMinimum(0.);
      f1_prof[6]->SetMaximum(20.); 
-     f1_prof[7]->SetMaximum(60.);
+     f1_prof[7]->SetMaximum(50.);
      f1_prof[8]->SetMaximum(60.);
    }
 
@@ -268,20 +304,26 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
    f1_prof[10]->SetMaximum(25.);
    f1_prof[11]->SetMaximum(25.);
 
-
+   /*
    f1_prof[12]->SetMaximum(30.); // CaloTowers R=0.3 added
    f1_prof[13]->SetMaximum(50.);
    f1_prof[14]->SetMaximum(60.);
    f1_prof[12]->SetMinimum(0.);
    f1_prof[13]->SetMinimum(0.);
    f1_prof[14]->SetMinimum(0.);
-
+   */
 
    f1_prof[9]->GetXaxis()->SetRangeUser(0.,75.);
    f1_prof[10]->GetXaxis()->SetRangeUser(0.,75.);
    f1_prof[11]->GetXaxis()->SetRangeUser(0.,75.);
 
- 
+   f1_prof[12]->GetXaxis()->SetRangeUser(0.,50.);  // Chi2
+   f1_prof[12]->SetMinimum(0.);    
+   f1_prof[12]->SetMaximum(1.0);    
+
+   f1_prof[13]->GetXaxis()->SetRangeUser(0.,50.);  // Chi2
+   f1_prof[13]->SetMinimum(0.);    
+   f1_prof[13]->SetMaximum(1.0);    
   
 
    //   1D HISTOS 
@@ -335,7 +377,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
      TCanvas *myc = new TCanvas("myc","",800,600);
      gStyle->SetOptStat(1111);
 
-     if(i > 2 && i < 7) myc->SetLogy();
+     if((i > 2 && i < 7) || (i >= 11 && i <= 12)) myc->SetLogy();
      
      f1_hist1[i]->SetStats(kTRUE);   // stat box  
      f2_hist1[i]->SetStats(kTRUE);  
@@ -499,6 +541,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
   myc2->SaveAs("Ratio_Hcone.gif");
 
 
+  /*
   // RATIO CaloTowers H sum in R=0.3
 
   TCanvas *myc3 = new TCanvas("myc3","",800,600);
@@ -517,7 +560,7 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
   leg3->Draw("");
   myc3->SaveAs("Ratio_CaloTowers_Hcone.gif");
 
-
+  */
 
 
    // close ROOT files ===========================================

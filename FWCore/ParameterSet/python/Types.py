@@ -4,6 +4,7 @@ from ExceptionHandling import format_typename, format_outerframe
 
 import copy
 import math
+import six
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -252,7 +253,7 @@ class LuminosityBlockID(_ParameterTypeBase):
         parts = value.split(":")
         return LuminosityBlockID(int(parts[0]), int(parts[1]))
     def pythonValue(self, options=PrintOptions()):
-          return str(self.__run)+ ', '+str(self.__block)
+        return str(self.__run)+ ', '+str(self.__block)
     def cppID(self, parameterSet):
         return parameterSet.newLuminosityBlockID(self.run(), self.luminosityBlock())
     def insertInto(self, parameterSet, myname):
@@ -313,8 +314,8 @@ class LuminosityBlockRange(_ParameterTypeBase):
         return LuminosityBlockRange(int(startParts[0]), int(startParts[1]),
                         int(endParts[0]), int(endParts[1]))
     def pythonValue(self, options=PrintOptions()):
-          return str(self.__start) + ', ' + str(self.__startSub) + ', ' \
-               + str(self.__end)   + ', ' + str(self.__endSub)
+        return str(self.__start) + ', ' + str(self.__startSub) + ', ' \
+             + str(self.__end)   + ', ' + str(self.__endSub)
     def cppID(self, parameterSet):
         return parameterSet.newLuminosityBlockRange(self.start(), self.startSub(),self.end(), self.endSub())
     def insertInto(self, parameterSet, myname):
@@ -378,11 +379,11 @@ class EventRange(_ParameterTypeBase):
         except IndexError:
             endParts = parts[0].split(":") # If just "1:2" turn into "1:2-1:2"
 
-	brun = startParts[0]
-	erun = endParts[0]
+        brun = startParts[0]
+        erun = endParts[0]
         s = len(startParts)
-	e = len(endParts)
-	if s != e or s < 2 or s > 3:
+        e = len(endParts)
+        if s != e or s < 2 or s > 3:
             raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
         i = s - 1
         if startParts[i].lower() == "0":
@@ -580,9 +581,9 @@ class ESInputTag(_ParameterTypeBase):
             toks = moduleLabel.split(":")
             self.__moduleLabel = toks[0]
             if len(toks) > 1:
-               self.__data = toks[1]
+                self.__data = toks[1]
             if len(toks) > 2:
-               raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
+                raise RuntimeError("an ESInputTag was passed the value'"+moduleLabel+"' which contains more than one ':'")
 
     # convert to the wrapper class for C++ ESInputTags
     def cppTag(self, parameterSet):
@@ -606,7 +607,7 @@ class FileInPath(_SimpleParameterTypeBase):
     def _valueFromString(value):
         return FileInPath(value)
     def insertInto(self, parameterSet, myname):
-      parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() )
+        parameterSet.addNewFileInPath( self.isTracked(), myname, self.value() )
 
 class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,type_,*arg,**args):
@@ -620,7 +621,7 @@ class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_La
     def configTypeName(self):
         return "secsource"
     def configValue(self, options=PrintOptions()):
-       return self.dumpConfig(options)
+        return self.dumpConfig(options)
     def dumpPython(self, options=PrintOptions()):
         return _TypedParameterizable.dumpPython(self, options)
     def copy(self):
@@ -816,11 +817,11 @@ class VInputTag(_ValidatingParameterListBase):
     def _itemIsValid(item):
         return InputTag._isValid(item)
     def configValueForItem(self,item,options):
-       # we tolerate strings as members
-       if isinstance(item, str):
-         return '"'+item+'"'
-       else:
-         return InputTag.formatValueForConfig(item)
+        # we tolerate strings as members
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return InputTag.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
         # we tolerate strings as members
         if isinstance(item, str):
@@ -846,11 +847,11 @@ class VESInputTag(_ValidatingParameterListBase):
     def _itemIsValid(item):
         return ESInputTag._isValid(item)
     def configValueForItem(self,item,options):
-       # we tolerate strings as members
-       if isinstance(item, str):
-         return '"'+item+'"'
-       else:
-         return ESInputTag.formatValueForConfig(item)
+        # we tolerate strings as members
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return ESInputTag.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
         # we tolerate strings as members
         if isinstance(item, str):
@@ -980,8 +981,8 @@ def makeCppPSet(module,cppPSetMaker):
     # if this isn't a dictionary, treat it as an object which holds PSets
     if not isinstance(module,dict):
         module = dict( ( (x,getattr(module,x)) for x in dir(module)) )  
-        
-    for x,p in module.iteritems():
+
+    for x,p in six.iteritems(module):
         if isinstance(p,PSet):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
@@ -1130,7 +1131,7 @@ def convertToPSet(name,module):
 
 def convertToVPSet( **kw ):
     returnValue = VPSet()
-    for name,module in kw.iteritems():
+    for name,module in six.iteritems(kw):
         returnValue.append(convertToPSet(name,module))
     return returnValue
 
@@ -1157,7 +1158,7 @@ class EDAlias(_ConfigureComponent,_Labelable):
         return super(EDAlias,self).__delattr__(attr)
 
     def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+        for name,value in six.iteritems(parameters):
             self.__addParameter(name, value)
 
     def _place(self,name,proc):
@@ -1560,7 +1561,7 @@ if __name__ == "__main__":
             self.assert_(hasattr(convert.pset.q.p,'a'))
             self.assertEqual(p.a,convert.pset.q.p.a)
             for i in p.parameterNames_():
-              self.assertEqual(str(getattr(p,i)),str(getattr(convert.pset.p,i)))
+                self.assertEqual(str(getattr(p,i)),str(getattr(convert.pset.p,i)))
         def testVPSetConversion(self):
             p = PSet(a = untracked.int32(7))
             q = PSet(b = int32(1), p = p)

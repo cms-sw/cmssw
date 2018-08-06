@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarProducer.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -121,7 +121,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   produces<edm::PCaloHitContainer>("ChamberHits"); 
   produces<edm::PCaloHitContainer>("FibreHits"); 
   produces<edm::PCaloHitContainer>("WedgeHits"); 
-    
+  produces<edm::PCaloHitContainer>("HFNoseHits");
+
   //register any products 
   m_producers = m_runManager->producers();
 

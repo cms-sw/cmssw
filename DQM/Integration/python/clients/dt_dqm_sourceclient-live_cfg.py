@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DTDQM")
@@ -56,7 +57,7 @@ process.dtunpacker.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 
 #----------------------------
 #### pp run settings 

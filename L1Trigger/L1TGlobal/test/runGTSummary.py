@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
@@ -82,5 +83,5 @@ if rootout:
 dump=False
 if dump:
     outfile = open('dump_config.py','w')
-    print >> outfile,process.dumpPython()
+    print(process.dumpPython(), file=outfile)
     outfile.close()

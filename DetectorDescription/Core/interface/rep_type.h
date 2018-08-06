@@ -1,48 +1,51 @@
-#ifndef DDI_rep_type_h
-#define DDI_rep_type_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DDI_REP_TYPE_H
+#define DETECTOR_DESCRIPTION_CORE_DDI_REP_TYPE_H
 
 namespace DDI {
-   
-   template <class N, class I> 
-   struct rep_traits
-   {
-      typedef N name_type;
-      typedef typename I::value_type value_type;
-      typedef typename I::pointer pointer;
-      typedef typename I::reference reference;
-   };
-   
-   template <class N, class I> 
-   struct rep_traits<N,I*>
-   {
-      typedef N name_type;
-      typedef I value_type;
-      typedef I* pointer;
-      typedef I& reference;
-   };
-   
-   template <class N, class I>
-   struct rep_type
-   {
-      rep_type() : second(0), init_(false) {}
-      rep_type(const N & n, I i) : first(n), second(i), init_(false) 
-      { if (i) init_=true; }
-      virtual ~rep_type() {} // talk to Chris about this:  delete second; }
+  
+  template< class N, class I > 
+    struct rep_traits
+    {
+      using name_type = N;
+      using value_type = typename I::value_type;
+      using pointer = typename I::pointer;
+      using reference = typename I::reference;
+    };
+  
+  template <class N, class I> 
+    struct rep_traits< N, I* >
+    {
+      using name_type = N;
+      using vlue_type = I;
+      using pointer = I*;
+      using reference = I&;
+    };
+  
+  template< class N, class I >
+    struct rep_type
+    {
+      rep_type() : second( nullptr ), init_(false) {}
+      rep_type( const N & n, I i ) : first( n ), second( i ), init_( false ) 
+      { if( i ) init_ = true; }
       N first;
       I second;
-      bool init_;
-      const typename rep_traits<N,I>::name_type & name() const { return first; }
-      const typename rep_traits<N,I>::reference rep()  const { return *second; }
-      typename rep_traits<N,I>::reference rep() { return *second; }
-      I swap(I i) 
+      
+      const typename rep_traits< N, I >::name_type & name() const { return first; }
+      const typename rep_traits< N, I >::reference rep()  const { return *second; }
+
+      I swap( I i )
       { 
-         I tmp(second); 
-         second = i; 
-         init_ = false;
-         if (i) init_ = true;
-         return tmp; 
-      }	 
-      operator bool() const { return init_; }	 
+	I tmp( second );
+	second = i;
+	init_ = false;
+	if( i ) init_ = true;
+	return tmp;
+      }
+      operator bool() const { return init_; }
+      
+    private:
+      bool init_;
    };
 }
+
 #endif

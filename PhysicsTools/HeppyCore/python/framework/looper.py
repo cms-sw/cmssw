@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
@@ -11,6 +12,7 @@ from event import Event
 import timeit
 import resource
 import json
+import six
 
 class Setup(object):
     '''The Looper creates a Setup object to hold information relevant during 
@@ -98,7 +100,7 @@ class Looper(object):
         if hasattr(config,"preprocessor") and config.preprocessor is not None :
               self.cfg_comp = config.preprocessor.run(self.cfg_comp,self.outDir,firstEvent,nEvents)
         if hasattr(self.cfg_comp,"options"):
-              print self.cfg_comp.files,self.cfg_comp.options
+              print(self.cfg_comp.files,self.cfg_comp.options)
               self.events = config.events_class(self.cfg_comp.files, tree_name,options=self.cfg_comp.options)
         else :
               self.events = config.events_class(self.cfg_comp.files, tree_name)
@@ -175,18 +177,18 @@ class Looper(object):
                 if iEv%100 ==0:
                     # print 'event', iEv
                     if not hasattr(self,'start_time'):
-                        print 'event', iEv
+                        print('event', iEv)
                         self.start_time = timeit.default_timer()
                         self.start_time_event = iEv
                     else:
-                        print 'event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(timeit.default_timer() - self.start_time))
+                        print('event %d (%.1f ev/s)' % (iEv, (iEv-self.start_time_event)/float(timeit.default_timer() - self.start_time)))
 
                 self.process( iEv )
                 if iEv<self.nPrint:
-                    print self.event
+                    print(self.event)
 
         except UserWarning:
-            print 'Stopped loop following a UserWarning exception'
+            print('Stopped loop following a UserWarning exception')
 
         info = self.logger.info
         warning = self.logger.warning
@@ -234,13 +236,13 @@ class Looper(object):
             if self.memReportFirstEvent >=0 and iEv >= self.memReportFirstEvent:           
                 memNow=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 if memNow > self.memLast :
-                   print  "Mem Jump detected before analyzer %s at event %s. RSS(before,after,difference) %s %s %s "%( analyzer.name, iEv, self.memLast, memNow, memNow-self.memLast)
+                   print("Mem Jump detected before analyzer %s at event %s. RSS(before,after,difference) %s %s %s "%( analyzer.name, iEv, self.memLast, memNow, memNow-self.memLast))
                 self.memLast=memNow
             ret = analyzer.process( self.event )
             if self.memReportFirstEvent >=0 and iEv >= self.memReportFirstEvent:           
                 memNow=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 if memNow > self.memLast :
-                   print "Mem Jump detected in analyzer %s at event %s. RSS(before,after,difference) %s %s %s "%( analyzer.name, iEv, self.memLast, memNow, memNow-self.memLast)
+                   print("Mem Jump detected in analyzer %s at event %s. RSS(before,after,difference) %s %s %s "%( analyzer.name, iEv, self.memLast, memNow, memNow-self.memLast))
                 self.memLast=memNow
             if self.timeReport:
                 self.timeReport[i]['events'] += 1
@@ -277,7 +279,7 @@ if __name__ == '__main__':
         jsonfilename = options.options
         jfile = open (jsonfilename, 'r')
         opts=json.loads(jfile.readline())
-        for k,v in opts.iteritems():
+        for k,v in six.iteritems(opts):
             _heppyGlobalOptions[k]=v
         jfile.close()
 

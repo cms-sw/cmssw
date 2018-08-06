@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 #Script cloned from cmsTiming_parser.py
 
+from __future__ import print_function
 def get_max(data,index=1):
     max_score=-1
     for el in data:
@@ -31,7 +32,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     logfile=open(logfile_name,'r')
     logfile_lines=logfile.readlines()
     if not logfile_lines:
-        print "The logfile %s is empty! Exiting now."%logfile_name
+        print("The logfile %s is empty! Exiting now."%logfile_name)
         sys.exit()
     logfile.close()
 
@@ -80,7 +81,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     
     nbins=int(interval/secsperbin)
     
-    print 'Minval=',min_val,' maxval=',max_val, ' interval=',interval
+    print('Minval=',min_val,' maxval=',max_val, ' interval=',interval)
     
     histo=ROOT.TH1F('Composite Score(Mflops)','Composite Score (Mflops)',nbins,min_val,max_val)
     histo.GetXaxis().SetTitle("Mflops")    
@@ -98,7 +99,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     graph.GetXaxis().SetTitle("Benchmark sequential number")
     
     last_event=data[-1][0]
-    print 'last event =',last_event
+    print('last event =',last_event)
     graph.GetXaxis().SetLimits(0,last_event)
         
     graph.GetYaxis().SetTitleOffset(1.3)
@@ -201,7 +202,7 @@ if __name__ == '__main__':
     try:
         startevt=float(options.startevt)        
     except ValueError:
-         print 'Problems in convertng starting event value!'
+         print('Problems in convertng starting event value!')
          
             
     #launch the function!

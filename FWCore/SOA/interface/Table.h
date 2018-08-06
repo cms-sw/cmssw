@@ -156,7 +156,7 @@ namespace soa {
     }
     
     Table( Table<Args...> const& iOther):m_size(iOther.m_size), m_values{{nullptr}} {
-      copyFromToWithResize<0>(m_size,iOther.m_values,m_values,std::true_type{});
+      copyFromToWithResize<0>(m_size,iOther.m_values,m_values);
     }
     
     Table( Table<Args...>&& iOther):m_size(0), m_values{{nullptr}} {
@@ -168,7 +168,7 @@ namespace soa {
     }
     
     ~Table() {
-      dtr<0>(m_values, std::true_type{});
+      dtr<0>(m_values);
     }
     
     Table<Args...>& operator=(Table<Args...>&& iOther) {
@@ -187,10 +187,10 @@ namespace soa {
     
     void resize(unsigned int iNewSize) {
       if(m_size == iNewSize) { return;}
-      resizeFromTo<0>(m_size,iNewSize,m_values,std::true_type{});
+      resizeFromTo<0>(m_size,iNewSize,m_values);
       if(m_size < iNewSize) {
         //initialize the extra values
-        resetStartingAt<0>(m_size, iNewSize,m_values,std::true_type{});
+        resetStartingAt<0>(m_size, iNewSize,m_values);
       }
       m_size = iNewSize;
     }
@@ -260,16 +260,14 @@ namespace soa {
 
     //Recursive destructor handling
     template <int I>
-    static void dtr(std::array<void*, sizeof...(Args)>& iArray, std::true_type) {
-      using Type = typename std::tuple_element<I,Layout>::type::type;
-      delete [] static_cast<Type*>(iArray[I]);
-      dtr<I+1>(iArray,std::conditional_t<I+1<sizeof...(Args), std::true_type, std::false_type>{});
+    static void dtr(std::array<void*, sizeof...(Args)>& iArray) {
+      if constexpr(I<sizeof...(Args)) {
+        using Type = typename std::tuple_element<I,Layout>::type::type;
+        delete [] static_cast<Type*>(iArray[I]);
+        dtr<I+1>(iArray);
+      }
     }
 
-    template <int I>
-    static void dtr(std::array<void*, sizeof...(Args)>& iArray, std::false_type) {
-    }
-    
     //Construct the Table using a container per column
     struct CtrFillerFromContainers {
       template<typename T, typename... U>
@@ -303,10 +301,10 @@ namespace soa {
     struct CtrFillerFromAOS {
       template<typename T>
       static size_t fill(std::array<void *, sizeof...(Args)>& oValues, T const& iContainer) {
-        presize<0>(oValues,iContainer.size(),std::true_type{});
+        presize<0>(oValues,iContainer.size());
         unsigned index=0;
         for(auto&& item: iContainer) {
-          fillElement<0>(item,index,oValues,std::true_type{});
+          fillElement<0>(item,index,oValues);
           ++index;
         }
         return iContainer.size();
@@ -314,10 +312,10 @@ namespace soa {
       
       template<typename T, typename F>
       static size_t fillUsingFiller(F& iFiller, std::array<void *, sizeof...(Args)>& oValues, T const& iContainer) {
-        presize<0>(oValues,iContainer.size(),std::true_type{});
+        presize<0>(oValues,iContainer.size());
         unsigned index=0;
         for(auto&& item: iContainer) {
-          fillElementUsingFiller<0>(iFiller, item,index,oValues,std::true_type{});
+          fillElementUsingFiller<0>(iFiller, item,index,oValues);
           ++index;
         }
         return iContainer.size();
@@ -326,91 +324,81 @@ namespace soa {
 
     private:
       template<int I>
-      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, std::true_type) {
-        using Layout = std::tuple<Args...>;
-        using Type = typename std::tuple_element<I,Layout>::type::type;
-        oValues[I] = new Type[iSize];
-        presize<I+1>(oValues,iSize, std::conditional_t<I+1==sizeof...(Args),
-                     std::false_type,
-                     std::true_type>{});
+      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize) {
+        if constexpr(I<sizeof...(Args)) {
+          using Layout = std::tuple<Args...>;
+          using Type = typename std::tuple_element<I,Layout>::type::type;
+          oValues[I] = new Type[iSize];
+          presize<I+1>(oValues,iSize);
+        }
       }
-      template<int I>
-      static void presize(std::array<void *, sizeof...(Args)>& oValues, size_t iSize, std::false_type) {}
       
       template<int I, typename E>
-      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::true_type) {
-        using Layout = std::tuple<Args...>;
-        using ColumnType = typename std::tuple_element<I,Layout>::type;
-        using Type = typename ColumnType::type;
-        Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
-        *pElement = value_for_column(iItem, static_cast<ColumnType*>(nullptr));
-        fillElement<I+1>(iItem, iIndex, oValues, std::conditional_t<I+1==sizeof...(Args),
-                         std::false_type,
-                         std::true_type>{});
+      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues) {
+        if constexpr(I<sizeof...(Args)) {
+          using Layout = std::tuple<Args...>;
+          using ColumnType = typename std::tuple_element<I,Layout>::type;
+          using Type = typename ColumnType::type;
+          Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
+          *pElement = value_for_column(iItem, static_cast<ColumnType*>(nullptr));
+          fillElement<I+1>(iItem, iIndex, oValues);
+        }
       }
-      template<int I, typename E>
-      static void fillElement(E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
-      
       
       template<int I, typename E, typename F>
-      static void fillElementUsingFiller(F& iFiller, E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues,  std::true_type) {
-        using Layout = std::tuple<Args...>;
-        using ColumnType = typename std::tuple_element<I,Layout>::type;
-        using Type = typename ColumnType::type;
-        Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
-        *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
-        fillElementUsingFiller<I+1>(iFiller,iItem, iIndex, oValues, std::conditional_t<I+1==sizeof...(Args),
-                                    std::false_type,
-                                    std::true_type>{});
+      static void fillElementUsingFiller(F& iFiller, E const& iItem, size_t iIndex, std::array<void *, sizeof...(Args)>& oValues) {
+        if constexpr(I<sizeof...(Args)) {
+          using Layout = std::tuple<Args...>;
+          using ColumnType = typename std::tuple_element<I,Layout>::type;
+          using Type = typename ColumnType::type;
+          Type* pElement = static_cast<Type*>(oValues[I])+iIndex;
+          *pElement = iFiller.value(iItem, static_cast<ColumnType*>(nullptr));
+          fillElementUsingFiller<I+1>(iFiller,iItem, iIndex, oValues);
+        }
       }
-      template<int I, typename E, typename F>
-      static void fillElementUsingFiller(F&, E const& , size_t , std::array<void *, sizeof...(Args)>& oValues,  std::false_type) {}
-      
     };
 
     
     template<int I>
-    static void copyFromToWithResize(size_t iNElements, std::array<void *, sizeof...(Args)> const& iFrom, std::array<void*, sizeof...(Args)>& oTo, std::true_type) {
-      using Layout = std::tuple<Args...>;
-      using Type = typename std::tuple_element<I,Layout>::type::type;
-      Type* oldPtr = static_cast<Type*>(oTo[I]);
-      Type* ptr = new Type[iNElements];
-      oTo[I]=ptr;
-      std::copy(static_cast<Type const*>(iFrom[I]), static_cast<Type const*>(iFrom[I])+iNElements, ptr);
-      delete [] oldPtr;
-      copyFromToWithResize<I+1>(iNElements, iFrom, oTo, std::conditional_t<I+1 == sizeof...(Args), std::false_type, std::true_type>{} );
+    static void copyFromToWithResize(size_t iNElements, std::array<void *, sizeof...(Args)> const& iFrom, std::array<void*, sizeof...(Args)>& oTo) {
+      if constexpr(I < sizeof...(Args)) {
+        using Layout = std::tuple<Args...>;
+        using Type = typename std::tuple_element<I,Layout>::type::type;
+        Type* oldPtr = static_cast<Type*>(oTo[I]);
+        Type* ptr = new Type[iNElements];
+        oTo[I]=ptr;
+        std::copy(static_cast<Type const*>(iFrom[I]), static_cast<Type const*>(iFrom[I])+iNElements, ptr);
+        delete [] oldPtr;
+        copyFromToWithResize<I+1>(iNElements, iFrom, oTo);
+      }
     }
-    template<int I>
-    static void copyFromToWithResize(size_t, std::array<void *, sizeof...(Args)> const& , std::array<void*, sizeof...(Args)>&, std::false_type) {}
     
     template<int I>
-    static void resizeFromTo(size_t iOldSize, size_t iNewSize, std::array<void *, sizeof...(Args)>& ioArray, std::true_type) {
-      using Layout = std::tuple<Args...>;
-      using Type = typename std::tuple_element<I,Layout>::type::type;
-      Type* oldPtr = static_cast<Type*>(ioArray[I]);
-      auto ptr = new Type[iNewSize];
-      auto nToCopy = std::min(iOldSize,iNewSize);
-      std::copy(static_cast<Type const*>(ioArray[I]), static_cast<Type const*>(ioArray[I])+nToCopy, ptr);
-      resizeFromTo<I+1>(iOldSize, iNewSize, ioArray, std::conditional_t<I+1 == sizeof...(Args), std::false_type, std::true_type>{} );
-      
-      delete [] oldPtr;
-      ioArray[I]=ptr;
+    static void resizeFromTo(size_t iOldSize, size_t iNewSize, std::array<void *, sizeof...(Args)>& ioArray) {
+      if constexpr(I < sizeof...(Args)) {
+        using Layout = std::tuple<Args...>;
+        using Type = typename std::tuple_element<I,Layout>::type::type;
+        Type* oldPtr = static_cast<Type*>(ioArray[I]);
+        auto ptr = new Type[iNewSize];
+        auto nToCopy = std::min(iOldSize,iNewSize);
+        std::copy(static_cast<Type const*>(ioArray[I]), static_cast<Type const*>(ioArray[I])+nToCopy, ptr);
+        resizeFromTo<I+1>(iOldSize, iNewSize, ioArray );
+        
+        delete [] oldPtr;
+        ioArray[I]=ptr;
+      }
     }
-    template<int I>
-    static void resizeFromTo(size_t, size_t, std::array<void *, sizeof...(Args)>& , std::false_type) {}
     
     template<int I>
-    static void resetStartingAt(size_t iStartIndex, size_t iEndIndex,std::array<void *, sizeof...(Args)>& ioArray,std::true_type) {
-      using Layout = std::tuple<Args...>;
-      using Type = typename std::tuple_element<I,Layout>::type::type;
-      auto ptr = static_cast<Type*>(ioArray[I]);
-      auto temp = Type{};
-      std::fill(ptr+iStartIndex, ptr+iEndIndex, temp);
-      resetStartingAt<I+1>(iStartIndex, iEndIndex, ioArray,std::conditional_t<I+1 == sizeof...(Args), std::false_type, std::true_type>{} );
-    }
-
-    template<int I>
-    static void resetStartingAt(size_t, size_t,std::array<void *, sizeof...(Args)>& ,std::false_type) {
+    static void resetStartingAt(size_t iStartIndex, size_t iEndIndex,std::array<void *, sizeof...(Args)>& ioArray) {
+      if constexpr(I < sizeof...(Args)) {
+        using Layout = std::tuple<Args...>;
+        using Type = typename std::tuple_element<I,Layout>::type::type;
+        auto ptr = static_cast<Type*>(ioArray[I]);
+        auto temp = Type{};
+        std::fill(ptr+iStartIndex, ptr+iEndIndex, temp);
+        resetStartingAt<I+1>(iStartIndex, iEndIndex, ioArray);
+      }
     }
 
   };

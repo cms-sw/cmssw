@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -24,9 +25,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(read),
     secondaryFileNames = cms.untracked.vstring(sec),
 )
-print "Selected %d files.", process.source
+print("Selected %d files.", process.source)
 
 process.poolOutput = cms.OutputModule('DQMStreamerOutputRepackerTest')
 process.output = cms.EndPath(process.poolOutput)
 
-print process.source 
+print(process.source) 

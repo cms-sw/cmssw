@@ -50,23 +50,23 @@ class EgammaHLTHcalIsolationDoubleCone
     }
 
 
-  float isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry);
+  float isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry) const;
 
 
   /// Get pt cut for hcal hits
-  float getptMin() { return ptMin; }
+  float getptMin() const { return ptMin; }
   /// Get isolation cone size. 
-  float getConeSize() { return conesize; }
+  float getConeSize() const { return conesize; }
   /// Get exclusion region
-  float getExclusion() { return exclusion; }
+  float getExclusion() const { return exclusion; }
   
  private:
 
   // ---------- member data --------------------------------
    // Parameters of isolation cone geometry. 
-  float ptMin;
-  float conesize;
-  float exclusion;
+  const float ptMin;
+  const float conesize;
+  const float exclusion;
   
 };
 

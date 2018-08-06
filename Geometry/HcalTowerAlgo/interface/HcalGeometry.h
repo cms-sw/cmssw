@@ -56,6 +56,7 @@ public:
   std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const override ;
   
   DetId getClosestCell(const GlobalPoint& r) const override ;
+  DetId getClosestCell(const GlobalPoint& r, bool ignoreCorrect) const;
   
   CaloSubdetectorGeometry::DetIdSet getCells(const GlobalPoint& r, double dR) const override ;
 

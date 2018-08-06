@@ -16,12 +16,7 @@ HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBas
     mixMod.produces<PHGCSimAccumulator>(theDigitizer_.digiCollection());
   }
   else {
-    if( theDigitizer_.producesEEDigis()     )
-      mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
-    if( theDigitizer_.producesHEfrontDigis() )
-      mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
-    if( theDigitizer_.producesHEbackDigis() )
-      mixMod.produces<HGCBHDigiCollection>(theDigitizer_.digiCollection());
+    mixMod.produces<HGCalDigiCollection>(theDigitizer_.digiCollection());
   }
 }
 

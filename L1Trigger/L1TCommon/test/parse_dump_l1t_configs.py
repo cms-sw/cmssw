@@ -1,4 +1,5 @@
 #!/bin/python
+from __future__ import print_function
 import sys
 
 # Parse the output of dump_l1t_configs.py, printing the nonempty records and hash values
@@ -20,4 +21,4 @@ for i, line in enumerate(f):
     ind = i
     rec = line.split()[0]
   if i == ind+3 and len(line.split())>3:
-    print rec + ' ' + ':' + ' ' + line.split()[4]
+    print(rec + ' ' + ':' + ' ' + line.split()[4])

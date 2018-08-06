@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import FWCore.ParameterSet.SequenceTypes as sqt
@@ -13,9 +14,9 @@ def checkOutputModuleConfig(module):
             dataTier = getattr(dataset,"dataTier")
             filterName = getattr(dataset,"filterName")
         except:
-            print "Module", module, "has a malformed PSet dataset"
+            print("Module", module, "has a malformed PSet dataset")
     else:
-        print "Module", module, "has no PSet dataset defined"
+        print("Module", module, "has no PSet dataset defined")
 
 
 def getModulesFromSequence(sequence,list):
@@ -58,21 +59,21 @@ def extractUsedOutputs(process):
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
-        print "usage: testSkimConfig <filenames>"
+        print("usage: testSkimConfig <filenames>")
 
     for scriptName in sys.argv[1:]:      
-        print "Checking skim config file", scriptName
+        print("Checking skim config file", scriptName)
 
         process = cms.include(scriptName)
         #print "+ python parseable"
     
-        print "checking", len (process._Process__outputmodules), "output modules"
+        print("checking", len (process._Process__outputmodules), "output modules")
         for outputModuleName in process._Process__outputmodules:
-            print "  ", outputModuleName
+            print("  ", outputModuleName)
             outputModule = getattr(process, outputModuleName)
             checkOutputModuleConfig(outputModule)
 
         usedOutputs = extractUsedOutputs(process)
-        print "Actually used: ", len(usedOutputs)
+        print("Actually used: ", len(usedOutputs))
         for module in usedOutputs:
-            print "  ", module.label()
+            print("  ", module.label())

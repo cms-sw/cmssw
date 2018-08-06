@@ -45,7 +45,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
       // Lock the mutex (i.e. wait until the creating thread has called cv.wait()
       std::unique_lock<std::mutex> lk2(m_threadMutex);
 
-      edm::LogInfo("SimG4CoreApplication") 
+      edm::LogVerbatim("SimG4CoreApplication") 
         << "OscarMTMasterThread: initializing RunManagerMT";
 
       //UIsession manager for message handling
@@ -55,7 +55,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
       runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
       m_runManagerMaster = runManagerMaster;
 
-      edm::LogInfo("SimG4CoreApplication") 
+      edm::LogVerbatim("SimG4CoreApplication") 
         << "OscarMTMasterThread: initialization of RunManagerMT finished";
 
       /////////////
@@ -73,7 +73,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
         m_notifyMasterCv.wait(lk2, [&]{return m_masterCanProceed;});
 
         // Act according to the state
-        LogDebug("OscarMTMasterThread") << "Master thread: Woke up, state is " << static_cast<int>(m_masterThreadState);
+        LogDebug("OscarMTMasterThread") << "Master thread: Woke up, state is " 
+					<< static_cast<int>(m_masterThreadState);
         if(m_masterThreadState == ThreadState::BeginRun) {
           // Initialize Geant4
           LogDebug("OscarMTMasterThread") << "Master thread: Initializing Geant4";
@@ -102,8 +103,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
 
       //////////
       // Cleanup
-      edm::LogInfo("SimG4CoreApplication") 
-        << "OscarMTMasterThread: start RunManagerMT destruction";
+      edm::LogVerbatim("SimG4CoreApplication") 
+      << "OscarMTMasterThread: start RunManagerMT destruction";
       LogDebug("OscarMTMasterThread") 
       << "Master thread: Am I unique owner of runManagerMaster? " 
       << runManagerMaster.unique();
@@ -114,7 +115,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
 
       LogDebug("OscarMTMasterThread") << "Master thread: Reseted shared_ptr";
       lk2.unlock();
-      edm::LogInfo("SimG4CoreApplication") 
+      edm::LogVerbatim("SimG4CoreApplication") 
         << "OscarMTMasterThread: Master thread is finished";
     });
 
@@ -125,7 +126,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
   m_notifyMainCv.wait(lk, [&](){return m_mainCanProceed;});
 
   lk.unlock();
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread: Master thread is constructed";
 }
 
@@ -146,13 +147,13 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
   m_mainCanProceed = false;
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread: Signal master for BeginRun";
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
 
   lk2.unlock();
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread: finish BeginRun";
 }
 
@@ -163,12 +164,12 @@ void OscarMTMasterThread::endRun() const {
   m_masterThreadState = ThreadState::EndRun;
   m_mainCanProceed = false;
   m_masterCanProceed = true;
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread: Signal master for EndRun";
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
   lk2.unlock();
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread: finish EndRun";
 }
 
@@ -176,7 +177,7 @@ void OscarMTMasterThread::stopThread() {
   if(m_stopped) {
     return;
   }
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread::stopTread: stop main thread";
 
   // Release our instance of the shared master run manager, so that
@@ -188,14 +189,14 @@ void OscarMTMasterThread::stopThread() {
 
   m_masterThreadState = ThreadState::Destruct;
   m_masterCanProceed = true;
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread::stopTread: stop main thread";
   m_notifyMasterCv.notify_one();
   lk2.unlock();
 
   LogDebug("OscarMTMasterThread") << "Main thread: joining master thread";
   m_masterThread.join();
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication") 
     << "OscarMTMasterThread::stopTread: main thread finished";
   m_stopped = true;
 }

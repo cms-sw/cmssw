@@ -2,10 +2,11 @@ import imp as _imp
 
 import HLTrigger.Configuration.Tools.options as _options
 import HLTrigger.Configuration.Tools.confdb  as _confdb
+import six
 
 def _build_options(**args):
   options = _options.HLTProcessOptions()
-  for key, val in args.iteritems():
+  for key, val in six.iteritems(args):
     setattr(options, key, val)
   return options
 

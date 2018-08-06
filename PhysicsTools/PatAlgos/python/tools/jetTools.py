@@ -1,3 +1,4 @@
+from __future__ import print_function
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
@@ -63,8 +64,8 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
         if x == 'L1FastJet' :
             if not error :
                 if _type == "JPT" :
@@ -79,14 +80,14 @@ def setupJetCorrections(process, knownModules, jetCorrections, jetSource, pvSour
                 ## otherwise levels is miss configured
                 error=True
             else:
-                raise ValueError, "In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
-                once. Check the list of correction levels you requested to be applied: ", jetCorrections[1]
+                raise ValueError("In addJetCollection: Correction levels for jet energy corrections are miss configured. An L1 correction type should appear not more than \
+                once. Check the list of correction levels you requested to be applied: "+ jetCorrections[1])
     patJets.jetCorrFactorsSource=cms.VInputTag(cms.InputTag('patJetCorrFactors'+labelName+postfix))
     ## configure MET(Type1) corrections
     if jetCorrections[2].lower() != 'none' and jetCorrections[2] != '':
         if not jetCorrections[2].lower() == 'type-1' and not jetCorrections[2].lower() == 'type-2':
-            raise valueError, "In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
-            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: ", jetCorrections[2]
+            raise ValueError("In addJetCollection: Wrong choice of MET corrections for new jet collection. Possible choices are None (or empty string), Type-1, Type-2 (i.e.\
+            Type-1 and Type-2 corrections applied). This choice is not case sensitive. Your choice was: "+ jetCorrections[2])
         if _type == "JPT":
             raise ValueError("In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
             marks) and use raw tcMET together with JPTJets.")
@@ -634,7 +635,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo))
     ## setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
     for discriminator_name in btagDiscriminators :			
@@ -669,7 +670,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
     #update meta-taggers, if any
     for meta_tagger in present_meta:
         btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
@@ -694,7 +695,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     replace.doIt(getattr(process, newDiscr), newDiscr)
             acceptedBtagDiscriminators.append(meta_tagger)            
         else:
-            print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr)
+            print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
         
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )

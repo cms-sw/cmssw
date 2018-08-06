@@ -177,8 +177,9 @@ namespace l1t {
 	// Each chamber can send up to 2 stubs per BX
 	ME_.set_stub_num(0);
 	Hit_.set_stub_num(0);
-	// See if matching hit is already in event record (from neighboring sector)
-	bool duplicate_hit_exists = false;
+	// See if matching hit is already in event record: exact duplicate, or from neighboring sector
+	bool exact_duplicate = false;
+	bool neighbor_duplicate = false;
 	for (auto const & iHit : *res_hit) {
 
 	  if ( iHit.Is_CSC() == 1                     && 
@@ -188,19 +189,29 @@ namespace l1t {
 	       Hit_.Chamber()    == iHit.Chamber()    &&
 	       (Hit_.Ring() % 3) == (iHit.Ring() % 3) ) { // ME1/1a and ME1/1b (rings "4" and 1) are the same chamber
 	    
-	    if ( Hit_.Neighbor() == iHit.Neighbor() ) {
+	    if ( Hit_.Ring()  == iHit.Ring()  &&
+		 Hit_.Strip() == iHit.Strip() &&
+		 Hit_.Wire()  == iHit.Wire()  ) {
+	      exact_duplicate    = (Hit_.Neighbor() == iHit.Neighbor());
+	      neighbor_duplicate = (Hit_.Neighbor() != iHit.Neighbor());
+	    }
+	    else if ( Hit_.Neighbor() == iHit.Neighbor() ) {
 	      ME_.set_stub_num( ME_.Stub_num() + 1 );
-	      Hit_.set_stub_num( Hit_.Stub_num() + 1); }
-	    else if ( Hit_.Ring()  == iHit.Ring()  && 
-		      Hit_.Strip() == iHit.Strip() && 
-		      Hit_.Wire()  == iHit.Wire()  )
-	      duplicate_hit_exists = true;
+	      Hit_.set_stub_num( Hit_.Stub_num() + 1);
+	    }
 	  }
 	} // End loop: for (auto const & iHit : *res_hit)
 
+	if (exact_duplicate) edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate LCTs: BX " << Hit_.BX()
+							 << ", endcap " << Hit_.Endcap() << ", station " << Hit_.Station()
+			                                 << ", sector " << Hit_.Sector() << ", neighbor " << Hit_.Neighbor()
+							 << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
+							 << ", strip " << Hit_.Strip() << ", wire " << Hit_.Wire() << std::endl;
+
 	(res->at(iOut)).push_ME(ME_);
-	res_hit->push_back(Hit_);
-	if (not duplicate_hit_exists) // Don't write duplicate LCTs from adjacent sectors
+	if (!exact_duplicate)
+	  res_hit->push_back(Hit_);
+	if (!exact_duplicate && !neighbor_duplicate) // Don't write duplicate LCTs from adjacent sectors
 	  res_LCT->insertDigi( Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi() );
 
 	// Finished with unpacking one ME Data Record

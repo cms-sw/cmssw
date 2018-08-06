@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ##############################################################################
@@ -110,8 +111,8 @@ def customiseCosmicMC(process):
         
 ##############################################################################
 def customiseVALSKIM(process):
-    print "WARNING"
-    print "this method is outdated, please use RecoTLR.customisePPData"
+    print("WARNING")
+    print("this method is outdated, please use RecoTLR.customisePPData")
     process= customisePPData(process)
     return process
 

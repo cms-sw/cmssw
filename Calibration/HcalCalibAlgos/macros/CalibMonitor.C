@@ -4,7 +4,8 @@
 //  CalibMonitor c1(fname, dirname, dupFileName, comFileName, outFileName,
 //                  prefix, corrFileName, rcorFileName, puCorr, flag, numb,
 //                  dataMC, truncateFlag, useGen, scale, useScale, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside, rbx, exclude, etamax);
+//                  runlo, runhi, phimin, phimax, zside, nvxlo, nvxhi, rbx,
+//                  exclude, etamax);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -20,6 +21,8 @@
 //   where:
 // 
 //   fname   (std::string)     = file name of the input ROOT tree
+//                               or name of the file containing a list of
+//                               file names of input ROOT trees
 //   dirname (std::string)     = name of the directory where Tree resides
 //                               (use "HcalIsoTrkAnalyzer")
 //   dupFileName (char*)       = name of the file containing list of entries 
@@ -40,9 +43,9 @@
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-1)
-//   flag (int)                = 5 digit integer (mlthdo) with specific control
-//                               information (m=1/0 for having 50 or 100 bins
-//                               in the response distribution with range 0:5;
+//   flag (int)                = 6 digit integer (mlthdo) with specific control
+//                               information (m=3/2/1/0 for having 1000/500/50/
+//                               100 bins for response distribution in (0:5);
 //                               l=1/0 for (not) making plots for each RBX;
 //                               t=1/0 for applying cut or not on L1 closeness;
 //                               h = 0/1/2 for not creating / creating in 
@@ -65,12 +68,16 @@
 //                               1: barrel; 2: endcap, 3: everywhere)
 //                               barrel => |ieta| < 16; endcap => |ieta| > 15
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
-//   runlo  (int)              = lower value of run number (def -1)
-//   runhi  (int)              = higher value of run number (def 9999999)
+//   runlo  (int)              = lower value of run number to be included (+ve)
+//                               or excluded (-ve) (default 0)
+//   runhi  (int)              = higher value of run number to be included 
+//                               (+ve) or excluded (-ve) (def 9999999)
 //   phimin          (int)     = minimum iphi value (1)
 //   phimax          (int)     = maximum iphi value (72)
 //   zside           (int)     = the side of the detector if phimin and phimax
 //                               differ from 1-72 (1)
+//   nvxlo           (int)     = minimum # of vertex in event to be used (0)
+//   nvxhi           (int)     = maximum # of vertex in event to be used (1000)
 //   rbx             (int)     = zside*(Subdet*100+RBX #) to be consdered (0)
 //   exclude         (bool)    = RBX specified by *rbx* to be exluded or only
 //                               considered (false)
@@ -115,8 +122,8 @@
 
 class CalibMonitor {
 public :
-  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-  Int_t           fCurrent; //!current Tree number in a TChain
+  TChain                    *fChain;  //!pointer to the analyzed TTree or TChain
+  Int_t                      fCurrent;//!current Tree number in a TChain
 
   // Declaration of leaf types
   Int_t                      t_Run;
@@ -210,7 +217,15 @@ public :
     double   p_;
   };
 
-  CalibMonitor(const std::string& fname,
+  struct counter {
+    counter() {
+      total = 0; 
+      for (int k=0; k<4; ++k) count[k] = 0;
+    };
+    unsigned int total, count[4];
+  };
+
+  CalibMonitor(const char*        fname,
 	       const std::string& dirname, 
 	       const char *       dupFileName, 
 	       const char *       comFileName, 
@@ -220,14 +235,15 @@ public :
 	       const char *       rcorFileName="", 
 	       int puCorr=-1, int flag=31, int numb=50, bool datMC=true, 
 	       int truncateFlag=0, bool useGen=false, double scale=1.0, 
-	       int useScale=0, int etalo=0, int etahi=30, int runlo=-1, 
+	       int useScale=0, int etalo=0, int etahi=30, int runlo=0, 
 	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1,
-	       int rbx=0, bool exclude=false, bool etamax=false);
+	       int nvxlo=0, int nvxhi=1000, int rbx=0, bool exclude=false,
+	       bool etamax=false);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
   virtual Long64_t           LoadTree(Long64_t entry);
-  virtual void               Init(TTree*,const char*,const char*,const char*);
+  virtual void               Init(TChain*,const char*,const char*,const char*);
   virtual void               Loop();
   virtual Bool_t             Notify();
   virtual void               Show(Long64_t entry = -1);
@@ -249,11 +265,13 @@ private:
   const int                     corrPU_, flag_, numb_;
   const bool                    dataMC_, useGen_, etaMax_;
   const int                     truncateFlag_, useScale_;
-  const int                     etalo_, etahi_, runlo_, runhi_;
-  const int                     phimin_,phimax_,zside_, rbx_;
+  const int                     etalo_, etahi_;
+  int                           runlo_, runhi_;
+  const int                     phimin_,phimax_,zside_, nvxlo_, nvxhi_, rbx_;
   const double                  scale_;
-  bool                          exclude_, corrE_, cutL1T_, selRBX_, coarseBin_;
-  int                           etamp_, etamn_, plotType_, flexibleSelect_;
+  bool                          exclude_, corrE_, cutL1T_, selRBX_,includeRun_;
+  int                           coarseBin_, etamp_, etamn_, plotType_;
+  int                           flexibleSelect_;
   double                        log2by18_, cfacmp_, cfacmn_;
   std::ofstream                 fileout_;
   std::vector<Long64_t>         entries_;
@@ -269,7 +287,7 @@ private:
   std::map<std::pair<int,int>,double> cfactors_;
 };
 
-CalibMonitor::CalibMonitor(const std::string& fname, 
+CalibMonitor::CalibMonitor(const char*        fname, 
 			   const std::string& dirnm, 
 			   const char*        dupFileName, 
 			   const char*        comFileName,
@@ -280,7 +298,8 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 			   int flag, int numb, bool dataMC, int truncate, 
 			   bool useGen, double scale, int useScale,
 			   int etalo, int etahi, int runlo, int runhi, 
-			   int phimin, int phimax, int zside, int rbx, bool exc,
+			   int phimin, int phimax, int zside, int nvxlo,
+			   int nvxhi, int rbx, bool exc,
 			   bool etam) : cFactor_(nullptr), cSelect_(nullptr),
 					fname_(fname), dirnm_(dirnm), 
 					prefix_(prefix), 
@@ -293,8 +312,9 @@ CalibMonitor::CalibMonitor(const std::string& fname,
 					etahi_(etahi), runlo_(runlo), 
 					runhi_(runhi), phimin_(phimin), 
 					phimax_(phimax), zside_(zside), 
+					nvxlo_(nvxlo), nvxhi_(nvxhi),
 					rbx_(rbx), scale_(scale), 
-					exclude_(exc) {
+					exclude_(exc), includeRun_(true) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -303,27 +323,38 @@ CalibMonitor::CalibMonitor(const std::string& fname,
   flexibleSelect_  = (((flag_/1) %10));
   cutL1T_          = ((flag_/1000) %10);
   selRBX_          = (((flag_/10000) %10) > 0);
-  coarseBin_       = (((flag_/100000) %10) > 0);
+  coarseBin_       = ((flag_/100000) %10);
   log2by18_        = std::log(2.5)/18.0;
   etamp_           = etamn_  = 0;
   cfacmp_          = cfacmn_ = 1.0;
-  TFile      *file = new TFile(fname.c_str());
-  TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
-  std::cout << fname << " file " << file << " " << dirnm << " " << dir 
+  if (runlo_ < 0 || runhi_ < 0) {
+    runlo_         = std::abs(runlo_);
+    runhi_         = std::abs(runhi_);
+    includeRun_    = false;
+  }
+  char treeName[400];
+  sprintf (treeName, "%s/CalibTree", dirnm.c_str());
+  TChain    *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << fname
 	    << " flags " << flexibleSelect_ << "|" << plotType_ << "|"
 	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
 	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
-	    << " Selection of RBX " << selRBX_ << " EtaMax " << etaMax_
-	    << std::endl;
-  TTree      *tree = (TTree*)dir->Get("CalibTree");
-  std::cout << "CalibMonitor:Tree " << tree << std::endl;
-  Init(tree,dupFileName,comFileName,outFName);
-  corrE_ = ReadCorrFactor(corrFileName);
-  std::cout << "Reads correction factors from " << corrFileName << " with flag "
-	    << corrE_ << std::endl;
-  if (std::string(rcorFileName) != "")
-    cFactor_ = new CalibCorr(rcorFileName,false);
-  if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
+	    << " (inclusion flag " << includeRun_ << ") Selection of RBX " 
+	    << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ 
+	    << " EtaMax " << etaMax_  << std::endl;
+  if (!fillChain(chain,fname)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries()
+	      << " entries" << std::endl;
+    Init(chain,dupFileName,comFileName,outFName);
+    corrE_ = ReadCorrFactor(corrFileName);
+    std::cout << "Reads correction factors from " << corrFileName 
+	      << " with flag " << corrE_ << std::endl;
+    if (std::string(rcorFileName) != "")
+      cFactor_ = new CalibCorr(rcorFileName,false);
+    if (rbx != 0) cSelect_ = new CalibSelectRBX(rbx, false);
+  }
 }
 
 CalibMonitor::~CalibMonitor() {
@@ -353,7 +384,7 @@ Long64_t CalibMonitor::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibMonitor::Init(TTree *tree, const char* dupFileName,
+void CalibMonitor::Init(TChain *tree, const char* dupFileName,
 			const char* comFileName, const char* outFileName) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
@@ -498,8 +529,15 @@ void CalibMonitor::Init(TTree *tree, const char* dupFileName,
   double dl1s[9]= {0, 0.10, 0.20, 0.50, 1.0, 2.0, 2.5, 3.0, 10.0};
   int ietas[4] = {0, 13, 18, 23};
   for (int i=0; i<4; ++i)  ietas_.push_back(ietas[i]);
-  int nxbin = (coarseBin_) ? 50 : 100;
+  int    nxbin(100);
   double xlow(0.25), xhigh(5.25);
+  if (coarseBin_ == 1) {
+    nxbin = 50;
+  } else if (coarseBin_ > 1) {
+    xlow = 0.0; xhigh = 5.0;
+    if (coarseBin_ == 2) nxbin = 500;
+    else                 nxbin = 1000;
+  }
 
   char        name[20], title[200];
   std::string titl[5] = {"All tracks", "Good quality tracks", "Selected tracks",
@@ -754,7 +792,7 @@ void CalibMonitor::Loop() {
   const bool debug(false);
 
   if (fChain == 0) return;
-  std::map<int,unsigned int> runSum;
+  std::map<int,counter> runSum, runEn1, runEn2;
 
   // Find list of duplicate events  
   Long64_t nentries = fChain->GetEntriesFast();
@@ -778,13 +816,17 @@ void CalibMonitor::Loop() {
 		  << " " << t_p << std::endl;
       continue;
     }
-    select = ((t_Run >= runlo_) && (t_Run <= runhi_) && 
-	      (fabs(t_ieta) >= etalo_) && (fabs(t_ieta) <= etahi_));
+    bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) :
+		   ((t_Run < runlo_) || (t_Run > runhi_)));
+    select      = (selRun && (fabs(t_ieta) >= etalo_) &&
+		   (fabs(t_ieta) <= etahi_) && (t_nVtx >= nvxlo_) && 
+		   (t_nVtx <= nvxhi_));
     if (!select) {
       if (debug)
 	std::cout << "Run # " << t_Run << " out of range of " << runlo_ << ":" 
-		  << runhi_ << " or " << t_ieta << " out of range of " << etalo_
-		  << ":" << etahi_ << std::endl;
+		  << runhi_ << " or ieta " << t_ieta << " (" << etalo_ << ":" 
+		  << etahi_ << ") or nvtx " << t_nVtx << " (" << nvxlo_ << ":"
+		  << nvxhi_ << ") out of range" << std::endl;
       continue;
     }
     if (cSelect_ != nullptr) {
@@ -940,6 +982,34 @@ void CalibMonitor::Loop() {
 		<< ":" << kd << ":" << kd1 << ":" << jp << std::endl;
     }
     if (goodTk && kp >=0 && selPhi) {
+      if (t_eHcal < 0.01) {
+	std::map<int,counter>::const_iterator itr = runEn1.find(t_Run);
+	if (itr == runEn1.end()) {
+	  counter knt;
+	  if (kp >= 0 && kp < 4) knt.count[kp] = 1;
+	  knt.total = 1; 
+	  runEn1[t_Run] = knt;
+	} else {
+	  counter knt = runEn1[t_Run];
+	  if (kp >= 0 && kp < 4) ++knt.count[kp];
+	  ++knt.total;
+	  runEn1[t_Run] = knt;
+	}
+      }
+      if (t_eMipDR < 0.01 && t_eHcal < 0.01) {
+	std::map<int,counter>::const_iterator itr = runEn2.find(t_Run);
+	if (itr == runEn2.end()) {
+	  counter knt;
+	  if (kp >= 0 && kp < 4) knt.count[kp] = 1;
+	  knt.total = 1; 
+	  runEn2[t_Run] = knt;
+	} else {
+	  counter knt = runEn2[t_Run];
+	  if (kp >= 0 && kp < 4) ++knt.count[kp];
+	  ++knt.total;
+	  runEn2[t_Run] = knt;
+	}
+      }
       if (rat > rcut) {
 	if (plotType_ <= 1) {
 	  h_etaX[kp][kv]->Fill(eta,rat,t_EventWeight);
@@ -957,9 +1027,18 @@ void CalibMonitor::Loop() {
 	  h_pp[kp][jp2+1]->Fill(pmom,t_EventWeight);
 	}
 	if (kp == (int)(kp50)) {
-	  std::map<int,unsigned int>::const_iterator itr = runSum.find(t_Run);
-	  if (itr == runSum.end()) runSum[t_Run] = 1;
-	  else                     ++runSum[t_Run];
+	  std::map<int,counter>::const_iterator itr = runSum.find(t_Run);
+	  if (itr == runSum.end()) {
+	    counter knt;
+	    if (kp >= 0 && kp < 4) knt.count[kp] = 1;
+	    knt.total = 1; 
+	    runSum[t_Run] = knt;
+	  } else {
+	    counter knt = runSum[t_Run];
+	    if (kp >= 0 && kp < 4) ++knt.count[kp];
+	    ++knt.total;
+	    runSum[t_Run] = knt;
+	  }
 	}
 	if ((!dataMC_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
 	  ++kounts[kp];
@@ -1010,10 +1089,30 @@ void CalibMonitor::Loop() {
     }
   }
   unsigned int k(0);
-  for (std::map<int,unsigned int>::iterator itr=runSum.begin(); 
+  std::cout << "\nSummary of entries with " << runSum.size() << "runs\n";
+  for (std::map<int,counter>::iterator itr=runSum.begin(); 
        itr != runSum.end(); ++itr, ++k)
-    std::cout << "[" << k << "] Run " << itr->first << " # " << itr->second
-	      << std::endl;
+    std::cout << "[" << k << "] Run " << itr->first << " Total " 
+	      << (itr->second).total << " in p-bins " << (itr->second).count[0]
+	      << ":" << (itr->second).count[1] << ":" << (itr->second).count[2]
+	      << ":" << (itr->second).count[3] << std::endl;
+  k = 0;
+  std::cout << "\n" << runEn1.size() << " runs with 0 energy in HCAL\n";
+  for (std::map<int,counter>::iterator itr=runEn1.begin(); 
+       itr != runEn1.end(); ++itr, ++k)
+    std::cout << "[" << k << "] Run " << itr->first << " Total " 
+	      << (itr->second).total << " in p-bins " << (itr->second).count[0]
+	      << ":" << (itr->second).count[1] << ":" << (itr->second).count[2]
+	      << ":" << (itr->second).count[3] << std::endl;
+  k = 0;
+  std::cout << "\n" << runEn2.size() << " runs with 0 energy in ECAL and HCAL"
+	    << std::endl;
+  for (std::map<int,counter>::iterator itr=runEn2.begin(); 
+       itr != runEn2.end(); ++itr, ++k)
+    std::cout << "[" << k << "] Run " << itr->first << " Total " 
+	      << (itr->second).total << " in p-bins " << (itr->second).count[0]
+	      << ":" << (itr->second).count[1] << ":" << (itr->second).count[2]
+	      << ":" << (itr->second).count[3] << std::endl;
   if (((flag_/100)%10)>0) {
     fileout_.close();
     std::cout << "Writes " << good << " events in the file " << outFileName_

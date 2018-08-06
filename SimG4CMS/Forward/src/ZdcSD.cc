@@ -61,10 +61,6 @@ ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
 }
 
 void ZdcSD::initRun(){
-  if(useShowerLibrary){
-    G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
-    showerLibrary.get()->initRun(theParticleTable); 
-  }
   hits.clear();  
 }
 
@@ -151,41 +147,40 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
     float costheta = vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
                                        vert_mom.y()*vert_mom.y()+
                                        vert_mom.z()*vert_mom.z());
-    float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
-    float eta = -log(tan(theta/2));
+    float theta = std::acos(std::min(std::max(costheta,-1.f),1.f));
+    float eta = -std::log(std::tan(theta*0.5f));
     float phi = -100.;
-    if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
+    if (vert_mom.x() != 0) phi = std::atan2(vert_mom.y(),vert_mom.x()); 
     if (phi < 0.) phi += twopi;
 
     // Get the total energy deposit
     double stepE   = aStep->GetTotalEnergyDeposit();
     LogDebug("ForwardSim") 
-      << "ZdcSD::  getEnergyDeposit: "
-      <<"*****************HHHHHHHHHHHHHHHHHHHHHHHHHHLLLLLLLLLlllllllllll&&&&&&&&&&\n"
+      << "ZdcSD::  getEnergyDeposit: \n"
       << "  preStepPoint: " << nameVolume << "," << stepL << "," << stepE 
       << "," << beta << "," << charge << "\n"
       << "  postStepPoint: " << postnameVolume << "," << costheta << "," 
       << theta << "," << eta << "," << phi << "," << particleType << " id= " 
       << theTrack->GetTrackID() << " Etot(GeV)= " << theTrack->GetTotalEnergy()/GeV;
 
-    float bThreshold = 0.67;
+    const double bThreshold = 0.67;
     if ((beta > bThreshold) && (charge != 0) && (nameVolume == "ZDC_EMFiber" || nameVolume == "ZDC_HadFiber")) {
       LogDebug("ForwardSim") << "ZdcSD::  getEnergyDeposit:  pass "; 
 
-      float nMedium = 1.4925;
+      const float nMedium = 1.4925;
       // float photEnSpectrDL = 10714.285714;
       //       photEnSpectrDL = (1./400.nm-1./700.nm)*10000000.cm/nm; /* cm-1  */
 
-      float photEnSpectrDE = 1.24;
+      const float photEnSpectrDE = 1.24;
       // E = 2pi*(1./137.)*(eV*cm/370.)/lambda = 12.389184*(eV*cm)/lambda
       // Emax = 12.389184*(eV*cm)/400nm*10-7cm/nm  = 3.01 eV
       // Emin = 12.389184*(eV*cm)/700nm*10-7cm/nm  = 1.77 eV
       // delE = Emax - Emin = 1.24 eV
 
-      float effPMTandTransport = 0.15;
+      const float effPMTandTransport = 0.15;
 
       // Check these values
-      float thFullRefl = 23.;
+      const float thFullRefl = 23.;
       float thFullReflRad = thFullRefl*pi/180.;
 
       float thFibDirRad = thFibDir*pi/180.;
@@ -197,33 +192,23 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
       float costh = hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
                                      hit_mom.y()*hit_mom.y()+
                                      hit_mom.z()*hit_mom.z());
-      float th = acos(std::min(std::max(costh,float(-1.)),float(1.)));
+      float th = acos(std::min(std::max(costh,-1.f),1.f));
       // just in case (can do both standard ranges of phi):
       if (th < 0.) th += twopi;
 
       // theta of cone with Cherenkov photons w.r.t.direction of charged part.:
       float costhcher =1./(nMedium*beta);
-      float thcher = acos(std::min(std::max(costhcher,float(-1.)),float(1.)));
+      float thcher = acos(std::min(std::max(costhcher,-1.f),1.f));
 
       // diff thetas of charged part. and quartz direction in LabRF:
-      float DelFibPart = fabs(th - thFibDirRad);
+      float DelFibPart = std::abs(th - thFibDirRad);
 
       // define real distances:
-      float d = fabs(tan(th)-tan(thFibDirRad));   
+      float d = std::abs(std::tan(th)-std::tan(thFibDirRad));   
 
-      // float a = fabs(tan(thFibDirRad)-tan(thFibDirRad+thFullReflRad));   
-      // float r = fabs(tan(th)-tan(th+thcher));   
-      float a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
-      float r = tan(th)+tan(fabs(th-thcher));   
+      float a = std::tan(thFibDirRad)+std::tan(std::abs(thFibDirRad-thFullReflRad));   
+      float r = std::tan(th)+std::tan(std::abs(th-thcher));   
       
-      // std::cout.testOut << "  d=|tan(" << th << ")-tan(" << thFibDirRad << ")| "
-      //              << "=|" << tan(th) << "-" << tan(thFibDirRad) << "| = " << d;
-      // std::cout.testOut << "  a=tan(" << thFibDirRad << ")=" << tan(thFibDirRad) 
-      //              << " + tan(|" << thFibDirRad << " - " << thFullReflRad << "|)="
-      //              << tan(fabs(thFibDirRad-thFullReflRad)) << " = " << a;
-      // std::cout.testOut << "  r=tan(" << th << ")=" << tan(th) << " + tan(|" << th 
-      //              << " - " << thcher << "|)=" << tan(fabs(th-thcher)) << " = " << r;
-
       // define losses d_qz in cone of full reflection inside quartz direction
       float d_qz = -1;
       float variant = -1;
@@ -247,29 +232,23 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
             float tan_arcos = 2.*a*d;
             if (tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
             // std::cout.testOut << "  d_qz: " << r << "," << a << "," << d << " " << tan_arcos << " " << arg_arcos;
-            arg_arcos = fabs(arg_arcos);
+            arg_arcos = std::abs(arg_arcos);
             // std::cout.testOut << "," << arg_arcos;
-            float th_arcos = acos(std::min(std::max(arg_arcos,float(-1.)),float(1.)));
+            float th_arcos = acos(std::min(std::max(arg_arcos,-1.f),1.f));
             // std::cout.testOut << " " << th_arcos;
-            d_qz = th_arcos/pi/2.;
+            d_qz = th_arcos/twopi;
             // std::cout.testOut << " " << d_qz;
-            d_qz = fabs(d_qz);
+            d_qz = std::abs(d_qz);
             // std::cout.testOut << "," << d_qz;
           }
         }
       }
       double meanNCherPhot = 0.;
-      G4int poissNCherPhot = 0;
+      int poissNCherPhot = 0;
       if (d_qz > 0) {
         meanNCherPhot = 370.*charge*charge*( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDE * stepL;
 
-        // dLamdX:  meanNCherPhot = (2.*pi/137.)*charge*charge* 
-        //                          ( 1. - 1./(nMedium*nMedium*beta*beta) ) * photEnSpectrDL * stepL;
-        poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
-
-        if (poissNCherPhot < 0) poissNCherPhot = 0; 
-
-        // NCherPhot = meanNCherPhot;
+        poissNCherPhot = std::max((int)G4Poisson(meanNCherPhot),0);
         NCherPhot = poissNCherPhot * effPMTandTransport * d_qz;
       }
 

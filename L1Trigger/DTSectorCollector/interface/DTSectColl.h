@@ -147,22 +147,22 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   const DTSectCollThSegm* SectCollThSegment(int step);
 
   //! Return iterator to the beghin of Phi cache
-  std::vector<DTSectCollPhSegm>::const_iterator beginPh() { return  DTSCPhCache::_cache.begin(); }
+  std::vector<DTSectCollPhSegm>::const_iterator beginPh() const { return  DTSCPhCache::_cache.begin(); }
 
   //! Return Phi cache size 
-  int sizePh() { return DTSCPhCache::_cache.size(); } 
+  int sizePh() const { return DTSCPhCache::_cache.size(); } 
 
   //! Return iterator to the end of Phi cache
-  std::vector<DTSectCollPhSegm>::const_iterator endPh() { return DTSCPhCache::_cache.end(); } 
+  std::vector<DTSectCollPhSegm>::const_iterator endPh() const { return DTSCPhCache::_cache.end(); } 
   
   //! Return iterator to the begni of Theta cache
-  std::vector<DTSectCollThSegm>::const_iterator beginTh() { return DTSCThCache::_cache.begin(); }
+  std::vector<DTSectCollThSegm>::const_iterator beginTh() const { return DTSCThCache::_cache.begin(); }
   
   //! Return Theta cache size 
-  int sizeTh() { return DTSCThCache::_cache.size(); }
+  int sizeTh() const { return DTSCThCache::_cache.size(); }
 
   //! Return iterator to the end of Theta cache
-  std::vector<DTSectCollThSegm>::const_iterator endTh() { return DTSCThCache::_cache.end(); }
+  std::vector<DTSectCollThSegm>::const_iterator endTh() const { return DTSCThCache::_cache.end(); }
   
   //! Local position in chamber of a trigger-data object
   //  LocalPoint LocalPosition(const DTTrigData*) const;

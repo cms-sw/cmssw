@@ -265,9 +265,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Add pixel radiation damage for upgrade studies
   AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
-  UseReweighting(conf.exists("UseReweighting")?conf.getParameter<bool>("UseReweighting"):false),
-  PrintClusters(conf.exists("PrintClusters")?conf.getParameter<bool>("PrintClusters"):false),
-  PrintTemplates(conf.exists("PrintTemplates")?conf.getParameter<bool>("PrintTemplates"):false),
+  UseReweighting(conf.getParameter<bool>("UseReweighting")),
+  PrintClusters(conf.getParameter<bool>("PrintClusters")),
+  PrintTemplates(conf.getParameter<bool>("PrintTemplates")),
 
   // delta cutoff in MeV, has to be same as in OSCAR(0.030/cmsim=1.0 MeV
   //tMax(0.030), // In MeV.
@@ -2273,7 +2273,10 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   if (UseReweighting == true){
     int ID1 = dbobject_num->getTemplateID(detID);
     int ID0 = dbobject_den->getTemplateID(detID);
-    //ierr = PixelTempRewgt2D(IDden, IDnum, pixrewgt);
+
+    if(ID0==ID1){
+      return false;
+    }
     ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   }
   else{
@@ -2295,10 +2298,15 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
     for(int col = 0; col < TYSIZE; ++col) {
       float charge = 0;
       charge = pixrewgt[row][col];
-      chargeAfter += charge;
-      if( (hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() && (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0)
+      if( (hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() && (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0){
+	chargeAfter += charge;
 	theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] += (makeDigiSimLinks_ ? Amplitude(charge , &hit, hitIndex, tofBin, charge) : Amplitude( charge, charge) )  ;
+      }
     }
+  }
+
+  if(chargeBefore!=0. && chargeAfter==0.){
+    return false;
   }
   
   if(PrintClusters){
@@ -2346,7 +2354,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
     cotalpha = track[3]/track[5]; //if track[5] (direction in z) is 0 the hit is not processed by re-weighting
     cotbeta = track[4]/track[5];
   } else {
-    LogWarning ("Pixel Digitizer") << "Reweighting angle is not good!" << std::endl;
+    LogDebug ("Pixel Digitizer") << "Reweighting angle is not good!" << std::endl;
     return 9; //returned value here indicates that no reweighting was done in this case
   }
 

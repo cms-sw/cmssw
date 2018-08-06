@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import ROOT
 import tarfile
 import sys
 
 if (len(sys.argv)<2):
-    print "Reads the job outputs and collects the parameters values in an histograms."
-    print "dirX represents the directory where the output tgz files are stored."
-    print "Usage:",sys.argv[0],"dir1, dir2, dir3, ..."
+    print("Reads the job outputs and collects the parameters values in an histograms.")
+    print("dirX represents the directory where the output tgz files are stored.")
+    print("Usage:",sys.argv[0],"dir1, dir2, dir3, ...")
     sys.exit(1)
 
 mu_h=ROOT.TH1F("mu_h","#mu fitted values",50,-1,1)
@@ -49,7 +50,7 @@ for directory in sys.argv[1:]:
 for targzfile in targz_files:
     f = tarfile.open(targzfile,"r:gz")
     for txtfilename in [name for name in f.getnames() if ".txt" in name]:
-        print "Xtracting ",txtfilename
+        print("Xtracting ",txtfilename)
         txtfile = f.extractfile(txtfilename)
         for line in txtfile.readlines():
             for key,histos in h_dict.items():
@@ -73,7 +74,7 @@ ofile = ROOT.TFile(ofilename,"RECREATE");ofile.cd()
 for key,histos in h_dict.items():
     for histo in histos:
         histoname=histo.GetName()
-        print "Saving ",histoname," on file ",ofilename
+        print("Saving ",histoname," on file ",ofilename)
         histo.Write()
         c=ROOT.TCanvas()
         c.cd()

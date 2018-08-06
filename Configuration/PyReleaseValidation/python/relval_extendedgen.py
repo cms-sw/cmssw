@@ -20,9 +20,10 @@ workflows[508]=['',['SoftQCDnonDiffractive_13TeV_pythia8','HARVESTGEN']]
 workflows[509]=['',['SoftQCDelastic_13TeV_pythia8','HARVESTGEN']]
 workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVESTGEN']]
 
-# Matrix Element Generations (scerpa)
+# Matrix Element Generations (sherpa)
 #workflows[533]=['',['sherpa_ZtoEE_0j_BlackHat_13TeV_MASTER','HARVESTGEN']]
 workflows[534]=['',['sherpa_ZtoEE_0j_OpenLoops_13TeV_MASTER','HARVESTGEN']]
+workflows[535] = ['', ['TTbar_13TeV_Pow_herwig7','HARVESTGEN']]
 
 # Hadronization (LHE Generation + Hadronization)
 workflows[555]=['DYTollJets_NLO_Mad_13TeV_py8',['DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8','HARVESTGEN2']]     # ALWAYS RUN

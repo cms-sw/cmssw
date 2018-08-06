@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re,os
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
@@ -18,7 +19,7 @@ if not runType.getRunTypeName() in scenarios.keys():
 
 scenarioName = scenarios[runType.getRunTypeName()]
 
-print "Using scenario:",scenarioName
+print("Using scenario:",scenarioName)
 
 try:
     scenario = getScenario(scenarioName)
@@ -91,4 +92,4 @@ if dump:
     psetFile.write(process.dumpPython())
     psetFile.close()
     cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
-    print "Now do:\n%s" % cmsRun
+    print("Now do:\n%s" % cmsRun)

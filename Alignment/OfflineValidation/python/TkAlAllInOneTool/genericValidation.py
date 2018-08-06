@@ -1,3 +1,4 @@
+from __future__ import print_function
 from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import re
@@ -298,8 +299,8 @@ class GenericValidationData(GenericValidation):
 
         if self.cmssw not in globalDictionaries.usedDatasets[self.general["dataset"]]:
             if globalDictionaries.usedDatasets[self.general["dataset"]] != {}:
-                print ("Warning: you use the same dataset '%s' in multiple cmssw releases.\n"
-                       "This is allowed, but make sure it's not a mistake") % self.general["dataset"]
+                print(("Warning: you use the same dataset '%s' in multiple cmssw releases.\n"
+                       "This is allowed, but make sure it's not a mistake") % self.general["dataset"])
             globalDictionaries.usedDatasets[self.general["dataset"]][self.cmssw] = {False: None, True: None}
 
         Bfield = self.general.get("magneticfield", None)
@@ -316,8 +317,8 @@ class GenericValidationData(GenericValidation):
         self.general["magneticField"] = self.dataset.magneticField()
         self.general["defaultMagneticField"] = "MagneticField"
         if self.general["magneticField"] == "unknown":
-            print "Could not get the magnetic field for this dataset."
-            print "Using the default: ", self.general["defaultMagneticField"]
+            print("Could not get the magnetic field for this dataset.")
+            print("Using the default: ", self.general["defaultMagneticField"])
             self.general["magneticField"] = '.oO[defaultMagneticField]Oo.'
         
         if not self.jobmode.split( ',' )[0] == "crab":
@@ -736,7 +737,7 @@ class ValidationWithPlotsSummaryBase(ValidationWithPlots):
 
     @classmethod
     def printsummaryitems(cls, *args, **kwargs):
-        print cls.summaryitemsstring(*args, **kwargs)
+        print(cls.summaryitemsstring(*args, **kwargs))
     @classmethod
     def writesummaryitems(cls, filename, *args, **kwargs):
         with open(filename, "w") as f:

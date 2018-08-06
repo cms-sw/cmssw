@@ -10,8 +10,8 @@ using namespace cms::xerces;
 
 class DDCompactView;
 
-DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler( DDCompactView& cpv )
-  : DDLSAX2FileHandler::DDLSAX2FileHandler( cpv )
+DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler( DDCompactView& cpv, DDLElementRegistry& reg )
+  : DDLSAX2FileHandler::DDLSAX2FileHandler( cpv,reg )
 {}
 
 DDLSAX2ExpressionHandler::~DDLSAX2ExpressionHandler( void )
@@ -30,7 +30,7 @@ DDLSAX2ExpressionHandler::startElement( const XMLCh* const uri,
   {
     std::string varName = toString( attrs.getValue( uStr( "name" ).ptr()));
     std::string varValue = toString( attrs.getValue( uStr( "value" ).ptr()));
-    ClhepEvaluator & ev = DDLGlobalRegistry::instance().evaluator();
+    ClhepEvaluator & ev = registry().evaluator();
     ev.set(nmspace_, varName, varValue);
   }
 }

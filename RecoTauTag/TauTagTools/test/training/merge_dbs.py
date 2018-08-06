@@ -1,3 +1,4 @@
+from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
@@ -11,8 +12,8 @@ process.maxEvents = cms.untracked.PSet(	input = cms.untracked.int32(1) )
 output_file = sys.argv[2]
 input_files = sys.argv[3:]
 
-print "Merging input files: %s into %s" % (
-    " ".join(input_files), output_file)
+print("Merging input files: %s into %s" % (
+    " ".join(input_files), output_file))
 
 def get_mva_name(file):
     # map db/1prong1pi0_blah.mva -> 1prong1pi0

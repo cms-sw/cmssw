@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 import shutil
@@ -180,7 +181,7 @@ class CondXmlProcessor(object):
            obj = xmlConverter()
            resultXML = obj.write( str(data) )
            if destFile is None:
-              print resultXML    
+              print(resultXML)    
            else:
               with open(destFile, 'w') as outFile:
                  outFile.write(resultXML)

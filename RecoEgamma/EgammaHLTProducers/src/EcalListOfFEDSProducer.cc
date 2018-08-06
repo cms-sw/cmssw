@@ -117,12 +117,6 @@ desc.add<std::string>("OutputLabel", "");
   descriptions.add(("hltEcalListOfFEDSProducer"), desc);  
 }
 
-void EcalListOfFEDSProducer::beginJob()
-{}
-
-void EcalListOfFEDSProducer::endJob()
-{}
-
 void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup){
   
   if (first_) {

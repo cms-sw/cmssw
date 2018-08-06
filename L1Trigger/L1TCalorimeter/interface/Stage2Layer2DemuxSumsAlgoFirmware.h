@@ -22,13 +22,11 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class Stage2Layer2DemuxSumsAlgoFirmwareImp1 : public Stage2Layer2DemuxSumsAlgo {
   public:
-    Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParamsHelper* params);
-    ~Stage2Layer2DemuxSumsAlgoFirmwareImp1() override;
+    Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParamsHelper const* params);
+    ~Stage2Layer2DemuxSumsAlgoFirmwareImp1() override = default;
     void processEvent(const std::vector<l1t::EtSum> & inputSums,
 			      std::vector<l1t::EtSum> & outputSums) override;
   private:
-
-    CaloParamsHelper* params_;
 
     Cordic cordic_;
 

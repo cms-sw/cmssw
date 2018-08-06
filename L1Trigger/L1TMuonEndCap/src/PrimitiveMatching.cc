@@ -462,9 +462,12 @@ void PrimitiveMatching::insert_hits(
       //(conv_hit_i.Wire()       == conv_hit_j.Wire()) &&
       (conv_hit_i.Pattern()    == conv_hit_j.Pattern()) &&
       (conv_hit_i.BX()         == conv_hit_j.BX()) &&
-      (conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) && // For RPC clusters
-      (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
-      (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&      // For RPC clusters
+      ( (conv_hit_i.Is_RPC()     == false) ||
+	( (conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) &&
+	  (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&
+	  (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
+	  (conv_hit_i.Phi_fp()     == conv_hit_j.Phi_fp()) &&
+	  (conv_hit_i.Theta_fp()   == conv_hit_j.Theta_fp()) ) ) &&
       true
     ) {
       // All duplicates with the same strip but different wire must have same phi_fp

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -205,4 +206,4 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('MultiplicityMonitor.root')
                                    )
 
-print process.dumpPython()
+print(process.dumpPython())

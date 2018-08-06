@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 Mode = str("ZS")    # Options: "ZS", "VR", "PR", "FK"
@@ -38,8 +39,7 @@ process.referenceSiStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag(
 
 # ---- DigiToRaw ----
 process.load("EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi")
-process.SiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
-process.SiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+process.SiStripDigiToRaw.InputDigis = cms.InputTag('simSiStripDigis', 'ZeroSuppressed')
 
 # ---- RawToClusters ----
 process.load('EventFilter.SiStripRawToDigi.SiStripRawToClusters_cfi')
@@ -61,15 +61,18 @@ process.ValidateSiStripClusters.DetSetVectorNew = True
 # ----- FedReadoutMode -----
 if Mode == str("ZS") :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-    process.SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.SiStripDigiToRaw.FedReadoutMode = cms.string('ZERO_SUPPRESSED')
+    process.SiStripDigiToRaw.PacketCode = cms.string('ZERO_SUPPRESSED')
 elif Mode == str("VR") :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-    process.SiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.SiStripDigiToRaw.FedReadoutMode = cms.string('VIRGIN_RAW')
+    process.SiStripDigiToRaw.PacketCode = cms.string('VIRGIN_RAW')
 elif Mode == str("PR") :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-    process.SiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
+    process.SiStripDigiToRaw.FedReadoutMode = cms.string('PROCESSED_RAW')
+    process.SiStripDigiToRaw.PacketCode = cms.string('PROCESSED_RAW')
 else :
-    print "UNKNOWN FED READOUT MODE!"
+    print("UNKNOWN FED READOUT MODE!")
     import sys
     sys.exit()
 
@@ -95,5 +98,5 @@ process.output.fileName = "DigiToRawToClusters"+Mode+".root"
 if Write == bool(True) :
     process.e = cms.EndPath( process.output )
 else :
-    print "Event content not written to disk!" 
+    print("Event content not written to disk!") 
 

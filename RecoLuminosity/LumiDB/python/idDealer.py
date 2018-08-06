@@ -1,3 +1,4 @@
+from __future__ import print_function
 import coral
 import nameDealer
 class idDealer(object):
@@ -75,13 +76,13 @@ if __name__ == "__main__":
           inputData[ idor.getIDColumnDefinition()[0] ].setData(0)
           editor.insertRow(inputData)
         idor.generateNextIDForTable('Fake')
-        print idor.getIDforTable('Fake')
+        print(idor.getIDforTable('Fake'))
         transaction.commit()
         del session
     except coral.Exception as e:
         transaction.rollback()
         del session
     except Exception as e:
-        print 'failed in unit test'
-        print str(e)
+        print('failed in unit test')
+        print(str(e))
         del session

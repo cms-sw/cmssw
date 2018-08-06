@@ -101,4 +101,4 @@ void PreMixingPhase2TrackerWorker::put(edm::Event &e, edm::EventSetup const& iSe
   decltype(accumulator_){}.swap(accumulator_); // release memory
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingPhase2TrackerWorker, "PreMixingPhase2TrackerWorker");
+DEFINE_PREMIXING_WORKER(PreMixingPhase2TrackerWorker);

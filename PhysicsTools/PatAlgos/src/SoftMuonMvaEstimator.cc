@@ -38,8 +38,8 @@ SoftMuonMvaEstimator::SoftMuonMvaEstimator(const std::string& weightsfile)
   tmvaReader.AddSpectator("eta",			&eta_);
   tmvaReader.AddSpectator("MomID",			&momID_);
 
-  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(softmuon_mva_name, weightsfile.c_str()) );
-  gbrForest_.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(softmuon_mva_name) ) ) );
+  auto temp{ tmvaReader.BookMVA(softmuon_mva_name, weightsfile.c_str()) };
+  gbrForest_ = std::make_unique<GBRForest>( dynamic_cast<TMVA::MethodBDT*>( temp ) );
 }
 
 SoftMuonMvaEstimator::~SoftMuonMvaEstimator() { }

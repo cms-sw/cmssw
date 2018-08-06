@@ -76,19 +76,15 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps) :
   iSample_(ps.getUntrackedParameter<int>("Sample",5)),
   geomType_(ps.getUntrackedParameter<int>("GeometryType",0)),
   threshold_(ps.getUntrackedParameter<double>("Threshold",12.0)),
-  ifHCAL_(ps.getUntrackedParameter<bool>("ifHCAL",false)), etaMax_(0) {
+  ifHCAL_(ps.getUntrackedParameter<bool>("ifHCAL",false)), etaMax_(100) {
 
   usesResource(TFileService::kSharedResource);
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
-  if (geomType_ == 0) {
-    if (ifHCAL_) 
-      tok_hbhe_ = consumes<QIE11DigiCollection>(hcalDigis_);
-    else
-      tok_hbhe_ = consumes<HGCBHDigiCollection>(hcalDigis_);
-  } else {
-    tok_hbhe_ = consumes<HGCBHDigiCollection>(hcalDigis_);
-  }
+  if (ifHCAL_) 
+    tok_hbhe_ = consumes<QIE11DigiCollection>(hcalDigis_);
+  else
+    tok_hbhe_ = consumes<HGCalDigiCollection>(hcalDigis_);
   edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation::Input for SimHit:"
 				      << edm::InputTag(g4Label_,hcalHits_) 
 				      << "  Digits:" << hcalDigis_ 
@@ -100,12 +96,12 @@ void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
   desc.addUntracked<std::string>("HitCollection","HcalHits");
-  desc.addUntracked<edm::InputTag>("DigiCollection",edm::InputTag("mix","HGCDigisHEback"));
+  desc.addUntracked<edm::InputTag>("DigiCollection",edm::InputTag("hgcalDigis","HEback"));
   desc.addUntracked<int>("Sample",5);
   desc.addUntracked<int>("GeometryType",0);
   desc.addUntracked<double>("Threshold",15.0);
   desc.addUntracked<bool>("ifHCAL",false);
-  descriptions.add("hgcalBHValidation",desc);
+  descriptions.add("hgcalBHAnalysis",desc);
 }
 
 void HGCalBHValidation::beginRun(edm::Run const&, edm::EventSetup const& es) {
@@ -228,17 +224,17 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
       }
     }
   } else {
-    edm::Handle<HGCBHDigiCollection> hbhecoll;
+    edm::Handle<HGCalDigiCollection> hbhecoll;
     e.getByToken(tok_hbhe_, hbhecoll);
     edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation.: "
-					<< "HGCBHDigiCollection obtained with"
+					<< "HGCalDigiCollection obtained with"
 					<< " flag " << hbhecoll.isValid();
     if (hbhecoll.isValid()) {
-      edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HGCBHDigit "
+      edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HGCalDigi "
 					  << "buffer " << hbhecoll->size();
-      for (HGCBHDigiCollection::const_iterator it=hbhecoll->begin(); 
+      for (HGCalDigiCollection::const_iterator it=hbhecoll->begin(); 
 	   it != hbhecoll->end(); ++it) {
-	HGCBHDataFrame df(*it);
+	HGCalDataFrame df(*it);
 	double energy = df[iSample_].data();
 	if (geomType_ == 0) {
 	  HcalDetId cell(df.id());
@@ -284,4 +280,3 @@ void HGCalBHValidation::analyzeDigi(const T& cell,double const& energy,
 }
 
 DEFINE_FWK_MODULE(HGCalBHValidation);
-

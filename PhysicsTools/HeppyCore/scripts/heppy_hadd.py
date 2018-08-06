@@ -2,10 +2,12 @@
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
+from __future__ import print_function
 import os
 import pprint
 import pickle
 import shutil
+import six
 
 MAX_ARG_STRLEN = 131072
 
@@ -53,9 +55,9 @@ def hadd(file, odir, idirs, appx=''):
         haddCmd.append( file.replace( idirs[0], dir ) )
     # import pdb; pdb.set_trace()
     cmd = ' '.join(haddCmd)
-    print cmd
+    print(cmd)
     if len(cmd) > MAX_ARG_STRLEN:
-        print 'Command longer than maximum unix string length; dividing into 2'
+        print('Command longer than maximum unix string length; dividing into 2')
         hadd(file, odir, idirs[:len(idirs)/2], '1')
         hadd(file.replace(idirs[0], idirs[len(idirs)/2]), odir, idirs[len(idirs)/2:], '2')
         haddCmd = ['hadd']
@@ -63,15 +65,15 @@ def hadd(file, odir, idirs, appx=''):
         haddCmd.append( file.replace( idirs[0], odir ).replace('.root', '1.root') )
         haddCmd.append( file.replace( idirs[0], odir ).replace('.root', '2.root') )
         cmd = ' '.join(haddCmd)
-        print 'Running merge cmd:', cmd
+        print('Running merge cmd:', cmd)
         os.system(cmd)
     else:
         os.system(cmd)
 
 
 def haddRec(odir, idirs):
-    print 'adding', idirs
-    print 'to', odir 
+    print('adding', idirs)
+    print('to', odir) 
 
     cmd = ' '.join( ['mkdir', odir])
     # import pdb; pdb.set_trace()
@@ -79,9 +81,9 @@ def haddRec(odir, idirs):
     try:
         os.mkdir( odir )
     except OSError:
-        print 
-        print 'ERROR: directory in the way. Maybe you ran hadd already in this directory? Remove it and try again'
-        print 
+        print() 
+        print('ERROR: directory in the way. Maybe you ran hadd already in this directory? Remove it and try again')
+        print() 
         raise
     for root,dirs,files in os.walk( idirs[0] ):
         # print root, dirs, files
@@ -110,11 +112,11 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
             # print prefix, num
             chunks.setdefault( prefix, list() ).append(filepath)
     if len(chunks)==0:
-        print 'warning: no chunk found.'
+        print('warning: no chunk found.')
         return
-    for comp, cchunks in chunks.iteritems():
+    for comp, cchunks in six.iteritems(chunks):
         odir = odir_cmd+'/'+'/'.join( [idir, comp] )
-        print odir, cchunks
+        print(odir, cchunks)
         if removeDestDir:
             if os.path.isdir( odir ):
                 shutil.rmtree(odir)
@@ -124,8 +126,8 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
         if os.path.isdir('Chunks'):
             shutil.rmtree(chunkDir)
         os.mkdir(chunkDir)
-        print chunks
-        for comp, chunks in chunks.iteritems():
+        print(chunks)
+        for comp, chunks in six.iteritems(chunks):
             for chunk in chunks:
                 shutil.move(chunk, chunkDir)
         
@@ -154,7 +156,7 @@ if __name__ == '__main__':
     (options,args) = parser.parse_args()
 
     if len(args)>2:
-        print 'provide at most 2 directory as arguments: first the source, then the destination (optional)'
+        print('provide at most 2 directory as arguments: first the source, then the destination (optional)')
         sys.exit(1)
 
     dir = args[0]

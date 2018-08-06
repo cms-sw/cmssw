@@ -16,6 +16,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
@@ -32,6 +34,7 @@
 #include <iomanip>
 
 //#define EDM_ML_DEBUG
+//#define plotDebug
 
 HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
@@ -39,7 +42,9 @@ HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingScheme_(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT_(99) {
+  slopeMin_(0), levelT_(99), tree_(nullptr) {
+
+  numberingScheme_.reset(nullptr); mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -92,11 +97,6 @@ HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
 			     << " axes";
 }
 
-HGCSD::~HGCSD() { 
-  delete numberingScheme_;
-  delete mouseBite_;
-}
-
 double HGCSD::getEnergyDeposit(const G4Step* aStep) {
 
   double r = aStep->GetPreStepPoint()->GetPosition().perp();
@@ -121,6 +121,25 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
   double wt2    = aStep->GetTrack()->GetWeight();
   double destep = wt1*aStep->GetTotalEnergyDeposit();
   if (wt2 > 0) destep *= wt2;
+
+#ifdef plotDebug
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  G4double tmptrackE = aStep->GetTrack()->GetKineticEnergy();
+  G4int    parCode   = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4double angle     = (aStep->GetTrack()->GetMomentumDirection().theta())/CLHEP::deg;
+  G4int    layer     = ((touch->GetHistoryDepth() == levelT_) ?
+			touch->GetReplicaNumber(0) : touch->GetReplicaNumber(2));
+  G4int    ilayer    = (layer-1)/3;
+  if (aStep->GetTotalEnergyDeposit() > 0) {
+    t_Layer_.emplace_back(ilayer);
+    t_Parcode_.emplace_back(parCode);
+    t_dEStep1_.emplace_back(aStep->GetTotalEnergyDeposit());
+    t_dEStep2_.emplace_back(destep);
+    t_TrackE_.emplace_back(tmptrackE);
+    t_Angle_.emplace_back(angle);
+  }
+#endif
+
   return destep;
 }
 
@@ -197,8 +216,9 @@ void HGCSD::update(const BeginOfJob * job) {
     geom_mode_                = hgcons->geomMode();
     slopeMin_                 = hgcons->minSlope();
     levelT_                   = hgcons->levelTop();
-    numberingScheme_          = new HGCNumberingScheme(*hgcons,nameX_);
-    if (rejectMB_) mouseBite_ = new HGCMouseBite(*hgcons,angles_,mouseBiteCut_,waferRot_);
+    numberingScheme_.reset(new HGCNumberingScheme(*hgcons,nameX_));
+    if (rejectMB_) mouseBite_.reset(new HGCMouseBite(*hgcons,angles_,
+						     mouseBiteCut_,waferRot_));
   } else {
     edm::LogError("HGCSim") << "HCalSD : Cannot find HGCalDDDConstants for "
 			    << nameX_;
@@ -213,6 +233,38 @@ void HGCSD::update(const BeginOfJob * job) {
 }
 
 void HGCSD::initRun() {
+#ifdef plotDebug
+  edm::Service<TFileService> tfile;
+  if (tfile.isAvailable()) {
+    tree_ = tfile->make<TTree>("TreeHGCSD", "TreeHGCSD");
+    tree_->Branch("EventID",        &t_EventID_);
+    tree_->Branch("Layer",          &t_Layer_);
+    tree_->Branch("ParticleCode",   &t_Parcode_);
+    tree_->Branch("dEStepOriginal", &t_dEStep1_);
+    tree_->Branch("dEStepWeighted", &t_dEStep2_);
+    tree_->Branch("TrackEnergy",    &t_TrackE_);
+    tree_->Branch("ThetaAngle",     &t_Angle_);
+  }
+#endif
+}
+
+void HGCSD::initEvent(const BeginOfEvent* g4Event) {
+  const G4Event* evt = (*g4Event)();
+  t_EventID_ = evt->GetEventID();
+#ifdef plotDebug
+  t_Layer_.clear();
+  t_Parcode_.clear();
+  t_dEStep1_.clear();
+  t_dEStep2_.clear();
+  t_TrackE_.clear();
+  t_Angle_.clear();
+#endif
+}
+
+void HGCSD::endEvent() {
+#ifdef plotDebug
+  if (tree_) tree_->Fill();
+#endif
 }
 
 bool HGCSD::filterHit(CaloG4Hit* aHit, double time) {

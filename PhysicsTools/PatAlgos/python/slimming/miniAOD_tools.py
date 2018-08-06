@@ -28,7 +28,9 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeMiniIso = cms.bool(True)
     process.patMuons.computeMuonMVA = cms.bool(True)
     process.patMuons.computeSoftMuonMVA = cms.bool(True)
-    
+
+    process.patMuons.addTriggerMatching = True
+
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -279,8 +281,11 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.addElectronID = cms.bool(True)
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff', 
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff', 
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
@@ -288,6 +293,8 @@ def miniAOD_customizeCommon(process):
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronMVAVariableHelper.src = \
+        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     process.electronRegressionValueMapProducer.src = \
@@ -528,4 +535,6 @@ def miniAOD_customizeAllMCFastSim(process):
     process = miniAOD_customizeMETFiltersFastSim(process)
     from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
     process = miniAOD_customizeIsolatedTracksFastSim(process)
+    process.patMuons.addTriggerMatching = False
+
     return process

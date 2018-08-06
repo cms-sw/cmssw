@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import ConfigParser
 
@@ -43,7 +44,7 @@ class HDQMDatabaseProducerConfiguration:
         for item in fullList.split(";"):
             itemList = item.split(",")
             if len(itemList) != 3:
-                print "Error: incorrect configuration of subDetsAndTags"
+                print("Error: incorrect configuration of subDetsAndTags")
                 sys.exit()
             self.SubDetsAndTags.append(SubDetInfo(itemList[0].strip(), itemList[1].strip(), itemList[2].strip()))
             # print itemList[0], itemList[1], itemList[2]

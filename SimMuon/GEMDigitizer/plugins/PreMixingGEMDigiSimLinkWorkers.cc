@@ -8,5 +8,5 @@ using PreMixingME0DigiSimLinkWorker = PreMixingDigiSimLinkWorker<edm::DetSetVect
 
 // register plugins
 #include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingGEMDigiSimLinkWorker , "PreMixingGEMDigiSimLinkWorker");
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingME0DigiSimLinkWorker , "PreMixingME0DigiSimLinkWorker");
+DEFINE_PREMIXING_WORKER(PreMixingGEMDigiSimLinkWorker);
+DEFINE_PREMIXING_WORKER(PreMixingME0DigiSimLinkWorker);

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import argparse
@@ -491,9 +492,9 @@ if __name__ == "__main__":
 
         root_log.info("Using directory: %s", path)
 
-    print "*"*80
-    print args
-    print "*"*80
+    print("*"*80)
+    print(args)
+    print("*"*80)
 
     applets = []
 

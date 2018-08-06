@@ -8,6 +8,7 @@
 #
 #____________________________________________________________
 
+from __future__ import print_function
 import sys
 import math
 import commands
@@ -71,17 +72,17 @@ def main():
 
             aeta = etamin = ieta*etabinwidth
 
-            print "pt = "+str(apt) + " eta = "+str(aeta)
+            print("pt = "+str(apt) + " eta = "+str(aeta))
             tmpjetpt = jetpt+str(apt)
             tmpjeteta = jeteta+str(aeta)
     
             allcmd = executable+ sp +rootFile+ sp +payload+ sp +flavor+ sp +typeSF+ sp +tmpjetpt+ sp +tmpjeteta
-            print allcmd
+            print(allcmd)
             output = commands.getstatusoutput(allcmd)
-            print output[1]
+            print(output[1])
             
             if output[0]!=0:
-                print " Error retrieving data from file DB."
+                print(" Error retrieving data from file DB.")
 
             aSF = float( output[1].split()[2] )
             aSFerr = float( output[1].split()[4] )
@@ -95,7 +96,7 @@ def main():
             #print output[1]
             
             if output[0]!=0:
-                print " Error retrieving data from file DB."
+                print(" Error retrieving data from file DB.")
                 
             aEff = float( output[1].split()[2] )
             aEfferr = float( output[1].split()[4] )

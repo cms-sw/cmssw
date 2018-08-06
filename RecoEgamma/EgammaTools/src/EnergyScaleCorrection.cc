@@ -362,7 +362,6 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   };	
   // R9 region
   p1 = category.find("-R9");
-  p2 = p1 + 1;
   if(p1 != std::string::npos) {
     p1 = category.find("_", p1);
     p2 = category.find("_", p1 + 1);

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 """
@@ -235,5 +236,5 @@ process.schedule = cms.Schedule(process.L1simulation_step,
 
 if dump:
     outfile = open('dump_TTBarRelVal_Stage2uGT_TestVectors_'+repr(job)+'.py','w')
-    print >> outfile,process.dumpPython()
+    print(process.dumpPython(), file=outfile)
     outfile.close()

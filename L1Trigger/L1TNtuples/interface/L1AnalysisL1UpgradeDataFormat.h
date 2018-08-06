@@ -65,6 +65,7 @@ namespace L1Analysis
       egNTT.clear();
       egShape.clear();
       egTowerHoE.clear();
+      egHwQual.clear();
 
       nTaus = 0;
       tauEt.clear();
@@ -148,6 +149,7 @@ namespace L1Analysis
     std::vector<short int> egNTT;
     std::vector<short int> egShape;
     std::vector<short int> egTowerHoE;
+    std::vector<short int> egHwQual;
  
     unsigned short int nTaus;
     std::vector<float> tauEt;

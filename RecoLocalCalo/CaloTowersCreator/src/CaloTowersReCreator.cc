@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 CaloTowersReCreator::CaloTowersReCreator(const edm::ParameterSet& conf) : 
-  algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,// thresholds cannot be reapplied
+  algo_(0.,0., false, false, false, false, 0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,// thresholds cannot be reapplied
         conf.getParameter<std::vector<double> >("EBGrid"),
         conf.getParameter<std::vector<double> >("EBWeights"),
         conf.getParameter<std::vector<double> >("EEGrid"),

@@ -7,6 +7,7 @@ Plot information about the Tau MVA training skim process.
 Author: Evan K. Friis, UC Davis
 
 '''
+from __future__ import print_function
 
 import ROOT
 import sys
@@ -112,9 +113,9 @@ canvas.Update()
 # Close ps file
 ps.Close()
 
-print "Skim statistics:"
-print "Final signal jets: ", sig['file'].Get(
-    os.path.join(sig['final_folder'], 'pt')).Integral()
+print("Skim statistics:")
+print("Final signal jets: ", sig['file'].Get(
+    os.path.join(sig['final_folder'], 'pt')).Integral())
 
-print "Final background jets: ", bkg['file'].Get(
-    os.path.join(bkg['final_folder'], 'pt')).Integral()
+print("Final background jets: ", bkg['file'].Get(
+    os.path.join(bkg['final_folder'], 'pt')).Integral())

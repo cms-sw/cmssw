@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''CMS Conditions DB migration script.
 '''
+from __future__ import print_function
 
 
 import os
@@ -170,10 +171,10 @@ def tags_in_gts(args):
             account_tags.setdefault(account, set([])).add(tag)
 
     for account in sorted(account_tags):
-        print account
+        print(account)
         for tag in sorted(account_tags[account]):
-            print '   ', tag
-        print
+            print('   ', tag)
+        print()
 
 
 def check_and_run(args):

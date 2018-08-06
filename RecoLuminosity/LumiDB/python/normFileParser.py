@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ConfigParser,os.path
 
 #################################
@@ -55,5 +56,5 @@ class normFileParser(object):
 if __name__ == "__main__":
     s='../test/norm_HFV2.cfg'
     parser=normFileParser(s)
-    print parser.parse()
+    print(parser.parse())
 

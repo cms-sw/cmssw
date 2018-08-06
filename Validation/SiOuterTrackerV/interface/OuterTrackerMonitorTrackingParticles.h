@@ -45,11 +45,13 @@ public:
 
   // pT and eta for efficiency plots
   MonitorElement* tp_pt = nullptr;  // denominator
+  MonitorElement* tp_pt_zoom = nullptr;  // denominator
   MonitorElement* tp_eta = nullptr; // denominator
   MonitorElement* tp_d0 = nullptr; // denominator
   MonitorElement* tp_VtxR = nullptr; // denominator (also known as vxy)
   MonitorElement* tp_VtxZ = nullptr; // denominator
   MonitorElement* match_tp_pt = nullptr; // numerator
+  MonitorElement* match_tp_pt_zoom = nullptr; // numerator
   MonitorElement* match_tp_eta = nullptr; // numerator
   MonitorElement* match_tp_d0 = nullptr; // numerator
   MonitorElement* match_tp_VtxR = nullptr; // numerator (also known as vxy)

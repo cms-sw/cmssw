@@ -1,4 +1,6 @@
+from __future__ import print_function
 import inspect
+import six
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
@@ -179,7 +181,7 @@ class _Parameterizable(object):
             return getattr(self, params, None)
         for param in params:
             lastParam = getattr(lastParam, param, None)
-            print str(lastParam)
+            print(str(lastParam))
             if lastParam == None:
                 return None
         return lastParam
@@ -205,7 +207,7 @@ class _Parameterizable(object):
         self._isModified = True
 
     def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+        for name,value in six.iteritems(parameters):
             self.__addParameter(name, value)
 
     def __setattr__(self,name,value):
@@ -628,7 +630,7 @@ def saveOrigin(obj, level):
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):
         #need to treat items both in params and myparams specially
-        for key,value in newParams.iteritems():
+        for key,value in six.iteritems(newParams):
             if key in params:
                 if value is None:
                     del params[key]
@@ -640,7 +642,7 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
                                                   ("%s.%s" if isinstance(key, str) else "%s[%s]")%(keyDepth,key))
-                        for k,v in p.iteritems():
+                        for k,v in six.iteritems(p):
                             setattr(pset,k,v)
                             oldkeys.discard(k)
                         for k in oldkeys:
@@ -655,7 +657,7 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
                                                   ("%s.%s" if isinstance(key, str) else "%s[%s]")%(keyDepth,key))
-                        for k,v in p.iteritems():
+                        for k,v in six.iteritems(p):
                             plist[k] = v
                     else:
                         raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")

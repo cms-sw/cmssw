@@ -5,11 +5,11 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
     "HGCalUncalibRecHitProducer",
-    HGCEEdigiCollection = cms.InputTag('mix:HGCDigisEE'),
+    HGCEEdigiCollection = cms.InputTag('hgcalDigis:EE'),
     HGCEEhitCollection = cms.string('HGCEEUncalibRecHits'),
-    HGCHEFdigiCollection = cms.InputTag('mix:HGCDigisHEfront'),
+    HGCHEFdigiCollection = cms.InputTag('hgcalDigis:HEfront'),
     HGCHEFhitCollection = cms.string('HGCHEFUncalibRecHits'),
-    HGCHEBdigiCollection = cms.InputTag('mix:HGCDigisHEback'),
+    HGCHEBdigiCollection = cms.InputTag('hgcalDigis:HEback'),
     HGCHEBhitCollection = cms.string('HGCHEBUncalibRecHits'),
     
     HGCEEConfig = cms.PSet(
@@ -46,11 +46,4 @@ HGCalUncalibRecHit = cms.EDProducer(
         ),
 
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
-)
-
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(HGCalUncalibRecHit,
-    HGCEEdigiCollection = 'mixData:HGCDigisEE',
-    HGCHEFdigiCollection = 'mixData:HGCDigisHEfront',
-    HGCHEBdigiCollection = 'mixData:HGCDigisHEback',
 )

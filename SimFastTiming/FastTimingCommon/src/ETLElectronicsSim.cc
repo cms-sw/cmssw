@@ -16,7 +16,8 @@ ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset) :
 
 
 void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
-			    ETLDigiCollection& output) const {
+			    ETLDigiCollection& output,
+			    CLHEP::HepRandomEngine *hre) const {
   
   MTDSimHitData chargeColl,toa;
   

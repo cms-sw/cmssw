@@ -1,6 +1,7 @@
 #ifndef L1TMuonEndCap_Common_h
 #define L1TMuonEndCap_Common_h
 
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
@@ -43,6 +44,7 @@ typedef TTTriggerPrimitive::TTData  TTData;
 
 typedef emtf::CSCTag  CSCTag;
 typedef emtf::RPCTag  RPCTag;
+typedef emtf::CPPFTag CPPFTag;
 typedef emtf::GEMTag  GEMTag;
 typedef emtf::IRPCTag IRPCTag;
 typedef emtf::ME0Tag  ME0Tag;

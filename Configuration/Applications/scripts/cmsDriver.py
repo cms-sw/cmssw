@@ -2,6 +2,7 @@
 
 # A Pyrelval Wrapper
 
+from __future__ import print_function
 def run():
         import sys
         import os
@@ -39,15 +40,15 @@ def run():
             expandedFile = file(options.python_filename,"w")
             expandedFile.write(expanded)
             expandedFile.close()
-            print "Expanded config file", options.python_filename, "created"
+            print("Expanded config file", options.python_filename, "created")
             sys.exit(0)           
   
         if options.no_exec_flag:
-            print "Config file "+options.python_filename+ " created"
+            print("Config file "+options.python_filename+ " created")
             sys.exit(0)
         else:
             commandString = options.prefix+" cmsRun "+options.suffix
-            print "Starting "+commandString+' '+options.python_filename
+            print("Starting "+commandString+' '+options.python_filename)
             commands = commandString.lstrip().split()
             os.execvpe(commands[0],commands+[options.python_filename],os.environ)
             sys.exit()

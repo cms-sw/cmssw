@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from optparse import OptionParser, Option, OptionValueError
 import DLFCN
 import sys
@@ -13,7 +14,7 @@ def list_tag( conn_str, tag, auth_path ):
     db.startReadOnlyTransaction()
     iov = db.iov( tag )
     for elem in iov.elements:
-        print elem.since()
+        print(elem.since())
         db.commitTransaction()
         
 if __name__ == "__main__":

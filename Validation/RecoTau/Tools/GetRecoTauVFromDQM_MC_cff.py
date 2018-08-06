@@ -1,9 +1,10 @@
+from __future__ import print_function
 import os
 import sys
 import ROOT
 
 if len(sys.argv) < 4:
-    print "Error. Expected at least 3 arguments\n\nUsage: python GetRecoTauVFromDQM_MC_cff.py InputFile OutputFile EventType"
+    print("Error. Expected at least 3 arguments\n\nUsage: python GetRecoTauVFromDQM_MC_cff.py InputFile OutputFile EventType")
     sys.exit()
 
 

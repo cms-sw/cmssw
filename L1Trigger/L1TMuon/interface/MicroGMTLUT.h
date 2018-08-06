@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "CondFormats/L1TObjects/interface/LUT.h"
-#include "../interface/MicroGMTConfiguration.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 namespace l1t {
   class MicroGMTLUT : public LUT {

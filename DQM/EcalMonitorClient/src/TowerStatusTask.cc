@@ -1,4 +1,4 @@
-#include "../interface/TowerStatusTask.h"
+#include "DQM/EcalMonitorClient/interface/TowerStatusTask.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

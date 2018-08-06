@@ -270,6 +270,7 @@ namespace edm {
   template <>
   struct value_ptr_traits<ParameterDescriptionNode> {
     static ParameterDescriptionNode* clone(ParameterDescriptionNode const* p) { return p->clone(); }
+    static void destroy(ParameterDescriptionNode* p) { delete p; }
   };
 
   // operator>> ---------------------------------------------

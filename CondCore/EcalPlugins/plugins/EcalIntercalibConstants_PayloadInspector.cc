@@ -4,7 +4,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondCore/EcalPlugins/plugins/EcalDrawUtils.h"
-
+#include "CondCore/EcalPlugins/plugins/EcalFloatCondObjectContainerUtils.h"
 // the data format of the condition to be inspected
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 
@@ -128,36 +128,20 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
       unsigned int run = std::get<0>(iov);
-      if( payload.get() ){
-	if (payload->barrelItems().empty()) return false;
-	for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	  uint32_t rawid = EBDetId::unhashIndex(cellid);
-	  EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	  if (value_ptr == payload->end()) continue; // cell absent from payload
-	  float weight = (float)(*value_ptr);
-	  Double_t phi = (Double_t)(EBDetId(rawid)).iphi() - 0.5;
-	  Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
-	  if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
-	  else eta  = eta + 0.5;         //  -84.5 to -0.5
-	  barrel->Fill(phi, eta, weight);
-	}// loop over cellid
 
-	if (payload->endcapItems().empty()) return false;
-	// looping over the EE channels
-	for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
-	  for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++)
-	    for(int ix = IX_MIN; ix < IX_MAX+IX_MIN; ix++)
-	      if(EEDetId::validDetId(ix, iy, iz)) {
-		EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-		uint32_t rawid = myEEId.rawId();
-		EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-		if (value_ptr == payload->end()) continue; // cell absent from payload
-		float weight = (float)(*value_ptr);
-		if(iz == 1)
-		  endc_p->Fill(ix, iy, weight);
-		else
-		  endc_m->Fill(ix, iy, weight);
-	      }  // validDetId 
+      if( payload.get() ){
+
+        if (payload->barrelItems().empty())
+          return false;
+
+        fillEBMap_SingleIOV<EcalIntercalibConstants>(payload, barrel);
+
+
+        if (payload->endcapItems().empty())
+          return false;
+        
+        fillEEMap_SingleIOV<EcalIntercalibConstants>(payload, endc_m, endc_p);
+
       }    // payload
 
       gStyle->SetPalette(1);
@@ -173,8 +157,8 @@ namespace {
       float xma[3] = {0.24, 0.76, 1.00};
       TPad** pad = new TPad*;
       for (int obj = 0; obj < 3; obj++) {
-	pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
-	pad[obj]->Draw();
+      	pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+      	pad[obj]->Draw();
       }
       //      EcalDrawMaps ICMap;
       pad[0]->cd();
@@ -216,56 +200,25 @@ namespace {
       unsigned int run[2], irun = 0;
       float pEB[kEBChannels], pEE[kEEChannels];
       for ( auto const & iov: iovs) {
-	std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
-	run[irun] = std::get<0>(iov);
-	if( payload.get() ){
-	  if (payload->barrelItems().empty()) return false;
-	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	    uint32_t rawid = EBDetId::unhashIndex(cellid);
-	    EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	    if (value_ptr == payload->end()) continue; // cell absent from payload
-	    float weight = (float)(*value_ptr);
-	    if(irun == 0) 
-	      pEB[cellid] = weight;
-	    else {
-	      Double_t phi = (Double_t)(EBDetId(rawid)).iphi() - 0.5;
-	      Double_t eta = (Double_t)(EBDetId(rawid)).ieta();
-	      if(eta > 0.) eta = eta - 0.5;   //   0.5 to 84.5
-	      else eta  = eta + 0.5;         //  -84.5 to -0.5
-	      double diff = weight - pEB[cellid];
-	      if(diff < pEBmin) pEBmin = diff;
-	      if(diff > pEBmax) pEBmax = diff;
-	      barrel->Fill(phi, eta, diff);
-	    }
-	  }// loop over cellid
+    	std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
+    	run[irun] = std::get<0>(iov);
 
-	  if (payload->endcapItems().empty()) return false;
-	  // looping over the EE channels
-	  for(int iz = -1; iz < 2; iz = iz + 2)   // -1 or +1
-	    for(int iy = IY_MIN; iy < IY_MAX+IY_MIN; iy++)
-	      for(int ix = IX_MIN; ix < IX_MAX+IX_MIN; ix++)
-		if(EEDetId::validDetId(ix, iy, iz)) {
-		  EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-		  uint32_t cellid = myEEId.hashedIndex();
-		  uint32_t rawid = myEEId.rawId();
-		  EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-		  if (value_ptr == payload->end()) continue; // cell absent from payload
-		  float weight = (float)(*value_ptr);
-		  if(irun == 0) 
-		    pEE[cellid] = weight;
-		  else {
-		    double diff = weight - pEE[cellid];
-		    if(diff < pEEmin) pEEmin = diff;
-		    if(diff > pEEmax) pEEmax = diff;
-		    if(iz == 1)
-		      endc_p->Fill(ix, iy, diff);
-		    else
-		      endc_m->Fill(ix, iy, diff);
-		  }
-		}  // validDetId 
-	}    // payload
-	irun++;
-      }      // loop over IOVs
+        if( payload.get() ){
+
+          if (payload->barrelItems().empty())
+            return false;
+
+          fillEBMap_DiffIOV<EcalIntercalibConstants>(payload, barrel, irun, pEB, pEBmin, pEBmax);
+
+          if (payload->endcapItems().empty())
+            return false;
+          
+          fillEEMap_DiffIOV<EcalIntercalibConstants>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
+ 
+        }// payload
+        irun++;
+
+      }// loop over IOVs
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);      
@@ -296,6 +249,73 @@ namespace {
     }// fill method
   };
 
+
+/*******************************************************
+ 2d plot of Ecal Intercalib Constants Summary of 1 IOV
+ *******************************************************/
+class EcalIntercalibConstantsSummaryPlot: public cond::payloadInspector::PlotImage<EcalIntercalibConstants>{
+  public:
+    EcalIntercalibConstantsSummaryPlot():
+      cond::payloadInspector::PlotImage<EcalIntercalibConstants>("Ecal Intercalib Constants Summary - map "){
+        setSingleIov(true);
+    }
+
+  bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs)override {
+    auto iov=iovs.front();
+    std::shared_ptr <EcalIntercalibConstants> payload = fetchPayload(std::get<1> (iov));
+    unsigned int run=std::get<0> (iov);
+    TH2F* align;
+    int NbRows;
+
+    if(payload.get()){
+      NbRows=2;
+      align=new TH2F("", "", 0, 0, 0, 0, 0, 0);
+      
+
+      float mean_x_EB=0.0f;   
+      float mean_x_EE=0.0f;
+
+      float rms_EB=0.0f;
+      float rms_EE=0.0f;
+                       
+      int num_x_EB=0;      
+      int num_x_EE=0;
+
+
+      payload->summary(mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
+      fillTableWithSummary(align, "Ecal Intercalib Constants", mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
+    }else
+      return false;
+
+    gStyle->SetPalette(1);
+    gStyle->SetOptStat(0);
+    TCanvas canvas("CC map", "CC map", 1000, 1000);
+    TLatex t1;
+    t1.SetNDC();
+    t1.SetTextAlign(26);
+    t1.SetTextSize(0.04);
+    t1.SetTextColor(2);
+    t1.DrawLatex(0.5, 0.96,Form("Ecal Intercalib Constants Summary, IOV %i", run));
+
+
+    TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+    pad->Draw();
+    pad->cd();
+    align->Draw("TEXT");
+    TLine* l = new TLine;
+    l->SetLineWidth(1);
+
+    drawTable(NbRows,4);
+
+    std::string ImageName(m_imageFileName);
+    canvas.SaveAs(ImageName.c_str());
+
+    return true;
+  }
+};
+
+
+
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -304,4 +324,5 @@ PAYLOAD_INSPECTOR_MODULE( EcalIntercalibConstants ){
   PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsEEMap);
   PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsPlot);
   PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsDiff);
+  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsSummaryPlot);
 }

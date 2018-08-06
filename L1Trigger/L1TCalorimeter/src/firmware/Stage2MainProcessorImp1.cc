@@ -23,33 +23,26 @@
 
 using namespace std;
 
-l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper* params) :
-  m_params(params)
+l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParamsHelper const* params)
 {
 
-  m_towerAlgo = new Stage2TowerDecompressAlgorithmFirmwareImp1(m_params);
-  m_egClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params,
+  m_towerAlgo = make_unique<Stage2TowerDecompressAlgorithmFirmwareImp1>(params);
+  m_egClusterAlgo = make_unique<Stage2Layer2ClusterAlgorithmFirmwareImp1>(params,
 							       Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
-  m_egAlgo = new Stage2Layer2EGammaAlgorithmFirmwareImp1(m_params);
-  m_tauClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params,
+  m_egAlgo = make_unique<Stage2Layer2EGammaAlgorithmFirmwareImp1>(params);
+  m_tauClusterAlgo = make_unique<Stage2Layer2ClusterAlgorithmFirmwareImp1>(params,
 								Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
-  m_tauAlgo = new Stage2Layer2TauAlgorithmFirmwareImp1(m_params);
-  m_jetAlgo = new Stage2Layer2JetAlgorithmFirmwareImp1(m_params);
-  m_sumAlgo = new Stage2Layer2EtSumAlgorithmFirmwareImp1(m_params);
-  m_jetSumAlgo = new Stage2Layer2JetSumAlgorithmFirmwareImp1(m_params);
+  m_tauAlgo = make_unique<Stage2Layer2TauAlgorithmFirmwareImp1>(params);
+  m_jetAlgo = make_unique<Stage2Layer2JetAlgorithmFirmwareImp1>(params);
+  m_sumAlgo = make_unique<Stage2Layer2EtSumAlgorithmFirmwareImp1>(params);
+  m_jetSumAlgo = make_unique<Stage2Layer2JetSumAlgorithmFirmwareImp1>(params);
 
-  m_demuxEGAlgo = new Stage2Layer2DemuxEGAlgoFirmwareImp1(m_params);
-  m_demuxTauAlgo = new Stage2Layer2DemuxTauAlgoFirmwareImp1(m_params);
-  m_demuxJetAlgo = new Stage2Layer2DemuxJetAlgoFirmwareImp1(m_params);
-  m_demuxSumsAlgo = new Stage2Layer2DemuxSumsAlgoFirmwareImp1(m_params);
+  m_demuxEGAlgo = make_unique<Stage2Layer2DemuxEGAlgoFirmwareImp1>(params);
+  m_demuxTauAlgo = make_unique<Stage2Layer2DemuxTauAlgoFirmwareImp1>(params);
+  m_demuxJetAlgo = make_unique<Stage2Layer2DemuxJetAlgoFirmwareImp1>(params);
+  m_demuxSumsAlgo = make_unique<Stage2Layer2DemuxSumsAlgoFirmwareImp1>(params);
 
 }
-
-l1t::Stage2MainProcessorFirmwareImp1::~Stage2MainProcessorFirmwareImp1()
-{
-
-};
-
 
 //need to switch to BXVector
 void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & inTowers,

@@ -8,9 +8,11 @@
 # see an example file at HLTriggerOffline/Egamma/python/HLT_Ele17_SW_TighterEleIdIsol_L1RDQM_cfi.py
 #----------------------------------------------------------------------
 
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import HLTriggerOffline.Egamma.EgammaHLTValidationUtils as EgammaHLTValidationUtils
 import sys, os
+import six
 
 # prefix for printouts
 # msgPrefix = "[" + os.path.basename(__file__) + "]"
@@ -45,7 +47,7 @@ def makeOnePath(path, isFastSim):
         ]:
 
         if problematicType in moduleCXXtypes:
-            print >> sys.stderr,msgPrefix +  "SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType
+            print(msgPrefix +  "SKIPPING PATH",pathName,"BECAUSE DON'T KNOW HOW TO HANDLE A MODULE WITH C++ TYPE",problematicType, file=sys.stderr)
             return None
 
     # print >> sys.stderr,msgPrefix, "adding E/gamma HLT dqm module for path",pathName
@@ -90,13 +92,13 @@ isFastSim = False
 #----------------------------------------
 
 if len(ARGV) != 1:
-    print >> sys.stderr,"must specify exactly one non-option argument: the output directory"
+    print("must specify exactly one non-option argument: the output directory", file=sys.stderr)
     sys.exit(1)
 
 outputDir = ARGV.pop(0)
 
 if os.path.exists(outputDir):
-    print >> sys.stderr,"output directory " + outputDir + " already exists, refusing to overwrite it / files in it"
+    print("output directory " + outputDir + " already exists, refusing to overwrite it / files in it", file=sys.stderr)
     sys.exit(1)
     
 
@@ -141,7 +143,7 @@ allPathsWritten = []
 
 
 
-for hltPathCategory, thisCategoryData in configData.iteritems():
+for hltPathCategory, thisCategoryData in six.iteritems(configData):
 
     # get the HLT path objects for this category
     paths = pathsByCategory[hltPathCategory]
@@ -176,16 +178,16 @@ for hltPathCategory, thisCategoryData in configData.iteritems():
         assert(not os.path.exists(outputFname))
         fout = open(outputFname,"w")
         for line in res:
-            print >> fout,line
+            print(line, file=fout)
         fout.close()
 
-        print >> sys.stderr,"wrote",outputFname
+        print("wrote",outputFname, file=sys.stderr)
         allPathsWritten.append(pathName)
 
     # end of loop over paths
 
 # end of loop over analysis types (single electron, ...)
 
-print >> sys.stderr,"generated the following paths:"
+print("generated the following paths:", file=sys.stderr)
 for pathName in sorted(allPathsWritten):
-    print "  " + pathName
+    print("  " + pathName)

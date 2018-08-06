@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 import sys
 import os
@@ -42,7 +43,7 @@ class CrabHelper(object):
             raise RuntimeError("Job submission not successful, crab state:%s" % task.state)
 
     def check_crabtask(self):
-        print self.crab_config_filepath
+        print(self.crab_config_filepath)
         task = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                             initUpdate = False)
         if self.options.no_exec:
@@ -51,12 +52,12 @@ class CrabHelper(object):
         for n_check in range(self.options.max_checks):
             task.update()
             if task.state in ( "COMPLETED"):
-                print "Crab task complete. Getting output locally"
+                print("Crab task complete. Getting output locally")
                 output_path = os.path.join( self.local_path, "unmerged_results" )
                 self.get_output_files(task, output_path)
                 return True
             if task.state in ("SUBMITFAILED", "FAILED"):
-                print "Crab task failed"
+                print("Crab task failed")
                 return False
             possible_job_states =  ["nUnsubmitted",
                                     "nIdle",
@@ -82,8 +83,8 @@ class CrabHelper(object):
             user_input = tools.stdinWait(prompt_text, "", self.options.check_interval)
             if user_input in ("q","Q"):
                 return False
-        print "Task not completed after %d checks (%d minutes)" % ( self.options.max_checks,
-            int( self.options.check_interval / 60. ))
+        print("Task not completed after %d checks (%d minutes)" % ( self.options.max_checks,
+            int( self.options.check_interval / 60. )))
         return False
 
     def voms_proxy_time_left(self):

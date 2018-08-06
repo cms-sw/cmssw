@@ -9,7 +9,7 @@
 class MaterialBudgetTxt : public MaterialBudgetFormat
 {
  public:
-  MaterialBudgetTxt( MaterialBudgetData* data, const std::string& fileName );   
+  MaterialBudgetTxt(std::shared_ptr< MaterialBudgetData> data, const std::string& fileName );   
   ~MaterialBudgetTxt() override;
 
   void fillStartTrack() override;

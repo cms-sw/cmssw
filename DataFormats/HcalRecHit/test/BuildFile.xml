@@ -1,7 +1,16 @@
-<use   name="boost"/>
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
 <library   file="HcalRecHitDump.cc" name="HcalRecHitDump">
   <flags   EDM_PLUGIN="1"/>
+  <use   name="boost"/>
+  <use   name="DataFormats/HcalRecHit"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
 </library>
+<architecture match="_amd64_">
+<bin name="test_hcal_reco" file="test_hcal_reco.cu">
+    <use name="DataFormats/CaloRecHit"/>
+    <use name="DataFormats/HcalRecHit"/>
+    <use name="DataFormats/HcalDetId"/>
+    <use name="DataFormats/HcalDigi"/>
+    <use name="cuda"/>
+</bin>
+</architecture>

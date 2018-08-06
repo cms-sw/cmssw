@@ -7,6 +7,7 @@
 3- creates 2 log files per IOV (Summary/Debug) with all the SiStripDetVOff information in ASCII format
 It is recommended to redirect the output to a file.
 """
+from __future__ import print_function
 #3- takes the output of each job and builds a single output with the content of each iov
 
 import os
@@ -55,7 +56,7 @@ def timeStamptoDate(i):
         date=time.ctime(unpack(i)[0])
     except:
         #Handle the case of last IOV (or any IOV) timestamp being "out of range" by returning -1 instead of the date...
-        print "Could not unpack time stamp %s, unpacked to %s!"%(i,unpack(i)[0])
+        print("Could not unpack time stamp %s, unpacked to %s!"%(i,unpack(i)[0]))
         date=-1
     return date
 
@@ -63,13 +64,13 @@ def timeStamptoDate(i):
 
 # The first parameter is the name of the script
 if len(sys.argv) < 3:
-    print "Please provide the name of the sqlite file and the tag as in: "
-    print "./CheckAllIOVs.py dbfile.db SiStripDetVOff_Fake_31X"
-    print "OR to access directly the Offline DB with a time bracket:"
-    print "./CheckAllIOVs.py CMS_COND_31X_STRIP SiStripDetVOff_v1_offline DD/MM/YYYY HH:MM:SS DD/MM/YYYY HH:MM:SS"
+    print("Please provide the name of the sqlite file and the tag as in: ")
+    print("./CheckAllIOVs.py dbfile.db SiStripDetVOff_Fake_31X")
+    print("OR to access directly the Offline DB with a time bracket:")
+    print("./CheckAllIOVs.py CMS_COND_31X_STRIP SiStripDetVOff_v1_offline DD/MM/YYYY HH:MM:SS DD/MM/YYYY HH:MM:SS")
     sys.exit(1)
 
-print "Reading all IOVs"
+print("Reading all IOVs")
 
 database= sys.argv[1]
 #Offline DB case (e.g. user would write ./CheckAllIOVs.py CMS_COND_31X_STRIP SiStripDetVOff_v1_offline):
@@ -94,23 +95,23 @@ if len(sys.argv) > 4:
 iovs = os.popen("cmscond_list_iov -c "+DBConnection+" -t "+tag)
 cmscond_list_iov_output = iovs.readlines()
 for line in cmscond_list_iov_output:
-    print line
+    print(line)
     if "[DB=" in line:
         (start,end)=line.split()[0:2]
         if long(startFrom) > long(start):
-            print "Skipping IOV =", start, " before requested =", startFrom
+            print("Skipping IOV =", start, " before requested =", startFrom)
             continue
         if (endAt != 0) and (long(endAt) < long(end)):
-            print "Skipping IOV =", end, " after requested =", endAt
+            print("Skipping IOV =", end, " after requested =", endAt)
             continue
         # print "start =", start,
         # print ", end =", end
 
         if long(startFrom) > long(start):
-            print "Skipping IOV =", start, " before requested =", startFrom
+            print("Skipping IOV =", start, " before requested =", startFrom)
             continue
         if (endAt != 0) and (long(endAt) < long(end)):
-            print "Skipping IOV =", end, " after requested =", endAt
+            print("Skipping IOV =", end, " after requested =", endAt)
             continue
         
         ##TODO:Should we investigate this issue? Is it going to be an issue in the DB?
@@ -123,8 +124,8 @@ for line in cmscond_list_iov_output:
         if endDate==-1:
             endDate=timeStamptoDate(int(start)+1) 
             
-        print "start date = ", startDate,
-        print ", end date = ", endDate
+        print("start date = ", startDate, end=' ')
+        print(", end date = ", endDate)
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
         fileName="DetVOffPrint"+fullDates+"_cfg.py"
         CfgFile=open(fileName,"w")
@@ -150,6 +151,6 @@ for line in cmscond_list_iov_output:
 
         for logline in open("DetVOffReaderDebug_"+fullDates+".log", "r"):
             if "IOV" in logline or "OFF" in logline or "ON" in logline:
-                print logline.strip("\n")
+                print(logline.strip("\n"))
     else:
-        print line
+        print(line)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to run on L1 GT output file, with GCT and GMT EDM products included
 #
@@ -127,7 +128,7 @@ if useRelValSample == True :
             ] );
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
         secFiles.extend([
@@ -187,7 +188,7 @@ if useRelValSample == True :
             ] );
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
                 
@@ -195,7 +196,7 @@ if useRelValSample == True :
             ])
         
     else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
+        print('Error: Global Tag ', useGlobalTag, ' not defined.')    
         sys.exit()
 
 else : 
@@ -236,7 +237,7 @@ if l1Menu != '' :
         elif l1Menu == 'L1Menu_2008MC_2E30' :
             process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1030.L1Menu_2008MC_2E30_Unprescaled_cff")
         else :
-            print 'No such L1 menu: ', l1Menu, ' compatible with Global Tag ', useGlobalTag 
+            print('No such L1 menu: ', l1Menu, ' compatible with Global Tag ', useGlobalTag) 
         
     elif useGlobalTag.count('STARTUP') :
         if l1Menu == 'L1Menu_Commissioning2009_v0' :       
@@ -251,7 +252,7 @@ if l1Menu != '' :
             #process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v3_Unprescaled_cff")
             process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v4_Unprescaled_cff")
         else :
-            print 'No such L1 menu: ', l1Menu, ' compatible with Global Tag ', useGlobalTag 
+            print('No such L1 menu: ', l1Menu, ' compatible with Global Tag ', useGlobalTag) 
             
     elif useGlobalTag.count('CRAFT') :
         if l1Menu == 'L1Menu_Commissioning2009_v0' :       
@@ -264,13 +265,13 @@ if l1Menu != '' :
             #process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v2_Unprescaled_cff")
             process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_startup2_v3_Unprescaled_cff")
         else :
-            print 'No such L1 menu: ', l1Menu, ' compatible with Global Tag ', useGlobalTag 
+            print('No such L1 menu: ', l1Menu, ' compatible with Global Tag ', useGlobalTag) 
     else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
+        print('Error: Global Tag ', useGlobalTag, ' not defined.')    
         sys.exit()
 
 else :
-    print '   Using default L1 trigger menu from Global Tag ', useGlobalTag    
+    print('   Using default L1 trigger menu from Global Tag ', useGlobalTag)    
       
 
 # Global Trigger emulator to produce the trigger object maps
@@ -434,7 +435,7 @@ elif logExpressionNumber == 14 :
     process.hltLevel1GTSeed.L1SeedsLogicalExpression = \
         '(L1_SingleEG15 OR L1_QuadJet6U) AND ((L1_HTT200 AND NOT L1_SingleMu7) OR NOT L1_SingleMu20)' # 14
 else :
-    print 'Error: no logical expression defined'    
+    print('Error: no logical expression defined')    
 
     
 # InputTag for the L1 Global Trigger DAQ readout record

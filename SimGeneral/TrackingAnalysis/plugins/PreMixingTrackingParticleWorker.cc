@@ -151,4 +151,4 @@ void PreMixingTrackingParticleWorker::put(edm::Event& iEvent, edm::EventSetup co
   iEvent.put(std::move(NewVertexList_), TrackingParticleCollectionDM_);
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingTrackingParticleWorker, "PreMixingTrackingParticleWorker");
+DEFINE_PREMIXING_WORKER(PreMixingTrackingParticleWorker);

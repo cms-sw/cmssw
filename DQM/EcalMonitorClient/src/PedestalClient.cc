@@ -1,4 +1,4 @@
-#include "../interface/PedestalClient.h"
+#include "DQM/EcalMonitorClient/interface/PedestalClient.h"
 
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
