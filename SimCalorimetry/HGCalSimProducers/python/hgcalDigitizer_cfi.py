@@ -259,7 +259,7 @@ hfnoseDigitizer = cms.PSet(
 
 # this bypasses the noise simulation
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer]:
+for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer]:
     premix_stage1.toModify(_m, premixStage1 = True)
 
 #function to set noise to aged HGCal
