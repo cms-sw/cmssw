@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 		out << "\t</output>" << std::endl;
 
 		out << "</MVATrainer>" << std::endl;
-	} catch(cms::Exception e) {
+	} catch(cms::Exception const& e) {
 		std::cerr << e.what() << std::endl;
 	}
 

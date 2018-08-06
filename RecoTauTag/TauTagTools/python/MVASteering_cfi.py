@@ -7,14 +7,16 @@
                 - which algorithms (shrinkingConePFTauDecayModeProducer, etc)
         Define locations of train/test ROOT files
 """
+from __future__ import print_function
 
 import sys
+import six
 import os
 # Get CMSSW base
 try:
    Project_Area = os.environ["CMSSW_BASE"]
 except KeyError:
-   print "$CMSSW_BASE enviroment variable not set!  Please run eval `scramv1 ru -[c]sh`"
+   print("$CMSSW_BASE enviroment variable not set!  Please run eval `scramv1 ru -[c]sh`")
    sys.exit(1)
 
 import FWCore.ParameterSet.Config as cms
@@ -99,14 +101,14 @@ def GetTrainingFile(computerName, anAlgo):
 
 #Find the unique mva types to train
 listOfMVANames = {}
-for name, mvaCollection in MVACollections.iteritems():
+for name, mvaCollection in six.iteritems(MVACollections):
    for _mva in mvaCollection:
       name = _mva.computerName.value()
       if not name in listOfMVANames:
          listOfMVANames[name] = _mva
 
 myModules = []
-for name, _mva in listOfMVANames.iteritems():
+for name, _mva in six.iteritems(listOfMVANames):
    myModules.append(_mva)
 
 SignalTrainFiles         = glob.glob(SignalFileTrainingGlob)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.coreTools import *
@@ -9,13 +10,13 @@ from PhysicsTools.PatAlgos.tools.helpers import listModules, applyPostfix, getPa
 from copy import deepcopy
 
 def warningIsolation():
-    print "WARNING: particle based isolation must be studied"
+    print("WARNING: particle based isolation must be studied")
 
 def adaptPFMuons(process,module,postfix="", muonMatchModule=None ):
-    print "Adapting PF Muons "
-    print "***************** "
+    print("Adapting PF Muons ")
+    print("***************** ")
     #warningIsolation()
-    print
+    print()
     module.useParticleFlow = True
     module.pfMuonSource    = cms.InputTag("pfIsolatedMuonsPFBRECO" + postfix)
     module.userIsolation   = cms.PSet()
@@ -39,20 +40,20 @@ def adaptPFMuons(process,module,postfix="", muonMatchModule=None ):
     else :
         muonMatchModule.src = module.pfMuonSource
 
-    print " muon source:", module.pfMuonSource
+    print(" muon source:", module.pfMuonSource)
     ## print " isolation  :",
     ## print module.isolationValues
     ## print " isodeposits: "
     ## print module.isoDeposits
-    print
+    print()
 
 
 def adaptPFElectrons(process,module, postfix):
     # module.useParticleFlow = True
-    print "Adapting PF Electrons "
-    print "********************* "
+    print("Adapting PF Electrons ")
+    print("********************* ")
     #warningIsolation()
-    print
+    print()
     module.useParticleFlow = True
     module.pfElectronSource = cms.InputTag("pfIsolatedElectronsPFBRECO" + postfix)
     module.userIsolation   = cms.PSet()
@@ -77,12 +78,12 @@ def adaptPFElectrons(process,module, postfix):
     # process.electronMatch.src = module.pfElectronSource
     # COLIN: how do we depend on this matching choice?
 
-    print " PF electron source:", module.pfElectronSource
+    print(" PF electron source:", module.pfElectronSource)
     ## print " isolation  :"
     ## print module.isolationValues
     ## print " isodeposits: "
     ## print module.isoDeposits
-    print
+    print()
 
 
 
@@ -98,8 +99,8 @@ def reconfigurePF2PATTaus(process,
       selectionDependsOn=["DiscriminationByLeadingTrackFinding"],
       producerFromType=lambda producer: producer+"Producer",
       postfix = ""):
-   print "patTaus will be produced from taus of type: %s that pass %s" \
-	 % (tauType, pf2patSelection)
+   print("patTaus will be produced from taus of type: %s that pass %s" \
+	 % (tauType, pf2patSelection))
 
 
 
@@ -296,7 +297,7 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
 
 
 def switchToPFMET(process,input=cms.InputTag('pfMETPFBRECO'), type1=False, postfix=""):
-    print 'MET: using ', input
+    print('MET: using ', input)
     if( not type1 ):
         oldMETSource = applyPostfix(process, "patMETs",postfix).metSource
         applyPostfix(process, "patMETs",postfix).metSource = input
@@ -304,7 +305,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMETPFBRECO'), type1=False, postf
     else:
         # type1 corrected MET
         # name of corrected MET hardcoded in PAT and meaningless
-        print 'Apply TypeI corrections for MET'
+        print('Apply TypeI corrections for MET')
         #getattr(process, "patPF2PATSequence"+postfix).remove(applyPostfix(process, "patMETCorrections",postfix))
         jecLabel = getattr(process,'patJetCorrFactors'+postfix).payload.pythonValue().replace("'","")
         getattr(process,jecLabel+'Type1CorMet'+postfix).src = input.getModuleLabel()
@@ -313,9 +314,9 @@ def switchToPFMET(process,input=cms.InputTag('pfMETPFBRECO'), type1=False, postf
 
 def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', postfix = "", jetCorrections=('AK4PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False, outputModules=['out']):
 
-    print "Switching to PFJets,  ", algo
-    print "************************ "
-    print "input collection: ", input
+    print("Switching to PFJets,  ", algo)
+    print("************************ ")
+    print("input collection: ", input)
 
     if algo == 'AK4':
         genJetCollection = cms.InputTag('ak4GenJetsNoNu'+postfix)
@@ -324,7 +325,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
         genJetCollection = cms.InputTag('ak7GenJetsNoNu'+postfix)
         rParam=0.7
     else:
-        print 'bad jet algorithm:', algo, '! for now, only AK4 and AK7 are allowed. If you need other algorithms, please contact Colin'
+        print('bad jet algorithm:', algo, '! for now, only AK4 and AK7 are allowed. If you need other algorithms, please contact Colin')
         sys.exit(1)
 
     # changing the jet collection in PF2PAT:
@@ -386,8 +387,8 @@ def removeMCMatchingPF2PAT( process, postfix="", outputModules=['out'] ):
 
 
 def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postfix=''):
-    print "Switching PV collection for PF2PAT:", pvCollection
-    print "***********************************"
+    print("Switching PV collection for PF2PAT:", pvCollection)
+    print("***********************************")
 
     # PV sources to be exchanged:
     pvExchange = ['Vertices','vertices','pvSrc','primaryVertices','srcPVs','primaryVertex']
@@ -450,10 +451,10 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
     else :
         if not 'L2L3Residual' in jetCorrections[1]:
 		### think of a more accurate warning
-            print '#################################################'
-            print 'WARNING! Not using L2L3Residual but this is data.'
-            print 'If this is okay with you, disregard this message.'
-            print '#################################################'
+            print('#################################################')
+            print('WARNING! Not using L2L3Residual but this is data.')
+            print('If this is okay with you, disregard this message.')
+            print('#################################################')
         switchToPFJets( process, cms.InputTag('pfNoTauClonesPFBRECO'+postfix), jetAlgo, postfix=postfix,
                         jetCorrections=jetCorrections, type1=typeIMetCorrections, outputModules=outputModules )
     # Taus
@@ -486,4 +487,4 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
         getattr(process,"pfNo"+object+jme+'PFBRECO'+postfix).enable = False
         exclusionList=exclusionList+object+','
     exclusionList=exclusionList.rstrip(',')
-    print "Done: PFBRECO interfaced to PAT, postfix=", postfix,", Excluded from Top Projection:",exclusionList
+    print("Done: PFBRECO interfaced to PAT, postfix=", postfix,", Excluded from Top Projection:",exclusionList)

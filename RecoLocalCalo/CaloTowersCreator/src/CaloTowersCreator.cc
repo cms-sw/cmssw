@@ -21,6 +21,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 
 	conf.getParameter<double>("HcalThreshold"),
 	conf.getParameter<double>("HBThreshold"),
+	conf.getParameter<double>("HBThreshold1"),
+	conf.getParameter<double>("HBThreshold2"),
 	conf.getParameter<double>("HESThreshold"),
 	conf.getParameter<double>("HESThreshold1"),
 	conf.getParameter<double>("HEDThreshold"),
@@ -120,7 +122,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
    theEcalSeveritiesToBeUsedInBadTowers_ =  
      StringToEnumValue<EcalSeverityLevel::SeverityLevel>(conf.getParameter<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers") );
 
-  if (eScales_.instanceLabel=="") produces<CaloTowerCollection>();
+  if (eScales_.instanceLabel.empty()) produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(eScales_.instanceLabel);
 
   /*
@@ -289,7 +291,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   */
 
   // Step D: Put into the event
-  if (eScales_.instanceLabel=="") e.put(std::move(prod));
+  if (eScales_.instanceLabel.empty()) e.put(std::move(prod));
   else e.put(std::move(prod),eScales_.instanceLabel);
 
 
@@ -307,6 +309,8 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<double>("HOThresholdPlus2", 3.5);
 	desc.add<double>("HOThresholdMinus2", 3.5);
 	desc.add<double>("HBThreshold", 0.7);
+	desc.add<double>("HBThreshold1", 0.7);
+	desc.add<double>("HBThreshold2", 0.7);
 	desc.add<double>("HF1Threshold", 0.5);
 	desc.add<double>("HEDWeight", 1.0);
 	desc.add<double>("EEWeight", 1.0);

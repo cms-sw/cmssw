@@ -21,8 +21,8 @@ AttachSD::create(const DDDWorld & w,
 {
   std::pair< std::vector<SensitiveTkDetector *>,std::vector<SensitiveCaloDetector*> > detList;
   const std::vector<std::string>& rouNames = clg.readoutNames();
-  edm::LogInfo("SimG4CoreSensitiveDetector") << " AttachSD: Initializing " 
-					     << rouNames.size() << " SDs";
+  edm::LogVerbatim("SimG4CoreSensitiveDetector") 
+    << " AttachSD: Initialising " << rouNames.size() << " SDs";
   std::unique_ptr<SensitiveDetectorMakerBase> temp; 
   for (auto & rname : rouNames) {
     std::string className = clg.className(rname);
@@ -30,7 +30,7 @@ AttachSD::create(const DDDWorld & w,
     std::auto_ptr<SensitiveTkDetector> tkDet;
     std::auto_ptr<SensitiveCaloDetector> caloDet;
     temp.get()->make(rname,cpv,clg,p,man,reg,tkDet,caloDet);
-    edm::LogInfo("SimG4CoreSensitiveDetector") 
+    edm::LogVerbatim("SimG4CoreSensitiveDetector") 
       << " AttachSD: created a " << className << " with name " << rname 
       << " TkDet <" << tkDet.get() << "> caloDet<" << caloDet.get() << ">"
       << " temp= <" << temp.get() << ">";

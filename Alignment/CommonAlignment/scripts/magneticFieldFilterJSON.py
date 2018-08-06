@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 
 if "CMSSW_BASE" not in os.environ:
-    print "You need to source the CMSSW environment first."
+    print("You need to source the CMSSW environment first.")
     sys.exit(1)
 
 required_version = (2,7)
 if sys.version_info < required_version:
-    print "Your Python interpreter is too old. Need version 2.7 or higher."
+    print("Your Python interpreter is too old. Need version 2.7 or higher.")
     sys.exit(1)
 
 import argparse
@@ -68,7 +69,7 @@ def main(argv = None):
             raise RuntimeError(msg)
     except RuntimeError as e:
         if args.debug: raise
-        print ">>>", os.path.splitext(os.path.basename(__file__))[0]+":", str(e)
+        print(">>>", os.path.splitext(os.path.basename(__file__))[0]+":", str(e))
         sys.exit(1)
 
 
@@ -110,7 +111,7 @@ def main(argv = None):
         with open(args.output+".args", "w") as f:
             f.write(" ".join(argv)+"\n")
     else:
-        print lumi_list
+        print(lumi_list)
 
 
 

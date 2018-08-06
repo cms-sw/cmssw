@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -79,7 +80,7 @@ if (options.maxEvents == -1):
 try:
     os.stat(options.outDir)
 except:
-    print 'Output directory does not exist. Creating directory: ' + options.outDir
+    print('Output directory does not exist. Creating directory: ' + options.outDir)
     os.mkdir(options.outDir)
 
 process = cms.Process('L1Emulator')

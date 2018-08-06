@@ -78,7 +78,7 @@ using namespace SiPixelTemplateReco2D;
 //!                              3 0.85 > Q/Q_avg > min1  [~30% of all hits]
 //! \param     deltay - (output) template y-length - cluster length [when > 0, possibly missing end]
 // *************************************************************************************************************************************
-int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
+int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
                                            ClusMatrix & cluster, SiPixelTemplate2D& templ2D,float& yrec, float& sigmay,
                                            float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay, int& npixels)
 
@@ -299,9 +299,9 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
          break;
       default:
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-         throw cms::Exception("DataCorrupt") << "PixelTemplateReco3D::illegal edgeflagy = " << edgeflagy << std::endl;
+         throw cms::Exception("DataCorrupt") << "PixelTemplateReco2D::illegal edgeflagy = " << edgeflagy << std::endl;
 #else
-         std::cout << "PixelTemplate:3D:illegal edgeflagy = " << edgeflagy << std::endl;
+         std::cout << "PixelTemplate:2D:illegal edgeflagy = " << edgeflagy << std::endl;
 #endif
    }
    
@@ -318,9 +318,9 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
          break;
       default:
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-         throw cms::Exception("DataCorrupt") << "PixelTemplateReco3D::illegal edgeflagx = " << edgeflagx << std::endl;
+         throw cms::Exception("DataCorrupt") << "PixelTemplateReco2D::illegal edgeflagx = " << edgeflagx << std::endl;
 #else
-         std::cout << "PixelTemplate:3D:illegal edgeflagx = " << edgeflagx << std::endl;
+         std::cout << "PixelTemplate:2D:illegal edgeflagx = " << edgeflagx << std::endl;
 #endif
    }
    
@@ -644,13 +644,13 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
    return 0;
 } // PixelTempReco2D
 
-int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy,
+int SiPixelTemplateReco2D::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy,
                                            int edgeflagx, ClusMatrix & cluster, SiPixelTemplate2D& templ2D,float& yrec, float& sigmay, float& xrec, float& sigmax,
                                            float& probxy, float& probQ, int& qbin, float& deltay)
 
 {
    // Local variables
    int npixels;
-   return SiPixelTemplateReco2D::PixelTempReco3D(id, cotalpha, cotbeta, locBz, locBx, edgeflagy, edgeflagx, cluster,
+   return SiPixelTemplateReco2D::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, edgeflagy, edgeflagx, cluster,
                                                  templ2D, yrec, sigmay, xrec, sigmax, probxy, probQ, qbin, deltay, npixels);
 } // PixelTempReco2D

@@ -9,8 +9,9 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
-#include "G4Step.hh"
+#include "G4ThreeVector.hh"
 
 class HGCalNumberingScheme {
 
@@ -28,6 +29,8 @@ public:
 
 private:
   
+  void     checkPosition(uint32_t index, const G4ThreeVector &pos) const;
+
   HGCalNumberingScheme() = delete;
   const HGCalDDDConstants&               hgcons_;
   const HGCalGeometryMode::GeometryMode  mode_;

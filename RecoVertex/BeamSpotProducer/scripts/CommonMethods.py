@@ -1,6 +1,8 @@
+from __future__ import print_function
 import math, re, optparse, commands, os, sys, time, datetime
 from BeamSpotObj import BeamSpot
 from IOVObj import IOV
+import six
 
 lockFile = ".lock"
 
@@ -41,10 +43,10 @@ def timeoutManager(type,timeout=-1,fileName=".timeout"):
                 if elapsedTime > timeout:
                     isTimeout = True
                     timeoutType = 1
-                    print "Timeout! " + str(elapsedTime) + " seconds passed since the " + type + " timeout was set and you can't tolerate more than " + str(timeout) + " seconds!"
+                    print("Timeout! " + str(elapsedTime) + " seconds passed since the " + type + " timeout was set and you can't tolerate more than " + str(timeout) + " seconds!")
                 else:
                     timeoutType = 0
-                    print "Timeout of type " + type + " already exist and was generated " + str(elapsedTime) + " seconds ago at " + fields[1]
+                    print("Timeout of type " + type + " already exist and was generated " + str(elapsedTime) + " seconds ago at " + fields[1])
 
         file.close()
 
@@ -128,7 +130,7 @@ def parse(docstring, arglist=None):
 ###########################################################################################
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in six.itervalues(self.__dict__):
         if v is not None: return True
     return False
 
@@ -146,7 +148,7 @@ class ParsingError(Exception): pass
 ###########################################################################################
 ###########################################################################################
 def sendEmail(mailList,error):
-    print "Sending email to " + mailList + " with body: " + error
+    print("Sending email to " + mailList + " with body: " + error)
     list = mailList.split(',')
     for email in list:
         p = os.popen("mail -s \"Automatic workflow error\" " + email ,"w")
@@ -169,7 +171,7 @@ def ls(dir,filter=""):
     if dir.find('castor') != -1:
     	lsCommand = 'ns'
     elif not os.path.exists(dir):
-        print "ERROR: File or directory " + dir + " doesn't exist"
+        print("ERROR: File or directory " + dir + " doesn't exist")
         return listOfFiles
 
     aCommand  = lsCommand  + 'ls '+ dir
@@ -202,20 +204,20 @@ def cp(fromDir,toDir,listOfFiles,overwrite=False,smallList=False):
     for file in listOfFiles:
         if os.path.isfile(toDir+file):
             if overwrite:
-                print "File " + file + " already exists in destination directory. We will overwrite it."
+                print("File " + file + " already exists in destination directory. We will overwrite it.")
             else:
-                print "File " + file + " already exists in destination directory. We will Keep original file."
+                print("File " + file + " already exists in destination directory. We will Keep original file.")
                 if not smallList:
                     copiedFiles.append(file)
                 continue
     	# copy to local disk
     	aCommand = cpCommand + 'cp '+ fromDir + file + " " + toDir
-    	print " >> " + aCommand
+    	print(" >> " + aCommand)
         tmpStatus = commands.getstatusoutput( aCommand )
         if tmpStatus[0] == 0:
             copiedFiles.append(file)
         else:
-            print "[cp()]\tERROR: Can't copy file " + file
+            print("[cp()]\tERROR: Can't copy file " + file)
     return copiedFiles
 
 ########################################################################
@@ -350,7 +352,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 	inputfiletype = 1
         if len(atmpline.split()) > 2:
             hasBX = True
-            print " Input data has been calculated as function of BUNCH CROSSINGS."
+            print(" Input data has been calculated as function of BUNCH CROSSINGS.")
     tmpfile.seek(0)
 
         
@@ -462,9 +464,9 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 			
 		    if acceptiov1 and acceptiov2:
 			if tmpbeam.Type != 2:
-			    print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+			    print("invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast))
                         elif isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
-                            print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
+                            print("invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast))                       
 			elif hasBX:
                             if (tmpBX in maplist) == False:
                                 maplist[tmpBX] = [tmpbeam]
@@ -475,9 +477,9 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 
 		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
 		    if tmpbeam.Type != 2:
-			print "invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+			print("invalid fit, skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast))
                     elif isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
-                        print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+                        print("invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast))
 		    else:
 			listbeam.append(tmpbeam)
                         
@@ -558,7 +560,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 			
 		    if acceptiov1 and acceptiov2:
 			if isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
-                            print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)                       
+                            print("invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast))                       
 			elif hasBX:
                             if (tmpBX in maplist) == False:
                                 maplist[tmpBX] = [tmpbeam]
@@ -569,7 +571,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
 
 		elif int(tmpbeam.IOVfirst) >= int(firstRun) and int(tmpbeam.IOVlast) <= int(lastRun):
 		    if isnan(tmpbeam.Z) or isnan(tmpbeam.Zerr) or isnan(tmpbeam.sigmaZerr) or isnan(tmpbeam.beamWidthXerr) or isnan(tmpbeam.beamWidthYerr):
-                        print "invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast)
+                        print("invalid fit, NaN values!! skip Run "+str(tmpbeam.Run)+" IOV: "+str(tmpbeam.IOVfirst) + " to "+ str(tmpbeam.IOVlast))
 		    else:
 			listbeam.append(tmpbeam)
                         
@@ -578,7 +580,7 @@ def readBeamSpotFile(fileName,listbeam=[],IOVbase="runbase", firstRun='1',lastRu
                 tmpBX = 0
 
     tmpfile.close()
-    print " got total number of IOVs = " + str(len(listbeam)) + " from file " + fileName
+    print(" got total number of IOVs = " + str(len(listbeam)) + " from file " + fileName)
     #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
     if hasBX:
         return maplist
@@ -601,17 +603,17 @@ def sortAndCleanBeamList(listbeam=[],IOVbase="lumibase"):
         datax = ibeam.IOVfirst
         #print str(ii) + "  " +datax
         if datax == '0' and IOVbase =="runbase":
-            print " iov = 0? skip this IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
+            print(" iov = 0? skip this IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast))
             tmpremovelist.append(ibeam)
         
         if ii < len(listbeam) -1:
             #print listbeam[ii+1].IOVfirst
 	    if IOVbase =="lumibase":
 		if ibeam.Run == listbeam[ii+1].Run and ibeam.IOVfirst == listbeam[ii+1].IOVfirst:
-		    print " duplicate IOV = "+datax+", keep only last duplicate entry"
+		    print(" duplicate IOV = "+datax+", keep only last duplicate entry")
 		    tmpremovelist.append(ibeam)
 	    elif datax == listbeam[ii+1].IOVfirst:
-                print " duplicate IOV = "+datax+", keep only last duplicate entry"
+                print(" duplicate IOV = "+datax+", keep only last duplicate entry")
                 tmpremovelist.append(ibeam)
 
     for itmp in tmpremovelist:
@@ -648,15 +650,15 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
             if ii < len(listbeam) -2:
                 iNNbeam = listbeam[ii+2]
         else:
-            print "close payload because end of data has been reached. Run "+ibeam.Run
+            print("close payload because end of data has been reached. Run "+ibeam.Run)
             docreate = True
         # check we run over the same run
         if ibeam.Run != inextbeam.Run:
-            print "close payload because end of run "+ibeam.Run
+            print("close payload because end of run "+ibeam.Run)
             docreate = True
         # check maximum lumi counts
         if countlumi == maxNlumis -1:
-            print "close payload because maximum lumi sections accumulated within run "+ibeam.Run
+            print("close payload because maximum lumi sections accumulated within run "+ibeam.Run)
             docreate = True
             countlumi = 0
         # weighted average position
@@ -774,12 +776,12 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
                 #print "Lumi1: "+str(ibeam.IOVfirst) + " Lumi2: "+str(inextbeam.IOVfirst)
                 #print " x= "+ibeam.X+" +/- "+ibeam.Xerr
                 #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
-                print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
+                print("close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY))
         if docreate:
             #if ii == len(listbeam)-1:
             tmpbeam.IOVlast = ibeam.IOVlast
             tmpbeam.IOVEndTime = ibeam.IOVEndTime
-            print "  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast)
+            print("  Run: "+tmpbeam.Run +" Lumi1: "+str(tmpbeam.IOVfirst) + " Lumi2: "+str(tmpbeam.IOVlast))
             newlistbeam.append(tmpbeam)
             tmpbeam = BeamSpot()
             countlumi = 0
@@ -836,11 +838,11 @@ def createWeightedPayloadsNew(fileName,listbeam=[],weighted=True):
                 #print "Lumi1: "+str(ibeam.IOVfirst) + " Lumi2: "+str(inextbeam.IOVfirst)
                 #print " x= "+ibeam.X+" +/- "+ibeam.Xerr
                 #print "weighted average x = "+tmpbeam.X +" +//- "+tmpbeam.Xerr
-                print "close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY)
+                print("close payload because of movement in X= "+str(deltaX)+", Y= "+str(deltaY) + ", Z= "+str(deltaZ)+", sigmaZ= "+str(deltasigmaZ)+", dxdz= "+str(deltadxdz)+", dydz= "+str(deltadydz)+", widthX= "+str(deltawidthX)+", widthY= "+str(deltawidthY))
         
         #WARNING this will only be fine for Run based IOVs
         if ii >= len(listbeam) - 1 or listbeam[ii].Run != listbeam[ii+1].Run :
-            print "close payload because end of run has been reached. Run " + listbeam[ii].Run
+            print("close payload because end of run has been reached. Run " + listbeam[ii].Run)
             docreate = True
             lastToUse = ii
         
@@ -870,7 +872,7 @@ def createWeightedPayloadsNew(fileName,listbeam=[],weighted=True):
             tmpbeam.IOVEndTime   = listbeam[lastToUse].IOVEndTime
             newlistbeam.append(tmpbeam)
             firstToUse = lastToUse+1
-            print "Run: " + tmpbeam.Run + " Lumi1: " + str(tmpbeam.IOVfirst) + " Lumi2: " + str(tmpbeam.IOVlast)
+            print("Run: " + tmpbeam.Run + " Lumi1: " + str(tmpbeam.IOVfirst) + " Lumi2: " + str(tmpbeam.IOVlast))
             
     payloadfile = open(fileName,"w")
     for iload in newlistbeam:
@@ -894,9 +896,9 @@ def writeSqliteFile(sqliteFileName,tagName,timeType,beamSpotFile,sqliteTemplateF
         wNewFile.write(line)
             
     wNewFile.close()
-    print "writing sqlite file ..."
+    print("writing sqlite file ...")
     status_wDB = commands.getstatusoutput('cmsRun '+ writeDBOut)
-    print status_wDB[1]
+    print(status_wDB[1])
         
     os.system("rm -f " + writeDBOut)
     return not status_wDB[0]
@@ -920,16 +922,16 @@ def readSqliteFile(sqliteFileName,tagName,sqliteTemplateFile,tmpDir="/tmp/"):
     status_rDB = commands.getstatusoutput('cmsRun '+ readDBOut)
     
     outtext = status_rDB[1]
-    print outtext
+    print(outtext)
     os.system("rm -f " + readDBOut)
     return not status_rDB[0]
 
 ###########################################################################################
 def appendSqliteFile(combinedSqliteFileName, sqliteFileName, tagName, IOVSince, IOVTill ,tmpDir="/tmp/"):
     aCommand = "conddb_import -c sqlite_file:" + tmpDir + combinedSqliteFileName + " -f sqlite_file:" + sqliteFileName + " -i " + tagName + " -t " + tagName + " -b " + IOVSince + " -e " + IOVTill
-    print aCommand
+    print(aCommand)
     std = commands.getstatusoutput(aCommand)
-    print std[1]
+    print(std[1])
     return not std[0]
 
 ###########################################################################################
@@ -937,59 +939,59 @@ def uploadSqliteFile(sqliteFileDirName, sqliteFileName, dropbox="/DropBox"):
     # Changing permissions to metadata
     acmd = "chmod a+w " + sqliteFileDirName + sqliteFileName + ".txt"
     outcmd = commands.getstatusoutput(acmd)
-    print acmd
+    print(acmd)
 #    print outcmd[1]
     if outcmd[0]:
-        print "Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".txt"
+        print("Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".txt")
         return False
 
     acmd = "cp " + sqliteFileDirName + sqliteFileName + ".db " + sqliteFileDirName + sqliteFileName + ".txt ." 
-    print acmd
+    print(acmd)
     outcmd = commands.getstatusoutput(acmd)
-    print outcmd[1]
+    print(outcmd[1])
     if outcmd[0]:
-        print "Couldn't cd to " + sqliteFileDirName
+        print("Couldn't cd to " + sqliteFileDirName)
         return False
 
     acmd = "tar -cvjf " + sqliteFileName + ".tar.bz2 " + sqliteFileName + ".db " + sqliteFileName + ".txt"
-    print acmd
+    print(acmd)
     outcmd = commands.getstatusoutput(acmd)
-    print outcmd[1]
+    print(outcmd[1])
     if outcmd[0]:
-        print "Couldn't zip the files!"
+        print("Couldn't zip the files!")
         return False
 
     acmd = "chmod a+w " + sqliteFileName + ".tar.bz2"
     outcmd = commands.getstatusoutput(acmd)
-    print acmd
+    print(acmd)
 #    print outcmd[1]
     if outcmd[0]:
-        print "Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".tar.bz2"
+        print("Can't change permission to file: " + sqliteFileDirName + sqliteFileName + ".tar.bz2")
         return False
 
     acmd = "scp -p " + sqliteFileName + ".tar.bz2" + " webcondvm.cern.ch:" + dropbox
-    print acmd
+    print(acmd)
     outcmd = commands.getstatusoutput(acmd)
-    print outcmd[1]
+    print(outcmd[1])
     if outcmd[0]:
-        print "Couldn't scp the files to DropBox!"
+        print("Couldn't scp the files to DropBox!")
         return False
 
 
     acmd = "mv " + sqliteFileName + ".tar.bz2 " + sqliteFileDirName
-    print acmd
+    print(acmd)
     outcmd = commands.getstatusoutput(acmd)
-    print outcmd[1]
+    print(outcmd[1])
     if outcmd[0]:
-        print "Couldn't mv the file to " + sqliteFileDirName
+        print("Couldn't mv the file to " + sqliteFileDirName)
         return False
 
     acmd = "rm " + sqliteFileName + ".db " + sqliteFileName + ".txt"
-    print acmd
+    print(acmd)
     outcmd = commands.getstatusoutput(acmd)
-    print outcmd[1]
+    print(outcmd[1])
     if outcmd[0]:
-        print "Couldn't rm the db and txt files"
+        print("Couldn't rm the db and txt files")
         return False
 
 #    acmd = "scp -p " + sqliteFileDirName + sqliteFileName + ".txt webcondvm.cern.ch:/tmp"

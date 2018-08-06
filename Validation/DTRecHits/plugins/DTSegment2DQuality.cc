@@ -25,19 +25,23 @@
 using namespace std;
 using namespace edm;
 
+namespace dtsegment2d {
 struct Histograms {
-  HRes2DHit *h2DHitRPhi;
-  HRes2DHit *h2DHitRZ;
-  HRes2DHit *h2DHitRZ_W0;
-  HRes2DHit *h2DHitRZ_W1;
-  HRes2DHit *h2DHitRZ_W2;
+  std::unique_ptr<HRes2DHit> h2DHitRPhi;
+  std::unique_ptr<HRes2DHit> h2DHitRZ;
+  std::unique_ptr<HRes2DHit> h2DHitRZ_W0;
+  std::unique_ptr<HRes2DHit> h2DHitRZ_W1;
+  std::unique_ptr<HRes2DHit> h2DHitRZ_W2;
 
-  HEff2DHit *h2DHitEff_RPhi;
-  HEff2DHit *h2DHitEff_RZ;
-  HEff2DHit *h2DHitEff_RZ_W0;
-  HEff2DHit *h2DHitEff_RZ_W1;
-  HEff2DHit *h2DHitEff_RZ_W2;
+  std::unique_ptr<HEff2DHit> h2DHitEff_RPhi;
+  std::unique_ptr<HEff2DHit> h2DHitEff_RZ;
+  std::unique_ptr<HEff2DHit> h2DHitEff_RZ_W0;
+  std::unique_ptr<HEff2DHit> h2DHitEff_RZ_W1;
+  std::unique_ptr<HEff2DHit> h2DHitEff_RZ_W2;
 };
+}
+
+using namespace dtsegment2d;
 
 // Constructor
 DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
@@ -62,17 +66,17 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
 }
 
 void DTSegment2DQuality::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const {
-  histograms.h2DHitRPhi = new HRes2DHit ("RPhi", booker, true, true);
-  histograms.h2DHitRZ = new HRes2DHit ("RZ", booker, true, true);
-  histograms.h2DHitRZ_W0 = new HRes2DHit ("RZ_W0", booker, true, true);
-  histograms.h2DHitRZ_W1 = new HRes2DHit ("RZ_W1", booker, true, true);
-  histograms.h2DHitRZ_W2 = new HRes2DHit ("RZ_W2", booker, true, true);
+  histograms.h2DHitRPhi = std::make_unique<HRes2DHit> ("RPhi", booker, true, true);
+  histograms.h2DHitRZ = std::make_unique<HRes2DHit> ("RZ", booker, true, true);
+  histograms.h2DHitRZ_W0 = std::make_unique<HRes2DHit> ("RZ_W0", booker, true, true);
+  histograms.h2DHitRZ_W1 = std::make_unique<HRes2DHit> ("RZ_W1", booker, true, true);
+  histograms.h2DHitRZ_W2 = std::make_unique<HRes2DHit> ("RZ_W2", booker, true, true);
 
-  histograms.h2DHitEff_RPhi = new HEff2DHit ("RPhi", booker);
-  histograms.h2DHitEff_RZ = new HEff2DHit ("RZ", booker);
-  histograms.h2DHitEff_RZ_W0 = new HEff2DHit ("RZ_W0", booker);
-  histograms.h2DHitEff_RZ_W1 = new HEff2DHit ("RZ_W1", booker);
-  histograms.h2DHitEff_RZ_W2 = new HEff2DHit ("RZ_W2", booker);
+  histograms.h2DHitEff_RPhi = std::make_unique<HEff2DHit> ("RPhi", booker);
+  histograms.h2DHitEff_RZ = std::make_unique<HEff2DHit> ("RZ", booker);
+  histograms.h2DHitEff_RZ_W0 = std::make_unique<HEff2DHit> ("RZ_W0", booker);
+  histograms.h2DHitEff_RZ_W1 = std::make_unique<HEff2DHit> ("RZ_W1", booker);
+  histograms.h2DHitEff_RZ_W2 = std::make_unique<HEff2DHit> ("RZ_W2", booker);
   if (debug_) {
     cout << "[DTSegment2DQuality] hitsos created " << endl;
   }
@@ -226,7 +230,7 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
         // Fill Residual histos
         HRes2DHit *hRes = nullptr;
         if ((*slId).superlayer() == 1 or (*slId).superlayer() == 3) { // RPhi SL
-          hRes = histograms.h2DHitRPhi;
+          hRes = histograms.h2DHitRPhi.get();
         } else if ((*slId).superlayer() == 2) { // RZ SL
           histograms.h2DHitRZ->fill(angleSimSeg,
               angleBestRHit,
@@ -238,11 +242,11 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
               sqrt(bestRecHitLocalDirErr.xx())
               );
           if (abs((*slId).wheel()) == 0) {
-            hRes = histograms.h2DHitRZ_W0;
+            hRes = histograms.h2DHitRZ_W0.get();
           } else if (abs((*slId).wheel()) == 1) {
-            hRes = histograms.h2DHitRZ_W1;
+            hRes = histograms.h2DHitRZ_W1.get();
           } else if (abs((*slId).wheel()) == 2) {
-            hRes = histograms.h2DHitRZ_W2;
+            hRes = histograms.h2DHitRZ_W2.get();
 }
         }
         hRes->fill(angleSimSeg,
@@ -260,15 +264,15 @@ void DTSegment2DQuality::dqmAnalyze(edm::Event const& event, edm::EventSetup con
     // Fill Efficiency plot
     HEff2DHit *hEff = nullptr;
     if ((*slId).superlayer() == 1 or (*slId).superlayer() == 3) { // RPhi SL
-      hEff = histograms.h2DHitEff_RPhi;
+      hEff = histograms.h2DHitEff_RPhi.get();
     } else if ((*slId).superlayer() == 2) { // RZ SL
       histograms.h2DHitEff_RZ->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
       if (abs((*slId).wheel()) == 0) {
-        hEff = histograms.h2DHitEff_RZ_W0;
+        hEff = histograms.h2DHitEff_RZ_W0.get();
       } else if (abs((*slId).wheel()) == 1) {
-        hEff = histograms.h2DHitEff_RZ_W1;
+        hEff = histograms.h2DHitEff_RZ_W1.get();
       } else if (abs((*slId).wheel()) == 2) {
-        hEff = histograms.h2DHitEff_RZ_W2;
+        hEff = histograms.h2DHitEff_RZ_W2.get();
       }
     }
     hEff->fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);

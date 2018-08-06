@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 
 """
@@ -404,5 +405,5 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 if dump:
     outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
-    print >> outfile,process.dumpPython()
+    print(process.dumpPython(), file=outfile)
     outfile.close()

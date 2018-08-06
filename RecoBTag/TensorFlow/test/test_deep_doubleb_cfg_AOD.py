@@ -1,5 +1,7 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+import six
 
 process = cms.Process("PAT")
 
@@ -112,7 +114,7 @@ process.out.outputCommands.append('keep *_pfBoostedDoubleSVAK8TagInfos*_*_*')
 process.out.outputCommands.append('keep *_pfDeepDoubleBTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
-print process.out.outputCommands
+print(process.out.outputCommands)
 process.out.fileName = 'test_deep_doubleb_AODSIM.root'
 
 #                                         ##
@@ -122,9 +124,9 @@ process.out.fileName = 'test_deep_doubleb_AODSIM.root'
 
 #Trick to make it work in >=9_1_X
 process.tsk = cms.Task()
-for mod in process.producers_().itervalues():
+for mod in six.itervalues(process.producers_()):
     process.tsk.add(mod)
-for mod in process.filters_().itervalues():
+for mod in six.itervalues(process.filters_()):
     process.tsk.add(mod)
 
 process.p = cms.Path(

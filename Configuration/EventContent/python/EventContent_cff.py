@@ -201,7 +201,7 @@ RAWSIMEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(20*1024*1024),
     compressionAlgorithm=cms.untracked.string("LZMA"),
-    compressionLevel=cms.untracked.int32(9)
+    compressionLevel=cms.untracked.int32(1)
 )
 #
 #
@@ -563,9 +563,9 @@ phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.o
         'keep *_simHcalDigis_*_*',
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         # HGCAL
-        'keep *_mix_HGCDigisEE_*',
-        'keep *_mix_HGCDigisHEfront_*',
-        'keep *_mix_HGCDigisHEback_*',
+        'keep *_simHGCalUnsuppressedDigis_EE_*',
+        'keep *_simHGCalUnsuppressedDigis_HEfront_*',
+        'keep *_simHGCalUnsuppressedDigis_HEback_*',
         # DT
         'keep *_simMuonDTDigis_*_*',
         # CSC

@@ -19,6 +19,12 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
+//ROOT
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranchObject.h"
+
 //#define DebugLog
 
 CastorShowerLibrary::CastorShowerLibrary(const std::string & name, edm::ParameterSet const & p) 
@@ -28,12 +34,10 @@ CastorShowerLibrary::CastorShowerLibrary(const std::string & name, edm::Paramete
     nEvtPerBinE(0),nEvtPerBinEta(0),nEvtPerBinPhi(0),
     SLenergies(),SLetas(),SLphis() {
   
-  initFile(p);
-  
+  initFile(p);  
 }
 
 //=============================================================================================
-
 
 CastorShowerLibrary::~CastorShowerLibrary() {
   if (hf)     hf->Close();
@@ -154,11 +158,6 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
   for (unsigned int i=0; i<nBinsPhi; i++)
      edm::LogInfo("CastorShower") << "CastorShowerLibrary: SLphis[" << i << "] = "
 			          << SLphis[i] << " rad";
-}
-
-//=============================================================================================
-
-void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) {
 }
 
 //=============================================================================================
@@ -296,6 +295,9 @@ void CastorShowerLibrary::select(int type, double pin, double etain, double phii
   getRecord (type, irec);
   
 }
+
+//=======================================================================================
+
 int CastorShowerLibrary::FindEnergyBin(double energy) {
   //
   // returns the integer index of the energy bin, taken from SLenergies vector
@@ -312,6 +314,9 @@ int CastorShowerLibrary::FindEnergyBin(double energy) {
   // energy outside bin range
   return -1;
 }
+
+//=======================================================================================
+
 int CastorShowerLibrary::FindEtaBin(double eta) {
   //
   // returns the integer index of the eta bin, taken from SLetas vector
@@ -326,6 +331,9 @@ int CastorShowerLibrary::FindEtaBin(double eta) {
   // eta outside bin range
   return -1;
 }
+
+//=======================================================================================
+
 int CastorShowerLibrary::FindPhiBin(double phi) {
   //
   // returns the integer index of the phi bin, taken from SLphis vector
@@ -342,3 +350,5 @@ int CastorShowerLibrary::FindPhiBin(double phi) {
   // phi outside bin range
   return -1;
 }
+
+//=======================================================================================

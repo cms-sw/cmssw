@@ -251,7 +251,7 @@ FWPathsPopup::scheduleReloadEvent()
       m_apply->SetEnabled(false);
       gSystem->ExitLoop();
    }
-   catch (boost::python::error_already_set)
+   catch (boost::python::error_already_set const&)
    {
       edm::pythonToCppException("Configuration");
       Py_Finalize();

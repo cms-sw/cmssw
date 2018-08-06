@@ -25,13 +25,13 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    ThingCollection result;  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(*result);
+    alg_.run(result);
 
     // Step D: Put outputs into event
-    if (!noPut_) e.put(evToken_,std::move(result));
+    if (!noPut_) e.emplace(evToken_,std::move(result));
   }
 
   // Functions that gets called by framework every luminosity block
@@ -39,26 +39,26 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    ThingCollection result;  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(*result);
+    alg_.run(result);
 
     // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(blToken_, std::move(result));
+    if (!noPut_) lb.emplace(blToken_, std::move(result));
   }
 
   void ThingProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    ThingCollection result;  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(*result);
+    alg_.run(result);
 
     // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(elToken_,std::move(result));
+    if (!noPut_) lb.emplace(elToken_,std::move(result));
   }
 
   // Functions that gets called by framework every run
@@ -66,26 +66,26 @@ namespace edmtest {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    ThingCollection result;  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(*result);
+    alg_.run(result);
 
     // Step D: Put outputs into event
-    if (!noPut_) r.put(brToken_,std::move(result));
+    if (!noPut_) r.emplace(brToken_,std::move(result));
   }
 
   void ThingProducer::globalEndRunProduce(edm::Run& r, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
-    auto result = std::make_unique<ThingCollection>();  //Empty
+    ThingCollection result;  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(*result);
+    alg_.run(result);
 
     // Step D: Put outputs into event
-    if (!noPut_) r.put(erToken_,std::move(result));
+    if (!noPut_) r.emplace(erToken_,std::move(result));
   }
 
   void ThingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

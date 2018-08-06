@@ -21,8 +21,8 @@
 #define SiPixelTemplateReco2D_h 1
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateDefs.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #else
 #include "SiPixelTemplateDefs.h"
 #include "SiPixelTemplate2D.h"
@@ -45,11 +45,11 @@ namespace SiPixelTemplateReco2D {
    };
 #endif
    
-   int PixelTempReco3D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
+   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
                        ClusMatrix & cluster, SiPixelTemplate2D& templ,
                        float& yrec, float& sigmay, float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay, int& npixel);
    
-   int PixelTempReco3D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
+   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
                        ClusMatrix & cluster, SiPixelTemplate2D& templ,
                        float& yrec, float& sigmay, float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay);
    

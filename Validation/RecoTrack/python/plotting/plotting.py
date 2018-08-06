@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import math
@@ -6,6 +7,7 @@ import array
 import difflib
 import collections
 
+import six
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -47,7 +49,7 @@ def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
         if verbose:
-            print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
+            print("Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath()))
         return None
     return obj
 
@@ -81,14 +83,14 @@ def _getDirectoryDetailed(tfile, possibleDirs, subDir=None):
                     return d
                 else:
                     if verbose:
-                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
+                        print("Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName()))
 #                        if "Step" in subDir:
 #                            raise Exception("Foo")
                     return GetDirectoryCode.SubDirNotExist
             else:
                 return d
     if verbose:
-        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+        print("Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName()))
     return GetDirectoryCode.PossibleDirsNotExist
 
 def _getDirectory(*args, **kwargs):
@@ -484,7 +486,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(xmins) == 0: # all histograms zero
                 xmin = min(xmin)
                 if verbose:
-                    print "Histogram is zero, using the smallest given value for xmin from", str(xmin)
+                    print("Histogram is zero, using the smallest given value for xmin from", str(xmin))
             else:
                 xm = min(xmins)
                 xmins_below = [x for x in xmin if x<=xm]
@@ -492,7 +494,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                     xmin = min(xmin)
                     if xm < xmin:
                         if verbose:
-                            print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+                            print("Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin)))
                 else:
                     xmin = max(xmins_below)
 
@@ -502,7 +504,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             if len(xmaxs) == 0: # all histograms zero
                 xmax = max(xmax)
                 if verbose:
-                    print "Histogram is zero, using the smallest given value for xmax from", str(xmin)
+                    print("Histogram is zero, using the smallest given value for xmax from", str(xmin))
             else:
                 xm = max(xmaxs)
                 xmaxs_above = [x for x in xmax if x>xm]
@@ -510,7 +512,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                     xmax = max(xmax)
                     if xm > xmax:
                         if verbose:
-                            print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+                            print("Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax)))
                 else:
                     xmax = min(xmaxs_above)
 
@@ -574,7 +576,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
                 ymin = min(ymin)
                 if ym_unscaled < ymin:
                     if verbose:
-                        print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
+                        print("Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin)))
             else:
                 ymin = max(ymins_below)
 
@@ -590,7 +592,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
                 ymax = max(ymax)
                 if ym_unscaled > ymax:
                     if verbose:
-                        print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
+                        print("Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax)))
             else:
                 ymax = min(ymaxs_above)
 
@@ -993,7 +995,7 @@ class AggregateBins:
         values = _th1ToOrderedDict(th1, self._renameBin)
 
         binIndexOrder = [] # for reordering bins if self._originalOrder is True
-        for i, (key, labels) in enumerate(self._mapping.iteritems()):
+        for i, (key, labels) in enumerate(six.iteritems(self._mapping)):
             sumTime = 0.
             sumErrorSq = 0.
             nsum = 0
@@ -1056,7 +1058,7 @@ class AggregateBins:
         if self._normalizeTo is not None:
             bin = th1.GetXaxis().FindBin(self._normalizeTo)
             if bin <= 0:
-                print "Trying to normalize {name} to {binlabel}, which does not exist".format(name=self._name, binlabel=self._normalizeTo)
+                print("Trying to normalize {name} to {binlabel}, which does not exist".format(name=self._name, binlabel=self._normalizeTo))
                 sys.exit(1)
             value = th1.GetBinContent(bin)
             if value != 0:
@@ -1090,7 +1092,7 @@ class AggregateHistos:
     def create(self, tdirectory):
         """Create and return the histogram from a TDirectory"""
         result = []
-        for key, histoName in self._mapping.iteritems():
+        for key, histoName in six.iteritems(self._mapping):
             th1 = _getObject(tdirectory, histoName)
             if th1 is None:
                 continue
@@ -1824,7 +1826,7 @@ class Plot:
         self._histograms = []
 
     def setProperties(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -2033,7 +2035,7 @@ class Plot:
             histos.append(h)
         if len(histos) == 0:
             if verbose:
-                print "No histograms for plot {name}".format(name=self.getName())
+                print("No histograms for plot {name}".format(name=self.getName()))
             return
 
         # Extract x bin labels, make sure that only bins with same
@@ -2063,20 +2065,20 @@ class Plot:
             self._tmp_histos = histos # need to keep these in memory too ...
             if len(histos) == 0:
                 if verbose:
-                    print "No histograms with non-empty bins for plot {name}".format(name=self.getName())
+                    print("No histograms with non-empty bins for plot {name}".format(name=self.getName()))
                 return
 
         if self._printBins and histosHaveBinLabels:
-            print "####################"
-            print self._name
+            print("####################")
+            print(self._name)
             width = max([len(l) for l in xbinlabels])
             tmp = "%%-%ds " % width
             for b in xrange(1, histos[0].GetNbinsX()+1):
                 s = tmp % xbinlabels[b-1]
                 for h in histos:
                     s += "%.3f " % h.GetBinContent(b)
-                print s
-            print
+                print(s)
+            print()
 
         bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
@@ -2277,7 +2279,7 @@ class PlotGroup(object):
         self._ratioFactor = 1.25
 
     def setProperties(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in six.iteritems(kwargs):
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)

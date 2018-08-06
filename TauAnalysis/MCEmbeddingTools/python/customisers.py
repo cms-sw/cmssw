@@ -2,9 +2,11 @@
 
 
 ### Various set of customise functions needed for embedding
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Utilities import cleanUnscheduled
 
+import six
 
 ################################ Customizer for skimming ###########################
 ### There are four different parts.
@@ -66,7 +68,7 @@ to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator
 
 
 def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
+	outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
 	for outputModule in outputModulesList:
 		if outputModule in module_veto_list:
 			continue
@@ -109,7 +111,7 @@ def customiseSelecting(process,reselect=False):
 	process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
 	process.schedule.insert(-1, process.selecting)
 
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
+	outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
 	for outputModule in outputModulesList:
 		outputModule = getattr(process, outputModule)
 		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("selecting"))
@@ -222,7 +224,7 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 	
 	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
 	process.VtxSmeared = process.VtxCorrectedToInput.clone()
-	print "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
+	print("Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector.")
 
 	# Remove BeamSpot Production, use the one from selected data instead.
 	process.reconstruction.remove(process.offlineBeamSpot)
@@ -343,7 +345,7 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 		if "MERGE" in akt_manimod.steps:
 	#if akt_manimod.module_name != 'particleFlowTmp':
 	#  continue
-			print akt_manimod.module_name
+			print(akt_manimod.module_name)
 			mergCollections_in = cms.VInputTag()
 			for instance in akt_manimod.instance:
 				mergCollections_in.append(cms.InputTag(akt_manimod.merge_prefix+akt_manimod.module_name,instance,"SIMembedding"))
@@ -456,7 +458,7 @@ def customiseFilterTTbartoMuMu(process):
 
 def customiseMCFilter(process):
 	process.schedule.insert(-1,process.MCFilter)
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
+	outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
 	for outputModule in outputModulesList:
 		outputModule = getattr(process, outputModule)
 		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("MCFilter"))
@@ -482,7 +484,7 @@ def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSeg
 				else:
 					change_tags_process(pset[key])
 		else:
-			print "must be python dict not a ",type(pset)
+			print("must be python dict not a ",type(pset))
 			
 	for module in process.producers_():
 		search_for_tags(getattr(process, module).__dict__)

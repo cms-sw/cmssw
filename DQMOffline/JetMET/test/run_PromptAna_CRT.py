@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 import FWCore.ParameterSet.Config as cms
@@ -6,16 +7,16 @@ process = cms.Process("Demo")
 
 #--- [read list of input files from a text file? or not (default=False)]
 read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
-print 'read list of input files from a text file (default=False) = '+str(read_from_file)
+print('read list of input files from a text file (default=False) = '+str(read_from_file))
 #
 #
 # --- [do harvesting (default=True)? or read in histogram files]
 harvesting = (os.environ.get('HARVESTING',True))
-print 'harvesting (default=True) = '+str(harvesting)
+print('harvesting (default=True) = '+str(harvesting))
 #
 # --- [reference histogram (default=jetMETMonitoring_test.root)]
 reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMonitoring_test.root'))
-print 'reference_histogram_file = '+str(reference_histogram_file)
+print('reference_histogram_file = '+str(reference_histogram_file))
 #
 # --- [input file(s) for harvesting/certification (default=reco_DQM_test.root)]
 input_files = []
@@ -23,7 +24,7 @@ if read_from_file=="True":
   #--- [name of the text file (default=inputfile_list_default.txt)]
   filename = (os.environ.get('INPUTFILES_LIST','inputfile_list_default.txt'))
   file=open(filename)
-  print file.read()
+  print(file.read())
   f = open(filename)
   try:
     for line in f:
@@ -32,16 +33,16 @@ if read_from_file=="True":
     f.close()
 else:
   input_root_files = os.environ.get('INPUTEDMFILES','file:reco_DQM_test.root').split(",")
-  print 'input_root_files = '+str(input_root_files)
-  print
+  print('input_root_files = '+str(input_root_files))
+  print()
   
   if harvesting:
     for file in input_root_files:        # Second Example
       input_files.append(str(file))
     else:
       test_histogram_file = os.environ.get('TEST_HISTOGRAM_FILE','jetMETMonitoring_test.root')
-      print 'test_histogram_file = '+str(test_histogram_file)
-print
+      print('test_histogram_file = '+str(test_histogram_file))
+print()
     
 
 
@@ -91,7 +92,7 @@ process.dqmInfoJetMET = DQMEDAnalyzer('DQMEventInfo',
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
 
 if harvesting:
-  print
+  print()
 else:
   process.dataCertificationJetMET.fileName = cms.untracked.string(test_histogram_file)
 

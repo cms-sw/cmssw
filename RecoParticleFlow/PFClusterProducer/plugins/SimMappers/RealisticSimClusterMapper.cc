@@ -67,7 +67,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     const SimClusterCollection& simClusters = *simClusterH_;
     auto const& hits = *input;
     RealisticHitToClusterAssociator realisticAssociator;
-    const int numberOfLayers = rhtools_.getLayer(ForwardSubdetector::ForwardEmpty);
+    const int numberOfLayers = rhtools_.getGeometryType()==0 ? rhtools_.getLayer(ForwardSubdetector::ForwardEmpty) : rhtools_.getLayer(DetId::Forward);
     realisticAssociator.init(hits.size(), simClusters.size(), numberOfLayers + 1);
     // for quick indexing back to hit energy
     std::unordered_map < uint32_t, size_t > detIdToIndex(hits.size());

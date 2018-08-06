@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -193,18 +194,18 @@ gtOffset = options.gtOffset + (options.skipEvents * options.gtFramesPerEvent)
 
 
 # print some debug info
-print "Job config :"
-print "maxEvents     = ", options.maxEvents
-print "skipEvents    = ", options.skipEvents
-print " "
+print("Job config :")
+print("maxEvents     = ", options.maxEvents)
+print("skipEvents    = ", options.skipEvents)
+print(" ")
 
 # MP config
 if (options.doMP):
-    print "MP config :"
-    print "nBoards       = ", options.nMP
-    print "mpBoardOffset = ", boardOffset
-    print "mpOffset      = ", mpOffsets
-    print " "
+    print("MP config :")
+    print("nBoards       = ", options.nMP)
+    print("mpBoardOffset = ", boardOffset)
+    print("mpOffset      = ", mpOffsets)
+    print(" ")
 
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
@@ -215,10 +216,10 @@ process.stage2MPRaw.txFile = cms.untracked.string("merge/tx_summary.txt")
 
 # Demux config
 if (options.doDemux):
-    print "Demux config :"
-    print "dmOffset      = ", dmOffset
-    print "dmLatency     = ", options.dmLatency
-    print " "
+    print("Demux config :")
+    print("dmOffset      = ", dmOffset)
+    print("dmLatency     = ", options.dmLatency)
+    print(" ")
 
 process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
 process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
@@ -228,9 +229,9 @@ process.stage2DemuxRaw.txFile = cms.untracked.string("good/demux/tx_summary.txt"
 
 # GT config
 if (options.doGT):
-    print "GT config :"
-    print "gtOffset      = ", gtOffset
-    print "gtLatency     = ", options.gtLatency
+    print("GT config :")
+    print("gtOffset      = ", gtOffset)
+    print("gtLatency     = ", options.gtLatency)
 
 process.stage2GTRaw.nFramesPerEvent    = cms.untracked.int32(options.gtFramesPerEvent)
 process.stage2GTRaw.nFramesOffset    = cms.untracked.vuint32(gtOffset)
@@ -266,7 +267,7 @@ process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
 process.TriggerMenuXml.DefXmlFile = 'L1Menu_Point5IntegrationTest_2015_v2.xml'
 process.TriggerMenuXml.newGrammar = cms.bool(options.newXML)
 if(options.newXML):
-   print "Using new XML Grammar "
+   print("Using new XML Grammar ")
    #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Point5IntegrationTest_2015_v1a.xml'
    process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
 

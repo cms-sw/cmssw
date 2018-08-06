@@ -1,3 +1,4 @@
+from __future__ import print_function
 import math, os
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
@@ -8,6 +9,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 
 from PhysicsTools.Heppy.physicsutils.QGLikelihoodCalculator import QGLikelihoodCalculator
 
+import six
 import copy
 def cleanNearestJetOnly(jets,leptons,deltaR):
     dr2 = deltaR**2
@@ -150,13 +152,13 @@ class JetAnalyzer( Analyzer ):
             if not self.recalibrateJets: 
                 jetsAfter = [ (j.pt(),j.eta(),j.phi(),j.rawFactor()) for j in allJets ]
                 if len(jetsBefore) != len(jetsAfter): 
-                    print "ERROR: I had to recompute jet corrections, and they rejected some of the jets:\nold = %s\n new = %s\n" % (jetsBefore,jetsAfter)
+                    print("ERROR: I had to recompute jet corrections, and they rejected some of the jets:\nold = %s\n new = %s\n" % (jetsBefore,jetsAfter))
                 else:
                     for (told, tnew) in zip(jetsBefore,jetsAfter):
                         if (deltaR2(told[1],told[2],tnew[1],tnew[2])) > 0.0001:
-                            print "ERROR: I had to recompute jet corrections, and one jet direction moved: old = %s, new = %s\n" % (told, tnew)
+                            print("ERROR: I had to recompute jet corrections, and one jet direction moved: old = %s, new = %s\n" % (told, tnew))
                         elif abs(told[0]-tnew[0])/(told[0]+tnew[0]) > 0.5e-3 or abs(told[3]-tnew[3]) > 0.5e-3:
-                            print "ERROR: I had to recompute jet corrections, and one jet pt or corr changed: old = %s, new = %s\n" % (told, tnew)
+                            print("ERROR: I had to recompute jet corrections, and one jet pt or corr changed: old = %s, new = %s\n" % (told, tnew))
         self.allJetsUsedForMET = allJets
 #        print "after. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
 
@@ -329,7 +331,7 @@ class JetAnalyzer( Analyzer ):
 		jetNus=[x for x in event.genParticles if abs(x.pdgId()) in [12,14,16] and self.cfg_ana.genNuSelection(x) ]
 	 	pairs= matchObjectCollection (jetNus, self.genJets, 0.4**2)
                 
-		for (nu,genJet) in pairs.iteritems() :
+		for (nu,genJet) in six.iteritems(pairs) :
 		     if genJet is not None :
 			if not hasattr(genJet,"nu") :
 				genJet.nu=nu.p4()

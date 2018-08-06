@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from Page1Parser import Page1Parser
 import sys
 import os
@@ -9,15 +10,15 @@ from TablePrint import *
 WBMPageTemplate = "http://cmswbm/cmsdb/servlet/TriggerMode?KEY=l1_hlt_collisions/v%s"
 
 def usage():
-    print "%s [Options] KeyVersion" % sys.argv[0]
-    print "--IgnoreCols=<cols>               List of columns to ignore from the prescale checker (format is 1,2,3,4 etc.)"
+    print("%s [Options] KeyVersion" % sys.argv[0])
+    print("--IgnoreCols=<cols>               List of columns to ignore from the prescale checker (format is 1,2,3,4 etc.)")
 
     
 def main():
     try:
         opt, args = getopt.getopt(sys.argv[1:],"",["IgnoreCols="])
     except getopt.GetoptError as err:
-        print str(err)
+        print(str(err))
         usage()
         sys.exit(2)
 
@@ -33,10 +34,10 @@ def main():
                 for e in tmp:
                     IgnoreCols.append(int(e))
             except:
-                print "Invalid argument to '--IgnoreCols' "
+                print("Invalid argument to '--IgnoreCols' ")
                 sys.exit(2)
         else:
-            print "Invalid option "+o
+            print("Invalid option "+o)
             usage()
             sys.exit(0)
             
@@ -49,16 +50,16 @@ def main():
 
     Header=["Path Name", "L1 Seed"]+Parser.ColumnLumi
     ColWidths=[70,30]+[10]*len(Parser.ColumnLumi)
-    print """
+    print("""
     TOTAL L1*HLT PRESCALE TABLE:
-    """
+    """)
     PrettyPrintTable(Header,Parser.TotalPrescaleTable,ColWidths)
     
-    print """
+    print("""
     Weird Looking L1*HLT Prescales
 
     WARNING: paths seeded by the OR of several L1 bits may not be calculated properly (they assume an L1 prescale of 1 in all columns)
-    """
+    """)
 
     PrettyPrintTable(Header,findAnomalies(Parser.TotalPrescaleTable,IgnoreCols),ColWidths)
     ## OK, we need some more checks here, but to first order this is useful

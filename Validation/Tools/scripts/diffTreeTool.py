@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import os
 import re
 from pprint import pprint
+import six
 
 epsilon = 1.e-4
 
@@ -18,7 +20,7 @@ def getDictFromObject (obj, varDict, prefix = ''):
     if prefix:
         obj = getPieceFromObject (obj, prefix)
     retval = {}
-    for key, description in varDict.iteritems():
+    for key, description in six.iteritems(varDict):
         retval[key] = getPieceFromObject (obj, description)
     return retval
 
@@ -103,7 +105,7 @@ if __name__ == "__main__":
                       " class at a time.")
             name = match.group(1)
             continue
-        for key, regexTuple in variableREDict.iteritems():
+        for key, regexTuple in six.iteritems(variableREDict):
             if regexTuple[0].search(line):
                 typeFoundSet.add( key )
                 continue
@@ -149,54 +151,54 @@ if __name__ == "__main__":
         firstOnlyColl  = getPieceFromObject (tree, name + '.firstOnly')
         size = firstOnlyColl.size()
         if size:            
-            print "First Only:\n   index    ",
+            print("First Only:\n   index    ", end=' ')
             for var in variables:
-                print "%-12s" % (' ' + var),
-            print
-            print '-' * (12 + 11 * len(variables))
+                print("%-12s" % (' ' + var), end=' ')
+            print()
+            print('-' * (12 + 11 * len(variables)))
         for index in range (size):
             firstOnly = firstOnlyColl[index]
             index = getDictFromObject (firstOnly, indexSingleDict)
-            print '  ', format (index, 'index', 3, firstOnly = True),
+            print('  ', format (index, 'index', 3, firstOnly = True), end=' ')
             info = getDictFromObject (firstOnly, infoSingleDict)
             for var in variables:
-                print '  ', format (info, var, firstOnly = True),
-            print
-        print
+                print('  ', format (info, var, firstOnly = True), end=' ')
+            print()
+        print()
         # second only
         secondOnlyColl = getPieceFromObject (tree, name + '.secondOnly')
         size = secondOnlyColl.size()
         if size:            
-            print "Second Only:\n   index    ",
+            print("Second Only:\n   index    ", end=' ')
             for var in variables:
-                print "%-12s" % (' ' + var),
-            print
-            print '-' * (12 + 11 * len(variables))
+                print("%-12s" % (' ' + var), end=' ')
+            print()
+            print('-' * (12 + 11 * len(variables)))
         for index in range (size):
             secondOnly = secondOnlyColl[index]
             index = getDictFromObject (secondOnly, indexSingleDict)
-            print '  ', format (index, 'index', 3, firstOnly = True),
+            print('  ', format (index, 'index', 3, firstOnly = True), end=' ')
             info = getDictFromObject (secondOnly, infoSingleDict)
             for var in variables:
-                print '  ', format (info, var, firstOnly = True),
-            print
-        print
+                print('  ', format (info, var, firstOnly = True), end=' ')
+            print()
+        print()
         # both
         diffColl = getPieceFromObject (tree, name+'.diff')
         size = diffColl.size()
         if size:            
-            print "Both:\n   index",
+            print("Both:\n   index", end=' ')
             for var in variables:
-                print "%-24s" % ('          ' + var),
-            print
-            print '-' * (16 + 23 * len(variables))
+                print("%-24s" % ('          ' + var), end=' ')
+            print()
+            print('-' * (16 + 23 * len(variables)))
         for index in range (size):
             diff = diffColl[index]
             index = getDictFromObject (diff, indexDoubleDict)
-            print '  ', format (index, 'index', 3),
+            print('  ', format (index, 'index', 3), end=' ')
             info = getDictFromObject (diff, infoDoubleDict)
             for var in variables:
-                print '  ', format (info, var),
-            print
-        print
+                print('  ', format (info, var), end=' ')
+            print()
+        print()
  

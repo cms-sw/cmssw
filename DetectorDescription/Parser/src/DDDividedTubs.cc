@@ -1,6 +1,4 @@
 #include "DetectorDescription/Parser/src/DDDividedTubs.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -8,6 +6,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,6 +14,7 @@
 #include <utility>
 
 class DDCompactView;
+using namespace dd::operators;
 
 DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv )
   :  DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
@@ -89,7 +89,7 @@ DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv )
   if( divisionType_ == DivWIDTH )
   {
     //If you divide a tube of 360 degrees the offset displaces the starting angle, but you still fill the 360 degrees
-    if( msol.deltaPhi() == 360.*deg ) {
+    if( msol.deltaPhi() == 360._deg ) {
       compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), 0. );
     }else {
       compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), div_.offset() );
@@ -98,7 +98,7 @@ DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv )
   }
   else if( divisionType_ == DivNDIV )
   {
-    if( msol.deltaPhi() == 360.*deg ) {
+    if( msol.deltaPhi() == 360._deg ) {
       compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), 0. );
     }else {
       compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), div_.offset() );
@@ -140,7 +140,6 @@ DDLogicalPart
 DDDividedTubsPhi::makeDDLogicalPart( const int copyNo ) const
 {
   DDName solname(div_.name());
-  //-  DDName solname(div_.parent().ddname().name() + "_DIVCHILD", div_.parent().ddname().ns());
   DDSolid ddtubs(solname);
   DDMaterial usemat(div_.parent().material());
   DDTubs msol = (DDTubs) (div_.parent().solid());

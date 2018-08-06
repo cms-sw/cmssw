@@ -7,7 +7,7 @@
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "G4EventManager.hh"
 #include "G4SDManager.hh"
@@ -143,7 +143,7 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   } else { 
     if(aStep->GetTotalEnergyDeposit() > 0.0) { 
       G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
-      edm::LogWarning("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
+      edm::LogInfo("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
 				 << " currUnit=   " << currentID.unitID()
 				 << " Detector: " << GetName()
 				 << " trackID= " << theTrack->GetTrackID() 
@@ -485,12 +485,13 @@ void CaloSD::update(const BeginOfRun *) {
   initRun();
 } 
 
-void CaloSD::update(const BeginOfEvent *) {
+void CaloSD::update(const BeginOfEvent * g4Event) {
 #ifdef DebugLog
   edm::LogVerbatim("CaloSim")  << "CaloSD: Dispatched BeginOfEvent for " 
                            << GetName() << " !" ;
 #endif
   clearHits();
+  initEvent(g4Event);
 }
 
 void CaloSD::update(const EndOfTrack * trk) {
@@ -521,6 +522,7 @@ void CaloSD::update(const EndOfTrack * trk) {
 
 void CaloSD::update(const ::EndOfEvent * ) {
 
+  endEvent();
   slave.get()->ReserveMemory(theHC->entries());
 
   int count(0);
@@ -589,6 +591,10 @@ void CaloSD::clearHits() {
 }
 
 void CaloSD::initRun() {}
+
+void CaloSD::initEvent(const BeginOfEvent *) {}
+
+void CaloSD::endEvent() {}
 
 int CaloSD::getTrackID(const G4Track* aTrack) {
 

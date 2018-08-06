@@ -74,6 +74,7 @@ public:
   bool producesHEbackDigis()   { 
     return ((mySubDet_==ForwardSubdetector::HGCHEB)||(myDet_==DetId::HGCalHSc)); }
   std::string digiCollection() { return digiCollection_; }
+  int geometryType() { return geometryType_; }
 
   /**
       @short actions at the start/end of run
@@ -108,6 +109,9 @@ private :
   double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
+
+  //debug position
+  void checkPosition(const HGCalDigiCollection* digis) const;
 
   //digitizers
   std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;

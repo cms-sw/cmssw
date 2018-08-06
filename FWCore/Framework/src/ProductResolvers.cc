@@ -140,7 +140,7 @@ namespace edm {
         }
         if ( not productResolved()) {
           //another thread could have beaten us here
-          putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+          putProduct( reader->getProduct(branchDescription().branchID(), &principal, mcc));
         }
       }
     });
@@ -158,8 +158,7 @@ namespace edm {
 
       //Can't use resolveProductImpl since it first checks to see
       // if the product was already retrieved and then returns if it is
-      BranchKey const bk = BranchKey(branchDescription());
-      std::unique_ptr<WrapperBase> edp(reader->getProduct(bk, &principal));
+      std::unique_ptr<WrapperBase> edp(reader->getProduct(branchDescription().branchID(), &principal));
       
       if(edp.get() != nullptr) {
         putOrMergeProduct(std::move(edp));
@@ -194,7 +193,7 @@ namespace edm {
               }
               if ( not productResolved()) {
                 //another thread could have finished this while we were waiting
-                putProduct( reader->getProduct(BranchKey(branchDescription()), &principal, mcc));
+                putProduct( reader->getProduct(branchDescription().branchID(), &principal, mcc));
               }
             }
           });

@@ -77,14 +77,17 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
 #endif
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     geomId = (DetId)(HGCScintillatorDetId(detId).geometryCell());
+    cells  = 1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCScintillatorDetId(detId) 
 				  << " GEOM " << HGCScintillatorDetId(geomId);
 #endif
   } else {
-    geomId = (DetId)(HGCSiliconDetId(detId).geometryCell());
-    cells = m_topology.dddConstants().numberCellsHexagon(id.iLay,id.iSec1,
-							 id.iSec2,false);
+    geomId = (m_topology.isHFNose() ?
+	      (DetId)(HFNoseDetId(detId).geometryCell()) :
+	      (DetId)(HGCSiliconDetId(detId).geometryCell()));
+    cells  = m_topology.dddConstants().numberCellsHexagon(id.iLay,id.iSec1,
+							  id.iSec2,false);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "NewCell " << HGCSiliconDetId(detId) 
 				  << " GEOM " << HGCSiliconDetId(geomId);
@@ -111,21 +114,57 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     for (int cell = 0; cell < cells; ++cell) {
       id.iCell1 = cell;
       DetId idc = m_topology.encode(id);
-      if (m_topology.valid(idc)) m_validIds.emplace_back(idc);
+      if (m_topology.valid(idc)) {
+	m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HGCalGeom") << "Valid Id [" << cell << "] "
+				      << HGCalDetId(idc);
+#endif
+      }
     }
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     DetId idc = m_topology.encode(id);
-    if (m_topology.valid(idc)) m_validIds.emplace_back(idc);
+    if (m_topology.valid(idc)) {
+      m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " 
+				    << HGCScintillatorDetId(idc);
+#endif
+    } else {
+      edm::LogWarning("HGCalGeom") << "Check " << HGCScintillatorDetId(idc) 
+				   << " from " << HGCScintillatorDetId(detId)
+				   << " ERROR ???";
+    }
   } else {
+#ifdef EDM_ML_DEBUG
+    unsigned int cellAll(0), cellSelect(0);
+#endif
     for (int u=0; u<2*cells; ++u) {
       for (int v=0; v<2*cells; ++v) {
 	if (((v-u) < cells) && (u-v) <= cells) {
 	  id.iCell1 = u; id.iCell2 = v;
 	  DetId idc = m_topology.encode(id);
-	  if (m_topology.valid(idc)) m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+	  ++cellAll;
+#endif
+	  if (m_topology.dddConstants().cellInLayer(id.iSec1,id.iSec2,u,v,
+						    id.iLay,true)) {
+	    m_validIds.emplace_back(idc);
+#ifdef EDM_ML_DEBUG
+	    ++cellSelect;
+	    edm::LogVerbatim("HGCalGeom") << "Valid Id [" << u << ", " << v
+					  << "] " << HGCSiliconDetId(idc);
+#endif
+	  }
 	}
       }
     }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeometry keeps " << cellSelect
+				  << " out of " << cellAll << " for wafer "
+				  << id.iSec1 << ":" << id.iSec2 << " in "
+				  << " layer " << id.iLay;
+#endif
   }
 #ifdef EDM_ML_DEBUG
   if (m_det == DetId::HGCalHSc) {
@@ -155,6 +194,10 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     edm::LogVerbatim("HGCalGeom") << "ID: " << HGCScintillatorDetId(detId) 
 				  << " with valid DetId from " << nOld 
 				  << " to " << nNew;
+  } else if (m_topology.isHFNose()) {
+    edm::LogVerbatim("HGCalGeom") << "ID: " << HFNoseDetId(detId) 
+				  << " with valid DetId from " << nOld 
+				  << " to " << nNew;
   } else {
     edm::LogVerbatim("HGCalGeom") << "ID: " << HGCSiliconDetId(detId) 
 				  << " with valid DetId from " << nOld 
@@ -175,6 +218,8 @@ std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& 
     geoId = (DetId)(HGCalDetId(id).geometryCell());
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+  } else if (m_topology.isHFNose()) {
+    geoId = (DetId)(HFNoseDetId(id).geometryCell());
   } else {
     geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
   }
@@ -192,6 +237,8 @@ bool HGCalGeometry::present(const DetId& id) const {
     geoId = (DetId)(HGCalDetId(id).geometryCell());
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+  } else if (m_topology.isHFNose()) {
+    geoId = (DetId)(HFNoseDetId(id).geometryCell());
   } else {
     geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
   }
@@ -235,7 +282,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
       const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
       glob = m_cellVec[cellIndex].getPosition(lcoord);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex 
+      edm::LogVerbatim("HGCalGeom") << "getPositionWafer:: index " << cellIndex
 				    << " Local " << lcoord.x() << ":" 
 				    << lcoord.y() << " ID " << id_.iLay << ":"
 				    << id_.iSec1 << ":" << id_.iSec2 << ":"
@@ -369,6 +416,8 @@ unsigned int HGCalGeometry::indexFor(const DetId& id) const {
       geoId = (DetId)(HGCalDetId(id).geometryCell());
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
       geoId = (DetId)(HGCScintillatorDetId(id).geometryCell());
+    } else if (m_topology.isHFNose()) {
+      geoId = (DetId)(HFNoseDetId(id).geometryCell());
     } else {
       geoId = (DetId)(HGCSiliconDetId(id).geometryCell());
     }
@@ -569,6 +618,8 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
       layer     = HGCalDetId(detId).layer();
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
       layer     = HGCScintillatorDetId(detId).layer();
+    } else if (m_topology.isHFNose()) {
+      layer     = HFNoseDetId(detId).layer();
     } else {
       layer     = HGCSiliconDetId(detId).layer();
     }

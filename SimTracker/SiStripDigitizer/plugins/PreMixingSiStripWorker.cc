@@ -644,4 +644,4 @@ void PreMixingSiStripWorker::put(edm::Event &e, edm::EventSetup const& iSetup, s
   signals_.clear();
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingSiStripWorker, "PreMixingSiStripWorker");
+DEFINE_PREMIXING_WORKER(PreMixingSiStripWorker);

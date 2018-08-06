@@ -1,4 +1,4 @@
-#include "../interface/SelectiveReadoutTask.h"
+#include "DQM/EcalMonitorTasks/interface/SelectiveReadoutTask.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

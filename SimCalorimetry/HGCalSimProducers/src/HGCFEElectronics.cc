@@ -205,8 +205,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing 
   if(toaColl[fireBX] != 0.f){
     timeToA = toaColl[fireBX];
-    if(jitterNoise2_ns_[0] != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, getTimeJitter(chargeColl[fireBX], thickness));
-    else timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
+    float jitter = getTimeJitter(chargeColl[fireBX], thickness);
+    if(jitter != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, jitter);
+    else if(tdcResolutionInNs_ != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
     if(timeToA >= 0.f && timeToA <= 25.f) toaFlags[fireBX] = true;
   }
 
@@ -421,4 +422,4 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 template class HGCFEElectronics<HGCEEDataFrame>;
 template class HGCFEElectronics<HGCBHDataFrame>;
-
+template class HGCFEElectronics<HGCalDataFrame>;

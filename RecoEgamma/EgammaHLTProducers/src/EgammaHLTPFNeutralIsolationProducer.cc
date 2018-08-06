@@ -79,7 +79,7 @@ void EgammaHLTPFNeutralIsolationProducer::fillDescriptions(edm::ConfigurationDes
   descriptions.add(("hltEgammaHLTPFNeutralIsolationProducer"), desc);
 }
 
-void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void EgammaHLTPFNeutralIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   edm::Handle<double> rhoHandle;
   double rho = 0.0;

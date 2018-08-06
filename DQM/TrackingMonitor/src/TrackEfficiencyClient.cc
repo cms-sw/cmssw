@@ -138,6 +138,15 @@ void TrackEfficiencyClient::bookMEs(DQMStore::IBooker & ibooker_)
   if (effCompatibleLayers->getTH1F()) effCompatibleLayers->getTH1F()->Sumw2();
   effCompatibleLayers->setAxisTitle("");
 
+  histName = "MuonEffPtPhi_LowPt";
+  effPtPhiLowPt = ibooker_.book2D(histName+algoName_, histName+algoName_, 20,-2.4,2.4,20,-3.25,3.25);
+  if (effPtPhiLowPt->getTH2F()) effPtPhiLowPt->getTH2F()->Sumw2();
+  effPtPhiLowPt->setAxisTitle("");
+
+  histName = "MuonEffPtPhi_HighPt";
+  effPtPhiHighPt = ibooker_.book2D(histName+algoName_, histName+algoName_, 20,-2.4,2.4,20,-3.25,3.25);
+  if (effPtPhiHighPt->getTH2F()) effPtPhiHighPt->getTH2F()->Sumw2();
+  effPtPhiHighPt->setAxisTitle("");
 } 
 
 //----------------------------------------------------------------------------------- 
@@ -147,10 +156,15 @@ void TrackEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IG
  edm::LogInfo( "TrackEfficiencyClient") << "TrackEfficiencyClient::endLuminosityBlock"; 
 
  bookMEs(ibooker_);
+ FolderName_ = "Tracking/TrackParameters";
+ std::vector<std::string>  s1 = igetter_.getSubdirs();
+
+ igetter_.cd("Tracking");
+
 
  histName = "/trackX_";
  MonitorElement* trackX = igetter_.get(FolderName_+histName+algoName_);
- 
+
  histName = "/muonX_";
  MonitorElement* muonX  = igetter_.get(FolderName_+histName+algoName_);
  
@@ -184,9 +198,33 @@ void TrackEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IG
  histName = "/muonCompatibleLayers_";
  MonitorElement* muonCompatibleLayers  = igetter_.get(FolderName_+histName+algoName_);
 
- if(trackX && muonX && trackY && muonY && trackZ && muonZ && trackEta && muonEta && trackPhi && muonPhi && trackD0 && muonD0 && trackCompatibleLayers && muonCompatibleLayers){
+  histName = "/StandaloneMuonPtEtaPhi_LowPt_";
+  MonitorElement* StandAloneMuonPtEtaPhiLowPt  = igetter_.get(FolderName_+histName+algoName_);
+  histName = "/GlobalMuonPtEtaPhi_LowPt_";
+  MonitorElement* GlobalMuonPtEtaPhiLowPt  = igetter_.get(FolderName_+histName+algoName_);
+
+  histName = "/StandaloneMuonPtEtaPhi_HighPt_";
+  MonitorElement* StandAloneMuonPtEtaPhiHighPt  = igetter_.get(FolderName_+histName+algoName_);
+  histName = "/GlobalMuonPtEtaPhi_HighPt_";
+  MonitorElement* GlobalMuonPtEtaPhiHighPt  = igetter_.get(FolderName_+histName+algoName_);
+
+
+  if (StandAloneMuonPtEtaPhiLowPt && GlobalMuonPtEtaPhiLowPt && effPtPhiLowPt){
+    if ( StandAloneMuonPtEtaPhiLowPt->getTH2F() && GlobalMuonPtEtaPhiLowPt->getTH2F() && effPtPhiLowPt->getTH2F() ){
+      effPtPhiLowPt->getTH2F()->Divide(GlobalMuonPtEtaPhiLowPt->getTH2F(),StandAloneMuonPtEtaPhiLowPt->getTH2F(), 1.,1.,"");
+    }
+  }
+  if (StandAloneMuonPtEtaPhiHighPt && GlobalMuonPtEtaPhiHighPt && effPtPhiHighPt){
+    if ( StandAloneMuonPtEtaPhiHighPt->getTH2F() && GlobalMuonPtEtaPhiHighPt->getTH2F() && effPtPhiHighPt->getTH2F() ){
+      effPtPhiHighPt->getTH2F()->Divide(GlobalMuonPtEtaPhiHighPt->getTH2F(),StandAloneMuonPtEtaPhiHighPt->getTH2F(), 1.,1.,"");
+    } 
+  }
+ if(trackX && muonX && trackY && muonY && trackZ && muonZ && trackEta && muonEta && trackPhi && muonPhi && trackD0 && muonD0 && trackCompatibleLayers && muonCompatibleLayers){// && StandAloneMuonPtEtaPhi && GlobalMuonPtEtaPhi){
+
    if (trackEfficiency_)
      { 
+
+
        if (effX  ->getTH1F() && trackX  ->getTH1F() && muonX  ->getTH1F()) { effX	-> getTH1F()->Divide(trackX->getTH1F(),muonX->getTH1F(),1.,1.,"");}
        if (effY  ->getTH1F() && trackY  ->getTH1F() && muonY  ->getTH1F()) { effY	-> getTH1F()->Divide(trackY->getTH1F(),muonY->getTH1F(),1.,1.,"");}
        if (effZ  ->getTH1F() && trackZ  ->getTH1F() && muonZ  ->getTH1F()) { effZ	-> getTH1F()->Divide(trackZ->getTH1F(),muonZ->getTH1F(),1.,1.,"");}

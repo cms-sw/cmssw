@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -8,7 +9,7 @@ import sys
 Run=sys.argv[2]
 tnum=41
 
-print 'Filtering out Run %s' % Run
+print('Filtering out Run %s' % Run)
 
 process = cms.Process("READ")
 

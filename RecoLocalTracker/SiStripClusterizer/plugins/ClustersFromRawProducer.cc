@@ -363,7 +363,7 @@ try { // edmNew::CapacityExaustedException
 	    unpacker++;
             }
 	  */
-	} catch (edmNew::CapacityExaustedException) {
+	} catch (edmNew::CapacityExaustedException const&) {
           throw;
         } catch (const cms::Exception& e) {
 	  if (edm::isDebugEnabled()) {
@@ -388,7 +388,7 @@ try { // edmNew::CapacityExaustedException
 	    unpacker++;
 	    }
 	  */
-	} catch (edmNew::CapacityExaustedException) {
+	} catch (edmNew::CapacityExaustedException const&) {
            throw;
         }catch (const cms::Exception& e) {
 	  if (edm::isDebugEnabled()) {
@@ -474,7 +474,7 @@ try { // edmNew::CapacityExaustedException
   COUT << "filled " << record.size() << std::endl;
   for ( auto const & cl : record ) COUT << cl.firstStrip() << ','<<  cl.amplitudes().size() << std::endl;
   incClus(record.size());
-} catch (edmNew::CapacityExaustedException) {
+} catch (edmNew::CapacityExaustedException const&) {
   edm::LogError(sistrip::mlRawToCluster_) << "too many Sistrip Clusters to fit space allocated for OnDemand";
 }  
 

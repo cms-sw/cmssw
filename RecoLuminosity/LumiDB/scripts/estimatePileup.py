@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os, sys
 import coral
 import array
@@ -8,6 +9,7 @@ import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 import re
 
 from pprint import pprint
+import six
 
 def fillPileupHistogram (deadTable, parameters,
                          runNumber = 0, hist = None, debug = False,
@@ -25,7 +27,7 @@ def fillPileupHistogram (deadTable, parameters,
         hist = ROOT.TH1D (histname, histname, parameters.maxPileupBin + 1,
                           -0.5, parameters.maxPileupBin + 0.5)
         upper  = parameters.maxPileupBin
-    for lumiSection, deadArray in sorted (deadTable.iteritems()):
+    for lumiSection, deadArray in sorted (six.iteritems(deadTable)):
         if mode == 'csv':
             numerator     = float (deadArray[1])
             denominator   = float (deadArray[0])
@@ -44,11 +46,11 @@ def fillPileupHistogram (deadTable, parameters,
                 if parameters.noWarnings:
                     continue
                 if runNumber:
-                    print "No Xing Instantaneous luminosity information for run %d, lumi section %d" \
-                          % (runNumber, lumiSection)
+                    print("No Xing Instantaneous luminosity information for run %d, lumi section %d" \
+                          % (runNumber, lumiSection))
                 else:
-                    print "No Xing Instantaneous luminosity information for lumi section %d" \
-                          % lumiSection
+                    print("No Xing Instantaneous luminosity information for lumi section %d" \
+                          % lumiSection)
                 continue
             numerator   = float (deadArray[0])
             denominator = float (deadArray[2] * deadArray[4])
@@ -69,20 +71,20 @@ def fillPileupHistogram (deadTable, parameters,
                    parameters.rotationTime
             if mean > 100:
                 if runNumber:
-                    print "mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
-                          (runNumber, lumiSection, mean, xingInstLumi)
+                    print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
+                          (runNumber, lumiSection, mean, xingInstLumi))
                 else:
-                    print "mean number of pileup events > 100 for lum %d: m %f l %f" % \
-                          (lumiSection, mean, xingInstLumi)
+                    print("mean number of pileup events > 100 for lum %d: m %f l %f" % \
+                          (lumiSection, mean, xingInstLumi))
 
             for obs in range (upper):
                 prob = ROOT.TMath.Poisson (obs, mean)
                 totalProb += prob
                 hist.Fill (obs, prob * xingIntLumi)
             if debug:
-                print "ls", lumiSection, "xing", xing, "inst", xingInstLumi, \
-                      "mean", mean, "totalProb", totalProb, 1 - totalProb
-                print "  hist mean", hist.GetMean()
+                print("ls", lumiSection, "xing", xing, "inst", xingInstLumi, \
+                      "mean", mean, "totalProb", totalProb, 1 - totalProb)
+                print("  hist mean", hist.GetMean())
             if totalProb < 1:
                 hist.Fill (obs, (1 - totalProb) * xingIntLumi)
     return hist
@@ -210,7 +212,7 @@ if __name__ == '__main__':
             csvDict.setdefault (run, {})[lumi] = \
                                ( delivered, recorded, xingInstLumiArray )
         events.close()
-        for runNumber, lumiDict in sorted( csvDict.iteritems() ):
+        for runNumber, lumiDict in sorted( six.iteritems(csvDict) ):
             if options.saveRuns:
                 hist = fillPileupHistogram (lumiDict, parameters,
                                             runNumber = runNumber,
@@ -248,7 +250,7 @@ if __name__ == '__main__':
             inputfilecontent = f.read()
             inputRange =  selectionParser.selectionParser (inputfilecontent)
         if not inputRange:
-            print 'failed to parse the input file', options.inputfile
+            print('failed to parse the input file', options.inputfile)
             raise 
 
     recordedData  = LumiQueryAPI.recordedLumiForRange  (session, parameters, inputRange)

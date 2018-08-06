@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # cfg file to pack a GT EVM record
 #
@@ -173,7 +174,7 @@ if useRelValSample == True :
 
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
         secFiles.extend([
@@ -233,7 +234,7 @@ if useRelValSample == True :
 
 
         else :
-            print 'Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.'    
+            print('Error: no files for sample ', useSample, ', (pre)release ', useRelease, ' and global tag ', useGlobalTag, ' defined.')    
             sys.exit()
 
                 
@@ -241,14 +242,14 @@ if useRelValSample == True :
             ])
         
     else :
-        print 'Error: Global Tag ', useGlobalTag, ' not defined.'    
+        print('Error: Global Tag ', useGlobalTag, ' not defined.')    
         sys.exit()
 
 else : 
 
     # data
     dataset = '/Cosmics/Commissioning09-v1/RAW'
-    print '   Running on set: '+ dataset    
+    print('   Running on set: '+ dataset)    
     
     readFiles.extend( [
        '/store/data/Commissioning09/Cosmics/RAW/v1/000/076/966/00BD9A1F-B908-DE11-8B2C-000423D94A04.root',

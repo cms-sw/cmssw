@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import time
 import sys
@@ -105,9 +106,9 @@ class StandardTester(object):
                     'hlt_mc_Fake2': ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_Fake2 --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --fileout file:RelVal_Raw_Fake2_MC.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake2.py')+hltFlag_mc,
                                'cmsDriver.py RelVal -s HLT:Fake2,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_Fake2 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --processName=HLTRECO --filein file:RelVal_Raw_Fake2_MC.root --fileout file:RelVal_Raw_Fake2_MC_HLT_RECO.root'], 
-                    'hlt_mc_2018v22' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_2018v22 --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_2018v22_MC.root',
-                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_2018v22.py')+hltFlag_mc,
-                               'cmsDriver.py RelVal -s HLT:2018v22,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_2018v22 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_2018v22_MC.root --fileout file:RelVal_Raw_2018v22_MC_HLT_RECO.root'], 
+                    'hlt_mc_2018v32' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_2018v32 --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_2018v32_MC.root',
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_2018v32.py')+hltFlag_mc,
+                               'cmsDriver.py RelVal -s HLT:2018v32,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_2018v32 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_2018v32_MC.root --fileout file:RelVal_Raw_2018v32_MC_HLT_RECO.root'], 
                     'hlt_mc_GRun' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_GRun --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_GRun_MC.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_GRun.py')+hltFlag_mc,
                                'cmsDriver.py RelVal -s HLT:GRun,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_GRun --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_GRun_MC.root --fileout file:RelVal_Raw_GRun_MC_HLT_RECO.root'], 
@@ -129,9 +130,9 @@ class StandardTester(object):
                     'hlt_data_Fake2': ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_Fake2 --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --fileout file:RelVal_Raw_Fake2_DATA.root --filein /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake2.py')+hltFlag_data,
                                'cmsDriver.py RelVal -s HLT:Fake2,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_Fake2 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --processName=HLTRECO --filein file:RelVal_Raw_Fake2_DATA.root --fileout file:RelVal_Raw_Fake2_DATA_HLT_RECO.root'],
-                    'hlt_data_2018v22' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_2018v22 --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_2018v22_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
-                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_2018v22.py')+hltFlag_data,
-                               'cmsDriver.py RelVal -s HLT:2018v22,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_2018v22 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_2018v22_DATA.root --fileout file:RelVal_Raw_2018v22_DATA_HLT_RECO.root'],
+                    'hlt_data_2018v32' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_2018v32 --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_2018v32_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_2018v32.py')+hltFlag_data,
+                               'cmsDriver.py RelVal -s HLT:2018v32,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_2018v32 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_2018v32_DATA.root --fileout file:RelVal_Raw_2018v32_DATA_HLT_RECO.root'],
                     'hlt_data_GRun' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_GRun --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_GRun_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_GRun.py')+hltFlag_data,
                                'cmsDriver.py RelVal -s HLT:GRun,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_GRun --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_GRun_DATA.root --fileout file:RelVal_Raw_GRun_DATA_HLT_RECO.root'],
@@ -155,7 +156,7 @@ class StandardTester(object):
         return
 	
     def dumpTest(self):
-        print ",".join(self.commands.keys())
+        print(",".join(self.commands.keys()))
         return
 
     def file2Path(self,rFile):
@@ -176,7 +177,7 @@ class StandardTester(object):
     	npass=0
     	report=''
     	
-    	print 'Running in %s thread(s)' % self.maxThreads
+    	print('Running in %s thread(s)' % self.maxThreads)
     	
         for dirName, command in self.commands.items():
 
@@ -189,7 +190,7 @@ class StandardTester(object):
     	        time.sleep(10)
                 continue
     	    
-    	    print 'Preparing to run %s' % str(command)
+    	    print('Preparing to run %s' % str(command))
     	    current = testit(dirName, command)
     	    self.threadList.append(current)
     	    current.start()
@@ -205,11 +206,11 @@ class StandardTester(object):
             for f in pingle.nfail: nfail  += f
             for p in pingle.npass: npass  += p
     	    report += pingle.report
-    	    print pingle.report
+    	    print(pingle.report)
             sys.stdout.flush()
             
     	reportSumm = '\n %s tests passed, %s failed \n' %(npass,nfail)
-    	print reportSumm
+    	print(reportSumm)
     	
     	runall_report_name='runall-report.log'
     	runall_report=open(runall_report_name,'w')
@@ -217,13 +218,13 @@ class StandardTester(object):
     	runall_report.close()
 
         # get the logs to the logs dir:
-        print '==> in :', os.getcwd()
-        print '    going to copy log files to logs dir ...'
+        print('==> in :', os.getcwd())
+        print('    going to copy log files to logs dir ...')
         if not os.path.exists('logs'):
             os.makedirs('logs')
         for dirName in self.commands:
             cmd = "for L in `ls "+dirName+"/*.log`; do cp $L logs/cmsDriver-`dirname $L`_`basename $L` ; done"
-            print "going to ",cmd
+            print("going to ",cmd)
             os.system(cmd)
 
         import pickle
@@ -235,19 +236,19 @@ class StandardTester(object):
 
     def upload(self, tgtDir):
 
-        print "in ", os.getcwd()
+        print("in ", os.getcwd())
 
         if not os.path.exists(tgtDir):
             os.makedirs(tgtDir)
         
         cmd = 'tar cf - addOnTests.log addOnTests/logs | (cd '+tgtDir+' ; tar xf - ) '
         try:
-            print 'executing: ',cmd
+            print('executing: ',cmd)
             ret = os.system(cmd)
             if ret != 0:
-                print "ERROR uploading logs:", ret, cmd
+                print("ERROR uploading logs:", ret, cmd)
         except Exception as e:
-            print "EXCEPTION while uploading addOnTest-logs : ", str(e)
+            print("EXCEPTION while uploading addOnTest-logs : ", str(e))
             
     	return
 
@@ -259,7 +260,7 @@ def main(argv) :
     try:
         opts, args = getopt.getopt(argv, "dj:t:", ["nproc=", 'uploadDir=', 'tests=','noRun','dump'])
     except getopt.GetoptError as e:
-        print "unknown option", str(e)
+        print("unknown option", str(e))
         sys.exit(2)
         
     np        = 4

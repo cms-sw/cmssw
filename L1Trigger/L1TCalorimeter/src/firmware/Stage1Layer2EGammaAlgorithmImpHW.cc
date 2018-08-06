@@ -22,27 +22,24 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2EGammaAlgorithmImpHW::Stage1Layer2EGammaAlgorithmImpHW(CaloParamsHelper* params) : params_(params) {};
-
-Stage1Layer2EGammaAlgorithmImpHW::~Stage1Layer2EGammaAlgorithmImpHW(){};
-
+Stage1Layer2EGammaAlgorithmImpHW::Stage1Layer2EGammaAlgorithmImpHW(CaloParamsHelper const* params) : params_(params) {};
 
 
 void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, const std::vector<l1t::Jet> * jets, std::vector<l1t::EGamma>* egammas) {
 
 
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
-  std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
+  std::vector<l1t::CaloRegion> subRegions;
+  std::vector<l1t::EGamma> preSortEGammas;
+  std::vector<l1t::EGamma> preGtEGammas;
 
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, params_);
+  RegionCorrection(regions, &subRegions, params_);
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  TwelveByTwelveFinder(0, subRegions, unCorrJets);
+  TwelveByTwelveFinder(0, &subRegions, unCorrJets);
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
@@ -79,17 +76,12 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
     }
 
     l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, isoFlag);
-    preSortEGammas->push_back(theEG);
+    preSortEGammas.push_back(theEG);
   }
 
-  SortEGammas(preSortEGammas, preGtEGammas);
+  SortEGammas(&preSortEGammas, &preGtEGammas);
 
-  EGammaToGtScales(params_, preGtEGammas, egammas);
-
-  delete subRegions;
-  delete unCorrJets;
-  delete preSortEGammas;
-  delete preGtEGammas;
+  EGammaToGtScales(params_, &preGtEGammas, egammas);
 
 }
 

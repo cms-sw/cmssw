@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re,string
 def findUniqueSeed(hltPath,ExprStr):
     '''
@@ -54,7 +55,7 @@ def findUniqueSeed(hltPath,ExprStr):
     return (exptype,cleanresult)
 
 if __name__=='__main__':
-    print findUniqueSeed("HLT_ForwardBSC","36 OR 37")
-    print findUniqueSeed("HLT_HcalNZS_8E29","L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10")
-    print findUniqueSeed("HLT_ZeroBiasPixel_SingleTrack","L1_ZeroBias AND me")
+    print(findUniqueSeed("HLT_ForwardBSC","36 OR 37"))
+    print(findUniqueSeed("HLT_HcalNZS_8E29","L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_SingleEG8 OR L1_SingleEG10"))
+    print(findUniqueSeed("HLT_ZeroBiasPixel_SingleTrack","L1_ZeroBias AND me"))
     

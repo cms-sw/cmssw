@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import urllib
 import string
 import os
@@ -14,7 +15,7 @@ start = time.strftime("%D %H:%M")
 
 def mail(STDruns,AAGruns,cleanUpLog):
    if mailAdd=="":
-      print "No email address specified."
+      print("No email address specified.")
       return
 
    message  = "Production started at %s\n"%start
@@ -56,22 +57,22 @@ debug = False
 for arg in sys.argv:
    debug +="debug" in arg.lower()
 if debug:
-   print "DEBUG MODE DETECTED"
-   print "--> Will not submit jobs"
-   print "--> Will not modify status files"
-   print
+   print("DEBUG MODE DETECTED")
+   print("--> Will not submit jobs")
+   print("--> Will not modify status files")
+   print()
 
 
 
 #Std bunch:
-print "Processing Std bunch"
+print("Processing Std bunch")
 config = submitCalibTree.Config.configuration(debug=debug)
 cleanUpMessage = "Unable to clean up folder. Bad clean-up integrity?"
 
 if config.integrity:
-   print "Cleaning up directory..."
+   print("Cleaning up directory...")
    cleanUpMessage = commands.getstatusoutput("cd %s; python cleanFolders.py; cd -"%config.RUNDIR)[1]
-   print cleanUpMessage
+   print(cleanUpMessage)
    with open("LastRun.txt","r") as lastRun:
       for line in lastRun:
          line = line.replace("\n","").replace("\r","")
@@ -93,7 +94,7 @@ if config.integrity:
 
    lastRunProcessed = submitCalibTree.launchJobs.generateJobs(config)
 
-   print config.launchedRuns
+   print(config.launchedRuns)
 
    if not debug:
       with open("LastRun.txt","w") as lastRun:
@@ -101,7 +102,7 @@ if config.integrity:
 
 
 
-print "Processing AAG"
+print("Processing AAG")
 
 
 

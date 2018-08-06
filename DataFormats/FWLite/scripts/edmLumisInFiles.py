@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 from FWCore.PythonUtilities.LumiList   import LumiList
 import optparse
 
@@ -44,10 +45,10 @@ if __name__ == '__main__':
     if options.output:
         jsonList.writeJSON (options.output)
     else:
-        print jsonList
+        print(jsonList)
 
     # print out integrated luminosity numbers if requested
     if options.intLumi:
-        print "\nNote: These numbers should be considered approximate.  For official numbers, please use lumiCalc.py"
-        print "delivered %.1f mb,  recorded %.1f mb" % \
-              (delivered, recorded)
+        print("\nNote: These numbers should be considered approximate.  For official numbers, please use lumiCalc.py")
+        print("delivered %.1f mb,  recorded %.1f mb" % \
+              (delivered, recorded))

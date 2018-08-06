@@ -1,3 +1,4 @@
+from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
@@ -21,15 +22,15 @@ myconnect   = cms.string('sqlite_file:TancLocal.db')  #or frontier, etc
 mytag       = cms.string('TauNeuralClassifier_v2')
 mytimetype  = cms.untracked.string('runnumber')
 
-print ""
-print "***************************************************"
-print "******  Upload Tau Neural Classifier to DB   ******"
-print "***************************************************"
-print "*  Using the %s algorithm                         " % algorithm
-print "*  DB tag:       %s                               " % mytag.value()
-print "*  Database:     %s                               " % myconnect.value()
-print "*  Timetype:     %s                               " % mytimetype.value()
-print "* ----------------------------------------------- "
+print("")
+print("***************************************************")
+print("******  Upload Tau Neural Classifier to DB   ******")
+print("***************************************************")
+print("*  Using the %s algorithm                         " % algorithm)
+print("*  DB tag:       %s                               " % mytag.value())
+print("*  Database:     %s                               " % myconnect.value())
+print("*  Timetype:     %s                               " % mytimetype.value())
+print("* ----------------------------------------------- ")
 
 
 process = cms.Process("TaNCCondUpload")

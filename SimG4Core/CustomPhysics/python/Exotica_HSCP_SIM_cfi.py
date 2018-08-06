@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 def customise(process):
@@ -37,7 +38,7 @@ def customise(process):
 	elif FLAVOR =="stau":
           process.g4SimHits.Physics.ExoticaPhysicsSS = cms.untracked.bool(False)
         else:
-          print "Wrong flavor %s. Only accepted are gluino, stau, stop." % FLAVOR
+          print("Wrong flavor %s. Only accepted are gluino, stau, stop." % FLAVOR)
         # add custom options
         process.g4SimHits.Physics = cms.PSet(
             process.g4SimHits.Physics, #keep all default value and add others

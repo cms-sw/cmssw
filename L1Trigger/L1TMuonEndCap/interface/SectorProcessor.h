@@ -100,7 +100,7 @@ private:
 
   // For track building
   int thetaWindow_, thetaWindowZone0_;
-  bool useRPC_, useSingleHits_;
+  bool useRPC_, useCPPF_, useSingleHits_;
   bool bugSt2PhDiff_, bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_;
 
   // For ghost cancellation

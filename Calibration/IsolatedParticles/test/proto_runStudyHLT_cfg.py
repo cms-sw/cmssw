@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
@@ -25,7 +26,7 @@ options.register ( "TrigNames",
                    VarParsing.VarParsing.varType.string,          # string, int, or float
                    "HLT names")
 options.parseArguments()
-print options.TrigNames
+print(options.TrigNames)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )

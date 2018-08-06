@@ -1,4 +1,4 @@
-#include "../interface/TimingClient.h"
+#include "DQM/EcalMonitorClient/interface/TimingClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 

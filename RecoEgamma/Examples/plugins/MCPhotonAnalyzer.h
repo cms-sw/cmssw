@@ -3,7 +3,7 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include <map>
 #include <vector>
@@ -19,7 +19,7 @@ class SimVertex;
 class SimTrack;
 
 
-class MCPhotonAnalyzer : public edm::EDAnalyzer
+class MCPhotonAnalyzer : public edm::one::EDAnalyzer<>
 {
 
    public:

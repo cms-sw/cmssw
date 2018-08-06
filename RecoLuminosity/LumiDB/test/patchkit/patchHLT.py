@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys,os,csv,re,coral,array
 from RecoLuminosity.LumiDB import argparse,sessionManager,CommonUtil,dataDML,revisionDML,nameDealer,dbUtil
 DATABRANCH_ID=3
@@ -224,7 +225,7 @@ def  main(*args):
     options=parser.parse_args()
     (runnum,lsboundaries,pathinfo)=parseInfile(options.ifile)
     (pathnames,dataresult)=parsepresc(pathinfo,options.lsmin,options.lsmax,lsboundaries)
-    print pathnames
+    print(pathnames)
     os.environ['CORAL_AUTH_PATH'] = options.authpath      
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)

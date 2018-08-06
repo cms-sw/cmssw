@@ -337,6 +337,22 @@ workflows[136.860] = ['',['RunCharmonium2018A','HLTDR2_2018','RECODR2_2018reHLT_
 workflows[136.8561] = ['',['RunZeroBias_hBStarTk','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 workflows[136.8562] = ['',['RunZeroBias1_hBStarRP','HLTDR2_2018_hBStar','RECODR2_2018reHLT_Prompt_hBStar','HARVEST2018_hBStar']]
 
+### NANOAOD wf on 2018 prompt reco MINIADD
+workflows[136.8521] = ['',['RunJetHT2018A_nano','NANOEDM2018','HARVESTNANOAOD2018']]
+
+### run 2018B ###
+workflows[136.861] = ['',['RunHLTPhy2018B','HLTDR2_2018','RECODR2_2018reHLT_Prompt','HARVEST2018']]
+workflows[136.862] = ['',['RunEGamma2018B','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM']]
+workflows[136.863] = ['',['RunDoubleMuon2018B','HLTDR2_2018','RECODR2_2018reHLT_Prompt','HARVEST2018']]
+workflows[136.864] = ['',['RunJetHT2018B','HLTDR2_2018','RECODR2_2018reHLT_skimJetHT_Prompt','HARVEST2018']]
+workflows[136.865] = ['',['RunMET2018B','HLTDR2_2018','RECODR2_2018reHLT_skimMET_Prompt','HARVEST2018']]
+workflows[136.866] = ['',['RunMuonEG2018B','HLTDR2_2018','RECODR2_2018reHLT_skimMuonEG_Prompt','HARVEST2018']]
+workflows[136.867] = ['',['RunSingleMu2018B','HLTDR2_2018','RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi','HARVEST2018_L1TMuDQM']]
+workflows[136.868] = ['',['RunZeroBias2018B','HLTDR2_2018','RECODR2_2018reHLT_Prompt','HARVEST2018']]
+workflows[136.869] = ['',['RunMuOnia2018B','HLTDR2_2018','RECODR2_2018reHLT_skimMuOnia_Prompt','HARVEST2018']]
+workflows[136.870] = ['',['RunNoBPTX2018B','HLTDR2_2018','RECODR2_2018reHLTAlCaTkCosmics_Prompt','HARVEST2018']]
+workflows[136.871] = ['',['RunDisplacedJet2018B','HLTDR2_2018','RECODR2_2018reHLT_skimDisplacedJet_Prompt','HARVEST2018']]
+workflows[136.872] = ['',['RunCharmonium2018B','HLTDR2_2018','RECODR2_2018reHLT_skimCharmonium_Prompt','HARVEST2018']]
 
 
 ### fastsim ###
@@ -364,6 +380,23 @@ workflows[135.13] = ['TTbar_13', ['TTbarFS_13_trackingOnlyValidation','HARVESTUP
 
 ### MinBias fastsim_13 TeV for mixing ###
 workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
+
+### Phase1 FastSim 13TeV ###                                                                                                                                                   
+workflows[2017.1] = ['TTbar_13_UP17', ['TTbarFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.2] = ['SingleMuPt10_UP17', ['SingleMuPt10FS_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.3] = ['SingleMuPt100_UP17', ['SingleMuPt100FS_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.4] = ['ZEE_13_UP17', ['ZEEFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.5] = ['ZTT_13_UP17',['ZTTFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.6] = ['QCD_FlatPt_15_3000_13_UP17', ['QCDFlatPt153000FS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.7] = ['H125GGgluonfusion_13_UP17', ['H125GGgluonfusionFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.9] = ['ZMM_13_UP17',['ZMMFS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13_UP17', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.12] = ['QCD_Pt_80_120_13_UP17', ['QCD_Pt_80_120FS_13_UP17','HARVESTUP17FS','MINIAODMCUP17FS']]
+workflows[2017.13] = ['TTbar_13_UP17', ['TTbarFS_13_trackingOnlyValidation_UP17','HARVESTUP17FS_trackingOnly']]
+
+### MinBias fastsim_13 TeV for mixing ###                                                                                                                                      
+workflows[2017.8] = ['',['MinBiasFS_13_ForMixing']]
+
 
 ### standard set ###
 ## particle guns
@@ -516,6 +549,7 @@ workflows[1363] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13','DIGIUP15','RECOUP15','HA
 workflows[1361.17] = ['', ['GluGluHToZZTo4L_M125_Pow_py8_Evt_13UP17','DIGIUP17','RECOUP17','HARVESTUP17']]
 workflows[1362.17] = ['', ['VBFHToZZTo4Nu_M125_Pow_py8_Evt_13UP17','DIGIUP17','RECOUP17','HARVESTUP17']]
 workflows[1363.17] = ['', ['VBFHToBB_M125_Pow_py8_Evt_13UP17','DIGIUP17','RECOUP17','HARVESTUP17']]
+
 
 ### HI test ###
 

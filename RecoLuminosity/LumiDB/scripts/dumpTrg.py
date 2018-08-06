@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 VERSION='1.02'
 import os,sys
 import coral
@@ -24,9 +25,9 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.gtmonschema)
         if not schema:
-            raise 'cannot connect to schema',c.gtmonschema
+            raise RuntimeError('cannot connect to schema '+c.gtmonschema)
         if not schema.existsView(c.algoviewname):
-            raise 'non-existing view',c.algoviewname
+            raise RuntimeError('non-existing view '+c.algoviewname)
 
         bitOutput=coral.AttributeList()
         bitOutput.extend("lsnr","unsigned int")
@@ -55,7 +56,7 @@ def bitzeroForRun(dbsession,c,runnum):
         #print result
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
     
@@ -68,9 +69,9 @@ def deadcountForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.gtmonschema)
         if not schema:
-            raise 'cannot connect to schema',c.gtmonschema
+            raise RuntimeError('cannot connect to schema '+c.gtmonschema)
         if not schema.existsView(c.deadviewname):
-            raise 'non-existing view',c.deadviewname
+            raise RuntimeError('non-existing view '+c.deadviewname)
 
         deadOutput=coral.AttributeList()
         deadOutput.extend("lsnr","unsigned int")
@@ -99,7 +100,7 @@ def deadcountForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         return result
     except Exception as e:
-        print str(e)
+        print(str(e))
         dbsession.transaction().rollback()
         del dbsession
         
@@ -127,30 +128,30 @@ def main():
     if args.action == 'deadtime':
         deadresult=deadcountForRun(session,c,runnumber)
         if deadresult and len(deadresult)!=0:
-            print 'run',runnumber
-            print 'ls deadcount'
+            print('run',runnumber)
+            print('ls deadcount')
             for cmsls,deadcount in deadresult.items():
-                print cmsls,deadcount
+                print(cmsls,deadcount)
         else:
-            print 'no deadtime found for run ',runnumber
+            print('no deadtime found for run ',runnumber)
             
     if args.action == 'deadfraction':
         deadresult=deadcountForRun(session,c,runnumber)
         bitzeroresult=bitzeroForRun(session,c,runnumber)
         if deadresult and len(deadresult)!=0:
-            print 'run',runnumber
-            print 'ls deadfraction'
+            print('run',runnumber)
+            print('ls deadfraction')
             for cmsls,deadcount in deadresult.items():
                 bitzero_count=bitzeroresult[cmsls]
                 bitzero_prescale=1.0
                 if int(runnumber)>=146315:
                     bitzero_prescale=17.0
                 if bitzero_count==0:
-                    print cmsls,'no beam'
+                    print(cmsls,'no beam')
                 else:
-                    print cmsls,'%.5f'%float(float(deadcount)/(float(bitzero_count)*bitzero_prescale))
+                    print(cmsls,'%.5f'%float(float(deadcount)/(float(bitzero_count)*bitzero_prescale)))
         else:
-            print 'no deadtime found for run ',runnumber
+            print('no deadtime found for run ',runnumber)
         
     del session
     del svc

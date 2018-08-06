@@ -94,7 +94,7 @@ double L1CaloEtScale::et(const uint16_t rank) const {
   try {
     return m_thresholds.at(rank);
   }
-  catch(std::out_of_range) {
+  catch(std::out_of_range const&) {
     throw cms::Exception("OutOfRange") << "Index out of range in L1CaloEtScale::et(rank)" << std::endl;
   }
 

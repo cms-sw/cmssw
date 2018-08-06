@@ -57,7 +57,7 @@ void EgammaHLTPFChargedIsolationProducer::fillDescriptions(edm::ConfigurationDes
   descriptions.add(("hltEgammaHLTPFChargedIsolationProducer"), desc);
 }
 
-void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTPFChargedIsolationProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
   edm::Handle<reco::ElectronCollection> electronHandle;
   edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;

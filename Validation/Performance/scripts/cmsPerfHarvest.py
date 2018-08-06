@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from cmsPerfCommons import Candles, CandFname
 import optparse as opt
 import cmsPerfRegress as cpr
@@ -48,7 +49,7 @@ def visit_timesize_steps(candle,profsetdir):
                 step = found.groups()[0]
                 try:
                     if step == None:
-                        print "Error: could not resolve step something is wrong"
+                        print("Error: could not resolve step something is wrong")
                         step = "None"
                     if "TimingReport" not in out:
                         out["TimingReport"] = {}
@@ -56,9 +57,9 @@ def visit_timesize_steps(candle,profsetdir):
                     stepdict[step] = cpr.getTimingLogData(globule)
                     out["TimingReport"] = stepdict
                 except (OSError, IOError) as detail:
-                    print detail
+                    print(detail)
             else:
-                print "Error: Could not determine step from %s" % base
+                print("Error: Could not determine step from %s" % base)
     return out
 
 ###############
@@ -78,16 +79,16 @@ def visit(visitdir):
                     profset = found.groups()[0]
                     if profset == "TimeSize": # Just do timesize for now!
                         if candle == None:
-                            print "Error: could not resolve candle something is wrong"
+                            print("Error: could not resolve candle something is wrong")
                             candle = "None"
                         if profset == None:
-                            print "Error: could not resolve profset something is wrong"
+                            print("Error: could not resolve profset something is wrong")
                             profset = "None"
                         if candle not in out:
                             out[candle] = {}
                         candledict = out[candle]
                         if profset in candledict:
-                            print "Error: we already have a profset that matches %s" % str(profset)
+                            print("Error: we already have a profset that matches %s" % str(profset))
                         else:
                             candledict[profset] = visit_timesize_steps(candle,globule)
                             out[candle] = candledict
@@ -108,14 +109,14 @@ def harvest(perfdir):
             if found:
                 cpuid = found.groups()[0]
                 if cpuid in out:
-                    print "Error: we already have a cpu run with this id %s ! Skipping..." % cpuid
+                    print("Error: we already have a cpu run with this id %s ! Skipping..." % cpuid)
                 else:
                     if cpuid == None:
-                        print "Error: could not resolve cpuid something is wrong"
+                        print("Error: could not resolve cpuid something is wrong")
                         cpuid = "None"
                     out[cpuid] = visit(globule)                
             else:
-                print "Error: could not determine valid cpu id from %s ! Skipping..." % base
+                print("Error: could not determine valid cpu id from %s ! Skipping..." % base)
 
     else:
         out["None"] = visit(perfdir)
@@ -124,4 +125,4 @@ def harvest(perfdir):
 
 if __name__ == "__main__":
     (perfdir) = optionParse()
-    print harvest(perfdir)
+    print(harvest(perfdir))

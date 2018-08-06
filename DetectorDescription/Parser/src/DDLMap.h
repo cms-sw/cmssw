@@ -8,43 +8,13 @@
 #include "DetectorDescription/Core/interface/DDReadMapType.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "boost/spirit/home/classic/core/non_terminal/grammar.hpp"
-// Boost parser, spirit, for parsing the std::vector elements.
-#include "boost/spirit/include/classic.hpp"
-#include "boost/thread/pthread/once_atomic.hpp"
 
 class DDCompactView;
 class DDLElementRegistry;
 
-namespace boost { namespace spirit { namespace classic { } } }
-
-class Mapper : public boost::spirit::classic::grammar<Mapper> {
-public:
-  Mapper() { };
-  ~Mapper() { };
-  template <typename ScannerT> struct definition;
-};
-
-class MapPair {
-public:
-  MapPair() { };
-  ~MapPair() { };
-  void operator()(char const* str, char const* end) const;
-};
-
-class MapMakeName {
-public:
-  MapMakeName() { };
-  ~MapMakeName() { };
-  void operator()(char const* str, char const* end) const;
-};
-
-class MapMakeDouble {
-public:
-  MapMakeDouble() { };
-  ~MapMakeDouble() { };
-  void operator()(char const* str, char const* end) const;
-};
+class MapPair;
+class MapMakeName;
+class MapMakeDouble;
 
 ///  DDLMap handles Map container.
 /** @class DDLMap

@@ -20,49 +20,106 @@ const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfig
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
-L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps) :
-        thePFJetCollection_(
-            consumes < reco::PFJetCollection > (ps.getParameter < edm::InputTag > ("pfJetCollection"))),
-        thecaloMETCollection_(
-            consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloMETCollection"))),
-        thecaloETMHFCollection_(
-            consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloETMHFCollection"))),
-        thePFMETNoMuCollection_(consumes < reco::PFMETCollection > (ps.getParameter < edm::InputTag > ("pfMETNoMuCollection"))),
-        thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
-        theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
-        triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
-        triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
-        triggerProcess_(ps.getParameter < std::string > ("triggerProcess")),
-        triggerNames_(ps.getParameter < std::vector<std::string> > ("triggerNames")),
-        histFolderEtSum_(ps.getParameter < std::string > ("histFolderEtSum")),
-        histFolderJet_(ps.getParameter < std::string > ("histFolderJet")),
-        efficiencyFolderEtSum_(histFolderEtSum_ + "/efficiency_raw"),
-        efficiencyFolderJet_(histFolderJet_ + "/efficiency_raw"),
-        stage2CaloLayer2JetToken_(
-            consumes < l1t::JetBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2JetSource"))),
-        stage2CaloLayer2EtSumToken_(
-            consumes < l1t::EtSumBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EtSumSource"))),
-        jetEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("jetEfficiencyThresholds")),
-        metEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("metEfficiencyThresholds")),
-        mhtEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("mhtEfficiencyThresholds")),
-        ettEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("ettEfficiencyThresholds")),
-        httEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("httEfficiencyThresholds")),
-        jetEfficiencyBins_(ps.getParameter < std::vector<double> > ("jetEfficiencyBins")),
-        metEfficiencyBins_(ps.getParameter < std::vector<double> > ("metEfficiencyBins")),
-        mhtEfficiencyBins_(ps.getParameter < std::vector<double> > ("mhtEfficiencyBins")),
-        ettEfficiencyBins_(ps.getParameter < std::vector<double> > ("ettEfficiencyBins")),
-        httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins")),
-        recoHTTMaxEta_(ps.getParameter <double>("recoHTTMaxEta")),
-        recoMHTMaxEta_(ps.getParameter <double>("recoMHTMaxEta")),
-        hltConfig_(),
-        triggerIndices_(),
-        triggerResults_(),
-        triggerEvent_(),
-        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
-        h_controlPlots_()
+L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps)
+    : thePFJetCollection_(consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"))),
+      thecaloMETCollection_(consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMETCollection"))),
+      thecaloETMHFCollection_(consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloETMHFCollection"))),
+      thePFMETNoMuCollection_(consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETNoMuCollection"))),
+      thePVCollection_(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVCollection"))),
+      theBSCollection_(consumes<reco::BeamSpot>(ps.getParameter<edm::InputTag>("beamSpotCollection"))),
+      triggerInputTag_(consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("triggerInputTag"))),
+      triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
+      triggerProcess_(ps.getParameter<std::string>("triggerProcess")),
+      triggerNames_(ps.getParameter<std::vector<std::string>>("triggerNames")),
+      histFolderEtSum_(ps.getParameter<std::string>("histFolderEtSum")),
+      histFolderJet_(ps.getParameter<std::string>("histFolderJet")),
+      efficiencyFolderEtSum_(histFolderEtSum_ + "/efficiency_raw"),
+      efficiencyFolderJet_(histFolderJet_ + "/efficiency_raw"),
+      stage2CaloLayer2JetToken_(
+          consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2JetSource"))),
+      stage2CaloLayer2EtSumToken_(
+          consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EtSumSource"))),
+      jetEfficiencyThresholds_(ps.getParameter<std::vector<double>>("jetEfficiencyThresholds")),
+      metEfficiencyThresholds_(ps.getParameter<std::vector<double>>("metEfficiencyThresholds")),
+      mhtEfficiencyThresholds_(ps.getParameter<std::vector<double>>("mhtEfficiencyThresholds")),
+      ettEfficiencyThresholds_(ps.getParameter<std::vector<double>>("ettEfficiencyThresholds")),
+      httEfficiencyThresholds_(ps.getParameter<std::vector<double>>("httEfficiencyThresholds")),
+      jetEfficiencyBins_(ps.getParameter<std::vector<double>>("jetEfficiencyBins")),
+      metEfficiencyBins_(ps.getParameter<std::vector<double>>("metEfficiencyBins")),
+      mhtEfficiencyBins_(ps.getParameter<std::vector<double>>("mhtEfficiencyBins")),
+      ettEfficiencyBins_(ps.getParameter<std::vector<double>>("ettEfficiencyBins")),
+      httEfficiencyBins_(ps.getParameter<std::vector<double>>("httEfficiencyBins")),
+      recoHTTMaxEta_(ps.getParameter<double>("recoHTTMaxEta")),
+      recoMHTMaxEta_(ps.getParameter<double>("recoMHTMaxEta")),
+      hltConfig_(),
+      triggerIndices_(),
+      triggerResults_(),
+      triggerEvent_(),
+      histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
+      h_nVertex_(),
+      h_controlPlots_(),
+      h_L1METvsCaloMET_(),
+      h_L1ETMHFvsCaloETMHF_(),
+      h_L1METvsPFMetNoMu_(),
+      h_L1MHTvsRecoMHT_(),
+      h_L1METTvsCaloETT_(),
+      h_L1HTTvsRecoHTT_(),
+      h_L1METPhivsCaloMETPhi_(),
+      h_L1ETMHFPhivsCaloETMHFPhi_(),
+      h_L1METPhivsPFMetNoMuPhi_(),
+      h_L1MHTPhivsRecoMHTPhi_(),
+      h_resolutionMET_(),
+      h_resolutionETMHF_(),
+      h_resolutionPFMetNoMu_(),
+      h_resolutionMHT_(),
+      h_resolutionETT_(),
+      h_resolutionHTT_(),
+      h_resolutionMETPhi_(),
+      h_resolutionETMHFPhi_(),
+      h_resolutionPFMetNoMuPhi_(),
+      h_resolutionMHTPhi_(),
+      h_efficiencyMET_pass_(),
+      h_efficiencyETMHF_pass_(),
+      h_efficiencyPFMetNoMu_pass_(),
+      h_efficiencyMHT_pass_(),
+      h_efficiencyETT_pass_(),
+      h_efficiencyHTT_pass_(),
+      h_efficiencyMET_total_(),
+      h_efficiencyETMHF_total_(),
+      h_efficiencyPFMetNoMu_total_(),
+      h_efficiencyMHT_total_(),
+      h_efficiencyETT_total_(),
+      h_efficiencyHTT_total_(),
+      h_L1JetETvsPFJetET_HB_(),
+      h_L1JetETvsPFJetET_HE_(),
+      h_L1JetETvsPFJetET_HF_(),
+      h_L1JetETvsPFJetET_HB_HE_(),
+      h_L1JetPhivsPFJetPhi_HB_(),
+      h_L1JetPhivsPFJetPhi_HE_(),
+      h_L1JetPhivsPFJetPhi_HF_(),
+      h_L1JetPhivsPFJetPhi_HB_HE_(),
+      h_L1JetEtavsPFJetEta_(),
+      h_resolutionJetET_HB_(),
+      h_resolutionJetET_HE_(),
+      h_resolutionJetET_HF_(),
+      h_resolutionJetET_HB_HE_(),
+      h_resolutionJetPhi_HB_(),
+      h_resolutionJetPhi_HE_(),
+      h_resolutionJetPhi_HF_(),
+      h_resolutionJetPhi_HB_HE_(),
+      h_resolutionJetEta_(),
+      h_efficiencyJetEt_HB_pass_(),
+      h_efficiencyJetEt_HE_pass_(),
+      h_efficiencyJetEt_HF_pass_(),
+      h_efficiencyJetEt_HB_HE_pass_(),
+      h_efficiencyJetEt_HB_total_(),
+      h_efficiencyJetEt_HE_total_(),
+      h_efficiencyJetEt_HF_total_(),
+      h_efficiencyJetEt_HB_HE_total_()
 {
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
-      << "L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline " << std::endl;
+    edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
+                                               << "L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline "
+                                               << std::endl;
 }
 
 //
@@ -297,7 +354,12 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   fillWithinLimits(h_resolutionPFMetNoMu_, resolutionPFMetNoMu);
   fillWithinLimits(h_resolutionMHT_, resolutionMHT);
   fillWithinLimits(h_resolutionETT_, resolutionETT);
-  fillWithinLimits(h_resolutionHTT_, resolutionHTT);
+  if (resolutionMHT < outOfBounds){
+    fillWithinLimits(h_resolutionMHT_, resolutionMHT);
+  }
+  if(resolutionHTT < outOfBounds){
+    fillWithinLimits(h_resolutionHTT_, resolutionHTT);
+  }
 
   fillWithinLimits(h_resolutionMETPhi_, resolutionMETPhi);
   fillWithinLimits(h_resolutionETMHFPhi_, resolutionETMHFPhi);
@@ -375,6 +437,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
       minDeltaR = currentDeltaR;
       closestL1Jet = *jet;
       foundMatch = true;
+      break;
     }
 
   }
@@ -575,26 +638,24 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 
   // energy sum resolutions
   h_resolutionMET_ = ibooker.book1D("resolutionMET",
-      "MET resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss}; events", 50, -1, 1.5);
+      "MET resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss}; events", 70, -1.0, 2.5);
   h_resolutionETMHF_ = ibooker.book1D("resolutionETMHF",
-      "MET resolution (HF); (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (HF); events", 50, -1, 1.5);
+      "MET resolution (HF); (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (HF); events", 70, -1.0, 2.5);
   h_resolutionPFMetNoMu_ = ibooker.book1D("resolutionPFMetNoMu",
-          "PFMetNoMu resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (PFMetNoMu); events", 50, -1, 1.5);
-  h_resolutionMHT_ = ibooker.book1D("resolutionMHT", "MHT resolution; (L1 MHT - reco MHT)/reco MHT; events", 50, -1,
-      1.5);
-  h_resolutionETT_ = ibooker.book1D("resolutionETT", "ETT resolution; (L1 ETT - calo ETT)/calo ETT; events", 50, -1,
-      1.5);
+          "PFMetNoMu resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (PFMetNoMu); events", 70, -1.0, 2.5);
+  h_resolutionMHT_ = ibooker.book1D("resolutionMHT", "MHT resolution; (L1 MHT - reco MHT)/reco MHT; events", 70, -1.0, 2.5);
+  h_resolutionETT_ = ibooker.book1D("resolutionETT", "ETT resolution; (L1 ETT - calo ETT)/calo ETT; events", 70, -1.0, 2.5);
   h_resolutionHTT_ = ibooker.book1D("resolutionHTT",
-      "HTT resolution; (L1 Total H_{T} - Offline Total H_{T})/Offline Total H_{T}; events", 50, -1, 1.5);
+      "HTT resolution; (L1 Total H_{T} - Offline Total H_{T})/Offline Total H_{T}; events", 70, -1.0, 2.5);
 
   h_resolutionMETPhi_ = ibooker.book1D("resolutionMETPhi",
-      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi; events", 120, -0.3, 0.3);
+      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi); events", 200, -1, 1);
   h_resolutionETMHFPhi_ = ibooker.book1D("resolutionETMHFPhi",
-      "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (HF); events", 120, -0.3, 0.3);
+      "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi) (HF); events", 200, -1, 1);
   h_resolutionPFMetNoMuPhi_ = ibooker.book1D("resolutionPFMetNoMuPhi",
-      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (PFMetNoMu); events", 120, -0.3, 0.3);
+      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi) (PFMetNoMu); events", 200, -1, 1);
   h_resolutionMHTPhi_ = ibooker.book1D("resolutionMHTPhi",
-      "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
+      "MET #phi resolution; (L1 MHT #phi - reco MHT #phi); events",  200, -1, 1);
 
   // energy sum turn ons
   ibooker.setCurrentFolder(efficiencyFolderEtSum_);
@@ -704,20 +765,20 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "jet ET resolution (HB+HE); (L1 Jet E_{T} - Offline Jet E_{T})/Offline Jet E_{T}; events", 50, -1, 1.5);
 
   h_resolutionJetPhi_HB_ = ibooker.book1D("resolutionJetPhi_HB",
-      "#phi_{jet} resolution (HB); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "#phi_{jet} resolution (HB); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
   h_resolutionJetPhi_HE_ = ibooker.book1D("resolutionJetPhi_HE",
-      "jet #phi resolution (HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "jet #phi resolution (HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
   h_resolutionJetPhi_HF_ = ibooker.book1D("resolutionJetPhi_HF",
-      "jet #phi resolution (HF); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "jet #phi resolution (HF); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
   h_resolutionJetPhi_HB_HE_ = ibooker.book1D("resolutionJetPhi_HB_HE",
-      "jet #phi resolution (HB+HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "jet #phi resolution (HB+HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
 
   h_resolutionJetEta_ = ibooker.book1D("resolutionJetEta",
-      "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta)/Offline Jet #eta; events", 120, -0.3, 0.3);
+      "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta); events", 120, -0.3, 0.3);
 
   // jet turn-ons
   ibooker.setCurrentFolder(efficiencyFolderJet_);
@@ -768,6 +829,34 @@ bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & j
   const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(l1Eta, l1Phi, 0.3, hltObjects);
 
   return matchedObjects.empty();
+}
+
+void L1TStage2CaloLayer2Offline::endJob(){
+  normalise2DHistogramsToBinArea();
+}
+
+void L1TStage2CaloLayer2Offline::normalise2DHistogramsToBinArea() {
+  std::vector<MonitorElement *> monElementstoNormalize = {
+    h_L1METvsCaloMET_,         h_L1ETMHFvsCaloETMHF_,
+    h_L1METvsPFMetNoMu_,       h_L1MHTvsRecoMHT_,
+    h_L1METTvsCaloETT_,        h_L1HTTvsRecoHTT_,
+    h_L1METPhivsCaloMETPhi_,   h_L1ETMHFPhivsCaloETMHFPhi_,
+    h_L1METPhivsPFMetNoMuPhi_, h_L1MHTPhivsRecoMHTPhi_,
+    h_L1JetETvsPFJetET_HB_,    h_L1JetETvsPFJetET_HE_,
+    h_L1JetETvsPFJetET_HF_,    h_L1JetETvsPFJetET_HB_HE_,
+    h_L1JetPhivsPFJetPhi_HB_,  h_L1JetPhivsPFJetPhi_HE_,
+    h_L1JetPhivsPFJetPhi_HF_,  h_L1JetPhivsPFJetPhi_HB_HE_,
+    h_L1JetEtavsPFJetEta_,
+};
+
+  for (auto mon : monElementstoNormalize) {
+    if (mon != nullptr) {
+      auto h = mon->getTH2F();
+      if (h != nullptr) {
+        h->Scale(1, "width");
+      }
+    }
+  }
 }
 
 //define this as a plug-in

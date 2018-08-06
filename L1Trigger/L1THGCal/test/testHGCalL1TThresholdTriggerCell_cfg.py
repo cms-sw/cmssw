@@ -138,9 +138,9 @@ process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
 # define threshold tester
 process.hgcaltriggerthresholdtester = cms.EDAnalyzer(
     "HGCalTriggerThresholdTriggerCellTester",
-    eeDigis = cms.InputTag('mix:HGCDigisEE'),
-    fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-    #bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+    eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    #bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
     isSimhitComp = cms.bool(True),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),

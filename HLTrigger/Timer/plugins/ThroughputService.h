@@ -33,7 +33,8 @@ public:
   ~ThroughputService();
 
 private:
-  void preGlobalBeginRun(edm::GlobalContext const&);
+  void preallocate(edm::service::SystemBounds const& bounds);
+  void preGlobalBeginRun(edm::GlobalContext const& gc);
   void preSourceEvent(edm::StreamID sid);
   void postEvent(edm::StreamContext const & sc);
 
@@ -51,7 +52,8 @@ private:
   const double                          m_time_resolution;
 
   // DQM service-related data members
-  const std::string                     m_dqm_path;
+  std::string                           m_dqm_path;
+  const bool                            m_dqm_bynproc;
 };
 
 #endif // ! ThroughputService_h

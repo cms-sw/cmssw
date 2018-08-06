@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import random
 
@@ -108,7 +109,7 @@ entryList1.__class__ = ROOT.TEntryList
 nentry = entryList1.GetN()
 treeCells.SetEntryList(entryList1)
 for ie in xrange(nentry):
-    if ie%10000==0: print "Entry {0}/{1}".format(ie, nentry)
+    if ie%10000==0: print("Entry {0}/{1}".format(ie, nentry))
     entry = entryList1.GetEntry(ie)
     treeCells.GetEntry(entry)
     cell = Cell()
@@ -137,7 +138,7 @@ entryList2.__class__ = ROOT.TEntryList
 nentry = entryList2.GetN()
 treeTriggerCells.SetEntryList(entryList2)
 for ie in xrange(nentry):
-    if ie%10000==0: print "Entry {0}/{1}".format(ie, nentry)
+    if ie%10000==0: print("Entry {0}/{1}".format(ie, nentry))
     entry = entryList2.GetEntry(ie)
     treeTriggerCells.GetEntry(entry)
     triggercell = TriggerCell()
@@ -164,7 +165,7 @@ entryList3.__class__ = ROOT.TEntryList
 nentry = entryList3.GetN()
 treeModules.SetEntryList(entryList3)
 for ie in xrange(nentry):
-    if ie%10000==0: print "Entry {0}/{1}".format(ie, nentry)
+    if ie%10000==0: print("Entry {0}/{1}".format(ie, nentry))
     entry = entryList3.GetEntry(ie)
     treeModules.GetEntry(entry)
     module = Module()
@@ -182,9 +183,9 @@ for ie in xrange(nentry):
         module.cells.append(cell)
     modules[module.id] = module
 
-print "Read", len(cells), "cells" 
-print "Read", len(triggercells), "trigger cells"
-print "Read", len(modules), "modules"
+print("Read", len(cells), "cells") 
+print("Read", len(triggercells), "trigger cells")
+print("Read", len(modules), "modules")
 
 ## create output canvas
 outputFile = ROOT.TFile.Open(outputFileName, "RECREATE")

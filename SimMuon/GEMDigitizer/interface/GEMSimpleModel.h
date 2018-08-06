@@ -58,6 +58,7 @@ private:
   double instLumi_;
   double rateFact_;
   const double referenceInstLumi_; 
+  double resolutionX_; 
 
   //params for pol3 model of electron bkg for GE1/1 and GE2/1:
   double GE11ElecBkgParam0_;

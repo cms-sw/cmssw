@@ -106,11 +106,28 @@ trackingPhase2PU140.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutive
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = initialStepSeedLayers.layerList.value(),
     trackingRegions = "initialStepTrackingRegions",
-    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitTriplets))
+    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitTriplets),
+                               layerList = initialStepSeedLayers.layerList.value())
 )
 _fastSim_initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
+#new for phase1
+trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
+        pixelTripletGeneratorFactory = None,
+        CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(SeedComparitorPSet = dict(ComponentName = "none")),
+        #new parameters required for phase1 seeding
+        BPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        FPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        layerPairs = initialStepHitDoublets.layerPairs.value()
+        )
+)
+
 fastSim.toReplaceWith(initialStepSeeds,_fastSim_initialStepSeeds)
 
 
@@ -226,6 +243,11 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlineP
 firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone()
 firstStepPrimaryVerticesUnsorted.TrackLabel = cms.InputTag("initialStepTracks")
 firstStepPrimaryVerticesUnsorted.vertexCollections = [_offlinePrimaryVertices.vertexCollections[0].clone()]
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+(pp_on_XeXe_2017 | pp_on_AA_2018).toModify(firstStepPrimaryVerticesUnsorted, TkFilterParameters = dict(trackQuality = "any"))
+
 # we need a replacment for the firstStepPrimaryVerticesUnsorted
 # that includes tracker information of signal and pile up
 # after mixing there is no such thing as initialStepTracks,

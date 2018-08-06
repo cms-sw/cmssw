@@ -56,6 +56,10 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 # "including" selection for this track sample
 <SELECTION>
 
+# Override track hit filter commands
+if hasattr(optpy, "hitfiltercommands"):
+   process.TrackerTrackHitFilter.commands = cms.vstring(optpy.hitfiltercommands)
+
 # parameters for HIP
 process.AlignmentProducer.tjTkAssociationMapTag = 'FinalTrackRefitter'
 

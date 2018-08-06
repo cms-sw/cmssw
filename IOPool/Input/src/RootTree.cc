@@ -48,7 +48,7 @@ namespace edm {
     entryNumber_(-1),
     entryNumberForIndex_(new std::vector<EntryNumber>(nIndexes, IndexIntoFile::invalidEntry)),
     branchNames_(),
-    branches_(new BranchMap),
+    branches_{},
     trainNow_(false),
     switchOverEntry_(-1),
     rawTriggerSwitchOverEntry_(-1),
@@ -134,13 +134,12 @@ namespace edm {
   }
 
   void
-  RootTree::addBranch(BranchKey const& key,
-                      BranchDescription const& prod,
+  RootTree::addBranch(BranchDescription const& prod,
                       std::string const& oldBranchName) {
       assert(isValid());
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-      roottree::BranchInfo info = roottree::BranchInfo(BranchDescription(prod));
+      roottree::BranchInfo info = roottree::BranchInfo(prod);
       info.productBranch_ = nullptr;
       if (prod.present()) {
         info.productBranch_ = branch;
@@ -149,7 +148,7 @@ namespace edm {
       }
       TTree* provTree = (metaTree_ != nullptr ? metaTree_ : tree_);
       info.provenanceBranch_ = provTree->GetBranch(oldBranchName.c_str());
-      branches_->insert(std::make_pair(key, info));
+      branches_.insert(prod.branchID(), info);
   }
 
   void
@@ -176,7 +175,7 @@ namespace edm {
   }
 
   roottree::BranchMap const&
-  RootTree::branches() const {return *branches_;}
+  RootTree::branches() const {return branches_;}
 
   void
   RootTree::setCacheSize(unsigned int cacheSize) {

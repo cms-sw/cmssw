@@ -25,10 +25,12 @@
    Fermilab 2010
    
 """
+from __future__ import print_function
 
 
 import os, string, re, sys, math
 import commands, time
+import six
 
 #_______________OPTIONS________________
 import optparse
@@ -37,7 +39,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in six.itervalues(self.__dict__):
         if v is not None: return True
     return False
 
@@ -184,9 +186,9 @@ def write_iovs(iovs, lines):
 def get_listoftags(dest, auth,):
 
     queryTags_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -a | grep BeamSpotObjects"
-    print queryTags_cmd
+    print(queryTags_cmd)
     outcmd = commands.getstatusoutput( queryTags_cmd )
-    print outcmd[1]
+    print(outcmd[1])
     
     listtags = outcmd[1].split()
     
@@ -238,7 +240,7 @@ def get_lastIOVs( listoftags, dest, auth ):
             lasttag = listoftags[itag][1]
         
         queryIOVs_cmd = "cmscond_list_iov -c "+dest+" -P "+auth+" -t "+ lasttag
-        print queryIOVs_cmd
+        print(queryIOVs_cmd)
         
         outcmd = commands.getstatusoutput( queryIOVs_cmd )
         
@@ -300,15 +302,15 @@ def get_plots(path,output, iovs, tag):
 
     initial = str(int(initial) -100 )
     cmd = path+"/plotBeamSpotDB.py -b -P -t "+tag+" -i "+initial +" -f "+final
-    print cmd
+    print(cmd)
     outcmd = commands.getstatusoutput( cmd )
-    print outcmd[1]
+    print(outcmd[1])
 
     cmd = "ls *.png"
     outcmd = commands.getstatusoutput( cmd )
 
     pngfiles = outcmd[1].split('\n')
-    print pngfiles
+    print(pngfiles)
     
     cmd = "cp *.png "+os.path.dirname(output)
     outcmd = commands.getstatusoutput( cmd )
@@ -408,7 +410,7 @@ if __name__ == '__main__':
     lines.append(br)
     #lines.append('to be written'+end)
     lines.append(processedruns[0]+', '+processedruns[1]+', '+processedruns[2])
-    print processedruns
+    print(processedruns)
     lines.append(br)
 
     lines.append('<h2>The Latest Tags</h2>'+end)

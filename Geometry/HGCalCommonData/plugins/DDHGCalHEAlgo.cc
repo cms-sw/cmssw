@@ -134,7 +134,9 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
   rad100to200_  = vArgs["rad100to200"];
   rad200to300_  = vArgs["rad200to300"];
   zMinRadPar_   = nArgs["zMinForRadPar"];
+  choiceType_   = (int)(nArgs["choiceType"]);
   nCutRadPar_   = (int)(nArgs["nCornerCut"]);
+  fracAreaMin_  = nArgs["fracAreaMin"];
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
@@ -142,7 +144,8 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: zStart " << zMinBlock_ 
 				<< " radius for wafer type separation uses "
 				<< rad100to200_.size() << " parameters; zmin "
-				<< zMinRadPar_ << " cutoff " << nCutRadPar_
+				<< zMinRadPar_ << " cutoff " << choiceType_
+				<< ":" << nCutRadPar_ << ":" << fracAreaMin_
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
 				<< " sectors " << sectors_;
@@ -170,7 +173,8 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 
   waferType_ = std::make_unique<HGCalWaferType>(rad100to200_, rad200to300_,
 						(waferSize_+waferSepar_), 
-						zMinRadPar_, nCutRadPar_);
+						zMinRadPar_, choiceType_,
+						nCutRadPar_, fracAreaMin_);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -222,7 +226,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
       zz            += hthick;
       thickTot      += thick_[ii];
 
-      std::string name = "HGCal"+names_[ii]+std::to_string(copy);
+      std::string name = names_[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" 
 				    << ii << " Front " << zi << ", " << routF
@@ -363,7 +367,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     int     copy   = copyNumberTop_[ii];
     double hthickl = 0.5*layerThickTop_[ii];
     thickTot      += layerThickTop_[ii];
-    name           = "HGCal"+namesTop_[ii]+std::to_string(copy);    
+    name           = namesTop_[ii]+std::to_string(copy);    
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" << ii
 				  << " R " << rmid << ":" << rout << " Thick " 
@@ -436,7 +440,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     int     copy   = copyNumberBot_[ii];
     double hthickl = 0.5*layerThickBot_[ii];
     thickTot      += layerThickBot_[ii];
-    name           = "HGCal"+namesBot_[ii]+std::to_string(copy);    
+    name           = namesBot_[ii]+std::to_string(copy);    
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" << ii
 				  << " R " << rin << ":" << rmid << " Thick " 

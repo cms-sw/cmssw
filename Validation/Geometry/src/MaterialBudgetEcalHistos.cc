@@ -4,13 +4,12 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(MaterialBudgetData* data, 
-						   TestHistoMgr* mgr,
+MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(std::shared_ptr<MaterialBudgetData> data, 
+						   std::shared_ptr<TestHistoMgr> mgr,
 						   const std::string& fileName ): MaterialBudgetFormat( data ), hmgr(mgr)
 {
   theFileName = fileName;
   book();
-
 }
 
 

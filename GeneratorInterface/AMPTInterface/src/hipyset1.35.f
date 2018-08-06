@@ -7134,7 +7134,7 @@ C...in the event weighting.
      &NAREL(6),WTREL(6),WTMAT(6,6),COEFU(6),IACCMX(4),SIGSMX(4),    
      &SIGSSM(3) 
       DATA CVAR/'tau ','tau''','y*  ','cth '/   
-    
+      INTEGER :: IOFF=0
 C...Select subprocess to study: skip cases not applicable.  
       VINT(143)=1.  
       VINT(144)=1.  
@@ -12116,7 +12116,7 @@ C...pi/s and the conversion factor from GeV^-2 to mb.
       COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3) 
       SAVE /PYINT5/ 
       DIMENSION X(2),XPQ(-6:6),KFAC(2,-40:40),WDTP(0:40),WDTE(0:40,0:5) 
-    
+
 C...Reset number of channels and cross-section. 
       NCHN=0    
       SIGS=0.   
@@ -13987,7 +13987,16 @@ C...I: 2 -> 2, tree diagrams, non-standard model processes.
     
       ELSE  
       IF(ISUB.EQ.161) THEN  
+
+clin-7/2018 add "CALL PYWIDT()" to get rid of compiler warning message;
+c     however, expect this statement not to be reached:
+        CALL PYWIDT(40,SQRT(SH),WDTP,WDTE)  
 C...f + g -> f' + H+/- (q + g -> q' + H+/- only).   
+c     if reached, write a message to standard output and then stop the run:
+        write(6,*) 'ISUB=161 reached: check arguments of CALL PYWIDT()'
+        stop
+clin-7/2018-end
+
         FHCQ=COMFAC*FACA*AS*AEM/XW*1./24    
         DO 900 I=1,MSTP(54) 
         IU=I+MOD(I,2)   

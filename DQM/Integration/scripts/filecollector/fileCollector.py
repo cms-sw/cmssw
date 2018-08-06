@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import os, time, sys, glob, re, shutil, stat, smtplib, socket
 from email.MIMEText import MIMEText
 from fcntl import lockf, LOCK_EX, LOCK_UN
@@ -28,7 +29,7 @@ lastEmailSent = datetime.now()
 # --------------------------------------------------------------------
 def logme(msg, *args):
   procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
-  print datetime.now(), procid, msg % args
+  print(datetime.now(), procid, msg % args)
   
 def filecheck(rootfile):
   cmd = 'root -l -b -q %s/filechk.C"(\\"%s\\")"' % (SBASEDIR,rootfile)
@@ -95,13 +96,13 @@ while True:
           NEW.setdefault(runnr, {}).setdefault(subsystem,[]).append(f)
           NFOUND += 1  
           
-    if len(NEW.keys()) == 0:
+    if len(NEW) == 0:
       time.sleep(WAITTIME)
       continue
       
     TAGS=sorted(glob.glob('%s/tagfile_runend_*' % COLLECTDIR ),reverse=True)
     if len(TAGS)==0:
-      if len(NEW.keys()) <= 1:
+      if len(NEW) <= 1:
         time.sleep(WAITTIME)
         continue
         

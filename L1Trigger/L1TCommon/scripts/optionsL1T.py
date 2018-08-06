@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # L1T Command Line Options:
 #
@@ -27,28 +28,28 @@ options.register ('skip',   "",  VarParsing.VarParsing.multiplicity.singleton, V
 options.ntuple = ''
 options.menu = ''
 options.skip = 0 
-print options
+print(options)
 
 options.parseArguments()
 
 if (not options.menu == ""):
-    print "L1T INFO:  menu override in command line not yet implemented..."
+    print("L1T INFO:  menu override in command line not yet implemented...")
 
 if (not options.ntuple == ""):
-    print "L1T INFO:  using command line option ntuple:  ", options.ntuple
+    print("L1T INFO:  using command line option ntuple:  ", options.ntuple)
     if (hasattr(process,"TFileService")):
         process.TFileService.fileName = cms.string(options.ntuple)
         #print process.TFileService
 
 if (hasattr(process,"maxEvents")):
-    print "L1T INFO:  using command line option maxEvents:  ", options.maxEvents
+    print("L1T INFO:  using command line option maxEvents:  ", options.maxEvents)
     process.maxEvents.input = options.maxEvents
     #print process.maxEvents
 
 if (hasattr(process,"source")):
     if options.skip > 0:
-        print "L1T INFO:  using command line option skip:  ", options.skip
+        print("L1T INFO:  using command line option skip:  ", options.skip)
         process.source.skipEvents = cms.untracked.uint32(options.skip)
     if (not options.inputFiles == []):
-        print "L1T INFO:  using command line option inputFiles:  ", options.inputFiles
+        print("L1T INFO:  using command line option inputFiles:  ", options.inputFiles)
         process.source.fileNames = cms.untracked.vstring(options.inputFiles)

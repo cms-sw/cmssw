@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
+from __future__ import print_function
 import os
 import sys
 import optparse
@@ -7,6 +8,7 @@ import datetime
 import shutil
 import fnmatch
 
+import six
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates \
     as configTemplates
 import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
@@ -41,7 +43,7 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
 
 
 ####################--- Classes ---############################
-class ParallelMergeJob:
+class ParallelMergeJob(object):
     
     def __init__(self, _name, _path, _dependency):
         self.name=_name
@@ -68,7 +70,7 @@ class ParallelMergeJob:
             "-w %(conditions)s "
             "%(script)s"%repMap)
 
-class ValidationJob:
+class ValidationJob(object):
 
     # these count the jobs of different varieties that are being run
     crabCount = 0
@@ -131,18 +133,18 @@ class ValidationJob:
             if len( firstAlignList ) > 1:
                 firstRun = firstAlignList[1]
             else:
-                firstRun = "1"
+                raise AllInOneError("Have to provide a run number for geometry comparison")
             firstAlign = Alignment( firstAlignName, self.__config, firstRun )
             firstAlignName = firstAlign.name
             secondAlignList = alignmentsList[1].split()
             secondAlignName = secondAlignList[0].strip()
-            if len( secondAlignList ) > 1:
-                secondRun = secondAlignList[1]
-            else:
-                secondRun = "1"
             if secondAlignName == "IDEAL":
                 secondAlign = secondAlignName
             else:
+                if len( secondAlignList ) > 1:
+                    secondRun = secondAlignList[1]
+                else:
+                    raise AllInOneError("Have to provide a run number for geometry comparison")
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
                 secondAlignName = secondAlign.name
@@ -200,11 +202,11 @@ class ValidationJob:
             if self.validation.jobid:
                 self.batchJobIds.append(self.validation.jobid)
             log = ">             " + self.validation.name + " is already validated."
-            print log
+            print(log)
             return log
         else:
             if self.validation.jobid:
-                print "jobid {} will be ignored, since the validation {} is not preexisting".format(self.validation.jobid, self.validation.name)
+                print("jobid {} will be ignored, since the validation {} is not preexisting".format(self.validation.jobid, self.validation.name))
 
         general = self.__config.getGeneral()
         log = ""
@@ -212,10 +214,10 @@ class ValidationJob:
             name = os.path.splitext( os.path.basename( script) )[0]
             ValidationJob.jobCount += 1
             if self.__commandLineOptions.dryRun:
-                print "%s would run: %s"%( name, os.path.basename( script) )
+                print("%s would run: %s"%( name, os.path.basename( script) ))
                 continue
             log = ">             Validating "+name
-            print ">             Validating "+name
+            print(">             Validating "+name)
             if self.validation.jobmode == "interactive":
                 log += getCommandOutput2( script )
                 ValidationJob.interactCount += 1
@@ -253,7 +255,7 @@ class ValidationJob:
                 try:
                     theCrab.run( options )
                 except AllInOneError as e:
-                    print "crab:", str(e).split("\n")[0]
+                    print("crab:", str(e).split("\n")[0])
                     exit(1)
                 ValidationJob.crabCount += 1
 
@@ -325,7 +327,7 @@ def createMergeScript( path, validations, options ):
     #prepare dictionary containing handle objects for parallel merge batch jobs
     if options.mergeOfflineParallel:
         parallelMergeObjects={}
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in six.iteritems(comparisonLists):
         for validation in validations:
             #parallel merging
             if (isinstance(validation, PreexistingValidation)
@@ -372,7 +374,7 @@ def createMergeScript( path, validations, options ):
                 repMapTemp["RunValidationPlots"] = validationType.doRunPlots(validations)
                 
                 #create script file
-                fileName="TkAlMerge"+validation.alignmentToValidate.name
+                fileName="TkAlMergeOfflineValidation"+validation.name+validation.alignmentToValidate.name
                 filePath = os.path.join(path, fileName+".sh")
                 theFile = open( filePath, "w" )
                 theFile.write( replaceByMap( configTemplates.mergeParallelOfflineTemplate, repMapTemp ) )
@@ -413,12 +415,12 @@ def createMergeScript( path, validations, options ):
         repMap["DownloadData"] = ""
 
     repMap["RunValidationPlots"] = ""
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in six.iteritems(comparisonLists):
         if issubclass(validationType, ValidationWithPlots):
             repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in six.iteritems(comparisonLists):
         if issubclass(validationType, ValidationWithComparison):
             repMap["CompareAlignments"] += validationType.doComparison(validations)
     
@@ -527,7 +529,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
             if len( existingValDirs ) > 0:
                 options.Name = existingValDirs[-1]
             else:
-                print "Cannot guess last working directory!"
+                print("Cannot guess last working directory!")
                 print ( "Please use the parameter '-N' or '--Name' to specify "
                         "the task for which you want a status report." )
                 return 1
@@ -540,25 +542,25 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         os.chdir( outPath )
         crabLogDirs = fnmatch.filter( os.walk('.').next()[1], "crab.*" )
         if len( crabLogDirs ) == 0:
-            print "Found no crab tasks for job name '%s'"%( options.Name )
+            print("Found no crab tasks for job name '%s'"%( options.Name ))
             return 1
         theCrab = crabWrapper.CrabWrapper()
         for crabLogDir in crabLogDirs:
-            print
-            print "*" + "=" * 78 + "*"
+            print()
+            print("*" + "=" * 78 + "*")
             print ( "| Status report and output retrieval for:"
                     + " " * (77 - len( "Status report and output retrieval for:" ) )
                     + "|" )
             taskName = crabLogDir.replace( "crab.", "" )
-            print "| " + taskName + " " * (77 - len( taskName ) ) + "|"
-            print "*" + "=" * 78 + "*"
-            print
+            print("| " + taskName + " " * (77 - len( taskName ) ) + "|")
+            print("*" + "=" * 78 + "*")
+            print()
             crabOptions = { "-getoutput":"",
                             "-c": crabLogDir }
             try:
                 theCrab.run( crabOptions )
             except AllInOneError as e:
-                print "crab:  No output retrieved for this task."
+                print("crab:  No output retrieved for this task.")
             crabOptions = { "-status": "",
                             "-c": crabLogDir }
             theCrab.run( crabOptions )
@@ -612,11 +614,11 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
         createMergeScript(outPath, validations, options)
 
 
-    print
+    print()
     map( lambda job: job.runJob(), jobs )
 
     if options.autoMerge and ValidationJob.jobCount == ValidationJob.batchCount and config.getGeneral()["jobmode"].split(",")[0] == "lxBatch":
-        print ">             Automatically merging jobs when they have ended"
+        print(">             Automatically merging jobs when they have ended")
         # if everything is done as batch job, also submit TkAlMerge.sh to be run
         # after the jobs have finished
         
@@ -666,5 +668,5 @@ if __name__ == "__main__":
         try:
             main()
         except AllInOneError as e:
-            print "\nAll-In-One Tool:", str(e)
+            print("\nAll-In-One Tool:", str(e))
             exit(1)

@@ -92,6 +92,7 @@ private:
   std::vector<MonitorElement*> DigiOccupancy_Minus_;
   MonitorElement* MeanDigiOccupancy_Plus_;
   MonitorElement* MeanDigiOccupancy_Minus_;
+  static const int emptyScintLayer = 8;
 };
 
 HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
@@ -101,18 +102,15 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
   SampleIndx_(iConfig.getUntrackedParameter<int>("SampleIndx",5)) {
 
   auto temp = iConfig.getParameter<edm::InputTag>("DigiSource");
-  if (nameDetector_ == "HGCalEESensitive" ) {
-    digiSource_    = consumes<HGCEEDigiCollection>(temp);
-  } else if (nameDetector_ == "HGCalHESiliconSensitive" ||
-	     nameDetector_ == "HGCalHEScintillatorSensitive") {
-    digiSource_    = consumes<HGCHEDigiCollection>(temp);
+  if (nameDetector_ == "HGCalEESensitive" || nameDetector_ == "HGCalHESiliconSensitive" || nameDetector_ == "HGCalHEScintillatorSensitive") {
+    digiSource_    = consumes<HGCalDigiCollection>(temp);
   } else if (nameDetector_ == "HCal") {
     if (ifHCAL_) digiSource_ = consumes<QIE11DigiCollection>(temp);
-    else         digiSource_ = consumes<HGCBHDigiCollection>(temp);
+    else         digiSource_ = consumes<HGCalDigiCollection>(temp);
   } else {
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
-      << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
+      << "\"HGCalEESensitive\", \"HGCalHESiliconSensitive\", "
       << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!"; 
   }  
 }
@@ -120,7 +118,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
 void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("DetectorName","HGCalEESensitive");
-  desc.add<edm::InputTag>("DigiSource",edm::InputTag("mix","HGCDigisEE"));
+  desc.add<edm::InputTag>("DigiSource",edm::InputTag("hgcalDigis","EE"));
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
   desc.addUntracked<int>("SampleIndx",0);
@@ -158,7 +156,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   unsigned int ntot(0), nused(0);
   if (nameDetector_ == "HGCalEESensitive") {
     //HGCalEE
-    edm::Handle<HGCEEDigiCollection> theHGCEEDigiContainers;
+    edm::Handle<HGCalDigiCollection> theHGCEEDigiContainers;
     iEvent.getByToken(digiSource_, theHGCEEDigiContainers);
     if (theHGCEEDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -185,7 +183,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
   } else if ((nameDetector_ == "HGCalHESiliconSensitive") || 
 	     (nameDetector_ == "HGCalHEScintillatorSensitive")) {
     //HGCalHE
-    edm::Handle<HGCHEDigiCollection> theHGCHEDigiContainers;
+    edm::Handle<HGCalDigiCollection> theHGCHEDigiContainers;
     iEvent.getByToken(digiSource_, theHGCHEDigiContainers);
     if (theHGCHEDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -198,7 +196,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	DetId      detId     = it.id();
 	int        layer     = ((geomType == 0) ? HGCalDetId(detId).layer() :
 				((geomType == 1) ? HGCSiliconDetId(detId).layer() :
-				 HGCScintillatorDetId(detId).layer()));
+				 HGCScintillatorDetId(detId).layer()+emptyScintLayer));
 	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
@@ -212,7 +210,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
     }
   } else if ((nameDetector_ == "HCal") && (!ifHCAL_)) {
     //HGCalBH
-    edm::Handle<HGCBHDigiCollection> theHGCBHDigiContainers;
+    edm::Handle<HGCalDigiCollection> theHGCBHDigiContainers;
     iEvent.getByToken(digiSource_, theHGCBHDigiContainers);
     if (theHGCBHDigiContainers.isValid()) {
       if (verbosity_>0) 
@@ -300,7 +298,7 @@ void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom,
   hinfo.z       =  global1.z();
   hinfo.adc     =  adc;
   hinfo.charge  =  charge; //charges[0];
-  hinfo.layer   =  layer;
+  hinfo.layer   =  std::min(layer,layers_);
   
   if (verbosity_>1) 
     edm::LogVerbatim("HGCalValidation") << "gx =  "  << hinfo.x
@@ -309,8 +307,8 @@ void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom,
   
   fillDigiInfo(hinfo);
 
-  if (global1.eta() > 0)  fillOccupancyMap(OccupancyMap_plus_, layer -1);
-  else                    fillOccupancyMap(OccupancyMap_minus_, layer -1);
+  if (global1.eta() > 0)  fillOccupancyMap(OccupancyMap_plus_, hinfo.layer -1);
+  else                    fillOccupancyMap(OccupancyMap_minus_, hinfo.layer -1);
   
 }
 

@@ -22,7 +22,6 @@
 
 // user include files
 #include "FWCore/SOA/interface/TableExaminerBase.h"
-#include "FWCore/SOA/interface/Table.h"
 
 // forward declarations
 namespace edm {
@@ -53,8 +52,7 @@ class TableExaminer : public TableExaminerBase
   std::vector<std::type_index> columnTypes() const override final {
     std::vector<std::type_index> returnValue;
     returnValue.reserve(T::kNColumns);
-    using Layout = typename T::Layout;
-    columnTypesImpl<0, T::kNColumns>(returnValue, static_cast<std::true_type*>(nullptr));
+    columnTypesImpl<0, T::kNColumns>(returnValue);
     return returnValue;
   }
   
@@ -62,8 +60,7 @@ class TableExaminer : public TableExaminerBase
   columnDescriptions() const override final {
     std::vector<std::pair<char const*, std::type_index>>  returnValue;
     returnValue.reserve(T::kNColumns);
-    using Layout = typename T::Layout;
-    columnDescImpl<0, T::kNColumns>(returnValue, static_cast<std::true_type*>(nullptr));
+    columnDescImpl<0, T::kNColumns>(returnValue);
     return returnValue;
   }
   
@@ -73,33 +70,23 @@ class TableExaminer : public TableExaminerBase
   
 private:
   template <int I, int S>
-  void columnTypesImpl(std::vector<std::type_index>& iV, std::true_type*) const {
-    using Layout = typename T::Layout;
-    iV.emplace_back( typeid( typename std::tuple_element<I,Layout>::type ) );
-    columnTypesImpl<I+1, S>(iV,
-                            static_cast<typename std::conditional< I+1 != S,
-                            std::true_type,
-                            std::false_type>::type*>(nullptr));
+  void columnTypesImpl(std::vector<std::type_index>& iV) const {
+    if constexpr(I != S) {
+      using Layout = typename T::Layout;
+      iV.emplace_back( typeid( typename std::tuple_element<I,Layout>::type ) );
+      columnTypesImpl<I+1, S>(iV);
+    }
   }
   
   template <int I, int S>
-  void columnTypesImpl(std::vector<std::type_index>&, std::false_type*) const {};
-  
-  template <int I, int S>
-  void columnDescImpl(std::vector<std::pair<char const*, std::type_index>>& iV,
-                      std::true_type*) const {
-    using Layout = typename T::Layout;
-    using ColumnType = typename std::tuple_element<I,Layout>::type;
-    iV.emplace_back( ColumnType::label(), typeid( typename ColumnType::type ) );
-    columnDescImpl<I+1, S>(iV,
-                           static_cast<typename std::conditional< I+1 != S,
-                           std::true_type,
-                           std::false_type>::type*>(nullptr));
+  void columnDescImpl(std::vector<std::pair<char const*, std::type_index>>& iV) const {
+    if constexpr(I != S) {
+      using Layout = typename T::Layout;
+      using ColumnType = typename std::tuple_element<I,Layout>::type;
+      iV.emplace_back( ColumnType::label(), typeid( typename ColumnType::type ) );
+      columnDescImpl<I+1, S>(iV);
+    }
   }
-  
-  template <int I, int S>
-  void columnDescImpl(std::vector<std::pair<char const*, std::type_index>>&,
-                      std::false_type*) const {};
 
   // ---------- member data --------------------------------
   T const* m_table;

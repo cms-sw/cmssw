@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import collections
 import os
 import re
@@ -56,7 +57,7 @@ for fname, symbols in requires.items():
         for s in symbols : 
             if library in provides[s] : deps.add(library)
     dependencies[fname]=deps 
-    print fname + ' : primary dependencies : ' + ',  '.join(sorted(dependencies[fname]))+'\n'
+    print(fname + ' : primary dependencies : ' + ',  '.join(sorted(dependencies[fname]))+'\n')
     unmet = set()
     demangled = set()
     for s in symbols: 
@@ -64,7 +65,7 @@ for fname, symbols in requires.items():
     for u in sorted(unmet):
 	dm = subprocess.check_output(["c++filt",u])
 	demangled.add(dm.rstrip('\r\n'))
-    if demangled :  print fname + ': undefined : ' + ',  '.join(sorted(demangled))
+    if demangled :  print(fname + ': undefined : ' + ',  '.join(sorted(demangled)))
 
 import networkx as nx
 G=nx.DiGraph()
@@ -80,7 +81,7 @@ for node in nx.nodes_iter(G):
 			if key != node : deps.add(key)
 			for v in vals :
 				deps.add(v)
-	print node + ': primary and secondary dependencies :' + ', '.join(sorted(deps))
+	print(node + ': primary and secondary dependencies :' + ', '.join(sorted(deps)))
 
 import pydot
 

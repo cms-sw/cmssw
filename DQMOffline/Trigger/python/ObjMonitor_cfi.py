@@ -42,11 +42,19 @@ hltobjmonitoring.histoPSet.htPSet = cms.PSet(
   xmin  = cms.double(   -0.5),
   xmax  = cms.double(1499.5),
 )
+hltobjmonitoring.doHMesonGammaHistos = cms.bool(False)
+hltobjmonitoring.histoPSet.hmgetaPSet = cms.PSet(
+  nbins = cms.uint32 (  60  ),
+  xmin  = cms.double(   -2.6),
+  xmax  = cms.double(2.6),
+)
 
 hltobjmonitoring.met       = cms.InputTag("pfMet")
 hltobjmonitoring.jets      = cms.InputTag("ak4PFJetsCHS")
 hltobjmonitoring.electrons = cms.InputTag("gedGsfElectrons")
 hltobjmonitoring.muons     = cms.InputTag("muons")
+hltobjmonitoring.photons   = cms.InputTag("gedPhotons")
+hltobjmonitoring.tracks    = cms.InputTag("generalTracks")
 
 hltobjmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltobjmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
