@@ -11,8 +11,7 @@ FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElemen
         for( TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); j++ )
         {
             FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate*>( *j );
-            const FWDisplayProperties &dp = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties();
-            cluster->SetMarkerColor( dp.color() );
+            cluster->SetMarkerColor( FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties().color() );
             cluster->ElementChanged();
         }
     }
