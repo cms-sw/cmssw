@@ -283,6 +283,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   if (hcalCfg_.hOverEConeSize>0)
    {
     hcalCfg_.useTowers = true ;
+    hcalCfg_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus") ;
     hcalCfg_.hcalTowers = 
       consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
     hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
@@ -291,6 +292,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   if (hcalCfgPflow_.hOverEConeSize>0)
    {
     hcalCfgPflow_.useTowers = true ;
+    hcalCfgPflow_.checkHcalStatus = cfg.getParameter<bool>("checkHcalStatus") ;
     hcalCfgPflow_.hcalTowers = 
       consumes<CaloTowerCollection>(cfg.getParameter<edm::InputTag>("hcalTowers")) ;
     hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
