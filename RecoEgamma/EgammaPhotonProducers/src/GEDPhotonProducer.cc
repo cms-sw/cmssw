@@ -227,6 +227,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     thePhotonIsolationCalculator_=nullptr;
     thePhotonMIPHaloTagger_=nullptr;
   }
+
+  checkHcalStatus_ = conf_.getParameter<bool>("checkHcalStatus");
+
   // Register the product
   produces< reco::PhotonCollection >(photonCollection_);
   if (not pfEgammaCandidates_.isUninitialized())
@@ -563,16 +566,18 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
       hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
 
-      // FIXME this should get its own flag, but nevermind for now
-      if (HoE1 == 0 && HoE2 == 0) {
-          if (!towerIsoBehindClus.hasActiveHcal(*scRef)) {
-              HoE1 = HoE2 = -1e-6; // set to negative value
-          }
-      }
-      if (hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
-          if (!towerIsoBehindClus.hasActiveHcal(TowersBehindClus)) {
-              hcalDepth1OverEcalBc = hcalDepth2OverEcalBc = -1e-6; // set to negative value
-          }
+      if (checkHcalStatus_) {
+        // FIXME this should get its own flag, but nevermind for now
+        if (HoE1 == 0 && HoE2 == 0) {
+            if (!towerIsoBehindClus.hasActiveHcal(*scRef)) {
+                HoE1 = HoE2 = -1e-6; // set to negative value
+            }
+        }
+        if (hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
+            if (!towerIsoBehindClus.hasActiveHcal(TowersBehindClus)) {
+                hcalDepth1OverEcalBc = hcalDepth2OverEcalBc = -1e-6; // set to negative value
+            }
+        }
       }
     }
 
