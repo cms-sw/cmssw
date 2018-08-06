@@ -241,7 +241,6 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
   //Get track collection
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
  
   //event weight for FLAT sample and PU information
   t_EventWeight = 1.0;
