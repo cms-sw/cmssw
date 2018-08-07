@@ -36,6 +36,8 @@ class Eras (object):
                  'Phase2_timing_layer_new',
                  'Phase2C4',
                  'Phase2C4_timing',
+                 'Phase2C6',
+                 'Phase2C6_timing',
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',
