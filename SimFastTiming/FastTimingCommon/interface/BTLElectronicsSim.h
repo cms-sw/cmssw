@@ -48,6 +48,7 @@ class BTLElectronicsSim {
 
   const bool debug_;
 
+  const float bxTime_;
   const float ScintillatorRiseTime_;
   const float ScintillatorDecayTime_;
   const float ChannelTimeOffset_;
@@ -74,6 +75,10 @@ class BTLElectronicsSim {
   const float adcLSB_MIP_;
   const float adcThreshold_MIP_;
   const float toaLSB_ns_;
+
+  const float CorrCoeff_;
+  const float cosPhi_;
+  const float sinPhi_;
 
   const float ScintillatorDecayTime2_;
   const float SPTR2_;
