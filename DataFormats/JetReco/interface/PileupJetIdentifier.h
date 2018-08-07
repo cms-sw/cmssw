@@ -13,7 +13,7 @@
 
 #define DECLARE_VARIABLE(NAME,TYPE)		\
 	private: \
-	TYPE NAME ## _;			\
+	TYPE NAME ## _ = 0;			\
 	public: \
 	const TYPE & NAME() const { return NAME ## _; } \
 	void NAME(const TYPE val) { NAME ## _ = val; } 
