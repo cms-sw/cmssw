@@ -25,17 +25,17 @@ updateJetCollection(
    btagDiscriminators = [
       'pfCombinedSecondaryVertexV2BJetTags',
 
-      'pfDeepCSVJetTags:probudsg', 
-      'pfDeepCSVJetTags:probb', 
-      'pfDeepCSVJetTags:probc', 
-      'pfDeepCSVJetTags:probbb', 
+      'pfDeepCSVJetTags:probudsg',
+      'pfDeepCSVJetTags:probb',
+      'pfDeepCSVJetTags:probc',
+      'pfDeepCSVJetTags:probbb',
       ## probcc was merged with probc
       ## 'pfDeepCSVJetTags:probcc',
 
-      ## 'pfDeepCMVAJetTags:probudsg', 
-      ## 'pfDeepCMVAJetTags:probb', 
-      ## 'pfDeepCMVAJetTags:probc', 
-      ## 'pfDeepCMVAJetTags:probbb', 
+      ## 'pfDeepCMVAJetTags:probudsg',
+      ## 'pfDeepCMVAJetTags:probb',
+      ## 'pfDeepCMVAJetTags:probc',
+      ## 'pfDeepCMVAJetTags:probbb',
       ## 'pfDeepCMVAJetTags:probcc'
       ] ## to add discriminators
 )
