@@ -77,6 +77,25 @@ namespace reco {
         return m_operator(lhs()->evaluate(iVariables,iParameters),rhs()->evaluate(iVariables,iParameters));
       }
 
+      std::vector<std::string> abstractSyntaxTree() const final {
+        std::vector<std::string> ret;
+        if( lhs()) {
+          ret = shiftAST(lhs()->abstractSyntaxTree());
+        } else {
+          ret.emplace_back(".nullptr");
+        }
+        if(rhs() ){
+          auto child = shiftAST(rhs()->abstractSyntaxTree());
+          for(auto& v: child) {
+            ret.emplace_back(std::move(v));
+          }
+        } else {
+          ret.emplace_back(".nullptr");
+        }
+        ret.emplace(ret.begin(), std::string("op ")+std::to_string(precedence()) );
+        return ret;
+      }
+
     private:
       BinaryOperatorEvaluator(const BinaryOperatorEvaluator&) = delete;
       
