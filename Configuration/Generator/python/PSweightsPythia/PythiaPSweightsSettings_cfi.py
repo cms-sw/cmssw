@@ -8,8 +8,8 @@ pythia8PSweightsSettingsBlock = cms.PSet(
 # 32 decorrelated variations of muR and non-singular terms (cNS) for each branching type
         'UncertaintyBands:List = {\
 isrRedHi isr:muRfac=0.707,fsrRedHi fsr:muRfac=0.707,isrRedLo isr:muRfac=1.414,fsrRedLo fsr:muRfac=1.414,\
-isrDefHi isr:muRfac=0.5, fsrDefHi fsr:muRfac=0.5,isrDefLo isr:muRfac=2.0,fsrDefLo fsr:muRfac=2.0,\
-isrConHi isr:muRfac=0.25, fsrConHi fsr:muRfac=0.25,isrConLo isr:muRfac=4.0,fsrConLo fsr:muRfac=4.0,\
+isrDefHi isr:muRfac=0.5,fsrDefHi fsr:muRfac=0.5,isrDefLo isr:muRfac=2.0,fsrDefLo fsr:muRfac=2.0,\
+isrConHi isr:muRfac=0.25,fsrConHi fsr:muRfac=0.25,isrConLo isr:muRfac=4.0,fsrConLo fsr:muRfac=4.0,\
 fsr_G2GG_muR_dn fsr:G2GG:muRfac=0.5,\
 fsr_G2GG_muR_up fsr:G2GG:muRfac=2.0,\
 fsr_G2QQ_muR_dn fsr:G2QQ:muRfac=0.5,\
