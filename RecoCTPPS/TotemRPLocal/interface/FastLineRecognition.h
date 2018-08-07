@@ -83,12 +83,11 @@ class FastLineRecognition
     {
       double Saw, Sbw, Sw, S1;
       double weight;
-      double min_a, max_a, min_b, max_b;
 
       std::vector<const Point *> contents;
-      
+
       Cluster() : Saw(0.), Sbw(0.), Sw(0.), S1(0.), weight(0.) {}
-      
+
       void add(const Point *p1, const Point *p2, double a, double b, double w);
 
       bool operator<(const Cluster &c) const
