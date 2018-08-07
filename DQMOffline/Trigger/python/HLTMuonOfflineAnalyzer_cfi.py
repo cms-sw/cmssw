@@ -47,37 +47,36 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_OldMu100_v",
       "HLT_TkMu100_v",
       "HLT_DoubleL2Mu50_v",
-      "HLT_PAL1DoubleMuOpen_v", #for HI
-      "HLT_PAL1DoubleMuOpen_OS_v", #for HI
-      "HLT_PAL1DoubleMuOpen_SS_v", #for HI
-      "HLT_PAL1DoubleMu0_v", #for HI
-      "HLT_PAL1DoubleMu0_HighQ_v", #for HI
-      "HLT_PAL1DoubleMu0_MGT1_v", #for HI
-      "HLT_PAL1DoubleMu10_v", #for HI
-      "HLT_PAL2DoubleMu0_v", #for HI
-      "HLT_PAL2DoubleMu10_v", #for HI
-      "HLT_PAL3DoubleMu0_v", #for HI
-      "HLT_PAL3DoubleMu0_HIon_v", #for HI
-      "HLT_PAL3DoubleMu10_v", #for HI
-      "HLT_PAL2Mu12_v", #for HI
-      "HLT_PAL2Mu15_v", #for HI
-      "HLT_PAL3Mu3_v", #for HI 
-      "HLT_PAL3Mu5_v", #for HI 
-      "HLT_PAL3Mu7_v", #for HI 
-      "HLT_PAL3Mu12_v", #for HI
-      "HLT_PAL3Mu15_v", #for HI
-      "HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt10_v", #for HI Forward
-      "HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt15_v", #for HI Forward
-      "HLT_PASingleMuOpen_PixelTrackGt0Lt10_v", #for HI Forward
-      "HLT_PASingleMuOpen_PixelTrackGt0Lt15_v", #for HI Forward
-      "HLT_PASingleMuOpen_HFOneTowerVeto_SingleTrack_v", #for HI Forward
-      "HLT_PASingleMuOpen_HFOneTowerVeto_v", #for HI Forward
-      "HLT_PASingleMuOpen_HFTwoTowerVeto_SingleTrack_v", #for HI Forward
-      "HLT_PASingleMuOpen_HFTwoTowerVeto_v", #for HI Forward
-      "HLT_PADoubleMuOpen_HFOneTowerVeto_SingleTrack_v", #for HI Forward
-      "HLT_PADoubleMuOpen_HFOneTowerVeto_v", #for HI Forward
-      "HLT_PADoubleMuOpen_HFTwoTowerVeto_SingleTrack_v", #for HI Forward
-      "HLT_PADoubleMuOpen_HFTwoTowerVeto_v" #for HI Forward
+      "HLT_HIL1Mu12_v", # for HI
+      "HLT_HIL1Mu16_v", # for HI
+      "HLT_HIL2Mu3_NHitQ10_v", # for HI
+      "HLT_HIL2Mu5_NHitQ10_v", # for HI
+      "HLT_HIL2Mu7_v", # for HI
+      "HLT_HIL2Mu12_v", # for HI
+      "HLT_HIL2Mu15_v", # for HI
+      "HLT_HIL2Mu20_v", # for HI
+      "HLT_HIL3Mu3_v", # for HI
+      "HLT_HIL3Mu3_NHitQ10_v", # for HI
+      "HLT_HIL3Mu5_v", # for HI
+      "HLT_HIL3Mu5_NHitQ10_v", # for HI
+      "HLT_HIL3Mu7_v", # for HI
+      "HLT_HIL3Mu12_v", # for HI
+      "HLT_HIL3Mu15_v", # for HI
+      "HLT_HIL3Mu20_v", # for HI
+      "HLT_HIL3Mu3_Track1_Jpsi_v", # for HI
+      "HLT_HIL3Mu5_Track1_Jpsi_v", # for HI
+      "HLT_HIL3Mu3_Track1_v", # for HI
+      "HLT_HIL3Mu5_Track1_v", # for HI
+      "HLT_HIL1DoubleMuOpen_v", # for HI
+      "HLT_HIL1DoubleMuOpen_OS_v", # for HI
+      "HLT_HIL1DoubleMuOpen_SS_v", # for HI
+      "HLT_HIL1DoubleMu0_v", # for HI
+      "HLT_HIL1DoubleMu0_HighQ_v", # for HI
+      "HLT_HIL1DoubleMu10_v", # for HI
+      "HLT_HIL2DoubleMu0_v", # for HI
+      "HLT_HIL2DoubleMu10_v", # for HI
+      "HLT_HIL3DoubleMu0_v", # for HI
+      "HLT_HIL3DoubleMu10_v" # for HI
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
