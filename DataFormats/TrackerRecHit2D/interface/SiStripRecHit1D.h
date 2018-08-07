@@ -39,11 +39,11 @@ public:
   bool canImproveWithTrack() const override {return true;}
 private:
   // double dispatch
-  SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  SiStripRecHit1D * clone_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-   RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+   RecHitPointer cloneSH_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif 

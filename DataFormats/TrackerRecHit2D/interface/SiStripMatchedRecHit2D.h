@@ -63,11 +63,11 @@ class SiStripMatchedRecHit2D final : public BaseTrackerRecHit {
   bool canImproveWithTrack() const override {return true;}
 private:
   // double dispatch
-  SiStripMatchedRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+  SiStripMatchedRecHit2D * clone_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-   RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+   RecHitPointer cloneSH_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif 
