@@ -205,7 +205,6 @@ fastSim.toModify(mixData,
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -243,7 +242,7 @@ phase2_tracker.toModify(mixData,
 )
 
 # ECAL
-phase2_ecal.toModify (mixData, workers=dict(ecal=dict(doES=False)))
+phase2_common.toModify (mixData, workers=dict(ecal=dict(doES=False)))
 phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
 
 # HGCAL
