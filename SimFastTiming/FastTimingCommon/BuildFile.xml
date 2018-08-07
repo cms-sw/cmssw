@@ -9,6 +9,7 @@
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="hepmc"/>
 <use   name="CLHEP"/>
+<use   name="CommonTools/Utils"/>
 <use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
