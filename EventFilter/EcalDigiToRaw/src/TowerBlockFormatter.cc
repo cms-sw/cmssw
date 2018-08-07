@@ -1,8 +1,6 @@
 #include <memory>
 #include <list>
 
-// #include "DataFormats/Common/interface/Handle.h"
-
 #include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -12,14 +10,9 @@
 using namespace std;
 
 
-TowerBlockFormatter::TowerBlockFormatter() {
+TowerBlockFormatter::TowerBlockFormatter(Config const& iC, Params const& iP): BlockFormatter(iC, iP) {
 
 }
-
-TowerBlockFormatter::~TowerBlockFormatter() {
-
-}
-
 
 
 void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata,
@@ -27,8 +20,8 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 
 {
 
- int bx = *pbx_;
- int lv1 = *plv1_ - 1;
+ int bx = bx_;
+ int lv1 = lv1_ - 1;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64
@@ -47,15 +40,15 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 		"TowerBlockFormatter::DigiToRaw : Invalid iFE " << iFE << endl;
 
 
-        map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-        map<int, map<int,int> >::iterator fed = FEDmap -> find(FEDid);
+        map<int, map<int,int> >::iterator fen = FEDorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = FEDmap.find(FEDid);
 
-        if (fen == FEDorder -> end()) {
+        if (fen == FEDorder.end()) {
                 if (debug_) cout << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
 		map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder -> insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
 		map<int,int> FEmap;
-		pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap -> insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+		pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
 		fed = t2.first;
         }
@@ -376,25 +369,10 @@ void TowerBlockFormatter::EndEvent(FEDRawDataCollection* productRawData) {
 
 // -- clean up
 
- // FEDmap -> empty();
- // FEDorder -> empty();
- FEDmap -> clear();
- FEDorder -> clear();
- delete FEDmap;
- delete FEDorder;
- FEDmap = nullptr;
- FEDorder = nullptr;
-
- debug_ = false;
+ // FEDmap.empty();
+ // FEDorder.empty();
 
  // cout << "end of EndEvent " << endl;
-}
-
-void TowerBlockFormatter::StartEvent() {
-
- FEDmap = new map<int, map<int,int> >;
- FEDorder = new map<int, map<int,int> >;
- 
 }
 
 
@@ -409,8 +387,8 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 
  // debug_ = false;
 
- int bx = *pbx_;
- int lv1 = *plv1_;
+ int bx = bx_;
+ int lv1 = lv1_;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64
@@ -432,15 +410,15 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 	}
 
 
-        map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-        map<int, map<int,int> >::iterator fed = FEDmap -> find(FEDid);
+        map<int, map<int,int> >::iterator fen = FEDorder.find(FEDid);
+        map<int, map<int,int> >::iterator fed = FEDmap.find(FEDid);
 
-        if (fen == FEDorder -> end()) {
+        if (fen == FEDorder.end()) {
                 if (debug_) cout << "New FED in TowerBlockFormatter " << dec << FEDid << " 0x" << hex << FEDid << endl;
                 map<int,int> FEorder;
-                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder -> insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
+                pair<map<int, map<int,int> >::iterator, bool> t1 = FEDorder.insert(map<int, map<int,int> >::value_type(FEDid,FEorder));
                 map<int,int> FEmap;
-                pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap -> insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
+                pair<map<int, map<int,int> >::iterator, bool> t2 = FEDmap.insert(map<int, map<int,int> >::value_type(FEDid,FEmap));
                 fen = t1.first;
                 fed = t2.first;
         }
