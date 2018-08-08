@@ -75,11 +75,11 @@ namespace {
         HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
         HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
  
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
   
 
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
 
 
@@ -129,11 +129,11 @@ namespace {
         HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
         HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
  
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
   
 
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
 
 
@@ -183,11 +183,11 @@ namespace {
         HcalGainContainer* objContainer1 = new HcalGainContainer(payload1, std::get<0>(iov1));
         HcalGainContainer* objContainer2 = new HcalGainContainer(payload2, std::get<0>(iov2));
  
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
   
 
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
 
 

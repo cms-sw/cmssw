@@ -70,9 +70,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
         HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -117,9 +117,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
         HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -164,9 +164,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
         HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -211,9 +211,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
         HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasHBHO()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasHBHO()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -258,9 +258,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
         HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasHE()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasHE()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -305,9 +305,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalRespCorrContainer* objContainer1 = new HcalRespCorrContainer(payload1, std::get<0>(iov1));
         HcalRespCorrContainer* objContainer2 = new HcalRespCorrContainer(payload2, std::get<0>(iov2));
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasHF()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasHF()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
