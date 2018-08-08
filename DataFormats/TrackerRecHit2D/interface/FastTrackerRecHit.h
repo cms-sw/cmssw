@@ -173,7 +173,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     protected:
 
-    FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    FastTrackerRecHit * clone_(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
 	return this->clone();
     }
   
