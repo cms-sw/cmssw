@@ -36,13 +36,27 @@ class HGCalTriggerGeometryBase
         {
             return ( hgc_ee_geometry_.isValid() ? hgc_ee_geometry_.product() : (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE))) );
         }
-        const HGCalGeometry* fhGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF)));}
-        const HcalGeometry* bhGeometry()  const {return (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)));}
+        const HGCalGeometry* fhGeometry() const 
+        {
+            return (hgc_hsi_geometry_.isValid() ? hgc_hsi_geometry_.product() : (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF))) );
+        }
+        const HcalGeometry* bhGeometry()  const 
+        {
+            return (hgc_hsc_geometry_.isValid() ? nullptr : (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap))) );
+        }
         const HGCalGeometry* hsiGeometry() const {return hgc_hsi_geometry_.product();}
         const HGCalGeometry* hscGeometry()  const {return hgc_hsc_geometry_.product();}
         const HGCalTopology& eeTopology() const {return eeGeometry()->topology();}
         const HGCalTopology& fhTopology() const {return fhGeometry()->topology();}
-        const HcalTopology& bhTopology() const {return bhGeometry()->topology();}
+        const HcalTopology& bhTopology() const 
+        {
+            if(!bhGeometry())
+            {
+                throw cms::Exception("HGCalTriggerGeometry::bhTopology")
+                    << "Not existing BH geometry";
+            }
+            return bhGeometry()->topology();
+        }
         const HGCalTopology& hsiTopology() const {return hsiGeometry()->topology();}
         const HGCalTopology& hscTopology() const {return hscGeometry()->topology();}
 
