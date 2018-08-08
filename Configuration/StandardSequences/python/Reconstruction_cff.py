@@ -158,6 +158,11 @@ _highlevelreco_HI += hiCentrality
 _highlevelreco_HI += hiClusterCompatibility
 pp_on_XeXe_2017.toReplaceWith(highlevelreco, _highlevelreco_HI)
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_wPixelTrk_cff import pp_on_AA_2018_wPixelTrk
+from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
+_highlevelreco_HI_wPixTrk = highlevelreco.copy()
+pp_on_AA_2018_wPixelTrk.toReplaceWith(highlevelreco, cms.Sequence(_highlevelreco_HI_wPixTrk* hiConformalPixelTracksSequencePhase1))
+
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
 fastSim.toReplaceWith(highlevelreco,_fastSim_highlevelreco)

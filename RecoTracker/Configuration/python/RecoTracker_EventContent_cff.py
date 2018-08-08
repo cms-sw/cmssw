@@ -71,3 +71,18 @@ RecoTrackerAOD = cms.PSet(
     )
 )
 
+#HI-specific products: needed in AOD, propagate to more inclusive tiers as well
+from Configuration.Eras.Modifier_pp_on_AA_2018_wPixelTrk_cff import pp_on_AA_2018_wPixelTrk
+for ec in [RecoTrackerAOD.outputCommands, RecoTrackerRECO.outputCommands, RecoTrackerFEVT.outputCommands]:
+      pp_on_AA_2018_wPixelTrk.toModify( ec, 
+                        func=lambda outputCommands: outputCommands.extend(['keep recoTracks_hiConformalPixelTracksPhase1_*_*',
+                                                                           ])
+                        )
+for ec in [RecoTrackerRECO.outputCommands, RecoTrackerFEVT.outputCommands]:
+      pp_on_AA_2018_wPixelTrk.toModify( ec, 
+                        func=lambda outputCommands: outputCommands.extend([
+			'keep recoTrackExtras_hiConformalPixelTracksPhase1_*_*',
+                        'keep TrackingRecHitsOwned_hiConformalPixelTracksPhase1_*_*'
+                                                                           ])
+                        )
+
