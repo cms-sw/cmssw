@@ -554,7 +554,6 @@ fillMaps()
 {
     //
     // read module mapping file
-    std::cout<<"Filling maps\n";
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
     if(!l1tModulesMappingStream.is_open())
     {
