@@ -222,7 +222,6 @@ getTriggerCellFromCell( const unsigned cell_id ) const
         int type =  cell_det_id.type();
         int waferu = cell_det_id.waferU();
         int waferv = cell_det_id.waferV();
-        unsigned wafer_type = detIdWaferType(det, layer, waferu, waferv);
         unsigned cellu = cell_det_id.cellU();
         unsigned cellv = cell_det_id.cellV();
         auto trigger_cell_itr = cells_to_trigger_cells_.find(packCellId(type, cellu, cellv));
