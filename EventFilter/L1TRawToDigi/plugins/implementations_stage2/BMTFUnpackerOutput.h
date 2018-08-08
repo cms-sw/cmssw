@@ -11,7 +11,7 @@ namespace l1t{
     public:
       BMTFUnpackerOutput(){isKalman = false;}
       BMTFUnpackerOutput(const bool type){isKalman = type;}
-      ~BMTFUnpackerOutput(){};
+      ~BMTFUnpackerOutput() override{};
       bool unpack(const Block& block, UnpackerCollections *coll) override;
     private:
       bool isKalman;

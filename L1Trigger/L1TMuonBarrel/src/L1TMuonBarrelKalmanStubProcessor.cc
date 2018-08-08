@@ -1,6 +1,6 @@
 
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelKalmanStubProcessor.h"
-#include "math.h"
+#include <cmath>
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"

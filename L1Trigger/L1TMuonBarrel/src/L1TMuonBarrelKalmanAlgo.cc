@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelKalmanAlgo.h"
 
 
@@ -831,7 +831,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
   //Now for all the pretracks we need only one 
   L1MuKBMTrackCollection cleaned = clean(pretracks,seed->stNum());
 
-  if (cleaned.size()>0) {
+  if (!cleaned.empty()) {
     bool  veto = punchThroughVeto(cleaned[0]);
     if (verbose_)
       printf("Punch through veto=%d\n",veto);
@@ -932,7 +932,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::cleanAndSort(const L1MuKBMTrackC
 
 
   TrackSorter sorter;
-  if (out.size()>0)
+  if (!out.empty())
     std::sort(out.begin(),out.end(),sorter);
 
 

@@ -56,7 +56,7 @@ L1TMuonBarrelKalmanLUTs::L1TMuonBarrelKalmanLUTs(const std::string& filename) {
 
 L1TMuonBarrelKalmanLUTs::~L1TMuonBarrelKalmanLUTs() {
   lutFile_->Close();
-  if (lutFile_ !=0)
+  if (lutFile_ !=nullptr)
     delete lutFile_;
 }
 

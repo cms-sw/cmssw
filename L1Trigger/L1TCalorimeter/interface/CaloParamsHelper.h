@@ -146,15 +146,15 @@ namespace l1t {
     unsigned egBypassEGVetos() { return pnode_[egBypassEGVetosFlag].uparams_[0]; }
     unsigned egBypassExtHOverE() { return pnode_[egBypassExtHoE].uparams_[0]; }
     unsigned egBypassShape() {
-      if(pnode_[egBypassShapeFlag].uparams_.size()==0) return 0;
+      if(pnode_[egBypassShapeFlag].uparams_.empty()) return 0;
       else return pnode_[egBypassShapeFlag].uparams_[0];
     }
     unsigned egBypassECALFG() {
-      if(pnode_[egBypassECALFGFlag].uparams_.size()==0) return 0;
+      if(pnode_[egBypassECALFGFlag].uparams_.empty()) return 0;
       else return pnode_[egBypassECALFGFlag].uparams_[0];
     }
     unsigned egBypassHoE() {
-      if(pnode_[egBypassHoEFlag].uparams_.size()==0) return 0;
+      if(pnode_[egBypassHoEFlag].uparams_.empty()) return 0;
       else return pnode_[egBypassHoEFlag].uparams_[0];
     }
 
