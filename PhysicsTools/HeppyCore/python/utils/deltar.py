@@ -54,7 +54,7 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
 
     objectCoords = [ (o.eta(),o.phi(),o) for o in objects ]
     matchdCoords = [ (o.eta(),o.phi(),o) for o in matchCollection ]
-    allPairs = sorted([(deltaR2 (oeta, ophi, meta, mphi), (object, match)) for (oeta,ophi,object) in objectCoords for (meta,mphi,match) in matchdCoords if abs(oeta-meta)<=deltaRMax and list(filter(object,match)) ])
+    allPairs = sorted([(deltaR2 (oeta, ophi, meta, mphi), (object, match)) for (oeta,ophi,object) in objectCoords for (meta,mphi,match) in matchdCoords if abs(oeta-meta)<=deltaRMax and filter(object,match) ])
     #allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if filter(object,match) ]
     #
     # to flag already matched objects
@@ -155,7 +155,7 @@ def matchObjectCollection( objects, matchCollection, deltaR2Max, filter = lambda
     if len(matchCollection)==0:
         return dict( list(zip(objects, [None]*len(objects))) )
     for object in objects:
-        bm, dr2 = bestMatch( object, [mob for mob in matchCollection if list(filter(object,mob))] )
+        bm, dr2 = bestMatch( object, [mob for mob in matchCollection if filter(object,mob)] )
         if dr2<deltaR2Max:
             pairs[object] = bm
         else:
