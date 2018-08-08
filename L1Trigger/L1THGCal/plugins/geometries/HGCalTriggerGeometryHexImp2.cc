@@ -123,20 +123,13 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 
 void
 HGCalTriggerGeometryHexImp2::
-// initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
         const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
         const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
         )
 {
-    // setCaloGeometry(calo_geometry);
-    setEEGeometry(hgc_ee_geometry);
-    setHSiGeometry(hgc_hsi_geometry);
-    setHScGeometry(hgc_hsc_geometry);
-    fillMaps();
-    fillNeighborMaps();
-    fillInvalidTriggerCells();
-
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryHexImp2 geometry cannot be initialized with the V9 HGCAL geometry";
 }
 
 unsigned 

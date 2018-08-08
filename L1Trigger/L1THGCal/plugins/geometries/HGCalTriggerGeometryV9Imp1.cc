@@ -143,7 +143,8 @@ void
 HGCalTriggerGeometryV9Imp1::
 initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
 {
-    
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryV9Imp1 geometry cannot be initialized with the V7/V8 HGCAL geometry";
 }
 
 void

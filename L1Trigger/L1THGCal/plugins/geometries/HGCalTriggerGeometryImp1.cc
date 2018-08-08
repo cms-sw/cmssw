@@ -52,13 +52,8 @@ void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<HGCalGeometry>& hg
         )
 /*****************************************************************/
 {
-    // FIXME: !!!Only for HGCEE for the moment!!!
-    edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
-                                            << "WARNING: Only the EE part is covered.\n"\
-                                            << "WARNING: There is no neighbor information.\n";
-    setEEGeometry(hgc_ee_geometry);
-    setHSiGeometry(hgc_hsi_geometry);
-    setHScGeometry(hgc_hsc_geometry);
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryImp1 geometry cannot be initialized with the V9 HGCAL geometry";
 }
 
 
