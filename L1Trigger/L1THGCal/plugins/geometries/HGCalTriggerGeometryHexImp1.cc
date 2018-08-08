@@ -51,23 +51,14 @@ void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& 
 }
 
 /*****************************************************************/
-// void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
  void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
         const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
         const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
         )
 /*****************************************************************/
 {
-    edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
-                                            << "WARNING: There is no neighbor information.\n";
-
-    // setCaloGeometry(calo_geometry);
-    setEEGeometry(hgc_ee_geometry);
-    setHSiGeometry(hgc_hsi_geometry);
-    setHScGeometry(hgc_hsc_geometry);
-    fillMaps();
-    buildTriggerCellsAndModules();
-
+    throw cms::Exception("BadGeometry")
+        << "HGCalTriggerGeometryHexImp1 geometry cannot be initialized with the V9 HGCAL geometry";
 }
 
 
