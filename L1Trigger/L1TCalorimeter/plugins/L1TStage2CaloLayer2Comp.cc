@@ -416,7 +416,7 @@ bool L1TStage2CaloLayer2Comp::compareJets(
 	l1t::JetBxCollection::const_iterator dataItCheckSort;
 	for(emulItCheckSort = emulCol->begin(currBx),
 	      dataItCheckSort = jets->begin();
-	    emulItCheckSort |= emulCol->end(currBx),
+	    emulItCheckSort != emulCol->end(currBx),
 	      dataItCheckSort != jets->end();
 	    ++emulItCheckSort, ++dataItCheckSort){
 
@@ -535,7 +535,7 @@ bool L1TStage2CaloLayer2Comp::compareEGs(
 	l1t::EGammaBxCollection::const_iterator dataItCheckSort;
 	for(emulItCheckSort = emulCol->begin(currBx),
 	      dataItCheckSort = egs->begin();
-	    emulItCheckSort |= emulCol->end(currBx),
+	    emulItCheckSort != emulCol->end(currBx),
 	      dataItCheckSort != egs->end();
 	    ++emulItCheckSort, ++dataItCheckSort){
 
@@ -654,7 +654,7 @@ bool L1TStage2CaloLayer2Comp::compareTaus(
 	l1t::TauBxCollection::const_iterator dataItCheckSort;
 	for(emulItCheckSort = emulCol->begin(currBx),
 	      dataItCheckSort = taus->begin();
-	    emulItCheckSort |= emulCol->end(currBx),
+	    emulItCheckSort != emulCol->end(currBx),
 	      dataItCheckSort != taus->end();
 	    ++emulItCheckSort, ++dataItCheckSort){
 
