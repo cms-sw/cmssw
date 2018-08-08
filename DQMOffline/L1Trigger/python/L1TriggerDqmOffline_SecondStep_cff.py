@@ -14,6 +14,10 @@ from DQMOffline.L1Trigger.L1TTauDiff_cfi import *
 
 from DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff import *
 
+# harvesting sequence for all datasets
+DQMHarvestL1TMon = cms.Sequence(
+)
+
 # harvesting sequence for electron dataset
 DQMHarvestL1TEg = cms.Sequence(
     l1tEGammaEfficiency
