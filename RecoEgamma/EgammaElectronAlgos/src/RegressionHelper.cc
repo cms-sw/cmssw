@@ -168,7 +168,7 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
   float energyError = ele.correctedEcalEnergyError();
   float momentum = ele.trackMomentumAtVtx().R();
   float momentumError = ele.trackMomentumError();
-  int elClass = -.1;
+  int elClass = -1;
   
   switch (ele.classification()) {
   case reco::GsfElectron::GOLDEN:
