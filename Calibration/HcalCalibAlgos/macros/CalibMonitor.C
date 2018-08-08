@@ -825,7 +825,7 @@ void CalibMonitor::Loop() {
   unsigned int  duplicate(0), good(0), kount(0);
   unsigned int  kp1 = ps_.size() - 1;
   unsigned int  kv1 = 0;
-  double        sel(0);
+  double        sel(0), selHB(0), selHE(0);
   std::vector<int> kounts(kp1,0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -1061,6 +1061,8 @@ void CalibMonitor::Loop() {
 	  }	
 
 	  bool barrel = (eb > ee);
+	  if (barrel) selHB += weight;
+	  else        selHE += weight;
 	  for (unsigned int i=0; i<ndepth; i++){
 	    if (barrel) h_bvlist[i]->Fill(bv[i],weight);
 	    else        h_evlist[i]->Fill(ev[i],weight);
@@ -1179,7 +1181,8 @@ void CalibMonitor::Loop() {
   for (unsigned int k=1; k<ps_.size(); ++k)
     if (ps_[k] > 21)  std::cout << ps_[k-1] <<":"<< ps_[k] << "     " 
 				<< kounts[k-1] << std::endl;
-  std::cout << "Number of weighted selected events " << sel << std::endl;
+  std::cout << "Number of weighted selected events " << sel << " HB " << selHB
+	    << " HE " << selHE << std::endl;
 }
 
 bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
