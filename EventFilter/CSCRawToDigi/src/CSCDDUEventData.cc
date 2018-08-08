@@ -174,7 +174,7 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
     }
   //std::cout << "DDU Size: " << std::dec << theDDUHeader.sizeInWords() << std::endl;
 
-  memcpy(&theDDUHeader, buf, theDDUHeader.sizeInWords()*2);
+  theDDUHeader.setFromBuffer(buf);
   
   if (debug) {
     LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of ddu header in words = " << theDDUHeader.sizeInWords();
@@ -248,7 +248,7 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
 	}
       // std::cout << std::dec << theDDUTrailer.sizeInWords() << std::endl;
       // decode ddu tail
-      memcpy(&theDDUTrailer, inputBuf+dduBufSize, theDDUTrailer.sizeInWords()*2);
+      theDDUTrailer.setFromBuffer(inputBuf+dduBufSize);
       // memcpy(&theDDUTrailer, dduBlock+(dduBufSize-theDDUTrailer.sizeInWords())*2, theDDUTrailer.sizeInWords()*2);
       if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << theDDUTrailer.check();
       errorstat=theDDUTrailer.errorstat();
@@ -300,7 +300,7 @@ void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner)
     }
 
     // decode ddu tail
-    memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
+    theDDUTrailer.setFromBuffer(buf);
     if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << theDDUTrailer.check();
     errorstat=theDDUTrailer.errorstat();
     if ((errorstat&errMask) != 0)  

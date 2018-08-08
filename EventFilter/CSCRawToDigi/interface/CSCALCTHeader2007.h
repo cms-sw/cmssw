@@ -17,6 +17,11 @@ class CSCDMBHeader;
 struct CSCALCT {
   CSCALCT();
   CSCALCT(const CSCALCTDigi & alctDigi);
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   static short unsigned int sizeInWords() {return 1; }
 
   unsigned valid   : 1;
@@ -31,6 +36,10 @@ struct CSCALCT {
 struct CSCALCTHeader2007 {
   CSCALCTHeader2007();
   explicit CSCALCTHeader2007(int chamberType);
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
 
   void setEventInformation(const CSCDMBHeader &);///for packing
 
@@ -80,6 +89,10 @@ struct CSCVirtexID {
     bzero(this,  sizeInWords()*2); ///size of virtex ID bits = 6 bytes
   }
 
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   short unsigned int sizeInWords() const { ///size of VirtexID
     return 3;
   }
@@ -99,6 +112,10 @@ struct CSCVirtexID {
 struct CSCConfigurationRegister {
   CSCConfigurationRegister()  {
     bzero(this, sizeInWords()*2); 
+  }
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
   }
 
   short unsigned int sizeInWords() const { ///size of ConfigReg
@@ -128,6 +145,10 @@ struct CSCCollisionMask {
     bzero(this, sizeInWords()*2);
   }
 
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   short unsigned int sizeInWords() const { ///size of one CollMask word
     return 1;
   }
@@ -140,6 +161,10 @@ struct CSCCollisionMask {
 struct CSCHotChannelMask {
   CSCHotChannelMask()  {
     bzero(this, sizeInWords()*2);
+  }
+
+  void setFromBuffer(unsigned short const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
   }
 
   short unsigned int sizeInWords() const { ///size of one HotChannMask word
