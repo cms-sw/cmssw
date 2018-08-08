@@ -146,13 +146,6 @@ LHEEvent::~LHEEvent()
 {
 }
 
-template<typename T>
-static inline void pop(std::vector<T> &vec, unsigned int index)
-{
-	unsigned int size = vec.size() - 1;
-	std::memmove(&vec[index], &vec[index + 1], (size - index) * sizeof(T));
-}
-
 void LHEEvent::removeParticle(HEPEUP &hepeup, int index)
 {
 	index--;
@@ -165,15 +158,15 @@ void LHEEvent::removeParticle(HEPEUP &hepeup, int index)
 
 	std::pair<int, int> mo = hepeup.MOTHUP[index];
 
-	pop(hepeup.IDUP, index);
-	pop(hepeup.ISTUP, index);
-	pop(hepeup.MOTHUP, index);
-	pop(hepeup.ICOLUP, index);
-	pop(hepeup.PUP, index);
-	pop(hepeup.VTIMUP, index);
-	pop(hepeup.SPINUP, index);
+	hepeup.IDUP.erase(hepeup.IDUP.begin() + index);
+	hepeup.ISTUP.erase(hepeup.ISTUP.begin() + index);
+	hepeup.MOTHUP.erase(hepeup.MOTHUP.begin() + index);
+	hepeup.ICOLUP.erase(hepeup.ICOLUP.begin() + index);
+	hepeup.PUP.erase(hepeup.PUP.begin() + index);
+	hepeup.VTIMUP.erase(hepeup.VTIMUP.begin() + index);
+	hepeup.SPINUP.erase(hepeup.SPINUP.begin() + index);
+
 	hepeup.NUP--;
-	hepeup.resize();
 
 	index++;
 	for(int i = 0; i < hepeup.NUP; i++) {
