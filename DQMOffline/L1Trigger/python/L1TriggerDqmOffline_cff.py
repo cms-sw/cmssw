@@ -398,7 +398,8 @@ Stage2l1tMuonDqmOffline = cms.Sequence(
 # DQM Offline sequence
 Stage2l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tStage2EmulatorMonitorClient *
-                                l1tStage2MonitorClient
+                                l1tStage2MonitorClient *
+                                DQMHarvestL1TMon
                                 )
 
 # DQM Offline sequence for modules requiring an electron dataset
