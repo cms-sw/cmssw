@@ -7,9 +7,10 @@ mkdir $CMSSW_BASE/src/Alignment/TrackerAlignment/hists/
 
 
 mkdir $DIRBASE/hists/
-mkdir $DIRBASE/hists/apeObjects/
 mkdir $DIRBASE/hists/workingArea/
+mkdir $DIRBASE/hists/workingArea/apeObjects/
 mkdir $DIRBASE/test/batch/workingArea/
+mkdir $DIRBASE/test/autoSubmitter/workingArea/
 mkdir $DIRBASE/test/cfgTemplateDesign/workingArea/
 mkdir $DIRBASE/test/cfgTemplateMc/workingArea/
 mkdir $DIRBASE/test/cfgTemplateData/workingArea/
