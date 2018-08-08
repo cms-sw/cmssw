@@ -128,6 +128,36 @@ tpToGEMMuonMuonAssociation.UseTracker = True
 tpToGEMMuonMuonAssociation.UseMuon = False
 
 tpToL3TkMuonAssociation = MABHhlt.clone()
+tpToL3TkMuonAssociation.tracksTag = 'hltIterL3MuonMerged'
+tpToL3TkMuonAssociation.UseTracker = True
+tpToL3TkMuonAssociation.UseMuon = False
+
+tpToL3OITkMuonAssociation = MABHhlt.clone()
+tpToL3OITkMuonAssociation.tracksTag = 'hltIterL3OIMuonTrackSelectionHighPurity'
+tpToL3OITkMuonAssociation.UseTracker = True
+tpToL3OITkMuonAssociation.UseMuon = False
+
+tpToL3FromL1TkMuonAssociation = MABHhlt.clone()
+tpToL3FromL1TkMuonAssociation.tracksTag = 'hltIterL3MuonAndMuonFromL1Merged'
+tpToL3FromL1TkMuonAssociation.UseTracker = True
+tpToL3FromL1TkMuonAssociation.UseMuon = False
+
+tpToL3MuonAssociation = MABHhlt.clone()
+tpToL3MuonAssociation.tracksTag = 'hltIterL3Muons'
+tpToL3MuonAssociation.UseTracker = True
+tpToL3MuonAssociation.UseMuon = True
+
+tpToL3GlbMuonAssociation = MABHhlt.clone()
+tpToL3MuonAssociation.tracksTag = 'hltIterL3GlbMuon'
+tpToL3MuonAssociation.UseTracker = True
+tpToL3MuonAssociation.UseMuon = True
+
+tpToL3NoIDMuonAssociation = MABHhlt.clone()
+tpToL3MuonAssociation.tracksTag = 'hltIterL3MuonsNoID'
+tpToL3MuonAssociation.UseTracker = True
+tpToL3MuonAssociation.UseMuon = True
+
+tpToL3TkMuonAssociation = MABHhlt.clone()
 tpToL3TkMuonAssociation.tracksTag = 'hltL3TkTracksFromL2'
 tpToL3TkMuonAssociation.UseTracker = True
 tpToL3TkMuonAssociation.UseMuon = False
@@ -220,7 +250,10 @@ muonAssociationCosmic_seq = cms.Sequence(
     )
 
 muonAssociationHLT_seq = cms.Sequence(
-    tpToL2MuonAssociation+tpToL2UpdMuonAssociation+tpToL3TkMuonAssociation+tpToL3MuonAssociation
+    tpToL2MuonAssociation+
+    tpToL2UpdMuonAssociation+
+    tpToL3TkMuonAssociation+tpToL3OITkMuonAssociation+tpToL3FromL1TkMuonAssociation+
+    tpToL3MuonAssociation+tpToL3GlbMuonAssociation+tpToL3NoIDMuonAssociation
     )
 
 
