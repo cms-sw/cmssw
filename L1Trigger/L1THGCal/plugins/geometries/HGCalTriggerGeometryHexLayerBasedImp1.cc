@@ -17,6 +17,9 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf);
 
         void initialize(const edm::ESHandle<CaloGeometry>& ) final;
+        void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) final;
         void reset() final;
 
         unsigned getTriggerCellFromCell( const unsigned ) const final;
@@ -136,6 +139,39 @@ initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
     trigger_layers_.resize(totalLayers_+1);
     unsigned trigger_layer = 0;
     for(unsigned layer=0; layer<trigger_layers_.size(); layer++)
+    {
+        if(disconnected_layers_.find(layer)==disconnected_layers_.end())
+        {
+            // Increase trigger layer number if the layer is not disconnected
+            trigger_layers_[layer] = trigger_layer;
+            trigger_layer++;
+        }
+        else
+        {
+            trigger_layers_[layer] = 0;
+        }
+    }
+    fillMaps();
+    fillNeighborMaps(l1tCellNeighborsMapping_, trigger_cell_neighbors_);
+    fillNeighborMaps(l1tCellNeighborsBHMapping_, trigger_cell_neighbors_bh_);
+    fillInvalidTriggerCells();
+
+}
+
+void
+HGCalTriggerGeometryHexLayerBasedImp1::
+//initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
+initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
+        const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
+        )
+{
+    // setCaloGeometry(calo_geometry);
+    setEEGeometry(hgc_ee_geometry);
+    setHSiGeometry(hgc_hsi_geometry);
+    setHScGeometry(hgc_hsc_geometry);
+    unsigned trigger_layer = 0;
+    for(unsigned layer=0; layer<52; layer++)
     {
         if(disconnected_layers_.find(layer)==disconnected_layers_.end())
         {
