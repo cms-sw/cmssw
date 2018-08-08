@@ -18,12 +18,12 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoPixelVertexing/PixelTriplets/plugins/RecHitsMap.h"
+
 
 #include "GPUCACell.h"
-#include "GPUHitsAndDoublets.h"
 
 class TrackingRegion;
-class SeedingLayerSetsHits;
 
 namespace edm {
     class Event;
@@ -36,8 +36,6 @@ public:
 
     using HitsOnGPU = siPixelRecHitsHeterogeneousProduct::HitsOnGPU;
     using HitsOnCPU = siPixelRecHitsHeterogeneousProduct::HitsOnCPU;
-
-    typedef LayerHitMapCache LayerCacheType;
 
     static constexpr unsigned int minLayers = 4;
     typedef OrderedHitSeeds ResultType;
@@ -54,21 +52,21 @@ public:
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
-    void buildDoublets(HitsOnCPU const & hh, float phicut, cudaStream_t stream);
+    void buildDoublets(HitsOnCPU const & hh, cudaStream_t stream);
 
-    void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
+    void hitNtuplets(const TrackingRegion &region, HitsOnCPU const & hh,
                      const edm::EventSetup& es,
-                     const SeedingLayerSetsHits& layers, cudaStream_t stream);
-    void fillResults(const IntermediateHitDoublets& regionDoublets,
+                     cudaStream_t stream);
+    void fillResults(const TrackingRegion &region, SiPixelRecHitCollectionNew const & rechits,
                      std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
-                     const SeedingLayerSetsHits& layers, cudaStream_t stream);
+                     cudaStream_t stream);
 
     void allocateOnGPU();
     void deallocateOnGPU();
 
 private:
-    LayerCacheType theLayerCache;
+//    LayerCacheType theLayerCache;
 
     std::unique_ptr<SeedComparitor> theComparitor;
 
@@ -136,10 +134,11 @@ private:
         const bool enabled_;
     };
 
-    void  launchKernels(const TrackingRegion &, int, cudaStream_t);
-    std::vector<std::array<std::pair<int,int> ,3>> fetchKernelResult(int, cudaStream_t);
+    void  launchKernels(const TrackingRegion &, int, HitsOnCPU const & hh, cudaStream_t);
+    std::vector<std::array<int,4>> fetchKernelResult(int, cudaStream_t);
+
+
     const float extraHitRPhitolerance;
-    std::vector<std::vector<const HitDoublets *>> hitDoublets;
 
     const QuantityDependsPt maxChi2;
     const bool fitFastCircle;
@@ -151,29 +150,14 @@ private:
     const float caHardPtCut = 0.f;
 
     static constexpr int maxNumberOfQuadruplets_ = 10000;
-    static constexpr int maxCellsPerHit_ = 512;
+    static constexpr int maxCellsPerHit_ = 2048; // 512;
     static constexpr int maxNumberOfLayerPairs_ = 13;
-    static constexpr unsigned int maxNumberOfRootLayerPairs_ = 13;
     static constexpr int maxNumberOfLayers_ = 10;
     static constexpr int maxNumberOfDoublets_ = 262144;
-    static constexpr int maxNumberOfHits_ = 10000;
-    static constexpr int maxNumberOfRegions_ = 30;
+    static constexpr int maxNumberOfHits_ = 20000;
+    static constexpr int maxNumberOfRegions_ = 2;
 
-    unsigned int numberOfRootLayerPairs_ = 0;
-    unsigned int numberOfLayerPairs_ = 0;
-    unsigned int numberOfLayers_ = 0;
 
-    GPULayerDoublets* h_doublets_ = nullptr;
-    GPULayerHits* h_layers_ = nullptr;
-
-    unsigned int* h_indices_ = nullptr;
-    float *h_x_=nullptr, *h_y_=nullptr, *h_z_=nullptr;
-    float *d_x_=nullptr, *d_y_=nullptr, *d_z_=nullptr;
-    unsigned int* d_rootLayerPairs_ = nullptr;
-    GPULayerHits* d_layers_ = nullptr;
-    GPULayerDoublets* d_doublets_ = nullptr;
-    unsigned int* d_indices_ = nullptr;
-    unsigned int* h_rootLayerPairs_ = nullptr;
     std::vector<GPU::SimpleVector<Quadruplet>*> h_foundNtupletsVec_;
     std::vector<Quadruplet*> h_foundNtupletsData_;
 
@@ -182,9 +166,12 @@ private:
 
     GPUCACell* device_theCells_ = nullptr;
     GPU::VecArray< unsigned int, maxCellsPerHit_>* device_isOuterHitOfCell_ = nullptr;
+    uint32_t* device_nCells_ = nullptr;
 
-    GPULayerHits* tmp_layers_ = nullptr;
-    GPULayerDoublets* tmp_layerDoublets_ = nullptr;
+    HitsOnCPU const * hitsOnCPU=nullptr;
+
+    RecHitsMap<TrackingRecHit const *> hitmap_ = RecHitsMap<TrackingRecHit const *>(nullptr);
+
 };
 
 #endif // RecoPixelVertexing_PixelTriplets_plugins_CAHitQuadrupletGeneratorGPU_h

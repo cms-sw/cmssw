@@ -98,45 +98,42 @@ void CAHitNtupletHeterogeneousEDProducer::beginStreamGPUCuda(
 void CAHitNtupletHeterogeneousEDProducer::acquireGPUCuda(
     const edm::HeterogeneousEvent &iEvent, const edm::EventSetup &iSetup,
     cuda::stream_t<> &cudaStream) {
+
+  seedingHitSets_ = std::make_unique<RegionsSeedingHitSets>();
+
+
+  // FIXME: move directly to region or similar...
   edm::Handle<IntermediateHitDoublets> hdoublets;
   iEvent.getByToken(doubletToken_, hdoublets);
   const auto &regionDoublets = *hdoublets;
+  assert(regionDoublets.regionSize()<=1);
 
-  const SeedingLayerSetsHits &seedingLayerHits =
-      regionDoublets.seedingLayerHits();
-  if (seedingLayerHits.numberOfLayersInSet() <
-      CAHitQuadrupletGeneratorGPU::minLayers) {
-    throw cms::Exception("LogicError")
-        << "CAHitNtupletHeterogeneousEDProducer expects "
-           "SeedingLayerSetsHits::numberOfLayersInSet() to be >= "
-        << CAHitQuadrupletGeneratorGPU::minLayers << ", got "
-        << seedingLayerHits.numberOfLayersInSet()
-        << ". This is likely caused by a configuration error of this module, "
-           "HitPairEDProducer, or SeedingLayersEDProducer.";
+  if (regionDoublets.empty()) {
+    emptyRegionDoublets = true;
+    return;
   }
 
-  seedingHitSets_ = std::make_unique<RegionsSeedingHitSets>();
+  const TrackingRegion &region = (*regionDoublets.begin()).region();
+
 
   edm::Handle<siPixelRecHitsHeterogeneousProduct::GPUProduct> gh;
   iEvent.getByToken<siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit>(tGpuHits, gh);
   auto const & gHits = *gh;
 //  auto nhits = gHits.nHits;
 
-  GPUGenerator_.buildDoublets(gHits,0.06f,cudaStream.id());
+  // move inside hitNtuplets???
+  GPUGenerator_.buildDoublets(gHits,cudaStream.id());
 
-  if (regionDoublets.empty()) {
-    emptyRegionDoublets = true;
-  } else {
-    seedingHitSets_->reserve(regionDoublets.regionSize(), localRA_.upper());
-    GPUGenerator_.initEvent(iEvent.event(), iSetup);
+  seedingHitSets_->reserve(regionDoublets.regionSize(), localRA_.upper());
+  GPUGenerator_.initEvent(iEvent.event(), iSetup);
 
-    LogDebug("CAHitNtupletHeterogeneousEDProducer")
+  LogDebug("CAHitNtupletHeterogeneousEDProducer")
         << "Creating ntuplets for " << regionDoublets.regionSize()
         << " regions, and " << regionDoublets.layerPairsSize()
         << " layer pairs";
 
-    GPUGenerator_.hitNtuplets(regionDoublets, iSetup, seedingLayerHits, cudaStream.id());
-  }
+  GPUGenerator_.hitNtuplets(region, gHits, iSetup, cudaStream.id());
+  
 }
 
 void CAHitNtupletHeterogeneousEDProducer::produceGPUCuda(
@@ -147,16 +144,18 @@ void CAHitNtupletHeterogeneousEDProducer::produceGPUCuda(
     edm::Handle<IntermediateHitDoublets> hdoublets;
     iEvent.getByToken(doubletToken_, hdoublets);
     const auto &regionDoublets = *hdoublets;
-    const SeedingLayerSetsHits &seedingLayerHits =
-        regionDoublets.seedingLayerHits();
-    int index = 0;
+
+    edm::Handle<HeterogeneousProduct> gh;
+    iEvent.getByToken(tGpuHits, gh);
+    auto const & rechits = gh->get<siPixelRecHitsHeterogeneousProduct::HeterogeneousPixelRecHit>().getProduct<HeterogeneousDevice::kCPU>();
+
     std::vector<OrderedHitSeeds> ntuplets(regionDoublets.regionSize());
-    for (auto &ntuplet : ntuplets)
-      ntuplet.reserve(localRA_.upper());
+    for (auto &ntuplet : ntuplets) ntuplet.reserve(localRA_.upper());
+    int index = 0;
     for (const auto &regionLayerPairs : regionDoublets) {
       const TrackingRegion &region = regionLayerPairs.region();
       auto seedingHitSetsFiller = seedingHitSets_->beginRegion(&region);
-      GPUGenerator_.fillResults(regionDoublets, ntuplets, iSetup, seedingLayerHits, cudaStream.id());
+      GPUGenerator_.fillResults(region, rechits.collection, ntuplets, iSetup, cudaStream.id());
       fillNtuplets(seedingHitSetsFiller, ntuplets[index]);
       ntuplets[index].clear();
       index++;
@@ -188,6 +187,7 @@ void CAHitNtupletHeterogeneousEDProducer::produceCPU(
     iEvent.put(std::move(seedingHitSets));
     return;
   }
+
   seedingHitSets->reserve(regionDoublets.regionSize(), localRA_.upper());
   CPUGenerator_.initEvent(iEvent.event(), iSetup);
 

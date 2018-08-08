@@ -129,6 +129,7 @@ namespace pixelgpudetails {
 #endif
     auto nhits = input.nClusters;
     cpu_ = std::make_unique<HitsOnCPU>(nhits);
+    cudaCheck(cudaMemcpyAsync(cpu_->detInd.data(), gpu_.detInd_d, nhits*sizeof(int16_t), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaMemcpyAsync(cpu_->charge.data(), gpu_.charge_d, nhits*sizeof(int32_t), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaMemcpyAsync(cpu_->xl.data(), gpu_.xl_d, nhits*sizeof(float), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaMemcpyAsync(cpu_->yl.data(), gpu_.yl_d, nhits*sizeof(float), cudaMemcpyDefault, stream.id()));

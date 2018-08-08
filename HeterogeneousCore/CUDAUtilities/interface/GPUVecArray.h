@@ -5,7 +5,6 @@
 #ifndef GPU_VECARRAY_H_
 #define GPU_VECARRAY_H_
 
-
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -24,8 +23,6 @@ template <class T, int maxSize> struct VecArray {
     }
   }
 
-
-
   template <class... Ts> constexpr int emplace_back_unsafe(Ts &&... args) {
     auto previousSize = m_size;
     m_size++;
@@ -38,9 +35,7 @@ template <class T, int maxSize> struct VecArray {
     }
   }
 
-
   __inline__ constexpr T & back() const {
-
     if (m_size > 0) {
       return m_data[m_size - 1];
     } else
@@ -95,10 +90,15 @@ template <class T, int maxSize> struct VecArray {
 
   __inline__ constexpr void resize(int size) { m_size = size; }
 
+  __inline__ constexpr bool empty() const { return 0 == m_size; }
 
-  int m_size;
+  __inline__ constexpr bool full() const { return maxSize == m_size; }
+
+  int m_size = 0;
 
   T m_data[maxSize];
 };
+
 }
-#endif
+
+#endif // GPU_VECARRAY_H_

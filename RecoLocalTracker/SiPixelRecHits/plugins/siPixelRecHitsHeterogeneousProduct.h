@@ -39,6 +39,7 @@ namespace siPixelRecHitsHeterogeneousProduct {
     HitsOnCPU() = default;
 
     explicit HitsOnCPU(uint32_t nhits) :
+      detInd(nhits),
       charge(nhits),
       xl(nhits),
       yl(nhits),
@@ -50,6 +51,7 @@ namespace siPixelRecHitsHeterogeneousProduct {
     { }
 
     uint32_t hitsModuleStart[2001];
+    std::vector<uint16_t,  CUDAHostAllocator<uint16_t>> detInd;
     std::vector<int32_t,  CUDAHostAllocator<int32_t>> charge;
     std::vector<float,    CUDAHostAllocator<float>> xl, yl;
     std::vector<float,    CUDAHostAllocator<float>> xe, ye;
