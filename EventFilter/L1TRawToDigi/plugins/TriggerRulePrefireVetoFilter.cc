@@ -40,14 +40,14 @@
 class TriggerRulePrefireVetoFilter : public edm::stream::EDFilter<> {
   public:
     explicit TriggerRulePrefireVetoFilter(const edm::ParameterSet&);
-    ~TriggerRulePrefireVetoFilter();
+    ~TriggerRulePrefireVetoFilter() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginStream(edm::StreamID) override;
-    virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-    virtual void endStream() override;
+    void beginStream(edm::StreamID) override;
+    bool filter(edm::Event&, const edm::EventSetup&) override;
+    void endStream() override;
 
     //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
