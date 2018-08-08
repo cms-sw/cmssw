@@ -26,7 +26,7 @@ namespace edm {
   /// Initialize a new Guid
   void Guid::init()   {
     uuid_t me_;
-    ::uuid_generate_time(me_);
+    ::uuid_generate_random(me_);
     unsigned int*   d1 = reinterpret_cast<unsigned int*>(me_);
     unsigned short* d2 = reinterpret_cast<unsigned short*>(me_+4);
     unsigned short* d3 = reinterpret_cast<unsigned short*>(me_+6);
