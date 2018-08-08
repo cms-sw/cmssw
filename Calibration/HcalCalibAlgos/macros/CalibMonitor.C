@@ -256,6 +256,7 @@ public :
   bool                       ReadCorrFactor(const char* fName);
   std::vector<std::string>   SplitString (const std::string& fLine);
   double                     getFactor(const int& ieta);
+  void                       correctEnergy(double & ener);
   double                     puweight(double vtx);
 private:
 
@@ -1047,15 +1048,17 @@ void CalibMonitor::Loop() {
 	    unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
 	    int subdet, zside, ieta, iphi, depth;
 	    unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	    double ener = (*t_HitEnergies)[k];
+	    if (corrPU_) correctEnergy(ener);
 	    if (depth > 0 && depth <= (int)(ndepth)) {
 	      if (subdet == 1) {
-		eb          += (*t_HitEnergies)[k];
-		bv[depth-1] += (*t_HitEnergies)[k];
-		h_bvlist2[depth-1]->Fill((*t_HitEnergies)[k],weight);
+		eb          += ener;
+		bv[depth-1] += ener;
+		h_bvlist2[depth-1]->Fill(ener,weight);
 	      } else if (subdet == 2) {
-		ee          += (*t_HitEnergies)[k];
-		ev[depth-1] += (*t_HitEnergies)[k] ;
-		h_evlist2[depth-1]->Fill((*t_HitEnergies)[k],weight);
+		ee          += ener;
+		ev[depth-1] += ener ;
+		h_evlist2[depth-1]->Fill(ener,weight);
 	      }
 	    }
 	  }	
@@ -1187,8 +1190,7 @@ void CalibMonitor::Loop() {
 
 bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
 
-  bool select(true);
-  double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
+  bool   select(true);
   double cut(cuti);
   if (debug) {
     std::cout << "GoodTrack input " << eHcal << ":" << cut;
@@ -1197,44 +1199,7 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
     cut        = 8.0*exp(eta*log2by18_);
   }
-  if ((corrPU_ < 0) && (pmom > 0)) {
-    double ediff = (t_eHcal30-t_eHcal10);
-    if (t_DetIds1 != 0 && t_DetIds3 != 0) {
-      double Etot1(0), Etot3(0);
-      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
-      for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
-	unsigned int id = truncateId((*t_DetIds1)[idet],truncateFlag_,false);
-	int subdet,zside,ieta,iphi,depth;
-	unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	std::map<std::pair<int,int>,double>::const_iterator 
-	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = ((itr == cfactors_.end()) ? 
-		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
-		       itr->second);
-	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds1)[idet]);
-	double hitEn = cfac*(*t_HitEnergies1)[idet];
-	Etot1  += hitEn;
-      }
-      for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
-	unsigned int id = truncateId((*t_DetIds3)[idet],truncateFlag_,false);
-	int subdet,zside,ieta,iphi,depth;
-	unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	std::map<std::pair<int,int>,double>::const_iterator 
-	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	double cfac = ((itr == cfactors_.end()) ? 
-		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
-		       itr->second);
-	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds3)[idet]);
-	double hitEn = cfac*(*t_HitEnergies3)[idet];
-	Etot3  += hitEn;
-      }
-      ediff = (Etot3-Etot1);
-    }
-    double fac = puFactor(-corrPU_,t_ieta,pmom,eHcal,ediff);
-    eHcal     *= fac;
-  } else if (corrPU_ > 1) {
-    eHcal      = puFactorRho(corrPU_,t_ieta,t_rhoh,eHcal);
-  }
+  correctEnergy(eHcal);
   select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
 	    (t_eMipDR < 1.0));
   if (debug) {
@@ -1512,6 +1477,49 @@ double CalibMonitor::puweight(double vtx) { ///////for QCD PU sample
   else if (vtx < 91)  a = 9.24839;
   else if (vtx < 101) a = 23.0816;
   return a;
+}
+
+void CalibMonitor::correctEnergy(double& eHcal) {
+
+  double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
+  if ((corrPU_ < 0) && (pmom > 0)) {
+    double ediff = (t_eHcal30-t_eHcal10);
+    if (t_DetIds1 != 0 && t_DetIds3 != 0) {
+      double Etot1(0), Etot3(0);
+      // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
+      for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
+	unsigned int id = truncateId((*t_DetIds1)[idet],truncateFlag_,false);
+	int subdet,zside,ieta,iphi,depth;
+	unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	std::map<std::pair<int,int>,double>::const_iterator 
+	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
+	double cfac = ((itr == cfactors_.end()) ? 
+		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
+		       itr->second);
+	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds1)[idet]);
+	double hitEn = cfac*(*t_HitEnergies1)[idet];
+	Etot1  += hitEn;
+      }
+      for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
+	unsigned int id = truncateId((*t_DetIds3)[idet],truncateFlag_,false);
+	int subdet,zside,ieta,iphi,depth;
+	unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	std::map<std::pair<int,int>,double>::const_iterator 
+	  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
+	double cfac = ((itr == cfactors_.end()) ? 
+		       ((useScale_ == 0) ? 1.0 : getFactor(ieta)) : 
+		       itr->second);
+	if (cFactor_ != 0) cfac *= cFactor_->getCorr(t_Run,(*t_DetIds3)[idet]);
+	double hitEn = cfac*(*t_HitEnergies3)[idet];
+	Etot3  += hitEn;
+      }
+      ediff = (Etot3-Etot1);
+    }
+    double fac = puFactor(-corrPU_,t_ieta,pmom,eHcal,ediff);
+    eHcal     *= fac;
+  } else if (corrPU_ > 1) {
+    eHcal      = puFactorRho(corrPU_,t_ieta,t_rhoh,eHcal);
+  }
 }
 
 class GetEntries {
