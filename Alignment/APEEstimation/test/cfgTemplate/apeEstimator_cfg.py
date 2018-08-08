@@ -13,21 +13,15 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 options = VarParsing.VarParsing ('standard')
 options.register('sample', 'data1', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input sample")
+options.register('globalTag', "None", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Custom global tag")
+options.register('measurementName', "workingArea", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Folder in which to store results")
 options.register('fileNumber', 1, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Input file number")
 options.register('iterNumber', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Iteration number")
 options.register('lastIter', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Last iteration")
 options.register('alignRcd','', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "AlignmentRcd")
 
-
-
 # get and parse the command line arguments
-if( hasattr(sys, "argv") ):
-    for args in sys.argv :
-        arg = args.split(',')
-        for val in arg:
-            val = val.split('=')
-            if(len(val)==2):
-                setattr(options,val[0], val[1])
+options.parseArguments()   
 
 print("Input sample: ", options.sample)
 print("Input file number", options.fileNumber)
@@ -137,7 +131,7 @@ readFiles.extend( [
 ##
 ## Number of Events (should be after input file)
 ##
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) ) # maxEvents is included in options by default
 
 
 
@@ -153,14 +147,13 @@ process.source.duplicateCheckMode = cms.untracked.string("checkEachRealDataFile"
 ##
 process.load("Alignment.APEEstimation.TrackRefitter_38T_cff")
 
-if isParticleGun:
+if options.globalTag != "None":
+    process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
+elif isParticleGun:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 elif isMc:
-    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
-    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
-    
-
+    #~ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_design', '')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 elif isData:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
@@ -199,8 +192,8 @@ elif options.alignRcd == 'misalTest':
     )
     process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
   
-elif options.alignRcd == 'mp1799':
-    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1799/jobData/jobm/alignments_MP.db'))
+elif options.alignRcd == 'mp2705':
+    CondDBAlignment = CondDB.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp2705/jobData/jobm/alignments_MP.db'))
     process.myTrackerAlignment = cms.ESSource("PoolDBESSource",
         CondDBAlignment,
         timetype = cms.string("runnumber"),
@@ -241,14 +234,14 @@ else:
 
 ## APE
 if options.iterNumber!=0:
-    CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
+    CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/'+options.measurementName+'/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
     process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
         CondDBAlignmentError,
         timetype = cms.string("runnumber"),
         toGet = cms.VPSet(
             cms.PSet(
                 record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-                tag = cms.string('TrackerAlignmentExtendedErr_2009_v2_express_IOVs')
+                tag = cms.string('APEs')
             )
         )
     )
@@ -303,7 +296,7 @@ elif options.lastIter == True:
 ## Output File Configuration
 ##
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/workingArea/'+options.sample+str(options.fileNumber)+'.root'),
+    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/'+options.measurementName+'/'+options.sample+str(options.fileNumber)+'.root'),
     closeFileFast = cms.untracked.bool(True)
 )
 
@@ -313,7 +306,7 @@ process.TFileService = cms.Service("TFileService",
 ## Path
 ##
 process.p = cms.Path(
-    process.TriggerSelectionSequence*
+    #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
     process.RefitterHighPuritySequence*
     process.ApeEstimatorSequence
 )
