@@ -186,7 +186,7 @@ process.p = cms.Path(process.mywriter)
 if process.mywriter.write:
 
     from CondCore.CondDB.CondDB_cfi import CondDB
-    CondDB.connect = "sqlite_file:DropBoxMetadata_HPBeamSpot.db"
+    CondDB.connect = "sqlite_file:DropBoxMetadata.db"
 
     process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                               CondDB,
