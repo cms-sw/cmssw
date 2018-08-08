@@ -50,7 +50,7 @@ std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::getByCode(const L1MuKBMTrackCollec
 
 l1t::RegionalMuonCand  
 L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
-  int  K = abs(track.curvatureAtVertex());
+  int  K = fabs(track.curvatureAtVertex());
   //calibration
   int sign,signValid;
 
@@ -76,7 +76,7 @@ L1TMuonBarrelKalmanAlgo::convertToBMTF(const L1MuKBMTrack& track) {
   int pt = ptLUT(K);
 
 
-  int  K2 = abs(track.curvatureAtMuon());
+  int  K2 = fabs(track.curvatureAtMuon());
   if (K2<22)
     K2=22;
 
@@ -148,7 +148,7 @@ std::pair<bool,uint> L1TMuonBarrelKalmanAlgo::match(const L1MuKBMTCombinedStubRe
     if (stub->stNum()!=step) 
       continue;
 
-    int d = abs(wrapAround(((correctedPhi(seed,seed->scNum())-correctedPhi(stub,seed->scNum()))>>3),1024));
+    int d = fabs(wrapAround(((correctedPhi(seed,seed->scNum())-correctedPhi(stub,seed->scNum()))>>3),1024));
     if (d<distance) {
       distance = d;
       best=N-1;
@@ -208,12 +208,12 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
 
   //energy loss term only for MU->VERTEX
   //int offset=int(charge*eLoss_[step-1]*K*K);
-  //  if (abs(offset)>4096)
-  //      offset=4096*offset/abs(offset);
+  //  if (fabs(offset)>4096)
+  //      offset=4096*offset/fabs(offset);
 
   int charge=1;
   if (K!=0) 
-    charge = K/abs(K);
+    charge = K/fabs(K);
 
 
 
@@ -377,16 +377,16 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline(L1MuKBMTrack& track,const L1MuKBMTCo
       return false;
     Matrix32 Gain = cov*ROOT::Math::Transpose(H)*S;
 
-    track.setKalmanGain(track.step(),abs(trackK),Gain(0,0),Gain(0,1),Gain(1,0),Gain(1,1),Gain(2,0),Gain(2,1));
+    track.setKalmanGain(track.step(),fabs(trackK),Gain(0,0),Gain(0,1),Gain(1,0),Gain(1,1),Gain(2,0),Gain(2,1));
 
     int KNew  = (trackK+int(Gain(0,0)*residual(0)+Gain(0,1)*residual(1)));
-    if (abs(KNew)>8192)
+    if (fabs(KNew)>8192)
       return false;
     
     int phiNew  = wrapAround(trackPhi+residual(0),8192);
     int phiBNew = wrapAround(trackPhiB+int(Gain(2,0)*residual(0)+Gain(2,1)*residual(1)),2048);
     
-    track.setResidual(stub->stNum()-1,abs(phi-phiNew)+abs(phiB-phiBNew)/8);
+    track.setResidual(stub->stNum()-1,fabs(phi-phiNew)+fabs(phiB-phiBNew)/8);
 
 
     if (verbose_) {
@@ -447,7 +447,7 @@ bool L1TMuonBarrelKalmanAlgo::updateOffline1D(L1MuKBMTrack& track,const L1MuKBMT
       return false;
     Matrix31 Gain = cov*ROOT::Math::Transpose(H)/S;
 
-    track.setKalmanGain(track.step(),abs(trackK),Gain(0,0),0.0,Gain(1,0),0.0,Gain(2,0),0.0);
+    track.setKalmanGain(track.step(),fabs(trackK),Gain(0,0),0.0,Gain(1,0),0.0,Gain(2,0),0.0);
 
     int KNew  = wrapAround(trackK+int(Gain(0,0)*residual),8192);
     int phiNew  = wrapAround(trackPhi+residual,8192);
@@ -494,7 +494,7 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
       printf("residuals %d %d\n",int(residualPhi),int(residualPhiB));
 
 
-    uint absK = abs(trackK);
+    uint absK = fabs(trackK);
     if (absK>4095)
       absK = 4095;
 
@@ -513,7 +513,7 @@ bool L1TMuonBarrelKalmanAlgo::updateLUT(L1MuKBMTrack& track,const L1MuKBMTCombin
     }
     if (verbose_)
       printf("Gains:%d  %f %f %f %f\n",absK/4,GAIN[0],GAIN[1],GAIN[2],GAIN[3]);
-    track.setKalmanGain(track.step(),abs(trackK),GAIN[0],GAIN[1],1,0,GAIN[2],GAIN[3]);
+    track.setKalmanGain(track.step(),fabs(trackK),GAIN[0],GAIN[1],1,0,GAIN[2],GAIN[3]);
 
     int k_0 = fp_product(GAIN[0],residualPhi,3);
     int k_1 = fp_product(GAIN[1],residualPhiB,5);
@@ -581,7 +581,7 @@ void L1TMuonBarrelKalmanAlgo::vertexConstraintOffline(L1MuKBMTrack& track) {
   double S = (ROOT::Math::Similarity(H,cov))(0,0)+pointResolutionVertex_;
   S=1.0/S;
   Matrix31 Gain = cov*(ROOT::Math::Transpose(H))*S;
-  track.setKalmanGain(track.step(),abs(track.curvature()),Gain(0,0),Gain(1,0),Gain(2,0));
+  track.setKalmanGain(track.step(),fabs(track.curvature()),Gain(0,0),Gain(1,0),Gain(2,0));
 
   if (verbose_) {
     printf("sigma3=%f sigma6=%f\n",cov(0,3),cov(3,3));
@@ -613,12 +613,12 @@ void L1TMuonBarrelKalmanAlgo::vertexConstraintOffline(L1MuKBMTrack& track) {
 
 void L1TMuonBarrelKalmanAlgo::vertexConstraintLUT(L1MuKBMTrack& track) {
   double residual = -track.dxy();
-  uint absK = abs(track.curvature());
+  uint absK = fabs(track.curvature());
   if (absK>2047)
     absK = 2047;
 
 std::pair<float,float> GAIN = lutService_->vertexGain(track.hitPattern(),absK/2);
-  track.setKalmanGain(track.step(),abs(track.curvature()),GAIN.first,GAIN.second,-1);
+  track.setKalmanGain(track.step(),fabs(track.curvature()),GAIN.first,GAIN.second,-1);
 
   int k_0 = fp_product(GAIN.first,int(residual),7);
   int KNew = wrapAround(track.curvature()+k_0,8192);
@@ -654,7 +654,7 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
     if (K==0)
       track.setCharge(1);
     else
-      track.setCharge(K/abs(K));
+      track.setCharge(K/fabs(K));
 
     phiINT = track.phiAtVertex();
     double phi= track.sector()*M_PI/6.0+phiINT*M_PI/(6*2048.)-2*M_PI;
@@ -676,9 +676,9 @@ void L1TMuonBarrelKalmanAlgo::setFloatingPointValues(L1MuKBMTrack& track,bool ve
     K=track.curvatureAtMuon();
     if (K==0)
       K=1;
-    if (abs(K)<46)
-      K=46*K/abs(K);
-    double pt = 1.0/(lsb*abs(K));
+    if (fabs(K)<46)
+      K=46*K/fabs(K);
+    double pt = 1.0/(lsb*fabs(K));
     track.setPtUnconstrained(pt);
   }
 }
@@ -717,12 +717,12 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
     if (phiB==0)
       charge = 0;
     else
-      charge=phiB/abs(phiB);
+      charge=phiB/fabs(phiB);
 
     int address=phiB;
-    if (track.step()>=3 && (abs(seed->phiB())>63))
+    if (track.step()>=3 && (fabs(seed->phiB())>63))
       address=charge*63*8;
-    if (track.step()==2 && (abs(seed->phiB())>127))
+    if (track.step()==2 && (fabs(seed->phiB())>127))
       address=charge*127*8;         
     int initialK = int(initK_[seed->stNum()-1]*address/(1+initK2_[seed->stNum()-1]*charge*address));
     if (initialK>8191)
@@ -810,7 +810,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	if (verbose_)
 	  printf("Chi Square = %d\n",track.approxChi2());
 
-	if (abs(track.approxChi2())>globalChi2Cut_)
+	if (fabs(track.approxChi2())>globalChi2Cut_)
 	  break;
 	vertexConstraint(track);
 	if (verbose_) {
@@ -857,10 +857,10 @@ void L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   for (const auto& stub: track.stubs()) {   
     int AK = fp_product(-chiSquare_[stub->stNum()-1],K>>3,8);
     int stubCoords =   (correctedPhi(stub,track.sector())>>3)+stub->phiB();
-    uint delta = abs(stubCoords-coords+AK);
+    uint delta = fabs(stubCoords-coords+AK);
     // printf("station=%d AK=%d delta=%d\n",stub->stNum(),AK,delta);
 
-    chi=chi+abs(delta);    
+    chi=chi+fabs(delta);    
    }
   //  chi=chi/2;
   if (chi>127)
@@ -892,7 +892,7 @@ int L1TMuonBarrelKalmanAlgo::wrapAround(int value,int maximum) {
 
 bool L1TMuonBarrelKalmanAlgo::punchThroughVeto(const L1MuKBMTrack& track) {
   for (uint i=0;i<chiSquareCutPattern_.size();++i)  {
-   if (track.hitPattern()==chiSquareCutPattern_[i] && abs(track.curvatureAtVertex())<chiSquareCutCurv_[i] && track.approxChi2()>chiSquareCut_[i] && track.curvature()*track.dxy()<0) 
+   if (track.hitPattern()==chiSquareCutPattern_[i] && fabs(track.curvatureAtVertex())<chiSquareCutCurv_[i] && track.approxChi2()>chiSquareCut_[i] && track.curvature()*track.dxy()<0) 
      return true;
   }
    
@@ -1001,7 +1001,7 @@ std::map<int,int> L1TMuonBarrelKalmanAlgo::trackAddress(const L1MuKBMTrack& trac
   else
     out[l1t::RegionalMuonCand::kWheelSide] = 1;
 
-  out[l1t::RegionalMuonCand::kWheelNum] = abs(track.wheel());
+  out[l1t::RegionalMuonCand::kWheelNum] = fabs(track.wheel());
   out[l1t::RegionalMuonCand::kStat1]=3;
   out[l1t::RegionalMuonCand::kStat2]=15;
   out[l1t::RegionalMuonCand::kStat3]=15;
@@ -1149,14 +1149,14 @@ uint L1TMuonBarrelKalmanAlgo::etaStubRank(const L1MuKBMTCombinedStubRef& stub) {
 void L1TMuonBarrelKalmanAlgo::calculateEta(L1MuKBMTrack& track) {
   uint pattern = track.hitPattern();
   int wheel = track.stubs()[0]->whNum();
-  uint awheel=abs(wheel);
+  uint awheel=fabs(wheel);
   int sign=1;
   if (wheel<0)
     sign=-1;
   uint nstubs = track.stubs().size();
   uint mask=0;
   for (unsigned int i=0;i<track.stubs().size();++i) {
-    if (abs(track.stubs()[i]->whNum())!=awheel)
+    if (fabs(track.stubs()[i]->whNum())!=awheel)
       mask=mask|(1<<i);
   }
   mask=(awheel<<nstubs)|mask;
@@ -1199,7 +1199,7 @@ void L1TMuonBarrelKalmanAlgo::calculateEta(L1MuKBMTrack& track) {
   if (sums>0)
     eta=fp_product(factor,sums,10);
   else
-    eta=-fp_product(factor,abs(sums),10);
+    eta=-fp_product(factor,fabs(sums),10);
   
 
   //int eta=int(factor*sums);
