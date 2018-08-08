@@ -1,13 +1,6 @@
 #ifndef RecoLocalFastTime_FTLCommonAlgos_MTDUncalibratedRecHitRecAlgoBase_HH
 #define RecoLocalFastTime_FTLCommonAlgos_MTDUncalibratedRecHitRecAlgoBase_HH
 
-/** \class MTDUncalibRecHitRecAlgoBase
-  *  Template used by Ecal to compute amplitude, pedestal, time jitter, chi2 of a pulse
-  *  using a weights method
-  *
-  *  \author
-  */
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -19,6 +12,7 @@ namespace edm {
   class EventSetup;
 }
 
+template <typename DataFrame> 
 class MTDUncalibratedRecHitAlgoBase {
  public:
   /// Constructor
@@ -33,9 +27,7 @@ class MTDUncalibratedRecHitAlgoBase {
   virtual void getEventSetup(const edm::EventSetup&) = 0;
 
   /// make the rec hit
-  
-  virtual FTLUncalibratedRecHit makeRecHit(const BTLDataFrame& dataFrame ) const = 0;
-  virtual FTLUncalibratedRecHit makeRecHit(const ETLDataFrame& dataFrame ) const = 0;
+  virtual FTLUncalibratedRecHit makeRecHit(const DataFrame& dataFrame ) const = 0;
 
   const std::string& name() const { return name_; }
 
@@ -44,8 +36,13 @@ class MTDUncalibratedRecHitAlgoBase {
 
 };
 
-#include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< MTDUncalibratedRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > MTDUncalibratedRecHitAlgoFactory;
 
+typedef MTDUncalibratedRecHitAlgoBase<BTLDataFrame> BTLUncalibratedRecHitAlgoBase;
+typedef MTDUncalibratedRecHitAlgoBase<ETLDataFrame> ETLUncalibratedRecHitAlgoBase;
+
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< BTLUncalibratedRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > BTLUncalibratedRecHitAlgoFactory;
+typedef edmplugin::PluginFactory< ETLUncalibratedRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > ETLUncalibratedRecHitAlgoFactory;
 
 #endif
