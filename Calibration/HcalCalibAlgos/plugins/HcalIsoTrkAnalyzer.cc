@@ -88,15 +88,15 @@ class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::
 
 public:
   explicit HcalIsoTrkAnalyzer(edm::ParameterSet const&);
-  ~HcalIsoTrkAnalyzer();
+  ~HcalIsoTrkAnalyzer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
  
   std::array<int,3> fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 			     std::vector< math::XYZTLorentzVector>& vecL3,
@@ -263,7 +263,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   tok_cala_     = consumes<CaloTowerCollection>(labelTower_);
   tok_alg_      = consumes<BXVector<GlobalAlgBlk>>(algTag);
 
-  if (modnam == "") {
+  if (modnam.empty()) {
     tok_recVtx_   = consumes<reco::VertexCollection>(labelRecVtx_);
     tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEB_));
     tok_EE_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit",labelEE_));
@@ -351,8 +351,6 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   }
 }
 
-HcalIsoTrkAnalyzer::~HcalIsoTrkAnalyzer() { }
-
 void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
 
   t_Run      = iEvent.id().run();
@@ -423,7 +421,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
   t_goodPV = t_nVtx = 0;
-  if (recVtxs.isValid() && recVtxs->size()>0) {
+  if (recVtxs.isValid() && !(recVtxs->empty())) {
     t_nVtx = recVtxs->size();
     for (unsigned int k=0; k<recVtxs->size(); ++k) {
       if (!((*recVtxs)[k].isFake()) && ((*recVtxs)[k].ndof() > 4)) {
@@ -499,7 +497,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   l1GtUtils_->retrieveL1(iEvent,iSetup,tok_alg_);
   const std::vector<std::pair<std::string, bool> > & finalDecisions = l1GtUtils_->decisionsFinal();
   for (const auto& decision : finalDecisions) {
-    if (decision.first.find(l1TrigName_.c_str()) != std::string::npos) {
+    if (decision.first.find(l1TrigName_) != std::string::npos) {
       t_L1Bit = decision.second;
       break;
     }
@@ -520,7 +518,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
       for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
 	int hlt    = triggerResults->accept(iHLT);
 	for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	  if (names[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	  if (names[iHLT].find(trigNames_[i]) != std::string::npos) {
 	    t_trgbits->at(i) = (hlt>0);
 	    t_hltbits->at(i) = (hlt>0);
 	    if (hlt>0) t_TrigPass = true;
@@ -592,7 +590,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 		      vecL2.push_back(v4);
 		    } else if (label.find(l3Filter_) != std::string::npos) {
 		      vecL3.push_back(v4);
-		    } else if (label.find(l1Filter_) != std::string::npos || l1Filter_ == "") {
+		    } else if ((label.find(l1Filter_) != std::string::npos) ||
+			       (l1Filter_.empty())) {
 		      vecL1.push_back(v4);
 		    }
 #ifdef EDM_ML_DEBUG
@@ -631,14 +630,14 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 					     << mindR1;
 #endif
 	  
-	    if (vecL1.size()>0) {
+	    if (!vecL1.empty()) {
 	      t_l1pt  = vecL1[0].pt();
 	      t_l1eta = vecL1[0].eta();
 	      t_l1phi = vecL1[0].phi();
 	    } else {
 	      t_l1pt  = t_l1eta = t_l1phi = 0;
 	    }
-	    if (vecL3.size()>0) {
+	    if (!vecL3.empty()) {
 	      t_l3pt  = vecL3[0].pt();
 	      t_l3eta = vecL3[0].eta();
 	      t_l3phi = vecL3[0].phi();
@@ -903,7 +902,7 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 	t_mindR2  = dr;
       }
     }
-    t_mindR1 = (vecL1.size() > 0) ? dR(vecL1[0],v4) : 999;
+    t_mindR1 = (!vecL1.empty()) ? dR(vecL1[0],v4) : 999;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalIsoTrack") << "Closest L3 object at dr :" 
 				     << t_mindR2 << " and from L1 " << t_mindR1;
