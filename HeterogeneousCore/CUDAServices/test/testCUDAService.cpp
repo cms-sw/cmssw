@@ -9,9 +9,19 @@
 #include "catch.hpp"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+
+namespace {
+  CUDAService makeCUDAService(edm::ParameterSet ps, edm::ActivityRegistry& ar) {
+    auto desc = edm::ConfigurationDescriptions("Service", "CUDAService");
+    CUDAService::fillDescriptions(desc);
+    desc.validate(ps, "CUDAService");
+    return CUDAService(ps, ar);
+  }
+}
 
 TEST_CASE("Tests of CUDAService", "[CUDAService]") {
   edm::ActivityRegistry ar;
@@ -32,7 +42,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     ps.addUntrackedParameter("enabled", true);
     ps.addUntrackedParameter("numberOfStreamsPerDevice", 0U);
     SECTION("Enabled only if there are CUDA capable GPUs") {
-      CUDAService cs(ps, ar);
+      auto cs = makeCUDAService(ps, ar);
       if(deviceCount <= 0) {
         REQUIRE(cs.enabled() == false);
         WARN("CUDAService is disabled as there are no CUDA GPU devices");
@@ -47,7 +57,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
       return;
     }
 
-    CUDAService cs(ps, ar);
+    auto cs = makeCUDAService(ps, ar);
 
     SECTION("CUDA Queries") {
       int driverVersion = 0, runtimeVersion = 0;
@@ -119,7 +129,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     edm::ParameterSet ps;
     ps.addUntrackedParameter("enabled", false);
     ps.addUntrackedParameter("numberOfStreamsPerDevice", 0U);
-    CUDAService cs(ps, ar);
+    auto cs = makeCUDAService(ps, ar);
     REQUIRE(cs.enabled() == false);
     REQUIRE(cs.numberOfDevices() == 0);
   }
@@ -129,7 +139,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     ps.addUntrackedParameter("enabled", true);
     SECTION("Unlimited") {
       ps.addUntrackedParameter("numberOfStreamsPerDevice", 0U);
-      CUDAService cs(ps, ar);
+      auto cs = makeCUDAService(ps, ar);
       REQUIRE(cs.enabled() == true);
       REQUIRE(cs.enabled(0) == true);
       REQUIRE(cs.enabled(100) == true);
@@ -139,7 +149,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
 
     SECTION("Limit to 1") {
       ps.addUntrackedParameter("numberOfStreamsPerDevice", 1U);
-      CUDAService cs(ps, ar);
+      auto cs = makeCUDAService(ps, ar);
       REQUIRE(cs.enabled() == true);
       REQUIRE(cs.enabled(0) == true);
       REQUIRE(cs.enabled(1*deviceCount-1) == true);
@@ -149,7 +159,7 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
 
     SECTION("Limit to 2") {
       ps.addUntrackedParameter("numberOfStreamsPerDevice", 2U);
-      CUDAService cs(ps, ar);
+      auto cs = makeCUDAService(ps, ar);
       REQUIRE(cs.enabled() == true);
       REQUIRE(cs.enabled(0) == true);
       REQUIRE(cs.enabled(1*deviceCount) == true);

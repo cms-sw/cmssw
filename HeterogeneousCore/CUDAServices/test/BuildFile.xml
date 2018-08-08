@@ -3,6 +3,3 @@
 <bin  file="testCUDAService.cpp test_main.cpp" name="testCUDAService">
   <use name="catch2"/>
 </bin>
-<bin  file="testCUDAServiceDrv.cpp">
-  <use  name="HeterogeneousCore/CUDAUtilities"/>
-</bin>
