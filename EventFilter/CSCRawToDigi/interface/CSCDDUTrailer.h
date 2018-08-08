@@ -2,6 +2,7 @@
 #define CSCDDUTrailer_h
 
 #include <iostream>
+#include <cstdint>
 #include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 
@@ -25,6 +26,10 @@ class CSCDDUTrailer {
       memcpy(this, digi.trailer(), sizeInWords()*2);
     }
   
+  void setFromBuffer(uint16_t const* buf) {
+    memcpy(this, buf, sizeInWords()*2);
+  }
+
   static unsigned sizeInWords() {return 12;}
   
   bool check() const {
