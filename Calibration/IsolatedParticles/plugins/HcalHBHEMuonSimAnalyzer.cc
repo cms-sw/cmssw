@@ -143,7 +143,6 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
   iEvent.getByToken(tok_SimTk_,SimTk);
-  edm::SimTrackContainer::const_iterator simTrkItr;
   edm::Handle<edm::SimVertexContainer> SimVtx;
   iEvent.getByToken(tok_SimVtx_,SimVtx);
 

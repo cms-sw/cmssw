@@ -670,7 +670,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
-  reco::TrackCollection::const_iterator trkItr;
   if (debugTrks_>1) {
     edm::LogVerbatim("IsoTrack") << "Track Collection: ";
     edm::LogVerbatim("IsoTrack") << "Number of Tracks " 
@@ -988,7 +987,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
   if (doMC_) iEvent.getByToken(tok_simTk_,SimTk);
-  edm::SimTrackContainer::const_iterator simTrkItr;
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
   if (doMC_) iEvent.getByToken(tok_simVtx_,SimVtx);
