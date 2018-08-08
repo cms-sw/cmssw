@@ -1730,17 +1730,3 @@ void CSCCathodeLCTProcessor::testLCTs() {
     }
   }
 }
-
-
-int CSCCathodeLCTProcessor::findNumLayersHit(std::vector<int>
-          stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
-  int number = 0;
-  for (int layer = 0; layer < CSCConstants::NUM_LAYERS; layer++) {
-    if ((!stripsHit[layer][ 9].empty()) ||
-        (!stripsHit[layer][10].empty()) ||
-	(!stripsHit[layer][11].empty()) ) number++;
-  }
-  return number;
-}
-
-//  LocalWords:  CMSSW pretrig
