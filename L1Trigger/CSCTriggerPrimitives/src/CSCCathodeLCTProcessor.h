@@ -227,7 +227,6 @@ class CSCCathodeLCTProcessor
 
   //--------------------------- Methods for tests -----------------------------
   void testLCTs();
-  int findNumLayersHit(std::vector<int> stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 };
 
 #endif
