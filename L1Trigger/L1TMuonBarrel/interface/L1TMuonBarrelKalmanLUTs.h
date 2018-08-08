@@ -1,7 +1,7 @@
 #ifndef __L1TMuonBarelKalmanLUTs_h
 #define __L1TMuonBarrelKalmanLUTs_h
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "TH1.h"
 #include "TFile.h"
 #include <map>
