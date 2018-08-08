@@ -234,7 +234,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     int   PVBin = conf_->getParameter<int>   ("PVBin");
     float PVMin = conf_->getParameter<double>("PVMin");
     float PVMax = conf_->getParameter<double>("PVMax");
-    
+
 
     int NBINS[]        = { PVBin,   int(GetLumi::lastBunchCrossing),  LUMIBin, LUMIBin};
     float MIN[]        = { PVMin,     0.5,  LUMIMin, LUMIMin };
@@ -251,7 +251,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &iboo
     std::string name = "";
     for (int i=0; i<monQuantity::END; i++) {
       if (monName[i] == suffix) {
-        logQ =  (i>1); 
+        logQ =  (i>1); // VsLUMI
 	mon = i;
         if (useInac) mon+=monQuantity::END;
 	nbins = NBINS[i];
