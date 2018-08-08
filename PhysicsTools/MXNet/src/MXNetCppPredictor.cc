@@ -42,6 +42,7 @@ void Block::load_parameters(const std::string& param_file) {
   }
 }
 
+std::mutex MXNetCppPredictor::mutex_;
 const Context MXNetCppPredictor::context_ = Context(DeviceType::kCPU, 0);
 
 MXNetCppPredictor::MXNetCppPredictor() {
@@ -93,6 +94,8 @@ const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vect
 }
 
 void MXNetCppPredictor::bind_executor() {
+  // acquire lock
+  std::lock_guard<std::mutex> lock(mutex_);
 
   // infer shapes
   const auto arg_name_list = sym_.ListArguments();
