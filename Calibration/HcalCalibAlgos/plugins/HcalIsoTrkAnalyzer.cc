@@ -42,8 +42,9 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
-#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
 //Generator information
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -65,6 +66,7 @@
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/eCone.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
+#include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/TrackSelection.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -76,12 +78,11 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
@@ -101,7 +102,11 @@ private:
 			     std::vector< math::XYZTLorentzVector>& vecL3,
 			     math::XYZPoint& leadPV,
 			     std::vector<spr::propagatedTrackDirection>& trkCaloDirections,
-			     const CaloGeometry* geo,
+			     std::vector<spr::propagatedTrackID>& trkCaloDets, 
+			     const CaloGeometry* geo, const CaloTopology* topo,
+			     const HcalTopology* theHBHETopology,
+			     const EcalChannelStatus* theEcalChStatus, 
+			     const EcalSeverityLevelAlgo* theEcalSevlv,
 			     edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
 			     edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
 			     edm::Handle<HBHERecHitCollection>& hbhe,
@@ -164,6 +169,7 @@ private:
   double                     t_l3pt, t_l3eta, t_l3phi;
   double                     t_mindR1, t_mindR2;
   double                     t_eMipDR, t_hmaxNearP, t_gentrackP;
+  double                     t_emaxNearP, t_eAnnular, t_hAnnular;
   double                     t_eHcal, t_eHcal10, t_eHcal30, t_rhoh;
   bool                       t_selectTk, t_qltyFlag, t_qltyMissFlag;
   bool                       t_qltyPVFlag, t_TrigPass, t_TrigPassSel;
@@ -363,11 +369,23 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   iSetup.get<IdealMagneticFieldRecord>().get(bFieldH);
   const MagneticField *bField = bFieldH.product();
 
+  edm::ESHandle<EcalChannelStatus> ecalChStatus;
+  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
+  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
+  
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+  const EcalSeverityLevelAlgo* theEcalSevlv = sevlv.product();
+
   // get handles to calogeometry and calotopology
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
-
+  
+  edm::ESHandle<CaloTopology> theCaloTopology;
+  iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
+  const CaloTopology *caloTopology = theCaloTopology.product();
+  
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
@@ -454,12 +472,16 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   std::vector<spr::propagatedTrackDirection> trkCaloDirections;
   spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
 		     trkCaloDirections, false);
+  std::vector<spr::propagatedTrackID> trkCaloDets;
+  spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, 
+		     trkCaloDets, false);
   std::vector<math::XYZTLorentzVector> vecL1, vecL3;
   t_RunNo      = iEvent.id().run();
   t_EventNo    = iEvent.id().event();
   t_Tracks     = trkCollection->size();
   t_TracksProp = trkCaloDirections.size();
   t_ietaAll->clear(); t_ietaGood->clear(); t_trackType->clear();
+  t_trgbits->clear(); t_hltbits->clear();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "# of propagated tracks " << t_TracksProp
 				   << " out of " << t_Tracks << " with Trigger "
@@ -522,9 +544,10 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
     t_l1pt  = t_l1eta = t_l1phi = 0;
     t_l3pt  = t_l3eta = t_l3phi = 0;
     if (ignoreTrigger_ || t_L1Bit)
-      ntksave = fillTree(vecL1, vecL3, leadPV, trkCaloDirections, geo, 
-			 barrelRecHitsHandle, endcapRecHitsHandle, hbhe,
-			 caloTower, genParticles, respCorrs);
+      ntksave = fillTree(vecL1, vecL3, leadPV, trkCaloDirections, trkCaloDets,
+			 geo, caloTopology, theHBHETopology, theEcalChStatus,
+			 theEcalSevlv, barrelRecHitsHandle, endcapRecHitsHandle,
+			 hbhe, caloTower, genParticles, respCorrs);
     t_TracksSaved = ntksave[0];
     t_TracksLoose = ntksave[1];
     t_TracksTight = ntksave[2];
@@ -624,9 +647,11 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	    }
 	    // Now fill in the tree for each selected track
 	    if (!done) {
-	      ntksave = fillTree(vecL1, vecL3, leadPV, trkCaloDirections, geo, 
-				 barrelRecHitsHandle,endcapRecHitsHandle, hbhe,
-				 caloTower, genParticles, respCorrs);
+	      ntksave = fillTree(vecL1, vecL3, leadPV, trkCaloDirections, 
+				 trkCaloDets, geo, caloTopology,theHBHETopology,
+				 theEcalChStatus, theEcalSevlv,
+				 barrelRecHitsHandle, endcapRecHitsHandle, 
+				 hbhe, caloTower, genParticles, respCorrs);
 	      t_TracksSaved += ntksave[0];
 	      t_TracksLoose += ntksave[1];
 	      t_TracksTight += ntksave[2];
@@ -677,6 +702,9 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree->Branch("t_eHcal10",     &t_eHcal10,     "t_eHcal10/D");
   tree->Branch("t_eHcal30",     &t_eHcal30,     "t_eHcal30/D");
   tree->Branch("t_hmaxNearP",   &t_hmaxNearP,   "t_hmaxNearP/D");
+  tree->Branch("t_emaxNearP",   &t_emaxNearP,   "t_emaxNearP/D");
+  tree->Branch("t_eAnnular",    &t_eAnnular,    "t_eAnnular/D");
+  tree->Branch("t_hAnnular",    &t_hAnnular,    "t_hAnnular/D");
   tree->Branch("t_rhoh",        &t_rhoh,        "t_rhoh/D");
   tree->Branch("t_selectTk",    &t_selectTk,    "t_selectTk/O");
   tree->Branch("t_qltyFlag",    &t_qltyFlag,    "t_qltyFlag/O");
@@ -838,7 +866,12 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 					       std::vector< math::XYZTLorentzVector>& vecL3,
 					       math::XYZPoint& leadPV,
 					       std::vector<spr::propagatedTrackDirection>& trkCaloDirections,
+					       std::vector<spr::propagatedTrackID>& trkCaloDets,
 					       const CaloGeometry* geo,
+					       const CaloTopology* caloTopology,
+					       const HcalTopology* theHBHETopology,
+					       const EcalChannelStatus* theEcalChStatus, 
+					       const EcalSeverityLevelAlgo* theEcalSevlv,
 					       edm::Handle<EcalRecHitCollection>& barrelRecHitsHandle,
 					       edm::Handle<EcalRecHitCollection>& endcapRecHitsHandle,
 					       edm::Handle<HBHERecHitCollection>& hbhe,
@@ -926,12 +959,42 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 	if (eHit[k] > eThr) eEcal += eHit[k];
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalIsoTrack") << "eMIP befor and after: " << t_eMipDR
+      edm::LogVerbatim("HcalIsoTrack") << "eMIP before and after: " << t_eMipDR
 				       << ":" << eEcal;
 #endif
       t_eMipDR = eEcal;
+      t_emaxNearP = spr::chargeIsolationEcal(nTracks, trkCaloDets, geo, 
+					     caloTopology, 15,15);
+      const DetId cellE(trkDetItr->detIdECAL);
+      std::pair<double, bool> e11x11P = 
+	spr::eECALmatrix(cellE,barrelRecHitsHandle,endcapRecHitsHandle,
+			 *theEcalChStatus,geo,caloTopology,theEcalSevlv,
+			 5,5,-100.0,-100.0,-100.0,100.0);
+      std::pair<double, bool> e15x15P =
+	spr::eECALmatrix(cellE,barrelRecHitsHandle,endcapRecHitsHandle,
+			 *theEcalChStatus,geo,caloTopology,theEcalSevlv,7,7,
+			 -100.0,-100.0,-100.0,100.0);
+      if (e11x11P.second && e15x15P.second) {
+	t_eAnnular = (e15x15P.first - e11x11P.first);
+      } else {
+	t_eAnnular =-(e15x15P.first - e11x11P.first);
+      }
       t_hmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections,
 					     a_charIsoR_, nNearTRKs, false);
+      const DetId cellH(trkDetItr->detIdHCAL);
+      double h5x5 = spr::eHCALmatrix(theHBHETopology,cellH,hbhe,2,2,false,true,
+				     -100.0,-100.0,-100.0,-100.0,-100.0,100.0);
+      double h7x7 = spr::eHCALmatrix(theHBHETopology,cellH,hbhe,3,3,false,true,
+				     -100.0,-100.0,-100.0,-100.0,-100.0,100.0);
+      t_hAnnular = h7x7 - h5x5;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "max p Near (Ecal) " << t_emaxNearP
+				       << " (Hcal) " << t_hmaxNearP 
+				       << " Annular E (Ecal) " << e11x11P.first
+				       << ":" << e15x15P.first << ":" 
+				       << t_eAnnular << " (Hcal) " << h5x5 
+				       << ":"  << h7x7 << ":" << t_hAnnular;
+#endif
       t_gentrackP = trackP(pTrack, genParticles);
       if (t_eMipDR < eEcalMax_ && t_hmaxNearP < eIsolation) {
 	t_DetIds->clear();  t_HitEnergies->clear();
