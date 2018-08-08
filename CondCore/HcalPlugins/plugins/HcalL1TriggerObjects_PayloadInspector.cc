@@ -75,11 +75,12 @@ namespace {
         HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
         HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
  
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
+
   
 
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
 
 
@@ -129,11 +130,11 @@ namespace {
         HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
         HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
  
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
   
 
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
 
 
@@ -183,11 +184,11 @@ namespace {
         HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
         HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
  
-        objContainer1->Divide(objContainer2);
+        objContainer2->Divide(objContainer1);
   
 
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
 
 

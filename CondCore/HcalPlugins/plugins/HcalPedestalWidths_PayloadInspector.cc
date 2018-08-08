@@ -69,9 +69,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
         HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
-        objContainer1->Subtract(objContainer2);
+        objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll()->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -116,9 +116,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
         HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
-        objContainer1->Subtract(objContainer2);
+        objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };
@@ -163,9 +163,9 @@ namespace {
       if(payload1.get() && payload2.get()) {
         HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
         HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
-        objContainer1->Subtract(objContainer2);
+        objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
-        objContainer1->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
+        objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;} else return false;
     }// fill method
   };

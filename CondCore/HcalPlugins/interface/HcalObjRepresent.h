@@ -27,7 +27,9 @@
 #include "TStyle.h"
 #include "TColor.h"
 #include "TLine.h"
+#include "TLatex.h"
 #include "TProfile.h"
+#include "TPaveLabel.h"
 
 //functions for correct representation of data in summary and plot
 namespace HcalObjRepresent{
@@ -190,11 +192,17 @@ namespace HcalObjRepresent{
            // wisely determines what range to set histogram axis to
            std::pair< float, float > GetRange(TH1* hist) {
 
-               //if(PlotMode_ == "Ratio") {
-               //  int amp;
-               //  amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
-               //  return std::make_pair( 1 - amp, 1 + amp);
-               //} else 
+               if(PlotMode_ == "Ratio") {
+                 float amp;
+                 amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
+                 return std::make_pair( 1 - amp, 1 + amp);
+               } 
+               else if(PlotMode_ == "Diff") {
+                 float amp;
+                 amp = std::max((0 - hist->GetMinimum()),hist->GetMaximum() );
+                 return std::make_pair( (-1 * amp), amp);
+               } 
+               else 
                return std::make_pair(hist->GetMinimum(),hist->GetMaximum());
            }
 
@@ -202,6 +210,7 @@ namespace HcalObjRepresent{
            void initGraphics() {
 
              gStyle->SetOptStat(0);
+             gStyle->SetPalette(1);
              gStyle->SetOptFit(0);
              gStyle->SetLabelFont(42);
              gStyle->SetLabelFont(42);
@@ -220,6 +229,47 @@ namespace HcalObjRepresent{
           }
 
 
+          TH1D* GetProjection(TH2F* hist, std::string plotType, const char* newName, std::string subDetName, int depth) {
+
+            //TODO: Also want average for standard projection of 2DHist (not ratio or diff)?
+            //if (PlotMode_ != "Ratio") return (plotType=="EtaProfile") ? ((TH2F*)(hist->Clone("temp")))->ProjectionX(newName) : ((TH2F*)(hist->Clone("temp")))->ProjectionY(newName);
+
+            //TH1D* projection = ((TH2F*)(depths_[std::make_pair(subDetName,depth)]->Clone("temp")))->ProjectionX(newName);
+
+
+
+            int xBins = (plotType=="EtaProfile") ? 83 : 71;
+            int etaMin = -42, etaMax = 42, phiMin = 1, phiMax = 72;
+            int xMin = (plotType=="EtaProfile") ? etaMin : phiMin;
+            int xMax = (plotType=="EtaProfile") ? etaMax : phiMax;
+            int otherMin = (plotType=="EtaProfile") ? phiMin : etaMin;
+            int otherMax = (plotType=="EtaProfile") ? phiMax : etaMax;
+            TH1D* retHist = new TH1D(newName,newName, xBins,xMin,xMax);
+            int numChannels;
+            Double_t sumVal;
+            Double_t channelVal;
+            int ieta, iphi;
+            int bin = 0;
+            for(int i = xMin; i <= xMax; i++ && bin++) { 
+              numChannels = 0; sumVal = 0;
+              for(int j = otherMin; j <= otherMax; j++) {
+                ieta = (plotType=="EtaProfile") ? i : j; ieta += 42;
+                iphi = (plotType=="EtaProfile") ? j : i; iphi += -1;
+                channelVal = hist->GetBinContent(ieta,iphi);
+                //std::cout << "(ieta, iphi)    :       (" << std::to_string(ieta) << ", " << std::to_string(iphi) << ")" << std::endl;
+                if(channelVal != 0 ) {
+                  sumVal += channelVal; 
+                  numChannels++;
+                }
+              }
+              //if(sumVal !=0) projection->SetBinContent(i, sumVal/((Double_t)numChannels));//retHist->Fill(i,sumVal/((Double_t)numChannels));
+              if(sumVal !=0) retHist->Fill(i,sumVal/((Double_t)numChannels));
+            }
+            return retHist; 
+            //return projection;
+          }
+
+
           // fills a canvas with given subdetector information, plotting all depths
           void FillCanv(TCanvas* canvas, std::string subDetName, int startDepth=1, int startCanv=1, std::string plotForm= "2DHist") {
 
@@ -229,19 +279,24 @@ namespace HcalObjRepresent{
              int padNum;
              int maxDepth = (subDetName=="HO")?4:subDetDepths_[subDetName];
              TH1D* projection;
+             TLatex label;
              for(int i = startDepth; i <= maxDepth ; i++){
                //skip if data not obtained; TODO: Maybe add text on plot saying data not found?
                if(depths_.count(std::make_pair(subDetName,i)) == 0) {
                  return; 
                }
-               range = GetRange( depths_[std::make_pair(subDetName,i)]);
+
                padNum = i+startCanv-1;
                if(subDetName=="HO") padNum = padNum - 3;
                canvas->cd(padNum);
                canvas->GetPad(padNum)->SetGridx(1);
                canvas->GetPad(padNum)->SetGridy(1);
+               canvas->GetPad(padNum)->SetRightMargin(0.13);
+               //canvas->GetPad(padNum)->SetLeftMargin(0.11);
 
                if(plotForm == "2DHist"){
+                 range = GetRange( depths_[std::make_pair(subDetName,i)]);
+                 depths_[std::make_pair(subDetName,i)]->GetZaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
                  depths_[std::make_pair(subDetName,i)]->Draw("colz");
                  depths_[std::make_pair(subDetName,i)]->SetContour(100);
                  depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetTitle("ieta");
@@ -255,32 +310,32 @@ namespace HcalObjRepresent{
                  depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetTitleOffset(0.80);
                  depths_[std::make_pair(subDetName,i)]->GetYaxis()->SetLabelSize(0.055);
                  depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetLabelSize(0.055);
-               } else if(plotForm == "EtaProfile"){
-                 newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_ieta").c_str();
-                 projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName);
+               } else {
+  //               gStyle->SetTitleOffset(1.6,"Y");
+                 newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_" + (plotForm=="EtaProfile" ? "ieta" : "iphi")).c_str();
+                 //projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName);
+                 projection = GetProjection(depths_[std::make_pair(subDetName,i)],plotForm, newName, subDetName, i);
                  range = GetRange(projection);
-                 projection->Draw("colz hist");
-                 projection->GetXaxis()->SetTitle("ieta");
+                 projection->Draw("hist");
+                 projection->GetXaxis()->SetTitle((plotForm=="EtaProfile" ? "ieta" : "iphi"));
                  projection->GetXaxis()->CenterTitle();
-                 //projection->GetYaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
+                 projection->GetYaxis()->SetTitle((payload_->myname() + " " + (PlotMode_ == "Map" ? "" : PlotMode_)).c_str());
+	         label.SetNDC();
+	         label.SetTextAlign(26);
+	         label.SetTextSize(0.05);
+	         label.DrawLatex(0.3, 0.95, ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i)).c_str());
+                 projection->GetYaxis()->CenterTitle();
                  projection->GetXaxis()->SetTitleSize(0.06);
+                 projection->GetYaxis()->SetTitleSize(0.06);
                  projection->GetXaxis()->SetTitleOffset(0.80);
                  projection->GetXaxis()->SetLabelSize(0.055);
-               } else if(plotForm == "PhiProfile"){
-                 newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_iphi").c_str();
-                 projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionY(newName);
-                 range = GetRange(projection);
-                 projection->Draw("colz hist");
-                 projection->GetXaxis()->SetTitle("iphi");
-                 projection->GetXaxis()->CenterTitle();
-                 //projection->GetYaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
-                 projection->GetXaxis()->SetTitleSize(0.06);
-                 projection->GetXaxis()->SetTitleOffset(0.80);
-                 projection->GetXaxis()->SetLabelSize(0.055);
+                 projection->GetYaxis()->SetTitleOffset(0.88);
+                 projection->GetYaxis()->SetLabelSize(0.055);
                }
+
              }
 
-
+ 
           }
 
 
@@ -291,7 +346,7 @@ namespace HcalObjRepresent{
              fillValConts();
              initGraphics();
              TCanvas *HAll = new TCanvas("HAll", "HAll", 1680, (GetTopoMode()=="2015/2016")?1680:2500);
-             HAll->Divide(3, (GetTopoMode()=="2015/2016")?3:6);
+             HAll->Divide(3, (GetTopoMode()=="2015/2016")?3:6, 0.02,0.01);
              FillCanv(HAll,"HB",1,1,profile);
              FillCanv(HAll,"HO",4,3,profile);
              FillCanv(HAll,"HF",1,4,profile);
@@ -304,7 +359,7 @@ namespace HcalObjRepresent{
              fillValConts();
              initGraphics();
              TCanvas *HF = new TCanvas("HF", "HF", 1600, 1000);
-             HF->Divide(3, 2);
+             HF->Divide(3, 2,0.02,0.01);
              FillCanv(HF,"HF");
              return HF;
            }           
@@ -313,7 +368,7 @@ namespace HcalObjRepresent{
              fillValConts();
              initGraphics();
              TCanvas *HE = new TCanvas("HE", "HE", 1680, 1680);
-             HE->Divide(3, 3);
+             HE->Divide(3, 3,0.02,0.01);
              FillCanv(HE,"HE");
              return HE;
            }           
@@ -321,7 +376,7 @@ namespace HcalObjRepresent{
              fillValConts();
              initGraphics();
              TCanvas *HBHO = new TCanvas("HBHO", "HBHO", 1680, 1680);
-             HBHO->Divide(3, 3);
+             HBHO->Divide(3, 3,0.02,0.01);
              FillCanv(HBHO,"HB");
              FillCanv(HBHO,"HO",4,3);
              FillCanv(HBHO,"HB",1,4,"EtaProfile");
@@ -394,6 +449,45 @@ namespace HcalObjRepresent{
           }
        };
 
+
+
+
+
+
+        void drawTable(int nbRows, int nbColumns){
+              TLine* l = new TLine;
+              l->SetLineWidth(1);
+              for (int i = 1; i < nbRows; i++) {
+                double y = (double) i;
+                l = new TLine(0., y, nbColumns, y);
+                l->Draw();
+              }
+      
+              for (int i = 1; i < nbColumns; i++) {
+                double x = (double) i;
+                double y = (double) nbRows;
+                l = new TLine(x, 0., x, y);
+                l->Draw();
+              }
+        }
+
+
+
+
+        std::string SciNotatStr(float num){
+
+            // Create an output string stream
+            std::ostringstream streamObj2;
+
+            if(num==-1) return "NOT FOUND";
+ 
+            //Add double to stream
+            streamObj2 << num;
+            // Get string from output string stream
+            std::string strObj2 = streamObj2.str();
+ 
+            return strObj2;
+        }
 
 
 

@@ -53,3 +53,17 @@
   <use   name="CondFormats/HcalObjects"/>
   <use   name="boost_python"/>
 </library>
+<library   file="HcalSiPMCharacteristics_PayloadInspector.cc" name="HcalSiPMCharacteristics_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+<library   file="HcalSiPMParameters_PayloadInspector.cc" name="HcalSiPMParameters_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/HcalObjects"/>
+  <use   name="boost_python"/>
+</library>
