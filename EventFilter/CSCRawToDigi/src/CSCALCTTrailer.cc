@@ -77,10 +77,10 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
   switch (firmwareVersion.load()) {
 #endif
   case 2006:
-    memcpy(&trailer2006, buf, trailer2006.sizeInWords()*2);
+    trailer2006.setFromBuffer(buf);
     break;
   case 2007:
-    memcpy(&trailer2007, buf, trailer2007.sizeInWords()*2);
+    trailer2007.setFromBuffer(buf);
     break;
   default:
     edm::LogError("CSCALCTTrailer|CSCRawToDigi")
