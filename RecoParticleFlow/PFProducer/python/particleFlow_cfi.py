@@ -73,7 +73,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     electron_protectionsForBadHcal = cms.PSet(
     full5x5_sigmaIetaIeta = cms.vdouble(0.0126, 0.0457), # EB, EE
     eInvPInv = cms.vdouble(0.209, 0.132),
-    dEta = cms.vdouble(0.001, 0.002),
+    dEta = cms.vdouble(0.01, 0.02),
     dPhi = cms.vdouble(0.148, 0.19),
     ),
     # New photon selection cuts for CMSSW_700
