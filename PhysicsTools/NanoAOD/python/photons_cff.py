@@ -7,6 +7,7 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
@@ -41,6 +42,17 @@ run2_miniAOD_80XLegacy.toModify(_photon_id_vid_modules_WorkingPoints,
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight",
    )
 )
+run2_nanoAOD_94X2016.toModify(_photon_id_vid_modules_WorkingPoints,
+    modules = cms.vstring(
+        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
+   ),
+   WorkingPoints = cms.vstring(
+    "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose",
+    "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium",
+    "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight",
+   )
+)
+
 
 _bitmapVIDForPho_docstring = ''
 for modname in _photon_id_vid_modules_WorkingPoints.modules:
@@ -118,6 +130,17 @@ run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userIntFromBools,
     mvaID_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
     mvaID_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
 )
+run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userFloats,
+    mvaID = None,
+)
+run2_nanoAOD_94X2016.toModify(slimmedPhotonsWithUserData.userIntFromBools,
+    cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
+    cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
+    cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
+    mvaID_WP90 = None,
+    mvaID_WP80 = None,
+)
+
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorr = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorr     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
@@ -156,13 +179,22 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
     )
 )
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
+for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016:
     modifier.toModify(photonTable.variables,
         pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalEnergyErrPostCorr')",float,doc="energy error of the cluster from regression",precision=6),
         eCorr = Var("userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
     )
-    
+run2_nanoAOD_94X2016.toModify(photonTable.variables,
+    cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based Spring16-V2p2 ID (0:fail, 1::loose, 2:medium, 3:tight)"),
+    cutBased17Bitmap = Var("photonID('cutBasedPhotonID-Fall17-94X-V1-loose')+2*photonID('cutBasedPhotonID-Fall17-94X-V1-medium')+4*photonID('cutBasedPhotonID-Fall17-94X-V1-tight')",int,doc="cut-based Fall17-94X-V1 ID bitmap, 2^(0:loose, 1:medium, 2:tight)"),
+    mvaID = Var("userFloat('PhotonMVAEstimatorRun2Spring16NonTrigV1Values')",float,doc="MVA Spring16NonTrigV1 ID score",precision=10),
+    mvaID17 = Var("userFloat('PhotonMVAEstimatorRunIIFall17v1p1Values')",float,doc="MVA Fall17v1p1 ID score",precision=10),
+    mvaID_WP90 = Var("photonID('mvaPhoID-Spring16-nonTrig-V1-wp80')",bool,doc="MVA Spring16NonTrigV1 ID WP90"),
+    mvaID_WP80 = Var("photonID('mvaPhoID-Spring16-nonTrig-V1-wp90')",bool,doc="MVA Spring16NonTrigV1 ID WP80"),
+    mvaID17_WP90 = Var("photonID('mvaPhoID-RunIIFall17-v1p1-wp80')",bool,doc="MVA Fall17v1p1 ID WP90"),
+    mvaID17_WP80 = Var("photonID('mvaPhoID-RunIIFall17-v1p1-wp90')",bool,doc="MVA Fall17v1p1 ID WP80"),
+)
 run2_miniAOD_80XLegacy.toModify(photonTable.variables,
     cutBasedBitmap = None,
     cutBased = Var("userInt('cutbasedID_loose')+userInt('cutbasedID_medium')+userInt('cutbasedID_tight')",int,doc="cut-based ID (0:fail, 1::loose, 2:medium, 3:tight)"),

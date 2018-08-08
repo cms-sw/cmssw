@@ -306,7 +306,8 @@ for era in [eras.run2_nanoAOD_94XMiniAODv1,eras.run2_nanoAOD_92X]:
     era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWith2017v1)
 _patTauMVAIDsSeqWith2015 = patTauMVAIDsSeq.copy()
 _patTauMVAIDsSeqWith2015 += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq
-eras.run2_nanoAOD_94XMiniAODv2.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWith2015)
+for era in [eras.run2_nanoAOD_94XMiniAODv2, eras.run2_nanoAOD_94X2016]:
+    era.toReplaceWith(patTauMVAIDsSeq, _patTauMVAIDsSeqWith2015)
 
 # embed new MVA tau-Ids into new tau collection
 slimmedTausUpdated = cms.EDProducer("PATTauIDEmbedder",
@@ -373,9 +374,13 @@ for era in [eras.run2_nanoAOD_94XMiniAODv1,eras.run2_nanoAOD_92X]:
     era.toModify(slimmedTausUpdated,
                  tauIDSources = _tauIDSourcesWith2017v1
     )
-eras.run2_nanoAOD_94XMiniAODv2.toModify(slimmedTausUpdated,
-          tauIDSources = _tauIDSourcesWith2015
-)
+
+for era in [eras.run2_nanoAOD_94X2016, eras.run2_nanoAOD_94XMiniAODv2]:
+    era.toModify(slimmedTausUpdated,
+                 tauIDSources=_tauIDSourcesWith2015
+                )
+
+
 
 patTauMVAIDsSeq += slimmedTausUpdated
 
