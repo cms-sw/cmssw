@@ -11,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <mutex>
 
 #include "mxnet-cpp/MxNetCpp.h"
 
@@ -57,6 +58,7 @@ public:
 
 private:
   void bind_executor();
+  static std::mutex mutex_;
 
   // context
   static const Context context_;
