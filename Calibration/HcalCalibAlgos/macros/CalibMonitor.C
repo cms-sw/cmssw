@@ -43,8 +43,9 @@
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-1)
-//   flag (int)                = 6 digit integer (mlthdo) with specific control
-//                               information (m=3/2/1/0 for having 1000/500/50/
+//   flag (int)                = 7 digit integer (cmlthdo) with specific control
+//                               information (c=1/0 to get or not the histograms
+//                               of energy ..; m=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
 //                               l=1/0 for (not) making plots for each RBX;
 //                               t=1/0 for applying cut or not on L1 closeness;
@@ -272,7 +273,8 @@ private:
   int                           runlo_, runhi_;
   const int                     phimin_,phimax_,zside_, nvxlo_, nvxhi_, rbx_;
   const double                  scale_;
-  bool                          exclude_, corrE_, cutL1T_, selRBX_,includeRun_;
+  bool                          exclude_, corrE_, cutL1T_, selRBX_;
+  bool                          includeRun_, getHist_;
   int                           coarseBin_, etamp_, etamn_, plotType_;
   int                           flexibleSelect_;
   double                        log2by18_, cfacmp_, cfacmn_;
@@ -331,6 +333,7 @@ CalibMonitor::CalibMonitor(const char*        fname,
   cutL1T_          = ((flag_/1000) %10);
   selRBX_          = (((flag_/10000) %10) > 0);
   coarseBin_       = ((flag_/100000) %10);
+  getHist_         = (((flag_/1000000) %10) > 0);
   log2by18_        = std::log(2.5)/18.0;
   etamp_           = etamn_  = 0;
   cfacmp_          = cfacmn_ = 1.0;
@@ -747,35 +750,37 @@ void CalibMonitor::Init(TChain *tree, const char* dupFileName,
     }
   }
 
-  h_nvtx = new TH1D("hnvtx","Number of vertices",10,0,100);
-  h_nvtx->Sumw2();
-  for (unsigned int i=0; i<ndepth; i++) { 
-    sprintf (name, "b_edepth%d", i);
-    sprintf (title,"Total RecHit energy in depth %d (Barrel)", i+1);
-    h_bvlist.push_back(new TH1F(name,title,1000,0,100));
-    h_bvlist[i]->Sumw2();
-    sprintf (name, "b_recedepth%d", i);
-    sprintf (title,"RecHit energy in depth %d (Barrel)", i+1);
-    h_bvlist2.push_back(new TH1F(name,title,1000,0,100));
-    h_bvlist2[i]->Sumw2();
-    sprintf (name, "b_nrecdepth%d", i);
-    sprintf (title,"#RecHits in depth %d (Barrel)", i+1);
-    h_bvlist3.push_back(new TH1F(name,title,1000,0,100));
-    h_bvlist3[i]->Sumw2();
-    sprintf (name, "e_edepth%d", i);
-    sprintf (title,"Total RecHit energy in depth %d (Endcap)", i+1);
-    h_evlist.push_back(new TH1F(name,title,1000,0,100));
-    h_evlist[i]->Sumw2();
-    sprintf (name, "e_recedepth%d", i);
-    sprintf (title,"RecHit energy in depth %d (Endcap)", i+1);
-    h_evlist2.push_back(new TH1F(name,title,1000,0,100));
-    h_evlist2[i]->Sumw2();
-    sprintf (name, "e_nrecdepth%d", i);
-    sprintf (title,"#RecHits in depth %d (Endcap)", i+1);
-    h_evlist3.push_back(new TH1F(name,title,1000,0,100));
-    h_evlist3[i]->Sumw2();
+  if (getHist_) {
+    h_nvtx = new TH1D("hnvtx","Number of vertices",10,0,100);
+    h_nvtx->Sumw2();
+    for (unsigned int i=0; i<ndepth; i++) { 
+      sprintf (name, "b_edepth%d", i);
+      sprintf (title,"Total RecHit energy in depth %d (Barrel)", i+1);
+      h_bvlist.push_back(new TH1F(name,title,1000,0,100));
+      h_bvlist[i]->Sumw2();
+      sprintf (name, "b_recedepth%d", i);
+      sprintf (title,"RecHit energy in depth %d (Barrel)", i+1);
+      h_bvlist2.push_back(new TH1F(name,title,1000,0,100));
+      h_bvlist2[i]->Sumw2();
+      sprintf (name, "b_nrecdepth%d", i);
+      sprintf (title,"#RecHits in depth %d (Barrel)", i+1);
+      h_bvlist3.push_back(new TH1F(name,title,1000,0,100));
+      h_bvlist3[i]->Sumw2();
+      sprintf (name, "e_edepth%d", i);
+      sprintf (title,"Total RecHit energy in depth %d (Endcap)", i+1);
+      h_evlist.push_back(new TH1F(name,title,1000,0,100));
+      h_evlist[i]->Sumw2();
+      sprintf (name, "e_recedepth%d", i);
+      sprintf (title,"RecHit energy in depth %d (Endcap)", i+1);
+      h_evlist2.push_back(new TH1F(name,title,1000,0,100));
+      h_evlist2[i]->Sumw2();
+      sprintf (name, "e_nrecdepth%d", i);
+      sprintf (title,"#RecHits in depth %d (Endcap)", i+1);
+      h_evlist3.push_back(new TH1F(name,title,1000,0,100));
+      h_evlist3[i]->Sumw2();
+    }
+    h_etaE = new TH2F("heta","",50,-25,25,100,0,100);
   }
-  h_etaE = new TH2F("heta","",50,-25,25,100,0,100);
 }
 
 Bool_t CalibMonitor::Notify() {
@@ -1049,61 +1054,63 @@ void CalibMonitor::Loop() {
 	}
       }
       if (rat > rcut) {
-	h_nvtx->Fill(t_nVtx);
-	if ((std::fabs(rat-1)<0.15) && (pmom>40) && (pmom < 60) &&
-	    ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
-	  float weight = dataMC_ ? t_EventWeight : t_EventWeight*puweight(t_nVtx);
-	  h_etaE->Fill(t_ieta,eHcal,weight);
-	  sel += weight;
-	  std::vector<float> bv(7,0.0f), ev(7,0.0f);
-	  std::vector<int>   bnrec(7,0), enrec(7,0);
-	  double             eb(0), ee(0);	  
-	  for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
-	    double cfac(1.0);
-	    int subdet, zside, ieta, iphi, depth;
-	    if (corrE_) {
-	      unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
-	      unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	      std::map<std::pair<int,int>,double>::const_iterator 
-		itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
-	      if (itr != cfactors_.end()) {
-		cfac = itr->second;
-	      } else if (etaMax_) {
-		if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
-		if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
+	if (getHist_) {
+	  h_nvtx->Fill(t_nVtx);
+	  if ((std::fabs(rat-1)<0.15) && (pmom>40) && (pmom < 60) &&
+	      ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
+	    float weight = dataMC_ ? t_EventWeight : t_EventWeight*puweight(t_nVtx);
+	    h_etaE->Fill(t_ieta,eHcal,weight);
+	    sel += weight;
+	    std::vector<float> bv(7,0.0f), ev(7,0.0f);
+	    std::vector<int>   bnrec(7,0), enrec(7,0);
+	    double             eb(0), ee(0);	  
+	    for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
+	      double cfac(1.0);
+	      int subdet, zside, ieta, iphi, depth;
+	      if (corrE_) {
+		unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+		unpackDetId(id,subdet,zside,ieta,iphi,depth);
+		std::map<std::pair<int,int>,double>::const_iterator 
+		  itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
+		if (itr != cfactors_.end()) {
+		  cfac = itr->second;
+		} else if (etaMax_) {
+		  if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
+		  if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
+		}
+		if (cFactor_ != 0) 
+		  cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
 	      }
-	      if (cFactor_ != 0) 
-		cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
-	    }
-	    double ener = cfac*(*t_HitEnergies)[k];
-	    if (corrPU_) correctEnergy(ener);
-	    unsigned int idx = (unsigned int)((*t_DetIds)[k]);
-	    unpackDetId(idx,subdet,zside,ieta,iphi,depth);
-	    if (depth > 0 && depth <= (int)(ndepth)) {
-	      if (subdet == 1) {
-		eb          += ener;
-		bv[depth-1] += ener;
-		h_bvlist2[depth-1]->Fill(ener,weight);
-		++bnrec[depth-1];
-	      } else if (subdet == 2) {
-		ee          += ener;
-		ev[depth-1] += ener ;
-		h_evlist2[depth-1]->Fill(ener,weight);
-		++enrec[depth-1];
+	      double ener = cfac*(*t_HitEnergies)[k];
+	      if (corrPU_) correctEnergy(ener);
+	      unsigned int idx = (unsigned int)((*t_DetIds)[k]);
+	      unpackDetId(idx,subdet,zside,ieta,iphi,depth);
+	      if (depth > 0 && depth <= (int)(ndepth)) {
+		if (subdet == 1) {
+		  eb          += ener;
+		  bv[depth-1] += ener;
+		  h_bvlist2[depth-1]->Fill(ener,weight);
+		  ++bnrec[depth-1];
+		} else if (subdet == 2) {
+		  ee          += ener;
+		  ev[depth-1] += ener ;
+		  h_evlist2[depth-1]->Fill(ener,weight);
+		  ++enrec[depth-1];
+		}
 	      }
-	    }
-	  }	
+	    }	
 
-	  bool barrel = (eb > ee);
-	  if (barrel) selHB += weight;
-	  else        selHE += weight;
-	  for (unsigned int i=0; i<ndepth; i++){
-	    if (barrel) {
-	      h_bvlist[i]->Fill(bv[i],weight);
-	      h_bvlist3[i]->Fill((bnrec[i]+0.001),weight);
-	    } else {
-	      h_evlist[i]->Fill(ev[i],weight);
-	      h_evlist3[i]->Fill((enrec[i]+0.001),weight);
+	    bool barrel = (eb > ee);
+	    if (barrel) selHB += weight;
+	    else        selHE += weight;
+	    for (unsigned int i=0; i<ndepth; i++){
+	      if (barrel) {
+		h_bvlist[i]->Fill(bv[i],weight);
+		h_bvlist3[i]->Fill((bnrec[i]+0.001),weight);
+	      } else {
+		h_evlist[i]->Fill(ev[i],weight);
+		h_evlist3[i]->Fill((enrec[i]+0.001),weight);
+	      }
 	    }
 	  }
 	}
@@ -1488,17 +1495,18 @@ void CalibMonitor::SavePlot(const std::string& theName, bool append, bool all) {
     }
   }
 
-  h_nvtx->Write();
-  h_etaE->Write();
-  for (unsigned int i=0; i<ndepth; ++i) {
-    h_bvlist[i]->Write();
-    h_bvlist2[i]->Write();
-    h_bvlist3[i]->Write();
-    h_evlist[i]->Write();
-    h_evlist2[i]->Write();
-    h_evlist3[i]->Write();
+  if (getHist_) {
+    h_nvtx->Write();
+    h_etaE->Write();
+    for (unsigned int i=0; i<ndepth; ++i) {
+      h_bvlist[i]->Write();
+      h_bvlist2[i]->Write();
+      h_bvlist3[i]->Write();
+      h_evlist[i]->Write();
+      h_evlist2[i]->Write();
+      h_evlist3[i]->Write();
+    }
   }
-
   std::cout << "All done" << std::endl;
   theFile->Close();
 }
