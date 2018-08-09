@@ -40,6 +40,7 @@ namespace edm {
      namespace produce { 
          struct Null {};
          template <typename T> struct EndList {
+           static_assert( (not std::is_pointer_v<T>) ,"use std::shared_ptr or std::unique_ptr to hold EventSetup data products, do not use bare pointers");
             typedef T tail_type;
             typedef Null head_type;
          };
