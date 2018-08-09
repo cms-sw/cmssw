@@ -20,6 +20,7 @@
 
 // system include files
 #include <memory>
+#include <optional>
 // user include files
 
 // forward declarations
@@ -35,6 +36,9 @@ namespace edm {
 
      template<typename FromT, typename ToT> void moveFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
        iTo = std::move(iFrom);
+     }
+     template<typename FromT, typename ToT> void moveFromTo(std::optional<FromT>& iFrom, ToT & iTo) {
+       iTo = std::move(iFrom.value());
      }
 
      namespace produce { 
@@ -56,7 +60,9 @@ namespace edm {
          template< typename T> struct product_traits<std::shared_ptr<T> > {
             typedef EndList<std::shared_ptr<T> > type;
          };
-         
+         template< typename T> struct product_traits<std::optional<T> > {
+            using type=EndList<std::optional<T>>;
+         };
          
          template<typename T> struct size {
             typedef typename product_traits<T>::type type;
@@ -68,6 +74,15 @@ namespace edm {
          
          template<typename T> struct smart_pointer_traits {
             typedef typename T::element_type type;
+           static auto getPointer(T& iPtr)-> decltype(&*iPtr) { return &*iPtr;}
+         };
+       
+         template<typename T> struct smart_pointer_traits<std::optional<T>> {
+           using type = T;
+           static T* getPointer(std::optional<T>& iPtr) {
+             if(iPtr.has_value()) { return &*iPtr;}
+             return nullptr;
+           }
          };
 
          template<typename FromT, typename ToT> void moveFromTo(FromT& iFrom,
