@@ -194,7 +194,16 @@ namespace HcalObjRepresent{
 
                if(PlotMode_ == "Ratio") {
                  float amp;
-                 amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
+                 Double_t adjustMin = 1; Double_t tempMin;
+                 int nBinsX = hist->GetXaxis()->GetNbins(); int nBinsY = hist->GetYaxis()->GetNbins();
+                 for(int i = 0; i < nBinsX; i++) {
+                   for(int j = 0; j < nBinsY; j++) {
+                     tempMin = hist->GetBinContent(i,j);
+                     if((tempMin != 0) && (tempMin < adjustMin)) adjustMin = tempMin;
+                   }
+                 }
+                 amp = std::max((1 - adjustMin),(hist->GetMaximum() - 1) );
+                 //amp = std::max((1 - hist->GetMinimum()),(hist->GetMaximum() - 1) );
                  return std::make_pair( 1 - amp, 1 + amp);
                } 
                else if(PlotMode_ == "Diff") {
@@ -202,8 +211,17 @@ namespace HcalObjRepresent{
                  amp = std::max((0 - hist->GetMinimum()),hist->GetMaximum() );
                  return std::make_pair( (-1 * amp), amp);
                } 
-               else 
-               return std::make_pair(hist->GetMinimum(),hist->GetMaximum());
+               else {
+               Double_t adjustMin = 10000; Double_t tempMin;
+                 int nBinsX = hist->GetXaxis()->GetNbins(); int nBinsY = hist->GetYaxis()->GetNbins();
+                 for(int i = 0; i < nBinsX; i++) {
+                   for(int j = 0; j < nBinsY; j++) {
+                     tempMin = hist->GetBinContent(i,j);
+                     if((tempMin != 0) && (tempMin < adjustMin)) adjustMin = tempMin;
+                   }
+                 }
+               return std::make_pair(((adjustMin==10000) ? hist->GetMinimum() : adjustMin), hist->GetMaximum());
+               }
            }
 
            // set style
@@ -291,12 +309,12 @@ namespace HcalObjRepresent{
                canvas->cd(padNum);
                canvas->GetPad(padNum)->SetGridx(1);
                canvas->GetPad(padNum)->SetGridy(1);
-               canvas->GetPad(padNum)->SetRightMargin(0.13);
-               //canvas->GetPad(padNum)->SetLeftMargin(0.11);
+
+
 
                if(plotForm == "2DHist"){
+                 canvas->GetPad(padNum)->SetRightMargin(0.13);
                  range = GetRange( depths_[std::make_pair(subDetName,i)]);
-                 depths_[std::make_pair(subDetName,i)]->GetZaxis()->SetRangeUser(std::get<0>(range), std::get<1>(range));
                  depths_[std::make_pair(subDetName,i)]->Draw("colz");
                  depths_[std::make_pair(subDetName,i)]->SetContour(100);
                  depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetTitle("ieta");
@@ -311,7 +329,9 @@ namespace HcalObjRepresent{
                  depths_[std::make_pair(subDetName,i)]->GetYaxis()->SetLabelSize(0.055);
                  depths_[std::make_pair(subDetName,i)]->GetXaxis()->SetLabelSize(0.055);
                } else {
-  //               gStyle->SetTitleOffset(1.6,"Y");
+                 canvas->GetPad(padNum)->SetLeftMargin(0.152);
+                 canvas->GetPad(padNum)->SetRightMargin(0.02);
+                 //gStyle->SetTitleOffset(1.6,"Y");
                  newName = ("run_" + std::to_string(run_) + "_" + subDetName + "_d" + std::to_string(i) + "_" + (plotForm=="EtaProfile" ? "ieta" : "iphi")).c_str();
                  //projection = ((TH2F*)(depths_[std::make_pair(subDetName,i)]->Clone("temp")))->ProjectionX(newName);
                  projection = GetProjection(depths_[std::make_pair(subDetName,i)],plotForm, newName, subDetName, i);
@@ -319,7 +339,7 @@ namespace HcalObjRepresent{
                  projection->Draw("hist");
                  projection->GetXaxis()->SetTitle((plotForm=="EtaProfile" ? "ieta" : "iphi"));
                  projection->GetXaxis()->CenterTitle();
-                 projection->GetYaxis()->SetTitle((payload_->myname() + " " + (PlotMode_ == "Map" ? "" : PlotMode_)).c_str());
+                 projection->GetYaxis()->SetTitle((payload_->myname() + " " + (PlotMode_ == "Map" ? "" : PlotMode_) + " " + GetUnit(payload_->myname())).c_str());
 	         label.SetNDC();
 	         label.SetTextAlign(26);
 	         label.SetTextSize(0.05);
@@ -329,7 +349,7 @@ namespace HcalObjRepresent{
                  projection->GetYaxis()->SetTitleSize(0.06);
                  projection->GetXaxis()->SetTitleOffset(0.80);
                  projection->GetXaxis()->SetLabelSize(0.055);
-                 projection->GetYaxis()->SetTitleOffset(0.88);
+                 projection->GetYaxis()->SetTitleOffset(1.34);
                  projection->GetYaxis()->SetLabelSize(0.055);
                }
 
@@ -386,9 +406,12 @@ namespace HcalObjRepresent{
              return HBHO;
            }           
 
-           //TODO: Proper profile functions
 
-
+           std::string GetUnit(std::string type) { 
+             std::string unit =  units_[type];
+             if(unit=="") return "";
+             else return "("+unit+")";
+           }
            
 
        private:
@@ -408,6 +431,17 @@ namespace HcalObjRepresent{
            tHcalValCont CALIBvalContainer;
            tHcalValCont CASTORvalContainer;
            std::map<std::string,int> subDetDepths_;
+           std::map<std::string, std::string> units_ = {
+             { "HcalPedestals", "ADC" },
+             { "HcalGains",  ""},//dimensionless TODO: verify
+             { "HcalL1TriggerObjects", "" },//dimensionless TODO: Verify
+             { "HcalPedestalWidths", "ADC" },
+             { "HcalRespCorrs", "" },//dimensionless TODO: verify
+             { "Dark Current", "" },
+             { "fcByPE", "" },
+             { "crossTalk", "" },
+             { "parLin", "" }
+           };
 
            tHcalValCont* getContFromString(std::string subDetString) {
             
