@@ -107,7 +107,9 @@ public:
   std::vector<int>                levelT_;
   int                             levelZSide_;
   HGCalGeometryMode::GeometryMode mode_;
-  double                          slopeMin_;
+  std::vector<double>             slopeMin_;
+  std::vector<double>             zFrontMin_;
+  std::vector<double>             rMinFront_;
   layer_map                       copiesInLayers_;
   int                             nCellsFine_;
   int                             nCellsCoarse_;
@@ -131,7 +133,7 @@ public:
   std::vector<int>                firstModule_;
   std::vector<int>                lastModule_;
   std::vector<double>             slopeTop_;
-  std::vector<double>             zFront_;
+  std::vector<double>             zFrontTop_;
   std::vector<double>             rMaxFront_;
   std::vector<double>             zRanges_;
   double                          etaMinBH_;
