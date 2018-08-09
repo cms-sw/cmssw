@@ -196,7 +196,7 @@ def fetchBMTF(event,isData,etaMax=1.2):
     return sorted(bmtfMuons,key=lambda x: x.pt(),reverse=True)
 
 
-def fetchKMTFNew(event,etaMax=1.2):
+def fetchKMTFNew(event,etaMax=1.2,saturate=True):
     kbmtfH  = Handle  ('BXVector<l1t::RegionalMuonCand>')
     event.getByLabel('simKBmtfDigis:BMTF',kbmtfH)
     kbmtf=kbmtfH.product()
@@ -210,8 +210,8 @@ def fetchKMTFNew(event,etaMax=1.2):
 #                K=1.0/pt
 #                K=0.932*K+0.182*K*K-4.826e-4
 #                pt=1.0/K
-            if pt>128.0:
-                pt=128.0
+            if pt>140.0 and saturate:
+                pt=140.0
             phi=globalBMTFPhi(mu,'KMTF')
             eta = mu.hwEta()*0.010875           
             if abs(eta)<=etaMax:
@@ -232,20 +232,16 @@ def lsBIT(bits=14):
 #import pdb;pdb.set_trace()
 
 def fetchKMTF(event,etaMax=0.83,chi2=800000,dxyCut=100000):
-    kmtfH  = Handle('vector<L1MuKBMTrack>')
+    kmtfH  = Handle('BXVector<L1MuKBMTrack>')
     event.getByLabel('simKBmtfDigis',kmtfH)
-    kmtf=filter(lambda x: abs(x.eta())<etaMax and x.approxChi2()<chi2 and abs(x.dxy())<dxyCut,kmtfH.product())
-#    for k in kmtf:
-#        K=1.0/k.pt()
-#        if K<0.14:
-#            K=0.967*K+0.756*K*K
-#        else:
-#            K=1.4*K-2.45*K*K
-#        pt=1.0/K
-#        k.setPtEtaPhi(pt,k.eta(),k.phi(),1)
-        
-#    kmtf=filter(lambda x: abs(x.eta())<etaMax and x.approxChi2()<chi2,kmtfH.product())
-    return sorted(kmtf,key=lambda x: x.pt(),reverse=True)
+    kmtf=kmtfH.product()
+    out=[]
+    for bx in [0]:
+        for j in range(0,kmtf.size(bx)):
+            mu =  kmtf.at(bx,j)
+            if abs(mu.eta())<etaMax and mu.approxChi2()<chi2 and abs(mu.dxy())<dxyCut:
+                out.append(mu)
+    return sorted(out,key=lambda x: x.pt(),reverse=True)
 
 def curvResidual(a,b):
     return (a.charge()/a.pt()-b.charge()/b.pt())*b.pt()/b.charge()
@@ -303,10 +299,19 @@ def log(counter,mystubs,gen,kmtf,bmtf):
     import pdb;pdb.set_trace()
 
 #########Histograms#############
-
 resKMTF = ROOT.TH2D("resKMTF","resKF",25,0,100,60,-2,2)
+
+resKMTFTrack={}
+for i in [3,5,6,7,9,10,11,12,13,14,15]:
+    resKMTFTrack[i]=ROOT.TH2D("resKMTFTrack_"+str(i),"resKF",25,0,100,60,-2,2)
+
+
+resKMTFEta = ROOT.TH2D("resKMTFEta","resKF",8,0,0.8,60,-2,2)
+
 resSTAKMTF = ROOT.TH2D("resSTAKMTF","resKF",100,0,100,100,-8,8)
 resBMTF = ROOT.TH2D("resBMTF","resKF",25,0,100,60,-2,2)
+resBMTFEta = ROOT.TH2D("resBMTFEta","resKF",8,0,0.8,60,-2,2)
+
 resPTKMTF = ROOT.TH2D("resPTKMTF","resKF",100,0,100,60,-2,2)
 resPTBMTF = ROOT.TH2D("resPTBMTF","resKF",100,0,100,60,-2,2)
 resEtaKMTF = ROOT.TH2D("resEtaKMTF","resKF",5,-1.2,1.2,50,-20.5*0.010875,20.5*0.010875)
@@ -413,8 +418,12 @@ for event in events:
 
     #fetch kalman (prompt)
     kmtf = fetchKMTFNew(event,1.5)
-#   bmtf = fetchBMTF(event,isData,1.5)
+#    bmtf = fetchBMTF(event,isData,1.5)
     bmtf=[]
+
+    #fetch detailed kalman
+    kmtfFull = fetchKMTF(event,1.5)
+
 
 #    for g in gen:
 #        print 'GEN', g.pt(),g.eta(),g.phi() 
@@ -472,8 +481,9 @@ for event in events:
 #        matchedBMTF = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,bmtf) 
 #        matchedKMTF = filter(lambda x: deltaR(g.eta(),g.phi(),x.eta(),x.phi())<0.3,kmtf) 
 
-        matchedBMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<1.3,bmtf) 
-        matchedKMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<1.3,kmtf) 
+        matchedBMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<0.3,bmtf) 
+        matchedKMTF = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<0.3,kmtf) 
+        matchedKMTFFull = filter(lambda x: abs(deltaPhi(g.phi(),x.phi()))<0.3,kmtfFull) 
 
 #        if len(matchedKMTF)==0:
 #            log(counter,stubs,gen,kmtf,bmtf)
@@ -487,6 +497,7 @@ for event in events:
         if len(matchedBMTF)>0:
             bestBMTF = min(matchedBMTF,key = lambda x:  abs(curvResidual(x,g)))  
             resBMTF.Fill(g.pt(),curvResidual(bestBMTF,g))
+            resBMTFEta.Fill(abs(g.eta()),curvResidual(bestBMTF,g))
 
             resPTBMTF.Fill(g.pt(),ptResidual(bestBMTF,g))
             resEtaBMTF.Fill(g.eta(),bestBMTF.eta()-g.eta())
@@ -513,6 +524,7 @@ for event in events:
 #            if g.pt()>50 and bestKMTF.pt()<10:
 #                log(counter,stubs,gen,kmtf,bmtf)
             resKMTF.Fill(g.pt(),curvResidual(bestKMTF,g))
+            resKMTFEta.Fill(abs(g.eta()),curvResidual(bestKMTF,g))
             resSTAKMTF.Fill(g.pt(),curvResidualSTA(bestKMTF,g))
             resPTKMTF.Fill(g.pt(),ptResidual(bestKMTF,g))
 
@@ -549,7 +561,7 @@ for event in events:
                 if len(filteredKMTF)>0:
                     genPtKMTF[threshold].Fill(g.pt())
                         
-        if bestKMTF==None and bestBMTF!=None and g.pt()<4:
+        if bestKMTF!=None and bestBMTF!=None and g.pt()>40 and abs(curvResidual(bestBMTF,g))<1.5*abs(curvResidual(bestKMTF,g)):
             log(counter,stubs,gen,kmtf,bmtf)
 #        if bestKMTF!=None and bestBMTF!=None and abs(bestKMTF.eta()-g.eta())>abs(bestBMTF.eta()-g.eta()):
 #            print 'Input Theta stubs'
@@ -566,6 +578,17 @@ for event in events:
 #                print s.whNum(),s.scNum(),s.stNum(),s.eta1(),s.eta2(),s.qeta1(),s.qeta2()
 #            import pdb;pdb.set_trace()
 
+        if len(matchedKMTFFull)>0:
+            bestKMTFFull = min(matchedKMTFFull,key = lambda x:  abs(curvResidual(x,g)))  
+            resKMTFTrack[bestKMTFFull.hitPattern()].Fill(g.pt(),curvResidual(bestKMTFFull,g))
+
+
+         
+
+
+
+                        
+
 
         
         
@@ -575,10 +598,16 @@ f=ROOT.TFile("results_"+tag+".root","RECREATE")
 
 
 
+
 resKMTF.Write()     
+for n,t in resKMTFTrack.iteritems():
+    t.Write()
+    
+resKMTFEta.Write()     
 resSTAKMTF.Write()     
 resPTKMTF.Write()     
 resBMTF.Write()
+resBMTFEta.Write()
 resPTBMTF.Write()
 resEtaKMTF.Write()     
 resEtaBMTF.Write()     

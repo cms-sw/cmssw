@@ -158,7 +158,6 @@ L1TMuonBarrelKalmanSectorProcessor::bmtf_out L1TMuonBarrelKalmanSectorProcessor:
 
 void L1TMuonBarrelKalmanSectorProcessor::verbose(L1TMuonBarrelKalmanAlgo* algo,const L1MuKBMTrackCollection& tracks) {
   L1TMuonBarrelKalmanSectorProcessor::bmtf_out out = makeWord(algo,tracks);
-  if (!tracks.empty())
     std::cout << "O "<<sector_<<" "<< out.pt_1 << " " << out.qual_1 << " " << out.eta_1 << " " << out.HF_1 << " " << out.phi_1 << " " << out.charge_1 << " " << out.chargeValid_1 << " " << out.dxy_1 <<" " << out.addr1_1<< " " << out.addr2_1 <<" " << out.addr3_1 << " " << out.addr4_1 << " " << out.wheel_1 << " " << out.ptSTA_1 << " " << out.pt_2 << " " << out.qual_2 << " " << out.eta_2 << " " << out.HF_2 << " " << out.phi_2 << " " << out.charge_2 << " " << out.chargeValid_2 << " " << out.dxy_2 <<" " << out.addr1_2<< " " << out.addr2_2 <<" " << out.addr3_2 << " " << out.addr4_2 << " " << out.wheel_2 << " " << out.ptSTA_2 << " " << out.pt_3 << " " << out.qual_3 << " " << out.eta_3 << " " << out.HF_3 << " " << out.phi_3 << " " << out.charge_3 << " " << out.chargeValid_3 << " " << out.dxy_3 <<" " << out.addr1_3<< " " << out.addr2_3 <<" " << out.addr3_3 << " " << out.addr4_3 << " " << out.wheel_3 << " " << out.ptSTA_3 << std::endl;
 
 

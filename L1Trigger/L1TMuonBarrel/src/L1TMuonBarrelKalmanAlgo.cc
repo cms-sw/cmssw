@@ -248,7 +248,7 @@ void L1TMuonBarrelKalmanAlgo::propagate(L1MuKBMTrack& track) {
   if (verbose_) {
     printf("phi prop = %d* %f = %d, %d* %f =%d\n",K,aPhi_[step-1],phi11,phiB,-bPhi_[step-1],phi12);
   }
-  int phiNew =wrapAround(phi+phi11+phi12,8192);
+  int phiNew =wrapAround(phi+phi11+phi12,2048);
   //phiB propagation
   int phiB11 = fp_product(aPhiB_[step-1],K,10);
   int phiB12 = fp_product(bPhiB_[step-1],phiB,11);
@@ -856,15 +856,17 @@ void L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
   int coords = (track.phiAtMuon()+track.phiBAtMuon())>>3;
   for (const auto& stub: track.stubs()) {   
     int AK = fp_product(-chiSquare_[stub->stNum()-1],K>>3,8);
-    int stubCoords =   (correctedPhi(stub,track.sector())>>3)+stub->phiB();
-    uint delta = fabs(stubCoords-coords+AK);
-    // printf("station=%d AK=%d delta=%d\n",stub->stNum(),AK,delta);
+    int stubCoords =   wrapAround((correctedPhi(stub,track.sector())>>3)+stub->phiB(),1024);
+    int diff1 = wrapAround(stubCoords-coords,1024);
+    uint delta = wrapAround(abs(diff1+AK),1024);
+    //    printf("chi estimate station=%d AK=%d stubC=%d trackC=%d delta=%d\n",stub->stNum(),AK,stubCoords,coords,delta);
+    chi=chi+delta;    
 
-    chi=chi+fabs(delta);    
    }
   //  chi=chi/2;
   if (chi>127)
     chi=127;
+   
    track.setApproxChi2(chi);
 }
 
