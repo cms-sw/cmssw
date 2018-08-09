@@ -762,7 +762,7 @@ fillNeighborMapScintillator(const edm::FileInPath& file,  std::unordered_map<int
         std::vector<std::string> neighbors_tokens {
             std::sregex_token_iterator(line.begin(), line.end(), neighbors_regex), {}
         };
-        if(neighbors_tokens.size()<1)
+        if(neighbors_tokens.empty())
         {
             throw cms::Exception("BadGeometry")
                 << "Syntax error in the L1TCellNeighborsMapping:\n"
