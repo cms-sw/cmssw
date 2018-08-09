@@ -47,8 +47,8 @@ void testEsproducts::constPtrTest()
    const int* readInt = 0;
    const float* readFloat = 0;
 
-   product.assignTo(readInt);
-   product.assignTo(readFloat);
+   product.moveTo(readInt);
+   product.moveTo(readFloat);
    
    CPPUNIT_ASSERT(readInt == &int_);
    CPPUNIT_ASSERT(readFloat == &float_);
@@ -73,9 +73,9 @@ void testEsproducts::manyTest()
    const float* readFloat = 0;
    const double* readDouble = 0;
    
-   product.assignTo(readInt);
-   product.assignTo(readFloat);
-   product.assignTo(readDouble);
+   product.moveTo(readInt);
+   product.moveTo(readFloat);
+   product.moveTo(readDouble);
    
    CPPUNIT_ASSERT(readInt == &int_);
    CPPUNIT_ASSERT(readFloat == &float_);

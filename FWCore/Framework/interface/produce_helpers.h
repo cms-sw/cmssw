@@ -28,12 +28,12 @@ namespace edm {
       
       namespace produce { struct Null;}
       
-     template<typename FromT, typename ToT> void copyFromTo(FromT& iFrom,
+     template<typename FromT, typename ToT> void moveFromTo(FromT& iFrom,
                                                             ToT & iTo) {
-       iTo = iFrom;
+       iTo = std::move(iFrom);
      }
 
-     template<typename FromT, typename ToT> void copyFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
+     template<typename FromT, typename ToT> void moveFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
        iTo = std::move(iFrom);
      }
 
@@ -70,19 +70,12 @@ namespace edm {
             typedef typename T::element_type type;
          };
 
-         template<typename T> struct smart_pointer_traits<T*> {
-            typedef  T type;
-         };
-         template<typename T> struct smart_pointer_traits< T const *> {
-            typedef  T type;
-         };
-         
-         template<typename FromT, typename ToT> void copyFromTo(FromT& iFrom,
-                                                                 ToT & iTo) {
-            iTo = iFrom;
+         template<typename FromT, typename ToT> void moveFromTo(FromT& iFrom,
+                                                            ToT & iTo) {
+           iTo = std::move(iFrom);
          }
 
-         template<typename FromT, typename ToT> void copyFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
+         template<typename FromT, typename ToT> void moveFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
            iTo = std::move(iFrom);
          }
 
