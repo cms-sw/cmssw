@@ -101,6 +101,7 @@
 #include <TFile.h>
 #include <TF1.h>
 #include <TH1D.h>
+#include <TH2F.h>
 #include <TProfile.h>
 #include <TFitResult.h>
 #include <TFitResultPtr.h>
@@ -287,6 +288,8 @@ private:
   std::vector<TH1D*>            h_etaR[npbin], h_nvxR[npbin], h_dL1R[npbin];
   std::vector<TH1D*>            h_pp[npbin];
   std::vector<TH1F*>            h_bvlist, h_bvlist2, h_evlist, h_evlist2;
+  std::vector<TH1F*>            h_bvlist3, h_evlist3;
+  TH2F                         *h_etaE;
 
   std::map<std::pair<int,int>,double> cfactors_;
 };
@@ -755,6 +758,10 @@ void CalibMonitor::Init(TChain *tree, const char* dupFileName,
     sprintf (title,"RecHit energy in depth %d (Barrel)", i+1);
     h_bvlist2.push_back(new TH1F(name,title,1000,0,100));
     h_bvlist2[i]->Sumw2();
+    sprintf (name, "b_nrecdepth%d", i);
+    sprintf (title,"#RecHits in depth %d (Barrel)", i+1);
+    h_bvlist3.push_back(new TH1F(name,title,1000,0,100));
+    h_bvlist3[i]->Sumw2();
     sprintf (name, "e_edepth%d", i);
     sprintf (title,"Total RecHit energy in depth %d (Endcap)", i+1);
     h_evlist.push_back(new TH1F(name,title,1000,0,100));
@@ -763,7 +770,12 @@ void CalibMonitor::Init(TChain *tree, const char* dupFileName,
     sprintf (title,"RecHit energy in depth %d (Endcap)", i+1);
     h_evlist2.push_back(new TH1F(name,title,1000,0,100));
     h_evlist2[i]->Sumw2();
+    sprintf (name, "e_nrecdepth%d", i);
+    sprintf (title,"#RecHits in depth %d (Endcap)", i+1);
+    h_evlist3.push_back(new TH1F(name,title,1000,0,100));
+    h_evlist3[i]->Sumw2();
   }
+  h_etaE = new TH2F("heta","",50,-25,25,100,0,100);
 }
 
 Bool_t CalibMonitor::Notify() {
@@ -1041,24 +1053,43 @@ void CalibMonitor::Loop() {
 	if ((std::fabs(rat-1)<0.15) && (pmom>40) && (pmom < 60) &&
 	    ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
 	  float weight = dataMC_ ? t_EventWeight : t_EventWeight*puweight(t_nVtx);
+	  h_etaE->Fill(t_ieta,eHcal,weight);
 	  sel += weight;
-	  std::vector<float> bv(7, 0.0f), ev(7, 0.0f);
+	  std::vector<float> bv(7,0.0f), ev(7,0.0f);
+	  std::vector<int>   bnrec(7,0), enrec(7,0);
 	  double             eb(0), ee(0);	  
 	  for (unsigned int k=0; k<t_HitEnergies->size(); ++k) {
-	    unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	    double cfac(1.0);
 	    int subdet, zside, ieta, iphi, depth;
-	    unpackDetId(id,subdet,zside,ieta,iphi,depth);
-	    double ener = (*t_HitEnergies)[k];
+	    if (corrE_) {
+	      unsigned int id = truncateId((*t_DetIds)[k],truncateFlag_,false);
+	      unpackDetId(id,subdet,zside,ieta,iphi,depth);
+	      std::map<std::pair<int,int>,double>::const_iterator 
+		itr = cfactors_.find(std::pair<int,int>(zside*ieta,depth));
+	      if (itr != cfactors_.end()) {
+		cfac = itr->second;
+	      } else if (etaMax_) {
+		if (zside > 0 && ieta >  etamp_) cfac = cfacmp_;
+		if (zside < 0 && ieta > -etamn_) cfac = cfacmn_;
+	      }
+	      if (cFactor_ != 0) 
+		cfac *= cFactor_->getCorr(t_Run,(*t_DetIds)[k]);
+	    }
+	    double ener = cfac*(*t_HitEnergies)[k];
 	    if (corrPU_) correctEnergy(ener);
+	    unsigned int idx = (unsigned int)((*t_DetIds)[k]);
+	    unpackDetId(idx,subdet,zside,ieta,iphi,depth);
 	    if (depth > 0 && depth <= (int)(ndepth)) {
 	      if (subdet == 1) {
 		eb          += ener;
 		bv[depth-1] += ener;
 		h_bvlist2[depth-1]->Fill(ener,weight);
+		++bnrec[depth-1];
 	      } else if (subdet == 2) {
 		ee          += ener;
 		ev[depth-1] += ener ;
 		h_evlist2[depth-1]->Fill(ener,weight);
+		++enrec[depth-1];
 	      }
 	    }
 	  }	
@@ -1067,8 +1098,13 @@ void CalibMonitor::Loop() {
 	  if (barrel) selHB += weight;
 	  else        selHE += weight;
 	  for (unsigned int i=0; i<ndepth; i++){
-	    if (barrel) h_bvlist[i]->Fill(bv[i],weight);
-	    else        h_evlist[i]->Fill(ev[i],weight);
+	    if (barrel) {
+	      h_bvlist[i]->Fill(bv[i],weight);
+	      h_bvlist3[i]->Fill((bnrec[i]+0.001),weight);
+	    } else {
+	      h_evlist[i]->Fill(ev[i],weight);
+	      h_evlist3[i]->Fill((enrec[i]+0.001),weight);
+	    }
 	  }
 	}
 	if (plotType_ <= 1) {
@@ -1453,11 +1489,14 @@ void CalibMonitor::SavePlot(const std::string& theName, bool append, bool all) {
   }
 
   h_nvtx->Write();
+  h_etaE->Write();
   for (unsigned int i=0; i<ndepth; ++i) {
     h_bvlist[i]->Write();
     h_bvlist2[i]->Write();
+    h_bvlist3[i]->Write();
     h_evlist[i]->Write();
     h_evlist2[i]->Write();
+    h_evlist3[i]->Write();
   }
 
   std::cout << "All done" << std::endl;
