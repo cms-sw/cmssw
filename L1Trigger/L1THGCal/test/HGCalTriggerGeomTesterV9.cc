@@ -411,7 +411,6 @@ void HGCalTriggerGeomTesterV9::checkMappingConsistency()
     // HSc
     for(const auto& id : triggerGeometry_->hscGeometry()->getValidDetIds())
     {
-        // if(id.rawId()==0 || id.subdetId()!=2) continue;
         // fill trigger cells
         unsigned layer = HGCScintillatorDetId(id).layer();
         if(HGCScintillatorDetId(id).type()!=triggerGeometry_->hscTopology().dddConstants().getTypeTrap(layer))
@@ -744,7 +743,6 @@ void HGCalTriggerGeomTesterV9::fillTriggerGeometry()
     for( const auto& triggercell_cells : trigger_cells )
     {
         HGCalDetId id(triggercell_cells.first);
-        // std::cout<<"Trigger cell "<<id<<"\n";
         GlobalPoint position = triggerGeometry_->getTriggerCellPosition(id);
         triggerCellId_     = id.rawId();
         triggerCellSide_   = id.zside();
