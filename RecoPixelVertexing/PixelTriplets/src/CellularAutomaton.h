@@ -1,12 +1,13 @@
-#ifndef RecoPixelVertexing_PixelTriplets_interface_CellularAutomaton_h
-#define RecoPixelVertexing_PixelTriplets_interface_CellularAutomaton_h
+#ifndef RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
+#define RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
 
 #include <array>
 
-#include "RecoPixelVertexing/PixelTriplets/interface/CACell.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+
+#include "CACell.h"
+#include "CAGraph.h"
 
 class CellularAutomaton
 {
@@ -36,4 +37,4 @@ private:
   
 };
 
-#endif // RecoPixelVertexing_PixelTriplets_interface_CellularAutomaton_h
+#endif // RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h

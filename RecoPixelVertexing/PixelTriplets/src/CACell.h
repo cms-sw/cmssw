@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_interface_CACell_h
-#define RecoPixelVertexing_PixelTriplets_interface_CACell_h
+#ifndef RecoPixelVertexing_PixelTriplets_src_CACell_h
+#define RecoPixelVertexing_PixelTriplets_src_CACell_h
 
 #include <array>
 #include <cmath>
@@ -297,4 +297,4 @@ private:
 };
 
 
-#endif // RecoPixelVertexing_PixelTriplets_interface_CACell_h
+#endif // RecoPixelVertexing_PixelTriplets_src_CACell_h

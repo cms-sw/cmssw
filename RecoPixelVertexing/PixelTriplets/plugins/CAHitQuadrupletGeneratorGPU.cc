@@ -11,7 +11,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CellularAutomaton.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 

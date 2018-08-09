@@ -6,12 +6,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CAHitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CellularAutomaton.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+
+#include "CAGraph.h"
+#include "CellularAutomaton.h"
 
 namespace
 {
