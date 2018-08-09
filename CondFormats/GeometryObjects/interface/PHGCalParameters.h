@@ -65,7 +65,7 @@ public:
   std::vector<int>         layerGroupO_;
   std::vector<uint32_t>    trformIndex_;
   double                   waferR_;
-  double                   slopeMin_;
+  std::vector<double>      slopeMin_;
   int                      nCells_;
   int                      nSectors_;
   int                      mode_;

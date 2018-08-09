@@ -42,32 +42,33 @@
   <Constant name="radMixL13"             value="902.0*mm"/>
   <Constant name="radMixL14"             value="902.0*mm"/>
   <Constant name="radMixL15"             value="902.0*mm"/>
+  <Constant name="slope1"                value="[etaMax:slope]"/>
   <Constant name="slope2"                value="tan(19.3*deg)"/>
   <Constant name="slope3"                value="tan(53.0*deg)"/>
   <Constant name="zHGCal1"               value="3190.50*mm"/>
   <Constant name="zHGCal2"               value="3878.51*mm"/>
   <Constant name="zHGCal4"               value="5137.70*mm"/>
-  <Constant name="rMinHGCal1"            value="[etaMax:slope]*[zHGCal1]"/>
-  <Constant name="rMinHGCal2"            value="[etaMax:slope]*[zHGCal2]"/>    
-  <Constant name="rMinHGCal4"            value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMinHGCal1"            value="[slope1]*[zHGCal1]"/>
+  <Constant name="rMinHGCal2"            value="[slope1]*[zHGCal2]"/>    
+  <Constant name="rMinHGCal4"            value="[slope1]*[zHGCal4]"/>
   <Constant name="rMaxHGCal1"            value="1568.325*mm"/>
   <Constant name="rMaxHGCal2"            value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
   <Constant name="rMaxHGCal3"            value="2670.25*mm"/>
   <Constant name="rMaxHGCal4"            value="[rMaxHGCal3]"/>
   <Constant name="zHGCal3"               value="([zHGCal2]+([rMaxHGCal3]-[rMaxHGCal2])/[slope3])"/>
-  <Constant name="rMinHGCal3"            value="[etaMax:slope]*[zHGCal3]"/>
+  <Constant name="rMinHGCal3"            value="[slope1]*[zHGCal3]"/>
   <Constant name="zMinEE"                value="3190.5*mm"/>
   <Constant name="zMaxEE"                value="([zMinEE]+339.8*mm)"/>
   <Constant name="zMinHEsil"             value="[zMaxEE]"/>
   <Constant name="zMaxHEsil"             value="([zMinHEsil]+397.0*mm)"/>
   <Constant name="zMinHEmix"             value="[zMaxHEsil]"/>
   <Constant name="zMaxHEmix"             value="([zMinHEmix]+1210.4*mm)"/>
-  <Constant name="rMinEEMin"             value="[etaMax:slope]*[zMinEE]"/>
-  <Constant name="rMinEEMax"             value="[etaMax:slope]*[zMaxEE]"/>
-  <Constant name="rMinHEsilMin"          value="[etaMax:slope]*[zMinHEsil]"/>
-  <Constant name="rMinHEsilMax"          value="[etaMax:slope]*[zMaxHEsil]"/>
-  <Constant name="rMinHEmixMin"          value="[etaMax:slope]*[zMinHEmix]"/>
-  <Constant name="rMinHEmixMax"          value="[etaMax:slope]*[zMaxHEmix]"/>
+  <Constant name="rMinEEMin"             value="[slope1]*[zMinEE]"/>
+  <Constant name="rMinEEMax"             value="[slope1]*[zMaxEE]"/>
+  <Constant name="rMinHEsilMin"          value="[slope1]*[zMinHEsil]"/>
+  <Constant name="rMinHEsilMax"          value="[slope1]*[zMaxHEsil]"/>
+  <Constant name="rMinHEmixMin"          value="[slope1]*[zMinHEmix]"/>
+  <Constant name="rMinHEmixMax"          value="[slope1]*[zMaxHEmix]"/>
   <Constant name="rMaxEEMin"             value="([rMaxHGCal1]+(([zMinEE]-[zHGCal1])*[slope2]))"/>
   <Constant name="rMaxEEMax"             value="([rMaxHGCal1]+(([zMaxEE]-[zHGCal1])*[slope2]))"/>
   <Constant name="rMaxHEsilMin"          value="([rMaxHGCal1]+(([zMinHEsil]-[zHGCal1])*[slope2]))"/>
