@@ -79,7 +79,7 @@ namespace edm {
     }
 
     template <typename Product, typename Type, typename F>
-    void put(std::unique_ptr<Type> product, F transferToCPU) {
+    auto put(std::unique_ptr<Type> product, F transferToCPU) {
       std::unique_ptr<HeterogeneousProduct> prod;
 #define CASE(ENUM) case ENUM: this->template make<ENUM, Product>(prod, std::move(product), std::move(transferToCPU), 0); break
       switch(location().deviceType()) {
@@ -89,7 +89,7 @@ namespace edm {
         throw cms::Exception("LogicError") << "edm::HeterogeneousEvent::put(): no case statement for device " << static_cast<unsigned int>(location().deviceType());
       }
 #undef CASE
-      event_->put(std::move(prod));
+      return event_->put(std::move(prod));
     }
 
   private:
