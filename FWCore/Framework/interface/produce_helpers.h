@@ -85,16 +85,6 @@ namespace edm {
            }
          };
 
-         template<typename FromT, typename ToT> void moveFromTo(FromT& iFrom,
-                                                            ToT & iTo) {
-           iTo = std::move(iFrom);
-         }
-
-         template<typename FromT, typename ToT> void moveFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
-           iTo = std::move(iFrom);
-         }
-
-
          template<typename ContainerT, typename EntryT, typename FindT> struct find_index_impl {
             typedef typename product_traits<ContainerT>::type container_type;
             enum { value = find_index_impl<typename container_type::head_type, typename container_type::tail_type,  FindT>::value + 1 };
