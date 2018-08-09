@@ -1,18 +1,18 @@
-#include "test_common.h"
 #include <iostream>
 
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
+#include "test_common.h"
 
 using namespace Eigen;
 
 __host__ __device__ void eigenValues(Matrix3d * m, Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType * ret) {
-  if (!NODEBUG) {
-    printf("Matrix(0,0): %f\n", (*m)(0,0));
-    printf("Matrix(1,1): %f\n", (*m)(1,1));
-    printf("Matrix(2,2): %f\n", (*m)(2,2));
-  }
+#if TEST_DEBUG
+  printf("Matrix(0,0): %f\n", (*m)(0,0));
+  printf("Matrix(1,1): %f\n", (*m)(1,1));
+  printf("Matrix(2,2): %f\n", (*m)(2,2));
+#endif
   SelfAdjointEigenSolver<Matrix3d> es;
   es.computeDirect(*m);
   (*ret) = es.eigenvalues();
@@ -37,15 +37,17 @@ __global__ void kernelMultiply(M1 * J,
                                M2 * C,
                                M3 * result) {
 //  Map<M3> res(result->data());
-  if (!NODEBUG)
-    printf("*** GPU IN ***\n");
+#if TEST_DEBUG
+  printf("*** GPU IN ***\n");
+#endif
   printIt(J);
   printIt(C);
 //  res.noalias() = (*J) * (*C);
 //  printIt(&res);
   (*result) = (*J) * (*C);
-  if (!NODEBUG)
-    printf("*** GPU OUT ***\n");
+#if TEST_DEBUG
+  printf("*** GPU OUT ***\n");
+#endif
   return;
 }
 
@@ -59,12 +61,12 @@ void testMultiply() {
   Eigen::Matrix<double, row2, col2> C;
   fillMatrix(C);
   Eigen::Matrix<double, row1, col2> multiply_result = J * C;
-  if (!NODEBUG) {
-    std::cout << "Input J:" << std::endl; printIt(&J);
-    std::cout << "Input C:" << std::endl; printIt(&C);
-    std::cout << "Output:" << std::endl;
-    printIt(&multiply_result);
-  }
+#if TEST_DEBUG
+  std::cout << "Input J:" << std::endl; printIt(&J);
+  std::cout << "Input C:" << std::endl; printIt(&C);
+  std::cout << "Output:" << std::endl;
+  printIt(&multiply_result);
+#endif
   // GPU
   Eigen::Matrix<double, row1, col1> *JGPU = nullptr;
   Eigen::Matrix<double, row2, col2> *CGPU = nullptr;
@@ -95,10 +97,10 @@ void testInverse3x3() {
   Matrix3d *mGPUret = nullptr;
   Matrix3d *mCPUret = new Matrix3d();
 
-  if (!NODEBUG) {
-    std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
-    std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
-  }
+#if TEST_DEBUG
+  std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
+  std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
+#endif
   cudaMalloc((void **)&mGPU, sizeof(Matrix3d));
   cudaMalloc((void **)&mGPUret, sizeof(Matrix3d));
   cudaMemcpy(mGPU, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice);
@@ -107,8 +109,9 @@ void testInverse3x3() {
   cudaDeviceSynchronize();
 
   cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix3d), cudaMemcpyDeviceToHost);
-  if (!NODEBUG)
-    std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
+#if TEST_DEBUG
+  std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
+#endif
   assert(isEqualFuzzy(m_inv, *mCPUret));
 }
 
@@ -120,10 +123,10 @@ void testInverse4x4() {
   Matrix4d *mGPUret = nullptr;
   Matrix4d *mCPUret = new Matrix4d();
 
-  if (!NODEBUG) {
-    std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
-    std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
-  }
+#if TEST_DEBUG
+  std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
+  std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
+#endif
   cudaMalloc((void **)&mGPU, sizeof(Matrix4d));
   cudaMalloc((void **)&mGPUret, sizeof(Matrix4d));
   cudaMemcpy(mGPU, &m, sizeof(Matrix4d), cudaMemcpyHostToDevice);
@@ -132,8 +135,9 @@ void testInverse4x4() {
   cudaDeviceSynchronize();
 
   cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix4d), cudaMemcpyDeviceToHost);
-  if (!NODEBUG)
-    std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
+#if TEST_DEBUG
+  std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
+#endif
   assert(isEqualFuzzy(m_inv, *mCPUret));
 }
 
@@ -148,11 +152,11 @@ void testEigenvalues() {
   Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType *ret1 = new Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType;
   Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType *ret_gpu = nullptr;
   eigenValues(&m, ret);
-  if (!NODEBUG) {
-    std::cout << "Generated Matrix M 3x3:\n" << m << std::endl;
-    std::cout << "The eigenvalues of M are:" << std::endl << (*ret) << std::endl;
-    std::cout << "*************************\n\n" << std::endl;
-  }
+#if TEST_DEBUG
+  std::cout << "Generated Matrix M 3x3:\n" << m << std::endl;
+  std::cout << "The eigenvalues of M are:" << std::endl << (*ret) << std::endl;
+  std::cout << "*************************\n\n" << std::endl;
+#endif
   cudaMalloc((void **)&m_gpu, sizeof(Matrix3d));
   cudaMalloc((void **)&ret_gpu, sizeof(Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType));
   cudaMemcpy(m_gpu, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice);
@@ -162,11 +166,11 @@ void testEigenvalues() {
 
   cudaMemcpy(mgpudebug, m_gpu, sizeof(Matrix3d), cudaMemcpyDeviceToHost);
   cudaMemcpy(ret1, ret_gpu, sizeof(Eigen::SelfAdjointEigenSolver<Matrix3d>::RealVectorType), cudaMemcpyDeviceToHost);
-  if (!NODEBUG) {
-    std::cout << "GPU Generated Matrix M 3x3:\n" << (*mgpudebug) << std::endl;
-    std::cout << "GPU The eigenvalues of M are:" << std::endl << (*ret1) << std::endl;
-    std::cout << "*************************\n\n" << std::endl;
-  }
+#if TEST_DEBUG
+std::cout << "GPU Generated Matrix M 3x3:\n" << (*mgpudebug) << std::endl;
+std::cout << "GPU The eigenvalues of M are:" << std::endl << (*ret1) << std::endl;
+std::cout << "*************************\n\n" << std::endl;
+#endif
   assert(isEqualFuzzy(*ret, *ret1));
 }
 
