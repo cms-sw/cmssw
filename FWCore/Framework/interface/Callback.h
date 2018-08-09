@@ -89,7 +89,7 @@ namespace edm {
          template<class RemainingContainerT, class DataT, class ProductsT>
             void setData(ProductsT& iProducts, const RemainingContainerT*, const DataT*) {
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
-               if(nullptr != temp) { copyFromTo(iProducts, *temp); }
+               if(nullptr != temp) { moveFromTo(iProducts, *temp); }
                setData(iProducts, static_cast< const typename RemainingContainerT::head_type *>(nullptr),
                        static_cast< const typename RemainingContainerT::tail_type *>(nullptr));
             }
@@ -98,7 +98,7 @@ namespace edm {
                
                DataT* temp = reinterpret_cast< DataT*>(proxyData_[produce::find_index<TReturn,DataT>::value]) ;
                //std::cout <<" setData["<< produce::find_index<TReturn,DataT>::value<<"] "<< temp <<std::endl;
-               if(nullptr != temp) { copyFromTo(iProducts, *temp); } 
+               if(nullptr != temp) { moveFromTo(iProducts, *temp); } 
             }
          void newRecordComing() {
             wasCalledForThisRecord_ = false;

@@ -43,7 +43,7 @@ namespace edm {
                iGiveValues.setFrom(value_);
             }
             
-            void assignTo(T& oValue) { oValue = value_;}
+            void moveTo(T& oValue) { oValue = std::move(value_);}
             T value_;
             typedef T tail_type;
             typedef Null head_type;
@@ -52,17 +52,18 @@ namespace edm {
          template<typename T> struct OneHolder<std::unique_ptr<T>> {
             typedef std::unique_ptr<T> Type;
             OneHolder() {}
-            OneHolder(OneHolder<Type> const& iOther): value_(const_cast<OneHolder<Type>&>(iOther).value_) {}
-            OneHolder(Type iPtr): value_(iPtr) {}
+            OneHolder(OneHolder<T> const& ) = delete;
+            OneHolder(OneHolder<Type>&& iOther): value_(std::move(iOther.value_)) {}
+            OneHolder(Type iPtr): value_(std::move(iPtr)) {}
             
             
-            OneHolder<Type> const& operator=(OneHolder<Type> iRHS) { value_ = iRHS.value_; return *this; }
+            OneHolder<Type> const& operator=(OneHolder<Type> iRHS) { value_ = std::move(iRHS.value_); return *this; }
             template<typename S>
             void setFromRecursive(S& iGiveValues) {
                iGiveValues.setFrom(value_);
             }
             
-            void assignTo(Type& oValue) { oValue = value_;}
+            void moveTo(Type& oValue) { oValue = std::move(value_);}
             mutable Type value_; //mutable needed for std::unique_ptr
             typedef Type tail_type;
             typedef Null head_type;
@@ -83,7 +84,7 @@ namespace edm {
             }
             
             
-            void assignTo(U& oValue) { oValue = value_;}
+            void moveTo(U& oValue) { oValue = std::move(value_);}
             U value_;
             T head_;
             
@@ -112,8 +113,8 @@ namespace edm {
                   void setAllValues(T& iValuesFrom) {
                      iValuesFrom.setFromRecursive(*this);
                   }
-               using parent_type::assignTo;
-               void assignTo(T1& oValue) { oValue = value; }
+               using parent_type::moveTo;
+               void moveTo(T1& oValue) { oValue = std::move(value); }
 
                using parent_type::setFrom;
                void setFrom(T1& iValue) { value = iValue ; }
@@ -125,9 +126,9 @@ namespace edm {
                   }
 
                template<typename T>
-                  void assignToRecursive(T& iValuesTo) {
-                     iValuesTo.assignTo(value);
-                     parent_type::assignToRecursive(iValuesTo);
+                  void moveToRecursive(T& iValuesTo) {
+                     iValuesTo.moveTo(value);
+                     parent_type::moveToRecursive(iValuesTo);
                   }
                T1 value;
                
@@ -142,13 +143,13 @@ namespace edm {
 
               template<typename T>
                void setAllValues(T& iValuesFrom) {
-                  iValuesFrom.assignToRecursive(*this);
+                  iValuesFrom.moveToRecursive(*this);
                }
-               void assignTo(T1& oValue) { oValue = value; }
+               void moveTo(T1& oValue) { oValue = std::move(value); }
                void setFrom(T1& iValue) { value = iValue ; }
                template<typename T>
-               void assignToRecursive(T& iValuesTo) {
-                  iValuesTo.assignTo(value);
+               void moveToRecursive(T& iValuesTo) {
+                  iValuesTo.moveTo(value);
                }
                template<typename T>
                void setFromRecursive(T& iValuesTo) {
@@ -163,7 +164,7 @@ namespace edm {
          template<>
             struct ProductHolder<Null, Null, Null > {
                void setAllValues(Null&) {}
-               void assignTo(void*) {}
+               void moveTo(void*) {}
                void setFrom(void*) {}
                
                typedef Null tail_type;
@@ -199,9 +200,9 @@ namespace edm {
    }
 
    template<typename T1, typename T2, typename T3, typename ToT> 
-     void copyFromTo(ESProducts<T1,T2,T3>& iFrom,
+     void moveFromTo(ESProducts<T1,T2,T3>& iFrom,
                      ToT& iTo) {
-       iFrom.assignTo(iTo);
+       iFrom.moveTo(iTo);
      }
 }
 
