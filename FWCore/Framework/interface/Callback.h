@@ -53,7 +53,7 @@ namespace edm {
          Callback(T* iProd, 
                    method_type iMethod,
                    const TDecorator& iDec = TDecorator()) :
-            proxyData_(produce::size< TReturn >::value, static_cast<void*>(nullptr)),
+            proxyData_{},
             producer_(iProd), 
             method_(iMethod),
             wasCalledForThisRecord_(false),
@@ -105,7 +105,7 @@ namespace edm {
          
          const Callback& operator=(const Callback&) = delete; // stop default
 
-         std::vector<void*> proxyData_;
+        std::array<void*, produce::size< TReturn >::value> proxyData_;
          edm::propagate_const<T*> producer_;
          method_type method_;
          bool wasCalledForThisRecord_;
