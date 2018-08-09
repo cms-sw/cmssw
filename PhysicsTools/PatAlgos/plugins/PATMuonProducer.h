@@ -112,9 +112,9 @@ namespace pat {
 			 bool beamspotIsValid );
     double relMiniIsoPUCorrected( const pat::Muon& aMuon,
 				  double rho);
-    std::unique_ptr<GlobalPoint> getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
-						  const edm::ESHandle<GlobalTrackingGeometry>& geometry,
-						  const DetId& chamberId);
+    std::optional<GlobalPoint> getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+                                                const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+                                                const DetId& chamberId);
     void fillL1TriggerInfo(pat::Muon& muon,
 			   edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
 			   const edm::TriggerNames & names,
