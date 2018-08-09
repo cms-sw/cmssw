@@ -1,34 +1,28 @@
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
+#include <vector>
 
+#include <cuda_runtime.h>
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerWrapper.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h" // for helix_fit
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-
 #include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-
-#include <vector>
-#include <cuda_runtime.h>
+#include "PixelTrackReconstructionGPU.h"
 
 using namespace pixeltrackfitting;
 using edm::ParameterSet;

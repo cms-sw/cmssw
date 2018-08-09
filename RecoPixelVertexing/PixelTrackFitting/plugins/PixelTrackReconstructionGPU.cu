@@ -2,7 +2,7 @@
 #include <Eigen/Eigenvalues>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
+#include "PixelTrackReconstructionGPU.h"
 
 #ifndef GPU_DEBUG
 #define GPU_DEBUG 0

@@ -1,10 +1,11 @@
-#ifndef PixelTrackProducer_H
-#define PixelTrackProducer_H
+#ifndef PixelTrackProducer_h
+#define PixelTrackProducer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
+
+#include "PixelTrackReconstructionGPU.h"
 
 namespace edm { class Event; class EventSetup; class ParameterSet; class ConfigurationDescriptions; }
 class TrackerTopology;
@@ -26,4 +27,5 @@ private:
   PixelTrackReconstruction theReconstruction;
   PixelTrackReconstructionGPU theGPUReconstruction;
 };
-#endif
+
+#endif // PixelTrackProducer_h
