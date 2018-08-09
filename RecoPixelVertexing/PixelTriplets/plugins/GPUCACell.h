@@ -1,27 +1,28 @@
 //
 // Author: Felice Pantaleo, CERN
 //
-#ifndef GPU_CACELL_H_
-#define GPU_CACELL_H_
+#ifndef RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
+#define RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h
+
+#include <cuda_runtime.h>
 
 #include "GPUHitsAndDoublets.h"
 #include "RecoLocalTracker/SiPixelRecHits/plugins/siPixelRecHitsHeterogeneousProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
-#include <cuda.h>
 
 struct Quadruplet {
   int hitId[4];
 };
 
-
 class GPUCACell {
 public:
-  __host__ __device__  GPUCACell() {}
+  GPUCACell() = default;
 
-
-__host__ __device__ void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU const & hh,
-                              int layerPairId, int doubletId, int innerHitId,int outerHitId) {
+  __host__ __device__
+  void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU const & hh,
+      int layerPairId, int doubletId, int innerHitId,int outerHitId)
+  {
     theInnerHitId = innerHitId;
     theOuterHitId = outerHitId;
     theDoubletId = doubletId;
@@ -40,8 +41,6 @@ __host__ __device__ void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU cons
     theOuterNeighbors.reset();
   }
 
-
-
   constexpr float get_inner_x() const { return theInnerX; }
   constexpr float get_outer_x() const { return theOuterX; }
   constexpr float get_inner_y() const { return theInnerY; }
@@ -58,20 +57,19 @@ __host__ __device__ void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU cons
   }
 
   constexpr void print_cell() const {
-
     printf("printing cell: %d, on layerPair: %d, innerHitId: %d, outerHitId: "
            "%d, innerradius %f, outerRadius %f \n",
            theDoubletId, theLayerPairId, theInnerHitId, theOuterHitId,
            theInnerR, theOuterR);
   }
 
-
-
-  __host__ __device__ bool check_alignment_and_tag(
+  __host__ __device__
+  bool check_alignment_and_tag(
       const GPUCACell *cells, unsigned int innerCellId, const float ptmin,
       const float region_origin_x, const float region_origin_y,
       const float region_origin_radius, const float thetaCut,
-      const float phiCut, const float hardPtCut) {
+      const float phiCut, const float hardPtCut)
+  {
     auto ro = get_outer_r();
     auto zo = get_outer_z();
     const auto &otherCell = cells[innerCellId];
@@ -187,14 +185,16 @@ __host__ __device__ void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU cons
 
   // trying to free the track building process from hardcoded layers, leaving
   // the visit of the graph based on the neighborhood connections between cells.
-  #if defined(__NVCC__) || defined(__CUDACC__)
 
-  __device__ inline void find_ntuplets(
+#ifdef __CUDACC__
+
+  __device__
+  inline void find_ntuplets(
       const GPUCACell *cells,
       GPU::SimpleVector<Quadruplet> *foundNtuplets,
       GPU::VecArray<unsigned int,3> &tmpNtuplet,
-      const unsigned int minHitsPerNtuplet) const {
-
+      const unsigned int minHitsPerNtuplet) const
+  {
     // the building process for a track ends if:
     // it has no right neighbor
     // it has no compatible neighbor
@@ -220,11 +220,10 @@ __host__ __device__ void init(siPixelRecHitsHeterogeneousProduct::HitsOnGPU cons
       }
     }
     tmpNtuplet.pop_back();
-    assert(tmpNtuplet.size()<3);
+    assert(tmpNtuplet.size() < 3);
   }
 
-#endif
-
+#endif // __CUDACC__
 
   GPU::VecArray< unsigned int, 40> theOuterNeighbors;
 
@@ -244,4 +243,4 @@ private:
   float theOuterR;
 };
 
-#endif /*CACELL_H_ */
+#endif // RecoPixelVertexing_PixelTriplets_plugins_GPUCACell_h

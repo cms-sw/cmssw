@@ -1,6 +1,6 @@
-#include "CellularAutomaton.h"
-
 #include <queue>
+
+#include "RecoPixelVertexing/PixelTriplets/interface/CellularAutomaton.h"
 
 void CellularAutomaton::createAndConnectCells(
     const std::vector<const HitDoublets *> &hitDoublets,

@@ -4,11 +4,14 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstructionGPU.h"
 
-#define DEBUG 0
+#ifndef GPU_DEBUG
+#define GPU_DEBUG 0
+#endif // GPU_DEBUG
 
 using namespace Eigen;
 
-__global__ void KernelFullFitAllHits(float * hits_and_covariances,
+__global__
+void KernelFullFitAllHits(float * hits_and_covariances,
     int hits_in_fit,
     int cumulative_size,
     double B,
@@ -26,10 +29,10 @@ __global__ void KernelFullFitAllHits(float * hits_and_covariances,
     return;
   }
 
-  if (DEBUG) {
-    printf("BlockDim.x: %d, BlockIdx.x: %d, threadIdx.x: %d, start: %d, cumulative_size: %d\n",
-        blockDim.x, blockIdx.x, threadIdx.x, start, cumulative_size);
-  }
+#if GPU_DEBUG
+  printf("BlockDim.x: %d, BlockIdx.x: %d, threadIdx.x: %d, start: %d, cumulative_size: %d\n",
+      blockDim.x, blockIdx.x, threadIdx.x, start, cumulative_size);
+#endif
 
   Rfit::Matrix3xNd hits(3,hits_in_fit);
   Rfit::Matrix3Nd hits_cov(3 * hits_in_fit, 3 * hits_in_fit);
@@ -48,36 +51,37 @@ __global__ void KernelFullFitAllHits(float * hits_and_covariances,
     }
   }
 
-  if (DEBUG) {
-    printf("KernelFullFitAllHits hits(0,0): %d\t%f\n", helix_start, hits(0,0));
-    printf("KernelFullFitAllHits hits(0,1): %d\t%f\n", helix_start, hits(0,1));
-    printf("KernelFullFitAllHits hits(0,2): %d\t%f\n", helix_start, hits(0,2));
-    printf("KernelFullFitAllHits hits(0,3): %d\t%f\n", helix_start, hits(0,3));
-    printf("KernelFullFitAllHits hits(1,0): %d\t%f\n", helix_start, hits(1,0));
-    printf("KernelFullFitAllHits hits(1,1): %d\t%f\n", helix_start, hits(1,1));
-    printf("KernelFullFitAllHits hits(1,2): %d\t%f\n", helix_start, hits(1,2));
-    printf("KernelFullFitAllHits hits(1,3): %d\t%f\n", helix_start, hits(1,3));
-    printf("KernelFullFitAllHits hits(2,0): %d\t%f\n", helix_start, hits(2,0));
-    printf("KernelFullFitAllHits hits(2,1): %d\t%f\n", helix_start, hits(2,1));
-    printf("KernelFullFitAllHits hits(2,2): %d\t%f\n", helix_start, hits(2,2));
-    printf("KernelFullFitAllHits hits(2,3): %d\t%f\n", helix_start, hits(2,3));
-    Rfit::printIt(&hits);
-    Rfit::printIt(&hits_cov);
-  }
+#if GPU_DEBUG
+  printf("KernelFullFitAllHits hits(0,0): %d\t%f\n", helix_start, hits(0,0));
+  printf("KernelFullFitAllHits hits(0,1): %d\t%f\n", helix_start, hits(0,1));
+  printf("KernelFullFitAllHits hits(0,2): %d\t%f\n", helix_start, hits(0,2));
+  printf("KernelFullFitAllHits hits(0,3): %d\t%f\n", helix_start, hits(0,3));
+  printf("KernelFullFitAllHits hits(1,0): %d\t%f\n", helix_start, hits(1,0));
+  printf("KernelFullFitAllHits hits(1,1): %d\t%f\n", helix_start, hits(1,1));
+  printf("KernelFullFitAllHits hits(1,2): %d\t%f\n", helix_start, hits(1,2));
+  printf("KernelFullFitAllHits hits(1,3): %d\t%f\n", helix_start, hits(1,3));
+  printf("KernelFullFitAllHits hits(2,0): %d\t%f\n", helix_start, hits(2,0));
+  printf("KernelFullFitAllHits hits(2,1): %d\t%f\n", helix_start, hits(2,1));
+  printf("KernelFullFitAllHits hits(2,2): %d\t%f\n", helix_start, hits(2,2));
+  printf("KernelFullFitAllHits hits(2,3): %d\t%f\n", helix_start, hits(2,3));
+  Rfit::printIt(&hits);
+  Rfit::printIt(&hits_cov);
+#endif
 
   // Perform actual fit
   Vector4d fast_fit = Rfit::Fast_fit(hits);
 
-  if (DEBUG) {
-    printf("KernelFullFitAllHits fast_fit(0): %d %f\n", helix_start, fast_fit(0));
-    printf("KernelFullFitAllHits fast_fit(1): %d %f\n", helix_start, fast_fit(1));
-    printf("KernelFullFitAllHits fast_fit(2): %d %f\n", helix_start, fast_fit(2));
-    printf("KernelFullFitAllHits fast_fit(3): %d %f\n", helix_start, fast_fit(3));
-  }
+#if GPU_DEBUG
+  printf("KernelFullFitAllHits fast_fit(0): %d %f\n", helix_start, fast_fit(0));
+  printf("KernelFullFitAllHits fast_fit(1): %d %f\n", helix_start, fast_fit(1));
+  printf("KernelFullFitAllHits fast_fit(2): %d %f\n", helix_start, fast_fit(2));
+  printf("KernelFullFitAllHits fast_fit(3): %d %f\n", helix_start, fast_fit(3));
+#endif
 
   u_int n = hits.cols();
-  if (true)
-    printf("KernelFullFitAllHits using %d hits: %d\n", n, helix_start);
+#if GPU_DEBUG
+  printf("KernelFullFitAllHits using %d hits: %d\n", n, helix_start);
+#endif
 
   Rfit::VectorNd rad = (hits.block(0, 0, 2, n).colwise().norm());
 
@@ -85,11 +89,11 @@ __global__ void KernelFullFitAllHits(float * hits_and_covariances,
     Rfit::Circle_fit(hits.block(0,0,2,n), hits_cov.block(0, 0, 2 * n, 2 * n),
       fast_fit, rad, B, true, true);
 
-  if (DEBUG) {
-    printf("KernelFullFitAllHits circle.par(0): %d %f\n", helix_start, circle.par(0));
-    printf("KernelFullFitAllHits circle.par(1): %d %f\n", helix_start, circle.par(1));
-    printf("KernelFullFitAllHits circle.par(2): %d %f\n", helix_start, circle.par(2));
-  }
+#if GPU_DEBUG
+  printf("KernelFullFitAllHits circle.par(0): %d %f\n", helix_start, circle.par(0));
+  printf("KernelFullFitAllHits circle.par(1): %d %f\n", helix_start, circle.par(1));
+  printf("KernelFullFitAllHits circle.par(2): %d %f\n", helix_start, circle.par(2));
+#endif
 
   Rfit::line_fit line = Rfit::Line_fit(hits, hits_cov, circle, fast_fit, true);
 
@@ -118,4 +122,3 @@ void PixelTrackReconstructionGPU::launchKernelFit(float * hits_and_covariancesGP
   KernelFullFitAllHits<<<num_blocks, threads_per_block>>>(hits_and_covariancesGPU, hits_in_fit, cumulative_size, B, results);
   cudaCheck(cudaGetLastError());
 }
-

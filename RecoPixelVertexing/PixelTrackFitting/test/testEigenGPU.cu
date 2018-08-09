@@ -1,14 +1,17 @@
-#include "test_common.h"
 #include <iostream>
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+#include "test_common.h"
+
 using namespace Eigen;
 
-__global__ void kernelFullFit(Rfit::Matrix3xNd * hits,
+__global__
+void kernelFullFit(Rfit::Matrix3xNd * hits,
     Rfit::Matrix3Nd * hits_cov,
     double B,
     bool errors,
@@ -22,8 +25,8 @@ __global__ void kernelFullFit(Rfit::Matrix3xNd * hits,
 
   Rfit::Matrix2xNd hits2D_local = (hits->block(0,0,2,n)).eval();
   Rfit::Matrix2Nd hits_cov2D_local = (hits_cov->block(0, 0, 2 * n, 2 * n)).eval();
-  Rfit::printIt(&hits2D_local, "kernelFullFit - hits2D_local: ", false);
-  Rfit::printIt(&hits_cov2D_local, "kernelFullFit - hits_cov2D_local: ", false);
+  Rfit::printIt(&hits2D_local, "kernelFullFit - hits2D_local: ");
+  Rfit::printIt(&hits_cov2D_local, "kernelFullFit - hits_cov2D_local: ");
   /*
   printf("kernelFullFit - hits address: %p\n", hits);
   printf("kernelFullFit - hits_cov address: %p\n", hits_cov);
@@ -51,40 +54,44 @@ __global__ void kernelFullFit(Rfit::Matrix3xNd * hits,
   return;
 }
 
-__global__ void kernelFastFit(Rfit::Matrix3xNd * hits, Vector4d * results) {
+__global__
+void kernelFastFit(Rfit::Matrix3xNd * hits, Vector4d * results) {
   (*results) = Rfit::Fast_fit(*hits);
 }
 
-__global__ void kernelCircleFit(Rfit::Matrix3xNd * hits,
+__global__
+void kernelCircleFit(Rfit::Matrix3xNd * hits,
     Rfit::Matrix3Nd * hits_cov, Vector4d * fast_fit_input, double B,
     Rfit::circle_fit * circle_fit_resultsGPU) {
   u_int n = hits->cols();
   Rfit::VectorNd rad = (hits->block(0, 0, 2, n).colwise().norm());
 
-  if (!NODEBUG) {
-    printf("fast_fit_input(0): %f\n", (*fast_fit_input)(0));
-    printf("fast_fit_input(1): %f\n", (*fast_fit_input)(1));
-    printf("fast_fit_input(2): %f\n", (*fast_fit_input)(2));
-    printf("fast_fit_input(3): %f\n", (*fast_fit_input)(3));
-    printf("rad(0,0): %f\n", rad(0,0));
-    printf("rad(1,1): %f\n", rad(1,1));
-    printf("rad(2,2): %f\n", rad(2,2));
-    printf("hits_cov(0,0): %f\n", (*hits_cov)(0,0));
-    printf("hits_cov(1,1): %f\n", (*hits_cov)(1,1));
-    printf("hits_cov(2,2): %f\n", (*hits_cov)(2,2));
-    printf("hits_cov(11,11): %f\n", (*hits_cov)(11,11));
-    printf("B: %f\n", B);
-  }
+#if TEST_DEBUG
+  printf("fast_fit_input(0): %f\n", (*fast_fit_input)(0));
+  printf("fast_fit_input(1): %f\n", (*fast_fit_input)(1));
+  printf("fast_fit_input(2): %f\n", (*fast_fit_input)(2));
+  printf("fast_fit_input(3): %f\n", (*fast_fit_input)(3));
+  printf("rad(0,0): %f\n", rad(0,0));
+  printf("rad(1,1): %f\n", rad(1,1));
+  printf("rad(2,2): %f\n", rad(2,2));
+  printf("hits_cov(0,0): %f\n", (*hits_cov)(0,0));
+  printf("hits_cov(1,1): %f\n", (*hits_cov)(1,1));
+  printf("hits_cov(2,2): %f\n", (*hits_cov)(2,2));
+  printf("hits_cov(11,11): %f\n", (*hits_cov)(11,11));
+  printf("B: %f\n", B);
+#endif
   (*circle_fit_resultsGPU) =
     Rfit::Circle_fit(hits->block(0,0,2,n), hits_cov->block(0, 0, 2 * n, 2 * n),
       *fast_fit_input, rad, B, false, false);
 }
 
-__global__ void kernelLineFit(Rfit::Matrix3xNd * hits,
-                              Rfit::Matrix3Nd * hits_cov,
-                              Rfit::circle_fit * circle_fit,
-                              Vector4d * fast_fit,
-                              Rfit::line_fit * line_fit) {
+__global__
+void kernelLineFit(Rfit::Matrix3xNd * hits,
+                   Rfit::Matrix3Nd * hits_cov,
+                   Rfit::circle_fit * circle_fit,
+                   Vector4d * fast_fit,
+                   Rfit::line_fit * line_fit)
+{
   (*line_fit) = Rfit::Line_fit(*hits, *hits_cov, *circle_fit, *fast_fit, true);
 }
 
@@ -125,9 +132,9 @@ void testFit() {
 
   // FAST_FIT_CPU
   Vector4d fast_fit_results = Rfit::Fast_fit(hits);
-  if (!NODEBUG) {
-    std::cout << "Generated hits:\n" << hits << std::endl;
-  }
+#if TEST_DEBUG
+  std::cout << "Generated hits:\n" << hits << std::endl;
+#endif
   std::cout << "Fitted values (FastFit, [X0, Y0, R, tan(theta)]):\n" << fast_fit_results << std::endl;
 
   // FAST_FIT GPU

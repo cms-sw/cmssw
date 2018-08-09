@@ -1,35 +1,25 @@
-#include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
-
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-
-
-#include "CAGraph.h"
-#include "CellularAutomaton.h"
+#include <functional>
 
 #include "CommonTools/Utils/interface/DynArray.h"
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-
-#include <functional>
+#include "RecoPixelVertexing/PixelTriplets/interface/CAGraph.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CellularAutomaton.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 namespace
 {
-
   template <typename T>
   T sqr(T x)
   {
-    return x*x;
+    return x * x;
   }
 }
-
-
 
 using namespace std;
 

@@ -2,21 +2,24 @@
 #define RecoPixelVertexing__PixelTrackFitting__test_common_h
 
 #include <algorithm>
-#include <random>
 #include <cassert>
+#include <random>
 
-#define NODEBUG 1
+#ifndef TEST_DEBUG
+#define TEST_DEBUG 0
+#endif
 
 template<class C>
-__host__ __device__ void printIt(C * m) {
-  if (!NODEBUG) {
-    printf("\nMatrix %dx%d\n", (int)m->rows(), (int)m->cols());
-    for (u_int r = 0; r < m->rows(); ++r) {
-      for (u_int c = 0; c < m->cols(); ++c) {
-        printf("Matrix(%d,%d) = %f\n", r, c, (*m)(r,c));
-      }
+__host__ __device__
+void printIt(C * m) {
+#if TEST_DEBUG
+  printf("\nMatrix %dx%d\n", (int)m->rows(), (int)m->cols());
+  for (u_int r = 0; r < m->rows(); ++r) {
+    for (u_int c = 0; c < m->cols(); ++c) {
+      printf("Matrix(%d,%d) = %f\n", r, c, (*m)(r,c));
     }
   }
+#endif
 }
 
 template<class C>
