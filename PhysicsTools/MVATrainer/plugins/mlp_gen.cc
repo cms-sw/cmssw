@@ -352,7 +352,7 @@ L20:
 	}
 	
 /* cas npat impair */	
-	for(ipat=ipat; ipat<npat; ipat++)
+	for(/*'ipat' set above*/; ipat<npat; ipat++)
 		{
 		MLP_MatrixVector(NET.vWeights[1],
 				&(PAT.vRin[ifile][ipat*(nin+1)]),tmp,
@@ -584,7 +584,7 @@ L1:				NET.Delta[il][in] = a1*deriv1;
 				NET.Delta[il][in+2] = a3*deriv3;
 				NET.Delta[il][in+3] = a4*deriv4;
 				} 
-			for(in=in; in<NET.Nneur[il]; in++) 
+			for(/*'in' set above*/; in<NET.Nneur[il]; in++) 
 				{
 				deriv = NET.Deriv1[il][in]; 
 				itest2 = (NET.Nneur[il+1]==1);
@@ -639,7 +639,7 @@ L2:				NET.Delta[il][in] = a*deriv;
 			        	*pw4 += a4 * *pout;
 					}
 				}
-			for(in=in; in<NET.Nneur[il]; in++)
+			for(/*'in' set above*/; in<NET.Nneur[il]; in++)
 				{ 
 				a1 = NET.Delta[il][in];
 				pout = &(NET.Outn[il-1][0]);
@@ -3708,7 +3708,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 			a3 = a3 + *pM3 * c + *(pM3+1) * d;
 			a4 = a4 + *pM4 * c + *(pM4+1) * d; 
 			}
-		for(j=j; j<m; j++, pM1++, pM2++, pM3++, pM4++)
+		for(/*j set above*/; j<m; j++, pM1++, pM2++, pM3++, pM4++)
 			{
 			c = v[j];
 			a1 = a1 + *pM1 * c;
@@ -3718,7 +3718,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 			}	
 		*pr = a1; *(pr+1) = a2; *(pr+2) = a3; *(pr+3) = a4;
 		}
-	for(i=i; i<n; i++)
+	for(/*i set above*/; i<n; i++)
 		{
 		pM1 = &(M[i*(m+1)]);
 		a1 = *pM1;
@@ -3773,7 +3773,7 @@ void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 			a3 = a3 + *pM3 * c + *(pM3+1) * d;
 			a4 = a4 + *pM4 * c + *(pM4+1) * d; 
 			}
-		for(j=j; j<m; j++, pM1++, pM2++, pM3++, pM4++)
+		for(/*j set above*/; j<m; j++, pM1++, pM2++, pM3++, pM4++)
 			{
 			c = v[j];
 			a1 = a1 + *pM1 * c;
@@ -3783,7 +3783,7 @@ void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 			}	
 		*pr = a1; *(pr+1) = a2; *(pr+2) = a3; *(pr+3) = a4;
 		}
-	for(i=i; i<n; i++)
+	for(/*i set above*/; i<n; i++)
 		{
 		pM1 = &(M[i*m]);
 		a1 = 0;
@@ -3846,7 +3846,7 @@ dbl *pb0,*pb1,*pc0,*pc1;
      }
     *pc0 = s00; *(pc0+1) = s01; *pc1 = s10; *(pc1+1) = s11;
    }
-  for (j=j; j<Nj; j++)
+  for (/*j set above*/; j<Nj; j++)
    {
     pc0 = c+j;
     pc1 = c+j+Nj;
