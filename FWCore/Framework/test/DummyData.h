@@ -17,8 +17,6 @@ namespace edm {
          struct DummyData { int value_;
             DummyData(int iValue=0) : value_(iValue) {}
             void dummy() {} // Just to suppress compilation warning message
-           private:
-            const DummyData& operator=(const DummyData&); 
          };
       }
    }
