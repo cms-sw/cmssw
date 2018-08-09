@@ -80,7 +80,7 @@ public:
   int                 maxModules() const {return modHalf_;}
   int                 maxMoudlesPerLayer() const {return maxWafersPerLayer_;}
   int                 maxRows(int lay, bool reco) const;
-  double              minSlope() const {return hgpar_->slopeMin_;}
+  double              minSlope() const {return hgpar_->slopeMin_[0];}
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
   double              mouseBite(bool reco) const;

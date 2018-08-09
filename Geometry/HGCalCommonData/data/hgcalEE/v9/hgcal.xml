@@ -22,27 +22,28 @@
   <Constant name="rad200300P3"          value="1.59796E+02"/>
   <Constant name="rad200300P4"          value="-1.64217E+04"/>
   <Constant name="zMinForRadPar"        value="330.0*cm"/>
-  <Constant name="ChoiceType"            value="0"/>
-  <Constant name="NCornerCut"            value="2"/>
-  <Constant name="FracAreaMin"           value="0.2"/>
+  <Constant name="ChoiceType"           value="0"/>
+  <Constant name="NCornerCut"           value="2"/>
+  <Constant name="FracAreaMin"          value="0.2"/>
+  <Constant name="slope1"               value="[etaMax:slope]"/>
   <Constant name="slope2"               value="tan(19.3*deg)"/>
   <Constant name="slope3"               value="tan(53.0*deg)"/>
   <Constant name="zHGCal1"              value="3170.0*mm"/>
   <Constant name="zHGCal2"              value="3898.2*mm"/>
   <Constant name="zHGCal4"              value="5137.70*mm"/>
-  <Constant name="rMinHGCal1"           value="[etaMax:slope]*[zHGCal1]"/>
-  <Constant name="rMinHGCal2"           value="[etaMax:slope]*[zHGCal2]"/>    
-  <Constant name="rMinHGCal4"           value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMinHGCal1"           value="[slope1]*[zHGCal1]"/>
+  <Constant name="rMinHGCal2"           value="[slope1]*[zHGCal2]"/>    
+  <Constant name="rMinHGCal4"           value="[slope1]*[zHGCal4]"/>
   <Constant name="rMaxHGCal1"           value="1534.5*mm"/>
   <Constant name="rMaxHGCal2"           value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
   <Constant name="rMaxHGCal3"           value="2458.0*mm"/>
   <Constant name="rMaxHGCal4"           value="[rMaxHGCal3]"/>
   <Constant name="zHGCal3"              value="([zHGCal2]+([rMaxHGCal3]-[rMaxHGCal2])/[slope3])"/>
-  <Constant name="rMinHGCal3"           value="[etaMax:slope]*[zHGCal3]"/>
+  <Constant name="rMinHGCal3"           value="[slope1]*[zHGCal3]"/>
   <Constant name="zMinEE"               value="3190.5*mm"/>
   <Constant name="zMaxEE"               value="([zMinEE]+339.8*mm)"/>
-  <Constant name="rMinEEMin"            value="[etaMax:slope]*[zMinEE]"/>
-  <Constant name="rMinEEMax"            value="[etaMax:slope]*[zMaxEE]"/>
+  <Constant name="rMinEEMin"            value="[slope1]*[zMinEE]"/>
+  <Constant name="rMinEEMax"            value="[slope1]*[zMaxEE]"/>
   <Constant name="rMaxEEMin"            value="([rMaxHGCal1]+(([zMinEE]-[zHGCal1])*[slope2]))"/>
   <Constant name="rMaxEEMax"            value="([rMaxHGCal1]+(([zMaxEE]-[zHGCal1])*[slope2]))"/>
 </ConstantsSection>
