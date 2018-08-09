@@ -32,15 +32,39 @@ class HGCalTriggerGeometryBase
         const std::string& name() const { return name_; } 
 
         const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
-        const HGCalGeometry* eeGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE)));}
-        const HGCalGeometry* fhGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF)));}
-        const HcalGeometry* bhGeometry()  const {return (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)));}
+        const HGCalGeometry* eeGeometry() const 
+        {
+            return ( hgc_ee_geometry_.isValid() ? hgc_ee_geometry_.product() : (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE))) );
+        }
+        const HGCalGeometry* fhGeometry() const 
+        {
+            return (hgc_hsi_geometry_.isValid() ? hgc_hsi_geometry_.product() : (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF))) );
+        }
+        const HcalGeometry* bhGeometry()  const 
+        {
+            return (hgc_hsc_geometry_.isValid() ? nullptr : (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap))) );
+        }
+        const HGCalGeometry* hsiGeometry() const {return hgc_hsi_geometry_.product();}
+        const HGCalGeometry* hscGeometry()  const {return hgc_hsc_geometry_.product();}
         const HGCalTopology& eeTopology() const {return eeGeometry()->topology();}
         const HGCalTopology& fhTopology() const {return fhGeometry()->topology();}
-        const HcalTopology& bhTopology() const {return bhGeometry()->topology();}
+        const HcalTopology& bhTopology() const 
+        {
+            if(!bhGeometry())
+            {
+                throw cms::Exception("HGCalTriggerGeometry::bhTopology")
+                    << "Not existing BH geometry";
+            }
+            return bhGeometry()->topology();
+        }
+        const HGCalTopology& hsiTopology() const {return hsiGeometry()->topology();}
+        const HGCalTopology& hscTopology() const {return hscGeometry()->topology();}
 
         // non-const access to the geometry class
         virtual void initialize(const edm::ESHandle<CaloGeometry>&) = 0;
+        virtual void initialize(const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&,
+                const edm::ESHandle<HGCalGeometry>&) = 0;
         virtual void reset();
 
         // const access to the geometry class
@@ -66,12 +90,18 @@ class HGCalTriggerGeometryBase
 
     protected:
         void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}
+        void setEEGeometry(const edm::ESHandle<HGCalGeometry>& geom) {hgc_ee_geometry_=geom;}
+        void setHSiGeometry(const edm::ESHandle<HGCalGeometry>& geom) {hgc_hsi_geometry_=geom;}
+        void setHScGeometry(const edm::ESHandle<HGCalGeometry>& geom) {hgc_hsc_geometry_=geom;}
 
 
     private:
         const std::string name_;
 
         edm::ESHandle<CaloGeometry> calo_geometry_;
+        edm::ESHandle<HGCalGeometry> hgc_ee_geometry_;
+        edm::ESHandle<HGCalGeometry> hgc_hsi_geometry_;
+        edm::ESHandle<HGCalGeometry> hgc_hsc_geometry_;
 
 };
 

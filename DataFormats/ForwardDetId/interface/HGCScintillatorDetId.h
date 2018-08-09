@@ -61,7 +61,7 @@ public:
   
   static const HGCScintillatorDetId Undefined;
 
-private:
+public:
 
   static const int kHGCalPhiOffset      = 0;
   static const int kHGCalPhiMask        = 0x1FF;
