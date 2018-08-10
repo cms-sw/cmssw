@@ -14,6 +14,7 @@ configured in the user's main() function, and is set running.
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
@@ -44,6 +45,7 @@ namespace edm {
 
   class ExceptionToActionTable;
   class BranchIDListHelper;
+  class MergeableRunProductMetadata;
   class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
@@ -227,7 +229,7 @@ namespace edm {
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
-    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run);
+    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run, MergeableRunProductMetadata const*);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
     void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
     void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
@@ -300,6 +302,7 @@ namespace edm {
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
+    MergeableRunProductProcesses mergeableRunProductProcesses_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::vector<edm::SerialTaskQueue> streamQueues_;
     std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;
