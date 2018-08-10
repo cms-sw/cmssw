@@ -128,7 +128,7 @@ void PFBadHcalPseudoClusterProducer::init(const EventSetup& iSetup)
         badAreasRH_.emplace_back( thisCell, id(), layer, dummyEnergy );
         // make a PF cluster (but can't add the rechit, as for that I need an edm::Ref)
         badAreasC_.emplace_back( layer, dummyEnergy, pos.x(), pos.y(), pos.z() );
-        badAreasC_.back().setFlags(0xDEAD); // FIXME find a better encoding
+        badAreasC_.back().setFlags(reco::CaloCluster::badHcalMarker);
     }
 
     cacheId_quality_ = iSetup.get<HcalChannelQualityRcd>().cacheIdentifier();
