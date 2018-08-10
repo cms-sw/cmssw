@@ -127,7 +127,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 		     << " s(ieie) " << electron.full5x5_sigmaIetaIeta()
 		     << " H/E " << electron.hcalOverEcal()
 		     << " 1/e-1/p " << (1.0-electron.eSuperClusterOverP())/electron.ecalEnergy()
-		     << " deta " << std::abs(electron.deltaEtaSuperClusterTrackAtVtx() - electron.superCluster()->eta() + electron.superCluster()->seed()->eta())
+		     << " deta " << std::abs(electron.deltaEtaSeedClusterTrackAtVtx())
 		     << " dphi " << std::abs(electron.deltaPhiSuperClusterTrackAtVtx()) 
 		     << endl;
 
@@ -159,7 +159,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
         bool EE = (std::abs(electron.eta()) > 1.485); // for prefer consistency with above than with E/gamma for now
         if ((electron.full5x5_sigmaIetaIeta() < badHcal_full5x5_sigmaIetaIeta_[EE]) &&
             (std::abs(1.0-electron.eSuperClusterOverP())/electron.ecalEnergy()  < badHcal_eInvPInv_[EE]) && 
-            (std::abs(electron.deltaEtaSuperClusterTrackAtVtx() - electron.superCluster()->eta() + electron.superCluster()->seed()->eta())  < badHcal_dEta_[EE]) && // looser in case of misalignment
+            (std::abs(electron.deltaEtaSeedClusterTrackAtVtx())  < badHcal_dEta_[EE]) && // looser in case of misalignment
             (std::abs(electron.deltaPhiSuperClusterTrackAtVtx())  < badHcal_dPhi_[EE])) {
             passEleSelection = true; 
         } 
