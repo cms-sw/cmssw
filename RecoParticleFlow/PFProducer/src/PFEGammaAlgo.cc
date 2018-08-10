@@ -844,7 +844,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* 
   for( const auto& pfelement : _currentblock->elements() ) {
     if( isAMuon(pfelement) ) continue; // don't allow muons in our element list
     if (pfelement.type() == PFBlockElement::HCAL && 
-        pfelement.clusterRef()->flags() == 0xDEAD) continue; // skip also dead area markers for now
+        pfelement.clusterRef()->flags() & reco::CaloCluster::badHcalMarker) continue; // skip also dead area markers for now
     const size_t itype = (size_t)pfelement.type();    
     if( itype >= _splayedblock.size() ) _splayedblock.resize(itype+1);    
     _splayedblock[itype].push_back(std::make_pair(&pfelement,true));    
