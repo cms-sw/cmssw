@@ -82,7 +82,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
@@ -134,6 +134,8 @@ private:
   const double                   a_coneR_, a_mipR_, pTrackMin_, eEcalMax_;
   const double                   maxRestrictionP_, slopeRestrictionP_;
   const double                   hcalScale_, eIsolate1_, eIsolate2_;
+  const double                   pTrackLow_, pTrackHigh_;
+  const int                      prescaleLow_, prescaleHigh_;
   const int                      useRaw_, dataType_, mode_;
   const bool                     ignoreTrigger_, useL1Trigger_;
   const bool                     unCorrect_, collapseDepth_;
@@ -142,7 +144,7 @@ private:
   const edm::InputTag            triggerEvent_, theTriggerResultsLabel_;
   const std::string              labelGenTrack_, labelRecVtx_, labelEB_; 
   const std::string              labelEE_, labelHBHE_, labelTower_,l1TrigName_;
-  unsigned int                   nRun_;
+  unsigned int                   nRun_, nLow_, nHigh_;
   double                         a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants     *hdc_;
   std::vector<double>            etabins_, phibins_;
@@ -201,6 +203,10 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   hcalScale_(iConfig.getUntrackedParameter<double>("hHcalScale",1.0)),
   eIsolate1_(iConfig.getParameter<double>("isolationEnergyTight")),
   eIsolate2_(iConfig.getParameter<double>("isolationEnergyLoose")),
+  pTrackLow_(iConfig.getParameter<double>("momentumLow")),
+  pTrackHigh_(iConfig.getParameter<double>("momentumHigh")),
+  prescaleLow_(iConfig.getParameter<double>("prescaleLow")),
+  prescaleHigh_(iConfig.getParameter<double>("prescaleHigh")),
   useRaw_(iConfig.getUntrackedParameter<int>("useRaw",0)),
   dataType_(iConfig.getUntrackedParameter<int>("dataType",0)),
   mode_(iConfig.getUntrackedParameter<int>("outMode",11)),
@@ -222,7 +228,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
   labelTower_(iConfig.getParameter<std::string>("labelCaloTower")),
   l1TrigName_(iConfig.getUntrackedParameter<std::string>("l1TrigName","L1_SingleJet60")),
-  nRun_(0), hdc_(nullptr) {
+  nRun_(0), nLow_(0), nHigh_(0), hdc_(nullptr) {
 
   usesResource(TFileService::kSharedResource);
 
@@ -316,7 +322,11 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
 				   <<"\t slopeRestrictionP_ " << slopeRestrictionP_
 				   <<"\t eIsolateStrong_ " << eIsolate1_
 				   <<"\t eIsolateSoft_ "   << eIsolate2_ 
-				   <<"\t hcalScale_ "      << hcalScale_ 
+				   <<"\t hcalScale_ "      << hcalScale_
+				   <<"\n\t momentumLow_ "  << pTrackLow_
+				   <<"\t prescaleLow_ "    << prescaleLow_
+				   <<"\t momentumHigh_ "   << pTrackHigh_
+				   <<"\t prescaleHigh_ "   << prescaleHigh_
 				   <<"\n\t useRaw_ "       << useRaw_
 				   <<"\t ignoreTrigger_ "  << ignoreTrigger_
 				   <<"\n\t useL1Trigegr_ " << useL1Trigger_
@@ -833,6 +843,11 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("EEHitEnergyThreshold1",68.7950);
   desc.add<double>("EEHitEnergyThreshold2",-38.1483);
   desc.add<double>("EEHitEnergyThreshold3",7.04303);
+  // prescale factors
+  desc.add<double>("momentumLow", 40.0);
+  desc.add<double>("momentumHigh",60.0);
+  desc.add<int>("prescaleLow", 1);
+  desc.add<int>("prescaleHigh",1);
   // various labels for collections used in the code
   desc.add<edm::InputTag>("labelTriggerEvent",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<edm::InputTag>("labelTriggerResult",edm::InputTag("TriggerResults","","HLT"));
@@ -1055,7 +1070,21 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
 					   << t_HitEnergies3->at(ll);
 	}
 #endif
+	bool accept(false);
 	if (t_p>pTrackMin_) {
+	  if (t_p<pTrackLow_) {
+	    ++nLow_;
+	    if      (prescaleLow_ <= 1)         accept = true;
+	    else if (nLow_%prescaleLow_ == 1)   accept = true;
+	  } else if (t_p>pTrackHigh_) {
+	    ++nHigh_;
+	    if      (prescaleHigh_ <= 1)        accept = true;
+	    else if (nHigh_%prescaleHigh_ == 1) accept = true;
+	  } else {
+	    accept = true;
+	  }
+	}
+	if (accept) {
 	  tree->Fill();
 	  nSave++;
 	  int type(0);
