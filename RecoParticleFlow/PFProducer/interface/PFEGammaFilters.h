@@ -87,10 +87,12 @@ class PFEGammaFilters {
   std::array<float,2> badHcal_eInvPInv_;
   std::array<float,2> badHcal_dEta_;
   std::array<float,2> badHcal_dPhi_;
+  bool badHcal_eleEnable_;
   static void readEBEEParams_(const edm::ParameterSet &pset, const std::string &name, std::array<float,2> & out) ;
 
   // dead hcal selections (photons)
   float badHcal_phoTrkSolidConeIso_offs_, badHcal_phoTrkSolidConeIso_slope_;
+  bool badHcal_phoEnable_;
 
   // Event variables 
   

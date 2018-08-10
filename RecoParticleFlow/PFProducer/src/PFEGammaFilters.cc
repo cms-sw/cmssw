@@ -55,8 +55,10 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEcalEOverP_2(ele_protectionsForJetMET.getParameter<double>("maxEcalEOverP_2")), 
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
   ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN")),
+  badHcal_eleEnable_(ele_protectionsForBadHcal.getParameter<bool>("enableProtections")),
   badHcal_phoTrkSolidConeIso_offs_(ph_protectionsForBadHcal.getParameter<double>("solidConeTrkIsoOffset")),
   badHcal_phoTrkSolidConeIso_slope_(ph_protectionsForBadHcal.getParameter<double>("solidConeTrkIsoSlope")),
+  badHcal_phoEnable_(ph_protectionsForBadHcal.getParameter<bool>("enableProtections")),
   debug_(false)
 {
     readEBEEParams_(ele_protectionsForBadHcal, "full5x5_sigmaIetaIeta", badHcal_full5x5_sigmaIetaIeta_);
@@ -85,7 +87,7 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
 		     << "   isoDr03 " << (photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03())  << " (cut: " << ph_combIso_ << ")"
 		     << "   H/E " << photon.hadTowOverEm() << " (valid? " << validHoverE << ", cut: " << ph_loose_hoe_ << ")"
 		     << "   s(ieie) " << photon.sigmaIetaIeta()  << " (cut: " << (photon.isEB() ? ph_sietaieta_eb_ : ph_sietaieta_ee_) << ")"
-		     << "   isoTrkDr03Solid " << (photon.trkSumPtSolidConeDR03())  << " (cut: " << (validHoverE ? -1 : badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) << ")"
+		     << "   isoTrkDr03Solid " << (photon.trkSumPtSolidConeDR03())  << " (cut: " << (validHoverE || !badHcal_phoEnable_ ? -1 : badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) << ")"
  << std::endl;
 
   if (photon.hadTowOverEm() >ph_loose_hoe_ ) return false;
@@ -94,7 +96,7 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
     return false;
 
   //patch for bad hcal
-  if (!validHoverE && photon.trkSumPtSolidConeDR03() > badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) {
+  if (!validHoverE && badHcal_phoEnable_ && photon.trkSumPtSolidConeDR03() > badHcal_phoTrkSolidConeIso_offs_ + badHcal_phoTrkSolidConeIso_slope_*photon.pt()) {
     return false;
   }
   
@@ -153,7 +155,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
   //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
   if(electron.mva_e_pi() > ele_noniso_mva_) {
-    if (validHoverE) {
+    if (validHoverE || !badHcal_eleEnable_) {
         passEleSelection = true; 
     } else {
         bool EE = (std::abs(electron.eta()) > 1.485); // for prefer consistency with above than with E/gamma for now
