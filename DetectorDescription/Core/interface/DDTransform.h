@@ -4,6 +4,7 @@
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include <memory>
 
 class DDRotation;
 
@@ -15,7 +16,7 @@ std::ostream & operator<<(std::ostream &, const DDRotation &);
     The user must not free memory allocated for \a rot!
 */
 DDRotation DDrot( const DDName & name,
-		  DDRotationMatrix * rot);
+		  std::unique_ptr<DDRotationMatrix> rot );
 
 std::unique_ptr<DDRotation> DDrotPtr( const DDName & name,
 				      DDRotationMatrix * rot );
@@ -64,40 +65,40 @@ DDcreateRotationMatrix( double thetaX, double phiX,
     
     DDRotation encapsulates ROOT Rotation3D.
 */
-class DDRotation : public DDBase< DDName, DDRotationMatrix* >
+class DDRotation : public DDBase< DDName, std::unique_ptr<DDRotationMatrix >>
 {
-  friend DDRotation DDrot( const DDName &, DDRotationMatrix* );
-  friend std::unique_ptr<DDRotation> DDrotPtr( const DDName &, DDRotationMatrix* );
+  friend DDRotation DDrot( const DDName &, std::unique_ptr<DDRotationMatrix> );
+  friend std::unique_ptr<DDRotation> DDrotPtr( const DDName &, std::unique_ptr<DDRotationMatrix> );
   friend DDRotation DDrotReflect( const DDName&, double, double, double, double, double, double );
-  friend DDRotation DDanonymousRot( DDRotationMatrix* );
+  friend DDRotation DDanonymousRot( std::unique_ptr<DDRotationMatrix> );
   
-public:
+ public:
   //! refers to the unit-rotation (no rotation at all)
   DDRotation();
-
+  
   //! Creates a initialized reference-object or a reference to an allready defined rotation.
   /**
-      A reference-object to a defined rotation is created if a rotation was already defined usind DDrot(). 
-      Otherwise a (default) initialized reference-object named \a name is created. At any later stage the rotation matrix
-      can be defined using DDrot(). All initialized-reference object referring to the same \a name will 
-      then immidialtely refere to the matrix created by DDrot().
-      
-      DDRotation is a lightweighted reference-object. For further details concerning reference-object
-      refere to the documentation of DDLogicalPart.
+     A reference-object to a defined rotation is created if a rotation was already defined usind DDrot(). 
+     Otherwise a (default) initialized reference-object named \a name is created. At any later stage the rotation matrix
+     can be defined using DDrot(). All initialized-reference object referring to the same \a name will 
+     then immidialtely refere to the matrix created by DDrot().
+     
+     DDRotation is a lightweighted reference-object. For further details concerning reference-object
+     refere to the documentation of DDLogicalPart.
   */
   DDRotation( const DDName & name );
-
-  DDRotation( const DDName &, DDRotationMatrix* );
+  
+  DDRotation( const DDName & , std::unique_ptr< DDRotationMatrix > );
   //! Returns the read-only rotation-matrix     
-  const DDRotationMatrix* rotation() const { return &(rep()); }   
+  const DDRotationMatrix& rotation() const { return *rep(); }   
+ 
+  DDRotationMatrix& rotation() { return *rep(); }
   
-  DDRotationMatrix* rotation() { return &(rep()); }
-  
-  DDRotationMatrix* matrix() { return rotation(); }
+  DDRotationMatrix& matrix() { return rotation(); }
 
 private:
 
-  DDRotation( DDRotationMatrix* ); 
+  DDRotation( std::unique_ptr<DDRotationMatrix> ); 
 };
 			 
 #endif

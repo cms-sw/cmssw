@@ -12,7 +12,7 @@
 using DDI::Material;
 using namespace dd::operators;
 
-DDMaterial::DDMaterial() : DDBase< DDName, Material* >() { }
+DDMaterial::DDMaterial() : DDBase< DDName, std::unique_ptr<Material>>() { }
 
 /**
    If a DDMaterial with \a name was already defined, this constructor creates a
@@ -23,7 +23,7 @@ DDMaterial::DDMaterial() : DDBase< DDName, Material* >() { }
    to the documentation of DDLogicalPart.
 */
 DDMaterial::DDMaterial( const DDName & name )
-  : DDBase< DDName, Material* >()
+  : DDBase< DDName, std::unique_ptr<Material>>()
 { 
   create( name );
 }
@@ -42,9 +42,9 @@ DDMaterial::DDMaterial( const DDName & name )
    \endcode  
 */
 DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
- : DDBase< DDName, Material* >()
+  : DDBase< DDName, std::unique_ptr<Material>>()
 { 
-  create( name, new Material( z, a, d ));
+  create( name, std::make_unique<Material>( z, a, d ));
 }
 
 /** 
@@ -60,9 +60,9 @@ DDMaterial::DDMaterial( const DDName & name, double z, double a, double d )
    to the documentation of DDLogicalPart.      
 */
 DDMaterial::DDMaterial( const DDName & name, double density )
- : DDBase< DDName, Material* >()
+  : DDBase< DDName, std::unique_ptr<Material>>()
 { 
-  create( name, new Material( 0, 0, density ));
+  create( name, std::make_unique<Material>( 0, 0, density ));
 }
 
 /** 
@@ -74,36 +74,36 @@ DDMaterial::addMaterial( const DDMaterial & m, double fm )
   if( m.ddname() == ddname()) {
     throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material " << m << " to itself! ";
   }  
-  rep().addMaterial( m, fm );
-  return rep().noOfConstituents();
+  rep()->addMaterial( m, fm );
+  return rep()->noOfConstituents();
 }
 
 int
 DDMaterial::noOfConstituents() const
 {
-   return rep().noOfConstituents();
+   return rep()->noOfConstituents();
 }
 
 DDMaterial::FractionV::value_type DDMaterial::constituent( int i ) const 
 { 
-  return rep().constituent( i );
+  return rep()->constituent( i );
 }
 
 double
 DDMaterial::a() const
 {
-  return rep().a(); 
+  return rep()->a(); 
 }
 
 double
 DDMaterial::z() const
 {
-  return rep().z(); 
+  return rep()->z(); 
 }
 
 double DDMaterial::density() const
 {
-  return rep().density(); 
+  return rep()->density(); 
 }
 
 namespace {

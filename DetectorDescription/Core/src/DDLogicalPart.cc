@@ -38,7 +38,7 @@ operator<<( std::ostream & os, const DDLogicalPart & part )
     os << *(defined.first) << " ";
     if( defined.second )
     {
-      part.rep().stream( os ); 
+      part.rep()->stream( os ); 
     }
     else
     {
@@ -101,7 +101,7 @@ operator<<( std::ostream & os, const DDLogicalPart & part )
        \endcode 
 */        
 DDLogicalPart::DDLogicalPart( const DDName & name )
-  : DDBase< DDName, DDI::LogicalPart* >()
+  : DDBase< DDName, std::unique_ptr<DDI::LogicalPart> >()
 { 
   create( name );
   DD_NC( name );
@@ -123,25 +123,25 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
                              const DDMaterial & material,
                              const DDSolid & solid,
 		             DDEnums::Category cat) 
- : DDBase< DDName, DDI::LogicalPart* >() 
+  : DDBase< DDName, std::unique_ptr<DDI::LogicalPart> >() 
 { 
-   create( ddname, new DDI::LogicalPart( material, solid, cat ));
+  create( ddname, std::make_unique<DDI::LogicalPart>( material, solid, cat ));
    DD_NC(ddname);
 }
 
 DDEnums::Category DDLogicalPart::category() const
 { 
-  return rep().category(); 
+  return rep()->category(); 
 }
 
 const DDMaterial & DDLogicalPart::material() const 
 {
-  return rep().material();
+  return rep()->material();
 }  
 
 const DDSolid & DDLogicalPart::solid() const
 {
-  return rep().solid();
+  return rep()->solid();
 }
 
 /**
@@ -200,14 +200,14 @@ const DDSolid & DDLogicalPart::solid() const
 std::vector<const DDsvalues_type *> DDLogicalPart::specifics() const
 {
   std::vector<const DDsvalues_type*> result;
-  rep().specificsV(result);
+  rep()->specificsV(result);
   return result;
 }
 
 DDsvalues_type DDLogicalPart::mergedSpecifics() const
 {
   DDsvalues_type  result;
-  rep().mergedSpecificsV(result);
+  rep()->mergedSpecificsV(result);
   return result;
 }  
 
@@ -215,19 +215,19 @@ DDsvalues_type DDLogicalPart::mergedSpecifics() const
 void
 DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
-   rep().addSpecifics(s);
+   rep()->addSpecifics(s);
 }
 
 void
 DDLogicalPart::removeSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
 {
-   rep().removeSpecifics(s);
+   rep()->removeSpecifics(s);
 }
 
 bool
 DDLogicalPart::hasDDValue(const DDValue & v) const
 {
-  return rep().hasDDValue(v);
+  return rep()->hasDDValue(v);
 }
 
 // finds out whether a DDLogicalPart is registered & already valid (initialized)
@@ -383,5 +383,5 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
 const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & 
 DDLogicalPart::attachedSpecifics( void ) const
 {
-  return rep().attachedSpecifics();
+  return rep()->attachedSpecifics();
 }

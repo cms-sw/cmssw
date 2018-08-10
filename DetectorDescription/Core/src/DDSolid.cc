@@ -40,7 +40,7 @@ operator<<(std::ostream & os, const DDSolid & solid)
     os << *(defined.first) << " ";
     if (defined.second) {
       os << "  " << DDSolidShapesName::name(solid.shape()) << ": ";
-      solid.rep().stream(os); 
+      solid.rep()->stream(os); 
     }
     else {
       os << "* solid not defined * ";  
@@ -53,96 +53,97 @@ operator<<(std::ostream & os, const DDSolid & solid)
 }
 
 DDSolid::DDSolid()
-  : DDBase< DDName, Solid* >() { }
+  : DDBase< DDName, std::unique_ptr< Solid >>() { }
 
-DDSolid::DDSolid( const DDName & n )
-  : DDBase< DDName, Solid* >()
+DDSolid::DDSolid( const DDName & name )
+  : DDBase< DDName, std::unique_ptr< Solid >>()
 {
-  create( n );
+  create( name );
 }
 
-DDSolid::DDSolid(const DDName & n, Solid * s)
-  : DDBase< DDName, Solid* >()
+DDSolid::DDSolid( const DDName & name, std::unique_ptr< Solid > solid )
+  : DDBase< DDName, std::unique_ptr< Solid >>()
 {
-  create( n, s );
+  create( name, std::move( solid ));
 }
 
-DDSolid::DDSolid( const DDName & n, DDSolidShape s, const std::vector<double> & p )
+DDSolid::DDSolid( const DDName & name, DDSolidShape shape, const std::vector<double> & pars )
 {
-  DDI::Solid * solid(nullptr);
+  std::unique_ptr<DDI::Solid> solid( nullptr );
   std::vector<double> dummy;
-  switch(s) {
+  switch( shape ) {
   case DDSolidShape::ddbox:
-    solid = new DDI::Box(0,0,0);
+    solid = std::move( std::make_unique< DDI::Box >( 0, 0, 0 ));
     break;
   case DDSolidShape::ddtubs:
-    solid = new DDI::Tubs(0,0,0,0,0);
+    solid = std::move( std::make_unique< DDI::Tubs >( 0, 0, 0, 0, 0 ));
     break;
   case DDSolidShape::ddcons:
-    solid = new DDI::Cons(0,0,0,0,0,0,0);
+    solid = std::move( std::make_unique< DDI::Cons >( 0, 0, 0, 0, 0, 0, 0 ));
     break;
   case DDSolidShape::ddpseudotrap:
-    solid = new DDI::PseudoTrap(0,0,0,0,0,0,false);
+    solid = std::move( std::make_unique< DDI::PseudoTrap >( 0, 0, 0, 0, 0, 0, false ));
     break;
   case DDSolidShape::ddshapeless:
-    solid = new DDI::Shapeless();
+    solid = std::move( std::make_unique< DDI::Shapeless >( ));
     break;
   case DDSolidShape::ddtrap:
-    solid = new DDI::Trap(0,0,0,0,0,0,0,0,0,0,0);
+    solid = std::move( std::make_unique< DDI::Trap >( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ));
     break;
   case DDSolidShape::ddpolyhedra_rz:
-    solid = new DDI::Polyhedra(0,0,0,dummy,dummy);
+    solid = std::move( std::make_unique< DDI::Polyhedra >( 0, 0, 0, dummy, dummy ));
     break;
   case DDSolidShape::ddpolyhedra_rrz:
-    solid = new DDI::Polyhedra(0,0,0,dummy,dummy,dummy);
+    solid = std::move( std::make_unique< DDI::Polyhedra >( 0, 0, 0, dummy, dummy, dummy ));
     break;
   case DDSolidShape::ddpolycone_rz:
-    solid = new DDI::Polycone(0,0,dummy,dummy);
+    solid = std::move( std::make_unique< DDI::Polycone >( 0, 0, dummy, dummy ));
     break;
   case DDSolidShape::ddpolycone_rrz:
-    solid = new DDI::Polycone(0,0,dummy,dummy,dummy);
+    solid = std::move( std::make_unique< DDI::Polycone >( 0, 0, dummy, dummy, dummy ));
     break;			
   case DDSolidShape::ddtrunctubs:
-    solid = new DDI::TruncTubs(0,0,0,0,0,0,0,false);
+    solid = std::move( std::make_unique< DDI::TruncTubs >( 0, 0, 0, 0, 0, 0, 0, false ));
     break;
   case DDSolidShape::ddtorus:
-    solid = new DDI::Torus(0,0,0,0,0);
+    solid = std::move( std::make_unique< DDI::Torus >( 0, 0, 0, 0, 0 ));
     break;
   case DDSolidShape::ddsphere:
-    solid = new DDI::Sphere(0,0,0,0,0,0);
+    solid = std::move( std::make_unique< DDI::Sphere >( 0, 0, 0, 0, 0, 0 ));
     break;
   case DDSolidShape::ddellipticaltube:
-    solid = new DDI::EllipticalTube(0,0,0);
+    solid = std::move( std::make_unique< DDI::EllipticalTube >( 0, 0, 0 ));
     break;
   case DDSolidShape::ddcuttubs:
-    solid = new DDI::CutTubs(0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,-1.);
+    solid = std::move( std::make_unique< DDI::CutTubs >( 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., -1. ));
     break;
   case DDSolidShape::ddextrudedpolygon:
-    solid = new DDI::ExtrudedPolygon( dummy, dummy, dummy, dummy, dummy, dummy );
+    solid = std::move( std::make_unique< DDI::ExtrudedPolygon >( dummy, dummy, dummy, dummy, dummy, dummy ));
     break;
   default:
-    throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
+    throw cms::Exception( "DDException" )
+		<< "DDSolid::DDSolid( DDName, DDSolidShape, std::vector<double> ): wrong shape.";   
   }
-  solid->setParameters(p);
-  create( n, solid );
+  solid->setParameters( pars );
+		create( name, std::move( solid ));
 }
 
 double
 DDSolid::volume() const
 {
-  return rep().volume();
+  return rep()->volume();
 }
 
 DDSolidShape
 DDSolid::shape() const
 {
-  return rep().shape();
+  return rep()->shape();
 }
 
 const std::vector<double> &
 DDSolid::parameters() const
 { 
-  return rep().parameters(); 
+  return rep()->parameters(); 
 }
 
 DDTrap::DDTrap(const DDSolid & s) : DDSolid(s)
@@ -155,37 +156,37 @@ DDTrap::DDTrap(const DDSolid & s) : DDSolid(s)
 }
 
 double
-DDTrap::halfZ() const { return rep().parameters()[0]; }
+DDTrap::halfZ() const { return rep()->parameters()[0]; }
 
 double
-DDTrap::theta() const { return rep().parameters()[1]; }
+DDTrap::theta() const { return rep()->parameters()[1]; }
 
 double
-DDTrap::phi() const { return rep().parameters()[2]; }
+DDTrap::phi() const { return rep()->parameters()[2]; }
 
 double
-DDTrap::y1() const { return rep().parameters()[3]; }
+DDTrap::y1() const { return rep()->parameters()[3]; }
 
 double
-DDTrap::x1() const { return rep().parameters()[4]; }
+DDTrap::x1() const { return rep()->parameters()[4]; }
 
 double
-DDTrap::x2() const { return rep().parameters()[5]; }
+DDTrap::x2() const { return rep()->parameters()[5]; }
 
 double
-DDTrap::alpha1() const { return rep().parameters()[6]; }
+DDTrap::alpha1() const { return rep()->parameters()[6]; }
 
 double
-DDTrap::y2() const { return rep().parameters()[7]; }
+DDTrap::y2() const { return rep()->parameters()[7]; }
 
 double
-DDTrap::x3() const { return rep().parameters()[8]; }
+DDTrap::x3() const { return rep()->parameters()[8]; }
 
 double
-DDTrap::x4() const { return rep().parameters()[9]; }
+DDTrap::x4() const { return rep()->parameters()[9]; }
 
 double
-DDTrap::alpha2() const { return rep().parameters()[10]; }
+DDTrap::alpha2() const { return rep()->parameters()[10]; }
 
 DDTruncTubs::DDTruncTubs(const DDSolid & s) : DDSolid(s)
 {
@@ -198,28 +199,28 @@ DDTruncTubs::DDTruncTubs(const DDSolid & s) : DDSolid(s)
 }
 
 double
-DDTruncTubs::zHalf() const { return rep().parameters()[0];}
+DDTruncTubs::zHalf() const { return rep()->parameters()[0];}
 
 double
-DDTruncTubs::rIn() const { return rep().parameters()[1];}
+DDTruncTubs::rIn() const { return rep()->parameters()[1];}
 
 double
-DDTruncTubs::rOut() const { return rep().parameters()[2];}
+DDTruncTubs::rOut() const { return rep()->parameters()[2];}
 
 double
-DDTruncTubs::startPhi() const { return rep().parameters()[3];}
+DDTruncTubs::startPhi() const { return rep()->parameters()[3];}
 
 double
-DDTruncTubs::deltaPhi() const { return rep().parameters()[4];}
+DDTruncTubs::deltaPhi() const { return rep()->parameters()[4];}
 
 double
-DDTruncTubs::cutAtStart() const { return rep().parameters()[5];}
+DDTruncTubs::cutAtStart() const { return rep()->parameters()[5];}
 
 double
-DDTruncTubs::cutAtDelta() const { return rep().parameters()[6];}
+DDTruncTubs::cutAtDelta() const { return rep()->parameters()[6];}
 
 bool
-DDTruncTubs::cutInside() const { return bool(rep().parameters()[7]);}
+DDTruncTubs::cutInside() const { return bool(rep()->parameters()[7]);}
 
 DDPseudoTrap::DDPseudoTrap(const DDSolid & s) : DDSolid(s)
 {
@@ -231,25 +232,25 @@ DDPseudoTrap::DDPseudoTrap(const DDSolid & s) : DDSolid(s)
 }
 
 double
-DDPseudoTrap::halfZ() const { return rep().parameters()[4]; }
+DDPseudoTrap::halfZ() const { return rep()->parameters()[4]; }
 
 double
-DDPseudoTrap::x1() const { return rep().parameters()[0]; }
+DDPseudoTrap::x1() const { return rep()->parameters()[0]; }
 
 double
-DDPseudoTrap::x2() const { return rep().parameters()[1]; }
+DDPseudoTrap::x2() const { return rep()->parameters()[1]; }
 
 double
-DDPseudoTrap::y1() const { return rep().parameters()[2]; }
+DDPseudoTrap::y1() const { return rep()->parameters()[2]; }
 
 double
-DDPseudoTrap::y2() const { return rep().parameters()[3]; }
+DDPseudoTrap::y2() const { return rep()->parameters()[3]; }
 
 double
-DDPseudoTrap::radius() const { return rep().parameters()[5]; }
+DDPseudoTrap::radius() const { return rep()->parameters()[5]; }
 
 bool
-DDPseudoTrap::atMinusZ() const { return rep().parameters()[6]; }
+DDPseudoTrap::atMinusZ() const { return rep()->parameters()[6]; }
 
 DDBox::DDBox(const DDSolid & s) 
  : DDSolid(s) 
@@ -263,15 +264,15 @@ DDBox::DDBox(const DDSolid & s)
 
 double
 DDBox::halfX() const
-{ return rep().parameters()[0]; }
+{ return rep()->parameters()[0]; }
 
 double
 DDBox::halfY() const
-{ return rep().parameters()[1]; }
+{ return rep()->parameters()[1]; }
 
 double
 DDBox::halfZ() const
-{ return rep().parameters()[2]; }
+{ return rep()->parameters()[2]; }
 
 DDShapelessSolid::DDShapelessSolid (const DDSolid & s) : DDSolid(s)
 {
@@ -323,14 +324,14 @@ DDPolySolid::getVec (const size_t& which,
 {
   // which:  first second or third std::vector 
   // offset: number of non-std::vector components before std::vectors start
-  if(( rep().parameters().size() - offset) % numVecs != 0 ) {
+  if(( rep()->parameters().size() - offset) % numVecs != 0 ) {
     edm::LogError ("DDSolid") << "Could not find equal sized components of std::vectors in a PolySolid description."
-			      << "rep().parameters().size()=" << rep().parameters().size() << "  numVecs=" << numVecs
+			      << "rep()->parameters().size()=" << rep()->parameters().size() << "  numVecs=" << numVecs
 			      << "  offset=" << offset << std::endl;
   }
   std::vector<double> tvec;
-  for( size_t i = offset + which; i < rep().parameters().size(); i = i + numVecs ) {
-    tvec.emplace_back( rep().parameters()[i]);
+  for( size_t i = offset + which; i < rep()->parameters().size(); i = i + numVecs ) {
+    tvec.emplace_back( rep()->parameters()[i]);
   }               
   return tvec;
 }
@@ -346,10 +347,10 @@ DDPolycone::DDPolycone(const DDSolid & s)
 }
 
 double
-DDPolycone::startPhi() const { return rep().parameters()[0]; }
+DDPolycone::startPhi() const { return rep()->parameters()[0]; }
 
 double
-DDPolycone::deltaPhi() const { return rep().parameters()[1]; }
+DDPolycone::deltaPhi() const { return rep()->parameters()[1]; }
 
 std::vector<double> DDPolycone::rVec() const {
   std::vector<double> tvec;
@@ -393,13 +394,13 @@ DDPolyhedra::DDPolyhedra(const DDSolid & s)
 }
 
 int
-DDPolyhedra::sides() const { return int(rep().parameters()[0]); }
+DDPolyhedra::sides() const { return int(rep()->parameters()[0]); }
 
 double
-DDPolyhedra::startPhi() const { return rep().parameters()[1]; }
+DDPolyhedra::startPhi() const { return rep()->parameters()[1]; }
 
 double
-DDPolyhedra::deltaPhi() const { return rep().parameters()[2]; }
+DDPolyhedra::deltaPhi() const { return rep()->parameters()[2]; }
 
 std::vector<double>
 DDPolyhedra::rVec() const {
@@ -450,7 +451,7 @@ DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
   // which define the vertices of the outlined polygon
   // defined in clock-wise order
 
-  return ( rep().parameters().size() - 4 * zSectionsSize()) * 0.5;
+  return ( rep()->parameters().size() - 4 * zSectionsSize()) * 0.5;
 }
 
 auto
@@ -465,49 +466,49 @@ DDExtrudedPolygon::zSectionsSize( void ) const -> std::size_t
   //
   // The Z sections defined by the z position in an increasing order.
 
-  return rep().parameters()[0];
+  return rep()->parameters()[0];
 }
 
 std::vector<double>
 DDExtrudedPolygon::xVec( void ) const
 {
-  return std::vector<double>( rep().parameters().begin() + 1,
-			      rep().parameters().begin() + 1 + xyPointsSize());
+  return std::vector<double>( rep()->parameters().begin() + 1,
+			      rep()->parameters().begin() + 1 + xyPointsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::yVec( void ) const
 {
-  return std::vector<double>( rep().parameters().begin() + 1 + xyPointsSize(),
-			      rep().parameters().begin() + 1 + 2 * xyPointsSize());
+  return std::vector<double>( rep()->parameters().begin() + 1 + xyPointsSize(),
+			      rep()->parameters().begin() + 1 + 2 * xyPointsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - 4 * zSectionsSize(),
-			      rep().parameters().end() - 3 * zSectionsSize());
+  return std::vector<double>( rep()->parameters().end() - 4 * zSectionsSize(),
+			      rep()->parameters().end() - 3 * zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zxVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - 3 * zSectionsSize(),
-			      rep().parameters().end() - 2 * zSectionsSize());
+  return std::vector<double>( rep()->parameters().end() - 3 * zSectionsSize(),
+			      rep()->parameters().end() - 2 * zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zyVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - 2 * zSectionsSize(),
-			      rep().parameters().end() - zSectionsSize());
+  return std::vector<double>( rep()->parameters().end() - 2 * zSectionsSize(),
+			      rep()->parameters().end() - zSectionsSize());
 }
 
 std::vector<double>
 DDExtrudedPolygon::zscaleVec( void ) const
 {
-  return std::vector<double>( rep().parameters().end() - zSectionsSize(),
-			      rep().parameters().end());
+  return std::vector<double>( rep()->parameters().end() - zSectionsSize(),
+			      rep()->parameters().end());
 }
 
 DDCons::DDCons(const DDSolid& s) 
@@ -520,25 +521,25 @@ DDCons::DDCons(const DDSolid& s)
 }
 
 double
-DDCons::zhalf() const { return rep().parameters()[0]; }
+DDCons::zhalf() const { return rep()->parameters()[0]; }
 
 double
-DDCons::rInMinusZ() const { return rep().parameters()[1]; }
+DDCons::rInMinusZ() const { return rep()->parameters()[1]; }
 
 double
-DDCons::rOutMinusZ () const { return rep().parameters()[2]; }
+DDCons::rOutMinusZ () const { return rep()->parameters()[2]; }
 
 double
-DDCons::rInPlusZ() const { return rep().parameters()[3]; }
+DDCons::rInPlusZ() const { return rep()->parameters()[3]; }
 
 double
-DDCons::rOutPlusZ() const { return rep().parameters()[4]; }
+DDCons::rOutPlusZ() const { return rep()->parameters()[4]; }
 
 double
-DDCons::phiFrom() const { return rep().parameters()[5]; }
+DDCons::phiFrom() const { return rep()->parameters()[5]; }
 
 double
-DDCons::deltaPhi() const { return rep().parameters()[6]; }
+DDCons::deltaPhi() const { return rep()->parameters()[6]; }
 
 DDTorus::DDTorus(const DDSolid& s) 
   : DDSolid(s) {
@@ -550,19 +551,19 @@ DDTorus::DDTorus(const DDSolid& s)
 }
 
 double
-DDTorus::rMin() const { return rep().parameters()[0]; }
+DDTorus::rMin() const { return rep()->parameters()[0]; }
 
 double
-DDTorus::rMax() const { return rep().parameters()[1]; }
+DDTorus::rMax() const { return rep()->parameters()[1]; }
 
 double
-DDTorus::rTorus () const { return rep().parameters()[2]; }
+DDTorus::rTorus () const { return rep()->parameters()[2]; }
 
 double
-DDTorus::startPhi() const { return rep().parameters()[3]; }
+DDTorus::startPhi() const { return rep()->parameters()[3]; }
 
 double
-DDTorus::deltaPhi() const { return rep().parameters()[4]; }
+DDTorus::deltaPhi() const { return rep()->parameters()[4]; }
 
 DDTubs::DDTubs(const DDSolid& s) 
   : DDSolid(s) {
@@ -574,53 +575,52 @@ DDTubs::DDTubs(const DDSolid& s)
 }
 
 double
-DDTubs::zhalf() const { return rep().parameters()[0]; }
+DDTubs::zhalf() const { return rep()->parameters()[0]; }
 
 double
-DDTubs::rIn() const { return rep().parameters()[1]; }
+DDTubs::rIn() const { return rep()->parameters()[1]; }
 
 double
-DDTubs::rOut() const { return rep().parameters()[2]; }
+DDTubs::rOut() const { return rep()->parameters()[2]; }
 
 double
-DDTubs::startPhi() const { return rep().parameters()[3]; }
+DDTubs::startPhi() const { return rep()->parameters()[3]; }
 
 double
-DDTubs::deltaPhi() const { return rep().parameters()[4]; }
+DDTubs::deltaPhi() const { return rep()->parameters()[4]; }
 
-DDBooleanSolid::DDBooleanSolid(const DDSolid &s)
- : DDSolid(s), boolean_(nullptr)
-{
-  boolean_ = dynamic_cast<DDI::BooleanSolid*>(&s.rep());
-}
+DDBooleanSolid::DDBooleanSolid( const DDSolid &s )
+  : DDSolid( s ),
+    boolean_( static_cast< DDI::BooleanSolid& >( *s.rep()))
+{}
 
 DDRotation
 DDBooleanSolid::rotation() const
 {
-  return boolean_->r();
+  return boolean_.r();
 }
 
 DDTranslation
 DDBooleanSolid::translation() const
 {
-  return boolean_->t();
+  return boolean_.t();
 }
 
 DDSolid
 DDBooleanSolid::solidA() const
 {
-  return boolean_->a();
+  return boolean_.a();
 }
 
 DDSolid
 DDBooleanSolid::solidB() const
 {
-  return boolean_->b();
+  return boolean_.b();
 }
 
-DDSphere::DDSphere(const DDSolid& s) 
-  : DDSolid(s) {
-  if (s.shape() != DDSolidShape::ddsphere) {
+DDSphere::DDSphere( const DDSolid& s ) 
+  : DDSolid( s ) {
+  if( s.shape() != DDSolidShape::ddsphere ) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDSphere (or sphere section).\n";
     ex = ex + "Use a different solid interface!";
     throw cms::Exception("DDException") << ex;
@@ -628,22 +628,22 @@ DDSphere::DDSphere(const DDSolid& s)
 }
 
 double
-DDSphere::innerRadius() const { return rep().parameters()[0]; }
+DDSphere::innerRadius() const { return rep()->parameters()[0]; }
 
 double
-DDSphere::outerRadius() const { return rep().parameters()[1]; }
+DDSphere::outerRadius() const { return rep()->parameters()[1]; }
 
 double
-DDSphere::startPhi () const { return rep().parameters()[2]; }
+DDSphere::startPhi () const { return rep()->parameters()[2]; }
 
 double
-DDSphere::deltaPhi() const { return rep().parameters()[3]; }
+DDSphere::deltaPhi() const { return rep()->parameters()[3]; }
 
 double
-DDSphere::startTheta() const { return rep().parameters()[4]; }
+DDSphere::startTheta() const { return rep()->parameters()[4]; }
 
 double
-DDSphere::deltaTheta() const { return rep().parameters()[5]; }
+DDSphere::deltaTheta() const { return rep()->parameters()[5]; }
 
 DDEllipticalTube::DDEllipticalTube(const DDSolid& s) 
   : DDSolid(s) {
@@ -655,13 +655,13 @@ DDEllipticalTube::DDEllipticalTube(const DDSolid& s)
 }
 
 double
-DDEllipticalTube::xSemiAxis() const { return rep().parameters()[0]; }
+DDEllipticalTube::xSemiAxis() const { return rep()->parameters()[0]; }
 
 double
-DDEllipticalTube::ySemiAxis() const { return rep().parameters()[1]; }
+DDEllipticalTube::ySemiAxis() const { return rep()->parameters()[1]; }
 
 double
-DDEllipticalTube::zHeight() const { return rep().parameters()[2]; }
+DDEllipticalTube::zHeight() const { return rep()->parameters()[2]; }
 
 DDCutTubs::DDCutTubs(const DDSolid& s) 
   : DDSolid(s) {
@@ -673,28 +673,28 @@ DDCutTubs::DDCutTubs(const DDSolid& s)
 }
 
 double
-DDCutTubs::zhalf() const { return rep().parameters()[0]; }
+DDCutTubs::zhalf() const { return rep()->parameters()[0]; }
 
 double
-DDCutTubs::rIn() const { return rep().parameters()[1]; }
+DDCutTubs::rIn() const { return rep()->parameters()[1]; }
 
 double
-DDCutTubs::rOut() const { return rep().parameters()[2]; }
+DDCutTubs::rOut() const { return rep()->parameters()[2]; }
 
 double
-DDCutTubs::startPhi() const { return rep().parameters()[3]; }
+DDCutTubs::startPhi() const { return rep()->parameters()[3]; }
 
 double
-DDCutTubs::deltaPhi() const { return rep().parameters()[4]; }
+DDCutTubs::deltaPhi() const { return rep()->parameters()[4]; }
 
 std::array<double, 3>
 DDCutTubs::lowNorm( void ) const {
-  return std::array<double, 3>{{rep().parameters()[5],rep().parameters()[6],rep().parameters()[7]}};
+  return std::array<double, 3>{{rep()->parameters()[5],rep()->parameters()[6],rep()->parameters()[7]}};
 }
 
 std::array<double, 3>
 DDCutTubs::highNorm( void ) const {
-  return std::array<double, 3>{{rep().parameters()[8],rep().parameters()[9],rep().parameters()[10]}};
+  return std::array<double, 3>{{rep()->parameters()[8],rep()->parameters()[9],rep()->parameters()[10]}};
 }
     
 // =================================================================================
@@ -706,48 +706,47 @@ DDSolidFactory::box( const DDName & name,
 		     double yHalf, 
 		     double zHalf )
 {
-  return DDSolid(name, new DDI::Box(xHalf, yHalf, zHalf ));
+  return DDSolid( name, std::make_unique< DDI::Box >( xHalf, yHalf, zHalf ));
 }
 
 DDSolid
-DDSolidFactory::polycone(const DDName & name, double startPhi, double deltaPhi,
-			 const std::vector<double> & z,
-			 const std::vector<double> & rmin,
-			 const std::vector<double> & rmax) 
-{
-  return DDSolid(name, new DDI::Polycone(startPhi, deltaPhi, z, rmin, rmax));
-}
-
-DDSolid
-DDSolidFactory::polycone(const DDName & name, double startPhi, double deltaPhi,
-			 const std::vector<double> & z,
-			 const std::vector<double> & r)
-{
-  return DDSolid(name, new DDI::Polycone(startPhi, deltaPhi, z, r));
-}   		     		  
-
-
-DDSolid
-DDSolidFactory::polyhedra(const DDName & name,
-			  int sides,
-			  double startPhi,
-			  double deltaPhi,
+DDSolidFactory::polycone( const DDName & name, double startPhi, double deltaPhi,
 			  const std::vector<double> & z,
 			  const std::vector<double> & rmin,
-			  const std::vector<double> & rmax)
+			  const std::vector<double> & rmax ) 
 {
-  return DDSolid(name, new DDI::Polyhedra( sides, startPhi, deltaPhi, z, rmin, rmax ));     
+  return DDSolid( name, std::make_unique< DDI::Polycone >( startPhi, deltaPhi, z, rmin, rmax ));
 }
 
 DDSolid
-DDSolidFactory::polyhedra(const DDName & name,
-			  int sides,
-			  double startPhi,
-			  double deltaPhi,
+DDSolidFactory::polycone( const DDName & name, double startPhi, double deltaPhi,
 			  const std::vector<double> & z,
-			  const std::vector<double> & r)
+			  const std::vector<double> & r )
 {
-  return DDSolid(name, new DDI::Polyhedra( sides, startPhi, deltaPhi, z, r ));
+  return DDSolid(name, std::make_unique< DDI::Polycone >( startPhi, deltaPhi, z, r ));
+}   		     		  
+
+DDSolid
+DDSolidFactory::polyhedra( const DDName & name,
+			   int sides,
+			   double startPhi,
+			   double deltaPhi,
+			   const std::vector<double> & z,
+			   const std::vector<double> & rmin,
+			   const std::vector<double> & rmax )
+{
+  return DDSolid( name, std::make_unique< DDI::Polyhedra >( sides, startPhi, deltaPhi, z, rmin, rmax ));     
+}
+
+DDSolid
+DDSolidFactory::polyhedra( const DDName & name,
+			   int sides,
+			   double startPhi,
+			   double deltaPhi,
+			   const std::vector<double> & z,
+			   const std::vector<double> & r )
+{
+  return DDSolid( name, std::make_unique< DDI::Polyhedra >( sides, startPhi, deltaPhi, z, r ));
 }
 
 DDSolid
@@ -759,149 +758,155 @@ DDSolidFactory::extrudedpolygon( const DDName & name,
 				 const std::vector<double> & zy,
 				 const std::vector<double> & zscale )
 {
-  return DDSolid( name, new DDI::ExtrudedPolygon( x, y, z, zx, zy, zscale ));
+  return DDSolid( name, std::make_unique< DDI::ExtrudedPolygon >( x, y, z, zx, zy, zscale ));
 }
 
 DDSolid
-DDSolidFactory::unionSolid(const DDName & name,
-			   const DDSolid & a, const DDSolid & b,
-			   const DDTranslation & t,
-			   const DDRotation & r)
-{
-  return DDSolid(name, new DDI::Union(a,b,t,r));
-}
-
-DDSolid
-DDSolidFactory::subtraction(const DDName & name,
+DDSolidFactory::unionSolid( const DDName & name,
 			    const DDSolid & a, const DDSolid & b,
 			    const DDTranslation & t,
-			    const DDRotation & r)
+			    const DDRotation & r )
 {
-  return DDSolid(name, new DDI::Subtraction(a,b,t,r));
+  return DDSolid( name, std::make_unique< DDI::Union >( a, b, t, r ));
 }
 
 DDSolid
-DDSolidFactory::intersection(const DDName & name,
+DDSolidFactory::subtraction( const DDName & name,
 			     const DDSolid & a, const DDSolid & b,
 			     const DDTranslation & t,
-			     const DDRotation & r)
+			     const DDRotation & r )
 {
-  return DDSolid(name, new DDI::Intersection(a,b,t,r));
+  return DDSolid( name, std::make_unique< DDI::Subtraction >( a, b, t, r ));
 }
 
 DDSolid
-DDSolidFactory::trap(const DDName & name,
-                     double pDz,
-	             double pTheta, double pPhi,
-	             double pDy1, double pDx1, double pDx2,
-	             double pAlp1,
-	             double pDy2, double pDx3, double pDx4,
-	             double pAlp2)
+DDSolidFactory::intersection( const DDName & name,
+			      const DDSolid & a, const DDSolid & b,
+			      const DDTranslation & t,
+			      const DDRotation & r )
 {
-  return DDSolid(name, new DDI::Trap(pDz, pTheta, pPhi,
-                                     pDy1, pDx1, pDx2, pAlp1,
-				     pDy2, pDx3, pDx4, pAlp2));
+  return DDSolid( name, std::make_unique< DDI::Intersection >( a, b, t, r ));
 }
 
 DDSolid
-DDSolidFactory::pseudoTrap(const DDName & name,
-			   double pDx1, /**< Half-length along x at the surface positioned at -dz */
-			   double pDx2, /**<  Half-length along x at the surface positioned at +dz */
-			   double pDy1, /**<  Half-length along y at the surface positioned at -dz */
-			   double pDy2, /**<  Half-length along y at the surface positioned at +dz */
-			   double pDz, /**< Half of the height of the pseudo trapezoid along z */
-			   double radius, /**< radius of the cut-out (negative sign) or rounding (pos. sign) */
-			   bool atMinusZ /**< if true, the cut-out or rounding is applied at -dz, else at +dz */
-			   )
+DDSolidFactory::trap( const DDName & name,
+		      double pDz,
+		      double pTheta, double pPhi,
+		      double pDy1, double pDx1, double pDx2,
+		      double pAlp1,
+		      double pDy2, double pDx3, double pDx4,
+		      double pAlp2 )
 {
-   return DDSolid(name, new DDI::PseudoTrap(pDx1, pDx2, pDy1, pDy2, pDz, radius, atMinusZ));
+  return DDSolid( name, std::make_unique< DDI::Trap >( pDz, pTheta, pPhi,
+						       pDy1, pDx1, pDx2, pAlp1,
+						       pDy2, pDx3, pDx4, pAlp2 ));
 }
 
 DDSolid
-DDSolidFactory::truncTubs(const DDName & name,
-			  double zHalf, /**< half-length of the z-axis */
-			  double rIn, /**< inner radius of the tube-section */
-			  double rOut, /**< outer radius of the tube-section */
-			  double startPhi, /**< starting angle of the tube-section */
-			  double deltaPhi, /**< spanning angle of the tube-section */
-			  double cutAtStart, /**< tructation at startPhi side */
-			  double cutAtDelta, /**< truncation at deltaPhi side */
-			  bool cutInside /**< */)
+DDSolidFactory::pseudoTrap( const DDName & name,
+			    double pDx1, /**< Half-length along x at the surface positioned at -dz */
+			    double pDx2, /**<  Half-length along x at the surface positioned at +dz */
+			    double pDy1, /**<  Half-length along y at the surface positioned at -dz */
+			    double pDy2, /**<  Half-length along y at the surface positioned at +dz */
+			    double pDz, /**< Half of the height of the pseudo trapezoid along z */
+			    double radius, /**< radius of the cut-out (negative sign) or rounding (pos. sign) */
+			    bool atMinusZ /**< if true, the cut-out or rounding is applied at -dz, else at +dz */
+			    )
 {
-  return DDSolid(name, new DDI::TruncTubs(zHalf,rIn,rOut,startPhi,deltaPhi,cutAtStart,cutAtDelta,cutInside));
+  return DDSolid( name, std::make_unique< DDI::PseudoTrap >( pDx1, pDx2, pDy1, pDy2, pDz,
+							     radius, atMinusZ ));
+}
+
+DDSolid
+DDSolidFactory::truncTubs( const DDName & name,
+			   double zHalf, /**< half-length of the z-axis */
+			   double rIn, /**< inner radius of the tube-section */
+			   double rOut, /**< outer radius of the tube-section */
+			   double startPhi, /**< starting angle of the tube-section */
+			   double deltaPhi, /**< spanning angle of the tube-section */
+			   double cutAtStart, /**< tructation at startPhi side */
+			   double cutAtDelta, /**< truncation at deltaPhi side */
+			   bool cutInside )
+{
+  return DDSolid( name, std::make_unique< DDI::TruncTubs >( zHalf, rIn, rOut,
+							    startPhi, deltaPhi,
+							    cutAtStart, cutAtDelta,
+							    cutInside ));
 }				  
 
 DDSolid
-DDSolidFactory::cons(const DDName & name,
-                     double zhalf,
-	   	     double rInMinusZ,	      	      
-		     double rOutMinusZ,
-		     double rInPlusZ,
-		     double rOutPlusZ,
-		     double phiFrom,
-		     double deltaPhi)
+DDSolidFactory::cons( const DDName & name,
+		      double zhalf,
+		      double rInMinusZ,	      	      
+		      double rOutMinusZ,
+		      double rInPlusZ,
+		      double rOutPlusZ,
+		      double phiFrom,
+		      double deltaPhi )
 {
-  return DDSolid(name, new DDI::Cons(zhalf,
-                                     rInMinusZ, rOutMinusZ,
-				     rInPlusZ, rOutPlusZ,
-				     phiFrom, deltaPhi));
+  return DDSolid( name, std::make_unique< DDI::Cons >( zhalf,
+						       rInMinusZ, rOutMinusZ,
+						       rInPlusZ, rOutPlusZ,
+						       phiFrom, deltaPhi ));
 }		     
 
 DDSolid
-DDSolidFactory::torus(const DDName & name,
-		      double rMin,
-		      double rMax,
-		      double rTorus,
-		      double startPhi,
-		      double deltaPhi)
-{
-  return DDSolid(name, new DDI::Torus(rMin, rMax, rTorus, startPhi, deltaPhi));
-}		     
-
-DDSolid
-DDSolidFactory::tubs(const DDName & name,
-		     double zhalf,
-		     double rIn, double rOut,	      	      
-		     double phiFrom, double deltaPhi)
-{		     
-  return DDSolid(name, new DDI::Tubs(zhalf,rIn,rOut,phiFrom,deltaPhi));
-}
-
-DDSolid
-DDSolidFactory::cuttubs(const DDName & name,
-			double zhalf,
-			double rIn, double rOut,	      	      
-			double phiFrom, double deltaPhi,
-			double lx, double ly, double lz,
-			double tx, double ty, double tz)
-{		     
-  return DDSolid(name, new DDI::CutTubs(zhalf,rIn,rOut,phiFrom,deltaPhi,lx,ly,lz,tx,ty,tz));
-}
-
-DDSolid
-DDSolidFactory::sphere(const DDName & name,
-		       double innerRadius,
-		       double outerRadius,	      	      
+DDSolidFactory::torus( const DDName & name,
+		       double rMin,
+		       double rMax,
+		       double rTorus,
 		       double startPhi,
-		       double deltaPhi,
-		       double startTheta,
-		       double deltaTheta)
+		       double deltaPhi )
 {
-  return DDSolid(name, new DDI::Sphere(innerRadius, outerRadius, 
-				       startPhi, deltaPhi,
-				       startTheta, deltaTheta));
-}		     
+  return DDSolid( name, std::make_unique< DDI::Torus >( rMin, rMax, rTorus, startPhi, deltaPhi ));
+}
 
 DDSolid
-DDSolidFactory::ellipticalTube(const DDName & name,
-			       double xSemiAxis, double ySemiAxis, double zHeight)
+DDSolidFactory::tubs( const DDName & name,
+		      double zhalf,
+		      double rIn, double rOut,	      	      
+		      double phiFrom, double deltaPhi )
 {
-  return DDSolid(name, new DDI::EllipticalTube(xSemiAxis, ySemiAxis, zHeight));
-}		     
+  return DDSolid( name, std::make_unique< DDI::Tubs >( zhalf, rIn, rOut, phiFrom, deltaPhi ));
+}
 
 DDSolid
-DDSolidFactory::shapeless(const DDName & name)
+DDSolidFactory::cuttubs( const DDName & name,
+			 double zhalf,
+			 double rIn, double rOut,	      	      
+			 double phiFrom, double deltaPhi,
+			 double lx, double ly, double lz,
+			 double tx, double ty, double tz )
 {
-  return DDSolid(name, new DDI::Shapeless());
-}  
+  return DDSolid( name, std::make_unique< DDI::CutTubs >( zhalf, rIn, rOut,
+							  phiFrom, deltaPhi,
+							  lx, ly, lz,
+							  tx, ty, tz ));
+}
 
+DDSolid
+DDSolidFactory::sphere( const DDName & name,
+			double innerRadius,
+			double outerRadius,	      	      
+			double startPhi,
+			double deltaPhi,
+			double startTheta,
+			double deltaTheta )
+{
+  return DDSolid( name, std::make_unique< DDI::Sphere >( innerRadius, outerRadius, 
+							 startPhi, deltaPhi,
+							 startTheta, deltaTheta ));
+}
+
+DDSolid
+DDSolidFactory::ellipticalTube( const DDName & name,
+				double xSemiAxis, double ySemiAxis, double zHeight )
+{
+  return DDSolid( name, std::make_unique< DDI::EllipticalTube >( xSemiAxis, ySemiAxis, zHeight ));
+}
+
+DDSolid
+DDSolidFactory::shapeless( const DDName & name )
+{
+  return DDSolid( name, std::make_unique< DDI::Shapeless >());
+}

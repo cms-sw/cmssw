@@ -3,18 +3,18 @@
 #include <utility>
 
 DDVector::DDVector()
-  : DDBase< DDName, std::vector< double >*>()
+  : DDBase< DDName, std::unique_ptr<std::vector< double >>>()
 {}
 
 DDVector::DDVector( const DDName & name )
-  : DDBase< DDName, std::vector< double >*>() 
+  : DDBase< DDName, std::unique_ptr<std::vector< double >>>() 
 {
   create( name );
 }
 
-DDVector::DDVector( const DDName & name, std::vector<double>* vals )
+DDVector::DDVector( const DDName & name, std::unique_ptr<std::vector<double> > vals )
 {
-  create( name, vals );
+  create( name, std::move( vals ));
 }  
 
 std::ostream & operator<<(std::ostream & os, const DDVector & cons)
@@ -35,14 +35,11 @@ std::ostream & operator<<(std::ostream & os, const DDVector & cons)
   return os;
 }
 
-
-
-
 DDVector::operator std::vector<int>() const
 {
-   std::vector<int> result(rep().size());
+   std::vector<int> result(rep()->size());
    std::vector<int>::size_type sz=0;
-   std::vector<double>::const_iterator it(rep().begin()), ed(rep().end());
+   std::vector<double>::const_iterator it(rep()->begin()), ed(rep()->end());
    for (; it != ed; ++it) { 
      result[sz] = int(*it);
      ++sz;
