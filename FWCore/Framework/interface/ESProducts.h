@@ -36,7 +36,7 @@ namespace edm {
          
          template< typename T> struct OneHolder {
             OneHolder() {}
-            OneHolder(const T& iValue) : value_(iValue) {}
+            OneHolder(T iValue) : value_(std::move(iValue)) {}
 
             template<typename S>
             void setFromRecursive(S& iGiveValues) {
@@ -69,12 +69,12 @@ namespace edm {
             typedef Null head_type;
          };
          
-         template<typename T> OneHolder<T> operator<<(const Produce&, T iValue) {
-            return OneHolder<T>(iValue);
+        template<typename T> OneHolder<std::remove_reference_t<T>> operator<<(const Produce&, T&& iValue) {
+            return OneHolder<std::remove_reference_t<T>>(std::forward<T>(iValue));
          }
 
          template<typename T, typename U> struct MultiHolder {
-            MultiHolder(const T& iT, U iValue): value_(iValue), head_(iT) {
+            MultiHolder(const T& iT, U iValue): value_(std::move(iValue)), head_(iT) {
             }
             
             template<typename TTaker>
@@ -93,19 +93,19 @@ namespace edm {
          };
 
          template<typename T, typename S>
-            MultiHolder<OneHolder<T>, S> operator<<(const OneHolder<T>& iHolder,
-                                                     const S& iValue) {
-               return MultiHolder<OneHolder<T>, S>(iHolder, iValue);
+            MultiHolder<OneHolder<T>, std::remove_reference_t<S>> operator<<(OneHolder<T>&& iHolder,
+                                                    S&& iValue) {
+              return MultiHolder<OneHolder<T>, std::remove_reference_t<S>>(std::forward<OneHolder<T>>(iHolder), std::forward<S>(iValue));
             }
          template< typename T, typename U, typename V>
-            MultiHolder< MultiHolder<T, U>, V >
-            operator<<(const MultiHolder<T,U>& iHolder, const V& iValue) {
-               return MultiHolder< MultiHolder<T, U>, V> (iHolder, iValue);
+            MultiHolder< MultiHolder<T, U>, std::remove_reference_t<V> >
+            operator<<(MultiHolder<T,U>&& iHolder, V&& iValue) {
+              return MultiHolder< MultiHolder<T, U>, std::remove_reference_t<V>> (std::forward<MultiHolder<T,U>>(iHolder), std::forward<V>(iValue));
             }
-         
-         template<typename T1, typename T2, typename T3> 
-            struct ProductHolder : public ProductHolder<T2, T3, Null> {
-               typedef ProductHolder<T2, T3, Null> parent_type;
+        
+         template<typename T1, typename... TArgs>
+            struct ProductHolder : public ProductHolder<TArgs...> {
+               typedef ProductHolder<TArgs...> parent_type;
               
               ProductHolder() : value() {}
                
@@ -137,7 +137,7 @@ namespace edm {
             };
          
          template<typename T1>
-            struct ProductHolder<T1, Null, Null> {
+            struct ProductHolder<T1> {
                
               ProductHolder() : value() {}
 
@@ -161,46 +161,36 @@ namespace edm {
                typedef Null head_type;
             };
          
-         template<>
-            struct ProductHolder<Null, Null, Null > {
-               void setAllValues(Null&) {}
-               void moveTo(void*) {}
-               void setFrom(void*) {}
-               
-               typedef Null tail_type;
-               typedef Null head_type;
-            };
       }
    }
-   template<typename T1, typename T2 = eventsetup::produce::Null, typename T3 = eventsetup::produce::Null >
-   struct ESProducts : public eventsetup::produce::ProductHolder<T1, T2, T3> {
-      typedef eventsetup::produce::ProductHolder<T1, T2, T3> parent_type;
-      template<typename S1, typename S2, typename S3>
-      ESProducts(const ESProducts<S1, S2, S3>& iProducts) {
-        parent_type::setAllValues(const_cast<ESProducts<S1, S2, S3>&>(iProducts));
+   template<typename ...TArgs>
+   struct ESProducts : public eventsetup::produce::ProductHolder<TArgs...> {
+      typedef eventsetup::produce::ProductHolder<TArgs...> parent_type;
+      template<typename... S>
+      ESProducts(ESProducts<S...>&& iProducts) {
+        parent_type::setAllValues(iProducts);
       }
       template<typename T>
-      /*explicit*/ ESProducts(const T& iValues) {
-        parent_type::setAllValues(const_cast<T&>(iValues));
+      /*explicit*/ ESProducts(T&& iValues) {
+        parent_type::setAllValues(iValues);
       }
    };
 
    namespace es {
       extern const eventsetup::produce::Produce produced;
 
-      template<typename T, typename S>
-      ESProducts<T,S> products(const T& i1, const S& i2) {
-         return ESProducts<T,S>(produced << i1 << i2);
+      template<typename T1, typename T2, typename ...TArgs>
+      ESProducts<std::remove_reference_t<T1>, std::remove_reference_t<T2>, std::remove_reference_t<TArgs>...> products(T1&& i1, T2&& i2, TArgs&&... args) {
+        eventsetup::produce::ProductHolder<std::remove_reference_t<T1>, std::remove_reference_t<T2>, std::remove_reference_t<TArgs>...> retVal;
+        retVal.setFrom(i1);
+        retVal.setFrom(i2);
+        (retVal.setFrom(args), ...);
+        return retVal;
       }
-
-      template<typename T, typename S, typename U>
-         ESProducts<T,S, U> products(const T& i1, const S& i2, const U& i3) {
-            return ESProducts<T,S,U>(produced << i1 << i2 << i3);
-         }
    }
 
-   template<typename T1, typename T2, typename T3, typename ToT> 
-     void moveFromTo(ESProducts<T1,T2,T3>& iFrom,
+   template<typename ...TArgs, typename ToT>
+     void moveFromTo(ESProducts<TArgs...>& iFrom,
                      ToT& iTo) {
        iFrom.moveTo(iTo);
      }
