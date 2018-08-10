@@ -50,6 +50,8 @@ pixelTracksHitQuadruplets = _initialStepCAHitQuadruplets.clone(
     doublets = "pixelTracksHitDoublets",
     SeedComparitorPSet = dict(clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting')
 )
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toModify(pixelTracksHitQuadruplets, trackingRegions = "pixelTracksTrackingRegions")
 
 # for trackingLowPU
 pixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
