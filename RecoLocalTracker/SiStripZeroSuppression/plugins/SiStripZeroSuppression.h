@@ -22,7 +22,7 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
 
  private:
 
-  enum class RawType { Unknown, VirginRaw, ProcessedRaw };
+  enum class RawType { Unknown, VirginRaw, ProcessedRaw, ScopeMode };
 
   void clearOutputs();
   void putOutputs(edm::Event& evt, const std::string& tagName);
