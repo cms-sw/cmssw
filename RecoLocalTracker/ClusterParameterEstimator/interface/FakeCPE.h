@@ -14,7 +14,6 @@
 #include <unordered_map>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// #include<iostream>
 
 class FakeCPE {
 public:
@@ -23,7 +22,7 @@ public:
 
   // store position and error for each cluster...
   class Map {
-     public: 
+  public: 
      using LocalValues = std::pair<LocalPoint,LocalError>;
      void clear() {m_map.clear();}
      void error(const GeomDetUnit& gd) const {edm::LogError("FakeCPE") << "hit not found in det " << gd.geographicalId().rawId();  }
@@ -50,7 +49,7 @@ public:
        	  return (u1<<32) | u2;
      }
 
-
+  private: 
      std::unordered_map<uint64_t,LocalValues> m_map;
      LocalValues dummy;
   };
