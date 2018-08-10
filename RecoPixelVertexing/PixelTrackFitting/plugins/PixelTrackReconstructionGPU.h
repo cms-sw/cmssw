@@ -1,27 +1,30 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackReconstructionGPU_H
-#define RecoPixelVertexing_PixelTrackFitting_PixelTrackReconstructionGPU_H
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "FWCore/Utilities/interface/EDGetToken.h"
+#ifndef RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackReconstructionGPU_h
+#define RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackReconstructionGPU_h
 
 #include <memory>
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RiemannFit.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 
 class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
 class RegionsSeedingHitSets;
 
-namespace edm { class Event; class EventSetup; class Run; class ParameterSetDescription;}
+namespace edm {
+  class Event;
+  class EventSetup;
+  class Run;
+  class ParameterSetDescription;
+}
 
 class PixelTrackReconstructionGPU {
 public:
 
-  PixelTrackReconstructionGPU( const edm::ParameterSet& conf,
-	   edm::ConsumesCollector && iC);
+  PixelTrackReconstructionGPU( const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
   ~PixelTrackReconstructionGPU();
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
@@ -36,5 +39,5 @@ private:
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
   std::string theCleanerName;
 };
-#endif
 
+#endif // RecoPixelVertexing_PixelTrackFitting_plugins_PixelTrackReconstructionGPU_h
