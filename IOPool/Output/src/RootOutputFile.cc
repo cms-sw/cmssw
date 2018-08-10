@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -78,7 +79,9 @@ namespace edm {
     }
   }
 
-  RootOutputFile::RootOutputFile(PoolOutputModule* om, std::string const& fileName, std::string const& logicalFileName) :
+  RootOutputFile::RootOutputFile(PoolOutputModule* om, std::string const& fileName,
+                                 std::string const& logicalFileName,
+                                 std::vector<std::string> const& processesWithSelectedMergeableRunProducts) :
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
@@ -91,6 +94,7 @@ namespace edm {
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
       indexIntoFile_(),
+      storedMergeableRunProductMetadata_(processesWithSelectedMergeableRunProducts),
       nEventsInLumi_(0),
       metaDataTree_(nullptr),
       parameterSetsTree_(nullptr),
@@ -479,6 +483,7 @@ namespace edm {
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(r.processHistoryID());
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
+    r.mergeableRunProductMetadata()->addEntryToStoredMetadata(storedMergeableRunProductMetadata_);
     ++runEntryNumber_;
     fillBranches(InRun, r);
     runTree_.optimizeBaskets(10ULL*1024*1024);
@@ -539,6 +544,14 @@ namespace edm {
     indexIntoFile_.sortVector_Run_Or_Lumi_Entries();
     IndexIntoFile* iifPtr = &indexIntoFile_;
     TBranch* b = metaDataTree_->Branch(poolNames::indexIntoFileBranchName().c_str(), &iifPtr, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeStoredMergeableRunProductMetadata() {
+    storedMergeableRunProductMetadata_.optimizeBeforeWrite();
+    StoredMergeableRunProductMetadata* ptr = &storedMergeableRunProductMetadata_;
+    TBranch* b = metaDataTree_->Branch(poolNames::mergeableRunProductMetadataBranchName().c_str(), &ptr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

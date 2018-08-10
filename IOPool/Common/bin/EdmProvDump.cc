@@ -1,3 +1,4 @@
+#include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
@@ -894,6 +895,7 @@ ProvenanceDumper::work_() {
       }
       //force it to rebuild the branch name
       product.init();
+      setIsMergeable(product);
 
       if(showDependencies_ || extendedAncestors_ || extendedDescendants_) {
         branchIDToBranchName[product.branchID()] = product.branchName();
