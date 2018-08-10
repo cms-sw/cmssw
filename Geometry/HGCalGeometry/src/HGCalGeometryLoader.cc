@@ -11,7 +11,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef std::vector<float> ParmVec;
