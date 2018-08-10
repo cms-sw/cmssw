@@ -163,6 +163,8 @@ namespace edm {
          
       }
    }
+   struct ESFillDirectly {};
+
    template<typename ...TArgs>
    struct ESProducts : public eventsetup::produce::ProductHolder<TArgs...> {
       typedef eventsetup::produce::ProductHolder<TArgs...> parent_type;
@@ -174,18 +176,19 @@ namespace edm {
       /*explicit*/ ESProducts(T&& iValues) {
         parent_type::setAllValues(iValues);
       }
+      template<typename ...Vars>
+      ESProducts(ESFillDirectly, Vars... vars) {
+        (this->setFrom(vars), ...);
+      }
+     
    };
 
    namespace es {
       extern const eventsetup::produce::Produce produced;
 
-      template<typename T1, typename T2, typename ...TArgs>
-      ESProducts<std::remove_reference_t<T1>, std::remove_reference_t<T2>, std::remove_reference_t<TArgs>...> products(T1&& i1, T2&& i2, TArgs&&... args) {
-        eventsetup::produce::ProductHolder<std::remove_reference_t<T1>, std::remove_reference_t<T2>, std::remove_reference_t<TArgs>...> retVal;
-        retVal.setFrom(i1);
-        retVal.setFrom(i2);
-        (retVal.setFrom(args), ...);
-        return retVal;
+      template<typename ...TArgs>
+      ESProducts<std::remove_reference_t<TArgs>...> products(TArgs&&... args) {
+        return ESProducts<std::remove_reference_t<TArgs>...>(edm::ESFillDirectly{}, std::forward<TArgs>(args)...);
       }
    }
 
