@@ -24,7 +24,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testDDStrVector);
 
 void
 testDDStrVector::buildIt() {
-  auto strVec = std::make_unique< std::vector< std::string >>( 3 );
+  auto strVec = std::make_unique< std::vector< std::string >>();
   strVec->push_back("One");
   strVec->push_back("Two");
   strVec->push_back("Three");
@@ -35,7 +35,7 @@ testDDStrVector::buildIt() {
 
 void
 testDDStrVector::testloading() {
-  auto strVec = std::make_unique< std::vector< std::string >>( 3 );
+  auto strVec = std::make_unique< std::vector< std::string >>();
   strVec->push_back("One");
   strVec->push_back("Two");
   strVec->push_back("Three");

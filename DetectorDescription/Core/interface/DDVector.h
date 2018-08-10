@@ -29,10 +29,10 @@ class DDVector : public DDBase<DDName, std::unique_ptr<std::vector<double> > >
   DDVector();
    
   //! a refenrence to a constant
-  DDVector(const DDName & name);
+  DDVector( const DDName & name );
    
   //! creation of a new named constant; if it already existed with the given name, it's overwritten with new values
-  DDVector(const DDName & name, std::unique_ptr<std::vector<double> > value);
+  DDVector( const DDName & name, std::unique_ptr<std::vector<double> > value );
       
   //! the size of the array of values 
   size_t size() const { return rep()->size(); }
@@ -41,10 +41,10 @@ class DDVector : public DDBase<DDName, std::unique_ptr<std::vector<double> > >
   const value_type & values() const { return *rep(); }
    
   //! returns the value on position pos; does not check boundaries!
-  double operator[](size_t pos) const { return rep()->at(pos); }
+  double operator[](size_t pos) const { return (*rep())[pos]; }
    
   //! return the first stored value; does not check boundaries!
-  double value() const { return rep()->at(0); }
+  double value() const { return (*rep())[0]; }
    
   //! read-only iterator pointing to the begin of the stored values
   value_type::const_iterator vectorBegin() const { return rep()->begin(); }
@@ -53,7 +53,7 @@ class DDVector : public DDBase<DDName, std::unique_ptr<std::vector<double> > >
   value_type::const_iterator vectorEnd() const { return rep()->end(); }
    
   //! convert to a double
-  operator double() const { return rep()->at(0); }
+  operator double() const { return (*rep())[0]; }
    
   //! convert to a std::vector<double>
   operator std::vector<double>() const { return *rep(); }
