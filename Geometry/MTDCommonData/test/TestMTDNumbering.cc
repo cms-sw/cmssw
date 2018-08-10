@@ -166,7 +166,15 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
 
         theBaseNumber( epv.geoHistory() );
 
-        if ( isBarrel ) { BTLDetId theId(btlNS_.getUnitID(thisN_)); dump << theId; }
+        if ( isBarrel ) { 
+          BTLDetId theId(btlNS_.getUnitID(thisN_)); dump << theId; 
+          dump << "\n Tile ieta        = " << theId.ieta( BTLDetId::tile );
+          dump << "\n Tile iphi        = " << theId.iphi( BTLDetId::tile );
+          dump << "\n Tile hashedIndex = " << theId.hashedIndex( BTLDetId::tile );
+          dump << "\n Bar ieta         = " << theId.ieta( BTLDetId::bar );
+          dump << "\n Bar iphi         = " << theId.iphi( BTLDetId::bar );
+          dump << "\n Bar hashedIndex  = " << theId.hashedIndex( BTLDetId::bar );
+        }
         else { ETLDetId theId(etlNS_.getUnitID(thisN_)); dump << theId; }
         dump << "\n";
 
