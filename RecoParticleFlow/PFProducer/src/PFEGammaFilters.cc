@@ -79,7 +79,7 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
 
   // Photon ET
   if(photon.pt()  < ph_Et_ ) return false;
-  bool validHoverE = (photon.hadTowOverEm() >= 0);
+  bool validHoverE = photon.hadTowOverEmValid();
   if (debug_) std::cout<< "PFEGammaFilters:: photon pt " << photon.pt()
 		     << "   eta, phi " << photon.eta() << ", " << photon.phi() 
 		     << "   isoDr03 " << (photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03())  << " (cut: " << ph_combIso_ << ")"
@@ -116,7 +116,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 					    const int & nVtx) {
   // First simple selection, same as the Run1 to be improved in CMSSW_710
  
-  bool validHoverE = (electron.hcalOverEcal() >= 0);
+  bool validHoverE = electron.hcalOverEcalValid();
   if (debug_) std::cout << "PFEGammaFilters:: Electron pt " << electron.pt()
 		     << " eta, phi " << electron.eta() << ", " << electron.phi() 
 		     << " charge " << electron.charge() 
