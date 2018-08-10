@@ -901,7 +901,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       continue;
     case PFBlockElement::HCAL:
       if ( active[iEle] ) { 
-	if (elements[iEle].clusterRef()->flags() == 0xDEAD) {
+	if (elements[iEle].clusterRef()->flags() & reco::CaloCluster::badHcalMarker) {
 	  if(debug_) cout<<"HCAL DEAD AREA: remember and skip."<<endl;
 	  active[iEle] = false;
 	  deadArea[iEle] = true;
