@@ -39,6 +39,9 @@ class StripFakeCPE final : public StripClusterParameterEstimator
   void setFakeCPE(FakeCPE * iFakeCPE) { m_fakeCPE = iFakeCPE;}
   FakeCPE const & fakeCPE() const { return *m_fakeCPE; }
 
+
+private:
+
   FakeCPE const * m_fakeCPE=nullptr;
 
   

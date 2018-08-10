@@ -16,9 +16,8 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/FakeCPE.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
-class PixelFakeCPE final : public PixelClusterParameterEstimator
-{
-  public:
+class PixelFakeCPE final : public PixelClusterParameterEstimator {
+public:
 
   PixelFakeCPE() = default;
   ~PixelFakeCPE() = default;
@@ -46,6 +45,7 @@ class PixelFakeCPE final : public PixelClusterParameterEstimator
   void setFakeCPE(FakeCPE * iFakeCPE) { m_fakeCPE = iFakeCPE;} 
   FakeCPE const & fakeCPE() const { return *m_fakeCPE; }
 
+private:
   FakeCPE const * m_fakeCPE=nullptr;
 
 };
