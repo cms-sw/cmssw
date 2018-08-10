@@ -1,5 +1,5 @@
 #ifndef RecoLocalTracker_Fake_PixelCluster_Parameter_Estimator_H
-#define RecoLocalTracker_Fake_ PixelCluster_Parameter_Estimator_H
+#define RecoLocalTracker_Fake_PixelCluster_Parameter_Estimator_H
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
