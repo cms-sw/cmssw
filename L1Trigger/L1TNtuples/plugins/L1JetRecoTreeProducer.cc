@@ -412,6 +412,8 @@ L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, ed
        it!=pfJets->end() && nJets < maxJet_;
        ++it) {
     
+    if(!pfJetID(*it)) continue;
+
     corrFactor = pfJetCorr.product()->correction(*it);
     
     jet_data->etCorr.push_back(it->et()*corrFactor);
@@ -449,6 +451,9 @@ L1JetRecoTreeProducer::doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJe
   for( auto it=caloJets->begin();
        it!=caloJets->end() && nCaloJets < maxJet_;
        ++it) {
+    
+    if(!caloJetIDMissing_)
+      if(!caloJetID(*it)) continue;
 
     caloCorrFactor = caloJetCorr.product()->correction(*it);
   
