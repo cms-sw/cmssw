@@ -1219,21 +1219,21 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if ( !ecalElems.empty() ) { 
 	  unsigned thisEcal = ecalElems.begin()->second;
 	  reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
-          bool useCluster = true;
-          if (hasDeadHcal) {
-            std::multimap<double, unsigned> sortedTracks;
-            block.associatedElements( thisEcal,  linkData,
+	  bool useCluster = true;
+	  if (hasDeadHcal) {
+	    std::multimap<double, unsigned> sortedTracks;
+	    block.associatedElements( thisEcal,  linkData,
 				sortedTracks,
 				reco::PFBlockElement::TRACK,
 				reco::PFBlock::LINKTEST_ALL );
-            useCluster = (sortedTracks.begin()->second == iTrack);
-          }
-          if (useCluster) {
-            deficit -= clusterRef->energy();
-            resol = neutralHadronEnergyResolution(trackMomentum,
-                                                  clusterRef->positionREP().Eta());
-            resol *= trackMomentum;
-          }
+	    useCluster = (sortedTracks.begin()->second == iTrack);
+	  }
+	  if (useCluster) {
+	    deficit -= clusterRef->energy();
+	    resol = neutralHadronEnergyResolution(trackMomentum,
+	                                          clusterRef->positionREP().Eta());
+	    resol *= trackMomentum;
+	  }
 	}
 
 	bool isPrimary = isFromSecInt(elements[iTrack], "primary");
@@ -1370,9 +1370,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Check if the ECAL cluster closest to this track is 
 	// indeed the current ECAL cluster. Only tracks not 
 	// linked to an HCAL cluster are considered here
-        // (GP: this is because if there's a jTrack linked 
-        // to the same Ecal cluster and that also has an Hcal link
-        // we would have also linked iTrack to that Hcal above)
+	// (GP: this is because if there's a jTrack linked 
+	// to the same Ecal cluster and that also has an Hcal link
+	// we would have also linked iTrack to that Hcal above)
 	std::multimap<double, unsigned> sortedECAL;
 	block.associatedElements( jTrack,  linkData,
 				  sortedECAL,
@@ -1391,8 +1391,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	bool rejectFake = false;
 	reco::TrackRef trackRef = elements[jTrack].trackRef();
 	if ( !thatIsAMuon && trackRef->ptError() > ptError_) { 
-          // GP: FIXME this selection should be adapted depending on hasDeadHcal
-          //     but we don't know if jTrack is linked to a dead Hcal or not
+	  // GP: FIXME this selection should be adapted depending on hasDeadHcal
+	  //     but we don't know if jTrack is linked to a dead Hcal or not
 	  double deficit = trackMomentum + trackRef->p() - clusterRef->energy();
 	  double resol = nSigmaTRACK_*neutralHadronEnergyResolution(trackMomentum+trackRef->p(),
 								    clusterRef->positionREP().Eta());
@@ -1404,9 +1404,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    if ( debug_ )  
 	      std::cout << elements[jTrack] << std::endl
 			<< "is probably a fake (2) --> lock the track" 
-                        << "(trackMomentum = " << trackMomentum << ", clusterEnergy = " << clusterRef->energy() <<
-                                ", deficit = " << deficit << " > " << nSigmaTRACK_ << " x " << resol <<
-                                " assuming neutralHadronEnergyResolution " << neutralHadronEnergyResolution(trackMomentum+trackRef->p(), clusterRef->positionREP().Eta()) << ") "
+			<< "(trackMomentum = " << trackMomentum << ", clusterEnergy = " << clusterRef->energy() <<
+			        ", deficit = " << deficit << " > " << nSigmaTRACK_ << " x " << resol <<
+			        " assuming neutralHadronEnergyResolution " << neutralHadronEnergyResolution(trackMomentum+trackRef->p(), clusterRef->positionREP().Eta()) << ") "
 			<< std::endl; 
 	  }
 	}
