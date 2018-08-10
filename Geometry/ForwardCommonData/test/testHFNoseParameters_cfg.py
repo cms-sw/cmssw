@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HFnoseParametersTest")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.ForwardCommonData.hfnoseXML_cfi")
+process.load("Geometry.ForwardCommonData.testHFNoseXML_cfi")
 process.load("Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
