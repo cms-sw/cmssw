@@ -120,7 +120,8 @@ void CAHitQuadrupletGeneratorGPU::allocateOnGPU()
 
   cudaCheck(cudaMalloc(&device_theCells_,
              maxNumberOfLayerPairs_ * maxNumberOfDoublets_ * sizeof(GPUCACell)));
-  cudaCheck(cudaMalloc(&device_nCells_,sizeof(uint32_t)));
+  cudaCheck(cudaMalloc(&device_nCells_, sizeof(uint32_t)));
+  cudaCheck(cudaMemset(device_nCells_, 0, sizeof(uint32_t)));
 
   cudaCheck(cudaMalloc(&device_isOuterHitOfCell_,
              maxNumberOfLayers_ * maxNumberOfHits_ * sizeof(GPU::VecArray<unsigned int, maxCellsPerHit_>)));
