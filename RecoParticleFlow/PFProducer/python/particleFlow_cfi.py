@@ -71,10 +71,11 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     maxDPhiIN = cms.double(0.1)    
     ),
     electron_protectionsForBadHcal = cms.PSet(
-    full5x5_sigmaIetaIeta = cms.vdouble(0.0126, 0.0457), # EB, EE
-    eInvPInv = cms.vdouble(0.209, 0.132),
-    dEta = cms.vdouble(0.01, 0.02),
-    dPhi = cms.vdouble(0.148, 0.19),
+        enableProtections = cms.bool(False),   
+        full5x5_sigmaIetaIeta = cms.vdouble(0.0126, 0.0457), # EB, EE
+        eInvPInv = cms.vdouble(0.209, 0.132),
+        dEta = cms.vdouble(0.01, 0.02),
+        dPhi = cms.vdouble(0.148, 0.19),
     ),
     # New photon selection cuts for CMSSW_700
     photon_MinEt = cms.double(10.),
@@ -83,6 +84,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     photon_SigmaiEtaiEta_barrel = cms.double(0.0125),
     photon_SigmaiEtaiEta_endcap = cms.double(0.034),                             
     photon_protectionsForBadHcal = cms.PSet(
+        enableProtections = cms.bool(False),   
         solidConeTrkIsoOffset = cms.double(10.),
         solidConeTrkIsoSlope  = cms.double(0.3),
     ),
