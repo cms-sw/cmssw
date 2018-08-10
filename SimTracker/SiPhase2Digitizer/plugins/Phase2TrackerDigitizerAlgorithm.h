@@ -116,7 +116,7 @@ class Phase2TrackerDigitizerAlgorithm  {
   const float ClusterWidth;       // Gaussian charge cutoff width in sigma units
   
   //-- make_digis 
-  const int   thePhase2ReadoutMode;  //  Flag to decide analog or digital readout
+  const int   thePhase2ReadoutMode;  //  Flag to decide readout mode (digital/Analong dual slope etc.)
   const float theElectronPerADC;     // Gain, number of electrons per adc count.
   const int theAdcFullScale;         // Saturation count, 255=8bit.
   const float theNoiseInElectrons;   // Noise (RMS) in units of electrons.
