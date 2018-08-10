@@ -245,6 +245,40 @@ void L1Analysis::L1AnalysisPhaseII::SetTkCaloJet(const edm::Handle<l1t::L1TkJetP
   }
 }
 
+void L1Analysis::L1AnalysisPhaseII::SetTkMuon(const edm::Handle<l1t::L1TkMuonParticleCollection> muon, unsigned maxL1Extra)
+{
+  for(l1t::L1TkMuonParticleCollection::const_iterator it=muon->begin(); it!=muon->end() && l1extra_.nTkGlbMuons<maxL1Extra; it++){
+
+    l1extra_.tkMuonEt .push_back( it->pt());
+    l1extra_.tkMuonEta.push_back(it->eta());
+    l1extra_.tkMuonPhi.push_back(it->phi());
+    l1extra_.tkMuonChg.push_back(it->charge());
+    l1extra_.tkMuonTrkIso.push_back(it->getTrkIsol());
+    l1extra_.tkMuonMuRefPt.push_back(it->getMuRef()->hwPt()*0.5);
+//    l1extra_.tkMuonTrkRefPt.push_back(it->getTrkPtr()->pt());
+
+   //    l1extra_.tkMuonIso.push_back(it->isIsolated());
+    // l1extra_.tkMuonMip.push_back(it->isMip());
+    // l1extra_.tkMuonFwd.push_back(it->isForward());
+    //l1extra_.tkMuonRPC.push_back(it->isRPC());
+    l1extra_.tkMuonzVtx.push_back(it->getTrkzVtx());
+    l1extra_.tkMuonBx .push_back(0); //it->bx());
+    /*
+    const edm::Ref<l1t::L1MuonParticleCollection> MuRef = it->getMuRef();
+    unsigned int qualityBis = MuRef -> gmtMuonCand().quality();
+    l1extra_.tkMuonQuality .push_back(qualityBis);
+    */
+    l1extra_.tkMuonQuality .push_back(it->quality());
+    /*
+    std::cout << "ptExtra pt " << it->pt()
+	      << "; etaExtra " << it->eta()
+	      << "; phiExtra " << it->phi()
+	      << std::endl;
+    */
+
+    l1extra_.nTkMuons++;
+  }
+}
 
 void L1Analysis::L1AnalysisPhaseII::SetTkGlbMuon(const edm::Handle<l1t::L1TkGlbMuonParticleCollection> muon, unsigned maxL1Extra)
 {
@@ -255,6 +289,9 @@ void L1Analysis::L1AnalysisPhaseII::SetTkGlbMuon(const edm::Handle<l1t::L1TkGlbM
     l1extra_.tkGlbMuonPhi.push_back(it->phi());
     l1extra_.tkGlbMuonChg.push_back(it->charge());
     l1extra_.tkGlbMuonTrkIso.push_back(it->getTrkIsol());
+    l1extra_.tkGlbMuonMuRefPt.push_back(it->getMuRef()->pt());
+//    l1extra_.tkGlbMuonTrkRefPt.push_back(it->getTrkPtr()->pt());
+
     //    l1extra_.tkGlbMuonIso.push_back(it->isIsolated());
     // l1extra_.tkGlbMuonMip.push_back(it->isMip());
     // l1extra_.tkGlbMuonFwd.push_back(it->isForward());

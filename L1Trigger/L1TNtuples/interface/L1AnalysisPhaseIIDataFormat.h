@@ -168,6 +168,25 @@ namespace L1Analysis
       tkGlbMuonBx.clear();
       tkGlbMuonQuality.clear();
       tkGlbMuonzVtx.clear();
+      tkGlbMuonMuRefPt.clear();
+      tkGlbMuonTrkRefPt.clear();
+
+
+      nTkMuons = 0;
+      tkMuonEt.clear();
+      tkMuonEta.clear();
+      tkMuonPhi.clear();
+      tkMuonChg.clear();
+      tkMuonTrkIso.clear();
+      tkMuonFwd.clear();
+      tkMuonMip.clear();
+      tkMuonRPC.clear();
+      tkMuonBx.clear();
+      tkMuonQuality.clear();
+      tkMuonzVtx.clear();
+      tkMuonMuRefPt.clear();
+      tkMuonTrkRefPt.clear();
+
 
       // TrackerMet
       nTrackerMet = 0;
@@ -344,6 +363,26 @@ namespace L1Analysis
     std::vector<int>      tkGlbMuonBx;
     std::vector<unsigned int>      tkGlbMuonQuality;
     std::vector<double>   tkGlbMuonzVtx;
+    std::vector<double> tkGlbMuonMuRefPt;
+    std::vector<double> tkGlbMuonTrkRefPt;
+
+    unsigned int nTkMuons;
+    std::vector<double>   tkMuonEt;
+    std::vector<double>   tkMuonEta;
+    std::vector<double>   tkMuonPhi;
+    std::vector<int>      tkMuonChg;
+    std::vector<unsigned int> tkMuonIso;
+    std::vector<double> tkMuonTrkIso;
+    std::vector<unsigned int> tkMuonFwd;
+    std::vector<unsigned int> tkMuonMip;
+    std::vector<unsigned int> tkMuonRPC;
+    std::vector<int>      tkMuonBx;
+    std::vector<unsigned int>      tkMuonQuality;
+    std::vector<double>   tkMuonzVtx;
+    std::vector<double> tkMuonMuRefPt;
+    std::vector<double> tkMuonTrkRefPt;
+
+
 
     unsigned int nTrackerMet;
     std::vector<double> trackerMetSumEt;

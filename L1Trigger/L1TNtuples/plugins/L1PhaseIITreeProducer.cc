@@ -38,6 +38,8 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticleFwd.h"
@@ -111,7 +113,9 @@ private:
   std::vector<edm::EDGetTokenT<l1t::L1TkElectronParticleCollection> > tkEGLooseToken_;
   std::vector< edm::EDGetTokenT<l1t::L1TkEmParticleCollection> > tkEMToken_;
 
+  edm::EDGetTokenT<l1t::L1TkMuonParticleCollection> TkMuonToken_;
   edm::EDGetTokenT<l1t::L1TkGlbMuonParticleCollection> TkGlbMuonToken_;
+
   edm::EDGetTokenT<l1t::L1TkTauParticleCollection> tkTauToken_;
   edm::EDGetTokenT<l1t::L1TkJetParticleCollection> tkTrackerJetToken_;
   edm::EDGetTokenT<l1t::L1TkEtMissParticleCollection> tkMetToken_;
@@ -156,6 +160,8 @@ L1PhaseIITreeProducer::L1PhaseIITreeProducer(const edm::ParameterSet& iConfig){
   for (const auto& photoken: photokens) {
       tkEMToken_.push_back(consumes<l1t::L1TkEmParticleCollection>(photoken));
       }
+
+  TkMuonToken_ = consumes<l1t::L1TkMuonParticleCollection>(iConfig.getParameter<edm::InputTag>("TkMuonToken"));
 
   TkGlbMuonToken_ = consumes<l1t::L1TkGlbMuonParticleCollection>(iConfig.getParameter<edm::InputTag>("TkGlbMuonToken"));
   tkTauToken_ = consumes<l1t::L1TkTauParticleCollection>(iConfig.getParameter<edm::InputTag>("tkTauToken"));
@@ -213,8 +219,12 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   edm::Handle<l1t::MuonBxCollection> muon;
   edm::Handle<l1t::L1TkGlbMuonParticleCollection> TkGlbMuon;
+  edm::Handle<l1t::L1TkMuonParticleCollection> TkMuon;
+
   iEvent.getByToken(muonToken_, muon);
   iEvent.getByToken(TkGlbMuonToken_,TkGlbMuon);
+  iEvent.getByToken(TkMuonToken_,TkMuon);
+
   edm::Handle<l1t::RegionalMuonCandBxCollection> muonsKalman;
   iEvent.getByToken(muonKalman_,muonsKalman);
 
@@ -343,6 +353,11 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     l1Extra->SetTkGlbMuon(TkGlbMuon, maxL1Extra_);
   } else {
     edm::LogWarning("MissingProduct") << "L1PhaseII TkGlbMuons not found. Branch will not be filled" << std::endl;
+  }
+  if (TkMuon.isValid()){
+    l1Extra->SetTkMuon(TkMuon, maxL1Extra_);
+  } else {
+    edm::LogWarning("MissingProduct") << "L1PhaseII TkMuons not found. Branch will not be filled" << std::endl;
   }
 
   if (tkMets.isValid()){

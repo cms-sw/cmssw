@@ -27,6 +27,8 @@
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkGlbMuonParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
@@ -72,6 +74,8 @@ namespace L1Analysis
     void SetTkEGLoose   (const  edm::Handle<l1t::L1TkElectronParticleCollection>   tkEGLoose,     unsigned maxL1Extra);
     void SetTkEM   (const  edm::Handle<l1t::L1TkEmParticleCollection>   tkEM,     unsigned maxL1Extra);
     void SetTkGlbMuon (const  edm::Handle<l1t::L1TkGlbMuonParticleCollection> TkGlbMuon,   unsigned maxL1Extra);
+    void SetTkMuon (const  edm::Handle<l1t::L1TkMuonParticleCollection> TkMuon,   unsigned maxL1Extra);
+
     void SetTkTau  (const  edm::Handle<l1t::L1TkTauParticleCollection> tkTau, unsigned maxL1Extra);
 
     void SetTkJet  (const  edm::Handle<l1t::L1TkJetParticleCollection>  tkTrackerJet,    unsigned maxL1Extra);
