@@ -141,7 +141,7 @@ private :
   float tofDelay_;
 
   //average occupancies
-  std::array<double,3> averageOccupancies_;
+  std::array<double,4> averageOccupancies_;
   uint32_t nEvents_;
 
   std::vector<float> cce_;

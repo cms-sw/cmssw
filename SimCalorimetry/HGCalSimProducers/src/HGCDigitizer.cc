@@ -27,7 +27,7 @@ using namespace hgc_digi;
 
 namespace {
 
-  constexpr std::array<double,3> occupancyGuesses = { { 0.5,0.2,0.2 } };
+  constexpr std::array<double,4> occupancyGuesses = { { 0.5,0.2,0.2,0.8 } };
 
 
   float getPositionDistance(const HGCalGeometry* geom, const DetId& id) {
@@ -586,7 +586,7 @@ uint32_t HGCDigitizer::getType() const {
       idx = 2;
       break;
     case ForwardSubdetector::HFNose:
-      idx = 0;
+      idx = 3;
       break;
     default:
       break;
@@ -603,7 +603,7 @@ uint32_t HGCDigitizer::getType() const {
       idx = 2;
       break;
     case DetId::Forward:
-      idx = 0;
+      idx = 3;
       break;
     default:
       break;
