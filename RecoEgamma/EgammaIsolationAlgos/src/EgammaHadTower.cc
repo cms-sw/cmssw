@@ -111,28 +111,28 @@ double EgammaHadTower::getDepth2HcalESum(const std::vector<CaloTowerDetId> & tow
 }
 
 bool EgammaHadTower::hasActiveHcal( const std::vector<CaloTowerDetId> & towers ) const {
+  bool debug = false; // change this to true to get debug output
   bool active = false;
   int statusMask = ((1<<HcalChannelStatus::HcalCellOff) | (1<<HcalChannelStatus::HcalCellMask) | (1<<HcalChannelStatus::HcalCellDead));
-  //std::cout << "DEBUG: hasActiveHcal called with " << towers.size() << " detids. First tower detid ieta " << towers.front().ieta() << " iphi " << towers.front().iphi() << std::endl;
+  if (debug) std::cout << "DEBUG: hasActiveHcal called with " << towers.size() << " detids. First tower detid ieta " << towers.front().ieta() << " iphi " << towers.front().iphi() << std::endl;
   for (auto towerid : towers) {
       unsigned int ngood = 0, nbad = 0;
       for (DetId id : towerMap_->constituentsOf(towerid)) {
           if (id.det() != DetId::Hcal) {
-              //std::cout << "      skip constituent on det " << id.det() << std::endl;
               continue;
           }
           HcalDetId hid(id);
-          //std::cout << "      hcal constituent on subdet " << hid.subdet() << ", ieta " << hid.ieta() << " iphi " << hid.iphi() << ", depth " << hid.depth() << std::endl;
+          if (debug) std::cout << "      hcal constituent on subdet " << hid.subdet() << ", ieta " << hid.ieta() << " iphi " << hid.iphi() << ", depth " << hid.depth() << std::endl;
           if (hid.subdet() != HcalBarrel && hid.subdet() != HcalEndcap) continue;
           int status = hcalQuality_->getValues(id)->getValue();
           if (status & statusMask) {
-              //std::cout << "          BAD!" << std::endl;
+              if (debug) std::cout << "          BAD!" << std::endl;
               nbad++;
           } else {
               ngood++;
           }
       }
-      //std::cout << "    overall ngood " << ngood << " nbad " << nbad << std::endl;
+      if (debug) std::cout << "    overall ngood " << ngood << " nbad " << nbad << std::endl;
       if (nbad == 0 || (ngood > 0 && nbad < ngood)) {
           active = true;
       }
