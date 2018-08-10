@@ -552,6 +552,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<CaloTowerDetId> TowersBehindClus;
     float hcalDepth1OverEcalBc,hcalDepth2OverEcalBc;
     hcalDepth1OverEcalBc=hcalDepth2OverEcalBc=0.f;
+    bool invalidHcal = false;
 
     if (not hcalTowers_.isUninitialized()) {
       const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
@@ -566,18 +567,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
       hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
 
-      if (checkHcalStatus_) {
-        // FIXME this should get its own flag, but nevermind for now
-        if (HoE1 == 0 && HoE2 == 0) {
-            if (!towerIsoBehindClus.hasActiveHcal(*scRef)) {
-                HoE1 = HoE2 = -1e-6; // set to negative value
-            }
-        }
-        if (hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
-            if (!towerIsoBehindClus.hasActiveHcal(TowersBehindClus)) {
-                hcalDepth1OverEcalBc = hcalDepth2OverEcalBc = -1e-6; // set to negative value
-            }
-        }
+      if (checkHcalStatus_ && hcalDepth1OverEcalBc == 0 && hcalDepth2OverEcalBc == 0) {
+          invalidHcal = !towerIsoBehindClus.hasActiveHcal(TowersBehindClus);
       }
     }
 
@@ -654,6 +645,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
+    showerShape.invalidHcal = invalidHcal;
     /// fill extra shower shapes
     const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
     const float sep = locCov[1];
