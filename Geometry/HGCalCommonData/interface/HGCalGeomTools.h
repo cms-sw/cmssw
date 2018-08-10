@@ -12,7 +12,9 @@ public:
   static double radius(double z, std::vector<double> const& zFront,
 		       std::vector<double> const& rFront,
 		       std::vector<double> const& slope);
-
+  static double radius(double z, int layer0, int layerf,
+		       std::vector<double> const& zFront,
+		       std::vector<double> const& rFront);
 };
 
 #endif

@@ -44,6 +44,7 @@ public:
   std::array<int,4> getID(unsigned int k) const;
 
   std::string                     name_;
+  int                             detectorType_;
   int                             nCells_;
   int                             nSectors_;
   std::vector<double>             cellSize_;
@@ -139,6 +140,7 @@ public:
   double                          etaMinBH_;
   std::vector<int>                iEtaMinBH_;
   int                             firstLayer_;
+  int                             firstMixedLayer_;
   wafer_map                       wafersInLayers_;
   wafer_map                       typesInLayers_;
  
