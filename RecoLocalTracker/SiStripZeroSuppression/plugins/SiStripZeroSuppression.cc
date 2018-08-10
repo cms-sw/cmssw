@@ -40,6 +40,9 @@ SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
       if (produceHybridFormat) throw cms::Exception("Processed Raw Cannot be converted in hybrid Format");
     } else if ( tagName == "VirginRaw" ) {
       inputType = RawType::VirginRaw;
+    } else if ( tagName == "ScopeMode" ) {
+      inputType = RawType::ScopeMode;
+      if (produceHybridFormat) throw cms::Exception("Scope Mode cannot be converted in hybrid Format");
     }
     if ( RawType::Unknown != inputType ) {
       rawInputs.emplace_back(tagName, inputType, consumes<edm::DetSetVector<SiStripRawDigi>>(inputTag));
@@ -115,6 +118,8 @@ inline void SiStripZeroSuppression::processRaw(const edm::DetSetVector<SiStripRa
     int16_t nAPVflagged = 0;
     if ( RawType::ProcessedRaw == inType ) {
       nAPVflagged = algorithms->SuppressProcessedRawData(rawDigis, suppressedDigis);
+    } else if ( RawType::ScopeMode == inType) {
+      nAPVflagged = algorithms->SuppressVirginRawData(rawDigis, suppressedDigis);
     } else if ( RawType::VirginRaw == inType ) {
       if ( produceHybridFormat ) {
         nAPVflagged = algorithms->ConvertVirginRawToHybrid(rawDigis, suppressedDigis);
