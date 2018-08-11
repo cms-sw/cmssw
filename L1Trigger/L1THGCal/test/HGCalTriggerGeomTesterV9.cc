@@ -174,6 +174,9 @@ class HGCalTriggerGeomTesterV9 : public edm::EDAnalyzer
         float cellBHY3_     ;
         float cellBHX4_     ;
         float cellBHY4_     ;
+
+    private:
+        typedef std::unordered_map<uint32_t, std::unordered_set<uint32_t>>  trigger_map_set;
         
 };
 
@@ -375,9 +378,9 @@ void HGCalTriggerGeomTesterV9::checkMappingConsistency()
 {
     
 
-    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_triggercells;
-    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_cells;
-    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
+    trigger_map_set modules_to_triggercells;
+    trigger_map_set modules_to_cells;
+    trigger_map_set triggercells_to_cells;
 
     // EE
     for(const auto& id : triggerGeometry_->eeGeometry()->getValidDetIds())
@@ -526,7 +529,7 @@ void HGCalTriggerGeomTesterV9::checkMappingConsistency()
 
 void HGCalTriggerGeomTesterV9::checkNeighborConsistency()
 {
-    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
+    trigger_map_set triggercells_to_cells;
 
     // EE
     for(const auto& id : triggerGeometry_->eeGeometry()->getValidDetIds())
@@ -597,8 +600,8 @@ void HGCalTriggerGeomTesterV9::checkNeighborConsistency()
 void HGCalTriggerGeomTesterV9::fillTriggerGeometry()
 /*****************************************************************/
 {
-    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules;
-    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
+    trigger_map_set modules;
+    trigger_map_set trigger_cells;
 
     // Loop over cells
     edm::LogPrint("TreeFilling")<<"Filling cells tree";

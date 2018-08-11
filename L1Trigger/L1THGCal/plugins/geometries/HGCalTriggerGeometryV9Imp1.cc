@@ -69,8 +69,9 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase
         // trigger cell neighbors:
         // - The key includes the module and trigger cell id
         // - The value is a set of (module_id, trigger_cell_id)
-        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_;
-        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_sci_;
+        typedef std::unordered_map<int, std::set<std::pair<short,short>>> neighbor_map;
+        neighbor_map trigger_cell_neighbors_;
+        neighbor_map trigger_cell_neighbors_sci_;
 
         // Disconnected modules and layers
         std::unordered_set<unsigned> disconnected_modules_;
@@ -82,8 +83,8 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase
         unsigned totalLayers_;
 
         void fillMaps();
-        void fillNeighborMapSilicon(const edm::FileInPath&,  std::unordered_map<int, std::set<std::pair<short,short>>>&);
-        void fillNeighborMapScintillator(const edm::FileInPath&,  std::unordered_map<int, std::set<std::pair<short,short>>>&);
+        void fillNeighborMapSilicon(const edm::FileInPath&,  neighbor_map&);
+        void fillNeighborMapScintillator(const edm::FileInPath&,  neighbor_map&);
         void fillInvalidTriggerCells();
         unsigned packTriggerCell(unsigned, unsigned) const;
         unsigned packTriggerCellWithType(unsigned, unsigned, unsigned) const;
@@ -643,7 +644,7 @@ fillMaps()
 
 void 
 HGCalTriggerGeometryV9Imp1::
-fillNeighborMapSilicon(const edm::FileInPath& file,  std::unordered_map<int, std::set<std::pair<short,short>>>& neighbors_map)
+fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map)
 {
     // Fill trigger neighbor map
     std::ifstream l1tCellNeighborsMappingStream(file.fullPath());
@@ -716,7 +717,7 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  std::unordered_map<int, std
 
 void 
 HGCalTriggerGeometryV9Imp1::
-fillNeighborMapScintillator(const edm::FileInPath& file,  std::unordered_map<int, std::set<std::pair<short,short>>>& neighbors_map)
+fillNeighborMapScintillator(const edm::FileInPath& file,  neighbor_map& neighbors_map)
 {
     // Fill trigger neighbor map
     std::ifstream l1tCellNeighborsMappingStream(file.fullPath());
