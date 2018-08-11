@@ -120,7 +120,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
       // Fit function to scale L1EG Crystal Pt to Stage-2
       //TF1 ptAdjustFunc = TF1("ptAdjustFunc", "(([0] + [1]*TMath::Exp(-[2]*x))*(1./([3] + [4]*TMath::Exp(-[5]*x))))");
-      TF1 ptAdjustFunc = TF1("ptAdjustFunc", "[0] + [1]*TMath::Exp(-[2]*x)");
+      TF1 ptAdjustFunc = TF1("ptAdjustFunc", "([0] + [1]*TMath::Exp(-[2]*x)) * ([3] + [4]*TMath::Exp(-[5]*x))");
 
       class SimpleCaloHit
       {
@@ -205,6 +205,10 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    ptAdjustFunc.SetParameter( 0, 1.06 );
    ptAdjustFunc.SetParameter( 1, 0.273 );
    ptAdjustFunc.SetParameter( 2, 0.0411 );
+   // Residuals
+   ptAdjustFunc.SetParameter( 3, 1.00 );
+   ptAdjustFunc.SetParameter( 4, 0.567 );
+   ptAdjustFunc.SetParameter( 5, 0.288 );
    
    // Get tower mapping
    if (useTowerMap) {
