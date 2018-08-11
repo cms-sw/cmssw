@@ -4,6 +4,7 @@
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
 #include "DataFormats/L1TMuon/interface/OMTF/OmtfCscDataWord64.h"
 
@@ -31,7 +32,7 @@ void CscUnpacker::unpack(unsigned int fed, unsigned int amc, const CscDataWord64
                                     data.halfStrip(),
                                     data.clctPattern(),
                                     data.bend(),
-                                    data.bxNum()+3) ;
+                                    data.bxNum()+(CSCConstants::LCT_CENTRAL_BX-3) );
           LogTrace("") << digi << std::endl;
           //producedCscLctDigis->insertDigi( cscId, digi);
           prod->insertDigi( cscId, digi);
