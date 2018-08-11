@@ -31,6 +31,7 @@ class HGCalTriggerGeometryBase
 
         const std::string& name() const { return name_; } 
 
+        bool isV9Geometry() const {return !calo_geometry_.isValid();}
         const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
         const HGCalGeometry* eeGeometry() const 
         {
@@ -42,21 +43,26 @@ class HGCalTriggerGeometryBase
         }
         const HcalGeometry* bhGeometry()  const 
         {
-            return (hgc_hsc_geometry_.isValid() ? nullptr : (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap))) );
+            if(hgc_hsc_geometry_.isValid())
+            {
+                throw cms::Exception("HGCalTriggerGeometry")
+                    << "bhGeometry cannot be used with the V9 geometry";
+            }
+            return (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)));
         }
-        const HGCalGeometry* hsiGeometry() const {return hgc_hsi_geometry_.product();}
-        const HGCalGeometry* hscGeometry()  const {return hgc_hsc_geometry_.product();}
+        const HGCalGeometry* hsiGeometry() const {return fhGeometry();}
+        const HGCalGeometry* hscGeometry()  const 
+        {
+            if(!hgc_hsc_geometry_.isValid())
+            {
+                throw cms::Exception("HGCalTriggerGeometry")
+                    << "hscGeometry cannot be used with the V7 and V8 geometries";
+            }
+            return hgc_hsc_geometry_.product();
+        }
         const HGCalTopology& eeTopology() const {return eeGeometry()->topology();}
         const HGCalTopology& fhTopology() const {return fhGeometry()->topology();}
-        const HcalTopology& bhTopology() const 
-        {
-            if(!bhGeometry())
-            {
-                throw cms::Exception("HGCalTriggerGeometry::bhTopology")
-                    << "Not existing BH geometry";
-            }
-            return bhGeometry()->topology();
-        }
+        const HcalTopology& bhTopology() const {return bhGeometry()->topology();}
         const HGCalTopology& hsiTopology() const {return hsiGeometry()->topology();}
         const HGCalTopology& hscTopology() const {return hscGeometry()->topology();}
 
