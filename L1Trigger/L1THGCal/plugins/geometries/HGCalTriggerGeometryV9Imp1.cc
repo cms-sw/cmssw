@@ -286,12 +286,12 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
     HGCalDetId trigger_cell_det_id(trigger_cell_id);
     geom_set cell_det_ids;
     unsigned subdet = trigger_cell_det_id.subdetId();
+    unsigned trigger_wafer = trigger_cell_det_id.wafer();
+    unsigned trigger_cell = trigger_cell_det_id.cell();
+    unsigned layer = trigger_cell_det_id.layer();
     // Scintillator
     if(subdet==ForwardSubdetector::HGCHEB)
     {
-        unsigned trigger_wafer = trigger_cell_det_id.wafer();
-        unsigned trigger_cell = trigger_cell_det_id.cell();
-        unsigned layer = trigger_cell_det_id.layer();
         int type =  hscTopology().dddConstants().getTypeTrap(layer);
         const auto& cell_range = trigger_cells_to_cells_sci_.equal_range(packWaferCellId(subdet, trigger_wafer, trigger_cell));
         for(auto tc_c_itr=cell_range.first; tc_c_itr!=cell_range.second; tc_c_itr++)
@@ -308,7 +308,6 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
     {
         int waferu = 0;
         int waferv = 0;
-        unsigned trigger_wafer = trigger_cell_det_id.wafer();
         auto wafer_itr = wafers_old_to_wafers_.find(trigger_wafer);
         if(wafer_itr==wafers_old_to_wafers_.end())
         {
@@ -317,10 +316,7 @@ getCellsFromTriggerCell( const unsigned trigger_cell_id ) const
         }
         unpackWaferId(wafer_itr->second, waferu, waferv);
         DetId::Detector det = (trigger_cell_det_id.subdetId()==ForwardSubdetector::HGCEE ? DetId::HGCalEE : DetId::HGCalHSi);
-        unsigned layer = trigger_cell_det_id.layer();
         unsigned wafer_type = detIdWaferType(det, layer, waferu, waferv);
-        unsigned subdet = trigger_cell_det_id.subdetId();
-        unsigned trigger_cell = trigger_cell_det_id.cell();
         const auto& cell_range = trigger_cells_to_cells_.equal_range(packCellId(wafer_type, trigger_cell));
         for(auto tc_c_itr=cell_range.first; tc_c_itr!=cell_range.second; tc_c_itr++)
         {
@@ -368,10 +364,10 @@ getTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     geom_set trigger_cell_det_ids;
+    unsigned module = module_det_id.wafer();
     // Scintillator
     if(module_det_id.subdetId()==ForwardSubdetector::HGCHEB)
     {
-        unsigned module = module_det_id.wafer();
         // loop on the trigger cells in each module
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_sci_.at(module); trigger_cell++)
         {
@@ -382,7 +378,6 @@ getTriggerCellsFromModule( const unsigned module_id ) const
     // Silicon
     else
     {
-        unsigned module = module_det_id.wafer();
         auto wafer_itrs = module_to_wafers_.equal_range(module);
         // loop on the wafers included in the module
         for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
@@ -413,10 +408,10 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
 {
     HGCalDetId module_det_id(module_id);
     geom_ordered_set trigger_cell_det_ids;
+    unsigned module = module_det_id.wafer();
     // Scintillator
     if(module_det_id.subdetId()==ForwardSubdetector::HGCHEB)
     {
-        unsigned module = module_det_id.wafer();
         // loop on the trigger cells in each module
         for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_sci_.at(module); trigger_cell++)
         {
@@ -427,7 +422,6 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
     // EE or FH
     else
     {
-        unsigned module = module_det_id.wafer();
         auto wafer_itrs = module_to_wafers_.equal_range(module);
         // loop on the wafers included in the module
         for(auto wafer_itr=wafer_itrs.first; wafer_itr!=wafer_itrs.second; wafer_itr++)
