@@ -83,8 +83,7 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase
         unsigned totalLayers_;
 
         void fillMaps();
-        void fillNeighborMapSilicon(const edm::FileInPath&,  neighbor_map&);
-        void fillNeighborMapScintillator(const edm::FileInPath&,  neighbor_map&);
+        void fillNeighborMap(const edm::FileInPath&,  neighbor_map&, bool);
         void fillInvalidTriggerCells();
         unsigned packTriggerCell(unsigned, unsigned) const;
         unsigned packTriggerCellWithType(unsigned, unsigned, unsigned) const;
@@ -176,8 +175,8 @@ initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
         }
     }
     fillMaps();
-    fillNeighborMapSilicon(l1tCellNeighborsMapping_, trigger_cell_neighbors_);
-    fillNeighborMapScintillator(l1tCellNeighborsSciMapping_, trigger_cell_neighbors_sci_);
+    fillNeighborMap(l1tCellNeighborsMapping_, trigger_cell_neighbors_, false); // silicon 
+    fillNeighborMap(l1tCellNeighborsSciMapping_, trigger_cell_neighbors_sci_, true); // scintillator
     fillInvalidTriggerCells();
 
 }
@@ -660,7 +659,7 @@ fillMaps()
 
 void 
 HGCalTriggerGeometryV9Imp1::
-fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map)
+fillNeighborMap(const edm::FileInPath& file,  neighbor_map& neighbors_map, bool scintillator)
 {
     // Fill trigger neighbor map
     std::ifstream l1tCellNeighborsMappingStream(file.fullPath());
@@ -678,7 +677,8 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map
         // Match patterns (X,Y) 
         // where X is a number with less than 4 digis
         // and Y is a number with less than 4 digits
-        std::regex key_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
+        // For the scintillator case, match instead (X,Y,Z) patterns
+        std::regex key_regex(scintillator ? "\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)" : "\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
         std::vector<std::string> key_tokens {
             std::sregex_token_iterator(line.begin(), line.end(), key_regex), {}
         };
@@ -694,9 +694,20 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map
             std::sregex_token_iterator(key_tokens[0].begin(), key_tokens[0].end(), digits_regex), {}
         };
         // get module and cell id 
-        int module = std::stoi(module_tc[0]);
-        int trigger_cell = std::stoi(module_tc[1]);
-        unsigned map_key = packTriggerCell(module, trigger_cell);
+        unsigned map_key = 0;
+        if(scintillator)
+        { 
+            int type = std::stoi(module_tc[0]);
+            int module = std::stoi(module_tc[1]);
+            int trigger_cell = std::stoi(module_tc[2]);
+            map_key = packTriggerCellWithType(type, module, trigger_cell);
+        }
+        else
+        {
+            int module = std::stoi(module_tc[0]);
+            int trigger_cell = std::stoi(module_tc[1]);
+            map_key = packTriggerCell(module, trigger_cell);
+        }
         // Extract neighbors
         // Match patterns (X,Y) 
         // where X is a number with less than 4 digits
@@ -705,7 +716,9 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map
         std::vector<std::string> neighbors_tokens {
             std::sregex_token_iterator(line.begin(), line.end(), neighbors_regex), {}
         };
-        if(neighbors_tokens.size()<2)
+        if( (scintillator && neighbors_tokens.empty()) ||
+            (!scintillator && neighbors_tokens.size()<2)
+            )
         {
             throw cms::Exception("BadGeometry")
                 << "Syntax error in the L1TCellNeighborsMapping:\n"
@@ -713,8 +726,9 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map
                 << "  '"<<&buffer[0]<<"'\n";
         }
         auto itr_insert = neighbors_map.emplace(map_key, std::set<std::pair<short,short>>());
-        // The first element is the key, so start at index 1
-        for(unsigned i=1; i<neighbors_tokens.size(); i++)
+        // The first element for silicon neighbors is the key, so start at index 1
+        unsigned first_element = (scintillator ? 0 : 1);
+        for(unsigned i=first_element; i<neighbors_tokens.size(); i++)
         {
             const auto& neighbor = neighbors_tokens[i];
             std::vector<std::string>  pair_neighbor {
@@ -733,85 +747,6 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map
     l1tCellNeighborsMappingStream.close();
 
 }
-
-
-void 
-HGCalTriggerGeometryV9Imp1::
-fillNeighborMapScintillator(const edm::FileInPath& file,  neighbor_map& neighbors_map)
-{
-    // Fill trigger neighbor map
-    std::ifstream l1tCellNeighborsMappingStream(file.fullPath());
-    if(!l1tCellNeighborsMappingStream.is_open()) 
-    {
-        throw cms::Exception("MissingDataFile")
-            << "Cannot open HGCalTriggerGeometry L1TCellNeighborsMapping file\n";
-    }
-    const unsigned line_size = 512;
-    for(std::array<char,line_size> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], line_size); )
-    {
-        std::string line(&buffer[0]);
-        // Extract keys consisting of the module id
-        // and of the trigger cell id
-        // Match patterns (X,Y,Z) 
-        // where X is a number with less than 4 digis
-        // and Y is a number with less than 4 digits
-        // and Z is a number with less than 4 digis
-        std::regex key_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
-        std::vector<std::string> key_tokens {
-            std::sregex_token_iterator(line.begin(), line.end(), key_regex), {}
-        };
-        if(key_tokens.empty())
-        {
-            throw cms::Exception("BadGeometry")
-                << "Syntax error in the L1TCellNeighborsMapping:\n"
-                << "  Cannot find the trigger cell key in line:\n"
-                << "  '"<<&buffer[0]<<"'\n";
-        }
-        std::regex digits_regex("\\d{1,3}");
-        std::vector<std::string>  module_tc {
-            std::sregex_token_iterator(key_tokens[0].begin(), key_tokens[0].end(), digits_regex), {}
-        };
-        // get module and cell id 
-        int type = std::stoi(module_tc[0]);
-        int module = std::stoi(module_tc[1]);
-        int trigger_cell = std::stoi(module_tc[2]);
-        unsigned map_key = packTriggerCellWithType(type, module, trigger_cell);
-        // Extract neighbors
-        // Match patterns (X,Y) 
-        // where X is a number with less than 4 digits
-        // and Y is a number with less than 4 digits
-        std::regex neighbors_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
-        std::vector<std::string> neighbors_tokens {
-            std::sregex_token_iterator(line.begin(), line.end(), neighbors_regex), {}
-        };
-        if(neighbors_tokens.empty())
-        {
-            throw cms::Exception("BadGeometry")
-                << "Syntax error in the L1TCellNeighborsMapping:\n"
-                << "  Cannot find any neighbor in line:\n"
-                << "  '"<<&buffer[0]<<"'\n";
-        }
-        auto itr_insert = neighbors_map.emplace(map_key, std::set<std::pair<short,short>>());
-        for(unsigned i=0; i<neighbors_tokens.size(); i++)
-        {
-            const auto& neighbor = neighbors_tokens[i];
-            std::vector<std::string>  pair_neighbor {
-                std::sregex_token_iterator(neighbor.begin(), neighbor.end(), digits_regex), {}
-            };
-            short neighbor_module(std::stoi(pair_neighbor[0]));
-            short neighbor_cell(std::stoi(pair_neighbor[1]));
-            itr_insert.first->second.emplace(neighbor_module, neighbor_cell);
-        }
-    }
-    if(!l1tCellNeighborsMappingStream.eof()) 
-    {
-        throw cms::Exception("BadGeometryFile")
-            << "Error reading L1TCellNeighborsMapping'\n";
-    }
-    l1tCellNeighborsMappingStream.close();
-
-}
-
 
 
 void 
