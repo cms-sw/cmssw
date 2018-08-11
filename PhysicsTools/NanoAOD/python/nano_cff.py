@@ -16,7 +16,7 @@ from PhysicsTools.NanoAOD.triggerObjects_cff import *
 from PhysicsTools.NanoAOD.isotracks_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 
-from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
@@ -77,7 +77,7 @@ btagWeightTable = cms.EDProducer("BTagSFProducer",
     sysTypes = cms.vstring("central","central","central")
 )
 
-run2_nanoAOD_94X2016.toModify(btagWeightTable,
+run2_miniAOD_80XLegacy.toModify(btagWeightTable,                
     cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
     weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
         btagSFdir+"CSVv2_Moriond17_B_H.csv",            
@@ -153,32 +153,8 @@ def nanoAOD_addDeepBTagFor80X(process):
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
-def nanoAOD_addDeepFlavourTagFor94X2016(process):
-    print "Updating process to run DeepFlavour btag on legacy 80X datasets"
-    updateJetCollection(
-               process,
-               jetSource = cms.InputTag('slimmedJets'),
-               jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
-               btagDiscriminators = ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb'], ## to add discriminators
-               btagPrefix = ''
-           )
-    process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.looseJetId.src="selectedUpdatedPatJets"
-    process.tightJetId.src="selectedUpdatedPatJets"
-    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
-    process.bJetVars.src="selectedUpdatedPatJets"
-    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
-    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
-    process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
-    process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
-    patAlgosToolsTask = getPatAlgosToolsTask(process)
-    patAlgosToolsTask .add(process.updatedPatJets)
-    patAlgosToolsTask .add(process.patJetCorrFactors)
-    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
-    return process
-
 def nanoAOD_customizeCommon(process):
-    run2_nanoAOD_94X2016.toModify(process, nanoAOD_addDeepFlavourTagFor94X2016)
+    run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
     return process
 
 
@@ -197,12 +173,15 @@ def nanoAOD_customizeMC(process):
     return process
 
 ### Era dependent customization
-_94x2016_sequence = nanoSequence.copy()
-#remove stuff
-_94x2016_sequence.remove(isoTrackTable)
-_94x2016_sequence.remove(isoTrackSequence)
+_80x_sequence = nanoSequence.copy()
+#remove stuff 
+_80x_sequence.remove(isoTrackTable)
+_80x_sequence.remove(isoTrackSequence)
 #add stuff
-_94x2016_sequence.insert(_94x2016_sequence.index(jetSequence), extraFlagsProducers)
-_94x2016_sequence.insert(_94x2016_sequence.index(l1bits)+1, extraFlagsTable)
+_80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
+_80x_sequence.insert(_80x_sequence.index(l1bits)+1, extraFlagsTable)
 
-run2_nanoAOD_94X2016.toReplaceWith( nanoSequence, _94x2016_sequence)
+run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
+
+	
+
