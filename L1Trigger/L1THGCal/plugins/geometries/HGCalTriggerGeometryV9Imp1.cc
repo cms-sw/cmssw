@@ -154,7 +154,6 @@ initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
         const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry
         )
 {
-    // setCaloGeometry(calo_geometry);
     setEEGeometry(hgc_ee_geometry);
     setHSiGeometry(hgc_hsi_geometry);
     setHScGeometry(hgc_hsc_geometry);
@@ -240,6 +239,8 @@ getTriggerCellFromCell( const unsigned cell_id ) const
         trigger_cell = trigger_cell_itr->second;
         wafer_trigger_cell = wafer_trigger_cell_itr->second;
     }
+    // Using the old HGCalDetId for trigger cells is temporary
+    // For easy switch between V8 and V9 geometries
     return HGCalDetId((ForwardSubdetector)subdet, zside, layer, tc_type, wafer_trigger_cell, trigger_cell).rawId();
 
 }
@@ -567,8 +568,6 @@ fillMaps()
     {
         wafer_to_module_.emplace(trigger_wafer,module);
         module_to_wafers_.emplace(module, trigger_wafer);
-        // Default number of trigger cell in wafer is 0
-        // number_trigger_cells_in_wafers_.emplace(trigger_wafer, 0);
     }
     if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<trigger_wafer<<" "<<module<<"' \n";
     l1tModulesMappingStream.close();
@@ -653,7 +652,8 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  std::unordered_map<int, std
         throw cms::Exception("MissingDataFile")
             << "Cannot open HGCalTriggerGeometry L1TCellNeighborsMapping file\n";
     }
-    for(std::array<char,512> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], 512); )
+    const unsigned line_size = 512;
+    for(std::array<char,line_size> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], line_size); )
     {
         std::string line(&buffer[0]);
         // Extract keys consisting of the module id
@@ -725,7 +725,8 @@ fillNeighborMapScintillator(const edm::FileInPath& file,  std::unordered_map<int
         throw cms::Exception("MissingDataFile")
             << "Cannot open HGCalTriggerGeometry L1TCellNeighborsMapping file\n";
     }
-    for(std::array<char,512> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], 512); )
+    const unsigned line_size = 512;
+    for(std::array<char,line_size> buffer; l1tCellNeighborsMappingStream.getline(&buffer[0], line_size); )
     {
         std::string line(&buffer[0]);
         // Extract keys consisting of the module id
@@ -770,7 +771,6 @@ fillNeighborMapScintillator(const edm::FileInPath& file,  std::unordered_map<int
                 << "  '"<<&buffer[0]<<"'\n";
         }
         auto itr_insert = neighbors_map.emplace(map_key, std::set<std::pair<short,short>>());
-        // The first element is the key, so start at index 1
         for(unsigned i=0; i<neighbors_tokens.size(); i++)
         {
             const auto& neighbor = neighbors_tokens[i];
