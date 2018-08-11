@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "cppunit/extensions/HelperMacros.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 using edm::eventsetup::test::DummyData;
@@ -63,9 +64,9 @@ public:
       data_.value_ = 0;
       setWhatProduced(this);
    }
-   const DummyData* produce(const DummyRecord& /*iRecord*/) {
-      ++data_.value_;
-      return &data_;
+  std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+    ++data_.value_;
+    return std::shared_ptr<DummyData>(&data_,edm::do_nothing_deleter{});
    }
 private:
    DummyData data_;
@@ -77,8 +78,8 @@ public:
       setWhatProduced(this);
       setWhatProduced(this);
    }
-   const DummyData* produce(const DummyRecord& /*iRecord*/) {
-      return &data_;
+   std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+     return std::shared_ptr<DummyData>(&data_, edm::do_nothing_deleter{});
    }
 private:
    DummyData data_;
@@ -114,7 +115,7 @@ private:
 class LabelledProducer : public ESProducer {
 public:
    enum {kFi, kFum};
-   typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
+  typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
    LabelledProducer(): ptr_(new DummyData), fi_(new DummyData){
       ptr_->value_ = 0;
       fi_->value_=0;
@@ -132,7 +133,7 @@ public:
       using namespace edm;
       ++fi_->value_;
 
-      L<DummyData,kFum> fum( new DummyData);
+      L<DummyData,kFum> fum( std::make_shared<DummyData>());
       fum->value_ = fi_->value_;
       
       return edm::es::products(fum, es::l<kFi>(fi_) );
