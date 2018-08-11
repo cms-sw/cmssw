@@ -767,13 +767,11 @@ fillInvalidTriggerCells()
             // loop on the trigger cells in each wafer
             for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(waferee_type); trigger_cell++)
             {
-                std::set<unsigned> trigger_cell_ids;
-                trigger_cell_ids.emplace(HGCalDetId(ForwardSubdetector::HGCEE, -1, layer, 1, trigger_wafer, trigger_cell));
-                trigger_cell_ids.emplace(HGCalDetId(ForwardSubdetector::HGCEE, 1, layer, 1, trigger_wafer, trigger_cell));
-                for(unsigned trigger_cell : trigger_cell_ids)
+                for(int zside : {-1,1})
                 {
-                    if(!validTriggerCellFromCells(trigger_cell)) invalid_triggercells_.emplace(trigger_cell);
-                    for(unsigned neighbor : getNeighborsFromTriggerCell(trigger_cell))
+                    HGCalDetId trigger_cell_id(ForwardSubdetector::HGCEE, zside, layer, 1, trigger_wafer, trigger_cell);
+                    if(!validTriggerCellFromCells(trigger_cell_id)) invalid_triggercells_.emplace(trigger_cell_id);
+                    for(unsigned neighbor : getNeighborsFromTriggerCell(trigger_cell_id))
                     {
                         auto wafer_itr = wafers_old_to_wafers_.find(HGCalDetId(neighbor).wafer());
                         if(wafer_itr==wafers_old_to_wafers_.end()) invalid_triggercells_.emplace(neighbor);
@@ -783,13 +781,11 @@ fillInvalidTriggerCells()
             }
             for(int trigger_cell=0; trigger_cell<number_trigger_cells_in_wafers_.at(waferfh_type); trigger_cell++)
             {
-                std::set<unsigned> trigger_cell_ids;
-                trigger_cell_ids.emplace(HGCalDetId(ForwardSubdetector::HGCHEF, -1, layer, 1, trigger_wafer, trigger_cell));
-                trigger_cell_ids.emplace(HGCalDetId(ForwardSubdetector::HGCHEF, 1, layer, 1, trigger_wafer, trigger_cell));
-                for(unsigned trigger_cell : trigger_cell_ids)
+                for(int zside : {-1,1})
                 {
-                    if(!validTriggerCellFromCells(trigger_cell)) invalid_triggercells_.emplace(trigger_cell);
-                    for(unsigned neighbor : getNeighborsFromTriggerCell(trigger_cell))
+                    HGCalDetId trigger_cell_id(ForwardSubdetector::HGCHEF, zside, layer, 1, trigger_wafer, trigger_cell);
+                    if(!validTriggerCellFromCells(trigger_cell_id)) invalid_triggercells_.emplace(trigger_cell_id);
+                    for(unsigned neighbor : getNeighborsFromTriggerCell(trigger_cell_id))
                     {
                         auto wafer_itr = wafers_old_to_wafers_.find(HGCalDetId(neighbor).wafer());
                         if(wafer_itr==wafers_old_to_wafers_.end()) invalid_triggercells_.emplace(neighbor);
@@ -810,13 +806,11 @@ fillInvalidTriggerCells()
             // loop on the trigger cells in each wafer
             for(int trigger_cell=1; trigger_cell<module_ncells.second; trigger_cell++)
             {
-                std::set<unsigned> trigger_cell_ids;
-                trigger_cell_ids.emplace(HGCalDetId(ForwardSubdetector::HGCHEB, -1, layer, type, trigger_wafer, trigger_cell));
-                trigger_cell_ids.emplace(HGCalDetId(ForwardSubdetector::HGCHEB, 1, layer, type, trigger_wafer, trigger_cell));
-                for(unsigned trigger_cell : trigger_cell_ids)
+                for(int zside : {-1,1})
                 {
-                    if(!validTriggerCellFromCells(trigger_cell)) invalid_triggercells_.emplace(trigger_cell);
-                    for(unsigned neighbor : getNeighborsFromTriggerCell(trigger_cell))
+                    HGCalDetId trigger_cell_id(ForwardSubdetector::HGCHEB, zside, layer, type, trigger_wafer, trigger_cell);
+                    if(!validTriggerCellFromCells(trigger_cell_id)) invalid_triggercells_.emplace(trigger_cell_id);
+                    for(unsigned neighbor : getNeighborsFromTriggerCell(trigger_cell_id))
                     {
                         if(!validTriggerCellFromCells(neighbor)) invalid_triggercells_.emplace(neighbor);
                     }
