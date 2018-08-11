@@ -17,12 +17,16 @@ class testEsproducts: public CppUnit::TestFixture
 {
 CPPUNIT_TEST_SUITE(testEsproducts);
 CPPUNIT_TEST(constPtrTest);
+CPPUNIT_TEST(uniquePtrTest);
+CPPUNIT_TEST(sharedPtrTest);
 CPPUNIT_TEST(manyTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
   void tearDown(){}
   void constPtrTest();
+  void uniquePtrTest();
+  void sharedPtrTest();
   void manyTest();
 };
 
@@ -54,10 +58,48 @@ void testEsproducts::constPtrTest()
    CPPUNIT_ASSERT(readFloat == &float_);
 }
 
+void testEsproducts::uniquePtrTest()
+{
+  constexpr int kInt = 5;
+  auto int_ = std::make_unique<int>(kInt);
+  constexpr float kFloat = 3.1;
+  auto float_ = std::make_unique<float>(kFloat);
+  
+  ESProducts<std::unique_ptr<int>, std::unique_ptr<float>> product = products(std::move(int_), std::move(float_));
+  
+  std::unique_ptr<int> readInt;
+  std::unique_ptr<float> readFloat;
+  
+  product.moveTo(readInt);
+  product.moveTo(readFloat);
+  
+  CPPUNIT_ASSERT(*readInt == kInt);
+  CPPUNIT_ASSERT(*readFloat == kFloat);
+}
+
+void testEsproducts::sharedPtrTest()
+{
+  auto int_ = std::make_shared<int>(5);
+  auto float_ = std::make_shared<float>(3.1);
+  
+  ESProducts<std::shared_ptr<int>, std::shared_ptr<float>> product =
+  products(int_,float_);
+  
+  std::shared_ptr<int> readInt;
+  std::shared_ptr<float> readFloat;
+  
+  product.moveTo(readInt);
+  product.moveTo(readFloat);
+  
+  CPPUNIT_ASSERT(readInt.get() == int_.get());
+  CPPUNIT_ASSERT(readFloat.get() == float_.get());
+}
+
+
 ESProducts<const int*, const float*, const double*>
 returnManyPointers(const int* iInt, const float* iFloat, const double* iDouble)
 {
-   return edm::es::produced << iInt << iFloat << iDouble;
+   return edm::es::products(iInt, iFloat,  iDouble);
 }
 
 void testEsproducts::manyTest()
