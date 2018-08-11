@@ -570,7 +570,11 @@ fillMaps()
         wafer_to_module_.emplace(trigger_wafer,module);
         module_to_wafers_.emplace(module, trigger_wafer);
     }
-    if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<trigger_wafer<<" "<<module<<"' \n";
+    if(!l1tModulesMappingStream.eof())
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TModulesMapping '"<<trigger_wafer<<" "<<module<<"' \n";
+    }
     l1tModulesMappingStream.close();
     // read trigger cell mapping file
     std::ifstream l1tCellsMappingStream(l1tCellsMapping_.fullPath());
@@ -594,7 +598,11 @@ fillMaps()
         auto itr_insert = number_trigger_cells_in_wafers_.emplace(type, 0);
         if(trigger_cell+1 > itr_insert.first->second) itr_insert.first->second = trigger_cell+1;
     }
-    if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping '"<<type<<" "<<cellu<<" "<<cellv<<" "<<trigger_cell<<"' \n";
+    if(!l1tCellsMappingStream.eof())
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TCellsMapping '"<<type<<" "<<cellu<<" "<<cellv<<" "<<trigger_cell<<"' \n";
+    }
     l1tCellsMappingStream.close();
     // read scintillator trigger cell mapping file
     std::ifstream l1tCellsSciMappingStream(l1tCellsSciMapping_.fullPath());
@@ -618,7 +626,11 @@ fillMaps()
         auto itr_insert = number_trigger_cells_in_wafers_sci_.emplace(trigger_wafer, 0);
         if(trigger_cell+1 > itr_insert.first->second) itr_insert.first->second = trigger_cell+1;
     }
-    if(!l1tCellsSciMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsSciMapping '"<<ieta<<" "<<iphi<<" "<<trigger_wafer<<" "<<trigger_cell<<"' \n";
+    if(!l1tCellsSciMappingStream.eof())
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TCellsSciMapping '"<<ieta<<" "<<iphi<<" "<<trigger_wafer<<" "<<trigger_cell<<"' \n";
+    }
     l1tCellsSciMappingStream.close();
     // read wafer mapping file
     std::ifstream l1tWafersMappingStream(l1tWafersMapping_.fullPath());
@@ -637,7 +649,11 @@ fillMaps()
         wafers_to_wafers_old_.emplace(wafer_key, trigger_wafer);
         wafers_old_to_wafers_.emplace(trigger_wafer, wafer_key);
     }
-    if(!l1tWafersMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TWafersMapping '"<<waferu<<" "<<waferv<<" "<<trigger_wafer<<"' \n";
+    if(!l1tWafersMappingStream.eof())
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TWafersMapping '"<<waferu<<" "<<waferv<<" "<<trigger_wafer<<"' \n";
+    }
     l1tWafersMappingStream.close();
 }
 
@@ -709,7 +725,11 @@ fillNeighborMapSilicon(const edm::FileInPath& file,  neighbor_map& neighbors_map
             itr_insert.first->second.emplace(neighbor_module, neighbor_cell);
         }
     }
-    if(!l1tCellNeighborsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellNeighborsMapping'\n";
+    if(!l1tCellNeighborsMappingStream.eof())
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TCellNeighborsMapping'\n";
+    }
     l1tCellNeighborsMappingStream.close();
 
 }
@@ -783,7 +803,11 @@ fillNeighborMapScintillator(const edm::FileInPath& file,  neighbor_map& neighbor
             itr_insert.first->second.emplace(neighbor_module, neighbor_cell);
         }
     }
-    if(!l1tCellNeighborsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellNeighborsMapping'\n";
+    if(!l1tCellNeighborsMappingStream.eof()) 
+    {
+        throw cms::Exception("BadGeometryFile")
+            << "Error reading L1TCellNeighborsMapping'\n";
+    }
     l1tCellNeighborsMappingStream.close();
 
 }
