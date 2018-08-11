@@ -1,6 +1,4 @@
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-
-import FWCore.ParameterSet.Config as cms
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 
 mvaVariablesFile        = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesSpring15ValMaps.txt"
 
@@ -12,7 +10,7 @@ mvaVariablesFile        = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimat
 #
 # The following MVA is derived for Spring15 MC samples for non-triggering photons.
 # See more documentation in this presentation:
-#    
+#
 #    https://indico.cern.ch/event/369241/contribution/1/attachments/1140148/1632879/egamma-Aug14-2015.pdf
 #
 
@@ -29,16 +27,13 @@ mvaTag = "Run2Spring15NonTrig25nsV2"
 #   1    endcap photons
 
 mvaSpring15NonTrigWeightFiles_V2 = cms.vstring(
-    "RecoEgamma/PhotonIdentification/data/Spring15/photon_general_MVA_Spring15_25ns_EB_V2.weights.xml",
-    "RecoEgamma/PhotonIdentification/data/Spring15/photon_general_MVA_Spring15_25ns_EE_V2.weights.xml"
+    path.join(weightFileBaseDir, "Spring15/25ns_EB_V2.weights.xml.gz"),
+    path.join(weightFileBaseDir, "Spring15/25ns_EB_V2.weights.xml.gz"),
     )
-
-# Load some common definitions for MVA machinery
-from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 
 # The locatoins of value maps with the actual MVA values and categories
 # for all particles.
-# The names for the maps are "<module name>:<MVA class name>Values" 
+# The names for the maps are "<module name>:<MVA class name>Values"
 # and "<module name>:<MVA class name>Categories"
 mvaProducerModuleLabel = "photonMVAValueMapProducer"
 mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassName + mvaTag + "Values"
@@ -61,18 +56,21 @@ MVA_WP90 = PhoMVA_2Categories_WP(
 #
 
 # Create the PSet that will be fed to the MVA value map producer
-mvaPhoID_Spring15_25ns_nonTrig_V2_producer_config = cms.PSet( 
+mvaPhoID_Spring15_25ns_nonTrig_V2_producer_config = cms.PSet(
     mvaName            = cms.string(mvaSpring15NonTrigClassName),
     mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V2,
-    variableDefinition  = cms.string(mvaVariablesFile)
+    variableDefinition  = cms.string(mvaVariablesFile),
+    # Category parameters
+    nCategories         = cms.int32(2),
+    categoryCuts        = category_cuts
     )
 # Create the VPset's for VID cuts
 mvaPhoID_Spring15_25ns_nonTrig_V2_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 
 # The MD5 sum numbers below reflect the exact set of cut variables
-# and values above. If anything changes, one has to 
-# 1) comment out the lines below about the registry, 
+# and values above. If anything changes, one has to
+# 1) comment out the lines below about the registry,
 # 2) run "calculateMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
