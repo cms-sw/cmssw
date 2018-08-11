@@ -5,12 +5,11 @@
  *
  * This class simulates the functionality of the cathode LCT card. It is run by
  * the MotherBoard and returns up to two CathodeLCTs.  It can be run either in
- * a test mode, where it is passed arrays of halfstrip and distrip times,
+ * a test mode, where it is passed arrays of halfstrip times,
  * or in normal mode where it determines the time and comparator
  * information from the comparator digis.
  *
- * The CathodeLCTs come in distrip and halfstrip flavors; they are sorted
- * (from best to worst) as follows: 6/6H, 5/6H, 6/6D, 4/6H, 5/6D, 4/6D.
+ * The CathodeLCTs only come halfstrip flavors
  *
  * \date May 2001  Removed the card boundaries.  Changed the Pretrigger to
  * emulate the hardware electronic logic.  Also changed the keylayer to be
@@ -69,8 +68,7 @@ class CSCCathodeLCTProcessor
 
   /** Called in test mode and by the run(compdc) function; does the actual LCT
       finding. */
-  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-	   const std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
@@ -92,20 +90,12 @@ class CSCCathodeLCTProcessor
 
   std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const {return thePreTriggerDigis; }
 
-  static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
-			     int stag_time[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
-			     int stag_digi[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
-			     int i_distrip, bool debug = false);
-
   /** Set ring number
    * Has to be done for upgrade ME1a!
    **/
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  static const int pre_hit_pattern[2][CSCConstants::MAX_STRIPS_IN_PATTERN];
-  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][CSCConstants::MAX_STRIPS_IN_PATTERN+1];
-
   static const int pattern2007_offset[CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
   static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN+2];
 
@@ -147,12 +137,6 @@ class CSCCathodeLCTProcessor
   std::vector<CSCComparatorDigi> digiV[CSCConstants::NUM_LAYERS];
   std::vector<int> thePreTriggerBXs;
   std::vector<CSCCLCTPreTriggerDigi> thePreTriggerDigis;
-
-  /** Flag for "real" - not idealized - version of the algorithm. */
-  bool isMTCC;
-
-  /** Flag for 2007 firmware version. */
-  bool isTMB07;
 
   /** Flag for SLHC studies. */
   bool isSLHC;
@@ -210,34 +194,26 @@ class CSCCathodeLCTProcessor
   static const int cfeb_strips[2];
 
   //---------------- Methods common to all firmware versions ------------------
-  void readComparatorDigis(std::vector<int>halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-			   std::vector<int> distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
   void readComparatorDigis(std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-  void pulseExtension(
- const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
- const int nStrips,
- unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  void pulseExtension(const std::vector<int> time[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                      const int nStrips,
+                      unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   //--------------- Functions for 2007 version of the firmware ----------------
-  std::vector<CSCCLCTDigi> findLCTs(
- const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
-  bool preTrigger(
-      const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-      const int start_bx, int& first_bx);
-  bool ptnFinding(
-      const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-      const int nStrips, const unsigned int bx_time);
+  std::vector<CSCCLCTDigi> findLCTs(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  bool preTrigger(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                  const int start_bx, int& first_bx);
+  bool ptnFinding(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                  const int nStrips, const unsigned int bx_time);
   void markBusyKeys(const int best_hstrip, const int best_patid,
-		    int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+                    int quality[CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
   unsigned int nhits[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
   int first_bx_corrected[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
 
   //--------------- Functions for SLHC studies ----------------
-
-  std::vector<CSCCLCTDigi> findLCTsSLHC(
-    const std::vector<int>  halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
+  std::vector<CSCCLCTDigi> findLCTsSLHC(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   bool ispretrig[CSCConstants::NUM_HALF_STRIPS_7CFEBS];
 
@@ -245,15 +221,12 @@ class CSCCathodeLCTProcessor
   /** Dump CLCT configuration parameters. */
   void dumpConfigParams() const;
 
-  /** Dump digis on half-strips and di-strips. */
-  void dumpDigis(
-      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
-      const int stripType, const int nStrips) const;
+  /** Dump digis on half-strips */
+  void dumpDigis(const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+                 const int stripType, const int nStrips) const;
 
   //--------------------------- Methods for tests -----------------------------
-  void testDistripStagger();
   void testLCTs();
-  int findNumLayersHit(std::vector<int> stripsHit[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 };
 
 #endif
