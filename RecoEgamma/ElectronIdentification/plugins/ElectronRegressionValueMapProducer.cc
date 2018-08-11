@@ -16,8 +16,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
-#include "TVector2.h"
-
 #include <memory>
 #include <vector>
 #include <unordered_map>
