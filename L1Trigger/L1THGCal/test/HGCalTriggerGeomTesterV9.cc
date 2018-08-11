@@ -31,7 +31,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include <stdlib.h> 
+#include <cstdlib> 
 
 namespace 
 {  
@@ -405,7 +405,6 @@ void HGCalTriggerGeomTesterV9::checkMappingConsistency()
         // fill modules
         uint32_t module = triggerGeometry_->getModuleFromCell(id);
         itr_insert = modules_to_cells.emplace(module, std::unordered_set<uint32_t>());
-        // std::cout<<"BLABLA\n";
         itr_insert.first->second.emplace(id);
     }
     // HSc

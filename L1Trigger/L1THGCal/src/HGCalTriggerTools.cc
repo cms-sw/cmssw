@@ -195,8 +195,10 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
   } else if(subdet == HcalSubdetector::HcalEndcap || subdet == ForwardSubdetector::HGCHEB) {
     if(geom_->bhGeometry())
     {
-      std::pair<int,int> eta_range = geom_->bhTopology().dddConstants()->getEtaRange(1);
-      layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(HcalSubdetector::HcalEndcap,eta_range.second,layer);
+      layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(
+          HcalSubdetector::HcalEndcap,
+          geom_->bhTopology().dddConstants()->getEtaRange(1).second,
+          layer);
     }
     else
     {
