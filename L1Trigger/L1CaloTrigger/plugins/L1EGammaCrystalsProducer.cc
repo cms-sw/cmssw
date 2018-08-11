@@ -119,7 +119,8 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       std::string towerMapName;
 
       // Fit function to scale L1EG Crystal Pt to Stage-2
-      TF1 ptAdjustFunc = TF1("ptAdjustFunc", "(([0] + [1]*TMath::Exp(-[2]*x))*(1./([3] + [4]*TMath::Exp(-[5]*x))))");
+      //TF1 ptAdjustFunc = TF1("ptAdjustFunc", "(([0] + [1]*TMath::Exp(-[2]*x))*(1./([3] + [4]*TMath::Exp(-[5]*x))))");
+      TF1 ptAdjustFunc = TF1("ptAdjustFunc", "[0] + [1]*TMath::Exp(-[2]*x)");
 
       class SimpleCaloHit
       {
@@ -195,12 +196,15 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    // Fit parameters measured on 28 May 2017, using 500 MeV threshold for ECAL TPs
    // working in CMSSW 920
    // Adjustments to be applied to reco cluster pt
-   ptAdjustFunc.SetParameter( 0, 1.062166 );
-   ptAdjustFunc.SetParameter( 1, 0.298738 );
-   ptAdjustFunc.SetParameter( 2, 0.038971 );
-   ptAdjustFunc.SetParameter( 3, 0.977781 );
-   ptAdjustFunc.SetParameter( 4, -0.054748 );
-   ptAdjustFunc.SetParameter( 5, 0.044248 );
+   //ptAdjustFunc.SetParameter( 0, 1.062166 );
+   //ptAdjustFunc.SetParameter( 1, 0.298738 );
+   //ptAdjustFunc.SetParameter( 2, 0.038971 );
+   //ptAdjustFunc.SetParameter( 3, 0.977781 );
+   //ptAdjustFunc.SetParameter( 4, -0.054748 );
+   //ptAdjustFunc.SetParameter( 5, 0.044248 );
+   ptAdjustFunc.SetParameter( 0, 1.06 );
+   ptAdjustFunc.SetParameter( 1, 0.273 );
+   ptAdjustFunc.SetParameter( 2, 0.0411 );
    
    // Get tower mapping
    if (useTowerMap) {
