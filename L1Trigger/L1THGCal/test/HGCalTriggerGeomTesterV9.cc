@@ -7,7 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -43,7 +43,7 @@ namespace
 }
 
 
-class HGCalTriggerGeomTesterV9 : public edm::EDAnalyzer 
+class HGCalTriggerGeomTesterV9 : public edm::stream::EDAnalyzer<>
 {
     public:
         explicit HGCalTriggerGeomTesterV9(const edm::ParameterSet& );
