@@ -1,4 +1,4 @@
-{
+	{
        "HcalDigiTask/HcalDigiTask_ieta_iphi_occupancy_map_depth4_HO": {
         "chi2Flag": "noChi2",
         "dimFlag": "2D",
@@ -1824,7 +1824,7 @@
         "normFlag": "Norm",
         "outLabel": "HF_CaloTowers_SET_HF.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 8,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
@@ -1845,21 +1845,21 @@
             "yAxisMin": 0.0
         },
         "rangeMediumData": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeLowData": {
-            "rebin": 2,
+            "rebin": 5,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeMediumPileup": {
-            "rebin": 4,
+            "rebin": 8,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
@@ -1992,7 +1992,7 @@
         "normFlag": "Norm",
         "outLabel": "HF_CaloTowers_Energy_in_ECAL_HF.gif",
         "rangeHigh": {
-            "rebin": 5,
+            "rebin": 12,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
@@ -2013,21 +2013,21 @@
             "yAxisMin": 0.0
         },
         "rangeMediumData": {
-            "rebin": 5,
+            "rebin": 10,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
        "rangeLowData": {
-            "rebin": 5,
+            "rebin": 10,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeMediumPileup": {
-            "rebin": 4,
+            "rebin": 12,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
@@ -2160,42 +2160,42 @@
         "normFlag": "Norm",
         "outLabel": "HF_CaloTowers_Energy_in_HCAL_HF.gif",
         "rangeHigh": {
-            "rebin": 5,
+            "rebin": 15,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeLow": {
-            "rebin": 5,
+            "rebin": 8,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeMedium": {
-            "rebin": 5,
+            "rebin": 8,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeMediumData": {
-            "rebin": 5,
+            "rebin": 10,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeLowData": {
-            "rebin": 5,
+            "rebin": 10,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeMediumPileup": {
-            "rebin": 5,
+            "rebin": 15,
             "xAxisMax": -1.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
@@ -2238,14 +2238,14 @@
         },
         "rangeMediumData": {
             "rebin": 2,
-            "xAxisMax": 500.0,
+            "xAxisMax": 1000.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeLowData": {
             "rebin": 2,
-            "xAxisMax": 500.0,
+            "xAxisMax": 800.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
@@ -2329,7 +2329,7 @@
         "outLabel": "HF_CaloTowers_Ntowers_HF.gif",
         "rangeHigh": {
             "rebin": 2,
-            "xAxisMax": 500.0,
+            "xAxisMax": 600.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
@@ -2350,15 +2350,15 @@
         },
         "rangeMediumData": {
             "rebin": 2,
-            "xAxisMax": 500.0,
-            "xAxisMin": 0.0,
+            "xAxisMax": 1000.0,
+            "xAxisMin": 400.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
         "rangeLowData": {
             "rebin": 2,
-            "xAxisMax": 500.0,
-            "xAxisMin": 0.0,
+            "xAxisMax": 900.0,
+            "xAxisMin": 200.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
         },
@@ -4582,7 +4582,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -4750,7 +4750,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth1_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -4960,7 +4960,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth2_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -5128,7 +5128,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth3_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -5170,7 +5170,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth4_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -5212,7 +5212,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth5_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -5254,7 +5254,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth6_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -5296,7 +5296,7 @@
         "normFlag": "Norm",
         "outLabel": "HcalDigiTask_signal_amplitude_depth7_HE.gif",
         "rangeHigh": {
-            "rebin": 2,
+            "rebin": 10,
             "xAxisMax": 1000000.0,
             "xAxisMin": -2000.0,
             "yAxisMax": -1.0,
@@ -7803,7 +7803,7 @@
         "outLabel": "N_HE.gif",
         "rangeHigh": {
             "rebin": 10,
-            "xAxisMax": 500.0,
+            "xAxisMax": 800.0,
             "xAxisMin": 0.0,
             "yAxisMax": -1.0,
             "yAxisMin": 0.0
