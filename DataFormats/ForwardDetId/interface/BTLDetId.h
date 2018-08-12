@@ -36,8 +36,8 @@ class BTLDetId : public MTDDetId {
   static constexpr int kCrystalsInEtaBar = 16; // per module
   static constexpr int kCrystalsPerROD = 3456; // 64 crystals per module x 54 modules per rod
   static constexpr int MIN_ROD = 1;
-  static constexpr int MAX_ROD = 36;
-  static constexpr int HALF_ROD = 18;
+  static constexpr int MAX_ROD = 72;
+  static constexpr int HALF_ROD = 36;
   static constexpr int MIN_IETA = 1;
   static constexpr int MIN_IPHI = 1;
   static constexpr int MAX_IETA_TILE = kCrystalsInEtaTile*kModulesPerROD;
@@ -96,12 +96,13 @@ class BTLDetId : public MTDDetId {
 
   int ieta( kCrysLayout lay ) const { return zside()*ietaAbs( lay ); }
 
+  /** define a dense index fo arrays from a DetId */
   int hashedIndex( kCrysLayout lay ) const ;
 
   static bool validHashedIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 
   /** get a DetId from a compact index for arrays */
-  // void getUnhashedIndex( int hi, BTLDetId id, kCrysLayout lay ) const ;
+  BTLDetId getUnhashedIndex( int hi, kCrysLayout lay ) const ;
 
 };
 

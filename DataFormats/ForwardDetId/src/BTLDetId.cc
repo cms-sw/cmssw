@@ -38,14 +38,26 @@ int BTLDetId::hashedIndex( kCrysLayout lay ) const {
 }
 
 /** get a DetId from a compact index for arrays */
-/* void BTLDetId::getUnhashedIndex( int hi, BTLDetId id, kCrysLayout lay ) const { */
-/*   int max_iphi,max_ieta; */
-/*   switch ( lay ) { */
-/*   case tile : max_iphi = MAX_IPHI_TILE; max_ieta = MAX_IETA_TILE; break ; */
-/*   case bar : max_iphi = MAX_IPHI_BAR; max_ieta = MAX_IETA_BAR; break ; */
-/*   default: break ;   */
-/*   } */
-/* } */
+
+BTLDetId BTLDetId::getUnhashedIndex( int hi, kCrysLayout lay ) const {
+  int max_iphi =1 ,max_ieta = 1, nphi = 0, keta = 0, tmphi = hi + 1;
+  switch ( lay ) {
+  case tile : max_iphi = MAX_IPHI_TILE; max_ieta = MAX_IETA_TILE; nphi = kCrystalsInPhiTile; keta = kCrystalsInEtaTile; break ;
+  case bar : max_iphi = MAX_IPHI_BAR; max_ieta = MAX_IETA_BAR; nphi = kCrystalsInPhiBar; keta = kCrystalsInEtaBar; break ;
+  default: break ;
+  }
+  uint32_t zside = 0, rod = 0, module = 0, modtype = 1, crystal = 0;
+  if ( tmphi > max_ieta*max_iphi ) { zside = 1; }
+  int ip = (tmphi-1)%max_iphi+1;
+  int ie = (tmphi-1)/max_iphi - max_ieta;
+  ie = ( zside == 1 ? ie + 1 : -ie ) ; 
+  rod = (ip-1)/nphi+1;
+  module = (ie-1)/keta+1 ; 
+  if ( module > kTypeBoundaries[1] ) { module > kTypeBoundaries[2] ? modtype = 3  :  modtype = 2 ;  }
+  if ( modtype > 1 ) { module = module - kTypeBoundaries[modtype-1]; }
+  crystal = ((ip-1)%nphi+1)+((ie-1)%keta)*nphi;
+  return  BTLDetId( zside, rod, module, modtype, crystal);
+}
 
 #include <iomanip>
 
