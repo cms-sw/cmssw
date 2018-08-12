@@ -30,6 +30,7 @@ public:
   virtual ~Block();
 
   const Symbol& symbol() const { return sym_; }
+  Symbol symbol(const std::string &output_node) const { return sym_.GetInternals()[output_node]; }
   const std::map<std::string, NDArray>& arg_map() const { return arg_map_; }
   const std::map<std::string, NDArray>& aux_map() const { return aux_map_; }
 
@@ -50,15 +51,17 @@ class MXNetCppPredictor {
 public:
   MXNetCppPredictor();
   MXNetCppPredictor(const Block &block);
+  MXNetCppPredictor(const Block &block, const std::string &output_node);
   virtual ~MXNetCppPredictor();
 
   void set_input_shapes(const std::vector<std::string>& input_names, const std::vector<std::vector<mx_uint>>& input_shapes);
-  void set_output_node_name(const std::string& output_node_name);
   const std::vector<float>& predict(const std::vector<std::vector<mx_float>>& input_data);
 
 private:
-  void bind_executor();
   static std::mutex mutex_;
+
+  void infer_shapes();
+  void bind_executor();
 
   // context
   static const Context context_;
@@ -74,6 +77,13 @@ private:
   std::vector<float> pred_;
   // names of the input nodes
   std::vector<std::string> input_names_;
+
+  // internal states
+  std::vector<NDArray> arg_arrays;
+  std::vector<NDArray> grad_arrays;
+  std::vector<OpReqType> grad_reqs;
+  std::vector<NDArray> aux_arrays;
+
 };
 
 } /* namespace cpp */
