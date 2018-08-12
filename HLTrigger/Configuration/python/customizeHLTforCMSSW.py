@@ -207,7 +207,7 @@ def customizeHLTForL3OIPR23988(process):
            trackproducer.reverseTrajectories  =cms.bool(True) 
 
 
-def customizeHLTForL3OIPRtobenamed(process):
+def customizeHLTForL3OIPR24267(process):
    for seedproducer in producers_by_type(process, "TSGForOI"):
        if "hltIterL3OISeedsFromL2Muons" == seedproducer.label():
            process.hltIterL3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2")
@@ -234,5 +234,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    customizeHLTForL3OIPRtobenamed(process)
+    customizeHLTForL3OIPR24267(process)
     return process
