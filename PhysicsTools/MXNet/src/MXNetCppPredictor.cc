@@ -51,6 +51,9 @@ MXNetCppPredictor::MXNetCppPredictor() {
 MXNetCppPredictor::MXNetCppPredictor(const Block& block) : sym_(block.symbol()), arg_map_(block.arg_map()), aux_map_(block.aux_map()) {
 }
 
+MXNetCppPredictor::MXNetCppPredictor(const Block &block, const std::string &output_node) : sym_(block.symbol(output_node)), arg_map_(block.arg_map()), aux_map_(block.aux_map()) {
+}
+
 MXNetCppPredictor::~MXNetCppPredictor() {
 }
 
@@ -63,21 +66,16 @@ void MXNetCppPredictor::set_input_shapes(const std::vector<std::string>& input_n
     NDArray nd(input_shapes.at(i), context_, false);
     arg_map_[name] = nd;
   }
-}
-
-void MXNetCppPredictor::set_output_node_name(const std::string& output_node_name) {
-  if (!output_node_name.empty()){
-    sym_ = sym_.GetInternals()[output_node_name];
-  }
+  // infer parameter shapes from input shapes
+  infer_shapes();
 }
 
 const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vector<mx_float> >& input_data) {
   assert(input_names_.size() == input_data.size());
 
   try {
-    // create the executor (if not done yet)
-    if (!exec_) { bind_executor(); }
-    assert(exec_);
+    // bind executor
+    bind_executor();
     // set the inputs
     for (unsigned i=0; i<input_names_.size(); ++i){
       const auto& name = input_names_.at(i);
@@ -93,7 +91,7 @@ const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vect
   }
 }
 
-void MXNetCppPredictor::bind_executor() {
+void MXNetCppPredictor::infer_shapes() {
   // acquire lock
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -111,7 +109,7 @@ void MXNetCppPredictor::bind_executor() {
   sym_.InferShape(arg_shapes, &in_shapes, &aux_shapes, &out_shapes);
 
   // init argument arrays
-  std::vector<NDArray> arg_arrays;
+  arg_arrays.clear();
   for (size_t i = 0; i < in_shapes.size(); ++i) {
     const auto &shape = in_shapes[i];
     const auto &arg_name = arg_name_list[i];
@@ -122,11 +120,11 @@ void MXNetCppPredictor::bind_executor() {
       arg_arrays.push_back(NDArray(shape, context_, false));
     }
   }
-  std::vector<NDArray> grad_arrays(arg_arrays.size());
-  std::vector<OpReqType> grad_reqs(arg_arrays.size(), kNullOp);
+  grad_arrays = std::vector<NDArray>(arg_arrays.size());
+  grad_reqs = std::vector<OpReqType>(arg_arrays.size(), kNullOp);
 
   // init auxiliary array
-  std::vector<NDArray> aux_arrays;
+  aux_arrays.clear();
   const auto aux_name_list = sym_.ListAuxiliaryStates();
   for (size_t i = 0; i < aux_shapes.size(); ++i) {
     const auto &shape = aux_shapes[i];
@@ -139,9 +137,11 @@ void MXNetCppPredictor::bind_executor() {
     }
   }
 
+}
+
+void MXNetCppPredictor::bind_executor() {
   // bind executor
   exec_.reset(new Executor(sym_, context_, arg_arrays, grad_arrays, grad_reqs, aux_arrays));
-
 }
 
 }
