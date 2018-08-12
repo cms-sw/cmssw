@@ -282,7 +282,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(
 
   // Add Gaussian noise to the points towards outside. 
   float smeared_entry_x, smeared_exit_x;
-  if(hit_entry_x > hit_exit_entry) {
+  if(hit_entry_x > hit_exit_x) {
     smeard_entry_x = hit_entry_x + std::abs(CLHEP::RandGaussQ::shoot(engine, 0, resolutionX_));
     smeard_exit_x = hit_exit_x - std::abs(CLHEP::RandGaussQ::shoot(engine, 0, resolutionX_));
   } else {
