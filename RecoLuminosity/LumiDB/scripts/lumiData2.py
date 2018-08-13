@@ -18,34 +18,34 @@ def main():
     # add optional arguments
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',
-			default=None,
+                        default=None,
                         required=False,
-			help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
+                        help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['listrun'],help='command actions')
     parser.add_argument('--minrun',
-			dest='minrun',
-			action='store',
-			type=int,
-			help='min run number')
+                        dest='minrun',
+                        action='store',
+                        type=int,
+                        help='min run number')
     parser.add_argument('--maxrun',
-			dest='maxrun',
-			action='store',
-			type=int,
-			help='max run number')
+                        dest='maxrun',
+                        action='store',
+                        type=int,
+                        help='max run number')
     parser.add_argument('--minfill',
-			dest='minfill',
-			type=int,
-			action='store',
-			help='min fill number')
+                        dest='minfill',
+                        type=int,
+                        action='store',
+                        help='min fill number')
     parser.add_argument('--maxfill',
-			dest='maxfill',
-			type=int,
-			action='store',
-			help='max fill number')
+                        dest='maxfill',
+                        type=int,
+                        action='store',
+                        help='max fill number')
     parser.add_argument('--verbose',
-			dest='verbose',
-			action='store_true',
-			help='verbose mode for printing' )
+                        dest='verbose',
+                        action='store_true',
+                        help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     options=parser.parse_args()
@@ -60,13 +60,13 @@ def main():
     runlist=lumiCalcAPI.runList(schema,None,runmin=options.minrun,runmax=options.maxrun,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=None,requiretrg=reqTrg,requirehlt=reqHLT)
     session.transaction().commit()
     if options.action == 'listrun':
-	    if not runlist:
-	        print('[]')
-		sys.exit(0)
-	    singlelist=sorted(listRemoveDuplicate(runlist))
-	    print(singlelist)
+        if not runlist:
+            print('[]')
+            sys.exit(0)
+        singlelist=sorted(listRemoveDuplicate(runlist))
+        print(singlelist)
     del session
     del svc
 if __name__=='__main__':
     main()
-    
+

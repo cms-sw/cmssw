@@ -201,4 +201,4 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""
         attr = objectProducer.genParticleMatch.getModuleLabel()
         objectProducer.genParticleMatch = ''
     if hasattr(process,attr): delattr(process,attr)
-    
+

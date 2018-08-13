@@ -352,7 +352,7 @@ class Dataset(object):
         return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
-	dasData = das_client.get_data(dasQuery, dasLimit)
+        dasData = das_client.get_data(dasQuery, dasLimit)
         if isinstance(dasData, str):
             jsondict = json.loads( dasData )
         else:
@@ -734,19 +734,19 @@ class Dataset(object):
                     "only work for official datasets, not predefined _cff.py files" )
             raise AllInOneError( msg )
         if self.__predefined and parent:
-                with open(self.__filename) as f:
-                    if "secFiles.extend" not in f.read():
-                        msg = ("The predefined dataset '%s' does not contain secondary files, "
-                               "which your validation requires!") % self.__name
-                        if self.__official:
-                            self.__name = self.__origName
-                            self.__predefined = False
-                            print(msg)
-                            print ("Retreiving the files from DAS.  You will be asked if you want "
-                                   "to overwrite the old dataset.\n"
-                                   "It will still be compatible with validations that don't need secondary files.")
-                        else:
-                            raise AllInOneError(msg)
+            with open(self.__filename) as f:
+                if "secFiles.extend" not in f.read():
+                    msg = ("The predefined dataset '%s' does not contain secondary files, "
+                           "which your validation requires!") % self.__name
+                    if self.__official:
+                        self.__name = self.__origName
+                        self.__predefined = False
+                        print(msg)
+                        print ("Retreiving the files from DAS.  You will be asked if you want "
+                               "to overwrite the old dataset.\n"
+                               "It will still be compatible with validations that don't need secondary files.")
+                    else:
+                        raise AllInOneError(msg)
 
         if self.__predefined:
             snippet = ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"

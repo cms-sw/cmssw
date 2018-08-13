@@ -39,7 +39,7 @@ class Electron( Lepton ):
         elif id == "MVA_ID_NonTrig_Phys14Fix_HZZ":     return self.mvaIDRun2("NonTrigPhys14Fix","HZZ")
         elif id == "MVA_ID_NonTrig_Spring15_HZZ":     return self.mvaIDRun2("NonTrigSpring15MiniAOD","HZZ")
         elif id.startswith("POG_Cuts_ID_"):
-                return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
+            return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
             if ID.first == id:
                 return ID.second
@@ -214,105 +214,105 @@ class Electron( Lepton ):
         return self._mvaRun2[name]
 
     def mvaIDTight(self, full5x5=False):
-            eta = abs(self.superCluster().eta())
-            if self.pt() < 20:
-                if   (eta < 0.8)  : return self.mvaTrigV0(full5x5) > +0.00;
-                elif (eta < 1.479): return self.mvaTrigV0(full5x5) > +0.10;
-                else              : return self.mvaTrigV0(full5x5) > +0.62;
-            else:
-                if   (eta < 0.8)  : return self.mvaTrigV0(full5x5) > +0.94;
-                elif (eta < 1.479): return self.mvaTrigV0(full5x5) > +0.85;
-                else              : return self.mvaTrigV0(full5x5) > +0.92;
+        eta = abs(self.superCluster().eta())
+        if self.pt() < 20:
+            if   (eta < 0.8)  : return self.mvaTrigV0(full5x5) > +0.00;
+            elif (eta < 1.479): return self.mvaTrigV0(full5x5) > +0.10;
+            else              : return self.mvaTrigV0(full5x5) > +0.62;
+        else:
+            if   (eta < 0.8)  : return self.mvaTrigV0(full5x5) > +0.94;
+            elif (eta < 1.479): return self.mvaTrigV0(full5x5) > +0.85;
+            else              : return self.mvaTrigV0(full5x5) > +0.92;
 
     def mvaIDLoose(self, full5x5=False):
-            eta = abs(self.superCluster().eta())
-            if self.pt() < 10:
-                if   (eta < 0.8)  : return self.mvaNonTrigV0(full5x5) > +0.47;
-                elif (eta < 1.479): return self.mvaNonTrigV0(full5x5) > +0.004;
-                else              : return self.mvaNonTrigV0(full5x5) > +0.295;
-            else:
-                if   (eta < 0.8)  : return self.mvaNonTrigV0(full5x5) > -0.34;
-                elif (eta < 1.479): return self.mvaNonTrigV0(full5x5) > -0.65;
-                else              : return self.mvaNonTrigV0(full5x5) > +0.60;
+        eta = abs(self.superCluster().eta())
+        if self.pt() < 10:
+            if   (eta < 0.8)  : return self.mvaNonTrigV0(full5x5) > +0.47;
+            elif (eta < 1.479): return self.mvaNonTrigV0(full5x5) > +0.004;
+            else              : return self.mvaNonTrigV0(full5x5) > +0.295;
+        else:
+            if   (eta < 0.8)  : return self.mvaNonTrigV0(full5x5) > -0.34;
+            elif (eta < 1.479): return self.mvaNonTrigV0(full5x5) > -0.65;
+            else              : return self.mvaNonTrigV0(full5x5) > +0.60;
 
     def mvaIDRun2(self, name, wp):
-            eta = abs(self.superCluster().eta())
-            if name == "NonTrigPhys14":
-                if wp=="Loose":
-                    if   (eta < 0.8)  : return self.mvaRun2(name) > +0.35;
-                    elif (eta < 1.479): return self.mvaRun2(name) > +0.20;
-                    else              : return self.mvaRun2(name) > -0.52;
-                elif wp=="VLoose":
+        eta = abs(self.superCluster().eta())
+        if name == "NonTrigPhys14":
+            if wp=="Loose":
+                if   (eta < 0.8)  : return self.mvaRun2(name) > +0.35;
+                elif (eta < 1.479): return self.mvaRun2(name) > +0.20;
+                else              : return self.mvaRun2(name) > -0.52;
+            elif wp=="VLoose":
+                if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
+                elif (eta < 1.479): return self.mvaRun2(name) > -0.35;
+                else              : return self.mvaRun2(name) > -0.55;
+            elif wp=="Tight":
+                if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
+                elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
+                else              : return self.mvaRun2(name) > 0.05;
+            else: raise RuntimeError("Ele MVA ID Working point not found")
+        elif name == "NonTrigPhys14Fix":
+            if wp == "HZZ":
+                if self.pt() <= 10:
+                    if   eta < 0.8  : return self.mvaRun2(name) > -0.586;
+                    elif eta < 1.479: return self.mvaRun2(name) > -0.712;
+                    else            : return self.mvaRun2(name) > -0.662;
+                else:
+                    if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
+                    elif eta < 1.479: return self.mvaRun2(name) > -0.701;
+                    else            : return self.mvaRun2(name) > -0.350;
+            else: raise RuntimeError("Ele MVA ID Working point not found")
+        elif name in ("NonTrigSpring15","NonTrigSpring15MiniAOD"):
+            if wp=="VLoose":
+                if self.pt() <= 10:
                     if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
-                    elif (eta < 1.479): return self.mvaRun2(name) > -0.35;
-                    else              : return self.mvaRun2(name) > -0.55;
-                elif wp=="Tight":
-                    if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
-                    elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
-                    else              : return self.mvaRun2(name) > 0.05;
-                else: raise RuntimeError("Ele MVA ID Working point not found")
-            elif name == "NonTrigPhys14Fix":
-                if wp == "HZZ":
-                    if self.pt() <= 10:
-                        if   eta < 0.8  : return self.mvaRun2(name) > -0.586;
-                        elif eta < 1.479: return self.mvaRun2(name) > -0.712;
-                        else            : return self.mvaRun2(name) > -0.662;
-                    else:
-                        if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
-                        elif eta < 1.479: return self.mvaRun2(name) > -0.701;
-                        else            : return self.mvaRun2(name) > -0.350;
-                else: raise RuntimeError("Ele MVA ID Working point not found")
-            elif name in ("NonTrigSpring15","NonTrigSpring15MiniAOD"):
-                if wp=="VLoose":
-                    if self.pt() <= 10:
-                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
-                        elif (eta < 1.479): return self.mvaRun2(name) > -0.55;
-                        else              : return self.mvaRun2(name) > -0.60;
-                    else:
-                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.16;
-                        elif (eta < 1.479): return self.mvaRun2(name) > -0.65;
-                        else              : return self.mvaRun2(name) > -0.74;                        
-                elif wp=="VLooseIdEmu":
-                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.70;
-                    elif (eta < 1.479): return self.mvaRun2(name) > -0.83;
-                    else              : return self.mvaRun2(name) > -0.92;
-                elif wp=="VLooseIdIsoEmu":
-                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.155;
-                    elif (eta < 1.479): return self.mvaRun2(name) > -0.56;
-                    else              : return self.mvaRun2(name) > -0.76;
-                elif wp=="Tight":
-                    if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
-                    elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
-                    else              : return self.mvaRun2(name) > 0.17;
-                elif wp == "HZZ":
-                    if self.pt() <= 10:
-                        if   eta < 0.8  : return self.mvaRun2(name) > -0.265;
-                        elif eta < 1.479: return self.mvaRun2(name) > -0.556;
-                        else            : return self.mvaRun2(name) > -0.551;
-                    else:
-                        if   eta < 0.8  : return self.mvaRun2(name) > -0.072;
-                        elif eta < 1.479: return self.mvaRun2(name) > -0.286;
-                        else            : return self.mvaRun2(name) > -0.267;
-                elif wp == "POG80":
-                    if self.pt() > 10.:
-                        if eta < 0.8: return self.mvaRun2(name) > 0.967083
-                        elif eta < 1.479: return self.mvaRun2(name) > 0.929117
-                        else: return self.mvaRun2(name) > 0.726311
-                    else: # pt <= 10
-                        if eta < 0.8: return self.mvaRun2(name) > 0.287435
-                        elif eta < 1.479: return self.mvaRun2(name) > 0.221846
-                        else: return self.mvaRun2(name) > -0.303263
-                elif wp == "POG90":
-                    if self.pt() > 10.:
-                        if eta < 0.8: return self.mvaRun2(name) > 0.913286
-                        elif eta < 1.479: return self.mvaRun2(name) > 0.805013
-                        else: return self.mvaRun2(name) > 0.358969
-                    else: # pt <= 10
-                        if eta < 0.8: return self.mvaRun2(name) > -0.083313
-                        elif eta < 1.479: return self.mvaRun2(name) > -0.235222
-                        else: return self.mvaRun2(name) > -0.67099
-                else: raise RuntimeError("Ele MVA ID Working point not found")
-            else: raise RuntimeError("Ele MVA ID type not found")
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.55;
+                    else              : return self.mvaRun2(name) > -0.60;
+                else:
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.16;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.65;
+                    else              : return self.mvaRun2(name) > -0.74;                        
+            elif wp=="VLooseIdEmu":
+                if   (eta < 0.8)  : return self.mvaRun2(name) > -0.70;
+                elif (eta < 1.479): return self.mvaRun2(name) > -0.83;
+                else              : return self.mvaRun2(name) > -0.92;
+            elif wp=="VLooseIdIsoEmu":
+                if   (eta < 0.8)  : return self.mvaRun2(name) > -0.155;
+                elif (eta < 1.479): return self.mvaRun2(name) > -0.56;
+                else              : return self.mvaRun2(name) > -0.76;
+            elif wp=="Tight":
+                if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
+                elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
+                else              : return self.mvaRun2(name) > 0.17;
+            elif wp == "HZZ":
+                if self.pt() <= 10:
+                    if   eta < 0.8  : return self.mvaRun2(name) > -0.265;
+                    elif eta < 1.479: return self.mvaRun2(name) > -0.556;
+                    else            : return self.mvaRun2(name) > -0.551;
+                else:
+                    if   eta < 0.8  : return self.mvaRun2(name) > -0.072;
+                    elif eta < 1.479: return self.mvaRun2(name) > -0.286;
+                    else            : return self.mvaRun2(name) > -0.267;
+            elif wp == "POG80":
+                if self.pt() > 10.:
+                    if eta < 0.8: return self.mvaRun2(name) > 0.967083
+                    elif eta < 1.479: return self.mvaRun2(name) > 0.929117
+                    else: return self.mvaRun2(name) > 0.726311
+                else: # pt <= 10
+                    if eta < 0.8: return self.mvaRun2(name) > 0.287435
+                    elif eta < 1.479: return self.mvaRun2(name) > 0.221846
+                    else: return self.mvaRun2(name) > -0.303263
+            elif wp == "POG90":
+                if self.pt() > 10.:
+                    if eta < 0.8: return self.mvaRun2(name) > 0.913286
+                    elif eta < 1.479: return self.mvaRun2(name) > 0.805013
+                    else: return self.mvaRun2(name) > 0.358969
+                else: # pt <= 10
+                    if eta < 0.8: return self.mvaRun2(name) > -0.083313
+                    elif eta < 1.479: return self.mvaRun2(name) > -0.235222
+                    else: return self.mvaRun2(name) > -0.67099
+            else: raise RuntimeError("Ele MVA ID Working point not found")
+        else: raise RuntimeError("Ele MVA ID type not found")
 
 
 
@@ -361,7 +361,7 @@ class Electron( Lepton ):
         elif puCorr in ["none","None",None]:
             offset = 0
         else:
-             raise RuntimeError("Unsupported PU correction scheme %s" % puCorr)
+            raise RuntimeError("Unsupported PU correction scheme %s" % puCorr)
         return self.chargedHadronIsoR(R)+max(0.,photonIso+self.neutralHadronIsoR(R)-offset)            
 
 
@@ -379,7 +379,7 @@ class Electron( Lepton ):
         return self.gsfTrack().dxyError()
 
     def p4(self):
-	 return ROOT.reco.Candidate.p4(self.physObj)
+        return ROOT.reco.Candidate.p4(self.physObj)
 
 #    def p4(self):
 #        return self.physObj.p4(self.physObj.candidateP4Kind()) # if kind == None else kind)
@@ -400,9 +400,9 @@ class Electron( Lepton ):
 
     def lostInner(self) :
         if hasattr(self.gsfTrack(),"trackerExpectedHitsInner") :
-		return self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()
-	else :
-		return self.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
+            return self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()
+        else :
+            return self.gsfTrack().hitPattern().numberOfLostHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
 
     def validCandidateP4Kind(self):
         raw = self.physObj.candidateP4Kind()
@@ -410,4 +410,4 @@ class Electron( Lepton ):
 
     def ptErr(self):
         return self.p4Error(self.candidateP4Kind())*self.pt()/self.p() if self.validCandidateP4Kind() else None
- 
+
