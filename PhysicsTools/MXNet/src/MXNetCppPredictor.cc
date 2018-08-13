@@ -66,16 +66,15 @@ void MXNetCppPredictor::set_input_shapes(const std::vector<std::string>& input_n
     NDArray nd(input_shapes[i], context_, false);
     arg_map_[name] = nd;
   }
-  // infer parameter shapes from input shapes
-  infer_shapes();
 }
 
 const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vector<mx_float> >& input_data) {
   assert(input_names_.size() == input_data.size());
 
   try {
-    // bind executor
-    bind_executor();
+    // create the executor (if not done yet)
+    if (!exec_) { bind_executor(); }
+    assert(exec_);
     // set the inputs
     for (unsigned i=0; i<input_names_.size(); ++i){
       const auto& name = input_names_[i];
@@ -91,7 +90,7 @@ const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vect
   }
 }
 
-void MXNetCppPredictor::infer_shapes() {
+void MXNetCppPredictor::bind_executor() {
   // acquire lock
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -109,7 +108,7 @@ void MXNetCppPredictor::infer_shapes() {
   sym_.InferShape(arg_shapes, &in_shapes, &aux_shapes, &out_shapes);
 
   // init argument arrays
-  arg_arrays.clear();
+  std::vector<NDArray> arg_arrays;
   for (size_t i = 0; i < in_shapes.size(); ++i) {
     const auto &shape = in_shapes[i];
     const auto &arg_name = arg_name_list[i];
@@ -120,11 +119,11 @@ void MXNetCppPredictor::infer_shapes() {
       arg_arrays.push_back(NDArray(shape, context_, false));
     }
   }
-  grad_arrays = std::vector<NDArray>(arg_arrays.size());
-  grad_reqs = std::vector<OpReqType>(arg_arrays.size(), kNullOp);
+  std::vector<NDArray> grad_arrays(arg_arrays.size());
+  std::vector<OpReqType> grad_reqs(arg_arrays.size(), kNullOp);
 
   // init auxiliary array
-  aux_arrays.clear();
+  std::vector<NDArray> aux_arrays;
   const auto aux_name_list = sym_.ListAuxiliaryStates();
   for (size_t i = 0; i < aux_shapes.size(); ++i) {
     const auto &shape = aux_shapes[i];
@@ -137,9 +136,6 @@ void MXNetCppPredictor::infer_shapes() {
     }
   }
 
-}
-
-void MXNetCppPredictor::bind_executor() {
   // bind executor
   exec_.reset(new Executor(sym_, context_, arg_arrays, grad_arrays, grad_reqs, aux_arrays));
 }
