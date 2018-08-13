@@ -695,8 +695,16 @@ void HGCDigitizer::checkPosition(const HGCalDigiCollection* digis) const {
 					   << ":" << zrange.first << ":"
 					   << zrange.second << " Flag "
 					   << ok << " " << ck;
-	} else {
+	} else if (id.det() == DetId::HGCalHSc) {
 	  edm::LogVerbatim("HGCDigitizer") << "Check " << HGCScintillatorDetId(id)
+					   << " " << global << " R " << r 
+					   << ":"  << rrange.first << ":" 
+					   << rrange.second << " Z " << z 
+					   << ":" << zrange.first << ":" 
+					   << zrange.second << " Flag "
+					   << ok << " " << ck;
+	} else {
+	  edm::LogVerbatim("HGCDigitizer") << "Check " << HFNoseDetId(id)
 					   << " " << global << " R " << r 
 					   << ":"  << rrange.first << ":" 
 					   << rrange.second << " Z " << z 
