@@ -1,5 +1,5 @@
-#ifndef RecoBTag_TensorFlow_sorting_modules_h
-#define RecoBTag_TensorFlow_sorting_modules_h
+#ifndef RecoBTag_FeatureTools_sorting_modules_h
+#define RecoBTag_FeatureTools_sorting_modules_h
 
 #include <algorithm>
 #include <cmath>
@@ -25,7 +25,7 @@ class SortingClass{
       t_(t), sortValA(sortA), sortValB(sortB), sortValC(sortC) {}
 
     const T& get() const {return t_;}
- 
+
     enum compareResult{cmp_smaller,cmp_greater,cmp_invalid};
 
     static inline compareResult compare(const SortingClass& a, const SortingClass& b,int validx=0){
@@ -81,4 +81,4 @@ class SortingClass{
 std::vector<std::size_t> invertSortingVector(const std::vector<SortingClass<std::size_t> > & in);
 
 }
-#endif //RecoBTag_TensorFlow_sorting_modules_h
+#endif //RecoBTag_FeatureTools_sorting_modules_h

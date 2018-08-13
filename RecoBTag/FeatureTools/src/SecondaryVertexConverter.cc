@@ -1,19 +1,20 @@
-#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
+#include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexFeatures.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "RecoBTag/TensorFlow/interface/SecondaryVertexConverter.h"
+#include "RecoBTag/FeatureTools/interface/SecondaryVertexConverter.h"
 
 namespace btagbtvdeep {
-  
-  
+
+
   void svToFeatures( const reco::VertexCompositePtrCandidate & sv,
 		     const reco::Vertex & pv, const reco::Jet & jet,
 		     SecondaryVertexFeatures & sv_features,
 		     const bool flip) {
+
     math::XYZVector jet_dir = jet.momentum().Unit();
     sv_features.pt = sv.pt();
     sv_features.deltaR = catch_infs_and_bound(std::fabs(reco::deltaR(sv, jet_dir))-0.5,
@@ -33,8 +34,8 @@ namespace btagbtvdeep {
 					      0,-1,800);
     sv_features.costhetasvpv = (flip ? -1.f : 1.f)* vertexDdotP(sv,pv);
     sv_features.enratio = sv.energy()/jet.energy();
-    
-  } 
-  
+
+  }
+
 }
 
