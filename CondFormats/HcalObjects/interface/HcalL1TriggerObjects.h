@@ -20,8 +20,6 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
 #endif
   HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
 
-  static constexpr std::size_t charArraySize = 128;
-
   //fill the chars and read them
   void setTagString(std::string const& fTag) {
     std::size_t maxCharacters = charArraySize - 1;
@@ -46,6 +44,8 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   std::string myname() const override { return "HcalL1TriggerObjects"; }
 
  private:
+
+  static constexpr std::size_t charArraySize = 128;
   char mTag[charArraySize];
   char mAlgo[charArraySize];
 
