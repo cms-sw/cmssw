@@ -54,13 +54,15 @@ public:
   MXNetCppPredictor(const Block &block, const std::string &output_node);
   virtual ~MXNetCppPredictor();
 
+  // set input array shapes
   void set_input_shapes(const std::vector<std::string>& input_names, const std::vector<std::vector<mx_uint>>& input_shapes);
+
+  // run prediction
   const std::vector<float>& predict(const std::vector<std::vector<mx_float>>& input_data);
 
 private:
   static std::mutex mutex_;
 
-  void infer_shapes();
   void bind_executor();
 
   // context
@@ -77,12 +79,6 @@ private:
   std::vector<float> pred_;
   // names of the input nodes
   std::vector<std::string> input_names_;
-
-  // internal states
-  std::vector<NDArray> arg_arrays;
-  std::vector<NDArray> grad_arrays;
-  std::vector<OpReqType> grad_reqs;
-  std::vector<NDArray> aux_arrays;
 
 };
 
