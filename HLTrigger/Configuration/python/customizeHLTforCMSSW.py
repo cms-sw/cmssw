@@ -187,25 +187,6 @@ def customiseForEcalTestPR22254thresholdC(process):
 
 
 
-def customizeHLTForL3OIPR23988(process):
-   for seedproducer in producers_by_type(process, "TSGForOI"):
-           seedproducer.hitsToTry = cms.int32( 1 )
-           seedproducer.propagatorName = cms.string("PropagatorWithMaterialParabolicMf")
-           seedproducer.fixedErrorRescaleFactorForHits = cms.double( 1.0 )
-           seedproducer.maxSeeds = cms.uint32( 20 )
-           seedproducer.layersToTry = cms.int32( 2 )
-           seedproducer.fixedErrorRescaleFactorForHitless = cms.double( 2.0 )
-           seedproducer.adjustErrorsDynamicallyForHits = cms.bool( False )
-           if hasattr(seedproducer, "tsosDiff"):
-              del seedproducer.tsosDiff
-           seedproducer.eta1 = cms.double( 0.2 )
-           seedproducer.eta2 = cms.double( 0.3 )
-           if hasattr(seedproducer, "UseStereoLayersInTEC"):
-              del seedproducer.UseStereoLayersInTEC
-   for trackproducer in producers_by_type(process, "CkfTrackCandidateMaker"):
-       if "hltIterL3OITrackCandidates" in trackproducer.label():
-           trackproducer.reverseTrajectories  =cms.bool(True) 
-
 
 
 # CMSSW version specific customizations
@@ -213,5 +194,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    customizeHLTForL3OIPR23988(process)
+
     return process
