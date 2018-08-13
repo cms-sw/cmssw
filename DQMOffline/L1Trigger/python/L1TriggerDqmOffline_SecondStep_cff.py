@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
+from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
+
 from DQMOffline.L1Trigger.L1TEtSumEfficiency_cfi import *
 from DQMOffline.L1Trigger.L1TEtSumDiff_cfi import *
 
@@ -16,6 +19,8 @@ from DQMOffline.L1Trigger.L1TMuonDQMEfficiency_cff import *
 
 # harvesting sequence for all datasets
 DQMHarvestL1TMon = cms.Sequence(
+    l1tStage2MonitorClientOffline
+    * l1tStage2EmulatorMonitorClientOffline
 )
 
 # harvesting sequence for electron dataset
