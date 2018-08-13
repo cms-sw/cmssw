@@ -1,50 +1,90 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
 /** Returns BTL iphi index for crystal according to type tile or bar */
-int BTLDetId::iphi( kCrysLayout lay ) const {
-  int res = 2*MAX_HASH; 
+int BTLDetId::iphi( CrysLayout lay ) const {
   int kCrystalsInPhi = 1;
   switch ( lay ) {
-  case tile : kCrystalsInPhi = kCrystalsInPhiTile ; break ;
-  case bar  : kCrystalsInPhi = kCrystalsInPhiBar ; break ;
-  default: break ;  
+    case CrysLayout::tile : {
+      kCrystalsInPhi = kCrystalsInPhiTile ;
+      break ;
+    }
+    case CrysLayout::bar  : {
+      kCrystalsInPhi = kCrystalsInPhiBar ;
+      break ;
+    }
+    default: {
+      break ;
+    }
   }
-  return res = kCrystalsInPhi * ( ( mtdRR()%HALF_ROD > 0 ? mtdRR()%HALF_ROD : HALF_ROD ) -1 ) 
+  return kCrystalsInPhi * ( ( mtdRR()%HALF_ROD > 0 ? mtdRR()%HALF_ROD : HALF_ROD ) -1 ) 
     + ( crystal()%kCrystalsInPhi > 0 ? crystal()%kCrystalsInPhi : kCrystalsInPhi ) ;
 }
 
 /** Returns BTL ieta index for crystal according to type tile or bar */
-int BTLDetId::ietaAbs( kCrysLayout lay ) const {
-  int res = 2*MAX_HASH;
+int BTLDetId::ietaAbs( CrysLayout lay ) const {
   int kCrystalsInEta = 1, kCrystalsInPhi = 1;
   switch ( lay ) {
-  case tile : kCrystalsInEta = kCrystalsInEtaTile; kCrystalsInPhi = kCrystalsInPhiTile; break ;
-  case bar  : kCrystalsInEta = kCrystalsInEtaBar ; kCrystalsInPhi = kCrystalsInPhiBar ; break ;
-  default: break ;  
+    case CrysLayout::tile : {
+      kCrystalsInEta = kCrystalsInEtaTile;
+      kCrystalsInPhi = kCrystalsInPhiTile;
+      break ;
+    }
+    case CrysLayout::bar  : {
+      kCrystalsInEta = kCrystalsInEtaBar ;
+      kCrystalsInPhi = kCrystalsInPhiBar ;
+      break ;
+    }
+    default: {
+      break ;
+    }
   }
-  return res = kCrystalsInEta * ( module() -1 ) 
+  return kCrystalsInEta * ( module() -1 ) 
     + kCrystalsInEta * kTypeBoundaries[(modType() -1)] 
     + ( (crystal()-1)/kCrystalsInPhi + 1 ) ; 
 }
 
-int BTLDetId::hashedIndex( kCrysLayout lay ) const { 
+int BTLDetId::hashedIndex( CrysLayout lay ) const { 
   int max_iphi = 1, max_ieta = 1;
   switch ( lay ) {
-  case tile : max_iphi = MAX_IPHI_TILE; max_ieta = MAX_IETA_TILE; break ;
-  case bar : max_iphi = MAX_IPHI_BAR; max_ieta = MAX_IETA_BAR; break ;
-  default: break ;  
+    case CrysLayout::tile : {
+      max_iphi = MAX_IPHI_TILE;
+      max_ieta = MAX_IETA_TILE;
+      break ;
+    }
+    case CrysLayout::bar : {
+      max_iphi = MAX_IPHI_BAR;
+      max_ieta = MAX_IETA_BAR;
+      break ;
+    }
+    default: {
+      break ;
+    }
   }
   return (max_ieta + ( zside() > 0 ? ietaAbs( lay ) - 1 : -ietaAbs( lay ) ) )*max_iphi+ iphi( lay ) - 1;
 }
 
 /** get a DetId from a compact index for arrays */
 
-BTLDetId BTLDetId::getUnhashedIndex( int hi, kCrysLayout lay ) const {
+BTLDetId BTLDetId::getUnhashedIndex( int hi, CrysLayout lay ) const {
   int max_iphi =1 ,max_ieta = 1, nphi = 0, keta = 0, tmphi = hi + 1;
   switch ( lay ) {
-  case tile : max_iphi = MAX_IPHI_TILE; max_ieta = MAX_IETA_TILE; nphi = kCrystalsInPhiTile; keta = kCrystalsInEtaTile; break ;
-  case bar : max_iphi = MAX_IPHI_BAR; max_ieta = MAX_IETA_BAR; nphi = kCrystalsInPhiBar; keta = kCrystalsInEtaBar; break ;
-  default: break ;
+    case CrysLayout::tile : {
+      max_iphi = MAX_IPHI_TILE;
+      max_ieta = MAX_IETA_TILE;
+      nphi = kCrystalsInPhiTile;
+      keta = kCrystalsInEtaTile;
+      break ;
+    }
+    case CrysLayout::bar : {
+      max_iphi = MAX_IPHI_BAR;
+      max_ieta = MAX_IETA_BAR;
+      nphi = kCrystalsInPhiBar;
+      keta = kCrystalsInEtaBar;
+      break ;
+    }
+    default: {
+      break ;
+    }
   }
   uint32_t zside = 0, rod = 0, module = 0, modtype = 1, crystal = 0;
   if ( tmphi > max_ieta*max_iphi ) { zside = 1; }

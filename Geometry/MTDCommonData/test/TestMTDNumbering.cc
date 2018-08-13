@@ -169,12 +169,12 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
         theBaseNumber( epv.geoHistory() );
 
         if ( isBarrel ) { 
-          BTLDetId::kCrysLayout lay = static_cast< BTLDetId::kCrysLayout >(theLayout_);
+          BTLDetId::CrysLayout lay = static_cast< BTLDetId::CrysLayout >(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_)); 
           int hIndex = theId.hashedIndex( lay );
           BTLDetId theNewId( theId.getUnhashedIndex( hIndex ,  lay ) );
           dump << theId; 
-          dump << "\n layout type = " << lay;
+          dump << "\n layout type = " << static_cast< int >(lay);
           dump << "\n ieta        = " << theId.ieta( lay );
           dump << "\n iphi        = " << theId.iphi( lay );
           dump << "\n hashedIndex = " << theId.hashedIndex( lay );
