@@ -12,7 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 namespace {
   HGCalGeometryMode::GeometryMode getGeometryMode(const char* s, 
