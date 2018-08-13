@@ -1,0 +1,348 @@
+/*
+ * \class DPFIsolation
+ *
+ * Tau identification using Deep NN
+ *
+ * \author Konstantin Androsov, INFN Pisa
+ */
+
+#include <Math/VectorUtil.h>
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
+#include "TRandom.h"
+
+inline int getPFCandidateIndex(edm::Handle<pat::PackedCandidateCollection> pfcands, const reco::CandidatePtr cptr){
+  unsigned int pfInd = -1;
+  for(unsigned int i = 0; i < pfcands->size(); ++i) {
+//      const pat::PackedCandidate &pf = (*pfcands)[i];
+//    if(pf.pt() < candptMin_) continue;
+      pfInd++;
+    if(reco::CandidatePtr(pfcands,i) == cptr) {
+      pfInd = i;
+      break;
+    }
+  }
+  return pfInd;
+}
+
+//_____________________________________________________________________________
+inline double deltaR2(double eta1, double phi1, double eta2, double phi2) {
+  double deta = eta1 - eta2;
+  double dphi = deltaPhi(phi1, phi2);
+  return deta*deta + dphi*dphi;
+}
+inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
+  return std::sqrt(deltaR2 (eta1, phi1, eta2, phi2));
+}
+
+namespace {
+
+class DPFIsolation : public edm::stream::EDProducer<> {
+public:
+    using TauType 		= pat::Tau;
+    using TauDiscriminator 	= pat::PATTauDiscriminator;
+    using TauCollection 	= std::vector<TauType>;
+    using TauRef 		= edm::Ref<TauCollection>;
+    using TauRefProd 		= edm::RefProd<TauCollection>;
+    using ElectronCollection 	= pat::ElectronCollection;
+    using MuonCollection 	= pat::MuonCollection;
+    using LorentzVectorXYZ 	= ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>;
+    using GraphPtr 		= std::shared_ptr<tensorflow::GraphDef>;
+
+std::vector<float> calculate(edm::Handle<TauCollection>& taus, edm::Handle<pat::PackedCandidateCollection> pfcands, tensorflow::Tensor tensor, std::vector<tensorflow::Tensor> outputs, tensorflow::Session* session, TRandom * r0) {
+
+
+	std::vector<float> predictions; 
+        float pfCandPt, pfCandPz, pfCandPtRel, pfCandPzRel, pfCandDr, pfCandDEta, pfCandDPhi, pfCandEta, pfCandDz,
+        pfCandDzErr, pfCandD0, pfCandD0D0, pfCandD0Dz, pfCandD0Dphi, pfCandPuppiWeight,
+        pfCandPixHits, pfCandHits, pfCandLostInnerHits, pfCandPdgID, pfCandCharge, pfCandFromPV,
+        pfCandVtxQuality, pfCandHighPurityTrk, pfCandTauIndMatch, pfCandDzSig, pfCandD0Sig,pfCandD0Err,pfCandPtRelPtRel,pfCandDzDz;
+
+        bool pfCandIsBarrel;
+
+        for(size_t tau_index = 0; tau_index < taus->size(); tau_index++) {
+                pat::Tau tau = taus->at(tau_index);
+		bool isGoodTau = false;
+		if(tau.isTauIDAvailable("againstMuonLoose3")
+		    and tau.isTauIDAvailable("againstElectronVLooseMVA6")) {
+		    isGoodTau = (tau.tauID("againstElectronVLooseMVA6") and tau.tauID("againstMuonLoose3") );
+		}
+
+		if (isGoodTau == false) predictions.push_back(-1);
+		if (isGoodTau == false) continue;
+
+
+		std::vector<unsigned int> signalCandidateInds;
+
+	    	for(auto c : tau.signalCands()) 
+			signalCandidateInds.push_back(getPFCandidateIndex(pfcands,c));
+
+                float lepRecoPt = tau.pt();
+                float lepRecoPz = TMath::Abs(tau.pz());
+                float lepRecoEt = tau.energy();
+                float lepRecoEta = tau.eta();
+                tensor.flat<float>().setZero();
+
+                unsigned int iPF = 0;
+
+    		std::vector<unsigned int> sorted_inds(pfcands->size());
+    		std::size_t n(0);
+    		std::generate(std::begin(sorted_inds), std::end(sorted_inds), [&]{ return n++; });
+
+    		std::sort(  std::begin(sorted_inds), std::end(sorted_inds),
+                	[&](int i1, int i2) { return  pfcands->at(i1).pt() > pfcands->at(i2).pt(); } );
+
+        	for(size_t pf_index = 0; pf_index < pfcands->size(); pf_index++) {
+                  pat::PackedCandidate p = pfcands->at(sorted_inds.at(pf_index));
+                  float deltaR_tau_p =  deltaR(p.eta(),p.phi(),tau.eta(),tau.phi());
+
+                  if (p.pt() < .5) continue;
+	   	  if (p.fromPV() < 0) continue;
+
+                  if (deltaR_tau_p > .5) continue; 
+
+
+                  if (p.fromPV() < 1 and p.charge() != 0) continue;
+		  pfCandPt = p.pt();
+		  pfCandPtRel = p.pt()/lepRecoPt;
+
+		  pfCandDr = deltaR_tau_p;
+		  pfCandDEta = TMath::Abs(tau.eta() - p.eta());
+		  pfCandDPhi = TMath::Abs(deltaPhi(tau.phi(), p.phi()));
+		  pfCandEta = p.eta();
+		  pfCandIsBarrel = (TMath::Abs(p.eta()) < 1.4);
+		  pfCandPz = TMath::Abs(TMath::SinH(pfCandEta)*pfCandPt);
+		  pfCandPzRel = TMath::Abs(TMath::SinH(pfCandEta)*pfCandPt)/lepRecoPz;
+		  pfCandPdgID = TMath::Abs(p.pdgId());
+		  pfCandCharge = p.charge();
+
+		  if (pfCandCharge != 0 and p.hasTrackDetails()){
+			pfCandDz                = p.dz();
+			pfCandDzErr   = p.dzError();
+			pfCandDzSig   = (TMath::Abs(p.dz()) + .000001)/(p.dzError() + .00001);
+			pfCandD0                = p.dxy();
+			pfCandD0Err     = p.dxyError();
+			pfCandD0Sig   = (TMath::Abs(p.dxy()) + .000001)/ (p.dxyError() + .00001);
+			pfCandPixHits = p.numberOfPixelHits();
+			pfCandHits    = p.numberOfHits();
+			pfCandLostInnerHits = p.lostInnerHits();
+		  } else{
+			float disp = 1;
+			if (r0->Rndm(1) > .5){
+				disp = -1;
+			}
+			pfCandDz = 5*disp;
+			pfCandDzErr   = 0;
+			pfCandDzSig   = 0;
+			pfCandD0 = 5*disp;
+			pfCandD0Err     = 0;
+			pfCandD0Sig   = 0;
+			pfCandPixHits = 0;
+			pfCandHits    = 0;
+			pfCandLostInnerHits = 2.;
+		  } 
+
+		  pfCandPuppiWeight = p.puppiWeight();
+		  pfCandFromPV = p.fromPV();
+		  pfCandVtxQuality = p.pvAssociationQuality();//VtxAssocQual();
+		  pfCandHighPurityTrk = p.trackHighPurity();//HighPurityTrk();
+		  float pfCandTauIndMatch_temp = 0;
+		  for (auto i : signalCandidateInds){
+		        if (i == sorted_inds.at(pf_index)) pfCandTauIndMatch_temp = 1;
+		  }
+
+
+		  pfCandTauIndMatch = pfCandTauIndMatch_temp;
+		  pfCandPtRelPtRel = pfCandPtRel*pfCandPtRel;
+		  if (pfCandPt > 500) pfCandPt = 500.;
+		  pfCandPt = pfCandPt/500.;
+
+		  if (pfCandPz > 1000) pfCandPz = 1000.;
+		  pfCandPz = pfCandPz/1000.;
+
+		  if ((pfCandPtRel) > 1 )  pfCandPtRel = 1.;
+		  if ((pfCandPzRel) > 100 )  pfCandPzRel = 100.;
+		  pfCandPzRel = pfCandPzRel/100.;
+		  pfCandDr   = pfCandDr/.5;
+		  pfCandEta  = pfCandEta/2.75;
+		  pfCandDEta = pfCandDEta/.5;
+		  pfCandDPhi = pfCandDPhi/.5;
+		  pfCandPixHits = pfCandPixHits/7.;
+		  pfCandHits = pfCandHits/30.;
+
+		  if (pfCandPtRelPtRel > 1) pfCandPtRelPtRel = 1;
+		  pfCandPtRelPtRel = pfCandPtRelPtRel;
+
+		  if (pfCandD0 > 5.) pfCandD0 = 5.;
+		  if (pfCandD0 < -5.) pfCandD0 = -5.;
+		  pfCandD0 = pfCandD0/5.;
+
+		  if (pfCandDz > 5.) pfCandDz = 5.;
+		  if (pfCandDz < -5.) pfCandDz = -5.;
+		  pfCandDz = pfCandDz/5.;
+
+		  if (pfCandD0Err > 1.) pfCandD0Err = 1.;
+		  if (pfCandDzErr > 1.) pfCandDzErr = 1.;
+		  if (pfCandDzSig > 3) pfCandDzSig = 3.;
+		  pfCandDzSig = pfCandDzSig/3.;
+
+		  if (pfCandD0Sig > 1) pfCandD0Sig = 1.;
+		  pfCandD0D0 = pfCandD0*pfCandD0;
+		  pfCandDzDz = pfCandDz*pfCandDz;
+		  pfCandD0Dz = pfCandD0*pfCandDz;
+		  pfCandD0Dphi = pfCandD0*pfCandDPhi;
+
+                  tensor.tensor<float,3>()( 0, 60-1-iPF, 0) = pfCandPt;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 1) = pfCandPz;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 2) = pfCandPtRel;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 3) = pfCandPzRel;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 4) = pfCandDr;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 5) = pfCandDEta;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 6) = pfCandDPhi;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 7) = pfCandEta;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 8) = pfCandDz;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 9) = pfCandDzSig;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 10) = pfCandD0;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 11)  = pfCandD0Sig;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 12) = pfCandDzErr;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 13) = pfCandD0Err;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 14) = pfCandD0D0;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 15) = pfCandCharge==0;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 16) = pfCandCharge==1;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 17) = pfCandCharge==-1;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 18) = pfCandPdgID>22;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 19) = pfCandPdgID==22;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 20) = pfCandDzDz;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 21) = pfCandD0Dz;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 22) = pfCandD0Dphi;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 23) = pfCandPtRelPtRel;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 24) = pfCandPixHits;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 25) = pfCandHits;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 26) = pfCandLostInnerHits==-1;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 27) = pfCandLostInnerHits==0;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 28) = pfCandLostInnerHits==1;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 29) = pfCandLostInnerHits==2;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 30) = pfCandPuppiWeight;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 31) = (pfCandVtxQuality == 1);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 32) = (pfCandVtxQuality == 5);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 33) = (pfCandVtxQuality == 6);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 34) = (pfCandVtxQuality == 7);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 35) = (pfCandFromPV == 1);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 36) = (pfCandFromPV == 2);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 37) = (pfCandFromPV == 3);
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 38) = pfCandIsBarrel;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 39) = pfCandHighPurityTrk;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 40) = pfCandPdgID==1;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 41) = pfCandPdgID==2;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 42) = pfCandPdgID==11;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 43) = pfCandPdgID==13;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 44) = pfCandPdgID==130;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 45) = pfCandPdgID==211;
+		  tensor.tensor<float,3>()( 0, 60-1-iPF, 46) = pfCandTauIndMatch;
+		  iPF++;
+		  if (iPF == 60) break;
+		}
+
+        tensorflow::Status status = session->Run( { {"input_1", tensor}},{"output_node0"}, {}, &outputs);
+        float output = outputs[0].scalar<float>()();
+	/*for (int iPF =0; iPF < 60; iPF++){
+		for (int iVar = 0; iVar < 47; iVar++){
+		std::cout << tensor.tensor<float,3>()(0,iPF,iVar) << ", "; 
+		}
+		std::cout << std::endl;
+	}*/
+        predictions.push_back(output);
+	}
+	return predictions;
+};
+
+    struct Output {
+        std::vector<size_t> num, den;
+        Output(std::vector<size_t> _num, std::vector<size_t> _den) : num(_num), den(_den) {}
+
+        std::unique_ptr<TauDiscriminator> get_value(edm::Handle<TauCollection>& taus, std::vector<float> predictions)
+        {
+            auto output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
+
+            for(size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
+                output->setValue(tau_index, predictions.at(tau_index) );
+            }
+//            std::cout << " successfully got an output = " << std::endl;
+            return output;
+        }
+    };
+
+    using OutputCollection = std::map<std::string, Output>;
+
+    static OutputCollection& GetOutputs()
+    {
+        static size_t e_index = 0, mu_index = 1, tau_index = 2, jet_index = 3;
+        static OutputCollection outputs = {
+            { "tauVSe", Output({tau_index}, {e_index, tau_index}) },
+            { "tauVSmu", Output({tau_index}, {mu_index, tau_index}) },
+            { "tauVSjet", Output({tau_index}, {jet_index, tau_index}) },
+            { "tauVSall", Output({tau_index}, {e_index, mu_index, jet_index, tau_index}) }
+        };
+        return outputs;
+    };
+
+public:
+    explicit DPFIsolation(const edm::ParameterSet& cfg) :
+        taus_token(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
+	pfcand_token(consumes<pat::PackedCandidateCollection> (cfg.getParameter<edm::InputTag>("pfcands"))),
+	graphName(edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath()),
+        graph(tensorflow::loadGraphDef(edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath())),
+        session(tensorflow::createSession(graph.get()))
+    {
+	std::cout << " The graph file name = " << graphName << std::endl;
+        for(auto& output_desc : GetOutputs())
+            produces<TauDiscriminator>(output_desc.first);
+//        std::cout << " Running a tau id.. " << std::endl;
+        tensor = tensorflow::Tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape( {1, nparticles_v0, nfeatures_v0}));
+    };
+
+    virtual ~DPFIsolation() override
+    {
+        tensorflow::closeSession(session);
+    };
+
+    virtual void produce(edm::Event& event, const edm::EventSetup& es) override
+    {
+
+        event.getByToken(taus_token, taus);
+        event.getByToken(pfcand_token, pfcands);
+
+	r0 = new TRandom(0);	
+        std::vector<float> predictions = DPFIsolation::calculate(taus, pfcands, tensor, outputs, session, r0);
+
+        for(auto& output_desc : GetOutputs())
+            event.put(output_desc.second.get_value(taus,predictions), output_desc.first);
+    };
+
+private:
+    edm::EDGetTokenT<TauCollection> taus_token;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcand_token;
+
+    edm::Handle<pat::TauCollection>                  taus;
+    edm::Handle<pat::PackedCandidateCollection>      pfcands;
+
+    TString graphName;
+    GraphPtr graph;
+    tensorflow::Session* session;
+    TRandom * r0;
+    static const unsigned int nparticles_v0 = 60;
+    static const unsigned int nfeatures_v0  = 47;
+    tensorflow::Tensor tensor;
+    std::vector<tensorflow::Tensor> outputs;
+
+
+};
+};
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DPFIsolation);
