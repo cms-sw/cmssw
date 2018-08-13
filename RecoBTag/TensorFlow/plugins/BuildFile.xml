@@ -4,7 +4,6 @@
   <use name="DataFormats/BTauReco"/>
   <use name="DataFormats/Common"/>
   <use name="RecoBTag/Combined"/>
-  <use name="RecoBTag/FeatureTools"/>
   <use name="RecoBTag/TensorFlow"/>
   <use name="DataFormats/PatCandidates"/>
   <use name="CommonTools/UtilAlgos"/>
