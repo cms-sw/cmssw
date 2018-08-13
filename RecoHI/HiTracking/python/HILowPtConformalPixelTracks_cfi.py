@@ -42,6 +42,9 @@ hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
                                         )
 
 
+
+
+
 ###Pixel Tracking -  PhaseI geometry
 
 #Tracking regions - use PV from pp tracking
@@ -86,12 +89,12 @@ hiConformalPixelTracksPhase1HitDoubletsCA = lowPtQuadStepHitDoublets.clone(
 from RecoTracker.IterativeTracking.LowPtQuadStep_cff import lowPtQuadStepHitQuadruplets
 hiConformalPixelTracksPhase1HitQuadrupletsCA = lowPtQuadStepHitQuadruplets.clone(
 	doublets = "hiConformalPixelTracksPhase1HitDoubletsCA",
-        CAPhiCut = cms.double(0.2),
-        CAThetaCut = cms.double(0.0012),
+        CAPhiCut = 0.2,
+        CAThetaCut = 0.0012,
 	SeedComparitorPSet = cms.PSet( 
            ComponentName = cms.string('none')
         ),
-        extraHitRPhitolerance = cms.double(0.032),
+        extraHitRPhitolerance = 0.032,
         maxChi2 = cms.PSet(
            enabled = cms.bool(True),
            pt1 = cms.double(0.7),
@@ -103,18 +106,18 @@ hiConformalPixelTracksPhase1HitQuadrupletsCA = lowPtQuadStepHitQuadruplets.clone
 
 #Filter
 hiConformalPixelTracksPhase1Filter = hiConformalPixelFilter.clone(
-	VertexCollection = cms.InputTag("offlinePrimaryVertices"),
-        chi2 = cms.double(999.9),
-        lipMax = cms.double(999.0),
-        nSigmaLipMaxTolerance = cms.double(999.9),
-        nSigmaTipMaxTolerance = cms.double(999.0),
-        ptMax = cms.double(999999),
-        ptMin = cms.double(0.30),
-        tipMax = cms.double(999.0)
+	VertexCollection = "offlinePrimaryVertices",
+        chi2 = 999.9,
+        lipMax = 999.0,
+        nSigmaLipMaxTolerance = 999.9,
+        nSigmaTipMaxTolerance = 999.0,
+        ptMax = 999999,
+        ptMin = 0.30,
+        tipMax = 999.0
 )
 
-#Pixel tracks
-hiConformalPixelTracksPhase1 = cms.EDProducer("PixelTrackProducer",
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(hiConformalPixelTracks,
     Cleaner = cms.string('pixelTrackCleanerBySharedHits'),
     Filter = cms.InputTag("hiConformalPixelTracksPhase1Filter"),
     Fitter = cms.InputTag("pixelFitterByConformalMappingAndLine"),
@@ -133,8 +136,6 @@ hiConformalPixelTracksSequence = cms.Sequence(
     hiConformalPixelTracks
 )
 
-
-
 hiConformalPixelTracksSequencePhase1 = cms.Sequence(
     hiConformalPixelTracksPhase1TrackingRegions +
     hiConformalPixelTracksPhase1SeedLayers +
@@ -142,6 +143,6 @@ hiConformalPixelTracksSequencePhase1 = cms.Sequence(
     hiConformalPixelTracksPhase1HitQuadrupletsCA +
     pixelFitterByConformalMappingAndLine +
     hiConformalPixelTracksPhase1Filter +
-    hiConformalPixelTracksPhase1 
+    hiConformalPixelTracks
 )
 

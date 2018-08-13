@@ -28,7 +28,6 @@ class Eras (object):
                  'Run2_2017_ppRef',
                  'Run2_2018',
                  'Run2_2018_pp_on_AA',
-                 'Run2_2018_pp_on_AA_wPixelTrk',
                  'Run2_2018_highBetaStar',
                  'Run3',
                  'Phase2',
