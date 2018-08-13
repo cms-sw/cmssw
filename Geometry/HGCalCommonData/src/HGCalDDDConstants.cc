@@ -1,5 +1,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -1090,7 +1091,8 @@ int HGCalDDDConstants::waferType(DetId const& id) const {
   int type(1);
   if ((mode_ == HGCalGeometryMode::Hexagon8) ||
       (mode_ == HGCalGeometryMode::Hexagon8Full)) {
-    type = 1 + HGCSiliconDetId(id).type();
+    type = ((id.det() != DetId::Forward) ? (1 + HGCSiliconDetId(id).type()) :
+	    (1 + HFNoseDetId(id).type()));
   } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	     (mode_ == HGCalGeometryMode::HexagonFull)) {
     type = waferTypeL(HGCalDetId(id).wafer());
