@@ -13,8 +13,8 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoBTag/TensorFlow/interface/TrackInfoBuilder.h"
-#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
+#include "RecoBTag/FeatureTools/interface/TrackInfoBuilder.h"
+#include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"

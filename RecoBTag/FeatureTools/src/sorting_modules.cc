@@ -1,5 +1,5 @@
 
-#include "RecoBTag/TensorFlow/interface/sorting_modules.h"
+#include "RecoBTag/FeatureTools/interface/sorting_modules.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 

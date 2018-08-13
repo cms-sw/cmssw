@@ -3,7 +3,7 @@
 <library file="*.cc" name="RecoBTagDeepBoostedJetPlugins">
   <use name="DataFormats/BTauReco"/>
   <use name="DataFormats/Common"/>
-  <use name="RecoBTag/TensorFlow"/>
+  <use name="RecoBTag/FeatureTools"/>
   <use name="DataFormats/PatCandidates"/>
   <use name="PhysicsTools/MXNet"/>
   <flags EDM_PLUGIN="1"/>
