@@ -74,36 +74,36 @@ DDMaterial::addMaterial( const DDMaterial & m, double fm )
   if( m.ddname() == ddname()) {
     throw cms::Exception("DDException") << "DDMaterial::addMaterial(..): name-clash\n        trying to add material " << m << " to itself! ";
   }  
-  rep()->addMaterial( m, fm );
-  return rep()->noOfConstituents();
+  rep().addMaterial( m, fm );
+  return rep().noOfConstituents();
 }
 
 int
 DDMaterial::noOfConstituents() const
 {
-   return rep()->noOfConstituents();
+   return rep().noOfConstituents();
 }
 
 DDMaterial::FractionV::value_type DDMaterial::constituent( int i ) const 
 { 
-  return rep()->constituent( i );
+  return rep().constituent( i );
 }
 
 double
 DDMaterial::a() const
 {
-  return rep()->a(); 
+  return rep().a(); 
 }
 
 double
 DDMaterial::z() const
 {
-  return rep()->z(); 
+  return rep().z(); 
 }
 
 double DDMaterial::density() const
 {
-  return rep()->density(); 
+  return rep().density(); 
 }
 
 namespace {

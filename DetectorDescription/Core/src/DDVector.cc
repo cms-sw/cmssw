@@ -37,9 +37,9 @@ std::ostream & operator<<(std::ostream & os, const DDVector & cons)
 
 DDVector::operator std::vector<int>() const
 {
-   std::vector<int> result(rep()->size());
+   std::vector<int> result(rep().size());
    std::vector<int>::size_type sz=0;
-   std::vector<double>::const_iterator it(rep()->begin()), ed(rep()->end());
+   std::vector<double>::const_iterator it(rep().begin()), ed(rep().end());
    for (; it != ed; ++it) { 
      result[sz] = int(*it);
      ++sz;

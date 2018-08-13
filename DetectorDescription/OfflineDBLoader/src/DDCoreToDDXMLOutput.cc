@@ -377,7 +377,7 @@ DDCoreToDDXMLOutput::rotation( const DDRotation& rotation, std::ostream& xos,
 {
    double tol = 1.0e-3; // Geant4 compatible
    DD3Vector x,y,z; 
-   rotation.rotation()->GetComponents(x,y,z); 
+   rotation.rotation().GetComponents(x,y,z); 
    double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system 
                                        // this must be -1
    bool reflection((1.-check)>tol);
@@ -388,7 +388,7 @@ DDCoreToDDXMLOutput::rotation( const DDRotation& rotation, std::ostream& xos,
       {
          rotName = rotn;
          std::cout << "about to try to make a new DDRotation... should fail!" << std::endl;
-         DDRotation rot( DDName(rotn), const_cast<DDRotationMatrix*>(rotation.rotation()));
+         DDRotation rot( DDName(rotn), std::make_unique<DDRotationMatrix>( rotation.rotation()));
          std:: cout << "new rotation: " << rot << std::endl;
       } 
       else 
@@ -434,7 +434,7 @@ void DDCoreToDDXMLOutput::position( const DDLogicalPart& parent,
   xos << "<PosPart copyNumber=\"" << edgeToChild->copyno() << "\">" << std::endl;
   xos << "<rParent name=\"" << parent.toString() << "\"/>" << std::endl;
   xos << "<rChild name=\"" << child.toString() << "\"/>" << std::endl;
-  if( *(edgeToChild->ddrot().rotation()) != myIDENT ) 
+  if(( edgeToChild->ddrot().rotation()) != myIDENT ) 
   {
     if( rotName == ":" ) 
     {

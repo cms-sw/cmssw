@@ -31,10 +31,10 @@ public:
    static void createConstantsFromEvaluator(ClhepEvaluator&);
       
    //! return the first stored value; does not check boundaries!
-   double value() const { return *rep(); }
+   double value() const { return rep(); }
       
    //! convert to a double
-   operator double() const { return *rep(); }
+   operator double() const { return rep(); }
 };
 
 //! std::maps the XML naming convention, i.e. <Numeric name='foo' value='4711'/> -> DDNumeric 

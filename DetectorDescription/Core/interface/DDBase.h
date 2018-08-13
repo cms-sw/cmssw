@@ -78,11 +78,11 @@ template <class N, class C>
   std::string toString() const { return prep_->name().fullname(); }
 
   const typename DDI::rep_traits< N, C >::reference rep() const {
-    return prep_->second;
+    return *( prep_->second );
   }
   
   typename DDI::rep_traits< N, C >::reference rep() {
-    return prep_->second;
+    return *( prep_->second );
   }
     
   const typename DDI::rep_traits< N, C >::reference val() const {

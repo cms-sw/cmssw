@@ -19,7 +19,7 @@ DDRotation DDrot( const DDName & name,
 		  std::unique_ptr<DDRotationMatrix> rot );
 
 std::unique_ptr<DDRotation> DDrotPtr( const DDName & name,
-				      DDRotationMatrix * rot );
+				      std::unique_ptr<DDRotationMatrix> rot );
 
 //! Definition of a uniquely identifiable rotation matrix named by DDName \a name in the GEANT3 style
 /** DDrot() returns a reference-object DDRotation representing the rotation matrix.
@@ -90,9 +90,9 @@ class DDRotation : public DDBase< DDName, std::unique_ptr<DDRotationMatrix >>
   
   DDRotation( const DDName & , std::unique_ptr< DDRotationMatrix > );
   //! Returns the read-only rotation-matrix     
-  const DDRotationMatrix& rotation() const { return *rep(); }   
+  const DDRotationMatrix& rotation() const { return rep(); }   
  
-  DDRotationMatrix& rotation() { return *rep(); }
+  DDRotationMatrix& rotation() { return rep(); }
   
   DDRotationMatrix& matrix() { return rotation(); }
 
