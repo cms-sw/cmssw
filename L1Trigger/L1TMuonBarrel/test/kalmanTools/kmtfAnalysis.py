@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT,itertools,math      #
 from array import array         # 
 from DataFormats.FWLite import Events, Handle
@@ -68,7 +69,7 @@ def fetchTP(event,etaMax=0.83):
         return []
     trigger=tH.product()
 #    for f in range(0,trigger.sizeFilters()):
-#        print f,trigger.filterLabel(f)
+#        print(f,trigger.filterLabel(f))
 #    import pdb;pdb.set_trace()    
     obj = trigger.getObjects()
     index = trigger.filterIndex(ROOT.edm.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered27Q::HLT"))
@@ -278,28 +279,28 @@ def deltaR2( e1, p1, e2, p2):
 
 
 def log(counter,mystubs,gen,kmtf,bmtf):   
-    print "--------EVENT"+str(counter)+"------------"
-    print "-----------------------------"
-    print "-----------------------------"
-    print 'Stubs:'
+    print("--------EVENT"+str(counter)+"------------")
+    print("-----------------------------")
+    print("-----------------------------")
+    print('Stubs:')
     for stub in mystubs:
-        print 'wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX} eta1={eta1} eta2={eta2}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.tag(),phi=stub.phi(),phiB=8*stub.phiB(),qual=stub.quality(),BX=stub.bxNum(),eta1=stub.eta1(),eta2=stub.eta2())
-    print 'Gen muons:'
+        print('wheel={w} sector={sc} station={st} high/low={ts} phi={phi} phiB={phiB} qual={qual} BX={BX} eta1={eta1} eta2={eta2}'.format(w=stub.whNum(),sc=stub.scNum(),st=stub.stNum(),ts=stub.tag(),phi=stub.phi(),phiB=8*stub.phiB(),qual=stub.quality(),BX=stub.bxNum(),eta1=stub.eta1(),eta2=stub.eta2()))
+    print('Gen muons:')
     for g in gen:
-        print "Generated muon charge={q} pt={pt} eta={eta} phi={phi}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi())
-    print 'BMTF:'
+        print("Generated muon charge={q} pt={pt} eta={eta} phi={phi}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi()))
+    print('BMTF:')
     for g in bmtf :
-        print "BMTF charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta())
-    print 'KMTF:'
+        print("BMTF charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta()))
+    print('KMTF:')
     for g in kmtf :
-        print "KMTF charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta())
+        print("KMTF charge={q} pt={pt} eta={eta} phi={phi} qual={qual} dxy={dxy} pt2={pt2} hasFineEta={HF}".format(q=g.charge(),pt=g.pt(),eta=g.eta(),phi=g.phi(),qual=g.quality(),dxy=g.dxy(),pt2=g.ptUnconstrained(),HF=g.hasFineEta()))
 
 
 
 
-    print "-----------------------------"
-    print "-----------------------------"
-    print "c + enter to continue"
+    print("-----------------------------")
+    print("-----------------------------")
+    print("c + enter to continue")
     import pdb;pdb.set_trace()
 
 #########Histograms#############
@@ -395,9 +396,9 @@ for event in events:
 #    if counter==1000:
 #        break;
 
-#    print 'OLD stubs'
+#    print('OLD stubs')
 #    for s in stubsOLD:
-#        print s.bxNum(),s.whNum(),s.scNum(),s.stNum(),s.phi(),s.phiB(),s.code()
+#        print(s.bxNum(),s.whNum(),s.scNum(),s.stNum(),s.phi(),s.phiB(),s.code())
 
 
 #    reco=fetchRECO(event,2.4)
@@ -417,10 +418,10 @@ for event in events:
     bmtf=[]
 
 #    for g in gen:
-#        print 'GEN', g.pt(),g.eta(),g.phi() 
+#        print('GEN', g.pt(),g.eta(),g.phi())
 
 #    for k in kmtf:
-#        print 'L1', k.pt(),k.eta(),k.phi() 
+#        print('L1', k.pt(),k.eta(),k.phi())
 
 
 
@@ -533,7 +534,7 @@ for event in events:
 #                    d=[]
 #                    for i in range(0,7):
 #                        d.append(s.position(i))
-#                    print s.bxNum(),s.scNum(), s.whNum(), s.stNum(),d    
+#                    print(s.bxNum(),s.scNum(), s.whNum(), s.stNum(),d)
 #                log(counter,stubs,gen,kmtf,bmtf)
 
          
@@ -552,18 +553,18 @@ for event in events:
         if bestKMTF==None and bestBMTF!=None and g.pt()<4:
             log(counter,stubs,gen,kmtf,bmtf)
 #        if bestKMTF!=None and bestBMTF!=None and abs(bestKMTF.eta()-g.eta())>abs(bestBMTF.eta()-g.eta()):
-#            print 'Input Theta stubs'
+#            print('Input Theta stubs')
 #            for s in stubsOLDTheta:
 #                if s.bxNum()!=0:
 #                    continue
 #                a=[]
 #                for i in range(0,7):
 #                    a.append(s.position(i))
-#                print s.whNum(),s.scNum(),s.stNum(),':',a
-#            print 'Combined stubs'
+#                print(s.whNum(),s.scNum(),s.stNum(),':',a)
+#            print('Combined stubs')
 #
 #            for s in stubs:
-#                print s.whNum(),s.scNum(),s.stNum(),s.eta1(),s.eta2(),s.qeta1(),s.qeta2()
+#                print(s.whNum(),s.scNum(),s.stNum(),s.eta1(),s.eta2(),s.qeta1(),s.qeta2())
 #            import pdb;pdb.set_trace()
 
 
