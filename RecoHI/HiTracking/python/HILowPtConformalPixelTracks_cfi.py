@@ -118,10 +118,10 @@ hiConformalPixelTracksPhase1Filter = hiConformalPixelFilter.clone(
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(hiConformalPixelTracks,
-    Cleaner = cms.string('pixelTrackCleanerBySharedHits'),
-    Filter = cms.InputTag("hiConformalPixelTracksPhase1Filter"),
-    Fitter = cms.InputTag("pixelFitterByConformalMappingAndLine"),
-    SeedingHitSets = cms.InputTag("hiConformalPixelTracksPhase1HitQuadrupletsCA"),
+    Cleaner = 'pixelTrackCleanerBySharedHits',
+    Filter = "hiConformalPixelTracksPhase1Filter",
+    Fitter = "pixelFitterByConformalMappingAndLine",
+    SeedingHitSets = "hiConformalPixelTracksPhase1HitQuadrupletsCA",
 )
 
 
