@@ -14,7 +14,7 @@ operator<<( std::ostream & os, const DDDivision & div )
   if( defined.first ) {
     os << *( defined.first ) << " ";
     if( defined.second ) {
-      div.rep()->stream( os ); 
+      div.rep().stream( os ); 
     }
     else {
       os << "* division not defined * ";  
@@ -68,30 +68,30 @@ DDDivision::DDDivision( const DDName & name,
 DDAxes
 DDDivision::axis() const
 {
-  return rep()->axis();
+  return rep().axis();
 }
 
 int
 DDDivision::nReplicas() const
 {
-  return rep()->nReplicas();
+  return rep().nReplicas();
 }
 
 double
 DDDivision::width() const
 {
-  return rep()->width();
+  return rep().width();
 }
 
 double
 DDDivision::offset() const
 {
-  return rep()->offset();
+  return rep().offset();
 }
 
 const DDLogicalPart &
 DDDivision::parent() const
 {
-  return rep()->parent();
+  return rep().parent();
 }
 

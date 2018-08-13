@@ -68,7 +68,7 @@ DDTranslation calc(const DDGeoHistory & aHist)
     vt.emplace_back(h[1].posdata()->translation());
     unsigned int i = 1;
     for (; i <= sz-2; ++i) {
-      vr.emplace_back( vr.back() * *(h[i].posdata()->ddrot().rotation()) );
+      vr.emplace_back( vr.back() * h[i].posdata()->ddrot().rotation());
       vt.emplace_back(h[i+1].posdata()->translation());
     }
   }

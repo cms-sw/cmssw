@@ -35,28 +35,28 @@ class DDVector : public DDBase<DDName, std::unique_ptr<std::vector<double> > >
   DDVector( const DDName & name, std::unique_ptr<std::vector<double> > value );
       
   //! the size of the array of values 
-  size_t size() const { return rep()->size(); }
+  size_t size() const { return rep().size(); }
    
   //! the stored values
-  const value_type & values() const { return *rep(); }
+  const value_type & values() const { return rep(); }
    
   //! returns the value on position pos; does not check boundaries!
-  double operator[](size_t pos) const { return (*rep())[pos]; }
+  double operator[](size_t pos) const { return rep()[pos]; }
    
   //! return the first stored value; does not check boundaries!
-  double value() const { return (*rep())[0]; }
+  double value() const { return rep()[0]; }
    
   //! read-only iterator pointing to the begin of the stored values
-  value_type::const_iterator vectorBegin() const { return rep()->begin(); }
+  value_type::const_iterator vectorBegin() const { return rep().begin(); }
    
   //! read-only iterator poining one place after the stored values
-  value_type::const_iterator vectorEnd() const { return rep()->end(); }
+  value_type::const_iterator vectorEnd() const { return rep().end(); }
    
   //! convert to a double
-  operator double() const { return (*rep())[0]; }
+  operator double() const { return rep()[0]; }
    
   //! convert to a std::vector<double>
-  operator std::vector<double>() const { return *rep(); }
+  operator std::vector<double>() const { return rep(); }
    
   //! convert to a std::vector<int> (expensive!)
   operator std::vector<int>() const;

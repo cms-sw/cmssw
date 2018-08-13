@@ -28,7 +28,7 @@ DDSpecifics::DDSpecifics(const DDName & name,
 {
   create( name, std::make_unique<Specific>( partSelections, svalues, doRegex ));   
   std::vector<std::pair<DDLogicalPart,std::pair<const DDPartSelection*, const DDsvalues_type*> > > v;
-  rep()->updateLogicalPart(v);
+  rep().updateLogicalPart(v);
   for( auto& it : v ) {
     if( it.first.isDefined().second ) {
       it.first.addSpecifics( it.second );
@@ -43,13 +43,13 @@ DDSpecifics::DDSpecifics(const DDName & name,
 const std::vector<DDPartSelection> &
 DDSpecifics::selection() const
 { 
-  return rep()->selection(); 
+  return rep().selection(); 
 }
 
 const DDsvalues_type &
 DDSpecifics::specifics() const
 { 
-  return rep()->specifics(); 
+  return rep().specifics(); 
 }         
 
 /** node() will only work, if
@@ -63,7 +63,7 @@ DDSpecifics::specifics() const
 std::pair<bool, DDExpandedView>
 DDSpecifics::node() const
 {
-  return rep()->node();
+  return rep().node();
 }
   	
 std::ostream & operator<<( std::ostream  & os, const DDSpecifics & sp)
@@ -72,7 +72,7 @@ std::ostream & operator<<( std::ostream  & os, const DDSpecifics & sp)
   if (defined.first) {
     os << *(defined.first) << " ";
     if (defined.second) {
-      sp.rep()->stream(os); 
+      sp.rep().stream(os); 
     }
     else {
       os << "* specific not defined * ";  

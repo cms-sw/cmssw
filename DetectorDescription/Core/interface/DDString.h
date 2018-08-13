@@ -27,10 +27,10 @@ public:
    DDString(const DDName & name, std::unique_ptr<std::string> value);
       
    //! return the first stored value; does not check boundaries!
-   const std::string & value() const { return *rep(); }
+   const std::string & value() const { return rep(); }
       
    //! convert to a std::string
-   operator std::string() const { return *rep(); }
+   operator std::string() const { return rep(); }
 };
 
 #endif

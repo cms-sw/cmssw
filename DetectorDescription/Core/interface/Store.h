@@ -44,11 +44,11 @@ namespace DDI {
     using prep_type = Rep_type*;
     using registry_type = std::map< name_type, prep_type>;
     using iterator = typename registry_type::iterator;
-      
+    
     auto begin() { return reg_.begin(); }
     auto end() { return reg_.end(); }
     auto size() const { return reg_.size(); } 
-      
+    
     // empty shell or fetch from registry
     prep_type create(const name_type &);
       
@@ -66,58 +66,51 @@ namespace DDI {
     bool readOnly() const { return readOnly_; }
     
     Store() : readOnly_(false) { }
-    ~Store();
     
     protected:
     std::map<name_type,prep_type> reg_;
-    Store(const Store &);
-    Store & operator=(const Store &);
+    Store(const Store &) = delete;
+    Store & operator=(const Store &) = delete;
     bool readOnly_;
     };
   
   template<class N, class I, class K>
     typename Store<N,I,K>::prep_type 
-    Store<N,I,K>::create(const name_type & n)
+    Store<N,I,K>::create( const name_type & n )
     {
       prep_type tmp = nullptr;
-      auto result = reg_.insert(std::make_pair(n,tmp));
-      if (result.second) {
-	if (readOnly_) throw cms::Exception("DetectorDescriptionStore")<<" Store has been locked.  Illegal attempt to add " << n << " to a global store."; 
+      auto result = reg_.insert( std::make_pair( n, tmp ));
+      if( result.second ) {
+	if( readOnly_ )
+	  throw cms::Exception( "DetectorDescriptionStore" )
+	    << " Store has been locked. Illegal attempt to add "
+	    << n << " to a global store."; 
 	// ELSE     
-	result.first->second = new Rep_type(n,(I)nullptr);
+	result.first->second = new Rep_type( n, nullptr );
       }
       return result.first->second;    
     }
   
   template<class N, class I, class K>
-    typename Store<N,I,K>::prep_type 
-    Store<N,I,K>::create(const name_type & n, 
-			 pimpl_type p)
+    typename Store<N,I,K>::prep_type
+    Store<N,I,K>::create( const name_type & n,
+			  pimpl_type p )
     {			
-      if (readOnly_) throw cms::Exception("DetectorDescriptionStore")<<" Store has been locked.  Illegal attempt to add " << n << " to a global store."; 
-      // ELSE     
+      if( readOnly_ )
+	throw cms::Exception( "DetectorDescriptionStore" )
+	  << " Store has been locked. Illegal attempt to add "
+	  << n << " to a global store."; 
+      // ELSE
       prep_type tmp = nullptr;
-      auto result = reg_.insert(std::make_pair(n,tmp));
-      if (!result.second) {
-	// delete result.first->second->second;
-	result.first->second->second.swap(p);
+      auto result = reg_.insert( std::make_pair( n, tmp ));
+      if( !result.second ) {
+	result.first->second->second.swap( p );
       }
       else {
-	result.first->second = new Rep_type(n,std::move(p));
+	result.first->second = new Rep_type( n, std::move( p ));
       }
       return result.first->second;
     }
-  
-  template<class N, class I, class K>
-    Store<N,I,K>::~Store()
-    {
-      //for( auto it : reg_ ) {
-	//delete it.second->second;
-	//it.second->second = nullptr;
-	//delete it.second;
-	//it.second = nullptr;
-      //}
-    } 
   
   template<class N, class I, class K>
     bool Store<N,I,K>::isDefined(const name_type & n ) const

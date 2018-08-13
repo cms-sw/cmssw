@@ -98,7 +98,7 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
     myDDRotation = std::make_unique<DDRotation>(DDName(std::string("identity"),std::string("generatedForDDD")));
     // if the identity is not yet defined, then...
     if ( !myDDRotation->isValid() ) {
-      myDDRotation = DDrotPtr(DDName(std::string("identity"),std::string("generatedForDDD")), new DDRotationMatrix );
+      myDDRotation = DDrotPtr( DDName( std::string( "identity" ), std::string( "generatedForDDD" )), std::make_unique<DDRotationMatrix>());
     }
   }
 
