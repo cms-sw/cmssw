@@ -899,13 +899,11 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std
       HcalSubdetector _subdet = HcalEndcap;
       HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
 
-      // only algo=0 is supported
-      const int fg_algo_version = 0;
-      const int n_fgab_bits = 2048;
-      HcalFinegrainBit fg_algo(fg_algo_version);
+      HcalFinegrainBit fg_algo(conditions->getHcalTPParameters()->getFGVersionHBHE());
 
       // loop over all possible configurations,
       // computing the LUT for each
+      const int n_fgab_bits = 2048;
       for (int i=0; i < 2*n_fgab_bits; i++) {
 	HcalFinegrainBit::Tower tow;
 	for( int k = 0; k < 6; k++) {
