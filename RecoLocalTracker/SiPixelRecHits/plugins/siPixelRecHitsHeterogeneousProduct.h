@@ -33,33 +33,27 @@ namespace siPixelRecHitsHeterogeneousProduct {
      Hist * hist_d;
 
      HitsOnGPU const * me_d = nullptr;
+
+    // Owning pointers to the 32/16 bit arrays with size MAX_HITS
+    void *owner_32bit_;
+    size_t owner_32bit_pitch_;
+    void *owner_16bit_;
+    size_t owner_16bit_pitch_;
   };
 
   struct HitsOnCPU {
-    HitsOnCPU() = default;
+    uint32_t const * hitsModuleStart = nullptr;
+    uint16_t const * detInd = nullptr;
+    int32_t const * charge = nullptr;
+    float const * xl = nullptr;
+    float const * yl = nullptr;
+    float const * xe = nullptr;
+    float const * ye = nullptr;
+    uint16_t const * mr = nullptr;
+    uint16_t const * mc = nullptr;
 
-    explicit HitsOnCPU(uint32_t nhits) :
-      detInd(nhits),
-      charge(nhits),
-      xl(nhits),
-      yl(nhits),
-      xe(nhits),
-      ye(nhits),
-      mr(nhits),
-      mc(nhits),
-      nHits(nhits)
-    { }
-
-    uint32_t hitsModuleStart[2001];
-    std::vector<uint16_t,  CUDAHostAllocator<uint16_t>> detInd;
-    std::vector<int32_t,  CUDAHostAllocator<int32_t>> charge;
-    std::vector<float,    CUDAHostAllocator<float>> xl, yl;
-    std::vector<float,    CUDAHostAllocator<float>> xe, ye;
-    std::vector<uint16_t, CUDAHostAllocator<uint16_t>> mr;
-    std::vector<uint16_t, CUDAHostAllocator<uint16_t>> mc;
-
-    uint32_t nHits;
     HitsOnGPU const * gpu_d = nullptr;
+    uint32_t nHits;
   };
 
   using GPUProduct = HitsOnCPU;  // FIXME fill cpu vectors on demand

@@ -179,7 +179,7 @@ void SiPixelRecHitHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& i
 }
 
 void SiPixelRecHitHeterogeneous::produceGPUCuda(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, cuda::stream_t<>& cudaStream) {
-  auto output = gpuAlgo_->getOutput(cudaStream);
+  auto output = std::make_unique<GPUProduct>(gpuAlgo_->getOutput());
 
  // Need the CPU clusters to
   // - properly fill the output DetSetVector of hits
