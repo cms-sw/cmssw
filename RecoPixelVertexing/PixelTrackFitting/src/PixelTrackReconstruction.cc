@@ -38,8 +38,8 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
     theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
   }
 }
-  
-PixelTrackReconstruction::~PixelTrackReconstruction() 
+
+PixelTrackReconstruction::~PixelTrackReconstruction()
 {
 }
 
@@ -66,16 +66,17 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
     ev.getByToken(theFilterToken, hfilter);
     filter = hfilter.product();
   }
-  
-  std::vector<const TrackingRecHit *> hits;hits.reserve(4); 
+
+  std::vector<const TrackingRecHit *> hits;hits.reserve(4);
+  int counter = -1;
   for(const auto& regionHitSets: hitSets) {
     const TrackingRegion& region = regionHitSets.region();
-
+    counter++;
     for(const SeedingHitSet& tuplet: regionHitSets) {
       /// FIXME at some point we need to migrate the fitter...
       auto nHits = tuplet.size(); hits.resize(nHits);
       for (unsigned int iHit = 0; iHit < nHits; ++iHit) hits[iHit] = tuplet[iHit];
-   
+
       // fitting
       std::unique_ptr<reco::Track> track = fitter.run(hits, region);
       if (!track) continue;
