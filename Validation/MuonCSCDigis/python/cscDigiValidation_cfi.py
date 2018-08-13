@@ -14,11 +14,3 @@ cscDigiValidation = DQMEDAnalyzer('CSCDigiValidation',
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(cscDigiValidation, simHitsTag = "mix:MuonSimHitsMuonCSCHits")
-
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(cscDigiValidation,
-    wireDigiTag = "mixData:MuonCSCWireDigisDM",
-    stripDigiTag = "mixData:MuonCSCStripDigisDM",
-    comparatorDigiTag = "mixData:MuonCSCComparatorDigisDM",
-)
-
