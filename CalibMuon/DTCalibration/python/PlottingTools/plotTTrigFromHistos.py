@@ -5,7 +5,7 @@ from drawHistoAllChambers import drawHisto
 def binNumber(station,sector):
     start = (station - 1)*12
     return start + sector
- 
+
 def plot(fileName,sl,ymin=300,ymax=360,option="HISTOP",draw=True):
 
     slType = sl
@@ -46,7 +46,7 @@ def plot(fileName,sl,ymin=300,ymax=360,option="HISTOP",draw=True):
                 binHistoNew = (st - 1)*60 + (wh + 2)*nSectors + sec
                 if verbose: print("Bin final",binHistoNew)
                 histo.SetBinContent(binHistoNew,value) 
-  
+
                 if sec == 1:
                     label = "Wheel %d" % wh
                     if wh == -2: label += " MB%d" % st  
@@ -62,7 +62,7 @@ def compare(fileNames,sl,ymin=300,ymax=360,labels=[]):
     option = "HISTOP"
     colors = (2,4,12,44,55,38,27,46)
     markers = (24,25,26,27,28,30,32,5)
-    
+
     idx = 0
     canvas = None
     objects = None
@@ -90,7 +90,7 @@ def compare(fileNames,sl,ymin=300,ymax=360,labels=[]):
 
     legend = ROOT.TLegend(0.4,0.7,0.95,0.8)
     for idx in range( len(histos) ):
-	histo = histos[idx]
+        histo = histos[idx]
         label = histo.GetName()
         if len(labels): label = labels[idx]
         legend.AddEntry(histo,label,"LP")
@@ -109,7 +109,7 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
     option = "HISTOP"
     colors = (2,4,9,12,38,44,46,55)
     markers = (24,25,26,27,28,30,32,5)
-    
+
     idx = 0
     canvases = [None,None]
     objects = None
@@ -125,7 +125,7 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
             histos[-1].Reset()
         else:
             histos[-1].Add(histoRef,-1.) 
-       
+
         draw = False
         if not idx: draw = True
 
@@ -136,7 +136,7 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
         if not idx: 
             canvases[0] = objs[0]
             objects = objs[2]
-            
+
         if idx:
             canvases[0].cd()
             histos[-1].SetLineColor(colors[ (idx - 1) % len(colors) ])
@@ -154,8 +154,8 @@ def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
             histosDist[-1].SetMarkerStyle(markers[ (idx - 1) % len(markers) ])
 
         idx += 1
-    
-    
+
+
     canvases[1] = ROOT.TCanvas("c_tTrigDist")
     canvases[1].SetGridy()
     canvases[1].SetFillColor(0)

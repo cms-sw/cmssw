@@ -23,7 +23,7 @@ sourceBranch.SetAddress(source)
 
 # now loop over the events
 for index in all(events):
-    
+
     # update all branches - the buffers are filled automatically
     # Hint: put all you branches in a list and loop over it
     sourceBranch.GetEntry(index)
