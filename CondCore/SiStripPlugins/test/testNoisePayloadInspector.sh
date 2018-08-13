@@ -47,6 +47,17 @@ getPayloadData.py --plugin pluginSiStripNoises_PayloadInspector \
     --input_params '{"DetIds":"470065830,369121594,369124670,470177668"}' \
     --test ;
 
+####################
+# Correlations
+####################
+getPayloadData.py --plugin pluginSiStripNoises_PayloadInspector \
+    --plot plot_SiStripNoiseCorrelationByPartition \
+    --tag SiStripNoise_v2_prompt \
+    --time_type Run \
+    --iovs '{"start_iov": "348767", "end_iov": "348878"}' \
+    --db Prod \
+    --test ;
+
 estimators=(Mean Min Max RMS)
 plotTypes=(Strip APV Module)
 partition=(TIB TOB TEC TID)
