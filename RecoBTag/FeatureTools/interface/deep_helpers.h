@@ -1,5 +1,5 @@
-#ifndef RecoBTag_TensorFlow_deep_helpers_h
-#define RecoBTag_TensorFlow_deep_helpers_h
+#ifndef RecoBTag_FeatureTools_deep_helpers_h
+#define RecoBTag_FeatureTools_deep_helpers_h
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -76,4 +76,4 @@ namespace btagbtvdeep {
   float quality_from_pfcand(const reco::PFCandidate &pfcand);
   float lost_inner_hits_from_pfcand(const reco::PFCandidate &pfcand);
 }
-#endif //RecoBTag_TensorFlow_deep_helpers_h
+#endif //RecoBTag_FeatureTools_deep_helpers_h
