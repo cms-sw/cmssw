@@ -48,7 +48,7 @@ class BTLDetId : public MTDDetId {
   static constexpr int MAX_HASH =  2*MAX_IPHI_TILE*MAX_IETA_TILE-1; // the total amount is invariant per tile or bar)
   static constexpr int kSizeForDenseIndexing = MAX_HASH + 1 ;
 
-  enum kCrysLayout { tile = 1 , bar = 2 } ;
+  enum class CrysLayout { tile = 1 , bar = 2 } ;
 
  public:
   
@@ -89,20 +89,20 @@ class BTLDetId : public MTDDetId {
   inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
 
   /** Returns BTL iphi index for crystal according to type tile or bar */
-  int iphi( kCrysLayout lay ) const ;
+  int iphi( CrysLayout lay ) const ;
 
   /** Returns BTL ieta index for crystal according to type tile or bar */
-  int ietaAbs( kCrysLayout lay ) const ;
+  int ietaAbs( CrysLayout lay ) const ;
 
-  int ieta( kCrysLayout lay ) const { return zside()*ietaAbs( lay ); }
+  int ieta( CrysLayout lay ) const { return zside()*ietaAbs( lay ); }
 
   /** define a dense index fo arrays from a DetId */
-  int hashedIndex( kCrysLayout lay ) const ;
+  int hashedIndex( CrysLayout lay ) const ;
 
   static bool validHashedIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 
   /** get a DetId from a compact index for arrays */
-  BTLDetId getUnhashedIndex( int hi, kCrysLayout lay ) const ;
+  BTLDetId getUnhashedIndex( int hi, CrysLayout lay ) const ;
 
 };
 
