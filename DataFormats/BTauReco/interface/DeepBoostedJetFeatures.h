@@ -21,10 +21,11 @@ public:
   }
 
   void fill(const std::string& name, float value){
-    try {
-      feature_map_.at(name).push_back(value);
+    auto item = feature_map_.find(name);
+    if (item != feature_map_.end()){
+      item->second.push_back(value);
       is_empty_ = false;
-    }catch (const std::out_of_range& e) {
+    }else{
       throw cms::Exception("InvalidArgument") << "[DeepBoostedJetFeatures::fill()] Feature " << name << " has not been registered";
     }
   }
@@ -34,9 +35,10 @@ public:
   }
 
   const std::vector<float>& get(const std::string& name) const {
-    try {
-      return feature_map_.at(name);
-    }catch (const std::out_of_range& e) {
+    auto item = feature_map_.find(name);
+    if (item != feature_map_.end()){
+      return item->second;
+    }else{
       throw cms::Exception("InvalidArgument") << "[DeepBoostedJetFeatures::get()] Feature " << name << " does not exist!";
     }
   }
