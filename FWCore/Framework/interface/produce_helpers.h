@@ -20,6 +20,7 @@
 
 // system include files
 #include <memory>
+#include <optional>
 // user include files
 
 // forward declarations
@@ -28,76 +29,75 @@ namespace edm {
       
       namespace produce { struct Null;}
       
-     template<typename FromT, typename ToT> void copyFromTo(FromT& iFrom,
+     template<typename FromT, typename ToT> void moveFromTo(FromT& iFrom,
                                                             ToT & iTo) {
-       iTo = iFrom;
+       iTo = std::move(iFrom);
      }
 
-     template<typename FromT, typename ToT> void copyFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
+     template<typename FromT, typename ToT> void moveFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
        iTo = std::move(iFrom);
+     }
+     template<typename FromT, typename ToT> void moveFromTo(std::optional<FromT>& iFrom, ToT & iTo) {
+       iTo = std::move(iFrom.value());
      }
 
      namespace produce { 
          struct Null {};
          template <typename T> struct EndList {
            static_assert( (not std::is_pointer_v<T>) ,"use std::shared_ptr or std::unique_ptr to hold EventSetup data products, do not use bare pointers");
-            typedef T tail_type;
-            typedef Null head_type;
+            using tail_type = T;
+            using head_type = Null;
          };
          template <typename T> struct product_traits {
-            typedef T type;
+            using type = T;
          };
          template< typename T> struct product_traits<T*> {
-            typedef EndList<T*> type;
+            using type = EndList<T*>;
          };
          template< typename T> struct product_traits<std::unique_ptr<T> > {
-            typedef EndList<std::unique_ptr<T> > type;
+            using type= EndList<std::unique_ptr<T>>;
          };
          template< typename T> struct product_traits<std::shared_ptr<T> > {
-            typedef EndList<std::shared_ptr<T> > type;
+            using type = EndList<std::shared_ptr<T>>;
          };
-         
+         template< typename T> struct product_traits<std::optional<T> > {
+            using type=EndList<std::optional<T>>;
+         };
          
          template<typename T> struct size {
-            typedef typename product_traits<T>::type type;
-            enum { value = size< typename type::head_type >::value + 1 };
+            using type = typename product_traits<T>::type;
+            constexpr static int value = size< typename type::head_type >::value + 1;
          };
          template<> struct size<Null> {
-            enum { value = 0 };
+            constexpr static int value = 0;
          };
          
          template<typename T> struct smart_pointer_traits {
-            typedef typename T::element_type type;
+            using type = typename T::element_type;
+           static auto getPointer(T& iPtr)-> decltype(&*iPtr) { return &*iPtr;}
+         };
+       
+         template<typename T> struct smart_pointer_traits<std::optional<T>> {
+           using type = T;
+           static T* getPointer(std::optional<T>& iPtr) {
+             if(iPtr.has_value()) { return &*iPtr;}
+             return nullptr;
+           }
          };
 
-         template<typename T> struct smart_pointer_traits<T*> {
-            typedef  T type;
-         };
-         template<typename T> struct smart_pointer_traits< T const *> {
-            typedef  T type;
-         };
-         
-         template<typename FromT, typename ToT> void copyFromTo(FromT& iFrom,
-                                                                 ToT & iTo) {
-            iTo = iFrom;
-         }
-
-         template<typename FromT, typename ToT> void copyFromTo(std::unique_ptr<FromT>& iFrom, ToT & iTo) {
-           iTo = std::move(iFrom);
-         }
-
-
-         template<typename ContainerT, typename EntryT, typename FindT> struct find_index_impl {
-            typedef typename product_traits<ContainerT>::type container_type;
-            enum { value = find_index_impl<typename container_type::head_type, typename container_type::tail_type,  FindT>::value + 1 };
-         };
-         template<typename ContainerT, typename T> struct find_index_impl<ContainerT, T,T> {
-            enum { value = 0 };
-         };
-         
          template<typename T, typename FindT> struct find_index {
-            typedef typename product_traits<T>::type container_type;
-            enum {value = find_index_impl<typename container_type::head_type, typename container_type::tail_type, FindT>::value };
+            using container_type = typename product_traits<T>::type;
+            template<typename HeadT, typename TailT>
+            constexpr static int findIndexOf() {
+              if constexpr(not std::is_same_v<TailT,FindT>) {
+                using container_type= typename product_traits<HeadT>::type;
+                return findIndexOf<typename container_type::head_type,
+                typename container_type::tail_type>()+1;
+              } else {
+                return 0;
+              }
+            }
+            constexpr static int value = findIndexOf<typename container_type::head_type, typename container_type::tail_type>();
          };
          namespace test {
             template<typename T> const char* name(const T*);
