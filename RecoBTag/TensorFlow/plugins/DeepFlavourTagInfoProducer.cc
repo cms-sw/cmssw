@@ -19,19 +19,19 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 
-#include "RecoBTag/TensorFlow/interface/JetConverter.h"
-#include "RecoBTag/TensorFlow/interface/ShallowTagInfoConverter.h"
-#include "RecoBTag/TensorFlow/interface/SecondaryVertexConverter.h"
-#include "RecoBTag/TensorFlow/interface/NeutralCandidateConverter.h"
-#include "RecoBTag/TensorFlow/interface/ChargedCandidateConverter.h"
+#include "RecoBTag/FeatureTools/interface/JetConverter.h"
+#include "RecoBTag/FeatureTools/interface/ShallowTagInfoConverter.h"
+#include "RecoBTag/FeatureTools/interface/SecondaryVertexConverter.h"
+#include "RecoBTag/FeatureTools/interface/NeutralCandidateConverter.h"
+#include "RecoBTag/FeatureTools/interface/ChargedCandidateConverter.h"
 
-#include "RecoBTag/TensorFlow/interface/TrackInfoBuilder.h"
-#include "RecoBTag/TensorFlow/interface/sorting_modules.h"
+#include "RecoBTag/FeatureTools/interface/TrackInfoBuilder.h"
+#include "RecoBTag/FeatureTools/interface/sorting_modules.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
-#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
+#include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Common/interface/Provenance.h"
@@ -276,8 +276,8 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     const edm::Provenance *prov = shallow_tag_infos.provenance();
     const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
-    double negative_cut = ( ( psetFromProvenance.getParameter<edm::ParameterSet>("computer") 
-			      ).getParameter<edm::ParameterSet>("trackSelection") 
+    double negative_cut = ( ( psetFromProvenance.getParameter<edm::ParameterSet>("computer")
+			      ).getParameter<edm::ParameterSet>("trackSelection")
 			    ).getParameter<double>("sip3dSigMax");
 
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
@@ -320,7 +320,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & c_pf_features = features.c_pf_features.at(entry);
       // fill feature structure
       if (packed_cand) {
-        btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, trackinfo, 
+        btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, trackinfo,
 					       drminpfcandsv, static_cast<float> (jet_radius_), c_pf_features, flip_);
       } else if (reco_cand) {
         // get vertex association quality
@@ -346,7 +346,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           const reco::VertexRef & PV_orig = (*pvas)[reco_ptr];
           if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
         }
-        btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, trackinfo, 
+        btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, trackinfo,
 					     drminpfcandsv,  static_cast<float> (jet_radius_), puppiw,
 					     pv_ass_quality, PV, c_pf_features, flip_);
       }
