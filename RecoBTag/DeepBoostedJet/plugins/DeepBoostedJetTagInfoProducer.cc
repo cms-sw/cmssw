@@ -212,7 +212,7 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 
   for (std::size_t jet_n = 0; jet_n < jets->size(); jet_n++){
 
-    const auto& jet = jets->at(jet_n);
+    const auto& jet = (*jets)[jet_n];
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
 
     // create jet features
@@ -238,6 +238,12 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 }
 
 void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures &fts, const reco::Jet &jet){
+
+  // require the input to be a pat::Jet
+  const auto* patJet = dynamic_cast<const pat::Jet*>(&jet);
+  if (!patJet){
+    throw edm::Exception(edm::errors::InvalidReference) << "Input is not a pat::Jet.";
+  }
 
   // do nothing if jet does not have constituents
   if (jet.numberOfDaughters()==0) return;
@@ -360,16 +366,9 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
     }
     fts.fill("pfcand_drminsv", minDR==999 ? -1 : minDR);
 
-    pat::JetPtrCollection subjets;
-    try {
-      const auto &patJet = dynamic_cast<const pat::Jet&>(jet);
-      subjets = patJet.subjets();
-      // sort by pt
-      std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet>& p1, const edm::Ptr<pat::Jet>& p2){ return p1->pt()>p2->pt(); });
-    }catch (const std::bad_cast &e) {
-      throw edm::Exception(edm::errors::InvalidReference) << "Cannot access subjets because this is not a pat::Jet.";
-    }
-
+    // subjets
+    auto subjets = patJet->subjets();
+    std::sort(subjets.begin(), subjets.end(), [](const edm::Ptr<pat::Jet>& p1, const edm::Ptr<pat::Jet>& p2){ return p1->pt()>p2->pt(); }); // sort by pt
     fts.fill("pfcand_drsubjet1", !subjets.empty() ? reco::deltaR(*cand, *subjets.at(0)) : -1);
     fts.fill("pfcand_drsubjet2", subjets.size()>1 ? reco::deltaR(*cand, *subjets.at(1)) : -1);
 

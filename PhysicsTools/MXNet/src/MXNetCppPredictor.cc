@@ -62,8 +62,8 @@ void MXNetCppPredictor::set_input_shapes(const std::vector<std::string>& input_n
   input_names_ = input_names;
   // init the input NDArrays and add them to the arg_map
   for (unsigned i=0; i<input_names_.size(); ++i){
-    const auto& name = input_names_.at(i);
-    NDArray nd(input_shapes.at(i), context_, false);
+    const auto& name = input_names_[i];
+    NDArray nd(input_shapes[i], context_, false);
     arg_map_[name] = nd;
   }
   // infer parameter shapes from input shapes
@@ -78,8 +78,8 @@ const std::vector<float>& MXNetCppPredictor::predict(const std::vector<std::vect
     bind_executor();
     // set the inputs
     for (unsigned i=0; i<input_names_.size(); ++i){
-      const auto& name = input_names_.at(i);
-      arg_map_[name].SyncCopyFromCPU(input_data.at(i));
+      const auto& name = input_names_[i];
+      arg_map_[name].SyncCopyFromCPU(input_data[i]);
     }
     // run forward
     exec_->Forward(false);

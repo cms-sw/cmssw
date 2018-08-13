@@ -41,9 +41,10 @@ struct PreprocessParams {
   std::unordered_map<std::string, VarInfo> var_info_map;
 
   VarInfo get_info(const std::string &name) const {
-    try {
-      return var_info_map.at(name);
-    }catch (const std::out_of_range &e) {
+    auto item = var_info_map.find(name);
+    if (item != var_info_map.end()){
+      return item->second;
+    } else {
       throw cms::Exception("InvalidArgument") << "Cannot find variable info for " << name;
     }
   }
@@ -132,7 +133,7 @@ DeepBoostedJetTagsProducer::DeepBoostedJetTagsProducer(const edm::ParameterSet& 
 
   // get output names from flav_table
   const auto & flav_pset = iConfig.getParameter<edm::ParameterSet>("flav_table");
-  for (const auto flav_pair : flav_pset.tbl()) {
+  for (const auto& flav_pair : flav_pset.tbl()) {
     const auto & flav_name = flav_pair.first;
     flav_pairs_.emplace_back(flav_name,
                              flav_pset.getParameter<std::vector<unsigned int>>(flav_name));
