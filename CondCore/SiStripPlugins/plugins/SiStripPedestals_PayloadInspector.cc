@@ -22,6 +22,7 @@
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CondCore/SiStripPlugins/interface/SiStripCondObjectRepresent.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
@@ -45,8 +46,147 @@
 #include "TPaveStats.h"
 
 namespace {
-
   using namespace cond::payloadInspector;
+
+  class SiStripPedestalContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float> {
+  public:
+    SiStripPedestalContainer(std::shared_ptr<SiStripPedestals> payload, unsigned int run, std::string hash)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float>(payload, run, hash) {
+      payloadType_ = "SiStripPedestals";
+      setGranularity(SiStripCondObjectRepresent::PERSTRIP);
+    }
+
+    void allValues() override {
+      std::vector<uint32_t> detid;
+      payload_->getDetIds(detid);
+
+      for (const auto& d : detid) {
+        SiStripPedestals::Range range = payload_->getRange(d);
+        for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
+          // to be used to fill the histogram
+          SiStripCondData_.fillByPushBack(d, payload_->getPed(it, range));
+        }
+      }
+    }
+  };
+
+  class SiStripPedestalCompareByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  public:
+    SiStripPedestalCompareByPartition()
+        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Compare Pedestals By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripPedestalContainer* l_objContainer =
+          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripPedestalContainer* f_objContainer =
+          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 300, 0.1, 300.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripPedestalDiffByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  public:
+    SiStripPedestalDiffByPartition()
+        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Diff Pedestals By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripPedestalContainer* l_objContainer =
+          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripPedestalContainer* f_objContainer =
+          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->Subtract(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, -30., 30.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripPedestalCorrelationByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  public:
+    SiStripPedestalCorrelationByPartition()
+        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestals Correlation By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripPedestalContainer* l_objContainer =
+          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripPedestalContainer* f_objContainer =
+          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->compare(f_objContainer);
+
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1200);
+      l_objContainer->fillCorrelationByPartition(canvas, 100, 0., 300.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     test class
@@ -158,9 +298,9 @@ namespace {
               Form("Pedestal profile %s", std::to_string(the_detid).c_str()),
               Form("SiStrip Pedestal profile for DetId: %s;Strip number;SiStrip Pedestal [ADC counts]",
                    std::to_string(the_detid).c_str()),
-              128 * nAPVs,
+              sistrip::STRIPS_PER_APV * nAPVs,
               -0.5,
-              (128 * nAPVs) - 0.5);
+              (sistrip::STRIPS_PER_APV * nAPVs) - 0.5);
 
           histo->SetStats(false);
           histo->SetTitle("");
@@ -191,7 +331,7 @@ namespace {
 
           std::vector<int> boundaries;
           for (size_t b = 0; b < v_nAPVs.at(index); b++) {
-            boundaries.push_back(b * 128);
+            boundaries.push_back(b * sistrip::STRIPS_PER_APV);
           }
 
           std::vector<std::shared_ptr<TLine>> linesVec;
@@ -378,7 +518,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -394,7 +534,7 @@ namespace {
           }
 
           epedestal.add(std::min<float>(pedestal, 300.));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -526,7 +666,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -541,7 +681,7 @@ namespace {
             epedestal.reset();
           }
           epedestal.add(std::min<float>(pedestal, 300.));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -564,7 +704,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -580,7 +720,7 @@ namespace {
           }
 
           epedestal.add(std::min<float>(pedestal, 300.));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -702,7 +842,8 @@ namespace {
             zeropeds_per_detid[d] += 1;
           }
         }  // end of loop on strips
-        float fraction = zeropeds_per_detid[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        float fraction =
+            zeropeds_per_detid[d] / (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
         if (fraction > 0.) {
           tmap->fill(d, fraction);
           std::cout << "detid: " << d << " (n. APVs=" << detInfo.getNumberOfApvsAndStripLength(d).first << ") has "
@@ -973,6 +1114,9 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripPedestals) {
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCompareByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalDiffByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCorrelationByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalPerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsValue);
