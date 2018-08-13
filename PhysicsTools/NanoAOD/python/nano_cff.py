@@ -155,7 +155,7 @@ def nanoAOD_addDeepBTagFor80X(process):
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 def nanoAOD_addDeepFlavourTagFor94X2016(process):
-    print "Updating process to run DeepFlavour btag on legacy 80X datasets"
+    print("Updating process to run DeepCSV btag on 94X re-miniAOD of legacy 80X datasets")
     updateJetCollection(
                process,
                jetSource = cms.InputTag('slimmedJets'),
