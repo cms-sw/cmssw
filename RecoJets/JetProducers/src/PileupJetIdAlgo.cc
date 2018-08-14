@@ -506,6 +506,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	 internalId_.neuEMfrac_   = patjet->neutralEmEnergy()    /jet->energy();
 	 internalId_.chgHadrfrac_ = patjet->chargedHadronEnergy()/jet->energy();
 	 internalId_.neuHadrfrac_ = patjet->neutralHadronEnergy()/jet->energy();
+         if (patjet->hasUserFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity"))
+           internalId_.nNeutrals_ = patjet->userFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity");
 	} else {
 	 internalId_.nCharged_    = pfjet->chargedMultiplicity();
 	 internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
