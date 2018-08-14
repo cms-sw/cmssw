@@ -131,7 +131,9 @@ public:
     
   edm::eventsetup::TypeTag type() const override { return m_type;}
   ProxyP proxy() const override { return m_proxy.get();}
-  edmProxyP makeEdmProxy() const override { return std::make_shared<DataProxy>(*m_proxy);}
+  edmProxyP makeEdmProxy() const override { 
+    assert(m_proxy.get() != nullptr);
+    return std::make_shared<DataProxy>(*m_proxy);}
  
 private:
   // late initialize (to allow to load ALL library first)
