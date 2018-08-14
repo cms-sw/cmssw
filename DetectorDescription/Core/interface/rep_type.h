@@ -10,7 +10,7 @@ namespace DDI {
     {
       using name_type = N;
       using pointer = typename I::pointer;
-      using reference = I&;
+      using reference = typename I::reference;
     };
   
   template <class N, class I> 
@@ -32,7 +32,7 @@ namespace DDI {
   template< class N, class I >
     struct rep_type
     {
-      rep_type() : second( nullptr ), init_(false) {}
+      rep_type() : second( nullptr ), init_( false ) {}
       rep_type( const N & n, I i ) : first( n ), second( std::move( i )), init_( false ) 
       { if( i ) init_ = true; }
       N first;
