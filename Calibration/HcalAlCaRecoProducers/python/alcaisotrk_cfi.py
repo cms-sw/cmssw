@@ -30,7 +30,7 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
                          MinimumTrackP     = cms.double(20.0),
 # signal zone in ECAL and MIP energy cutoff
                          ConeRadiusMIP     = cms.double(14.0),
-                         MaximumEcalEnergy = cms.double(100.0),
+                         MaximumEcalEnergy = cms.double(2.0),
 # following 3 parameters are for isolation cuts and described in the code
                          MaxTrackP         = cms.double(8.0),
                          SlopeTrackP       = cms.double(0.05090504066),
