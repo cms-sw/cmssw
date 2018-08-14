@@ -145,7 +145,7 @@ DDRotation DDrotReflect( const DDName & ddname,
 }		
 
 // does NOT check LEFT or Right handed coordinate system takes either.
-DDRotationMatrix *
+std::unique_ptr<DDRotationMatrix>
 DDcreateRotationMatrix( double thetaX, double phiX,
 			double thetaY, double phiY,
 			double thetaZ, double phiZ )
@@ -168,9 +168,9 @@ DDcreateRotationMatrix( double thetaX, double phiX,
     throw cms::Exception("DDException") << o.str();
   }
   
-  return new DDRotationMatrix(x.x(),y.x(),z.x(),
-			      x.y(),y.y(),z.y(),
-			      x.z(),y.z(),z.z());
+  return std::make_unique<DDRotationMatrix>(x.x(),y.x(),z.x(),
+					    x.y(),y.y(),z.y(),
+					    x.z(),y.z(),z.z());
 }			 
 
 DDRotation

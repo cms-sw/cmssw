@@ -53,7 +53,7 @@ DDRotation DDanonymousRot( std::unique_ptr<DDRotationMatrix> rot );
 /** The Matrix must be orthonormal - left or right handed - otherwise a DDException is thrown; 
     memory of the returned pointer belongs to the caller
 */
-DDRotationMatrix *
+std::unique_ptr<DDRotationMatrix>
 DDcreateRotationMatrix( double thetaX, double phiX,
 			double thetaY, double phiY,
 			double thetaZ, double phiZ );

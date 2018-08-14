@@ -157,8 +157,8 @@ DDAngular::execute( DDCompactView& cpv )
 				<< CONVERT_TO( phiy, deg ) << ", 0, 0";
 	
       rotation = DDrot( DDName( rotstr, m_idNameSpace ),
-			std::unique_ptr< DDRotationMatrix >( new DDRotationMatrix( *DDcreateRotationMatrix( theta, phix, theta, phiy,
-													    0., 0. ) * m_solidRot ))); 
+			std::make_unique<DDRotationMatrix>( *DDcreateRotationMatrix( theta, phix, theta, phiy,
+										     0., 0. ) * m_solidRot )); 
     }
       
     double xpos = m_radius * cos( phi ) + m_center[0];
