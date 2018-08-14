@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTConfiguration.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 unsigned
 l1t::MicroGMTConfiguration::getTwosComp(const int signed_int, const int width) {
@@ -39,14 +39,14 @@ l1t::MicroGMTConfiguration::setOutputMuonQuality(int muQual, tftype type, int ha
   return outQual;
 }
 
-double
-l1t::MicroGMTConfiguration::calcMuonEtaExtra(const l1t::Muon& mu)
+int
+l1t::MicroGMTConfiguration::calcMuonHwEtaExtra(const l1t::Muon& mu)
 {
-  return (mu.hwEta() + mu.hwDEtaExtra()) * 0.010875;
+  return mu.hwEta() + mu.hwDEtaExtra();
 }
 
-double
-l1t::MicroGMTConfiguration::calcMuonPhiExtra(const l1t::Muon& mu)
+int
+l1t::MicroGMTConfiguration::calcMuonHwPhiExtra(const l1t::Muon& mu)
 {
   auto hwPhiExtra = mu.hwPhi() + mu.hwDPhiExtra();
   while (hwPhiExtra < 0) {
@@ -55,8 +55,20 @@ l1t::MicroGMTConfiguration::calcMuonPhiExtra(const l1t::Muon& mu)
   while (hwPhiExtra > 575) {
     hwPhiExtra -= 576;
   }
+  return hwPhiExtra;
+}
+
+double
+l1t::MicroGMTConfiguration::calcMuonEtaExtra(const l1t::Muon& mu)
+{
+  return calcMuonHwEtaExtra(mu) * 0.010875;
+}
+
+double
+l1t::MicroGMTConfiguration::calcMuonPhiExtra(const l1t::Muon& mu)
+{
   //use the LorentzVector to get phi in the range -pi to +pi exactly as in the emulator
-  math::PtEtaPhiMLorentzVector vec{0., 0., hwPhiExtra*0.010908, 0.};
+  math::PtEtaPhiMLorentzVector vec{0., 0., calcMuonHwPhiExtra(mu)*0.010908, 0.};
   return vec.phi();
 }
 

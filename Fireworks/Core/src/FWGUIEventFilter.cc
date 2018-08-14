@@ -22,16 +22,16 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n):
    m_isOpen(false),
    m_filtersRemoved(false),
 
-   m_eventSelectionFrameParent(0),
-   m_eventSelectionFrame(0),
-   m_triggerSelectionFrameParent(0),
-   m_triggerSelectionFrame(0),
+   m_eventSelectionFrameParent(nullptr),
+   m_eventSelectionFrame(nullptr),
+   m_triggerSelectionFrameParent(nullptr),
+   m_triggerSelectionFrame(nullptr),
 
-   m_rad1(0),
-   m_rad2(0),
-   m_stateLabel(0),
-   m_disableFilteringBtn(0),
-   m_addBtn(0),
+   m_rad1(nullptr),
+   m_rad2(nullptr),
+   m_stateLabel(nullptr),
+   m_disableFilteringBtn(nullptr),
+   m_addBtn(nullptr),
 
    m_navigator(n)
 {
@@ -239,7 +239,7 @@ FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int f
       m_rad1->SetState(kButtonUp, false);
    }
 
-   assert(m_eventSelectionFrame == 0);
+   assert(m_eventSelectionFrame == nullptr);
    
    m_eventSelectionFrame = new TGVerticalFrame(m_eventSelectionFrameParent);
    m_eventSelectionFrameParent->AddFrame(m_eventSelectionFrame,  new TGLayoutHints(kLHintsExpandX));
@@ -263,11 +263,11 @@ FWGUIEventFilter::reset()
    // called on load of configuration
    if (m_eventSelectionFrameParent) {
       m_eventSelectionFrameParent->RemoveFrame(m_eventSelectionFrame);
-      m_eventSelectionFrame = 0;
+      m_eventSelectionFrame = nullptr;
    }
    if (m_triggerSelectionFrameParent) {
       m_triggerSelectionFrameParent->RemoveFrame(m_triggerSelectionFrame);
-      m_triggerSelectionFrame = 0;
+      m_triggerSelectionFrame = nullptr;
    }
 
    for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
@@ -287,7 +287,7 @@ FWGUIEventFilter::deleteEntry(FWGUIEventSelector* sel)
 
    m_guiSelectors.remove(sel);
 
-   TGCompositeFrame* p = 0;
+   TGCompositeFrame* p = nullptr;
    if (sel->origSelector()->m_triggerProcess.empty())
       p = m_eventSelectionFrame;
    else
@@ -359,9 +359,9 @@ FWGUIEventFilter::CloseWindow()
 {
    m_isOpen = false;
    m_eventSelectionFrameParent->RemoveFrame(m_eventSelectionFrame);
-   m_eventSelectionFrame = 0;
+   m_eventSelectionFrame = nullptr;
    m_triggerSelectionFrameParent->RemoveFrame(m_triggerSelectionFrame);
-   m_triggerSelectionFrame = 0;
+   m_triggerSelectionFrame = nullptr;
 
    FWGUIEventSelector* gs;
    for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
@@ -388,7 +388,7 @@ FWGUIEventFilter::checkApplyButton()
       std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin();
       while (i != m_guiSelectors.end())
       {
-         if ((*i)->origSelector() == 0 ||
+         if ((*i)->origSelector() == nullptr ||
              (*i)->guiSelector()->m_enabled    != (*i)->origSelector()->m_enabled  ||
              (*i)->guiSelector()->m_expression != (*i)->origSelector()->m_expression )
          {
@@ -460,7 +460,7 @@ bool FWGUIEventFilter::HandleKey(Event_t *event)
 
    TIter next(fBindList);
    TGMapKey *m;
-   TGFrame  *w = 0;
+   TGFrame  *w = nullptr;
 
    while ((m = (TGMapKey *) next())) {
       if (m->fKeyCode == event->fCode) {

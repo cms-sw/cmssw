@@ -24,10 +24,10 @@ class AlignmentPrescaler : public edm::EDProducer{
 
  public:
   AlignmentPrescaler(const edm::ParameterSet &iConfig);
-  ~AlignmentPrescaler();
-  void beginJob();
-  void endJob();
-  virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) ;
+  ~AlignmentPrescaler() override;
+  void beginJob() override;
+  void endJob() override;
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
 
  private:
   edm::InputTag src_;//tracks in input

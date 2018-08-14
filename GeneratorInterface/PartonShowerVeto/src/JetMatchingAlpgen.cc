@@ -179,7 +179,7 @@ int JetMatchingAlpgen::match( const lhef::LHEEvent* partonLevel, const std::vect
 
 void alshcd_(char csho[3])
 {
-	std::strncpy(csho, "PYT", 3);	// or "HER"
+	std::memcpy(csho, "PYT", 3);	// or "HER"
 }
 
 void alshen_()

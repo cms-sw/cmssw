@@ -29,7 +29,7 @@ const PixelToLNKAssociateFromAscii::CablingRocId * PixelToLNKAssociateFromAscii:
       return &(im->second);  
     }
   }
-  return 0;
+  return nullptr;
 }
 
 // This is where the reading and interpretation of the ascci cabling input file is
@@ -204,7 +204,7 @@ void PixelToLNKAssociateFromAscii::addConnections(
        // fix for type-B modules in barrel
        edm::LogInfo(" roc ")<<rocDetId<<" "<<rocLnkId<<" "<<name->isHalfModule()<<endl;
        if (name->isHalfModule() && (rocDetIds.min()>7)  
-           && (part==PixelBarrelName::mO || PixelBarrelName::mI) ) {
+           && (part==PixelBarrelName::mO || part==PixelBarrelName::mI) ) {
 	 //cablingRocId.rocLinkId = 9-rocLnkId;
 	 // rocDetId=8,...,15
 	 edm::LogInfo(" special for half modules ");

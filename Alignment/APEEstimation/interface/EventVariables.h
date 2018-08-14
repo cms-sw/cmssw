@@ -1,6 +1,7 @@
 #ifndef Alignment_APEEstimation_EventVariables_h
 #define Alignment_APEEstimation_EventVariables_h
 
+#include <vector>
 
 struct TrackStruct{
   

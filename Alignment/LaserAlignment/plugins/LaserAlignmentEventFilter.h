@@ -9,10 +9,10 @@ class LaserAlignmentEventFilter : public edm::global::EDFilter<> {
 
 public:
   explicit LaserAlignmentEventFilter(const edm::ParameterSet&);
-  ~LaserAlignmentEventFilter();
+  ~LaserAlignmentEventFilter() override;
 
 private:
-  virtual bool filter(edm::StreamID, edm::Event &, edm::EventSetup const&) const override;
+  bool filter(edm::StreamID, edm::Event &, edm::EventSetup const&) const override;
 
   // FED RAW data input collection
   const edm::EDGetTokenT<FEDRawDataCollection> FED_collection_token;

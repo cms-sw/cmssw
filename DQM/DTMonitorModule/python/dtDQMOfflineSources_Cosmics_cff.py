@@ -10,7 +10,8 @@ dtSegmentAnalysisMonitor.nLSTimeBin = 5
 
 from DQM.DTMonitorModule.dtResolutionTask_cfi import *
 
-dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoDT = DQMEDAnalyzer('DQMEventInfo',
                          subSystemFolder = cms.untracked.string('DT')
                          )
 
@@ -19,7 +20,7 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
     inputLabel = cms.InputTag('rawDataCollector'),
     fedbyType = cms.bool(False),
-    useStandardFEDid = cms.bool(True),
+    useStandardFEDid = cms.bool(False),
     dqmOnly = cms.bool(True),                       
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
@@ -50,3 +51,9 @@ dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
                                 dtEfficiencyMonitor +
                                 dtTriggerEfficiencyMonitor +
                                 dqmInfoDT)
+
+import EventFilter.DTRawToDigi.dturosunpacker_cfi
+_dturosunpacker = EventFilter.DTRawToDigi.dturosunpacker_cfi.dturosunpacker.clone()
+from Configuration.Eras.Modifier_run2_DT_2018_cff import run2_DT_2018
+run2_DT_2018.toReplaceWith(dtDataIntegrityUnpacker, _dturosunpacker)
+

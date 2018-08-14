@@ -1,3 +1,4 @@
+from __future__ import print_function
 # to test the communication with DBS and produce the csctf configuration
 import FWCore.ParameterSet.Config as cms
 
@@ -24,6 +25,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('DBConnect',
+                 'oracle://cms_omds_adg/CMS_TRG_R', # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "OMDS connect string")
 options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -33,7 +39,7 @@ options.parseArguments()
 
 # sanity checks
 if ( len(options.topKey) and len(options.systemKey) ) or ( len(options.topKey)==0 and len(options.systemKey)==0 ) :
-    print "Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both"
+    print("Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both")
     exit(1)
 
 # standard CMSSW stuff
@@ -57,7 +63,8 @@ if len(options.topKey) :
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('uGTrs')
     # include the uGTrs specific subkeys ESProducer (generates uGTrs labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TConfigProducers.L1TGlobalPrescalesVetosObjectKeysOnline_cfi")
-    process.L1TGlobalPrescalesVetosObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
+    process.L1TGlobalPrescalesVetosObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TGlobalPrescalesVetosObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -66,13 +73,14 @@ else :
         cms.PSet(
             record = cms.string('L1TGlobalPrescalesVetosO2ORcd'),
             type = cms.string('L1TGlobalPrescalesVetos'),
-            key = cms.string( options.systemKey.split(':')[1] )
+            key = cms.string( options.systemKey )
         )
     )
 
 # Online produced for the payload 
 process.load("L1TriggerConfig.L1TConfigProducers.L1TGlobalPrescalesVetosOnline_cfi")
 process.L1TGlobalPrescalesVetosOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.L1TGlobalPrescalesVetosOnlineProd.onlineDB             = cms.string( options.DBConnect )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(

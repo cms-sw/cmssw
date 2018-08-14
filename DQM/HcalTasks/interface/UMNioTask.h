@@ -18,17 +18,18 @@
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
+#include "FWCore/Framework/interface/Run.h"
 
 class UMNioTask : public hcaldqm::DQTask
 {
 	public:
 		UMNioTask(edm::ParameterSet const&);
-		virtual ~UMNioTask()
+		~UMNioTask() override
 		{}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void endRun(edm::Run const& r, edm::EventSetup const&)
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void endRun(edm::Run const& r, edm::EventSetup const&) override
 		{
 			if (_ptype==hcaldqm::fLocal)
 			{
@@ -36,12 +37,15 @@ class UMNioTask : public hcaldqm::DQTask
 					return;
 			}
 		}
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
 		//	funcs
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+
+		// Get index of a particular OrbitGapType in the vector, which is used as the value for filling the histogram
+		int getOrbitGapIndex(uint8_t eventType, uint32_t laserType);
 
 		std::vector<uint32_t> _eventtypes;
 
@@ -59,7 +63,6 @@ class UMNioTask : public hcaldqm::DQTask
 		double _lowHBHE, _lowHO, _lowHF;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;

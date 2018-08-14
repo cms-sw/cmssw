@@ -33,19 +33,22 @@ namespace edmtest {
 }
 
 namespace edm {
+  class MergeableRunProductMetadata;
   class ModuleCallingContext;
   
   class RunForOutput : public OccurrenceForOutput {
   public:
     RunForOutput(RunPrincipal const& rp, ModuleDescription const& md,
-        ModuleCallingContext const*);
-    ~RunForOutput();
+                 ModuleCallingContext const*, bool isAtEnd,
+                 MergeableRunProductMetadata const* = nullptr);
+    ~RunForOutput() override;
 
     RunAuxiliary const& runAuxiliary() const {return aux_;}
     RunID const& id() const {return aux_.id();}
     RunNumber_t run() const {return aux_.run();}
     Timestamp const& beginTime() const {return aux_.beginTime();}
     Timestamp const& endTime() const {return aux_.endTime();}
+    MergeableRunProductMetadata const* mergeableRunProductMetadata() const { return mergeableRunProductMetadata_; }
 
   private:
     friend class edmtest::TestOutputModule; // For testing
@@ -54,6 +57,8 @@ namespace edm {
     runPrincipal() const;
 
     RunAuxiliary const& aux_;
+
+    MergeableRunProductMetadata const* mergeableRunProductMetadata_;
 
     static const std::string emptyString_;
   };

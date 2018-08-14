@@ -43,7 +43,7 @@ class DTGeometryBuilderFromCondDB{
     virtual ~DTGeometryBuilderFromCondDB() ;
 
 /* Operations */ 
-    void build(std::shared_ptr<DTGeometry> theGeometry,
+    void build(const std::shared_ptr<DTGeometry>& theGeometry,
                const RecoIdealGeometry& rig);
 
   private:

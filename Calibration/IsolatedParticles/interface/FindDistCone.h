@@ -50,17 +50,17 @@ namespace spr {
   void getEtaPhi(edm::PCaloHitContainer::const_iterator hit,int& ieta,int& iphi, bool debug=false);
   void getEtaPhi(EcalRecHitCollection::const_iterator hit,int& ieta,int& iphi, bool debug=false);
 
-  double getEnergy(HBHERecHitCollection::const_iterator hit, bool useRaw=false, bool debug=false);
-  double getEnergy(edm::PCaloHitContainer::const_iterator hit, bool useRaw=false, bool debug=false);
-  double getEnergy(EcalRecHitCollection::const_iterator hit, bool useRaw=false, bool debug=false);
+  double getEnergy(HBHERecHitCollection::const_iterator hit, int useRaw=0, bool debug=false);
+  double getEnergy(edm::PCaloHitContainer::const_iterator hit, int useRaw=0, bool debug=false);
+  double getEnergy(EcalRecHitCollection::const_iterator hit, int useRaw=0, bool debug=false);
 
   GlobalPoint getGpos(const CaloGeometry* geo, HBHERecHitCollection::const_iterator hit, bool debug=false);
   GlobalPoint getGpos(const CaloGeometry* geo, edm::PCaloHitContainer::const_iterator hit, bool debug=false);
   GlobalPoint getGpos(const CaloGeometry* geo, EcalRecHitCollection::const_iterator hit, bool debug=false);
 
-  double getRawEnergy(HBHERecHitCollection::const_iterator hit, bool useRaw=false);
-  double getRawEnergy(edm::PCaloHitContainer::const_iterator hit, bool useRaw=false);
-  double getRawEnergy(EcalRecHitCollection::const_iterator hit, bool useRaw=false);
+  double getRawEnergy(HBHERecHitCollection::const_iterator hit, int useRaw=0);
+  double getRawEnergy(edm::PCaloHitContainer::const_iterator hit, int useRaw=0);
+  double getRawEnergy(EcalRecHitCollection::const_iterator hit, int useRaw=0);
   
 }
 

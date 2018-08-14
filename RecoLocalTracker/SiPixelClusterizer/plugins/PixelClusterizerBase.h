@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationServiceBase.h"
 #include <vector>
 
@@ -52,11 +53,13 @@ public:
 
   virtual void clusterizeDetUnit( const edm::DetSet<PixelDigi> & input,	
 				  const PixelGeomDetUnit * pixDet,
+				  const TrackerTopology* tTopo,
 				  const std::vector<short>& badChannels,
 				  edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) = 0;
 
   virtual void clusterizeDetUnit( const edmNew::DetSet<SiPixelCluster> & input,
                                   const PixelGeomDetUnit * pixDet,
+				  const TrackerTopology* tTopo,
                                   const std::vector<short>& badChannels,
                                   edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) = 0;
 

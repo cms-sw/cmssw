@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaElectronProducers.gedGsfElectronFinalizer_cfi import gedGsfElectrons as _gedGsfElectrons
+
 electronMcSignalHistosCfg = cms.PSet(
   Nbinxyz = cms.int32(50),
   Nbinpt = cms.int32(50), Nbinpt2D = cms.int32(50), Nbinpteff = cms.int32(19),Ptmax = cms.double(100.0),
@@ -16,7 +18,14 @@ electronMcSignalHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcSignalValidatorMiniAOD = cms.EDAnalyzer("ElectronMcSignalValidatorMiniAOD",
+electronPFIsolationCfg = cms.PSet(    
+    pfSumChargedHadronPtTmp = cms.InputTag("miniAODElectronIsolation", _gedGsfElectrons.pfIsolationValues.pfSumChargedHadronPt.getProductInstanceLabel()),
+    pfSumNeutralHadronEtTmp = cms.InputTag("miniAODElectronIsolation", _gedGsfElectrons.pfIsolationValues.pfSumNeutralHadronEt.getProductInstanceLabel()), # 
+    pfSumPhotonEtTmp = cms.InputTag("miniAODElectronIsolation", _gedGsfElectrons.pfIsolationValues.pfSumPhotonEt.getProductInstanceLabel()), #  
+)
+
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+electronMcSignalValidatorMiniAOD = DQMEDAnalyzer('ElectronMcSignalValidatorMiniAOD',
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),
@@ -27,15 +36,12 @@ electronMcSignalValidatorMiniAOD = cms.EDAnalyzer("ElectronMcSignalValidatorMini
 
     mcTruthCollection = cms.InputTag("prunedGenParticles"),
     electrons = cms.InputTag("slimmedElectrons"),
-
-    ValueMaps_ChargedHadrons_src = cms.InputTag("ElectronIsolation", "h+-DR030-BarVeto000-EndVeto001"),
-    ValueMaps_NeutralHadrons_src = cms.InputTag("ElectronIsolation", "h0-DR030-BarVeto000-EndVeto000"),
-    ValueMaps_Photons_src = cms.InputTag("ElectronIsolation", "gamma-DR030-BarVeto000-EndVeto008"),
-
+    
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
     MaxAbsEta = cms.double(2.5),
     MatchingID = cms.vint32(11,-11),
     MatchingMotherID = cms.vint32(23,24,-24,32),
-    histosCfg = cms.PSet(electronMcSignalHistosCfg)
+    histosCfg = cms.PSet(electronMcSignalHistosCfg),
+    isolationCfg = cms.PSet(electronPFIsolationCfg),
 )

@@ -33,11 +33,11 @@ class ProcNormalize : public VarProcessor {
 	ProcNormalize(const char *name,
 	              const Calibration::ProcNormalize *calib,
 	              const MVAComputer *computer);
-	virtual ~ProcNormalize() {}
+	~ProcNormalize() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:
@@ -64,7 +64,7 @@ class ProcNormalize : public VarProcessor {
 	unsigned int		nCategories;
 };
 
-static ProcNormalize::Registry registry("ProcNormalize");
+ProcNormalize::Registry registry("ProcNormalize");
 
 ProcNormalize::ProcNormalize(const char *name,
                              const Calibration::ProcNormalize *calib,

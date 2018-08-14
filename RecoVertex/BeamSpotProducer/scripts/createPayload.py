@@ -34,6 +34,7 @@
    Fermilab 2010
    
 """
+from __future__ import print_function
 
 
 import sys,os
@@ -55,7 +56,7 @@ def copyToWorkflowdir(path):
     listoffiles    = []
     tmplistoffiles = []
     if path.find('castor') != -1:
-    	print "Getting files from castor ..."
+    	print("Getting files from castor ...")
     	lsCommand = 'ns'
     	cpCommand = 'rf'
     elif not os.path.exists(path):
@@ -111,15 +112,15 @@ def copyToWorkflowdir(path):
     	if ifile.find('.txt') != -1:
             if os.path.isfile(workflowdirArchive+"/"+ifile):
                 if option.overwrite:
-                    print "File " + ifile + " already exists in destination. We will overwrite it."
+                    print("File " + ifile + " already exists in destination. We will overwrite it.")
                 else:
-                    print "File " + ifile + " already exists in destination. Keep original file."
+                    print("File " + ifile + " already exists in destination. Keep original file.")
                     listoffiles.append( workflowdirArchive + ifile )
                     continue
     	    listoffiles.append( workflowdirArchive + ifile )
     	    # copy to local disk
     	    aCommand = cpCommand + 'cp '+ path + ifile + " " + workflowdirArchive
-    	    print " >> " + aCommand
+    	    print(" >> " + aCommand)
             tmpstatus = commands.getstatusoutput( aCommand )
     return listoffiles
 
@@ -129,7 +130,7 @@ def mkWorkflowdir():
     global workflowdirTmp
     global workflowdirArchive
     if not os.path.isdir(workflowdir):
-	print "Making " + workflowdir + " directory..."
+	print("Making " + workflowdir + " directory...")
 	os.mkdir(workflowdir)
 
     if not os.path.isdir(workflowdirLastPayloads):
@@ -171,7 +172,7 @@ if __name__ == '__main__':
         mkWorkflowdir()
     
     if not option.data:
-	print "ERROR: You must provide the data file or the a directory with data files"
+	print("ERROR: You must provide the data file or the a directory with data files")
 	exit()
 
     if option.copy:
@@ -190,18 +191,18 @@ if __name__ == '__main__':
         elif tagname.find("hlt") != -1:
             tagType = "hlt"
         else:
-            print "I am assuming your tag is for the offline database..."
+            print("I am assuming your tag is for the offline database...")
             tagType = "offline"
 
     else:	
-	print "ERROR: You must provide the database tag name"
+	print("ERROR: You must provide the database tag name")
 	exit()
 
     IOVbase = 'runbase'
     timetype = 'runnumber'
     if option.IOVbase:
         if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
-            print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
+            print("\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n")
             exit()
 	IOVbase = option.IOVbase
     
@@ -239,15 +240,14 @@ if __name__ == '__main__':
 	    if line.find('Type') != -1 and line.split()[1] == '0':
 		skip = True		
 	if skip:
-	    print " zero fit result, skip file " + beam_file + " with time stamp:"
-	    print " run " + arun + " lumis " + alumis
+	    print(" zero fit result, skip file " + beam_file + " with time stamp:")
+	    print(" run " + arun + " lumis " + alumis)
 	else:
 	    sortedlist[int(pack(int(arun), int(alumi)))] = beam_file
 		
 	tmpfile.close()
 
-    keys = sortedlist.keys()
-    keys.sort()
+    keys = sorted(sortedlist.keys())
 
     # write combined data file
     if not os.path.isdir(workflowdirArchive + "AllIOVs"):
@@ -256,7 +256,7 @@ if __name__ == '__main__':
 #    if os.path.isfile(allbeam_file):
         
     allfile = open( allbeam_file, 'a')
-    print " merging all results into file: " + allbeam_file
+    print(" merging all results into file: " + allbeam_file)
 
     # check if merged sqlite file exists
     if os.path.exists(workflowdirArchive+"payloads/Combined.db"):
@@ -295,7 +295,7 @@ if __name__ == '__main__':
             tmpfile.close()
             beam_file = tmp_datafilename
 
-	print "read input beamspot file: " + beam_file
+	print("read input beamspot file: " + beam_file)
 	tmpfile = open(beam_file)
         beam_file_tmp = workflowdirTmp + beam_file[beam_file.rfind('/')+1:] + ".tmp"
 	newtmpfile = open(beam_file_tmp,"w")
@@ -335,7 +335,7 @@ if __name__ == '__main__':
 	beam_file = beam_file_tmp
 
         if not writeSqliteFile(sqlite_file,tagname,timetype,beam_file,writedb_template,workflowdirTmp):
-            print "An error occurred while writing the sqlite file: " + sqlite_file
+            print("An error occurred while writing the sqlite file: " + sqlite_file)
 
 	commands.getstatusoutput('rm -f ' + beam_file)
         ##### READ and check sqlite file
@@ -345,26 +345,26 @@ if __name__ == '__main__':
         if not os.path.isdir(workflowdirArchive + 'payloads'):
             os.mkdir(workflowdirArchive + 'payloads')
         
-        print " merge sqlite file ..."
+        print(" merge sqlite file ...")
         appendSqliteFile("Combined.db", sqlite_file, tagname, iov_since, iov_till ,workflowdirTmp)
         
         # keep last payload for express, and prompt tags
         if nfile == total_files:
-            print " this is the last IOV. You can use this payload for express and prompt conditions."
+            print(" this is the last IOV. You can use this payload for express and prompt conditions.")
             os.system("cp "+sqlite_file+ " "+workflowdirArchive+"payloads/express.db")
-            print "a copy of this payload has been placed at:"
-            print workflowdirArchive+"payloads/express.db"
+            print("a copy of this payload has been placed at:")
+            print(workflowdirArchive+"payloads/express.db")
         
         # clean up
 	os.system("rm "+ sqlite_file)
-        print " clean up done."
+        print(" clean up done.")
 
     os.system("mv " + workflowdirTmp + "Combined.db " + workflowdirArchive + "payloads/")
     allfile.close()
             
     #### CREATE payload for merged output
             
-    print " create MERGED payload card for dropbox ..."
+    print(" create MERGED payload card for dropbox ...")
     
     sqlite_file   = workflowdirArchive+'payloads/Combined.db'
     metadata_file = workflowdirArchive+'payloads/Combined.txt'
@@ -398,11 +398,11 @@ if __name__ == '__main__':
     commands.getstatusoutput('mv ' + sqlite_file   + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.db')
     commands.getstatusoutput('mv ' + metadata_file + ' ' + workflowdirLastPayloads + final_sqlite_file_name + '.txt')
 
-    print workflowdirLastPayloads + final_sqlite_file_name + '.db'
-    print workflowdirLastPayloads + final_sqlite_file_name + '.txt'
+    print(workflowdirLastPayloads + final_sqlite_file_name + '.db')
+    print(workflowdirLastPayloads + final_sqlite_file_name + '.txt')
         
     if option.upload:
-        print " scp files to offline Drop Box"
+        print(" scp files to offline Drop Box")
         dropbox = "/DropBox"
         if option.Test:
             dropbox = "/DropBox_test"

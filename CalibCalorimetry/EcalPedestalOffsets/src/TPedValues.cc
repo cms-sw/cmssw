@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <cassert>
 #include "TGraphErrors.h"
@@ -213,7 +213,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
               sigmaY.push_back(rms);
             }
           } // loop over DAC values
-        if(asseX.size() > 0)
+        if(!asseX.empty())
         {
           int lastBin = 0;
           while(lastBin<(int)asseX.size()-1 && asseY[lastBin+1]>0

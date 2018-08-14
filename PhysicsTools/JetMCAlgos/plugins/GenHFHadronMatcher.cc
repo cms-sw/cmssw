@@ -59,12 +59,12 @@ class GenHFHadronMatcher : public edm::EDProducer
 {
 public:
     explicit GenHFHadronMatcher ( const edm::ParameterSet& );
-    ~GenHFHadronMatcher();
+    ~GenHFHadronMatcher() override;
 
     static void fillDescriptions ( edm::ConfigurationDescriptions& descriptions );
 
 private:
-    virtual void produce( edm::Event&, const edm::EventSetup& );
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     std::vector<int> findHadronJets( const reco::GenParticleCollection* genParticles, const reco::JetFlavourInfoMatchingCollection* jetFlavourInfos,
                                      std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 
@@ -274,7 +274,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             if(!isHadron ( flavour_, (&**hadron) )) continue;
             if(hasHadronDaughter ( flavour_, (reco::Candidate*)(&**hadron) )) continue;
             // Scanning the chain starting from the hadron
-            int hadronIndex = analyzeMothers ( (reco::Candidate*)(&**hadron), topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
+            int hadronIndex = analyzeMothers ( (reco::Candidate*)(&**hadron), topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1 );
             // Storing the index of the hadron to the list
             hadIndex.push_back ( hadronIndex );
             hadJetIndex.push_back ( jetIndex );  // Putting jet index to the result list
@@ -290,7 +290,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             if(std::find(hadMothersCand.begin(), hadMothersCand.end(), thisParticle) != hadMothersCand.end()) continue;
             
             // Scanning the chain starting from the hadron
-            int hadronIndex = analyzeMothers ( thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
+            int hadronIndex = analyzeMothers ( thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1 );
             // Storing the index of the hadron to the list
             hadIndex.push_back ( hadronIndex );
             hadJetIndex.push_back ( -1 );  // Jet index undefined
@@ -314,7 +314,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
         if(!leptonMother) continue;
         // Taking next mother if direct mother is a tau
         if(std::abs(leptonMother->pdgId()) == 15) {
-            leptonViaTau = 1;
+            leptonViaTau = true;
             leptonMother = leptonMother->mother();
         }
         // Skipping this lepton if its mother is not a proper hadron
@@ -405,7 +405,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
 
         LastQuarkMotherIds.push_back ( LastQuarkMotherId );
 
-        if(LastQuarkMotherId.size()<1) {
+        if(LastQuarkMotherId.empty()) {
             hadronFlavour = 0;
         } else {
             int qIdx = LastQuarkId.at( lastQuarkIndices.at(hadNum) );
@@ -432,7 +432,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
         hadBHadronId.push_back(bHadronMotherId);
         
 
-        if(LastQuarkMotherId.size()>0) {
+        if(!LastQuarkMotherId.empty()) {
             std::set<int> checkedHadronIds;
             fixExtraSameFlavours(hadNum, hadIndex, hadMothers, hadMothersIndices, hadFromTopWeakDecay, LastQuarkIds, LastQuarkMotherIds, lastQuarkIndices, hadFlavour, checkedHadronIds, 0);
         }

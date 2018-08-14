@@ -100,9 +100,7 @@ void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
       } else if(bin != nBookedBins) {
 	histo->setBinContent(bin, histo->getBinContent(bin+1));
 	histo->setBinError(bin, histo->getBinError(bin+1));
-	//JF to allow easy reading of x-axis
-	if (bin%(2*(int)theLSPrescale)==0){ histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); }
-	else  histo->setBinLabel(bin,"");
+	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); 
       }
     }
     histo->setBinContent(nBookedBins, value);
@@ -129,7 +127,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
     }
 
 
-    if(nEventsInLastTimeSlot.size() > 0 && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
+    if(!nEventsInLastTimeSlot.empty() && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
       int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
       int lastLSinTimeSlot  = nEventsInLastTimeSlot.rbegin()->first;
 
@@ -172,7 +170,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       if(nEventsInLastTimeSlot.size() > 1)
 	binLabel << "-" << lastLSinTimeSlot;
 
-      //if(nBookedBins%(int)theLSPrescale==0) 
+      //if(lastLSinTimeSlot%(3*(int)theLSPrescale)==0)
 	histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot
@@ -203,7 +201,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 
 
 void DTTimeEvolutionHisto::normalizeTo(const MonitorElement *histForNorm) {
-  if(histo == 0) {
+  if(histo == nullptr) {
     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
       << "[DTTimeEvolutionHisto]***Error: pointer to ME is NULL" << endl;
     return;

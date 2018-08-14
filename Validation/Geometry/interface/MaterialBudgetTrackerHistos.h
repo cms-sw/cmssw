@@ -8,14 +8,14 @@ class MaterialBudgetTrackerHistos : public MaterialBudgetFormat
 {
 public:
   
-  MaterialBudgetTrackerHistos( MaterialBudgetData* data, 
-			       TestHistoMgr* mgr,
+  MaterialBudgetTrackerHistos( std::shared_ptr<MaterialBudgetData> data, 
+			       std::shared_ptr<TestHistoMgr> mgr,
 			       const std::string& fileName );   
-  virtual ~MaterialBudgetTrackerHistos(){ hend(); }
+  ~MaterialBudgetTrackerHistos() override{ hend(); }
   
-  virtual void fillStartTrack();
-  virtual void fillPerStep();
-  virtual void fillEndTrack();
+  void fillStartTrack() override;
+  void fillPerStep() override;
+  void fillEndTrack() override;
   
 private:
   
@@ -32,7 +32,7 @@ private:
   double* theVoluId;
   double* theMateId;
 
-  TestHistoMgr* hmgr;
+  std::shared_ptr<TestHistoMgr> hmgr;
 
 };
 

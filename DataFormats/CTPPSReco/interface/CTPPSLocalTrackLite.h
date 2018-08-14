@@ -9,6 +9,8 @@
 #ifndef DataFormats_CTPPSReco_CTPPSLocalTrackLite
 #define DataFormats_CTPPSReco_CTPPSLocalTrackLite
 
+#include <cstdint>
+
 /**
  *\brief Local (=single RP) track with essential information only.
  **/

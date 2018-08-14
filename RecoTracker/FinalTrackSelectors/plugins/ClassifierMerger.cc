@@ -35,7 +35,7 @@ namespace {
       using MVACollection = std::vector<float>;
       using QualityMaskCollection = std::vector<unsigned char>;
 
-      virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override {
+      void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override {
 
 	// get Master
 	edm::Handle<MVACollection> hmva;

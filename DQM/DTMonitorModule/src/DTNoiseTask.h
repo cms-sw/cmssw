@@ -44,7 +44,7 @@ public:
   DTNoiseTask(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DTNoiseTask();
+  ~DTNoiseTask() override;
 
   // Operations
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -54,7 +54,6 @@ protected:
 
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
 

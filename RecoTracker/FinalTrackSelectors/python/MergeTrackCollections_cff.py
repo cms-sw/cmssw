@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi import *
 from RecoTracker.FinalTrackSelectors.DuplicateListMerger_cfi import *
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 
 from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import Chi2MeasurementEstimator as _Chi2MeasurementEstimator
 duplicateTrackCandidatesChi2Est = _Chi2MeasurementEstimator.clone(
@@ -29,11 +30,6 @@ duplicateTrackClassifier.mva.maxChi2n = [10.,1.0,0.4]  # [9999.,9999.,9999.]
 duplicateTrackClassifier.mva.minLayers = [0,0,0]
 duplicateTrackClassifier.mva.min3DLayers = [0,0,0]
 duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
-
-# Switch back to GenericCPE until bias in template CPE gets fixed
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(duplicateTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
-
 # This customization will be removed once we get the templates for
 # phase2 pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
@@ -48,12 +44,26 @@ generalTracks.candidateSource = cms.InputTag("duplicateTrackCandidates","candida
 generalTracks.candidateComponents = cms.InputTag("duplicateTrackCandidates","candidateMap")
 
 
-generalTracksSequence = cms.Sequence(
-    duplicateTrackCandidates*
-    mergedDuplicateTracks*
-    duplicateTrackClassifier*
+generalTracksTask = cms.Task(
+    duplicateTrackCandidates,
+    mergedDuplicateTracks,
+    duplicateTrackClassifier,
     generalTracks
     )
+generalTracksSequence = cms.Sequence(generalTracksTask)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(generalTracksTask, 
+                      cms.Task(
+        duplicateTrackCandidates,
+        mergedDuplicateTracks,
+        duplicateTrackClassifier
+        )
+)
+def _fastSimGeneralTracks(process):
+    from FastSimulation.Configuration.DigiAliases_cff import loadGeneralTracksAlias
+    loadGeneralTracksAlias(process)
+modifyMergeTrackCollections_fastSimGeneralTracks = fastSim.makeProcessModifier( _fastSimGeneralTracks )
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(

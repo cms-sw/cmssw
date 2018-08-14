@@ -85,7 +85,7 @@ CocoaUnitsTable& CocoaUnitDefinition::GetUnitsTable()
  
 ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -105,7 +105,7 @@ ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str)
   
 ALIstring CocoaUnitDefinition::GetCategory(const ALIstring& str)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -322,7 +322,7 @@ CocoaBestUnit::CocoaBestUnit(ALIdouble value, const ALIstring& category)
 {
  // find the category
     CocoaUnitsTable& theUnitsTable = CocoaUnitDefinition::GetUnitsTable();
-    if( theUnitsTable.size() == 0 ) CocoaUnitDefinition::BuildUnitsTable(); //t should be done somewhere else
+    if( theUnitsTable.empty() ) CocoaUnitDefinition::BuildUnitsTable(); //t should be done somewhere else
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
     while

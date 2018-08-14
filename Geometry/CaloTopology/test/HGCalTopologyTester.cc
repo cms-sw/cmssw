@@ -2,43 +2,50 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 
-class HGCalTopologyTester : public edm::EDAnalyzer {
+class HGCalTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> { 
+
 public:
   explicit HGCalTopologyTester(const edm::ParameterSet& );
-  ~HGCalTopologyTester();
-
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  void doTest(const HGCalTopology& topology);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void doTest(const HGCalTopology& topology);
+
   // ----------member data ---------------------------
 };
 
 HGCalTopologyTester::HGCalTopologyTester(const edm::ParameterSet& ) {}
 
+void HGCalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-HGCalTopologyTester::~HGCalTopologyTester() {}
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
-void HGCalTopologyTester::analyze(const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void HGCalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup ) {
 
   edm::ESHandle<HGCalTopology> topo;
   iSetup.get<IdealGeometryRecord>().get("HGCalEESensitive",topo);
@@ -62,20 +69,20 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
 	      std::vector<DetId> idN = topology.north(id);
 	      std::vector<DetId> idS = topology.south(id);
 	      std::cout << "          " << idE.size() << " sets along East:";
-	      for (unsigned int i=0; i<idE.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idE[i]());
+	      for (auto & i : idE) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	      std::cout << "          " << idW.size() << " sets along West:";
-	      for (unsigned int i=0; i<idW.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idW[i]());
+	      for (auto & i : idW) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	      std::cout << "          " << idN.size() << " sets along North:";
-	      for (unsigned int i=0; i<idN.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idN[i]());
+	      for (auto & i : idN) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	      std::cout << "          " << idS.size() << " sets along South:";
-	      for (unsigned int i=0; i<idS.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idS[i]());
+	      for (auto & i : idS) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	    }
 	    cell += 100;

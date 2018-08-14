@@ -38,12 +38,12 @@
 class CastorInvalidDataFilter : public edm::EDFilter {
    public:
       explicit CastorInvalidDataFilter(const edm::ParameterSet&);
-      ~CastorInvalidDataFilter();
+      ~CastorInvalidDataFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
       
    edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > tok_summary_;
 };

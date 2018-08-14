@@ -108,9 +108,9 @@ std::string EcalPulseSymmCovariancesXMLTranslator::dumpXML(const EcalCondHeader&
   if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
 
-  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), 0, 0 );
+  DOMDocumentType* doctype = impl->createDocumentType(cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   DOMDocument *    doc = 
-    impl->createDocument( 0, cms::xerces::uStr(PulseSymmCovariances_tag.c_str()).ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr(PulseSymmCovariances_tag.c_str()).ptr(), doctype );
     
   DOMElement* root = doc->getDocumentElement();
 
@@ -125,7 +125,7 @@ std::string EcalPulseSymmCovariancesXMLTranslator::dumpXML(const EcalCondHeader&
   }
 
   xuti::writeHeader(root,header);
-  if (!record.barrelItems().size()) return std::string();
+  if (record.barrelItems().empty()) return std::string();
   for(int cellid = EBDetId::MIN_HASH;
       cellid < EBDetId::kSizeForDenseIndexing;
       ++cellid) {
@@ -140,7 +140,7 @@ std::string EcalPulseSymmCovariancesXMLTranslator::dumpXML(const EcalCondHeader&
     }
     
   }
-  if (!record.endcapItems().size()) return std::string();
+  if (record.endcapItems().empty()) return std::string();
   for(int cellid = 0;
 	cellid < EEDetId::kSizeForDenseIndexing;
 	++cellid) {

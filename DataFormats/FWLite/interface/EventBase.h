@@ -39,7 +39,7 @@ namespace fwlite
       public:
          EventBase();
 
-         virtual ~EventBase();
+         ~EventBase() override;
 
          virtual bool getByLabel(
                                   std::type_info const&,
@@ -68,8 +68,8 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
-         virtual edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const;
+         edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
+         edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const override;
    };
 } // fwlite namespace
 

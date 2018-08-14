@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLCone.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
@@ -12,7 +12,8 @@ DDLCone::DDLCone( DDLElementRegistry* myreg )
 {}
 
 void
-DDLCone::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLCone::processElement( const std::string& name, const std::string& nmspace,
+			 DDCompactView& cpv )
 {  
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();

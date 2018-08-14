@@ -4,7 +4,7 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-#include <string.h>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <unistd.h>

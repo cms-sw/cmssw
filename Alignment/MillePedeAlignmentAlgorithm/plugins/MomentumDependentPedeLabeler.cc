@@ -30,14 +30,13 @@ MomentumDependentPedeLabeler::MomentumDependentPedeLabeler(const PedeLabelerBase
     theOpenMomentumRange(std::pair<float,float>(0.0, 10000.0)),
     theMaxNumberOfParameterInstances(0)
 {
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   alis.push_back(alignables.aliTracker_);
   alis.push_back(alignables.aliMuon_);
   
   if (alignables.aliExtras_) {
-    align::Alignables allExtras = alignables.aliExtras_->components();
-    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-      alis.push_back(*it);
+    for (const auto& ali: alignables.aliExtras_->components()) {
+      alis.push_back(ali);
     }
   }
   
@@ -161,11 +160,9 @@ unsigned int MomentumDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 	int offset = 0;
 	float mom = tsos.globalMomentum().mag();
  	const MomentumRangeVector & momentumRanges = (*positionParam).second;
-	for (MomentumRangeVector::const_iterator iMomentum = momentumRanges.begin();
-	     iMomentum != momentumRanges.end();
-	     ++iMomentum) {
+	for (const auto& iMomentum: momentumRanges) {
 	  
-	  if (iMomentum->first<=mom && mom<iMomentum->second) {
+	  if (iMomentum.first<=mom && mom<iMomentum.second) {
 	    return position->second + offset * theParamInstanceOffset + parNum;
 	  }
  	  offset++;
@@ -210,10 +207,8 @@ unsigned int MomentumDependentPedeLabeler::numberOfParameterInstances(Alignable 
 
     size_t nMomentums = 1;
     if (param==-1) {
-      for (MomentumRangeParamMap::const_iterator iParam = (*positionAli).second.begin();
-	   iParam != (*positionAli).second.end();
-	   ++iParam) {
-	nMomentums = std::max(nMomentums, iParam->second.size());
+      for (const auto& iParam: (*positionAli).second) {
+	nMomentums = std::max(nMomentums, iParam.second.size());
       }
       return nMomentums;
     } else {
@@ -250,9 +245,8 @@ unsigned int MomentumDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) return nullptr; // error already given
   
-  if (theIdToAlignableMap.empty()) const_cast<MomentumDependentPedeLabeler*>(this)->buildReverseMap();
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
@@ -263,7 +257,7 @@ Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) 
       edm::LogError("LogicError") << "@SUB=MomentumDependentPedeLabeler::alignableFromLabel"
 				  << "Alignable label " << aliLabel << " not in map.";
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -273,7 +267,6 @@ unsigned int MomentumDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
   if (aliLabel < theMinLabel) return 0; // error already given
   
-  if (theLabelToLasBeamMap.empty()) const_cast<MomentumDependentPedeLabeler*>(this)->buildReverseMap();
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
@@ -325,15 +318,13 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
   
   std::vector<char> paramSelDumthe(6, '1');
   
-  const std::vector<edm::ParameterSet> parameterInstancesVPSet =
+  const auto parameterInstancesVPSet =
     config.getParameter<std::vector<edm::ParameterSet> >("parameterInstances");
   
-  for (std::vector<edm::ParameterSet>::const_iterator iter = parameterInstancesVPSet.begin();
-       iter != parameterInstancesVPSet.end();
-       ++iter) {
+  for (const auto& iter: parameterInstancesVPSet) {
 
-    const std::vector<std::string> tempMomentumRanges = (*iter).getParameter<std::vector<std::string> >("momentumRanges");
-    if (tempMomentumRanges.size()==0) {
+    const auto tempMomentumRanges = iter.getParameter<std::vector<std::string> >("momentumRanges");
+    if (tempMomentumRanges.empty()) {
       throw cms::Exception("BadConfig") << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
 					<< "MomentumRanges empty\n";
     }
@@ -344,46 +335,42 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
     for (unsigned int iMomentum=0;iMomentum<tempMomentumRanges.size();++iMomentum) {
       std::vector<std::string> tokens = edm::tokenize(tempMomentumRanges[iMomentum], ":");
       
-      lower = strtod(tokens[0].c_str(), 0);
-      upper = strtod(tokens[1].c_str(), 0);
+      lower = strtod(tokens[0].c_str(), nullptr);
+      upper = strtod(tokens[1].c_str(), nullptr);
 
       MomentumRanges.push_back(std::pair<float,float>(lower, upper));
     }
     
-    const std::vector<std::string> selStrings = (*iter).getParameter<std::vector<std::string> >("selector");
-    for (std::vector<std::string>::const_iterator iSel = selStrings.begin();
-	 iSel != selStrings.end();
-	 ++iSel) {
-      std::vector<std::string> decompSel(this->decompose(*iSel, ','));
+    const auto selStrings = iter.getParameter<std::vector<std::string> >("selector");
+    for (const auto& iSel: selStrings) {
+      std::vector<std::string> decompSel(this->decompose(iSel, ','));
       
       if (decompSel.size()!=2) {
 	throw cms::Exception("BadConfig") << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
-					  << *iSel <<" should have at least 2 ','-separated parts\n";
+					  << iSel <<" should have at least 2 ','-separated parts\n";
       }
 
       std::vector<unsigned int> selParam = this->convertParamSel(decompSel[1]);
       selector.clear();
       selector.addSelection(decompSel[0], paramSelDumthe);
 
-      const std::vector<Alignable*> &alis = selector.selectedAlignables();
-      for (std::vector<Alignable*>::const_iterator iAli = alis.begin();
-	   iAli != alis.end();
-	   ++iAli) {
+      const auto& alis = selector.selectedAlignables();
+      for (const auto& iAli: alis) {
 
-        if((*iAli)->alignmentParameters() == NULL) {
+        if(iAli->alignmentParameters() == nullptr) {
           throw cms::Exception("BadConfig")
             << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
             << "Momentum dependence configured for alignable of type "
-            << objectIdProvider().idToString((*iAli)->alignableObjectId())
-            << " at (" << (*iAli)->globalPosition().x() << ","<< (*iAli)->globalPosition().y() << "," << (*iAli)->globalPosition().z()<< "), "
+            << objectIdProvider().idToString(iAli->alignableObjectId())
+            << " at (" << iAli->globalPosition().x() << ","
+	    << iAli->globalPosition().y() << ","
+	    << iAli->globalPosition().z()<< "), "
             << "but that has no parameters. Please check that all run "
             << "momentum parameters are also selected for alignment.\n"; 
         }
 
-	for (std::vector<unsigned int>::const_iterator iParam = selParam.begin();
-	     iParam != selParam.end();
-	     ++iParam) {
-	  AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(*iAli);
+	for (const auto& iParam: selParam) {
+	  AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(iAli);
 	  if (positionAli!=theAlignableToMomentumRangeMap.end()) {
 	    
 	    AlignmentParameters *AliParams = (*positionAli).first->alignmentParameters();
@@ -392,14 +379,14 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
 						<< "mismatch in number of parameters\n";
 	    }
 	    
-	    MomentumRangeParamMap::const_iterator positionParam = (*positionAli).second.find(*iParam);
+	    MomentumRangeParamMap::const_iterator positionParam = (*positionAli).second.find(iParam);
 	    if (positionParam!=(*positionAli).second.end()) {
 	      throw cms::Exception("BadConfig") << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
 						<< "Momentum range for parameter specified twice\n";
 	    }
 	  }
 	  
-	  theAlignableToMomentumRangeMap[*iAli][*iParam] = MomentumRanges;
+	  theAlignableToMomentumRangeMap[iAli][iParam] = MomentumRanges;
 	}
       }
     }
@@ -409,23 +396,22 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
 }
 
 //_________________________________________________________________________
-unsigned int MomentumDependentPedeLabeler::buildMap(const std::vector<Alignable*> &alis)
+unsigned int MomentumDependentPedeLabeler::buildMap(const align::Alignables& alis)
 {
   theAlignableToIdMap.clear(); // just in case of re-use...
 
-  std::vector<Alignable*> allComps;
+  align::Alignables allComps;
   
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); iAli != alis.end(); ++iAli) {
-    if (*iAli) {
-      allComps.push_back(*iAli);
-      (*iAli)->recursiveComponents(allComps);
+  for (const auto& iAli: alis) {
+    if (iAli) {
+      allComps.push_back(iAli);
+      iAli->recursiveComponents(allComps);
     }
   }
 
   unsigned int id = theMinLabel;
-  for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
-       iter != allComps.end(); ++iter) {
-    theAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
+  for (const auto& iter: allComps) {
+    theAlignableToIdMap.insert(AlignableToIdPair(iter, id));
     id += theMaxNumParam;
   }
   
@@ -461,10 +447,9 @@ unsigned int MomentumDependentPedeLabeler::buildReverseMap()
   // alignables
   theIdToAlignableMap.clear();  // just in case of re-use...
 
-  for (AlignableToIdMap::iterator it = theAlignableToIdMap.begin();
-       it != theAlignableToIdMap.end(); ++it) {
-    const unsigned int key = (*it).second;
-    Alignable *ali = (*it).first;
+  for (const auto& it: theAlignableToIdMap) {
+    const unsigned int key = it.second;
+    Alignable *ali = it.first;
     const unsigned int nInstances = this->numberOfParameterInstances(ali, -1);
     theMaxNumberOfParameterInstances = std::max(nInstances, theMaxNumberOfParameterInstances);
     for (unsigned int iInstance=0;iInstance<nInstances;++iInstance) {
@@ -475,9 +460,8 @@ unsigned int MomentumDependentPedeLabeler::buildReverseMap()
   // las beams
   theLabelToLasBeamMap.clear(); // just in case of re-use...
 
-  for (UintUintMap::const_iterator it = theLasBeamToLabelMap.begin();
-       it != theLasBeamToLabelMap.end(); ++it) {
-    theLabelToLasBeamMap[it->second] = it->first; //revert key/value
+  for (const auto& it: theLasBeamToLabelMap) {
+    theLabelToLasBeamMap[it.second] = it.first; //revert key/value
   }
 
   // return combined size

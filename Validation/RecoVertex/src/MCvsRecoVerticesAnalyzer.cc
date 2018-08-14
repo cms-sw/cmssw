@@ -59,10 +59,10 @@
 class MCvsRecoVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MCvsRecoVerticesAnalyzer(const edm::ParameterSet&);
-  ~MCvsRecoVerticesAnalyzer();
+  ~MCvsRecoVerticesAnalyzer() override;
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
@@ -252,7 +252,7 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     
     // compute the difference between the main interaction vertex z position and the first vertex of the collection
     
-    if(pvcoll->size() !=0) {
+    if(!pvcoll->empty()) {
       if(!(*pvcoll)[0].isFake()) {
 	// get the first vertex
 	if(Evt->vertices_begin() != Evt->vertices_end()) {

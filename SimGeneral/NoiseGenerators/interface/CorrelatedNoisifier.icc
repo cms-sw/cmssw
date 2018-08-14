@@ -178,7 +178,7 @@ CorrelatedNoisifier<M>::noisify(
       throw cms::Exception("Configuration")
 	 << "CorrelatedNoisifier::noisify(frame) was passed wrong size frame object" ;
 
-   if( 0 != rangau )
+   if( nullptr != rangau )
    {
       assert( m_H.kRows == rangau->size() ) ;
       m_vecgau = *rangau ;

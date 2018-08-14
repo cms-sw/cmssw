@@ -110,7 +110,13 @@ void go2d() {
   typedef Vec4<T> Vec3d;
 
   std::cout << "\n2d" << std::endl;
-  std::cout << sizeof(Vec2d) << std::endl;
+  std::cout << sizeof(Vec2d) << ' ' << alignof(Vec2d) << std::endl;
+
+  std::vector<Vec2d> vec1; vec1.reserve(50);
+  std::vector<T> vect(23);
+  std::vector<Vec2d> vec2(53);
+  std::vector<Vec2d> vec3; vec3.reserve(50234);
+
 
   Vec2d k(-2.0,3.14);
   std::cout << k << std::endl;  
@@ -146,18 +152,19 @@ void go2d() {
 }
 
 template<typename T> 
-void go() {
+void go(bool dovect=true) {
 
   typedef Vec4<T> Vec;
   typedef Vec2<T> Vec2D;
 
   std::cout << std::endl;
-  std::cout << sizeof(Vec) << std::endl;
+  std::cout << sizeof(Vec) << ' ' << alignof(Vec) << std::endl;
+if (dovect) {
   std::vector<Vec> vec1; vec1.reserve(50);
   std::vector<T> vect(23);
   std::vector<Vec> vec2(53);
   std::vector<Vec> vec3; vec3.reserve(50234);
-
+}
 
   Vec x(2.0,4.0,5.0);
   Vec y(-3.0,2.0,-5.0);
@@ -255,7 +262,11 @@ int main() {
 #endif
   testBa();
   go<float>();
+#ifdef CMS_USE_AVX
+  go<double>(false);
+#else
   go<double>();
+#endif
   go2d<float>();
   go2d<double>();
 
@@ -268,7 +279,7 @@ int main() {
   typedef Vec4<T> Vec;
 
   std::cout << std::endl;
-  std::cout << sizeof(Vec) << std::endl;
+  std::cout << sizeof(Vec) << ' ' << alignof(Vec) << std::endl;
   std::vector<Vec> vec1; vec1.reserve(50);
   std::vector<T> vect(23);
   std::vector<Vec> vec2(53);

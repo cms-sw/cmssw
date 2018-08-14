@@ -22,8 +22,10 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Common/interface/RunBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <memory>
 #include <string>
@@ -42,8 +44,8 @@ namespace edm {
   class Run : public RunBase {
   public:
     Run(RunPrincipal const& rp, ModuleDescription const& md,
-        ModuleCallingContext const*);
-    ~Run();
+        ModuleCallingContext const*, bool isAtEnd);
+    ~Run() override;
 
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer) {
@@ -54,9 +56,11 @@ namespace edm {
       provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
     }
 
+    void setProducer(ProducerBase const* iProducer);
+
     typedef PrincipalGetAdapter Base;
     // AUX functions are defined in RunBase
-    RunAuxiliary const& runAuxiliary() const {return aux_;}
+    RunAuxiliary const& runAuxiliary() const override {return aux_;}
     // AUX functions.
 //     RunID const& id() const {return aux_.id();}
 //     RunNumber_t run() const {return aux_.run();}
@@ -115,6 +119,23 @@ namespace edm {
     void
     put(std::unique_ptr<PROD> product, std::string const& productInstanceName);
 
+    template<typename PROD>
+    void
+    put(EDPutToken token, std::unique_ptr<PROD> product);
+    
+    template<typename PROD>
+    void
+    put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product);
+
+    ///puts a new product
+    template<typename PROD, typename... Args>
+    void
+    emplace(EDPutTokenT<PROD> token, Args&&... args);
+    
+    template<typename PROD, typename... Args>
+    void
+    emplace(EDPutToken token, Args&&... args);
+
     Provenance
     getProvenance(BranchID const& theID) const;
 
@@ -145,9 +166,17 @@ namespace edm {
     runPrincipal() const;
 
     // Override version from RunBase class
-    virtual BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const;
+    BasicHandle getByLabelImpl(std::type_info const& iWrapperType, std::type_info const& iProductType, InputTag const& iTag) const override;
 
-    typedef std::vector<std::pair<edm::propagate_const<std::unique_ptr<WrapperBase>>, BranchDescription const*>> ProductPtrVec;
+    template<typename PROD>
+    void
+    putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
+    
+    template<typename PROD, typename... Args>
+    void
+    emplaceImpl(EDPutToken::value_type token, Args&&... args);
+
+    typedef std::vector<edm::propagate_const<std::unique_ptr<WrapperBase>>> ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
 
@@ -155,7 +184,6 @@ namespace edm {
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
-    friend class InputSource;
     friend class RawInputSource;
     friend class ProducerBase;
     template<typename T> friend class stream::ProducingModuleAdaptorBase;
@@ -173,28 +201,103 @@ namespace edm {
 
   template <typename PROD>
   void
-  Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if (product.get() == 0) {                // null pointer is illegal
-      TypeID typeID(typeid(PROD));
-      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);
-    }
-
+  Run::putImpl(EDPutToken::value_type index,std::unique_ptr<PROD> product) {
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
     std::conditional_t<detail::has_postinsert<PROD>::value,
-                       DoPostInsert<PROD>,
-                       DoNotPostInsert<PROD>> maybe_inserter;
+    DoPostInsert<PROD>,
+    DoNotPostInsert<PROD>> maybe_inserter;
     maybe_inserter(product.get());
-
-    BranchDescription const& desc =
-      provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
-
+    
+    assert(index < putProducts().size());
+    
     std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(std::move(product)));
-    putProducts().emplace_back(std::move(wp), &desc);
-
-    // product.release(); // The object has been copied into the Wrapper.
-    // The old copy must be deleted, so we cannot release ownership.
+    putProducts()[index]=std::move(wp);
   }
+  
+  template <typename PROD>
+  void
+  Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
+    if(UNLIKELY(product.get() == nullptr)) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, productInstanceName);
+    }
+    auto index =
+    provRecorder_.getPutTokenIndex(TypeID(*product), productInstanceName);
+    putImpl(index, std::move(product));
+  }
+  
+  template<typename PROD>
+  void
+  Run::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
+    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, provRecorder_.productInstanceLabel(token));
+    }
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
+    }
+    putImpl(token.index(),std::move(product));
+  }
+  
+  template<typename PROD>
+  void
+  Run::put(EDPutToken token, std::unique_ptr<PROD> product) {
+    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
+      TypeID typeID(typeid(PROD));
+      principal_get_adapter_detail::throwOnPutOfNullProduct("Run", typeID, provRecorder_.productInstanceLabel(token));
+    }
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
+    }
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    
+    putImpl(token.index(),std::move(product));
+  }
+  
+  template<typename PROD, typename... Args>
+  void
+  Run::emplace(EDPutTokenT<PROD> token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
+    }
+    emplaceImpl<PROD>(token.index(),std::forward<Args>(args)...);
+  }
+  
+  template<typename PROD, typename... Args>
+  void
+  Run::emplace(EDPutToken token, Args&&... args) {
+    if(UNLIKELY(token.isUninitialized())) {
+      principal_get_adapter_detail::throwOnPutOfUninitializedToken("Run", typeid(PROD));
+    }
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+      principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
+    }
+    
+    emplaceImpl(token.index(),std::forward<Args>(args)...);
+  }
+  
+  template<typename PROD, typename... Args>
+  void
+  Run::emplaceImpl(EDPutToken::value_type index, Args&&... args) {
+    
+    assert(index < putProducts().size());
+    
+    std::unique_ptr<Wrapper<PROD> > wp(new Wrapper<PROD>(WrapperBase::Emplace{},
+                                                         std::forward<Args>(args)...));
+    
+    // The following will call post_insert if T has such a function,
+    // and do nothing if T has no such function.
+    std::conditional_t<detail::has_postinsert<PROD>::value,
+    DoPostInsert<PROD>,
+    DoNotPostInsert<PROD>> maybe_inserter;
+    maybe_inserter(&(wp->bareProduct()));
+    
+    putProducts()[index]=std::move(wp);
+  }
+
 
   template <typename PROD>
   bool
@@ -274,5 +377,33 @@ namespace edm {
     return provRecorder_.getManyByType(results, moduleCallingContext_);
   }
 
+  // Free functions to retrieve a collection from the Run.
+  // Will throw an exception if the collection is not available.
+
+  template <typename T>
+  T const& get(Run const& event, InputTag const& tag) {
+    Handle<T> handle;
+    event.getByLabel(tag, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(Run const& event, EDGetToken const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(Run const& event, EDGetTokenT<T> const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
 }
-#endif
+
+#endif // FWCore_Framework_Run_h

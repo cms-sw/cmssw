@@ -80,22 +80,23 @@ float PhotonDataCertification::invMassZtest(string path, TString name,
 
   float ZMass = 91.2;
   float ZWidth = 2.5;
-  MonitorElement *TestElem = 0;
+  MonitorElement *TestElem = nullptr;
   TestElem = igetter.get(path);
-  if (TestElem == 0) return 0;
+  if (TestElem == nullptr) return 0;
   TH1F *TestHist = TestElem->getTH1F();
-  if (TestHist == 0) return 0;
+  if (TestHist == nullptr) return 0;
+  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
   RooRealVar mass("mass","Mass_{2#gamma}", 0, 200,"GeV");
   RooRealVar mRes("M_{Z}", "Z Mass", ZMass, 70, 110);
   RooRealVar gamma("#Gamma", "#Gamma", ZWidth, 0, 10.0);
   RooBreitWigner BreitWigner("BreitWigner", "Breit-Wigner", mass, mRes, gamma);
   RooDataHist test(name, name, mass, TestHist);
 
-  BreitWigner.fitTo(test, RooFit::Range(80, 100));
+  BreitWigner.fitTo(test, RooFit::Range(80, 100),RooFit::PrintLevel(-1000));
 
-  if (abs(mRes.getValV() - ZMass) < ZWidth) {
+  if (std::abs(mRes.getValV() - ZMass) < ZWidth) {
     return 1.0;
-  } else if (abs(mRes.getValV() - ZMass) < gamma.getValV()) {
+  } else if (std::abs(mRes.getValV() - ZMass) < gamma.getValV()) {
     return 0.9;
   } else {
     return 0.0;

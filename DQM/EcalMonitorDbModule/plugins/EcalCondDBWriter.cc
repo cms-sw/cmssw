@@ -1,4 +1,4 @@
-#include "../interface/EcalCondDBWriter.h"
+#include "DQM/EcalMonitorDbModule/interface/EcalCondDBWriter.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -26,7 +26,7 @@ getBit(int& _bitArray, unsigned _iBit)
 
 EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   runNumber_(0),
-  db_(0),
+  db_(nullptr),
   location_(_ps.getUntrackedParameter<std::string>("location")),
   runType_(_ps.getUntrackedParameter<std::string>("runType")),
   runGeneralTag_(_ps.getUntrackedParameter<std::string>("runGeneralTag")),
@@ -37,7 +37,7 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
 {
   std::vector<std::string> inputRootFiles(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles"));
 
-  if(inputRootFiles.size() == 0)
+  if(inputRootFiles.empty())
     throw cms::Exception("Configuration") << "No input ROOT file given";
 
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Initializing DQMStore from input ROOT files";
@@ -68,7 +68,7 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   std::string userName(_ps.getUntrackedParameter<std::string>("userName"));
   std::string password(_ps.getUntrackedParameter<std::string>("password"));
 
-  std::auto_ptr<EcalCondDBInterface> db(0);
+  std::auto_ptr<EcalCondDBInterface> db(nullptr);
 
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
@@ -76,7 +76,7 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
     db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   }
   catch(std::runtime_error& re){
-    if(hostName != ""){
+    if(!hostName.empty()){
       try{
         db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       }
@@ -95,18 +95,18 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   edm::ParameterSet const& workerParams(_ps.getUntrackedParameterSet("workerParams"));
 
   workers_[Integrity] = new ecaldqm::IntegrityWriter(workerParams);
-  workers_[Cosmic] = 0;
+  workers_[Cosmic] = nullptr;
   workers_[Laser] = new ecaldqm::LaserWriter(workerParams);
   workers_[Pedestal] = new ecaldqm::PedestalWriter(workerParams);
   workers_[Presample] = new ecaldqm::PresampleWriter(workerParams);
   workers_[TestPulse] = new ecaldqm::TestPulseWriter(workerParams);
-  workers_[BeamCalo] = 0;
-  workers_[BeamHodo] = 0;
-  workers_[TriggerPrimitives] = 0;
-  workers_[Cluster] = 0;
+  workers_[BeamCalo] = nullptr;
+  workers_[BeamHodo] = nullptr;
+  workers_[TriggerPrimitives] = nullptr;
+  workers_[Cluster] = nullptr;
   workers_[Timing] = new ecaldqm::TimingWriter(workerParams);
   workers_[Led] = new ecaldqm::LedWriter(workerParams);
-  workers_[RawData] = 0;
+  workers_[RawData] = nullptr;
   workers_[Occupancy] = new ecaldqm::OccupancyWriter(workerParams);
 
   for(unsigned iC(0); iC < nTasks; ++iC)

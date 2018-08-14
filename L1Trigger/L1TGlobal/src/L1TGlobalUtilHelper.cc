@@ -13,6 +13,7 @@ l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset,edm:
       m_l1tExtBlkInputTag(pset.getParameter<edm::InputTag>("l1tExtBlkInputTag")),
       m_findL1TAlgBlk(false),
       m_findL1TExtBlk(false),
+      m_readPrescalesFromFile(pset.getParameter<bool>("ReadPrescalesFromFile")),
       m_foundPreferredL1TAlgBlk(false),
       m_foundPreferredL1TExtBlk(false) {
 
@@ -24,10 +25,11 @@ l1t::L1TGlobalUtilHelper::L1TGlobalUtilHelper(edm::ParameterSet const& pset,edm:
 void l1t::L1TGlobalUtilHelper::fillDescription(edm::ParameterSetDescription & desc) {
     desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag());
     desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag());
+    desc.add<bool> ("ReadPrescalesFromFile",false);
 }
 
 void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDescription) {
-  
+
     // This is only used if required InputTags were not specified already.
     // This is called early in the process, once for each product in the ProductRegistry.
     // The callback is registered when callWhenNewProductsRegistered is called.
@@ -58,35 +60,35 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 
 
   // GlobalAlgBlkBxCollection
-  
+
   if (m_findL1TAlgBlk && (!m_foundMultipleL1TAlgBlk)
       && (branchDescription.unwrappedTypeID()
 	  == edm::TypeID(typeid(GlobalAlgBlkBxCollection)))
       && (branchDescription.branchType() == edm::InEvent)) {
-    
+
     edm::InputTag tag { branchDescription.moduleLabel(),
 	branchDescription.productInstanceName(),
 	branchDescription.processName() };
-    
+
     if (m_foundPreferredL1TAlgBlk) {
       // check if a preferred input tag was already found and compare it with the actual tag
       // if the instance or the process names are different, one has incompatible tags - set
       // the tag to empty input tag and indicate that multiple preferred input tags are found
       // so it is not possibly to choose safely an input tag
-      
+
       if ((m_l1tAlgBlkInputTag.label() == branchDescription.moduleLabel())
 	  && ((m_l1tAlgBlkInputTag.instance()
 	       != branchDescription.productInstanceName())
 	      || (m_l1tAlgBlkInputTag.process()
 		  != branchDescription.processName()))) {
-	
+
 	LogDebug("L1TGlobalUtil")
 	  << "\nWARNING: Found multiple preferred input tags for GlobalAlgBlkBxCollection, "
 	  << "\nwith different instaces or processes."
 	  << "\nInput tag already found: "
 	  << (m_l1tAlgBlkInputTag) << "\nActual tag: " << (tag)
 	  << "\nInput tag set to empty tag." << std::endl;
-	
+
 	m_foundMultipleL1TAlgBlk = true;
 	m_l1tAlgBlkInputTag = edm::InputTag();
       }
@@ -96,13 +98,13 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	     preferredL1TAlgBlkInputTag.begin(), itPrefTagEnd =
 	     preferredL1TAlgBlkInputTag.end();
 	   itPrefTag != itPrefTagEnd; ++itPrefTag) {
-	
+
 	if (branchDescription.moduleLabel() == itPrefTag->label()) {
 	  m_l1tAlgBlkInputTag = tag;
 	  m_l1tAlgBlkToken = m_consumesCollector.consumes<GlobalAlgBlkBxCollection>(tag);
 	  m_foundPreferredL1TAlgBlk = true;
 	  m_inputTagsL1TAlgBlk.push_back(tag);
-	  
+
 	  LogDebug("L1TGlobalUtil")
 	    << "\nWARNING: Input tag for GlobalAlgBlkBxCollection product set to preferred input tag"
 	    << (tag) << std::endl;
@@ -110,14 +112,14 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	}
       }
     }
-    
+
     if (!m_foundPreferredL1TAlgBlk) {
-      
+
       // check if other input tag was found - if true, there are multiple input tags in the event,
       // none in the preferred input tags, so it is not possibly to choose safely an input tag
-      
+
       if (m_inputTagsL1TAlgBlk.size() > 1) {
-	
+
 	LogDebug("L1TGlobalUtil")
 	  << "\nWARNING: Found multiple input tags for GlobalAlgBlkBxCollection product."
 	  << "\nNone is in the preferred input tags - no safe choice."
@@ -126,14 +128,14 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	  << "\nInput tag set to empty tag." << std::endl;
 	m_l1tAlgBlkInputTag = edm::InputTag();
 	m_foundMultipleL1TAlgBlk = true;
-	
+
       } else {
 	if (m_l1tAlgBlkToken.isUninitialized()) {
-	  
+
 	  m_l1tAlgBlkInputTag = tag;
 	  m_inputTagsL1TAlgBlk.push_back(tag);
 	  m_l1tAlgBlkToken = m_consumesCollector.consumes<GlobalAlgBlkBxCollection>(tag);
-	  
+
 	  LogDebug("L1TGlobalUtil")
 	    << "\nWARNING: No preferred input tag found for GlobalAlgBlkBxCollection."
 	    << "\nInput tag set to " << (tag) << std::endl;
@@ -148,25 +150,25 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
       && (branchDescription.unwrappedTypeID()
 	  == edm::TypeID(typeid(GlobalExtBlkBxCollection)))
       && (branchDescription.branchType() == edm::InEvent)) {
-    
+
     edm::InputTag tag { branchDescription.moduleLabel(),
 	branchDescription.productInstanceName(),
 	branchDescription.processName() };
-    
+
     if (m_foundPreferredL1TExtBlk) {
-      
+
       // check if a preferred input tag was already found and compare it with the actual tag
       // if the instance or the process names are different, one has incompatible tags - set
       // the tag to empty input tag and indicate that multiple preferred input tags are found
       // so it is not possibly to choose safely an input tag
-      
+
       if ((m_l1tExtBlkInputTag.label()
 	   == branchDescription.moduleLabel())
 	  && ((m_l1tExtBlkInputTag.instance()
 	       != branchDescription.productInstanceName())
 	      || (m_l1tExtBlkInputTag.process()
 		  != branchDescription.processName()))) {
-	
+
 	LogDebug("L1TGlobalUtil")
 	  << "\nWARNING: Found multiple preferred input tags for GlobalExtBlkBxCollection, "
 	  << "\nwith different instaces or processes."
@@ -174,24 +176,24 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	  << (m_l1tExtBlkInputTag) << "\nActual tag: "
 	  << (tag) << "\nInput tag set to empty tag."
 	  << std::endl;
-	
+
 	m_foundMultipleL1TExtBlk = true;
 	m_l1tExtBlkInputTag = edm::InputTag();
       }
     } else {
       // no preferred input tag found yet, check now with the actual tag
-      
+
       for (std::vector<edm::InputTag>::const_iterator itPrefTag =
 	     preferredL1TExtBlkInputTag.begin(), itPrefTagEnd =
 	     preferredL1TExtBlkInputTag.end();
 	   itPrefTag != itPrefTagEnd; ++itPrefTag) {
-	
+
 	if (branchDescription.moduleLabel() == itPrefTag->label()) {
 	  m_l1tExtBlkInputTag = tag;
 	  m_l1tExtBlkToken = m_consumesCollector.consumes<GlobalExtBlkBxCollection>(tag);
 	  m_foundPreferredL1TExtBlk = true;
 	  m_inputTagsL1TExtBlk.push_back(tag);
-	  
+
 	  LogDebug("L1TGlobalUtil")
 	    << "\nWARNING: Input tag for GlobalExtBlkBxCollection product set to preferred input tag"
 	    << (tag) << std::endl;
@@ -199,14 +201,14 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	}
       }
     }
-    
+
     if (!m_foundPreferredL1TExtBlk) {
-      
+
       // check if other input tag was found - if true, there are multiple input tags in the event,
       // none in the preferred input tags, so it is not possibly to choose safely an input tag
-      
+
       if (m_inputTagsL1TExtBlk.size() > 1) {
-	
+
 	LogDebug("L1TGlobalUtil")
 	  << "\nWARNING: Found multiple input tags for GlobalExtBlkBxCollection."
 	  << "\nNone is in the preferred input tags - no safe choice."
@@ -216,14 +218,14 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
 	  << std::endl;
 	m_l1tExtBlkInputTag = edm::InputTag();
 	m_foundMultipleL1TExtBlk = true;
-	
+
       } else {
 	if (m_l1tExtBlkToken.isUninitialized()) {
-	  
+
 	  m_l1tExtBlkInputTag = tag;
 	  m_inputTagsL1TExtBlk.push_back(tag);
 	  m_l1tExtBlkToken = m_consumesCollector.consumes<GlobalExtBlkBxCollection>(tag);
-	  
+
 	  LogDebug("L1TGlobalUtil")
 	    << "\nWARNING: No preferred input tag found for GlobalExtBlkBxCollection product."
 	    << "\nInput tag set to " << (tag) << std::endl;

@@ -24,8 +24,8 @@
 #include <set>
 #include <vector>
 #include <sstream>
-#include <stdint.h>
-#include <math.h>
+#include <cstdint>
+#include <cmath>
 
 #include <TString.h>
 #include <TPRegexp.h>

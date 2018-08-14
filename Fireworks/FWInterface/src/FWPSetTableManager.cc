@@ -759,7 +759,7 @@ FWTableCellRendererBase* FWPSetTableManager::cellRenderer(int iSortedRowNumber, 
 
    std::string value;
    std::string label;
-   TGGC* gc = 0;
+   TGGC* gc = nullptr;
    if (data.level == 0)
    {
       const PathInfo &path = m_paths[data.path];

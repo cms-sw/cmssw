@@ -16,6 +16,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+#include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 
 PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   :theConfig(conf)
@@ -48,9 +49,8 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   // provide the vectorized version of the clusterizer, if supported by the build
    else if(clusteringAlgorithm == "DA_vect") {
     theTrackClusterizer = new DAClusterizerInZ_vect(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
-  }
-  else if( clusteringAlgorithm=="DA2D" ) {
-    theTrackClusterizer = new DAClusterizerInZT(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
+  } else if( clusteringAlgorithm=="DA2D_vect" ) {
+    theTrackClusterizer = new DAClusterizerInZT_vect(conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
     f4D = true;
   }
 
@@ -75,7 +75,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
       if (fitterAlgorithm=="KalmanVertexFitter") {
 	algorithm.fitter= new KalmanVertexFitter();
       } else if( fitterAlgorithm=="AdaptiveVertexFitter") {
-	algorithm.fitter= new AdaptiveVertexFitter();
+	algorithm.fitter= new AdaptiveVertexFitter( GeometricAnnealing( algoconf->getParameter<double>("chi2cutoff")));
       } else {
 	throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + fitterAlgorithm);  
       }
@@ -200,9 +200,10 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         for( const auto& tk : *iclus ) {
           const double time = tk.timeExt();
           const double inverr = 1.0/tk.dtErrorExt();
-          meantime += time*inverr;
-          expv_x2  += time*time*inverr;
-          normw    += inverr;
+          const double w = inverr*inverr;
+          meantime += time*w;
+          expv_x2  += time*time*w;
+          normw    += w;
         }
         meantime = meantime/normw;
         expv_x2 = expv_x2/normw;
@@ -244,9 +245,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           if (f4D) std::cout << ",t";
           std::cout << "=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z();
           if (f4D) std::cout << " " << v.time();
-          std::cout << std::endl;
+          std::cout  << " cluster size = " << (*iclus).size() << std::endl;
         }
-	else std::cout <<"Invalid fitted vertex\n";
+	else{
+	  std::cout <<"Invalid fitted vertex,  cluster size=" << (*iclus).size() << std::endl;
+	}
       }
 
       if ( v.isValid() 

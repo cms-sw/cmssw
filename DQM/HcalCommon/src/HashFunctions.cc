@@ -250,8 +250,8 @@ namespace hcaldqm
 
 		std::string name_HFPMiphi(HcalDetId const& did)
 		{
-			char name[10];
-			sprintf(name, "HF%siphi%d", did.ieta()>0 ? "P" : "M", did.iphi());
+			char name[12];
+			snprintf(name, sizeof(name), "HF%ciphi%d", did.ieta()>0 ? 'P' : 'M', did.iphi());
 			return std::string(name);
 		}
 
@@ -315,12 +315,11 @@ namespace hcaldqm
             else
             {
                 //  tmp - we need to hash HF's FEDs with slot in mind
-                bool isHF = eid.crateId()==22 || eid.crateId()==29 || eid.crateId()==32;
+                //bool isHF = eid.crateId()==22 || eid.crateId()==29 || eid.crateId()==32;
                 //  for HF, slot number is either
-                int slotToUse = eid.slot()>6 ? SLOT_uTCA_MIN+6 :  SLOT_uTCA_MIN;
+            	int slotToUse = eid.slot()>6 ? SLOT_uTCA_MIN+6 :  SLOT_uTCA_MIN;
                 return utilities::hash(HcalElectronicsId(eid.crateId(),
-					isHF ? slotToUse : SLOT_uTCA_MIN, 
-                    FIBER_uTCA_MIN1, FIBERCH_MIN, false));
+					slotToUse, FIBER_uTCA_MIN1, FIBERCH_MIN, false));
             }
 		}
 
@@ -347,9 +346,10 @@ namespace hcaldqm
 		uint32_t hash_Crate(HcalElectronicsId const& eid)
 		{
 			//	note hashing of VME is done with dccId
+			//	note 2: there are two dccids per crate, <even> and <even+1>. We don't care about this, so use the even one.
 			return eid.isVMEid() ? 
 				utilities::hash(HcalElectronicsId(FIBERCH_MIN,
-					FIBER_VME_MIN, SPIGOT_MIN, eid.dccid())) :
+					FIBER_VME_MIN, SPIGOT_MIN, (eid.dccid() % 2 == 0 ? eid.dccid() : eid.dccid() - 1))) :
 				utilities::hash(HcalElectronicsId(eid.crateId(),
 					SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false));
 		}
@@ -360,7 +360,7 @@ namespace hcaldqm
 			//	uTCA with Slots
 			return eid.isVMEid() ?
 				utilities::hash(HcalElectronicsId(FIBERCH_MIN,
-					FIBER_VME_MIN, eid.spigot(), eid.dccid())) :
+					FIBER_VME_MIN, eid.spigot(), (eid.dccid() % 2 == 0 ? eid.dccid() : eid.dccid() - 1))) :
 				utilities::hash(HcalElectronicsId(eid.crateId(),
 					eid.slot(), FIBER_uTCA_MIN1, FIBERCH_MIN, false));
 		}
@@ -369,7 +369,7 @@ namespace hcaldqm
 		{
 			return eid.isVMEid() ? 
 				utilities::hash(HcalElectronicsId(FIBERCH_MIN,
-					FIBER_VME_MIN, eid.spigot(), eid.dccid())) :
+					FIBER_VME_MIN, eid.spigot(), (eid.dccid() % 2 == 0 ? eid.dccid() : eid.dccid() - 1))) :
 				utilities::hash(HcalElectronicsId(eid.crateId(),
 					eid.slot(), FIBER_uTCA_MIN1, FIBERCH_MIN, false));
 		}
@@ -504,8 +504,15 @@ namespace hcaldqm
 
 		std::string name_Crate(HcalElectronicsId const& eid)
 		{
-			char name[10];
-			sprintf(name, "Crate%d", eid.isVMEid()?eid.dccid():eid.crateId());
+			char name[16];
+			sprintf(name, "Crate%d", eid.crateId());
+
+			// Note: previous, different hashes were returned for the two dccids in a VME crate. These now count as one crate.
+			//if (eid.isVMEid()) {
+			//	sprintf(name, "Crate%d_VME_DCC%d", eid.crateId(), eid.dccid());
+			//} else {
+			//	sprintf(name, "Crate%d", eid.crateId());
+			//}
 			return std::string(name);
 		}
 
@@ -517,7 +524,7 @@ namespace hcaldqm
 		{
 			char name[20];
 			sprintf(name, "Crate%dS%d",
-				eid.isVMEid()?eid.dccid():eid.crateId(),
+				eid.crateId(),
 				eid.isVMEid()?eid.spigot():eid.slot());
 			return std::string(name);
 		}
@@ -530,7 +537,7 @@ namespace hcaldqm
 		{
 			char name[20];
 			sprintf(name, "Crate%dS%d",
-				eid.isVMEid()?eid.dccid():eid.crateId(),
+				eid.crateId(),
 				eid.isVMEid()?eid.spigot():eid.slot());
 			return std::string(name);
 		}

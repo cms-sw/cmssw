@@ -30,7 +30,7 @@ HLTCaloTowerHtMhtProducer::HLTCaloTowerHtMhtProducer(const edm::ParameterSet & i
 }
 
 // Destructor
-HLTCaloTowerHtMhtProducer::~HLTCaloTowerHtMhtProducer() {}
+HLTCaloTowerHtMhtProducer::~HLTCaloTowerHtMhtProducer() = default;
 
 // Fill descriptions
 void HLTCaloTowerHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -56,13 +56,13 @@ void HLTCaloTowerHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
     double ht = 0., mhx = 0., mhy = 0.;
 
-    if (towers->size() > 0) {
-        for(CaloTowerCollection::const_iterator j = towers->begin(); j != towers->end(); ++j) {
-            double pt = usePt_ ? j->pt() : j->et();
-            double eta = j->eta();
-            double phi = j->phi();
-            double px = usePt_ ? j->px() : j->et() * cos(phi);
-            double py = usePt_ ? j->py() : j->et() * sin(phi);
+    if (!towers->empty()) {
+        for(auto const & j : *towers) {
+            double pt = usePt_ ? j.pt() : j.et();
+            double eta = j.eta();
+            double phi = j.phi();
+            double px = usePt_ ? j.px() : j.et() * cos(phi);
+            double py = usePt_ ? j.py() : j.et() * sin(phi);
 
             if (pt > minPtTowerHt_ && std::abs(eta) < maxEtaTowerHt_) {
                 ht += pt;

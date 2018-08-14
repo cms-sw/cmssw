@@ -106,14 +106,14 @@ template <class IPTI,class VTX>
 class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit TemplatedSecondaryVertexProducer(const edm::ParameterSet &params);
-	~TemplatedSecondaryVertexProducer();
+	~TemplatedSecondaryVertexProducer() override;
 	static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI,VTX> > Product;
 	typedef TemplatedSecondaryVertex<VTX> SecondaryVertex;
 	typedef typename IPTI::input_container input_container;
 	typedef typename IPTI::input_container::value_type input_item;
 	typedef typename std::vector<reco::btag::IndexedTrackData> TrackDataVector;
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
+	void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
         template<class CONTAINER>
@@ -389,7 +389,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 	// ------------------------------------ SV clustering START --------------------------------------------
 	std::vector<std::vector<int> > clusteredSVs(trackIPTagInfos->size(),std::vector<int>());
-	if( useExternalSV && useSVClustering && trackIPTagInfos->size()>0 )
+	if( useExternalSV && useSVClustering && !trackIPTagInfos->empty() )
 	{
 	  // vector of constituents for reclustering jets and "ghost" SVs
 	  std::vector<fastjet::PseudoJet> fjInputs;
@@ -481,7 +481,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	        continue;
 	      }
 	
-	      if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+	      if( subjetIndices.at(i).empty() ) continue; // continue if the original jet does not have subjets assigned
 		
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original fat jets should in principle stay the same
 	      if( ( std::abs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - fatJetsHandle->at(i).pt() ) / fatJetsHandle->at(i).pt() ) > relPtTolerance )
@@ -580,7 +580,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	  }
 	}
 	// case where fat jets are used to associate SVs to subjets but no SV clustering is performed
-	else if( useExternalSV && !useSVClustering && trackIPTagInfos->size()>0 && useFatJets )
+	else if( useExternalSV && !useSVClustering && !trackIPTagInfos->empty() && useFatJets )
 	{
 	  // match groomed and original fat jets
 	  std::vector<int> groomedIndices;
@@ -603,7 +603,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	      continue;
 	    }
 
-	    if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+	    if( subjetIndices.at(i).empty() ) continue; // continue if the original jet does not have subjets assigned
 
 	    // loop over SVs, associate them to fat jets based on dR cone and
 	    // then assign them to the closets subjet in dR
@@ -860,9 +860,10 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		  else {
 		      for(size_t iExtSv = 0; iExtSv < extSecVertex->size(); iExtSv++){
 			 const VTX & extVertex = (*extSecVertex)[iExtSv];
-			 if( Geom::deltaR2( ( position(extVertex) - pv.position() ), jetDir ) > extSVDeltaRToJet*extSVDeltaRToJet || extVertex.p4().M() < 0.3 )
+			 if( Geom::deltaR2( ( position(extVertex) - pv.position() ), (extSVDeltaRToJet > 0) ? jetDir : -jetDir ) > extSVDeltaRToJet*extSVDeltaRToJet || extVertex.p4().M() < 0.3 )
 			   continue;
 			 extAssoCollection.push_back( extVertex );
+			
 		      }
 		  }
 		  // build combined SV information and filter
@@ -960,7 +961,7 @@ template <>
 typename TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::SecondaryVertex  
 TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::SVBuilder::operator () (const TransientVertex &sv) const
 {
-	if(sv.originalTracks().size()>0 && sv.originalTracks()[0].trackBaseRef().isNonnull())
+	if(!sv.originalTracks().empty() && sv.originalTracks()[0].trackBaseRef().isNonnull())
 		return SecondaryVertex(pv, sv, direction, withPVError);
 	else
 	{
@@ -973,7 +974,7 @@ template <>
 typename TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SecondaryVertex
 TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SVBuilder::operator () (const TransientVertex &sv) const
 {
-	if(sv.originalTracks().size()>0 && sv.originalTracks()[0].trackBaseRef().isNonnull())
+	if(!sv.originalTracks().empty() && sv.originalTracks()[0].trackBaseRef().isNonnull())
 	{
 		edm::LogError("UnexpectedInputs") << "Building from Tracks, should not happen!";
 		VertexCompositePtrCandidate vtxCompPtrCand;
@@ -999,7 +1000,7 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate
 				continue;
 			
 			const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
-			if ( cptt==0 )
+			if ( cptt==nullptr )
 				edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
 			else
 			{
@@ -1021,7 +1022,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredJets(const edm:
                                                                       std::vector<int>& matchedIndices,
                                                                       const std::string& jetType)
 {
-   std::string type = ( jetType!="" ? jetType + " " : jetType );
+   std::string type = ( !jetType.empty() ? jetType + " " : jetType );
 
    std::vector<bool> matchedLocks(reclusteredJets.size(),false);
 
@@ -1138,7 +1139,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const std::vector<
          }
        }
 
-       if( subjetIndices.size() == 0 )
+       if( subjetIndices.empty() )
          edm::LogError("SubjetMatchingFailed") << "Matching subjets to original fat jets failed. Please check that the groomed fat jet and subjet collections belong to each other.";
 
        matchedIndices.push_back(subjetIndices);
@@ -1205,7 +1206,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const edm::Handle<
            }
          }
 
-         if( subjetIndices.size() == 0 && nSubjets > 0)
+         if( subjetIndices.empty() && nSubjets > 0)
            edm::LogError("SubjetMatchingFailed") << "Matching subjets to fat jets failed. Please check that the fat jet and subjet collections belong to each other.";
 
          matchedIndices.push_back(subjetIndices);

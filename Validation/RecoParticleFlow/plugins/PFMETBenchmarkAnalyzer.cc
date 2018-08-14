@@ -54,13 +54,13 @@ using namespace std;
 class PFMETBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
   explicit PFMETBenchmarkAnalyzer(const edm::ParameterSet&);
-  ~PFMETBenchmarkAnalyzer();
+  ~PFMETBenchmarkAnalyzer() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::GenParticleCollection> sInputTruthLabel_tok_;
   edm::EDGetTokenT<reco::PFMETCollection> sInputRecoLabel_tok_;

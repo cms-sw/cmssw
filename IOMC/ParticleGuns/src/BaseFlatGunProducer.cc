@@ -28,7 +28,7 @@ using namespace std;
 using namespace CLHEP;
 
 BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
-   fEvt(0)
+   fEvt(nullptr)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
    Service<RandomNumberGenerator> rng;
@@ -75,7 +75,7 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 
    fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
-   produces<GenRunInfoProduct, InRun>();
+   produces<GenRunInfoProduct, Transition::EndRun>();
 }
 
 BaseFlatGunProducer::~BaseFlatGunProducer()

@@ -6,7 +6,8 @@ ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max
 EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
 
 
-topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+topDiLeptonOfflineDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -151,7 +152,7 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
 
 
 
-DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
+DiMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -294,7 +295,7 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
   ),
 )
 
-DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
+DiElectronDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -419,7 +420,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("pfIsolatedElectronsEI"),
       ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),      
-      select = cms.string("pt>20 & abs(eta)<2.5 && gsfElectronRef.gsfTrack.hitPattern().numberOfHits('MISSING_INNER_HITS') <= 0 && " + ElelooseIsoCut),
+      select = cms.string("pt>20 & abs(eta)<2.5 && gsfElectronRef.gsfTrack.hitPattern().numberOfLostHits('MISSING_INNER_HITS') <= 0 && " + ElelooseIsoCut),
       #abs(gsfElectronRef.gsfTrack.d0)<0.04
       min = cms.int32(2),
       max = cms.int32(2),
@@ -439,7 +440,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
   ),
 )
 
-ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
+ElecMuonDQM = DQMEDAnalyzer('TopDiLeptonOfflineDQM',
   ## ------------------------------------------------------
   ## SETUP
   ##

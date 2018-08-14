@@ -132,7 +132,7 @@ std::auto_ptr<fftjet::Grid2d<Real> >
 fftjet_Grid2d_parser(const edm::ParameterSet& ps)
 {
     typedef std::auto_ptr<fftjet::Grid2d<Real> > return_type;
-    fftjet::Grid2d<Real> *g = 0;
+    fftjet::Grid2d<Real> *g = nullptr;
 
     // Check if the grid should be read from file
     if (ps.exists("file"))
@@ -144,7 +144,7 @@ fftjet_Grid2d_parser(const edm::ParameterSet& ps)
 	    throw cms::Exception("FFTJetBadConfig")
 	        << "Failed to open file " << file << std::endl;
         g = fftjet::Grid2d<Real>::read(in);
-	if (g == 0)
+	if (g == nullptr)
 	    throw cms::Exception("FFTJetBadConfig")
 	        << "Failed to read file " << file << std::endl;
     }
@@ -159,7 +159,7 @@ fftjet_Grid2d_parser(const edm::ParameterSet& ps)
             "title", "");
 
         if (nEtaBins == 0 || nPhiBins == 0 || etaMin >= etaMax)
-            return return_type(NULL);
+            return return_type(nullptr);
         
         g = new fftjet::Grid2d<Real>(
             nEtaBins,
@@ -180,7 +180,7 @@ fftjet_Grid2d_parser(const edm::ParameterSet& ps)
             else
 	    {
 	        delete g;
-                g = 0;
+                g = nullptr;
             }
         }
     }
@@ -263,7 +263,7 @@ fftjet_PeakSelector_parser(const edm::ParameterSet& ps)
                                a, p, b, etaCut));
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -382,8 +382,8 @@ fftjet_MembershipFunction_parser(const edm::ParameterSet& ps)
     // This is not a special kernel. Try one of the classes
     // in the kernel factory provided by FFTJet.
     fftjet::DefaultKernel2dFactory factory;
-    if (factory[MembershipFunction_type] == NULL) {
-        return return_type(NULL);
+    if (factory[MembershipFunction_type] == nullptr) {
+        return return_type(nullptr);
     }
 
     make_param(double, sx);
@@ -417,7 +417,7 @@ fftjet_BgFunctor_parser(const edm::ParameterSet& ps)
             new fftjet::GaussianNoiseMembershipFcn(minWeight,prior));
     }
 
-    return std::auto_ptr<AbsBgFunctor>(NULL);
+    return std::auto_ptr<AbsBgFunctor>(nullptr);
 }
 
 
@@ -437,7 +437,7 @@ fftjet_ScaleSet_parser(const edm::ParameterSet& ps)
 
         if (minScale <= 0.0 || maxScale <= 0.0 ||
             nScales == 0 || minScale == maxScale)
-            return return_type(NULL);
+            return return_type(nullptr);
 
         // Can't return pointers to EquidistantInLinearSpace
         // or EquidistantInLogSpace directly because std::vector
@@ -461,17 +461,17 @@ fftjet_ScaleSet_parser(const edm::ParameterSet& ps)
         const unsigned nscales = scales->size();
         for (unsigned i=0; i<nscales; ++i)
             if ((*scales)[i] <= 0.0)
-                return return_type(NULL);
+                return return_type(nullptr);
 
         for (unsigned i=1; i<nscales; ++i)
             for (unsigned j=0; j<i; ++j)
                 if ((*scales)[i] == (*scales)[j])
-                    return return_type(NULL);
+                    return return_type(nullptr);
 
         return scales;
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -485,7 +485,7 @@ fftjet_ClusteringTreeSparsifier_parser(const edm::ParameterSet& ps)
     const std::vector<double> userScalesV = 
         ps.getParameter<std::vector<double> >("userScales");
     const unsigned nUserScales = userScalesV.size();
-    const double* userScales = nUserScales ? &userScalesV[0] : NULL;
+    const double* userScales = nUserScales ? &userScalesV[0] : nullptr;
 
     return return_type(
         new fftjet::ClusteringTreeSparsifier<fftjet::Peak,long>(
@@ -518,22 +518,22 @@ fftjet_DistanceCalculator_parser(const edm::ParameterSet& ps)
             fftjet_LinearInterpolator1d_parser(
                 ps.getParameter<edm::ParameterSet>("Interpolator"));
         const fftjet::LinearInterpolator1d* ip = interp.get();
-        if (ip == NULL)
-            return return_type(NULL);
+        if (ip == nullptr)
+            return return_type(nullptr);
 
         // Check that the interpolator is always positive
         const unsigned n = ip->nx();
         const double* data = ip->getData();
         for (unsigned i=0; i<n; ++i)
             if (data[i] <= 0.0)
-                return return_type(NULL);
+                return return_type(nullptr);
         if (ip->fLow() <= 0.0 || ip->fHigh() <= 0.0)
-            return return_type(NULL);
+            return return_type(nullptr);
 
         return return_type(new fftjet::PeakEtaDependentDistance(*ip));
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -549,7 +549,7 @@ fftjet_LinInterpolatedTable1D_parser(const edm::ParameterSet& ps)
     const std::vector<double> data(
         ps.getParameter<std::vector<double> >("data"));
     if (data.empty())
-        return std::auto_ptr<fftjetcms::LinInterpolatedTable1D>(NULL);
+        return std::auto_ptr<fftjetcms::LinInterpolatedTable1D>(nullptr);
     else
         return std::auto_ptr<fftjetcms::LinInterpolatedTable1D>(
             new fftjetcms::LinInterpolatedTable1D(
@@ -568,7 +568,7 @@ fftjet_LinearInterpolator1d_parser(const edm::ParameterSet& ps)
     const std::vector<double> data(
         ps.getParameter<std::vector<double> >("data"));
     if (data.empty())
-        return std::auto_ptr<fftjet::LinearInterpolator1d>(NULL);
+        return std::auto_ptr<fftjet::LinearInterpolator1d>(nullptr);
     else
         return std::auto_ptr<fftjet::LinearInterpolator1d>(
             new fftjet::LinearInterpolator1d(
@@ -623,7 +623,7 @@ fftjet_PeakFunctor_parser(const edm::ParameterSet& ps)
             return return_type(
                 new fftjet::JetProperty<fftjet::Peak>(fcn));
         else
-            return return_type(NULL);
+            return return_type(nullptr);
     }
 
     if (!property_type.compare("MinusScaledLaplacian"))
@@ -746,7 +746,7 @@ fftjet_PeakFunctor_parser(const edm::ParameterSet& ps)
         }
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -794,7 +794,7 @@ fftjet_JetFunctor_parser(const edm::ParameterSet& ps)
             return return_type(
                 new fftjet::JetProperty<RecoFFTJet>(fcn));
         else
-            return return_type(NULL);
+            return return_type(nullptr);
     }
 
     if (!property_type.compare("ConstDouble"))
@@ -877,7 +877,7 @@ fftjet_JetFunctor_parser(const edm::ParameterSet& ps)
         }
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -904,7 +904,7 @@ fftjet_JetDistance_parser(const edm::ParameterSet& ps)
                 etaToPhiBandwidthRatio, relativePtBandwidth));
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -954,7 +954,7 @@ fftjet_Function_parser(const edm::ParameterSet& ps)
         return return_type(new Polynomial(coeffs));
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 
@@ -978,7 +978,7 @@ fftjet_PileupCalculator_parser(const edm::ParameterSet& ps)
             return return_type(new EtaDependentPileup(
                                    *ip, inputRhoFactor, outputRhoFactor));
         else
-            return return_type(NULL);
+            return return_type(nullptr);
     }
 
     if (!fcn_type.compare("PileupGrid2d"))
@@ -992,10 +992,10 @@ fftjet_PileupCalculator_parser(const edm::ParameterSet& ps)
         if (g)
 	    return return_type(new PileupGrid2d(*g, rhoFactor));
         else
-	    return return_type(NULL);
+	    return return_type(nullptr);
     }
 
-    return return_type(NULL);
+    return return_type(nullptr);
 }
 
 

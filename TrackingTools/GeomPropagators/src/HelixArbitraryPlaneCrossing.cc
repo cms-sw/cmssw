@@ -85,7 +85,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   double dSTotal;
   // Use existing 2nd order object at first pass
   std::tie(notFail,dSTotal) = theQuadraticCrossingFromStart.pathLength(plane);
-  if unlikely(!notFail) return std::make_pair(notFail,dSTotal);
+  if UNLIKELY(!notFail) return std::make_pair(notFail,dSTotal);
   auto  xnew = positionInDouble(dSTotal);
 
   auto propDir = thePropDir;
@@ -93,7 +93,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   if ( propDir == anyDirection ) {
       propDir = newDir;
   }  else {
-     if unlikely( newDir!=propDir )  return std::pair<bool,double>(false,0);
+     if UNLIKELY( newDir!=propDir )  return std::pair<bool,double>(false,0);
   }
  
 
@@ -105,7 +105,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     //
     // return empty solution vector if no convergence after maxIterations iterations
     //
-    if unlikely( --iteration == 0 ) {
+    if UNLIKELY( --iteration == 0 ) {
       LogDebug("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
       return std::pair<bool,double>(false,0);
     }
@@ -122,7 +122,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     auto  deltaS2 = quadraticCrossing.pathLength(plane);
    
      
-    if unlikely( !deltaS2.first )  return deltaS2;
+    if UNLIKELY( !deltaS2.first )  return deltaS2;
     //
     // Calculate and sort total pathlength (max. 2 solutions)
     //
@@ -132,7 +132,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
       propDir = newDir;
     }
     else {
-      if unlikely( newDir!=propDir )  return std::pair<bool,double>(false,0);
+      if UNLIKELY( newDir!=propDir )  return std::pair<bool,double>(false,0);
     }
     //
     // Step forward by dSTotal.
@@ -163,7 +163,7 @@ HelixArbitraryPlaneCrossing::positionInDouble (double s) const {
   //
   // Calculate delta phi (if not already available)
   //
-  if unlikely( s!=theCachedS ) {
+  if UNLIKELY( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
     vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);
@@ -210,7 +210,7 @@ HelixArbitraryPlaneCrossing::directionInDouble (double s) const {
   //
   // Calculate delta phi (if not already available)
   //
-  if unlikely( s!=theCachedS ) {  // very very unlikely!
+  if UNLIKELY( s!=theCachedS ) {  // very very unlikely!
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
     vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);

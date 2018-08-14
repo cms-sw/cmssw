@@ -404,11 +404,11 @@ const L1GctCand* L1GtCaloCondition::getCandidate(const int indexCand) const {
             return (*(m_gtPSB->getCandL1TauJet()))[indexCand];
             break;
         default:
-            return 0;
+            return nullptr;
             break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 /**

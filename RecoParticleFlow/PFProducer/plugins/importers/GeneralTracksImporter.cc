@@ -17,10 +17,7 @@ public:
     src_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
     muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
     DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
-    NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
-    useTiming_(conf.existsAs<edm::InputTag>("timeValueMap")),
-    srcTime_(useTiming_ ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
-    srcTimeError_(useTiming_ ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+    NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),    
     useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
     cleanBadConvBrems_(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
     debug_(conf.getUntrackedParameter<bool>("debug",false)) {
@@ -41,8 +38,6 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> muons_;
   const std::vector<double> DPtovPtCut_;
   const std::vector<unsigned> NHitCut_;
-  const bool useTiming_;
-  edm::EDGetTokenT<edm::ValueMap<float>> srcTime_, srcTimeError_;
   const bool useIterTracking_,cleanBadConvBrems_,debug_;
 
   std::unique_ptr<PFMuonAlgo> pfmu_;
@@ -64,11 +59,7 @@ importToBlock( const edm::Event& e,
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
   reco::MuonRef muonref;
-  edm::Handle<edm::ValueMap<float>> timeH, timeErrH;
-  if (useTiming_) {
-    e.getByToken(srcTime_, timeH);
-    e.getByToken(srcTimeError_, timeErrH);
-  }
+  
   // remove converted brems with bad pT resolution if requested
   // this reproduces the old behavior of PFBlockAlgo
   if( cleanBadConvBrems_ ) {
@@ -85,7 +76,7 @@ importToBlock( const edm::Event& e,
 	// if there is no displaced vertex reference  and it is marked
 	// as a conversion it's gotta be a converted brem
 	if( trkel->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) &&
-	    cRef.size() == 0 && dvRef.isNull() && v0Ref.isNull() ) {
+	    cRef.empty() && dvRef.isNull() && v0Ref.isNull() ) {
 	  // if the Pt resolution is bad we kill this element
 	  if( !PFTrackAlgoTools::goodPtResolution( trkel->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_ ) ) {
 	    itr = elems.erase(itr);
@@ -126,7 +117,7 @@ importToBlock( const edm::Event& e,
   }
   // now we actually insert tracks, again tagging muons along the way
   reco::PFRecTrackRef pftrackref;  
-  reco::PFBlockElementTrack* trkElem = NULL;
+  reco::PFBlockElementTrack* trkElem = nullptr;
   for( auto track = btrack;  track != etrack; ++track) {
     const unsigned idx = std::distance(btrack,track);
     // since we already set muon refs in the previously imported tracks,
@@ -148,10 +139,7 @@ importToBlock( const edm::Event& e,
 	std::cout << "Potential Muon P " <<  pftrackref->trackRef()->p() 
 		  << " pt " << pftrackref->trackRef()->p() << std::endl; 
       }
-      if( muId != -1 ) trkElem->setMuonRef(muonref);
-      if ( useTiming_ ) {
-        trkElem->setTime( (*timeH)[pftrackref->trackRef()], (*timeErrH)[pftrackref->trackRef()] );
-      }
+      if( muId != -1 ) trkElem->setMuonRef(muonref);      
       elems.emplace_back(trkElem);
     }
   }

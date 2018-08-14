@@ -59,7 +59,7 @@ class PFRecoTauDiscriminationAgainstElectron final : public PFTauDiscriminationP
 
       double discriminate(const PFTauRef& pfTau) const override;
 
-      ~PFRecoTauDiscriminationAgainstElectron(){}
+      ~PFRecoTauDiscriminationAgainstElectron() override{}
 
    private:
       bool isInEcalCrack(double) const;
@@ -203,11 +203,11 @@ double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& theP
         // No KF track found
         return 0;
       }
-      if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()==0) {
+      if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().empty()) {
 	if(thePFTauRef->leadPFChargedHadrCand()->hcalEnergy()/thePFTauRef->leadPFChargedHadrCand()->trackRef()->p()<bremCombined_maxHOP_)
 	  bremCombinedPass = false;
       }
-      else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && thePFTauRef->signalPFGammaCands().size()>0) {
+      else if(thePFTauRef->signalPFChargedHadrCands().size()==1 && !thePFTauRef->signalPFGammaCands().empty()) {
 	//calculate the brem ratio energy
 	float bremEnergy=0.;
 	float emEnergy=0.;

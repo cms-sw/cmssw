@@ -104,9 +104,9 @@ class ToolDataAccessor(BasicDataAccessor):
             return directory+"."+object._label
 
     def _property(self,name,value,description,typ,allowedValues):
-        if typ in [bool] and type(value)!=typ:
+        if typ in [bool] and not isinstance(value, typ):
             value=False
-        if typ in [int, long, float] and type(value)!=typ:
+        if typ in [int, long, float] and not isinstance(value, typ):
             value=0
         if not allowedValues is None and typ in [int,long,float,str]:
             return ("DropDown", name, value,description, False, False, allowedValues)

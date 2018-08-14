@@ -25,6 +25,7 @@
 using namespace std;
 
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -42,23 +43,16 @@ void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
 
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonBarrelDT";
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the Muon DTs
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,  // name & value of a variable 
-		     DDCompOp::matches,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
-  buildGeometry(theGeometry, fview, muonConstants);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+
+  DDFilteredView fview(*cview,filter);
+  buildGeometry(std::move(theGeometry), fview, muonConstants);
 }
 
 
-void DTGeometryBuilderFromDDD::buildGeometry(std::shared_ptr<DTGeometry> theGeometry,
+void DTGeometryBuilderFromDDD::buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
                                              DDFilteredView& fv,
                                              const MuonDDDConstants& muonConstants) const {
   // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";
@@ -212,10 +206,10 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
 vector<double> 
 DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
   vector<double> par;
-  if (fv.logicalPart().solid().shape() != ddbox) {
+  if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
-    while (A.shape() != ddbox) {
+    while (A.shape() != DDSolidShape::ddbox) {
       DDBooleanSolid bs(A);
       A = bs.solidA();
     }
@@ -241,7 +235,7 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
   //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
   //  DDRotationMatrix tmp = fv.rotation();
-  DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
+  const DDRotationMatrix& rotation = fv.rotation();//REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x,y,z);
 //   std::cout << "INVERSE rotation by its own operator: "<< fv.rotation() << std::endl;

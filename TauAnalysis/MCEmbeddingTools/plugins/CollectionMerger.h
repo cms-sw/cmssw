@@ -12,7 +12,7 @@
 #ifndef TauAnalysis_MCEmbeddingTools_CollectionMerger_H
 #define TauAnalysis_MCEmbeddingTools_CollectionMerger_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -44,10 +44,10 @@ class CollectionMerger : public  edm::stream::EDProducer<>
 {
  public:
   explicit CollectionMerger(const edm::ParameterSet&);
-  ~CollectionMerger();
+  ~CollectionMerger() override;
 
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef T1 MergeCollection;
   typedef T2 BaseHit;
@@ -68,7 +68,7 @@ template <typename T1, typename T2>
 CollectionMerger<T1,T2>::CollectionMerger(const edm::ParameterSet& iConfig)
 {
   std::vector<edm::InputTag> inCollections =  iConfig.getParameter<std::vector<edm::InputTag> >("mergCollections");
-  for (auto inCollection : inCollections){
+  for (auto const & inCollection : inCollections){
     inputs_[inCollection.instance()].push_back(consumes<MergeCollection >(inCollection));  
   }
   for (auto toproduce : inputs_){

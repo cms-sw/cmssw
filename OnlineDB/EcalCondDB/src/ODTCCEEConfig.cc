@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODTCCEEConfig::ODTCCEEConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
 
    m_ID=0;
@@ -52,7 +52,7 @@ int ODTCCEEConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCEEConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCEEConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -135,7 +135,7 @@ void ODTCCEEConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCEEConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCEEConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -170,7 +170,7 @@ void ODTCCEEConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCEEConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCEEConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -190,7 +190,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODTCCEEConfig::fetchData(): no Id defined for this ODTCCEEConfig "));
   }
 
@@ -206,12 +206,12 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
     rset->next();
     // the first is the id 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
-    result->setTCCConfigurationFile(rset->getString(3));
-    result->setLUTConfigurationFile(rset->getString(4));
-    result->setSLBConfigurationFile(rset->getString(5));
-    result->setTestPatternFileUrl(rset->getString(6));
+    result->setTCCConfigurationFile(getOraString(rset,3));
+    result->setLUTConfigurationFile(getOraString(rset,4));
+    result->setSLBConfigurationFile(getOraString(rset,5));
+    result->setTestPatternFileUrl(getOraString(rset,6));
     result->setNTestPatternsToLoad(rset->getInt(7));
     result->setSLBLatency(rset->getInt(12));
     //
@@ -256,7 +256,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
     result->setSLBClob(buffer3 );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCEEConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCEEConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -287,7 +287,7 @@ int ODTCCEEConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTCCEEConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTCCEEConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
     return m_ID;

@@ -99,7 +99,7 @@ parser.add_option("--runsScenarioForMC",
                   dest="runsScenarioForMC")
 
 parser.add_option("--runUnscheduled",
-                  help="Enable unscheduled mode",
+                  help="Automatically convert configuration to run unscheduled the EDProducers/EDFilters that were scheduled",
                   action="store_true",
                   default=False,
                   dest="runUnscheduled")
@@ -350,6 +350,11 @@ expertSettings.add_option("--era",
                           help="Specify which era to use (e.g. \"run2\")",
                           default=None,
                           dest="era")
+
+expertSettings.add_option("--procModifiers",
+                          help="Specify any process Modifiers to include (in Configuration/ProcessModiers) - comma separated list",
+                          default=None,
+                          dest="procModifiers")
 
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",

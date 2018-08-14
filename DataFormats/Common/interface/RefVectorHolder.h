@@ -20,20 +20,20 @@ namespace edm {
       }
       explicit RefVectorHolder(ProductID const& iId) : RefVectorHolderBase(), refs_(iId) {
       }
-      virtual ~RefVectorHolder() { }
+      ~RefVectorHolder() override { }
       void swap(RefVectorHolder& other);
       RefVectorHolder& operator=(RefVectorHolder const& rhs);
-      virtual bool empty() const;
-      virtual size_type size() const;
-      virtual void clear();
-      virtual void push_back(RefHolderBase const* r);
-      virtual void reserve(size_type n);
-      virtual ProductID id() const;
-      virtual EDProductGetter const* productGetter() const;
-      virtual RefVectorHolder<REFV> * clone() const;
-      virtual RefVectorHolder<REFV> * cloneEmpty() const;
+      bool empty() const override;
+      size_type size() const override;
+      void clear() override;
+      void push_back(RefHolderBase const* r) override;
+      void reserve(size_type n) override;
+      ProductID id() const override;
+      EDProductGetter const* productGetter() const override;
+      RefVectorHolder<REFV> * clone() const override;
+      RefVectorHolder<REFV> * cloneEmpty() const override;
       void setRefs(REFV const& refs);
-      virtual size_t keyForIndex(size_t idx) const;
+      size_t keyForIndex(size_t idx) const override;
 
       //Needed for ROOT storage
       CMS_CLASS_VERSION(10)
@@ -46,25 +46,25 @@ namespace edm {
 	typedef ptrdiff_t difference_type;
 	const_iterator_imp_specific() { }
 	explicit const_iterator_imp_specific(typename REFV::const_iterator const& it) : i (it) { }
-	~const_iterator_imp_specific() { }
-	const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific(i); }
-	void increase() { ++i; }
-	void decrease() { --i; }
-	void increase(difference_type d) { i += d; }
-	void decrease(difference_type d) { i -= d; }
-	bool equal_to(const_iterator_imp const* o) const { return i == dc(o); }
-	bool less_than(const_iterator_imp const* o) const { return i < dc(o); }
-	void assign(const_iterator_imp const* o) { i = dc(o); }
-	std::shared_ptr<RefHolderBase> deref() const;
-	difference_type difference(const_iterator_imp const* o) const { return i - dc(o); }
+	~const_iterator_imp_specific() override { }
+	const_iterator_imp_specific * clone() const override { return new const_iterator_imp_specific(i); }
+	void increase() override { ++i; }
+	void decrease() override { --i; }
+	void increase(difference_type d) override { i += d; }
+	void decrease(difference_type d) override { i -= d; }
+	bool equal_to(const_iterator_imp const* o) const override { return i == dc(o); }
+	bool less_than(const_iterator_imp const* o) const override { return i < dc(o); }
+	void assign(const_iterator_imp const* o) override { i = dc(o); }
+	std::shared_ptr<RefHolderBase> deref() const override;
+	difference_type difference(const_iterator_imp const* o) const override { return i - dc(o); }
       private:
 	typename REFV::const_iterator const& dc(const_iterator_imp const* o) const {
-	  if (o == 0) {
+	  if (o == nullptr) {
 	    Exception::throwThis(errors::InvalidReference,
 	      "In RefVectorHolder trying to dereference a null pointer\n");
 	  }
 	  const_iterator_imp_specific const* oo = dynamic_cast<const_iterator_imp_specific const*>(o);
-	  if (oo == 0) {
+	  if (oo == nullptr) {
 	    Exception::throwThis(errors::InvalidReference,
 	      "In RefVectorHolder trying to cast iterator to wrong type\n");
 	  }
@@ -75,19 +75,19 @@ namespace edm {
 
       typedef typename RefVectorHolderBase::const_iterator const_iterator;
 
-      const_iterator begin() const {
+      const_iterator begin() const override {
 	return const_iterator(new const_iterator_imp_specific(refs_.begin()));
       }
-      const_iterator end() const {
+      const_iterator end() const override {
 	return const_iterator(new const_iterator_imp_specific(refs_.end()));
       }
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const { return refs_.isAvailable(); }
+      bool isAvailable() const override { return refs_.isAvailable(); }
 
     private:
-      virtual std::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const;
+      std::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const override;
       REFV refs_;
     };
 
@@ -190,7 +190,7 @@ namespace edm {
     void RefVectorHolder<REFV>::push_back(RefHolderBase const* h) {
       typedef typename REFV::value_type REF;
       RefHolder<REF> const* rh = dynamic_cast<RefHolder<REF> const*>(h);
-      if(rh == 0) {
+      if(rh == nullptr) {
 	Exception::throwThis(errors::InvalidReference,
 	  "RefVectorHolder: attempting to cast a RefHolderBase "
 	  "to an invalid type.\nExpected: ",

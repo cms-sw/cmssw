@@ -20,10 +20,10 @@ class ParametrisedEMPhysics : public G4VPhysicsConstructor
 public:
 
   ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p);
-  virtual ~ParametrisedEMPhysics();
+  ~ParametrisedEMPhysics() override;
 	
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
 

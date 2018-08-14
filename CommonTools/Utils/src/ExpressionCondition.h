@@ -12,12 +12,13 @@
  */
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
+#include "CommonTools/Utils/src/SelectorStack.h"
 #include "CommonTools/Utils/src/ExpressionStack.h"
 
 namespace reco {
   namespace parser {
     struct ExpressionCondition : public ExpressionBase {
-      virtual double value(const edm::ObjectWithDict& o) const { 
+      double value(const edm::ObjectWithDict& o) const override { 
 	return (*cond_)(o) ? true_->value(o) : false_->value(o);
       }
       ExpressionCondition(ExpressionStack & expStack, SelectorStack & selStack) { 

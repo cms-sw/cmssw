@@ -44,7 +44,7 @@ namespace edm {
   public:
     BasicHandle() :
       product_(),
-      prov_(0) {}
+      prov_(nullptr) {}
 
     BasicHandle(BasicHandle const& h) :
       product_(h.product_),
@@ -61,7 +61,7 @@ namespace edm {
     ///Used when the attempt to get the data failed
     BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed):
     product_(),
-    prov_(0),
+    prov_(nullptr),
     whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() {}

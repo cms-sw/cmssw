@@ -37,8 +37,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
-
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
 #include "TMath.h"

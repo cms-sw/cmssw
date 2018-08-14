@@ -22,7 +22,7 @@ void LMFRunIOV::initialize() {
   m_stringFields["subrun_type"] = "none";
   m_className = "LMFRunIOV";
   
-  _fabric = NULL;
+  _fabric = nullptr;
 }
 
 LMFRunIOV::LMFRunIOV() : LMFUnique()
@@ -48,7 +48,7 @@ LMFRunIOV::LMFRunIOV(const LMFRunIOV &r) {
 
 LMFRunIOV::~LMFRunIOV()
 {
-  if (_fabric != NULL) {
+  if (_fabric != nullptr) {
     delete _fabric;
   }
 }
@@ -85,7 +85,7 @@ LMFRunIOV& LMFRunIOV::setColor(int color_id)
 }
 
 void LMFRunIOV::checkFabric() {
-  if (_fabric == NULL) {
+  if (_fabric == nullptr) {
     _fabric = new LMFDefFabric(m_env, m_conn);
   }
 }
@@ -269,7 +269,7 @@ void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
   setString("subrun_start", dh.dateToTm(start).str());
   Date stop = rset->getDate(7);
   setString("subrun_end", dh.dateToTm(stop).str());
-  setString("subrun_type", rset->getString(8));
+  setString("subrun_type", getOraString(rset,8));
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
   setString("db_timestamp", rset->getTimestamp(9).toText("YYYY-MM-DD HH24:MI:SS", 0));
 #else
@@ -369,7 +369,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par,
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(std::runtime_error(m_className + "::" + method + ": " +
-                             e.getMessage()));
+                             getOraMessage(&e)));
   }
   return l;
 }
@@ -430,7 +430,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s,
 LMFRunIOV& LMFRunIOV::operator=(const LMFRunIOV &r) {
   if (this != &r) {
     LMFUnique::operator=(r);
-    if (r._fabric != NULL) {
+    if (r._fabric != nullptr) {
       checkFabric();//      _fabric = new LMFDefFabric;
       if (m_debug) {
 	_fabric->debug();

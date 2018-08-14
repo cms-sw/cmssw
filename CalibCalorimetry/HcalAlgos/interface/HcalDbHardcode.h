@@ -11,6 +11,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
+#include "CondFormats/HcalObjects/interface/HcalZSThreshold.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEType.h"
@@ -71,29 +72,31 @@ class HcalDbHardcode {
     const bool useHEUpgrade() const { return useHEUpgrade_; }
     const bool useHOUpgrade() const { return useHOUpgrade_; }
     const bool useHFUpgrade() const { return useHFUpgrade_; }
-    const HcalHardcodeParameters& getParameters(HcalGenericDetId fId);
-    const int getGainIndex(HcalGenericDetId fId);
+    const HcalHardcodeParameters& getParameters(HcalGenericDetId fId) const;
+    const int getGainIndex(HcalGenericDetId fId) const;
     const bool killHE() const { return killHE_; }
-    HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear = false);
-    HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId);
-    HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false);
-    HcalGainWidth makeGainWidth (HcalGenericDetId fId);
-    HcalQIECoder makeQIECoder (HcalGenericDetId fId);
-    HcalCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId);
-    HcalQIEShape makeQIEShape ();
-    HcalQIEType makeQIEType (HcalGenericDetId fId);
-    HcalRecoParam makeRecoParam (HcalGenericDetId fId);
-    HcalMCParam makeMCParam (HcalGenericDetId fId);
-    HcalTimingParam makeTimingParam (HcalGenericDetId fId);
-    void makeHardcodeMap(HcalElectronicsMap& emap, const std::vector<HcalGenericDetId>& cells);
-    void makeHardcodeDcsMap(HcalDcsMap& dcs_map);
-    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells);
-    HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo);
-    void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
-    HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
-    void makeHardcodeTPParameters (HcalTPParameters& tppar);
+    HcalPedestal makePedestal (HcalGenericDetId fId, bool fSmear, bool eff, const HcalTopology* topo, double intlumi);
+    HcalPedestalWidth makePedestalWidth (HcalGenericDetId fId, bool eff, const HcalTopology* topo, double intlumi);
+    HcalGain makeGain (HcalGenericDetId fId, bool fSmear = false) const;
+    HcalGainWidth makeGainWidth (HcalGenericDetId fId) const;
+    HcalZSThreshold makeZSThreshold (HcalGenericDetId fId) const;
+    HcalQIECoder makeQIECoder (HcalGenericDetId fId) const;
+    HcalCalibrationQIECoder makeCalibrationQIECoder (HcalGenericDetId fId) const;
+    HcalQIEShape makeQIEShape () const;
+    HcalQIEType makeQIEType (HcalGenericDetId fId) const;
+    HcalRecoParam makeRecoParam (HcalGenericDetId fId) const;
+    HcalMCParam makeMCParam (HcalGenericDetId fId) const;
+    HcalTimingParam makeTimingParam (HcalGenericDetId fId) const;
+    std::unique_ptr<HcalElectronicsMap> makeHardcodeMap(const std::vector<HcalGenericDetId>& cells) const;
+    std::unique_ptr<HcalDcsMap> makeHardcodeDcsMap() const;
+    void makeHardcodeFrontEndMap(HcalFrontEndMap& emap, const std::vector<HcalGenericDetId>& cells) const;
+    std::unique_ptr<HcalFrontEndMap> makeHardcodeFrontEndMap(const std::vector<HcalGenericDetId>& cells) const;
+    HcalSiPMParameter makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo, double intlumi);
+    std::unique_ptr<HcalSiPMCharacteristics> makeHardcodeSiPMCharacteristics () const;
+    HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId) const;
+    void makeHardcodeTPParameters (HcalTPParameters& tppar) const;
     int getLayersInDepth(int ieta, int depth, const HcalTopology* topo);
-    bool isHEPlan1(HcalGenericDetId fId);
+    bool isHEPlan1(HcalGenericDetId fId) const;
     
   private:
     //member variables

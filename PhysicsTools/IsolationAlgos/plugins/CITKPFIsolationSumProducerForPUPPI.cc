@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -28,12 +28,12 @@ namespace citk {
   public:  
     PFIsolationSumProducerForPUPPI(const edm::ParameterSet&);
     
-    virtual ~PFIsolationSumProducerForPUPPI() {}
+    ~PFIsolationSumProducerForPUPPI() override {}
     
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
-			      const edm::EventSetup&) override final;
+    void beginLuminosityBlock(const edm::LuminosityBlock&,
+			      const edm::EventSetup&) final;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+    void produce(edm::Event&, const edm::EventSetup&) final;
 
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     
@@ -72,11 +72,14 @@ namespace citk {
       consumes<CandView>(c.getParameter<edm::InputTag>("srcToIsolate"));
     _isolate_with = 
       consumes<CandView>(c.getParameter<edm::InputTag>("srcForIsolationCone"));
-      if (c.getParameter<edm::InputTag>("puppiValueMap").label().size() != 0) {
+      if (!c.getParameter<edm::InputTag>("puppiValueMap").label().empty()) {
         puppiValueMapToken_ = mayConsume<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
         useValueMapForPUPPI = true;
       }
-      else useValueMapForPUPPI = false;
+      else {
+	useValueMapForPUPPI = false;
+	usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
+      }
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
     for( const auto& isodef : isoDefs ) {
@@ -202,6 +205,8 @@ void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescript
     descIsoConeDefinitions.add<std::vector<unsigned>>("miniAODVertexCodes", {2,3});
     descIsoConeDefinitions.addOptional<double>("VetoConeSizeBarrel", 0.0);
     descIsoConeDefinitions.addOptional<double>("VetoConeSizeEndcaps", 0.0);
+    descIsoConeDefinitions.addOptional<double>("VetoThreshold", 0.0);
+    descIsoConeDefinitions.addOptional<double>("VetoConeSize", 0.0);
     descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
     descIsoConeDefinitions.addOptional<edm::InputTag>("particleBasedIsolation",edm::InputTag("no default"))->setComment("map for footprint removal that is used for photons");
 
@@ -212,7 +217,7 @@ void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescript
     isolationConeDefinitions.push_back(neutralHadrons);
     isolationConeDefinitions.push_back(photons);
     iDesc.addVPSet("isolationConeDefinitions", descIsoConeDefinitions, isolationConeDefinitions);
-    iDesc.addOptional<bool>("usePUPPINoLepton",false);
+    iDesc.add<bool>("usePUPPINoLepton",false);
 
     descriptions.add("CITKPFIsolationSumProducerForPUPPI", iDesc);
 }

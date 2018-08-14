@@ -14,7 +14,7 @@ using namespace oracle::occi;
 
 DCSPTMTempList::DCSPTMTempList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 DCSPTMTempList::~DCSPTMTempList()
@@ -87,7 +87,7 @@ void DCSPTMTempList::fetchValuesForECID(const EcalLogicID& ecid)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCSPTMTempList:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCSPTMTempList:  ")+getOraMessage(&e)));
   }
 
 
@@ -163,7 +163,7 @@ void DCSPTMTempList::fetchValuesForECIDAndTime(const EcalLogicID& ecid, const Tm
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCSPTMTempList:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCSPTMTempList:  ")+getOraMessage(&e)));
   }
 
 

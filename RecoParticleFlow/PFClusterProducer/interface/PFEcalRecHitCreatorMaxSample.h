@@ -33,7 +33,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     }
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       beginEvent(iEvent,iSetup);
 
@@ -46,7 +46,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       const CaloSubdetectorGeometry *gTmp = 
 	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
 
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const Geometry *ecalGeo = dynamic_cast<const Geometry*>(gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
@@ -54,7 +54,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	auto energy = erh.energy();
 	auto time = erh.time();
 
-	const CaloCellGeometry *thisCell= ecalGeo->getGeometry(detid);
+	std::shared_ptr<const CaloCellGeometry> thisCell= ecalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
@@ -71,10 +71,11 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
 	bool rcleaned = false;
 	bool keep=true;
+        bool hi = true; // this is std version for which the PF ZS is always applied
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}

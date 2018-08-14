@@ -116,7 +116,7 @@ namespace jpt {
     
   private:
     
-    Efficiency();
+    Efficiency() = delete;
 
     double sumE( uint32_t eta_bin, uint32_t pt_bin ) const;
     double meanE( uint32_t eta_bin, uint32_t pt_bin ) const;

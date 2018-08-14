@@ -11,9 +11,9 @@
 #include "TRandom.h"
 
 #include <TF1.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <TProfile.h>
 #include <TProfile2D.h>
 
@@ -155,7 +155,7 @@ TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore::IGetter &igetter)
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
-    return NULL;
+    return nullptr;
   }
 
   return me_->getTH1F();
@@ -169,7 +169,7 @@ TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore::IGetter &igetter)
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
-    return NULL;
+    return nullptr;
   }
 
   return me_->getTH2F();
@@ -185,7 +185,7 @@ TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore::IGetter &iget
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
-    return NULL;
+    return nullptr;
   }
 
   return me_->getTProfile2D();
@@ -200,7 +200,7 @@ TProfile * L1TDTTPGClient::get1DProfile(string meName, DQMStore::IGetter &igette
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
-    return NULL;
+    return nullptr;
   }
 
   return me_->getTProfile();

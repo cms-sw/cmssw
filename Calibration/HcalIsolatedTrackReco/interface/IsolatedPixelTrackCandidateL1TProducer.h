@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -46,11 +47,12 @@ class IsolatedPixelTrackCandidateL1TProducer : public edm::stream::EDProducer<> 
 public:
 
   IsolatedPixelTrackCandidateL1TProducer (const edm::ParameterSet& ps);
-  ~IsolatedPixelTrackCandidateL1TProducer();
-  
+  ~IsolatedPixelTrackCandidateL1TProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
   
   double getDistInCM(double eta1, double phi1, double eta2, double phi2);
   std::pair<double, double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);

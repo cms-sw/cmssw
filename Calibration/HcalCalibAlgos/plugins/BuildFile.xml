@@ -10,7 +10,6 @@
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
-<use   name="DataFormats/Math"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="FWCore/Framework"/>
@@ -18,10 +17,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/Records"/>
-<use   name="Geometry/CaloGeometry"/>
 <use   name="JetMETCorrections/Objects"/>
 <use   name="JetMETCorrections/Type1MET"/>
-<use   name="Geometry/CaloTopology"/>
 <use   name="CondTools/Hcal"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="Calibration/IsolatedParticles"/>

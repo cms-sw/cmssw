@@ -12,7 +12,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
-
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 
 // ------------------------------------------------------------------------------------------
@@ -20,7 +23,7 @@ class PuppiProducer : public edm::stream::EDProducer<> {
 
 public:
 	explicit PuppiProducer(const edm::ParameterSet&);
-	~PuppiProducer();
+	~PuppiProducer() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	typedef math::XYZTLorentzVector LorentzVector;
@@ -34,7 +37,7 @@ public:
 
 private:
 	virtual void beginJob() ;
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
 	virtual void endJob() ;
       
 	edm::EDGetTokenT< CandidateView > tokenPFCandidates_;
@@ -46,6 +49,7 @@ private:
 	bool 			fPuppiForLeptons;
 	bool            fUseDZ;
 	float           fDZCut;
+	float           fPtMax;
 	bool fUseExistingWeights;
 	bool fUseWeightsNoLep;
 	bool fClonePackedCands;

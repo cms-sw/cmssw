@@ -42,12 +42,12 @@ Description: Producer for ScoutingPFJets from reco::PFJet objects, ScoutingVerte
 class HLTScoutingPFProducer : public edm::global::EDProducer<> {
     public:
         explicit HLTScoutingPFProducer(const edm::ParameterSet&);
-        ~HLTScoutingPFProducer();
+        ~HLTScoutingPFProducer() override;
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     private:
-        virtual void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const override final;
+        void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const final;
 
         const edm::EDGetTokenT<reco::PFJetCollection> pfJetCollection_;
         const edm::EDGetTokenT<reco::JetTagCollection> pfJetTagCollection_;
@@ -90,8 +90,7 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet& iConfig):
     produces<double>("pfMetPhi");
 }
 
-HLTScoutingPFProducer::~HLTScoutingPFProducer()
-{ }
+HLTScoutingPFProducer::~HLTScoutingPFProducer() = default;
 
 // ------------ method called to produce the data  ------------
 void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const
@@ -239,5 +238,5 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     descriptions.add("hltScoutingPFProducer", desc);
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTScoutingPFProducer);

@@ -25,7 +25,7 @@ class QTestConfigurationParser : public DQMParserBase {
 	 ///Creator
 	 QTestConfigurationParser();
 	 ///Destructor
-	 ~QTestConfigurationParser();
+	 ~QTestConfigurationParser() override;
 	 ///Methor that parses the xml file configFile, returns false if no errors are encountered
 	 bool parseQTestsConfiguration();
 	 /// Returns the Quality Tests list with their parameters obtained from the xml file

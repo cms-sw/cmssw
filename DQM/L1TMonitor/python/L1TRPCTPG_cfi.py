@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1trpctpg = cms.EDAnalyzer("L1TRPCTPG",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1trpctpg = DQMEDAnalyzer('L1TRPCTPG',
     disableROOToutput = cms.untracked.bool(True),
     rpctpgSource = cms.InputTag("rpcunpacker"),
     rpctfSource = cms.InputTag("l1GtUnpack"),

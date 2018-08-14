@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-pfClient = cms.EDAnalyzer("PFClient",
+pfClient = DQMEDHarvester("PFClient",
                           FolderNames = cms.vstring("PFJet/CompWithGenJet","PFJet/CompWithCaloJet"),
                           HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_"),
                           CreateEfficiencyPlots = cms.bool(False),
@@ -11,7 +12,7 @@ pfClient = cms.EDAnalyzer("PFClient",
                           )
 
 # need a different Client to store the slices  
-pfClient_JetRes = cms.EDAnalyzer("PFClient_JetRes",
+pfClientJetRes = DQMEDHarvester("PFClient_JetRes",
                                   FolderNames = cms.vstring("PFJet/CompWithGenJet","PFJet/CompWithCaloJet"),
                                   HistogramNames = cms.vstring( "delta_et_Over_et_VS_et_"),
                                   CreateEfficiencyPlots = cms.bool(False),

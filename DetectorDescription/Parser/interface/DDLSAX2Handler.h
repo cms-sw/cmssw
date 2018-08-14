@@ -1,5 +1,5 @@
-#ifndef DETECTORDESCRIPTION_PARSER_DDLSAX2HANDLER_H
-#define DETECTORDESCRIPTION_PARSER_DDLSAX2HANDLER_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_HANDLER_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_HANDLER_H
 
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
@@ -27,11 +27,11 @@
 class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
  public:
-  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
-  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
+  using Attributes = XERCES_CPP_NAMESPACE::Attributes;
+  using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
 
   DDLSAX2Handler();
-  ~DDLSAX2Handler();
+  ~DDLSAX2Handler() override;
 
   /// Get the count of elements processed so far.
   unsigned int getElementCount() const
@@ -63,21 +63,21 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
 
-  virtual void startElement(const XMLCh* const uri, const XMLCh* const localname,
-			    const XMLCh* const qname, const Attributes& attrs) override;
-  virtual void endElement(const XMLCh* const uri, const XMLCh* const localname,
-			  const XMLCh* const qname) override;
-  virtual void characters(const XMLCh* const chars, const XMLSize_t length) override;
-  virtual void comment (const XMLCh *const chars, const XMLSize_t length ) override;
-  virtual void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length) override;
-  virtual void resetDocument() override;
+  void startElement( const XMLCh* uri, const XMLCh* localname,
+		     const XMLCh* qname, const Attributes& attrs ) override;
+  void endElement( const XMLCh* uri, const XMLCh* localname,
+		   const XMLCh* qname ) override;
+  void characters( const XMLCh* chars, XMLSize_t length ) override;
+  void comment( const XMLCh* chars, XMLSize_t length ) override;
+  void ignorableWhitespace( const XMLCh* chars, XMLSize_t length ) override;
+  void resetDocument() override;
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ErrorHandler interface
   // -----------------------------------------------------------------------
-  virtual void warning(const SAXParseException& exception) override;
-  virtual void error(const SAXParseException& exception) override;
-  virtual void fatalError(const SAXParseException& exception) override;
+  void warning(const SAXParseException& exception) override;
+  void error(const SAXParseException& exception) override;
+  void fatalError(const SAXParseException& exception) override;
   virtual void dumpStats(const std::string& fname);
   
  protected:

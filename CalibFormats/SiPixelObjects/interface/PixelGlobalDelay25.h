@@ -29,7 +29,7 @@ namespace pos{
 
     PixelGlobalDelay25(std::string filename);                         // create from file
     PixelGlobalDelay25(std::vector<std::vector<std::string> > & tab); // create from DB
-    virtual ~PixelGlobalDelay25(); 
+    ~PixelGlobalDelay25() override; 
 
     unsigned int getDelay(      unsigned int offset=0) const; // delays in steps of 0.499 ns (Delay25 step)
     unsigned int getCyclicDelay(unsigned int offset=0) const; // delays in steps of 0.499 ns (Delay25 step)
@@ -38,22 +38,22 @@ namespace pos{
                                         		      // but assumes that the default TTCrx delay is 0 ns
     virtual void setDelay(      unsigned int delay) {delay_ = delay ;}
 
-    virtual void writeASCII(std::string dir) const;
+    void writeASCII(std::string dir) const override;
     //    void 	 writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const ;
-    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
+    void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
-    virtual void writeXML(        std::ofstream *out,					   	 	    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL )  const ;
-    virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
-				  ) const ;
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
+				  ) const override ;
+    void writeXML(        std::ofstream *out,					   	 	    
+			   	  std::ofstream *out1 = nullptr ,
+			   	  std::ofstream *out2 = nullptr )  const override ;
+    void writeXMLTrailer( std::ofstream *out, 
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
+				  ) const override ;
 
   private:
     unsigned int delay_;

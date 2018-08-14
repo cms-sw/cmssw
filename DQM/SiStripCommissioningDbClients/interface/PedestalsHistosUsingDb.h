@@ -13,21 +13,23 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
                           DQMStore*,
                           SiStripConfigDb* const );
   
-  virtual ~PedestalsHistosUsingDb();
+  ~PedestalsHistosUsingDb() override;
   
-  virtual void uploadConfigurations();
+  void uploadConfigurations() override;
   
  private:
 
   void update( SiStripConfigDb::FedDescriptionsRange );
 
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
   // parameters
   float highThreshold_;
   float lowThreshold_;
   bool disableBadStrips_;
   bool keepStripsDisabled_;
+  // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                          
+  bool allowSelectiveUpload_;
 
 };
 

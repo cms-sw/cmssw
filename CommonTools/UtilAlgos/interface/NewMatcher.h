@@ -24,7 +24,7 @@ namespace reco {
     class Matcher : public edm::EDProducer {
     public:
       Matcher(const edm::ParameterSet & cfg);
-      ~Matcher();
+      ~Matcher() override;
     private:
       typedef typename C1::value_type T1;
       typedef typename C2::value_type T2;
@@ -90,7 +90,7 @@ namespace reco {
 	      if (dist < distMin_) v.push_back(make_pair(m, dist));
 	    }
 	  }
-	  if(v.size() > 0) {
+	  if(!v.empty()) {
 	    size_t idx = master.index(c);
 	    assert(idx < indices.size());
 	    indices[idx] = min_element(v.begin(), v.end(), helper::SortBySecond())->first;

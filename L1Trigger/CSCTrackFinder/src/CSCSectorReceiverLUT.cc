@@ -1,13 +1,12 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeomManager.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCFrontRearLUT.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -19,7 +18,7 @@
 #include <fstream>
 #include <cstring>
 
-lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
+lclphidat* CSCSectorReceiverLUT::me_lcl_phi = nullptr;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
 
@@ -32,9 +31,9 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
   useMiniLUTs = pset.getUntrackedParameter<bool>("UseMiniLUTs", true);
   isBinary = pset.getUntrackedParameter<bool>("Binary",false);
 
-  me_global_eta = NULL;
-  me_global_phi = NULL;
-  mb_global_phi = NULL;
+  me_global_eta = nullptr;
+  me_global_phi = nullptr;
+  mb_global_phi = nullptr;
   if(LUTsFromFile && !useMiniLUTs)
     {
       me_lcl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("LocalPhiLUT", edm::FileInPath(std::string("L1Trigger/CSCTrackFinder/LUTs/LocalPhiLUT"
@@ -70,19 +69,19 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_end
       mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
       memcpy(mb_global_phi, lut.mb_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
     }
-  else mb_global_phi = NULL;
+  else mb_global_phi = nullptr;
   if(lut.me_global_phi)
     {
       me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
       memcpy(me_global_phi, lut.me_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
     }
-  else me_global_phi = NULL;
+  else me_global_phi = nullptr;
   if(lut.me_global_eta)
     {
       me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
       memcpy(me_global_eta, lut.me_global_eta, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(gbletadat));
     }
-  else me_global_eta = NULL;
+  else me_global_eta = nullptr;
 }
 
 CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT& lut)
@@ -105,21 +104,21 @@ CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT
 	  mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	  memcpy(mb_global_phi, lut.mb_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
 	}
-      else mb_global_phi = NULL;
+      else mb_global_phi = nullptr;
 
       if(lut.me_global_phi)
 	{
 	  me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	  memcpy(me_global_phi, lut.me_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
 	}
-      else me_global_phi = NULL;
+      else me_global_phi = nullptr;
 
       if(lut.me_global_eta)
 	{
 	  me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
 	  memcpy(me_global_eta, lut.me_global_eta, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(gbletadat));
 	}
-      else me_global_eta = NULL;
+      else me_global_eta = nullptr;
     }
   return *this;
 }
@@ -129,23 +128,23 @@ CSCSectorReceiverLUT::~CSCSectorReceiverLUT()
   if(me_lcl_phi_loaded)
     {
       delete me_lcl_phi;
-      me_lcl_phi = NULL;
+      me_lcl_phi = nullptr;
       me_lcl_phi_loaded = false;
     }
   if(me_global_eta)
     {
       delete me_global_eta;
-      me_global_eta = NULL;
+      me_global_eta = nullptr;
     }
   if(me_global_phi)
     {
       delete me_global_phi;
-      me_global_phi = NULL;
+      me_global_phi = nullptr;
     }
   if(mb_global_phi)
     {
       delete mb_global_phi;
-      mb_global_phi = NULL;
+      mb_global_phi = nullptr;
     }
 }
 
@@ -155,8 +154,6 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
 
   constexpr int maxPhiL = 1<<CSCBitWidths::kLocalPhiDataBitWidth;
   double binPhiL = static_cast<double>(maxPhiL)/(2.*CSCConstants::MAX_NUM_STRIPS);
-
-  memset(&data,0,sizeof(lclphidat));
 
   double patternOffset;
 
@@ -221,7 +218,7 @@ lclphidat CSCSectorReceiverLUT::localPhi(unsigned address, const bool gangedME1a
 {
   lclphidat result;
   lclphiadd theadd(address);
-  
+
   if(useMiniLUTs && isTMB07)
     {
       result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address, gangedME1a);
@@ -238,7 +235,7 @@ lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address, const bool gangedME1
 
   if(useMiniLUTs && isTMB07)
     {
-      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint(), gangedME1a); 
+      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint(), gangedME1a);
     }
   else if(LUTsFromFile) result = me_lcl_phi[address.toint()];
   else result = calcLocalPhi(address);
@@ -273,10 +270,9 @@ double CSCSectorReceiverLUT::getGlobalPhiValue(const CSCLayer* thelayer, const u
 gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 {
   gblphidat result(0);
-  CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
-  CSCChamber* thechamber = NULL;
-  const CSCLayer* thelayer = NULL;
-  const CSCLayerGeometry* layergeom = NULL;
+  const CSCChamber* thechamber = nullptr;
+  const CSCLayer* thelayer = nullptr;
+  const CSCLayerGeometry* layergeom = nullptr;
   int cscid = address.cscid;
   unsigned wire_group = address.wire_group;
   unsigned local_phi = address.phi_local;
@@ -336,7 +332,10 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
   try
     {
-      thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      int ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid);
+      int chid = CSCTriggerNumbering::chamberFromTriggerLabels(_sector, _subsector, _station, cscid);
+      CSCDetId detid(_endcap, _station, ring, chid, 0);
+      thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
       if(thechamber)
 	{
 	  if(isTMB07)
@@ -576,7 +575,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cs
 
   // comment for now
   //  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
-  //else 
+  //else
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
@@ -589,7 +588,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address, const  bool ganged
   gblphiadd theadd(address);
 
   //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address);
-  //else 
+  //else
   if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
@@ -601,7 +600,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(gblphiadd address, const  bool gange
   gblphidat result;
 
   //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
-  //else 
+  //else
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
@@ -628,8 +627,7 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
       cscid = CSCTriggerNumbering::maxTriggerCscId();
     }
 
-  CSCTriggerGeomManager* thegeom = CSCTriggerGeometry::get();
-  CSCLayerGeometry* layerGeom = NULL;
+  CSCLayerGeometry* layerGeom = nullptr;
   const unsigned numBins = 1 << 2; // 4 local phi bins
 
   if(phi_local > numBins - 1) {
@@ -640,7 +638,10 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
   }
   try
     {
-      const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      int ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid);
+      int chid = CSCTriggerNumbering::chamberFromTriggerLabels(_sector, _subsector, _station, cscid);
+      CSCDetId detid(_endcap, _station, ring, chid, 0);
+      const CSCChamber* thechamber = const_cast<const CSCChamber*>(csc_g->chamber(detid));
       if(thechamber) {
 	layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
 	const unsigned nWireGroups = layerGeom->numberOfWireGroups();
@@ -841,7 +842,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!me_lcl_phi_loaded)
     {
       me_lcl_phi = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
-      memset(me_lcl_phi, 0, (1<<CSCBitWidths::kLocalPhiAddressWidth)*sizeof(short));
       std::string fName(me_lcl_phi_file.fullPath());
       std::ifstream LocalPhiLUT;
 
@@ -878,7 +878,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!me_global_phi)
     {
       me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-      memset(me_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
       std::string fName = me_gbl_phi_file.fullPath();
       std::ifstream GlobalPhiLUT;
 
@@ -914,7 +913,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!mb_global_phi && _station == 1) // MB lut only in station one.
     {
       mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-      memset(mb_global_phi, 0, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(short));
       std::string fName = mb_gbl_phi_file.fullPath();
       std::ifstream GlobalPhiLUT;
 
@@ -950,7 +948,6 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
   if(!me_global_eta)
     {
       me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
-      memset(me_global_eta, 0, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(short));
       std::string fName = me_gbl_eta_file.fullPath();
       std::ifstream GlobalEtaLUT;
 

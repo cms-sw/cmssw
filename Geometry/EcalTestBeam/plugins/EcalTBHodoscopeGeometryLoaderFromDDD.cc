@@ -14,21 +14,23 @@
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
 #include <iostream>
+#include <utility>
 #include <vector>
+#include <memory>
 
-std::auto_ptr<CaloSubdetectorGeometry> 
+std::unique_ptr<CaloSubdetectorGeometry> 
 EcalTBHodoscopeGeometryLoaderFromDDD::load( const DDCompactView* cpv ) 
 {
    std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope" << std::endl;
 
-   std::auto_ptr<CaloSubdetectorGeometry> ebg
+   std::unique_ptr<CaloSubdetectorGeometry> ebg
       ( new EcalTBHodoscopeGeometry() ) ;
 
    makeGeometry( cpv, ebg.get() ) ;
 
    std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry" << std::endl;
 
-   return ebg;
+   return std::move(ebg);
 }
 
 void 
@@ -36,13 +38,12 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
    const DDCompactView*     cpv ,
    CaloSubdetectorGeometry* ebg  )
 {
-   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
-   if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
+   if( ebg->cornersMgr() == nullptr ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
+   if( ebg->parMgr()     == nullptr ) ebg->allocatePar( 10, 3 ) ;
   
-   DDFilter* filter = getDDFilter();
+   std::unique_ptr<DDFilter> filter{getDDFilter()};
 
-   DDFilteredView fv(*cpv);
-   fv.addFilter(*filter);
+   DDFilteredView fv(*cpv,*filter);
   
    bool doSubDets;
    for (doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling())
@@ -56,7 +57,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
       
       const DDSolid & solid = fv.logicalPart().solid();
 
-      if( solid.shape() != ddbox ) 
+      if( solid.shape() != DDSolidShape::ddbox ) 
       {
 	 throw cms::Exception("DDException") << std::string(__FILE__) 
 			    << "\n CaloGeometryEcalTBHodoscope::upDate(...): currently only box fiber shapes supported ";
@@ -90,9 +91,9 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
       vv.reserve( pv.size() + 1 ) ;
       for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
       {
-	 vv.push_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
+	 vv.emplace_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
       }
-      vv.push_back( 0. ) ; // tilt=0 here
+      vv.emplace_back( 0. ) ; // tilt=0 here
       const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
 							 ebg->parMgr(), 
 							 ebg->parVecVec() ) ) ;
@@ -131,22 +132,12 @@ EcalTBHodoscopeGeometryLoaderFromDDD::getDetIdForDDDNode(
 
 DDFilter* EcalTBHodoscopeGeometryLoaderFromDDD::getDDFilter()
 {
-   DDSpecificsFilter *filter = new DDSpecificsFilter();
-
-   filter->setCriteria( DDValue( "SensitiveDetector",
-				 "EcalTBH4BeamDetector",
-				 0 ),
-			DDCompOp::equals,
-			DDLogOp::AND,
-			true,
-			true ) ;
-
-   filter->setCriteria( DDValue( "ReadOutName",
-				 "EcalTBH4BeamHits",
-				 0 ),
-			DDCompOp::equals,
-			DDLogOp::AND,
-			true,
-			true ) ;
-   return filter;
+   return new DDAndFilter<DDSpecificsMatchesValueFilter,
+                          DDSpecificsMatchesValueFilter>(
+                             DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
+                                                                    "EcalTBH4BeamDetector",
+                                                                    0 )},
+                             DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
+                                                                    "EcalTBH4BeamHits",
+                                                                    0 )});
 }

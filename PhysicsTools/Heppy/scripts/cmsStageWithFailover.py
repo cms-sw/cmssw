@@ -2,6 +2,7 @@
 
 #this script runs cmsStage multiple times in the case where it failes for some reason
 
+from __future__ import print_function
 if __name__ == '__main__':
 
     import PhysicsTools.HeppyCore.utils.eostools as eostools
@@ -17,7 +18,7 @@ if __name__ == '__main__':
     (args, debug, force ) = parseOpts( argv )
 
     if not os.path.isfile(args[0]):
-        print args[0], 'does not exist.'
+        print(args[0], 'does not exist.')
         sys.exit(1)
     source = cmsFile( args[0], "rfio" )
     destination = cmsFile( args[1], "stageout" )
@@ -37,11 +38,11 @@ if __name__ == '__main__':
 
         try:
             #run cmsStage
-            print 'cmsStage %s [%d/5]' % (' '.join(argv) , i+1)
+            print('cmsStage %s [%d/5]' % (' '.join(argv) , i+1))
             main(argv)
 
         except SystemExit as e:
-            print "cmsStage exited with code '%s'. Retrying... [%d/5]" % ( str(e), i+1 )
+            print("cmsStage exited with code '%s'. Retrying... [%d/5]" % ( str(e), i+1 ))
             return_code = e.code
         
         #sleep again before checking

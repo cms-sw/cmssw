@@ -8,10 +8,10 @@
 namespace edm {
 
   LuminosityBlockForOutput::LuminosityBlockForOutput(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                                   ModuleCallingContext const* moduleCallingContext) :
-        OccurrenceForOutput(lbp, md, moduleCallingContext),
+                                   ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        OccurrenceForOutput(lbp, md, moduleCallingContext, isAtEnd),
         aux_(lbp.aux()),
-        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext)) {
+        run_(new RunForOutput(lbp.runPrincipal(), md, moduleCallingContext, false)) {
   }
 
   LuminosityBlockForOutput::~LuminosityBlockForOutput() {
@@ -21,4 +21,11 @@ namespace edm {
   LuminosityBlockForOutput::luminosityBlockPrincipal() const {
     return dynamic_cast<LuminosityBlockPrincipal const&>(principal());
   }
+  
+  /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
+   */
+  LuminosityBlockIndex LuminosityBlockForOutput::index() const {
+    return luminosityBlockPrincipal().index();
+  }
+
 }

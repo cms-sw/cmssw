@@ -720,7 +720,7 @@ void TauValidation::photons(const reco::GenParticle* tau, double weight){
   std::vector<const reco::GenParticle*> ListofBrem; ListofBrem.clear();
   std::vector<const reco::GenParticle*> FSR_photos; FSR_photos.clear();
   double BosonScale(1);
-  if(TauList.size()>0){
+  if(!TauList.empty()){
     TauValidation::findFSRandBrem(TauList.at(0),passedW,ListofFSR,ListofBrem);
     TauValidation::FindPhotosFSR(TauList.at(0),FSR_photos,BosonScale);
 

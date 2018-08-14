@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODPedestalOffsetsDat::ODPedestalOffsetsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_sm = 0;
   m_fed = 0;
@@ -41,7 +41,7 @@ void ODPedestalOffsetsDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, cry_id, low, mid, high) "
 			"VALUES (:1, :2, :3, :4, :5, :6, :7, :8 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODPedestalOffsetsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -64,7 +64,7 @@ void ODPedestalOffsetsDat::writeDB(const ODPedestalOffsetsDat* item, ODFEPedesta
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODPedestalOffsetsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -105,7 +105,7 @@ void ODPedestalOffsetsDat::fetchData(std::vector< ODPedestalOffsetsDat >* p, ODF
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODPedestalOffsetsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -200,6 +200,6 @@ void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat 
     delete [] z1_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODPedestalOffsetsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODPedestalOffsetsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

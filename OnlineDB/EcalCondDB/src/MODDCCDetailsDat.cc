@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 MODDCCDetailsDat::MODDCCDetailsDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
    m_qpll=0;
    m_opto=0;
@@ -52,7 +52,7 @@ void MODDCCDetailsDat::prepareWrite()
 			" VALUES (:iov_id, :logic_id, "
 			" :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 ) ");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODDCCDetailsDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODDCCDetailsDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -88,7 +88,7 @@ void MODDCCDetailsDat::writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODDCCDetailsDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODDCCDetailsDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -120,12 +120,12 @@ void MODDCCDetailsDat::fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fill
     std::pair< EcalLogicID, MODDCCDetailsDat > p;
     MODDCCDetailsDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setQPLL( rset->getInt(7) );
       dat.setOpticalLink( rset->getInt(8) );
@@ -144,7 +144,7 @@ void MODDCCDetailsDat::fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODDCCDetailsDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODDCCDetailsDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -300,6 +300,6 @@ void MODDCCDetailsDat::writeArrayDB(const std::map< EcalLogicID, MODDCCDetailsDa
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

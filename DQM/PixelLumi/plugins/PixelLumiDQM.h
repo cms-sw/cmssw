@@ -38,7 +38,7 @@ class ConfigurationDescriptions;
 class PixelLumiDQM : public DQMEDAnalyzer {
 public:
   explicit PixelLumiDQM(const edm::ParameterSet&);
-  ~PixelLumiDQM();
+  ~PixelLumiDQM() override;
   static constexpr double FREQ_ORBIT = 11245.5;
   static constexpr double SECONDS_PER_LS = double(0x40000)/double(FREQ_ORBIT);
 
@@ -55,13 +55,13 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
                                     edm::EventSetup const&) override;
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+  void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&) override;
 
   // This is a kludge method to infer the filled bunches from the cluster count;  
@@ -73,8 +73,10 @@ private:
   // ---------- Member data ----------
 
   // Hard-coded numbers of layers and disks...
-  static size_t const kNumLayers = 3;
-  static size_t const kNumDisks = 2;
+  static constexpr size_t kNumLayers = 5;
+  static constexpr size_t kNumDisks = 12;
+  static constexpr size_t kOffsetLayers = 0;
+  static constexpr size_t kOffsetDisks = 4;
 
   class PixelClusterCount {
     // B for barrel, F for forwared, M for minus, P for plus side, 

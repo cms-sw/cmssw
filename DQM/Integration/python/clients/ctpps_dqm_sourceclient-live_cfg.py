@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DQM")
+process = cms.Process('CTPPSDQM', eras.Run2_2018)
 
 test = False
 
@@ -12,14 +13,13 @@ else:
   # for testing in lxplus
   process.load("DQM.Integration.config.fileinputsource_cfi")
   process.source.fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/j/jkaspar/public/run273062_ls0001-2_stream.root',
+    #'root://eostotem.cern.ch//eos/totem/user/j/jkaspar/04C8034A-9626-E611-9B6E-02163E011F93.root'
     '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
   )
   process.source.inputCommands = cms.untracked.vstring(
     'drop *',
     'keep FEDRawDataCollection_*_*_*'
   )
-
 
 # DQM environment
 process.load("DQM.Integration.config.environment_cfi")
@@ -43,20 +43,26 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
+# loading Meta tags used by commonDQM
+process.load('EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi')
+process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
+
+
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 # DQM Modules
-process.load("DQM.CTPPS.totemDQM_cff")
+process.load("DQM.CTPPS.ctppsDQM_cff")
 
 # processing path
 process.recoStep = cms.Sequence(
   process.ctppsRawToDigi *
+  process.onlineMetaDataDigis *
   process.recoCTPPS
 )
 
 process.dqmModules = cms.Sequence(
-  process.totemDQM +
+  process.ctppsDQM +
   process.dqmEnv +
   process.dqmSaver
 )

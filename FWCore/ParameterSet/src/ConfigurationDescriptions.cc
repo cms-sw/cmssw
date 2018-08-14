@@ -12,15 +12,16 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
+#include "FWCore/ParameterSet/interface/defaultModuleLabel.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "boost/bind.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
+#include <cerrno>
 #include <cstring>
 
 namespace {
@@ -39,8 +40,9 @@ static const char* const k_source = "source";
 
 namespace edm {
 
-  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType) :
+  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType, std::string const& pluginName) :
     baseType_(baseType),
+    pluginName_(pluginName),
     defaultDescDefined_(false)
   { }
 
@@ -70,14 +72,14 @@ namespace edm {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, when adding a ParameterSetDescription for a source the label must be \"source\"\n");
       }
-      if (descriptions_.size() != 0U ||
+      if (!descriptions_.empty() ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, for a source only 1 ParameterSetDescription may be added\n");
       }
     }
     else if (0==strcmp(baseType_.c_str(),kService)) {
-      if (descriptions_.size() != 0U ||
+      if (!descriptions_.empty() ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::add, for a service only 1 ParameterSetDescription may be added\n");
@@ -96,10 +98,25 @@ namespace edm {
   }
 
   void
+  ConfigurationDescriptions::addWithDefaultLabel(ParameterSetDescription const& psetDescription) {
+    std::string label;
+    if(kService == baseType_) {
+      label = pluginName_;
+    }
+    else if(kSource == baseType_) {
+      label = "source";
+    }
+    else {
+      label = defaultModuleLabel(pluginName_);
+    }
+    add(label, psetDescription);
+  }
+
+  void
   ConfigurationDescriptions::addDefault(ParameterSetDescription const& psetDescription) {
 
     if (0==strcmp(baseType_.c_str(),kSource) || 0==strcmp(baseType_.c_str(),kService)) {
-      if (descriptions_.size() != 0U ||
+      if (!descriptions_.empty() ||
           defaultDescDefined_ == true) {
         throw edm::Exception(edm::errors::LogicError,
           "ConfigurationDescriptions::addDefault, for a source or service only 1 ParameterSetDescription may be added\n");
@@ -116,7 +133,7 @@ namespace edm {
     if (defaultDescDefined_) {
       return &defaultDesc_;
     }
-    return 0;
+    return nullptr;
   }
   
   ConfigurationDescriptions::iterator 
@@ -130,14 +147,14 @@ namespace edm {
   ConfigurationDescriptions::validate(ParameterSet & pset,
                                       std::string const& moduleLabel) const {
     
-    ParameterSetDescription const* psetDesc = 0;
+    ParameterSetDescription const* psetDesc = nullptr;
     for_all(descriptions_, std::bind(&matchLabel,
                                        std::placeholders::_1,
                                        std::cref(moduleLabel),
                                        std::ref(psetDesc)));
 
     // If there is a matching label
-    if (psetDesc != 0) {
+    if (psetDesc != nullptr) {
       psetDesc->validate(pset);
     }
     // Is there an explicit description to be used for a non standard label
@@ -145,7 +162,7 @@ namespace edm {
       defaultDesc_.validate(pset);
     }
     // Otherwise use the first one.
-    else if (descriptions_.size() > 0U) {
+    else if (!descriptions_.empty()) {
       descriptions_[0].second.validate(pset);
     }
     // It is possible for no descriptions to be defined and no validation occurs
@@ -153,25 +170,26 @@ namespace edm {
   }
 
   void
-  ConfigurationDescriptions::writeCfis(std::string const& baseType,
-                                       std::string const& pluginName) const {
+  ConfigurationDescriptions::writeCfis(std::set<std::string>& usedCfiFileNames) const {
 
     for_all(descriptions_, std::bind(&ConfigurationDescriptions::writeCfiForLabel,
                                        std::placeholders::_1,
-                                       std::cref(baseType),
-                                       std::cref(pluginName)));
+                                       std::cref(baseType_),
+                                       std::cref(pluginName_),
+                                       std::ref(usedCfiFileNames)));
   }
 
 
   void
   ConfigurationDescriptions::writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                                               std::string const& baseType,
-                                              std::string const& pluginName)
+                                              std::string const& pluginName,
+                                              std::set<std::string>& usedCfiFileNames)
   {
     if (0 == strcmp(baseType.c_str(),kService) && labelAndDesc.first != pluginName) {
       throw edm::Exception(edm::errors::LogicError,
         "ConfigurationDescriptions::writeCfiForLabel\nFor a service the label and the plugin name must be the same.\n")
-        << "This error probably is caused by an incorrect label being passed\nto the ConfigurationDescriptions::add function earlier.\n"
+        << "This error is probably caused by an incorrect label being passed\nto the ConfigurationDescriptions::add function earlier.\n"
         << "plugin name = \"" << pluginName << "\"  label name = \"" << labelAndDesc.first << "\"\n";
     }
 
@@ -182,8 +200,40 @@ namespace edm {
     else {
       cfi_filename = labelAndDesc.first + "_cfi.py";
     }
+    if (!usedCfiFileNames.insert(cfi_filename).second) {
+      edm::Exception ex(edm::errors::LogicError,
+                        "Two cfi files are being generated with the same name in the same directory.\n");
+      ex << "The cfi file name is '" << cfi_filename << "' and\n"
+         << "the module label is \'" << labelAndDesc.first << "\'.\n"
+         << "This error is probably caused by an error in one or more fillDescriptions functions\n"
+         << "where duplicate module labels are being passed to the ConfigurationDescriptions::add\n"
+         << "function. All such module labels must be unique within a package.\n"
+         << "If you do not want the generated cfi file and do not need more than one\n"
+         << "description for a plugin, then a way to fix this is to use the addDefault\n"
+         << "function instead of the add function.\n"
+         << "There are 3 common ways this problem can happen.\n"
+         << "1. This can happen when a module label is explicitly duplicated in one or more\n"
+         << "fillDescriptions functions. Fix these by changing the module labels to be unique.\n"
+         << "2. This can also happen when a module class is a template class and plugins are\n"
+         << "defined by instantiations with differing template parameters and these plugins\n"
+         << "share the same fillDescriptions function. Fix these by specializing the fillDescriptions\n"
+         << "function for each template instantiation.\n"
+         << "3. This can also happen when there is an inheritance heirarchy and multiple plugin modules\n"
+         << "are defined using derived classes and the base class which share the same fillDescriptions\n"
+         << "function. Fix these by redefining the fillDescriptions function in each derived class.\n";
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
+    }
     std::ofstream outFile(cfi_filename.c_str());
-
+    if(outFile.fail()) {
+      edm::Exception ex(edm::errors::LogicError,
+                        "Creating cfi file failed.\n");
+      ex << "Opening a file '" << cfi_filename << "' for module '" << labelAndDesc.first << "' failed.\n";
+      ex << "Error code from errno " << errno << ": " << std::strerror(errno) << "\n";
+      
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
+    }
 
     outFile << "import FWCore.ParameterSet.Config as cms\n\n";
     outFile << labelAndDesc.first << " = cms." << baseType << "('" << pluginName << "'";
@@ -284,16 +334,9 @@ namespace edm {
     counter.iSelectedModule = 0;
     counter.iModule = 0;
 
-    for_all(descriptions_, boost::bind(&ConfigurationDescriptions::printForLabel,
-                                       this,
-                                       _1,
-                                       std::ref(os),
-                                       std::cref(moduleLabel),
-                                       brief,
-                                       printOnlyLabels,
-                                       lineWidth,
-                                       indentation,
-                                       std::ref(counter)));
+    for(auto const& d: descriptions_) {
+      printForLabel(d,os, moduleLabel,brief, printOnlyLabels,lineWidth,indentation, counter);
+    }
 
     if (defaultDescDefined_) {
       printForLabel(os,

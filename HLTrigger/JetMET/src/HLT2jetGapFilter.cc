@@ -33,7 +33,7 @@ HLT2jetGapFilter::HLT2jetGapFilter(const edm::ParameterSet& iConfig) : HLTFilter
 
 }
 
-HLT2jetGapFilter::~HLT2jetGapFilter(){}
+HLT2jetGapFilter::~HLT2jetGapFilter()= default;
 
 void
 HLT2jetGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -69,7 +69,7 @@ HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     double etajet2=0.;
     int countjets =0;
 
-    for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
+    for (auto recocalojet = recocalojets->begin();
 	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 
       if(countjets==0) {
@@ -84,7 +84,7 @@ HLT2jetGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     }
 
   if(etjet1>minEt_ && etjet2>minEt_ && (etajet1*etajet2)<0 && std::abs(etajet1)>minEta_ && std::abs(etajet2)>minEta_){
-      for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
+      for (auto recocalojet = recocalojets->begin();
 	   recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 	reco::CaloJetRef ref(reco::CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
 	filterproduct.addObject(TriggerJet,ref);

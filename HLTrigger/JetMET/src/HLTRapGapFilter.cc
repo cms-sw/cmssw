@@ -31,7 +31,7 @@ HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig) : HLTFilter(i
    m_theJetToken = consumes<reco::CaloJetCollection>(inputTag_);
 }
 
-HLTRapGapFilter::~HLTRapGapFilter(){}
+HLTRapGapFilter::~HLTRapGapFilter()= default;
 
 void HLTRapGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -69,11 +69,10 @@ HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
     double sumets=0.;
     int countjets =0;
 
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
-	 recocalojet!=(recocalojets->end()); recocalojet++) {
+    for (auto const & recocalojet : *recocalojets) {
 
-      etjet = recocalojet->energy();
-      etajet = recocalojet->eta();
+      etjet = recocalojet.energy();
+      etajet = recocalojet.eta();
 
       if(std::abs(etajet) > absEtaMin_ && std::abs(etajet) < absEtaMax_)
 	{
@@ -87,7 +86,7 @@ HLTRapGapFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
     //std::cout << "Sum jet energy = " << sumets << std::endl;
     if(sumets<=caloThresh_){
       //std::cout << "Passed filter!" << std::endl;
-      for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
+      for (auto recocalojet = recocalojets->begin();
 	   recocalojet!=(recocalojets->end()); recocalojet++) {
 	CaloJetRef ref(CaloJetRef(recocalojets,distance(recocalojets->begin(),recocalojet)));
 	filterproduct.addObject(TriggerJet,ref);

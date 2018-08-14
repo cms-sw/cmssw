@@ -20,7 +20,7 @@ class CSCGeometryOfWires : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryOfWires( const edm::ParameterSet& );
-  ~CSCGeometryOfWires();
+  ~CSCGeometryOfWires() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -71,12 +71,12 @@ void
    int icount = 0;
 
    // Check the DetUnits
-   for( CSCGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it ){
+   for( const auto& it : pDD->detUnits()) {
 
 
      // Do we really have a CSC layer?
 
-     auto layer = dynamic_cast<CSCLayer const*>( *it );
+     auto layer = dynamic_cast<CSCLayer const*>( it );
      
       if( layer ) {
         ++icount;

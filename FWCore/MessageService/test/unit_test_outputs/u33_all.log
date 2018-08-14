@@ -16,7 +16,7 @@ T1 beginLumi warning with identifier 11 event 0
 %MSG-w cat_BL:  UTC_V1:ssm_1b@beginLumi Run: 1 Lumi: 1
 T1 beginLumi warning with identifier 12 event 0
 %MSG
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
 T1 analyze error with identifier 11 event 0
 %MSG
@@ -50,7 +50,7 @@ T1 analyze warning with identifier 22 event 0
 %MSG-i cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
 T1 analyze info with identifier 22 event 0
 %MSG
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
 T1 analyze error with identifier 11 event 1
 %MSG
@@ -136,3 +136,5 @@ Severity    # Occurrences   Total Occurrences
 Info                   10                  10
 Warning                12                  12
 Error                   8                   8
+
+dropped waiting message count 0

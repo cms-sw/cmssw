@@ -43,11 +43,11 @@ public:
     explicit L1GlobalTriggerRecordProducer(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GlobalTriggerRecordProducer();
+    ~L1GlobalTriggerRecordProducer() override;
 
 private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     

@@ -9,6 +9,7 @@
 #define MonitorXMLParser_h
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <iostream>
@@ -99,7 +100,7 @@ public:
   }
 
 
-  ~TagNames() throw(){
+  ~TagNames() noexcept(false){
     
     try{
 

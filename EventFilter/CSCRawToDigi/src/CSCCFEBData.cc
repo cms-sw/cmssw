@@ -8,7 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
-CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_version, bool f_dcfeb) 
+CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t * buf, uint16_t format_version, bool f_dcfeb) 
   : theSize(0), boardNumber_(number), theNumberOfSamples(0), theFormatVersion(format_version), fDCFEB(f_dcfeb) {
   // I may be grabbing too many words, but that's OK
   // parse for time slices
@@ -18,8 +18,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_
   theSliceStarts.reserve(8);
   while(theNumberOfSamples < maxSamples) {
     // first see if it's a bad slice
-    CSCBadCFEBTimeSlice * badSlice
-      = reinterpret_cast<CSCBadCFEBTimeSlice *>(buf+pos);
+    const CSCBadCFEBTimeSlice * badSlice
+      = reinterpret_cast<const CSCBadCFEBTimeSlice *>(buf+pos);
     if(badSlice->check()) {
       //show that a bad slice starts here
       theSliceStarts.push_back(std::pair<int, bool>(pos, false));
@@ -29,8 +29,8 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf, uint16_t format_
     } 
     else {
       // OK.  Maybe it's good.
-      CSCCFEBTimeSlice * goodSlice 
-	= reinterpret_cast<CSCCFEBTimeSlice *>(buf+pos);
+      const CSCCFEBTimeSlice * goodSlice 
+	= reinterpret_cast<const CSCCFEBTimeSlice *>(buf+pos);
       if(goodSlice->check()) {
 	// show that a good slice starts here
 	theSliceStarts.push_back(std::pair<int, bool>(pos, true));
@@ -90,31 +90,29 @@ void CSCCFEBData::add(const CSCStripDigi & digi, int layer)
       unsigned channel = (digi.getStrip()-1) % 16 + 1;
       unsigned value = scaCounts[itime] & 0xFFF; // 12-bit
       // assume it's good, since we're working with simulation
-      const CSCCFEBTimeSlice * slice = timeSlice(itime);
-      assert(slice != 0);
+      CSCCFEBTimeSlice * slice = timeSlice(itime);
+      assert(slice != nullptr);
       slice->timeSample(layer, channel,fDCFEB)->adcCounts = value;
       /// =VB= Set CRC value for simulated data
-      ((CSCCFEBTimeSlice *)slice)->setCRC();
+      slice->setCRC();
     }
 }
 
 const CSCCFEBTimeSlice * CSCCFEBData::timeSlice(unsigned i) const 
 {
-  const CSCCFEBTimeSlice * result;
   assert(i < theNumberOfSamples);
   std::pair<int,bool> start = theSliceStarts[i];
   // give a NULL pointer if this is a bad slice
-  if(!start.second) 
-    {
-      result = 0;
-    } 
-  else 
-    {
-      result = reinterpret_cast<const CSCCFEBTimeSlice *>(theData+start.first);
-    }
-  return result;
+  return start.second ? reinterpret_cast<const CSCCFEBTimeSlice *>(theData+start.first) : nullptr;
 }
 
+CSCCFEBTimeSlice * CSCCFEBData::timeSlice(unsigned i)
+{
+  assert(i < theNumberOfSamples);
+  std::pair<int,bool> start = theSliceStarts[i];
+  // give a NULL pointer if this is a bad slice
+  return start.second ? reinterpret_cast<CSCCFEBTimeSlice *>(theData+start.first) : nullptr;
+}
 
 unsigned CSCCFEBData::adcCounts(unsigned layer, unsigned channel, unsigned timeBin) const 
 {
@@ -220,7 +218,7 @@ CSCCFEBStatusDigi CSCCFEBData::statusDigi() const
 
 
 
-void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
+void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result ) const
 {
   
   // assert(layer>0 && layer <= 6);
@@ -307,7 +305,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 
 
 
-std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer)
+std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const
 {
   //assert(layer>0 && layer <= 6);
   std::vector<CSCStripDigi> result;
@@ -324,7 +322,7 @@ bool CSCCFEBData::check() const
   for(unsigned i = 0; i < theNumberOfSamples; ++i) 
     {
       const CSCCFEBTimeSlice * slice = timeSlice(i);
-      if(slice==0 || !timeSlice(i)->check()) result = false;
+      if(slice==nullptr || !timeSlice(i)->check()) result = false;
     }
   return result;
 }

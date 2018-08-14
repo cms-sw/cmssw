@@ -7,6 +7,7 @@ import urllib, urllib2
 from pipe import pipe as _pipe
 from options import globalTag
 from itertools import islice
+import six
 
 def splitter(iterator, n):
   i = iterator.__iter__()
@@ -45,11 +46,6 @@ class HLTProcess(object):
       self.labels['process'] = 'process'
       self.labels['dict']    = 'process.__dict__'
 
-    if self.config.online:
-      self.labels['connect'] = 'frontier://FrontierProd'
-    else:
-      self.labels['connect'] = 'frontier://FrontierProd'
-
     if self.config.prescale and (self.config.prescale.lower() != 'none'):
       self.labels['prescale'] = self.config.prescale
 
@@ -72,7 +68,7 @@ class HLTProcess(object):
     args = ['--configName', self.config.setup ]
     args.append('--noedsources')
     args.append('--nopaths')
-    for key, vals in self.options.iteritems():
+    for key, vals in six.iteritems(self.options):
       if vals:
         args.extend(('--'+key, ','.join(vals)))
     args.append('--cff')
@@ -90,10 +86,10 @@ class HLTProcess(object):
     else:
       args = ['--configName', self.config.menu.name ]
     args.append('--noedsources')
-    for key, vals in self.options.iteritems():
+    for key, vals in six.iteritems(self.options):
       if vals:
         args.extend(('--'+key, ','.join(vals)))
-    
+
     data, err = self.converter.query( *args )
     if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
         sys.stderr.write("%s: error while retrieving the HLT menu\n\n" % os.path.basename(sys.argv[0]))
@@ -264,6 +260,9 @@ modifyHLTforEras(%(process)s)
     # if requested, run the L1 emulator
     self.runL1Emulator()
 
+    # add process.load("setup_cff")
+    self.loadSetupCff()
+
     if self.config.fragment:
       self.data += """
 # dummyfy hltGetConditions in cff's
@@ -274,15 +273,20 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
+      # fix the Scouting EndPaths
+      for path in self.all_paths:
+        match = re.match(r'(Scouting\w+)Output$', path)
+        if match:
+          module = 'hltOutput' + match.group(1)
+          self.data = self.data.replace(path+' = cms.EndPath', path+' = cms.Path')
+          self.data = self.data.replace(' + process.'+module, '')
+
     else:
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
 
-      # add process.load("setup_cff")
-      self.loadSetupCff()
-
-      # select specific Eras 
+      # select specific Eras
       self.addEras()
 
       # override the output modules to output root files
@@ -300,26 +304,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       # replace DQMStore and DQMRootOutputModule with a configuration suitable for running offline
       self.instrumentDQM()
 
-      # load 5.2.x JECs, until they are in the GlobalTag
-#      self.loadAdditionalConditions('load 5.2.x JECs',
-#        {
-#          'record'  : 'JetCorrectionsRecord',
-#          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
-#          'label'   : 'AK5CaloHLT',
-#          'connect' : '%(connect)s/CMS_CONDITIONS'
-#        }, {
-#          'record'  : 'JetCorrectionsRecord',
-#          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
-#          'label'   : 'AK5PFHLT',
-#          'connect' : '%(connect)s/CMS_CONDITIONS'
-#        }, {
-#          'record'  : 'JetCorrectionsRecord',
-#          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
-#          'label'   : 'AK5PFchsHLT',
-#          'connect' : '%(connect)s/CMS_CONDITIONS'
-#        }
-#      )
-
     # add specific customisations
     self.specificCustomize()
 
@@ -333,8 +317,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 )
 """ % self.config.events
 
-    if not self.config.profiling:
-      self.data += """
+    self.data += """
 # enable TrigReport, TimeReport and MultiThreading
 %(process)s.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
@@ -412,7 +395,6 @@ if 'PrescaleService' in %(dict)s:
   def overrideGlobalTag(self):
     # overwrite GlobalTag
     # the logic is:
-    #   - always set the correct connection string and pfnPrefix
     #   - if a GlobalTag is specified on the command line:
     #      - override the global tag
     #      - if the GT is "auto:...", insert the code to read it from Configuration.AlCa.autoCond
@@ -421,10 +403,6 @@ if 'PrescaleService' in %(dict)s:
     #      - when running on mc, take the GT from the configuration.type
 
     # override the GlobalTag connection string and pfnPrefix
-    text = """
-# override the GlobalTag, connection string and pfnPrefix
-if 'GlobalTag' in %(dict)s:
-"""
 
     # when running on MC, override the global tag even if not specified on the command line
     if not self.config.data and not self.config.globaltag:
@@ -433,11 +411,11 @@ if 'GlobalTag' in %(dict)s:
       else:
         self.config.globaltag = globalTag['GRun']
 
-    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    # if requested, override the L1 menu from the GlobalTag
     if self.config.l1.override:
       self.config.l1.tag    = self.config.l1.override
       self.config.l1.record = 'L1TUtmTriggerMenuRcd'
-      self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
+      self.config.l1.connect = ''
       self.config.l1.label  = ''
       if not self.config.l1.snapshotTime:
         self.config.l1.snapshotTime = '9999-12-31 23:59:59.000'
@@ -446,23 +424,17 @@ if 'GlobalTag' in %(dict)s:
       self.config.l1cond = None
 
     if self.config.globaltag or self.config.l1cond:
-      text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
-      text += "    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"
+      text = """
+# override the GlobalTag, connection string and pfnPrefix
+if 'GlobalTag' in %(dict)s:
+    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+    %(process)s.GlobalTag = customiseGlobalTag(%(process)s.GlobalTag"""
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
       if self.config.l1cond:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
-
-    text += """    %(process)s.GlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
-"""
-#    %(process)s.GlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
-#    for pset in %(process)s.GlobalTag.toGet.value():
-#        pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
-#    # fix for multi-run processing
-#    %(process)s.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-#    %(process)s.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
-    self.data += text
+      self.data += text
 
   def overrideL1MenuXml(self):
     # if requested, override the GlobalTag's L1T menu from an Xml file
@@ -471,7 +443,7 @@ if 'GlobalTag' in %(dict)s:
 # override the GlobalTag's L1T menu from an Xml file
 from HLTrigger.Configuration.CustomConfigs import L1XML
 %%(process)s = L1XML(%%(process)s,"%s")
-""" % (self.config.l1Xml.XmlFile) 
+""" % (self.config.l1Xml.XmlFile)
       self.data += text
 
   def runL1Emulator(self):
@@ -492,12 +464,30 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       self.data
     )
 
-    if not self.config.fragment and self.config.output == 'full':
+    if not self.config.fragment and self.config.output == 'minimal':
+      # add a single output to keep the TriggerResults and TriggerEvent
+      self.data += """
+# add a single "keep *" output
+%(process)s.hltOutputMinimal = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "output.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string( 'AOD' ),
+        filterName = cms.untracked.string( '' )
+    ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+        'keep edmTriggerResults_*_*_*',
+        'keep triggerTriggerEvent_*_*_*'
+    )
+)
+%(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
+"""
+    elif not self.config.fragment and self.config.output == 'full':
       # add a single "keep *" output
       self.data += """
 # add a single "keep *" output
-%(process)s.hltOutputFULL = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputFULL.root" ),
+%(process)s.hltOutputFull = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "output.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string( 'RECO' ),
@@ -505,8 +495,9 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
-%(process)s.FULLOutput = cms.EndPath( %(process)s.hltOutputFULL )
+%(process)s.FullOutput = cms.EndPath( %(process)s.hltOutputFull )
 """
+
   # select specific Eras
   def addEras(self):
     if self.config.eras is None:
@@ -519,7 +510,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
       return
     processLine = self.data.find("\n",self.data.find("cms.Process"))
     self.data = self.data[:processLine]+'\nprocess.load("%s")'%self.config.setupFile+self.data[processLine:]
-    
+
   # override the process name and adapt the relevant filters
   def overrideProcessName(self):
     if self.config.name is None:
@@ -531,41 +522,15 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     quote = '[\'\"]'
     self.data = re.compile(r'^(process\s*=\s*cms\.Process\(\s*' + quote + r')\w+(' + quote + r'\s*\).*)$', re.MULTILINE).sub(r'\1%s\2' % self.config.name, self.data, 1)
 
-    # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
-    self.data += """
-# adapt HLT modules to the correct process name
-if 'hltTrigReport' in %%(dict)s:
-    %%(process)s.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreExpressCosmicsOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreExpressOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreDQMForHIOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreDQMForPPOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltPreHLTMONOutputSmart' in %%(dict)s:
-    %%(process)s.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-
-if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)s.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-    %%(process)s.hltDQMHLTScalers.processname                      = '%(name)s'
-
-if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)s.hltDQML1SeedLogicScalers.processname              = '%(name)s'
-""" % self.config.__dict__
-
+    # when --setup option is used, remove possible errors from PrescaleService due to missing HLT paths.
+    if self.config.setup: self.data += """
+# avoid PrescaleService error due to missing HLT paths
+if 'PrescaleService' in process.__dict__:
+    for pset in reversed(process.PrescaleService.prescaleTable):
+        if not hasattr(process,pset.pathName.value()):
+            process.PrescaleService.prescaleTable.remove(pset)
+"""
+    
 
   def updateMessageLogger(self):
     # request summary informations from the MessageLogger
@@ -591,7 +556,6 @@ if 'GlobalTag' in %%(dict)s:
             record  = cms.string( '%(record)s' ),
             tag     = cms.string( '%(tag)s' ),
             label   = cms.untracked.string( '%(label)s' ),
-            connect = cms.untracked.string( '%(connect)s' )
         )
     )
 """ % condition
@@ -617,93 +581,44 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def instrumentTiming(self):
-    if self.config.profiling:
-      # instrument the menu for profiling: remove the HLTAnalyzerEndpath, add/override the HLTriggerFirstPath, with hltGetRaw and hltGetConditions
-      text = ''
 
-      if not 'hltGetRaw' in self.data:
-        # add hltGetRaw
-        text += """
-%(process)s.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "rawDataCollector" )
-)
-"""
-
-      if not 'hltGetConditions' in self.data:
-        # add hltGetConditions
-        text += """
-%(process)s.hltGetConditions = cms.EDAnalyzer( 'EventSetupRecordDataGetter',
-    verbose = cms.untracked.bool( False ),
-    toGet = cms.VPSet( )
-)
-"""
-
-      if not 'hltBoolFalse' in self.data:
-        # add hltBoolFalse
-        text += """
-%(process)s.hltBoolFalse = cms.EDFilter( "HLTBool",
-    result = cms.bool( False )
-)
-"""
-
-      # add the definition of HLTriggerFirstPath
-      # FIXME in a cff, should also update the HLTSchedule
-      text += """
-%(process)s.HLTriggerFirstPath = cms.Path( %(process)s.hltGetRaw + %(process)s.hltGetConditions + %(process)s.hltBoolFalse )
-"""
-      self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
-
-
-    # instrument the menu with the Service, EDProducer and EndPath needed for timing studies
-    # FIXME in a cff, should also update the HLTSchedule
     if self.config.timing:
       self.data += """
 # instrument the menu with the modules and EndPath needed for timing studies
 """
 
-      if not 'FastTimerService' in self.data:
-        self.data += '\n# configure the FastTimerService\n'
-        self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
-      else:
-        self.data += '\n# configure the FastTimerService\n'
+      self.data += '\n# configure the FastTimerService\n'
+      self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
 
-      self.data += """# this is currently ignored in CMSSW 7.x, always using the real time clock
-%(process)s.FastTimerService.useRealTimeClock          = True
-# enable specific features
-%(process)s.FastTimerService.enableTimingPaths         = True
-%(process)s.FastTimerService.enableTimingModules       = True
-%(process)s.FastTimerService.enableTimingExclusive     = True
-# print a text summary at the end of the job
-%(process)s.FastTimerService.enableTimingSummary       = True
-# skip the first path (disregard the time spent loading event and conditions data)
-%(process)s.FastTimerService.skipFirstPath             = True
+      self.data += """# print a text summary at the end of the job
+%(process)s.FastTimerService.printEventSummary         = False
+%(process)s.FastTimerService.printRunSummary           = False
+%(process)s.FastTimerService.printJobSummary           = True
+
 # enable DQM plots
 %(process)s.FastTimerService.enableDQM                 = True
-# enable most per-path DQM plots
-%(process)s.FastTimerService.enableDQMbyPathActive     = True
-%(process)s.FastTimerService.enableDQMbyPathTotal      = True
-%(process)s.FastTimerService.enableDQMbyPathOverhead   = False
-%(process)s.FastTimerService.enableDQMbyPathDetails    = True
-%(process)s.FastTimerService.enableDQMbyPathCounters   = True
-%(process)s.FastTimerService.enableDQMbyPathExclusive  = True
-# disable per-module DQM plots
-%(process)s.FastTimerService.enableDQMbyModule         = False
-%(process)s.FastTimerService.enableDQMbyModuleType     = False
-# enable per-event DQM sumary plots
-%(process)s.FastTimerService.enableDQMSummary          = True
-# enable per-event DQM plots by lumisection
+
+# enable per-path DQM plots (starting with CMSSW 9.2.3-patch2)
+%(process)s.FastTimerService.enableDQMbyPath           = True
+
+# enable per-module DQM plots
+%(process)s.FastTimerService.enableDQMbyModule         = True
+
+# enable per-event DQM plots vs lumisection
 %(process)s.FastTimerService.enableDQMbyLumiSection    = True
 %(process)s.FastTimerService.dqmLumiSectionsRange      = 2500
+
 # set the time resolution of the DQM plots
-%(process)s.FastTimerService.dqmTimeRange              = 1000.
-%(process)s.FastTimerService.dqmTimeResolution         =    5.
-%(process)s.FastTimerService.dqmPathTimeRange          =  100.
-%(process)s.FastTimerService.dqmPathTimeResolution     =    0.5
-%(process)s.FastTimerService.dqmModuleTimeRange        =   40.
-%(process)s.FastTimerService.dqmModuleTimeResolution   =    0.2
+%(process)s.FastTimerService.dqmTimeRange              = 2000.
+%(process)s.FastTimerService.dqmTimeResolution         =   10.
+%(process)s.FastTimerService.dqmPathTimeRange          = 1000.
+%(process)s.FastTimerService.dqmPathTimeResolution     =    5.
+%(process)s.FastTimerService.dqmModuleTimeRange        =  200.
+%(process)s.FastTimerService.dqmModuleTimeResolution   =    1.
+
 # set the base DQM folder for the plots
 %(process)s.FastTimerService.dqmPath                   = 'HLT/TimerService'
-%(process)s.FastTimerService.enableDQMbyProcesses      = True
+%(process)s.FastTimerService.enableDQMbyProcesses      = False
 """
 
 
@@ -756,35 +671,43 @@ if 'GlobalTag' in %%(dict)s:
       # dump only the requested paths, plus the eventual output endpaths
       paths = []
 
-    if self.config.fragment or self.config.output in ('none', 'full'):
-      # 'full' removes all outputs (same as 'none') and then adds a single "keep *" output (see the overrideOutput method)
+    # 'none'    should remove all outputs
+    # 'dqm'     should remove all outputs but DQMHistograms
+    # 'minimal' should remove all outputs but DQMHistograms, and add a single output module to keep the TriggerResults and TriggerEvent
+    # 'full'    should remove all outputs but DQMHistograms, and add a single output module to "keep *"
+    # See also the `overrideOutput` method
+    if self.config.fragment or self.config.output in ('none', ):
       if self.config.paths:
-        # paths are removed by default
+        # keep only the Paths and EndPaths requested explicitly
         pass
       else:
-        # drop all output endpaths
+        # drop all output EndPaths but the Scouting ones, and drop the RatesMonitoring and DQMHistograms
         paths.append( "-*Output" )
         paths.append( "-RatesMonitoring")
         paths.append( "-DQMHistograms")
-    elif self.config.output == 'minimal':
-      # drop all output endpaths but HLTDQMResultsOutput
+        if self.config.fragment: paths.append( "Scouting*Output" )
+
+    elif self.config.output in ('dqm', 'minimal', 'full'):
       if self.config.paths:
-        paths.append( "HLTDQMResultsOutput" )
+        # keep only the Paths and EndPaths requested explicitly, and the DQMHistograms
+        paths.append( "DQMHistograms" )
       else:
+        # drop all output EndPaths but the Scouting ones, and drop the RatesMonitoring
         paths.append( "-*Output" )
         paths.append( "-RatesMonitoring")
-        paths.append( "-DQMHistograms")
-        paths.append( "HLTDQMResultsOutput" )
+        if self.config.fragment: paths.append( "Scouting*Output" )
+
     else:
-      # keep / add back all output endpaths
       if self.config.paths:
+        # keep all output EndPaths, including the DQMHistograms
         paths.append( "*Output" )
+        paths.append( "DQMHistograms" )
       else:
-        pass    # paths are kepy by default
+        # keep all Paths and EndPaths
+        pass
 
     # drop unwanted paths for profiling (and timing studies)
     if self.config.profiling:
-      paths.append( "-HLTriggerFirstPath" )
       paths.append( "-HLTAnalyzerEndpath" )
 
     # this should never be in any dump (nor online menu)
@@ -795,13 +718,13 @@ if 'GlobalTag' in %%(dict)s:
 
     if self.config.paths:
       # do an "additive" consolidation
-      self.options['paths'] = self.consolidatePositiveList(paths)
-      if not self.options['paths']:
+      paths = self.consolidatePositiveList(paths)
+      if not paths:
         raise RuntimeError('Error: option "--paths %s" does not select any valid paths' % self.config.paths)
     else:
       # do a "subtractive" consolidation
-      self.options['paths'] = self.consolidateNegativeList(paths)
-
+      paths = self.consolidateNegativeList(paths)
+    self.options['paths'] = paths
 
   def buildOptions(self):
     # common configuration for all scenarios
@@ -888,6 +811,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
 
+      # remove Scouting OutputModules even though the EndPaths are kept
+      self.options['modules'].append( "-hltOutputScoutingCaloMuon" )
+      self.options['modules'].append( "-hltOutputScoutingPF" )
+
     if self.config.fragment or (self.config.prescale and (self.config.prescale.lower() == 'none')):
       self.options['services'].append( "-PrescaleService" )
 
@@ -918,16 +845,13 @@ if 'GlobalTag' in %%(dict)s:
       files = dasFileQuery(dataset)
     else:
       # assume a comma-separated list of input files
-      files = self.config.input.split(',')
+      files = input.split(',')
     return files
 
   def build_source(self):
     if self.config.input:
       # if a dataset or a list of input files was given, use it
       self.source = self.expand_filenames(self.config.input)
-    elif self.config.online:
-      # online we always run on data
-      self.source = [ "file:/tmp/InputCollection.root" ]
     elif self.config.data:
       # offline we can run on data...
       self.source = [ "file:RelVal_Raw_%s_DATA.root" % self.config.type ]

@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -40,7 +42,6 @@ namespace edmtest
   private:
     int    passed_;
     int    failed_;
-    bool   dump_;
     std::string name_;
     int    numbits_;
   };
@@ -97,7 +98,6 @@ namespace edmtest
   TestResultAnalyzer::TestResultAnalyzer(edm::ParameterSet const& ps):
     passed_(),
     failed_(),
-    dump_(ps.getUntrackedParameter<bool>("dump",false)),
     name_(ps.getUntrackedParameter<std::string>("name","DEFAULT")),
     numbits_(ps.getUntrackedParameter<int>("numbits",-1))
   {

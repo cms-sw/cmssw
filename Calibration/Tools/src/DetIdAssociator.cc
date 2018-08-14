@@ -330,7 +330,7 @@ std::set<DetId> HDetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
          if( i<0 || i>=nEta_) continue;
          int j2fill = j%nPhi_;
          if(j2fill<0) j2fill+=nPhi_;
-         if((*theMap_)[i][j2fill].size()==0)continue;
+         if((*theMap_)[i][j2fill].empty())continue;
          outset.insert((*theMap_)[i][j2fill].begin(),(*theMap_)[i][j2fill].end());
        }
      }

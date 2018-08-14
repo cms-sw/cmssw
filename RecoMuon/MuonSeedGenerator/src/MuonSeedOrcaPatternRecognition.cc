@@ -15,6 +15,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -53,9 +54,10 @@ MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::Parame
 theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow") ? pset.getParameter<double>("deltaEtaCrackSearchWindow") : 0.25)
 {
 
-  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),edm::InputTag(),edm::InputTag(),
+  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
+						   edm::InputTag(),theME0RecSegmentLabel,
 						   iC,
-						   enableDTMeasurement,enableCSCMeasurement,false,false,false);
+						   enableDTMeasurement,enableCSCMeasurement,false,false,enableME0Measurement);
 }
 
 
@@ -67,7 +69,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // divide the RecHits by DetLayer, in order to fill the
   // RecHitContainer like it was in ORCA
   
-  // Muon Geometry - DT, CSC and RPC 
+  // Muon Geometry - DT, CSC, RPC and ME0
   edm::ESHandle<MuonDetLayerGeometry> muonLayers;
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
@@ -77,7 +79,11 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   // get the CSC layers
   vector<const DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
   vector<const DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
-    
+  
+  // get the ME0 layers
+  vector<const DetLayer*> me0ForwardLayers = muonLayers->forwardME0Layers();
+  vector<const DetLayer*> me0BackwardLayers = muonLayers->backwardME0Layers(); 
+
   // Backward (z<0) EndCap disk
   const DetLayer* ME4Bwd = cscBackwardLayers[4];
   const DetLayer* ME3Bwd = cscBackwardLayers[3];
@@ -104,6 +110,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   double barreldThetaCut = 0.2;
   // still lose good muons to a tighter cut
   double endcapdThetaCut = 1.0;
+
   MuonRecHitContainer list9 = filterSegments(muonMeasurements->recHits(MB4DL,event), barreldThetaCut);
   MuonRecHitContainer list6 = filterSegments(muonMeasurements->recHits(MB3DL,event), barreldThetaCut);
   MuonRecHitContainer list7 = filterSegments(muonMeasurements->recHits(MB2DL,event), barreldThetaCut);
@@ -118,22 +125,34 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   bool* MB2 = zero(list7.size());
   bool* MB3 = zero(list6.size());
 
+  MuonRecHitContainer muRH_ME0Fwd, muRH_ME0Bwd;
+  
+  if (!me0ForwardLayers.empty()){// Forward (z>0) EndCap disk
+    const DetLayer* ME0Fwd = me0ForwardLayers[0];
+    muRH_ME0Fwd = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
+  }
+  if (!me0BackwardLayers.empty()){// Backward (z<0) EndCap disk
+    const DetLayer* ME0Bwd = me0BackwardLayers[0];
+    muRH_ME0Bwd = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
+  }
+  
   endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
-                 list8, list7, list6,
-                 MB1, MB2, MB3, result);
+		 filterSegments(muonMeasurements->recHits(ME12Bwd,event), endcapdThetaCut),
+		 filterSegments(muonMeasurements->recHits(ME2Bwd,event), endcapdThetaCut),
+		 filterSegments(muonMeasurements->recHits(ME3Bwd,event), endcapdThetaCut),
+		 filterSegments(muonMeasurements->recHits(ME4Bwd,event), endcapdThetaCut),
+		 muRH_ME0Bwd,
+		 list8, list7, list6,
+		 MB1, MB2, MB3, result);
 
   endcapPatterns(filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
-                 filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
-                 list8, list7, list6,
-                 MB1, MB2, MB3, result);
-
+		 filterSegments(muonMeasurements->recHits(ME12Fwd,event), endcapdThetaCut),
+		 filterSegments(muonMeasurements->recHits(ME2Fwd,event), endcapdThetaCut),
+		 filterSegments(muonMeasurements->recHits(ME3Fwd,event), endcapdThetaCut),
+		 filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut),
+		 muRH_ME0Fwd,
+		 list8, list7, list6,
+		 MB1, MB2, MB3, result);
 
   // ----------    Barrel only
   
@@ -222,6 +241,17 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     tmp = filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
+    if (!me0BackwardLayers.empty()){
+      const DetLayer* ME0Bwd = me0BackwardLayers[0];
+      tmp = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
+    }
+    if (!me0ForwardLayers.empty()){
+      const DetLayer* ME0Fwd = me0ForwardLayers[0];
+      tmp = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
+    }
+    
     tmp = filterSegments(muonMeasurements->recHits(ME11Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
@@ -259,13 +289,12 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
       result.push_back(singleSegmentContainer);
     }
   }
-
 }
 
 
 bool * MuonSeedOrcaPatternRecognition::zero(unsigned listSize)
 {
-  bool * result = 0;
+  bool * result = nullptr;
   if (listSize) {
     result = new bool[listSize]; 
     for ( size_t i=0; i<listSize; i++ ) result[i]=false;
@@ -277,8 +306,8 @@ bool * MuonSeedOrcaPatternRecognition::zero(unsigned listSize)
 void MuonSeedOrcaPatternRecognition::endcapPatterns(
   const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
   const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
-  const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,
-  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
+  const MuonRecHitContainer & me4,  const MuonRecHitContainer & me0,
+  const MuonRecHitContainer & mb1,  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
   bool * MB1, bool * MB2, bool * MB3,
   std::vector<MuonRecHitContainer> & result)
 {
@@ -287,6 +316,9 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   dumpLayer("ME2 ", me2);
   dumpLayer("ME12 ", me12);
   dumpLayer("ME11 ", me11);
+  dumpLayer("ME0 ", me0);
+
+
 
   std::vector<MuonRecHitContainer> patterns;
   MuonRecHitContainer crackSegments;
@@ -295,30 +327,34 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   rememberCrackSegments(me2,  crackSegments);
   rememberCrackSegments(me3,  crackSegments);
   rememberCrackSegments(me4,  crackSegments);
+  rememberCrackSegments(me0,  crackSegments);
 
 
-  MuonRecHitContainer list24 = me4;
-  MuonRecHitContainer list23 = me3;
+  const MuonRecHitContainer& list24 = me4;
+  const MuonRecHitContainer& list23 = me3;
 
-  MuonRecHitContainer list12 = me2;
+  const MuonRecHitContainer& list12 = me2;
 
-  MuonRecHitContainer list22 = me12;
+  const MuonRecHitContainer& list22 = me12;
   MuonRecHitContainer list21 = me11;
+  // add ME0 to ME1
+  list21.reserve(list21.size()+me0.size());
+  copy(me0.begin(),me0.end(),back_inserter(list21));
 
   MuonRecHitContainer list11 = list21;
   MuonRecHitContainer list5 = list22;
   MuonRecHitContainer list13 = list23;
   MuonRecHitContainer list4 = list24;
 
-  if ( list21.size() == 0 )  {
+  if ( list21.empty() )  {
     list11 = list22; list5 = list21;
   }
 
-  if ( list24.size() < list23.size() && list24.size() > 0 )  {
+  if ( list24.size() < list23.size() && !list24.empty() )  {
     list13 = list24; list4 = list23;
   }
 
-  if ( list23.size() == 0 )  {
+  if ( list23.empty() )  {
     list13 = list24; list4 = list23;
   }
 
@@ -327,33 +363,33 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   MuonRecHitContainer list3 = list13;
 
 
-  if ( list12.size() == 0 )  {
+  if ( list12.empty() )  {
     list3 = list12;
-    if ( list11.size() <= list13.size() && list11.size() > 0 ) {
+    if ( list11.size() <= list13.size() && !list11.empty() ) {
       list1 = list11; list2 = list13;}
     else { list1 = list13; list2 = list11;}
   }
 
-  if ( list13.size() == 0 )  {
-    if ( list11.size() <= list12.size() && list11.size() > 0 ) {
+  if ( list13.empty() )  {
+    if ( list11.size() <= list12.size() && !list11.empty() ) {
       list1 = list11; list2 = list12;}
     else { list1 = list12; list2 = list11;}
   }
 
-  if ( list12.size() != 0 &&  list13.size() != 0 )  {
-    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && list11.size()>0 ) {   // ME 1
+  if ( !list12.empty() &&  !list13.empty() )  {
+    if ( list11.size()<=list12.size() && list11.size()<=list13.size() && !list11.empty() ) {   // ME 1
       if ( list12.size() > list13.size() ) {
         list2 = list13; list3 = list12;}
     }
     else if ( list12.size() <= list13.size() ) {                                   //  start with ME 2
       list1 = list12;
-      if ( list11.size() <= list13.size() && list11.size() > 0 ) {
+      if ( list11.size() <= list13.size() && !list11.empty() ) {
         list2 = list11; list3 = list13;}
       else { list2 = list13; list3 = list11;}
     }
     else {                                                                         //  start with ME 3
       list1 = list13;
-      if ( list11.size() <= list12.size() && list11.size() > 0 ) {
+      if ( list11.size() <= list12.size() && !list11.empty() ) {
         list2 = list11; list3 = list12;}
       else { list2 = list12; list3 = list11;}
     }
@@ -365,11 +401,10 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   bool* ME4 = zero(list4.size());
   bool* ME5 = zero(list5.size());
 
-
   // creates list of compatible track segments
-
   for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
-    if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
+    if ( (*iter)->recHits().size() < 4 && !list3.empty() ) continue; // 3p.tr-seg. are not so good for starting
+    
     MuonRecHitContainer seedSegments;
     seedSegments.push_back(*iter);
     complete(seedSegments, list2, ME2);
@@ -459,15 +494,11 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
 
 void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
                                  const MuonRecHitContainer &recHits, bool* used) const {
-
   MuonRecHitContainer good_rhit;
   MuonPatternRecoDumper theDumper;
   //+v get all rhits compatible with the seed on dEta/dPhi Glob.
-
   ConstMuonRecHitPointer first = seedSegments[0]; // first rechit of seed
-
-  GlobalPoint ptg2 = first->globalPosition(); // its global pos +v
-
+  GlobalPoint ptg2 = first->globalPosition(); // its global pos +v   
   for (unsigned nr = 0; nr < recHits.size(); ++nr ){
     MuonRecHitPointer recHit(recHits[nr]);
     GlobalPoint ptg1(recHit->globalPosition());
@@ -481,11 +512,11 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     if ( deta > detaWindow || dphi > theDeltaPhiWindow ) {
       continue;
     }   // +vvp!!!
-
+    
     good_rhit.push_back(recHit);
     if (used) markAsUsed(nr, recHits, used);
   }  // recHits iter
-
+  
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
   MuonRecHitPointer best=bestMatch(first, good_rhit);
   if(best && best->isValid() ) seedSegments.push_back(best);
@@ -497,7 +528,7 @@ MuonSeedOrcaPatternRecognition::MuonRecHitPointer
 MuonSeedOrcaPatternRecognition::bestMatch(const ConstMuonRecHitPointer & first,
                                           MuonRecHitContainer & good_rhit) const
 {
-  MuonRecHitPointer best = 0;
+  MuonRecHitPointer best = nullptr;
   if(good_rhit.size() == 1) return good_rhit[0];
   double bestDiscrim = 10000.;
   for (MuonRecHitContainer::iterator iter=good_rhit.begin(); 
@@ -609,6 +640,10 @@ void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitConta
     {
        crackSegments.push_back(*segmentItr);
     }
+    // save ME0 segments if eta > 2.4, no other detectors
+    if ((*segmentItr)->isME0() && std::abs((*segmentItr)->globalPosition().eta()) > 2.4){      
+      crackSegments.push_back(*segmentItr);      
+    }
   }
 }
 
@@ -635,6 +670,7 @@ MuonPatternRecoDumper theDumper;
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
+
     double dtheta = (*segmentItr)->globalDirection().theta() -  (*segmentItr)->globalPosition().theta();
     if((*segmentItr)->isDT())
     {
@@ -658,6 +694,17 @@ MuonPatternRecoDumper theDumper;
       else 
       {
          LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+      }
+    }
+    else if((*segmentItr)->isME0())
+    {
+      if(fabs(dtheta) < dThetaCut)
+      {
+	result.push_back(*segmentItr);
+      }
+      else
+      {
+       	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
       }
     }
   }

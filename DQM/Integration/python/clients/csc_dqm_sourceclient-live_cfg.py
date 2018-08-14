@@ -1,12 +1,7 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CSCDQMLIVE")
-
-#-------------------------------------------------
-# CSC L1 Emulator Configuration
-#-------------------------------------------------
-
-process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
 
 #-------------------------------------------------
 # DQM Module Configuration
@@ -91,7 +86,7 @@ process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
 process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
 process.csc2DRecHits.readBadChannels = cms.bool(False)
-process.csc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
 
 """ Pick up upgrade condions data directly from DB tags using ESPrefer's.
@@ -153,8 +148,8 @@ MessageLogger = cms.Service("MessageLogger",
     threshold = cms.untracked.string('ERROR')
   ),
   debugModules = cms.untracked.vstring('CSCMonitormodule'),
-#  destinations = cms.untracked.vstring('detailedInfo', 
-#    'critical', 
+#  destinations = cms.untracked.vstring('detailedInfo',
+#    'critical',
 #    'cout')
 
 )
@@ -164,8 +159,6 @@ MessageLogger = cms.Service("MessageLogger",
 #--------------------------
 
 #process.p = cms.Path(process.dqmCSCClient+process.dqmEnv+process.dqmSaver)
-# Configuration not working due to process.lctreader
-#process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.cscTriggerPrimitiveDigis * process.lctreader * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
 process.p = cms.Path(process.dqmCSCClient * process.muonCSCDigis * process.cscTriggerPrimitiveDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor + process.dqmEnv + process.dqmSaver)
 
 
@@ -191,7 +184,7 @@ process.dqmCSCClient.InputObjects = cms.untracked.InputTag("rawDataCollector")
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")

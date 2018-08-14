@@ -31,9 +31,9 @@ namespace pat {
   public:
     
     explicit PATTrackAndVertexUnpacker(const edm::ParameterSet & iConfig);
-    ~PATTrackAndVertexUnpacker();
+    ~PATTrackAndVertexUnpacker() override;
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
     
   private:
     typedef std::vector<edm::InputTag> VInputTag;
@@ -83,7 +83,7 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, cons
 	unsigned int j=0;
 	for(unsigned int i=0;i<cands->size();i++)	{
 		const pat::PackedCandidate & c = (*cands)[i];
-		if(c.charge() != 0 && c.numberOfHits()> 0){
+		if(c.hasTrackDetails() && c.charge() != 0 && c.numberOfHits()> 0){
 			outTks->push_back(c.pseudoTrack());
 			for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
 				if(c.fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
@@ -96,12 +96,14 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, cons
 
 	int offsetAdd=j;
 	for(unsigned int i = 0; i < addTracks->size(); i++) {
-		outTks->push_back((*addTracks)[i].pseudoTrack());
-		for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
-			if((*addTracks)[i].fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
-				asso[ipv].push_back(j);
+		if( (*addTracks)[i].hasTrackDetails() ){
+			outTks->push_back((*addTracks)[i].pseudoTrack());
+		        for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+				if((*addTracks)[i].fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
+					asso[ipv].push_back(j);
+			}
+			j++;
 		}
-		j++;
 	}
 	
 	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put(std::move(outTks));

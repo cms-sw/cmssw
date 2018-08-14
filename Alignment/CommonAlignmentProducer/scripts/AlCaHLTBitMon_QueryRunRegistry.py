@@ -7,6 +7,7 @@
 # by:              $Author: taroni $
 #-----------------------------------------------------
 
+from __future__ import print_function
 from xml.dom import minidom
 import re
 import json
@@ -50,7 +51,7 @@ def printLumi(file,namefile):
         data = os.system(string2)
     else:
         data = ""
-        print "0 lumi are not avaible"
+        print("0 lumi are not avaible")
     return data
 
 ###file  dbs
@@ -58,24 +59,24 @@ def DBSquery(dataset,site,run):
 
     url = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
     if DEBUG:
-        print lineno()
+        print(lineno())
     args = {}
     args['url']     = url
     args['level']   = 'CRITICAL'
     if DEBUG:
-        print lineno()
+        print(lineno())
     api = DBSAPI.dbsApi.DbsApi(args)
     if DEBUG:
-        print lineno()
+        print(lineno())
     try:
         files = api.listFiles(path=dataset,tier_list =site,runNumber=run)
     except DbsApiException as ex:
-        print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
+        print("Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() ))
         files = ""
         if ex.getErrorCode() not in (None, ""):
-            print "DBS Exception Error Code: ", ex.getErrorCode()
+            print("DBS Exception Error Code: ", ex.getErrorCode())
     if DEBUG:
-        print lineno()
+        print(lineno())
     return files
 
 ###file cff data
@@ -161,7 +162,7 @@ def serverQuery(workspaceName,regexp):
     # get handler to RR XML-RPC server
     server = xmlrpclib.ServerProxy('http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc')
     if DEBUG:
-        print lineno(), regexp
+        print(lineno(), regexp)
     data = server.RunDatasetTable.export(workspaceName,'xml_all' ,regexp)
     return data
 
@@ -183,7 +184,7 @@ def printObj(obj,name):
 
 def getData(doc,options,dataset,site):
     if DEBUG:
-        print lineno(), 'getData'
+        print(lineno(), 'getData')
     server = xmlrpclib.ServerProxy('http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc')
     runs = getElement(doc,'RUN')
     txtLongData=""
@@ -205,13 +206,13 @@ def getData(doc,options,dataset,site):
             pwkey = lista[pkey] +"\n"
             file2.write(pwkey)
             if DEBUG:
-                print lineno(),  lista[pkey]
+                print(lineno(),  lista[pkey])
 
         file2.close()
 
     for i in range(len(lista)):
         if DEBUG:
-            print lineno(), lista[i]
+            print(lineno(), lista[i])
         nameDBS=""
         nameDBS=str(i)+".data"
         name=""
@@ -221,18 +222,18 @@ def getData(doc,options,dataset,site):
         file1 = open( name ,'w')
         listaDBS = []
         if DEBUG:
-            print lineno(), nameDBS
+            print(lineno(), nameDBS)
         for run in runs:
             key=printObj(run,'HLTKEY')
             if (key == lista[i]):
-                print "running......", key
+                print("running......", key)
                 if DEBUG:
-                    print lineno(), printObj(run,'NUMBER')
+                    print(lineno(), printObj(run,'NUMBER'))
                 txtruns = "{runNumber} >= " + printObj(run,'NUMBER') +  " and {runNumber} <= " + str(int(printObj(run,'NUMBER')))
                 txtriv = txtruns + " and {cmpDcsBPix} = 1  and {cmpDcsFPix} = 1 and {cmpDcsTibTid} = 1 and {cmpDcsTob} = 1 and {cmpDcsTecM} = 1 and {cmpDcsTecP} = 1"
                 lumirun = server.RunLumiSectionRangeTable.export('GLOBAL', 'json',txtriv)
                 if DEBUG:
-                    print lineno(), lumirun
+                    print(lineno(), lumirun)
                   ###dbs file
                 if lumirun:
                     file = DBSquery(dataset,site,str(printObj(run,'NUMBER')))                    
@@ -244,10 +245,10 @@ def getData(doc,options,dataset,site):
                         stringDBS = uno['LogicalFileName']
                         listaDBS    += [stringDBS]
                     if DEBUG:
-                        print lineno(), lumirun
+                        print(lineno(), lumirun)
                     comp="{}"
                     if (lumirun == comp):
-                        print "LUMI ZERO"
+                        print("LUMI ZERO")
                     else:
                         file1.write(lumirun)
                

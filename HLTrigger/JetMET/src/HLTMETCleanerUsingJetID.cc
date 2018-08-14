@@ -26,7 +26,7 @@ HLTMETCleanerUsingJetID::HLTMETCleanerUsingJetID(const edm::ParameterSet& iConfi
 }
 
 // Destructor
-HLTMETCleanerUsingJetID::~HLTMETCleanerUsingJetID() {}
+HLTMETCleanerUsingJetID::~HLTMETCleanerUsingJetID() = default;
 
 // Fill descriptions
 void HLTMETCleanerUsingJetID::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -56,12 +56,12 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
     double mex_jets = 0.;
     double mey_jets = 0.;
     double sumet_jets = 0.;
-    if (jets->size() > 0 ) {
-        for(reco::CaloJetCollection::const_iterator j = jets->begin(); j != jets->end(); ++j) {
-            double pt =  j->pt() ;
-            double eta = j->eta();
-            double px =  j->px() ;
-            double py =  j->py() ;
+    if (!jets->empty() ) {
+        for(auto const & j : *jets) {
+            double pt =  j.pt() ;
+            double eta = j.eta();
+            double px =  j.px() ;
+            double py =  j.py() ;
 
             if (pt > minPt_ && std::abs(eta) < maxEta_) {
                 mex_jets -= px;
@@ -74,12 +74,12 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
     double mex_goodJets = 0.;
     double mey_goodJets = 0.;
     double sumet_goodJets = 0.;
-    if (goodJets->size() > 0) {
-        for(reco::CaloJetCollection::const_iterator j = goodJets->begin(); j != goodJets->end(); ++j) {
-            double pt =  j->pt() ;
-            double eta = j->eta();
-            double px =  j->px() ;
-            double py =  j->py() ;
+    if (!goodJets->empty()) {
+        for(auto const & j : *goodJets) {
+            double pt =  j.pt() ;
+            double eta = j.eta();
+            double px =  j.px() ;
+            double py =  j.py() ;
 
             if (pt > minPt_ && std::abs(eta) < maxEta_) {
                 mex_goodJets -= px;
@@ -89,7 +89,7 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
         }
     }
 
-    if (met->size() > 0) {
+    if (!met->empty()) {
         double mex_diff = mex_goodJets - mex_jets;
         double mey_diff = mey_goodJets - mey_jets;
         //double sumet_diff = sumet_goodJets - sumet_jets;  // cannot set sumet...

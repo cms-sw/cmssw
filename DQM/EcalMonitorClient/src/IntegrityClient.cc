@@ -1,4 +1,4 @@
-#include "../interface/IntegrityClient.h"
+#include "DQM/EcalMonitorClient/interface/IntegrityClient.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
@@ -61,7 +61,7 @@ namespace ecaldqm
 
       DetId id( chSItr->getId() );
 
-      EcalChannelStatusMap::const_iterator chIt(0);
+      EcalChannelStatusMap::const_iterator chIt(nullptr);
 
       // Set appropriate channel map (EB or EE)
       if( id.subdetId() == EcalBarrel ){

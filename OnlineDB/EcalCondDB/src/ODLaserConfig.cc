@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -14,10 +14,10 @@ using namespace oracle::occi;
 
 ODLaserConfig::ODLaserConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_size=0;
   m_config_tag="";
    m_ID=0;
@@ -151,9 +151,9 @@ void ODLaserConfig::setParameters(const std::map<string,string>& my_keys_map){
     if(ci->first==  "VINJ") setVinj(atoi(ci->second.c_str()) );
     if(ci->first==  "ORANGE_LED_MON_AMPL") setOrangeLedMonAmpl(atoi(ci->second.c_str()) );
     if(ci->first==  "BLUE_LED_MON_AMPL") setBlueLedMonAmpl(atoi(ci->second.c_str()) );
-    if(ci->first==  "TRIG_LOG_FILE") setTrigLogFile(ci->second.c_str() );
+    if(ci->first==  "TRIG_LOG_FILE") setTrigLogFile(ci->second );
     if(ci->first==  "LED_CONTROL_ON") setLedControlON(atoi(ci->second.c_str()) );
-    if(ci->first==  "LED_CONTROL_HOST") setLedControlHost( ci->second.c_str() );
+    if(ci->first==  "LED_CONTROL_HOST") setLedControlHost( ci->second );
     if(ci->first==  "LED_CONTROL_PORT") setLedControlPort(atoi(ci->second.c_str()) );
     if(ci->first==  "IR_LASER_POWER") setIRLaserPower(atoi(ci->second.c_str()) );
     if(ci->first==  "GREEN_LASER_POWER") setGreenLaserPower(atoi(ci->second.c_str()) );
@@ -208,7 +208,7 @@ int ODLaserConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -288,7 +288,7 @@ void ODLaserConfig::prepareWrite()
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -394,7 +394,7 @@ void ODLaserConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -410,7 +410,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODLaserConfig::fetchData(): no Id defined for this ODLaserConfig "));
   }
 
@@ -429,7 +429,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
     // start from 3 because of select * 
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
     result->setDebug(rset->getInt(  3  ));
     result->setDummy(rset->getInt(  4  ));
@@ -507,7 +507,7 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -535,7 +535,7 @@ int ODLaserConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   fetchData(this);

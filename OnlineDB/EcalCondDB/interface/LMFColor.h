@@ -18,7 +18,7 @@ class LMFColor : public LMFUnique {
 	   oracle::occi::Connection* conn);
   LMFColor(EcalDBConnection *c);
   LMFColor(EcalDBConnection *c, std::string col);
-  ~LMFColor();
+  ~LMFColor() override;
 
   LMFColor& setName(const std::string &s = "blue") {
     setString("sname", s);
@@ -46,7 +46,7 @@ class LMFColor : public LMFUnique {
   int getColorIndex() const { return getInt("color"); }
   int getColor() const { return getColorIndex(); }
 
-  bool isValid();
+  bool isValid() override;
 
   // Operators
   inline bool operator==(const LMFColor &m) const
@@ -58,11 +58,11 @@ class LMFColor : public LMFUnique {
   inline bool operator!=(const LMFColor &m) const { return !(*this == m); }
 
  private:
-  std::string fetchIdSql(Statement *stmt);
-  std::string fetchAllSql(Statement *stmt) const;
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  LMFUnique *createObject() const;
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string fetchAllSql(Statement *stmt) const override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  void getParameters(ResultSet *rset) override;
+  LMFUnique *createObject() const override;
 };
 
 #endif

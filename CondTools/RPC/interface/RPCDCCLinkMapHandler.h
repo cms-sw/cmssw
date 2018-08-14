@@ -18,11 +18,11 @@ class RPCDCCLinkMapHandler
     : public popcon::PopConSourceHandler<RPCDCCLinkMap>
 {
 public:
-    RPCDCCLinkMapHandler(edm::ParameterSet const & _config);
-    ~RPCDCCLinkMapHandler();
+    RPCDCCLinkMapHandler(edm::ParameterSet const & config);
+    ~RPCDCCLinkMapHandler() override;
 
-    void getNewObjects();
-    std::string id() const;
+    void getNewObjects() override;
+    std::string id() const override;
 
 protected:
     std::string id_;

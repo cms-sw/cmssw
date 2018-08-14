@@ -16,6 +16,8 @@
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="SimDataFormats/JetMatching"/>
 <use   name="boost"/>
 
 <flags LCG_DICT_HEADER="classes_objects.h classes_trigger.h classes_user.h classes_other.h"/>

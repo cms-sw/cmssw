@@ -4,9 +4,11 @@
 // Various simple tools
 // F.Ratnikov, UMd
 
-#include<limits>
+#include <algorithm>
+#include <limits>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "CommonTools/Utils/interface/EtComparator.h"

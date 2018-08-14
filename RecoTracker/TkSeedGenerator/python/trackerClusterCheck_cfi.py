@@ -9,5 +9,14 @@ phase2_tracker.toModify(trackerClusterCheck, doClusterCheck=False) # FIXME
 
 from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
 peripheralPbPb.toModify(trackerClusterCheck,
-    cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)"
-)
+                        doClusterCheck=True,  #FIXMETOO
+                        cut = "strip < 400000 && pixel < 40000 && (strip < 60000 + 7.0*pixel) && (pixel < 8000 + 0.14*strip)"
+                        )
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(trackerClusterCheck,
+               doClusterCheck=True, #FIXMETOO
+               cut = "strip < 1000000 && pixel < 100000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + strip/2.)",
+               MaxNumberOfPixelClusters = 100000
+               )

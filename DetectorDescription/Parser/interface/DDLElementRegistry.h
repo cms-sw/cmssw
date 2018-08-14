@@ -1,28 +1,19 @@
-#ifndef DDL_ElementRegistry_H
-#define DDL_ElementRegistry_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
 
-#include <string>
-#include <map>
-
-#include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/Singleton.icc"
-
-class DDXMLElement;
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 
 #include <CLHEP/Evaluator/Evaluator.h>
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include <string>
+#include <map>
+#include <memory>
+
+class DDXMLElement;
 
 /// The main class for processing parsed elements.
 /** \class DDLElementRegistry
  *                                                                         
- *
- *  DDLElementRegistry.h  -  description
- *  -------------------
- *  begin                : Wed Oct 24 2001
- *  email                : case@ucdhep.ucdavis.edu
- *
  *  This class is designed to serve as a registry of all DDL XML elements.
- *  It inherits from DDXMLElementRegistry.
  *
  *  This class is responsible for constructing and destructing
  *  any necessary DDL element.
@@ -33,7 +24,7 @@ class DDLElementRegistry
 {
 
  public:
-  typedef std::map <std::string, DDXMLElement*> RegistryMap;
+  typedef std::map <std::string, std::shared_ptr<DDXMLElement> > RegistryMap;
 
   DDLElementRegistry();
 
@@ -48,17 +39,13 @@ class DDLElementRegistry
    *  return a pointer if already registered or NULL, no instantiating.
    *
    */
-  DDXMLElement* getElement(const std::string& name); 
+  std::shared_ptr<DDXMLElement> getElement(const std::string& name); 
 
-  /// Get the name given a pointer.  This may not be needed...
-  const std::string& getElementName(DDXMLElement* theElement) const;
-  ClhepEvaluator &evaluator() { return ExprEvalSingleton::instance(); }
+  ClhepEvaluator &evaluator() { return evaluator_; }
 
  private:
   RegistryMap registry_;
+  ClhepEvaluator evaluator_;
 };
-
-///This is only here because of the boost::spirit::parser stuff of DDLMap needing to be re-designed.
-typedef DDI::Singleton<DDLElementRegistry> DDLGlobalRegistry;
 
 #endif

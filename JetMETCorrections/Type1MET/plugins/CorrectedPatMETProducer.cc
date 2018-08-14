@@ -49,7 +49,7 @@ public:
     produces<patMETCollection>("");
   }
 
-  ~CorrectedPatMETProducer() { }
+  ~CorrectedPatMETProducer() override { }
 
 private:
 

@@ -43,7 +43,7 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
   TMContainer validMeasurements;
 
-  TrajectoryMeasurement* bestMeasurement=0;
+  TrajectoryMeasurement* bestMeasurement=nullptr;
 
   // consider only valid TM
   int NumValidMeas=0;
@@ -98,8 +98,8 @@ pair<double,int> MuonBestMeasurementFinder::lookAtSubRecHits(TrajectoryMeasureme
   unsigned int npts=0;
   // unused  double thisChi2 = 0.;
 
-  TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
-  TrajectoryStateOnSurface predState = measurement->predictedState();                          // temporarily introduced by DT
+  const TransientTrackingRecHit::ConstRecHitPointer& muonRecHit = measurement->recHit();
+  const TrajectoryStateOnSurface& predState = measurement->predictedState();                          // temporarily introduced by DT
   std::pair<bool, double> sing_chi2 = estimator()->estimate( predState, *(muonRecHit.get()));  // temporarily introduced by DT
   npts = 1;                                                                                    // temporarily introduced by DT
   std::pair<double, int> result = pair<double, int>(sing_chi2.second, npts);                   // temporarily introduced by DT

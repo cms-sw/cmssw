@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,25 +42,25 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTEcalIsolationProducersRegional : public edm::EDProducer {
+class EgammaHLTEcalIsolationProducersRegional : public edm::global::EDProducer<> {
 public:
   explicit EgammaHLTEcalIsolationProducersRegional(const edm::ParameterSet&);
-  ~EgammaHLTEcalIsolationProducersRegional();
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  ~EgammaHLTEcalIsolationProducersRegional() override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::EDGetTokenT<reco::BasicClusterCollection> bcBarrelProducer_;
-  edm::EDGetTokenT<reco::BasicClusterCollection> bcEndcapProducer_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandBarrelProducer_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
+  const edm::ParameterSet conf_;
 
-  edm::ParameterSet conf_;
+  const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  const edm::EDGetTokenT<reco::BasicClusterCollection> bcBarrelProducer_;
+  const edm::EDGetTokenT<reco::BasicClusterCollection> bcEndcapProducer_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> scIslandBarrelProducer_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
 
-  double  egEcalIsoEtMin_;
-  double  egEcalIsoConeSize_;
-  int algoType_;
-  EgammaHLTEcalIsolation* test_;
+  const double  egEcalIsoEtMin_;
+  const double  egEcalIsoConeSize_;
+  const int algoType_;
+  EgammaHLTEcalIsolation const * const test_;
 };
 

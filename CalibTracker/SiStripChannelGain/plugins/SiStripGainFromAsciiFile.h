@@ -7,18 +7,18 @@
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <vector>
 
-#include <ext/hash_map>
+#include <unordered_map>
 
 class SiStripGainFromAsciiFile : public ConditionDBWriter<SiStripApvGain> {
 
 public:
 
   explicit SiStripGainFromAsciiFile(const edm::ParameterSet&);
-  ~SiStripGainFromAsciiFile();
+  ~SiStripGainFromAsciiFile() override;
 
 private:
 
-  SiStripApvGain * getNewObject();
+  SiStripApvGain * getNewObject() override;
 
 private:
 
@@ -34,8 +34,7 @@ private:
   float referenceValue_;
   edm::FileInPath fp_;
 
-  __gnu_cxx::hash_map< unsigned int,ModuleGain>  GainsMap;
-  //std::map< unsigned int,ModuleGain>  GainsMap;
+  std::unordered_map< unsigned int,ModuleGain>  GainsMap;
 
 };
 #endif

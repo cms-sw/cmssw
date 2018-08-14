@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_ECAL'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
-#process.CondDBCommon.connect = 'sqlite_file:DB.db'
+process.load("CondCore.CondDB.CondDB_cfi")
+#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_ECAL'
+#process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+process.CondDB.connect = 'sqlite_file:DB.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
@@ -21,7 +21,7 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDBCommon,
+  process.CondDB,
   toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('EcalClusterEnergyCorrectionParametersRcd'),

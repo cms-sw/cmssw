@@ -34,7 +34,7 @@ class HLTHcalPFClusterIsolationProducer : public edm::global::EDProducer<> {
 
  public:
   explicit HLTHcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~HLTHcalPFClusterIsolationProducer();    
+  ~HLTHcalPFClusterIsolationProducer() override;    
       
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

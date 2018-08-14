@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.MuonIsolation.muonPFIsolation_cff import *
@@ -47,23 +48,23 @@ otherSubJetVeto = 'OtherJetConstituentsDeltaRVeto(boostedTauSeeds,0.3,boostedTau
 
 pfChargedHadronVetos = muPFIsoValueCharged04.deposits[0].vetos.value()
 pfChargedHadronVetos.append(otherSubJetVeto)
-print "pfChargedHadronVetos = %s" % pfChargedHadronVetos
+print("pfChargedHadronVetos = %s" % pfChargedHadronVetos)
 
 pfNeutralHadronVetos = muPFIsoValueNeutral04.deposits[0].vetos.value()
 pfNeutralHadronVetos.append(otherSubJetVeto)
-print "pfNeutralHadronVetos = %s" % pfNeutralHadronVetos
+print("pfNeutralHadronVetos = %s" % pfNeutralHadronVetos)
 
 pfGammaVetos = muPFIsoValueGamma04.deposits[0].vetos.value()
 pfGammaVetos.append(otherSubJetVeto)
-print "pfGammaVetos = %s" % pfGammaVetos
+print("pfGammaVetos = %s" % pfGammaVetos)
 
 userVetos1 = muPFIsoValueChargedAll04.deposits[0].vetos.value()
 userVetos1.append(otherSubJetVeto)
-print "userVetos1 = %s" % userVetos1
+print("userVetos1 = %s" % userVetos1)
 
 userVetos2 = muPFIsoValuePU04.deposits[0].vetos.value()
 userVetos2.append(otherSubJetVeto)
-print "userVetos2 = %s" % userVetos2
+print("userVetos2 = %s" % userVetos2)
 
 patBoostedMuons.userIsolation = cms.PSet(
     # CV: strings for Isolation values defined in PhysicsTools/PatAlgos/src/MultiIsolator.cc

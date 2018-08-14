@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-me0RecHitsValidation = cms.EDAnalyzer('ME0RecHitsValidation',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+me0RecHitsValidation = DQMEDAnalyzer('ME0RecHitsValidation',
     verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     recHitInputLabel = cms.InputTag("me0RecHits"),
@@ -13,14 +14,14 @@ me0RecHitsValidation = cms.EDAnalyzer('ME0RecHitsValidation',
     nBinGlobalXY = cms.untracked.int32(160),
 )
 
-me0SegmentsValidation = cms.EDAnalyzer('ME0SegmentsValidation',
+me0SegmentsValidation = DQMEDAnalyzer('ME0SegmentsValidation',
     verboseSimHit = cms.untracked.int32(1),
     segmentInputLabel = cms.InputTag("me0Segments"),
-    digiInputLabel = cms.InputTag("simMuonME0ReDigis"),
+    digiInputLabel = cms.InputTag("simMuonME0PseudoReDigis"),
     simInputLabel = cms.InputTag('g4SimHits',"MuonME0Hits"),
     simInputLabelST = cms.InputTag('g4SimHits'),
-    sigma_x = cms.double(0.03),
-    sigma_y = cms.double(2.50),
+    sigma_x = cms.double(0.0003), #It corresponds to phi resolution
+    sigma_y = cms.double(0.03), #It corresponds to eta resolution
     eta_max = cms.double(2.8),
     eta_min = cms.double(2.0),
     pt_min = cms.double(0.0),

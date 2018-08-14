@@ -6,9 +6,9 @@
 #include <sstream>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <string>
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <ctime>
+#include <cstdlib>
+#include <cstdio>
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
 
 #include <vector>

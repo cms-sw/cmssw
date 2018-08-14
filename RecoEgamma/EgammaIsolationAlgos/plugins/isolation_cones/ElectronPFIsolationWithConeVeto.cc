@@ -58,10 +58,10 @@ public:
   void setConsumes(edm::ConsumesCollector) override {}
 
   bool isInIsolationCone(const reco::CandidatePtr& physob,
-			 const reco::CandidatePtr& other) const override final;
+			 const reco::CandidatePtr& other) const final;
   
   //! Destructor
-  virtual ~ElectronPFIsolationWithConeVeto(){};
+  ~ElectronPFIsolationWithConeVeto() override{};
   
 private:    
   const float _vetoConeSize2EB, _vetoConeSize2EE;  
@@ -94,11 +94,11 @@ isInIsolationCone(const reco::CandidatePtr& physob,
 	  break;
 	}
       }      
-      result *= ( is_vertex_allowed );
+      result = result && ( is_vertex_allowed );
     }
-    result *= deltar2 > vetoConeSize2 && deltar2 < _coneSize2 ;
+    result = result && ( deltar2 > vetoConeSize2 && deltar2 < _coneSize2 );
   } else if ( aspf.isNonnull() && aspf.get() ) {    
-    result *= deltar2 > vetoConeSize2 && deltar2 < _coneSize2;
+    result = result && ( deltar2 > vetoConeSize2 && deltar2 < _coneSize2 );
   } else {
     throw cms::Exception("InvalidIsolationInput")
       << "The supplied candidate to be used as isolation "

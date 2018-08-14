@@ -1,7 +1,10 @@
 #ifndef CommonTools_ParticleFlow_PdgIdPFCandidateSelectorDefinition
 #define CommonTools_ParticleFlow_PdgIdPFCandidateSelectorDefinition
 
+#include "FWCore/Common/interface/EventBase.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"

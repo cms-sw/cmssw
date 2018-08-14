@@ -36,7 +36,7 @@ class HGCalNumberingInitialization : public edm::ESProducer {
 
 public:
   HGCalNumberingInitialization(const edm::ParameterSet&);
-  ~HGCalNumberingInitialization();
+  ~HGCalNumberingInitialization() override;
 
   typedef std::unique_ptr<HGCalDDDConstants> ReturnType;
 
@@ -47,7 +47,7 @@ private:
   std::string        name_;
 };
 
-HGCalNumberingInitialization::HGCalNumberingInitialization(const edm::ParameterSet& iConfig) : hgcalDDDConst_(0) {
+HGCalNumberingInitialization::HGCalNumberingInitialization(const edm::ParameterSet& iConfig) : hgcalDDDConst_(nullptr) {
 
   name_ = iConfig.getUntrackedParameter<std::string>("Name");
   edm::LogInfo("HGCalGeom") << "HGCalNumberingInitialization for " << name_;
@@ -65,7 +65,7 @@ HGCalNumberingInitialization::ReturnType
 HGCalNumberingInitialization::produce(const IdealGeometryRecord& iRecord) {
 
   edm::LogInfo("HGCalGeom") << "in HGCalNumberingInitialization::produce";
-  if (hgcalDDDConst_ == 0) {
+  if (hgcalDDDConst_ == nullptr) {
     edm::ESHandle<HGCalParameters>  pHGpar;
     iRecord.get(name_, pHGpar);
     hgcalDDDConst_ = new HGCalDDDConstants(&(*pHGpar), name_);

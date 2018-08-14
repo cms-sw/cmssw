@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 RunSeqDef::RunSeqDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_runSeq = "";
   m_runType = RunTypeDef();
@@ -75,7 +75,7 @@ int RunSeqDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunSeqDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunSeqDef::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -98,7 +98,7 @@ void RunSeqDef::setByID(int id)
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
       idruntype = rset->getInt(1);
-      m_runSeq = rset->getString(2);
+      m_runSeq = getOraString(rset,2);
     } else {
       throw(std::runtime_error("RunSeqDef::setByID:  Given def_id is not in the database"));
     }
@@ -109,7 +109,7 @@ void RunSeqDef::setByID(int id)
     m_runType.setByID(idruntype);
 
   } catch (SQLException &e) {
-   throw(std::runtime_error("RunSeqDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("RunSeqDef::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -132,7 +132,7 @@ void RunSeqDef::fetchAllDefs( std::vector<RunSeqDef>* fillVec)
       fillVec->push_back( runSeqDef );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunSeqDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunSeqDef::fetchAllDefs:  ")+getOraMessage(&e)));
   }
 }
 
@@ -169,7 +169,7 @@ int RunSeqDef::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("RunSeqDef::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("RunSeqDef::writeDB:  ")+getOraMessage(&e)));
   }
 
   // now get the tag_id

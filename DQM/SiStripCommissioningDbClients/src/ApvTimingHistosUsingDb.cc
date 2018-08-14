@@ -35,6 +35,13 @@ ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( const edm::ParameterSet & pset,
     LogTrace(mlDqmClient_)
       << "[ApvTimingHistosUsingDb::" << __func__ << "]"
       << " Skipping update of FED parameters.";
+
+  allowSelectiveUpload_ = this->pset().existsAs<bool>("doSelectiveUpload")?this->pset().getParameter<bool>("doSelectiveUpload"):false;
+  if (allowSelectiveUpload_)
+    LogTrace(mlDqmClient_)
+      << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+      << " Enabling selective update of FED parameters.";
+
 }
 
 // -----------------------------------------------------------------------------
@@ -163,8 +170,8 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
       fec_path = fec_key;
       
       // Locate appropriate analysis object
-      Analyses::const_iterator iter = data().find( fec_key.key() );
-      if ( iter != data().end() ) { 
+      Analyses::const_iterator iter = data(allowSelectiveUpload_).find( fec_key.key() );
+      if ( iter != data(allowSelectiveUpload_).end() ) { 
 	
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
 	if ( !anal ) { 
@@ -314,8 +321,8 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 			     conn.lldChannel() );
       
       // Locate appropriate analysis object 
-      Analyses::const_iterator iter = data().find( fec_key.key() );
-      if ( iter != data().end() ) { 
+      Analyses::const_iterator iter = data(allowSelectiveUpload_).find( fec_key.key() );
+      if ( iter != data(allowSelectiveUpload_).end() ) { 
 	
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
 	if ( !anal ) { 

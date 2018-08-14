@@ -1,12 +1,55 @@
 #include "DetectorDescription/Parser/src/DDLMap.h"
-
-#include <stddef.h>
-#include <utility>
-
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
+// Boost parser, spirit, for parsing the std::vector elements.
+#include "boost/spirit/home/classic/core/non_terminal/grammar.hpp"
+#include "boost/spirit/include/classic.hpp"
+
+#include <cstddef>
+#include <utility>
+
 class DDCompactView;
+
+class MapPair {
+public:
+  MapPair(DDLMap* iMap):map_{iMap} { };
+  void operator()(char const* str, char const* end) const;
+private:
+  DDLMap* map_;
+};
+
+class MapMakeName {
+public:
+  MapMakeName(DDLMap* iMap):map_{iMap} { };
+  void operator()(char const* str, char const* end) const;
+private:
+  DDLMap* map_;
+};
+
+class MapMakeDouble {
+public:
+  MapMakeDouble(DDLMap* iMap): map_{iMap} { };
+  void operator()(char const* str, char const* end) const;
+private:
+  DDLMap* map_;
+};
+
+class Mapper : public boost::spirit::classic::grammar<Mapper> {
+public:
+  Mapper(DDLMap* iMap):map_{iMap} { };
+  template <typename ScannerT> struct definition;
+
+  MapPair mapPair() const { return MapPair(map_); }
+  MapMakeName mapMakeName() const { return MapMakeName(map_); }
+  MapMakeDouble mapMakeDouble() const { return MapMakeDouble(map_); }
+
+private:
+  DDLMap* map_;
+};
+
+
+namespace boost { namespace spirit { namespace classic {} } }
 
 using namespace boost::spirit::classic;
 
@@ -19,8 +62,8 @@ template <typename ScannerT> struct Mapper::definition
   definition(Mapper const& self)
     {
       mapSet
-	=   ppair[MapPair()]
-	>> *((',' >> ppair)[MapPair()])
+	=   ppair[self.mapPair()]
+	>> *((',' >> ppair)[self.mapPair()])
 	;
       
       ppair
@@ -29,11 +72,11 @@ template <typename ScannerT> struct Mapper::definition
 	;
       
       name
-	=   (alpha_p >> *alnum_p)[MapMakeName()]
+	=   (alpha_p >> *alnum_p)[self.mapMakeName()]
 	;
       
       value
-	=   (+(anychar_p - ','))[MapMakeDouble()]
+	=   (+(anychar_p - ','))[self.mapMakeDouble()]
 	;     
     }
 
@@ -46,22 +89,19 @@ template <typename ScannerT> struct Mapper::definition
 void
 MapPair::operator() (char const* str, char const* end) const
 { 
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
-  myDDLMap->do_pair(str, end);
+  map_->do_pair(str, end);
 }
 
 void
 MapMakeName::operator() (char const* str, char const* end) const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
-  myDDLMap->do_makeName(str, end);
+  map_->do_makeName(str, end);
 }
 
 void
 MapMakeDouble::operator() (char const* str, char const* end)const
 {
-  DDLMap* myDDLMap = dynamic_cast < DDLMap* > (DDLGlobalRegistry::instance().getElement("Map"));
-  myDDLMap->do_makeDouble(str, end);
+  map_->do_makeDouble(str, end);
 }
 
 void
@@ -81,7 +121,7 @@ DDLMap::processElement( const std::string& name, const std::string& nmspace, DDC
   DDXMLAttribute atts = getAttributeSet();
   std::string tName = atts.find("name")->second;
 
-  if (tTextToParse.size() == 0)
+  if (tTextToParse.empty())
   {
     errorOut("No std::string to parse!");
   }
@@ -92,7 +132,7 @@ DDLMap::processElement( const std::string& name, const std::string& nmspace, DDC
     errorOut("Map of type std::string is not supported yet.");
   }
 
-  Mapper mapGrammar;
+  Mapper mapGrammar{this};
   
   pMap.clear();
 

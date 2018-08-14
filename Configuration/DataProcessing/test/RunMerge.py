@@ -5,6 +5,7 @@ _RunMerge_
 Test/Debugging harness for the merge configuration builder
 
 """
+from __future__ import print_function
 
 
 
@@ -35,7 +36,8 @@ class RunMerge:
                 process_name = self.processName,
                 output_file = self.outputFile,
                 output_lfn = self.outputLFN,
-                newDQMIO = self.newDQMIO)
+                newDQMIO = self.newDQMIO,
+                mergeNANO = self.mergeNANO)
         except Exception as ex:
             msg = "Error creating process for Merge:\n"
             msg += str(ex)
@@ -45,20 +47,20 @@ class RunMerge:
         psetFile.write(process.dumpPython())
         psetFile.close()
         cmsRun = "cmsRun -j FrameworkJobReport.xml RunMergeCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
         
                 
 
 
 if __name__ == '__main__':
-    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot" ]
+    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO" ]
              
     usage = """RunMerge.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 
@@ -75,6 +77,7 @@ if __name__ == '__main__':
             merger.outputLFN = arg
         if opt == "--dqmroot" :
             merger.newDQMIO = True
-        
+        if  opt == "--mergeNANO" :
+            merger.mergeNANO = True
 
     merger()

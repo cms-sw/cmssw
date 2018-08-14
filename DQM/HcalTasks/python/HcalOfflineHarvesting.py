@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from DQM.HcalTasks.DigiTask import digiTask
 
-hcalOfflineHarvesting = cms.EDAnalyzer(
+hcalOfflineHarvesting = DQMEDHarvester(
 	"HcalOfflineHarvesting",
 
 	name = cms.untracked.string("HcalOfflineHarvesting"),
@@ -16,5 +18,6 @@ hcalOfflineHarvesting = cms.EDAnalyzer(
 	thresh_FGMsmRate_high = cms.untracked.double(0.2),
 	thresh_FGMsmRate_low = cms.untracked.double(0.1),
 	thresh_unihf = cms.untracked.double(0.2),
-	thresh_tcds = cms.untracked.double(1.5)
+	thresh_tcds = cms.untracked.double(1.5),
+	refDigiSize = digiTask.refDigiSize,
 )

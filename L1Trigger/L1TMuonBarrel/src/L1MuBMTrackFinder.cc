@@ -9,8 +9,9 @@
 //   Author :
 //   N. Neumeister            CERN EP
 //   J. Troconiz              UAM Madrid
-//   Modifications:   
+//   Modifications:
 //   G. Flouris	              U.Ioannina
+//   G. Karathanasis          U. Athens
 //--------------------------------------------------
 
 //-----------------------
@@ -34,15 +35,17 @@
 #include <FWCore/Framework/interface/Event.h>
 
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcMap.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMEtaProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMWedgeSorter.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMMuonSorter.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
 
 using namespace std;
 
@@ -58,7 +61,7 @@ using namespace std;
 L1MuBMTrackFinder::L1MuBMTrackFinder(const edm::ParameterSet & ps,edm::ConsumesCollector && iC):
 _cache0(144,-9,8),_cache(36, -9, 8) {
   // set configuration parameters
-  if ( m_config == 0 ) m_config = new L1MuBMTFConfig(ps);
+  if ( m_config == nullptr ) m_config = new L1MuBMTFConfig(ps);
 
   if ( L1MuBMTFConfig::Debug(1) ) cout << endl;
   if ( L1MuBMTFConfig::Debug(1) ) cout << "**** entering L1MuBMTrackFinder ****" << endl;
@@ -67,7 +70,7 @@ _cache0(144,-9,8),_cache(36, -9, 8) {
   m_spmap = new L1MuBMSecProcMap();
   m_epvec.reserve(12);
   m_wsvec.reserve(12);
-  m_ms = 0;
+  m_ms = nullptr;
 
   m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag());
 }
@@ -98,7 +101,7 @@ L1MuBMTrackFinder::~L1MuBMTrackFinder() {
   delete m_ms;
 
   if ( m_config ) delete m_config;
-  m_config = 0;
+  m_config = nullptr;
 
 }
 
@@ -155,16 +158,16 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
  int bx_min = L1MuBMTFConfig::getBxMin();
  int bx_max = L1MuBMTFConfig::getBxMax();
 
- //Resize the bx range according to the config file  
+ //Resize the bx range according to the config file
   _cache0.setBXRange(bx_min,bx_max);
   _cache.setBXRange(bx_min,bx_max);
-     
+
 
 
 // run the barrel Muon Trigger Track Finder
   edm::Handle<L1MuDTChambPhContainer> dttrig;
   e.getByToken(m_DTDigiToken,dttrig);
-  if ( dttrig->getContainer()->size() == 0 ) return;
+  if ( dttrig->getContainer()->empty() ) return;
 
   if ( L1MuBMTFConfig::Debug(2) ) cout << endl;
   if ( L1MuBMTFConfig::Debug(2) ) cout << "**** L1MuBMTrackFinder processing ------****" << endl;
@@ -210,8 +213,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
             l1t::RegionalMuonCand rmc;
 
-            if(cand->hwEta()>-33 || cand->hwEta()<32 )
-                rmc.setHwEta(eta_map[cand->hwEta()]);
+            // max value in LUTs is 117
+            if(cand->hwEta()>-117 || cand->hwEta()<117 )
+                rmc.setHwEta(cand->hwEta());
             else
                 rmc.setHwEta(-1000);
 
@@ -231,7 +235,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat2, 0);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat3, 0);
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kSegSelStat4, 0);
-	    rmc.setHwHF(cand->hwHF());
+            rmc.setHwHF(cand->hwHF());
 
             rmc.setHwPhi(cand->hwPhi());
             rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1 );
@@ -240,9 +244,10 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTFIdentifiers(cand->spid().sector(),l1t::tftype::bmtf);
 
             _cache0.push_back(cand->bx(), rmc);
-
+            _cache2.insert(std::end(_cache2), std::begin(cand->getTSphi()), std::end(cand->getTSphi()));
+            _cache3.insert(std::end(_cache3), std::begin(cand->getTSeta()), std::end(cand->getTSeta()));
+        }
       }
-     }
       it_sp++;
     }
 
@@ -281,8 +286,9 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setHwHF((*iter)->hwHF());
 
         rmc.setHwPhi((*iter)->hwPhi());
-        if((*iter)->hwEta()>-33 || (*iter)->hwEta()<32 )
-                rmc.setHwEta(eta_map[(*iter)->hwEta()]);
+        if((*iter)->hwEta()>-117 || (*iter)->hwEta()<117 )
+	  //  rmc.setHwEta(eta_map[(*iter)->hwEta()]);
+           rmc.setHwEta((*iter)->hwEta());
         else
             rmc.setHwEta(-1000);
         rmc.setHwSign((*iter)->hwSign() == 1 ? 0 : 1);
@@ -290,7 +296,10 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
         rmc.setHwQual((*iter)->hwQual());
         rmc.setTFIdentifiers((*iter)->spid().sector(),l1t::tftype::bmtf);
 
-        if ( *iter ){ _cache.push_back((*iter)->bx(), rmc);}
+        if ( *iter ){
+	  _cache.push_back((*iter)->bx(), rmc);
+	  _cache1.push_back(**iter);
+	}
      }
     }
 
@@ -416,7 +425,9 @@ void L1MuBMTrackFinder::clear() {
 
   _cache.clear();
   _cache0.clear();
-
+  _cache1.clear();
+  _cache2.clear();
+  _cache3.clear();
 }
 
 
@@ -466,4 +477,4 @@ int  L1MuBMTrackFinder::setAdd(int ust, int rel_add) {
 
 // static data members
 
-L1MuBMTFConfig* L1MuBMTrackFinder::m_config = 0;
+L1MuBMTFConfig* L1MuBMTrackFinder::m_config = nullptr;

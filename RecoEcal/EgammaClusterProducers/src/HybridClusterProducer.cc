@@ -17,6 +17,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -128,7 +129,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLv.product(),false,
-			 std::vector<EcalEtaPhiRegion>());
+			 std::vector<RectangularEtaPhiRegion>());
 
   LogTrace("EcalClusters") << "Finished clustering - BasicClusterCollection returned to producer..." ;
 

@@ -14,7 +14,8 @@ void DDRoot::set(const DDName & name)
    root_ = DDLogicalPart(name);
 }
 
-void DDRoot::set(const DDLogicalPart & root)
+void
+DDRoot::set(const DDLogicalPart & root)
 {
    root_ = root;
 }

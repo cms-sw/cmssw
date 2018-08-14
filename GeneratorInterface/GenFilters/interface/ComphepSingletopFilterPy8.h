@@ -19,11 +19,11 @@ namespace edm {
 class ComphepSingletopFilterPy8 : public edm::EDFilter {
 public:
     explicit ComphepSingletopFilterPy8(const edm::ParameterSet&);
-    ~ComphepSingletopFilterPy8();
+    ~ComphepSingletopFilterPy8() override;
 private:
-    virtual void beginJob() ;
-    virtual bool filter(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    void beginJob() override ;
+    bool filter(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override ;
     edm::EDGetTokenT<edm::HepMCProduct> token_;
 private:
 //     edm::InputTag hepMCProductTag;

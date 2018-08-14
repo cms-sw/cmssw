@@ -47,12 +47,12 @@
 class JetVertexChecker : public edm::stream::EDFilter<> {
    public:
       explicit JetVertexChecker(const edm::ParameterSet&);
-      ~JetVertexChecker();
+      ~JetVertexChecker() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<reco::JetTracksAssociationCollection> m_associator; 

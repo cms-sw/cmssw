@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtChamberEfficiencyClient = cms.EDAnalyzer("DTChamberEfficiencyClient",
+dtChamberEfficiencyClient = DQMEDHarvester("DTChamberEfficiencyClient",
                                            diagnosticPrescale = cms.untracked.int32(1))

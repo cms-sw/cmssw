@@ -23,6 +23,8 @@
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
 #include <set>
 #include <string>
 #include <sstream>
@@ -49,7 +51,7 @@ PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steer
 }
 
 //__________________________________________________________________________________________________
-bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
+bool PedeReader::read(align::Alignables& alignables, bool setUserVars)
 {
   alignables.clear();
   myPedeResult.seekg(0, std::ios::beg); // back to start
@@ -164,7 +166,7 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
   if (alignable) {
     AlignmentParameters *params = this->checkAliParams(alignable, setUserVars);
     MillePedeVariables *userParams = // static cast ensured by previous checkAliParams
-      (setUserVars ? static_cast<MillePedeVariables*>(params->userVariables()) : 0);
+      (setUserVars ? static_cast<MillePedeVariables*>(params->userVariables()) : nullptr);
     // if (userParams && userParams->label() != myLabels.alignableLabelFromLabel(paramLabel)) {
     if (userParams && userParams->label() != myLabels.alignableLabel(alignable)) {
       edm::LogError("Alignment") << "@SUB=PedeReader::setParameter" 
@@ -273,7 +275,9 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable, bool creat
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Add user variables for alignable with label " 
                               << myLabels.alignableLabel(alignable);
-    params->setUserVariables(new MillePedeVariables(params->size(), myLabels.alignableLabel(alignable)));
+    params->setUserVariables(new MillePedeVariables(params->size(),
+                                                    myLabels.alignableLabel(alignable),
+                                                    myLabels.alignableTracker()->objectIdProvider().typeToName(alignable->alignableObjectId())));
   }
   
   return params;

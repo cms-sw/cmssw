@@ -28,5 +28,9 @@ GlbMuKFFitter = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFi
     minHits = cms.int32(3)
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# FastSim doesn't use Runge Kute for propagation
+fastSim.toModify(GlbMuKFFitter,
+                 Propagator = "SmartPropagatorAny")
 
 

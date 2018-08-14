@@ -45,7 +45,7 @@ int main ( int argc, char ** argv )
   // now setup the md5 and cute accessor functions
   unsigned char id_md5_[MD5_DIGEST_LENGTH];
   memset(id_md5_,0,MD5_DIGEST_LENGTH*sizeof(unsigned char));
-  MD5((unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
+  MD5((const unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
   printf("%s : ",argv[2]);
   for( unsigned i=0; i<MD5_DIGEST_LENGTH; ++i ){
     printf("%02x", id_md5_[i]);   

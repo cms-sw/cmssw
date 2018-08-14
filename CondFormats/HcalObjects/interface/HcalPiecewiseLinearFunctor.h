@@ -38,11 +38,11 @@ public:
                                bool leftExtrapolationLinear,
                                bool rightExtrapolationLinear);
 
-    inline virtual ~HcalPiecewiseLinearFunctor() {}
+    inline ~HcalPiecewiseLinearFunctor() override {}
 
-    virtual double operator()(double x) const override;
-    virtual double xmin() const override;
-    virtual double xmax() const override;
+    double operator()(double x) const override;
+    double xmin() const override;
+    double xmax() const override;
 
     // Check if the interpolated values are strictly increasing or decreasing
     bool isStrictlyMonotonous() const;
@@ -52,7 +52,7 @@ public:
     HcalPiecewiseLinearFunctor inverse() const;
 
 protected:
-    inline virtual bool isEqual(const AbsHcalFunctor& other) const override
+    inline bool isEqual(const AbsHcalFunctor& other) const override
     {
         const HcalPiecewiseLinearFunctor& r =
             static_cast<const HcalPiecewiseLinearFunctor&>(other);

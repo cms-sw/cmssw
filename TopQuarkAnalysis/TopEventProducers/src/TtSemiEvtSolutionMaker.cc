@@ -90,19 +90,19 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   edm::Handle<std::vector<pat::Muon> > muons;
   if(leptonFlavour_ == "muon"){
     iEvent.getByToken(muonSrcToken_, muons);
-    if (muons->size() > 0) leptonFound = true;
+    if (!muons->empty()) leptonFound = true;
   }
   edm::Handle<std::vector<pat::Electron> > electrons;
   if(leptonFlavour_ == "electron"){
     iEvent.getByToken(electronSrcToken_, electrons);
-    if (electrons->size() > 0) leptonFound = true;
+    if (!electrons->empty()) leptonFound = true;
   }
 
   // select MET (TopMET vector is sorted on ET)
   bool metFound = false;
   edm::Handle<std::vector<pat::MET> > mets;
   iEvent.getByToken(metSrcToken_, mets);
-  if (mets->size() > 0) metFound = true;
+  if (!mets->empty()) metFound = true;
 
   // select Jets
   bool jetsFound = false;
@@ -237,7 +237,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
     for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleBestJetComb(simpleBestJetComb);
 
     // choose the best jet combination according to LR value
-    if (addLRJetComb_ && evtsols->size()>0) {
+    if (addLRJetComb_ && !evtsols->empty()) {
       float bestLRVal = -1000000;
       int bestSol = (*evtsols)[0].getLRBestJetComb(); // duplicate the default
       for(size_t s=0; s<evtsols->size(); s++) {

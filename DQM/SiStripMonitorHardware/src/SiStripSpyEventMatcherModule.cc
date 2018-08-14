@@ -31,9 +31,9 @@ namespace sistrip {
   {
     public:
       SpyEventMatcherModule(const edm::ParameterSet& config);
-      virtual ~SpyEventMatcherModule();
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
+      ~SpyEventMatcherModule() override;
+      void beginJob() override;
+      bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
     private:
       void findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const;
       void copyData(const uint32_t eventId, const uint8_t apvAddress, const SpyEventMatcher::SpyEventList* matches, edm::Event& event,
@@ -123,7 +123,7 @@ namespace sistrip {
         LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was " << e.what();
         continue;
       }
-      if (!buffer->doChecks()) {
+      if (!buffer->doChecks(true)) {
         LogDebug(messageLabel_) << "Buffer check failed for FED ID " << *iFedId;
         continue;
       }
@@ -141,7 +141,7 @@ namespace sistrip {
           if (!iConn->isConnected()) {
             continue;
           }
-          if ( !buffer->channelGood(iConn->fedCh()) ) {
+          if ( !buffer->channelGood(iConn->fedCh(), true) ) {
             continue;
           } else {
             apvAddress = header->feUnitMajorityAddress(iConn->fedCh()/FEDCH_PER_FEUNIT);

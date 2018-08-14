@@ -8,7 +8,7 @@
 using namespace std;
 using namespace edm;
 PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig):
-  pfTransformer_(0)
+  pfTransformer_(nullptr)
 {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFNuclearInteractionCollection>();

@@ -54,14 +54,13 @@ MeasurementTrackerESProducer::MeasurementTrackerESProducer(const edm::ParameterS
 
 MeasurementTrackerESProducer::~MeasurementTrackerESProducer() {}
 
-std::shared_ptr<MeasurementTracker> 
+std::unique_ptr<MeasurementTracker> 
 MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 { 
 
-
   // ========= SiPixelQuality related tasks =============
-  const SiPixelQuality    *ptr_pixelQuality = 0;
-  const SiPixelFedCabling *ptr_pixelCabling = 0;
+  const SiPixelQuality    *ptr_pixelQuality = nullptr;
+  const SiPixelFedCabling *ptr_pixelCabling = nullptr;
   int   pixelQualityFlags = 0;
   int   pixelQualityDebugFlags = 0;
   edm::ESHandle<SiPixelQuality>	      pixelQuality;
@@ -89,7 +88,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   }
   
   // ========= SiStripQuality related tasks =============
-  const SiStripQuality *ptr_stripQuality = 0;
+  const SiStripQuality *ptr_stripQuality = nullptr;
   int   stripQualityFlags = 0;
   int   stripQualityDebugFlags = 0;
   edm::ESHandle<SiStripQuality>	stripQuality;
@@ -125,6 +124,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
   edm::ESHandle<StripClusterParameterEstimator> stripCPE;
   edm::ESHandle<SiStripRecHitMatcher>           hitMatcher;
+  edm::ESHandle<TrackerTopology>                trackerTopology;
   edm::ESHandle<TrackerGeometry>                trackerGeom;
   edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;
   edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > phase2TrackerCPE;
@@ -132,15 +132,18 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TkPixelCPERecord>().get(pixelCPEName,pixelCPE);
   iRecord.getRecord<TkStripCPERecord>().get(stripCPEName,stripCPE);
   iRecord.getRecord<TkStripCPERecord>().get(matcherName,hitMatcher);
+  iRecord.getRecord<TrackerTopologyRcd>().get(trackerTopology);
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
 
+
   if(phase2TrackerCPEName != ""){
       iRecord.getRecord<TkStripCPERecord>().get(phase2TrackerCPEName,phase2TrackerCPE);
-      _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
+      return             std::make_unique<MeasurementTrackerImpl>(pset_,
 							          pixelCPE.product(),
 							          stripCPE.product(),
 							          hitMatcher.product(),
+							          trackerTopology.product(),
 							          trackerGeom.product(),
 							          geometricSearchTracker.product(),
 							          ptr_stripQuality,
@@ -152,10 +155,11 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
                                                                   pixelQualityDebugFlags,
 							          phase2TrackerCPE.product());
   } else {
-      _measurementTracker  = std::make_shared<MeasurementTrackerImpl>(pset_,
+      return             std::make_unique<MeasurementTrackerImpl>(pset_,
 							          pixelCPE.product(),
 							          stripCPE.product(),
 							          hitMatcher.product(),
+							          trackerTopology.product(),
 							          trackerGeom.product(),
 							          geometricSearchTracker.product(),
 							          ptr_stripQuality,
@@ -166,7 +170,6 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
                                                                   pixelQualityFlags,
                                                                   pixelQualityDebugFlags);
   }
-  return _measurementTracker;
 }
 
 

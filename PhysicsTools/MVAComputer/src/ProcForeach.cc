@@ -32,17 +32,17 @@ class ProcForeach : public VarProcessor {
 	ProcForeach(const char *name,
 	             const Calibration::ProcForeach *calib,
 	             const MVAComputer *computer);
-	virtual ~ProcForeach() {}
+	~ProcForeach() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual ConfigCtx::Context *
+	void configure(ConfIterator iter, unsigned int n) override;
+	ConfigCtx::Context *
 	configureLoop(ConfigCtx::Context *ctx, ConfigCtx::iterator begin,
 	              ConfigCtx::iterator cur, ConfigCtx::iterator end) override;
 
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
-	virtual LoopStatus loop(double *output, int *conf,
+	LoopStatus loop(double *output, int *conf,
 	                        unsigned int nOutput,
                                 LoopCtx& ctx,
 	                        unsigned int &nOffset) const override;
@@ -51,7 +51,7 @@ class ProcForeach : public VarProcessor {
 	struct ConfContext : public VarProcessor::ConfigCtx::Context {
 		ConfContext(unsigned int origin, unsigned int count) :
 			origin(origin), count(count) {}
-		virtual ~ConfContext() {}
+		~ConfContext() override {}
 
 		unsigned int origin;
 		unsigned int count;
@@ -60,7 +60,7 @@ class ProcForeach : public VarProcessor {
 	unsigned int		count;
 };
 
-static ProcForeach::Registry registry("ProcForeach");
+ProcForeach::Registry registry("ProcForeach");
 
 ProcForeach::ProcForeach(const char *name,
                          const Calibration::ProcForeach *calib,
@@ -93,7 +93,7 @@ ProcForeach::configureLoop(ConfigCtx::Context *ctx_, ConfigCtx::iterator begin,
 	if (--ctx->count)
 		return ctx;
 	else
-		return 0;
+		return nullptr;
 }
 
 void ProcForeach::eval(ValueIterator iter, unsigned int n) const

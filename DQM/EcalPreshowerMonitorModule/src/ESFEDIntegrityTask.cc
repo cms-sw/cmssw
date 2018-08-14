@@ -15,7 +15,6 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/EcalRawData/interface/ESDCCHeaderBlock.h"
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
 
@@ -32,9 +31,9 @@ ESFEDIntegrityTask::ESFEDIntegrityTask(const ParameterSet& ps) {
   dccCollections_       = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
   FEDRawDataCollection_ = consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("FEDRawDataCollection"));
 
-  meESFedsEntries_  = 0;
-  meESFedsFatal_    = 0;
-  meESFedsNonFatal_ = 0;
+  meESFedsEntries_  = nullptr;
+  meESFedsFatal_    = nullptr;
+  meESFedsNonFatal_ = nullptr;
 
   ievt_ = 0;
   

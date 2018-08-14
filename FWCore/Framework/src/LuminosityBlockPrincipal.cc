@@ -5,7 +5,6 @@
 namespace edm {
 
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(
-      std::shared_ptr<LuminosityBlockAuxiliary> aux,
       std::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
       HistoryAppender* historyAppender,
@@ -13,19 +12,14 @@ namespace edm {
       bool isForPrimaryProcess) :
     Base(reg, reg->productLookup(InLumi), pc, InLumi, historyAppender, isForPrimaryProcess),
         runPrincipal_(),
-        aux_(aux),
-        index_(index),
-        complete_(false) {
+        index_(index) {
   }
 
   void
   LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
       ProcessHistoryRegistry const& processHistoryRegistry,
       DelayedReader* reader) {
-
-    complete_ = false;
-
-    fillPrincipal(aux_->processHistoryID(), processHistoryRegistry, reader);
+    fillPrincipal(aux_.processHistoryID(), processHistoryRegistry, reader);
 
     for(auto& prod : *this) {
       prod->setProcessHistory(processHistory());
@@ -37,6 +31,13 @@ namespace edm {
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp) const {
     putOrMerge(bd,std::move(edp));
+  }
+
+  void
+  LuminosityBlockPrincipal::put(ProductResolverIndex index,
+                                std::unique_ptr<WrapperBase> edp) const {
+    auto phb = getProductResolverByIndex(index);
+    phb->putOrMergeProduct(std::move(edp));
   }
 
   unsigned int

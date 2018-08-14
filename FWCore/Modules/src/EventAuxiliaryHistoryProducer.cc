@@ -1,54 +1,48 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include <deque>
 
 namespace edm {
 
-  class EventAuxiliaryHistoryProducer : public EDProducer {
+  class EventAuxiliaryHistoryProducer : public one::EDProducer<> {
   public:
     explicit EventAuxiliaryHistoryProducer(ParameterSet const&);
-    virtual ~EventAuxiliaryHistoryProducer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    virtual void produce(Event& e, EventSetup const& c) override;
+    void produce(Event& e, EventSetup const& c) override;
     void endJob() override;
 
   private:
     unsigned int depth_;
-    std::deque<EventAuxiliary> history_; 
+    std::deque<EventAuxiliary> history_;
+    EDPutTokenT<std::vector<EventAuxiliary>> token_;
   };
 
   EventAuxiliaryHistoryProducer::EventAuxiliaryHistoryProducer(ParameterSet const& ps):
     depth_(ps.getParameter<unsigned int>("historyDepth")),
-    history_() {
-      produces<std::vector<EventAuxiliary> > ();
-  }
-
-  EventAuxiliaryHistoryProducer::~EventAuxiliaryHistoryProducer() {
+    history_(),
+    token_{produces<std::vector<EventAuxiliary> > ()}
+  {
   }
 
   void EventAuxiliaryHistoryProducer::produce(Event& e, EventSetup const&) {
     EventAuxiliary aux(e.id(), "", e.time(), e.isRealData(), e.experimentType(),
                        e.bunchCrossing(), EventAuxiliary::invalidStoreNumber, e.orbitNumber()); 
   //EventAuxiliary const& aux = e.auxiliary(); // when available
-    if(history_.size() > 0) {
+    if(!history_.empty()) {
       if(history_.back().id().next(aux.luminosityBlock()) != aux.id()) history_.clear();
       if(history_.size() >= depth_) history_.pop_front();
     }
 
     history_.push_back(aux);
 
-    //Serialize into std::vector 
-    auto result = std::make_unique<std::vector<EventAuxiliary>>();
-    for(size_t j = 0; j < history_.size(); ++j) { 
-      result->push_back(history_[j]);
-    }
-    e.put(std::move(result));
+    e.emplace(token_,history_.begin(), history_.end());
   }
 
   void EventAuxiliaryHistoryProducer::endJob() {

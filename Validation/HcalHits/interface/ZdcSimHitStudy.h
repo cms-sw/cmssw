@@ -53,14 +53,14 @@ class ZdcSimHitStudy: public DQMEDAnalyzer{
 public:
 
   ZdcSimHitStudy(const edm::ParameterSet& ps);
-  ~ZdcSimHitStudy();
+  ~ZdcSimHitStudy() override;
 
 protected:
 
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  void analyze  (const edm::Event& e, const edm::EventSetup& c);
+  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
   void analyzeHits  (std::vector<PCaloHit> &);
   int FillHitValHist (int side,int section,int channel,double energy,double time);
 

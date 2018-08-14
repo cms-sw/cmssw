@@ -19,22 +19,22 @@ class TkStackMeasurementDet GCC11_FINAL : public MeasurementDet {
   void init(const MeasurementDet* lowerDet,
 	    const MeasurementDet* upperDet);
 
-  virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+  RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const override;
 
   const StackGeomDet& specificGeomDet() const {return static_cast<StackGeomDet const&>(fastGeomDet());}
 
-  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+  bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
-			     TempMeasurements & result) const;
+			     TempMeasurements & result) const override;
 
   const TkPhase2OTMeasurementDet* lowerDet() const{ return theInnerDet;}
   const TkPhase2OTMeasurementDet* upperDet() const{ return theOuterDet;}
 
   /// return TRUE if both lower and upper components are active
-  bool isActive(const MeasurementTrackerEvent & data) const {return lowerDet()->isActive(data) && upperDet()->isActive(data); }
+  bool isActive(const MeasurementTrackerEvent & data) const override {return lowerDet()->isActive(data) && upperDet()->isActive(data); }
 
   /// return TRUE if at least one of the lower and upper components has badChannels
-  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const override {
     return (lowerDet()->hasBadComponents(tsos, data) || upperDet()->hasBadComponents(tsos, data));}
 
  private:

@@ -11,7 +11,6 @@
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
@@ -24,30 +23,29 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     UseAssociators = pset.getParameter< bool >("UseAssociators");
     useGEMs_ = pset.getParameter< bool >("useGEMs");
     useME0_ = pset.getParameter< bool >("useME0");
-    tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
-					  pset.getParameter<double>("minRapidityTP"),
-					  pset.getParameter<double>("maxRapidityTP"),
-					  pset.getParameter<double>("tipTP"),
-					  pset.getParameter<double>("lipTP"),
-					  pset.getParameter<int>("minHitTP"),
-					  pset.getParameter<bool>("signalOnlyTP"),
-					  pset.getParameter<bool>("intimeOnlyTP"),
-					  pset.getParameter<bool>("chargedOnlyTP"),
-					  pset.getParameter<bool>("stableOnlyTP"),
-					  pset.getParameter<std::vector<int> >("pdgIdTP"));
-    cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
-						      pset.getParameter<double>("minRapidityTP"),
-						      pset.getParameter<double>("maxRapidityTP"),
-						      pset.getParameter<double>("tipTP"),
-						      pset.getParameter<double>("lipTP"),
-						      pset.getParameter<int>("minHitTP"),
-						      pset.getParameter<bool>("chargedOnlyTP"),
-						      pset.getParameter<std::vector<int> >("pdgIdTP"));
+    edm::ParameterSet tpset = pset.getParameter<edm::ParameterSet>("muonTPSelector");
+    tpSelector = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+                                          tpset.getParameter<double>("ptMax"),
+					  tpset.getParameter<double>("minRapidity"),
+					  tpset.getParameter<double>("maxRapidity"),
+					  tpset.getParameter<double>("tip"),
+					  tpset.getParameter<double>("lip"),
+					  tpset.getParameter<int>("minHit"),
+					  tpset.getParameter<bool>("signalOnly"),
+					  tpset.getParameter<bool>("intimeOnly"),
+					  tpset.getParameter<bool>("chargedOnly"),
+					  tpset.getParameter<bool>("stableOnly"),
+					  tpset.getParameter<std::vector<int> >("pdgId"));
+
+    cosmictpSelector = CosmicTrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+						      tpset.getParameter<double>("minRapidity"),
+						      tpset.getParameter<double>("maxRapidity"),
+						      tpset.getParameter<double>("tip"),
+						      tpset.getParameter<double>("lip"),
+						      tpset.getParameter<int>("minHit"),
+						      tpset.getParameter<bool>("chargedOnly"),
+						      tpset.getParameter<std::vector<int> >("pdgId"));
     
-    minPhi = pset.getParameter<double>("minPhi");
-    maxPhi = pset.getParameter<double>("maxPhi");
-    nintPhi = pset.getParameter<int>("nintPhi");
-    useGsf = pset.getParameter<bool>("useGsf");
     BiDirectional_RecoToSim_association = pset.getParameter<bool>("BiDirectional_RecoToSim_association");
 
     // dump cfg parameters
@@ -57,6 +55,7 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     bsSrc_Token = consumes<reco::BeamSpot>(bsSrc);
     tp_effic_Token = consumes<TrackingParticleCollection>(label_tp_effic);
     tp_fake_Token = consumes<TrackingParticleCollection>(label_tp_fake);
+    pileupinfo_Token = consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
     for (unsigned int www=0;www<label.size();www++){
       track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
     }
@@ -135,25 +134,15 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
   }
   
   /// Destructor
-  virtual ~MuonTrackValidator(){ }
+  ~MuonTrackValidator() override{ }
 
   /// Method called before the event loop
   //  void beginRun(edm::Run const&, edm::EventSetup const&);
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// Method called at the end of the event loop
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&);
-
-private:
-  /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF)
-  void getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
-			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
-			double& phi, double& phiError ) const;
-  /// retrieval of reconstructed momentum components based on the mode of a reco::GsfTrack
-  void getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
-			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
-			double& phi, double& phiError) const;
+  //   void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
  private:
   std::string dirName_;
@@ -165,9 +154,7 @@ private:
   bool UseAssociators;
   bool useGEMs_;
   bool useME0_;
-  double minPhi, maxPhi;
-  int nintPhi;
-  bool useGsf;
+
   // select tracking particles
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;	
@@ -178,36 +165,6 @@ private:
   // flag MuonAssociatorByHits
   bool MABH;
   
-  //1D
-  std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
-
-  //2D
-  std::vector<MonitorElement*> chi2_vs_nhits, etares_vs_eta;
-  std::vector<MonitorElement*> h_ptshifteta;
-  std::vector<MonitorElement*> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
-
-  //Profile2D
-  std::vector<MonitorElement*> ptmean_vs_eta_phi, phimean_vs_eta_phi;
-
-  //assoc chi2
-  std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
-
-  //chi2 and # lost hits vs eta: to be used with doProfileX
-  std::vector<MonitorElement*> chi2_vs_eta, nlosthits_vs_eta;
-  std::vector<MonitorElement*> h_chi2meanh, h_losthits_eta;
-  std::vector<MonitorElement*> h_hits_phi;
-  std::vector<MonitorElement*> h_chi2meanhitsh, h_chi2mean_vs_phi;
-
-  //resolution of track params: to be used with fitslicesytool
-  std::vector<MonitorElement*> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
-  std::vector<MonitorElement*> dxyres_vs_pt, ptres_vs_pt, dzres_vs_pt, phires_vs_pt, cotThetares_vs_pt;
-
-  //pulls of track params vs eta: to be used with fitslicesytool
-  std::vector<MonitorElement*> dxypull_vs_eta, ptpull_vs_eta, dzpull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
-  std::vector<MonitorElement*> ptpull_vs_phi, phipull_vs_phi, thetapull_vs_phi;
-  std::vector<MonitorElement*> h_dxypulleta, h_ptpulleta, h_dzpulleta, h_phipulleta, h_thetapulleta;
-  std::vector<MonitorElement*> h_ptpullphi, h_phipullphi, h_thetapullphi;
-
 };
 
 

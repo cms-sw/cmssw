@@ -94,10 +94,10 @@ Bool_t TSLToyGen::doToyExperiments( Int_t nbExperiments ) {
   TFitConstraintEp pYCons( "pY", "pY", &ParVec, TFitConstraintEp::pY, _Y4S.y() );
   TFitConstraintEp pZCons( "pZ", "pZ", &ParVec, TFitConstraintEp::pZ, _Y4S.z() );
   TFitConstraintEp ECons( "E", "E", &ParVec, TFitConstraintEp::E, EY4S );
-  TFitConstraintM MCons( "MassConstraint", "Mass-Constraint", 0, 0 ,0);
+  TFitConstraintM MCons( "MassConstraint", "Mass-Constraint", nullptr, nullptr ,0);
   MCons.addParticle1( _breco );
   MCons.addParticles2( _lepton, _neutrino, _X );
-  TFitConstraintM MPDGCons( "MPDGCons", "MPDGCons", 0, 0 , 5.279 );
+  TFitConstraintM MPDGCons( "MPDGCons", "MPDGCons", nullptr, nullptr , 5.279 );
   MPDGCons.addParticles1( _lepton, _neutrino, _X );
 //   TFitConstraintE EBCons( "EBXlnuCons", "EBXlnuCons", 0, 0 );
 //   EBCons.addParticle1( _breco );

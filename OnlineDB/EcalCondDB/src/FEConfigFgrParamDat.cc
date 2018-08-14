@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigFgrParamDat::FEConfigFgrParamDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_fglowthresh = 0;
   m_fghighthresh = 0;
@@ -42,7 +42,7 @@ void FEConfigFgrParamDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :logic_id, "
 		      " :fg_lowthresh, :fg_highthresh, :fg_lowratio, :fg_highratio )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrParamDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrParamDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -70,7 +70,7 @@ void FEConfigFgrParamDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrPara
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrParamDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrParamDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -102,12 +102,12 @@ void FEConfigFgrParamDat::fetchData(map< EcalLogicID, FEConfigFgrParamDat >* fil
     std::pair< EcalLogicID, FEConfigFgrParamDat > p;
     FEConfigFgrParamDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setFGlowthresh( rset->getFloat(7) );  
       dat.setFGhighthresh(  rset->getFloat(8) );
@@ -118,7 +118,7 @@ void FEConfigFgrParamDat::fetchData(map< EcalLogicID, FEConfigFgrParamDat >* fil
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrParamDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrParamDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
@@ -209,6 +209,6 @@ void FEConfigFgrParamDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrP
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrParamDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrParamDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

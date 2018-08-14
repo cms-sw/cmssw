@@ -2,6 +2,8 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
+	
 	RecoRunSummary::RecoRunSummary(std::string const& name, 
 		std::string const& taskname, edm::ParameterSet const& ps) :
 		DQClient(name, taskname, ps)
@@ -39,36 +41,19 @@ namespace hcaldqm
 			return std::vector<flag::Flag>();
 
 		// FILTERS, some useful vectors, hash maps
-		std::vector<uint32_t> vhashFEDHF;
-		vhashFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
+		std::vector<uint32_t> vhashCrateHF;
+		vhashCrateHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN,
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		vhashFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN,
+		vhashCrateHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN,
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		vhashFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
+		vhashCrateHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		vhashFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN+6,
-			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		vhashFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN+6,
-			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		vhashFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN+6,
-			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		filter::HashFilter filter_FEDHF;
-		filter_FEDHF.initialize(filter::fPreserver, hashfunctions::fFED,
-			vhashFEDHF);    // preserve only HF FEDs
+		filter::HashFilter filter_CrateHF;
+		filter_CrateHF.initialize(filter::fPreserver, hashfunctions::fCrate,
+			vhashCrateHF);    // preserve only HF crates
 		electronicsmap::ElectronicsMap ehashmap;
 		ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 		bool tcdsshift = false;
-		filter::HashFilter filter_VME;
-		filter::HashFilter filter_uTCA;
-		std::vector<uint32_t> vhashVME,vhashuTCA;
-		vhashVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
-			constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
-		vhashuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
-			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-		filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics,
-			vhashuTCA);
-		filter_VME.initialize(filter::fFilter, hashfunctions::fElectronics,
-			vhashVME);
 		std::vector<flag::Flag> vflags; vflags.resize(nRecoFlag);
 		vflags[fUniSlotHF]=flag::Flag("UniSlotHF");
 		vflags[fTCDS]=flag::Flag("TCDS");
@@ -79,8 +64,8 @@ namespace hcaldqm
 		ContainerSingle2D cSummary;
 		Container1D cTimingCut_HBHEPartition;
 		ContainerXXX<double> xUniHF, xUni;
-		xUni.initialize(hashfunctions::fFED);
-		xUniHF.initialize(hashfunctions::fFEDSlot);
+		xUni.initialize(hashfunctions::fCrate);
+		xUniHF.initialize(hashfunctions::fCrateSlot);
 		cOccupancy_depth.initialize(_taskname, "Occupancy",
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
@@ -97,12 +82,12 @@ namespace hcaldqm
 			new quantity::ValueQuantity(quantity::fN),0);
 
 		cSummary.initialize(_name, "Summary",
-			new quantity::FEDQuantity(_vFEDs),
+			new quantity::CrateQuantity(_emap),
 			new quantity::FlagQuantity(vflags),
 			new quantity::ValueQuantity(quantity::fState),0);
 
 		//	BOOK
-		xUniHF.book(_emap, filter_FEDHF);
+		xUniHF.book(_emap, filter_CrateHF);
 
 
 		//	LOAD
@@ -164,32 +149,23 @@ namespace hcaldqm
 
 		//	summary flags
 		std::vector<flag::Flag> sumflags;
-		int ifed=0;
-		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-			it!=_vhashFEDs.end(); ++it)
+		int icrate=0;
+		for (std::vector<uint32_t>::const_iterator it=_vhashCrates.begin();
+			it!=_vhashCrates.end(); ++it)
 		{
 			flag::Flag fSum("RECO");
 			HcalElectronicsId eid(*it);
-
-			std::vector<uint32_t>::const_iterator cit=std::find(
-				_vcdaqEids.begin(), _vcdaqEids.end(),*it);
-			if (cit==_vcdaqEids.end())
-			{
-				//	not registered @cDAQ
-				sumflags.push_back(flag::Flag("RECO", flag::fNCDAQ));
-				ifed++;
-				continue;
-			}
+			HcalDetId did = HcalDetId(_emap->lookup(eid));
 
 			//	registered @cDAQ
-			if (utilities::isFEDHBHE(eid))
+			if (did.subdet() == HcalBarrel || did.subdet() == HcalEndcap)
 			{
 				if (tcdsshift)
 					vflags[fTCDS]._state = flag::fBAD;
 				else
 					vflags[fTCDS]._state = flag::fGOOD;
 			}
-			if (utilities::isFEDHF(eid))
+			if (did.subdet() == HcalForward)
 			{
 				if (xUni.get(eid)>0)
 					vflags[fUniSlotHF]._state = flag::fBAD;
@@ -208,7 +184,7 @@ namespace hcaldqm
 				ft->reset();
 			}
 			sumflags.push_back(fSum);
-			ifed++;
+			icrate++;
 		}
 
 		return sumflags;

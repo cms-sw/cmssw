@@ -29,6 +29,10 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) {
   double em2 = ps.getUntrackedParameter<double>("EHCalMax", 4.0);
   mkTree_    = ps.getUntrackedParameter<bool>("MakeTree", false);
   eBeam_     = 50.;
+  mip_       = ps.getParameter<double>("MIP");
+  edm::LogInfo("HcalTBSim") << "Verbose :" << verbose_ << " MakeTree: "
+			    << mkTree_ << " EMax: " << em1 << ":" << em2
+			    << " MIP " << mip_;
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -45,6 +49,7 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) {
   edepN= tfile->make<TH1D>("edepN", "Etot/Ebeam   ", 200, -2.5, 2.5);
   edecN= tfile->make<TH1D>("edecN", "Eecal/Ebeam  ", 200, -2.5, 2.5);
   edhcN= tfile->make<TH1D>("edhcN", "Ehcal/Ebeam  ", 200, -2.5, 2.5);
+  emhcN= tfile->make<TH1D>("emhcN", "Ehcal/Ebeam MIP in Ecal", 200, -2.5, 2.5);
   edehS= tfile->make<TH2D>("edehS", "Hcal vs Ecal", 100,0.,em1, 100, 0.,em2);
 
   if (mkTree_) {
@@ -99,6 +104,7 @@ void HcalTB06Histo::fillEdep(double etots, double eecals, double ehcals) {
   edepN->Fill(etots/eBeam_);
   edecN->Fill(eecals/eBeam_);
   edhcN->Fill(ehcals/eBeam_);
+  if(eecals <= mip_) { emhcN->Fill(etots/eBeam_); }
   edehS->Fill(eecals, ehcals);
 }
 

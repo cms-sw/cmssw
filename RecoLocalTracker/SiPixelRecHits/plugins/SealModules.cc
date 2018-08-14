@@ -7,6 +7,7 @@
 //--- The CPE ES Producers
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericESProducer.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEClusterRepairESProducer.h"
 //---- The RecHit ED producer
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
 //--- The header files for the Framework infrastructure (macros etc):
@@ -23,4 +24,5 @@ using cms::SiPixelRecHitConverter;
 DEFINE_FWK_MODULE(SiPixelRecHitConverter);
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEGenericESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPETemplateRecoESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEClusterRepairESProducer);
 

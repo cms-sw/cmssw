@@ -1,3 +1,4 @@
+from __future__ import print_function
 # to test the communication with DBS and produce the csctf configuration
 import FWCore.ParameterSet.Config as cms
 
@@ -24,6 +25,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('DBConnect',
+                 'oracle://cms_omds_adg/CMS_TRG_R', # default value adg->lb
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "OMDS connect string")
 options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -33,7 +39,7 @@ options.parseArguments()
 
 # sanity checks
 if ( len(options.topKey) and len(options.systemKey) ) or ( len(options.topKey)==0 and len(options.systemKey)==0 ) :
-    print "Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both"
+    print("Specify either the topKey (top-level tsc:rs key) or systemKey (system specific tsc:rs key), but not both")
     exit(1)
 
 # standard CMSSW stuff
@@ -44,7 +50,7 @@ process.source = cms.Source("EmptySource")
 process.load("CondTools.L1TriggerExt.L1TriggerKeyListDummyExt_cff")
 
 # produce L1TriggerKey for the subsystem online producers
-if len(options.topKey) :
+if options.topKey :
     # parent L1TriggerKey that will seed system-specific key to be automatically generated below
     process.load("CondTools.L1TriggerExt.L1TriggerKeyRcdSourceExt_cfi")
     process.load("CondTools.L1TriggerExt.L1SubsystemKeysOnlineExt_cfi")
@@ -57,7 +63,8 @@ if len(options.topKey) :
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('CALO')
     # include the system-specific subkeys ESProducer (generates CALO labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TConfigProducers.L1TCaloParamsObjectKeysOnline_cfi")
-    process.L1TCaloParamsObjectKeysOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+    process.L1TCaloParamsObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TCaloParamsObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -72,8 +79,10 @@ else :
 
 # Online produced for the payload 
 process.load("L1TriggerConfig.L1TConfigProducers.L1TCaloParamsOnline_cfi")
-process.L1TCaloParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
-#process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( options.DBAuth )
+process.L1TCaloParamsOnlineProd.onlineAuthentication     = cms.string( options.DBAuth )
+process.L1TCaloParamsOnlineProd.onlineDB                 = cms.string( options.DBConnect )
+process.l1caloparProtodb.connect                         = cms.string('oracle://cms_orcon_adg/CMS_CONDITIONS')
+process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( options.DBAuth )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
@@ -83,7 +92,9 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.l1cpw = cms.EDAnalyzer("L1TCaloStage2ParamsWriter", isO2Opayload = cms.untracked.bool(True))
+process.l1cpw  = cms.EDAnalyzer("L1TCaloStage2ParamsWriter", isO2Opayload = cms.untracked.bool(True)) # L1CondDBPayloadWriterExt can do the job but ignores the IOVs
+process.l1tkw  = cms.EDAnalyzer("L1KeyWriter")
+process.l1tklw = cms.EDAnalyzer("L1KeyListWriter")
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string(options.outputDBConnect)
@@ -97,7 +108,11 @@ outputDB = cms.Service("PoolDBOutputService",
         ),
         cms.PSet(
             record = cms.string("L1TriggerKeyListExtRcd"),
-            tag = cms.string("L1TriggerKeyListExt_Stage2v0_hlt")
+            tag = cms.string("L1TriggerKeyListExt_Stage2v0_hlt") #_CaloParams")
+        ),
+        cms.PSet(
+            record = cms.string("L1TriggerKeyExtRcd"),
+            tag = cms.string("L1TriggerKeyExt_Stage2v0_hlt") #_CaloParams")
         )
     )
 )
@@ -106,5 +121,7 @@ outputDB = cms.Service("PoolDBOutputService",
 outputDB.DBParameters.authenticationPath = options.DBAuth
 process.add_(outputDB)
 
-process.p = cms.Path(process.getter + process.l1cpw)
+process.load('CondTools.L1TriggerExt.L1CondDBPayloadWriterExt_cfi')
+
+process.p = cms.Path(process.getter + process.l1cpw + process.l1tkw + process.l1tklw + process.L1CondDBPayloadWriterExt) # L1CondDBPayloadWriterExt updates L1TKLE 
 

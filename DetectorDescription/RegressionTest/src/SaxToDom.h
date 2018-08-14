@@ -1,13 +1,13 @@
-#ifndef x_SaxToDom_h
-#define x_SaxToDom_h
+#ifndef DETECTOR_DESCRIPTION_REGRESSION_TEST_SAXTODOM_H
+#define DETECTOR_DESCRIPTION_REGRESSION_TEST_SAXTODOM_H
 
 #include <xercesc/util/XercesDefs.hpp>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/adjgraph.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 #include "DetectorDescription/RegressionTest/src/TinyDom.h"
 #include "xercesc/sax/SAXParseException.hpp"
 #include "xercesc/sax2/Attributes.hpp"
@@ -17,19 +17,18 @@
 class SaxToDom : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
 public:
-  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
-  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
+  using Attributes = XERCES_CPP_NAMESPACE::Attributes;
+  using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
   SaxToDom();
-  ~SaxToDom();
-  void startElement(const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname, const Attributes& attrs);
-  //void startElement(const XMLCh* const name, AttributeList& attributes);
-  void endElement(const XMLCh* const uri, 
-                            const XMLCh* const name, 
-			       const XMLCh* const qname);
+  ~SaxToDom() override;
+  void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
+  void endElement(const XMLCh* uri, 
+		  const XMLCh* name, 
+		  const XMLCh* qname) override;
   const TinyDom & dom() const;
 
   // errors
-  void error(const SAXParseException& e);
+  void error(const SAXParseException& e) override;
   
 private:
   std::vector<NodeName> parent_;

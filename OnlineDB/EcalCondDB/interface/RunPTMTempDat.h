@@ -12,16 +12,16 @@ class RunPTMTempDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunPTMTempDat();
-  ~RunPTMTempDat();
+  ~RunPTMTempDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_PTM_TEMP_DAT"; }
+  inline std::string getTable() override { return "RUN_PTM_TEMP_DAT"; }
   inline void setTemperature(float t) { m_temperature = t; }
   inline float getTemperature() const { return m_temperature; }
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, RunIOV* iov )
     noexcept(false);

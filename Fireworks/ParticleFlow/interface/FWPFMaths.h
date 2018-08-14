@@ -1,6 +1,8 @@
 #ifndef _FWPFMATHS_H_
 #define _FWPFMATHS_H_
 
+#include "TEveVector.h"
+
 namespace FWPFMaths
 {
    TEveVector        lineCircleIntersect( const TEveVector &v1, const TEveVector &v2, float r );

@@ -17,10 +17,10 @@ class MVATrainerSave : public edm::EDAnalyzer {
     public:
 	explicit MVATrainerSave(const edm::ParameterSet &params);
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+	void analyze(const edm::Event& iEvent,
+	                     const edm::EventSetup& iSetup) override;
 
-	virtual void endJob();
+	void endJob() override;
 
     protected:
 	virtual const Calibration::MVAComputer *

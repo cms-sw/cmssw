@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from HLTriggerOffline.Higgs.hltHiggsPostProcessor_cfi import *
 
 # Build the standard strings to the DQM
-def efficiency_string(objtype,plot_type,triggerpath):
+def make_efficiency_string(objtype,plot_type,triggerpath):
     # --- IMPORTANT: Add here a elif if you are introduce a new collection
     #                (see EVTColContainer::getTypeString) 
     if objtype == "Mu":
@@ -81,284 +81,134 @@ def efficiency_string(objtype,plot_type,triggerpath):
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
             all_titles,input_type,triggerpath,input_type)
 
-# Adding the reco objects
-def get_reco_strings(strings):
-    reco_strings = []
-    for entry in strings:
-        reco_strings.append(entry
-                            .replace("Generated", "Reconstructed")
-                            .replace("Gen", "Reco")
-                            .replace("gen", "rec"))
-    return reco_strings
-
-
-plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
-#--- IMPORTANT: Update this collection whenever you introduce a new object
-#               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","Ele","Photon","MET","PFMET","PFTau","Jet"]
 #--- IMPORTANT: Trigger are extracted from the hltHiggsValidator_cfi.py module
-triggers = [] 
-efficiency_strings = []
-
-# Extract the triggers used in the hltHiggsValidator 
 from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import hltHiggsValidator as _config
-triggers = set([])
-for an in _config.analysis:
-    s = _config.__getattribute__(an)
-    vstr = s.__getattribute__("hltPathsToCheck")
-    map(lambda x: triggers.add(x.replace("_v","")),vstr)
-triggers = list(triggers)
+def make_higgs_postprocessor(analysis_name, plot_types=["TurnOn1", "TurnOn2", "EffEta", "EffPhi"], object_types=["Mu","Ele","Photon","MET","PFMET","PFTau","Jet"], extra_str_templates=[]):
+    postprocessor = hltHiggsPostProcessor.clone()
+    postprocessor.subDirs = ["HLT/Higgs/" + analysis_name]
+    efficiency_strings = [] # List of plots to look for. This is quite a bit larger than the number of plots that will be made.
 
-#------------------------------------------------------------
+    efficiency_summary_string = "EffSummaryPaths_" + analysis_name + "_gen ' Efficiency of paths used in " + analysis_name + " ; trigger path ' SummaryPaths_" + analysis_name + "_gen_passingHLT SummaryPaths_" + analysis_name + "_gen"
+    efficiency_strings.append(efficiency_summary_string)
+    efficiency_strings.append(efficiency_summary_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
-# Generating the list with all the efficiencies
-for type in plot_types:
-    for obj in obj_types:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
+    for plot_type in plot_types:
+        for object_type in object_types:
+            for trigger in [x.replace("_v", "") for x in _config.__getattribute__(analysis_name).hltPathsToCheck]:
+                this_efficiency_string = make_efficiency_string(object_type, plot_type, trigger)
+                efficiency_strings.append(this_efficiency_string)
+                efficiency_strings.append(this_efficiency_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
+                for str_template in extra_str_templates:
+                    this_extra_string = str_template.replace("@ANALYSIS@", analysis_name).replace("@TRIGGER@", trigger)
+                    efficiency_strings.append(this_extra_string)
+                    efficiency_strings.append(this_extra_string.replace("Generated", "Reconstructed").replace("Gen", "Reco").replace("gen", "rec"))
 
-#add the summary plots
-efficiency_summary_strings = []
-for an in _config.analysis:
-    efficiency_summary_strings.append("EffSummaryPaths_"+an+"_gen ' Efficiency of paths used in "+an+" ; trigger path ' SummaryPaths_"+an+"_gen_passingHLT SummaryPaths_"+an+"_gen")
-    for trig in triggers:
-        efficiency_summary_strings.append("Eff_trueVtxDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs nb of interactions ; nb events passing each path ' trueVtxDist_"+an+"_gen_"+trig+" trueVtxDist_"+an+"_gen")
+    postprocessor.efficiencyProfile = efficiency_strings
+    return postprocessor
 
-efficiency_strings.extend(efficiency_summary_strings)
-efficiency_strings.extend(get_reco_strings(efficiency_strings))
+truevtx_string_template = "Eff_trueVtxDist_@ANALYSIS@_gen_@TRIGGER@ ' Efficiency of @TRIGGER@ vs nb of interactions ; nb events passing each path ' trueVtxDist_@ANALYSIS@_gen_@TRIGGER@ trueVtxDist_@ANALYSIS@_gen"
+hltHiggsPostHWW = make_higgs_postprocessor("HWW", extra_str_templates=[truevtx_string_template])
+hltHiggsPostHZZControlPaths = make_higgs_postprocessor("HZZControlPaths", extra_str_templates=[truevtx_string_template])
+hltHiggsPostHZZ = make_higgs_postprocessor("HZZ", extra_str_templates=[truevtx_string_template])
+hltHiggsPostHgg = make_higgs_postprocessor("Hgg", extra_str_templates=[truevtx_string_template])
+#hltHiggsPostHggControlPaths = make_higgs_postprocessor("HggControlPaths", extra_str_templates=[truevtx_string_template])
+hltHiggsPostMuonJet = make_higgs_postprocessor("MuonJet", extra_str_templates=[truevtx_string_template])
+hltHiggsPostDoubleHinTaus = make_higgs_postprocessor("DoubleHinTaus", extra_str_templates=[truevtx_string_template])
+hltHiggsPostHiggsDalitz = make_higgs_postprocessor("HiggsDalitz", extra_str_templates=[truevtx_string_template])
+hltHiggsPostH2tau = make_higgs_postprocessor("H2tau", extra_str_templates=[truevtx_string_template])
+hltHiggsPostHtaunu = make_higgs_postprocessor("Htaunu", extra_str_templates=[truevtx_string_template])
+hltHiggsPostVBFHToInv = make_higgs_postprocessor("VBFHToInv", extra_str_templates=[truevtx_string_template])
 
-hltHiggsPostHWW = hltHiggsPostProcessor.clone()
-hltHiggsPostHWW.subDirs = ['HLT/Higgs/HWW']
-hltHiggsPostHWW.efficiencyProfile = efficiency_strings
-
-hltHiggsPostHZZControlPaths = hltHiggsPostProcessor.clone()
-hltHiggsPostHZZControlPaths.subDirs = ['HLT/Higgs/HZZControlPaths']
-hltHiggsPostHZZControlPaths.efficiencyProfile = efficiency_strings
-
-hltHiggsPostHZZ = hltHiggsPostProcessor.clone()
-hltHiggsPostHZZ.subDirs = ['HLT/Higgs/HZZ']
-hltHiggsPostHZZ.efficiencyProfile = efficiency_strings
-
-hltHiggsPostHgg = hltHiggsPostProcessor.clone()
-hltHiggsPostHgg.subDirs = ['HLT/Higgs/Hgg']
-hltHiggsPostHgg.efficiencyProfile = efficiency_strings
-
-hltHiggsPostHggControlPaths = hltHiggsPostProcessor.clone()
-hltHiggsPostHggControlPaths.subDirs = ['HLT/Higgs/HggControlPaths']
-hltHiggsPostHggControlPaths.efficiencyProfile = efficiency_strings
-
-hltHiggsPostMuonJet = hltHiggsPostProcessor.clone()
-hltHiggsPostMuonJet.subDirs = ['HLT/Higgs/MuonJet']
-hltHiggsPostMuonJet.efficiencyProfile = efficiency_strings
-
-hltHiggsPostDoubleHinTaus = hltHiggsPostProcessor.clone()
-hltHiggsPostDoubleHinTaus.subDirs = ['HLT/Higgs/DoubleHinTaus']
-hltHiggsPostDoubleHinTaus.efficiencyProfile = efficiency_strings
-
-hltHiggsPostHiggsDalitz = hltHiggsPostProcessor.clone()
-hltHiggsPostHiggsDalitz.subDirs = ['HLT/Higgs/HiggsDalitz']
-hltHiggsPostHiggsDalitz.efficiencyProfile = efficiency_strings
-
-hltHiggsPostH2tau = hltHiggsPostProcessor.clone()
-hltHiggsPostH2tau.subDirs = ['HLT/Higgs/H2tau']
-hltHiggsPostH2tau.efficiencyProfile = efficiency_strings
-
-hltHiggsPostHtaunu = hltHiggsPostProcessor.clone()
-hltHiggsPostHtaunu.subDirs = ['HLT/Higgs/Htaunu']
-hltHiggsPostHtaunu.efficiencyProfile = efficiency_strings
-
-hltHiggsPostVBFHToInv = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHToInv.subDirs = ['HLT/Higgs/VBFHToInv']
-hltHiggsPostVBFHToInv.efficiencyProfile = efficiency_strings
-
-
-efficiency_strings_TTHbbej = []
-#add the summary plots
-for an in _config.analysis:
-    for trig in triggers:
-        efficiency_strings_TTHbbej.append("Eff_HtDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs sum pT of jets ; sum pT of jets ' HtDist_"+an+"_gen_"+trig+" HtDist_"+an+"_gen")
-
-efficiency_strings_TTHbbej.extend(get_reco_strings(efficiency_strings_TTHbbej))
-efficiency_strings_TTHbbej.extend(efficiency_strings)
-
-hltHiggsPostTTHbbej = hltHiggsPostProcessor.clone()
-hltHiggsPostTTHbbej.subDirs = ['HLT/Higgs/TTHbbej']
-hltHiggsPostTTHbbej.efficiencyProfile = efficiency_strings_TTHbbej
-
-hltHiggsPostAHttH = hltHiggsPostProcessor.clone()
-hltHiggsPostAHttH.subDirs = ['HLT/Higgs/AHttH']
-hltHiggsPostAHttH.efficiencyProfile = efficiency_strings
+TTHbbej_HtDist_template = "Eff_HtDist_@ANALYSIS@_gen_@TRIGGER@ ' Efficiency of @TRIGGER@ vs sum pT of jets ; sum pT of jets ' HtDist_@ANALYSIS@_gen_@TRIGGER@ HtDist_@ANALYSIS@_gen"
+hltHiggsPostTTHbbej = make_higgs_postprocessor("TTHbbej", extra_str_templates=[truevtx_string_template, TTHbbej_HtDist_template])
+hltHiggsPostAHttH = make_higgs_postprocessor("AHttH", extra_str_templates=[truevtx_string_template, TTHbbej_HtDist_template])
 
 #Specific plots for VBFHbb_2btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffCSV2", "EffCSV3",  "EffmaxCSV", "", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
-plot_types = []
+VBFHbb_2btag_plot_types = []
 NminOneCuts =_config.VBFHbb_2btag.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
-                plot_types.pop()
-            plot_types.append(NminOneCutNames[iCut])
-
-efficiency_strings = []
-for type in plot_types:
-    for obj in ["Jet"]:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
-
-efficiency_strings = get_reco_strings(efficiency_strings)
-efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
-
-hltHiggsPostVBFHbb_2btag = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHbb_2btag.subDirs = ['HLT/Higgs/VBFHbb_2btag']
-hltHiggsPostVBFHbb_2btag.efficiencyProfile = efficiency_strings
+                VBFHbb_2btag_plot_types.pop()
+            VBFHbb_2btag_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostVBFHbb_2btag = make_higgs_postprocessor("VBFHbb_2btag", object_types=["Jet"], plot_types=VBFHbb_2btag_plot_types, extra_str_templates=[truevtx_string_template])
 
 #Specific plots for VBFHbb_1btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-plot_types = []
+VBFHbb_1btag_plot_types = []
 NminOneCuts = _config.VBFHbb_1btag.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
-                plot_types.pop()
-            plot_types.append(NminOneCutNames[iCut])
-                       
-efficiency_strings = []
-for type in plot_types:
-    for obj in ["Jet"]:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
-
-efficiency_strings = get_reco_strings(efficiency_strings)
-efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
-    
-hltHiggsPostVBFHbb_1btag = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHbb_1btag.subDirs = ['HLT/Higgs/VBFHbb_1btag']
-hltHiggsPostVBFHbb_1btag.efficiencyProfile = efficiency_strings
+                VBFHbb_1btag_plot_types.pop()
+            VBFHbb_1btag_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostVBFHbb_1btag = make_higgs_postprocessor("VBFHbb_1btag", plot_types=VBFHbb_1btag_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for VBFHbb_0btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-plot_types = []
+VBFHbb_0btag_plot_types = []
 NminOneCuts = _config.VBFHbb_0btag.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
-                plot_types.pop()
-            plot_types.append(NminOneCutNames[iCut])
-
-efficiency_strings = []
-for type in plot_types:
-    for obj in ["Jet"]:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
-
-efficiency_strings = get_reco_strings(efficiency_strings)
-efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
-
-hltHiggsPostVBFHbb_0btag = hltHiggsPostProcessor.clone()
-hltHiggsPostVBFHbb_0btag.subDirs = ['HLT/Higgs/VBFHbb_0btag']
-hltHiggsPostVBFHbb_0btag.efficiencyProfile = efficiency_strings
+                VBFHbb_0btag_plot_types.pop()
+            VBFHbb_0btag_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostVBFHbb_0btag = make_higgs_postprocessor("VBFHbb_0btag", plot_types=VBFHbb_0btag_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 
 #Specific plots for ZnnHbb
-#Jet plots
-plot_types = ["EffEta", "EffPhi"]
+ZnnHbb_plot_types = ["EffEta", "EffPhi", "TurnOn1"]
 NminOneCuts = _config.ZnnHbb.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
-            plot_types.append(NminOneCutNames[iCut])
-    
-efficiency_strings = []
-for type in plot_types:
-    for obj in ["Jet"]:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
-        
-efficiency_strings = get_reco_strings(efficiency_strings)
-
-#PFMET plots
-plot_types = ["TurnOn1", "EffPhi"]
-efficiency_strings2 = []
-for type in plot_types:
-    for obj in ["PFMET"]:
-        for trig in triggers:
-            efficiency_strings2.append(efficiency_string(obj,type,trig))
-
-efficiency_strings2 = get_reco_strings(efficiency_strings2)
-efficiency_strings += efficiency_strings2
-efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
-    
-hltHiggsPostZnnHbb = hltHiggsPostProcessor.clone()
-hltHiggsPostZnnHbb.subDirs = ['HLT/Higgs/ZnnHbb']
-hltHiggsPostZnnHbb.efficiencyProfile = efficiency_strings
-
+            ZnnHbb_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostZnnHbb = make_higgs_postprocessor("ZnnHbb", plot_types=ZnnHbb_plot_types, object_types=["Jet", "PFMET"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for X4b
 #Jet plots
+X4b_plot_types = ["EffEta", "EffPhi", "TurnOn1"]
 NminOneCuts = _config.X4b.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
-            plot_types.append(NminOneCutNames[iCut])
-
-efficiency_strings = []
-for type in plot_types:
-    for obj in ["Jet"]:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
-        
-efficiency_strings = get_reco_strings(efficiency_strings)
-efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
-
-hltHiggsPostX4b = hltHiggsPostProcessor.clone()
-hltHiggsPostX4b.subDirs = ['HLT/Higgs/X4b']
-hltHiggsPostX4b.efficiencyProfile = efficiency_strings
+            X4b_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostX4b = make_higgs_postprocessor("X4b", plot_types=X4b_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 #Specific plots for WH -> ev + bb
-efficiency_strings_WHToENuBB = list(efficiency_strings_TTHbbej)
-#add the summary plots
-for an in _config.analysis:
-    for trig in triggers:
-        efficiency_strings_WHToENuBB.append("Eff_HtDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs sum pT of jets ; sum pT of jets ' HtDist_"+an+"_gen_"+trig+" HtDist_"+an+"_gen")
+hltHiggsPostWHToENuBB = make_higgs_postprocessor("WHToENuBB", extra_str_templates=[truevtx_string_template, TTHbbej_HtDist_template])
 
-efficiency_strings_WHToENuBB.extend(get_reco_strings(efficiency_strings_WHToENuBB))
-
-hltHiggsPostWHToENuBB = hltHiggsPostProcessor.clone()
-hltHiggsPostWHToENuBB.subDirs = ['HLT/Higgs/WHToENuBB']
-hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
-
-#Specific plots for MSSMHbb
+#Specific plots for MSSMHbb 
 #Jet plots
+MSSMHbb_plot_types = ["EffEta", "EffPhi", "TurnOn1"]
 NminOneCuts = _config.MSSMHbb.NminOneCuts
 if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
-            plot_types.append(NminOneCutNames[iCut])
+            MSSMHbb_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostMSSMHbb = make_higgs_postprocessor("MSSMHbb", plot_types=MSSMHbb_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
-efficiency_strings = []
-for type in plot_types:
-    for obj in ["Jet"]:
-        for trig in triggers:
-            efficiency_strings.append(efficiency_string(obj,type,trig))
-
-efficiency_strings = get_reco_strings(efficiency_strings)
-efficiency_strings.extend(get_reco_strings(efficiency_summary_strings))
-
-hltHiggsPostMSSMHbb = hltHiggsPostProcessor.clone()
-hltHiggsPostMSSMHbb.subDirs = ['HLT/Higgs/MSSMHbb']
-hltHiggsPostMSSMHbb.efficiencyProfile = efficiency_strings
+#Specific plots for MSSMHbbmu
+MSSMHbbmu_plot_types = ["EffEta", "EffPhi", "TurnOn1"]
+NminOneCuts = _config.MSSMHbbmu.NminOneCuts
+if NminOneCuts:
+    for iCut in range(0,len(NminOneCuts)):
+        if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
+            MSSMHbbmu_plot_types.append(NminOneCutNames[iCut])
+hltHiggsPostMSSMHbbmu = make_higgs_postprocessor("MSSMHbbmu", plot_types=MSSMHbbmu_plot_types, object_types=["Jet"], extra_str_templates=[truevtx_string_template])
 
 hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHWW+
         hltHiggsPostHZZ+
-	hltHiggsPostHZZControlPaths+
+        hltHiggsPostHZZControlPaths+
         hltHiggsPostHgg+
-        hltHiggsPostHggControlPaths+
+        #hltHiggsPostHggControlPaths+
         hltHiggsPostMuonJet+
         hltHiggsPostHtaunu+
         hltHiggsPostH2tau+
@@ -373,6 +223,7 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostX4b+
         hltHiggsPostWHToENuBB+
         hltHiggsPostMSSMHbb+
+        hltHiggsPostMSSMHbbmu+ 
         hltHiggsPostVBFHToInv
 )
 

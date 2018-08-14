@@ -51,7 +51,7 @@ public:
       produces< JetValueMap >();
     }
 
-    if( valueLabels_.size()>0 || values_.size()>0 )
+    if( !valueLabels_.empty() || !values_.empty() )
     {
       if( valueLabels_.size()==values_.size() )
       {
@@ -67,11 +67,11 @@ public:
     }
   }
 
-  virtual ~JetDeltaRValueMapProducer() {}
+  ~JetDeltaRValueMapProducer() override {}
 
 private:
   
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
     edm::Handle< typename edm::View<T> > h_jets1;
     iEvent.getByToken( srcToken_, h_jets1 );

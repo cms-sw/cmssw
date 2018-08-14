@@ -113,14 +113,14 @@ namespace pat {
         struct AcceptAllFilter : public ParticleFilter {
             AcceptAllFilter(){}
             static const AcceptAllFilter & get() { return s_dummyFilter; }
-            virtual bool operator()(const CandRefType &cand, const std::string &role) const { return true; }
+            bool operator()(const CandRefType &cand, const std::string &role) const override { return true; }
             private:
                static const AcceptAllFilter s_dummyFilter;
         };
         class RoleRegexpFilter : public ParticleFilter {
             public:
                 explicit RoleRegexpFilter(const std::string &roleRegexp) : re_(roleRegexp) {}
-                virtual bool operator()(const CandRefType &cand, const std::string &role) const {
+                bool operator()(const CandRefType &cand, const std::string &role) const override {
                     return boost::regex_match(role, re_);
                 }
             private:
@@ -165,7 +165,7 @@ namespace pat {
    {
        CandRefType ref = get(role, index);
        const T* ret = dynamic_cast<const T*>(ref.get());
-       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
+       if ((ret == 0) && (ref.get() != nullptr)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
        return ret;
    }
    template<typename T> 
@@ -174,7 +174,7 @@ namespace pat {
    {
        CandRefType ref = get(filter, index);
        const T* ret = dynamic_cast<const T*>(ref.get());
-       if ((ret == 0) && (ref.get() != 0)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
+       if ((ret == 0) && (ref.get() != nullptr)) throw cms::Exception("Type Checking") << createExceptionMessage<T>(ref);
        return ret;
    }
    template<typename T>

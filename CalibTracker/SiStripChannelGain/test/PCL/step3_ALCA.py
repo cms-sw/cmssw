@@ -25,8 +25,8 @@ process.ALCARECOCalibrationTracksAAG.src = cms.InputTag("ALCARECOSiStripCalMinBi
 #process.ALCARECOCalibrationTracks.src = cms.InputTag("generalTracks")    #for 2012 data
 
 process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
-#use the same trigger bit of SiStripCalMinBias because the FirstCollisionAfterAbortGap trigger is missing on 2015 data
-process.ALCARECOCalMinBiasFilterForSiStripGainsAfterAbortGap.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
+#use the same trigger bit of SiStripCalMinBias because the FirstCollisionAAG trigger is missing on 2015 data
+process.ALCARECOCalMinBiasFilterForSiStripGainsAAG.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
 
 #process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('*')     #for 2012 data
 
@@ -76,18 +76,18 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Additional output definition
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_cff import *
-from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAfterAbortGap_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_Output_cff import *
 
 process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutputModule",
     SelectEvents   = cms.untracked.PSet(
         SelectEvents = cms.vstring(
             'pathALCARECOPromptCalibProdSiStripGains',
-            'pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap')
+            'pathALCARECOPromptCalibProdSiStripGainsAAG')
                                        ),
     outputCommands = cms.untracked.vstring(
         'keep *_alcaBeamSpotProducer_*_*',
         'keep *_MEtoEDMConvertSiStripGains_*_*',
-        'keep *_MEtoEDMConvertSiStripGainsAfterAbortGap_*_*'),
+        'keep *_MEtoEDMConvertSiStripGainsAAG_*_*'),
     fileName = cms.untracked.string('PromptCalibProdSiStripGains.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('PromptCalibProdSiStripGains'),
@@ -107,7 +107,7 @@ process.ALCARECOStreamPromptCalibProdSiStripGainsOutPath = cms.EndPath(process.A
 
 # Schedule definition
 process.schedule = cms.Schedule(process.pathALCARECOPromptCalibProdSiStripGains,
-                                process.pathALCARECOPromptCalibProdSiStripGainsAfterAbortGap,
+                                process.pathALCARECOPromptCalibProdSiStripGainsAAG,
                                 process.endjob_step,
                                 process.ALCARECOStreamPromptCalibProdSiStripGainsOutPath)
 

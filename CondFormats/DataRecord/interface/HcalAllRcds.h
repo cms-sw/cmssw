@@ -31,6 +31,8 @@
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalFlagHFDigiTimeParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalTimingParamsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
+#include "CondFormats/DataRecord/interface/HBHEDarkeningRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #endif

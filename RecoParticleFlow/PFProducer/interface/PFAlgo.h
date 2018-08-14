@@ -263,6 +263,7 @@ class PFAlgo {
 			       double particleY=0.,
 			       double particleZ=0.);
 
+  void setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluster) const ;
 
   /// \return calibrated energy of a photon
   // double gammaCalibratedEnergy( double clusterEnergy ) const;

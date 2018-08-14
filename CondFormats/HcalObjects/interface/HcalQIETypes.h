@@ -18,11 +18,11 @@ class HcalQIETypes: public HcalCondObjectContainer<HcalQIEType>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalQIETypes():HcalCondObjectContainer<HcalQIEType>(0) {}
+  HcalQIETypes():HcalCondObjectContainer<HcalQIEType>(nullptr) {}
 #endif
   HcalQIETypes(const HcalTopology* topo):HcalCondObjectContainer<HcalQIEType>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalQIETypes";}
+  std::string myname() const override {return (std::string)"HcalQIETypes";}
 
  private:
 

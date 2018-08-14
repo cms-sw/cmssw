@@ -9,7 +9,7 @@ std::vector<std::pair<const PSimHit*,int> > SimHitSelectorFromDB::getSimHit(std:
   int counter =0;
   for(MixCollection<PSimHit>::iterator it = simhit->begin(); it!= simhit->end();it++){
     counter++;
-    if(detId.size()!=0){
+    if(!detId.empty()){
       uint32_t tkid = (*it).detUnitId();
       if (detId.find(tkid) != detId.end()){
 	//	theNewSimHitList.push_back((*it));

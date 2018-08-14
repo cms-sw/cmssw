@@ -16,13 +16,13 @@ namespace PhysicsTools {
 class MVATrainerLooper : public edm::ESProducerLooper {
     public:
 	MVATrainerLooper(const edm::ParameterSet &params);
-	virtual ~MVATrainerLooper();
+	~MVATrainerLooper() override;
 
-	virtual void startingNewLoop(unsigned int iteration);
-	virtual Status duringLoop(const edm::Event &ev,
-	                          const edm::EventSetup &es);
-	virtual Status endOfLoop(const edm::EventSetup &es,
-	                         unsigned int iteration);
+	void startingNewLoop(unsigned int iteration) override;
+	Status duringLoop(const edm::Event &ev,
+	                          const edm::EventSetup &es) override;
+	Status endOfLoop(const edm::EventSetup &es,
+	                         unsigned int iteration) override;
 
 	typedef std::shared_ptr<Calibration::MVAComputer> TrainObject;
 	typedef std::shared_ptr<Calibration::MVAComputerContainer>
@@ -82,11 +82,11 @@ class MVATrainerLooper : public edm::ESProducerLooper {
 
 template<> inline bool
 MVATrainerLooper::isUntrained(const Calibration::MVAComputer *ptr)
-{ return dynamic_cast<const UntrainedMVAComputer*>(ptr) != 0; }
+{ return dynamic_cast<const UntrainedMVAComputer*>(ptr) != nullptr; }
 
 template<> inline bool
 MVATrainerLooper::isUntrained(const Calibration::MVAComputerContainer *ptr)
-{ return dynamic_cast<const UntrainedMVAComputerContainer*>(ptr) != 0; }
+{ return dynamic_cast<const UntrainedMVAComputerContainer*>(ptr) != nullptr; }
 
 } // namespace PhysicsTools
 

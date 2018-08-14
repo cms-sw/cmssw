@@ -72,8 +72,8 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
       trigger::Keys KEYSl1;
       double etaTrigl1(-10000), phiTrigl1(-10000), ptMaxl1(0);
       for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) {
-	LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << l1FilterTag_[k] << " gives " << (trEv->filterTag(iFilt).label()).find(l1FilterTag_[k].c_str()) << "\n";
-	if ((trEv->filterTag(iFilt).label()).find(l1FilterTag_[k].c_str()) !=
+	LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << l1FilterTag_[k] << " gives " << (trEv->filterTag(iFilt).label()).find(l1FilterTag_[k]) << "\n";
+	if ((trEv->filterTag(iFilt).label()).find(l1FilterTag_[k]) !=
 	    std::string::npos) {
 	  KEYSl1=trEv->filterKeys(iFilt);
 	  trigger::size_type nRegl1=KEYSl1.size();
@@ -102,8 +102,8 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::Event
     trigger::Keys KEYS;   
     for (unsigned l=0; l<hltFilterTag_.size(); l++) {
       for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) {
-	LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << hltFilterTag_[l] << " gives " << (trEv->filterTag(iFilt).label()).find(hltFilterTag_[l].c_str()) << "\n";
-	if ((trEv->filterTag(iFilt).label()).find(hltFilterTag_[l].c_str()) !=
+	LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << hltFilterTag_[l] << " gives " << (trEv->filterTag(iFilt).label()).find(hltFilterTag_[l]) << "\n";
+	if ((trEv->filterTag(iFilt).label()).find(hltFilterTag_[l]) !=
 	    std::string::npos) {
 	  KEYS=trEv->filterKeys(iFilt);
 	  trigger::size_type nReg=KEYS.size();

@@ -43,11 +43,11 @@ class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<>
  public:
   
   NoPileUpPFMEtDataProducer(const edm::ParameterSet&);
-  ~NoPileUpPFMEtDataProducer();
+  ~NoPileUpPFMEtDataProducer() override;
   
  private:
   
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   std::string moduleLabel_;
 

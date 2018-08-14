@@ -22,12 +22,12 @@ public:
   explicit StackingAction(const TrackingAction*, const edm::ParameterSet & ps, 
 			  const CMSSteppingVerbose*);
 
-  virtual ~StackingAction();
+  ~StackingAction() override;
 
-  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack) final;
+  G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack) final;
 
-  void NewStage();
-  void PrepareNewEvent();
+  void NewStage() override;
+  void PrepareNewEvent() override;
 
 private:
 

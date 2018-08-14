@@ -39,11 +39,10 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
     }
 
 
-  ~PFHBHERecHitCreatorMaxSample() {
-  }
+  ~PFHBHERecHitCreatorMaxSample() override = default;
 
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       beginEvent(iEvent,iSetup);
 
@@ -57,10 +56,8 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
       iSetup.get<HcalDbRecord > ().get(conditions);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *hcalBarrelGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-      const CaloSubdetectorGeometry *hcalEndcapGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+     const  CaloSubdetectorGeometry *hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+      const CaloSubdetectorGeometry *hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
@@ -160,22 +157,22 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	}	    
 
-	if (hitEnergies.size()==0)
+	if (hitEnergies.empty())
 	  continue;
 
 	int depth = detid.depth();
 	
-	const CaloCellGeometry *thisCell=0;
+	std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  thisCell =hcalBarrelGeo->getGeometry(detid); 
-	  layer =PFLayer::HCAL_BARREL1;
+	  thisCell = hcalBarrelGeo->getGeometry(detid);
+	  layer    = PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  thisCell =hcalEndcapGeo->getGeometry(detid); 
-	  layer =PFLayer::HCAL_ENDCAP;
+	  thisCell = hcalEndcapGeo->getGeometry(detid);
+	  layer    = PFLayer::HCAL_ENDCAP;
 	  break;
 	default:
 	  break;

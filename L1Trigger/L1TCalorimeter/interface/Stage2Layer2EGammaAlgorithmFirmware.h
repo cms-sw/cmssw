@@ -23,9 +23,9 @@ namespace l1t
   class Stage2Layer2EGammaAlgorithmFirmwareImp1 : public Stage2Layer2EGammaAlgorithm
   {
     public:
-      Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper* params); //const CaloMainProcessorParams & dbPars);
-      virtual ~Stage2Layer2EGammaAlgorithmFirmwareImp1();
-      virtual void processEvent(const std::vector<CaloCluster>& clusters, const std::vector<CaloTower>& towers, std::vector<EGamma>& egammas);
+      Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper const* params); //const CaloMainProcessorParams & dbPars);
+      ~Stage2Layer2EGammaAlgorithmFirmwareImp1() override =default;
+      void processEvent(const std::vector<CaloCluster>& clusters, const std::vector<CaloTower>& towers, std::vector<EGamma>& egammas) override;
 
     private:
       // trimming
@@ -44,9 +44,10 @@ namespace l1t
       // calibration
       int calibratedPt(const l1t::CaloCluster& clus, int hwPt);
       unsigned int calibrationLutIndex(int iEta, int E, int shape);
+      bool idHoverE_ext(const l1t::CaloTower tow);
 
     private:
-      CaloParamsHelper* params_;
+      CaloParamsHelper const* params_;
 
   };
 

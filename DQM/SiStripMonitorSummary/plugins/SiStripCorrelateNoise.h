@@ -50,13 +50,13 @@ class TrackerTopology;
 class SiStripCorrelateNoise : public edm::EDAnalyzer {
 public:
   explicit SiStripCorrelateNoise(const edm::ParameterSet&);
-  ~SiStripCorrelateNoise();
+  ~SiStripCorrelateNoise() override;
   
   
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& es);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&){};
-  virtual void endJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void endJob() override;
   
   void DoPlots();
   void DoAnalysis(const edm::EventSetup&,const SiStripNoises&,SiStripNoises&);

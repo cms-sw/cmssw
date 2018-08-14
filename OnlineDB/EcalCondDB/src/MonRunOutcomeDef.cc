@@ -9,8 +9,8 @@ using namespace oracle::occi;
 
 MonRunOutcomeDef::MonRunOutcomeDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_shortDesc = "";
   m_longDesc = "";
@@ -74,7 +74,7 @@ int MonRunOutcomeDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunOutcomeDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunOutcomeDef::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -95,8 +95,8 @@ void MonRunOutcomeDef::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_shortDesc = rset->getString(1);
-      m_longDesc = rset->getString(2);
+      m_shortDesc = getOraString(rset,1);
+      m_longDesc = getOraString(rset,2);
       m_ID = id;
     } else {
       throw(std::runtime_error("MonRunOutcomeDef::setByID:  Given def_id is not in the database"));
@@ -104,7 +104,7 @@ void MonRunOutcomeDef::setByID(int id)
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("MonRunOutcomeDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("MonRunOutcomeDef::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -127,6 +127,6 @@ void MonRunOutcomeDef::fetchAllDefs( std::vector<MonRunOutcomeDef>* fillVec)
       fillVec->push_back( def );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunOutcomeDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunOutcomeDef::fetchAllDefs:  ")+getOraMessage(&e)));
   }
 }

@@ -34,7 +34,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (const TString& N) {
   vector<float> vDriftAndReso;
 
   // Check that the histo for this cell exists
-  if(histos->hTmax123 != 0) {
+  if(histos->hTmax123 != nullptr) {
     vector<TH1F*> hTMax;  // histograms for <T_max> calculation
     vector <TH1F*> hT0;   // histograms for T0 evaluation
     hTMax.push_back(histos->hTmax123); 
@@ -141,7 +141,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso (const TString& N) {
 	ith != hT0.end(); ++ith) {
       try{
         (*ith)->Fit("gaus");
-      } catch(std::exception){
+      } catch(std::exception const&){
         edm::LogError("DTMeanTimerFitter") << "Exception when fitting T0..histogram " << (*ith)->GetName();    
         // return empty or -1 filled vector?
         vector<float> defvec(6,-1);
@@ -207,10 +207,10 @@ TF1* DTMeanTimerFitter::fitTMax(TH1F* histo){
       rGaus->SetMarkerSize();// just silence gcc complainining about unused var
       try{	
         histo->Fit("rGaus","R");
-      } catch(std::exception){
+      } catch(std::exception const&){
 	edm::LogError("DTMeanTimerFitter") << "Exception when fitting TMax..histogram " << histo->GetName()
 	     << "   setting return function pointer to zero";   
-	return 0;
+	return nullptr;
       }	
       TF1 *f1 = histo->GetFunction("rGaus");
       return f1;

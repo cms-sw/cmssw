@@ -9,13 +9,12 @@
 // Original Author: P. Katsas
 //         Created: 02/2007 
 //
-#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
-//#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+
+#include "DataFormats/Math/interface/Point3D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"
 #include <cmath>
@@ -131,14 +130,14 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   //  G4String particleType = theTrack->GetDefinition()->GetParticleName();
   G4int pdgcode		= theTrack->GetDefinition()->GetPDGEncoding();
 
-  G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
+  const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
   G4double vpx = vert_mom.x();
   G4double vpy = vert_mom.y();
   G4double vpz = vert_mom.z();
   double eta = 0.5 * log( (1.+vpz) / (1.-vpz) );
   double phi = atan2(vpy,vpx);
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
 
    // Fill-in ntuple
   //  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
@@ -235,26 +234,26 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
     // Find Primary info:
       int trackID = 0;
       int particleType = 0;
-      G4PrimaryParticle* thePrim=0;
+      G4PrimaryParticle* thePrim=nullptr;
       G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
       std::cout << "Event has " << nvertex << " vertex" << std::endl; 
       if (nvertex==0) std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
 
       for (int i = 0 ; i<nvertex; i++) {
         G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-        if (avertex == 0) 
+        if (avertex == nullptr) 
 	  std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
         std::cout << "Vertex number :" <<i << std::endl;
         int npart = avertex->GetNumberOfParticle();
         if (npart ==0)
 	  std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
-        if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+        if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
       }
     
       double px=0.,py=0.,pz=0., pInit=0;
       double eta = 0., phi = 0.;
     
-      if (thePrim != 0) {
+      if (thePrim != nullptr) {
         px = thePrim->GetPx();
         py = thePrim->GetPy();
         pz = thePrim->GetPz();

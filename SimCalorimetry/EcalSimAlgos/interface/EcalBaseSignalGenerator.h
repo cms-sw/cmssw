@@ -10,7 +10,7 @@ class EcalBaseSignalGenerator : public CaloVNoiseSignalGenerator
 public:
   EcalBaseSignalGenerator() {}
     
-  virtual ~EcalBaseSignalGenerator() {}
+  ~EcalBaseSignalGenerator() override {}
 
   
 protected:

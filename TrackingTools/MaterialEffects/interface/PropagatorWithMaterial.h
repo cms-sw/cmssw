@@ -36,10 +36,10 @@ public:
    *  below ptMin.
    */
   PropagatorWithMaterial (PropagationDirection dir, const float mass,
-			  const MagneticField * mf=0,const float maxDPhi=1.6,
+			  const MagneticField * mf=nullptr,const float maxDPhi=1.6,
 			  bool useRungeKutta=false, float ptMin=-1.,bool useOldGeoPropLogic=true);
 
-  virtual ~PropagatorWithMaterial();
+  ~PropagatorWithMaterial() override;
 
 
 
@@ -48,25 +48,25 @@ public:
 
 
 private:
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
 									const Plane& plane) const override;
 
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
 									const Plane& plane) const override;
 
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
 									const Cylinder& cylinder) const override;
 
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
 									const Cylinder& cylinder) const override;
 
 public:
   /// Limit on change in azimuthal angle
-  virtual bool setMaxDirectionChange( float phiMax)  override{
+  bool setMaxDirectionChange( float phiMax)  override{
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
   /// Propagation direction
-  virtual void setPropagationDirection (PropagationDirection dir) override;
+  void setPropagationDirection (PropagationDirection dir) override;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:
@@ -89,10 +89,10 @@ public:
     return *theMEUpdator;
   }
 
-  virtual const MagneticField* magneticField() const override {return field;}
+  const MagneticField* magneticField() const override {return field;}
 
 
-  virtual PropagatorWithMaterial* clone() const override
+  PropagatorWithMaterial* clone() const override
     {
       return new PropagatorWithMaterial(*this);
     }

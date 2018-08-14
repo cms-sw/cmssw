@@ -9,8 +9,8 @@ using namespace oracle::occi;
 
 LocationDef::LocationDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_loc = "";
 }
@@ -65,7 +65,7 @@ int LocationDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("LocationDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("LocationDef::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -86,7 +86,7 @@ void LocationDef::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_loc = rset->getString(1);
+      m_loc = getOraString(rset,1);
       m_ID = id;
     } else {
       throw(std::runtime_error("LocationDef::setByID:  Given def_id is not in the database"));
@@ -94,7 +94,7 @@ void LocationDef::setByID(int id)
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("LocationDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("LocationDef::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -117,6 +117,6 @@ void LocationDef::fetchAllDefs( std::vector<LocationDef>* fillVec)
       fillVec->push_back( locationDef );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("LocationDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("LocationDef::fetchAllDefs:  ")+getOraMessage(&e)));
   }
 }

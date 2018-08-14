@@ -80,7 +80,8 @@
   <class name="l1t::TauVectorRef"/>
   <class name="edm::Wrapper<l1t::TauVectorRef>"/>
 
-  <class name="l1t::Muon" ClassVersion="16">
+  <class name="l1t::Muon" ClassVersion="17">
+   <version ClassVersion="17" checksum="3946815604"/>
    <version ClassVersion="16" checksum="1302394108"/>
    <version ClassVersion="15" checksum="957467775"/>
    <version ClassVersion="14" checksum="1302394108"/>
@@ -212,6 +213,41 @@
   </class>
   <class name="edm::Wrapper<L1DataEmulRecord>"/>
 
+  <class name="l1t::EGammaRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::EGammaRefBxCollection>"/>
+  <class name="l1t::EGammaRefPair"/>
+  <class name="std::vector<l1t::EGammaRefPair>"/>
+  <class name="l1t::EGammaRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::EGammaRefPairBxCollection>"/>
+
+  <class name="l1t::TauRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::TauRefBxCollection>"/>
+  <class name="l1t::TauRefPair"/>
+  <class name="std::vector<l1t::TauRefPair>"/>
+  <class name="l1t::TauRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::TauRefPairBxCollection>"/>
+
+  <class name="l1t::JetRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::JetRefBxCollection>"/>
+  <class name="l1t::JetRefPair"/>
+  <class name="std::vector<l1t::JetRefPair>"/>
+  <class name="l1t::JetRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::JetRefPairBxCollection>"/>
+
+  <class name="l1t::EtSumRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::EtSumRefBxCollection>"/>
+  <class name="l1t::EtSumRefPair"/>
+  <class name="std::vector<l1t::EtSumRefPair>"/>
+  <class name="l1t::EtSumRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::EtSumRefPairBxCollection>"/>
+
+  <class name="l1t::MuonRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::MuonRefBxCollection>"/>
+  <class name="l1t::MuonRefPair"/>
+  <class name="std::vector<l1t::MuonRefPair>"/>
+  <class name="l1t::MuonRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::MuonRefPairBxCollection>"/>
+
   <class name="L1TriggerError" ClassVersion="10">
    <version ClassVersion="10" checksum="3499325937"/>
   </class>
@@ -224,6 +260,5 @@
   <class name="l1t::L1DataEmulResultBxCollection"/>
   <class name="std::vector<l1t::L1DataEmulResult>"/>
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
-
 
 </lcgdict>

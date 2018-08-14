@@ -41,7 +41,7 @@
 class SiPMNonlinearityAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 	public:
 		explicit SiPMNonlinearityAnalyzer(const edm::ParameterSet&);
-		~SiPMNonlinearityAnalyzer();
+		~SiPMNonlinearityAnalyzer() override;
 	
 		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	
@@ -58,6 +58,7 @@ class SiPMNonlinearityAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedRes
 		double tau, dt;
 		unsigned nPreciseBins;
 		std::string fitname;
+		unsigned signalShape;
 };
 
 //
@@ -68,7 +69,8 @@ SiPMNonlinearityAnalyzer::SiPMNonlinearityAnalyzer(const edm::ParameterSet& iCon
 	npeStep(iConfig.getParameter<unsigned>("npeStep")), nReps(iConfig.getParameter<unsigned>("nReps")), 
 	nBins(iConfig.getParameter<unsigned>("nBins")), binMin(iConfig.getParameter<unsigned>("binMin")), binMax(iConfig.getParameter<unsigned>("binMax")), 
 	tau(iConfig.getParameter<double>("tau")), dt(iConfig.getParameter<double>("dt")),
-	nPreciseBins(iConfig.getParameter<unsigned>("nPreciseBins")), fitname(iConfig.getParameter<std::string>("fitname"))
+	nPreciseBins(iConfig.getParameter<unsigned>("nPreciseBins")), fitname(iConfig.getParameter<std::string>("fitname")),
+	signalShape(iConfig.getParameter<unsigned>("signalShape"))
 {
 	usesResource("TFileService");
 }
@@ -113,7 +115,7 @@ SiPMNonlinearityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 			//smear pes according to Y11 time distribution
 			std::vector<unsigned> photonHist(nPreciseBins,0);
 			for(unsigned pe = 0; pe < npe; ++pe){
-				double t_pe = HcalPulseShapes::generatePhotonTime(engine);
+				double t_pe = HcalPulseShapes::generatePhotonTime(engine,signalShape);
 				int t_bin = int(t_pe + tsOffset + 0.5);
 				if(t_bin > 0 and (static_cast<unsigned>(t_bin) < photonHist.size())) photonHist[t_bin] += 1;
 			}

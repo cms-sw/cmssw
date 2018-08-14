@@ -46,7 +46,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void beginEvent(const edm::EventSetup& iSetup) {
+  void beginEvent(const edm::EventSetup& iSetup) override {
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
       
@@ -66,7 +66,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void associateNeighbours(reco::PFRecHit& rh,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) {
+  void associateNeighbours(reco::PFRecHit& rh,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) override {
 
 
 
@@ -245,7 +245,7 @@ bool stdsimplemove(DetId& cell,
     neighbours = barrelTopo.getNeighbours(ebDetId,dir);
 
     // first try to move according to the standard navigation
-    if(neighbours.size()>0 && !neighbours[0].null()) {
+    if(!neighbours.empty() && !neighbours[0].null()) {
       cell = neighbours[0];
       return true;
     }
@@ -276,7 +276,7 @@ bool stdsimplemove(DetId& cell,
 
     neighbours= endcapTopo.getNeighbours(eeDetId,dir);
 
-    if(neighbours.size()>0 && !neighbours[0].null()) {
+    if(!neighbours.empty() && !neighbours[0].null()) {
       cell = neighbours[0];
       return true;
     }

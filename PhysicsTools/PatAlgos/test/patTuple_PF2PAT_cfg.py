@@ -1,7 +1,8 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+
 # verbose flags for the PF2PAT modules
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 # Configure PAT to use PF2PAT instead of AOD sources
@@ -10,6 +11,8 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
 jetAlgo="AK4"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
+#Temporary customize to the unit tests that fail due to old input samples
+getattr(process,"patTaus"+postfix).skipMissingTauID = True
 
 # to turn on type-1 MET corrections, use the following call
 #usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix, typeIMetCorrections=True)

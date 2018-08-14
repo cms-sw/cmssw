@@ -27,7 +27,7 @@ class EBHitResponse : public EcalHitResponse
 		     const APDSimParameters*     apdPars      , 
 		     const CaloVShape*           apdShape       ) ;
 
-      virtual ~EBHitResponse() ;
+      ~EBHitResponse() override ;
 
       void initialize(CLHEP::HepRandomEngine*);
 
@@ -36,29 +36,29 @@ class EBHitResponse : public EcalHitResponse
       void setIntercal( const EcalIntercalibConstantsMC* ical ) ;
 
 
-      virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) override;
+      void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) override;
 
-      virtual void initializeHits() override;
+      void initializeHits() override;
 
-      virtual void finalizeHits() override;
+      void finalizeHits() override;
 
-      virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) override;
+      void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) override;
 
-      virtual unsigned int samplesSize() const override;
+      unsigned int samplesSize() const override;
 
-      virtual EcalSamples* operator[]( unsigned int i ) override;
+      EcalSamples* operator[]( unsigned int i ) override;
 
-      virtual const EcalSamples* operator[]( unsigned int i ) const override;
+      const EcalSamples* operator[]( unsigned int i ) const override;
 
    protected:
 
-      virtual unsigned int samplesSizeAll() const override;
+      unsigned int samplesSizeAll() const override;
 
-      virtual EcalSamples* vSamAll( unsigned int i ) override;
+      EcalSamples* vSamAll( unsigned int i ) override;
 
-      virtual const EcalSamples* vSamAll( unsigned int i ) const override;
+      const EcalSamples* vSamAll( unsigned int i ) const override;
 
-      virtual EcalSamples* vSam( unsigned int i ) override ;
+      EcalSamples* vSam( unsigned int i ) override ;
 
       void putAPDSignal( const DetId& detId, double npe, double time ) ;
 

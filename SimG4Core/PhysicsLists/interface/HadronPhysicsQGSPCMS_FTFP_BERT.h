@@ -27,12 +27,12 @@
 
 class HadronPhysicsQGSPCMS_FTFP_BERT : public G4VPhysicsConstructor
 {
-  public: 
+  public:
     HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
-    virtual ~HadronPhysicsQGSPCMS_FTFP_BERT();
+    ~HadronPhysicsQGSPCMS_FTFP_BERT() override;
 
-    virtual void ConstructParticle();
-    virtual void ConstructProcess();
+    void ConstructParticle() override;
+    void ConstructProcess() override;
 
   private:
     void CreateModels();

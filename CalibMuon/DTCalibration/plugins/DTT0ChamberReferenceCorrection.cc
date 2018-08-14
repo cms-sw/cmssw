@@ -1,7 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  \author A. Vilela Pereira
  */
 
 #include "DTT0ChamberReferenceCorrection.h"

@@ -11,7 +11,7 @@ class  TrackerGeometricDetExtraESModule: public edm::ESProducer {
 
  public:
   TrackerGeometricDetExtraESModule(const edm::ParameterSet & p);
-  virtual ~TrackerGeometricDetExtraESModule(); 
+  ~TrackerGeometricDetExtraESModule() override; 
   std::shared_ptr<std::vector<GeometricDetExtra> > produce(const IdealGeometryRecord &);
 
  protected:

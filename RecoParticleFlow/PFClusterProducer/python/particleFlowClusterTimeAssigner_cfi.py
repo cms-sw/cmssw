@@ -4,5 +4,6 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterTimeAssignerDefault_c
 
 particleFlowTimeAssignerECAL = particleFlowClusterTimeAssignerDefault.clone()
 particleFlowTimeAssignerECAL.timeSrc = cms.InputTag('ecalBarrelClusterFastTimer:PerfectResolutionModel')
+particleFlowTimeAssignerECAL.timeResoSrc = cms.InputTag('ecalBarrelClusterFastTimer:PerfectResolutionModelResolution')
 
 

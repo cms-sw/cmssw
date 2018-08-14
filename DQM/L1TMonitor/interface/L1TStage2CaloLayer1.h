@@ -61,12 +61,12 @@ namespace ComparisonHelper {
 class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
   public:
     L1TStage2CaloLayer1(const edm::ParameterSet& ps);
-    virtual ~L1TStage2CaloLayer1();
+    ~L1TStage2CaloLayer1() override;
   
   protected:
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
     void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   
@@ -84,6 +84,7 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
     std::string histFolder_;
     int tpFillThreshold_;
+    bool ignoreHFfbs_;
 
     MonitorElement *ecalDiscrepancy_;
     MonitorElement *ecalLinkError_;
@@ -107,8 +108,13 @@ class L1TStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *ecalTPRawEtSentAndRecd_;
     MonitorElement *ecalTPRawEtSent_;
 
+    MonitorElement *ecalOccSentNotRecd_;
+    MonitorElement *ecalOccRecdNotSent_;
+    MonitorElement *ecalOccNoMatch_;
+
     MonitorElement *hcalOccEtDiscrepancy_;
     MonitorElement *hcalOccFbDiscrepancy_;
+    MonitorElement *hcalOccFb2Discrepancy_;
     MonitorElement *hcalOccLinkMasked_;
     MonitorElement *hcalOccRecdEtWgt_;
     MonitorElement *hcalOccRecdFb_;

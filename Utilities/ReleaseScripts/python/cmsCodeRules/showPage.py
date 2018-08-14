@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 __author__="Aurelija"
 __date__ ="$2010-08-12 10.50.40$"
 
@@ -215,15 +216,15 @@ def main():
     htmlDir = options.htmlDir
 
     if not os.path.exists(logsDir):
-        print "Error: wrong directory %s"%logsDir
+        print("Error: wrong directory %s"%logsDir)
         return
 
     if not os.path.exists(pickleDir):
-        print "Error: wrong directory %s"%pickleDir
+        print("Error: wrong directory %s"%pickleDir)
         return
 
     if not os.path.exists(htmlDir):
-        print "Error: wrong directory %s"%htmlDir
+        print("Error: wrong directory %s"%htmlDir)
         return
 
     run(pickleDir, logsDir, htmlDir)

@@ -12,9 +12,6 @@ DEFINE_FWK_MODULE(SiStripDetInfoFileWriter);
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 DEFINE_FWK_SERVICE(SiStripDetInfoFileReader);
 
-#include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
-DEFINE_FWK_SERVICE(TkDetMap);
-
 
 #include "CalibTracker/SiStripCommon/interface/ShallowTree.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"

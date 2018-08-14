@@ -80,8 +80,4 @@ typedef struct {
   float dx[12], dy[12], dz[12], alpha[12], beta[12], gamma[12];
 } DTHitResult;
 
-
-
-
-
-
+#endif

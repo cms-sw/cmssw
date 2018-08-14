@@ -11,14 +11,14 @@ using namespace oracle::occi;
 
 MonDelaysTTDat::MonDelaysTTDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_delayMean = 0;
   m_delayRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 
@@ -41,7 +41,7 @@ void MonDelaysTTDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":delay_mean, :delay_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonDelaysTTDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonDelaysTTDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -69,7 +69,7 @@ void MonDelaysTTDat::writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonDelaysTTDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonDelaysTTDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -101,12 +101,12 @@ void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap,
     std::pair< EcalLogicID, MonDelaysTTDat > p;
     MonDelaysTTDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setDelayMean( rset->getFloat(7) );
       dat.setDelayRMS( rset->getFloat(8) );
@@ -117,7 +117,7 @@ void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonDelaysTTDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonDelaysTTDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -204,6 +204,6 @@ void MonDelaysTTDat::writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >*
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonDelaysTTDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonDelaysTTDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

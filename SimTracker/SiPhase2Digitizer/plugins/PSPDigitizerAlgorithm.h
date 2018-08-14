@@ -9,11 +9,11 @@ class TrackerTopology;
 
 class PSPDigitizerAlgorithm: public Phase2TrackerDigitizerAlgorithm {
  public:
-  PSPDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
-  ~PSPDigitizerAlgorithm();
+  PSPDigitizerAlgorithm(const edm::ParameterSet& conf);
+  ~PSPDigitizerAlgorithm() override;
 
   // initialization that cannot be done in the constructor
-  void init(const edm::EventSetup& es);
+  void init(const edm::EventSetup& es) override;
   
   // void initializeEvent();
   // run the algorithm to digitize a single det
@@ -22,6 +22,6 @@ class PSPDigitizerAlgorithm: public Phase2TrackerDigitizerAlgorithm {
                          const size_t inputBeginGlobalIndex,
 			 const unsigned int tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
-                         const GlobalVector& bfield);
+                         const GlobalVector& bfield) override;
 };
 #endif

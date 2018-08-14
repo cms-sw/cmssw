@@ -649,7 +649,7 @@ void DTReadOutMapping::cacheMap() const {
       cellKey.push_back( link.   slId );
       std::vector<int>* robMLgr;
       localCache->grROB.find( cellKey.begin(), cellKey.end(), robMLgr );
-      if ( robMLgr == 0 ) {
+      if ( robMLgr == nullptr ) {
         std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
         robMLgr = newVector.get();
         localCache->grROB.insert( cellKey.begin(), cellKey.end(),
@@ -670,7 +670,7 @@ void DTReadOutMapping::cacheMap() const {
       cellKey.push_back( link.stationId );
       std::vector<int>* rosMLgr;
       localCache->grROS.find( cellKey.begin(), cellKey.end(), rosMLgr );
-      if ( rosMLgr == 0 ) {
+      if ( rosMLgr == nullptr ) {
         std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
         rosMLgr = newVector.get();
         localCache->grROS.insert( cellKey.begin(), cellKey.end(),
@@ -730,9 +730,9 @@ void DTReadOutMapping::cacheMap() const {
         cellKey.push_back(    mapId );
         cellKey.push_back(  wheelId );
         cellKey.push_back( sectorId );
-        std::vector<int>* dduMLgr = 0;
+        std::vector<int>* dduMLgr = nullptr;
         localCache->grDDU.find( cellKey.begin(), cellKey.end(), dduMLgr );
-        if ( dduMLgr == 0 ) {
+        if ( dduMLgr == nullptr ) {
           std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
           dduMLgr = newVector.get();
           localCache->grDDU.insert( cellKey.begin(), cellKey.end(),

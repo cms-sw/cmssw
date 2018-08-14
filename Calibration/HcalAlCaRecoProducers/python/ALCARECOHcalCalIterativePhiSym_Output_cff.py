@@ -9,11 +9,12 @@ OutALCARECOHcalCalIterativePhiSym_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalIterativePhiSym')
     ),
     outputCommands = cms.untracked.vstring(
-
                                             "keep *_horeco_*_*",
                                             "keep *_hfreco_*_*",
                                             "keep *_hbhereco_*_*",
                                             "keep *_offlinePrimaryVertices_*_*",
+                                            'keep HcalNoiseSummary_hcalnoise_*_*',
+                                            "keep *_scalersRawToDigi_*_*",
                                             "keep edmTriggerResults_*_*_HLT")
 
 )

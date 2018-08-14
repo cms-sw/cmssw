@@ -15,17 +15,17 @@ namespace cond {
       CondDBTransaction( const std::shared_ptr<coral::ISessionProxy>& coralSession ):
 	m_session( coralSession ){
       }
-      virtual ~CondDBTransaction(){}
+      ~CondDBTransaction() override{}
      
-      void commit(){
+      void commit() override{
 	m_session->transaction().commit();
       }
       
-      void rollback(){
+      void rollback() override{
 	m_session->transaction().rollback();
       }
 
-      bool isActive(){
+      bool isActive() override{
 	return m_session->transaction().isActive();
       }
     private: 
@@ -65,6 +65,7 @@ namespace cond {
 	coralSession->transaction().start( readOnly );
 	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
 	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );
+	runInfoSchemaHandle.reset( new RunInfoSchema( coralSession->nominalSchema() ) );
 	transaction.reset( new CondDBTransaction( coralSession ) );
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
@@ -81,6 +82,7 @@ namespace cond {
 	  transaction.reset();
 	  iovSchemaHandle.reset();
 	  gtSchemaHandle.reset();
+	  runInfoSchemaHandle.reset();
 	}
       }
     }
@@ -91,6 +93,7 @@ namespace cond {
 	transaction.reset();
 	iovSchemaHandle.reset();
 	gtSchemaHandle.reset();
+	runInfoSchemaHandle.reset();
       }
     }
     
@@ -117,7 +120,7 @@ namespace cond {
     }
 
     void SessionImpl::openGTDb( SessionImpl::FailureOnOpeningPolicy policy ){
-      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::open" );
+      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::openGTDb" );
       if( !transaction->gtDbOpen ){
 	transaction->gtDbExists = gtSchemaHandle->exists();
 	transaction->gtDbOpen = true;
@@ -129,6 +132,17 @@ namespace cond {
         } else {
           if( policy==THROW) throwException( "GT Database does not exist.","SessionImpl::openGTDb");
 	}
+      }
+    }
+
+    void SessionImpl::openRunInfoDb(){
+      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::openRunInfoDb" );
+      if( !transaction->runInfoDbOpen ){
+	transaction->runInfoDbExists = runInfoSchemaHandle->exists();
+	transaction->runInfoDbOpen = true;
+      }
+      if( !transaction->runInfoDbExists ){
+	throwException( "RunInfo Database does not exist.","SessionImpl::openRunInfoDb");
       }
     }
 
@@ -160,10 +174,8 @@ namespace cond {
       return *gtSchemaHandle;
     }
 
-    bool SessionImpl::isOra(){
-      if(!transaction.get()) throwException( "The transaction is not active.","SessionImpl::open" );
-      return transaction->isOra;
+    IRunInfoSchema& SessionImpl::runInfoSchema(){
+      return *runInfoSchemaHandle;
     }
-
   }
 }

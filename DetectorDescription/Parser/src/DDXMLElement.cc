@@ -1,6 +1,5 @@
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include <ext/alloc_traits.h>
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -64,7 +63,7 @@ const std::string &
 DDXMLElement::getAttribute( const std::string& name ) const
 {
   static const std::string ldef;
-  if (attributes_.size())
+  if (!attributes_.empty())
     return get(name, attributes_.size() - 1);
   return ldef;
 }
@@ -151,7 +150,7 @@ DDXMLElement::getVectorAttribute( const std::string& name )
   }
   else
   {
-    if (attributes_.size())
+    if (!attributes_.empty())
     {
       appendAttributes(tv, name);
     }
@@ -174,14 +173,14 @@ DDXMLElement::processElement( const std::string& name, const std::string& nmspac
 void
 DDXMLElement::loadText( const std::string& inText )
 {
-  text_.push_back(inText);
+  text_.emplace_back(inText);
 }
 
 void
 DDXMLElement::appendText( const std::string& inText )
 {
   static const std::string cr("\n");
-  if (text_.size() > 0) {
+  if (!text_.empty()) {
     text_[text_.size() - 1] += cr;
     text_[text_.size() - 1] += inText ;
   } else
@@ -204,7 +203,7 @@ DDXMLElement::getText( size_t tindex ) const
 bool
 DDXMLElement::gotText( void ) const
 {
-  if (text_.size() != 0)
+  if (!text_.empty())
     return true;
   return false;
 }
@@ -219,11 +218,10 @@ void
 DDXMLElement::stream( std::ostream & os ) const
 {
   os << "Output of current element attributes:" << std::endl;
-  for (std::vector<DDXMLAttribute>::const_iterator itv = attributes_.begin();
-       itv != attributes_.end(); ++itv)
+  for (const auto & attribute : attributes_)
   {
-    for (DDXMLAttribute::const_iterator it = itv->begin(); 
-	 it != itv->end(); ++it)
+    for (DDXMLAttribute::const_iterator it = attribute.begin(); 
+	 it != attribute.end(); ++it)
       os << it->first <<  " = " << it->second << "\t";
     os << std::endl;
   }
@@ -237,9 +235,9 @@ DDXMLElement::appendAttributes( std::vector<std::string> & tv,
   {
     DDXMLAttribute::const_iterator itnv = attributes_[i].find(name);
     if (itnv != attributes_[i].end())
-      tv.push_back(itnv->second);
+      tv.emplace_back(itnv->second);
     else
-      tv.push_back("");
+      tv.emplace_back("");
   }  
 }
 
@@ -292,7 +290,7 @@ DDXMLElement::setSelf( const std::string& sename )
 bool
 DDXMLElement::isEmpty( void ) const
 {
-  return (attributes_.size() == 0 ? true : false);
+  return (attributes_.empty() ? true : false);
 }
 
 void

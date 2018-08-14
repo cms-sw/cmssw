@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -34,6 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
+#include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -75,7 +77,9 @@ namespace edm {
     }
   }
 
-  RootOutputFile::RootOutputFile(PoolOutputModule* om, std::string const& fileName, std::string const& logicalFileName) :
+  RootOutputFile::RootOutputFile(PoolOutputModule* om, std::string const& fileName,
+                                 std::string const& logicalFileName,
+                                 std::vector<std::string> const& processesWithSelectedMergeableRunProducts) :
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
@@ -88,6 +92,8 @@ namespace edm {
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
       indexIntoFile_(),
+      storedMergeableRunProductMetadata_(processesWithSelectedMergeableRunProducts),
+      nEventsInLumi_(0),
       metaDataTree_(nullptr),
       parameterSetsTree_(nullptr),
       parentageTree_(nullptr),
@@ -432,6 +438,7 @@ namespace edm {
     // Report event written
     Service<JobReport> reportSvc;
     reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
+    ++nEventsInLumi_;
   }
 
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockForOutput const& lb) {
@@ -451,7 +458,8 @@ namespace edm {
     lumiTree_.optimizeBaskets(10ULL*1024*1024);
 
     Service<JobReport> reportSvc;
-    reportSvc->reportLumiSection(reportToken_, lb.id().run(), lb.id().luminosityBlock());
+    reportSvc->reportLumiSection(reportToken_, lb.id().run(), lb.id().luminosityBlock(),nEventsInLumi_);
+    nEventsInLumi_ = 0;
   }
 
   void RootOutputFile::writeRun(RunForOutput const& r) {
@@ -466,6 +474,7 @@ namespace edm {
     ProcessHistoryID reducedPHID = processHistoryRegistry_.reducedProcessHistoryID(r.processHistoryID());
     // Add run to index.
     indexIntoFile_.addEntry(reducedPHID, runAux_.run(), 0U, 0U, runEntryNumber_);
+    r.mergeableRunProductMetadata()->addEntryToStoredMetadata(storedMergeableRunProductMetadata_);
     ++runEntryNumber_;
     fillBranches(InRun, r);
     runTree_.optimizeBaskets(10ULL*1024*1024);
@@ -530,15 +539,16 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::writeProcessHistoryRegistry() {
-    ProcessHistoryVector procHistoryVector;
-    for(auto const& ph : processHistoryRegistry_) {
-      procHistoryVector.push_back(ph.second);
-    }
-    ProcessHistoryVector* p = &procHistoryVector;
-    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryBranchName().c_str(), &p, om_->basketSize(), 0);
+  void RootOutputFile::writeStoredMergeableRunProductMetadata() {
+    storedMergeableRunProductMetadata_.optimizeBeforeWrite();
+    StoredMergeableRunProductMetadata* ptr = &storedMergeableRunProductMetadata_;
+    TBranch* b = metaDataTree_->Branch(poolNames::mergeableRunProductMetadataBranchName().c_str(), &ptr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
+  }
+
+  void RootOutputFile::writeProcessHistoryRegistry() {
+    fillProcessHistoryBranch(metaDataTree_.get(), om_->basketSize(), processHistoryRegistry_);
   }
 
   void RootOutputFile::writeBranchIDListRegistry() {
@@ -556,16 +566,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeParameterSetRegistry() {
-    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
-    std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
-    TBranch* b = parameterSetsTree_->Branch(poolNames::idToParameterSetBlobsBranchName().c_str(),&pIdToBlob,om_->basketSize(), 0);
-
-    for(auto const& pset : *pset::Registry::instance()) {
-      idToBlob.first = pset.first;
-      idToBlob.second.pset() = pset.second.toString();
-
-      b->Fill();
-    }
+    fillParameterSetBranch(parameterSetsTree_.get(), om_->basketSize());
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
@@ -734,7 +735,8 @@ namespace edm {
         if(product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
+          TClass* cp = item.branchDescription_->wrappedType().getClass();
+          assert(cp != nullptr);
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
           std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
@@ -744,7 +746,7 @@ namespace edm {
         item.product_ = product;
       }
       if (keepProvenance && productProvenance == nullptr) {
-        productProvenance = provRetriever->branchIDToProvenance(id);
+        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription_->originalBranchID());
       }
       if(productProvenance) {
         insertProductProvenance(*productProvenance,provenanceToKeep);

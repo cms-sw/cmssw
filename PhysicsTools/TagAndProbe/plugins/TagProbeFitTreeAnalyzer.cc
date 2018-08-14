@@ -14,12 +14,13 @@ using namespace edm;
 class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer{
   public:
     TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset);
-    virtual ~TagProbeFitTreeAnalyzer(){};
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
-    virtual void endRun(const edm::Run &run, const edm::EventSetup &setup) override{};
+    ~TagProbeFitTreeAnalyzer() override{};
+    void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+    void endRun(const edm::Run &run, const edm::EventSetup &setup) override{};
     void calculateEfficiency(string name, const edm::ParameterSet& pset);
   private:
     TagProbeFitter fitter;
+    unsigned int split_mode; // number of events to read per cycle (slower, but memory efficient)
 };
 
 TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
@@ -31,9 +32,11 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
           pset.existsAs<bool>("SaveWorkspace")?pset.getParameter<bool>("SaveWorkspace"):false,
 	  pset.existsAs<bool>("floatShapeParameters")?pset.getParameter<bool>("floatShapeParameters"):true,
 	  pset.existsAs<vector<string> >("fixVars")?pset.getParameter<vector<string> >("fixVars"):vector<string>()
-	  )
+	  ),
+  split_mode( pset.existsAs<unsigned int>("SplitMode")?pset.getParameter<unsigned int>("SplitMode"):0 )
 {
   fitter.setQuiet(pset.getUntrackedParameter("Quiet",false));
+  fitter.setSplitMode( split_mode );
 
   if (pset.existsAs<bool>("binnedFit")) {
     bool binned = pset.getParameter<bool>("binnedFit");
@@ -153,7 +156,7 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
   if(pset.existsAs<vector<string> >("BinToPDFmap")){
     binToPDFmap = pset.getParameter<vector<string> >("BinToPDFmap");
   }
-  if((binToPDFmap.size() > 0) && (binToPDFmap.size()%2 == 0)){
+  if((!binToPDFmap.empty()) && (binToPDFmap.size()%2 == 0)){
     cout<<"BinToPDFmap must have odd size, first string is the default, followed by binRegExp - PDFname pairs!"<<endl;
     exit(2);
   }

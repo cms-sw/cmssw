@@ -29,12 +29,10 @@ typedef TrackingVertex::genv_iterator                   genv_iterator;
 typedef TrackingVertex::g4v_iterator                     g4v_iterator;
 
 
-void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
-
 TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf)
   : runStandalone( conf.getParameter<bool>("runStandalone") )
   , outputFile( conf.getParameter<std::string>( "outputFile" ) )
-  , dbe_( NULL )
+  , dbe_( nullptr )
   , vec_TrackingParticle_Token_( consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>( "src" ) ) ) {}
 
 void TrackingTruthValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
@@ -184,6 +182,6 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
 void TrackingTruthValid::endJob(){ 
   //Only in standalone mode save local root file 
-  if (runStandalone &&  outputFile.size() != 0 && dbe_ ){dbe_->save(outputFile);}
+  if (runStandalone &&  !outputFile.empty() && dbe_ ){dbe_->save(outputFile);}
 
 } 

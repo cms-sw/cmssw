@@ -103,7 +103,7 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 // hcalMEs are within that directory
 int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
-   MonitorElement* Nhf=0;
+   MonitorElement* Nhf=nullptr;
 
    //Search for emap histograms, and collect them into this vector
    //All subdtectors are plotted together in these histograms. We only need to look for different depths
@@ -293,6 +293,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
          for (int ieta = -41; ieta <= 41; ieta++) {
             float phi_factor = 1.;
             float sumphi = 0.;
+	    float sumphie = 0.;
 
             if(ieta == 0) continue; //ieta=0 is not defined
 
@@ -304,15 +305,21 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &
                int binIphi = occupancy_maps[occupancyIdx]->getTH2F()->GetYaxis()->FindBin(float(iphi));
 
                float content = occupancy_maps[occupancyIdx]->getBinContent(binIeta,binIphi);
+	       float econtent = occupancy_maps[occupancyIdx]->getBinError(binIeta,binIphi);
 
                sumphi += content;
+	       sumphie += econtent*econtent;
             }//for loop over phi
 
-            double deta = double(ieta);
+	    int ietabin = occupancy_vs_ieta[vsIetaIdx]->getTH1F()->GetXaxis()->FindBin(float(ieta));
+
+	    
 
             // fill occupancies vs ieta
             cnorm = sumphi / phi_factor;
-            occupancy_vs_ieta[vsIetaIdx]->Fill(deta, cnorm);
+	    enorm = sqrt(sumphie) / phi_factor;
+            occupancy_vs_ieta[vsIetaIdx]->setBinContent(ietabin, cnorm);
+	    occupancy_vs_ieta[vsIetaIdx]->setBinError(ietabin,enorm);
 
          }//Fill occupancy_vs_ieta
       }//if omatched

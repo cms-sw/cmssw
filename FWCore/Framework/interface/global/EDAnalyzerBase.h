@@ -52,7 +52,7 @@ namespace edm {
       typedef EDAnalyzerBase ModuleType;
 
       EDAnalyzerBase();
-      virtual ~EDAnalyzerBase();
+      ~EDAnalyzerBase() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -60,6 +60,15 @@ namespace edm {
 
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
+
+      virtual bool wantsGlobalRuns() const =0;
+      virtual bool wantsGlobalLuminosityBlocks() const =0;
+      virtual bool wantsStreamRuns() const =0;
+      virtual bool wantsStreamLuminosityBlocks() const =0;
+
+      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+        callWhenNewProductsRegistered_ = func;
+      }
 
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
@@ -101,9 +110,6 @@ namespace edm {
       void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
       
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
@@ -117,11 +123,10 @@ namespace edm {
       virtual void beginJob() {}
       virtual void endJob(){}
       
-      virtual void preForkReleaseResources() {}
-      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
-
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocLumis(unsigned int);
+      virtual void preallocate(PreallocationConfiguration const&);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
       virtual void doStreamBeginRun_(StreamID id, Run const& rp, EventSetup const& c);
@@ -139,7 +144,10 @@ namespace edm {
       virtual void doBeginLuminosityBlockSummary_(LuminosityBlock const& rp, EventSetup const& c);
       virtual void doEndLuminosityBlockSummary_(LuminosityBlock const& lb, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lb, EventSetup const& c);
-      
+
+      bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
+
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }

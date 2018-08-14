@@ -69,7 +69,7 @@ void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event & event, const edm::E
   for(std::map<unsigned int,double>::const_iterator itmap=energyMap.begin();itmap!=energyMap.end();++itmap) {
     if ( (*itmap).second > myThreshold ){
       HodoscopeDetId myHodoDetId = HodoscopeDetId((*itmap).first);   
-      firedChannels[myHodoDetId.planeId()][myHodoDetId.fibrId()] = 1;
+      firedChannels[myHodoDetId.planeId()][myHodoDetId.fibrId()] = true;
     }
   }
   for (int iPlane = 0 ; iPlane < nPlanes ; ++iPlane) {

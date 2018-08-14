@@ -37,13 +37,13 @@ class L1EmulBias : public edm::EDProducer {
   
  public:
   explicit L1EmulBias(const edm::ParameterSet&);
-  ~L1EmulBias();
+  ~L1EmulBias() override;
   
  protected:
-  virtual void beginJob(void) {};
+  void beginJob(void) override {};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void) {};
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob(void) override {};
 
  public:
   template <class T>

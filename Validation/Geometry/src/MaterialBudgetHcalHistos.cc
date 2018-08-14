@@ -39,11 +39,8 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
   if (fillHistos) {
     std::string attribute = "ReadOutName";
     std::string value     = "HcalHits";
-    DDSpecificsFilter filter1;
-    DDValue           ddv1(attribute,value,0);
-    filter1.setCriteria(ddv1,DDCompOp::equals);
-    DDFilteredView fv1(cpv);
-    fv1.addFilter(filter1);
+    DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
+    DDFilteredView fv1(cpv,filter1);
     sensitives = getNames(fv1);
     edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
 				   << "tested for " << attribute << " = " 
@@ -55,11 +52,8 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
 
     attribute = "Volume";
     value     = "HF";
-    DDSpecificsFilter filter2;
-    DDValue           ddv2(attribute,value,0);
-    filter2.setCriteria(ddv2,DDCompOp::equals);
-    DDFilteredView fv2(cpv);
-    fv2.addFilter(filter2);
+    DDSpecificsMatchesValueFilter filter2{DDValue(attribute,value,0)};
+    DDFilteredView fv2(cpv,filter2);
     hfNames = getNames(fv2);
     fv2.firstChild();
     DDsvalues_type sv(fv2.mergedSpecifics());
@@ -80,11 +74,8 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
     attribute = "ReadOutName";
     for (int k=0; k<2; k++) {
       value     = ecalRO[k];
-      DDSpecificsFilter filter3;
-      DDValue           ddv3(attribute,value,0);
-      filter3.setCriteria(ddv3,DDCompOp::equals);
-      DDFilteredView fv3(cpv);
-      fv3.addFilter(filter3);
+      DDSpecificsMatchesValueFilter filter3{DDValue(attribute,value,0)};
+      DDFilteredView fv3(cpv,filter3);
       std::vector<std::string> senstmp = getNames(fv3);
       edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be"
 				     << " tested for " << attribute << " = " 
@@ -141,7 +132,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   int    idOld   = id;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   std::string         name  = touch->GetVolume(0)->GetName();
-  std::string         matName = material->GetName();
+  const std::string&         matName = material->GetName();
   if (printSum) {
     bool found = false;
     for (unsigned int ii=0; ii<matList.size(); ii++) {

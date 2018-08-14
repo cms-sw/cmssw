@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os 
 import sys                                                              
 import re 
@@ -21,13 +22,13 @@ class CmsswPreprocessor :
 		rndchars  = "".join([hex(ord(i))[2:] for i in os.urandom(8)])
 		localfile = "%s/%s-%s.root" % (tmpdir, os.path.basename(fname).replace(".root",""), rndchars)
 		try:
-		    print "Fetching %s to local path %s " % (fname,localfile)
+		    print("Fetching %s to local path %s " % (fname,localfile))
 		    start = timeit.default_timer()
 		    subprocess.check_output(["xrdcp","-f","-N",fname,localfile])
-		    print "Time used for transferring the file locally: %s s" % (timeit.default_timer() - start)
+		    print("Time used for transferring the file locally: %s s" % (timeit.default_timer() - start))
 		    return (localfile,True)
 		except:
-		    print "Could not save file locally, will run from remote"
+		    print("Could not save file locally, will run from remote")
 		    if os.path.exists(localfile): os.remove(localfile) # delete in case of incomplete transfer
 		    return (fname,False)
 	def maybePrefetchFiles(self,component):
@@ -44,7 +45,7 @@ class CmsswPreprocessor :
 		component.files = newfiles
 	def endLoop(self,component):
 		for fname in component._preprocessor_tempFiles:
-		    print "Removing local cache file ",fname
+		    print("Removing local cache file ",fname)
 		    os.remove(fname)
 		component._preprocessor_tempFiles = []
 	def run(self,component,wd,firstEvent,nEvents):
@@ -89,7 +90,7 @@ class CmsswPreprocessor :
                         if len(self.options) == 0:                             
                                 pass
                         else:
-                                print "WARNING: cmsswPreprocessor received options but can't pass on to cmsswConfig"
+                                print("WARNING: cmsswPreprocessor received options but can't pass on to cmsswConfig")
                 
 		cmsswConfig.process.source.fileNames = inputfiles
 		# cmsRun will not create the output file if maxEvents==0, leading to crash of the analysis downstream.
@@ -123,9 +124,9 @@ class CmsswPreprocessor :
 		f.write(cmsswConfig.process.dumpPython())
 		f.close()
 		runstring="%s %s >& %s/cmsRun.log" % (self.command,configfile,wd)
-		print "Running pre-processor: %s " %runstring
+		print("Running pre-processor: %s " %runstring)
                 ret=os.system(runstring)
                 if ret != 0:
-                     print "CMSRUN failed"
+                     print("CMSRUN failed")
                      exit(ret)
 		return component

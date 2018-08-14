@@ -4,13 +4,14 @@ from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
 from DQMOffline.Ecal.EcalZmassTask_cfi import *
 
-dqmInfoEcal = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoEcal = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Ecal')
 )
 
-ecalMultiftAnalyzer = cms.EDAnalyzer('ECALMultifitAnalyzer_HI',
+ecalMultiftAnalyzer = DQMEDAnalyzer('ECALMultifitAnalyzer_HI',
                                      recoPhotonSrc         = cms.InputTag('photons'),
-                                     recoJetSrc            = cms.InputTag('akVs4CaloJets'),
+                                     recoJetSrc            = cms.InputTag('akPu4CaloJets'),
                                      RecHitCollection_EB   = cms.InputTag('ecalRecHit:EcalRecHitsEB'),
                                      RecHitCollection_EE   = cms.InputTag('ecalRecHit:EcalRecHitsEE'),
                                      rechitEnergyThreshold = cms.double(5.0),

@@ -35,16 +35,16 @@
 // constructors and destructor
 //
 CSGAction::CSGAction(CSGActionSupervisor *supervisor, const char *name) :
-   m_connector(0)
+   m_connector(nullptr)
  {
    m_enabled = true;
    m_globalEnabled = true;
    m_supervisor = supervisor;
    m_name = name;
    m_toolTip = "";
-   m_menu = 0;
-   m_toolBar = 0;
-   m_tools = 0;
+   m_menu = nullptr;
+   m_toolBar = nullptr;
+   m_tools = nullptr;
    m_connector = new CSGConnector(this, m_supervisor);
    m_supervisor->addToActionMap(this);
    m_entry = m_supervisor->getListOfActions().size();
@@ -120,7 +120,7 @@ void CSGAction::setToolTip(const std::string& tip) {
        ++it) {
       (*it)->SetToolTipText(tip.c_str(), m_supervisor->getToolTipDelay());
    }
-   if (m_tools != 0) m_tools->fTipText = tip.c_str();
+   if (m_tools != nullptr) m_tools->fTipText = tip.c_str();
 }
 
 void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id, GContext_t norm, FontStruct_t font, UInt_t option) {
@@ -168,7 +168,7 @@ CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                    GContext_t norm,
                                    UInt_t option)
 {
-   FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, 0, id, norm, option);
+   FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, nullptr, id, norm, option);
    if (m_toolTip != "") picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
    p->AddFrame(picButton, l);
    TQObject::Connect(picButton, "Clicked()", "CSGAction", this, "activate()");
@@ -207,7 +207,7 @@ void CSGAction::createShortcut(UInt_t key, const char *mod, int windowID) {
 
    m_keycode = keycode;
    m_modcode = modcode;
-   if (m_menu != 0) addSCToMenu();
+   if (m_menu != nullptr) addSCToMenu();
 }
 
 void CSGAction::createMenuEntry(TGPopupMenu *menu) {
@@ -233,9 +233,9 @@ Bool_t CSGAction::resizeMenuEntry() {
    if (realName.Contains("->")) {
       // Should make function to do this and store in member data...
       while (!(realName.BeginsWith("->")) && realName.Length() > 0) {
-         realName.Replace(0,1,0,0);
+         realName.Replace(0,1,nullptr,0);
       }
-      realName.Replace(0,2,0,0);
+      realName.Replace(0,2,nullptr,0);
    }
    TString scText = m_scCombo;
    while (gVirtualX->TextWidth(font, realName.Data(), realName.Length()) + gVirtualX->TextWidth(font, scText.Data(), scText.Length()) + 53 < (Int_t)width) {
@@ -246,14 +246,14 @@ Bool_t CSGAction::resizeMenuEntry() {
    realName += scText;
    TIter next(m_menu->GetListOfEntries());
    TGMenuEntry *current;
-   while (0 != (current = (TGMenuEntry *)next())) {
+   while (nullptr != (current = (TGMenuEntry *)next())) {
       if (current == m_menu->GetEntry(m_entry)) {
          break;
       }
    }
    current = (TGMenuEntry *)next();
    m_menu->DeleteEntry(m_entry);
-   m_menu->AddEntry(realName, m_entry, 0, 0, current);
+   m_menu->AddEntry(realName, m_entry, nullptr, nullptr, current);
    return widthChanged;
 }
 
@@ -311,14 +311,14 @@ Bool_t CSGAction::isEnabled() const {
 
 void CSGAction::enableImp() {
    if(isEnabled()) {
-      if (m_menu != 0) m_menu->EnableEntry(m_entry);
+      if (m_menu != nullptr) m_menu->EnableEntry(m_entry);
       for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
           it != itEnd;
           ++it) {
          (*it)->SetEnabled(kTRUE);
       }
 
-      if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
+      if (m_toolBar != nullptr) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
       if (m_keycode != 0) {
          gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode, kTRUE);
          gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyMod2Mask, kTRUE);
@@ -330,13 +330,13 @@ void CSGAction::enableImp() {
 
 void CSGAction::disableImp() {
    if(!isEnabled()) {
-      if (m_menu != 0) m_menu->DisableEntry(m_entry);
+      if (m_menu != nullptr) m_menu->DisableEntry(m_entry);
       for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
           it != itEnd;
           ++it) {
          (*it)->SetEnabled(kFALSE);
       }
-      if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
+      if (m_toolBar != nullptr) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
       if (m_keycode != 0) {
          gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode, kFALSE);
          gVirtualX->GrabKey(m_windowID, m_keycode, m_modcode | kKeyMod2Mask, kFALSE);

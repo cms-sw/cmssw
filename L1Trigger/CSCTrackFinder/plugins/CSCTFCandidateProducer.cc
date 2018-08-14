@@ -19,7 +19,7 @@ CSCTFCandidateProducer::CSCTFCandidateProducer(const edm::ParameterSet& pset)
 CSCTFCandidateProducer::~CSCTFCandidateProducer()
 {
   delete my_builder;
-  my_builder = NULL;
+  my_builder = nullptr;
 }
 
 void CSCTFCandidateProducer::produce(edm::Event & e, const edm::EventSetup& c)

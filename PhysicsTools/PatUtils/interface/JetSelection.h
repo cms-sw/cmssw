@@ -1,6 +1,8 @@
 #ifndef PhysicsTools_PatUtils_JetSelection_h
 #define PhysicsTools_PatUtils_JetSelection_h
 
+#include <string>
+
 namespace pat {
 
   /// Structure defining the jet selection.

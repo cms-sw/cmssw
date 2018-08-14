@@ -34,6 +34,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+
 process.Test1 = cms.EDAnalyzer("ExTestEcalADCToGeVAnalyzer",
     record = cms.string('EcalADCToGeVConstantRcd'),
     loggingOn= cms.untracked.bool(True),

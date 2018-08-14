@@ -21,7 +21,10 @@
 
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
+#include "Rtypes.h"
+
 class TEveWindow;
+class TEveWindowSlot;
 class FWModelId;
 class FWEventItem;
 
@@ -51,8 +54,8 @@ protected:
    FWDetailViewBase(const std::type_info&);
  
 private:
-   FWDetailViewBase(const FWDetailViewBase&); // stop default
-   const FWDetailViewBase& operator=(const FWDetailViewBase&); // stop default
+   FWDetailViewBase(const FWDetailViewBase&) = delete; // stop default
+   const FWDetailViewBase& operator=(const FWDetailViewBase&) = delete; // stop default
 
    virtual void build(const FWModelId&, const void*) = 0;
   

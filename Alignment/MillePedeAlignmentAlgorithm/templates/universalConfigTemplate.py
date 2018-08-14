@@ -14,6 +14,7 @@
 #          - ALCARECOTkAlCosmicsCTF0T  -> Cosmics, either at 0T or 3.8T
 #          - ALCARECOTkAlMuonIsolated  -> Isolated Muon
 #          - ALCARECOTkAlZMuMu         -> Z decay to two Muons
+#          - ALCARECOTkAlUpsilonMuMu   -> Upsilon decay to two Muons
 #          - generalTracks             -> general tracks treated like Minimum Bias
 #          - ALCARECOTkAlCosmicsInCollisions -> Cosmics taken during collisions
 #
@@ -94,13 +95,26 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 ## insert Startgeometry ##
 ##########################
 
-# You can use tagwriter.setCondition() to overwrite conditions in globaltag
-#
-# Example:
+# # You can use tagwriter.setCondition() to overwrite conditions in globaltag
+# #
+# # Examples (ideal phase-1 tracker-alignment conditions):
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "TrackerAlignmentRcd",
+#       tag = "TrackerAlignment_Upgrade2017_design_v4")
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "TrackerSurfaceDeformationRcd",
+#       tag = "TrackerSurfaceDeformations_zero")
 # tagwriter.setCondition(process,
 #       connect = "frontier://FrontierProd/CMS_CONDITIONS",
 #       record = "TrackerAlignmentErrorExtendedRcd",
-#       tag = "TrackerIdealGeometryErrorsExtended210_mc")
+#       tag = "TrackerAlignmentErrorsExtended_Upgrade2017_design_v0")
+# tagwriter.setCondition(process,
+#       connect = "frontier://FrontierProd/CMS_CONDITIONS",
+#       record = "SiPixelLorentzAngleRcd",
+#       label = "fromAlignment",
+#       tag = "SiPixelLorentzAngle_fromAlignment_phase1_mc_v1")
 
 
 #######################
@@ -114,17 +128,130 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 # process.AlignmentProducer.ParameterBuilder.parameterTypes = [
 #     "SelectorRigid,RigidBody",
 #     ]
+#
 # # Define the high-level structure alignables
 # process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
 #     alignParams = cms.vstring(
-#         "TrackerTPBHalfBarrel,111111",
-#         "TrackerTPEHalfCylinder,111111",
+#         "TrackerP1PXBHalfBarrel,111111",
+#         "TrackerP1PXECHalfCylinder,111111",
 #         "TrackerTIBHalfBarrel,111111",
 #         "TrackerTOBHalfBarrel,rrrrrr",
 #         "TrackerTIDEndcap,111111",
-#         "TrackerTECEndcap,111111"
+#         "TrackerTECEndcap,111111",
+#     )
+# )
+
+
+# # to run a module-level alignment on real data (including TOB centering; use
+# # pixel-barrel centering for MC) of the whole tracker (including surface
+# # deformations) you can use the following configuration (read comments on
+# # multi-IOV alignment below):
+#
+# process.AlignmentProducer.ParameterBuilder.parameterTypes = [
+#     "SelectorRigid,RigidBody",
+#     "SelectorBowed,BowedSurface",
+#     "SelectorTwoBowed,TwoBowedSurfaces",
+# ]
+#
+# # Define the high-level structure alignables
+# process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerP1PXBHalfBarrel,111111",
+#         "TrackerP1PXECHalfCylinder,111111",
+#         "TrackerTIBHalfBarrel,111111",
+#         "TrackerTOBHalfBarrel,rrrrrr",
+#         "TrackerTIDEndcap,111111",
+#         "TrackerTECEndcap,111111",
+#     )
+# )
+#
+# # Define the module-level alignables (for single modules)
+# process.AlignmentProducer.ParameterBuilder.SelectorBowed = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerP1PXBModule,111111 111",
+#         "TrackerP1PXECModule,111111 111",
+#         "TrackerTIBModuleUnit,101111 111",
+#         "TrackerTIDModuleUnit,111111 111",
+#         "TrackerTECModuleUnit,111111 111,tecSingleSens",
+#     ),
+#     tecSingleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(1,4))),
+# )
+#
+# process.AlignmentProducer.ParameterBuilder.SelectorTwoBowed = cms.PSet(
+#     alignParams = cms.vstring(
+#         "TrackerTOBModuleUnit,101111 111 101111 111",
+#         "TrackerTECModuleUnit,111111 111 111111 111,tecDoubleSens",
+#     ),
+#     tecDoubleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(5,7))),
+# )
+#
+# # IOV definition
+# #  - defaults to single-IOV starting at "1", if omitted
+# #  - alignables have to match high-level structures above
+# #    -> except for 'rrrrrr' alignables
+# process.AlignmentProducer.RunRangeSelection = [
+#     cms.PSet(
+#         RunRanges = cms.vstring(
+#             "290550",
+#             "300000",
+#         ),
+#         selector = cms.vstring(
+#             "TrackerP1PXBHalfBarrel,111111",
+#             "TrackerP1PXECHalfCylinder,111111",
+#             "TrackerTIBHalfBarrel,111111",
+#             "TrackerTIDEndcap,111111",
+#             "TrackerTECEndcap,111111",
 #         )
 #     )
+# ] # end of process.AlignmentProducer.RunRangeSelection
+
+# # To run simultaneous calibrations of the pixel Lorentz angle you need to
+# # include the corresponding config fragment and configure the granularity and
+# # IOVs (must be consistent with input LA/template/alignment IOVs) for it.
+# # Note: There are different version of the LA record available in the global
+# #       tag. Depending on the TTRHBuilder, one has to set a label to configure
+# #       which of them is to be used. The default TTRHBuilder uses pixel
+# #       templates which ignores the unlabelled LA record and uses only the one
+# #       labelled "fromAlignment". This is also the default value in the
+# #       integrated LA calibration. If you are using the generic CPE instead of
+# #       the template CPE you have to use the following setting:
+# #
+# #       siPixelLA.lorentzAngleLabel = ""
+#
+# from Alignment.CommonAlignmentAlgorithm.SiPixelLorentzAngleCalibration_cff \
+#     import SiPixelLorentzAngleCalibration as siPixelLA
+# siPixelLA.LorentzAngleModuleGroups.Granularity = cms.VPSet()
+# siPixelLA.LorentzAngleModuleGroups.RunRange = cms.vuint32(290550,
+#                                                           295000,
+#                                                           298100)
+#
+# siPixelLA.LorentzAngleModuleGroups.Granularity.extend([
+#     cms.PSet(
+#         levels = cms.PSet(
+#             alignParams = cms.vstring(
+#                 'TrackerP1PXBModule,,RINGLAYER'
+#             ),
+#             RINGLAYER = cms.PSet(
+#                 pxbDetId  = cms.PSet(
+#                     moduleRanges = cms.vint32(ring, ring),
+#                     layerRanges = cms.vint32(layer, layer)
+#                 )
+#             )
+#         )
+#     )
+#     for ring in xrange(1,9) # [1,8]
+#     for layer in xrange(1,5) # [1,4]
+# ])
+# siPixelLA.LorentzAngleModuleGroups.Granularity.append(
+#     cms.PSet(
+#         levels = cms.PSet(
+#             alignParams = cms.vstring('TrackerP1PXECModule,,posz'),
+#             posz = cms.PSet(zRanges = cms.vdouble(-9999.0, 9999.0))
+#         )
+#     )
+# )
+#
+# process.AlignmentProducer.calibrations.append(siPixelLA)
 
 
 #########################
@@ -133,15 +260,32 @@ import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.SetCondition as tagw
 
 # # reasonable pede settings are already defined in
 # # 'confAliProducer.setConfiguration' above
-# # if you want obtain alignment errors, use "inversion 3 0.8" as
-# # process.AlignmentProducer.algoConfig.pedeSteerer.method and set
-# # process.AlignmentProducer.saveApeToDB = True
+# #
+# # if you want to obtain alignment errors, use the following setting:
+# # process.AlignmentProducer.algoConfig.pedeSteerer.method = "inversion 3 0.8"
+# #
 # # a list of possible options is documented here:
 # # http://www.desy.de/~kleinwrt/MP2/doc/html/option_page.html#sec-cmd
-# # you can change pede settings as follows:
+# #
+# # you can change or drop pede options as follows:
 #
 # import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
 # helper.set_pede_option(process, "entries 50 10 2")
+# helper.set_pede_option(process, "compress", drop = True)
+
+
+#################
+## add filters ##
+#################
+
+# # please add any EDFilter here that should run before processing the event,
+# # e.g. add the following lines to ensure that only 3.8T events are selected
+#
+# import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.helper as helper
+# process.load("Alignment.CommonAlignment.magneticFieldFilter_cfi")
+# process.magneticFieldFilter.magneticField = 38 # in units of kGauss (=0.1T)
+# helper.add_filter(process, process.magneticFieldFilter)
+
 
 
 ################################################################################

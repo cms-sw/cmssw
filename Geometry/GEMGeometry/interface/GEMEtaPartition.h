@@ -1,7 +1,7 @@
 #ifndef Geometry_GEMGeometry_GEMEtaPartition_H
 #define Geometry_GEMGeometry_GEMEtaPartition_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -9,23 +9,23 @@
 class StripTopology;
 class GEMEtaPartitionSpecs;
 
-class GEMEtaPartition : public GeomDetUnit
+class GEMEtaPartition : public GeomDet
 {
 public:
   
-  GEMEtaPartition(GEMDetId id, BoundPlane::BoundPlanePointer bp, GEMEtaPartitionSpecs* rrs);
-  ~GEMEtaPartition();
+  GEMEtaPartition(GEMDetId id, const BoundPlane::BoundPlanePointer& bp, GEMEtaPartitionSpecs* rrs);
+  ~GEMEtaPartition() override;
 
   const GEMEtaPartitionSpecs* specs() const { return specs_; }
   GEMDetId id() const { return id_; }
 
-  const Topology& topology() const;
+  const Topology& topology() const override;
   const StripTopology& specificTopology() const;
 
   const Topology& padTopology() const;
   const StripTopology& specificPadTopology() const;
 
-  const GeomDetType& type() const; 
+  const GeomDetType& type() const override; 
  
   // strip-related methods:
 

@@ -91,7 +91,7 @@ my $nMerge = @JOBDIR - $nJobs; # 'index' of this merge job to achieve jobm, jobm
 # add a new merge job entry. 
 $theJobDir = "jobm".$nMerge;
 push @JOBDIR,$theJobDir;
-push @JOBID,0;
+push @JOBID,"";
 push @JOBSTATUS,"SETUP";
 push @JOBNTRY,0;
 push @JOBRUNTIME,0;
@@ -107,6 +107,7 @@ push @JOBSP3,"";
 print "Create dir jobData/$theJobDir\n";
 system "rm -rf jobData/$theJobDir";
 system "mkdir jobData/$theJobDir";
+system "ln -s `readlink -e .TrackerTree.root` jobData/$theJobDir/";
 
 # build the absolute job directory path (needed by mps_scriptm)
 $thePwd = `pwd`;
@@ -116,6 +117,9 @@ $theJobData = "$thePwd/jobData";
 # copy merge job cfg from last merge job
 print "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir\n";
 system "cp -p jobData/$JOBDIR[$iOldMerge]/alignment_merge.py $theJobData/$theJobDir";
+
+# copy weights configuration from last merge job
+system "cp -p jobData/$JOBDIR[$iOldMerge]/.weights.pkl $theJobData/$theJobDir";
 
 my $tmpc = "";
 $tmpc = " -c" if($onlyactivejobs == 1);

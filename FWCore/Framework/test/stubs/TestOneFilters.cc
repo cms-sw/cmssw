@@ -153,6 +153,7 @@ namespace one {
     explicit BeginRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
       produces<int>();
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
@@ -192,6 +193,7 @@ namespace one {
   public:
     explicit BeginLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
@@ -233,6 +235,7 @@ namespace one {
   public:
     explicit EndRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_;
     bool erp = false; 
@@ -272,6 +275,7 @@ namespace one {
   public:
     explicit EndLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     bool elbp = false;

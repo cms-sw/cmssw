@@ -1,44 +1,44 @@
 #include "DetectorDescription/Core/src/Cons.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 
 #include <cmath>
 #include <ostream>
 #include <vector>
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
+using namespace dd;
+using namespace dd::operators;
+
 DDI::Cons::Cons(double zhalf,
-	 double rInMinusZ,
-	 double rOutMinusZ,
-	 double rInPlusZ,
-	 double rOutPlusZ,
-	 double startPhi,
-	 double deltaPhi)
- : Solid(ddcons)	  
+		double rInMinusZ,
+		double rOutMinusZ,
+		double rInPlusZ,
+		double rOutPlusZ,
+		double startPhi,
+		double deltaPhi)
+  : Solid(DDSolidShape::ddcons)
 {
-  p_.push_back(zhalf);
-  p_.push_back(rInMinusZ);
-  p_.push_back(rOutMinusZ);
-  p_.push_back(rInPlusZ);
-  p_.push_back(rOutPlusZ);
-  p_.push_back(startPhi);
-  p_.push_back(deltaPhi);
+  p_.emplace_back(zhalf);
+  p_.emplace_back(rInMinusZ);
+  p_.emplace_back(rOutMinusZ);
+  p_.emplace_back(rInPlusZ);
+  p_.emplace_back(rOutPlusZ);
+  p_.emplace_back(startPhi);
+  p_.emplace_back(deltaPhi);
+}
 
-}	 
-
-
-void DDI::Cons::stream(std::ostream & os) const
+void
+DDI::Cons::stream( std::ostream & os ) const
 {
-   os << " zhalf=" << p_[0]/cm
-      << " rIn-Z=" << p_[1]/cm
-      << " rOut-Z=" << p_[2]/cm
-      << " rIn+Z=" << p_[3]/cm
-      << " rOut+Z=" << p_[4]/cm
-      << " startPhi=" << p_[5]/deg
-      << " deltaPhi=" << p_[6]/deg;
+  os << " zhalf=" << CONVERT_TO( p_[0], cm )
+     << " rIn-Z=" << CONVERT_TO( p_[1], cm )
+     << " rOut-Z=" << CONVERT_TO( p_[2], cm )
+     << " rIn+Z=" << CONVERT_TO( p_[3], cm )
+     << " rOut+Z=" << CONVERT_TO( p_[4], cm )
+     << " startPhi=" << CONVERT_TO( p_[5], deg )
+     << " deltaPhi=" << CONVERT_TO( p_[6], deg );
 }
 
 double DDI::Cons::volume() const
@@ -67,14 +67,14 @@ double DDI::Cons::volume() const
    double rInPlusZ=p_[3]; 
    double rOutPlusZ=p_[4];
    //double phiFrom=p_[5]/rad;
-   double deltaPhi=fabs(p_[6]/rad); 
+   double deltaPhi=fabs( CONVERT_TO( p_[6], rad )); 
    double z=2*zhalf;
 
-  double volume1=pi*(rInPlusZ*rInPlusZ+rInMinusZ*rInMinusZ+rInMinusZ*rInPlusZ)*z/3;
+  double volume1=1_pi*(rInPlusZ*rInPlusZ+rInMinusZ*rInMinusZ+rInMinusZ*rInPlusZ)*z/3;
 
-  double volume2=pi*(rOutPlusZ*rOutPlusZ+rOutMinusZ*rOutMinusZ+rOutMinusZ*rOutPlusZ)*z/3;
+  double volume2=1_pi*(rOutPlusZ*rOutPlusZ+rOutMinusZ*rOutMinusZ+rOutMinusZ*rOutPlusZ)*z/3;
   
-  double slice=deltaPhi/(2*pi);
+  double slice=deltaPhi/(2_pi);
   double volume=slice*(volume2-volume1);
 
   return volume;

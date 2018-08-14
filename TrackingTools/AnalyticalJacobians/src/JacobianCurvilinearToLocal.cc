@@ -14,17 +14,10 @@ JacobianCurvilinearToLocal(const Surface& surface,
   GlobalVector h  = magField.inInverseGeV(x);
   GlobalVector qh = h*localParameters.signedInverseMomentum();  // changed sign
 
-
-  //  GlobalVector  hdir =  h.unit();
-  //double q = -h.mag() * localParameters.signedInverseMomentum();
-  
   LocalVector tnl = localParameters.direction();
   GlobalVector tn = surface.toGlobal(tnl);
   double t1r = 1./tnl.z();
 
-  // GlobalVector dj = surface.toGlobal(LocalVector(1., 0., 0.));
-  // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
-  //  GlobalVector di = surface.toGlobal(LocalVector(0., 0., 1.));
   Surface::RotationType const & rot = surface.rotation();
 
   compute(rot, tn, qh, t1r);
@@ -40,13 +33,6 @@ JacobianCurvilinearToLocal(const Surface& surface,
   // GlobalVector h  = magField.inInverseGeV(x);
   GlobalVector h  = globalParameters.magneticFieldInInverseGeV();
   GlobalVector qh = h*localParameters.signedInverseMomentum();  // changed sign
-
-  //GlobalVector  hdir =  h.unit();
-  //double q = -h.mag() * localParameters.signedInverseMomentum();
-
- 
-  //  GlobalVector tn = globalParameters.momentum().unit();
-  //  LocalVector tnl = localParameters.momentum().unit();
 
   LocalVector tnl = localParameters.direction();
   // GlobalVector tn = surface.toGlobal(tnl); // faster?
@@ -73,7 +59,6 @@ void JacobianCurvilinearToLocal::compute(Surface::RotationType const & rot, Glob
 
   int j=0, k=1, i=2;
 
-  //  double t1r = 1./tvw.x();
   double t2r = t1r*t1r;
   double t3r = t1r*t2r;
 

@@ -51,7 +51,7 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   produces<FEDRawDataCollection>();
   const edm::InputTag rctInputTag = iConfig.getParameter<edm::InputTag>("rctInputLabel");
   const edm::InputTag gctInputTag = iConfig.getParameter<edm::InputTag>("gctInputLabel");
-  const std::string gctInputLabelStr = gctInputTag.label();
+  const std::string& gctInputLabelStr = gctInputTag.label();
   tokenL1GctEmCand_isoEm_ = consumes<L1GctEmCandCollection>(edm::InputTag(gctInputLabelStr, "isoEm"));
   tokenL1GctEmCand_nonIsoEm_ = consumes<L1GctEmCandCollection>(edm::InputTag(gctInputLabelStr, "nonIsoEm"));
   tokenGctJetCand_cenJets_ = consumes<L1GctJetCandCollection>(edm::InputTag(gctInputLabelStr, "cenJets"));

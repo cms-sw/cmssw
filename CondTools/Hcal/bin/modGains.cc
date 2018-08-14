@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -22,7 +22,7 @@ class modGains : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit modGains(const edm::ParameterSet&);
-  ~modGains();
+  ~modGains() override;
 
 private:
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
@@ -95,7 +95,7 @@ void modGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
 	std::cerr << "Vector operation, " << i << "th channel: using val=" << val << std::endl;
     }
     
-    HcalGain* p_item = 0;
+    HcalGain* p_item = nullptr;
     if ((std::strcmp(s_operation.c_str(),"add")==0) || (std::strcmp(s_operation.c_str(),"sadd")==0))
       p_item = new HcalGain(id, gainsIn.getValues(id)->getValue(0) + val, gainsIn.getValues(id)->getValue(1) + val, 
 			    gainsIn.getValues(id)->getValue(2) + val, gainsIn.getValues(id)->getValue(3) + val);

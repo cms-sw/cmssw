@@ -1,11 +1,11 @@
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <memory>
 #include <string>
 #include <cstdio>
-#include <stdio.h>
+#include <cstdio>
 #include <ext/stdio_filebuf.h>
 
 #include "FWCore/Concurrency/interface/Xerces.h"
@@ -46,9 +46,9 @@ namespace { // anonymous
 		typedef typename T::Stream_t Stream_t;
 
 		XMLInputSourceWrapper(std::unique_ptr<Stream_t>& obj) : obj(obj) {}
-		virtual ~XMLInputSourceWrapper() {}
+		~XMLInputSourceWrapper() override {}
 
-		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
+		XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
 							makeStream() const override
 		{ return new T(*obj); }
 
@@ -62,14 +62,14 @@ namespace { // anonymous
 	        typedef std::istream Stream_t;
 
 	        STLInputStream(std::istream &in) : in(in) {}
-	        virtual ~STLInputStream() {}
+	        ~STLInputStream() override {}
 
-	        virtual XMLFilePos curPos() const override { return pos; }
+	        XMLFilePos curPos() const override { return pos; }
 
-	        virtual XMLSize_t readBytes(XMLByte *const buf,
+	        XMLSize_t readBytes(XMLByte *const buf,
 					    const XMLSize_t size) override;
 	  
-	        virtual const XMLCh* getContentType() const override { return 0; }
+	        const XMLCh* getContentType() const override { return nullptr; }
 
 	    private:
 	        std::istream    &in;
@@ -86,7 +86,7 @@ namespace { // anonymous
 			file_(file), filebuf_(file, std::ios_base::in)
 		{ this->init(&filebuf_); }
 
-		~stdio_istream()
+		~stdio_istream() override
 		{ close(file_); }
 
 		__filebuf_type *rdbuf() const
@@ -144,7 +144,7 @@ XMLDocument::XercesPlatform::~XercesPlatform()
 
 XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 	platform(new XercesPlatform()), fileName(fileName),
-	write(write), impl(0), doc(0), rootNode(0)
+	write(write), impl(nullptr), doc(nullptr), rootNode(nullptr)
 {
 	if (write)
 		openForWrite(fileName);
@@ -163,7 +163,7 @@ XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 XMLDocument::XMLDocument(const std::string &fileName,
                          const std::string &command) :
 	platform(new XercesPlatform()), fileName(fileName),
-	write(false), impl(0), doc(0), rootNode(0)
+	write(false), impl(nullptr), doc(nullptr), rootNode(nullptr)
 {
 	FILE *file = popen(command.c_str(), "r");
 	if (!file)
@@ -272,7 +272,7 @@ DOMDocument *XMLDocument::createDocument(const std::string &root)
 			<< "Document already exists in createDocument."
 			<< std::endl;
 
-	doc = impl->createDocument(0, XMLUniStr(root.c_str()), 0);
+	doc = impl->createDocument(nullptr, XMLUniStr(root.c_str()), nullptr);
 	rootNode = doc->getDocumentElement();
 
 	return doc;

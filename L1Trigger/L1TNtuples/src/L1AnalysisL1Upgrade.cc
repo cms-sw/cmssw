@@ -30,6 +30,7 @@ void L1Analysis::L1AnalysisL1Upgrade::SetEm(const edm::Handle<l1t::EGammaBxColle
 	l1upgrade_.egNTT.push_back(it->nTT());
 	l1upgrade_.egShape.push_back(it->shape());
 	l1upgrade_.egTowerHoE.push_back(it->towerHoE());
+	l1upgrade_.egHwQual.push_back(it->hwQual());
 	l1upgrade_.nEGs++;
       }
     }
@@ -101,11 +102,13 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
 	l1upgrade_.muonEt .push_back(it->et());
 	l1upgrade_.muonEta.push_back(it->eta());
 	l1upgrade_.muonPhi.push_back(it->phi());
-	l1upgrade_.muonEtaAtVtx.push_back(l1t::MicroGMTConfiguration::calcMuonEtaExtra(*it));
-	l1upgrade_.muonPhiAtVtx.push_back(l1t::MicroGMTConfiguration::calcMuonPhiExtra(*it));
+	l1upgrade_.muonEtaAtVtx.push_back(it->etaAtVtx());
+	l1upgrade_.muonPhiAtVtx.push_back(it->phiAtVtx());
 	l1upgrade_.muonIEt .push_back(it->hwPt());
 	l1upgrade_.muonIEta.push_back(it->hwEta());
 	l1upgrade_.muonIPhi.push_back(it->hwPhi());
+	l1upgrade_.muonIEtaAtVtx.push_back(it->hwEtaAtVtx());
+	l1upgrade_.muonIPhiAtVtx.push_back(it->hwPhiAtVtx());
 	l1upgrade_.muonIDEta.push_back(it->hwDEtaExtra());
 	l1upgrade_.muonIDPhi.push_back(it->hwDPhiExtra());
 	l1upgrade_.muonChg.push_back(it->charge());

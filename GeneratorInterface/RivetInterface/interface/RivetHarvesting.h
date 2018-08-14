@@ -21,17 +21,17 @@ class RivetHarvesting : public edm::EDAnalyzer
   public:
   RivetHarvesting(const edm::ParameterSet&);
 
-  virtual ~RivetHarvesting();
+  ~RivetHarvesting() override;
 
-  virtual void beginJob();
+  void beginJob() override;
 
-  virtual void endJob();  
+  void endJob() override;  
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
   
   private:
 

@@ -21,7 +21,7 @@ namespace reco {
     class MatcherBase : public edm::EDProducer {
     public:
       MatcherBase( const edm::ParameterSet & );
-      ~MatcherBase();
+      ~MatcherBase() override;
 
     protected:
       typedef typename C1::value_type T1;
@@ -46,16 +46,16 @@ namespace reco {
 	MatcherBase<C1, C2, M>( cfg ),
         select_( reco::modules::make<S>( cfg ) ),
 	distance_( reco::modules::make<D>( cfg ) ) { }
-      ~Matcher() { }
+      ~Matcher() override { }
     private:
       typedef typename MatcherBase<C1, C2, M>::T1 T1;
       typedef typename MatcherBase<C1, C2, M>::T2 T2;
       typedef typename MatcherBase<C1, C2, M>::MatchMap MatchMap;
 
-      double matchDistance( const T1 & c1, const T2 & c2 ) const {
+      double matchDistance( const T1 & c1, const T2 & c2 ) const override {
 	return distance_( c1, c2 );
       }
-      bool select( const T1 & c1, const T2 & c2 ) const {
+      bool select( const T1 & c1, const T2 & c2 ) const override {
 	return select_( c1, c2 );
       }
       S select_;
@@ -106,7 +106,7 @@ namespace reco {
 	    if ( dist < distMin_ ) v.push_back( make_pair( m, dist ) );
 	  }
 	}
-	if ( v.size() > 0 ) {
+	if ( !v.empty() ) {
 	  size_t mMin = min_element( v.begin(), v.end(), helper::SortBySecond() )->first;
 	  typedef typename MatchMap::key_type key_type;
 	  typedef typename MatchMap::data_type data_type;

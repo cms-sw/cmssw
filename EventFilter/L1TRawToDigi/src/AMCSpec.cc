@@ -123,9 +123,9 @@ namespace amc {
       *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
    }
 
-   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load) :
+   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user) :
       block_header_(amc, board, load.size() + 3), // add 3 words for header (2) and trailer (1)
-      header_(amc, lv1id, bx, load.size() + 3, orbit, board, 0),
+      header_(amc, lv1id, bx, load.size() + 3, orbit, board, user),
       trailer_(0, lv1id, load.size() + 3)
    {
       auto hdata = header_.raw();

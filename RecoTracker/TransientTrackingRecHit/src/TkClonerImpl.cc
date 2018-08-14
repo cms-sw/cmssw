@@ -7,7 +7,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 
@@ -119,7 +119,7 @@ namespace {
 std::unique_ptr<SiStripMatchedRecHit2D> TkClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
     const GeomDet * det = hit.det();
     const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
-    LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
+    LocalVector tkDir = (tsos.isValid() ? tsos.localParameters().directionNotNormalized() : 
 			 det->surface().toLocal( det->position()-GlobalPoint(0,0,0)));
 
     const SiStripCluster& monoclust   = hit.monoCluster();  
@@ -169,7 +169,7 @@ std::unique_ptr<ProjectedSiStripRecHit2D> TkClonerImpl::operator()(ProjectedSiSt
 		       det.surface().toLocal( det.position()-GlobalPoint(0,0,0)));
 
   auto delta = gluedPlane.localZ( hitPlane.position());
-  LocalVector ldir = tkDir;
+  const LocalVector& ldir = tkDir;
   LocalPoint lhitPos = gluedPlane.toLocal( hitPlane.toGlobal(lv.first));
   LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();                  
 
@@ -208,7 +208,7 @@ std::unique_ptr<ProjectedSiStripRecHit2D> TkClonerImpl::project(SiStripMatchedRe
 
 
   auto delta = gluedPlane.localZ( hitPlane.position());
-  LocalVector ldir = tkDir;
+  const LocalVector& ldir = tkDir;
   LocalPoint lhitPos = gluedPlane.toLocal( hitPlane.toGlobal(lv.first));
   LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();                  
 

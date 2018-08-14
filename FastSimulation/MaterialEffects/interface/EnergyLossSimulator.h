@@ -31,7 +31,7 @@ class EnergyLossSimulator : public MaterialEffectsSimulator
   EnergyLossSimulator(double A, double Z, double density, double radLen);
 
   /// Default Destructor
-  ~EnergyLossSimulator();
+  ~EnergyLossSimulator() override;
 
   /// Return most probable energy loss
   inline double mostLikelyLoss() const { return mostProbableLoss; }
@@ -44,7 +44,7 @@ class EnergyLossSimulator : public MaterialEffectsSimulator
   LandauFluctuationGenerator* theGenerator;
 
   /// The real dE/dx generation and particle update
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
 
   /// The most probable enery loss
   double mostProbableLoss;

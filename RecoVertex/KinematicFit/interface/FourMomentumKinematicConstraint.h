@@ -31,29 +31,29 @@ public:
  * Vector of values and  matrix of derivatives
  * calculated at given  7*NumberOfStates expansion point
  */  
-virtual std::pair<AlgebraicVector,AlgebraicVector> value(const AlgebraicVector& exPoint) const;
+std::pair<AlgebraicVector,AlgebraicVector> value(const AlgebraicVector& exPoint) const override;
  
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
+std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const override;
 
 
 /**
  * Vector of values and matrix of derivatives calculated using 
  * current state as an expansion point
  */  
-virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const;
+std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> &par) const override;
 
-virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const;
+std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> &par) const override;
 
  
 /**
  * Returns number of constraint equations used for fitting. Method is relevant for proper NDF
  * calculations.
  */ 
-virtual int numberOfEquations() const;
+int numberOfEquations() const override;
 
-virtual AlgebraicVector deviations(int nStates) const;
+AlgebraicVector deviations(int nStates) const override;
 
-virtual FourMomentumKinematicConstraint * clone() const
+FourMomentumKinematicConstraint * clone() const override
  {return new FourMomentumKinematicConstraint(*this);}
 
 private:

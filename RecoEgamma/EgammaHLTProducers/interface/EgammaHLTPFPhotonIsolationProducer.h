@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,12 +29,12 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTPFPhotonIsolationProducer : public edm::EDProducer {
+class EgammaHLTPFPhotonIsolationProducer : public edm::global::EDProducer<> {
  public:
   explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFPhotonIsolationProducer() {};    
+  ~EgammaHLTPFPhotonIsolationProducer() override {};    
       
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
  private:

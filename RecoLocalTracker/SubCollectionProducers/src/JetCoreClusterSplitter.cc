@@ -26,8 +26,8 @@
 class JetCoreClusterSplitter : public edm::stream::EDProducer<> {
  public:
   JetCoreClusterSplitter(const edm::ParameterSet& iConfig);
-  ~JetCoreClusterSplitter();
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  ~JetCoreClusterSplitter() override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
  private:
   bool split(const SiPixelCluster& aCluster,
@@ -119,8 +119,7 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
                                                             detIt->id());
     const edmNew::DetSet<SiPixelCluster>& detset = *detIt;
     const GeomDet* det = geometry->idToDet(detset.id());
-    for (edmNew::DetSet<SiPixelCluster>::const_iterator cluster =
-             detset.begin();
+    for (auto cluster = detset.begin();
          cluster != detset.end(); cluster++) {
       const SiPixelCluster& aCluster = *cluster;
       bool hasBeenSplit = false;
@@ -138,20 +137,20 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
             // check if the cluster has to be splitted
 
             bool isEndCap =
-                (fabs(cPos.z()) > 30);  // FIXME: check detID instead!
+                (std::abs(cPos.z()) > 30.f);  // FIXME: check detID instead!
             float jetZOverRho = jet.momentum().Z() / jet.momentum().Rho();
             if (isEndCap)
               jetZOverRho = jet.momentum().Rho() / jet.momentum().Z();
             float expSizeY =
-                fabs(sqrt(1.3 * 1.3 + 1.9 * 1.9 * jetZOverRho * jetZOverRho));
-            if (expSizeY < 1) expSizeY = 1.;
-            float expSizeX = 1.5;
+                std::sqrt((1.3f*1.3f) + (1.9f*1.9f) * jetZOverRho*jetZOverRho);
+            if (expSizeY < 1.f) expSizeY = 1.f;
+            float expSizeX = 1.5f;
             if (isEndCap) {
               expSizeX = expSizeY;
-              expSizeY = 1.5;
+              expSizeY = 1.5f;
             }  // in endcap col/rows are switched
             float expCharge =
-                sqrt(1.08 + jetZOverRho * jetZOverRho) * centralMIPCharge_;
+                std::sqrt(1.08f + jetZOverRho * jetZOverRho) * centralMIPCharge_;
 
             if (aCluster.charge() > expCharge * chargeFracMin_ &&
                 (aCluster.sizeX() > expSizeX + 1 ||
@@ -181,15 +180,19 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
         if (shouldBeSplit) {
           // blowup the error if we failed to split a splittable cluster (does
           // it ever happen)
-          c.setSplitClusterErrorX(
-              c.sizeX() * 100. /
-              3.);  // this is not really blowing up .. TODO: tune
-          c.setSplitClusterErrorY(c.sizeY() * 150. / 3.);
+          c.setSplitClusterErrorX(c.sizeX() * (100.f/3.f));  // this is not really blowing up .. TODO: tune
+          c.setSplitClusterErrorY(c.sizeY() * (150.f/3.f));
         }
         filler.push_back(c);
+        std::push_heap(filler.begin(),filler.end(),
+          [](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
+
       }
-    }
-  }
+    }// loop over clusters
+    std::sort_heap(filler.begin(),filler.end(),
+          [](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
+
+  }  // loop over det
   iEvent.put(std::move(output));
 }
 
@@ -202,21 +205,23 @@ bool JetCoreClusterSplitter::split(
 
   std::vector<SiPixelCluster> sp =
       fittingSplit(aCluster, expectedADC, sizeY, sizeX, jetZOverRho,
-                   floor(aCluster.charge() / expectedADC + 0.5));
+                   std::floor(aCluster.charge() / expectedADC + 0.5f));
 
   // for the config with best chi2
   for (unsigned int i = 0; i < sp.size(); i++) {
     filler.push_back(sp[i]);
+    std::push_heap(filler.begin(),filler.end(),
+          [](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
   }
 
-  return (sp.size() > 0);
+  return (!sp.empty());
 }
 
 // order with fast algo and pick first and second instead?
 std::pair<float, float> JetCoreClusterSplitter::closestClusters(
     const std::vector<float>& distanceMap) {
-  float minDist = 9e99;
-  float secondMinDist = 9e99;
+  float minDist = std::numeric_limits<float>::max();
+  float secondMinDist = std::numeric_limits<float>::max();
   for (unsigned int i = 0; i < distanceMap.size(); i++) {
     float dist = distanceMap[i];
     if (dist < minDist) {
@@ -319,24 +324,24 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
         std::cout << "Original Pixel pos " << j << " " << pixels[j].second.x << " "
                   << pixels[j].second.y << std::endl;
       for (unsigned int i = 0; i < meanExp; i++) {
-        distanceMapX[j][i] = 1. * originalpixels[j].x - clx[i];
-        distanceMapY[j][i] = 1. * originalpixels[j].y - cly[i];
+        distanceMapX[j][i] = 1.f * originalpixels[j].x - clx[i];
+        distanceMapY[j][i] = 1.f * originalpixels[j].y - cly[i];
         float dist = 0;
         //				float sizeX=2;
-        if (std::abs(distanceMapX[j][i]) > sizeX / 2.) {
-          dist += (std::abs(distanceMapX[j][i]) - sizeX / 2. + 1) *
-                  (std::abs(distanceMapX[j][i]) - sizeX / 2. + 1);
+        if (std::abs(distanceMapX[j][i]) >  sizeX/2.f) {
+          dist += (std::abs(distanceMapX[j][i]) - sizeX/2.f + 1.f) *
+                  (std::abs(distanceMapX[j][i]) - sizeX/2.f + 1.f);
         } else {
           dist +=
-              distanceMapX[j][i] / sizeX * 2 * distanceMapX[j][i] / sizeX * 2;
+              (2.f*distanceMapX[j][i]/sizeX)*(2.f*distanceMapX[j][i]/sizeX);
         }
 
-        if (std::abs(distanceMapY[j][i]) > sizeY / 2.) {
-          dist += 1. * (std::abs(distanceMapY[j][i]) - sizeY / 2. + 1.) *
-                  (std::abs(distanceMapY[j][i]) - sizeY / 2. + 1.);
+        if (std::abs(distanceMapY[j][i]) > sizeY/2.f) {
+          dist += 1.f * (std::abs(distanceMapY[j][i]) - sizeY/2.f + 1.f) *
+                        (std::abs(distanceMapY[j][i]) - sizeY/2.f + 1.f);
         } else {
-          dist += 1. * distanceMapY[j][i] / sizeY * 2. * distanceMapY[j][i] /
-                  sizeY * 2.;
+          dist += 1.f * (2.f*distanceMapY[j][i]/sizeY) * 
+                        (2.f*distanceMapY[j][i]/sizeY);
         }
         distanceMap[j][i] = sqrt(dist);
         if (verbose)
@@ -379,8 +384,8 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
                 (cls[subcluster_index] - expectedADC) /
                 (expectedADC *
                  fractionalWidth_);  // 20% uncertainty? realistic from Landau?
-            float clQest = 1. / (1. + exp(nsig)) + 1e-6;  // 1./(1.+exp(x*x-3*3))
-            float clDest = 1. / (distanceMap[pixel_index][subcluster_index] + 0.05);
+            float clQest = 1.f / (1.f + std::exp(nsig)) + 1e-6f;  // 1./(1.+exp(x*x-3*3))
+            float clDest = 1.f / (distanceMap[pixel_index][subcluster_index] + 0.05f);
 
             if (verbose)
               std::cout << " Q: " << clQest << " D: " << clDest << " "
@@ -405,9 +410,9 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
     stop = true;
     for (unsigned int subcluster_index = 0;
          subcluster_index < meanExp; subcluster_index++) {
-      if (std::abs(clx[subcluster_index] - oldclx[subcluster_index]) > 0.01)
+      if (std::abs(clx[subcluster_index] - oldclx[subcluster_index]) > 0.01f)
         stop = false;  // still moving
-      if (std::abs(cly[subcluster_index] - oldcly[subcluster_index]) > 0.01)
+      if (std::abs(cly[subcluster_index] - oldcly[subcluster_index]) > 0.01f)
         stop = false;
       oldclx[subcluster_index] = clx[subcluster_index];
       oldcly[subcluster_index] = cly[subcluster_index];
@@ -495,7 +500,7 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
       }
     }
     if (verbose) std::cout << std::endl;
-    if (pixelsForCl[cl].size() > 0) {
+    if (!pixelsForCl[cl].empty()) {
       if (forceXError_ > 0) output.back().setSplitClusterErrorX(forceXError_);
       if (forceYError_ > 0) output.back().setSplitClusterErrorY(forceYError_);
     }

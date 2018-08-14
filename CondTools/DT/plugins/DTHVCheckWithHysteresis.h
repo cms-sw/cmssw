@@ -48,24 +48,24 @@ class DTHVCheckWithHysteresis: public DTHVAbstractCheck {
 
   /** Destructor
    */
-  virtual ~DTHVCheckWithHysteresis();
+  ~DTHVCheckWithHysteresis() override;
 
   /** Operations
    */
   /// check HV status
 //  virtual int checkCurrentStatus( 
-  virtual DTHVAbstractCheck::flag checkCurrentStatus( 
+  DTHVAbstractCheck::flag checkCurrentStatus( 
           int rawId, int type,
           float valueA, float valueC, float valueS,
           const std::map<int,timedMeasurement>& snapshotValues,
           const std::map<int,int>& aliasMap,
-          const std::map<int,int>& layerMap );
-  virtual void setStatus(
+          const std::map<int,int>& layerMap ) override;
+  void setStatus(
                int rawId,
                int flagA, int flagC, int flagS,
                const std::map<int,timedMeasurement>& snapshotValues,
                const std::map<int,int>& aliasMap,
-               const std::map<int,int>& layerMap );
+               const std::map<int,int>& layerMap ) override;
 
  private:
 

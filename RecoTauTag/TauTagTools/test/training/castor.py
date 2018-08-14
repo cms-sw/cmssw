@@ -1,3 +1,4 @@
+from __future__ import print_function
 # @file castor.py
 # @brief A simple helper to handle simple tasks with CASTOR
 #
@@ -209,8 +210,8 @@ def getFileSize( pathToFile = None ) :
     #'nsls -l $CASTOR_DIR/$FILE | awk -F ' ' '{print $5}'
 
     if status != 0 :
-        print "** PyCastor ERROR **"
-        print output
+        print("** PyCastor ERROR **")
+        print(output)
         return []
 
     output = output.splitlines()
@@ -243,7 +244,7 @@ def stagein( fileListPattern = None, nSlices = 10, verbose = True ) :
     to this pattern by bunchs of N (default=10) files.
     """
     files = nsls( fileListPattern )
-    if ( type(files) != type([]) or len(files) < 1 ) :
+    if ( not isinstance(files, type([])) or len(files) < 1 ) :
         raise Exception("Error, no file to stagein !!")
         return
 
@@ -253,12 +254,12 @@ def stagein( fileListPattern = None, nSlices = 10, verbose = True ) :
         stageList = ' -M '.join( [''] + [ s for s in slice ] )
         cmd = 'stager_get %s' % stageList
         if verbose :
-            print ">>> cmd= ",cmd
+            print(">>> cmd= ",cmd)
         status,output = commands.getstatusoutput(cmd)
 
         if status != 0 :
-            print "** PyCastor ERROR **"
-            print output
+            print("** PyCastor ERROR **")
+            print(output)
             pass
         else :
             if verbose :
@@ -279,10 +280,10 @@ def stager_qry(inFiles):
         cmd = "stager_qry -M %s " % ( inFile, )
         sc,out = commands.getstatusoutput( cmd )
         if sc != 0:
-            print "** PyCastor ERROR **"
-            print "## Could not check status of this file [%s] !!" % inFile
-            print "## status sc=", sc
-            print "## output out=", out
+            print("** PyCastor ERROR **")
+            print("## Could not check status of this file [%s] !!" % inFile)
+            print("## status sc=", sc)
+            print("## output out=", out)
 
         #for str in out.split():
         #   print "out_str=", str
@@ -320,29 +321,29 @@ def extract_rfio(inFile, outDir):
         return paths
 
     path_list = grep_path("rfio", file_text)
-    print "rfio_file list extracted from input file =", inFile
-    print "-"*77; print path_list; print "-"*77
+    print("rfio_file list extracted from input file =", inFile)
+    print("-"*77); print(path_list); print("-"*77)
 
     def _print(str):
-        print str
+        print(str)
 
     status_dict = stager_qry(path_list)
     ready_files_list = [file for file in status_dict if status_dict[file] == 1]
-    print "---STAGED (ready to be copied):";
-    p = map(_print, ready_files_list); print "-"*77
+    print("---STAGED (ready to be copied):");
+    p = map(_print, ready_files_list); print("-"*77)
 
     noready_files_list = [file for file in status_dict if status_dict[file] == 0]
-    print "---NOT STAGED (not ready to be copied):";
-    p = map(_print, noready_files_list); print "-"*77
+    print("---NOT STAGED (not ready to be copied):");
+    p = map(_print, noready_files_list); print("-"*77)
 
     def _rfcp(file): #aux func. just for reporting purpose
-        print "rfcp ", file
+        print("rfcp ", file)
         return file
     rfcp( map(_rfcp, ready_files_list), #[file for file in ready_files_list],
           outDir  )
 
     def _stager_get(file): #aux func. just for reporting purpose
-        print "stager_get -M ", file
+        print("stager_get -M ", file)
         stager_get(file)
     map(_stager_get, noready_files_list) #[stager_get(file) for file in noready_files_list if 1 print "stager_get -M ", file]
 
@@ -357,8 +358,8 @@ def stager_get(inFile):
     cmd = "stager_get -M %s" % (inFile)
     sc,out = commands.getstatusoutput( cmd )
     if sc != 0:
-        print "** PyCastor ERROR **"
-        print "## Could not stager_get this file [%s] !!" % inFile
+        print("** PyCastor ERROR **")
+        print("## Could not stager_get this file [%s] !!" % inFile)
         allGood = False
         pass
     if allGood:
@@ -376,8 +377,8 @@ def rfcp( inFiles, outDir ):
                                              os.path.basename(inFile) ) )
         sc,out = commands.getstatusoutput( cmd )
         if sc != 0:
-            print "** PyCastor ERROR **"
-            print "## Could not copy this file [%s] !!" % inFile
+            print("** PyCastor ERROR **")
+            print("## Could not copy this file [%s] !!" % inFile)
             allGood = False
             pass
         pass
@@ -395,10 +396,10 @@ def rfstat (pathname):
     cmd = 'rfstat %s' % pathname
     sc, out = commands.getstatusoutput (cmd)
     if sc != 0:
-        print "** PyCastor ERROR **"
-        print ":: command: [%s]" % cmd
-        print ":: status:  [%s]" % sc
-        print out
+        print("** PyCastor ERROR **")
+        print(":: command: [%s]" % cmd)
+        print(":: status:  [%s]" % sc)
+        print(out)
         raise RuntimeError (sc)
 
     stat = dict()

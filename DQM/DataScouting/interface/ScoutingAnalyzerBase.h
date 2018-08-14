@@ -21,10 +21,10 @@ class MonitorElement ;
 class ScoutingAnalyzerBase : public DQMEDAnalyzer {
   protected:
     explicit ScoutingAnalyzerBase( const edm::ParameterSet & conf );
-    virtual ~ScoutingAnalyzerBase();
+    ~ScoutingAnalyzerBase() override;
     //virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
-    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) {}
-    virtual void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) {}
+    void analyze( const edm::Event & e, const edm::EventSetup & c ) override {}
+    void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) override {}
 
     std::string newName(const std::string & name);
 

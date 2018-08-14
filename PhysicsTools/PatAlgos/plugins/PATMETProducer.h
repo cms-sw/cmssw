@@ -40,9 +40,9 @@ namespace pat {
     public:
 
       explicit PATMETProducer(const edm::ParameterSet & iConfig);
-      ~PATMETProducer();
+      ~PATMETProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 

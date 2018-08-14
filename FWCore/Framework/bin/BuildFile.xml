@@ -1,12 +1,6 @@
 <architecture name="slc6_amd64">
   <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
 </architecture>
-<release name=".*_ASAN_.*">
-  <flags LDFLAGS="-fsanitize=address -static-libasan"/>
-</release>
-<release name=".*_UBSAN_.*">
-  <flags LDFLAGS="-g -fsanitize=undefined -static-libubsan"/>
-</release>
 <bin   name="cmsRunGlibC" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="tbb"/>
@@ -40,7 +34,10 @@
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="boost_python"/>
-  <use   name="jemalloc"/>
+  <!-- jemalloc is mostly tested on x86_64 in upstream -->
+  <architecture name=".*_amd64_.*">
+    <use   name="jemalloc"/>
+  </architecture>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/PluginManager"/>
@@ -51,6 +48,20 @@
 </bin>
 <bin   name="cmsRunVDT" file="cmsRun.cpp">
   <use   name="vdt"/>
+  <use   name="tbb"/>
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+  <use   name="boost_python"/>
+  <use   name="jemalloc"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PythonParameterSet"/>
+</bin>
+<bin   name="cmsRunJE" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>

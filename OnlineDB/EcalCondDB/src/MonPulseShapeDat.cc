@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 MonPulseShapeDat::MonPulseShapeDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_samplesG1.assign(10, 0);
   m_samplesG6.assign(10, 0);
@@ -48,7 +48,7 @@ void MonPulseShapeDat::prepareWrite()
 			);
 			
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPulseShapeDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPulseShapeDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -81,9 +81,9 @@ void MonPulseShapeDat::writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPulseShapeDat::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPulseShapeDat::writeDB:  ")+getOraMessage(&e)));
   } catch (exception &e) {
-    throw(std::runtime_error("MonPulseShapeDat::writeDB:  " + string(e.what())));
+    throw(std::runtime_error(std::string("MonPulseShapeDat::writeDB:  ") + string(e.what())));
   }
 }
 
@@ -117,12 +117,12 @@ void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fill
     std::pair< EcalLogicID, MonPulseShapeDat > p;
     MonPulseShapeDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       int gain[] = {1, 6, 12};
       std::vector<float> samples(10);
@@ -138,6 +138,6 @@ void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPulseShapeDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPulseShapeDat::fetchData:  ")+getOraMessage(&e)));
   }
 }

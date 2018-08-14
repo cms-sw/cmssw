@@ -97,7 +97,7 @@ void Qjets::Cluster(fastjet::ClusterSequence & cs){
   } 
 
   extras->_wij = omega;
-  cs.plugin_associate_extras(std::auto_ptr<fastjet::ClusterSequence::Extras>(extras));
+  cs.plugin_associate_extras(extras);
 
   // merge remaining jets with beam
   int num_merged_final(0);

@@ -75,19 +75,15 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
             tag = cms.string(''))
 )
 
-process.load("DQM.SiStripCommon.TkHistoMap_cfi")
-
-process.DQMStore=cms.Service("DQMStore")
-
-process.load("DQMServices.Core.DQMStore_cfg") 
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
   # configuration of the Tracker Geometry Comparison Tool
   # Tracker Geometry Comparison
 process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
   # the input "IDEAL" is special indicating to use the ideal geometry of the release
 
-process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
-process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile1 = '.oO[referenceGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile2 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.moduleList = '.oO[moduleListBase]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[name]Oo..Comparison_common.oO[common]Oo..root"
 

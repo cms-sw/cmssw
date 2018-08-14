@@ -64,6 +64,24 @@ class DQMQualityTest
     // set # of neighboring channels for calculating average (default: 1)
     noisyChan_test_->setNumNeighbors(2);
 
+    contentSigma_test_ = new ContentSigma("contentSigma");
+    // set tolerance for content sigma
+    contentSigma_test_->setToleranceNoisy(1);
+    contentSigma_test_->setToleranceDead(1);
+    // set # of neighboring channels for calculating average (default: 1)
+    contentSigma_test_->setNumXblocks(1);
+    contentSigma_test_->setNumYblocks(1);
+    contentSigma_test_->setNumNeighborsX(1);
+    contentSigma_test_->setNumNeighborsY(1);
+    // declare whether to test for noisy or dead bins
+    contentSigma_test_->setNoisy(1);
+    contentSigma_test_->setDead(1);
+    // specify area of histogram to be analyzed
+    contentSigma_test_->setXMin(1);
+    contentSigma_test_->setXMax(500);
+    contentSigma_test_->setYMin(1);
+    contentSigma_test_->setYMax(500); 
+
     // Mean-within-expected-value test
     meanNear_test_ = new MeanWithinExpected("meanNear");
     // set expected mean value
@@ -205,6 +223,7 @@ class DQMQualityTest
   ContentsYRange * yrange_test_;  // contents within y-range test
   DeadChannel * deadChan_test_;  // check for dead channels
   NoisyChannel * noisyChan_test_;  // check for noisy channels
+  ContentSigma * contentSigma_test_;  // compare channels using sigma 
   Comp2RefEqualH * equalH_test_; // equality test for histograms
   //Comp2RefEqualInt * equalInt_test_; // equality test for integers
   MeanWithinExpected * meanNear_test_; // mean-within-expected test
@@ -221,7 +240,7 @@ class DQMQualityTest
       std::cout << " Channels that failed test " << qc->algoName() 
 		<< ":\n";
     
-    std::vector<dqm::me_util::Channel>::iterator it = badChannels.begin();
+    auto it = badChannels.begin();
     while(it != badChannels.end())
       {
 	std::cout << " Channel ("

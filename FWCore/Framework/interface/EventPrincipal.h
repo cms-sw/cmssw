@@ -42,7 +42,6 @@ namespace edm {
   class ThinnedAssociationsHelper;
   class ProcessHistoryRegistry;
   class RunPrincipal;
-  class UnscheduledConfigurator;
 
   class EventPrincipal : public Principal {
   public:
@@ -60,7 +59,7 @@ namespace edm {
         HistoryAppender* historyAppender,
         unsigned int streamIndex = 0,
         bool isForPrimaryProcess = true);
-    ~EventPrincipal() {}
+    ~EventPrincipal() override {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
         ProcessHistoryRegistry const& processHistoryRegistry,
@@ -90,10 +89,11 @@ namespace edm {
     }
 
     bool luminosityBlockPrincipalPtrValid() const {
-      return (luminosityBlockPrincipal_) ? true : false;
+      return luminosityBlockPrincipal_ != nullptr;
     }
 
-    void setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp);
+    //does not share ownership
+    void setLuminosityBlockPrincipal(LuminosityBlockPrincipal* lbp);
 
     void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
 
@@ -139,8 +139,6 @@ namespace edm {
 
     ProductProvenanceRetriever const* productProvenanceRetrieverPtr() const {return provRetrieverPtr_.get();}
 
-    void setupUnscheduled(UnscheduledConfigurator const&);
-
     EventSelectionIDVector const& eventSelectionIDs() const;
 
     BranchListIndexes const& branchListIndexes() const;
@@ -156,14 +154,18 @@ namespace edm {
         std::unique_ptr<WrapperBase> edp,
         ProductProvenance const& productProvenance) const;
 
+    void put(ProductResolverIndex index,
+             std::unique_ptr<WrapperBase> edp,
+             ParentageID productProvenance) const;
+
     void putOnRead(
         BranchDescription const& bd,
         std::unique_ptr<WrapperBase> edp,
-        ProductProvenance const& productProvenance) const;
+        ProductProvenance const* productProvenance) const;
 
-    virtual WrapperBase const* getIt(ProductID const& pid) const override;
-    virtual WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
-    virtual void getThinnedProducts(ProductID const& pid,
+    WrapperBase const* getIt(ProductID const& pid) const override;
+    WrapperBase const* getThinnedProduct(ProductID const& pid, unsigned int& key) const override;
+    void getThinnedProducts(ProductID const& pid,
                                     std::vector<WrapperBase const*>& foundContainers,
                                     std::vector<unsigned int>& keys) const override;
 
@@ -181,7 +183,7 @@ namespace edm {
 
     edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
-    virtual unsigned int transitionIndex_() const override;
+    unsigned int transitionIndex_() const override;
     
     std::shared_ptr<ProductProvenanceRetriever const> provRetrieverPtr() const {return get_underlying_safe(provRetrieverPtr_);}
     std::shared_ptr<ProductProvenanceRetriever>& provRetrieverPtr() {return get_underlying_safe(provRetrieverPtr_);}
@@ -190,7 +192,7 @@ namespace edm {
 
     EventAuxiliary aux_;
 
-    edm::propagate_const<std::shared_ptr<LuminosityBlockPrincipal>> luminosityBlockPrincipal_;
+    edm::propagate_const<LuminosityBlockPrincipal*> luminosityBlockPrincipal_;
 
     // Pointer to the 'retriever' that will get provenance information from the persistent store.
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> provRetrieverPtr_;

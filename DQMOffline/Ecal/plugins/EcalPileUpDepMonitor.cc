@@ -34,7 +34,7 @@ EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet& ps)
 {
   VertexCollection_ = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("VertexCollection"));
 
-  if(ps.existsAs<edm::InputTag>("basicClusterCollection") && ps.getParameter<edm::InputTag>("basicClusterCollection").label() != "")
+  if(ps.existsAs<edm::InputTag>("basicClusterCollection") && !ps.getParameter<edm::InputTag>("basicClusterCollection").label().empty())
     basicClusterCollection_ = consumes<edm::View<reco::CaloCluster> >(ps.getParameter<edm::InputTag>("basicClusterCollection"));
   else{
     basicClusterCollection_EE_ = consumes<edm::View<reco::CaloCluster> >(ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
@@ -53,8 +53,8 @@ EcalPileUpDepMonitor::~EcalPileUpDepMonitor()
 }
 
 void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker & ibooker,
-                               edm::Run const&,
-                               edm::EventSetup const& eventSetup)
+					  edm::Run const&,
+					  edm::EventSetup const& eventSetup)
 {
   eventSetup.get<CaloGeometryRecord>().get(geomH);
   eventSetup.get<CaloTopologyRecord>().get(caloTop);
@@ -232,6 +232,8 @@ void EcalPileUpDepMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
 void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
 {
+
+  const CaloGeometry* geom = geomH.product();
   //Vertex collection: 
   //-----------------------------------------
   edm::Handle<reco::VertexCollection> PVCollection_h;
@@ -410,9 +412,9 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
         ++itr) {	
       //RecHitEt_EB +=itr->energy();
 		
-      GlobalPoint const& position  = geomH->getGeometry(itr->detid())->getPosition();
-      RecHitEt_EB += itr -> energy() * sin(position.theta()) ;
-    }//EB Rec Hit
+    GlobalPoint const& position  = geom->getGeometry(itr->detid())->getPosition();
+    RecHitEt_EB += itr -> energy() * sin(position.theta()) ;
+  }//EB Rec Hit
 	
   recHitEtEB->Fill(RecHitEt_EB); 
   recHitEtEB_PV->Fill(PVCollection_h->size(),RecHitEt_EB); 
@@ -424,17 +426,12 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
   for ( EcalRecHitCollection::const_iterator itr = RecHitsEE->begin () ;
         itr != RecHitsEE->end () ;
         ++itr) {
-      GlobalPoint const& position  = geomH->getGeometry(itr->detid())->getPosition();
-      RecHitEt_EE += itr -> energy() * sin(position.theta()) ;
-    }//EB Rec Hit
+    GlobalPoint const& position  = geom->getGeometry(itr->detid())->getPosition();
+    RecHitEt_EE += itr -> energy() * sin(position.theta()) ;
+  }//EB Rec Hit
 	
   recHitEtEE->Fill(RecHitEt_EE); 
   recHitEtEE_PV->Fill(PVCollection_h->size(),RecHitEt_EE); 
-}
-
-void
-EcalPileUpDepMonitor::endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&)
-{
 }
 
 DEFINE_FWK_MODULE(EcalPileUpDepMonitor);

@@ -40,18 +40,18 @@ class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
   /// default constructor
   explicit PatZToMuMuAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
-  ~PatZToMuMuAnalyzer(){};
+  ~PatZToMuMuAnalyzer() override{};
 
  private:
   /// everything that needs to be done during the event loop
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   /// calculate the mass of the Z boson from the tracker momenta by hand
   double mass(const math::XYZVector& t1, const math::XYZVector& t2) const;
   /// check if histogram was booked
-  bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+  bool booked(const std::string histName) const { return hists_.find(histName)!=hists_.end(); };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+  void fill(const std::string histName, double value) const { if(booked(histName)) hists_.find(histName)->second->Fill(value); };
   /// fill a predefined set of histograms from inner outer or global tracks for first and second mu candidate
   void fill(std::string hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const;
 

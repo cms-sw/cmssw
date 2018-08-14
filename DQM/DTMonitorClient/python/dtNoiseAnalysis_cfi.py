@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtNoiseAnalysisMonitor = cms.EDAnalyzer("DTNoiseAnalysisTest",
+dtNoiseAnalysisMonitor = DQMEDHarvester("DTNoiseAnalysisTest",
                                         noisyCellDef = cms.untracked.int32(1500),
                                         doSynchNoise = cms.untracked.bool(False),
                                         detailedAnalysis = cms.untracked.bool(False),

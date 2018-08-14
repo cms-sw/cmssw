@@ -17,10 +17,10 @@
  *  - aplanarity
  *  - C
  *  - D
+ *  - Fox-Wolfram moments
  *
- *  See http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node213.html
- *  ( http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node214.html )
- *  for an explanation of sphericity, aplanarity and the quantities C and D (thrust and oblateness).
+ *  See https://arxiv.org/pdf/hep-ph/0603175v2.pdf#page=524
+ *  for an explanation of sphericity, aplanarity, the quantities C and D, thrust, oblateness, Fox-Wolfram moments.
  *
  * \author Christian Veelken, UC Davis
  *
@@ -41,16 +41,17 @@ class EventShapeVarsProducer : public edm::EDProducer
  public:
 
   explicit EventShapeVarsProducer(const edm::ParameterSet&);
-  ~EventShapeVarsProducer() {}
+  ~EventShapeVarsProducer() override {}
 
  private:
 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   double r_;
+  unsigned fwmax_;
 
-  void beginJob() {}
-  void produce(edm::Event&, const edm::EventSetup&);
-  void endJob() {}
+  void beginJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
 };
 

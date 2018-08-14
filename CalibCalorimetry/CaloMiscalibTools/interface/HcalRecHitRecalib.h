@@ -38,10 +38,10 @@ class HcalRecHitRecalib : public edm::EDProducer
 {
 public:
     explicit HcalRecHitRecalib(const edm::ParameterSet&);
-    ~HcalRecHitRecalib();
+    ~HcalRecHitRecalib() override;
 
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-    virtual void produce(edm::Event &, const edm::EventSetup&) override;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    void produce(edm::Event &, const edm::EventSetup&) override;
 
 private:
     edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;

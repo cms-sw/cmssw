@@ -17,14 +17,15 @@ source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/1_4_x/mc_pi+100_etaphi44.root')
 )
 
-hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hcalDigiAnalyzer = DQMEDAnalyzer('HcalDigiTester',
     digiLabel = cms.InputTag("simHcalDigis"),
     subpedvalue = cms.untracked.bool(True),
     outputFile = cms.untracked.string('HcalDigisValidationHF.root'),
     hcalselector = cms.untracked.string('HF')
 )
 
-hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
+hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
     outputFile = cms.untracked.string('HcalRecHitsValidationHB.root'),
     eventype = cms.untracked.string('single'),
     mc = cms.untracked.string('yes'),
@@ -33,7 +34,7 @@ hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     ecalselector = cms.untracked.string('no')
 )
 
-hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
+hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
     outputFile = cms.untracked.string('CaloTowersValidationHB.root'),
     CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
     hcalselector = cms.untracked.string('HB')

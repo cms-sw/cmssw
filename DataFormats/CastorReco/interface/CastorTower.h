@@ -18,7 +18,7 @@
 #include "DataFormats/Common/interface/SortedCollection.h"
 
 #include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
-//#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
+//#include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 namespace reco {
@@ -39,7 +39,7 @@ namespace reco {
 		const double depth, const double fhot, const CastorRecHitRefs& usedRecHits);
 
     /// destructor
-    virtual ~CastorTower();
+    ~CastorTower() override;
 
     /// tower centroid position
     ROOT::Math::XYZPoint position() const { return position_; }

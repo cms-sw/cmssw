@@ -13,7 +13,7 @@ using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898
 HcalSiPM::HcalSiPM(int nCells, double tau) :
   theCellCount(nCells), theSiPM(nCells,1.),
-  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(0)
+  theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(nullptr)
 {
   setTau(tau);
   assert(theCellCount>0);
@@ -21,6 +21,7 @@ HcalSiPM::HcalSiPM(int nCells, double tau) :
 }
 
 HcalSiPM::~HcalSiPM() {
+  if (nonlin) delete nonlin;
 }
 
 //================================================================================

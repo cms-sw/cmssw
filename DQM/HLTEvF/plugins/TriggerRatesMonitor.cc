@@ -34,41 +34,92 @@
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 
-// helper functions
-template <typename T>
-static
-const T & get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
-  edm::Handle<T> handle;
-  event.getByToken(token, handle);
-  if (not handle.isValid())
-    throw * handle.whyFailed();
-  return * handle.product();
+namespace {
+
+  struct RunBasedHistograms {
+
+    // HLT configuration
+    struct HLTIndices {
+      unsigned int index_l1_seed;
+      unsigned int index_prescale;
+
+      HLTIndices() :
+        index_l1_seed(  (unsigned int) -1),
+        index_prescale( (unsigned int) -1)
+      { }
+    };
+
+    HLTConfigProvider             hltConfig;
+    std::vector<HLTIndices>       hltIndices;
+
+    std::vector<std::vector<unsigned int>> datasets;
+    std::vector<std::vector<unsigned int>> streams;
+
+    // L1T and HLT rate plots
+
+    // per-path HLT plots
+    struct HLTRatesPlots {
+      ConcurrentMonitorElement pass_l1_seed;
+      ConcurrentMonitorElement pass_prescale;
+      ConcurrentMonitorElement accept;
+      ConcurrentMonitorElement reject;
+      ConcurrentMonitorElement error;
+    };
+
+    // overall event count and event types
+    ConcurrentMonitorElement              events_processed;
+    std::vector<ConcurrentMonitorElement> tcds_counts;
+
+    // L1T triggers
+    std::vector<ConcurrentMonitorElement> l1t_counts;
+
+    // HLT triggers
+    std::vector<std::vector<HLTRatesPlots>> hlt_by_dataset_counts;
+
+    // datasets
+    std::vector<ConcurrentMonitorElement> dataset_counts;
+
+    // streams
+    std::vector<ConcurrentMonitorElement> stream_counts;
+
+    RunBasedHistograms() :
+      // L1T and HLT configuration
+      hltConfig(),
+      hltIndices(),
+      datasets(),
+      streams(),
+      // overall event count and event types
+      events_processed(),
+      tcds_counts(),
+      // L1T triggers
+      l1t_counts(),
+      // HLT triggers
+      hlt_by_dataset_counts(),
+      // datasets
+      dataset_counts(),
+      // streams
+      stream_counts()
+    {
+    }
+
+  };
 }
 
-template <typename R, typename T>
-static
-const T & get(const edm::EventSetup & setup) {
-  edm::ESHandle<T> handle;
-  setup.get<R>().get(handle);
-  return * handle.product();
-}
-
-
-class TriggerRatesMonitor : public DQMEDAnalyzer {
+class TriggerRatesMonitor : public DQMGlobalEDAnalyzer<RunBasedHistograms> {
 public:
   explicit TriggerRatesMonitor(edm::ParameterSet const &);
-  ~TriggerRatesMonitor();
+  ~TriggerRatesMonitor() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(edm::Event const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &, RunBasedHistograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, RunBasedHistograms &) const override;
+  void dqmAnalyze(edm::Event const &, edm::EventSetup const &, RunBasedHistograms const&) const override;
 
   // TCDS trigger types
   // see https://twiki.cern.ch/twiki/bin/viewauth/CMS/TcdsEventRecord
@@ -94,56 +145,10 @@ private:
   // module configuration
   const edm::EDGetTokenT<GlobalAlgBlkBxCollection>  m_l1t_results;
   const edm::EDGetTokenT<edm::TriggerResults>       m_hlt_results;
-  std::string                                       m_dqm_path;
-  uint32_t                                          m_lumisections_range;
-
-  // L1T and HLT configuration
-
-  L1TUtmTriggerMenu const * m_l1tMenu;
-
-  struct HLTIndices {
-    unsigned int index_l1_seed;
-    unsigned int index_prescale;
-
-    HLTIndices() :
-      index_l1_seed(  (unsigned int) -1),
-      index_prescale( (unsigned int) -1)
-    { }
-  };
-
-  HLTConfigProvider             m_hltConfig;
-  std::vector<HLTIndices>       m_hltIndices;
-
-  std::vector<std::vector<unsigned int>> m_datasets;
-  std::vector<std::vector<unsigned int>> m_streams;
-
-  // L1T and HLT rate plots
-
-  struct HLTRatesPlots {
-    TH1F * pass_l1_seed;
-    TH1F * pass_prescale;
-    TH1F * accept;
-    TH1F * reject;
-    TH1F * error;
-  };
-
-  // overall event count and event types
-  TH1F *                        m_events_processed;
-  std::vector<TH1F *>           m_tcds_counts;
-
-  // L1T triggers
-  std::vector<TH1F *>           m_l1t_counts;
-
-  // HLT triggers
-  std::vector<std::vector<HLTRatesPlots> > m_hlt_by_dataset_counts;
-
-  // datasets
-  std::vector<TH1F *>           m_dataset_counts;
-
-  // streams
-  std::vector<TH1F *>           m_stream_counts;
-
+  const std::string                                 m_dqm_path;
+  const uint32_t                                    m_lumisections_range;
 };
+
 
 // definition
 constexpr const char * const TriggerRatesMonitor::s_tcds_trigger_types[];
@@ -165,148 +170,121 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   m_l1t_results(consumes<GlobalAlgBlkBxCollection>( config.getUntrackedParameter<edm::InputTag>( "l1tResults" ) )),
   m_hlt_results(consumes<edm::TriggerResults>(      config.getUntrackedParameter<edm::InputTag>( "hltResults" ) )),
   m_dqm_path(                                       config.getUntrackedParameter<std::string>(   "dqmPath" ) ),
-  m_lumisections_range(                             config.getUntrackedParameter<uint32_t>(      "lumisectionRange" ) ),
-  // L1T and HLT configuration
-  m_l1tMenu(nullptr),
-  m_hltConfig(),
-  m_hltIndices(),
-  m_datasets(),
-  m_streams(),
-  // overall event count and event types
-  m_events_processed(nullptr),
-  m_tcds_counts(),
-  // L1T triggers
-  m_l1t_counts(),
-  // HLT triggers
-  m_hlt_by_dataset_counts(),
-  // datasets
-  m_dataset_counts(),
-  // streams
-  m_stream_counts()
+  m_lumisections_range(                             config.getUntrackedParameter<uint32_t>(      "lumisectionRange" ) )
 {
 }
 
-TriggerRatesMonitor::~TriggerRatesMonitor()
+void TriggerRatesMonitor::dqmBeginRun(edm::Run const& run, edm::EventSetup const& setup, RunBasedHistograms& histograms) const
 {
-}
-
-void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup const & setup)
-{
-  m_events_processed = nullptr;
-  m_tcds_counts.clear();
-  m_tcds_counts.resize(sizeof(s_tcds_trigger_types)/sizeof(const char *), nullptr);
+  histograms.events_processed.reset();
+  histograms.tcds_counts.clear();
+  histograms.tcds_counts.resize(sizeof(s_tcds_trigger_types)/sizeof(const char *));
 
   // cache the L1 trigger menu
-  m_l1tMenu = & get<L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu>(setup);
-  if (m_l1tMenu) {
-    m_l1t_counts.clear();
-    m_l1t_counts.resize(GlobalAlgBlk::maxPhysicsTriggers, nullptr);
-  } else {
-    edm::LogError("TriggerRatesMonitor") << "failed to read the L1 menu from the EventSetup, the L1 trigger rates will not be monitored";
-  }
+  histograms.l1t_counts.clear();
+  histograms.l1t_counts.resize(GlobalAlgBlk::maxPhysicsTriggers);
 
   // initialise the HLTConfigProvider
   bool changed = true;
   edm::EDConsumerBase::Labels labels;
   labelsForToken(m_hlt_results, labels);
-  if (m_hltConfig.init(run, setup, labels.process, changed)) {
-    m_hltIndices.resize( m_hltConfig.size(), HLTIndices() );
+  if (histograms.hltConfig.init(run, setup, labels.process, changed)) {
+    histograms.hltIndices.resize(histograms.hltConfig.size());
 
-    unsigned int datasets = m_hltConfig.datasetNames().size();
-    m_hlt_by_dataset_counts.clear();
-    m_hlt_by_dataset_counts.resize( datasets, {} );
+    unsigned int datasets = histograms.hltConfig.datasetNames().size();
+    histograms.hlt_by_dataset_counts.clear();
+    histograms.hlt_by_dataset_counts.resize(datasets);
     
-    m_datasets.clear();
-    m_datasets.resize( datasets, {} );
+    histograms.datasets.clear();
+    histograms.datasets.resize(datasets);
     for (unsigned int i = 0; i < datasets; ++i) {
-      auto const & paths = m_hltConfig.datasetContent(i);
-      m_hlt_by_dataset_counts[i].resize( paths.size(), HLTRatesPlots() );
-      m_datasets[i].reserve(paths.size());
+      auto const & paths = histograms.hltConfig.datasetContent(i);
+      histograms.hlt_by_dataset_counts[i].resize(paths.size());
+      histograms.datasets[i].reserve(paths.size());
       for (auto const & path: paths) {
-        m_datasets[i].push_back(m_hltConfig.triggerIndex(path));
+        histograms.datasets[i].push_back(histograms.hltConfig.triggerIndex(path));
       }
     }
-    m_dataset_counts.clear();
-    m_dataset_counts.resize( datasets, nullptr );
+    histograms.dataset_counts.clear();
+    histograms.dataset_counts.resize(datasets);
 
-    unsigned int streams = m_hltConfig.streamNames().size();
-    m_streams.clear();
-    m_streams.resize( streams, {} );
+    unsigned int streams = histograms.hltConfig.streamNames().size();
+    histograms.streams.clear();
+    histograms.streams.resize(streams);
     for (unsigned int i = 0; i < streams; ++i) {
-      for (auto const & dataset : m_hltConfig.streamContent(i)) {
-        for (auto const & path : m_hltConfig.datasetContent(dataset))
-          m_streams[i].push_back(m_hltConfig.triggerIndex(path));
+      for (auto const & dataset : histograms.hltConfig.streamContent(i)) {
+        for (auto const & path : histograms.hltConfig.datasetContent(dataset))
+          histograms.streams[i].push_back(histograms.hltConfig.triggerIndex(path));
       }
-      std::sort(m_streams[i].begin(), m_streams[i].end());
-      auto unique_end = std::unique(m_streams[i].begin(), m_streams[i].end());
-      m_streams[i].resize(unique_end - m_streams[i].begin());
-      m_streams[i].shrink_to_fit();
+      std::sort(histograms.streams[i].begin(), histograms.streams[i].end());
+      auto unique_end = std::unique(histograms.streams[i].begin(), histograms.streams[i].end());
+      histograms.streams[i].resize(unique_end - histograms.streams[i].begin());
+      histograms.streams[i].shrink_to_fit();
     }
-    m_stream_counts.clear();
-    m_stream_counts.resize( streams, nullptr );
+    histograms.stream_counts.clear();
+    histograms.stream_counts.resize(streams);
   } else {
     // HLTConfigProvider not initialised, skip the the HLT monitoring
     edm::LogError("TriggerRatesMonitor") << "failed to initialise HLTConfigProvider, the HLT trigger and datasets rates will not be monitored";
   }
 }
 
-void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & setup)
+void TriggerRatesMonitor::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, RunBasedHistograms & histograms) const
 {
   // book the overall event count and event types histograms
   booker.setCurrentFolder( m_dqm_path );
-  m_events_processed = booker.book1D("events", "Processed events vs. lumisection", m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
+  histograms.events_processed = booker.book1D("events", "Processed events vs. lumisection", m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
   booker.setCurrentFolder( m_dqm_path + "/TCDS" );
   for (unsigned int i = 0; i < sizeof(s_tcds_trigger_types)/sizeof(const char *); ++i)
     if (s_tcds_trigger_types[i]) {
       std::string const & title = (boost::format("%s events vs. lumisection") % s_tcds_trigger_types[i]).str();
-      m_tcds_counts[i] = booker.book1D(s_tcds_trigger_types[i], title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
+      histograms.tcds_counts[i] = booker.book1D(s_tcds_trigger_types[i], title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
     }
 
-  if (m_l1tMenu) {
-    // book the rate histograms for the L1 triggers that are included in the L1 menu
-    booker.setCurrentFolder( m_dqm_path + "/L1T" );
-    for (auto const & keyval: m_l1tMenu->getAlgorithmMap()) {
-      unsigned int bit = keyval.second.getIndex();
-      bool masked = false;      // FIXME read L1 masks once they will be avaiable in the EventSetup
-      std::string const & name  = (boost::format("%s (bit %d)") % keyval.first % bit).str();
-      std::string const & title = (boost::format("%s (bit %d)%s vs. lumisection") % keyval.first % bit % (masked ? " (masked)" : "")).str();
-      m_l1t_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
-    }
+  // book the rate histograms for the L1 triggers that are included in the L1 menu
+  booker.setCurrentFolder( m_dqm_path + "/L1T" );
+  auto const& l1tMenu = edm::get<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>(setup);
+  for (auto const & keyval: l1tMenu.getAlgorithmMap()) {
+    unsigned int bit = keyval.second.getIndex();
+    bool masked = false;        // FIXME read L1 masks once they will be avaiable in the EventSetup
+    std::string const & name  = (boost::format("%s (bit %d)") % keyval.first % bit).str();
+    std::string const & title = (boost::format("%s (bit %d)%s vs. lumisection") % keyval.first % bit % (masked ? " (masked)" : "")).str();
+    histograms.l1t_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
   }
 
-  if (m_hltConfig.inited()) {
+  if (histograms.hltConfig.inited()) {
 
-    auto const & datasets = m_hltConfig.datasetNames();
+    auto const & datasets = histograms.hltConfig.datasetNames();
 
     // book the rate histograms for the HLT triggers
     for (unsigned int d = 0; d < datasets.size(); ++d) {
       booker.setCurrentFolder( m_dqm_path + "/HLT/" + datasets[d]);
-      for (unsigned int i = 0; i < m_datasets[d].size(); ++i) {
-	unsigned int index = m_datasets[d][i];
-	std::string const & name = m_hltConfig.triggerName(index);
-	m_hlt_by_dataset_counts[d][i].pass_l1_seed  = booker.book1D(name + "_pass_L1_seed",     name + " pass L1 seed, vs. lumisection",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-	m_hlt_by_dataset_counts[d][i].pass_prescale = booker.book1D(name + "_pass_prescaler",   name + " pass prescaler, vs. lumisection",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-	m_hlt_by_dataset_counts[d][i].accept        = booker.book1D(name + "_accept",           name + " accept, vs. lumisection",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-	m_hlt_by_dataset_counts[d][i].reject        = booker.book1D(name + "_reject",           name + " reject, vs. lumisection",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-	m_hlt_by_dataset_counts[d][i].error         = booker.book1D(name + "_error",            name + " error, vs. lumisection",            m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      for (unsigned int i = 0; i < histograms.datasets[d].size(); ++i) {
+	unsigned int index = histograms.datasets[d][i];
+	std::string const & name = histograms.hltConfig.triggerName(index);
+	histograms.hlt_by_dataset_counts[d][i].pass_l1_seed  = booker.book1D(name + "_pass_L1_seed",     name + " pass L1 seed, vs. lumisection",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5);
+	histograms.hlt_by_dataset_counts[d][i].pass_prescale = booker.book1D(name + "_pass_prescaler",   name + " pass prescaler, vs. lumisection",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5);
+	histograms.hlt_by_dataset_counts[d][i].accept        = booker.book1D(name + "_accept",           name + " accept, vs. lumisection",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5);
+	histograms.hlt_by_dataset_counts[d][i].reject        = booker.book1D(name + "_reject",           name + " reject, vs. lumisection",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5);
+	histograms.hlt_by_dataset_counts[d][i].error         = booker.book1D(name + "_error",            name + " error, vs. lumisection",            m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5);
       }
 
       //      booker.setCurrentFolder( m_dqm_path + "/HLT/" + datasets[d]);
-      for (unsigned int i: m_datasets[d]) {
+      for (unsigned int i: histograms.datasets[d]) {
 
 	// look for the index of the (last) L1 seed and prescale module in each path
-	m_hltIndices[i].index_l1_seed  = m_hltConfig.size(i);
-	m_hltIndices[i].index_prescale = m_hltConfig.size(i);
-	for (unsigned int j = 0; j < m_hltConfig.size(i); ++j) {
-	  std::string const & label = m_hltConfig.moduleLabel(i, j);
-	  std::string const & type  = m_hltConfig.moduleType(label);
+	histograms.hltIndices[i].index_l1_seed  = histograms.hltConfig.size(i);
+	histograms.hltIndices[i].index_prescale = histograms.hltConfig.size(i);
+	for (unsigned int j = 0; j < histograms.hltConfig.size(i); ++j) {
+	  std::string const & label = histograms.hltConfig.moduleLabel(i, j);
+	  std::string const & type  = histograms.hltConfig.moduleType(label);
 	  if (type == "HLTL1TSeed" or type == "HLTLevel1GTSeed" or type == "HLTLevel1Activity" or type == "HLTLevel1Pattern") {
 	    // there might be more L1 seed filters in sequence
 	    // keep looking and store the index of the last one
-	    m_hltIndices[i].index_l1_seed  = j;
+	    histograms.hltIndices[i].index_l1_seed  = j;
 	  } else if (type == "HLTPrescaler") {
 	    // there should be only one prescaler in a path, and it should follow all L1 seed filters
-	    m_hltIndices[i].index_prescale = j;
+	    histograms.hltIndices[i].index_prescale = j;
 	    break;
 	  }
 	}
@@ -316,75 +294,73 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
     // book the HLT datasets rate histograms
     booker.setCurrentFolder( m_dqm_path + "/Datasets" );
     for (unsigned int i = 0; i < datasets.size(); ++i)
-      m_dataset_counts[i] = booker.book1D(datasets[i], datasets[i], m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
+      histograms.dataset_counts[i] = booker.book1D(datasets[i], datasets[i], m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
    
     // book the HLT streams rate histograms
     booker.setCurrentFolder( m_dqm_path + "/Streams" );
-    auto const & streams = m_hltConfig.streamNames();
+    auto const & streams = histograms.hltConfig.streamNames();
     for (unsigned int i = 0; i < streams.size(); ++i)
-      m_stream_counts[i]  = booker.book1D(streams[i],  streams[i],  m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
+      histograms.stream_counts[i] = booker.book1D(streams[i],  streams[i],  m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
   }
 
 }
 
 
-void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup const & setup)
+void TriggerRatesMonitor::dqmAnalyze(edm::Event const & event, edm::EventSetup const & setup, RunBasedHistograms const& histograms) const
 {
   unsigned int lumisection = event.luminosityBlock();
 
   // monitor the overall event count and event types rates
-  m_events_processed->Fill(lumisection);
-  if (m_tcds_counts[event.experimentType()])
-    m_tcds_counts[event.experimentType()]->Fill(lumisection);
+  histograms.events_processed.fill(lumisection);
+  if (histograms.tcds_counts[event.experimentType()])
+    histograms.tcds_counts[event.experimentType()].fill(lumisection);
 
   // monitor the L1 triggers rates
-  if (m_l1tMenu) {
-    auto const & bxvector = get<GlobalAlgBlkBxCollection>(event, m_l1t_results);
-    if (not bxvector.isEmpty(0)) {
-      auto const & results = bxvector.at(0, 0);
-      for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
-        if (results.getAlgoDecisionFinal(i))
-          if (m_l1t_counts[i])
-            m_l1t_counts[i]->Fill(lumisection);
-    }
+  auto const & bxvector = edm::get(event, m_l1t_results);
+  if (not bxvector.isEmpty(0)) {
+    auto const & results = bxvector.at(0, 0);
+    for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
+      if (results.getAlgoDecisionFinal(i))
+        if (histograms.l1t_counts[i])
+          histograms.l1t_counts[i].fill(lumisection);
   }
 
   // monitor the HLT triggers and datsets rates
-  if (m_hltConfig.inited()) {
-    edm::TriggerResults const & hltResults = get<edm::TriggerResults>(event, m_hlt_results);
-    if (hltResults.size() == m_hltIndices.size()) {
+  if (histograms.hltConfig.inited()) {
+    edm::TriggerResults const & hltResults = edm::get(event, m_hlt_results);
+    if (hltResults.size() == histograms.hltIndices.size()) {
     } else {
       edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the number of HLT paths has changed since the beginning of the run";
     }
 
-    for (unsigned int d = 0; d < m_datasets.size(); ++d) {
-      for (unsigned int i: m_datasets[d])
+    for (unsigned int d = 0; d < histograms.datasets.size(); ++d) {
+      for (unsigned int i: histograms.datasets[d])
         if (hltResults.at(i).accept()) {
-          m_dataset_counts[d]->Fill(lumisection);
+          histograms.dataset_counts[d].fill(lumisection);
           // ensure each dataset is incremented only once per event
           break;
         }
-      for (unsigned int i = 0; i < m_datasets[d].size(); ++i) {
-	unsigned int index = m_datasets[d][i];
+      for (unsigned int i = 0; i < histograms.datasets[d].size(); ++i) {
+	unsigned int index = histograms.datasets[d][i];
 	edm::HLTPathStatus const & path = hltResults.at(index);
 
-        if (path.index() > m_hltIndices[index].index_l1_seed)
-          m_hlt_by_dataset_counts[d][i].pass_l1_seed->Fill(lumisection);
-        if  (path.index() > m_hltIndices[index].index_prescale)
-          m_hlt_by_dataset_counts[d][i].pass_prescale->Fill(lumisection);
+        if (path.index() > histograms.hltIndices[index].index_l1_seed)
+          histograms.hlt_by_dataset_counts[d][i].pass_l1_seed.fill(lumisection);
+        if (path.index() > histograms.hltIndices[index].index_prescale)
+          histograms.hlt_by_dataset_counts[d][i].pass_prescale.fill(lumisection);
         if (path.accept())
-          m_hlt_by_dataset_counts[d][i].accept->Fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].accept.fill(lumisection);
         else if (path.error())
-          m_hlt_by_dataset_counts[d][i].error ->Fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].error .fill(lumisection);
         else
-          m_hlt_by_dataset_counts[d][i].reject->Fill(lumisection);
+          histograms.hlt_by_dataset_counts[d][i].reject.fill(lumisection);
       }
     }
 
-    for (unsigned int i = 0; i < m_streams.size(); ++i)
-      for (unsigned int j: m_streams[i])
+    for (unsigned int i = 0; i < histograms.streams.size(); ++i)
+      for (unsigned int j: histograms.streams[i])
         if (hltResults.at(j).accept()) {
-          m_stream_counts[i]->Fill(lumisection);
+          histograms.stream_counts[i].fill(lumisection);
           // ensure each stream is incremented only once per event
           break;
         }

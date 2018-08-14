@@ -12,7 +12,7 @@
 #include <TPaveStats.h>
 #include <TText.h>
 #include <TLegend.h>
-#include <string.h>
+#include <cstring>
 #include <utility>
 #include <vector>
 #include <sstream>
@@ -92,13 +92,13 @@ void modulediff ( int run_2 , string repro_run2 )
   outfile << "Using reference run " << run_1 << endl << endl;
 
   outfile << "Recovered modules in run " << run_2 << ":" << endl;
-  if ( modules_recovered.size() == 0 ) 
+  if ( modules_recovered.empty() ) 
     outfile << " -" << endl;
   for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
     outfile << " " << modules_recovered[ i ] << endl;
   
   outfile << "New bad modules that appeared in run " << run_2 << ":" << endl;
-  if ( modules_malformed.size() == 0 ) 
+  if ( modules_malformed.empty() ) 
     outfile << " -" << endl;
   for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
     outfile << " " << modules_malformed[ i ] << endl;
@@ -107,7 +107,7 @@ void modulediff ( int run_2 , string repro_run2 )
 
   //create two flat files to run the locatemodule script on later
   
-  if ( modules_recovered.size() > 0 )
+  if ( !modules_recovered.empty() )
     {
       std::ofstream outfile_good;
       outfile_good.open("modulediff_good.txt");
@@ -116,7 +116,7 @@ void modulediff ( int run_2 , string repro_run2 )
       outfile_good.close();
     }
 
-  if ( modules_malformed.size() > 0 )
+  if ( !modules_malformed.empty() )
     {
       std::ofstream outfile_bad;
       outfile_bad.open("modulediff_bad.txt");
@@ -181,7 +181,7 @@ int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
 	  while  ( ( key = dynamic_cast<TKey*> ( next() ) ) ) 
 	    {
 	      string sflag = key->GetName();
-	      if ( sflag.size() == 0 ) continue;
+	      if ( sflag.empty() ) continue;
 	      
 	      string detid = sflag.substr ( sflag.find ( "<" ) + 1 , 9 ); 
 	      badlist.push_back ( atoi ( detid.c_str() ) );
@@ -213,7 +213,7 @@ int get_filename  ( int run , string repro_type , string& filename )
   string thisdir2 = thisdir.str();
   DIR *dp;
   
-  if ( ( dp = opendir( thisdir2.c_str() ) ) == NULL )
+  if ( ( dp = opendir( thisdir2.c_str() ) ) == nullptr )
     {
       cout << "dir " << thisdir2.c_str() << " not found" << endl;
       return -1;
@@ -223,7 +223,7 @@ int get_filename  ( int run , string repro_type , string& filename )
 
   string dqmfile;
 
-  while ( ( dirp = readdir ( dp ) ) != NULL )
+  while ( ( dirp = readdir ( dp ) ) != nullptr )
     {
       string dirfile = string ( dirp->d_name );
       if ( 

@@ -11,11 +11,11 @@ class HcalZDCLowGainFractions: public HcalCondObjectContainer<HcalZDCLowGainFrac
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalZDCLowGainFractions():HcalCondObjectContainer<HcalZDCLowGainFraction>(0) {}
+  HcalZDCLowGainFractions():HcalCondObjectContainer<HcalZDCLowGainFraction>(nullptr) {}
 #endif
   HcalZDCLowGainFractions(const HcalTopology* topo):HcalCondObjectContainer<HcalZDCLowGainFraction>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalZDCLowGainFractions";}
+  std::string myname() const override {return (std::string)"HcalZDCLowGainFractions";}
 
  private:
 

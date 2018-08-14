@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/FEConfigPedInfo.h"
@@ -12,10 +12,10 @@ using namespace oracle::occi;
 
 FEConfigPedInfo::FEConfigPedInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_version=0;
   m_ID=0;
@@ -52,7 +52,7 @@ int FEConfigPedInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -76,7 +76,7 @@ void FEConfigPedInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -114,7 +114,7 @@ void FEConfigPedInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -130,7 +130,7 @@ void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("FEConfigPedInfo::fetchData(): no Id defined for this FEConfigPedInfo "));
   }
 
@@ -149,14 +149,14 @@ void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -175,14 +175,14 @@ void FEConfigPedInfo::fetchLastData(FEConfigPedInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigPedInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -236,7 +236,7 @@ void FEConfigPedInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(rset->getString(2));
+       this->setConfigTag(getOraString(rset,2));
        this->setVersion(rset->getInt(3));
        this->setIOVId(rset->getInt(4));
        Date dbdate = rset->getDate(5);
@@ -247,7 +247,7 @@ void FEConfigPedInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("FEConfigPedInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("FEConfigPedInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 

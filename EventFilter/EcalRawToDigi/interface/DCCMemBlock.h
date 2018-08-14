@@ -16,7 +16,7 @@
 
 #include <iostream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -37,11 +37,11 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 
     DCCMemBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e);
 	 
-    virtual ~DCCMemBlock(){}
+    ~DCCMemBlock() override{}
 	 
-    void updateCollectors();
+    void updateCollectors() override;
     
-    void display(std::ostream & o); 
+    void display(std::ostream & o) override; 
     using DCCDataBlockPrototype::unpack; 
     int unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID);   
     			

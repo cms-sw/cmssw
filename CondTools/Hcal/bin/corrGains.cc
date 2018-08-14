@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -20,7 +20,7 @@ class corrGains : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
 public:
   explicit corrGains(const edm::ParameterSet&);
-  ~corrGains();
+  ~corrGains() override;
 
 private:
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override {}

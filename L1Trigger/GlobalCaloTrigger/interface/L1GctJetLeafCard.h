@@ -51,7 +51,7 @@ public:
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);
                    
-  ~L1GctJetLeafCard();
+  ~L1GctJetLeafCard() override;
 
   /// set pointers to neighbours - needed to complete the setup
   void setNeighbourLeafCards(const std::vector<L1GctJetLeafCard*>& neighbours);
@@ -66,10 +66,10 @@ public:
   void reset();
 
   /// set the input buffers
-  virtual void fetchInput();
+  void fetchInput() override;
  
   /// process the data and set outputs
-  virtual void process();
+  void process() override;
 
   /// define the bunch crossing range to process
   void setBxRange(const int firstBx, const int numberOfBx);
@@ -127,11 +127,11 @@ public:
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
+  void resetProcessor() override;
+  void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
+  void setupObjects() override {}
 
  private:
 

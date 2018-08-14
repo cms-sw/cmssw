@@ -55,9 +55,9 @@ class L2MuonSeedGenerator : public edm::stream::EDProducer<> {
   explicit L2MuonSeedGenerator(const edm::ParameterSet&);
 
   /// Destructor
-  ~L2MuonSeedGenerator();
+  ~L2MuonSeedGenerator() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

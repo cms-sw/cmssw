@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/FEConfigLUTInfo.h"
@@ -12,10 +12,10 @@ using namespace oracle::occi;
 
 FEConfigLUTInfo::FEConfigLUTInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_version=0;
   m_ID=0;
@@ -52,7 +52,7 @@ int FEConfigLUTInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -76,7 +76,7 @@ void FEConfigLUTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -114,7 +114,7 @@ void FEConfigLUTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -130,7 +130,7 @@ void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("FEConfigLUTInfo::fetchData(): no Id defined for this FEConfigLUTInfo "));
   }
 
@@ -149,14 +149,14 @@ void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     result->setNumberOfGroups(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -175,14 +175,14 @@ void FEConfigLUTInfo::fetchLastData(FEConfigLUTInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     result->setNumberOfGroups(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -212,7 +212,7 @@ int FEConfigLUTInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLUTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLUTInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -236,7 +236,7 @@ void FEConfigLUTInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(rset->getString(2));
+       this->setConfigTag(getOraString(rset,2));
        this->setVersion(rset->getInt(3));
        this->setNumberOfGroups(rset->getInt(4));
        Date dbdate = rset->getDate(5);
@@ -247,7 +247,7 @@ void FEConfigLUTInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("FEConfigLUTInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("FEConfigLUTInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 

@@ -37,10 +37,10 @@ public:
   HcalSignalGenerator():HcalBaseSignalGenerator() { }
 
   HcalSignalGenerator(const edm::InputTag & inputTag, const edm::EDGetTokenT<COLLECTION> &t)
-  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theInputTag(inputTag), tok_(t) 
+  : HcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) 
   { }
 
-  virtual ~HcalSignalGenerator() {}
+  ~HcalSignalGenerator() override {}
 
 
   void initializeEvent(const edm::Event * event, const edm::EventSetup * eventSetup)
@@ -63,7 +63,7 @@ public:
 
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
-    const COLLECTION *  digis = 0;
+    const COLLECTION *  digis = nullptr;
     // try accessing by whatever is set, Event or EventPrincipal
     if(theEvent) 
      {
@@ -111,8 +111,8 @@ private:
     }
   }
 
-  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
-  virtual void fillNoiseSignals() override {}
+  void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+  void fillNoiseSignals() override {}
 
   bool validDigi(const DIGI & digi){
     int DigiSum = 0;

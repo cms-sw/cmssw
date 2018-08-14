@@ -739,9 +739,9 @@ static void
   edm::decode(edm::EventID& to, std::string const& from) {
     std::vector<std::string> tokens = edm::tokenize(from, ":");
     assert(tokens.size() == 2 || tokens.size() == 3);
-    unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
-    unsigned int lumi = (tokens.size() == 2 ? 0 : strtoul(tokens[1].c_str(), 0, 0));
-    unsigned long long event = strtoull(tokens[tokens.size() - 1].c_str(), 0, 0);
+    unsigned int run = strtoul(tokens[0].c_str(), nullptr, 0);
+    unsigned int lumi = (tokens.size() == 2 ? 0 : strtoul(tokens[1].c_str(), nullptr, 0));
+    unsigned long long event = strtoull(tokens[tokens.size() - 1].c_str(), nullptr, 0);
     to = edm::EventID(run, lumi, event);
 
     return true;
@@ -803,8 +803,8 @@ static void
   edm::decode(edm::LuminosityBlockID& to, std::string const& from) {
       std::vector<std::string> tokens = edm::tokenize(from, ":");
       assert(tokens.size() == 2);
-      unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
-      unsigned int lumi = strtoul(tokens[1].c_str(), 0, 0);
+      unsigned int run = strtoul(tokens[0].c_str(), nullptr, 0);
+      unsigned int lumi = strtoul(tokens[1].c_str(), nullptr, 0);
       to = edm::LuminosityBlockID(run, lumi);
       return true;
     } // decode to LuminosityBlockID

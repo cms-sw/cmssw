@@ -17,11 +17,11 @@ public:
 
   TrackFilterForPVFinding(const edm::ParameterSet& conf);
   bool operator() (const reco::TransientTrack & tracks)const;
-  std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks)const;
+  std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks)const override;
 
 private:
 
-  float maxD0Sig_, minPt_;
+  float maxD0Sig_, minPt_, maxEta_;
   int minSiLayers_, minPxLayers_;
   float maxNormChi2_;
   reco::TrackBase::TrackQuality quality_;

@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/StableProvenance.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -11,14 +12,17 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+namespace {
+  const edm::ParentageID s_emptyParentage;
+}
 namespace edm {
 
   std::string const Event::emptyString_;
 
   Event::Event(EventPrincipal const& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
-      provRecorder_(ep, md),
+      provRecorder_(ep, md, true /*always at end*/),
       aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext,false) : nullptr),
       gotBranchIDs_(),
       gotViews_(),
       streamID_(ep.streamID()),
@@ -37,6 +41,7 @@ namespace edm {
   void
   Event::setConsumer(EDConsumerBase const* iConsumer) {
     provRecorder_.setConsumer(iConsumer);
+    gotBranchIDs_.reserve(provRecorder_.numberOfProductsConsumed());
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setConsumer(iConsumer);
   }
   
@@ -46,6 +51,49 @@ namespace edm {
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
   }
 
+  void
+  Event::setProducerCommon(ProducerBase const* iProd,
+                           std::vector<BranchID>* previousParentage) {
+
+    provRecorder_.setProducer(iProd);
+    //set appropriate size
+    putProducts_.resize(
+                        provRecorder_.putTokenIndexToProductResolverIndex().size());
+    previousBranchIDs_ =previousParentage;
+  }
+
+  void
+  Event::setProducer(ProducerBase const* iProd,
+                     std::vector<BranchID>* previousParentage,
+                     std::vector<BranchID>* gotBranchIDsFromAcquire) {
+    setProducerCommon(iProd, previousParentage);
+    if(previousParentage) {
+      //are we supposed to record parentage for at least one item?
+      bool record_parents = false;
+      for( auto v: provRecorder_.recordProvenanceList()) {
+        if (v) { record_parents = true; break;}
+      }
+      if(not record_parents) {
+        previousBranchIDs_ = nullptr;
+        return;
+      }
+      gotBranchIDsFromPrevious_.resize(previousParentage->size(),false);
+      if (gotBranchIDsFromAcquire) {
+        for (auto const& branchID : *gotBranchIDsFromAcquire) {
+          addToGotBranchIDs(branchID);
+        }
+      }
+    }
+  }
+
+  void
+  Event::setProducerForAcquire(ProducerBase const* iProd,
+                               std::vector<BranchID>* previousParentage,
+                               std::vector<BranchID>& gotBranchIDsFromAcquire) {
+    setProducerCommon(iProd, previousParentage);
+    gotBranchIDsFromAcquire_ = &gotBranchIDsFromAcquire;
+    gotBranchIDsFromAcquire_->clear();
+  }
 
   EventPrincipal const&
   Event::eventPrincipal() const {
@@ -109,17 +157,27 @@ namespace edm {
     return process_found;
   }
 
+  edm::ParameterSet const*
+  Event::parameterSet(edm::ParameterSetID const& psID) const{
+    return parameterSetForID_(psID);
+  }
+  
   BasicHandle
   Event::getByProductID_(ProductID const& oid) const {
     return eventPrincipal().getByProductID(oid);
   }
 
   void
-  Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut,
-                 std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
-    auto nPut = putProducts().size()+putProductsWithoutParents().size();
-    commit_aux(putProducts(), true, previousParentage, previousParentageId);
-    commit_aux(putProductsWithoutParents(), false);
+  Event::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut, ParentageID* previousParentageId) {
+    size_t nPut = 0;
+    for(auto const& p: putProducts()) {
+      if(p) {
+        ++nPut;
+      }
+    }
+    if(nPut > 0) {
+      commit_aux(putProducts(), previousParentageId);
+    }
     auto sz = iShouldPut.size();
     if(sz !=0 and sz != nPut) {
       //some were missed
@@ -134,63 +192,58 @@ namespace edm {
   }
 
   void
-  Event::commit_aux(Event::ProductPtrVec& products, bool record_parents,
-                    std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
+  Event::commit_aux(Event::ProductPtrVec& products, ParentageID* previousParentageId) {
     // fill in guts of provenance here
     auto& ep = eventPrincipal();
 
-    ProductPtrVec::iterator pit(products.begin());
-    ProductPtrVec::iterator pie(products.end());
+    //If we don't have a valid previousParentage then we want to use a temp value in order to
+    // avoid constantly recalculating the ParentageID which is a time consuming operation
+    ParentageID const* presentParentageId;
 
-    std::vector<BranchID> gotBranchIDVector;
-
-    // Note that gotBranchIDVector will remain empty if
-    // record_parents is false (and may be empty if record_parents is
-    // true).
-
-    //Check that previousParentageId is still good by seeing if previousParentage matches gotBranchIDs_
-    bool sameAsPrevious = ((0 != previousParentage) && (previousParentage->size() == gotBranchIDs_.size()));
-    if(record_parents && !gotBranchIDs_.empty()) {
-      gotBranchIDVector.reserve(gotBranchIDs_.size());
-      std::vector<BranchID>::const_iterator itPrevious;
-      if(previousParentage) {
-        itPrevious = previousParentage->begin();
-      }
-      for(BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
-          it != itEnd; ++it) {
-        gotBranchIDVector.push_back(*it);
-        if(sameAsPrevious) {
-          if(*it != *itPrevious) {
+    if(previousBranchIDs_) {
+      bool sameAsPrevious = gotBranchIDs_.empty();
+      if(sameAsPrevious) {
+        for(auto i: gotBranchIDsFromPrevious_) {
+          if(not i) {
             sameAsPrevious = false;
-          } else {
-            ++itPrevious;
+            break;
           }
         }
       }
-      if(!sameAsPrevious && 0 != previousParentage) {
-        previousParentage->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
+      if( not sameAsPrevious) {
+        std::vector<BranchID> gotBranchIDVector{gotBranchIDs_.begin(),
+          gotBranchIDs_.end()};
+        //add items in common from previous
+        auto n = gotBranchIDsFromPrevious_.size();
+        for(size_t i =0;  i < n;++i) {
+          if(gotBranchIDsFromPrevious_[i]) {
+            gotBranchIDVector.push_back((*previousBranchIDs_)[i]);
+          }
+        }
+        std::sort(gotBranchIDVector.begin(),gotBranchIDVector.end());
+        previousBranchIDs_->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
+        
+        Parentage p;
+        p.setParents(std::move(gotBranchIDVector));
+        *previousParentageId = p.id();
+        ParentageRegistry::instance()->insertMapped(p);
+
       }
+      presentParentageId =previousParentageId;
+    } else {
+      presentParentageId = &s_emptyParentage;
     }
 
-    //If we don't have a valid previousParentage then we want to use a temp value in order to
-    // avoid constantly recalculating the ParentageID which is a time consuming operation
-    ParentageID temp;
-    if(!previousParentage) {
-      assert(!sameAsPrevious);
-      previousParentageId = &temp;
-    }
-    while(pit != pie) {
-      // set provenance
-      if(!sameAsPrevious) {
-        ProductProvenance prov(pit->second->branchID(), std::move(gotBranchIDVector));
-        *previousParentageId = prov.parentageID();
-        ep.put(*pit->second, std::move(get_underlying_safe(pit->first)), prov);
-        sameAsPrevious = true;
-      } else {
-        ProductProvenance prov(pit->second->branchID(), *previousParentageId);
-        ep.put(*pit->second, std::move(get_underlying_safe(pit->first)), prov);
+    auto const& recordProv = provRecorder_.recordProvenanceList();
+    for(unsigned int i = 0; i< products.size();++i) {
+      auto& p = get_underlying_safe(products[i]);
+      if (p) {
+        if(recordProv[i]) {
+          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p), *presentParentageId);
+        } else {
+          ep.put(provRecorder_.putTokenIndexToProductResolverIndex()[i], std::move(p), s_emptyParentage);
+        }
       }
-      ++pit;
     }
 
     // the cleanup is all or none
@@ -199,7 +252,21 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
+    addToGotBranchIDs(prov.originalBranchID());
+  }
+
+  void
+  Event::addToGotBranchIDs(BranchID const& branchID) const {
+    if(previousBranchIDs_) {
+      auto range = std::equal_range(previousBranchIDs_->begin(), previousBranchIDs_->end(), branchID);
+      if(range.first ==range.second) {
+        gotBranchIDs_.insert(branchID.id());
+      } else {
+        gotBranchIDsFromPrevious_[range.first - previousBranchIDs_->begin()] = true;
+      }
+    } else if (gotBranchIDsFromAcquire_) {
+      gotBranchIDsFromAcquire_->push_back(branchID);
+    }
   }
 
   ProcessHistory const&
@@ -209,7 +276,7 @@ namespace edm {
 
   size_t
   Event::size() const {
-    return putProducts().size() + provRecorder_.principal().size() + putProductsWithoutParents().size();
+    return std::count_if(putProducts().begin(),putProducts().end(),[](auto const& i) {return bool(i);}) + provRecorder_.principal().size();
   }
 
   BasicHandle
@@ -233,7 +300,7 @@ namespace edm {
   TriggerNames const&
   Event::triggerNames(edm::TriggerResults const& triggerResults) const {
     edm::TriggerNames const* names = triggerNames_(triggerResults);
-    if(names != 0) return *names;
+    if(names != nullptr) return *names;
 
     throw cms::Exception("TriggerNamesNotFound")
       << "TriggerNames not found in ParameterSet registry";

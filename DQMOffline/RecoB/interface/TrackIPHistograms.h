@@ -22,7 +22,7 @@ class TrackIPHistograms : public FlavourHistograms<T>
                     const std::string& plotFirst_, const std::string& folder, 
 		    const unsigned int& mc, const bool& quality, DQMStore::IBooker & ibook);
 
-  virtual ~TrackIPHistograms(){};
+  ~TrackIPHistograms() override{};
 
   void fill(const int& flavour, const reco::TrackBase::TrackQuality& quality, const T& variable, const bool& hasTrack) const;
   void fill(const int& flavour, const reco::TrackBase::TrackQuality& quality, const T& variable, const bool& hasTrack, const T & w) const;
@@ -112,7 +112,7 @@ void TrackIPHistograms<T>::fill(const int& flavour, const reco::TrackBase::Track
   const int& theIndexToPlot = FlavourHistograms<T>::indexToPlot();
 
   FlavourHistograms<T>::fill(flavour, variable);
-  if( theArrayDimension == 0 && quality_) {
+  if( theArrayDimension == nullptr && quality_) {
     fillVariable( quality, *variable);
   } else {
       int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;
@@ -137,7 +137,7 @@ void TrackIPHistograms<T>::fill(const int& flavour, const reco::TrackBase::Track
   const int& theIndexToPlot = FlavourHistograms<T>::indexToPlot();
 
   FlavourHistograms<T>::fill(flavour, variable ,w);
-  if( theArrayDimension == 0 && quality_) {
+  if( theArrayDimension == nullptr && quality_) {
     fillVariable( quality, *variable,w);
   } else {
       int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;

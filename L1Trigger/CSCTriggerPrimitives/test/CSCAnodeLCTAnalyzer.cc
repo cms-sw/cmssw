@@ -7,15 +7,15 @@
  *
  */
 
-#include <FWCore/Utilities/interface/Exception.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h>
-#include <L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h>
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/test/CSCAnodeLCTAnalyzer.h"
 
 using namespace std;
 
@@ -24,7 +24,6 @@ using namespace std;
 //-----------------
 
 bool CSCAnodeLCTAnalyzer::debug = true;
-bool CSCAnodeLCTAnalyzer::isMTCCMask = true;
 bool CSCAnodeLCTAnalyzer::doME1A = true;
 
 vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
@@ -113,28 +112,23 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
 
     // Loop over all the wires in a pattern.
     int mask;
-    for (int i_wire = 0; i_wire < CSCAnodeLCTProcessor::NUM_PATTERN_WIRES;
-	 i_wire++) {
+    for (int i_wire = 0; i_wire < CSCConstants::MAX_WIRES_IN_PATTERN;
+         i_wire++) {
       if (CSCAnodeLCTProcessor::pattern_envelope[0][i_wire] == i_layer) {
-	if (!isMTCCMask) {
-	  mask = CSCAnodeLCTProcessor::pattern_mask_slim[alct_pattern][i_wire];
-	}
-	else {
-	  mask = CSCAnodeLCTProcessor::pattern_mask_open[alct_pattern][i_wire];
-	}
-	if (mask == 1) {
-	  int wire = alct_keywire +
-	    CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
-	  if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
-	    // Check if there is a "good" Digi on this wire.
-	    if (digiMap.count(wire) > 0) {
-	      tempInfo.setId(layerId); // store the layer of this object
-	      tempInfo.addComponent(digiMap[wire]); // and the RecDigi
-	      if (debug) LogDebug("lctDigis")
-		<< " Digi on ALCT: wire group " << digiMap[wire].getWireGroup();
-	    }
-	  }
-	}
+        mask = CSCAnodeLCTProcessor::pattern_mask_open[alct_pattern][i_wire];
+        if (mask == 1) {
+          int wire = alct_keywire +
+            CSCAnodeLCTProcessor::pattern_envelope[1+MESelection][i_wire];
+          if (wire >= 0 && wire < CSCConstants::MAX_NUM_WIRES) {
+            // Check if there is a "good" Digi on this wire.
+            if (digiMap.count(wire) > 0) {
+              tempInfo.setId(layerId); // store the layer of this object
+              tempInfo.addComponent(digiMap[wire]); // and the RecDigi
+              if (debug) LogDebug("lctDigis")
+                           << " Digi on ALCT: wire group " << digiMap[wire].getWireGroup();
+            }
+          }
+        }
       }
     }
 

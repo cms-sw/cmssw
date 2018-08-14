@@ -53,7 +53,7 @@ public:
 
    struct NodeInfo
    {
-      NodeInfo():m_node(0), m_parent(-1), m_color(0), m_level(-1), 
+      NodeInfo():m_node(nullptr), m_parent(-1), m_color(0), m_level(-1), 
                  m_flags(kVisNodeSelf|kVisNodeChld) {}  
 
       NodeInfo(TGeoNode* n, Int_t p, Color_t col, Char_t l, UChar_t f = kVisNodeSelf|kVisNodeChld ):m_node(n), m_parent(p), m_color(col), m_level(l), 
@@ -100,12 +100,12 @@ public:
    { 
    public:
       ColorBoxRenderer();
-      virtual ~ColorBoxRenderer();
+      ~ColorBoxRenderer() override;
   
-      virtual UInt_t width() const { return m_width; }
-      virtual UInt_t height() const { return m_height; }
+      UInt_t width() const override { return m_width; }
+      UInt_t height() const override { return m_height; }
       void setData(Color_t c, bool);
-      virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
+      void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
 
       UInt_t  m_width;
       UInt_t  m_height;
@@ -120,15 +120,15 @@ protected:
 
 public:
    FWGeometryTableManagerBase();
-   virtual ~FWGeometryTableManagerBase();
+   ~FWGeometryTableManagerBase() override;
    //   virtual std::string& cellName(const NodeInfo& ) const { return &std::string("ddd");} 
-   virtual const char* cellName(const NodeInfo& ) const { return 0;} 
+   virtual const char* cellName(const NodeInfo& ) const { return nullptr;} 
 
    // virtual functions of FWTableManagerBase
    
-   virtual int unsortedRowNumber(int unsorted) const;
-   virtual int numberOfRows() const;
-   virtual std::vector<std::string> getTitles() const;
+   int unsortedRowNumber(int unsorted) const override;
+   int numberOfRows() const override;
+   std::vector<std::string> getTitles() const override;
 
    virtual const std::string title() const;
 
@@ -139,7 +139,7 @@ public:
    std::vector<int> rowToIndex() { return m_row_to_index; }
 
    //   void setSelection(int row, int column, int mask); 
-   virtual void implSort(int, bool) {}
+   void implSort(int, bool) override {}
 
    bool nodeImported(int idx) const;
    // geo stuff
@@ -192,7 +192,7 @@ public:
    virtual void recalculateVisibility() = 0;
 
   
-   virtual bool cellDataIsSortable() const { return false ; }
+   bool cellDataIsSortable() const override { return false ; }
    // ---------- member data --------------------------------
    
    

@@ -1,6 +1,7 @@
 #ifndef SPECIAL_LESS
 #define SPECIAL_LESS
 
+#include <cmath>
 #include <functional>
 
 struct fabs_less { 

@@ -25,7 +25,7 @@ using namespace std;
 PhotonPostprocessing::PhotonPostprocessing(const edm::ParameterSet& pset)
 {
 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   parameters_ = pset;
@@ -297,11 +297,6 @@ void PhotonPostprocessing::runPostprocessing()
 }
 
 
-void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
-{
-
-
-}
 
 
 

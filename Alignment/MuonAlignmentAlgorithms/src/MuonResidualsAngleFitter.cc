@@ -127,7 +127,7 @@ double MuonResidualsAngleFitter::plot(std::string name, TFileDirectory *dir, Ali
 
   double scale_factor = double(numResiduals()) * (100. - -100.)/100;   // (max - min)/nbins
 
-  TF1 *narrowed_fit = NULL;
+  TF1 *narrowed_fit = nullptr;
   if (residualsModel() == kPureGaussian) {
     narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, -100., 100., 3);
     narrowed_fit->SetParameters(scale_factor, value(kAngle) * 1000., value(kSigma) * 1000.);

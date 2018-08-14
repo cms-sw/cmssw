@@ -25,7 +25,7 @@
 #include <utility>//pair
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,9 +40,9 @@
 class PATHemisphereProducer : public edm::global::EDProducer<> {
 public:
   explicit PATHemisphereProducer(const edm::ParameterSet&);
-  ~PATHemisphereProducer();
+  ~PATHemisphereProducer() override;
   
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:  
   // ----------member data ---------------------------

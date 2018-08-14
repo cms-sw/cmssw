@@ -73,6 +73,18 @@ namespace edm {
     struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
       typedef edm::stream::impl::EndLuminosityBlockProducer Type;
     };
+
+    template<>
+    struct AbilityToImplementor<edm::ExternalWork> {
+      typedef edm::stream::impl::ExternalWork Type;
+    };
+
+    // As currently implemented this ability only works
+    // with EDProducer, not with EDAnalyzers or EDFilters!
+    template<>
+    struct AbilityToImplementor<edm::Accumulator> {
+      typedef edm::stream::impl::Accumulator Type;
+    };
   }
 }
 

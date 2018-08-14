@@ -43,7 +43,7 @@ trackElectrons = cms.EDFilter(
     "TauValElectronSelector",
     src = cms.InputTag('idElectrons'),
     cut = cms.string('gsfTrack.isNonnull  && 0.7 < eSuperClusterOverP < 1.5'),
-#    cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
+#    cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
     filter = cms.bool(False)
 )
 
@@ -124,7 +124,7 @@ proc.TauValNumeratorAndDenominatorRealElectronsData.visit(zttModifier)
 proc.efficienciesRealElectronsData.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorRealElectronsData)
 
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('RealElectronsData') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('RealElectronsData') != -1)]
 
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:

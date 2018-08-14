@@ -19,6 +19,7 @@
 
 class DDCompactView;
 class DDLDocumentProvider;
+class DDLElementRegistry;
 
 /// DDLParser is the main class of Detector Description Language Parser.
 /** @class DDLParser
@@ -149,7 +150,8 @@ class DDLParser
 
   /// SAX2XMLReader is one way of parsing.
   SAX2XMLReader* SAX2Parser_;
-  
+
+  DDLElementRegistry* elementRegistry_;
   DDLSAX2FileHandler* fileHandler_;
   DDLSAX2ExpressionHandler* expHandler_;
   DDLSAX2Handler* errHandler_;

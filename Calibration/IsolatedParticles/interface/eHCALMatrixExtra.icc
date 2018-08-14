@@ -130,7 +130,7 @@ namespace spr{
           std::cout << " " << (HcalDetId)NorthDetId[i];
         std::cout << std::endl;
       }
-      if (NorthDetId.size() > 0) {
+      if (!(NorthDetId.empty())) {
         energy += energyHCAL(NorthDetId, dets, topology, hits,
 	                     includeHO, hbThr, heThr, hfThr, hoThr, debug);
         if (ieta>0) {
@@ -196,7 +196,7 @@ namespace spr{
       if (debug) std::cout << "hitHCALMatrix:: detSouth " << (HcalDetId)detsouth << std::endl;    
       vNeighboursDetId.clear();
       std::vector<DetId> SouthDetId = topology->south(detsouth);
-      if (SouthDetId.size()>0) {
+      if (!(SouthDetId.empty())) {
         energy += energyHCAL(SouthDetId, dets, topology, hits,
 	                     includeHO, hbThr, heThr, hfThr, hoThr, debug);
         if (debug) {
@@ -293,7 +293,7 @@ namespace spr{
       // max. three depths can be in endcap and we go to 2nd and 3rd from 1st where we are now
       for (int idepth = 0; idepth < 2; idepth++) {
         std::vector<DetId> vUpDetId = topology->up(depth);
-        if (vUpDetId.size() != 0) {
+        if (!(vUpDetId.empty())) {
 	  if (includeHO || vUpDetId[0].subdetId() != (int)(HcalOuter)) {
 	    int n = std::count(dets.begin(),dets.end(),vUpDetId[0]);
 	    if (n == 0) {

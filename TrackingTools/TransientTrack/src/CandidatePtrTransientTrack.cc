@@ -21,7 +21,7 @@
 using namespace reco;
 
 CandidatePtrTransientTrack::CandidatePtrTransientTrack() : 
-  Track(), ptr_(), hasTime(false), timeExt_(0), dtErrorExt_(0), theField(0), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+  Track(), ptr_(), hasTime(false), timeExt_(0), dtErrorExt_(0), theField(nullptr), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
 }
 

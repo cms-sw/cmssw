@@ -1,12 +1,11 @@
 #include "DetectorDescription/Parser/src/DDLNumeric.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include <map>
 #include <utility>
-
-#include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 class DDCompactView;
 

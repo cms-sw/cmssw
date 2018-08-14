@@ -1,75 +1,64 @@
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
-#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include <TBranch.h>
+#include <TCanvas.h>
+#include <TF1.h>
+#include <TFile.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TProfile.h>
+#include <TRandom.h>
+#include <TTree.h>
 
-#include "Calibration/Tools/interface/CalibrationCluster.h"
-#include "Calibration/Tools/interface/HouseholderDecomposition.h"
-#include "Calibration/Tools/interface/MinL3Algorithm.h"
-#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
-#include "Calibration/Tools/interface/EcalIndexingTools.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
-#include "CLHEP/Vector/LorentzVector.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
-#include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
-
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalBarrel.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLEcalEndcap.h"
-#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
-
+#include "Calibration/EcalCalibAlgos/interface/ZeeCalibration.h"
+#include "Calibration/EcalCalibAlgos/interface/ZeeKinematicTools.h"
+#include "Calibration/Tools/interface/CalibrationCluster.h"
+#include "Calibration/Tools/interface/EcalIndexingTools.h"
+#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
+#include "Calibration/Tools/interface/HouseholderDecomposition.h"
+#include "Calibration/Tools/interface/MinL3Algorithm.h"
+#include "Calibration/Tools/interface/calibXMLwriter.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-
-/////////
-#include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-
-#include "TTree.h"
-#include "TBranch.h"
-#include "TCanvas.h"
-#include "TFile.h"
-#include "TProfile.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TF1.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "TRandom.h"
-
-#include <iostream>
-#include <string>
-#include <stdexcept>
-#include <vector>
-#include <utility>
-#include <map>
-#include <fstream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #define MZ 91.1876
 
@@ -141,7 +130,7 @@ ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig)
   hlTriggerResults_ = iConfig.getParameter<edm::InputTag> ("HLTriggerResults");
 
   theParameterSet=iConfig;
-  EcalIndexingTools* myIndexTool=0;
+  EcalIndexingTools* myIndexTool=nullptr;
 
   
   myIndexTool = EcalIndexingTools::getInstance();
@@ -682,7 +671,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     loopFlag_ = 0;
 
     //Read miscalibration map if requested
-    CaloMiscalibMapEcal* miscalibMap=0;
+    CaloMiscalibMapEcal* miscalibMap=nullptr;
     if (!barrelfile_.empty() || !barrelfile_.empty())
       {
 	miscalibMap=new CaloMiscalibMapEcal();
@@ -862,7 +851,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
       //DUMP GENERATED Z MASS - BEGIN
       Handle< HepMCProduct > hepProd ;
       //   iEvent.getByLabel( "source", hepProd ) ;
-      iEvent.getByLabel( mcProducer_.c_str(), hepProd ) ;
+      iEvent.getByLabel( mcProducer_, hepProd ) ;
                                                                                                                              
       const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
       
@@ -998,7 +987,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (hits->size() == 0 && ehits->size() == 0){
+  if (hits->empty() && ehits->empty()){
     std::cout << "hits->size() == 0" << std::endl;   
     return kContinue;
   }  
@@ -1008,7 +997,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
     return kContinue;
   }
   
-  if (electronCollection->size() == 0){
+  if (electronCollection->empty()){
     std::cout << "electronCollection->size() == 0" << std::endl;
     return kContinue;
   }
@@ -1105,7 +1094,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   //
   h1_ZCandMult_->Fill(zeeCandidates.size());
   
-  if(zeeCandidates.size()==0 || myBestZ==-1 )
+  if(zeeCandidates.empty() || myBestZ==-1 )
     return kContinue;
       
   if (loopFlag_ == 0)
@@ -1120,11 +1109,12 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   /////////////////////////////DUMP ELECTRON CLASS
   
   
-  h1_eleClasses_->Fill(zeeCandidates[myBestZ].first->getRecoElectron()->classification());
-  h1_eleClasses_->Fill(zeeCandidates[myBestZ].second->getRecoElectron()->classification());
-  
   int class1 = zeeCandidates[myBestZ].first->getRecoElectron()->classification();
   int class2 = zeeCandidates[myBestZ].second->getRecoElectron()->classification();
+
+  h1_eleClasses_->Fill(class1);
+  h1_eleClasses_->Fill(class2);
+  
 
   std::cout << "BEFORE "<<std::endl;
 
@@ -1221,14 +1211,14 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   
   if(class1<100){
     if ( firstElehottestDetId.subdetId() == EcalBarrel &&  firstElectronIsOnModuleBorder ){
-      h1_borderElectronClassification_ -> Fill( zeeCandidates[myBestZ].first->getRecoElectron()->classification() );
+      h1_borderElectronClassification_ -> Fill( class1 );
       return kContinue;
     }  
   }
   
   if(class2<100){
     if ( secondElehottestDetId.subdetId() == EcalBarrel &&  secondElectronIsOnModuleBorder ){ 
-      h1_borderElectronClassification_ -> Fill( zeeCandidates[myBestZ].second->getRecoElectron()->classification() );
+      h1_borderElectronClassification_ -> Fill( class2 );
       return kContinue;
     }
   }
@@ -1306,56 +1296,57 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
    ///////////////////////////////////////EXCLUDE ELECTRONS HAVING HOTTEST XTAL WHICH IS A BORDER XTAL
   
 
-
+  int c1st = zeeCandidates[myBestZ].first->getRecoElectron()->classification();
+  int c2nd = zeeCandidates[myBestZ].second->getRecoElectron()->classification();
   if(electronSelection_==0)selectionBool=( myBestZ != -1 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 40 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 40 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 40 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 140);
+					   c1st!= 40 && 
+					   c1st!= 40 && 
+					   c2nd!= 40 && 
+					   c2nd!= 140);
   
   //1 = all electrons are Golden, BB or Narrow
   
   if(electronSelection_==1)selectionBool=( myBestZ != -1 &&
-					   (zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==0 || 
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==10 || 
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==20 ||
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==100 ||
-                                            zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==110 ||
-                                            zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==120
+					   (c1st ==0 || 
+					    c1st ==10 || 
+					    c1st ==20 ||
+					    c1st ==100 ||
+                                            c1st ==110 ||
+                                            c1st ==120
 					    ) &&
-					   (zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 0 || 
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 10 ||
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 20 ||
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 100 ||
-                                            zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 110 ||
-                                            zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 120
+					   (c2nd == 0 || 
+					    c2nd == 10 ||
+					    c2nd == 20 ||
+					    c2nd == 100 ||
+                                            c2nd == 110 ||
+                                            c2nd == 120
 					    )
 					   );
   
   //2 = all electrons are Golden
   if(electronSelection_==2)selectionBool=( myBestZ != -1 &&
-					   (zeeCandidates[myBestZ].first->getRecoElectron()->classification() == 0 ||
-					    zeeCandidates[myBestZ].first->getRecoElectron()->classification() == 100
+					   (c1st == 0 ||
+					    c1st == 100
 					    ) &&
-					   (zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 0 ||
-					    zeeCandidates[myBestZ].second->getRecoElectron()->classification() == 100
+					   (c2nd == 0 ||
+					    c2nd == 100
 					    ) 
 					   );
   //3 = all electrons are showering
   if(electronSelection_==3)selectionBool=( myBestZ != -1 &&
 					  (
-					   (zeeCandidates[myBestZ].first->getRecoElectron()->classification() >=30  &&
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification() <=34)  
+					   (c1st >=30  &&
+					   c1st <=34)  
 					   ||
-					   ((zeeCandidates[myBestZ].first->getRecoElectron()->classification() >=130  &&
-					     zeeCandidates[myBestZ].first->getRecoElectron()->classification() <=134))
+					   ((c1st >=130  &&
+					     c1st <=134))
 					   )
 					   &&
-					   ( (zeeCandidates[myBestZ].second->getRecoElectron()->classification() >=30  &&
-					      zeeCandidates[myBestZ].second->getRecoElectron()->classification() <=34)
+					   ( (c2nd >=30  &&
+					      c2nd <=34)
 					     ||
-					     ((zeeCandidates[myBestZ].second->getRecoElectron()->classification() >=130  &&
-					       zeeCandidates[myBestZ].second->getRecoElectron()->classification() <=134))
+					     ((c2nd >=130  &&
+					       c2nd <=134))
 					     )
 					   
 					   );
@@ -1366,21 +1357,21 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 					   (
 
 					   (
-					    (zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==0 ||
-					      zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==10 ||
-					      zeeCandidates[myBestZ].first->getRecoElectron()->classification() ==20 
-					      ) && zeeCandidates[myBestZ].second->getRecoElectron()->classification()>=100 
-					    && zeeCandidates[myBestZ].second->getRecoElectron()->classification()!=140
+					    (c1st ==0 ||
+					      c1st ==10 ||
+					      c1st ==20 
+					      ) && c2nd>=100 
+					    && c2nd!=140
 					    )
 
 					   ||
 					   
 					   (
-                                            (zeeCandidates[myBestZ].second->getRecoElectron()->classification() ==0 ||
-					     zeeCandidates[myBestZ].second->getRecoElectron()->classification() ==10 ||
-					     zeeCandidates[myBestZ].second->getRecoElectron()->classification() ==20
-					     ) && zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100
-                                            && zeeCandidates[myBestZ].first->getRecoElectron()->classification()!=140
+                                            (c2nd ==0 ||
+					     c2nd ==10 ||
+					     c2nd ==20
+					     ) && c1st>=100
+                                            && c1st!=140
                                             )
 
 
@@ -1390,26 +1381,26 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
   //5 = all Endcap electrons (but no crack)
   
   if(electronSelection_==5)selectionBool=( myBestZ != -1 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()>= 100 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 140 &&
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 140);
+					   c1st>=100 && 
+					   c2nd>= 100 && 
+					   c1st!= 140 &&
+					   c2nd!= 140);
 
   //6 = all Barrel electrons (but no crack)
   
   if(electronSelection_==6)selectionBool=( myBestZ != -1 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()<100 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()< 100 && 
-					   zeeCandidates[myBestZ].first->getRecoElectron()->classification()!= 40 &&
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()!= 40);
+					   c1st<100 && 
+					   c2nd< 100 && 
+					   c1st!= 40 &&
+					   c2nd!= 40);
 
   //7 = this eliminates the events which have 1 ele in the Barrel and 1 in the Endcap
   
   if(electronSelection_==7)selectionBool=( myBestZ != -1 && 
-					   !(zeeCandidates[myBestZ].first->getRecoElectron()->classification()<100 && 
-					   zeeCandidates[myBestZ].second->getRecoElectron()->classification()>=100) &&
-					   !(zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100 &&
-					     zeeCandidates[myBestZ].second->getRecoElectron()->classification()<100) );
+					   !(c1st<100 && 
+					   c2nd>=100) &&
+					   !(c1st>=100 &&
+					     c2nd<100) );
 
 
       float ele1EnergyCorrection(1.);
@@ -1454,11 +1445,13 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
 
       h1_reco_ZMassCorr_->Fill(ZeeKinematicTools::calculateZMassWithCorrectedElectrons_withTK(zeeCandidates[myBestZ],ele1EnergyCorrection,ele2EnergyCorrection));
 
-      if(zeeCandidates[myBestZ].first->getRecoElectron()->classification()<100 && zeeCandidates[myBestZ].second->getRecoElectron()->classification()<100 )
+      int c1st = zeeCandidates[myBestZ].first->getRecoElectron()->classification();
+      int c2nd = zeeCandidates[myBestZ].second->getRecoElectron()->classification();
+      if(c1st<100 && c2nd<100 )
 	h1_reco_ZMassCorrBB_->Fill(ZeeKinematicTools::calculateZMassWithCorrectedElectrons_withTK(zeeCandidates[myBestZ],ele1EnergyCorrection,ele2EnergyCorrection));
 
 
-      if(zeeCandidates[myBestZ].first->getRecoElectron()->classification()>=100 && zeeCandidates[myBestZ].second->getRecoElectron()->classification()>=100 )
+      if(c1st>=100 && c2nd>=100 )
 	h1_reco_ZMassCorrEE_->Fill(ZeeKinematicTools::calculateZMassWithCorrectedElectrons_withTK(zeeCandidates[myBestZ],ele1EnergyCorrection,ele2EnergyCorrection));
 
 
@@ -2028,7 +2021,7 @@ void ZeeCalibration::fillMCmap(const std::vector<const reco::GsfElectron*>* elec
   for (unsigned int i=0;i<mcEle.size();i++)
     {
       float minDR=0.1;
-      const reco::GsfElectron* myMatchEle=0;
+      const reco::GsfElectron* myMatchEle=nullptr;
       for (unsigned int j=0;j<electronCollection->size();j++)
         {
           float dr=EvalDR(mcEle[i]->momentum().pseudoRapidity(),(*(*electronCollection)[j]).eta(),mcEle[i]->momentum().phi(),(*(*electronCollection)[j]).phi());
@@ -2088,7 +2081,7 @@ void ZeeCalibration::fillEleInfo( std::vector<HepMC::GenParticle*>& mcEle, std::
 	  h1_elePhiResol_->Fill( myEle->phi() - mcEle[i]->momentum().phi() );
 
           const reco::SuperCluster* mySC=&(*(myEle->superCluster()));
-	  if (/*fabs(mySC->position().eta()) < 2.4*/1)
+	  if (/*fabs(mySC->position().eta()) < 2.4*/true)
 	    {
 	      //      if(myEle->classification()>=100)std::cout<<"mySC->preshowerEnergy()"<<mySC->preshowerEnergy()<<std::endl;
 
@@ -2142,29 +2135,30 @@ double ZeeCalibration::getEtaCorrection(const reco::GsfElectron* ele){
 
   double correction(1.);
 
-  if(ele->classification() ==0 ||
-     ele->classification() ==10 ||
-     ele->classification() ==20)
+  int c = ele->classification();
+  if(c ==0 ||
+     c ==10 ||
+     c ==20)
     correction = fEtaBarrelGood(ele->superCluster()->eta());
                                                                                                                                                
-  if(ele->classification() ==100 ||
-     ele->classification() ==110 ||
-     ele->classification() ==120)
+  if(c ==100 ||
+     c ==110 ||
+     c ==120)
     correction = fEtaEndcapGood(ele->superCluster()->eta());
                                                                                                                                                
-  if(ele->classification() ==30 ||
-     ele->classification() ==31 ||
-     ele->classification() ==32 ||
-     ele->classification() ==33 ||
-     ele->classification() ==34)
+  if(c ==30 ||
+     c ==31 ||
+     c ==32 ||
+     c ==33 ||
+     c ==34)
     correction = fEtaBarrelBad(ele->superCluster()->eta());
 
 
-  if(ele->classification() ==130 ||
-     ele->classification() ==131 ||
-     ele->classification() ==132 ||
-     ele->classification() ==133 ||
-     ele->classification() ==134)
+  if(c ==130 ||
+     c ==131 ||
+     c ==132 ||
+     c ==133 ||
+     c ==134)
     correction = fEtaEndcapBad(ele->superCluster()->eta());
  
   return correction;                                                                                                                                              
@@ -2174,7 +2168,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
   
 
   double maxEnergy = -9999.;
-  const EcalRecHit* hottestRecHit=0;
+  const EcalRecHit* hottestRecHit=nullptr;
   
   std::pair<DetId, double> myPair (DetId(0), -9999.);
 

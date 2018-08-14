@@ -101,7 +101,7 @@ PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
   Plugins::const_iterator itFound = m_plugins.find(iName);
   if(itFound == m_plugins.end()) {
     const SharedLibrary* slib = PluginManager::get()->tryToLoad(this->category(),iName);
-    if(0!=slib) {
+    if(nullptr!=slib) {
       std::string lib = slib->path().string();
       itFound = m_plugins.find(iName);
       if(itFound == m_plugins.end()) {
@@ -163,7 +163,7 @@ PluginFactoryBase::checkProperLoadable(const std::string& iName, const std::stri
 
 void 
 PluginFactoryBase::registerPMaker(void* iPMaker, const std::string& iName) {
-  assert(0!= iPMaker);
+  assert(nullptr!= iPMaker);
   m_plugins[iName].push_back(PluginMakerInfo(iPMaker,PluginManager::loadingFile()));
   newPlugin(iName);
 }

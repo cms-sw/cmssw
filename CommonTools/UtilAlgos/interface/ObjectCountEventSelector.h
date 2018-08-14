@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/CollectionFilterTrait.h"
@@ -35,7 +36,13 @@ class ObjectCountEventSelector : public EventSelectorBase
     sizeSelect_( reco::modules::make<N>( cfg, iC ) ) {
   }
 
-  bool operator()(edm::Event& evt, const edm::EventSetup&) const {
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<edm::InputTag>("src", edm::InputTag());
+    reco::modules::fillPSetDescription<S>(desc);
+    reco::modules::fillPSetDescription<N>(desc);
+  }
+
+  bool operator()(edm::Event& evt, const edm::EventSetup&) const override {
     edm::Handle<C> source;
     evt.getByToken( srcToken_, source );
     return CS::filter( * source, select_, sizeSelect_ );

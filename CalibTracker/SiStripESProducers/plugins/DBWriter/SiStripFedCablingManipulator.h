@@ -20,10 +20,10 @@ class SiStripFedCablingManipulator : public edm::EDAnalyzer {
 public:
 
   explicit SiStripFedCablingManipulator(const edm::ParameterSet& iConfig);
-  ~SiStripFedCablingManipulator();
-  void analyze(const edm::Event& e, const edm::EventSetup&es){};
+  ~SiStripFedCablingManipulator() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&es) override{};
 
-  void endRun(const edm::Run & run, const edm::EventSetup & es);
+  void endRun(const edm::Run & run, const edm::EventSetup & es) override;
 
  private:
 

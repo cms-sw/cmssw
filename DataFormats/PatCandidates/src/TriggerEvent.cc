@@ -102,7 +102,7 @@ const TriggerAlgorithm * TriggerEvent::algorithm( const std::string & nameAlgori
   for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
     if ( nameAlgorithm == iAlgorithm->name() ) return &*iAlgorithm;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -274,7 +274,7 @@ const TriggerCondition * TriggerEvent::condition( const std::string & nameCondit
   for ( TriggerConditionCollection::const_iterator iCondition = conditions()->begin(); iCondition != conditions()->end(); ++iCondition ) {
     if ( nameCondition == iCondition->name() ) return &*iCondition;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -331,7 +331,7 @@ const TriggerPath * TriggerEvent::path( const std::string & namePath ) const
   for ( TriggerPathCollection::const_iterator iPath = paths()->begin(); iPath != paths()->end(); ++iPath ) {
     if ( namePath == iPath->name() ) return &*iPath;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -388,7 +388,7 @@ const TriggerFilter * TriggerEvent::filter( const std::string & labelFilter ) co
   for ( TriggerFilterCollection::const_iterator iFilter = filters()->begin(); iFilter != filters()->end(); ++iFilter ) {
     if ( labelFilter == iFilter->label() ) return &*iFilter;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -604,7 +604,7 @@ TriggerFilterRefVector TriggerEvent::pathModules( const std::string & namePath, 
 {
   TriggerFilterRefVector thePathFilters;
   if ( const TriggerPath * pathPtr = path( namePath ) ) {
-    if ( pathPtr->modules().size() > 0 ) {
+    if ( !pathPtr->modules().empty() ) {
       const unsigned onePastLastFilter = all ? pathPtr->modules().size() : pathPtr->lastActiveFilterSlot() + 1;
       for ( unsigned iM = 0; iM < onePastLastFilter; ++iM ) {
         const std::string labelFilter( pathPtr->modules().at( iM ) );
@@ -789,5 +789,5 @@ const TriggerObjectMatch * TriggerEvent::triggerObjectMatchResult( const std::st
 {
   const TriggerObjectMatchContainer::const_iterator iMatch( triggerObjectMatchResults()->find( labelMatcher ) );
   if ( iMatch != triggerObjectMatchResults()->end() ) return iMatch->second.get();
-  return 0;
+  return nullptr;
 }

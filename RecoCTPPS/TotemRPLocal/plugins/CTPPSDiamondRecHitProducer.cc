@@ -28,20 +28,20 @@
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
     explicit CTPPSDiamondRecHitProducer( const edm::ParameterSet& );
-    ~CTPPSDiamondRecHitProducer();
+    ~CTPPSDiamondRecHitProducer() override;
 
     static void fillDescriptions( edm::ConfigurationDescriptions& );
 
   private:
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
-    edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
+    edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
 
     /// A watcher to detect geometry changes.
     //edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
@@ -50,10 +50,10 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 };
 
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet& iConfig ) :
-  digiToken_( consumes< edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
+  digiToken_( consumes<edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
   algo_( iConfig )
 {
-  produces< edm::DetSetVector<CTPPSDiamondRecHit> >();
+  produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
 
 CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
@@ -62,14 +62,14 @@ CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
 void
 CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr< edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
+  std::unique_ptr<edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
 
   // get the digi collection
-  edm::Handle< edm::DetSetVector<CTPPSDiamondDigi> > digis;
+  edm::Handle<edm::DetSetVector<CTPPSDiamondDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
 
   // get the geometry
-  edm::ESHandle<TotemRPGeometry> geometry;
+  edm::ESHandle<CTPPSGeometry> geometry;
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
@@ -81,11 +81,16 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 void
 CTPPSDiamondRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& descr )
 {
-  // The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descr.addDefault( desc );
+
+  desc.add<edm::InputTag>( "digiTag", edm::InputTag( "ctppsDiamondRawToDigi", "TimingDiamond" ) )
+    ->setComment( "input digis collection to retrieve" );
+  desc.add<double>( "timeSliceNs", 25.0/1024.0 )
+    ->setComment( "conversion constant between HPTDC timing bin size and nanoseconds" );
+  desc.add<int>( "timeShift", 0 ) // to be determined at calibration level, will be replaced by a map channel id -> time shift
+    ->setComment( "overall time offset to apply on all hits in all channels" );
+
+  descr.add( "ctppsDiamondRecHits", desc );
 }
 
 DEFINE_FWK_MODULE( CTPPSDiamondRecHitProducer );

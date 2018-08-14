@@ -9,13 +9,13 @@
 class EDMNeutronWriter: public NeutronWriter {
 public:
   EDMNeutronWriter();
-  virtual ~EDMNeutronWriter();
+  ~EDMNeutronWriter() override;
 
   ///  writes out a list of SimHits. 
-  virtual void writeCluster(int detType, const edm::PSimHitContainer & simHits);
-  virtual void beginEvent(edm::Event & e, const edm::EventSetup & es);
-  virtual void endEvent();
-  virtual void initialize(int detType) {}
+  void writeCluster(int detType, const edm::PSimHitContainer & simHits) override;
+  void beginEvent(edm::Event & e, const edm::EventSetup & es) override;
+  void endEvent() override;
+  void initialize(int detType) override {}
 
 private:
   edm::Event * theEvent;

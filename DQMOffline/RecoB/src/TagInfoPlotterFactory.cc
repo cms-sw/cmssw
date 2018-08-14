@@ -14,25 +14,25 @@
 
 using namespace std;
 
-BaseTagInfoPlotter*  TagInfoPlotterFactory::buildPlotter(const string& dataFormatType, const std::string & tagName,
-							 const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-							 const std::string& folderName, const unsigned int& mc, 
-							 const bool& wf, DQMStore::IBooker & ibook)
+std::unique_ptr<BaseTagInfoPlotter> TagInfoPlotterFactory::buildPlotter(const string& dataFormatType, const std::string & tagName,
+                             const EtaPtBin& etaPtBin, const edm::ParameterSet& pSet, 
+                             const std::string& folderName, unsigned int mc, 
+                             bool wf, DQMStore::IBooker & ibook)
 {
   if (dataFormatType == "TrackCounting") {
-    return new TrackCountingTagPlotter(folderName, etaPtBin, pSet,  mc, wf, ibook);
+    return std::make_unique<TrackCountingTagPlotter>(folderName, etaPtBin, pSet,  mc, wf, ibook);
   } else if (dataFormatType == "TrackProbability") {
-    return new TrackProbabilityTagPlotter(folderName, etaPtBin, pSet,  mc, wf, ibook);
+    return std::make_unique<TrackProbabilityTagPlotter>(folderName, etaPtBin, pSet,  mc, wf, ibook);
   } else if (dataFormatType == "SoftLepton") {
-    return new SoftLeptonTagPlotter(folderName, etaPtBin, pSet, mc, wf, ibook);
+    return std::make_unique<SoftLeptonTagPlotter>(folderName, etaPtBin, pSet, mc, wf, ibook);
   } else if (dataFormatType == "TrackIP") {
-    return new IPTagPlotter<reco::TrackRefVector,reco::JTATagInfo>(folderName, etaPtBin, pSet,  mc, wf, ibook);
+    return std::make_unique<IPTagPlotter<reco::TrackRefVector, reco::JTATagInfo>>(folderName, etaPtBin, pSet,  mc, wf, ibook);
   } else if (dataFormatType == "CandIP") {
-    return new IPTagPlotter<std::vector<reco::CandidatePtr>,reco::JetTagInfo>(folderName, etaPtBin, pSet,  mc, wf, ibook);
+    return std::make_unique<IPTagPlotter<std::vector<reco::CandidatePtr>, reco::JetTagInfo>>(folderName, etaPtBin, pSet,  mc, wf, ibook);
   } else if (dataFormatType == "TaggingVariable") {
-    return new TaggingVariablePlotter(folderName, etaPtBin, pSet,  mc, wf, ibook);
+    return std::make_unique<TaggingVariablePlotter>(folderName, etaPtBin, pSet,  mc, wf, ibook);
   } else if (dataFormatType == "GenericMVA") {
-    return new MVAJetTagPlotter(tagName, etaPtBin, pSet, folderName,  mc, wf, ibook);
+    return std::make_unique<MVAJetTagPlotter>(tagName, etaPtBin, pSet, folderName,  mc, wf, ibook);
   }
   throw cms::Exception("Configuration")
     << "BTagPerformanceAnalysis: Unknown ExtendedTagInfo " << dataFormatType << endl

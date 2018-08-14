@@ -14,7 +14,8 @@
   <class name="LumiInfoRunHeader"  ClassVersion="10">
    <version ClassVersion="10" checksum="3459250671"/>
   </class>
-  <class name="LumiInfo"  ClassVersion="10">
+  <class name="LumiInfo"  ClassVersion="11">
+   <version ClassVersion="11" checksum="323813487"/>
    <version ClassVersion="10" checksum="4234044727"/>
   </class>
   <class name="BeamCurrentInfo" ClassVersion="10">
@@ -40,4 +41,8 @@
   </class>
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
+  <class name="reco::PixelClusterCounts" ClassVersion="3">
+   <version ClassVersion="3" checksum="1474294271"/>
+  </class>
+ <class name="edm::Wrapper<reco::PixelClusterCounts>"/>
 </lcgdict>

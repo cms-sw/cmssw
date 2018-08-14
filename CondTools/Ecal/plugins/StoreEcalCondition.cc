@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <time.h>
+#include <ctime>
 #include <unistd.h> 
 
 using std::string;
@@ -100,6 +100,13 @@ void StoreEcalCondition::endJob() {
 	  mydbservice->createNewIOV<EcalIntercalibConstants>(mycali,newTime,mydbservice->endOfTime(),"EcalIntercalibConstantsRcd");
 	}else{
 	  mydbservice->appendSinceTime<EcalIntercalibConstants>(mycali,newTime,"EcalIntercalibConstantsRcd");
+	}
+      } else if (objectName_[i]  ==  "EcalPFRecHitThresholds") {
+	EcalPFRecHitThresholds* mycali=readEcalPFRecHitThresholdsFromFile(inpFileName_[i].c_str(),inpFileNameEE_[i].c_str());
+	if(!toAppend){
+	  mydbservice->createNewIOV<EcalPFRecHitThresholds>(mycali,newTime,mydbservice->endOfTime(),"EcalPFRecHitThresholdsRcd");
+	}else{
+	  mydbservice->appendSinceTime<EcalPFRecHitThresholds>(mycali,newTime,"EcalPFRecHitThresholdsRcd");
 	}
       } else if (objectName_[i]  ==  "EcalIntercalibConstantsMC") {
 	EcalIntercalibConstantsMC* mycali=readEcalIntercalibConstantsMCFromFile(inpFileName_[i].c_str(),inpFileNameEE_[i].c_str());
@@ -246,7 +253,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
 
   if(!groupid_in.is_open()) {
     edm::LogError("StoreEcalCondition")<< "*** Can not open file: "<< inputFile ;
-    return 0;
+    return nullptr;
   }  
 
   int smnumber=-99999;
@@ -255,7 +262,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
   groupid_in >> smnumber;
   if (smnumber == -99999) {
     edm::LogError("StoreEcalCondition") << "ERROR: SM number not found in file" << endl;
-    return 0;
+    return nullptr;
   }
   str << "sm= " << smnumber << endl;
   sm_constr_ = smnumber;
@@ -291,7 +298,7 @@ StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const char* inputFile) {
 
   if (xtals != 1700) {
     edm::LogError("StoreEcalCondition") << "ERROR:  GROUPID file did not contain data for 1700 crystals" << endl;
-    return 0;
+    return nullptr;
   }
   
   edm::LogInfo("StoreEcalCondition") << "Groups for " << xtals << " xtals written into DB" ;
@@ -312,7 +319,7 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
   std::ifstream WeightsFileTB(inputFile);
   if(!WeightsFileTB.is_open()) {
     edm::LogError("StoreEcalCondition")<< "*** Can not open file: "<< inputFile ;
-    return 0;
+    return nullptr;
   }
 
   int smnumber=-99999;
@@ -320,7 +327,7 @@ StoreEcalCondition::readEcalTBWeightsFromFile(const char* inputFile) {
   std::ostringstream str;
   WeightsFileTB >> smnumber;
   if (smnumber == -99999)
-    return 0;
+    return nullptr;
 
   str << "sm= " << smnumber << endl;
 
@@ -456,7 +463,7 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];
@@ -509,6 +516,84 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
 
 
 //-------------------------------------------------------------
+EcalPFRecHitThresholds*
+StoreEcalCondition::readEcalPFRecHitThresholdsFromFile(const char* inputFile,const char* inputFileEE) {
+//-------------------------------------------------------------
+
+  EcalPFRecHitThresholds* ical = new EcalPFRecHitThresholds();
+
+    
+    FILE *inpFile; // input file
+    inpFile = fopen(inputFile,"r");
+    if(!inpFile) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
+      return nullptr;
+    }
+
+    char line[256];
+ 
+
+    int ieta=0;
+    int iphi=0;
+    int ix=0;
+    int iy=0;
+    int iz=0;
+    
+    float thresh=0;
+
+
+    int ii = 0;
+    while(fgets(line,255,inpFile)) {
+      sscanf(line, "%d %d %f ", &ieta, &iphi, &thresh);
+      if(ii==0) cout<<"crystal "<<ieta<<"/"<<iphi<<" Thresh= "<< thresh<<endl;
+      
+      if (EBDetId::validDetId(ieta,iphi)) {
+	EBDetId ebid(ieta,iphi);
+	ical->setValue( ebid.rawId(), thresh  );
+	ii++ ;
+      }
+    }
+    
+
+    //    inf.close();           // close inp. file
+    fclose(inpFile);           // close inp. file
+    
+    edm::LogInfo("StoreEcalCondition") << "Read PF RecHits for " << ii << " xtals " ; 
+    
+    cout << " I read the thresholds for "<< ii<< " crystals " << endl;
+    
+    
+    
+    FILE *inpFileEE; // input file
+    inpFileEE = fopen(inputFileEE,"r");
+    if(!inpFileEE) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFileEE;
+      return nullptr;
+    } 
+    ii=0;
+    while(fgets(line,255,inpFileEE)) {
+      sscanf(line, "%d %d %d %f ", &ix,&iy,&iz,  &thresh);
+      if(ii==0) cout<<"crystal "<<ix<<"/"<<iy<<"/"<<iz<<" Thresh= "<< thresh<<endl;
+      if (EEDetId::validDetId(ix,iy,iz)) {
+	EEDetId eeid(ix,iy,iz);
+	ical->setValue( eeid.rawId(), thresh  );
+	ii++ ;
+      }
+    }
+    
+    
+    //    inf.close();           // close inp. file
+    fclose(inpFileEE);           // close inp. file
+    
+    
+    cout<<"loop on EE channels done - number of crystals =" <<ii<< std::endl;
+    
+    
+    
+    return ical;
+    
+}
+//-------------------------------------------------------------
 EcalIntercalibConstants*
 StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile,const char* inputFileEE) {
 //-------------------------------------------------------------
@@ -520,7 +605,7 @@ StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile,co
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];
@@ -686,7 +771,7 @@ StoreEcalCondition::readEcalIntercalibConstantsMCFromFile(const char* inputFile,
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];
@@ -873,7 +958,7 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
       edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
-      return 0;
+      return nullptr;
     }
 
     char line[256];

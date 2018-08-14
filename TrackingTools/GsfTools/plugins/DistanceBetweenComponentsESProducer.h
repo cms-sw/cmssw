@@ -15,7 +15,7 @@ template <unsigned int N>
 class  DistanceBetweenComponentsESProducer : public edm::ESProducer{
  public:
   DistanceBetweenComponentsESProducer(const edm::ParameterSet & p);
-  virtual ~DistanceBetweenComponentsESProducer(); 
+  ~DistanceBetweenComponentsESProducer() override; 
   std::shared_ptr< DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;

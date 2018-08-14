@@ -78,7 +78,7 @@ void DTLinearFit::fitNpar( const int npar,
                            float& cminf,
                            float& vminf,
                            double& chi2fit,
-                           const bool debug=0) const { 
+                           const bool debug=false) const { 
 
   int nptfit=xfit.size();
   if (nptfit<npar) return;
@@ -226,7 +226,7 @@ void DTLinearFit::fit3par( const vector<float>& xfit,
                            float& bminf,
                            float& cminf,
                            double& chi2fit,
-                           const bool debug=0) const { 
+                           const bool debug=false) const { 
 
   float vminf;
   vector <double> tfit( nptfit, 0.);
@@ -245,8 +245,8 @@ void DTLinearFit::fit4Var( const vector<float>& xfit,
                            float& cminf,
                            float& vminf,
                            double& chi2fit,
-                           const bool vdrift_4parfit=0,
-                           const bool debug=0) const { 
+                           const bool vdrift_4parfit=false,
+                           const bool debug=false) const { 
 
   if (debug) cout << "Entering Fit4Var" << endl;
 

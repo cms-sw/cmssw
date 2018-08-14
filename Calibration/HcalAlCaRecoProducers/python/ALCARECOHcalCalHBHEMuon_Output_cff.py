@@ -10,6 +10,7 @@ OutALCARECOHcalCalHBHEMuon_noDrop = cms.PSet(
         ),
     outputCommands = cms.untracked.vstring( 
         'keep edmTriggerResults_*_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep recoTracks_globalMuons_*_*',
         'keep recoTrackExtras_globalMuons_*_*',
         'keep recoTracks_standAloneMuons_*_*',
@@ -18,6 +19,8 @@ OutALCARECOHcalCalHBHEMuon_noDrop = cms.PSet(
         'keep recoTrackExtras_generalTracks_*_*',
         'keep recoTracks_tevMuons_*_*',
         'keep recoTrackExtras_tevMuons_*_*',
+        'keep *_hbhereco_*_*',
+        'keep *_hbheprereco_*_*',
         'keep *_HBHEMuonProd_*_*',
         )
 )

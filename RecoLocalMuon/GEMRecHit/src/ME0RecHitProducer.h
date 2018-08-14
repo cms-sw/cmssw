@@ -13,7 +13,7 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 #include <cstdlib>
 #include <bitset>
 #include <map>
@@ -48,13 +48,13 @@ public:
   ME0RecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~ME0RecHitProducer();
+  ~ME0RecHitProducer() override;
 
   // Method that access the EventSetup for each run
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& ) override;
+  void beginRun(const edm::Run&, const edm::EventSetup& ) override;
 
   /// The method which produces the rechits
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
 private:
 

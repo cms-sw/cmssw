@@ -6,6 +6,7 @@
 # Volker Adler       Apr  16, 2014
 # Raman Khurana      June 18, 2015
 # Dinko Ferencek     June 27, 2015
+from __future__ import print_function
 import os
 import sys
 import optparse
@@ -15,6 +16,7 @@ from FWCore.PythonUtilities.LumiList   import LumiList
 import json
 from pprint import pprint
 from datetime import datetime
+import subprocess
 import Utilities.General.cmssw_das_client as das_client
 help = """
 How to use:
@@ -67,7 +69,7 @@ class Event (dict):
             raise RuntimeError("Can not parse '%s' as Event object" \
                   % line.strip())
         if not self['dataset']:
-            print "No dataset is defined for '%s'.  Aborting." % line.strip()
+            print("No dataset is defined for '%s'.  Aborting." % line.strip())
             raise RuntimeError('Missing dataset')
 
     def __getattr__ (self, key):
@@ -81,14 +83,27 @@ class Event (dict):
 ## Subroutines ##
 #################
 
-def getFileNames (event):
+def getFileNames(event, client=None):
+    """Return files for given DAS query"""
+    if  client == 'das_client':
+        return getFileNames_das_client(event)
+    elif client == 'dasgoclient':
+        return getFileNames_dasgoclient(event)
+    # default action
+    for path in os.getenv('PATH').split(':'):
+        if  os.path.isfile(os.path.join(path, 'dasgoclient')):
+            return getFileNames_dasgoclient(event)
+    return getFileNames_das_client(event)
+
+def getFileNames_das_client(event):
+    """Return files for given DAS query via das_client"""
     files = []
 
     query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i | grep file.name" % event
     jsondict = das_client.get_data(query)
     status = jsondict['status']
     if status != 'ok':
-        print "DAS query status: %s"%(status)
+        print("DAS query status: %s"%(status))
         return files
 
     mongo_query = jsondict['mongo_query']
@@ -103,6 +118,22 @@ def getFileNames (event):
 
     return files
 
+def getFileNames_dasgoclient(event):
+    """Return files for given DAS query via dasgoclient"""
+    query = "file dataset=%(dataset)s run=%(run)i lumi=%(lumi)i" % event
+    cmd = ['dasgoclient', '-query', query, '-json']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    files = []
+    err = proc.stderr.read()
+    if  err:
+        print("DAS error: %s" % err)
+    else:
+        for row in json.load(proc.stdout):
+            for rec in row.get('file', []):
+                fname = rec.get('name', '')
+                if fname:
+                    files.append(fname)
+    return files
 
 def fullCPMpath():
     base = os.environ.get ('CMSSW_BASE')
@@ -217,6 +248,10 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
     parser.add_option ('--email', dest='email', type='string',
                        default='',
                        help="Specify email for CRAB (default '%s')" % email )
+    das_cli = ''
+    parser.add_option ('--das-client', dest='das_cli', type='string',
+                       default=das_cli,
+                       help="Specify das client to use (default '%s')" % das_cli )
     (options, args) = parser.parse_args()
 
 
@@ -247,13 +282,13 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
             try:
                 event = Event (line)
             except:
-                print "Skipping '%s'." % line.strip()
+                print("Skipping '%s'." % line.strip())
                 continue
             eventList.append(event)
         source.close()
 
     if not eventList:
-        print "No events defined.  Aborting."
+        print("No events defined.  Aborting.")
         sys.exit()
 
     if len (eventList) > options.maxEventsInteractive:
@@ -278,12 +313,12 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
         target = open (crabDict['crabcfg'], 'w')
         target.write (crabTemplate % crabDict)
         target.close
-        print "Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
+        print("Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n")
         if options.crabCondor:
-            print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n"
+            print("You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n")
             if not os.path.exists ('%s/.profile' % os.environ.get('HOME')):
-                print "** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n"
-        print "Setup your environment for CRAB and edit %(crabcfg)s to make any desired changed.  Then run:\n\ncrab submit -c %(crabcfg)s\n" % crabDict
+                print("** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n")
+        print("Setup your environment for CRAB and edit %(crabcfg)s to make any desired changed.  Then run:\n\ncrab submit -c %(crabcfg)s\n" % crabDict)
 
     else:
 
@@ -293,9 +328,9 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
         files = []
         eventPurgeList = []
         for event in eventList:
-            eventFiles = getFileNames (event)
+            eventFiles = getFileNames(event, options.das_cli)
             if eventFiles == ['[]']: # event not contained in the input dataset
-                print "** WARNING: ** According to a DAS query, run = %i; lumi = %i; event = %i not contained in %s.  Skipping."%(event.run,event.lumi,event.event,event.dataset)
+                print("** WARNING: ** According to a DAS query, run = %i; lumi = %i; event = %i not contained in %s.  Skipping."%(event.run,event.lumi,event.event,event.dataset))
                 eventPurgeList.append( event )
             else:
                 files.extend( eventFiles )
@@ -315,7 +350,7 @@ https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookPickEvents ''')
           sorted( [ "%d:%d" % (event.run, event.event) for event in eventList ] ) )
         command = 'edmCopyPickMerge outputFile=%s.root \\\n  eventsToProcess=%s \\\n  inputFiles=%s' \
                   % (options.base, eventsToProcess, source)
-        print "\n%s" % command
+        print("\n%s" % command)
         if options.runInteractive and not options.printInteractive:
             os.system (command)
 

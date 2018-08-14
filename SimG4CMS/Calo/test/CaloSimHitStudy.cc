@@ -1,10 +1,78 @@
-#include "SimG4CMS/Calo/test/CaloSimHitStudy.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include <TH1F.h>
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <string>
+
+class CaloSimHitStudy: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+public:
+
+  CaloSimHitStudy(const edm::ParameterSet& ps);
+  ~CaloSimHitStudy() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+
+  void analyzeHits  (std::vector<PCaloHit> &, int);
+  void analyzeHits  (edm::Handle<edm::PSimHitContainer>&, int);
+  void analyzeHits  (std::vector<PCaloHit> &, std::vector<PCaloHit> &, std::vector<PCaloHit> &);
+
+private:
+
+  std::string    g4Label, hitLab[4];
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> toks_calo_[4];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_track_[3];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_tkHigh_[6];
+  edm::EDGetTokenT<edm::PSimHitContainer> toks_tkLow_[6];
+  std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
+  double         tmax_, eMIP_;
+  bool           storeRL_, testNumber_;
+
+  TH1F           *hit_[9],  *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
+  TH1F           *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
+  TH1F           *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
+  TH1F           *hitTk_[15], *edepTk_[15], *tofTk_[15], *edepC_[9],*edepT_[9];
+};
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
+
+  usesResource(TFileService::kSharedResource);
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared")));
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
@@ -15,8 +83,10 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 
 
   double maxEnergy_= ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
-  tmax_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
-  eMIP_     = ps.getUntrackedParameter<double>("MIPCut",  0.70);
+  tmax_            = ps.getUntrackedParameter<double>("TimeCut",   100.0);
+  eMIP_            = ps.getUntrackedParameter<double>("MIPCut",     0.70);
+  storeRL_         = ps.getUntrackedParameter<bool>("StoreRL",     false);
+  testNumber_      = ps.getUntrackedParameter<bool>("TestNumbering",false);
 
   muonLab[0]  = "MuonRPCHits";
   muonLab[1]  = "MuonCSCHits";
@@ -169,7 +239,24 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   }
 }
 
-void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
+void  CaloSimHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("SourceLabel", "generatorSmeared");
+  desc.addUntracked<std::string>("ModuleLabel", "g4SimHits");
+  desc.addUntracked<std::string>("EBCollection","EcalHitsEB");
+  desc.addUntracked<std::string>("EECollection","EcalHitsEE");
+  desc.addUntracked<std::string>("ESCollection","EcalHitsES");
+  desc.addUntracked<std::string>("HCCollection","HcalHits");
+  desc.addUntracked<double>("MaxEnergy",   200.0);
+  desc.addUntracked<double>("TimeCut",     100.0);
+  desc.addUntracked<double>("MIPCut",       0.70);
+  desc.addUntracked<bool>("StoreRL",       false);
+  desc.addUntracked<bool>("TestNumbering", false);
+  descriptions.add("CaloSimHitStudy",desc);
+}
+
+void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const& ) {
 
   LogDebug("HitStudy") << "Run = " << e.id().run() << " Event = " 
 		       << e.id().event();
@@ -258,8 +345,9 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     double edepEM    = hits[i].energyEM();
     double edepHad   = hits[i].energyHad();
     if (indx == 0) {
-      if      (hits[i].depth()==1) id_ |= 0x20000;
-      else if (hits[i].depth()==2) id_ |= 0x40000;
+      int  dep       = (hits[i].depth())&PCaloHit::kEcalDepthIdMask;
+      if      (dep==1) id_ |= 0x20000;
+      else if (dep==2) id_ |= 0x40000;
     }
     std::map<unsigned int,double>::const_iterator it = hitMap.find(id_);
     if (it == hitMap.end()) {
@@ -267,8 +355,10 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
     }
     int idx = -1;
     if (indx != 3) {
-      if (indx == 0)  idx = hits[i].depth();
-      else            idx = indx+2;
+      if (indx == 0) {
+	if (storeRL_)  idx = 0;
+	else           idx = ((hits[i].depth())&PCaloHit::kEcalDepthIdMask);
+      } else           idx = indx+2;
       time_[idx]->Fill(time);
       edep_[idx]->Fill(edep);
       edepEM_[idx]->Fill(edepEM);
@@ -284,8 +374,14 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
 	if (time < 100) etotG[idx] += edep;
       }
     } else {
-      HcalDetId id     = HcalDetId(id_);
-      int subdet       = id.subdet();
+      int subdet(0);
+      if (testNumber_) {
+	int ieta(0), phi(0), z(0), lay(0), depth(0);
+	HcalTestNumbering::unpackHcalIndex(id_,subdet,z,depth,ieta,phi,lay);
+      } else {
+	HcalDetId id = HcalDetId(id_);
+	subdet       = id.subdet();
+      }
       if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx+2; nHB++;}
       else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+3; nHE++;}
       else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+4; nHO++;}
@@ -347,9 +443,14 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
       }
       if (idx >= 0 && idx < 5) timeAll_[idx]->Fill(time);
     } else if (indx == 3) {
-      HcalDetId id     = HcalDetId(id_);
-      int idx          = -1;
-      int subdet       = id.subdet();
+      int idx(-1), subdet(0);
+      if (testNumber_) {
+	int ieta(0), phi(0), z(0), lay(0), depth(0);
+	HcalTestNumbering::unpackHcalIndex(id_,subdet,z,depth,ieta,phi,lay);
+      } else {
+	HcalDetId id = HcalDetId(id_);
+	subdet       = id.subdet();
+      }
       if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx+2;}
       else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+3;}
       else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+4;}
@@ -389,7 +490,7 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& ebHits,
   for (unsigned int i=0; i<ebHits.size(); i++) {
     double edep      = ebHits[i].energy();
     double time      = ebHits[i].time();
-    if  (ebHits[i].depth()==0) {
+    if  (((ebHits[i].depth())&PCaloHit::kEcalDepthIdMask)==0) {
       edepEB += edep;
       if (time < tmax_) edepEBT += edep;
     }
@@ -405,8 +506,14 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& ebHits,
   for (unsigned int i=0; i<hcHits.size(); i++) {
     double edep      = hcHits[i].energy();
     double time      = hcHits[i].time();
-    HcalDetId id     = HcalDetId(hcHits[i].id());
-    int subdet       = id.subdet();
+    int subdet(0);
+    if (testNumber_) {
+      int ieta(0), phi(0), z(0), lay(0), depth(0);
+      HcalTestNumbering::unpackHcalIndex(hcHits[i].id(),subdet,z,depth,ieta,phi,lay);
+    } else {
+      HcalDetId id = HcalDetId(hcHits[i].id());
+      subdet       = id.subdet();
+    }
     if (subdet == static_cast<int>(HcalBarrel) || 
 	subdet == static_cast<int>(HcalEndcap)) {
       edepH += edep;

@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process( "TEST" )
 
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool( True ),
     wantSummary = cms.untracked.bool(True)
 )
 
@@ -23,6 +22,10 @@ process.four = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(4), iter
 process.ten = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(10), iterations=cms.uint32(2*1000))
 
 process.adder = cms.EDProducer("AddIntsProducer", labels = cms.vstring('two','ten'))
+
+process.task = cms.Task(process.two, process.four, process.ten, process.adder)
+
+process.path = cms.Path(process.task)
 
 subprocess = cms.Process("SUB")
 process.addSubProcess( cms.SubProcess(
@@ -50,4 +53,3 @@ subprocess.out = cms.OutputModule("PoolOutputModule",
     )
 )
 subprocess.o = cms.EndPath(subprocess.test * subprocess.out)
-

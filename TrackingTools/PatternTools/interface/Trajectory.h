@@ -173,7 +173,7 @@ public:
    */
   TrajectoryMeasurement const & lastMeasurement() const {
     check(); 
-    if (theData.back().recHitR().hit()!=0) return theData.back();
+    if (theData.back().recHitR().hit()!=nullptr) return theData.back();
     else if (theData.size()>2) return *(theData.end()-2);
     else throw cms::Exception("TrajectoryMeasurement::lastMeasurement - Too few measurements in trajectory");
   }
@@ -186,7 +186,7 @@ public:
    */
   TrajectoryMeasurement const & firstMeasurement() const {
     check(); 
-    if (theData.front().recHitR().hit()!=0) return theData.front();
+    if (theData.front().recHitR().hit()!=nullptr) return theData.front();
     else if (theData.size()>2) return *(theData.begin()+1);
     else throw cms::Exception("TrajectoryMeasurement::firstMeasurement - Too few measurements in trajectory");
   }
@@ -308,7 +308,7 @@ public:
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
     check();
-    if (theData.back().recHit()->hit()!=0) return theData.back().layer();
+    if (theData.back().recHit()->hit()!=nullptr) return theData.back().layer();
     else if (theData.size()>2) return (theData.end()-2)->layer();
     else throw cms::Exception("TrajectoryMeasurement::lastMeasurement - Too few measurements in trajectory");
   }

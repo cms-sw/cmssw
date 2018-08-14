@@ -14,13 +14,19 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "cppunit/extensions/HelperMacros.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 using edm::eventsetup::test::DummyData;
 using namespace edm::eventsetup;
 using edm::ESProducer;
 using edm::EventSetupRecordIntervalFinder;
+
+namespace {
+edm::ActivityRegistry activityRegistry;
+}
 
 class testEsproducer: public CppUnit::TestFixture 
 {
@@ -30,6 +36,7 @@ CPPUNIT_TEST(registerTest);
 CPPUNIT_TEST(getFromTest);
 CPPUNIT_TEST(getfromShareTest);
 CPPUNIT_TEST(getfromUniqueTest);
+CPPUNIT_TEST(getfromOptionalTest);
 CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
@@ -45,6 +52,7 @@ public:
   void getFromTest();
   void getfromShareTest();
   void getfromUniqueTest();
+  void getfromOptionalTest();
   void decoratorTest();
   void dependsOnTest();
   void labelTest();
@@ -58,13 +66,27 @@ public:
       data_.value_ = 0;
       setWhatProduced(this);
    }
-   const DummyData* produce(const DummyRecord& /*iRecord*/) {
-      ++data_.value_;
-      return &data_;
+  std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+    ++data_.value_;
+    return std::shared_ptr<DummyData>(&data_,edm::do_nothing_deleter{});
    }
 private:
    DummyData data_;
 };
+
+  class OptionalProducer : public ESProducer {
+  public:
+    OptionalProducer() : ESProducer(), data_() {
+      data_.value_ = 0;
+      setWhatProduced(this);
+    }
+    std::optional<DummyData> produce(const DummyRecord& /*iRecord*/) {
+      ++data_.value_;
+      return data_;
+    }
+  private:
+    DummyData data_;
+  };
 
 class MultiRegisterProducer : public ESProducer {
 public:
@@ -72,8 +94,8 @@ public:
       setWhatProduced(this);
       setWhatProduced(this);
    }
-   const DummyData* produce(const DummyRecord& /*iRecord*/) {
-      return &data_;
+   std::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
+     return std::shared_ptr<DummyData>(&data_, edm::do_nothing_deleter{});
    }
 private:
    DummyData data_;
@@ -109,7 +131,7 @@ private:
 class LabelledProducer : public ESProducer {
 public:
    enum {kFi, kFum};
-   typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
+  typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
    LabelledProducer(): ptr_(new DummyData), fi_(new DummyData){
       ptr_->value_ = 0;
       fi_->value_=0;
@@ -127,7 +149,7 @@ public:
       using namespace edm;
       ++fi_->value_;
 
-      L<DummyData,kFum> fum( new DummyData);
+      L<DummyData,kFum> fum( std::make_shared<DummyData>());
       fum->value_ = fi_->value_;
       
       return edm::es::products(fum, es::l<kFi>(fi_) );
@@ -157,7 +179,7 @@ void testEsproducer::registerTest()
 
 void testEsproducer::getFromTest()
 {
-   EventSetupProvider provider;
+  EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<Test1Producer>();
    provider.add(pProxyProv);
@@ -178,7 +200,7 @@ void testEsproducer::getFromTest()
 
 void testEsproducer::getfromShareTest()
 {
-   EventSetupProvider provider;
+  EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<ShareProducer>();
    provider.add(pProxyProv);
@@ -199,7 +221,7 @@ void testEsproducer::getfromShareTest()
 
 void testEsproducer::getfromUniqueTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<UniqueProducer>();
    provider.add(pProxyProv);
@@ -218,10 +240,31 @@ void testEsproducer::getfromUniqueTest()
    }
 }
 
+void testEsproducer::getfromOptionalTest()
+{
+  EventSetupProvider provider(&activityRegistry);
+  
+  std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<OptionalProducer>();
+  provider.add(pProxyProv);
+  
+  std::shared_ptr<DummyFinder> pFinder = std::make_shared<DummyFinder>();
+  provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+  
+  for(int iTime=1; iTime != 6; ++iTime) {
+    const edm::Timestamp time(iTime);
+    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
+    const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
+    edm::ESHandle<DummyData> pDummy;
+    eventSetup.get<DummyRecord>().get(pDummy);
+    CPPUNIT_ASSERT(0 != pDummy.product());
+    CPPUNIT_ASSERT(iTime == pDummy->value_);
+  }
+}
+
 void testEsproducer::labelTest()
 {
    try {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<LabelledProducer>();
    provider.add(pProxyProv);
@@ -284,7 +327,7 @@ private:
 
 void testEsproducer::decoratorTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DecoratorProducer>();
    provider.add(pProxyProv);
@@ -335,7 +378,7 @@ private:
 
 void testEsproducer::dependsOnTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<DepProducer>();
    provider.add(pProxyProv);
@@ -362,7 +405,7 @@ void testEsproducer::failMultipleRegistration()
 
 void testEsproducer::forceCacheClearTest()
 {
-   EventSetupProvider provider;
+   EventSetupProvider provider(&activityRegistry);
    
    std::shared_ptr<DataProxyProvider> pProxyProv = std::make_shared<Test1Producer>();
    provider.add(pProxyProv);

@@ -28,9 +28,7 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient( const edm::ParameterSet& ps ) {
 
 }
 
-DQMFEDIntegrityClient::~DQMFEDIntegrityClient() {
-
-}
+DQMFEDIntegrityClient::~DQMFEDIntegrityClient() = default;
 
 
 void DQMFEDIntegrityClient::initialize() {
@@ -51,7 +49,7 @@ void DQMFEDIntegrityClient::beginJob() {
 
   // ----------------------------------------------------------------------------------
   std::string currentFolder = moduleName + "/" + fedFolderName ;
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   FedEntries  = dbe_->book1D("FedEntries",  "FED Entries",          NBINS, XMIN, XMAX);
   FedFatal    = dbe_->book1D("FedFatal",    "FED Fatal Errors",     NBINS, XMIN, XMAX);
@@ -103,7 +101,7 @@ void DQMFEDIntegrityClient::beginJob() {
 
   //-----------------------------------------------------------------------------------
   currentFolder = moduleName + "/EventInfo";
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   reportSummary = dbe_->bookFloat("reportSummary");
 
@@ -112,7 +110,7 @@ void DQMFEDIntegrityClient::beginJob() {
   if(reportSummary) reportSummary->Fill(1.);
 
   currentFolder = moduleName + "/EventInfo/reportSummaryContents";
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   reportSummaryContent[0]  = dbe_->bookFloat("CSC FEDs");
   reportSummaryContent[1]  = dbe_->bookFloat("DT FEDs");
@@ -132,7 +130,7 @@ void DQMFEDIntegrityClient::beginJob() {
   }
 
   currentFolder = moduleName + "/EventInfo";
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   reportSummaryMap = dbe_->book2D("reportSummaryMap",
                       "FED Report Summary Map", 1, 1, 2, 10, 1, 11);
@@ -166,7 +164,7 @@ void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock&  lumi
   if (fillOnEndLumi) fillHistograms();
 }
 
-void DQMFEDIntegrityClient::fillHistograms(void){
+void DQMFEDIntegrityClient::fillHistograms(){
   // FED Entries
   
   // dbe_->showDirStructure();
@@ -183,7 +181,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   entries.push_back("RPC/" + fedFolderName + "/FEDEntries");
   entries.push_back("SiStrip/" + fedFolderName + "/FEDEntries");
 
-  for(std::vector<std::string>::const_iterator ent = entries.begin();
+  for(auto ent = entries.begin();
                                       ent != entries.end(); ++ent) {
 
     if( !(dbe_->get(*ent)) ) {
@@ -233,8 +231,8 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   float sum = 0.;
 
-  std::vector<std::string>::const_iterator ent = entries.begin();
-  for(std::vector<std::string>::const_iterator fat = fatal.begin(); 
+  auto ent = entries.begin();
+  for(auto fat = fatal.begin(); 
                                       fat != fatal.end(); ++fat) {
 
     if( !(dbe_->get(*fat)) ) {
@@ -312,7 +310,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   nonfatal.push_back("RPC/" + fedFolderName + "/FEDNonFatal");
   nonfatal.push_back("SiStrip/" + fedFolderName + "/FEDNonFatal");
 
-  for(std::vector<std::string>::const_iterator non = nonfatal.begin(); 
+  for(auto non = nonfatal.begin(); 
                                       non != nonfatal.end(); ++non) {
 
     if( !(dbe_->get(*non)) ) {

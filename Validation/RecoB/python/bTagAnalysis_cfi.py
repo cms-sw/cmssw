@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.RecoB.bTagCommon_cff import *
 
-bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+bTagValidation = DQMEDAnalyzer('BTagPerformanceAnalyzerMC',
                                 bTagCommonBlock,
                                 applyPtHatWeight = cms.bool(False),
                                 jetCorrection = cms.string(''),
@@ -20,7 +22,7 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
                                 )
 
 
-bTagHarvestMC = cms.EDAnalyzer("BTagPerformanceHarvester",
+bTagHarvestMC = DQMEDHarvester("BTagPerformanceHarvester",
                                bTagCommonBlock,
                                produceEps = cms.bool(False),
                                producePs = cms.bool(False),

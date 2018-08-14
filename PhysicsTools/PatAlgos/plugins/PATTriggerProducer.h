@@ -60,13 +60,13 @@ namespace pat {
     public:
 
       explicit PATTriggerProducer( const edm::ParameterSet & iConfig );
-      ~PATTriggerProducer() {};
+      ~PATTriggerProducer() override {};
 
     private:
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup& iSetup) override;
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup& iSetup) override;
+      void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       std::string nameProcess_;     // configuration
       bool        autoProcessName_;
@@ -120,6 +120,7 @@ namespace pat {
       bool                       addPathModuleLabels_;  // configuration (optional with default)
       std::vector< std::string > exludeCollections_;    // configuration (optional)
       bool                      packPathNames_;         // configuration (optional width default)
+      bool                      packLabels_;         // configuration (optional width default)
       bool                      packPrescales_;         // configuration (optional width default)
 
       class ModuleLabelToPathAndFlags {

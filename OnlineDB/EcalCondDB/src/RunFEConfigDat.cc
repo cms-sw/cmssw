@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 RunFEConfigDat::RunFEConfigDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_config = 0;
 
@@ -39,7 +39,7 @@ void RunFEConfigDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":Config_id ) ");
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunFEConfigDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunFEConfigDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -65,7 +65,7 @@ void RunFEConfigDat::writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunFEConfigDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunFEConfigDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -102,12 +102,12 @@ void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunI
     std::pair< EcalLogicID, RunFEConfigDat > p;
     RunFEConfigDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setConfigId( rset->getInt(7) );
  
@@ -117,7 +117,7 @@ void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunI
     //    terminateReadStatement();
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunFEConfigDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunFEConfigDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 

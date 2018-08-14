@@ -39,16 +39,12 @@ namespace edm {
 class ErrorObj;
 namespace service {       
 
-class ELdestControl;
-
 
 // ----------------------------------------------------------------------
 // ELoutput:
 // ----------------------------------------------------------------------
 
 class ELoutput : public ELdestination  {
-
-  friend class ELdestControl;
 
 public:
 
@@ -58,53 +54,45 @@ public:
   ELoutput( std::ostream & os, bool emitAtStart = false );	// 6/11/07 mf
   ELoutput( const ELstring & fileName, bool emitAtStart = false );
   ELoutput( const ELoutput & orig );
-  virtual ~ELoutput();
+  ~ELoutput() override;
 
   // ---  Methods invoked by the ELadministrator:
   //
 public:
-  virtual
-  ELoutput *
-  clone() const;
-  // Used by attach() to put the destination on the ELadministrators list
-                //-| There is a note in Design Notes about semantics
-                //-| of copying a destination onto the list:  ofstream
-                //-| ownership is passed to the new copy.
+  bool log( const edm::ErrorObj & msg ) override;
 
-  virtual bool log( const edm::ErrorObj & msg );
-
-  // ---  Methods invoked through the ELdestControl handle:
-  //
 protected:
     // trivial clearSummary(), wipe(), zero() from base class
     // trivial three summary(..) from base class
 
-  // ---  Data affected by methods of specific ELdestControl handle:
-  //
 protected:
-    // ELoutput uses the generic ELdestControl handle
-
   // ---  Internal Methods -- Users should not invoke these:
   //
 protected:
-  virtual void emitToken( const ELstring & s, bool nl=false );
+  void emitToken( const ELstring & s, bool nl=false ) ;
 
-  virtual void suppressTime();        virtual void includeTime();
-  virtual void suppressModule();      virtual void includeModule();
-  virtual void suppressSubroutine();  virtual void includeSubroutine();
-  virtual void suppressText();        virtual void includeText();
-  virtual void suppressContext();     virtual void includeContext();
-  virtual void suppressSerial();      virtual void includeSerial();
-  virtual void useFullContext();      virtual void useContext();
-  virtual void separateTime();        virtual void attachTime();
-  virtual void separateEpilogue();    virtual void attachEpilogue();
+  void suppressTime() override;
+  void includeTime() override;
+  void suppressModule()override;
+  void includeModule() override;
+  void suppressSubroutine() override;
+  void includeSubroutine() override;
+  void suppressText() override;
+  void includeText() override;
+  void suppressContext() override;
+  void includeContext() override;
+  void suppressSerial() override;
+  void includeSerial() override;
+  void useFullContext() override;
+  void useContext() override;
+  void separateTime() override;
+  void attachTime() override;
+  void separateEpilogue() override;
+  void attachEpilogue() override;
 
-  virtual void summarization ( const ELstring & fullTitle
-                             , const ELstring & sumLines );
-			     
-  virtual void changeFile (std::ostream & os);
-  virtual void changeFile (const ELstring & filename);
-  virtual void flush(); 				       
+  void changeFile (std::ostream & os) override;
+  void changeFile (const ELstring & filename) override;
+  void flush() override;
 
 
 protected:
@@ -128,7 +116,7 @@ protected:
 
   // --- Verboten method:
   //
-  ELoutput & operator=( const ELoutput & orig );
+  ELoutput & operator=( const ELoutput & orig ) = delete;
 
 };  // ELoutput
 

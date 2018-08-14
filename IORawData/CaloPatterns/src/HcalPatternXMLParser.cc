@@ -14,10 +14,10 @@ public:
 };
 
 HcalPatternXMLParser::HcalPatternXMLParser() {
-  m_parser=0;
+  m_parser=nullptr;
 }
 HcalPatternXMLParser::~HcalPatternXMLParser() {
-  if (m_parser!=0) delete m_parser;
+  if (m_parser!=nullptr) delete m_parser;
 }
 
   /*
@@ -56,7 +56,7 @@ HcalPatternXMLParser::~HcalPatternXMLParser() {
       m_items.clear();
       m_parameters.clear();
     }
-    virtual ~ConfigurationDBHandler() {
+    ~ConfigurationDBHandler() override {
       XMLString::release(&xc_Parameter);
       XMLString::release(&xc_Data);
       XMLString::release(&xc_name);
@@ -64,13 +64,13 @@ HcalPatternXMLParser::~HcalPatternXMLParser() {
       XMLString::release(&xc_elements);
       XMLString::release(&xc_encoding);
     }
-    virtual void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
-    virtual void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
-    virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
-    virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
+    void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
+    void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
+    void characters (const XMLCh *const chars, const XMLSize_t length) override;
+    void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
   private:
     inline bool cvt2String(const XMLCh* val, std::string& ou) {
-      if (val==0) return false;
+      if (val==nullptr) return false;
       char* tool=XMLString::transcode(val);
       ou=tool;
       XMLString::release(&tool);
@@ -151,7 +151,7 @@ void HcalPatternXMLParser::parse(const std::string& xmlDocument, std::map<std::s
     ConfigurationDBHandler handler(parameters,items,encoding);
     
     try {
-      if (m_parser==0) {
+      if (m_parser==nullptr) {
 	m_parser=new HcalPatternXMLParserImpl();
 	m_parser->parser=std::auto_ptr<xercesc::SAX2XMLReader>(xercesc::XMLReaderFactory::createXMLReader());
       }
@@ -175,6 +175,6 @@ void HcalPatternXMLParser::parse(const std::string& xmlDocument, std::map<std::s
 
   data.clear();
   for (std::vector<std::string>::const_iterator i=items.begin(); i!=items.end(); i++)
-    data.push_back(strtol(i->c_str(),0,formatting));
+    data.push_back(strtol(i->c_str(),nullptr,formatting));
 
 }

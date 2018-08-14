@@ -11,7 +11,6 @@
 #include "DataFormats/DTDigi/interface/DTDDUWords.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
-#include "DataFormats/FEDRawData/src/fed_trailer.h"
 
 #include <vector>
 
@@ -115,8 +114,8 @@ public:
  {}
 
  DTDDUData():
-   theDDUHeader(0),
-   theDDUTrailer(0),
+   theDDUHeader(nullptr),
+   theDDUTrailer(nullptr),
    crcErrorBitSet(false)
  {}
 
@@ -133,11 +132,8 @@ public:
    theDDUStatusWord = word;
  }
  inline void checkCRCBit(const unsigned char* trailer) {
-   const fedt_struct* theTrailer(reinterpret_cast<const fedt_t*>(trailer));
-   if(((theTrailer->conscheck & 0x00000004) >> 2) == 1) {
-     crcErrorBitSet = true;
-   }
-   crcErrorBitSet = false;
+   const FEDTrailer fedTrailer(trailer);
+   crcErrorBitSet = fedTrailer.crcModified();
  }
 
  /// Getters

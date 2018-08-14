@@ -13,31 +13,33 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "CoralBase/Exception.h"
 
 class HGCalGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryTester(const edm::ParameterSet& );
-  ~HGCalGeometryTester();
+  ~HGCalGeometryTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
   
 private:
-  void doTest(const HGCalGeometry& geom, ForwardSubdetector subdet);
+  void doTest(const HGCalGeometry* geom, ForwardSubdetector subdet);
+  void doTestWafer(const HGCalGeometry* geom, DetId::Detector det);
+  void doTestScint(const HGCalGeometry* geom, DetId::Detector det);
   
   std::string    name;
-  bool           squareCell;
 };
 
 HGCalGeometryTester::HGCalGeometryTester(const edm::ParameterSet& iC) {
   name       = iC.getParameter<std::string>("Detector");
-  squareCell = iC.getParameter<bool>("SquareCell");
 }
 
 
@@ -46,104 +48,185 @@ HGCalGeometryTester::~HGCalGeometryTester() {}
 void HGCalGeometryTester::analyze(const edm::Event& , 
 				  const edm::EventSetup& iSetup ) {
 
-  ForwardSubdetector subdet;
-  if      (name == "HGCalHESiliconSensitive")      subdet = HGCHEF;
-  else if (name == "HGCalHEScintillatorSensitive") subdet = HGCHEB;
-  else                                             subdet = HGCEE;
-
-  edm::ESHandle<HGCalGeometry> geom;
-  iSetup.get<IdealGeometryRecord>().get(name,geom);
-
-  if (geom.isValid()) doTest(*geom, subdet);
-  else                std::cout << "Cannot get valid HGCalGeometry Object for "
-				<< name << std::endl;
+  edm::ESHandle<HGCalGeometry> geomH;
+  iSetup.get<IdealGeometryRecord>().get(name,geomH);
+  const HGCalGeometry* geom = (geomH.product());
+  if (!geomH.isValid()) {
+    std::cout << "Cannot get valid HGCalGeometry Object for " << name 
+	      << std::endl;
+  } else {
+    HGCalGeometryMode::GeometryMode mode = geom->topology().dddConstants().geomMode();
+    if ((mode == HGCalGeometryMode::Hexagon) ||
+	(mode == HGCalGeometryMode::HexagonFull)) {
+      ForwardSubdetector subdet;
+      if      (name == "HGCalHESiliconSensitive")      subdet = HGCHEF;
+      else if (name == "HGCalHEScintillatorSensitive") subdet = HGCHEB;
+      else                                             subdet = HGCEE;
+      std::cout << "Perform test for " << name << " Detector:Subdetector "
+		<< DetId::Forward << ":" << subdet << std::endl;
+      doTest(geom, subdet);
+    } else {
+      DetId::Detector det;
+      if      (name == "HGCalHESiliconSensitive")      det = DetId::HGCalHSi;
+      else if (name == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSc;
+      else                                             det = DetId::HGCalEE;
+      std::cout << "Perform test for " << name << " Detector " << det
+		<< std::endl;
+      if (name == "HGCalHEScintillatorSensitive") {
+	doTestScint(geom, det);
+      } else {
+	doTestWafer(geom,det);
+      }
+    }
+  }
 }
 
-void HGCalGeometryTester::doTest(const HGCalGeometry& geom, 
+void HGCalGeometryTester::doTest(const HGCalGeometry* geom, 
 				 ForwardSubdetector subdet) {
   
-  const std::vector<DetId>& ids = geom.getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << geom.cellElement() 
-	    << std::endl;
+  const std::vector<DetId>& ids = geom->getValidDetIds();
+  std::cout << "doTest: " << ids.size() << " valid ids for " 
+	    << geom->cellElement() << std::endl;
 
-  int sectors[]= {1, 7, 13};
   int layers[] = {1, 5, 10};
   int zsides[] = {1, -1};
   int cells[]  = {1, 51, 101};
   int wafers[] = {1, 101, 201, 301, 401};
-  int ismax    = (squareCell) ? 3 : 5;
-  for (int iz = 0; iz < 2; ++iz) {
-    int zside = zsides[iz];
+  const int ismax(5);
+  for (int zside : zsides) {
     for (int is = 0; is < ismax; ++is) {
-      int sector = (squareCell) ? sectors[is] : wafers[is];
-      int type   = (squareCell) ? 0 : geom.topology().dddConstants().waferTypeT(sector);
+      int sector = wafers[is];
+      int type   = geom->topology().dddConstants().waferTypeT(sector);
       if (type != 1) type = 0;
-      for (int il = 0; il < 3; ++il) {
-	int layer = layers[il];
-	for (int ic = 0; ic < 3; ++ic) {
-	  int cell = cells[ic];
+      for (int layer : layers) {
+	for (int cell : cells) {
 	  DetId id1;
-	  if (squareCell) {
-	    id1 = ((subdet == HGCEE) ? 
-		   (DetId)(HGCEEDetId(subdet,zside,layer,sector,type,cell)) :
-		   (DetId)(HGCHEDetId(subdet,zside,layer,sector,type,cell)));
-	  } else {
-	    id1 = (DetId)(HGCalDetId(subdet,zside,layer,type,sector,cell));
-	  }
-	  if (geom.topology().valid(id1)) {
-	    const CaloCellGeometry* icell1 = geom.getGeometry(id1);
-	    GlobalPoint global1 = geom.getPosition(id1);
-	    DetId       idc1    = geom.getClosestCell(global1);
+	  id1 = (DetId)(HGCalDetId(subdet,zside,layer,type,sector,cell));
+	  if (geom->topology().valid(id1)) {
+	    auto        icell1  = geom->getGeometry(id1);
+	    GlobalPoint global1 = geom->getPosition(id1);
+	    DetId       idc1    = geom->getClosestCell(global1);
 	    std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
 		      << ":" << sector << ":0:" << cell << ") Geom " << icell1
 		      << " position (" << global1.x() << ", " << global1.y()
 		      << ", " << global1.z() << ") ids " << std::hex 
-		      << id1.rawId() << ":" << idc1.rawId() << std::dec;
-	    if (squareCell) {
-	      if (subdet == HGCEE)
-		std::cout << ":" << HGCEEDetId(id1) << ":" << HGCEEDetId(idc1);
-	      else
-		std::cout << ":" << HGCHEDetId(id1) << ":" << HGCHEDetId(idc1);
-	    } else {
-	      std::cout << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1);
-	    }
-	    std::cout << " parameter[11] = " << icell1->param()[10] << ":"
-		      << icell1->param()[11] << std::endl;
-	    if (id1.rawId() != idc1.rawId()) std::cout <<"***** ERROR *****\n";
-	    if (squareCell) {
-	      DetId id2= ((subdet == HGCEE) ? 
-			  (DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
-			  (DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
-	      
-	      const CaloCellGeometry* icell2 = geom.getGeometry(id2);
-	      GlobalPoint global2 = geom.getPosition(id2);
-	      DetId       idc2    = geom.getClosestCell(global2);
-	      std::cout << "DetId (" << subdet << ":" << zside << ":" << layer
-			<< ":" << sector << ":1:" << cell << ") Geom " << icell2
-			<< " position (" << global2.x() << ", " << global2.y()
-			<< ", " << global2.z() << ") ids " << std::hex 
-			<< id2.rawId() << ":" << idc2.rawId() << std::dec 
-			<< " parameter[11] = " << icell2->param()[10] << ":"
-			<< icell2->param()[11] << std::endl;
-	      if (id2.rawId() != idc2.rawId()) std::cout << "***** ERROR *****\n";
+		      << id1.rawId() << ":" << idc1.rawId() << std::dec
+		      << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1)
+ 		      << " parameter[3] = " << icell1->param()[2] << ":"
+		      << icell1->param()[2];
+	    if (id1.rawId() != idc1.rawId()) 
+	      std::cout << "***** ERROR *****" << std::endl;
+	    else
+	      std::cout << std::endl;
+	    std::vector<GlobalPoint> corners = geom->getCorners(idc1);
+	    std::cout << corners.size() << " corners";
+	    for (auto const & cor : corners)
+	      std::cout << " [" << cor.x() << "," << cor.y() << "," << cor.z()
+			<< "]";
+	    std::cout << std::endl;
+	  }
+	}
+      }
+    }
+  }
+}
+
+void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom, 
+				      DetId::Detector det) {
+  
+  const std::vector<DetId>& ids = geom->getValidDetIds();
+  std::cout << "doTestWafer:: " << ids.size() << " valid ids for " 
+	    << geom->cellElement() << std::endl;
+  int layers[] = {1, 5, 10};
+  int zsides[] = {1, -1};
+  int cells[]  = {1, 4, 7};
+  int wafers[] = {7, 5, 3,-3, -5, -7};
+  for (int zside : zsides) {
+    for (int layer : layers) {
+      for (int waferU : wafers) {
+	for (int waferV : wafers) {
+	  int type = geom->topology().dddConstants().getTypeHex(layer,waferU,waferV);
+	  std::cout << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type << std::endl;
+	  for (int cellU : cells) {
+	    for (int cellV : cells) {
+	      std::cout << "det " << det << " cell " << cellU << ":" << cellV << std::endl;
+	      DetId id1 = (DetId)(HGCSiliconDetId(det,zside,type,layer,waferU,waferV,cellU,cellV));
+	      std::cout << HGCSiliconDetId(id1) << std::endl;
+	      if (geom->topology().valid(id1)) {
+		auto        icell1  = geom->getGeometry(id1);
+		GlobalPoint global1 = geom->getPosition(id1);
+		DetId       idc1    = geom->getClosestCell(global1);
+		std::cout << "DetId (" << det << ":" << zside << ":" 
+			  << type << ":" << layer << ":" << waferU << ":"
+			  << waferV << ":" << cellU << ":" << cellV 
+			  << ") Geom " << icell1 << " position (" 
+			  << global1.x() << ", " << global1.y()
+			  << ", " << global1.z() << ") ids " << std::hex 
+			  << id1.rawId() << ":" << idc1.rawId() << std::dec
+			  << ":" << HGCSiliconDetId(id1) << ":" 
+			  << HGCSiliconDetId(idc1) << " parameter[3] = " 
+			  << icell1->param()[2] << ":" << icell1->param()[2];
+		if (id1.rawId() != idc1.rawId()) 
+		  std::cout << "***** ERROR *****" << std::endl;
+		else
+		  std::cout << std::endl;
+		std::vector<GlobalPoint> corners = geom->getCorners(idc1);
+		std::cout << corners.size() << " corners";
+		for (auto const & cor : corners)
+		  std::cout << " [" << cor.x() << "," << cor.y() << "," 
+			    << cor.z() << "]";
+		std::cout << std::endl;
+	      }
 	    }
 	  }
 	}
       }
     }
   }
-  if (squareCell) {
-    uint32_t probids[] = {1711603886, 1711603890, 1761408735, 1761411303,
-			  1801744385, 1805447194};
-    for (int k=0; k<6; ++k) {
-      DetId id(probids[k]);
-      if (id.det() == DetId::Forward && id.subdetId() == (int)(subdet)) {
-	if (subdet == HGCEE) std::cout << "Test " << HGCEEDetId(id) << std::endl;
-	else                 std::cout << "Test " << HGCHEDetId(id) << std::endl;
-	const CaloCellGeometry* icell  = geom.getGeometry(id);
-	GlobalPoint             global = geom.getPosition(id);
-	std::cout << "Geom Cell: " << icell << " position (" << global.x() 
-		  << ", " << global.y() << ", " << global.z() << ")"<< std::endl;
+}
+ 
+void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, 
+				      DetId::Detector det) {
+  
+  const std::vector<DetId>& ids = geom->getValidDetIds();
+  std::cout << "doTestScint: " << ids.size() << " valid ids for " 
+	    << geom->cellElement() << std::endl;
+  int layers[] = {9, 15, 22};
+  int zsides[] = {1, -1};
+  int iphis[]  = {1, 51, 101, 151, 201};
+  int ietas[]  = {11, 20, 29};
+  for (int zside : zsides) {
+    for (int layer : layers) {
+      int type = geom->topology().dddConstants().getTypeTrap(layer);
+      for (int ieta : ietas) {
+	for (int iphi : iphis) {
+	  DetId id1 = (DetId)(HGCScintillatorDetId(type,layer,zside*ieta,iphi));
+	  if (geom->topology().valid(id1)) {
+	    auto        icell1  = geom->getGeometry(id1);
+	    GlobalPoint global1 = geom->getPosition(id1);
+	    DetId       idc1    = geom->getClosestCell(global1);
+	    std::cout << "DetId (" << det << ":" << zside << ":" << type 
+		      << ":" << layer << ":" << ieta << ":" << iphi
+		      << ") Geom " << icell1 << " position (" << global1.x() 
+		      << ", " << global1.y() << ", " << global1.z() 
+		      << ") ids " << std::hex  << id1.rawId() << ":" 
+		      << idc1.rawId() << std::dec << ":" 
+		      << HGCScintillatorDetId(id1) << ":" 
+		      << HGCScintillatorDetId(idc1)
+		      << " parameter[11] = " << icell1->param()[10] << ":"
+		      << icell1->param()[10];
+	    if (id1.rawId() != idc1.rawId()) 
+	      std::cout << "***** ERROR *****" << std::endl;
+	    else
+	      std::cout << std::endl;
+	    std::vector<GlobalPoint> corners = geom->getCorners(idc1);
+	    std::cout << corners.size() << " corners";
+	    for (auto const & cor : corners)
+	      std::cout << " [" << cor.x() << "," << cor.y() << "," 
+			<< cor.z() << "]";
+	    std::cout << std::endl;
+	  }
+	}
       }
     }
   }

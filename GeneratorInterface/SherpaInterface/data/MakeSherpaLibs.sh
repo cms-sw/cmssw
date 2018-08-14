@@ -641,8 +641,8 @@ fi
 ## data cards
 FILES=`ls *.md5 *.dat *slha.out 2> /dev/null`
 if [ "${lbo}" == "LIBS" ]; then
-  tar -czf ${crdcfile} ${FILES}
-  mv ${crdcfile} ${shrun}/
+  tar -czf ${crdefile} ${FILES}
+  mv ${crdefile} ${shrun}/
 elif [ "${lbo}" == "LBCR" ]; then
   if [ "${FLGAMISIC}" == "TRUE" ]; then
     sed -e 's:MI_HANDLER.*:MI_HANDLER   = Amisic:' < Run.dat > Run.dat.tmp

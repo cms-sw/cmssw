@@ -108,7 +108,7 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 		if(!noHF || subdet !=HcalForward)
 		  signInputVec.push_back(temp);
 		
-		wasused=1;
+		wasused=true;
 		hadIsDone = true;
 	      }
 	    else if( !emIsDone && id.det() == DetId::Ecal )
@@ -133,7 +133,7 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 		}
 		metsig::SigInputObj temp(sign_tower_type,sign_tower_et,sign_tower_phi,sign_tower_sigma_et,sign_tower_sigma_phi);
 		signInputVec.push_back(temp);
-		wasused=1;
+		wasused=true;
 		emIsDone = true;
 	      }
 	  }

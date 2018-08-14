@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigFgrEEStripDat::FEConfigFgrEEStripDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_thresh = 0;
   m_lut_fg = 0;
@@ -40,7 +40,7 @@ void FEConfigFgrEEStripDat::prepareWrite()
 		      "VALUES (:fgr_conf_id, :logic_id, "
 		      ":threshold, :lut_fg )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrEEStripDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrEEStripDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -66,7 +66,7 @@ void FEConfigFgrEEStripDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrEE
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrEEStripDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrEEStripDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -98,12 +98,12 @@ void FEConfigFgrEEStripDat::fetchData(map< EcalLogicID, FEConfigFgrEEStripDat >*
     std::pair< EcalLogicID, FEConfigFgrEEStripDat > p;
     FEConfigFgrEEStripDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setThreshold( rset->getUInt(7) );  
       dat.setLutFg( rset->getUInt(8) );  
@@ -112,7 +112,7 @@ void FEConfigFgrEEStripDat::fetchData(map< EcalLogicID, FEConfigFgrEEStripDat >*
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrEEStripDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrEEStripDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
@@ -188,6 +188,6 @@ void FEConfigFgrEEStripDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigFgrEEStripDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigFgrEEStripDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

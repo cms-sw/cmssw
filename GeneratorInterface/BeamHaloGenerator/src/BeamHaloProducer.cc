@@ -1,5 +1,5 @@
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -57,7 +57,7 @@ BeamHaloProducer::~BeamHaloProducer() {
 
 
 BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
-  evt(0),
+  evt(nullptr),
   isInitialized_(false)
 {
 
@@ -85,7 +85,7 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-  produces<GenRunInfoProduct, InRun>();
+  produces<GenRunInfoProduct, Transition::EndRun>();
 
   usesResource("BeamHaloProducer");
 

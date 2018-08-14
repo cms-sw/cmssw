@@ -7,3 +7,7 @@
 <library   file="PreIdAnalyzer.cc" name="PreIdAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+  <bin file="test_catch2_*.cc" name="TestRecoParticleFlowPFTrackingTP">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>

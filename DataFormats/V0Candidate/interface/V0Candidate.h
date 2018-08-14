@@ -19,8 +19,7 @@ namespace reco{
     const Vertex::CovarianceMatrix vtxCovariance() { 
       return recoVertex.covariance(); 
     }
-
-    void setVertex( const Vertex & vtxIn );
+    void setRecoVertex( const Vertex & vtxIn );
     //    virtual int pdgId() const { return PDGid; }
     //    void setPdgId( const int & Id ) { PDGid = Id; }
   private:

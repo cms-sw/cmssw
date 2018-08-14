@@ -10,6 +10,7 @@
 #include <atomic>
 #endif
 #include <iosfwd>
+#include <array>
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -104,12 +105,12 @@ namespace reco {
     PFCandidate( const PFCandidate&);
 
     /// destructor
-    virtual ~PFCandidate();
+    ~PFCandidate() override;
 
     PFCandidate& operator=(PFCandidate const&);
 
     /// return a clone
-    virtual PFCandidate * clone() const;
+    PFCandidate * clone() const override;
 
 
     /*    /// set source ref */
@@ -124,11 +125,11 @@ namespace reco {
     using reco::Candidate::setSourceCandidatePtr;
     void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
 
-    size_t numberOfSourceCandidatePtrs() const { 
+    size_t numberOfSourceCandidatePtrs() const override { 
       return 1;
     }
     
-    CandidatePtr sourceCandidatePtr( size_type i ) const {
+    CandidatePtr sourceCandidatePtr( size_type i ) const override {
       return sourcePtr_;
     }
 
@@ -158,7 +159,7 @@ namespace reco {
 
     /// return a pointer to the best track, if available.
     /// otherwise, return a null pointer
-    virtual const reco::Track * bestTrack() const {
+    const reco::Track * bestTrack() const override {
       if ( (abs(pdgId()) == 11 || pdgId() == 22) && gsfTrackRef().isNonnull() && gsfTrackRef().isAvailable() )
         return &(*gsfTrackRef());
       else if ( trackRef().isNonnull() && trackRef().isAvailable() )
@@ -167,9 +168,9 @@ namespace reco {
         return nullptr;
     }
     /// uncertainty on dz 
-    virtual float dzError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
+    float dzError() const override { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dzError(); else return 0; }
     /// uncertainty on dxy
-    virtual float dxyError() const { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
+    float dxyError() const override { const Track * tr=bestTrack(); if(tr!=nullptr) return tr->dxyError(); else return 0; }
 
     /// set gsftrack reference 
     void setGsfTrackRef(const reco::GsfTrackRef& ref);   
@@ -405,14 +406,14 @@ namespace reco {
     // and modify the vertex() method accordingly.
     void setVertexSource( PFVertexType vt) { vertexType_=vt; if (vertexType_!=kCandVertex) LeafCandidate::setVertex(Point(0.,0.,0.));}
 
-    virtual void setVertex( const math::XYZPoint& p) {
+    void setVertex( const math::XYZPoint& p) override {
       LeafCandidate::setVertex(p); vertexType_ = kCandVertex;
     }
 
-    virtual const Point & vertex() const;
-    virtual double vx() const {return vertex().x();}
-    virtual double vy() const {return vertex().y();}
-    virtual double vz() const {return vertex().z();}
+    const Point & vertex() const override;
+    double vx() const override {return vertex().x();}
+    double vy() const override {return vertex().y();}
+    double vz() const override {return vertex().z();}
 
     /// do we have a valid time information
     bool isTimeValid() const { return timeError_ >= 0.f; }
@@ -423,9 +424,15 @@ namespace reco {
     /// \set the timing information
     void setTime(float time, float timeError = 0.f) { time_ = time; timeError_ = timeError; }
 
+    /// fraction of hcal energy at a given depth  (depth = 1 .. 7)
+    float hcalDepthEnergyFraction(unsigned int depth) const { return hcalDepthEnergyFractions_[depth-1]; }
+    /// fraction of hcal energy at a given depth (index 0..6 for depth 1..7)
+    const std::array<float,7> & hcalDepthEnergyFractions() const { return hcalDepthEnergyFractions_; }
+    /// set the fraction of hcal energy as function of depth (index 0..6 for depth 1..7)
+    void setHcalDepthEnergyFractions(const std::array<float,7> & fracs) { hcalDepthEnergyFractions_ = fracs; }
   private:
     /// Polymorphic overlap
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
 
     void setFlag(unsigned shift, unsigned flag, bool value);
 
@@ -523,6 +530,8 @@ namespace reco {
     float time_;
     /// timing information uncertainty (<0 if timing not available)
     float timeError_;
+
+    std::array<float,7> hcalDepthEnergyFractions_;
 
   };
 

@@ -1,12 +1,21 @@
 #include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include <iostream>
+
+//#define EDM_ML_DEBUG
 
 namespace spr {
 
   // Cone clustering core
-  double getDistInPlaneTrackDir(const GlobalPoint&  caloPoint, const GlobalVector& caloVector, const GlobalPoint& rechitPoint, bool debug) {
+  double getDistInPlaneTrackDir(const GlobalPoint& caloPoint, 
+				const GlobalVector& caloVector,
+				const GlobalPoint& rechitPoint, bool
+#ifdef EDM_ML_DEBUG
+				debug
+#endif
+				) {
   
     const GlobalVector caloIntersectVector(caloPoint.x(), 
 					   caloPoint.y(), 
@@ -25,12 +34,14 @@ namespace spr {
 					   effectiveRechitVector.y(),
 					   effectiveRechitVector.z());
     GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "getDistInPlaneTrackDir: point " << caloPoint << " dirn "
 		<< caloVector << " numerator " << dotprod_numerator
 		<< " denominator " << dotprod_denominator << " distance "
 		<< distance_vector.mag() << std::endl;
     }
+#endif
     if (dotprod_denominator > 0. && dotprod_numerator > 0.) {
       return distance_vector.mag();
     } else {
@@ -39,8 +50,11 @@ namespace spr {
   }
 
   // Not used, but here for reference
-  double getDistInCMatEcal(double eta1, double phi1, double eta2, double phi2,
-			   bool debug) {
+  double getDistInCMatEcal(double eta1, double phi1, double eta2, double phi2, bool
+#ifdef EDM_ML_DEBUG
+			   debug
+#endif
+			   ) {
 
     double dR, Rec;
     if (fabs(eta1)<spr::etaBEEcal) Rec=spr::rFrontEB;
@@ -53,16 +67,21 @@ namespace spr {
     double z=cos(phi1-phi2)/ce1/ce2+te1*te2;
     if(z!=0) dR=fabs(Rec*ce1*sqrt(1./z/z-1.));
     else     dR=999999.;
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "getDistInCMatEcal: between (" << eta1 << ", "
 			 << phi1 << ") and (" << eta2 << ", " << phi2 << " is "
 			 << dR << std::endl;
+#endif
     return dR;
   }
 
 
   // Not used, but here for reference
-  double getDistInCMatHcal(double eta1, double phi1, double eta2, double phi2,
-			   bool debug) {
+  double getDistInCMatHcal(double eta1, double phi1, double eta2, double phi2, bool
+#ifdef EDM_ML_DEBUG
+			   debug
+#endif
+			   ) {
 
     // Radii and eta from Geometry/HcalCommonData/data/hcalendcapalgo.xml
     // and Geometry/HcalCommonData/data/hcalbarrelalgo.xml
@@ -79,9 +98,11 @@ namespace spr {
     if(z!=0) dR=fabs(Rec*ce1*sqrt(1./z/z-1.));
     else     dR=999999.;
     return dR;
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "getDistInCMatHcal: between (" << eta1 << ", "
 			 << phi1 << ") and (" << eta2 << ", " << phi2 << " is "
 			 << dR << std::endl;
+#endif
   }
 
   void getEtaPhi(HBHERecHitCollection::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, bool ) {
@@ -138,16 +159,17 @@ namespace spr {
     }
   }
 
-  double getEnergy(HBHERecHitCollection::const_iterator hit, bool useRaw, bool) {
-    double energy = (useRaw) ? hit->eraw() : hit->energy();
+  double getEnergy(HBHERecHitCollection::const_iterator hit, int useRaw, bool) {
+    double energy = ((useRaw == 1) ? hit->eraw() : 
+		     ((useRaw == 2) ? hit->eaux() : hit->energy()));
     return energy;
   }
 
-  double getEnergy(EcalRecHitCollection::const_iterator hit, bool, bool) {
+  double getEnergy(EcalRecHitCollection::const_iterator hit, int, bool) {
     return hit->energy();
   }
   
-  double getEnergy(edm::PCaloHitContainer::const_iterator hit, bool, bool) {
+  double getEnergy(edm::PCaloHitContainer::const_iterator hit, int, bool) {
     // This will not yet handle Ecal CaloHits!!
     double samplingWeight = 1.;
     // Hard coded sampling weights from JFH analysis of iso tracks
@@ -170,12 +192,14 @@ namespace spr {
 
   GlobalPoint getGpos(const CaloGeometry* geo,HBHERecHitCollection::const_iterator hit, bool) {
     DetId detId(hit->id());
-    return geo->getPosition(detId);
+    return (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId);
   }
 
   GlobalPoint getGpos(const CaloGeometry* geo,edm::PCaloHitContainer::const_iterator hit, bool) {
     DetId detId(hit->id());
-    return geo->getPosition(detId);
+    GlobalPoint point = (detId.det() == DetId::Hcal) ? 
+      (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId) : geo->getPosition(detId);
+    return point;
   }
 
   GlobalPoint getGpos(const CaloGeometry* geo, EcalRecHitCollection::const_iterator hit, bool) {
@@ -189,16 +213,17 @@ namespace spr {
     }
   }
 
-  double getRawEnergy(HBHERecHitCollection::const_iterator hit, bool useRaw) {
-    double energy = (useRaw) ? hit->eraw() : hit->energy();
+  double getRawEnergy(HBHERecHitCollection::const_iterator hit, int useRaw) {
+    double energy = ((useRaw == 1) ? hit->eraw() : 
+		     ((useRaw == 2) ? hit->eaux() : hit->energy()));
     return energy;
   }
 
-  double getRawEnergy(EcalRecHitCollection::const_iterator hit, bool) {
+  double getRawEnergy(EcalRecHitCollection::const_iterator hit, int) {
     return hit->energy();
   }
   
-  double getRawEnergy(edm::PCaloHitContainer::const_iterator hit, bool) {
+  double getRawEnergy(edm::PCaloHitContainer::const_iterator hit, int) {
     return hit->energy();
   }
 }

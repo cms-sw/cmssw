@@ -29,9 +29,9 @@ PopCon handler for the HCAL LUT metadata condition
 class HcalLutMetadataHandler : public popcon::PopConSourceHandler<HcalLutMetadata>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalLutMetadataHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalLutMetadataHandler() override;
   HcalLutMetadataHandler(edm::ParameterSet const &);
 
   void initObject(HcalLutMetadata*);

@@ -175,12 +175,12 @@ namespace {
       fillArrayF(drWPVerr_par, dr_par,"drWPVerr_par");
     }
     
-    
+    void beginStream() {}
+    void initEvent(const edm::EventSetup&) {}
     
     float operator()(reco::Track const & trk,
 		     reco::BeamSpot const & beamSpot,
-		     reco::VertexCollection const & vertices,
-		     GBRForest const *) const {
+		     reco::VertexCollection const & vertices) const {
       
       float ret = 1.f;
       // minimum number of hits for by-passing the other checks
@@ -223,7 +223,7 @@ namespace {
       if (maxDz[2]<std::numeric_limits<float>::max() || maxDr[2]<std::numeric_limits<float>::max()) {
 
 	// if not primaryVertices are reconstructed, check compatibility w.r.t. beam spot
-        Point bestVertex = getBestVertex(trk,vertices,minNVtxTrk); // min number of tracks [2 (=default) for offline, 3 for HLT]
+	Point bestVertex = getBestVertex(trk,vertices,minNVtxTrk); // min number of tracks [2 (=default) for offline, 3 for HLT]
 	float maxDzcut[3];
 	std::copy(std::begin(maxDz),std::end(maxDz),std::begin(maxDzcut));
 	if (bestVertex.z() < -99998.) {

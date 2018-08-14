@@ -20,21 +20,20 @@
 class CSCFakeGainsConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeGainsConditions(const edm::ParameterSet&);
-      ~CSCFakeGainsConditions();
+      ~CSCFakeGainsConditions() override;
 
       float mean,min,minchi;
       int seed;long int M;
 
-      void prefillGains(); 
+      CSCGains * prefillGains(); 
 
-      typedef const  CSCGains * ReturnType;
+      typedef std::unique_ptr<CSCGains> ReturnType;
 
       ReturnType produceGains(const CSCGainsRcd&);
 
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-    CSCGains *cngains ;
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
 };
 

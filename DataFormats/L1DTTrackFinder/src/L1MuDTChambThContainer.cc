@@ -33,19 +33,15 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTChambThContainer::L1MuDTChambThContainer() {}
-
-//--------------
-// Destructor --
-//--------------
-L1MuDTChambThContainer::~L1MuDTChambThContainer() {}
+L1MuDTChambThContainer::L1MuDTChambThContainer(The_Container c):
+ theSegments{std::move(c)} {}
 
 //--------------
 // Operations --
 //--------------
-void L1MuDTChambThContainer::setContainer(const The_Container& inputSegments) {
+void L1MuDTChambThContainer::setContainer(The_Container inputSegments) {
 
-  theSegments = inputSegments;
+  theSegments = std::move(inputSegments);
 }
 
 L1MuDTChambThContainer::The_Container const* L1MuDTChambThContainer::getContainer() const {
@@ -80,7 +76,7 @@ int L1MuDTChambThContainer::bxSize(int step1, int step2) const {
 
 L1MuDTChambThDigi const* L1MuDTChambThContainer::chThetaSegm(int wheel, int stat, int sect, int step) const {
 
-  L1MuDTChambThDigi const* rT=0;
+  L1MuDTChambThDigi const* rT=nullptr;
 
   for ( The_iterator i  = theSegments.begin();
                      i != theSegments.end();

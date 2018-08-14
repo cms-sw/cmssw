@@ -12,6 +12,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
@@ -55,6 +56,8 @@ public:
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
   template<typename GEOM>
   void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const GEOM *geom, CLHEP::HepRandomEngine* hre);
+  // for premixing
+  void accumulate(const PHGCSimAccumulator& simAccumulator);
 
   /**
      @short actions at the start/end of event
@@ -64,10 +67,14 @@ public:
 
   /**
    */
-  bool producesEEDigis()       { return (mySubDet_==ForwardSubdetector::HGCEE);  }
-  bool producesHEfrontDigis()  { return (mySubDet_==ForwardSubdetector::HGCHEF); }
-  bool producesHEbackDigis()   { return (mySubDet_==ForwardSubdetector::HGCHEB); }
+  bool producesEEDigis()       { 
+    return ((mySubDet_==ForwardSubdetector::HGCEE)||(myDet_==DetId::HGCalEE)); }
+  bool producesHEfrontDigis()  { 
+    return ((mySubDet_==ForwardSubdetector::HGCHEF)||(myDet_==DetId::HGCalHSi)); }
+  bool producesHEbackDigis()   { 
+    return ((mySubDet_==ForwardSubdetector::HGCHEB)||(myDet_==DetId::HGCalHSc)); }
   std::string digiCollection() { return digiCollection_; }
+  int geometryType() { return geometryType_; }
 
   /**
       @short actions at the start/end of run
@@ -76,18 +83,35 @@ public:
   void endRun();
 
 private :
-  
+
+  uint32_t getType() const;
+  bool     getWeight(std::array<float,3>& tdcForToAOnset, float& keV2fC) const;
+
   //input/output names
   std::string hitCollection_,digiCollection_;
 
+  //geometry type (0 pre-TDR; 1 TDR)
+  int geometryType_;
+
   //digitization type (it's up to the specializations to decide it's meaning)
   int digitizationType_;
+
+  // if true, we're running mixing in premixing stage1 and have to produce the output differently
+  bool premixStage1_;
+
+  // Minimum charge threshold for premixing stage1
+  double premixStage1MinCharge_;
+  // Maximum charge for packing in premixing stage1
+  double premixStage1MaxCharge_;
 
   //handle sim hits
   int maxSimHitsAccTime_;
   double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
+
+  //debug position
+  void checkPosition(const HGCalDigiCollection* digis) const;
 
   //digitizers
   std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;
@@ -99,7 +123,8 @@ private :
   const HGCalGeometry* gHGCal_;
   const HcalGeometry* gHcal_;
 
-  //subdetector id
+  //detector and subdetector id
+  DetId::Detector    myDet_;
   ForwardSubdetector mySubDet_;
 
   //misc switches
@@ -114,6 +139,10 @@ private :
   //average occupancies
   std::array<double,3> averageOccupancies_;
   uint32_t nEvents_;
+
+  std::vector<float> cce_;
+  
+  std::map< uint32_t, std::vector< std::pair<float, float> > > hitRefs_bx0;
 };
 
 

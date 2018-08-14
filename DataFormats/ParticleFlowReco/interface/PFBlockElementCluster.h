@@ -26,17 +26,17 @@ namespace reco {
       PFBlockElement(type),
       clusterRef_( ref ) {}
     
-    PFBlockElement* clone() const { return new PFBlockElementCluster(*this); }
+    PFBlockElement* clone() const override { return new PFBlockElementCluster(*this); }
     
     /// \return reference to the corresponding cluster
-    const PFClusterRef&  clusterRef() const {return clusterRef_;}
+    const PFClusterRef&  clusterRef() const override {return clusterRef_;}
     const SuperClusterRef& superClusterRef() const { return superClusterRef_;}
 
     void setSuperClusterRef(const SuperClusterRef& ref) 
     { superClusterRef_ = ref;}
 
     void Dump(std::ostream& out = std::cout, 
-              const char* tab = " " ) const;
+              const char* tab = " " ) const override;
   
   private:
     /// reference to the corresponding cluster

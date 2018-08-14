@@ -26,22 +26,22 @@ public:
 
   MuonResiduals1DOFFitter(int residualsModel, int minHits, int useResiduals, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, useResiduals, weightAlignment) {}
 
-  int type() const { return MuonResidualsFitter::k1DOF; }
+  int type() const override { return MuonResidualsFitter::k1DOF; }
 
-  int npar() {
+  int npar() override {
     if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);
   }
-  int ndata() { return kNData; }
+  int ndata() override { return kNData; }
 
-  double sumofweights();
-  bool fit(Alignable *ali);
-  double plot(std::string name, TFileDirectory *dir, Alignable *ali);
+  double sumofweights() override;
+  bool fit(Alignable *ali) override;
+  double plot(std::string name, TFileDirectory *dir, Alignable *ali) override;
 
 protected:
-  void inform(TMinuit *tMinuit);
+  void inform(TMinuit *tMinuit) override;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResiduals1DOFFitter_H

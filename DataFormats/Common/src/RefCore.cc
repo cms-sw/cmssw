@@ -1,9 +1,9 @@
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include <cassert>
-#include <iostream>
-#include <ostream>
 
 static
 void throwInvalidRefFromNullOrInvalidRef(const edm::TypeID& id) {
@@ -272,7 +272,7 @@ namespace edm {
       }
     }
     auto prodGetter = productToBeInserted.productGetter();
-    if (productGetter() == 0 &&  prodGetter != 0) {
+    if (productGetter() == nullptr &&  prodGetter != nullptr) {
       setProductGetter(prodGetter);
     }
   }

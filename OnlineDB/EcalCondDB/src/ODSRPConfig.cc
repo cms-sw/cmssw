@@ -12,10 +12,10 @@ using namespace oracle::occi;
 
 ODSRPConfig::ODSRPConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
 
    m_ID=0;
@@ -54,7 +54,7 @@ int ODSRPConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODSRPConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -155,7 +155,7 @@ void ODSRPConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODSRPConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -189,7 +189,7 @@ void ODSRPConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODSRPConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -205,7 +205,7 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
 {
   this->checkConnection();
   //  result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     //    throw(std::runtime_error("ODSRPConfig::fetchData(): no Id defined for this ODSRPConfig "));
     result->fetchID();
   }
@@ -223,14 +223,14 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
     // 1 is the id and 2 is the config tag
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
     result->setDebugMode(rset->getInt(3));
     result->setDummyMode(rset->getInt(4));
-    result->setPatternDirectory(rset->getString(5));
+    result->setPatternDirectory(getOraString(rset,5));
     result->setAutomaticMasks(rset->getInt(6));
     result->setSRP0BunchAdjustPosition(rset->getInt(7));
-    result->setConfigFile(rset->getString(8));
+    result->setConfigFile(getOraString(rset,8));
 
     Clob clob = rset->getClob(9);
     m_size = clob.length();
@@ -256,7 +256,7 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
     result->setAutomaticSrpSelect(rset->getInt(10));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODSRPConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -288,7 +288,7 @@ int ODSRPConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODSRPConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODSRPConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
     return m_ID;

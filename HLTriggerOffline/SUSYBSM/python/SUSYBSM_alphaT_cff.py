@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
 # Control trigger
-SUSY_HLT_HT200_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_HT200_alphaT0p51 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary       = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   TriggerResults    = cms.InputTag('TriggerResults','','HLT'),        #to use with test sample
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -21,7 +23,7 @@ SUSY_HLT_HT200_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 )
 
 # Primary triggers
-SUSY_HLT_HT200_alphaT0p57 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT200_alphaT0p57 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary       = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   TriggerResults    = cms.InputTag('TriggerResults','','HLT'),        #to use with test sample
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -39,7 +41,7 @@ SUSY_HLT_HT200_alphaT0p57 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   pfAlphaTThrTurnon   = cms.untracked.double(0.65),
 )
 
-SUSY_HLT_HT250_alphaT0p55 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT250_alphaT0p55 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -57,7 +59,7 @@ SUSY_HLT_HT250_alphaT0p55 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(250),
 )
 
-SUSY_HLT_HT300_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT300_alphaT0p53 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -75,7 +77,7 @@ SUSY_HLT_HT300_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(300),
 )
 
-SUSY_HLT_HT350_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT350_alphaT0p52 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),#ak4PFJetsCHS
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -93,7 +95,7 @@ SUSY_HLT_HT350_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(350),
 )
 
-SUSY_HLT_HT400_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT400_alphaT0p51 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -112,7 +114,7 @@ SUSY_HLT_HT400_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 )
 
 # Backup triggers
-SUSY_HLT_HT200_alphaT0p63 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT200_alphaT0p63 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary       = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   TriggerResults    = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -130,7 +132,7 @@ SUSY_HLT_HT200_alphaT0p63 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   pfAlphaTThrTurnon   = cms.untracked.double(0.65),
 )
 
-SUSY_HLT_HT250_alphaT0p58 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT250_alphaT0p58 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -148,7 +150,7 @@ SUSY_HLT_HT250_alphaT0p58 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(250),
 )
 
-SUSY_HLT_HT300_alphaT0p54 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT300_alphaT0p54 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -166,7 +168,7 @@ SUSY_HLT_HT300_alphaT0p54 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(300),
 )
 
-SUSY_HLT_HT350_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT350_alphaT0p53 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),#ak4PFJetsCHS
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -184,7 +186,7 @@ SUSY_HLT_HT350_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(350),
 )
 
-SUSY_HLT_HT400_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
+SUSY_HLT_HT400_alphaT0p52 = DQMEDAnalyzer('SUSY_HLT_alphaT',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
@@ -202,7 +204,7 @@ SUSY_HLT_HT400_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   caloHtThrTurnon = cms.untracked.double(400),
 )
 
-SUSY_HLT_alphaT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLTalphaToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
         "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p51_v"
         "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v",

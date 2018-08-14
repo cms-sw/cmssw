@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -14,10 +14,10 @@ using namespace oracle::occi;
 
 ODDCCConfig::ODDCCConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_size=0;
    m_config_tag="";
    m_ID=0;
@@ -48,7 +48,7 @@ int ODDCCConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCCConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCCConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -98,7 +98,7 @@ void ODDCCConfig::prepareWrite()
     
     
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCCConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCCConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -119,7 +119,7 @@ void ODDCCConfig::setParameters(const std::map<string,string>& my_keys_map){
     if(ci->first==  "TESTPATTERN_FILE_URL")   setTestPatternFileUrl(ci->second );
     if(ci->first==  "N_TESTPATTERNS_TO_LOAD") setNTestPatternsToLoad(atoi(ci->second.c_str() ));
     if(ci->first==  "SM_HALF")                setSMHalf(atoi(ci->second.c_str() ));
-    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second.c_str() );
+    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second );
     if(ci->first==  "DCC_CONFIGURATION_URL") {
       std::string fname=ci->second ;
       setDCCConfigurationUrl(fname );
@@ -180,7 +180,7 @@ void ODDCCConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCCConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCCConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -209,7 +209,7 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 {
   this->checkConnection();
   //  result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     //    throw(std::runtime_error("ODDCCConfig::fetchData(): no Id defined for this ODDCCConfig "));
     result->fetchID();
   }
@@ -228,9 +228,9 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
     // 1 is the id and 2 is the config tag
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
-    result->setDCCConfigurationUrl(rset->getString(3));
-    result->setTestPatternFileUrl(rset->getString(4));
+    result->setConfigTag(getOraString(rset,2));
+    result->setDCCConfigurationUrl(getOraString(rset,3));
+    result->setTestPatternFileUrl(getOraString(rset,4));
     result->setNTestPatternsToLoad(rset->getInt(5));
     result->setSMHalf(rset->getInt(6));
 
@@ -256,11 +256,11 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 
     */
     result->setDCCClob(buffer );
-    result->setDCCWeightsMode(rset->getString(8));
+    result->setDCCWeightsMode(getOraString(rset,8));
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCCConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCCConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -292,7 +292,7 @@ int ODDCCConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCCConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCCConfig::fetchID:  ")+getOraMessage(&e)));
   }
   
   

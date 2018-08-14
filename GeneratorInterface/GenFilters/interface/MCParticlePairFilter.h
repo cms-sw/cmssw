@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,25 +38,21 @@
 namespace edm {
   class HepMCProduct;
 }
-namespace HepMC {
-   class FourVector;
-}
 
-class MCParticlePairFilter : public edm::EDFilter {
+class MCParticlePairFilter : public edm::global::EDFilter<> {
    public:
       explicit MCParticlePairFilter(const edm::ParameterSet&);
-      ~MCParticlePairFilter();
+      ~MCParticlePairFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
    private:
       // ----------memeber function----------------------
-       int charge(const int& Id);
-       HepMC::FourVector zboost(const HepMC::FourVector&);
+       int charge(int Id) const;
 
       // ----------member data ---------------------------
       
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
+       const edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID1;
        std::vector<int> particleID2;
        std::vector<double> ptMin;
@@ -64,14 +60,14 @@ class MCParticlePairFilter : public edm::EDFilter {
        std::vector<double> etaMin;  
        std::vector<double> etaMax;
        std::vector<int> status;
-       int particleCharge;
-       double minInvMass;
-       double maxInvMass;
-       double minDeltaPhi;
-       double maxDeltaPhi;
-       double minDeltaR;
-       double maxDeltaR;
-       double betaBoost;
+       const int particleCharge;
+       const double minInvMass;
+       const double maxInvMass;
+       const double minDeltaPhi;
+       const double maxDeltaPhi;
+       const double minDeltaR;
+       const double maxDeltaR;
+       const double betaBoost;
        
 };
 #endif

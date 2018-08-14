@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODVfeToRejectDat::ODVfeToRejectDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
 
   m_fed = 0;
@@ -41,7 +41,7 @@ void ODVfeToRejectDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, fed_id, tt_id, vfe_id, GAIN, STATUS ) "
 			"VALUES (:1, :2, :3, :4, :5 , :6 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -62,7 +62,7 @@ void ODVfeToRejectDat::writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -101,7 +101,7 @@ void ODVfeToRejectDat::fetchData(std::vector< ODVfeToRejectDat >* p, ODVfeToReje
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -184,6 +184,6 @@ void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat >& data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

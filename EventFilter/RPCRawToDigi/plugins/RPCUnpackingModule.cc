@@ -42,7 +42,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
   : dataLabel_(pset.getParameter<edm::InputTag>("InputLabel")),
     doSynchro_(pset.getParameter<bool>("doSynchro")),
     eventCounter_(0),
-    theCabling(0)
+    theCabling(nullptr)
 {
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
@@ -98,9 +98,9 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
     RPCRecordFormatter interpreter = 
-        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,0);
+        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,nullptr);
     int triggerBX =0;
-    int nWords = rawData.size()/sizeof(Word64);
+    unsigned int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) continue;
 
     //
@@ -148,16 +148,16 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
         if (debug) LogTrace("") <<" ** PROBLEM **, trailer.check() failed, break";
         break;
       }
-      if ( fedTrailer.lenght()!= nWords) {
+      if ( fedTrailer.fragmentLength()!= nWords) {
         producedRawDataCounts->addReadoutError(fedId, ReadoutError(ReadoutError::InconsistentDataSize)); 
-        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.lenght()!= nWords, break";
+        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.fragmentLength()!= nWords, break";
         break;
       }
       moreTrailers = fedTrailer.moreTrailers();
       if (debug) {
         ostringstream str;
         str <<" trailer: "<<  *reinterpret_cast<const bitset<64>*> (trailer) << endl; 
-        str <<"  trailer lenght:    "<<fedTrailer.lenght()<<endl;
+        str <<"  trailer lenght:    "<<fedTrailer.fragmentLength()<<endl;
         str <<"  trailer crc:       "<<fedTrailer.crc()<<endl;
         str <<"  trailer evtStatus: "<<fedTrailer.evtStatus()<<endl;
         str <<"  trailer ttsBits:   "<<fedTrailer.ttsBits()<<endl;

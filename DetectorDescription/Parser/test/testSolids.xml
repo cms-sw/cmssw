@@ -35,11 +35,25 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <RZPoint r="75*cm" z="2*m"/>
       <RZPoint r="50*cm" z="2*m"/>
     </Polyhedra>
+    <ExtrudedPolygon name="extrudedpgon">
+      <XYPoint x="-30*cm" y="-30*cm"/>
+      <XYPoint x="-30*cm" y=" 30*cm"/>
+      <XYPoint x=" 30*cm" y=" 30*cm"/>
+      <XYPoint x=" 30*cm" y="-30*cm"/>
+      <XYPoint x=" 15*cm" y="-30*cm"/>
+      <XYPoint x=" 15*cm" y=" 15*cm"/>
+      <XYPoint x="-15*cm" y=" 15*cm"/>
+      <XYPoint x="-15*cm" y="-30*cm"/>
+      <ZXYSection z="-60*cm" x="0*cm" y="30*cm" scale="0.8"/>
+      <ZXYSection z="-15*cm" x="0*cm" y="-30*cm" scale="1."/>
+      <ZXYSection z="10*cm" x="0*cm" y="0*cm" scale="0.6"/>
+      <ZXYSection z="60*cm" x="0*cm" y="30*cm" scale="1.2"/>
+    </ExtrudedPolygon>
     <Trd1 name="trd1" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm"/>
     <Trd1 name="trd2" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm" dy2="50*cm"/>
     <Tube name="tube1" rMin="1*m" rMax="1.5*m" dz="1*m"/>
     <Tubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg"/>
-    <CutTubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
+    <CutTubs name="cuttubs" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
     <TruncTubs name="trunctubs1" zHalf="50*cm" rMin="20*cm" rMax="40*cm" startPhi="0*deg" deltaPhi="90*deg" cutAtStart="25*cm" cutAtDelta="35*cm" cutInside="true"/>
     <ShapelessSolid name="momma"/>
     <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
@@ -56,6 +70,11 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
     <UnionSolid name="unionsolid" firstSolid="pcrz" secondSolid="cone1">
       <Translation x="0" y="0" z="-1.0*m"/>
     </UnionSolid>
+    <MultiUnionSolid name="multiunionsolid">
+      <rSolid name="pcrz"/>
+      <rSolid name="cone1"/>
+      <Translation x="0" y="0" z="-1.0*m"/>
+    </MultiUnionSolid>
     <IntersectionSolid name="intsolid" firstSolid="cone1" secondSolid="cone2">
       <RotationByAxis axis="y" angle="90*deg"/>
       <Translation x="0" y="0" z="50*cm"/>
@@ -63,8 +82,6 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
     <Sphere name="asphere" innerRadius="1.*cm" outerRadius="1.1*cm" startPhi="0*deg" deltaPhi="180*deg" startTheta="15*deg" deltaTheta="90*deg"/>
     <Orb name="anorb" radius="1.*cm"/>
     <EllipticalTube name="etube" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zHeight="3.*cm"/>
-    <Ellipsoid name="anelipsoid" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zSemiAxis="3.*cm" zBottomCut="0.*cm" zTopCut="1.5*cm"/>
-    <Ellipsoid name="unusedelipsoid" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zSemiAxis="3.*cm"/>
     <Parallelepiped name="para" xHalf="5.*cm" yHalf="6.*cm" zHalf="7.*cm" alpha="15*deg" theta="30*deg" phi="45*deg"/>
   </SolidSection>
 </DDDefinition>

@@ -1,8 +1,8 @@
 #ifndef STORAGE_FACTORY_IO_TYPES_H
 # define STORAGE_FACTORY_IO_TYPES_H
 
-# include <stdint.h>
-# include <stdlib.h>
+# include <cstdint>
+# include <cstdlib>
 
 /** Invalid channel descriptor constant.  */
 #define EDM_IOFD_INVALID -1

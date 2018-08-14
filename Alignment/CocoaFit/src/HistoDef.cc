@@ -6,7 +6,7 @@
 //   Pedro Arce
 
 #include "Alignment/CocoaFit/interface/HistoDef.h"
-#include <math.h>
+#include <cmath>
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
 void HistoDef::init( ALIstring name)

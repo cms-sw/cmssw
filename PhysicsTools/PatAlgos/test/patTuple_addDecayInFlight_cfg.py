@@ -1,17 +1,21 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 # load the PAT config
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 ## add inFlightMuons
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.inFlightMuons = cms.EDProducer("PATGenCandsFromSimTracksProducer",
-        src           = cms.InputTag("g4SimHits"),   ## use "famosSimHits" for FAMOS
+        src           = cms.InputTag("g4SimHits"),   ## use "fastSimProducer" for FastSim
         setStatus     = cms.int32(-1),
         particleTypes = cms.vstring("mu+"),          ## picks also mu-, of course
         filter        = cms.vstring("pt > 0.5"),     ## just for testing
@@ -19,12 +23,20 @@ process.inFlightMuons = cms.EDProducer("PATGenCandsFromSimTracksProducer",
         writeAncestors = cms.bool(True),             ## save also the intermediate GEANT ancestors of the muons
         genParticles   = cms.InputTag("genParticles"),
 )
+patAlgosToolsTask.add(process.inFlightMuons)
+
 process.out.outputCommands.append('keep *_inFlightMuons_*_*')
 
 ## prepare several clones of match associations for status 1, 3 and in flight muons (status -1)
 process.muMatch3 = process.muonMatch.clone(mcStatus = cms.vint32( 3))
+patAlgosToolsTask.add(process.muMatch3)
+
 process.muMatch1 = process.muonMatch.clone(mcStatus = cms.vint32( 1))
+patAlgosToolsTask.add(process.muMatch1)
+
 process.muMatchF = process.muonMatch.clone(mcStatus = cms.vint32(-1),matched = cms.InputTag("inFlightMuons"))
+patAlgosToolsTask.add(process.muMatchF)
+
 process.patMuons.genParticleMatch = cms.VInputTag(
     cms.InputTag("muMatch3"),
     cms.InputTag("muMatch1"),

@@ -18,12 +18,12 @@
 class ElectronSeedTrackRefFix : public edm::stream::EDProducer<> {
 public:
   explicit ElectronSeedTrackRefFix(const edm::ParameterSet&);
-  ~ElectronSeedTrackRefFix();
+  ~ElectronSeedTrackRefFix() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
     
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::TrackCollection > newTracksToken;

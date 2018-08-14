@@ -60,7 +60,7 @@ public:
     /// Constructor
     explicit CSCSegAlgoSK(const edm::ParameterSet& ps);
     /// Destructor
-    virtual ~CSCSegAlgoSK() {};
+    ~CSCSegAlgoSK() override {};
 
     /**
      * Build track segments in this chamber (this is where the actual
@@ -71,7 +71,7 @@ public:
     /**
      * Here we must implement the algorithm
      */
-    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits); 
+    std::vector<CSCSegment> run(const CSCChamber* aChamber, const ChamberHitContainer& rechits) override; 
 
 private:
 

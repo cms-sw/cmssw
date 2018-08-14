@@ -33,9 +33,9 @@ namespace pat{
   class DuplicatedElectronCleaner : public edm::global::EDProducer<> {
   public:
     explicit DuplicatedElectronCleaner(const edm::ParameterSet & iConfig);
-    ~DuplicatedElectronCleaner();
+    ~DuplicatedElectronCleaner() override;
 
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override final;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const final;
 
   private:
     const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronSrcToken_;

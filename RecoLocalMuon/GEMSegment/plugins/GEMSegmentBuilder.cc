@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
-GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(0) {
+GEMSegmentBuilder::GEMSegmentBuilder(const edm::ParameterSet& ps) : geom_(nullptr) {
   
   // Algo name
   algoName = ps.getParameter<std::string>("algo_name");
@@ -32,7 +32,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
   // Let's define the ensemble of GEM devices having the same region, chambers number (phi)
   // different eta partitions and different layers are allowed
 
-  std::map<uint32_t, std::vector<GEMRecHit*> > ensembleRH;
+  std::map<uint32_t, std::vector<const GEMRecHit*> > ensembleRH;
  
   // Loop on the GEM rechit and select the different GEM Ensemble
   for(GEMRecHitCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); ++it2) {
@@ -47,9 +47,9 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     // this reference id serves to link all GEMEtaPartitions
     // and will also be used to determine the GEMSuperChamber 
     // to which the GEMSegment is assigned (done inside GEMSegAlgoXX)
-    GEMDetId id(it2->gemId().region(),1,it2->gemId().station(),0,it2->gemId().chamber(),0);
+    GEMDetId id(it2->gemId().superChamberId());
     // save current GEMRecHit in vector associated to the reference id
-    ensembleRH[id.rawId()].push_back(it2->clone());
+    ensembleRH[id.rawId()].push_back(&(*it2));
   }
 
   // Loop on the entire map <ref id, vector of GEMRecHits>

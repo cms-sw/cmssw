@@ -64,11 +64,11 @@ void GtPsbTextToDigi::putEmptyDigi(edm::Event& iEvent) {
   std::unique_ptr<L1GctJetCandCollection> gctTauJets( new L1GctJetCandCollection() );
   //std::unique_ptr<L1GctEtTotal>           gctEtTotal( new L1GctEtTotal          () );
   for (int i=0; i<4; i++){  
-    gctIsolaEm->push_back(L1GctEmCand (0,1));
-    gctNoIsoEm->push_back(L1GctEmCand (0,0));
-    gctCenJets->push_back(L1GctJetCand(0,0,0));
-    gctForJets->push_back(L1GctJetCand(0,0,1));
-    gctTauJets->push_back(L1GctJetCand(0,1,0));
+    gctIsolaEm->push_back(L1GctEmCand (0,true));
+    gctNoIsoEm->push_back(L1GctEmCand (0,false));
+    gctCenJets->push_back(L1GctJetCand(0,false,false));
+    gctForJets->push_back(L1GctJetCand(0,false,true));
+    gctTauJets->push_back(L1GctJetCand(0,true,false));
     //gctEtTotal->push_back(());
   }
   iEvent.put(std::move(gctIsolaEm), "isoEm");
@@ -203,10 +203,10 @@ void GtPsbTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (unsigned i=0; i<2; i++){  
       iIsola = i+2;
       iNoIso = i;
-      gctIsolaEm->push_back(L1GctEmCand(data[iIsola][cycle]&0x7fff,1));
-      gctNoIsoEm->push_back(L1GctEmCand(data[iNoIso][cycle]&0x7fff,0));
-      L1GctEmCand candI(data[iIsola][cycle],1);
-      L1GctEmCand candN(data[iNoIso][cycle],0);
+      gctIsolaEm->push_back(L1GctEmCand(data[iIsola][cycle]&0x7fff,true));
+      gctNoIsoEm->push_back(L1GctEmCand(data[iNoIso][cycle]&0x7fff,false));
+      L1GctEmCand candI(data[iIsola][cycle],true);
+      L1GctEmCand candN(data[iNoIso][cycle],false);
     }
   }
 

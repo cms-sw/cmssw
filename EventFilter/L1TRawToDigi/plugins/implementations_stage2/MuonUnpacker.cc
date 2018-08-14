@@ -1,41 +1,68 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
+
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
-#include "L1TObjectCollections.h"
-//#include "GMTCollections.h"
 #include "MuonUnpacker.h"
 
 namespace l1t {
    namespace stage2 {
+      MuonUnpacker::MuonUnpacker() : res_(nullptr), muonCopy_(0)
+      {
+      }
+
       bool
       MuonUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
          LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+         // process only if there is a payload
+         // If all BX block were zero suppressed the block header size is 0.
+         if (block.header().getSize() < 1) {
+            return true;
+         }
 
          auto payload = block.payload();
 
-         unsigned int nWords = 6; // every link transmits 6 words (3 muons) per bx
          int nBX, firstBX, lastBX;
-         nBX = int(ceil(block.header().getSize() / nWords));
+         // Check if per BX zero suppression was enabled
+         bool bxZsEnabled = ((block.header().getFlags() >> bxzs_enable_shift_) & 0x1) == 1;
+         // Calculate the total number of BXs
+         if (bxZsEnabled) {
+            BxBlockHeader bxHeader(payload.at(0));
+            nBX = bxHeader.getTotalBx();
+         } else {
+            nBX = int(ceil(block.header().getSize() / nWords_));
+         }
          getBXRange(nBX, firstBX, lastBX);
-         // only use central BX for now
-         //firstBX = 0;
-         //lastBX = 0;
-         //LogDebug("L1T") << "BX override. Set first BX = lastBX = 0.";
 
-         auto res = static_cast<L1TObjectCollections*>(coll)->getMuons();
-         res->setBXRange(firstBX, lastBX);
-
+         // Set the muon collection and the BX range
+         res_ = static_cast<L1TObjectCollections*>(coll)->getMuons(muonCopy_);
+         res_->setBXRange(firstBX, lastBX);
          LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-         // Initialise index
-         int unsigned i = 0;
+         // Get the BX blocks and unpack them
+         auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
+         for (const auto& bxBlock : bxBlocks) {
+            // Throw an exception if finding a corrupt BX header with out of range BX numbers
+            const auto bx = bxBlock.header().getBx();
+            if (bx < firstBX || bx > lastBX) {
+               throw cms::Exception("CorruptData") << "Corrupt RAW data from FED " << fed_ << ", AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header.";
+            }
+            unpackBx(bx, bxBlock.payload());
+         }
+         return true;
+      }
 
-         // Loop over multiple BX and then number of muons filling muon collection
-         for (int bx = firstBX; bx <= lastBX; ++bx) {
-            for (unsigned nWord = 0; nWord < nWords && i < block.header().getSize(); nWord += 2) {
+
+      void
+      MuonUnpacker::unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx)
+      {
+         unsigned int i = startIdx;
+         // Check if there are enough words left in the payload
+         if (i + nWords_ <= payload.size()) {
+            for (unsigned nWord = 0; nWord < nWords_; nWord += 2) {
                uint32_t raw_data_00_31 = payload[i++];
                uint32_t raw_data_32_63 = payload[i++];        
                LogDebug("L1T") << "raw_data_00_31 = 0x" << hex << raw_data_00_31 << " raw_data_32_63 = 0x" << raw_data_32_63;
@@ -47,14 +74,15 @@ namespace l1t {
 
                Muon mu;
                    
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63);
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, getAlgoVersion());
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
-               res->push_back(bx, mu);
+               res_->push_back(bx, mu);
             }
+         } else {
+            edm::LogWarning("L1T") << "Only " << payload.size() - i << " 32 bit words in this BX but " << nWords_ << " are required. Not unpacking the data for BX " << bx << ".";
          }
-         return true;
       }
    }
 }

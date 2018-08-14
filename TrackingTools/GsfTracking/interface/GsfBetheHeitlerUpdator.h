@@ -55,7 +55,7 @@ public:
   enum CorrectionFlag { NoCorrection=0, MeanCorrection=1, FullCorrection=2 };
 
 public:
-  virtual GsfBetheHeitlerUpdator* clone() const
+  GsfBetheHeitlerUpdator* clone() const override
   {
     return new GsfBetheHeitlerUpdator(*this);
   }
@@ -68,14 +68,14 @@ private:
   struct GSContainer {float *first, *second, *third;};
 
   /// Computation: generates vectors of weights, means and standard deviations
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
 
 private:
 
   /// Read parametrization from file
   void readParameters (const std::string);
   /// Read coefficients of one polynomial from file
-  Polynomial readPolynomial (std::ifstream&,const int);
+  Polynomial readPolynomial (std::ifstream&,const unsigned int);
 
  
   /// Filling of mixture (in terms of z=E/E0)

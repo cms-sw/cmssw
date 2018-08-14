@@ -1,8 +1,30 @@
+// Code to unpack the "ME Data Record"
+
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "EMTFCollections.h"
 #include "EMTFUnpackerTools.h"
-#include "EMTFBlockME.h"
+
+// This is the "header" - no EMTFBlockME.h file is needed
+namespace l1t {
+  namespace stage2 {
+    namespace emtf {
+      
+      class MEBlockUnpacker : public Unpacker { // "MEBlockUnpacker" inherits from "Unpacker"
+      public:
+	virtual int  checkFormat(const Block& block);
+	bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+	// virtual bool packBlock(const Block& block, UnpackerCollections *coll) override;
+      };
+      
+      // class MEBlockPacker : public Packer { // "MEBlockPacker" inherits from "Packer"
+      // public:
+      // 	virtual bool unpack(const Block& block, UnpackerCollections *coll) override; // Apparently it's always good to use override in C++
+      // };
+      
+    }
+  }
+}
 
 namespace l1t {
   namespace stage2 {
@@ -13,14 +35,15 @@ namespace l1t {
 	auto payload = block.payload();
 	int errors = 0;
 	
-	//Check the number of 16-bit words
-	if(payload.size() != 4) { errors += 1; edm::LogError("L1T|EMTF") << "Payload size in 'ME Data Record' is different than expected"; }
+	// Check the number of 16-bit words
+	if (payload.size() != 4) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Payload size in 'ME Data Record' is different than expected"; }
 	
-	//Check that each word is 16 bits
-	if(GetHexBits(payload[0], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[0] has more than 16 bits in 'ME Data Record'"; }
-	if(GetHexBits(payload[1], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[1] has more than 16 bits in 'ME Data Record'"; }
-	if(GetHexBits(payload[2], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[2] has more than 16 bits in 'ME Data Record'"; }
-	if(GetHexBits(payload[3], 16, 31) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Payload[3] has more than 16 bits in 'ME Data Record'"; }
+	// Check that each word is 16 bits
+	for (unsigned int i = 0; i < 4; i++) {
+	  if (GetHexBits(payload[i], 16, 31) != 0) { errors += 1; 
+	    edm::LogError("L1T|EMTF") << "Payload[" << i << "] has more than 16 bits in 'ME Data Record'"; }
+	}
 	
 	uint16_t MEa = payload[0];
 	uint16_t MEb = payload[1];
@@ -28,25 +51,31 @@ namespace l1t {
 	uint16_t MEd = payload[3];
 
 	//Check Format
-	if(GetHexBits(MEa, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEa are incorrect"; }
-	if(GetHexBits(MEb, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEb are incorrect"; }
-	if(GetHexBits(MEc, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEc are incorrect"; }
-	if(GetHexBits(MEd, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in MEd are incorrect"; }
+	if (GetHexBits(MEa, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEa are incorrect"; }
+	if (GetHexBits(MEb, 15, 15) != 1) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEb are incorrect"; }
+	if (GetHexBits(MEc, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEc are incorrect"; }
+	if (GetHexBits(MEd, 15, 15) != 0) { errors += 1; 
+	  edm::LogError("L1T|EMTF") << "Format identifier bits in MEd are incorrect"; }
 
 	return errors;
 
       }
 
       // Converts station, CSC_ID, sector, subsector, and neighbor from the ME output
-      std::vector<int> convert_ME_location(int _station, int _csc_ID, int _sector) {
+      std::vector<int> convert_ME_location(int _station, int _csc_ID, int _sector, bool _csc_ID_shift = false) {
 	int new_sector = _sector;
-	int new_csc_ID = _csc_ID; // Before FW update on 05.05.16, shift by +1 from 0,1,2... convention to 1,2,3...
+	int new_csc_ID = _csc_ID;
+	if (_csc_ID_shift) new_csc_ID += 1; // Before FW update on 05.05.16, shift by +1 from 0,1,2... convention to 1,2,3...
 	if      (_station == 0) { int arr[] = {       1, new_csc_ID, new_sector,  1, 0}; std::vector<int> vec(arr, arr+5); return vec; }
 	else if (_station == 1) { int arr[] = {       1, new_csc_ID, new_sector,  2, 0}; std::vector<int> vec(arr, arr+5); return vec; }
 	else if (_station <= 4) { int arr[] = {_station, new_csc_ID, new_sector, -1, 0}; std::vector<int> vec(arr, arr+5); return vec; }
-	else if (_station == 5) new_sector = (_sector != 1) ? _sector-1 : 6;
+	else if (_station == 5) new_sector = (_sector != 1) ? _sector-1 : 6; // Indicates neighbor chamber, don't return yet
 	else { int arr[] = {_station, _csc_ID, _sector, -99, -99}; std::vector<int> vec(arr, arr+5); return vec; }
 	
+	// Mapping for chambers from neighboring sector
 	if      (new_csc_ID == 1) { int arr[] = {1, 3, new_sector,  2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
 	else if (new_csc_ID == 2) { int arr[] = {1, 6, new_sector,  2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
 	else if (new_csc_ID == 3) { int arr[] = {1, 9, new_sector,  2, 1}; std::vector<int> vec(arr, arr+5); return vec; }
@@ -92,8 +121,6 @@ namespace l1t {
 	CSCCorrelatedLCTDigiCollection* res_LCT;
 	res_LCT = static_cast<EMTFCollections*>(coll)->getEMTFLCTs();
 
-	// if (ME_.Format_Errors() > 0) goto write; // Temporarily disable for DQM operation - AWB 09.04.16
-
 	////////////////////////////
 	// Unpack the ME Data Record
 	////////////////////////////
@@ -124,57 +151,68 @@ namespace l1t {
 
 	// ME_.set_dataword     ( uint64_t dataword);
 
-	
-	// Fill the EMTFHit
-	Hit_.ImportME( ME_ );
-	Hit_.set_endcap ( ((res->at(iOut)).PtrEventHeader()->Endcap() == 1) ? 1 : -1 );
-	// Hit_.set_layer();
-	
-	std::vector<int> conv_vals = convert_ME_location( ME_.Station(), ME_.CSC_ID(), 
-							  (res->at(iOut)).PtrEventHeader()->Sector() );
+	// Convert specially-encoded ME quantities
+	bool csc_ID_shift = (getAlgoVersion() <= 8348); // For FW versions <= 28.04.2016, shift by +1 from 0,1,2... convention to 1,2,3...
+							// Computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
+	std::vector<int> conv_vals = convert_ME_location( ME_.Station(), ME_.CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), csc_ID_shift );
+
 	Hit_.set_station   ( conv_vals.at(0) );
 	Hit_.set_csc_ID    ( conv_vals.at(1) );
 	Hit_.set_sector    ( conv_vals.at(2) );
 	Hit_.set_subsector ( conv_vals.at(3) );
 	Hit_.set_neighbor  ( conv_vals.at(4) );
-	
-	Hit_.set_sector_index ( (Hit_.Endcap() == 1) 
-				? (res->at(iOut)).PtrEventHeader()->Sector() - 1
-				: (res->at(iOut)).PtrEventHeader()->Sector() + 5 );
 
-	Hit_.set_ring       ( calc_ring( Hit_.Station(), Hit_.CSC_ID(), Hit_.Strip() ) );
-	Hit_.set_chamber    ( calc_chamber( Hit_.Station(), Hit_.Sector(), 
-					    Hit_.Subsector(), Hit_.Ring(), Hit_.CSC_ID() ) );
+       if (Hit_.Station() < 1 || Hit_.Station() > 4) edm::LogWarning("L1T|EMTF") << "EMTF unpacked LCT station = " << Hit_.Station()
+                                                                                 << ", outside proper [1, 4] range" << std::endl;
+       if (Hit_.CSC_ID()  < 1 || Hit_.CSC_ID()  > 9) edm::LogWarning("L1T|EMTF") << "EMTF unpacked LCT CSC ID = " << Hit_.CSC_ID()
+                                                                                 << ", outside proper [1, 9] range" << std::endl;
+       if (Hit_.Sector()  < 1 || Hit_.Sector()  > 6) edm::LogWarning("L1T|EMTF") << "EMTF unpacked LCT sector = " << Hit_.Sector()
+                                                                                 << ", outside proper [1, 6] range" << std::endl;
 
-	Hit_.SetCSCDetId   ( Hit_.CreateCSCDetId() );
-	Hit_.SetCSCLCTDigi ( Hit_.CreateCSCCorrelatedLCTDigi() );
+	// Fill the EMTFHit
+	ImportME( Hit_, ME_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector() );
+
 
 	// Set the stub number for this hit
 	// Each chamber can send up to 2 stubs per BX
 	ME_.set_stub_num(0);
 	Hit_.set_stub_num(0);
-	// See if matching hit is already in event record (from neighboring sector)
-	bool duplicate_hit_exists = false;
-	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	// See if matching hit is already in event record: exact duplicate, or from neighboring sector
+	bool exact_duplicate = false;
+	bool neighbor_duplicate = false;
+	for (auto const & iHit : *res_hit) {
 
-	  if ( Hit_.BX() == res_hit->at(iHit).BX() && Hit_.Station() == res_hit->at(iHit).Station() &&
-	       ( Hit_.Ring() == res_hit->at(iHit).Ring() || abs(Hit_.Ring() - res_hit->at(iHit).Ring()) == 3 ) && 
-	       Hit_.Chamber() == res_hit->at(iHit).Chamber() ) {
-
-	    if ( Hit_.Neighbor() == res_hit->at(iHit).Neighbor() ) {
+	  if ( iHit.Is_CSC() == 1                     && 
+	       Hit_.BX()         == iHit.BX()         && 
+	       Hit_.Endcap()     == iHit.Endcap()     &&
+	       Hit_.Station()    == iHit.Station()    &&
+	       Hit_.Chamber()    == iHit.Chamber()    &&
+	       (Hit_.Ring() % 3) == (iHit.Ring() % 3) ) { // ME1/1a and ME1/1b (rings "4" and 1) are the same chamber
+	    
+	    if ( Hit_.Ring()  == iHit.Ring()  &&
+		 Hit_.Strip() == iHit.Strip() &&
+		 Hit_.Wire()  == iHit.Wire()  ) {
+	      exact_duplicate    = (Hit_.Neighbor() == iHit.Neighbor());
+	      neighbor_duplicate = (Hit_.Neighbor() != iHit.Neighbor());
+	    }
+	    else if ( Hit_.Neighbor() == iHit.Neighbor() ) {
 	      ME_.set_stub_num( ME_.Stub_num() + 1 );
-	      Hit_.set_stub_num( Hit_.Stub_num() + 1); }
-	    else if ( Hit_.Ring() == res_hit->at(iHit).Ring() && Hit_.Strip() == res_hit->at(iHit).Strip() && 
-		      Hit_.Wire() == res_hit->at(iHit).Wire() )
-	      duplicate_hit_exists = true;
+	      Hit_.set_stub_num( Hit_.Stub_num() + 1);
+	    }
 	  }
-	}
-	// write: // Temporarily disable for DQM operation - AWB 09.04.16
+	} // End loop: for (auto const & iHit : *res_hit)
+
+	if (exact_duplicate) edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate LCTs: BX " << Hit_.BX()
+							 << ", endcap " << Hit_.Endcap() << ", station " << Hit_.Station()
+			                                 << ", sector " << Hit_.Sector() << ", neighbor " << Hit_.Neighbor()
+							 << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
+							 << ", strip " << Hit_.Strip() << ", wire " << Hit_.Wire() << std::endl;
 
 	(res->at(iOut)).push_ME(ME_);
-	res_hit->push_back(Hit_);
-	if (not duplicate_hit_exists) // Don't write duplicate LCTs from adjacent sectors
-	  res_LCT->insertDigi( Hit_.CSC_DetId(), Hit_.CSC_LCTDigi() );
+	if (!exact_duplicate)
+	  res_hit->push_back(Hit_);
+	if (!exact_duplicate && !neighbor_duplicate) // Don't write duplicate LCTs from adjacent sectors
+	  res_LCT->insertDigi( Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi() );
 
 	// Finished with unpacking one ME Data Record
 	return true;

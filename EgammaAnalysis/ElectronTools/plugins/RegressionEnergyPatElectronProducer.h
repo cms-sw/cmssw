@@ -21,8 +21,8 @@ class RegressionEnergyPatElectronProducer: public edm::EDProducer
  public:
 
   explicit RegressionEnergyPatElectronProducer( const edm::ParameterSet & ) ;
-  virtual ~RegressionEnergyPatElectronProducer();
-  virtual void produce( edm::Event &, const edm::EventSetup & ) ;
+  ~RegressionEnergyPatElectronProducer() override;
+  void produce( edm::Event &, const edm::EventSetup & ) override ;
 
  private:
 

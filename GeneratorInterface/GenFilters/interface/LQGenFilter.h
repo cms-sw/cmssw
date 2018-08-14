@@ -38,12 +38,12 @@
 class LQGenFilter : public edm::EDFilter {
    public:
       explicit LQGenFilter(const edm::ParameterSet&);
-      ~LQGenFilter();
+      ~LQGenFilter() override;
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::InputTag src_;

@@ -493,7 +493,7 @@ bool RPCSeedPattern::checkSegment() const
     {
         count++;
         const GeomDet* Detector = (*iter)->det();
-        if(dynamic_cast<const RPCChamber*>(Detector) != 0)
+        if(dynamic_cast<const RPCChamber*>(Detector) != nullptr)
         {
             const RPCChamber* RPCCh = dynamic_cast<const RPCChamber*>(Detector);
             RPCDetId RPCId = RPCCh->id();
@@ -993,7 +993,6 @@ double RPCSeedPattern::extropolateStep(const GlobalPoint& startPosition, const G
     cout << "Start side : " << startSide;
 
     GlobalPoint currentPosition = startPosition;
-    double currentSide = RPCSurface.localZ(currentPosition);
     GlobalVector currentMomentum = startMomentum;
     GlobalVector ZDirection(0, 0, 1);
 
@@ -1046,7 +1045,7 @@ double RPCSeedPattern::extropolateStep(const GlobalPoint& startPosition, const G
         tracklength += stepLength * currentMomentum.perp() / currentMomentum.mag();
 
         // Get the next step distance
-        currentSide = RPCSurface.localZ(currentPosition);
+        double currentSide = RPCSurface.localZ(currentPosition);
         cout << "Stepping current side : " << currentSide << endl;
         cout << "Stepping current position is: " << currentPosition << endl;
         cout << "Stepping current Momentum is: " << currentMomentum.mag() << ", in vector: " << currentMomentum << endl;

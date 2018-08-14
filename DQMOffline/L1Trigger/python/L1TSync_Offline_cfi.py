@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tSync_Offline = cms.EDAnalyzer("L1TSync_Offline",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tSync_Offline = DQMEDAnalyzer('L1TSync_Offline',
   dqmStore                = cms.untracked.bool(True),
   disableROOToutput       = cms.untracked.bool(True),
   verbose                 = cms.untracked.bool(False),
@@ -45,6 +46,18 @@ l1tSync_Offline = cms.EDAnalyzer("L1TSync_Offline",
         CertMinEvents   = cms.int32(20),
       ),
       IsoEG = cms.PSet( 
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+        CertMinEvents   = cms.int32(20),
+      ),
+      Tau = cms.PSet(
+        monitor         = cms.bool(True),
+        doAutoSelection = cms.bool(True),
+        algo            = cms.string(""),
+        CertMinEvents   = cms.int32(20),
+      ),
+      IsoTau = cms.PSet( 
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),

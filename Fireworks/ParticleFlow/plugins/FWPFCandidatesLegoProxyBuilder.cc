@@ -27,23 +27,23 @@ class FWPFCandidatesLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco:
 {
    public:
       FWPFCandidatesLegoProxyBuilder();
-      virtual ~FWPFCandidatesLegoProxyBuilder();
+      ~FWPFCandidatesLegoProxyBuilder() override;
 
    // --------------------- Member Functions --------------------------
-      virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-      virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-      virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                     FWViewType::EType viewType, const FWViewContext* vc);
+      bool havePerViewProduct(FWViewType::EType) const override { return true; }
+      void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+      void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
+                                     FWViewType::EType viewType, const FWViewContext* vc) override;
 
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&); // stop default
-      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&); // stop default
+      FWPFCandidatesLegoProxyBuilder(const FWPFCandidatesLegoProxyBuilder&) = delete; // stop default
+      const FWPFCandidatesLegoProxyBuilder& operator=(const FWPFCandidatesLegoProxyBuilder&) = delete; // stop default
       
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCandidate> ::build;
-      void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*);
+      void build(const reco::PFCandidate&, unsigned int, TEveElement&, const FWViewContext*) override;
 };
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_
 
@@ -97,8 +97,7 @@ FWPFCandidatesLegoProxyBuilder::localModelChanges(const FWModelId& iId, TEveElem
    {
       TEveElement* el = (parent)->FirstChild();  // we know there is only one child added in this proxy builder
       FWLegoCandidate *candidate = dynamic_cast<FWLegoCandidate*> (el);
-      const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
-      candidate->SetMarkerColor( dp.color());
+      candidate->SetMarkerColor( item()->modelInfo(iId.index()).displayProperties().color());
       candidate->ElementChanged();
    }  
 }

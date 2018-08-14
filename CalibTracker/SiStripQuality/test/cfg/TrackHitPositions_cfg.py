@@ -64,9 +64,7 @@ process.siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
 #-------------------------------------------------
 # Services for the TkHistoMap
 #-------------------------------------------------
-process.load("DQMServices.Core.DQMStore_cfg")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 #-------------------------------------------------
 process.stat = cms.EDAnalyzer("TrackHitPositions",
                               dataLabel = cms.untracked.string(""),

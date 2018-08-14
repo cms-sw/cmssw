@@ -96,7 +96,7 @@ double CaloEllipse::getEccentricity() const {
 
 Point CaloEllipse::getPosition() const {
 
-	if (dataPoints_.size() < 1) {
+	if (dataPoints_.empty()) {
 		return Point(0, 0);
 	}
 

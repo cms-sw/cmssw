@@ -55,16 +55,16 @@ public:
 public:
 
   L1TRate_Offline(const edm::ParameterSet& ps);   // Constructor
-  virtual ~L1TRate_Offline();                     // Destructor
+  ~L1TRate_Offline() override;                     // Destructor
 
 protected:
 
   void analyze (const edm::Event& e, const edm::EventSetup& c) override;      // Analyze
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-  virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 // Private methods
 //private:

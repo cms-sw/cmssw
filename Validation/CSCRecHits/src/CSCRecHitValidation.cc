@@ -9,9 +9,9 @@
 
 CSCRecHitValidation::CSCRecHitValidation(const edm::ParameterSet & ps)
 : theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector() ),
-  theCSCGeometry(0),
-  the2DValidation(0),
-  theSegmentValidation(0)
+  theCSCGeometry(nullptr),
+  the2DValidation(nullptr),
+  theSegmentValidation(nullptr)
 {
   the2DValidation = new CSCRecHit2DValidation(
                                 ps.getParameter<edm::InputTag>("recHitLabel"),

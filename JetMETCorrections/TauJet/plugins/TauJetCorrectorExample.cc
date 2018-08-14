@@ -61,13 +61,13 @@ Implementation:
 class TauJetCorrectorExample : public edm::EDAnalyzer {
 public:
   explicit TauJetCorrectorExample(const edm::ParameterSet&);
-  ~TauJetCorrectorExample();
+  ~TauJetCorrectorExample() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // ----------member data ---------------------------
 #ifdef THIS_IS_AN_EVENT_EXAMPLE

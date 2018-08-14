@@ -4,6 +4,7 @@
 """
 DAS command line tool
 """
+from __future__ import print_function
 __author__ = "Valentin Kuznetsov"
 
 import sys
@@ -106,7 +107,7 @@ def get_data(host, query, idx, limit, debug):
             data = fdesc.read()
             fdesc.close()
         except urllib2.HTTPError as err:
-            print err
+            print(err)
             return ""
         if  data and isinstance(data, str) and pat.match(data) and len(data) == 32:
             pid = data
@@ -139,13 +140,13 @@ def main():
             data = jsondict['data']
             if  isinstance(data, dict):
                 rows = [r for r in get_value(data, filters)]
-                print ' '.join(rows)
+                print(' '.join(rows))
             elif isinstance(data, list):
                 for row in data:
                     rows = [r for r in get_value(row, filters)]
-                    print ' '.join(rows)
+                    print(' '.join(rows))
             else:
-                print jsondict
+                print(jsondict)
     else:
-        print data
+        print(data)
 

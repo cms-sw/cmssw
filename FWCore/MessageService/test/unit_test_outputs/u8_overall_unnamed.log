@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-i expect_overall_unnamed:  UnitTestClient_E:sendSomeMessages  Run: 1 Event: 1
 The following outputs are expected: 
 unlisted_category    appearing in events 1,2,3,4,5,10,15,25,45 

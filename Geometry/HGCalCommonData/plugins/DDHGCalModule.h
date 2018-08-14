@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include <unordered_set>
 
 class DDHGCalModule : public DDAlgorithm {
@@ -13,18 +13,18 @@ class DDHGCalModule : public DDAlgorithm {
 public:
   //Constructor and Destructor
   DDHGCalModule(); //const std::string & name);
-  virtual ~DDHGCalModule();
+  ~DDHGCalModule() override;
   
   void initialize(const DDNumericArguments & nArgs,
                   const DDVectorArguments & vArgs,
                   const DDMapArguments & mArgs,
                   const DDStringArguments & sArgs,
-                  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+                  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& cpv) override;
 
 protected:
 
-  void          constructLayers (DDLogicalPart, DDCompactView& cpv);
+  void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
   double        rMax(double z);
   void          positionSensitive(DDLogicalPart& glog, double rin, double rout,
 				  DDCompactView& cpv);

@@ -41,10 +41,10 @@ namespace edm {
 class MCZll : public edm::EDFilter {
    public:
       explicit MCZll(const edm::ParameterSet&);
-      ~MCZll();
-      virtual void endJob() ;
+      ~MCZll() override;
+      void endJob() override ;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::HepMCProduct> token_;

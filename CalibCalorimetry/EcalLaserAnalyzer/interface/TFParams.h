@@ -11,8 +11,8 @@
 #include "TF1.h"
 #include <ctime>
 #include "TGraph.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include "TH2.h"
 #include "TH1.h"
 #include "TStyle.h"
@@ -63,7 +63,7 @@
  public:
 
  TFParams( int size = SDIM2, int size_sh = PLSHDIM );
-~TFParams(){};
+~TFParams() override{};
 double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  void set_const( int ,int ,int ,double ,double ,int);
  void produit_mat(matrice,matrice,matrice) ;
@@ -93,6 +93,6 @@ double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  double mixShape( Double_t *, Double_t * ) ;
  double computePulseWidth( int, double, double) ;
 
- ClassDef( TFParams, 0 )
+ ClassDefOverride( TFParams, 0 )
 };
 #endif

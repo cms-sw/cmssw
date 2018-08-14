@@ -29,7 +29,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Etin, std::vector<int> &Etout
   int myEt;
   int eTTotShift=2;
 
-  //std::cout << " FenixTcpFormatter Etin size() " << Etin.size() << std::endl;
+  //  std::cout << " FenixTcpFormatter Etin size() " << Etin.size() << std::endl;
   for (unsigned int i=0; i<Etin.size();++i) {
     // bug fix 091009:
     myEt=Etin[i]; 
@@ -41,18 +41,11 @@ void EcalFenixTcpFormat::process(std::vector<int> &Etin, std::vector<int> &Etout
     //std::cout << " after myEt>>= eTTotShift " << myEt << std::endl;      
     if (myEt>0x3ff) myEt=0x3ff ;
     
-    
-    int lut_out;
-    if (*badTTStatus_!=0){
-      lut_out = 0;
-    }
-    else
-      lut_out = (lut_)[myEt] ;
-    
-    //    int ttFlag = (lut_out & 0x700) >> 8 ;
-    
-    myEt = lut_out & 0xff ;
-    //std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
+
+    //myEt = lut_out & 0xff ; 
+    // the lut is foreseen for 8 bits. Useless to use it here
+
+    // stay with 10 bits
     Etout[i]=myEt;
   }
   
@@ -63,8 +56,8 @@ void EcalFenixTcpFormat::process(std::vector<int> &Etin, std::vector<int> &Etout
  
 void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
                                  std::vector<int> &sfgvb,int eTTotShift,
-				 std::vector<EcalTriggerPrimitiveSample> & out,
-				 std::vector<EcalTriggerPrimitiveSample> & out2, bool isInInnerRings){
+				 std::vector<EcalEBTriggerPrimitiveSample> & out,
+				 std::vector<EcalEBTriggerPrimitiveSample> & out2, bool isInInnerRings){
   // put TP-s in the output
   // on request also in TcpFormat    
   // for famos version we have to write dummies except for the middle
@@ -87,17 +80,18 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 	else
 	  lut_out = (lut_)[myEt] ;
 	
-	int ttFlag = (lut_out & 0x700) >> 8 ;
+	// int ttFlag = (lut_out & 0x700) >> 8 ;
 	myEt = lut_out & 0xff ;
-	out[i]=EcalTriggerPrimitiveSample( myEt,fgvb[0],sfgvb[0],ttFlag); 
+	//	out[i]=EcalEBTriggerPrimitiveSample( myEt,fgvb[0],sfgvb[0],ttFlag); 
+	out[i]=EcalEBTriggerPrimitiveSample( myEt ); 
       }
-      else out[i]=EcalTriggerPrimitiveSample( );
+      else out[i]=EcalEBTriggerPrimitiveSample( );
     }
   }
   else {
     //std::cout << " FenixTcpFormatter et.size() " << Et.size() << std::endl;
     for (unsigned int i=0; i<Et.size();++i) {
-      int myFgvb=fgvb[i];
+      //int myFgvb=fgvb[i];
       int mysFgvb=sfgvb[i];
       //myEt=Et[i]>>eTTotShift;
       //if (myEt>0x3ff) myEt=0x3ff ;
@@ -127,15 +121,15 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
       else
 	lut_out = (lut_)[myEt] ;
       
-      int ttFlag = (lut_out & 0x700) >> 8 ;
+      //int ttFlag = (lut_out & 0x700) >> 8 ;
       if (tcpFormat_)  {
-	out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
+	out2[i]=EcalEBTriggerPrimitiveSample( myEt & 0x3ff);
 	//std::cout << " FenixTcpFormatter final et " << (myEt & 0x3ff) << std::endl;
       }
 
       myEt = lut_out & 0xff ;
       //std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
-      out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,mysFgvb,ttFlag); 
+      out[i]=EcalEBTriggerPrimitiveSample( myEt ); 
     }
   }
 }
@@ -144,7 +138,7 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *eca
 {
   // Get TP zeroing threshold - defaut to 1023 for old data (no record found or EE)
   spikeZeroThresh_ = 1023;
-  if(ecaltpgSpike != 0)
+  if(ecaltpgSpike != nullptr)
   {
     const EcalTPGSpike::EcalTPGSpikeMap &spikeMap = ecaltpgSpike->getMap();
     EcalTPGSpike:: EcalTPGSpikeMapIterator sit = spikeMap.find(towid);

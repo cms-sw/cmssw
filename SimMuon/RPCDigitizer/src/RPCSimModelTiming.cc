@@ -10,26 +10,26 @@
 
 #include <cmath>
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
-#include<cstring>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<stdlib.h>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <utility>
 #include <map>
 
@@ -57,6 +57,7 @@ RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(c
   frate=config.getParameter<double>("Frate");
   do_Y =  config.getParameter<bool>("do_Y_coordinate");
   sigmaY = config.getParameter<double>("sigmaY");
+  eledig = config.getParameter<bool>("digitizeElectrons");
   
   if (rpcdigiprint) {
     edm::LogInfo("RPC digitizer parameters") <<"Average Efficiency        = "<<aveEff;
@@ -96,7 +97,7 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
     
-    if(_hit-> particleType() == 11) continue;
+    if(!eledig &&  _hit-> particleType() == 11) continue;
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
     
@@ -150,44 +151,28 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 	  }
 	}
       }
-      
+ 
+      //digitize all the strips in the cluster
+      //in the previuos version some strips were dropped 
+      //leading to un-physical "shift" of the cluster
       for (std::vector<int>::iterator i=cls.begin(); i!=cls.end();i++){
-	// Check the timing of the adjacent strip
-	if(*i != centralStrip){
-	  if(CLHEP::RandFlat::shoot(engine) < veff[*i-1]){
-	    std::pair<int, int> digi(*i,time_hit);
-            RPCDigi adigi(*i,time_hit);
-            adigi.hasTime(true);
-            adigi.setTime(precise_time);
- 	    if(do_Y)
-	      {
-	  	adigi.hasY(true);
-	  	adigi.setY(smearedPositionY);
-		adigi.setDeltaY(sigmaY);
-	      }
-            irpc_digis.insert(adigi);
-	    
-	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
+	std::pair<int, int> digi(*i,time_hit);
+	RPCDigi adigi(*i,time_hit);
+	adigi.hasTime(true);
+	adigi.setTime(precise_time);
+	if(do_Y)
+	  {
+	    adigi.hasY(true);
+	    adigi.setY(smearedPositionY);
+	    adigi.setDeltaY(sigmaY);
 	  }
-	} 
-	else {
-	  std::pair<int, int> digi(*i,time_hit);
-	  RPCDigi adigi(*i,time_hit);
-          adigi.hasTime(true);
-          adigi.setTime(precise_time);
-          if(do_Y)
-	    {
-	      adigi.hasY(true);
-	      adigi.setY(smearedPositionY);
-	      adigi.setDeltaY(sigmaY);
-	    }
-          irpc_digis.insert(adigi);
-          theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
-	}
+	irpc_digis.insert(adigi);
+	theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
       }
     }
   }
 }
+
 
 void RPCSimModelTiming::simulateNoise(const RPCRoll* roll,
 				      CLHEP::HepRandomEngine* engine) 

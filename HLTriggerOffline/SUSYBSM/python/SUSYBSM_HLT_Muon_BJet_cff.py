@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_Muon_BJet = cms.EDAnalyzer("SUSY_HLT_Muon_BJet",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_Muon_BJet = DQMEDAnalyzer('SUSY_HLT_Muon_BJet',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   MuonCollection = cms.InputTag("muons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -15,7 +17,7 @@ SUSY_HLT_Muon_BJet = cms.EDAnalyzer("SUSY_HLT_Muon_BJet",
 )
 
 
-SUSY_HLT_Muon_BJet_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToMuonBJetPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu10_CentralPFJet30_BTagCSV_p13_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

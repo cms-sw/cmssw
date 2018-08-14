@@ -2,7 +2,7 @@
 #define GUARD_HDQMInspectorConfigSiStrip_h
 
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 #include "DQMServices/Diagnostic/interface/HDQMInspectorConfigBase.h"
 
@@ -11,12 +11,6 @@ class HDQMInspectorConfigSiStrip : public HDQMInspectorConfigBase
 {
   public:
     HDQMInspectorConfigSiStrip ();
-    virtual ~HDQMInspectorConfigSiStrip ();
-    
-    std::string translateDetId (const uint32_t) const;
-
+    ~HDQMInspectorConfigSiStrip () override;
 };
-
-
-
 #endif

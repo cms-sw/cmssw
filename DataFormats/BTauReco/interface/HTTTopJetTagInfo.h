@@ -73,9 +73,9 @@ public:
     
     HTTTopJetTagInfo(void) {}
 
-    virtual ~HTTTopJetTagInfo(void) {}
+    ~HTTTopJetTagInfo(void) override {}
   
-    virtual HTTTopJetTagInfo* clone(void) const { return new HTTTopJetTagInfo(*this); }
+    HTTTopJetTagInfo* clone(void) const override { return new HTTTopJetTagInfo(*this); }
     
     const properties_type & properties() const {
       return properties_;

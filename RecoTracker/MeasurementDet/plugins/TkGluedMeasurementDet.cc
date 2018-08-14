@@ -9,14 +9,13 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 #include "RecHitPropagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <memory>
 
 #include <typeinfo>
-
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 
 namespace {
@@ -74,15 +73,18 @@ TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet,
                                               const StripClusterParameterEstimator* cpe) :
   MeasurementDet(gdet), 
   theMatcher(matcher),  theCPE(cpe),
-  theMonoDet(nullptr), theStereoDet(nullptr)
+  theMonoDet(nullptr), theStereoDet(nullptr),
+  theTopology(nullptr)
 {}
 
 void TkGluedMeasurementDet::init(const MeasurementDet* monoDet,
-				 const MeasurementDet* stereoDet) {
+				 const MeasurementDet* stereoDet,
+                                 const TrackerTopology* tTopo) {
   theMonoDet = dynamic_cast<const TkStripMeasurementDet *>(monoDet);
   theStereoDet = dynamic_cast<const TkStripMeasurementDet *>(stereoDet);
+  theTopology = tTopo;
   
-  if ((theMonoDet == 0) || (theStereoDet == 0)) {
+  if ((theMonoDet == nullptr) || (theStereoDet == nullptr)) {
     throw MeasurementDetException("TkGluedMeasurementDet ERROR: Trying to glue a det which is not a TkStripMeasurementDet");
   }
 }
@@ -102,7 +104,7 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
 bool TkGluedMeasurementDet::recHits(SimpleHitContainer & result,  
 				    const TrajectoryStateOnSurface& stateOnThisDet, 
 				    const MeasurementEstimator& est, const MeasurementTrackerEvent & data) const {
-  if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) return false;
+  if UNLIKELY((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) return false;
   auto oldSize = result.size();
   HitCollectorForSimpleHits collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
   collectRecHits(stateOnThisDet, data, collector);
@@ -119,7 +121,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
                                           const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
   
-  if unlikely((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
+  if UNLIKELY((!theMonoDet->isActive(data)) && (!theStereoDet->isActive(data))) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
        result.add(theInactiveHit, 0.F);
        return true;
@@ -134,7 +136,7 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
    if (result.size()>oldSize) return true;
    
    auto id = geomDet().geographicalId().subdetId()-3;
-   auto l = TOBDetId(geomDet().geographicalId()).layer();
+   auto l = theTopology->tobLayer(geomDet().geographicalId());
    bool killHIP = (1==l) && (2==id); //TOB1
    killHIP &= stateOnThisDet.globalMomentum().perp2()>est.minPt2ForHitRecoveryInGluedDet();
    if (killHIP) {

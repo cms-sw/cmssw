@@ -58,6 +58,9 @@ namespace DataFormats_ParticleFlowCandidate {
     reco::PFCandidate::ElementInBlock jo1;
     reco::PFCandidate::ElementsInBlocks jo2;  
 
+    edm::PtrVector<reco::PFCandidate> mm1;
+    edm::Wrapper<edm::PtrVector<reco::PFCandidate> > mm2;
+
     reco::IsolatedPFCandidateRef ic_r;
     reco::IsolatedPFCandidateRefProd ic_rp;
     reco::IsolatedPFCandidateRefVector ic_rv;

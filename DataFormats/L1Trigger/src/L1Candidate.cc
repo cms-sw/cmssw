@@ -41,6 +41,12 @@ l1t::L1Candidate::~L1Candidate()
 
 }
 
-
-
+bool l1t::L1Candidate::operator==(const l1t::L1Candidate& rhs) const
+{
+  return hwPt_ == rhs.hwPt()
+      && hwEta_ == rhs.hwEta()
+      && hwPhi_ == rhs.hwPhi()
+      && hwQual_ == rhs.hwQual()
+      && hwIso_ == rhs.hwIso();
+}
 

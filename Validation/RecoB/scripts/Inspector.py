@@ -1,3 +1,4 @@
+from __future__ import print_function
 #____________________________________________________________
 #
 #  cuy
@@ -49,10 +50,10 @@ class Inspector:
 	    aobj = i.ReadObj()
 	    if aobj.IsA().InheritsFrom("TDirectory"):
 		if self.Verbose:
-		    print ' found directory: '+i.GetName()
+		    print(' found directory: '+i.GetName())
 
 		if self.XML:
-		    print '   <!-- '+i.GetName()+' -->'
+		    print('   <!-- '+i.GetName()+' -->')
 
 		bdir = self.dir
 		afile.GetObject(i.GetName(),bdir)
@@ -61,35 +62,35 @@ class Inspector:
 		    bobj = j.ReadObj()
 		    if bobj.IsA().InheritsFrom(ROOT.TH1.Class()):
 			if self.Verbose:
-			    print '  --> found TH1: name = '+j.GetName() + ' title = '+j.GetTitle()
+			    print('  --> found TH1: name = '+j.GetName() + ' title = '+j.GetTitle())
 			if self.XML:
-			    print '   <TH1 name=\"'+stripfilename+'_'+j.GetName()+'\" source=\"'+'/'+i.GetName()+'/'+j.GetName()+'\"/>'
+			    print('   <TH1 name=\"'+stripfilename+'_'+j.GetName()+'\" source=\"'+'/'+i.GetName()+'/'+j.GetName()+'\"/>')
 			
     def GetListObjects(self):
 	
 	afile = TFile(self.Filename)
 	
 	if afile.IsZombie():
-	    print " error trying to open file: " + self.Filename
+	    print(" error trying to open file: " + self.Filename)
 	    sys.exit()
 	
 	if self.XML:
 
-	    print '''
+	    print('''
 <cuy>
-'''	
-	    print '  <validation type=\"'+afile.GetName()+'\" file=\"'+self.Filename+'\" release=\"x.y.z\">'
+''')	
+	    print('  <validation type=\"'+afile.GetName()+'\" file=\"'+self.Filename+'\" release=\"x.y.z\">')
 	
 	self.dir = ROOT.gDirectory
 	self.Loop()
 
 	if self.XML:
 
-	    print '''
+	    print('''
   </validation>
 
 </cuy>
-'''
+''')
 	    
 
 

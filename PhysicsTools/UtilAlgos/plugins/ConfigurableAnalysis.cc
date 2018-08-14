@@ -36,7 +36,7 @@
 #include "PhysicsTools/UtilAlgos/interface/Selections.h"
 #include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 #include "PhysicsTools/UtilAlgos/interface/NTupler.h"
-#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
+#include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
 
 //
 // class decleration
@@ -45,14 +45,14 @@
 class ConfigurableAnalysis : public edm::EDFilter {
    public:
       explicit ConfigurableAnalysis(const edm::ParameterSet&);
-      ~ConfigurableAnalysis();
+      ~ConfigurableAnalysis() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
-  Selections * selections_;
+  FilterSelections * selections_;
   Plotter * plotter_;
   NTupler * ntupler_;
 
@@ -72,7 +72,7 @@ class ConfigurableAnalysis : public edm::EDFilter {
 // constructors and destructor
 //
 ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
-  selections_(0), plotter_(0), ntupler_(0)
+  selections_(nullptr), plotter_(nullptr), ntupler_(nullptr)
 {
 
   std::string moduleLabel = iConfig.getParameter<std::string>("@module_label");
@@ -85,7 +85,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
   edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"), consumesCollector());
 
   //list of selections
-  selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
+  selections_ = new FilterSelections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());
 
   //plotting device
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
@@ -94,7 +94,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
     plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
   }
   else
-    plotter_ = 0;
+    plotter_ = nullptr;
 
   //ntupling device
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
@@ -102,7 +102,7 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
     std::string ntuplerName=ntPset.getParameter<std::string>("ComponentName");
     ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
   }
-  else ntupler_=0;
+  else ntupler_=nullptr;
 
   flows_ = iConfig.getParameter<std::vector<std::string> >("flows");
   workAsASelector_ = iConfig.getParameter<bool>("workAsASelector");
@@ -134,7 +134,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool filledOnce=false;
 
   // loop the requested selections
-  for (Selections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
+  for (FilterSelections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
     //was this flow of filter actually asked for
     bool skip=true;
     unsigned int iFlow=0;
@@ -158,7 +158,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       plotter_->fill(fullContent,iEvent);
 
     //loop the filters to make cumulative and allButOne job
-    for (Selection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
+    for (FilterSelection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
       SFilter & filter = (*filterIt);
       //      bool lastCut=((filterIt+1)==selection->end());
 

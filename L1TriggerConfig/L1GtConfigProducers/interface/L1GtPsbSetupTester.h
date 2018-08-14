@@ -37,9 +37,9 @@ public:
     explicit L1GtPsbSetupTester(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1GtPsbSetupTester();
+    ~L1GtPsbSetupTester() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

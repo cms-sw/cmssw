@@ -33,12 +33,12 @@
 class ValidationMisalignedTracker : public edm::EDAnalyzer {
 public:
   explicit ValidationMisalignedTracker(const edm::ParameterSet&);
-  ~ValidationMisalignedTracker();
+  ~ValidationMisalignedTracker() override;
   
   
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   // ----------member data ---------------------------
   

@@ -59,7 +59,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,				    
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, double HBthreshold1, double HBthreshold2,
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1, 
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2,
     double HF1threshold, double HF2threshold, 
@@ -82,7 +84,9 @@ public:
     bool useSymEBTreshold, bool useSymEETreshold,
 
     double HcalThreshold,
-    double HBthreshold, double HESthreshold, double HEDthreshold,
+    double HBthreshold, double HBthreshold1, double HBthreshold2,
+    double HESthreshold, double HESthreshold1,
+    double HEDthreshold, double HEDthreshold1,
     double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
     double HOthresholdPlus2, double HOthresholdMinus2, 
     double HF1threshold, double HF2threshold,
@@ -250,7 +254,9 @@ private:
   
   double  theHcalThreshold;
 
-  double theHBthreshold, theHESthreshold,  theHEDthreshold; 
+  double theHBthreshold, theHBthreshold1, theHBthreshold2;
+  double theHESthreshold, theHESthreshold1; 
+  double theHEDthreshold, theHEDthreshold1; 
   double theHOthreshold0, theHOthresholdPlus1, theHOthresholdMinus1;
   double theHOthresholdPlus2, theHOthresholdMinus2, theHF1threshold, theHF2threshold;
   std::vector<double> theEBGrid, theEBWeights;
@@ -353,12 +359,6 @@ private:
   edm::Handle<EcalRecHitCollection> theEeHandle;
   
   int theHcalPhase;
-
-  //store merged depths for tower 28/29 (for 2 types of RBX's)
-  std::vector<int> mergedDepths, mergedDepthsOne;
-  //Subdetector type and phi/depth for special RBX 
-  int              subdetOne;
-  std::vector<std::pair<int,int>> phizOne;
 
   std::vector<HcalDetId>          ids_;
 };

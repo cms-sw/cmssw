@@ -24,29 +24,29 @@ class CompositeTECPetal final : public GeometricSearchDet {
   CompositeTECPetal(std::vector<const TECWedge*>& innerWedges,
 		    std::vector<const TECWedge*>& outerWedges)  __attribute__ ((cold));
   
-  ~CompositeTECPetal()  __attribute__ ((cold));
+  ~CompositeTECPetal()  override __attribute__ ((cold));
 
   // GeometricSearchDet interface  
-  virtual const BoundSurface& surface() const final {return *theDiskSector;}
+  const BoundSurface& surface() const final {return *theDiskSector;}
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const final {return *theDiskSector;}
 
 
   
   // GeometricSearchDet interface  
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold)) {return theComps;}
   
-  virtual std::pair<bool, TrajectoryStateOnSurface>
+  std::pair<bool, TrajectoryStateOnSurface>
     compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		const MeasurementEstimator&) const __attribute__((cold));
+		const MeasurementEstimator&) const override __attribute__((cold));
   
-  virtual void
+  void
     groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			    const Propagator& prop,
 			    const MeasurementEstimator& est,
-			    std::vector<DetGroup> & result) const __attribute__ ((hot));
+			    std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
   
  private:

@@ -21,7 +21,7 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 {
   WriterFactory* factory = WriterFactory::get();
   std::auto_ptr<WriterProxy> writer(factory->create( recordType + "@Writer" )) ;
-  if( writer.get() == 0 )
+  if( writer.get() == nullptr )
     {
       throw cond::Exception( "DataWriter: could not create WriterProxy with name "
 			     + recordType + "@Writer" ) ;

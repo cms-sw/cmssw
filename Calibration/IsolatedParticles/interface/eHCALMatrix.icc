@@ -12,7 +12,7 @@ namespace spr{
 
   //*** Returns energy in NxN Hcal towers
   template <typename T>
-  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool algoNew, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, bool algoNew, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int useRaw, bool debug) {
 
     std::vector< typename T::const_iterator> hit;
     HcalDetId hcid0(det0.rawId());
@@ -32,7 +32,7 @@ namespace spr{
   }
 
   template <typename T>
-  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int useRaw, bool debug) {
 
     HcalDetId hcid0(det0.rawId());
     HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
@@ -44,7 +44,7 @@ namespace spr{
 
   // NxN method modified to return rechit vectors for hitmaps
   template <typename T>
-  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::set<int>& uniqueIdset, bool useRaw) {
+  double eHCALmatrix(const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, std::set<int>& uniqueIdset, int useRaw) {
 
     bool debug = false;
     bool includeHO = false;
@@ -78,7 +78,7 @@ namespace spr{
   // NxN method modified to return rechit vectors for hitmaps
   // and hottest cell info
   template <typename T>
-  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, GlobalPoint& gPosHotCell, bool useRaw) {
+  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, int& nRecHits, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, GlobalPoint& gPosHotCell, int useRaw) {
 
     bool debug = false;
     bool includeHO = false;
@@ -125,7 +125,7 @@ namespace spr{
   }
 
   template <typename T>
-  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, HcalDetId& hotCell, bool includeHO, bool useRaw, bool debug) { 
+  double eHCALmatrix(const CaloGeometry* geo, const HcalTopology* topology, const DetId& det0, edm::Handle<T>& hits, int ieta, int iphi, HcalDetId& hotCell, bool includeHO, int useRaw, bool debug) { 
 
     HcalDetId hcid0(det0.rawId());
     HcalDetId hcid(hcid0.subdet(),hcid0.ieta(),hcid0.iphi(),1);
@@ -145,7 +145,7 @@ namespace spr{
 
 
   template <typename T>
-  double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  double energyHCALmatrixNew(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ieta, int iphi, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int useRaw, bool debug) {
 
     std::vector<DetId> dets(1,det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, includeHO, false);
@@ -158,7 +158,7 @@ namespace spr{
   }
 
   template <typename T>
-  double energyHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  double energyHCALmatrixTotal(const HcalTopology* topology, const DetId& det, edm::Handle<T>& hits, int ietaE, int ietaW, int iphiN, int iphiS, bool includeHO, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int useRaw, bool debug) {
 
     std::vector<DetId> dets(1,det);
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ietaE, ietaW, iphiN, iphiS, includeHO, debug);
@@ -182,7 +182,7 @@ namespace spr{
   }
 
   template <typename T>
-  double energyHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  double energyHCAL(std::vector<DetId>& vdets, edm::Handle<T>& hits, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int useRaw, bool debug) {
 
     int    khit      = 0;
     double energySum = 0;
@@ -191,10 +191,7 @@ namespace spr{
       std::vector< typename T::const_iterator> hit = spr::findHit(hits, vdets[i]);
       double energy = 0;
       int subdet  = ((HcalDetId)(vdets[i].rawId())).subdet();	
-      double eThr = hbThr;
-      if      (subdet == (int)(HcalEndcap))  eThr = heThr;
-      else if (subdet == (int)(HcalForward)) eThr = hfThr;
-      else if (subdet == (int)(HcalOuter))   eThr = hoThr;
+      double eThr = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
       for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
         if (hit[ihit] != hits->end()) {
           khit++;
@@ -212,17 +209,16 @@ namespace spr{
   }
 
   template<typename T>
-  void energyHCALCell(HcalDetId detID, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, bool useRaw, bool debug) {
+  void energyHCALCell(HcalDetId detID, edm::Handle<T>& hits, std::vector<std::pair<double,int> >& energyCell, int maxDepth, double hbThr, double heThr, double hfThr, double hoThr, double tMin, double tMax, int useRaw, int depthHE, bool debug) {
     energyCell.clear();
     int    subdet  = detID.subdet();	
-    double eThr    = hbThr;
-    if      (subdet == (int)(HcalEndcap))  eThr = heThr;
-    else if (subdet == (int)(HcalForward)) eThr = hfThr;
-    else if (subdet == (int)(HcalOuter))   eThr = hoThr;
+    double eThr    = spr::eHCALThreshold(subdet, hbThr, heThr, hfThr, hoThr);
+    bool   hbhe    = (detID.ietaAbs() == 16);
     if (debug)
       std::cout << "energyHCALCell: input ID " << detID << " MaxDepth " << maxDepth << " Threshold (E) " << eThr << " (T) " << tMin << ":" << tMax << std::endl;
     for (int i=0; i<maxDepth; i++) {
-      HcalDetId hcid(detID.subdet(),detID.ieta(),detID.iphi(),i+1);
+      HcalSubdetector subdet0 = (hbhe) ? ((i+1 >= depthHE) ? HcalEndcap : HcalBarrel) : detID.subdet();
+      HcalDetId hcid(subdet0,detID.ieta(),detID.iphi(),i+1);
       DetId det(hcid.rawId());
       std::vector< typename T::const_iterator> hit = spr::findHit(hits, det);
       double energy(0);
@@ -234,7 +230,7 @@ namespace spr{
       }
       if (debug)
          std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr << std::endl;
-      if (energy>eThr && hit.size() > 0) {
+      if (energy>eThr && !(hit.empty())) {
         energyCell.push_back(std::pair<double,int>(energy,i+1));
       }
     }

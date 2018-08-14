@@ -65,7 +65,7 @@ class BPHMultiSelect: public T {
 
   /** Destructor
    */
-  virtual ~BPHMultiSelect() {}
+  ~BPHMultiSelect() override {}
 
   /** Operations
    */
@@ -79,18 +79,18 @@ class BPHMultiSelect: public T {
   }
 
   /// accept function
-  virtual bool accept( const reco::Candidate & cand,
-                       const BPHRecoBuilder*  build ) const { return false; }
-  virtual bool accept( const reco::Candidate & cand ) const { return false; }
-  virtual bool accept( const BPHDecayMomentum& cand ) const { return false; }
-  virtual bool accept( const BPHDecayVertex  & cand ) const { return false; }
-  virtual bool accept( const BPHKinematicFit & cand ) const { return false; }
+  bool accept( const reco::Candidate & cand, //NOLINT
+	       const BPHRecoBuilder*  build ) const  { return false; } //NOLINT
+  bool accept( const reco::Candidate & cand ) const  { return false; } //NOLINT
+  bool accept( const BPHDecayMomentum& cand ) const { return false; } //NOLINT
+  bool accept( const BPHDecayVertex  & cand ) const { return false; } //NOLINT
+  bool accept( const BPHKinematicFit & cand ) const { return false; } //NOLINT
 
  private:
 
   // private copy and assigment constructors
-  BPHMultiSelect           ( const BPHMultiSelect<T>& x );
-  BPHMultiSelect& operator=( const BPHMultiSelect<T>& x );
+  BPHMultiSelect           ( const BPHMultiSelect<T>& x ) = delete;
+  BPHMultiSelect& operator=( const BPHMultiSelect<T>& x ) = delete;
 
   struct SelectElement {
     T* selector;

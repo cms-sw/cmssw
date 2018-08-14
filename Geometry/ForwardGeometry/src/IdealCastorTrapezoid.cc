@@ -1,7 +1,7 @@
 #include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "CLHEP/Geometry/Plane3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include <math.h>
+#include <cmath>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
@@ -116,7 +116,7 @@ IdealCastorTrapezoid::localCorners( Pt3DVec&        lc  ,
 				    Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
    
    const CCGFloat dxl ( pv[0] ) ;
    const CCGFloat dxh ( pv[1] ) ;

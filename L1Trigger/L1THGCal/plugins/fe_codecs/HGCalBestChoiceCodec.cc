@@ -16,16 +16,16 @@ HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Code
 
 
 /*****************************************************************/
-void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
-        const HGCHEDigiCollection& fh,
-        const HGCHEDigiCollection& ) 
+void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCalDigiCollection& ee,
+        const HGCalDigiCollection& fh,
+        const HGCalDigiCollection& ) 
 /*****************************************************************/
 {
     data_.reset();
-    std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-    std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+    std::vector<HGCalDataFrame> dataframes;
+    std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
     // convert ee and fh hit collections into the same object
-    if(ee.size()>0)
+    if(!ee.empty())
     {
         for(const auto& eedata : ee)
         {
@@ -36,7 +36,7 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const HGCEEDigiCollection& ee,
             }
         }
     }
-    else if(fh.size()>0)
+    else if(!fh.empty())
     {
         for(const auto& fhdata : fh)
         {

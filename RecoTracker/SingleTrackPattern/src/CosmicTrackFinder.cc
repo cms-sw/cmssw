@@ -95,7 +95,7 @@ namespace cms
     es.get<TrackerDigiGeometryRecord>().get(tracker);
     edm::LogVerbatim("CosmicTrackFinder") << "========== Cosmic Track Finder Info ==========";
     edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Seeds " << (*seed).size();
-    if((*seed).size()>0){
+    if(!(*seed).empty()){
 
       std::vector<Trajectory> trajoutput;
       
@@ -127,7 +127,7 @@ namespace cms
 
       edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Temp Trajectories " << trajoutput.size();
       edm::LogVerbatim("CosmicTrackFinder") << "========== END Info ==========";
-      if(trajoutput.size()>0){
+      if(!trajoutput.empty()){
 
         // crazyness...
 	std::vector<Trajectory*> tmpTraj;

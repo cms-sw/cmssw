@@ -65,6 +65,11 @@ namespace edm {
       inputTagPlayback_ = InputTag(labelPlayback, "", edm::InputTag::kSkipCurrentProcess);
       consumes<CrossingFramePlaybackInfoNew>(inputTagPlayback_);
     }
+    wrapLongTimes_ = false;
+    if (ps_mix.exists("WrapLongTimes")) {
+      wrapLongTimes_ = ps_mix.getParameter<bool>("WrapLongTimes");
+    }
+
 
     ParameterSet ps=ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
@@ -81,11 +86,11 @@ namespace edm {
 
           if (object=="SimTrack") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<std::vector<SimTrack> >(tag, consumesCollector(),wrapLongTimes_));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -98,13 +103,13 @@ namespace edm {
 
           } else if (object=="RecoTrack") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector(),wrapLongTimes_));
 	    // note: no crossing frame is foreseen to be used for this object type
 	    
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
@@ -112,11 +117,11 @@ namespace edm {
 
           } else if (object=="SimVertex") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
-            adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector()));
+            adjustersObjects_.push_back(new Adjuster<std::vector<SimVertex> >(tag, consumesCollector(),wrapLongTimes_));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -129,7 +134,7 @@ namespace edm {
 
           } else if (object=="HepMCProduct") {
             InputTag tag;
-            if (tags.size()>0) tag=tags[0];
+            if (!tags.empty()) tag=tags[0];
             std::string label;
 
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
@@ -160,7 +165,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
-              adjustersObjects_.push_back(new Adjuster<std::vector<PCaloHit> >(tag, consumesCollector()));
+              adjustersObjects_.push_back(new Adjuster<std::vector<PCaloHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PCaloHit> >(label);
@@ -176,6 +181,8 @@ namespace edm {
             std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
             std::vector<std::string> crossingFrames=pset.getUntrackedParameter<std::vector<std::string> >("crossingFrames", std::vector<std::string>());
             sort_all(crossingFrames);
+            std::vector<std::string> pcrossingFrames=pset.getUntrackedParameter<std::vector<std::string> >("pcrossingFrames", std::vector<std::string>());
+            sort_all(pcrossingFrames);
             for (unsigned int ii=0;ii<subdets.size();++ii) {
               InputTag tag;
               if (tags.size()==1) tag=tags[0];
@@ -183,10 +190,14 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
-              adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector()));
+              adjustersObjects_.push_back(new Adjuster<std::vector<PSimHit> >(tag, consumesCollector(),wrapLongTimes_));
               if(binary_search_all(crossingFrames, tag.instance())) {
-                workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
+                bool makePCrossingFrame = binary_search_all(pcrossingFrames, tag.instance());
+                workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF, makePCrossingFrame));
                 produces<CrossingFrame<PSimHit> >(label);
+                if(makePCrossingFrame) {
+                  produces<PCrossingFrame<PSimHit> >(label);
+                }
                 consumes<std::vector<PSimHit> >(tag);
               }
 
@@ -224,7 +235,7 @@ namespace edm {
 	}
         std::unique_ptr<DigiAccumulatorMixMod> accumulator = std::unique_ptr<DigiAccumulatorMixMod>(DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(pset, *this, iC));
         // Create appropriate DigiAccumulator
-        if(accumulator.get() != 0) {
+        if(accumulator.get() != nullptr) {
           digiAccumulators_.push_back(accumulator.release());
         }
     }
@@ -404,7 +415,7 @@ namespace edm {
     }
     else{ // have to read PU information from playback info
       for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
-
+	bunchCrossingList.push_back(bunchIdx);
 	for (size_t readSrcIdx=0; readSrcIdx<maxNbSources_; ++readSrcIdx) {
                                                                       
 	  if(oldFormatPlayback) {
@@ -413,12 +424,16 @@ namespace edm {
 	    if(readSrcIdx == 0) {
 	      PileupList.push_back(numberOfEvents);
 	      TrueNumInteractions_.push_back(numberOfEvents);
+	      numInteractionList.push_back(numberOfEvents);
+	      TrueInteractionList.push_back(numberOfEvents);
 	    }
 	  } else {
 	    size_t numberOfEvents = playbackInfo_H->getNumberOfEvents(bunchIdx, readSrcIdx);
 	    if(readSrcIdx == 0) {
 	      PileupList.push_back(numberOfEvents);
 	      TrueNumInteractions_.push_back(numberOfEvents);
+	      numInteractionList.push_back(numberOfEvents);
+	      TrueInteractionList.push_back(numberOfEvents);
 	    }
 	  }
 	}

@@ -4,8 +4,8 @@
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -19,14 +19,13 @@ class DDFilteredView
 {
 public:
   typedef DDExpandedView::nav_type nav_type;
+
+  //!Keeps a pointer to the DDfilter
+  DDFilteredView(const DDCompactView &, const DDFilter&);
+
+  DDFilteredView() = delete;
   
-  DDFilteredView(const DDCompactView &);
-  
-  ~DDFilteredView();
-  
-  void addFilter(const DDFilter &, DDLogOp op = DDLogOp::AND);
-  
-    //! The logical-part of the current node in the filtered-view
+   //! The logical-part of the current node in the filtered-view
   const DDLogicalPart & logicalPart() const;
   
   //! The absolute translation of the current node
@@ -88,8 +87,7 @@ private:
   bool filter();
 
   DDExpandedView epv_;
-  std::vector<DDFilter const *> criteria_;
-  std::vector<DDLogOp> logOps_; // logical operation for merging the result of 2 filters
+  DDFilter const* filter_;
   std::vector<DDGeoHistory> parents_; // filtered-parents
 };
 

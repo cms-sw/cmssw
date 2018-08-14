@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import os
 import time
 import sys
@@ -87,8 +88,8 @@ class StandardTester(object):
 
         lines = { 'read312RV' : ['cmsRun '+self.file2Path('Utilities/ReleaseScripts/scripts/read312RV_cfg.py')], 
                   'fastsim'   : ["cmsDriver.py TTbar_8TeV_TuneCUETP8M1_cfi  --conditions auto:run1_mc --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot Realistic8TeVCollision"],
-                  'fastsim1'  : ["cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi --conditions auto:run2_mc --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot NominalCollision2015 --era Run2_25ns --magField 38T_PostLS1"],
-                  'fastsim2'  : ["cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi --conditions auto:run2_mc --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot NominalCollision2015 --era Run2_2016 --magField 38T_PostLS1"],
+                  'fastsim1'  : ["cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi --conditions auto:run2_mc_l1stage1 --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot NominalCollision2015 --era Run2_25ns"],
+                  'fastsim2'  : ["cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi --conditions auto:run2_mc --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot NominalCollision2015 --era Run2_2016"],
                   'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')],
                 }
 
@@ -102,36 +103,48 @@ class StandardTester(object):
                     'hlt_mc_Fake1': ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_Fake1 --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_25ns --fileout file:RelVal_Raw_Fake1_MC.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake1.py')+hltFlag_mc,
                                'cmsDriver.py RelVal -s HLT:Fake1,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_Fake1 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_25ns --processName=HLTRECO --filein file:RelVal_Raw_Fake1_MC.root --fileout file:RelVal_Raw_Fake1_MC_HLT_RECO.root'], 
-                    'hlt_mc_GRun' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_GRun --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --magField 38T_PostLS1 --fileout file:RelVal_Raw_GRun_MC.root',
+                    'hlt_mc_Fake2': ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_Fake2 --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --fileout file:RelVal_Raw_Fake2_MC.root',
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake2.py')+hltFlag_mc,
+                               'cmsDriver.py RelVal -s HLT:Fake2,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_Fake2 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --processName=HLTRECO --filein file:RelVal_Raw_Fake2_MC.root --fileout file:RelVal_Raw_Fake2_MC_HLT_RECO.root'], 
+                    'hlt_mc_2018v32' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_2018v32 --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_2018v32_MC.root',
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_2018v32.py')+hltFlag_mc,
+                               'cmsDriver.py RelVal -s HLT:2018v32,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_2018v32 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_2018v32_MC.root --fileout file:RelVal_Raw_2018v32_MC_HLT_RECO.root'], 
+                    'hlt_mc_GRun' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_GRun --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_GRun_MC.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_GRun.py')+hltFlag_mc,
-                               'cmsDriver.py RelVal -s HLT:GRun,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_GRun --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_GRun_MC.root --fileout file:RelVal_Raw_GRun_MC_HLT_RECO.root'], 
-                    'hlt_mc_HIon' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=HeavyIons -n 10 --conditions auto:run2_mc_HIon --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016,Run2_HI --magField 38T_PostLS1 --fileout file:RelVal_Raw_HIon_MC.root',
+                               'cmsDriver.py RelVal -s HLT:GRun,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_GRun --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_GRun_MC.root --fileout file:RelVal_Raw_GRun_MC_HLT_RECO.root'], 
+                    'hlt_mc_HIon' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=HeavyIons -n 10 --conditions auto:run2_mc_HIon --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_HI --fileout file:RelVal_Raw_HIon_MC.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_HIon.py')+hltFlag_mc,
-                               'cmsDriver.py RelVal -s HLT:HIon,RAW2DIGI,L1Reco,RECO --mc --scenario=HeavyIons -n 10 --conditions auto:run2_mc_HIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016,Run2_HI --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_HIon_MC.root --fileout file:RelVal_Raw_HIon_MC_HLT_RECO.root'],
-                    'hlt_mc_PIon' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_PIon --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --magField 38T_PostLS1 --fileout file:RelVal_Raw_PIon_MC.root', 
+                               'cmsDriver.py RelVal -s HLT:HIon,RAW2DIGI,L1Reco,RECO --mc --scenario=HeavyIons -n 10 --conditions auto:run2_mc_HIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_HI --processName=HLTRECO --filein file:RelVal_Raw_HIon_MC.root --fileout file:RelVal_Raw_HIon_MC_HLT_RECO.root'],
+                    'hlt_mc_PIon' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_PIon --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_PIon_MC.root', 
                                'cmsRun ' + self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_PIon.py')+hltFlag_mc,
-                               'cmsDriver.py RelVal -s HLT:PIon,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_PIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_PIon_MC.root --fileout file:RelVal_Raw_PIon_MC_HLT_RECO.root'],
-                    'hlt_mc_PRef' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_PRef --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --magField 38T_PostLS1 --fileout file:RelVal_Raw_PRef_MC.root', 
+                               'cmsDriver.py RelVal -s HLT:PIon,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_PIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_PIon_MC.root --fileout file:RelVal_Raw_PIon_MC_HLT_RECO.root'],
+                    'hlt_mc_PRef' : ['cmsDriver.py TTbar_Tauola_13TeV_TuneCUETP8M1_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:run2_mc_PRef --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAWSIM --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_PRef_MC.root', 
                                'cmsRun ' + self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_PRef.py')+hltFlag_mc,
-                               'cmsDriver.py RelVal -s HLT:PRef,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_PRef --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_PRef_MC.root --fileout file:RelVal_Raw_PRef_MC_HLT_RECO.root'],
+                               'cmsDriver.py RelVal -s HLT:PRef,RAW2DIGI,L1Reco,RECO --mc --scenario=pp -n 10 --conditions auto:run2_mc_PRef --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_PRef_MC.root --fileout file:RelVal_Raw_PRef_MC_HLT_RECO.root'],
                     'hlt_data_Fake' : ['cmsDriver.py RelVal -s L1REPACK:GT1   --data --scenario=pp -n 10 --conditions auto:run1_hlt_Fake --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --fileout file:RelVal_Raw_Fake_DATA.root --filein /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake.py')+hltFlag_data,
                                'cmsDriver.py RelVal -s HLT:Fake,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run1_data_Fake --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --processName=HLTRECO --filein file:RelVal_Raw_Fake_DATA.root --fileout file:RelVal_Raw_Fake_DATA_HLT_RECO.root'],
                     'hlt_data_Fake1': ['cmsDriver.py RelVal -s L1REPACK:GCTGT --data --scenario=pp -n 10 --conditions auto:run2_hlt_Fake1 --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_25ns --fileout file:RelVal_Raw_Fake1_DATA.root --filein /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake1.py')+hltFlag_data,
                                'cmsDriver.py RelVal -s HLT:Fake1,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_Fake1 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_25ns --processName=HLTRECO --filein file:RelVal_Raw_Fake1_DATA.root --fileout file:RelVal_Raw_Fake1_DATA_HLT_RECO.root'],
-                    'hlt_data_GRun' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_GRun --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --magField 38T_PostLS1 --fileout file:RelVal_Raw_GRun_DATA.root --filein /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root',
+                    'hlt_data_Fake2': ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_Fake2 --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --fileout file:RelVal_Raw_Fake2_DATA.root --filein /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root',
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_Fake2.py')+hltFlag_data,
+                               'cmsDriver.py RelVal -s HLT:Fake2,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_Fake2 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --processName=HLTRECO --filein file:RelVal_Raw_Fake2_DATA.root --fileout file:RelVal_Raw_Fake2_DATA_HLT_RECO.root'],
+                    'hlt_data_2018v32' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_2018v32 --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_2018v32_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
+                               'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_2018v32.py')+hltFlag_data,
+                               'cmsDriver.py RelVal -s HLT:2018v32,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_2018v32 --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_2018v32_DATA.root --fileout file:RelVal_Raw_2018v32_DATA_HLT_RECO.root'],
+                    'hlt_data_GRun' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_GRun --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --fileout file:RelVal_Raw_GRun_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_GRun.py')+hltFlag_data,
-                               'cmsDriver.py RelVal -s HLT:GRun,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_GRun --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_25ns --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_GRun_DATA.root --fileout file:RelVal_Raw_GRun_DATA_HLT_RECO.root'],
-                    'hlt_data_HIon' : ['cmsDriver.py RelVal -s L1REPACK:Full2015Data --data --scenario=HeavyIons -n 10 --conditions auto:run2_hlt_HIon --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016,Run2_HI --magField 38T_PostLS1 --fileout file:RelVal_Raw_HIon_DATA.root --filein /store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root',
+                               'cmsDriver.py RelVal -s HLT:GRun,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_GRun --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_GRun_DATA.root --fileout file:RelVal_Raw_GRun_DATA_HLT_RECO.root'],
+                    'hlt_data_HIon' : ['cmsDriver.py RelVal -s L1REPACK:Full2015Data --data --scenario=HeavyIons -n 10 --conditions auto:run2_hlt_HIon --relval 9000,50 --datatier "RAW" --eventcontent RAW --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016,Run2_HI --fileout file:RelVal_Raw_HIon_DATA.root --filein /store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_HIon.py')+hltFlag_data,
-                               'cmsDriver.py RelVal -s HLT:HIon,RAW2DIGI,L1Reco,RECO --data --scenario=HeavyIons -n 10 --conditions auto:run2_data_HIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016,Run2_HI --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_HIon_DATA.root --fileout file:RelVal_Raw_HIon_DATA_HLT_RECO.root'],
-                    'hlt_data_PIon' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_PIon --relval 9000,50 --datatier "RAW" --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --magField 38T_PostLS1 --eventcontent RAW --fileout file:RelVal_Raw_PIon_DATA.root --filein /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root',
+                               'cmsDriver.py RelVal -s HLT:HIon,RAW2DIGI,L1Reco,RECO --data --scenario=HeavyIons -n 10 --conditions auto:run2_data_HIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016,Run2_HI --processName=HLTRECO --filein file:RelVal_Raw_HIon_DATA.root --fileout file:RelVal_Raw_HIon_DATA_HLT_RECO.root'],
+                    'hlt_data_PIon' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_PIon --relval 9000,50 --datatier "RAW" --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --eventcontent RAW --fileout file:RelVal_Raw_PIon_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
                                'cmsRun ' + self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_PIon.py')+hltFlag_data,
-                               'cmsDriver.py RelVal -s HLT:PIon,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_PIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_PIon_DATA.root --fileout file:RelVal_Raw_PIon_DATA_HLT_RECO.root'],
-                    'hlt_data_PRef' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_PRef --relval 9000,50 --datatier "RAW" --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2016 --magField 38T_PostLS1 --eventcontent RAW --fileout file:RelVal_Raw_PRef_DATA.root --filein /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root',
+                               'cmsDriver.py RelVal -s HLT:PIon,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_PIon --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_PIon_DATA.root --fileout file:RelVal_Raw_PIon_DATA_HLT_RECO.root'],
+                    'hlt_data_PRef' : ['cmsDriver.py RelVal -s L1REPACK:Full --data --scenario=pp -n 10 --conditions auto:run2_hlt_PRef --relval 9000,50 --datatier "RAW" --customise=HLTrigger/Configuration/CustomConfigs.L1T --era Run2_2018 --eventcontent RAW --fileout file:RelVal_Raw_PRef_DATA.root --filein /store/data/Run2017A/HLTPhysics4/RAW/v1/000/295/606/00000/36DE5E0A-3645-E711-8FA1-02163E01A43B.root',
                                'cmsRun ' + self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_PRef.py')+hltFlag_data,
-                               'cmsDriver.py RelVal -s HLT:PRef,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_PRef --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2016 --magField 38T_PostLS1 --processName=HLTRECO --filein file:RelVal_Raw_PRef_DATA.root --fileout file:RelVal_Raw_PRef_DATA_HLT_RECO.root'],
+                               'cmsDriver.py RelVal -s HLT:PRef,RAW2DIGI,L1Reco,RECO --data --scenario=pp -n 10 --conditions auto:run2_data_PRef --relval 9000,50 --datatier "RAW-HLT-RECO" --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run2_2018 --processName=HLTRECO --filein file:RelVal_Raw_PRef_DATA.root --fileout file:RelVal_Raw_PRef_DATA_HLT_RECO.root'],
                      }
 
         self.commands={}
@@ -143,7 +156,7 @@ class StandardTester(object):
         return
 	
     def dumpTest(self):
-        print ",".join(self.commands.keys())
+        print(",".join(self.commands.keys()))
         return
 
     def file2Path(self,rFile):
@@ -164,7 +177,7 @@ class StandardTester(object):
     	npass=0
     	report=''
     	
-    	print 'Running in %s thread(s)' % self.maxThreads
+    	print('Running in %s thread(s)' % self.maxThreads)
     	
         for dirName, command in self.commands.items():
 
@@ -177,7 +190,7 @@ class StandardTester(object):
     	        time.sleep(10)
                 continue
     	    
-    	    print 'Preparing to run %s' % str(command)
+    	    print('Preparing to run %s' % str(command))
     	    current = testit(dirName, command)
     	    self.threadList.append(current)
     	    current.start()
@@ -193,11 +206,11 @@ class StandardTester(object):
             for f in pingle.nfail: nfail  += f
             for p in pingle.npass: npass  += p
     	    report += pingle.report
-    	    print pingle.report
+    	    print(pingle.report)
             sys.stdout.flush()
             
     	reportSumm = '\n %s tests passed, %s failed \n' %(npass,nfail)
-    	print reportSumm
+    	print(reportSumm)
     	
     	runall_report_name='runall-report.log'
     	runall_report=open(runall_report_name,'w')
@@ -205,13 +218,13 @@ class StandardTester(object):
     	runall_report.close()
 
         # get the logs to the logs dir:
-        print '==> in :', os.getcwd()
-        print '    going to copy log files to logs dir ...'
+        print('==> in :', os.getcwd())
+        print('    going to copy log files to logs dir ...')
         if not os.path.exists('logs'):
             os.makedirs('logs')
         for dirName in self.commands:
             cmd = "for L in `ls "+dirName+"/*.log`; do cp $L logs/cmsDriver-`dirname $L`_`basename $L` ; done"
-            print "going to ",cmd
+            print("going to ",cmd)
             os.system(cmd)
 
         import pickle
@@ -223,19 +236,19 @@ class StandardTester(object):
 
     def upload(self, tgtDir):
 
-        print "in ", os.getcwd()
+        print("in ", os.getcwd())
 
         if not os.path.exists(tgtDir):
             os.makedirs(tgtDir)
         
         cmd = 'tar cf - addOnTests.log addOnTests/logs | (cd '+tgtDir+' ; tar xf - ) '
         try:
-            print 'executing: ',cmd
+            print('executing: ',cmd)
             ret = os.system(cmd)
             if ret != 0:
-                print "ERROR uploading logs:", ret, cmd
+                print("ERROR uploading logs:", ret, cmd)
         except Exception as e:
-            print "EXCEPTION while uploading addOnTest-logs : ", str(e)
+            print("EXCEPTION while uploading addOnTest-logs : ", str(e))
             
     	return
 
@@ -247,7 +260,7 @@ def main(argv) :
     try:
         opts, args = getopt.getopt(argv, "dj:t:", ["nproc=", 'uploadDir=', 'tests=','noRun','dump'])
     except getopt.GetoptError as e:
-        print "unknown option", str(e)
+        print("unknown option", str(e))
         sys.exit(2)
         
     np        = 4

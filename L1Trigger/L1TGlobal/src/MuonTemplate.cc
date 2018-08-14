@@ -8,6 +8,7 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
+ *          Vladimir Rekovic - extend for indexing
  *
  * $Date$
  * $Revision$
@@ -110,6 +111,10 @@ void MuonTemplate::print(std::ostream& myCout) const
         << std::hex << m_objectParameter[i].ptHighThreshold << std::endl;
         myCout << "    ptLowThreshold    = "
         << std::hex << m_objectParameter[i].ptLowThreshold << std::endl;
+        myCout << "    indexHigh           = "
+        << std::hex << m_objectParameter[i].indexHigh << std::endl;
+        myCout << "    indexLow            = "
+        << std::hex << m_objectParameter[i].indexLow << std::endl;
         myCout << "    enableMip         = "
         << std::hex << m_objectParameter[i].enableMip << std::endl;
         myCout << "    enableIso         = "

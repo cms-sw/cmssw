@@ -49,12 +49,12 @@
 class UEDMultiLeptonFilter : public edm::EDFilter {
    public:
       explicit UEDMultiLeptonFilter(const edm::ParameterSet&);
-      ~UEDMultiLeptonFilter();
+      ~UEDMultiLeptonFilter() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       bool isLepton(HepMC::GenVertex::particles_out_const_iterator part);      
       bool isLeptonPlus(HepMC::GenVertex::particles_out_const_iterator part);
       bool isLeptonMinus(HepMC::GenVertex::particles_out_const_iterator part);      
@@ -321,7 +321,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //debug std::cout << "UED particle ID: " << (*i)->pdg_id() << " status: "<< (*i)->status()<< std::endl;
        HepMC::GenVertex* vertex = (*i)->end_vertex();
-       if(vertex!=0){
+       if(vertex!=nullptr){
        for(HepMC::GenVertex::particles_out_const_iterator part = vertex->particles_out_const_begin();
      part != vertex->particles_out_const_end(); part++ ){
           //debug std::cout << "   Outgoing particle id :"<< (*part)->pdg_id() << " status:  " << (*part)->status() << std::endl;
@@ -329,7 +329,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 if((*part)->status()==1){//debug std::cout << "Final State Lepton " << std::endl;
                 }
                 HepMC::GenVertex* lepton_vertex = (*part)->end_vertex();
-                if(lepton_vertex!=0){
+                if(lepton_vertex!=nullptr){
                 for(HepMC::GenVertex::particles_out_const_iterator lepton_part = lepton_vertex->particles_out_const_begin();
      lepton_part != lepton_vertex->particles_out_const_end(); lepton_part++ ){
                         //debug std::cout << "      Part Id: "<< (*lepton_part)->pdg_id() << " status: "<< (*lepton_part)->status()<< std::endl;
@@ -369,7 +369,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         nSSdileptons++;
         if(SSDiLepFilter==1)return AcceptEvent();
         //Vetoed decays
-        if((leptonIDplus.size()==2 && leptonIDminus.size()==0) || (leptonIDplus.size()==0 && leptonIDminus.size()==2)){
+        if((leptonIDplus.size()==2 && leptonIDminus.empty()) || (leptonIDplus.empty() && leptonIDminus.size()==2)){
 
           int e=0;
           int mu=0;      

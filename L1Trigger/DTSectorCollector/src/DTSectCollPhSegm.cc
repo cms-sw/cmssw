@@ -73,7 +73,7 @@ DTSectCollPhSegm::operator=(const DTSectCollPhSegm& seg){
 
 void 
 DTSectCollPhSegm::clear() { 
-  m_tsphitrig = 0;
+  m_tsphitrig = nullptr;
   m_isFirst = 0;
 }
 

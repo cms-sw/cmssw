@@ -1,10 +1,17 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 __version__ = "$Revision: 1.19 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
+
+import six
+# The following import is provided for backward compatibility reasons.
+# The function used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
+
 import sys
 import re
 import collections
@@ -115,11 +122,11 @@ def filesFromList(fileName,s=None):
 				s.secondaryFileNames=cms.untracked.vstring(sec)
 			else:
 				s.secondaryFileNames.extend(sec)
-	print "found files: ",prim
+	print("found files: ",prim)
 	if len(prim)==0:
 		raise Exception("There are not files in input from the file list")
 	if len(sec)!=0:
-		print "found parent files:",sec
+		print("found parent files:",sec)
 	return (prim,sec)
 	
 def filesFromDASQuery(query,option="",s=None):
@@ -127,22 +134,22 @@ def filesFromDASQuery(query,option="",s=None):
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
 	sec=[]
-	print "the query is",query
+	print("the query is",query)
 	eC=5
 	count=0
 	while eC!=0 and count<3:
 		if count!=0:
-			print 'Sleeping, then retrying DAS'
+			print('Sleeping, then retrying DAS')
 			time.sleep(100)
-		p = Popen('das_client %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+		p = Popen('dasgoclient %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
                 pipe=p.stdout.read()
 		tupleP = os.waitpid(p.pid, 0)
 		eC=tupleP[1]
 		count=count+1
 	if eC==0:
-		print "DAS succeeded after",count,"attempts",eC
+		print("DAS succeeded after",count,"attempts",eC)
 	else:
-		print "DAS failed 3 times- I give up"
+		print("DAS failed 3 times- I give up")
 	for line in pipe.split('\n'):
 		if line.count(".root")>=2:
 			#two files solution...
@@ -165,17 +172,10 @@ def filesFromDASQuery(query,option="",s=None):
 				s.secondaryFileNames=cms.untracked.vstring(sec)
 			else:
 				s.secondaryFileNames.extend(sec)
-	print "found files: ",prim
+	print("found files: ",prim)
 	if len(sec)!=0:
-		print "found parent files:",sec
+		print("found parent files:",sec)
 	return (prim,sec)
-
-def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker"):
-	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
-	for s in aProcess.paths_().keys():
-		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
-	for s in aProcess.endpaths_().keys():
-		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
 
 def anyOf(listOfKeys,dict,opt=None):
 	for k in listOfKeys:
@@ -211,7 +211,7 @@ class ConfigBuilder(object):
 		    (hasattr(self._options,"datatier") and \
 		    self._options.datatier and \
 		    'DQMIO' in self._options.datatier):
-			print "removing ENDJOB from steps since not compatible with DQMIO dataTier" 
+			print("removing ENDJOB from steps since not compatible with DQMIO dataTier") 
 			self._options.step=self._options.step.replace(',ENDJOB','')
 
 
@@ -239,15 +239,13 @@ class ConfigBuilder(object):
         #print "map of steps is:",self.stepMap
 
         self.with_output = with_output
+	self.process=process
+
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
         self.with_input = with_input
-        if process == None:
-            self.process = cms.Process(self._options.name)
-        else:
-            self.process = process
         self.imports = []
-        self.importsUnsch = []
+	self.create_process()
         self.define_Configs()
         self.schedule = list()
 
@@ -262,6 +260,7 @@ class ConfigBuilder(object):
         self.additionalOutputs = {}
 
         self.productionFilterSequence = None
+        self.labelsToAssociate=[]
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
 	self.excludedPaths=[]
@@ -314,18 +313,14 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile,unsch=0):
+    def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-	if unsch==0:
-		self.imports.append(includeFile)
-		self.process.load(includeFile)
-		return sys.modules[includeFile]
-	else:
-		self.importsUnsch.append(includeFile)
-		return 0#sys.modules[includeFile]
+        self.imports.append(includeFile)
+        self.process.load(includeFile)
+        return sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -342,9 +337,6 @@ class ConfigBuilder(object):
             else:
                     self.process.options = cms.untracked.PSet( )
 
-	    if self._options.runUnscheduled:
-		    self.process.options.allowUnscheduled=cms.untracked.bool(True)
-		    
             self.addedObjects.append(("","options"))
 
             if self._options.lazy_download:
@@ -381,7 +373,7 @@ class ConfigBuilder(object):
 
 	def filesFromOption(self):
 		for entry in self._options.filein.split(','):
-			print "entry",entry
+			print("entry",entry)
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:") or entry.startswith("das:"):
@@ -392,7 +384,7 @@ class ConfigBuilder(object):
 			if not hasattr(self.process.source,"secondaryFileNames"):
 				raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
 			for entry in self._options.secondfilein.split(','):
-				print "entry",entry
+				print("entry",entry)
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
 				elif entry.startswith("dbs:") or entry.startswith("das:"):
@@ -415,7 +407,7 @@ class ConfigBuilder(object):
 			   #list the article directory automatically
 			   args=self._options.filein.split(':')
 			   article=args[1]
-			   print 'LHE input from article ',article
+			   print('LHE input from article ',article)
 			   location='/store/lhe/'
 			   import os
 			   textOfFiles=os.popen('cmsLHEtoEOSManager.py -l '+article)
@@ -424,13 +416,16 @@ class ConfigBuilder(object):
 					   self.process.source.fileNames.append(location+article+'/'+fileName)
 			   #check first if list of LHE files is loaded (not empty)
 			   if len(line)<2:
-				   print 'Issue to load LHE files, please check and try again.'
+				   print('Issue to load LHE files, please check and try again.')
+				   sys.exit(-1)
+			   #Additional check to protect empty fileNames in process.source
+			   if len(self.process.source.fileNames)==0:
+				   print('Issue with empty filename, but can pass line check')
 				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:
 			   filesFromOption(self)
-
 		   
 	   elif self._options.filetype == "DQM":
 		   self.process.source=cms.Source("DQMRootSource",
@@ -448,7 +443,10 @@ class ConfigBuilder(object):
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
-
+	       
+	       if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
+		       self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
+		       
 	##drop LHEXMLStringProduct on input to save memory if appropriate
 	if 'GEN' in self.stepMap.keys():
         	if self._options.inputCommands:
@@ -483,7 +481,7 @@ class ConfigBuilder(object):
 			self.runsAndWeights = eval(self._options.runsAndWeightsForMC)
 		else:
 			from Configuration.StandardSequences.RunsAndWeights import RunsAndWeights
-			if type(RunsAndWeights[self._options.runsScenarioForMC])==str:
+			if isinstance(RunsAndWeights[self._options.runsScenarioForMC], str):
 				__import__(RunsAndWeights[self._options.runsScenarioForMC])
 				self.runsAndWeights = sys.modules[RunsAndWeights[self._options.runsScenarioForMC]].runProbabilityDistribution
 			else:
@@ -502,7 +500,7 @@ class ConfigBuilder(object):
 	result=""
 	if self._options.outputDefinition:
 		if self._options.datatier:
-			print "--datatier & --eventcontent options ignored"
+			print("--datatier & --eventcontent options ignored")
 							
 		#new output convention with a list of dict
 		outList = eval(self._options.outputDefinition)
@@ -540,7 +538,7 @@ class ConfigBuilder(object):
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
 				
-			if len(outDefDict.keys()):
+			if len(outDefDict):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			if theStreamType=='DQMIO': theStreamType='DQM'
 			if theStreamType=='ALL':
@@ -616,8 +614,15 @@ class ConfigBuilder(object):
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		if streamType=='': continue
+		if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
 		if streamType=='DQMIO': streamType='DQM'
-                theEventContent = getattr(self.process, streamType+"EventContent")
+		eventContent=streamType
+                ## override streamType to eventContent in case NANOEDM
+		if streamType == "NANOEDMAOD" :
+			eventContent = "NANOAOD"
+		elif streamType == "NANOEDMAODSIM" :
+			eventContent = "NANOAODSIM"
+                theEventContent = getattr(self.process, eventContent+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
                         theFilterName=self._options.filtername
@@ -628,6 +633,7 @@ class ConfigBuilder(object):
 		if self._options.timeoutOutput:
 			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
+		if "NANOAOD" in streamType : CppType='NanoAODOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -644,9 +650,8 @@ class ConfigBuilder(object):
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
                 if "MINIAOD" in streamType:
-                    output.dropMetaData = cms.untracked.string('ALL')
-                    output.fastCloning= cms.untracked.bool(False)
-                    output.overrideInputFileSplitLevels = cms.untracked.bool(True)                      
+                    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
+                    miniAOD_customizeOutput(output)
 
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)
@@ -661,7 +666,10 @@ class ConfigBuilder(object):
 				self.executeAndRemember("process.%s.outputCommands.append('%s')"%(outputModuleName,evct.strip()))
 				
                 if not self._options.inlineEventContent:
-                        def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
+			tmpstreamType=streamType
+			if "NANOEDM" in tmpstreamType :
+				tmpstreamType=tmpstreamType.replace("NANOEDM","NANO")
+			def doNotInlineEventContent(instance,label = "process."+tmpstreamType+"EventContent.outputCommands"):
                                 return label
                         outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 
@@ -698,7 +706,7 @@ class ConfigBuilder(object):
 		if 'file:' in pileupSpec:
 			#the file is local
 			self.process.load(mixingDict['file'])
-			print "inlining mixing module configuration"
+			print("inlining mixing module configuration")
 			self._options.inlineObjets+=',mix'
 		else:
 			self.loadAndRemember(mixingDict['file'])
@@ -728,7 +736,7 @@ class ConfigBuilder(object):
 				if self.geometryDBLabel:
 					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
         except ImportError:
-                print "Geometry option",self._options.geometry,"unknown."
+                print("Geometry option",self._options.geometry,"unknown.")
                 raise
 
 	if len(self.stepMap):
@@ -736,7 +744,7 @@ class ConfigBuilder(object):
 
 	for stepName in self.stepKeys:
 		stepSpec = self.stepMap[stepName]
-		print "Step:", stepName,"Spec:",stepSpec
+		print("Step:", stepName,"Spec:",stepSpec)
 		if stepName.startswith('re'):
 			##add the corresponding input content
 			if stepName[2:] not in self._options.donotDropOnInput:
@@ -744,9 +752,9 @@ class ConfigBuilder(object):
 			stepName=stepName[2:]
 		if stepSpec=="":
 			getattr(self,"prepare_"+stepName)(sequence = getattr(self,stepName+"DefaultSeq"))
-		elif type(stepSpec)==list:
+		elif isinstance(stepSpec, list):
 			getattr(self,"prepare_"+stepName)(sequence = '+'.join(stepSpec))
-		elif type(stepSpec)==tuple:
+		elif isinstance(stepSpec, tuple):
 			getattr(self,"prepare_"+stepName)(sequence = ','.join([stepSpec[1],'+'.join(stepSpec[0])]))
 		else:
 			raise ValueError("Invalid step definition")
@@ -800,7 +808,7 @@ class ConfigBuilder(object):
 	if not self._options.conditions: return
 	
 	if 'FrontierConditions_GlobalTag' in self._options.conditions:
-		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
+		print('using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line')
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
 						
         self.loadAndRemember(self.ConditionsDefaultCFF)
@@ -867,7 +875,7 @@ class ConfigBuilder(object):
 		else:
 			final_snippet += 'from %s import %s \n'%(packageName,','.join(custMap[f]))
 		for fcn in custMap[f]:
-			print "customising the process with",fcn,"from",f
+			print("customising the process with",fcn,"from",f)
 			if not hasattr(package,fcn):
 				#bound to fail at run time
 				raise Exception("config "+f+" has no function "+fcn)
@@ -902,8 +910,8 @@ class ConfigBuilder(object):
         if len(self.stepMap):
 		self.loadAndRemember('Configuration/StandardSequences/Services_cff')
         if self._options.particleTable not in defaultOptions.particleTableList:
-            print 'Invalid particle table provided. Options are:'
-            print defaultOptions.particleTable
+            print('Invalid particle table provided. Options are:')
+            print(defaultOptions.particleTable)
             sys.exit(-1)
         else:
 	    if len(self.stepMap):
@@ -923,7 +931,9 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
+        self.RECOSIMDefaultCFF="Configuration/StandardSequences/RecoSim_cff"
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
+        self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
 	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -939,23 +949,15 @@ class ConfigBuilder(object):
 
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-	    if self._options.datamix == 'PreMix':
-		    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDMPreMix_cff"
-	    else:
-	            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
-
-	if "DIGIPREMIX" in self.stepMap.keys():
-            self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
 
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
-	self.DIGIPREMIXDefaultSeq='pdigi'
-	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -971,7 +973,7 @@ class ConfigBuilder(object):
                 self.RECODefaultSeq='reconstruction'
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
-
+        self.RECOSIMDefaultSeq='recosim'
 	self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
@@ -980,6 +982,8 @@ class ConfigBuilder(object):
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
+	self.PATGENDefaultSeq='miniGEN'
+	self.NANODefaultSeq='nanoSequence'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -991,8 +995,10 @@ class ConfigBuilder(object):
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 		self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
+		self.PATGENDefaultCFF="Configuration/StandardSequences/PATGEN_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
+	        self.NANODefaultSeq='nanoSequenceMC'
 	else:
 		self._options.beamspot = None
 	
@@ -1040,7 +1046,7 @@ class ConfigBuilder(object):
         # the magnetic field
 	if self._options.isData:
 		if self._options.magField==defaultOptions.magField:
-			print "magnetic field option forced to: AutoFromDBCurrent"
+			print("magnetic field option forced to: AutoFromDBCurrent")
 		self._options.magField='AutoFromDBCurrent'
         self.magFieldCFF = 'Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff'
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
@@ -1074,7 +1080,7 @@ class ConfigBuilder(object):
 		if (geoms[0].startswith('DB:')):
 			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
 			self.geometryDBLabel=geoms[0][3:]
-			print "with DB:"
+			print("with DB:")
 		else:
 			if '/' in geoms[0] or '_cff' in geoms[0]:
 								self.SimGeometryCFF=geoms[0]
@@ -1180,15 +1186,15 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF,unsch)
+                    l=self.loadAndRemember(defaultCFF)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
+                    l=self.loadAndRemember(sequence.split('.')[0])
                     sequence=sequence.split('.')[1]
             else:
-                    print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
-                    print sequence,"not recognized"
+                    print("sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a")
+                    print(sequence,"not recognized")
                     raise
             return l
 
@@ -1280,8 +1286,8 @@ class ConfigBuilder(object):
                         alcastream = getattr(alcaConfig,name)
                         if isinstance(alcastream,cms.FilteredStream):
                                 available.append(name.replace('ALCARECOStream',''))
-                print "The following alcas could not be found "+str(alcaList)
-                print "available ",available
+                print("The following alcas could not be found "+str(alcaList))
+                print("available ",available)
                 #print "verify your configuration, ignoring for now"
                 raise Exception("The following alcas could not be found "+str(alcaList))
 
@@ -1289,7 +1295,7 @@ class ConfigBuilder(object):
 	    #load the fragment
 	    ##make it loadable
 	    loadFragment = self._options.evt_type.replace('.py','',).replace('.','_').replace('python/','').replace('/','.')
-	    print "Loading lhe fragment from",loadFragment
+	    print("Loading lhe fragment from",loadFragment)
 	    __import__(loadFragment)
 	    self.process.load(loadFragment)
 	    ##inline the modules
@@ -1315,7 +1321,7 @@ class ConfigBuilder(object):
         else:
                 loadFragment=loadFragment.replace('/','.')
 	try:
-		print "Loading generator fragment from",loadFragment
+		print("Loading generator fragment from",loadFragment)
 		__import__(loadFragment)
 	except:
 		loadFailure=True
@@ -1395,7 +1401,7 @@ class ConfigBuilder(object):
 			self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
 	else:
 		if self._options.magField=='0T':
-			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
+			self.executeAndRemember("process.fastSimProducer.detectorDefinition.magneticFieldZ = cms.untracked.double(0.)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
@@ -1407,7 +1413,7 @@ class ConfigBuilder(object):
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
-        if sequence == 'pdigi_valid':
+        if sequence == 'pdigi_valid' or sequence == 'pdigi_hi':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
 
 	if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and not self.process.source.type_()=='EmptySource':
@@ -1416,35 +1422,6 @@ class ConfigBuilder(object):
 		else:
 			self._options.inputEventContent=self._options.inputEventContent+',REGEN'
 
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
-
-        if sequence == 'pdigi_valid':
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
-	else:
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX_S2(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
-
-
-        if sequence == 'pdigi_valid':
-            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
-	else:
-	    self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
@@ -1476,10 +1453,6 @@ class ConfigBuilder(object):
     def prepare_DIGI2RAW(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
-	    if "DIGIPREMIX" in self.stepMap.keys():
-		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
-		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
-
             return
 
     def prepare_REPACK(self, sequence = None):
@@ -1496,21 +1469,21 @@ class ConfigBuilder(object):
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT']
+	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT','CalouGT']
             if sequence in supported:
                 self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
 		if self._options.scenario == 'HeavyIons':
 			self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
 		self.scheduleSequence('SimL1Emulator','L1RePack_step')
 	    else:
-                print "L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported
+                print("L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported)
                 raise Exception('unsupported feature')
 
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         if not sequence:
-                print "no specification of the hlt menu has been given, should never happen"
+                print("no specification of the hlt menu has been given, should never happen")
                 raise  Exception('no HLT sequence provided')
 
         if '@' in sequence:
@@ -1530,7 +1503,7 @@ class ConfigBuilder(object):
                   optionsForHLT['type'] = 'HIon'
                 else:
                   optionsForHLT['type'] = 'GRun'
-                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in six.iteritems(optionsForHLT))
 		if sequence == 'run,fromSource':
 			if hasattr(self.process.source,'firstRun'):
 				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -1567,7 +1540,7 @@ class ConfigBuilder(object):
                     seqReco=sequence.split(',')[1]
                     seqDigi=sequence.split(',')[0]
             else:
-                    print "RAW2RECO requires two specifications",sequence,"insufficient"
+                    print("RAW2RECO requires two specifications",sequence,"insufficient")
 
 	    self.prepare_RAW2DIGI(seqDigi)
 	    self.prepare_RECO(seqReco)
@@ -1590,7 +1563,7 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with L1 HW validation '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.L1HwValDefaultCFF)
 	#self.scheduleSequence(sequence.split('.')[-1],'l1hwval_step')
-	print '\n\n\n DEPRECATED this has no action \n\n\n'
+	print('\n\n\n DEPRECATED this has no action \n\n\n')
         return
 
     def prepare_L1Reco(self, sequence = "L1Reco"):
@@ -1643,10 +1616,16 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
+    def prepare_RECOSIM(self, sequence = "recosim"):
+        ''' Enrich the schedule with reconstruction '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.RECOSIMDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'recosim_step')
+        return
+
     def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
         ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
         if not self._options.fast:
-                print "ERROR: this step is only implemented for FastSim"
+                print("ERROR: this step is only implemented for FastSim")
                 sys.exit()
         self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
         self.scheduleSequence(sequence.split('.')[-1],'reconstruction_befmix_step')
@@ -1654,24 +1633,54 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-	self.prepare_PATFILTER(self)
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
-	if not self._options.runUnscheduled:	
-		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        self.prepare_PATFILTER(self)
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+        self.labelsToAssociate.append('patTask')
+        if not self._options.runUnscheduled:
+               raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
             self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
-            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
-                self._options.customisation_file_unsch.insert(1,"PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+                self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMCFastSim")
+            else:
+                self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
 
 	if self._options.hltProcess:
 	     if len(self._options.customise_commands) > 1:
 		     self._options.customise_commands = self._options.customise_commands + " \n"
-	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
+	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\"\n"
+             self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+             self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+
 #            self.renameHLTprocessInSequence(sequence)
 
         return
+
+    def prepare_PATGEN(self, sequence = "miniGEN"):
+        ''' Enrich the schedule with PATGEN '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATGENDefaultCFF) #this is unscheduled
+        self.labelsToAssociate.append('patGENTask')
+	if not self._options.runUnscheduled:	
+		raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        if self._options.isData:
+            raise Exception("PATGEN step can only run on MC")
+        return
+
+    def prepare_NANO(self, sequence = "nanoAOD"):
+        ''' Enrich the schedule with NANO '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.NANODefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'nanoAOD_step')
+        custom = "nanoAOD_customizeData" if self._options.isData else "nanoAOD_customizeMC"
+        if self._options.runUnscheduled:
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+        else:
+            self._options.customisation_file.insert(0,"PhysicsTools/NanoAOD/nano_cff."+custom)
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+
 
     def prepare_EI(self, sequence = None):
         ''' Enrich the schedule with event interpretation '''
@@ -1726,7 +1735,7 @@ class ConfigBuilder(object):
 
 
         if (skimlist.__len__()!=0 and sequence!="all"):
-                print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
+                print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
                 raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
     def prepare_USER(self, sequence = None):
@@ -1743,7 +1752,7 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-	    print sequence,"in preparing validation"
+	    print(sequence,"in preparing validation")
             self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
 	    from Validation.Configuration.autoValidation import autoValidation
             #in case VALIDATION:something:somethingelse -> something,somethingelse
@@ -1838,7 +1847,7 @@ class ConfigBuilder(object):
                                         for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
                                     elif type in ('cms.string', 'cms.untracked.string'):
                                         if value.value() == self._paramSearch:
-                                            if self._verbose: print "set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace)
+                                            if self._verbose: print("set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace))
                                             setattr(pset, name,self._paramReplace)
                                     elif type in ('cms.VInputTag', 'cms.untracked.VInputTag'):
                                             for (i,n) in enumerate(value):
@@ -1846,7 +1855,7 @@ class ConfigBuilder(object):
                                                             n=cms.InputTag(n)
                                                     if n.processName == self._paramSearch:
                                                             # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
-                                                            if self._verbose:print "set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace)
+                                                            if self._verbose:print("set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace))
                                                             setattr(n,"processName",self._paramReplace)
                                                             value[i]=n
 				    elif type in ('cms.vstring', 'cms.untracked.vstring'):
@@ -1855,7 +1864,7 @@ class ConfigBuilder(object):
 							    getattr(pset,name)[i]=self._paramReplace
 				    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
                                             if value.processName == self._paramSearch:
-                                                    if self._verbose: print "set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace)
+                                                    if self._verbose: print("set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace))
                                                     setattr(getattr(pset, name),"processName",self._paramReplace)
 
             def enter(self,visitee):
@@ -1873,7 +1882,7 @@ class ConfigBuilder(object):
 
     #visit a sequence to repalce all input tags
     def renameInputTagsInSequence(self,sequence,oldT="rawDataCollector",newT="rawDataRepacker"):
-	    print "Replacing all InputTag %s => %s"%(oldT,newT)
+	    print("Replacing all InputTag %s => %s"%(oldT,newT))
 	    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	    massSearchReplaceAnyInputTag(getattr(self.process,sequence),oldT,newT)
 	    loadMe='from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag'
@@ -1889,7 +1898,7 @@ class ConfigBuilder(object):
 		    proc=self.process.name_()
 	    if proc==HLTprocess:    return
             # look up all module in dqm sequence
-            print "replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc)
+            print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc))
             getattr(self.process,sequence).visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess,proc,whitelist = ("subSystemFolder",)))
             if 'from Configuration.Applications.ConfigBuilder import ConfigBuilder' not in self.additionalCommands:
                     self.additionalCommands.append('from Configuration.Applications.ConfigBuilder import ConfigBuilder')
@@ -1927,7 +1936,7 @@ class ConfigBuilder(object):
 	
 	if len(set(sequenceList))!=len(sequenceList):
 		sequenceList=list(set(sequenceList))
-		print "Duplicate entries for DQM:, using",sequenceList
+		print("Duplicate entries for DQM:, using",sequenceList)
 
 	pathName='dqmoffline_step'
 	for (i,sequence) in enumerate(sequenceList):
@@ -1971,11 +1980,11 @@ class ConfigBuilder(object):
 	
 	if len(set(harvestingList))!=len(harvestingList):
 		harvestingList=list(set(harvestingList))
-		print "Duplicate entries for HARVESTING, using",harvestingList
+		print("Duplicate entries for HARVESTING, using",harvestingList)
 
 	for name in harvestingList:
 		if not name in harvestingConfig.__dict__:
-			print name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys()
+			print(name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys())
 			continue
 		harvestingstream = getattr(harvestingConfig,name)
 		if isinstance(harvestingstream,cms.Path):
@@ -2000,20 +2009,25 @@ class ConfigBuilder(object):
 
  	from Configuration.AlCa.autoPCL import autoPCL
  	self.expandMapping(harvestingList,autoPCL)
-	
+
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):
                self.schedule.append(harvestingstream)
-               self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
-               self.executeAndRemember("process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVEST" + name + "_metadata)")
+               if isinstance(getattr(harvestingConfig,"ALCAHARVEST" + name + "_dbOutput"), cms.VPSet) and \
+                  isinstance(getattr(harvestingConfig,"ALCAHARVEST" + name + "_metadata"), cms.VPSet):
+                   self.executeAndRemember("process.PoolDBOutputService.toPut.extend(process.ALCAHARVEST" + name + "_dbOutput)")
+                   self.executeAndRemember("process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVEST" + name + "_metadata)")
+               else:
+                   self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
+                   self.executeAndRemember("process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVEST" + name + "_metadata)")
                harvestingList.remove(name)
 	# append the common part at the end of the sequence
 	lastStep = getattr(harvestingConfig,"ALCAHARVESTDQMSaveAndMetadataWriter")
 	self.schedule.append(lastStep)
-	
+
         if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
-            print "The following harvesting could not be found : ", harvestingList
+            print("The following harvesting could not be found : ", harvestingList)
             raise Exception("The following harvesting could not be found : "+str(harvestingList))
 
 
@@ -2039,6 +2053,52 @@ class ConfigBuilder(object):
         self.addedObjects.append(("Production Info","configurationMetadata"))
 
 
+    def create_process(self):
+        self.pythonCfgCode =  "# Auto generated configuration file\n"
+        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
+        self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
+        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
+
+	# now set up the modifies
+	modifiers=[]
+	modifierStrings=[]
+	modifierImports=['from Configuration.StandardSequences.Eras import eras']
+
+        if hasattr(self._options,"era") and self._options.era :
+            # Multiple eras can be specified in a comma seperated list
+            from Configuration.StandardSequences.Eras import eras
+            for requestedEra in self._options.era.split(",") :
+		    modifierStrings.append("eras."+requestedEra)
+		    modifiers.append(getattr(eras,requestedEra))
+
+
+	if hasattr(self._options,"procModifiers") and self._options.procModifiers:
+            import importlib
+	    thingsImported=[]
+ 	    for pm in self._options.procModifiers.split(','):
+                   modifierStrings.append(pm)
+		   modifierImports.append('from Configuration.ProcessModifiers.'+pm+'_cff import '+pm)
+                   modifiers.append(getattr(importlib.import_module('Configuration.ProcessModifiers.'+pm+'_cff'),pm))
+
+	self.pythonCfgCode += '\n'.join(modifierImports)+'\n\n'
+	self.pythonCfgCode += "process = cms.Process('"+self._options.name+"'" # Start of the line, finished after the loop
+
+
+	if len(modifierStrings)>0:
+		self.pythonCfgCode+= ','+','.join(modifierStrings)
+	self.pythonCfgCode+=')\n\n'
+
+        #yes, the cfg code gets out of sync here if a process is passed in. That could be fixed in the future
+        #assuming there is some way for the fwk to get the list of modifiers (and their stringified name)
+        if self.process == None:
+	    if len(modifiers)>0:	
+               self.process = cms.Process(self._options.name,*modifiers)
+            else:
+               self.process = cms.Process(self._options.name)
+	
+
+
+
     def prepare(self, doChecking = False):
         """ Prepare the configuration string and add missing pieces."""
 
@@ -2057,20 +2117,6 @@ class ConfigBuilder(object):
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
-
-        self.pythonCfgCode =  "# Auto generated configuration file\n"
-        self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
-        self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
-        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        if hasattr(self._options,"era") and self._options.era :
-            self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"'" # Start of the line, finished after the loop
-            # Multiple eras can be specified in a comma seperated list
-            for requestedEra in self._options.era.split(",") :
-                self.pythonCfgCode += ",eras."+requestedEra
-            self.pythonCfgCode += ")\n\n" # end of the line
-        else :
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
@@ -2096,8 +2142,7 @@ class ConfigBuilder(object):
         # dump all additional outputs (e.g. alca or skim streams)
         self.pythonCfgCode += "\n# Additional output definition\n"
         #I do not understand why the keys are not normally ordered.
-        nl=self.additionalOutputs.keys()
-        nl.sort()
+        nl=sorted(self.additionalOutputs.keys())
         for name in nl:
                 output = self.additionalOutputs[name]
                 self.pythonCfgCode += "process.%s = %s" %(name, output.dumpPython())
@@ -2115,7 +2160,7 @@ class ConfigBuilder(object):
                 if not object:
                         continue
                 if not hasattr(self.process,object):
-                        print 'cannot inline -'+object+'- : not known'
+                        print('cannot inline -'+object+'- : not known')
                 else:
                         self.pythonCfgCode +='\n'
                         self.pythonCfgCode +=dumpPython(self.process,object)
@@ -2155,6 +2200,15 @@ class ConfigBuilder(object):
 		result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
 
 	self.pythonCfgCode += result
+
+        for labelToAssociate in self.labelsToAssociate:
+                self.process.schedule.associate(getattr(self.process, labelToAssociate))
+                self.pythonCfgCode += 'process.schedule.associate(process.' + labelToAssociate + ')\n'
+
+        from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
+        associatePatAlgosToolsTask(self.process)
+        self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
+        self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
 	if self._options.nThreads is not "1":
 		self.pythonCfgCode +="\n"
@@ -2197,21 +2251,17 @@ class ConfigBuilder(object):
 		from FWCore.ParameterSet.Utilities import convertToUnscheduled
 		self.process=convertToUnscheduled(self.process)
 
-		#now add the unscheduled stuff
-		for module in self.importsUnsch:
-			self.process.load(module)
-			self.pythonCfgCode += ("process.load('"+module+"')\n")
-
-		#and clean the unscheduled stuff	
-		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
-		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
-
-		from FWCore.ParameterSet.Utilities import cleanUnscheduled
-		self.process=cleanUnscheduled(self.process)
-
 		self.pythonCfgCode += self.addCustomise(1)
 
 	self.pythonCfgCode += self.addCustomiseCmdLine()
+
+        if hasattr(self.process,"logErrorHarvester"):
+                #configure logErrorHarvester to wait for same EDProducers to finish as the OutputModules
+                self.pythonCfgCode +="\n#Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule\n"
+                self.pythonCfgCode +="from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands\n"
+                self.pythonCfgCode +="process = customiseLogErrorHarvesterUsingOutputCommands(process)\n"
+                from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
+                self.process = customiseLogErrorHarvesterUsingOutputCommands(self.process)
 
         # Temporary hack to put the early delete customization after
         # everything else

@@ -8,6 +8,7 @@
  *
  *
  */
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <utility>

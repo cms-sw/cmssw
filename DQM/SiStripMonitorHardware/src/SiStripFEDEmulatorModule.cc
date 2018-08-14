@@ -60,11 +60,11 @@ namespace sistrip
   public:
 
     explicit FEDEmulatorModule(const edm::ParameterSet&);
-    ~FEDEmulatorModule();
+    ~FEDEmulatorModule() override;
 
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     //virtual void endJob();
 
     //tag of spydata collection
@@ -246,7 +246,7 @@ namespace sistrip {
 
       //zero suppress the digis
       fedEmulator_.zeroSuppress(cmSubtrDetSetData, zsDetSetData, algorithms_);
-      if (zsDetSetData.size()) zsData.push_back( zsDetSetData );
+      if (!zsDetSetData.empty()) zsData.push_back( zsDetSetData );
       
     }//loop on input channels
 

@@ -42,6 +42,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 
 using namespace std;
 
@@ -55,7 +56,9 @@ using namespace std;
 
 L1MuDTAssignmentUnit::L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id) : 
                 m_sp(sp), m_id(id), 
-                m_addArray(), m_TSphi(), m_ptAssMethod(NODEF) {
+                m_addArray(), m_TSphi(), m_ptAssMethod(NODEF),
+                nbit_phi(12),nbit_phib(10)
+ {
 
   m_TSphi.reserve(4);  // a track candidate can consist of max 4 TS 
   reset();
@@ -146,8 +149,8 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 
   c.get< L1MuDTPhiLutRcd >().get( thePhiLUTs );
 
-  int sh_phi  = 12 - L1MuDTTFConfig::getNbitsPhiPhi();
-  int sh_phib = 10 - L1MuDTTFConfig::getNbitsPhiPhib();
+  int sh_phi  = 12 - m_sp.tf().config()->getNbitsPhiPhi();
+  int sh_phib = 10 - m_sp.tf().config()->getNbitsPhiPhib();
 
   const L1MuDTTrackSegPhi* second = getTSphi(2);  // track segment at station 2
   const L1MuDTTrackSegPhi* first  = getTSphi(1);  // track segment at station 1
@@ -160,11 +163,11 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     phi2 = second->phi() >> sh_phi;
     sector = second->sector();
   }
-  else if ( second == 0 && first ) {
+  else if ( second == nullptr && first ) {
     phi2 = first->phi() >> sh_phi;
     sector = first->sector();
   }
-  else if ( second == 0 && forth ) {
+  else if ( second == nullptr && forth ) {
     phi2 = forth->phi() >> sh_phi;
     sector = forth->sector();
   }
@@ -188,11 +191,11 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   double phi_f = static_cast<double>(phi2);
   int phi_8 = static_cast<int>(floor(phi_f*k));     
 
-  if ( second == 0 && first ) {
+  if ( second == nullptr && first ) {
     int bend_angle = (first->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0,bend_angle);
   }
-  else if ( second == 0 && forth ) {
+  else if ( second == nullptr && forth ) {
     int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
   }
@@ -277,12 +280,12 @@ void L1MuDTAssignmentUnit::QuaAU() {
 void L1MuDTAssignmentUnit::TSR() {
 
   // get the track segments from the data buffer 
-  const L1MuDTTrackSegPhi* ts = 0;
+  const L1MuDTTrackSegPhi* ts = nullptr;
   for ( int stat = 1; stat <= 4; stat++ ) {
     int adr = m_addArray.station(stat);
     if ( adr != 15 ) {
       ts = m_sp.data()->getTSphi(stat,adr);
-      if ( ts != 0 ) m_TSphi.push_back( ts );
+      if ( ts != nullptr ) m_TSphi.push_back( ts );
     }
   }
 
@@ -303,7 +306,7 @@ const L1MuDTTrackSegPhi* L1MuDTAssignmentUnit::getTSphi(int station) const {
     }
   }
 
-  return 0;
+  return nullptr;
 
 }
 
@@ -406,9 +409,9 @@ PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
   int threshold = thePtaLUTs->getPtLutThreshold(method);
   
   // phib values of track segments from stations 1, 2 and 4
-  int phib1 = ( getTSphi(1) != 0 ) ? getTSphi(1)->phib() : 0;
-  int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : 0;
-  int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : 0;
+  int phib1 = ( getTSphi(1) != nullptr ) ? getTSphi(1)->phib() : 0;
+  int phib2 = ( getTSphi(2) != nullptr ) ? getTSphi(2)->phib() : 0;
+  int phib4 = ( getTSphi(4) != nullptr ) ? getTSphi(4)->phib() : 0;
 
   PtAssMethod pam = NODEF;
   
@@ -531,13 +534,11 @@ int L1MuDTAssignmentUnit::phiDiff(int stat1, int stat2) const {
 //
 void L1MuDTAssignmentUnit::setPrecision() {
 
-  nbit_phi  = L1MuDTTFConfig::getNbitsPtaPhi();
-  nbit_phib = L1MuDTTFConfig::getNbitsPtaPhib();
+  nbit_phi  = m_sp.tf().config()->getNbitsPtaPhi();
+  nbit_phib = m_sp.tf().config()->getNbitsPtaPhib();
 
 }
 
 
 // static data members
 
-unsigned short int L1MuDTAssignmentUnit::nbit_phi  = 12;
-unsigned short int L1MuDTAssignmentUnit::nbit_phib = 10;

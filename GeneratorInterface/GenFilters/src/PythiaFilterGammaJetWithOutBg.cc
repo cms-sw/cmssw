@@ -144,10 +144,10 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::Event& iEvent, const edm::EventS
 //       std::cout<<"Reject eta"<<std::endl;
        continue;
     }
-    bool inEB(0);
+    bool inEB(false);
     double tgx(0);
     double tgy(0);
-    if( std::abs(etaPhoton)<ebEtaMax) inEB=1;
+    if( std::abs(etaPhoton)<ebEtaMax) inEB=true;
     else{
       tgx=(*is)->momentum().px()/(*is)->momentum().pz();
       tgy=(*is)->momentum().py()/(*is)->momentum().pz();

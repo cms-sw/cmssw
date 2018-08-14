@@ -12,12 +12,12 @@ TrigCodes::TrigBitSet trigTools::getFiltersPassed(
     const TrigCodes& trigCodes)
 {
   TrigCodes::TrigBitSet evtTrigs;
-  for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec].first,"",hltTag));
-    const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filters[filterNrInVec].first.c_str());
+  for(auto const & filter : filters){
+    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filter.first,"",hltTag));
+    const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filter.first.c_str());
     if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, however this only means that something passed the previous filter
       const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);
-      if(static_cast<int>(trigKeys.size())>=filters[filterNrInVec].second){
+      if(static_cast<int>(trigKeys.size())>=filter.second){
 	evtTrigs |=filterCode; //filter was passed
       }
     }//end check if filter is present
@@ -49,17 +49,17 @@ std::vector<int> trigTools::getMinNrObjsRequiredByFilter(const std::vector<std::
 
   std::vector<std::string> filterEntryStrings;
   filterEntryStrings.reserve(filterNames.size());
-  for ( unsigned int i=0; i<filterNames.size(); i++) {
-    const edm::Entry filterEntry(mag0,filterNames[i],true);
+  for (auto const & filterName : filterNames) {
+    const edm::Entry filterEntry(mag0,filterName,true);
     filterEntryStrings.push_back(filterEntry.toString());
   }
 
   //will return out of for loop once its found it to save time
   const edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-  if(psetRegistry==NULL) { retVal=std::vector<int>(filterNames.size(),-1); return retVal;}
-  for(edm::pset::Registry::const_iterator psetIt=psetRegistry->begin();psetIt!=psetRegistry->end();++psetIt){ //loop over every pset for every module ever run
-    const std::map<std::string,edm::Entry>& mapOfPara  = psetIt->second.tbl(); //contains the parameter name and value for all the parameters of the pset
-    const std::map<std::string,edm::Entry>::const_iterator itToModLabel = mapOfPara.find(mag0); 
+  if(psetRegistry==nullptr) { retVal=std::vector<int>(filterNames.size(),-1); return retVal;}
+  for(auto & psetIt : *psetRegistry){ //loop over every pset for every module ever run
+    const std::map<std::string,edm::Entry>& mapOfPara  = psetIt.second.tbl(); //contains the parameter name and value for all the parameters of the pset
+    const auto itToModLabel = mapOfPara.find(mag0); 
     if(itToModLabel!=mapOfPara.end()){
       std::string itString=itToModLabel->second.toString();
 
@@ -67,7 +67,7 @@ std::vector<int> trigTools::getMinNrObjsRequiredByFilter(const std::vector<std::
 	if ( retVal[i] == -1 ) continue; //already done
 
 	if(itString==filterEntryStrings[i]){ //moduleName is the filter name, we have found filter, we will now return something
-	  std::map<std::string,edm::Entry>::const_iterator itToCandCut = mapOfPara.find(mag1);
+	  auto itToCandCut = mapOfPara.find(mag1);
 	  if(itToCandCut!=mapOfPara.end() && itToCandCut->second.typeCode()=='I') retVal[i]=itToCandCut->second.getInt32();
 	  else{ //checks if nZcandcut exists and is int32, if not return -1
 	    itToCandCut = mapOfPara.find(mag2);
@@ -240,13 +240,13 @@ void trigTools::filterInactiveTightLooseTriggers(std::vector<std::string>& names
   //tempory vector to store the filtered results
   std::vector<std::string> filteredNames;
   
-  for(size_t inputFilterNr=0;inputFilterNr<namesToFilter.size();inputFilterNr++){
+  for(auto & inputFilterNr : namesToFilter){
     std::vector<std::string> names;
-    boost::split(names,namesToFilter[inputFilterNr],boost::is_any_of(std::string(":")));
+    boost::split(names,inputFilterNr,boost::is_any_of(std::string(":")));
     if(names.size()!=2) continue; //format incorrect, reject it
     if(std::binary_search(activeFilters.begin(),activeFilters.end(),names[0]) &&
        std::binary_search(activeFilters.begin(),activeFilters.end(),names[1])){ //both filters are valid
-      filteredNames.push_back(namesToFilter[inputFilterNr]);
+      filteredNames.push_back(inputFilterNr);
     }
   }
   
@@ -290,11 +290,11 @@ void trigTools::translateFiltersToPathNames(const HLTConfigProvider& hltConfig,c
 
   std::sort(filtersAndPaths.begin(),filtersAndPaths.end(),StringPairCompare());
   
-  for(size_t filterNr=0;filterNr<filters.size();filterNr++){
+  for(auto const & filter : filters){
     typedef std::vector<std::pair<std::string,std::string> >::const_iterator VecIt;
-    std::pair<VecIt,VecIt> searchResult = std::equal_range(filtersAndPaths.begin(),filtersAndPaths.end(),filters[filterNr],StringPairCompare());
+    std::pair<VecIt,VecIt> searchResult = std::equal_range(filtersAndPaths.begin(),filtersAndPaths.end(),filter,StringPairCompare());
     if(searchResult.first!=searchResult.second) paths.push_back(searchResult.first->second);
-    else paths.push_back(filters[filterNr]);//if cant find the path, just  write the filter
+    else paths.push_back(filter);//if cant find the path, just  write the filter
     //---Morse-----
     //std::cout<<filtersAndPaths[filterNr].first<<"  "<<filtersAndPaths[filterNr].second<<std::endl;
     //-------------
@@ -306,8 +306,7 @@ std::string trigTools::getL1SeedFilterOfPath(const HLTConfigProvider& hltConfig,
 {
   const std::vector<std::string>& modules = hltConfig.moduleLabels(path);
 
-  for(size_t moduleNr=0;moduleNr<modules.size();moduleNr++){
-    const std::string& moduleName=modules[moduleNr]; 
+  for(auto const & moduleName : modules){
     if(moduleName.find("hltL1s")==0) return moduleName; //found l1 seed module
   }
   std::string dummy;

@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,9 +29,9 @@ public:
   const std::vector<Color_t> PLOT_COLORS {kRed, kBlue, kBlack, kOrange, kMagenta};
 
   explicit SiStripDetVOffTrendPlotter(const edm::ParameterSet& iConfig );
-  virtual ~SiStripDetVOffTrendPlotter();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripDetVOffTrendPlotter() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   std::string formatIOV(cond::Time_t iov, std::string format="%Y-%m-%d__%H_%M_%S");

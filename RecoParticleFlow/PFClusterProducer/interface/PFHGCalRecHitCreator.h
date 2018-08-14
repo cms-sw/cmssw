@@ -20,7 +20,9 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-template <typename DET,PFLayer::Layer Layer,unsigned subdet>
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+
+template <typename DET,PFLayer::Layer Layer,DetId::Detector det,unsigned subdet>
   class PFHGCalRecHitCreator :  public  PFRecHitCreatorBase {
 
  public:  
@@ -31,7 +33,10 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
       geometryInstance_ = iConfig.getParameter<std::string>("geometryInstance");
     }
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
+
+      // Setup RecHitTools to properly compute the position of the HGCAL Cells vie their DetIds
+      recHitTools_.getEventSetup(iSetup);
 
       for (unsigned int i=0;i<qualityTests_.size();++i) {
 	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
@@ -46,12 +51,13 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
       const CaloGeometry* geom = geoHandle.product();
 
       unsigned skipped_rechits = 0;
-      for (unsigned int i=0;i<rechits.size();++i) {
-	const HGCRecHit& hgrh = rechits[i];
-	const DET detid(hgrh.detid());
+      for (const auto & hgrh : rechits) {
+		const DET detid(hgrh.detid());
 	
-	if( subdet != detid.subdetId() ) {
+	if( det != detid.det() or (subdet != 0 and subdet != detid.subdetId() ) ) {
 	  throw cms::Exception("IncorrectHGCSubdetector")
+	    << "det expected: " << det 
+	    << " det gotten: " << detid.det() << " ; "
 	    << "subdet expected: " << subdet 
 	    << " subdet gotten: " << detid.subdetId() << std::endl;
 	}
@@ -59,8 +65,8 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
-	const CaloCellGeometry *thisCell = geom->getSubdetectorGeometry(detid.det(),detid.subdetId())->getGeometry(detid);
-	
+	auto thisCell = geom->getSubdetectorGeometry(det,subdet)->getGeometry(detid);
+
 	// find rechit geometry
 	if(!thisCell) {
 	  LogDebug("PFHGCalRecHitCreator")
@@ -69,13 +75,9 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
 	  ++skipped_rechits;
 	  continue;
 	}
-  
 
 	reco::PFRecHit rh(thisCell, detid.rawId(),Layer,
 			   energy); 
-	
-	//  rh.setOriginalRecHit(edm::Ref<HGCRecHitCollection>(recHitHandle,i));
-
 	
 	bool rcleaned = false;
 	bool keep=true;
@@ -106,15 +108,22 @@ template <typename DET,PFLayer::Layer Layer,unsigned subdet>
  protected:
   edm::EDGetTokenT<HGCRecHitCollection> recHitToken_;
   std::string geometryInstance_;
-
+ private:
+  hgcal::RecHitTools recHitTools_;
 };
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
-typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCEE> PFHGCEERecHitCreator;
-typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,HGCHEF> PFHGCHEFRecHitCreator;
-typedef PFHGCalRecHitCreator<HcalDetId ,PFLayer::HGCAL,HcalEndcap> PFHGCHEBRecHitCreator;
+typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,DetId::Forward,HGCEE> PFHGCEERecHitCreator;
+typedef PFHGCalRecHitCreator<HGCalDetId,PFLayer::HGCAL,DetId::Forward,HGCHEF> PFHGCHEFRecHitCreator;
+typedef PFHGCalRecHitCreator<HcalDetId ,PFLayer::HGCAL,DetId::Hcal,HcalEndcap> PFHGCHEBRecHitCreator;
+
+typedef PFHGCalRecHitCreator<HGCSiliconDetId     ,PFLayer::HGCAL,DetId::HGCalEE ,ForwardEmpty> PFHGCalEERecHitCreator;
+typedef PFHGCalRecHitCreator<HGCSiliconDetId     ,PFLayer::HGCAL,DetId::HGCalHSi,ForwardEmpty> PFHGCalHSiRecHitCreator;
+typedef PFHGCalRecHitCreator<HGCScintillatorDetId,PFLayer::HGCAL,DetId::HGCalHSc,ForwardEmpty> PFHGCalHScRecHitCreator;
 
 
 #endif

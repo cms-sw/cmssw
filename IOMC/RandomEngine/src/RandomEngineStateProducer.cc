@@ -12,7 +12,7 @@
 #include <memory>
 
 RandomEngineStateProducer::RandomEngineStateProducer(edm::ParameterSet const&) {
-  produces<edm::RandomEngineStates, edm::InLumi>("beginLumi");
+  produces<edm::RandomEngineStates, edm::Transition::BeginLuminosityBlock>("beginLumi");
   produces<edm::RandomEngineStates>();
 }
 

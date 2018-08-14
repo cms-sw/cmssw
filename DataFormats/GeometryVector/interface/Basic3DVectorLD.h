@@ -6,6 +6,7 @@
 #pragma clang diagnostic ignored "-Wunused-private-field"
 #endif
 
+#include "DataFormats/GeometryVector/interface/extBasic3DVector.h"
 // long double specialization
 template <> 
 class Basic3DVector<long double> {

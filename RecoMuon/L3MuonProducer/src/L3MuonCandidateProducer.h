@@ -36,10 +36,10 @@ class L3MuonCandidateProducer : public edm::global::EDProducer<> {
   L3MuonCandidateProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~L3MuonCandidateProducer(); 
+  ~L3MuonCandidateProducer() override; 
   
   /// produce candidates
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
   // L3/GLB Collection Label

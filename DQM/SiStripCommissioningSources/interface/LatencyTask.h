@@ -13,14 +13,14 @@ class LatencyTask : public CommissioningTask {
  public:
   
   LatencyTask( DQMStore*, const FedChannelConnection& );
-  virtual ~LatencyTask();
+  ~LatencyTask() override;
   
  private:
 
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
-  virtual void update();
+  void book() override;
+  void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& ) override;
+  void update() override;
   
   static HistoSet timing_;
   static HistoSet cluster_;

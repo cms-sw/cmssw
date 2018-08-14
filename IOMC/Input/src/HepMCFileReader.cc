@@ -70,7 +70,7 @@ void HepMCFileReader::initialize(const string &filename)
   }
 
   edm::LogInfo("HepMCFileReader") << "Opening file" << filename << "using HepMC::IO_GenEvent";
-  input_ = new HepMC::IO_GenEvent(filename.c_str(), std::ios::in);
+  input_ = new HepMC::IO_GenEvent(filename, std::ios::in);
 
   if (rdstate() == std::ios::failbit) {
     throw cms::Exception("FileNotFound", "HepMCFileReader::initialize()")

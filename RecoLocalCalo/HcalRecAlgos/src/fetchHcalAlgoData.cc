@@ -22,7 +22,7 @@ namespace {
 std::unique_ptr<AbsHcalAlgoData>
 fetchHcalAlgoData(const std::string& className, const edm::EventSetup& es)
 {
-    AbsHcalAlgoData* data = 0;
+    AbsHcalAlgoData* data = nullptr;
 
     // Compare with possibe class names
     //

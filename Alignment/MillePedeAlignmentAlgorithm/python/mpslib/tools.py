@@ -1,10 +1,15 @@
+from __future__ import print_function
 import os
+import re
 import sys
+import shutil
 import importlib
 import sqlalchemy
 import subprocess
 import CondCore.Utilities.conddblib as conddb
+from functools import reduce
 
+import six
 
 def create_single_iov_db(inputs, run_number, output_db):
     """Create an sqlite file with single-IOV tags for alignment payloads.
@@ -16,7 +21,7 @@ def create_single_iov_db(inputs, run_number, output_db):
     """
 
     # find the IOV containing `run_number`
-    for record,tag in inputs.iteritems():
+    for record,tag in six.iteritems(inputs):
         run_is_covered = False
         for iov in reversed(tag["iovs"]):
             if iov <= run_number:
@@ -27,17 +32,26 @@ def create_single_iov_db(inputs, run_number, output_db):
             msg = ("Run number {0:d} is not covered in '{1:s}' ({2:s}) from"
                    " '{3:s}'.".format(run_number, tag["tag"], record,
                                       global_tag))
-            print msg
-            print "Aborting..."
+            print(msg)
+            print("Aborting...")
             sys.exit(1)
 
     result = {}
-    if os.path.exists(output_db): os.remove(output_db)
-    for record,tag in inputs.iteritems():
+    remove_existing_object(output_db)
+
+    for record,tag in six.iteritems(inputs):
         result[record] = {"connect": "sqlite_file:"+output_db,
                           "tag": "_".join([tag["tag"], tag["since"]])}
+
+        if tag["connect"] == "pro":
+            source_connect = "frontier://FrontierProd/CMS_CONDITIONS"
+        elif tag["connect"] == "dev":
+            source_connect = "frontier://FrontierPrep/CMS_CONDITIONS"
+        else:
+            source_connect = tag["connect"]
+
         cmd = ("conddb_import",
-               "-f", "frontier://PromptProd/cms_conditions",
+               "-f", source_connect,
                "-c", result[record]["connect"],
                "-i", tag["tag"],
                "-t", result[record]["tag"],
@@ -50,19 +64,23 @@ def create_single_iov_db(inputs, run_number, output_db):
     return result
 
 
-def run_checked(cmd):
+def run_checked(cmd, suppress_stderr = False):
     """Run `cmd` and exit in case of failures.
 
     Arguments:
     - `cmd`: list containing the strings of the command
+    - `suppress_stderr`: suppress output from stderr
     """
 
     try:
         with open(os.devnull, "w") as devnull:
-            subprocess.check_call(cmd, stdout = devnull)
+            if suppress_stderr:
+                subprocess.check_call(cmd, stdout = devnull, stderr = devnull)
+            else:
+                subprocess.check_call(cmd, stdout = devnull)
     except subprocess.CalledProcessError as e:
-        print "Problem in running the following command:"
-        print " ".join(e.cmd)
+        print("Problem in running the following command:")
+        print(" ".join(e.cmd))
         sys.exit(1)
 
 
@@ -76,8 +94,12 @@ def get_process_object(cfg):
     sys.path.append(os.path.dirname(cfg)) # add location to python path
     cache_stdout = sys.stdout
     sys.stdout = open(os.devnull, "w")    # suppress unwanted output
-    __configuration = \
-        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    try:
+        __configuration = \
+            importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    except Exception as e:
+        print("Problem detected in configuration file '{0}'.".format(cfg))
+        raise e
     sys.stdout = cache_stdout
     sys.path.pop()                        # clean up python path again
     try:
@@ -117,6 +139,15 @@ def get_tags(global_tag, records):
 
     if len(records) == 0: return {} # avoid useless DB query
 
+    # check for auto GT
+    if global_tag.startswith("auto:"):
+        import Configuration.AlCa.autoCond as AC
+        try:
+            global_tag = AC.autoCond[global_tag.split("auto:")[-1]]
+        except KeyError:
+            print("Unsupported auto GT:", global_tag)
+            sys.exit(1)
+
     # setting up the DB session
     con = conddb.connect(url = conddb.make_url())
     session = con.session()
@@ -142,6 +173,8 @@ def get_iovs(db, tag):
     """
 
     db = db.replace("sqlite_file:", "").replace("sqlite:", "")
+    db = db.replace("frontier://FrontierProd/CMS_CONDITIONS", "pro")
+    db = db.replace("frontier://FrontierPrep/CMS_CONDITIONS", "dev")
 
     con = conddb.connect(url = conddb.make_url(db))
     session = con.session()
@@ -149,9 +182,83 @@ def get_iovs(db, tag):
 
     iovs = set(session.query(IOV.since).filter(IOV.tag_name == tag).all())
     if len(iovs) == 0:
-        print "No IOVs found for tag '"+tag+"' in database '"+db+"'."
+        print("No IOVs found for tag '"+tag+"' in database '"+db+"'.")
         sys.exit(1)
 
     session.close()
 
     return sorted([int(item[0]) for item in iovs])
+
+
+def replace_factors(product_string, name, value):
+    """Takes a `product_string` and replaces all factors with `name` by `value`.
+
+    Arguments:
+    - `product_string`: input string containing a product
+    - `name`: name of the factor
+    - `value`: value of the factor
+    """
+
+    value = str(value)                                 # ensure it's a string
+    return re.sub(r"^"+name+r"$", value,               # single factor
+                  re.sub(r"[*]"+name+r"$", r"*"+value, # rhs
+                         re.sub(r"^"+name+r"[*]", value+r"*", # lhs
+                                re.sub(r"[*]"+name+r"[*]", r"*"+value+r"*",
+                                       product_string))))
+
+def compute_product_string(product_string):
+    """Takes `product_string` and returns the product of the factors as string.
+
+    Arguments:
+    - `product_string`: string containing product ('<factor>*<factor>*...')
+    """
+
+    factors = [float(f) for f in product_string.split("*")]
+    return str(reduce(lambda x,y: x*y, factors))
+
+
+def check_proxy():
+    """Check if GRID proxy has been initialized."""
+
+    try:
+        with open(os.devnull, "w") as dump:
+            subprocess.check_call(["voms-proxy-info", "--exists"],
+                                  stdout = dump, stderr = dump)
+    except subprocess.CalledProcessError:
+        return False
+    return True
+
+
+def remove_existing_object(path):
+    """
+    Tries to remove file or directory located at `path`. If the user
+    has no delete permissions, the object is moved to a backup
+    file. If this fails it tries 5 times in total and then asks to
+    perform a cleanup by a user with delete permissions.
+
+    Arguments:
+    - `name`: name of the object to be (re)moved
+    """
+
+    if os.path.exists(path):
+        remove_method = shutil.rmtree if os.path.isdir(path) else os.remove
+        move_method = shutil.move if os.path.isdir(path) else os.rename
+        try:
+            remove_method(path)
+        except OSError as e:
+            if e.args != (13, "Permission denied"): raise
+            backup_path = path.rstrip("/")+"~"
+            for _ in xrange(5):
+                try:
+                    if os.path.exists(backup_path): remove_method(backup_path)
+                    move_method(path, backup_path)
+                    break
+                except OSError as e:
+                    if e.args != (13, "Permission denied"): raise
+                    backup_path += "~"
+        if os.path.exists(path):
+            msg = ("Cannot remove '{}' due to missing 'delete' ".format(path)
+                   +"permissions and the limit of 5 backups is reached. Please "
+                   "ask a user with 'delete' permissions to clean up.")
+            print(msg)
+            sys.exit(1)

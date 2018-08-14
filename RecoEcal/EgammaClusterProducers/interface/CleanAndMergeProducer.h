@@ -10,6 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
@@ -21,9 +22,9 @@ class CleanAndMergeProducer : public edm::stream::EDProducer<>
 
       CleanAndMergeProducer(const edm::ParameterSet& ps);
 
-      ~CleanAndMergeProducer();
+      ~CleanAndMergeProducer() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
   private:
       

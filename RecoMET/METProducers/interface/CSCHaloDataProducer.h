@@ -4,9 +4,9 @@
 /*
   [class]:  CSCHaloDataProducer
   [authors]: R. Remington, The University of Florida
-  [description]: EDProducer which runs the CSCHaloAlgo and stores the CSCHaloData object in the event  
+  [description]: EDProducer which runs the CSCHaloAlgo and stores the CSCHaloData object in the event
   [date]: October 15, 2009
-*/  
+*/
 
 
 //Standard C++ classes
@@ -110,7 +110,6 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -130,18 +129,18 @@ class MuonServiceProxy;
 namespace reco
 {
 class CSCHaloDataProducer : public edm::stream::EDProducer<> {
-    
+
   public:
     explicit CSCHaloDataProducer(const edm::ParameterSet&);
-    ~CSCHaloDataProducer();
-    
+    ~CSCHaloDataProducer() override;
+
   private:
-    
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     //CSCHaloAlgo
     CSCHaloAlgo CSCAlgo;
-    
+
     //Digi Level
     edm::InputTag IT_L1MuGMTReadout;
     edm::InputTag IT_ALCT;
@@ -156,7 +155,7 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     //RecHit Level
     edm::InputTag IT_CSCRecHit;
 
-    //Calo rechits                                                                                                                               
+    //Calo rechits
     edm::InputTag IT_HBHErh;
     edm::InputTag IT_ECALBrh;
     edm::InputTag IT_ECALErh;
@@ -183,4 +182,4 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
 }
 
 #endif
-  
+

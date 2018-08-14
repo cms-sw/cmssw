@@ -27,7 +27,7 @@
 using namespace CLHEP;
 
 TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
-  theTrackingManager(0), fVerbose(0) {
+  theTrackingManager(nullptr), fVerbose(nullptr) {
 
   fLarge = int(1E10);
   fDEBUG = p.getUntrackedParameter<bool>("DEBUG",false);
@@ -81,9 +81,9 @@ void TrackingVerboseAction::update(const BeginOfRun * run) {
 }
 
 void TrackingVerboseAction::update(const BeginOfEvent * evt) {
-  if (evt==0) return;
+  if (evt==nullptr) return;
   const G4Event * anEvent = (*evt)();
-  if (anEvent==0) return;
+  if (anEvent==nullptr) return;
 
   //----------- Set /tracking/verbose for this event 
   int eventNo = anEvent->GetEventID();
@@ -160,8 +160,8 @@ void TrackingVerboseAction::update(const BeginOfTrack * trk) {
 	    && aTrack->GetCreatorProcess()->GetProcessName() != "LCapture")
 	  G4cout << " KineE > 1 GeV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << G4endl;
 	const G4VTouchable* touchable=aTrack->GetTouchable();
-	if (touchable!=0 && touchable->GetVolume()!=0 &&
-	    touchable->GetVolume()->GetLogicalVolume()!=0) {
+	if (touchable!=nullptr && touchable->GetVolume()!=nullptr &&
+	    touchable->GetVolume()->GetLogicalVolume()!=nullptr) {
 	  G4Material* material=touchable->GetVolume()->GetLogicalVolume()->GetMaterial();
 	  G4cout << "G4LCapture Gamma E(GeV) " 
 		 << aTrack->GetTotalEnergy()/GeV << "  "
@@ -189,9 +189,9 @@ void TrackingVerboseAction::update(const BeginOfTrack * trk) {
       if (Tgamma > 2.5*GeV ) { //&& ProcName!="Decay" && ProcName!="eBrem")
 	std::string volumeName("_Unknown_Vol_");
 	std::string materialName("_Unknown_Mat_");
-	G4Material * material = 0;
-	G4VPhysicalVolume * pvolume = 0;
-	G4LogicalVolume * lvolume = 0;
+	G4Material * material = nullptr;
+	G4VPhysicalVolume * pvolume = nullptr;
+	G4LogicalVolume * lvolume = nullptr;
 	const G4VTouchable * touchable = aTrack->GetTouchable();
 	if (touchable) pvolume = touchable->GetVolume();
 	if (pvolume) {
@@ -263,12 +263,12 @@ void TrackingVerboseAction::update(const G4Step* fStep) {
 	   << std::setw( 9) << G4BestUnit(fTrack->GetGlobalTime(), "Time") << " ";
 
     // Put cut comment here
-    if( fTrack->GetNextVolume() != 0 ) {
+    if( fTrack->GetNextVolume() != nullptr ) {
       G4cout << std::setw(11) << fTrack->GetNextVolume()->GetName() << " ";
     } else {
       G4cout << std::setw(11) << "OutOfWorld" << " ";
     }
-    if(fStep->GetPostStepPoint()->GetProcessDefinedStep() != NULL){
+    if(fStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr){
       G4cout << fStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
     } else {
       G4cout << "User Limit";
@@ -279,7 +279,7 @@ void TrackingVerboseAction::update(const G4Step* fStep) {
 
 void TrackingVerboseAction::setTrackingVerbose(int verblev) {
   if (fDEBUG) G4cout << " setting verbose level " << verblev << G4endl;
-  if (theTrackingManager!=0) theTrackingManager->SetVerboseLevel(verblev);
+  if (theTrackingManager!=nullptr) theTrackingManager->SetVerboseLevel(verblev);
 }
  
 bool TrackingVerboseAction::checkTrackingVerbose(const G4Track* aTrack) {
@@ -289,7 +289,7 @@ bool TrackingVerboseAction::checkTrackingVerbose(const G4Track* aTrack) {
   if (trackNo >= fTVTrackMin && trackNo <= fTVTrackMax) {
     if ((trackNo-fTVTrackMin) % fTVTrackStep == 0) trackingVerboseThisTrack = true;
   }
-  if (trackingVerboseThisTrack && (fPdgIds.size()>0)) {
+  if (trackingVerboseThisTrack && (!fPdgIds.empty())) {
     int pdgId = aTrack->GetDefinition()->GetPDGEncoding();
     if (std::count(fPdgIds.begin(),fPdgIds.end(),pdgId) == 0) trackingVerboseThisTrack = false;
   }

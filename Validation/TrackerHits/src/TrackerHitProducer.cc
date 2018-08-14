@@ -13,7 +13,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 // tracker info
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -31,7 +31,7 @@
 
 #include <cmath>
 #include <memory>
-#include <stdlib.h>
+#include <cstdlib>
 
 TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet)
   : getAllProvenances( iPSet.getParameter<edm::ParameterSet>( "ProvenanceLookup" ).getUntrackedParameter<bool>( "GetAllProvenances", false ) )

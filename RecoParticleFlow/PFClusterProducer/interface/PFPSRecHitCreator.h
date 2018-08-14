@@ -33,7 +33,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     }
 
-    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       beginEvent(iEvent,iSetup);
 
@@ -42,8 +42,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *psGeometry = 
-	geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+      const CaloSubdetectorGeometry *psGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
@@ -67,7 +66,7 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
  
 
 	
-	const CaloCellGeometry * thisCell= psGeometry->getGeometry(detid);
+	auto thisCell= psGeometry->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
@@ -84,10 +83,11 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
 	
 	bool rcleaned = false;
 	bool keep=true;
+        bool hi = true; // all ES rhs are produced, independently on the ECAL SRP decision
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}

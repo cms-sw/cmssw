@@ -1,4 +1,5 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const int PerformancePayloadFromTFormula::InvalidPos=-1;
 
@@ -16,9 +17,10 @@ void PerformancePayloadFromTFormula::initialize() {
   for( std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end(); ++formula ) {
     boost::uuids::uuid uniqueFormulaId = gen();
     const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
-    boost::shared_ptr<TFormula> temp(new TFormula(formulaUniqueName.c_str(),formula->c_str()));
+    //be sure not to add TFormula to ROOT's global list
+    auto temp = std::make_shared<TFormula>(formulaUniqueName.c_str(),formula->c_str(),false);
     temp->Compile();
-    compiledFormulas_.push_back(temp);
+    compiledFormulas_.emplace_back(std::move(temp));
   }
 }
 
@@ -28,10 +30,12 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   //
   // which formula to use?
   //
-  if (! isInPayload(r,p)) return PerformancePayload::InvalidResult;
-
-  // nice, what to do here???
-  const boost::shared_ptr<TFormula>& formula = compiledFormulas_[resultPos(r)];
+  if ( ! isInPayload(r,p) ) {
+    edm::LogError("PerformancePayloadFromTFormula") <<"Missing formula in conditions. Maybe code/conditions are inconsistent" << std::endl;
+    assert(false);
+  }
+  
+  const TFormula* formula = compiledFormulas_[resultPos(r)].get();
   //
   // prepare the vector to pass, order counts!!!
   //
@@ -44,11 +48,6 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
     values[i] = p.value(*it);
   }
   //
-  // i need a non const version #$%^
-  // Note, in current implementation of TFormula EvalPar should be
-  // thread safe as it does nothing more than call a function
-  // through a function pointer which is stateless. In spite of the
-  // fact that it is not const.
   return formula->EvalPar(values);
 }
 
@@ -83,9 +82,9 @@ void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType 
     return;
   }
 
-  // nice, what to do here???
-  const boost::shared_ptr<TFormula>& formula =
-    compiledFormulas_[resultPos(res)];
+
+  const TFormula* formula =
+    compiledFormulas_[resultPos(res)].get();
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;
   // prepare the vector to pass, order counts!!!
   //

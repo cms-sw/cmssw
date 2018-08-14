@@ -12,7 +12,7 @@
 
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
-#include <xercesc/dom/DOMNode.hpp>
+#include <xercesc/dom/DOMElement.hpp>
 #include <string>
 
 class EcalWeightSetXMLTranslator {

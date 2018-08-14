@@ -52,7 +52,7 @@ public:
   GenJet(const LorentzVector& fP4, const Specific& fSpecific, 
 	 const Jet::Constituents& fConstituents);
 
-  virtual ~GenJet() {};
+  ~GenJet() override {};
   /** Returns energy of electromagnetic particles*/
   float emEnergy() const {return m_specific.m_EmEnergy;};
   /** Returns energy of hadronic particles*/
@@ -80,14 +80,14 @@ public:
   void setSpecific (const Specific &spec ) {m_specific = spec;}
   
   /// Polymorphic clone
-  virtual GenJet* clone () const;
+  GenJet* clone () const override;
 
   /// Print object
-  virtual std::string print () const;
+  std::string print () const override;
   
 private:
   /// Polymorphic overlap
-  virtual bool overlap( const Candidate & ) const;
+  bool overlap( const Candidate & ) const override;
   
   // Data members
   //Variables specific to to the GenJet class

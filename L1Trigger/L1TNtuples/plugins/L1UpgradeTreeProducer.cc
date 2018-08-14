@@ -50,13 +50,13 @@ Implementation:
 class L1UpgradeTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1UpgradeTreeProducer(const edm::ParameterSet&);
-  ~L1UpgradeTreeProducer();
+  ~L1UpgradeTreeProducer() override;
   
   
 private:
-  virtual void beginJob(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 public:
   
@@ -134,7 +134,7 @@ L1UpgradeTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<l1t::EGammaBxCollection> eg;
   edm::Handle<l1t::JetBxCollection> jet;
   edm::Handle<l1t::EtSumBxCollection> sums;
-  edm::Handle<l1t::MuonBxCollection> muon; ;
+  edm::Handle<l1t::MuonBxCollection> muon; 
 
   iEvent.getByToken(egToken_,   eg);
   iEvent.getByToken(jetToken_,  jet);

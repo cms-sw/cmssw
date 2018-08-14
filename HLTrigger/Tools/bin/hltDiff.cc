@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <stdio.h>
+#include <cstdio>
 #include <iomanip>
 #include <memory>
 #include <algorithm>
@@ -59,6 +59,7 @@ void error(std::ostream & out, const std::string & message) {
 
 class HLTConfigInterface {
 public:
+  virtual ~HLTConfigInterface()  = default;
   virtual std::string const & processName() const = 0;
   virtual unsigned int size() const = 0;
   virtual unsigned int size(unsigned int trigger) const = 0;
@@ -73,7 +74,7 @@ public:
 class HLTConfigDataEx : public HLTConfigInterface {
 public:
   explicit HLTConfigDataEx(HLTConfigData data) :
-    data_(data),
+    data_(std::move(data)),
     moduleTypes_(size()),
     prescalers_(size())
   {
@@ -87,16 +88,16 @@ public:
       }
     }
   }
-
-  virtual std::string const & processName() const override {
+  ~HLTConfigDataEx()  override = default;
+  std::string const & processName() const override {
     return data_.processName();
   }
 
-  virtual unsigned int size() const override {
+  unsigned int size() const override {
     return data_.size();
   }
 
-  virtual unsigned int size(unsigned int trigger) const override {
+  unsigned int size(unsigned int trigger) const override {
     return data_.size(trigger);
   }
 
@@ -104,23 +105,23 @@ public:
     return data_.triggerNames();
   }
 
-  virtual std::string const & triggerName(unsigned int trigger) const override {
+  std::string const & triggerName(unsigned int trigger) const override {
     return data_.triggerName(trigger);
   }
 
-  virtual unsigned int triggerIndex(unsigned int trigger) const override {
+  unsigned int triggerIndex(unsigned int trigger) const override {
     return trigger;
   }
 
-  virtual std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override {
+  std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override {
     return data_.moduleLabel(trigger, module);
   }
 
-  virtual std::string const & moduleType(unsigned int trigger, unsigned int module) const override {
+  std::string const & moduleType(unsigned int trigger, unsigned int module) const override {
     return * moduleTypes_.at(trigger).at(module);
   }
 
-  virtual bool prescaler(unsigned int trigger, unsigned int module) const override {
+  bool prescaler(unsigned int trigger, unsigned int module) const override {
     return prescalers_.at(trigger).at(module);
   }
 
@@ -150,15 +151,15 @@ public:
       config_(config),
       index_(index)
     { }
-
-    virtual std::string const & processName() const override;
-    virtual unsigned int size() const override;
-    virtual unsigned int size(unsigned int trigger) const override;
-    virtual std::string const & triggerName(unsigned int trigger) const override;
-    virtual unsigned int triggerIndex(unsigned int trigger) const override;
-    virtual std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override;
-    virtual std::string const & moduleType(unsigned int trigger, unsigned int module) const override;
-    virtual bool prescaler(unsigned int trigger, unsigned int module) const override;
+    ~View()  override = default;
+    std::string const & processName() const override;
+    unsigned int size() const override;
+    unsigned int size(unsigned int trigger) const override;
+    std::string const & triggerName(unsigned int trigger) const override;
+    unsigned int triggerIndex(unsigned int trigger) const override;
+    std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override;
+    std::string const & moduleType(unsigned int trigger, unsigned int module) const override;
+    bool prescaler(unsigned int trigger, unsigned int module) const override;
 
   private:
     HLTCommonConfig const & config_;
@@ -426,7 +427,7 @@ std::unique_ptr<HLTConfigDataEx> getHLTConfigData(fwlite::EventBase const & even
     std::cerr << "error: the configuration for the process " << process << " is not available in the Provenance" << std::endl;
     exit(1);
   }
-  return std::unique_ptr<HLTConfigDataEx>(new HLTConfigDataEx(HLTConfigData(pset)));
+  return std::make_unique<HLTConfigDataEx>(HLTConfigData(pset));
 }
 
 
@@ -524,7 +525,7 @@ private:
 
   static std::string list_string(const std::vector<std::string>& _values, const std::string& _delim="") {
     std::string str = "[";
-    for (std::vector<std::string>::const_iterator it = _values.begin(); it != _values.end(); ++it) {
+    for (auto it = _values.begin(); it != _values.end(); ++it) {
       str.append(_delim);
       str.push_back('"');
       str.append(*it);
@@ -626,7 +627,7 @@ public:
       json << indent(_indent+1) << key("state") << list_string(state) << ',';   // line
       json << indent(_indent+1) << key("trigger") << list_string(trigger) << ',';   // line
       json << indent(_indent+1) << key("trigger_passed_count") << '[';   // line
-      for (std::vector<std::pair<int, int> >::const_iterator it = trigger_passed_count.begin(); it != trigger_passed_count.end(); ++it) {
+      for (auto it = trigger_passed_count.begin(); it != trigger_passed_count.end(); ++it) {
         json << '{' << key("o") << (*it).first << ',' << key("n") << (*it).second << '}';
         if (it != trigger_passed_count.end()-1)
           json << ',';
@@ -714,7 +715,7 @@ public:
     std::string serialise(size_t _indent=0) const {
       std::ostringstream json;
       json << indent(_indent) << '{' << "\"r\"" << ':' << run << ",\"l\":" << lumi << ",\"e\":" << event << ",\"t\":[";   // line open
-      for (std::vector<JsonTriggerEventState>::const_iterator it = triggerStates.begin(); it != triggerStates.end(); ++it) {
+      for (auto it = triggerStates.begin(); it != triggerStates.end(); ++it) {
         json << '{';   // line open
         json << (*it).serialise(_indent+2);   // block
         json << indent(_indent+1) << '}';   // line close
@@ -730,7 +731,7 @@ public:
     
     JsonTriggerEventState& pushTrigger(int _tr) {
       // check whether the last trigger is the one
-      if (triggerStates.size() > 0) {
+      if (!triggerStates.empty()) {
         JsonTriggerEventState& lastTrigger = triggerStates.back();
         if (lastTrigger.tr == _tr)
           return lastTrigger;
@@ -747,17 +748,17 @@ public:
   // methods
   JsonOutputProducer(bool _writeJson, std::string _file_name) :
     writeJson(_writeJson),
-    out_filename_base(_file_name) {
+    out_filename_base(std::move(_file_name)) {
     useSingleOutFile = out_filename_base.length() > 0;
   }
 
   JsonEvent& pushEvent(int _run, int _lumi, int _event) {
     // ensuring that this RUN is present in the producer
-    if ( (m_run_events.count(_run) == 0 && !useSingleOutFile) || m_run_events.size() == 0 )
+    if ( (m_run_events.count(_run) == 0 && !useSingleOutFile) || m_run_events.empty() )
       m_run_events.emplace(_run, std::vector<JsonEvent>());
     std::vector<JsonEvent>& v_events = useSingleOutFile ? m_run_events.begin()->second : m_run_events.at(_run);
     // check whether the last  event is the one
-    if (v_events.size() > 0) {
+    if (!v_events.empty()) {
       JsonEvent& lastEvent = v_events.back();
       if (lastEvent.run == _run && lastEvent.lumi == _lumi && lastEvent.event == _event)
         return lastEvent;
@@ -784,7 +785,7 @@ public:
     if (!writeJson) return;
     std::set<std::string> filesCreated;
     std::ofstream out_file;
-    if (m_run_events.size() > 0) {
+    if (!m_run_events.empty()) {
       // Creating a separate file for each run
       for (const auto& runEvents : m_run_events) {
         const int run = runEvents.first;
@@ -797,7 +798,7 @@ public:
         out_file << vars.serialise(1) << ',';
         // writing block for each event
         out_file << indent(1) << key("events") << '['; // line open
-        for (std::vector<JsonEvent>::const_iterator it = v_events.begin(); it != v_events.end(); ++it) {
+        for (auto it = v_events.begin(); it != v_events.end(); ++it) {
           out_file << (*it).serialise(2);
           if (it != --v_events.end()) out_file << ',';
         }
@@ -827,7 +828,7 @@ public:
       filesCreated.insert(output_name);
     }
 
-    if (filesCreated.size() > 0) {
+    if (!filesCreated.empty()) {
       std::cout << "Created the following JSON files:" << std::endl;
       for (const std::string& filename : filesCreated)
         std::cout << " " << filename << std::endl;
@@ -907,11 +908,11 @@ private:
     }
 
     bool keepForC() const { 
-      return v_changed.size() > 0;
+      return !v_changed.empty();
     }
 
     bool keepForGL() const {
-      return v_gained.size() > 0 || v_lost.size() > 0;
+      return !v_gained.empty() || !v_lost.empty();
     }
   };
   
@@ -1116,7 +1117,7 @@ private:
 
     // Storing histograms to a ROOT file
     std::string file_name = json.output_filename_base(this->run)+=".root";
-    TFile* out_file = new TFile(file_name.c_str(), "RECREATE");
+    auto  out_file = new TFile(file_name.c_str(), "RECREATE");
     // Storing the histograms in a proper folder according to the DQM convention
     char savePath[1000];
     sprintf(savePath, "DQMData/Run %d/HLT/Run summary/EventByEvent/", this->run);
@@ -1175,7 +1176,7 @@ public:
   void write() {
     std::vector<std::string> filesCreated;
     // Processing every run from the JSON producer
-    if (json.m_run_events.size() > 0) {
+    if (!json.m_run_events.empty()) {
       for (const auto& runEvents : json.m_run_events) {
         prepareSummaries(runEvents.first, runEvents.second);
         if (storeROOT) {
@@ -1196,7 +1197,7 @@ public:
       }
     }
 
-    if (filesCreated.size() > 0) {
+    if (!filesCreated.empty()) {
       std::cout << "Created the following summary files:" << std::endl;
       for (const std::string& filename : filesCreated)
         std::cout << " " << filename << std::endl;
@@ -1365,7 +1366,7 @@ public:
           old_config = old_config_data.get();
           new_config = new_config_data.get();
         } else {
-          common_config = std::unique_ptr<HLTCommonConfig>(new HLTCommonConfig(*old_config_data, *new_config_data));
+          common_config = std::make_unique<HLTCommonConfig>(*old_config_data, *new_config_data);
           old_config = & common_config->getView(HLTCommonConfig::Index::First);
           new_config = & common_config->getView(HLTCommonConfig::Index::Second);
           std::cout << "Warning: old and new TriggerResults come from different HLT menus. Only the common " << old_config->size() << " triggers are compared.\n" << std::endl;
@@ -1384,14 +1385,14 @@ public:
           json.vars.trigger_passed_count.push_back(std::pair<int, int>(0,0));
         }
         // getting names of triggers existing only in the old configuration
-        for (std::vector<std::string>::const_iterator it = old_config_data->triggerNames().begin(); it != old_config_data->triggerNames().end(); ++it) {
-          if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), *it) != json.vars.trigger.end()) continue;
-          json.configuration.o.skipped_triggers.push_back(*it);
+        for (auto const & it : old_config_data->triggerNames()) {
+          if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), it) != json.vars.trigger.end()) continue;
+          json.configuration.o.skipped_triggers.push_back(it);
         }
         // getting names of triggers existing only in the new configuration
-        for (std::vector<std::string>::const_iterator it = new_config_data->triggerNames().begin(); it != new_config_data->triggerNames().end(); ++it) {
-          if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), *it) != json.vars.trigger.end()) continue;
-          json.configuration.n.skipped_triggers.push_back(*it);
+        for (auto const & it : new_config_data->triggerNames()) {
+          if (std::find(json.vars.trigger.begin(), json.vars.trigger.end(), it) != json.vars.trigger.end()) continue;
+          json.configuration.n.skipped_triggers.push_back(it);
         }
       }
 
@@ -1614,7 +1615,7 @@ int main(int argc, char ** argv) {
   };
 
   // Creating an HltDiff object with the default configuration
-  HltDiff* hlt = new HltDiff();
+  auto  hlt = new HltDiff();
 
   // parse the command line options
   int c = -1;
@@ -1684,7 +1685,7 @@ int main(int argc, char ** argv) {
         hlt->verbose = 1;
       	if (optarg) {
           hlt->verbose = std::max(1, atoi(optarg));
-      	} else if (!optarg && NULL != argv[optind] && '-' != argv[optind][0]) {
+      	} else if (!optarg && nullptr != argv[optind] && '-' != argv[optind][0]) {
       	  // workaround for a bug in getopt which doesn't allow space before optional arguments
       	  const char *tmp_optarg = argv[optind++];
           hlt->verbose = std::max(1, atoi(tmp_optarg));

@@ -26,7 +26,33 @@ echo "%MSG-MG5 random seed used for the run = $rnum"
 ncpu=${4}
 echo "%MSG-MG5 thread count requested = $ncpu"
 
+echo "%MSG-MG5 residual/optional arguments = ${@:5}"
+
+if [ -n "${5}" ]; then
+  use_gridpack_env=${5}
+  echo "%MSG-MG5 use_gridpack_env = $use_gridpack_env"
+fi
+
+if [ -n "${6}" ]; then
+  scram_arch_version=${6}
+  echo "%MSG-MG5 override scram_arch_version = $scram_arch_version"
+fi
+
+if [ -n "${7}" ]; then
+  cmssw_version=${7}
+  echo "%MSG-MG5 override cmssw_version = $cmssw_version"
+fi
+
 LHEWORKDIR=`pwd`
+
+if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_version" ]; then
+  echo "%MSG-MG5 CMSSW version = $cmssw_version"
+  export SCRAM_ARCH=${scram_arch_version}
+  scramv1 project CMSSW ${cmssw_version}
+  cd ${cmssw_version}/src
+  eval `scramv1 runtime -sh`
+  cd $LHEWORKDIR
+fi
 
 if [[ -d lheevent ]]
     then
@@ -39,8 +65,12 @@ mkdir lheevent; cd lheevent
 #untar the tarball directly from cvmfs
 tar -xaf ${path} 
 
+# If TMPDIR is unset, set it to the condor scratch area if present
+# and fallback to /tmp
+export TMPDIR=${TMPDIR:-${_CONDOR_SCRATCH_DIR:-/tmp}}
+
 #generate events
-./runcmsgrid.sh $nevt $rnum $ncpu
+./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
 
 mv cmsgrid_final.lhe $LHEWORKDIR/
 

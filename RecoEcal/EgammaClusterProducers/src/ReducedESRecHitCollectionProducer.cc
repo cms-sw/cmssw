@@ -18,8 +18,8 @@ using namespace std;
 using namespace reco;
 
 ReducedESRecHitCollectionProducer::ReducedESRecHitCollectionProducer(const edm::ParameterSet& ps):
-  geometry_p(0),
-  topology_p(0)
+  geometry_p(nullptr),
+  topology_p(nullptr)
 {
 
  scEtThresh_          = ps.getParameter<double>("scEtThreshold");
@@ -55,14 +55,13 @@ ReducedESRecHitCollectionProducer::~ReducedESRecHitCollectionProducer() {
 void ReducedESRecHitCollectionProducer::beginRun (edm::Run const&, const edm::EventSetup&iSetup){
   ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  geometry_p = dynamic_cast<const EcalPreshowerGeometry *>(geometry);
+  geometry_p = dynamic_cast<const EcalPreshowerGeometry*>(geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
   if (!geometry_p){
     edm::LogError("WrongGeometry")<<
       "could not cast the subdet geometry to preshower geometry";
   }
   
-  if (geometry) topology_p = new EcalPreshowerTopology(geoHandle);
+  if (geometry_p) topology_p = new EcalPreshowerTopology(geoHandle);
   
 }
 

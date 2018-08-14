@@ -25,7 +25,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event,
   TrajectoryContainer::iterator iter, jter;
   Trajectory::DataContainer::const_iterator m1, m2;
 
-  if ( trajC.size() < 1 ) return;
+  if ( trajC.empty() ) return;
   
   LogTrace(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
 
@@ -60,10 +60,6 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event,
 	} // end for( m2 ... )
       } // end for( m1 ... )
       
-
-      int nTotHits_i = (*iter)->measurements().size();
-      int nTotHits_j = (*jter)->measurements().size();
-
       // FIXME Set Boff/on via cfg!
       double chi2_dof_i = (*iter)->ndof() > 0 ? (*iter)->chiSquared()/(*iter)->ndof() : (*iter)->chiSquared()/1e-10;
       double chi2_dof_j = (*jter)->ndof() > 0 ? (*jter)->chiSquared()/(*jter)->ndof() : (*jter)->chiSquared()/1e-10;
@@ -72,11 +68,11 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event,
       LogTrace(metname) << " * trajC " << i 
 			<< " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
 			<< " GeV) - chi2/nDOF = " << (*iter)->chiSquared() << "/" << (*iter)->ndof() << " = " << chi2_dof_i;
-      LogTrace(metname)	<< "     - valid RH = " << (*iter)->foundHits() << " / total RH = " <<  nTotHits_i;
+      LogTrace(metname)	<< "     - valid RH = " << (*iter)->foundHits() << " / total RH = " <<  (*iter)->measurements().size();
       LogTrace(metname)	<< " * trajC " << j 
 			<< " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
 			<< " GeV) - chi2/nDOF = " << (*jter)->chiSquared() << "/" << (*jter)->ndof() << " = " << chi2_dof_j;
-      LogTrace(metname)	<< "     - valid RH = " << (*jter)->foundHits() << " / total RH = " <<  nTotHits_j;
+      LogTrace(metname)	<< "     - valid RH = " << (*jter)->foundHits() << " / total RH = " << (*jter)->measurements().size();
       LogTrace(metname)	<< " *** Shared RecHits: " << match; 
 
       int hit_diff =  (*iter)->foundHits() - (*jter)->foundHits() ;       

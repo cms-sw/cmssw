@@ -20,7 +20,7 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
 
     fillEnergy = cms.bool(True),
     # OR
-    maxAbsPullX = cms.double(4.0),
+    maxAbsPullX = cms.double(3.0),
     maxAbsEta = cms.double(3.0),
 
     # Selection parameters
@@ -77,7 +77,10 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
                                           OverlapDTheta = cms.double(0.02), # 1.14 degrees
                                           ClusterDPhi   = cms.double(0.6), # 34 degrees
                                           ClusterDTheta = cms.double(0.02) # 1.14
-    )
+    ),
+
+    # tracker muon arbitration
+    arbitrateTrackerMuons = cms.bool(True)
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
@@ -89,4 +92,5 @@ muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
                                 inputCollection = cms.InputTag("muons1stStep")
 )
 
-
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(muons1stStep, minPt = 0.8)

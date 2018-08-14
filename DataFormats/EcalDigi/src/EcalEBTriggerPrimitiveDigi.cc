@@ -12,7 +12,7 @@ EcalEBTriggerPrimitiveDigi::EcalEBTriggerPrimitiveDigi(const EBDetId& id) : id_(
 										   size_(0), data_(MAXSAMPLES) {
 }
 
-void EcalEBTriggerPrimitiveDigi::setSample(int i, const EcalTriggerPrimitiveSample& sam) 
+void EcalEBTriggerPrimitiveDigi::setSample(int i, const EcalEBTriggerPrimitiveSample& sam) 
 {
 //  std::cout << " In setSample  i " << i << "  sam " << sam << std::endl;  
   data_[i]=sam;
@@ -31,39 +31,30 @@ int EcalEBTriggerPrimitiveDigi::sampleOfInterest() const
 } 
 
 /// get the encoded/compressed Et of interesting sample
-int EcalEBTriggerPrimitiveDigi::compressedEt() const 
+int EcalEBTriggerPrimitiveDigi::encodedEt() const 
 {
   int sample = sampleOfInterest();
   if (sample != -1)
-    return data_[sample].compressedEt();
+    return data_[sample].encodedEt();
   else
     return -1;
 }
-  
-/// get the fine-grain bit of interesting sample
-bool EcalEBTriggerPrimitiveDigi::fineGrain() const 
-{ 
-  int sample = sampleOfInterest();
-  if (sample != -1)
-    return data_[sample].fineGrain();
-  else
-    return false;
-}
-/// get the Trigger tower Flag of interesting sample
-int EcalEBTriggerPrimitiveDigi::ttFlag() const 
-{ 
-  int sample = sampleOfInterest();
-  if (sample != -1)
-    return data_[sample].ttFlag();
-  else
-    return -1;
-} 
+ 
 
-int EcalEBTriggerPrimitiveDigi::sFGVB() const
+bool EcalEBTriggerPrimitiveDigi::l1aSpike() const
 {
   int sample = sampleOfInterest();
   if (sample != -1)
     return data_[sample].l1aSpike();
+  else
+    return -1;
+}
+
+int EcalEBTriggerPrimitiveDigi::time() const
+{
+  int sample = sampleOfInterest();
+  if (sample != -1)
+    return data_[sample].time();
   else
     return -1;
 }

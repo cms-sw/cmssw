@@ -21,20 +21,19 @@ public:
   JetTagComputerESProducer(const edm::ParameterSet & pset) : m_pset(pset) {
     setWhatProduced(this, m_pset.getParameter<std::string>("@module_label") );
 
-    m_jetTagComputer = std::make_shared<ConcreteJetTagComputer>(m_pset);
   }
   
-  virtual ~JetTagComputerESProducer() {
+  ~JetTagComputerESProducer() override {
   }
 
-  std::shared_ptr<JetTagComputer> produce(const JetTagComputerRecord & record) {
-    m_jetTagComputer->initialize(record);
-    m_jetTagComputer->setupDone();
-    return m_jetTagComputer;
+  std::unique_ptr<JetTagComputer> produce(const JetTagComputerRecord & record) {
+    std::unique_ptr<JetTagComputer> jetTagComputer = std::make_unique<ConcreteJetTagComputer>(m_pset);
+    jetTagComputer->initialize(record);
+    jetTagComputer->setupDone();
+    return jetTagComputer;
   }
 
 private:
-  std::shared_ptr<JetTagComputer> m_jetTagComputer;
   edm::ParameterSet m_pset;
 };
 

@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 
-/*
- * $Id$
- */
-
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
 #include <xercesc/dom/DOMErrorHandler.hpp>
 #include <xercesc/util/XMLString.hpp>
 #if defined(XERCES_NEW_IOSTREAMS)
@@ -32,39 +25,24 @@
 
 XERCES_CPP_NAMESPACE_USE
 
-// ---------------------------------------------------------------------------
-//  Simple error handler deriviative to install on parser
-// ---------------------------------------------------------------------------
 class DOMCountErrorHandler : public DOMErrorHandler
 {
 public:
-    // -----------------------------------------------------------------------
-    //  Constructors and Destructor
-    // -----------------------------------------------------------------------
     DOMCountErrorHandler();
-    ~DOMCountErrorHandler();
+    ~DOMCountErrorHandler() override;
 
-
-    // -----------------------------------------------------------------------
-    //  Getter methods
-    // -----------------------------------------------------------------------
     bool getSawErrors() const;
-
 
     // -----------------------------------------------------------------------
     //  Implementation of the DOM ErrorHandler interface
     // -----------------------------------------------------------------------
-    bool handleError(const DOMError& domError);
+    bool handleError(const DOMError& domError) override;
     void resetErrors();
 
+    DOMCountErrorHandler(const DOMCountErrorHandler&) = delete;
+    void operator=(const DOMCountErrorHandler&) = delete;
 
 private :
-    // -----------------------------------------------------------------------
-    //  Unimplemented constructors and operators
-    // -----------------------------------------------------------------------
-    DOMCountErrorHandler(const DOMCountErrorHandler&);
-    void operator=(const DOMCountErrorHandler&);
-
 
     // -----------------------------------------------------------------------
     //  Private data members

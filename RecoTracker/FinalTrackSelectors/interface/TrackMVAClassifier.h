@@ -23,7 +23,7 @@
 class TrackMVAClassifierBase : public edm::stream::EDProducer<> {
 public:
   explicit TrackMVAClassifierBase( const edm::ParameterSet & cfg );
-  ~TrackMVAClassifierBase();
+  ~TrackMVAClassifierBase() override;
 protected:
 
   static void fill( edm::ParameterSetDescription& desc);
@@ -32,30 +32,24 @@ protected:
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
 
+  virtual void initEvent(const edm::EventSetup& es) = 0;
+
   virtual void computeMVA(reco::TrackCollection const & tracks,
 			  reco::BeamSpot const & beamSpot,
 			  reco::VertexCollection const & vertices,
-			  GBRForest const * forestP,
 			  MVACollection & mvas) const = 0;
 
-  
 private:
-  
-  void beginStream(edm::StreamID) override final;
-
-  void produce(edm::Event& evt, const edm::EventSetup& es ) override final;
+  void produce(edm::Event& evt, const edm::EventSetup& es ) final;
 
   /// source collection label
   edm::EDGetTokenT<reco::TrackCollection> src_;
   edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   edm::EDGetTokenT<reco::VertexCollection> vertices_;
 
+  bool ignoreVertices_;
 
   // MVA
-  std::unique_ptr<GBRForest> forest_;
-  const std::string forestLabel_;
-  const std::string dbFileName_;
-  const bool useForestFromDB_;
 
   // qualitycuts (loose, tight, hp)
   float qualityCuts[3];
@@ -80,15 +74,22 @@ public:
 
   
 private:
+    void beginStream(edm::StreamID) final {
+      mva.beginStream();
+    }
+
+    void initEvent(const edm::EventSetup& es) final {
+      mva.initEvent(es);
+    }
+
     void computeMVA(reco::TrackCollection const & tracks,
 		    reco::BeamSpot const & beamSpot,
 		    reco::VertexCollection const & vertices,
-		    GBRForest const * forestP,
 		    MVACollection & mvas) const final {
 
       size_t current = 0;
       for (auto const & trk : tracks) {
-	mvas[current++]= mva(trk,beamSpot,vertices,forestP);
+	mvas[current++]= mva(trk,beamSpot,vertices);
       }
     }
 

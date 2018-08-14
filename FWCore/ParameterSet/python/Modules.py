@@ -4,18 +4,28 @@ from Mixins import _TypedParameterizable, _Parameterizable, PrintOptions
 from SequenceTypes import _SequenceLeaf
 from Types import vstring
 
+import six
 from ExceptionHandling import *
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type_,*arg,**kargs):
         super(Service,self).__init__(type_,*arg,**kargs)
+        self._inProcess = False
     def _placeImpl(self,name,proc):
+        self._inProcess = True
         proc._placeService(self.type_(),self)
     def insertInto(self, processDesc):
         newpset = processDesc.newPSet()
         newpset.addString(True, "@service_type", self.type_())
         self.insertContentsInto(newpset)
         processDesc.addService(newpset)
-
+    def dumpSequencePython(self, options=PrintOptions()):
+        return "process." + self.type_()
+    def _isTaskComponent(self):
+        return True
+    def isLeaf(self):
+        return True
+    def __str__(self):
+        return str(self.type_())
 
 class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
     def __init__(self,type_,*arg,**kargs):
@@ -33,7 +43,10 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
     def nameInProcessDesc_(self, myname):
        result = self.type_() + "@" + self.moduleLabel_(myname)
        return result
-
+    def _isTaskComponent(self):
+        return True
+    def isLeaf(self):
+        return True
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
     def __init__(self,type_,*arg,**kargs):
@@ -50,7 +63,10 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
     def nameInProcessDesc_(self, myname):
        result = self.type_() + "@" + self.moduleLabel_(myname)
        return result
-
+    def _isTaskComponent(self):
+        return True
+    def isLeaf(self):
+        return True
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
     """Used to set which EventSetup provider should provide a particular data item
@@ -75,7 +91,7 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         if targetLabel is None:
             self._targetLabel = str('')
         if kargs:
-            for k,v in kargs.iteritems():
+            for k,v in six.iteritems(kargs):
                 if not isinstance(v,vstring):
                     raise RuntimeError('ESPrefer only allows vstring attributes. "'+k+'" is a '+str(type(v)))
     def _placeImpl(self,name,proc):
@@ -147,14 +163,16 @@ class EDProducer(_Module):
         super(EDProducer,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeProducer(name,self)
-
+    def _isTaskComponent(self):
+        return True
 
 class EDFilter(_Module):
     def __init__(self,type_,*arg,**kargs):
         super(EDFilter,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeFilter(name,self)
-
+    def _isTaskComponent(self):
+        return True
 
 class EDAnalyzer(_Module):
     def __init__(self,type_,*arg,**kargs):
@@ -263,6 +281,37 @@ if __name__ == "__main__":
             s1 = Sequence(m*n)
             options = PrintOptions()
 
-
+        def testIsTaskComponent(self):
+            m = EDProducer("x")
+            self.assertTrue(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = EDFilter("x")
+            self.assertTrue(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = OutputModule("x")
+            self.assertFalse(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = EDAnalyzer("x")
+            self.assertFalse(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = Service("x")
+            self.assertTrue(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = ESProducer("x")
+            self.assertTrue(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = ESSource("x")
+            self.assertTrue(m._isTaskComponent())
+            self.assertTrue(m.isLeaf())
+            m = Sequence()
+            self.assertFalse(m._isTaskComponent())
+            self.assertFalse(m.isLeaf())
+            m = Path()
+            self.assertFalse(m._isTaskComponent())
+            m = EndPath()
+            self.assertFalse(m._isTaskComponent())
+            m = Task()
+            self.assertTrue(m._isTaskComponent())
+            self.assertFalse(m.isLeaf())
 
     unittest.main()

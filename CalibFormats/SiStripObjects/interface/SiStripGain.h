@@ -37,21 +37,25 @@
 #include <vector>
 #include <memory>
 
+class TrackerTopology;
+
 class SiStripGain
 {
  public:
   SiStripGain() {}
+  SiStripGain(const SiStripGain&) = delete;
+  const SiStripGain& operator=(const SiStripGain&) = delete;
 
   /// Kept for compatibility
   inline SiStripGain(const SiStripApvGain& apvgain, const double & factor) :
-    apvgain_(0)
+    apvgain_(nullptr)
   {
     multiply(apvgain, factor, std::make_pair("", ""));
   }
 
   inline SiStripGain(const SiStripApvGain& apvgain, const double & factor,
 		     const std::pair<std::string, std::string> & recordLabelPair) :
-    apvgain_(0)
+    apvgain_(nullptr)
   {
     multiply(apvgain, factor, recordLabelPair);
   }
@@ -101,15 +105,13 @@ class SiStripGain
     return normVector_[index];
   }
 
-  void printDebug(std::stringstream& ss) const;
-  void printSummary(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
  private:
 
   void fillNewGain(const SiStripApvGain * apvgain, const double & factor,
-		   const SiStripApvGain * apvgain2 = 0, const double & factor2 = 1.);
-  SiStripGain(const SiStripGain&); // stop default
-  const SiStripGain& operator=(const SiStripGain&); // stop default
+		   const SiStripApvGain * apvgain2 = nullptr, const double & factor2 = 1.);
 
   // ---------- member data --------------------------------
 

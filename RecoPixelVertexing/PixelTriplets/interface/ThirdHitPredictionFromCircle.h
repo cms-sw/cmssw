@@ -37,7 +37,7 @@ public:
     // using Vector2D=ThirdHitPredictionFromCircle::VectorF2D;
     // using Scalar=float;
     
-    HelixRZ() : circle(0) {}
+    HelixRZ() : circle(nullptr) {}
     HelixRZ(const ThirdHitPredictionFromCircle *icircle,
 	    double iz1, double z2, double curv);
     

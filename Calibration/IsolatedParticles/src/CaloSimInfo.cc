@@ -1,23 +1,30 @@
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/CaloSimInfo.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include<iostream>
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
   double timeOfFlight(DetId id, const CaloGeometry* geo, bool debug) {
 
-    double R   = geo->getPosition(id).mag();
+    GlobalPoint point = (id.det() == DetId::Hcal) ? 
+      (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(id)))->getPosition(id) : geo->getPosition(id);
+    double R   = point.mag();
     double tmp = R/CLHEP::c_light/CLHEP::ns;
+#ifdef EDM_ML_DEBUG
     if (debug) {
       DetId::Detector det = id.det();
       int subdet   = id.subdetId();
-      double eta   = geo->getPosition(id).eta();
+      double eta   = point.eta();
       double theta = 2.0*atan(exp(-std::abs(eta)));
       double dist  = 0;
       if (det == DetId::Ecal) {
@@ -52,6 +59,7 @@ namespace spr{
 		<< "/" << theta/CLHEP::deg << " Dist " << dist/CLHEP::cm 
 		<< " R " << R << " TOF " << tmp << ":" << tmp1 << std::endl;
     }
+#endif
     return tmp;
   }
 

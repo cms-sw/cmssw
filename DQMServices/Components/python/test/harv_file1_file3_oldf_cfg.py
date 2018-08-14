@@ -1,4 +1,6 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 import DQMServices.Components.test.checkBooking as booking
 import DQMServices.Components.test.createElements as c
 import sys
@@ -26,7 +28,7 @@ process.harvester = cms.EDAnalyzer("DummyHarvestingClient",
                                    cumulateRuns = cms.untracked.bool(False),
                                    cumulateLumis = cms.untracked.bool(True))
 
-process.eff = cms.EDAnalyzer("DQMGenericClient",
+process.eff = DQMEDHarvester("DQMGenericClient",
                              efficiency = cms.vstring("eff1 \'Eff1\' Bar0 Bar1"),
                              resolution = cms.vstring(),
                              subDirs = cms.untracked.vstring(folder))
@@ -44,5 +46,5 @@ process.add_(cms.Service("DQMStore"))
 
 if len(sys.argv) > 2:
     if sys.argv[2] == "Collate": 
-        print "Collating option for multirunH"
+        print("Collating option for multirunH")
         process.DQMStore.collateHistograms = cms.untracked.bool(True)

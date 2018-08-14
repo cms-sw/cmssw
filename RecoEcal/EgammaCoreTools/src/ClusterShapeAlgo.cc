@@ -391,7 +391,7 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
 
   std::map<int,double> indexedBasketEnergy;
   const std::vector< std::pair<DetId, float> >& clusterDetIds = passedCluster.hitsAndFractions();
-  const EcalBarrelGeometry* subDetGeometry = (const EcalBarrelGeometry*) geometry;
+  const EcalBarrelGeometry* subDetGeometry = dynamic_cast<const EcalBarrelGeometry*>(geometry);
 
   for(auto const& posCurrent : clusterDetIds)
   {
@@ -560,7 +560,6 @@ double ClusterShapeAlgo::calc_AbsZernikeMoment(const reco::BasicCluster &passedC
                                                int n, int m, double R0) {
   double r,ph,e,Re=0,Im=0,f_nm,result;
   double TotalEnergy = passedCluster.energy();
-  std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
   int clusterSize=energyDistribution_.size();
   if(clusterSize<3) return 0.0;
 
@@ -636,8 +635,8 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &pa
         else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
       }
       DetId id_ = posCurrent.first;
-      const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
-      GlobalPoint cellPos = this_cell->getPosition();
+      auto this_cell = geometry->getGeometry(id_);
+      const GlobalPoint& cellPos = this_cell->getPosition();
       CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
       // Evaluate the distance from the cluster centroid
       CLHEP::Hep3Vector diff = gblPos - clVect;

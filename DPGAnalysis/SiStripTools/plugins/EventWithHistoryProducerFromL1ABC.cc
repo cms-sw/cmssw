@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -40,15 +40,15 @@
 // class decleration
 //
 
-class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
+class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<> {
    public:
       explicit EventWithHistoryProducerFromL1ABC(const edm::ParameterSet&);
-      ~EventWithHistoryProducerFromL1ABC();
+      ~EventWithHistoryProducerFromL1ABC() override;
 
    private:
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endRun(const edm::Run&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
 
@@ -137,7 +137,7 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
 
      long long absbxoffset = orbitoffset*3564 + bxoffset;
 
-     if(_offsets.size()==0) {
+     if(_offsets.empty()) {
        _curroffset = absbxoffset;
        _curroffevent = iEvent.id().event();
        _offsets[iEvent.id().event()] = absbxoffset;

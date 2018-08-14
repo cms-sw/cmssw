@@ -49,10 +49,10 @@ using namespace std;
 class GenHIEventProducer : public edm::EDProducer {
     public:
         explicit GenHIEventProducer(const edm::ParameterSet&);
-        ~GenHIEventProducer();
+        ~GenHIEventProducer() override;
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
         edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > hepmcSrc_;
         edm::ESHandle < ParticleDataTable > pdt;
 

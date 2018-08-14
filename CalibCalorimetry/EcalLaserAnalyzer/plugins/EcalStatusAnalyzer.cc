@@ -97,7 +97,7 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   // retrieving DCC header
   edm::Handle<EcalRawDataCollection> pDCCHeader;
-  const  EcalRawDataCollection* DCCHeader=0;
+  const  EcalRawDataCollection* DCCHeader=nullptr;
   try {
     e.getByLabel(eventHeaderProducer_,eventHeaderCollection_, pDCCHeader);
     DCCHeader=pDCCHeader.product();
@@ -108,7 +108,7 @@ void EcalStatusAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup&
   // retrieving TB event header
 
   edm::Handle<EcalTBEventHeader> pEventHeader; 
-  const EcalTBEventHeader* evtHeader=0;
+  const EcalTBEventHeader* evtHeader=nullptr;
   if ( _dataType == "h4" ){
     try {
       e.getByLabel( eventHeaderProducer_ , pEventHeader );
@@ -293,7 +293,7 @@ void EcalStatusAnalyzer::endJob() {
   std::ofstream statusFile(statusfile.c_str(), std::ofstream::out);
   
   
-  if(fedIDsLas.size()!=0 && fedIDsLas.size()==dccIDsLas.size()){
+  if(!fedIDsLas.empty() && fedIDsLas.size()==dccIDsLas.size()){
     
     statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     statusFile <<"                LASER Events              "<<std::endl;
@@ -329,7 +329,7 @@ void EcalStatusAnalyzer::endJob() {
     }    
   }
   
-  if(fedIDsTP.size()!=0 && fedIDsTP.size()==dccIDsTP.size()){
+  if(!fedIDsTP.empty() && fedIDsTP.size()==dccIDsTP.size()){
     
     statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     statusFile <<"             TESTPULSE Events            "<<std::endl;
@@ -350,7 +350,7 @@ void EcalStatusAnalyzer::endJob() {
     }     
   }
 
-  if(fedIDsPed.size()!=0 && fedIDsPed.size()==dccIDsPed.size()){
+  if(!fedIDsPed.empty() && fedIDsPed.size()==dccIDsPed.size()){
     
     statusFile <<"+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+="<<std::endl;
     statusFile <<"               PEDESTAL Events              "<<std::endl;

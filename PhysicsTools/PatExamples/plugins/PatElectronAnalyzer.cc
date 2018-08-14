@@ -17,13 +17,13 @@ class PatElectronAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit PatElectronAnalyzer(const edm::ParameterSet&);
-  ~PatElectronAnalyzer();
+  ~PatElectronAnalyzer() override;
 
  private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   // restrictions for the electron to be
   // considered
@@ -147,7 +147,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 	float deltaR = ROOT::Math::VectorUtil::DeltaR(elec->genLepton()->p4(), elec->p4());
 	deltaR_->Fill(TMath::Log10(deltaR));
 	if( deltaR<maxDeltaR_ ){
-	  if( electronID_.compare("none")!=0 ){
+	  if( electronID_!="none" ){
 	    if( elec->electronID(electronID_)<0.5 )
 	      continue;
 	  }
@@ -183,7 +183,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 
 	  // check for the Z mass
 	  if( fabs( zMass-90. )<maxDeltaM_ ){
-	    if( electronID_.compare("none")!=0 ){
+	    if( electronID_!="none" ){
 	      if( probe->electronID(electronID_)<0.5 )
 		continue;
 	    }

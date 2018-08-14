@@ -48,10 +48,10 @@ namespace pat {
     class MatcherByPulls : public edm::EDProducer {
         public:
             explicit MatcherByPulls(const edm::ParameterSet&);
-            ~MatcherByPulls();
+            ~MatcherByPulls() override;
 
         private:
-            virtual void produce(edm::Event&, const edm::EventSetup&) override;
+            void produce(edm::Event&, const edm::EventSetup&) override;
 
             /// The RECO objects
             edm::EDGetTokenT<edm::View<T> > srcToken_;

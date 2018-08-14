@@ -57,28 +57,28 @@ public:
   typedef DDNumberingScheme::nav_type nav_type;
   DDDefaultNumberingScheme(const DDExpandedView & e);
   DDDefaultNumberingScheme(const DDFilteredView & f);
-  virtual ~DDDefaultNumberingScheme();
+  ~DDDefaultNumberingScheme() override;
   
   //! calculate the id of a given node
-  virtual int id(const DDExpandedView &) const;
+  int id(const DDExpandedView &) const override;
   
   //! calculate the id of a given node
-  virtual int id(const DDNumberingScheme::nav_type &) const;
+  int id(const DDNumberingScheme::nav_type &) const override;
   
   //! calculate the id of a given node
-  virtual int id(const DDFilteredView &) const;
+  int id(const DDFilteredView &) const override;
 
   //! calculate the node given an id
   /** 
     returns true, if a node was found. view then corresponds to this node.
   */  
-  virtual bool node(int id, DDExpandedView & view) const;
+  bool node(int id, DDExpandedView & view) const override;
 
   //! calculate the node given an id
   /** 
     returns true, if a node was found. view then corresponds to this node.
   */  
-  virtual bool node(int id, DDFilteredView & view) const;
+  bool node(int id, DDFilteredView & view) const override;
 
 protected:
   DDNumberingScheme::nav_type idToNavType(int id) const;

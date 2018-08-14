@@ -29,13 +29,13 @@ public:
   /// Standard constructor
   RBCChamberORLogic( ); 
   
-  virtual ~RBCChamberORLogic( ); ///< Destructor
+  ~RBCChamberORLogic( ) override; ///< Destructor
       
-  void process ( const RBCInput & , std::bitset<2> & );
+  void process ( const RBCInput & , std::bitset<2> & ) override;
   
-  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
+  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & ) override;
   
-  std::bitset<6> * getlayersignal(int _idx) { return & m_layersignal[_idx]; };
+  std::bitset<6> * getlayersignal(int _idx) override { return & m_layersignal[_idx]; };
   
   typedef std::vector<std::string>::iterator itr2names;
   typedef std::map<std::string,bool>::iterator itr2chambers;

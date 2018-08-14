@@ -30,21 +30,29 @@ theDigitizers = cms.PSet(
   ),
   puVtx = cms.PSet(
     pileupVtxDigitizer
+  ),
+  mergedtruth = cms.PSet(
+    trackingParticles
   )
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
+fastSim.toModify(theDigitizers,
     # fastsim does not model castor
-    delattr(theDigitizers,"castor")
+    castor = None,
     # fastsim does not digitize pixel and strip hits
-    delattr(theDigitizers,"pixel")
-    delattr(theDigitizers,"strip")
-    setattr(theDigitizers,"tracks",recoTrackAccumulator)
+    pixel = None,
+    strip = None,
+    tracks = recoTrackAccumulator
+)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(fastSim & premix_stage2).toModify(theDigitizers,
+    tracks = None
+)
 
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer 
-    
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_MIP, HGCAL_chargeCollectionEfficiencies, HGCAL_noises
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( theDigitizers,
                             hgceeDigitizer = cms.PSet(hgceeDigitizer),
@@ -52,31 +60,60 @@ phase2_hgcal.toModify( theDigitizers,
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify( theDigitizers, castor = None )
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( theDigitizers, castor = None )
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing.toModify( theDigitizers,
                         ecalTime = ecalTimeDigitizer.clone() )
-    
+
 from SimFastTiming.Configuration.SimFastTiming_cff import fastTimeDigitizer
 phase2_timing_layer.toModify( theDigitizers,
                         fastTimingLayer = fastTimeDigitizer.clone() )
 
-theDigitizersValid = cms.PSet(
-    theDigitizers,
-    mergedtruth = cms.PSet(
-        trackingParticles
-        )
-    )
+from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
+from Configuration.Eras.Modifier_phase2_timing_layer_new_cff import phase2_timing_layer_new
+phase2_timing_layer_new.toModify( theDigitizers,
+                        fastTimingLayer = mtdDigitizer.clone() )
 
+premix_stage2.toModify(theDigitizers,
+    ecal = None,
+    hcal = None,
+)
+(premix_stage2 & phase2_hgcal).toModify(theDigitizers,
+    hgceeDigitizer = dict(premixStage1 = True),
+    hgchebackDigitizer = dict(premixStage1 = True),
+    hgchefrontDigitizer = dict(premixStage1 = True),
+)
+
+theDigitizersValid = cms.PSet(theDigitizers)
+theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 phase2_hgcal.toModify( theDigitizersValid,
-                       calotruth = cms.PSet( caloParticles ) )
+                       calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
+(premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
 
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
                         createInitialVertexCollection = cms.bool(True) )
 
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+def _customizePremixStage1(mod):
+    # To avoid this if-else structure we'd need an "_InverseModifier"
+    # to customize pixel/strip for everything else than fastSim.
+    if hasattr(mod, "pixel"):
+        if hasattr(mod.pixel, "AlgorithmCommon"):
+            mod.pixel.AlgorithmCommon.makeDigiSimLinks = True
+        else:
+            mod.pixel.makeDigiSimLinks = True
+    if hasattr(mod, "strip"):
+        mod.strip.makeDigiSimLinks = True
+    mod.mergedtruth.select.signalOnlyTP = False
+premix_stage1.toModify(theDigitizersValid, _customizePremixStage1)
+
+def _loadPremixStage2Aliases(process):
+    process.load("SimGeneral.MixingModule.aliases_PreMix_cfi")
+modifyDigitizers_loadPremixStage2Aliases = premix_stage2.makeProcessModifier(_loadPremixStage2Aliases)

@@ -69,7 +69,7 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps)
 
   string tmpPath = ps.getUntrackedParameter<string>("pathToWeightFiles","RecoEcal/EgammaClusterProducers/data/");
 
-  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath.c_str());
+  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath);
 
   produces< PhotonPi0DiscriminatorAssociationMap >(PhotonPi0DiscriminatorAssociationMap_);
 
@@ -218,7 +218,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	    }
           }
 
-          if(vout_stripE1.size() == 0 || vout_stripE2.size() == 0 ) {
+          if(vout_stripE1.empty() || vout_stripE2.empty() ) {
             if ( debugL_pi0 <= pDEBUG )
 	            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
 	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
@@ -248,12 +248,10 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	    continue;
 	  }
 
-          float* nn_input_var = presh_pi0_algo->get_input_vector();
-
           if ( debugL_pi0 <= pDEBUG ) {
             cout  << " PiZeroDiscriminatorProducer: NN_ESEndcap_input_vector+Et+Eta+Phi+R9 = " ;
-            for(int k1=0;k1<25;k1++) {
-              cout  << nn_input_var[k1] << " " ;
+            for(auto v: presh_pi0_algo->get_input_vector()) {
+              cout  << v << " " ;
             }
             cout  << SC_Et << " " << SC_eta << " " << SC_phi << " " << Phot_R9  << endl;
 	  }
@@ -350,12 +348,10 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 					      SC_seed_Shape_E3x2, SC_seed_Shape_E3x2r,
 					      SC_seed_Shape_xcog, SC_seed_Shape_ycog);
 
-         float* nn_input_var = presh_pi0_algo->get_input_vector();
-
   	 if ( debugL_pi0 <= pDEBUG ) {
            cout  << " PiZeroDiscriminatorProducer : NN_barrel_nonESEndcap_variables+Et+Eta+Phi+R9 = " ;
-           for(int k3=0;k3<12;k3++) {
-             cout  << nn_input_var[k3] << " " ;
+           for(auto v: presh_pi0_algo->get_input_vector()) {
+             cout  << v << " " ;
            }
            cout  << SC_Et << " " << SC_eta << " " << SC_phi << " " << Phot_R9 << endl;
 

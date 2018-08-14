@@ -7,7 +7,7 @@
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
@@ -118,6 +118,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   produces<edm::PCaloHitContainer>("ChamberHits");
   produces<edm::PCaloHitContainer>("FibreHits");
   produces<edm::PCaloHitContainer>("WedgeHits");
+  produces<edm::PCaloHitContainer>("HFNoseHits");
 
   //register any products
   m_producers = m_runManagerWorker->producers();
@@ -167,69 +168,68 @@ OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
   StaticRandomEngineSetUnset random(e.streamID());
+  LogDebug("SimG4CoreApplication") 
+    << "Produce event " << e.id() << " stream " << e.streamID() 
+    << " rand= " << G4UniformRand();
 
   std::vector<SensitiveTkDetector*>& sTk =
     m_runManagerWorker->sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sCalo =
     m_runManagerWorker->sensCaloDetectors();
 
-  try {
-    m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
-
-    std::unique_ptr<edm::SimTrackContainer>
-      p1(new edm::SimTrackContainer);
-    std::unique_ptr<edm::SimVertexContainer>
-      p2(new edm::SimVertexContainer);
-    G4SimEvent * evt = m_runManagerWorker->simEvent();
-    evt->load(*p1);
-    evt->load(*p2);   
-
-    e.put(std::move(p1));
-    e.put(std::move(p2));
-
-    for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin();
-	 it != sTk.end(); ++it) {
-
-      std::vector<std::string> v = (*it)->getNames();
-      for (std::vector<std::string>::iterator in = v.begin();
-	   in!= v.end(); ++in) {
-
-	std::unique_ptr<edm::PSimHitContainer>
-	  product(new edm::PSimHitContainer);
-	(*it)->fillHits(*product,*in);
-	e.put(std::move(product),*in);
-      }
-    }
-    for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin();
-	 it != sCalo.end(); ++it) {
-
-      std::vector<std::string>  v = (*it)->getNames();
-
-      for (std::vector<std::string>::iterator in = v.begin();
-	   in!= v.end(); in++) {
-
-	std::unique_ptr<edm::PCaloHitContainer>
-	  product(new edm::PCaloHitContainer);
-	(*it)->fillHits(*product,*in);
-	e.put(std::move(product),*in);
-      }
-    }
-
-    for(Producers::iterator itProd = m_producers.begin();
-	itProd != m_producers.end(); ++itProd) {
-
-      (*itProd)->produce(e,es);
-    }
-  } catch ( const SimG4Exception& simg4ex ) {
+  try { m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster()); }
+  catch ( const SimG4Exception& simg4ex ) {
        
-    edm::LogInfo("SimG4CoreApplication") << "SimG4Exception caght! " 
-					 << simg4ex.what();
+    edm::LogWarning("SimG4CoreApplication") << "SimG4Exception caght! " 
+					    << simg4ex.what();
        
     throw edm::Exception( edm::errors::EventCorruption ) 
       << "SimG4CoreApplication exception in generation of event "
       << e.id() << " in stream " << e.streamID() << " \n"
       << simg4ex.what();
   }
+
+  std::unique_ptr<edm::SimTrackContainer>
+    p1(new edm::SimTrackContainer);
+  std::unique_ptr<edm::SimVertexContainer>
+    p2(new edm::SimVertexContainer);
+  G4SimEvent * evt = m_runManagerWorker->simEvent();
+  evt->load(*p1);
+  evt->load(*p2);   
+
+  e.put(std::move(p1));
+  e.put(std::move(p2));
+
+  for (auto & tracker : sTk) {
+
+    const std::vector<std::string>& v = tracker->getNames();
+    for (auto & name : v) {
+
+      std::unique_ptr<edm::PSimHitContainer>
+	product(new edm::PSimHitContainer);
+      tracker->fillHits(*product,name);
+      e.put(std::move(product),name);
+    }
+  }
+  for (auto & calo : sCalo) {
+
+    const std::vector<std::string>& v = calo->getNames();
+
+    for (auto & name : v) {
+
+      std::unique_ptr<edm::PCaloHitContainer>
+	product(new edm::PCaloHitContainer);
+      calo->fillHits(*product,name);
+      e.put(std::move(product),name);
+    }
+  }
+
+  for(auto & prod :  m_producers) {
+    prod.get()->produce(e,es);
+  }
+  LogDebug("SimG4CoreApplication") 
+    << "Event is produced " << e.id() << " stream " << e.streamID() 
+    << " rand= " << G4UniformRand();
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(

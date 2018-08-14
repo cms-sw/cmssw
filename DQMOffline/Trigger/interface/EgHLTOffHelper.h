@@ -26,7 +26,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -161,7 +161,7 @@ namespace egHLT {
     OffHelper(const OffHelper&) = delete;
     
   public:
-    OffHelper(): eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
+    OffHelper(): eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(nullptr),hltPhoTrkIsolAlgo_(nullptr){}
     ~OffHelper();
     
     void setup(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);

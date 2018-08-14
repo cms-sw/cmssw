@@ -1,6 +1,6 @@
 
 #include <TFile.h>
-#include "../interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,13 +14,13 @@ using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
 EGEnergyCorrector::EGEnergyCorrector() :
-fReadereb(0),
-fReaderebvariance(0),
-fReaderee(0),
-fReadereevariance(0),
+fReadereb(nullptr),
+fReaderebvariance(nullptr),
+fReaderee(nullptr),
+fReadereevariance(nullptr),
 fIsInitialized(kFALSE),
 fOwnsForests(kFALSE),
-fVals(0)
+fVals(nullptr)
 {
   // Constructor.
 }

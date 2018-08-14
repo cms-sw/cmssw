@@ -25,21 +25,21 @@ class ProcLinear : public TrainProcessor {
 
 	ProcLinear(const char *name, const AtomicId *id,
 	           MVATrainer *trainer);
-	virtual ~ProcLinear();
+	~ProcLinear() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
-	virtual bool load() override;
-	virtual void save() override;
+	bool load() override;
+	void save() override;
 
     protected:
-	virtual void *requestObject(const std::string &name) const override;
+	void *requestObject(const std::string &name) const override;
 
     private:
 	enum Iteration {
@@ -53,7 +53,7 @@ class ProcLinear : public TrainProcessor {
 	double theoffset;
 };
 
-static ProcLinear::Registry registry("ProcLinear");
+ProcLinear::Registry registry("ProcLinear");
 
 ProcLinear::ProcLinear(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
@@ -148,7 +148,7 @@ void *ProcLinear::requestObject(const std::string &name) const
 	if (name == "linearAnalyzer")
 		return static_cast<void*>(ls.get());
 
-	return 0;
+	return nullptr;
 }
 
 bool ProcLinear::load()

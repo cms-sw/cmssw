@@ -28,18 +28,18 @@ public:
     // given in arbitrary order.
     explicit HcalCubicInterpolator(const std::vector<Triple>& points);
 
-    inline virtual ~HcalCubicInterpolator() {}
+    inline ~HcalCubicInterpolator() override {}
 
-    virtual double operator()(double x) const override;
-    virtual double xmin() const override;
-    virtual double xmax() const override;
+    double operator()(double x) const override;
+    double xmin() const override;
+    double xmax() const override;
 
     // Cubic approximation to the inverse curve (note, not the real
     // solution of the direct cubic equation). Use at your own risc.
     HcalCubicInterpolator approximateInverse() const;
 
 protected:
-    inline virtual bool isEqual(const AbsHcalFunctor& other) const override
+    inline bool isEqual(const AbsHcalFunctor& other) const override
     {
         const HcalCubicInterpolator& r =
             static_cast<const HcalCubicInterpolator&>(other);

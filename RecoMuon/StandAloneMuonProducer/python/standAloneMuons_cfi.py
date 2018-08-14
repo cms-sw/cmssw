@@ -108,4 +108,14 @@ standAloneSETMuons = cms.EDProducer("StandAloneMuonProducer",
     )
                                     )
 
+_enableGEMMeasurement = dict( EnableGEMMeasurement = cms.bool(True) )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableGEMMeasurement, 
+    BWFilterParameters = _enableGEMMeasurement ) )
 
+_enableME0Measurement = dict( EnableME0Measurement = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableME0Measurement,
+    BWFilterParameters = _enableME0Measurement ) )

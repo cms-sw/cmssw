@@ -308,7 +308,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
       << "Unable to find EcalDigiEB in event!";
     return;
   }  
-  if ( EcalDigiEB->size() == 0) isBarrel = false;
+  if ( EcalDigiEB->empty()) isBarrel = false;
 
   if (isBarrel) {
     
@@ -428,7 +428,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
       << "Unable to find EcalDigiEE in event!";
     return;
   }  
-  if (EcalDigiEE->size() == 0) isEndCap = false;
+  if (EcalDigiEE->empty()) isEndCap = false;
 
   if (isEndCap) {
 
@@ -548,7 +548,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
       << "Unable to find EcalDigiES in event!";
     return;
   }  
-  if (EcalDigiES->size() == 0) isPreshower = false;
+  if (EcalDigiES->empty()) isPreshower = false;
 
   if (isPreshower) {
 

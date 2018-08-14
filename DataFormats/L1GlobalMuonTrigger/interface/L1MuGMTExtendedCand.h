@@ -57,7 +57,7 @@ class L1MuGMTExtendedCand : public L1MuGMTCand {
     L1MuGMTExtendedCand(const L1MuGMTExtendedCand&);
 
     /// destructor
-     virtual ~L1MuGMTExtendedCand();
+     ~L1MuGMTExtendedCand() override;
 
     /// reset muon candidate
     void reset();

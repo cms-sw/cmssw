@@ -69,7 +69,7 @@ void StoreSecondary::update(const BeginOfTrack * trk) {
 
   const G4Track * thTk = (*trk)();
   treatSecondary->initTrack(thTk);
-  if (nsecs.size() == 0 && thTk->GetParentID() <= 0) storeIt = true;
+  if (nsecs.empty() && thTk->GetParentID() <= 0) storeIt = true;
   else                                               storeIt = false;
   nHad  = 0;
 }

@@ -130,7 +130,7 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       DTGeometryBuilderFromDDD DTGeometryBuilder;
       CSCGeometryBuilderFromDDD CSCGeometryBuilder;
  
-      auto dtGeometry = std::shared_ptr<DTGeometry>();
+      auto dtGeometry = std::make_shared<DTGeometry>();
       DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
 
       auto boost_cscGeometry = std::make_shared<CSCGeometry>();
@@ -162,7 +162,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
                                              const AlignableObjectId& objectIdProvider) const {
    align::Alignables::const_iterator ideal = ideals.begin();
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      if (m_survey  &&  (*alignable)->survey() == NULL) {
+      if (m_survey  &&  (*alignable)->survey() == nullptr) {
 	 throw cms::Exception("Alignment") << "SurveyDets must all be defined when writing to XML" << std::endl;
       } // now I can assume it's okay everywhere
 
@@ -280,7 +280,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
 	    str_relativeto = std::string("ideal");
 
-            bool csc_debug=0;
+            bool csc_debug=false;
             if (csc_debug && !DT) {
               CSCDetId id(rawId);
               if(id.endcap()==1 && id.station()==1 && id.ring()==1 && id.chamber()==33 ){
@@ -302,7 +302,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
             }
 	 }
 
-	 else if (m_relativeto == 2  &&  (*alignable)->mother() != NULL) {
+	 else if (m_relativeto == 2  &&  (*alignable)->mother() != nullptr) {
 	    align::PositionType globalPosition = (*alignable)->mother()->globalPosition();
 	    align::RotationType globalRotation = (*alignable)->mother()->globalRotation();
 
@@ -348,12 +348,12 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
 	    CLHEP::HepSymMatrix err = errors[(*alignable)->id()];
 
-            outputFile <<"  <setape xx=\"" << err(0,0) << "\" xy=\"" << err(0,1) << "\" xz=\"" << err(0,2) << "\" xa=\"" << err(0,3) << "\" xb=\"" << err(0,4) << "\" xc=\"" << err(0,5)
-                       << "\" yy=\"" << err(1,1) << "\" yz=\"" << err(1,2) << "\" ya=\"" << err(1,3) << "\" yb=\"" << err(1,4) << "\" yc=\"" << err(1,5)
-                       << "\" zz=\"" << err(2,2) << "\" za=\"" << err(2,3) << "\" zb=\"" << err(2,4) << "\" zc=\"" << err(2,5)
-                       << "\" aa=\"" << err(3,3) << "\" ab=\"" << err(3,4) << "\" ac=\"" << err(3,5)
-                       << "\" bb=\"" << err(4,4) << "\" bc=\"" << err(4,5)
-                       << "\" cc=\"" << err(5,5) << "\" />" << std::endl;
+            outputFile <<"  <setape xx=\"" << err(1,1) << "\" xy=\"" << err(1,2) << "\" xz=\"" << err(1,3) << "\" xa=\"" << err(1,4) << "\" xb=\"" << err(1,5) << "\" xc=\"" << err(1,6)
+                       << "\" yy=\"" << err(2,2) << "\" yz=\"" << err(2,3) << "\" ya=\"" << err(2,4) << "\" yb=\"" << err(2,5) << "\" yc=\"" << err(2,6)
+                       << "\" zz=\"" << err(3,3) << "\" za=\"" << err(3,4) << "\" zb=\"" << err(3,5) << "\" zc=\"" << err(3,6)
+                       << "\" aa=\"" << err(4,4) << "\" ab=\"" << err(4,5) << "\" ac=\"" << err(4,6)
+                       << "\" bb=\"" << err(5,5) << "\" bc=\"" << err(5,6)
+                       << "\" cc=\"" << err(6,6) << "\" />" << std::endl;
 	 }
 
 	 outputFile << "</operation>" << std::endl << std::endl;

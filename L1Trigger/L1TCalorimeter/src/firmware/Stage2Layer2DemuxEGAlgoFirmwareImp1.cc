@@ -32,7 +32,7 @@ namespace l1t {
   }
 }
 
-l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::Stage2Layer2DemuxEGAlgoFirmwareImp1(CaloParamsHelper* params) :
+l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::Stage2Layer2DemuxEGAlgoFirmwareImp1(CaloParamsHelper const* params) :
   params_(params)
 {
 
@@ -50,10 +50,12 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
     std::vector<l1t::EGamma> & outputEGammas) {
 
   vector<pair<int,double> > etaGT;
+  etaGT.reserve(115);
   for(int i=0;i<115;i++)
     etaGT.push_back( make_pair(i,i*(0.087/2.)) );
 
   vector<pair<int,double> > phiGT;
+  phiGT.reserve(145);
   for(int i=0;i<145;i++)
     phiGT.push_back( make_pair(i,i*(M_PI/72.)) );
   phiGT[144] = make_pair(0,2*M_PI); //2pi = 0

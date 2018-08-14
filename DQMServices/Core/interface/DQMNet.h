@@ -8,7 +8,8 @@
 # include "classlib/utils/Error.h"
 # include "classlib/utils/Time.h"
 # include <pthread.h>
-# include <stdint.h>
+# include <cstdint>
+# include <csignal>
 # include <iostream>
 # include <vector>
 # include <string>
@@ -79,10 +80,10 @@ public:
   struct QValue;
   struct WaitObject;
 
-  typedef std::vector<unsigned char>    DataBlob;
-  typedef std::vector<QValue>		QReports;
-  typedef std::vector<uint32_t>		TagList; // DEPRECATED
-  typedef std::list<WaitObject>		WaitList;
+  using DataBlob = std::vector<unsigned char>;
+  using QReports = std::vector<QValue>;
+  using TagList = std::vector<uint32_t>; // DEPRECATED
+  using WaitList = std::list<WaitObject>;
 
   struct QValue
   {
@@ -158,7 +159,7 @@ public:
   };
 
   DQMNet(const std::string &appname = "");
-  virtual ~DQMNet(void);
+  virtual ~DQMNet();
 
   void			debug(bool doit);
   void			delay(int delay);
@@ -167,14 +168,14 @@ public:
   void			staleObjectWaitLimit(lat::TimeSpan time);
   void			updateToCollector(const std::string &host, int port);
   void			listenToCollector(const std::string &host, int port);
-  void			shutdown(void);
-  void			lock(void);
-  void			unlock(void);
+  void			shutdown();
+  void			lock();
+  void			unlock();
 
-  void			start(void);
-  void			run(void);
+  void			start();
+  void			run();
 
-  void			sendLocalChanges(void);
+  void			sendLocalChanges();
 
   static bool setOrder(const CoreObject &a, const CoreObject &b)
     {
@@ -236,7 +237,7 @@ public:
  
       uint32_t a, b, c;
       a = b = c = 0xdeadbeef + (uint32_t) keylen;
-      const unsigned char *k = (const unsigned char *) key;
+      const auto *k = (const unsigned char *) key;
 
       // all but the last block: affect some bits of (a, b, c)
       while (keylen > 12)
@@ -288,18 +289,18 @@ public:
   static void		unpackQualityData(QReports &qr, uint32_t &flags, const char *from);
 
 protected:
-  std::ostream &	logme(void);
+  std::ostream &	logme();
   static void		copydata(Bucket *b, const void *data, size_t len);
   virtual void		sendObjectToPeer(Bucket *msg, Object &o, bool data);
 
-  virtual bool		shouldStop(void);
+  virtual bool		shouldStop();
   void			waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
   virtual void		releaseFromWait(Bucket *msg, WaitObject &w, Object *o);
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
   // bool			reconstructObject(Object &o);
   // bool			reinstateObject(DQMStore *store, Object &o);
-  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
+  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = nullptr) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
   virtual void		markObjectsDead(Peer *p) = 0;
   virtual void		purgeDeadObjects(Peer *p) = 0;
@@ -311,7 +312,7 @@ protected:
   virtual void		sendObjectListToPeers(bool all) = 0;
 
   void			updateMask(Peer *p);
-  virtual void		updatePeerMasks(void) = 0;
+  virtual void		updatePeerMasks() = 0;
   static void		discard(Bucket *&b);
 
   bool			debug_;
@@ -321,7 +322,7 @@ private:
   void			losePeer(const char *reason,
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
-				 lat::Error *err = 0);
+				 lat::Error *err = nullptr);
   void			requestObjectData(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(const std::string &name, Object *o);
@@ -350,9 +351,10 @@ private:
   lat::TimeSpan		waitMax_;
   bool			flush_;
 
+public:
   // copying is not available
-  DQMNet(const DQMNet &);
-  DQMNet &operator=(const DQMNet &);
+  DQMNet(const DQMNet &) = delete;
+  DQMNet &operator=(const DQMNet &) = delete;
 };
 
 template <class ObjType>
@@ -361,12 +363,12 @@ class DQMImplNet : public DQMNet
 public:
   struct ImplPeer;
 
-  typedef std::set<std::string> DirMap;
+  using DirMap = std::set<std::string>;
   typedef __gnu_cxx::hash_set<ObjType, HashOp, HashEqual> ObjectMap;
   typedef std::map<lat::Socket *, ImplPeer> PeerMap;
   struct ImplPeer : Peer
   {
-    ImplPeer(void) {}
+    ImplPeer() = default;
     ObjectMap objs;
     DirMap dirs;
   };
@@ -375,12 +377,12 @@ public:
     : DQMNet(appname)
     {}
   
-  ~DQMImplNet(void)
-    {}
+  ~DQMImplNet() override
+    = default;
 
 protected:
-  virtual Object *
-  findObject(Peer *p, const std::string &name, Peer **owner = 0)
+  Object *
+  findObject(Peer *p, const std::string &name, Peer **owner = nullptr) override
     {
       size_t slash = name.rfind('/');
       size_t dirpos = (slash == std::string::npos ? 0 : slash);
@@ -394,13 +396,13 @@ protected:
       typename ObjectMap::iterator pos;
       typename PeerMap::iterator i, e;
       if (owner)
-	*owner = 0;
+	*owner = nullptr;
       if (p)
       {
-	ImplPeer *ip = static_cast<ImplPeer *>(p);
+	auto *ip = static_cast<ImplPeer *>(p);
 	pos = ip->objs.find(proto);
 	if (pos == ip->objs.end())
-	  return 0;
+	  return nullptr;
 	else
 	{
 	  if (owner) *owner = ip;
@@ -418,14 +420,14 @@ protected:
 	    return const_cast<ObjType *>(&*pos);
 	  }
 	}
-	return 0;
+	return nullptr;
       }
     }
 
-  virtual Object *
-  makeObject(Peer *p, const std::string &name)
+  Object *
+  makeObject(Peer *p, const std::string &name) override
     {
-      ImplPeer *ip = static_cast<ImplPeer *>(p);
+      auto *ip = static_cast<ImplPeer *>(p);
       size_t slash = name.rfind('/');
       size_t dirpos = (slash == std::string::npos ? 0 : slash);
       size_t namepos = (slash == std::string::npos ? 0 : slash+1);
@@ -447,13 +449,13 @@ protected:
   // DQM_PROP_DEAD flag, then call purgeDeadObjects() at the end
   // to remove the dead ones.  This also turns off object request
   // for objects we've lost interest in.
-  virtual void
-  markObjectsDead(Peer *p)
+  void
+  markObjectsDead(Peer *p) override
     {
       uint64_t minreq
 	= (lat::Time::current()
 	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
-      ImplPeer *ip = static_cast<ImplPeer *>(p);
+      auto *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
       {
@@ -464,10 +466,10 @@ protected:
     }
 
   // Mark remaining zombie objects as dead.  See markObjectsDead().
-  virtual void
-  purgeDeadObjects(Peer *p)
+  void
+  purgeDeadObjects(Peer *p) override
     {
-      ImplPeer *ip = static_cast<ImplPeer *>(p);
+      auto *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
       {
@@ -478,20 +480,20 @@ protected:
       }
     }
 
-  virtual Peer *
-  getPeer(lat::Socket *s)
+  Peer *
+  getPeer(lat::Socket *s) override
     {
-      typename PeerMap::iterator pos = peers_.find(s);
-      typename PeerMap::iterator end = peers_.end();
-      return pos == end ? 0 : &pos->second;
+      auto pos = peers_.find(s);
+      auto end = peers_.end();
+      return pos == end ? nullptr : &pos->second;
     }
 
-  virtual Peer *
-  createPeer(lat::Socket *s)
+  Peer *
+  createPeer(lat::Socket *s) override
     {
       ImplPeer *ip = &peers_[s];
-      ip->socket = 0;
-      ip->sendq = 0;
+      ip->socket = nullptr;
+      ip->sendq = nullptr;
       ip->sendpos = 0;
       ip->mask = 0;
       ip->source = false;
@@ -499,14 +501,14 @@ protected:
       ip->updated = false;
       ip->updates = 0;
       ip->waiting = 0;
-      ip->automatic = 0;
+      ip->automatic = nullptr;
       return ip;
     }
 
-  virtual void
-  removePeer(Peer *p, lat::Socket *s)
+  void
+  removePeer(Peer *p, lat::Socket *s) override
     {
-      ImplPeer *ip = static_cast<ImplPeer *>(p);
+      auto *ip = static_cast<ImplPeer *>(p);
       bool needflush = ! ip->objs.empty();
 
       typename ObjectMap::iterator i, e;
@@ -522,8 +524,8 @@ protected:
     }
 
   /// Send all objects to a peer and optionally mark sent objects old.
-  virtual void
-  sendObjectListToPeer(Bucket *msg, bool all, bool clear)
+  void
+  sendObjectListToPeer(Bucket *msg, bool all, bool clear) override
     {
       typename PeerMap::iterator pi, pe;
       typename ObjectMap::iterator oi, oe;
@@ -561,8 +563,8 @@ protected:
       copydata(msg, &words[0], sizeof(words));
     }
 
-  virtual void
-  sendObjectListToPeers(bool all)
+  void
+  sendObjectListToPeers(bool all) override
     {
       typename PeerMap::iterator i, e;
       typename ObjectMap::iterator oi, oe;
@@ -577,7 +579,7 @@ protected:
 	    << "DEBUG: notifying " << p.peeraddr << std::endl;
 
 	Bucket msg;
-        msg.next = 0;
+        msg.next = nullptr;
 	sendObjectListToPeer(&msg, !p.updated || all, true);
 
 	if (! msg.data.empty())
@@ -587,15 +589,15 @@ protected:
 	    prev = &(*prev)->next;
 
 	  *prev = new Bucket;
-	  (*prev)->next = 0;
+	  (*prev)->next = nullptr;
 	  (*prev)->data.swap(msg.data);
 	}
 	p.updated = true;
       }
     }
 
-  virtual void
-  updatePeerMasks(void)
+  void
+  updatePeerMasks() override
     {
       typename PeerMap::iterator i, e;
       for (i = peers_.begin(), e = peers_.end(); i != e; )

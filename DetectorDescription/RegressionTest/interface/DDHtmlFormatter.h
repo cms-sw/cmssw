@@ -1,5 +1,5 @@
-#ifndef DDHtmlFormatter_h
-#define DDHtmlFormatter_h
+#ifndef DETECTOR_DESCRIPTION_REGRESSION_TEST_DD_HTML_FORMATTER_H
+#define DETECTOR_DESCRIPTION_REGRESSION_TEST_DD_HTML_FORMATTER_H
 
 #include <iostream>
 #include <string>
@@ -53,22 +53,14 @@ public:
   // std::string operator<<(std::string o) { o << os_; }
   mutable std::stringstream os_;
 
-private:
-
-  DDHtmlFormatter& operator= ( const DDHtmlFormatter& );
+  DDHtmlFormatter& operator= ( const DDHtmlFormatter& ) = delete;
 };
-
-
-
-
-
 
 /** 
     Generates HTML for DD-namespaces 
 */
 class DDNsGenerator 
-{
- 
+{ 
 public:
   DDNsGenerator(std::ostream & os, 
 		const std::string & title, 
@@ -105,9 +97,6 @@ private:
   std::string t_, n1_, n2_, n3_, u1_, u2_, u3_;
   std::ostream & os_;
 };  		     		     
-	
-// =============================================================================================================
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class DDHtmlDetails
 {
@@ -129,8 +118,8 @@ class DDHtmlLpDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlLpDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -138,8 +127,8 @@ class DDHtmlMaDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlMaDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -147,8 +136,8 @@ class DDHtmlSoDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlSoDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -156,8 +145,8 @@ class DDHtmlRoDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlRoDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -165,15 +154,11 @@ class DDHtmlSpDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlSpDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// =============================================================================================================
-	
 void dd_to_html(DDHtmlDetails & det);
 			 	         
 void dd_html_frameset(std::ostream & os);
@@ -183,7 +168,5 @@ void dd_html_menu_frameset(std::ostream & os);
 void dd_html_menu(std::ostream & os);
 
 void dd_html_ro();
-
-
 
 #endif

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 import sys
@@ -154,7 +155,13 @@ _globalTags = {
     "CMSSW_8_0_11": {"default": "80X_mcRun2_asymptotic_v14"},
     "CMSSW_8_0_15": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
     "CMSSW_8_0_16": {"default": "80X_mcRun2_asymptotic_v16_gs7120p2", "fastsim": "80X_mcRun2_asymptotic_v16"},
-    "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
+    "CMSSW_8_0_16_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT",
+                                "fastsim": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT", "RelValTTbar": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tr4GT_resub"}, "fastsim_25ns": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_Tranch4GT"},
+    "CMSSW_8_0_16_Tranche4GT_v2": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v2_Tr4GT_v2"},
+    "CMSSW_8_0_16_Tranche4GT_pmx": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_gs7120p2_Tranch4GT", "fastsim": "80X_mcRun2_asymptotic_2016_TrancheIV_v0_resub"},
+    "CMSSW_8_0_19_Tranche4GT_v2": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v2_Tr4GT_v2"},
+    "CMSSW_8_0_20_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4"},
+    "CMSSW_8_0_21_Tranche4GT": {"default": "80X_mcRun2_asymptotic_2016_TrancheIV_v6_Tr4GT_v6"},
     "CMSSW_8_1_0_pre1": {"default": "80X_mcRun2_asymptotic_v6"},
     "CMSSW_8_1_0_pre1_phase1": {"default": "80X_upgrade2017_design_v4_UPG17", "fullsim_25ns": "80X_upgrade2017_design_v4_UPG17PU35"},
     "CMSSW_8_1_0_pre2": {"default": "80X_mcRun2_asymptotic_v10_gs810pre2", "fastsim": "80X_mcRun2_asymptotic_v10"},
@@ -183,14 +190,167 @@ _globalTags = {
     "CMSSW_8_1_0_pre9_Geant4102": {"default": "81X_mcRun2_asymptotic_v2"},
     "CMSSW_8_1_0_pre9_phase1": {"default": "81X_upgrade2017_realistic_v5_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v5_UPG17PU35"},
     "CMSSW_8_1_0_pre9_phase1_newGT": {"default": "81X_upgrade2017_realistic_v6_UPG17newGT", "fullsim_25ns": "81X_upgrade2017_realistic_v6_UPG17PU35newGT"},
+    "CMSSW_8_1_0_pre10": {"default": "81X_mcRun2_asymptotic_v5_recycle", "fullsim_25ns": "81X_mcRun2_asymptotic_v5_resub", "fastsim": "81X_mcRun2_asymptotic_v5"},
+    "CMSSW_8_1_0_pre10_pmx": {"default": "81X_mcRun2_asymptotic_v5"},
+    "CMSSW_8_1_0_pre10_phase1": {"default": "81X_upgrade2017_realistic_v9_UPG17resub", "fullsim_25ns": "81X_upgrade2017_realistic_v9_UPG17PU35resub"},
+    "CMSSW_8_1_0_pre11": {"default": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55", "fullsim_25ns": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55_resub", "fastsim_25ns": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55_resub2"},
+    "CMSSW_8_1_0_pre11_pmx": {"default": "81X_mcRun2_asymptotic_Candidate_2016_08_30_11_31_55"},
+    "CMSSW_8_1_0_pre11_phase1": {"default": "81X_upgrade2017_realistic_v9_UPG17", "fullsim_25ns": "81X_upgrade2017_realistic_v9_UPG17PU35"},
+    "CMSSW_8_1_0_pre12": {"default": "81X_mcRun2_asymptotic_v8", "fullsim_25ns": "81X_mcRun2_asymptotic_v8_resub", "fastsim": "81X_mcRun2_asymptotic_v8_resub", "fastsim_25ns": "81X_mcRun2_asymptotic_v8"},
+    "CMSSW_8_1_0_pre12_pmx": {"default": "81X_mcRun2_asymptotic_v8_resub", "fastsim_25ns": "81X_mcRun2_asymptotic_v8_rsub"},
+    "CMSSW_8_1_0_pre12_phase1": {"default": "81X_upgrade2017_realistic_v13"},
+    "CMSSW_8_1_0_pre12_phase1_newBPix": {"default": "81X_upgrade2017_realistic_newBPix_wAlign_v1_BpixGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newBPixFPix": {"default": "81X_upgrade2017_realistic_v13_BpixFpixGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newBPixFPixHCAL": {"default": "81X_upgrade2017_HCALdev_v2_BpixFpixHcalGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newHCAL": {"default": "81X_upgrade2017_HCALdev_v2_HcalGeom"},
+    "CMSSW_8_1_0_pre12_phase1_newBPixHCAL": {"default": "81X_upgrade2017_HCALdev_v2_NewBPix_BpixHcalGeom"},
+    "CMSSW_8_1_0_pre15": {"default": "81X_mcRun2_asymptotic_v11"},
+    "CMSSW_8_1_0_pre15_HIP": {"default": "81X_mcRun2_asymptotic_v11_hip"},
+    "CMSSW_8_1_0_pre15_PU": {"default": "81X_mcRun2_asymptotic_v11_M17"},
+    "CMSSW_8_1_0_pre15_PU_HIP": {"default": "81X_mcRun2_asymptotic_v11_hipM17"},
+    "CMSSW_8_1_0_pre15_phase1": {"default": "81X_upgrade2017_realistic_v17_BpixFpixHcalGeom",
+                                 "Design": "81X_upgrade2017_design_IdealBS_v1_2017design", "Design_fullsim_25ns": "81X_upgrade2017_design_IdealBS_v1_design"},
+    "CMSSW_8_1_0_pre16": {"default": "81X_mcRun2_asymptotic_v11"},
+    "CMSSW_8_1_0_pre16_phase1": {"default": "81X_upgrade2017_realistic_v22", "Design": "81X_upgrade2017_design_IdealBS_v6"},
+    "CMSSW_8_1_0": {"default": "81X_mcRun2_asymptotic_v12"},
+    "CMSSW_8_1_0_phase1": {"default": "81X_upgrade2017_realistic_v26_HLT2017"},
+    "CMSSW_9_0_0_pre1": {"default": "90X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_0_0_pre1_phase1": {"default": "90X_upgrade2017_realistic_v0",
+                                "Design": "90X_upgrade2017_design_IdealBS_v0", "Design_fullsim_25ns": "90X_upgrade2017_design_IdealBS_v0_resub"},
+    "CMSSW_9_0_0_pre2": {"default": "90X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_0_0_pre2_ROOT6": {"default": "90X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_0_0_pre2_phase1": {"default": "90X_upgrade2017_realistic_v0",
+                                "Design": "90X_upgrade2017_design_IdealBS_v0", "Design_fullsim_25ns": "90X_upgrade2017_design_IdealBS_v0_resub"},
+    "CMSSW_9_0_0_pre4": {"default": "90X_mcRun2_asymptotic_v1", "fullsim_25ns": "90X_mcRun2_asymptotic_v1_resub"},
+    "CMSSW_9_0_0_pre4_phase1": {"default": "90X_upgrade2017_realistic_v6", "fullsim_25ns_PU50": "Nonexistent",
+                                "Design": "90X_upgrade2017_design_IdealBS_v6"},
+    "CMSSW_9_0_0_pre4_GS": {"default": "90X_mcRun2_asymptotic_v1_GSval", "fullsim_25ns": "90X_mcRun2_asymptotic_v1_GSval"},
+    "CMSSW_9_0_0_pre4_phase1_ecalsrb5": {"default": "90X_upgrade2017_realistic_v6_B5"},
+    "CMSSW_9_0_0_pre4_phase1_ecalsrc1": {"default": "90X_upgrade2017_realistic_v6_C1"},
+    "CMSSW_9_0_0_pre4_phase1_ecalsrd7": {"default": "90X_upgrade2017_realistic_v6_D7"},
+    "CMSSW_9_0_0_pre5": {"default": "90X_mcRun2_asymptotic_v4"},
+    "CMSSW_9_0_0_pre5_pmx": {"default": "90X_mcRun2_asymptotic_v4", "fastsim_25ns": "90X_mcRun2_asymptotic_v4_resub"},
+    "CMSSW_9_0_0_pre5_phase1": {"default": "90X_upgrade2017_realistic_v15",
+                                "fullsim_25ns_PU35": "90X_upgrade2017_realistic_v15_resub", "fullsim_25ns_PU50": "90X_upgrade2017_realistic_v15_PU50",
+                                "Design": "90X_upgrade2017_design_IdealBS_v15"},
+    "CMSSW_9_0_0_pre6": {"default": "90X_mcRun2_asymptotic_v4"},
+    "CMSSW_9_0_0_pre6_phase1": {"default": "90X_upgrade2017_realistic_v15",
+                                "fullsim_25ns_PU50": "90X_upgrade2017_realistic_v15_PU50",
+                                "Design": "90X_upgrade2017_design_IdealBS_v15"},
+    "CMSSW_9_0_0": {"default": "90X_mcRun2_asymptotic_v5"},
+    "CMSSW_9_0_0_phase1": {"default": "90X_upgrade2017_realistic_v20_resub",
+                           "fullsim_25ns_PU50": "90X_upgrade2017_realistic_v20_PU50_resub",
+                           "Design": "90X_upgrade2017_design_IdealBS_v19_resub"},
+    "CMSSW_9_0_0_gcc630": {"default": "90X_mcRun2_asymptotic_v5_gcc630"},
+    "CMSSW_9_0_0_phase1_gcc630": {"default": "90X_upgrade2017_realistic_v20_gcc630"},
+    "CMSSW_9_0_0_cc7": {"default": "90X_mcRun2_asymptotic_v5_cc7"},
+    "CMSSW_9_0_0_phase1_cc7": {"default": "90X_upgrade2017_realistic_v20_cc7_rsb"},
+    "CMSSW_9_0_2_phase1": {"default": "90X_upgrade2017_realistic_v20",
+                           "fullsim_25ns_PU50": "90X_upgrade2017_realistic_v20_PU50",
+                           "Design": "90X_upgrade2017_design_IdealBS_v19"},
+    "CMSSW_9_1_0_pre1": {"default": "90X_mcRun2_asymptotic_v5"},
+    "CMSSW_9_1_0_pre1_phase1": {"default": "90X_upgrade2017_realistic_v20",
+                                "fullsim_25ns_PU50": "90X_upgrade2017_realistic_v20_PU50",
+                                "Design": "90X_upgrade2017_design_IdealBS_v19_resub"},
+    "CMSSW_9_1_0_pre2": {"default": "90X_mcRun2_asymptotic_v5"},
+    "CMSSW_9_1_0_pre2_phase1": {"default": "90X_upgrade2017_realistic_v20",
+                                "fullsim_25ns_PU50": "90X_upgrade2017_realistic_v20_PU50",
+                                "Design": "90X_upgrade2017_design_IdealBS_v19"},
+    "CMSSW_9_1_0_pre3": {"default": "91X_mcRun2_asymptotic_v2"},
+    "CMSSW_9_1_0_pre3_phase1": {"default": "91X_upgrade2017_realistic_v3",
+                                "fullsim_25ns_PU50": "91X_upgrade2017_realistic_v3_PU50_resub",
+                                "Design": "91X_upgrade2017_design_IdealBS_v3"},
+    "CMSSW_9_2_0": {"default": "91X_mcRun2_asymptotic_v3"},
+    "CMSSW_9_2_0_phase1": {"default": "91X_upgrade2017_realistic_v5",
+                           "fullsim_25ns_PU50": "91X_upgrade2017_realistic_v5_PU50",
+                           "Design": "91X_upgrade2017_design_IdealBS_v5"},
+    "CMSSW_9_2_0_phase1_PXmap": {"default": "91X_upgrade2017_realistic_v5_pixel_ideal_PXgeom"},
+    "CMSSW_9_2_1_phase1": {"default": "92X_upgrade2017_realistic_v1",
+                           "fullsim_25ns_PU50": "92X_upgrade2017_realistic_v1_PU50",
+                           "Design": "92X_upgrade2017_design_IdealBS_v1"},
+    "CMSSW_9_2_2": {"default": "91X_mcRun2_asymptotic_v3"},
+    "CMSSW_9_2_2_phase1": {"default": "92X_upgrade2017_realistic_v1",
+                           "fullsim_25ns_PU50": "92X_upgrade2017_realistic_v1_highPU_AVE50",
+                           "Design": "92X_upgrade2017_design_IdealBS_v1"},
+    "CMSSW_9_2_4_run1": {"default": "91X_mcRun1_realistic_v2"},
+    "CMSSW_9_2_4": {"default": "91X_mcRun2_asymptotic_v3"},
+    "CMSSW_9_2_7_phase1": {"default": "92X_upgrade2017_realistic_v7"},
+    "CMSSW_9_3_0_pre1": {"default": "92X_mcRun2_asymptotic_v2"},
+    "CMSSW_9_3_0_pre1_phase1": {"default": "92X_upgrade2017_realistic_v7",
+                                "fullsim_25ns_PU50": "92X_upgrade2017_realistic_v7_highPU_AVE50",
+                                "Design": "92X_upgrade2017_design_IdealBS_v7"},
+    "CMSSW_9_3_0_pre1_run1": {"default": "92X_mcRun1_realistic_v2"},
+    "CMSSW_9_3_0_pre2": {"default": "92X_mcRun2_asymptotic_v2"},
+    "CMSSW_9_3_0_pre2_phase1": {"default": "92X_upgrade2017_realistic_v7",
+                                "fullsim_25ns_PU50": "92X_upgrade2017_realistic_v7_highPU_AVE50_resub",
+                                "Design": "92X_upgrade2017_design_IdealBS_v7"},
+    "CMSSW_9_3_0_pre3": {"default": "92X_mcRun2_asymptotic_v2"},
+    "CMSSW_9_3_0_pre3_phase1": {"default": "92X_upgrade2017_realistic_v10_resub",
+                                "fullsim_25ns_PU50": "92X_upgrade2017_realistic_v10_highPU_AVE50_resub",
+                                "Design": "92X_upgrade2017_design_IdealBS_v10_resub"},
+    "CMSSW_9_3_0_pre3_phase1_pmx": {"default": "92X_upgrade2017_realistic_v10_resub2"},
+    "CMSSW_9_3_0_pre4": {"default": "93X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_3_0_pre4_phase1": {"default": "93X_mc2017_realistic_v1",
+                                "fullsim_25ns_PU50": "93X_mc2017_realistic_v1_highPU_AVE50",
+                                "Design": "93X_mc2017_design_IdealBS_v1"},
+    "CMSSW_9_3_0_pre5": {"default": "93X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_3_0_pre5_phase1": {"default": "93X_mc2017_realistic_v2",
+                                "fullsim_25ns_PU50": "93X_mc2017_realistic_v2_highPU_AVE50",
+                                "Design": "93X_mc2017_design_IdealBS_v2"},
+    "CMSSW_9_4_0_pre1": {"default": "93X_mcRun2_asymptotic_v1"},
+    "CMSSW_9_4_0_pre1_phase1": {"default": "93X_mc2017_realistic_v3",
+                                "fullsim_25ns_PU50": "93X_mc2017_realistic_v3_highPU_AVE50",
+                                "Design": "93X_mc2017_design_IdealBS_v3"},
+    "CMSSW_9_4_0_pre2": {"default": "93X_mcRun2_asymptotic_v2"},
+    "CMSSW_9_4_0_pre2_phase1": {"default": "94X_mc2017_realistic_v1",
+                                "fullsim_25ns_PU50": "94X_mc2017_realistic_v1_highPU_AVE50",
+                                "Design": "94X_mc2017_design_IdealBS_v0"},
+    "CMSSW_9_4_0_pre3": {"default": "94X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_4_0_pre3_phase1": {"default": "94X_mc2017_realistic_v4",
+                                "fullsim_25ns_PU50": "94X_mc2017_realistic_v4_highPU_AVE50",
+                                "Design": "94X_mc2017_design_IdealBS_v4"},
+    "CMSSW_9_4_0": {"default": "94X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_4_0_phase1": {"default": "94X_mc2017_realistic_v10",
+                           "fullsim_25ns_PU50": "94X_mc2017_realistic_v10_highPU_AVE50",
+                           "Design": "94X_mc2017_design_IdealBS_v5"},
+    "CMSSW_10_0_0_pre1": {"default": "94X_mcRun2_asymptotic_v0"},
+    "CMSSW_10_0_0_pre1_phase1": {"default": "94X_mc2017_realistic_v10",
+                                 "fullsim_25ns_PU50": "94X_mc2017_realistic_v10_highPU_AVE50",
+                                 "Design": "94X_mc2017_design_IdealBS_v5"},
+    "CMSSW_10_0_0_pre2": {"default": "100X_mcRun2_asymptotic_v2"},
+    "CMSSW_10_0_0_pre2_2017": {"default": "100X_mc2017_realistic_v1",
+                               "fullsim_25ns": "100X_mc2017_realistic_v1_resub",
+                               "fullsim_25ns_PU50": "100X_mc2017_realistic_v1_highPU_AVE50",
+                               "Design": "100X_mc2017_design_IdealBS_v1",
+                               "Design_fullsim_25ns_PU50": "Does_not_exist"}, # to avoid 2018 Design PU=50 matching to 2017 Design PU35
+    "CMSSW_10_0_0_pre2_2017_pmx": {"default": "100X_mc2017_realistic_v1"},
+    "CMSSW_10_0_0_pre2_2018": {"default": "100X_upgrade2018_realistic_v1",
+                               "fullsim_25ns": "100X_upgrade2018_realistic_v1_resub",
+                               "Design": "100X_upgrade2018_design_IdealBS_v1",
+                               "Design_fullsim_25ns": "100X_upgrade2018_design_IdealBS_v1_resub"},
+    "CMSSW_10_0_0_pre3": {"default": "100X_mcRun2_asymptotic_v2"},
+    "CMSSW_10_0_0_pre3_2017": {"default": "100X_mc2017_realistic_v1_mahiOFF",
+                               "fullsim_25ns_PU50": "100X_mc2017_realistic_v1_highPU_AVE50_mahiOFF",
+                               "Design": "100X_mc2017_design_IdealBS_v1_mahiOFF"},
+    "CMSSW_10_0_0_pre3_2018": {"default": "100X_upgrade2018_realistic_v4_mahiOFF",
+                               "Design": "100X_upgrade2018_design_IdealBS_v3_mahiOFF"},
+    "CMSSW_10_0_0_pre3_2018_pmx": {"default": "100X_upgrade2018_realistic_v4",
+                                   "Design": "100X_upgrade2018_design_IdealBS_v3"},
+    "CMSSW_10_0_0_pre3_2017_mahi": {"default": "100X_mc2017_realistic_v1_mahiON",
+                                    "fullsim_25ns_PU50": "100X_mc2017_realistic_v1_highPU_AVE50_mahiON",
+                                    "Design": "100X_mc2017_design_IdealBS_v1_mahiON"},
+    "CMSSW_10_0_0_pre3_2018_mahi": {"default": "100X_upgrade2018_realistic_v4_mahiON",
+                                    "Design": "100X_upgrade2018_design_IdealBS_v3_mahiON"},
+    "CMSSW_10_0_0_pre3_GEANT4_2018_mahi": {"default": "100X_upgrade2018_realistic_v4_mahiON"},
+    "CMSSW_10_0_0_pre3_G4VecGeom2_2018": {"default": "100X_upgrade2018_realistic_v4"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_gcc530_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM_hcal", "_71XGENSIM_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT", "_phase1_rereco", "_phase1_pythia8", "_phase1_13TeV", "_phase1_realGT", "_phase1_newGT2", "_phase1_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_pixDynIneff", "_gcc530", "_Tranche4GT"]
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_v2", "_v3", "_pmx", "_Fall14DR", "_FIXGT", "_PU", "_PXbest", "_PXworst", "_hcal", "_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC", "_MT", "_GS", "_rereco", "_pythia8", "_13TeV", "_realGT", "_newGT2", "_newGT", "_phase1", "_phase2", "_2017", "_2018", "_ecal15fb", "_ecal30fb", "_ecalsrb5", "_ecalsrc1", "_ecalsrd7", "_pixDynIneff", "_PXmap", "_gcc530", "_gcc630", "_cc7", "_Tranche4GT", "_newBPixFPixHCAL", "_newBPixFPix", "_newBPixHCAL", "_newBPix", "_newHCAL", "_HIP", "_run1", "_mahi"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
-            return release.replace(pf, "")
+            return _stripRelease(release.replace(pf, ""))
     return release
 
 
@@ -202,30 +362,56 @@ def _getGlobalTag(sample, release):
     release -- CMSSW release string
     """
     if not release in _globalTags:
-        print "Release %s not found from globaltag map in validation.py" % release
+        print("Release %s not found from globaltag map in validation.py" % release)
         sys.exit(1)
     gtmap = _globalTags[release]
+    selectedGT = None
     if sample.hasOverrideGlobalTag():
         ogt = sample.overrideGlobalTag()
         if release in ogt:
             gtmap = _globalTags[ogt[release]]
+    scenario = ""
+    if sample.hasScenario():
+        scenario = sample.scenario()
+    sims = []
     if sample.fullsim():
-        if sample.hasScenario():
-            return gtmap[sample.scenario()]
         if sample.pileupEnabled():
-            puType = sample.pileupType()
-            if "50ns" in puType:
-                return gtmap.get("fullsim_50ns", gtmap["default"])
-            if "25ns" in puType:
-                return gtmap.get("fullsim_25ns", gtmap["default"])
-    if sample.fastsim():
-        fsgt = gtmap.get("fastsim", gtmap["default"])
+            sim = "fullsim_"+sample.pileupType()
+            sims.extend([
+                sim+"_PU%d"%sample.pileupNumber(),
+                sim
+            ])
+    elif sample.fastsim():
+        sim = "fastsim"
         if sample.pileupEnabled():
-            puType = sample.pileupType()
-            if "25ns" in puType:
-                return gtmap.get("fastsim_25ns", fsgt)
-        return fsgt
-    return gtmap["default"]
+            sim += "_"+sample.pileupType()
+            sims.append(sim+"_PU%d"%sample.pileupNumber())
+        sims.append(sim)
+
+    selectedGT = None
+    # First try with scenario+simulation
+    if scenario != "":
+        for sim in sims:
+            selectedGT = gtmap.get(scenario+"_"+sim, None)
+            if selectedGT is not None:
+                break
+        # Then with scenario (but only if sample specifies a scenario)
+        if selectedGT is None:
+            selectedGT = gtmap.get(scenario, None)
+    # Then with simulation
+    if selectedGT is None:
+        for sim in sims:
+            selectedGT = gtmap.get(sim, None)
+            if selectedGT is not None:
+                break
+    # Finally default
+    if selectedGT is None:
+        selectedGT = gtmap["default"]
+
+    if isinstance(selectedGT, dict):
+        return selectedGT.get(sample.name(), selectedGT["default"])
+    else:
+        return selectedGT
 
 # Mapping from release series to RelVal download URLs
 _relvalUrls = {
@@ -239,6 +425,12 @@ _relvalUrls = {
     "7_6_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_6_x/",
     "8_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_0_x/",
     "8_1_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_1_x/",
+    "9_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_0_x/",
+    "9_1_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_1_x/",
+    "9_2_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_2_x/",
+    "9_3_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_3_x/",
+    "9_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_4_x/",
+    "10_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_10_0_x/",
 }
 
 _doElectronSamples = [
@@ -250,6 +442,9 @@ _doConversionSamples = [
     "RelValTTbar",
     "RelValH125GGgluonfusion",
 ]
+_doBHadronSamples = [
+    "RelValTTbar"
+]
 
 def _getRelValUrl(release):
     """Get RelVal download URL for a given release."""
@@ -259,7 +454,7 @@ def _getRelValUrl(release):
         raise Exception("Regex %s does not match to release version %s" % (version_re.pattern, release))
     version = "%s_%s_X" % (m.group("X"), m.group("Y"))
     if not version in _relvalUrls:
-        print "No RelVal URL for version %s, please update _relvalUrls" % version
+        print("No RelVal URL for version %s, please update _relvalUrls" % version)
         sys.exit(1)
     return _relvalUrls[version]
 
@@ -270,13 +465,15 @@ def _processPlotsForSample(plotterFolder, sample):
         return False
     if plotterFolder.onlyForConversion() and not sample.doConversion():
         return False
+    if plotterFolder.onlyForBHadron() and not sample.doBHadron():
+        return False
     return True
 
 class Sample:
     """Represents a RelVal sample."""
     def __init__(self, sample, append=None, midfix=None, putype=None, punum=0,
                  fastsim=False, fastsimCorrespondingFullsimPileup=None,
-                 doElectron=None, doConversion=None,
+                 doElectron=None, doConversion=None, doBHadron=None,
                  version="v1", dqmVersion="0001", scenario=None, overrideGlobalTag=None, appendGlobalTag=""):
         """Constructor.
 
@@ -292,6 +489,7 @@ class Sample:
         fastsimCorrespondingFullSimPileup -- String indicating what is the FullSim pileup sample corresponding this FastSim sample. Must be set if fastsim=True and putype!=None (default None)
         doElectron -- Bool specifying if electron-specific plots should be produced (default depends on sample)
         doConversion -- Bool specifying if conversion-specific plots should be produced (default depends on sample)
+        doBHadron -- Bool specifying if B-hadron-specific plots should be produced (default depends on sample)
         version -- String for dataset/DQM file version (default "v1")
         scenario -- Geometry scenario for upgrade samples (default None)
         overrideGlobalTag -- GlobalTag obtained from release information (in the form of {"release": "actualRelease"}; default None)
@@ -318,6 +516,10 @@ class Sample:
             self._doConversion = doConversion
         else:
             self._doConversion = (sample in _doConversionSamples)
+        if doBHadron is not None:
+            self._doBHadron = doBHadron
+        else:
+            self._doBHadron = (sample in _doBHadronSamples)
 
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
@@ -367,6 +569,9 @@ class Sample:
 
     def doConversion(self):
         return self._doConversion
+
+    def doBHadron(self):
+        return self._doBHadron
 
     def version(self, release=None):
         if isinstance(self._version, dict):
@@ -438,7 +643,7 @@ class Sample:
                 pileup = "PU"+self.pileupType(newRelease)+"_"
         if self._fastsim:
             fastsim = "_FastSim"
-            
+
         globalTag = _getGlobalTag(self, newRelease)
 
         fname = 'DQM_V{dqmVersion}_R000000001__{sample}{midfix}__{newrelease}-{pileup}{globaltag}{appendGlobalTag}{fastsim}-{version}__DQMIO.root'.format(
@@ -490,8 +695,8 @@ class Validation:
         try:
             self._newRelease = os.environ["CMSSW_VERSION"]
         except KeyError:
-            print >>sys.stderr, 'Error: CMSSW environment variables are not available.'
-            print >>sys.stderr, '       Please run cmsenv'
+            print('Error: CMSSW environment variables are not available.', file=sys.stderr)
+            print('       Please run cmsenv', file=sys.stderr)
             sys.exit()
 
         self._fullsimSamples = fullsimSamples
@@ -514,32 +719,32 @@ class Validation:
         filenames = [s.filename(self._newRelease) for s in self._fullsimSamples+self._fastsimSamples]
         if self._newFileModifier is not None:
             filenames = map(self._newFileModifier, filenames)
-        filenames = filter(lambda f: not os.path.exists(f), filenames)
+        filenames = [f for f in filenames if not os.path.exists(f)]
         if len(filenames) == 0:
-            print "All files already downloaded"
+            print("All files already downloaded")
             return
 
         relvalUrl = _getRelValUrl(self._newRelease)
         urls = [relvalUrl+f for f in filenames]
         certfile = os.path.join(os.environ["HOME"], ".globus", "usercert.pem")
         if not os.path.exists(certfile):
-            print "Certificate file {certfile} does not exist, unable to download RelVal files from {url}".format(certfile=certfile, url=relvalUrl)
+            print("Certificate file {certfile} does not exist, unable to download RelVal files from {url}".format(certfile=certfile, url=relvalUrl))
             sys.exit(1)
         keyfile = os.path.join(os.environ["HOME"], ".globus", "userkey.pem")
         if not os.path.exists(certfile):
-            print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
+            print("Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl))
             sys.exit(1)
         
-        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkye.pem -k -O <url> -O <url>
+        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkey.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])
-        print "Downloading %d files from RelVal URL %s:" % (len(filenames), relvalUrl)
-        print " "+"\n ".join(filenames)
-        print "Please provide your private key pass phrase when curl asks it"
+        print("Downloading %d files from RelVal URL %s:" % (len(filenames), relvalUrl))
+        print(" "+"\n ".join(filenames))
+        print("Please provide your private key pass phrase when curl asks it")
         ret = subprocess.call(cmd)
         if ret != 0:
-            print "Downloading failed with exit code %d" % ret
+            print("Downloading failed with exit code %d" % ret)
             sys.exit(1)
 
         # verify
@@ -548,10 +753,10 @@ class Validation:
             p = subprocess.Popen(["file", f], stdout=subprocess.PIPE)
             stdout = p.communicate()[0]
             if p.returncode != 0:
-                print "file command failed with exit code %d" % p.returncode
+                print("file command failed with exit code %d" % p.returncode)
                 sys.exit(1)
             if not "ROOT" in stdout:
-                print "File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl)
+                print("File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl))
                 allFine = False
                 if os.path.exists(f):
                     os.remove(f)
@@ -582,7 +787,7 @@ class Validation:
             # Check that the new DQM file exists
             harvestedFile = sample.filename(self._newRelease)
             if not os.path.exists(harvestedFile):
-                print "Harvested file %s does not exist!" % harvestedFile
+                print("Harvested file %s does not exist!" % harvestedFile)
                 sys.exit(1)
 
             plotterInstance = plotter.readDirs(harvestedFile)
@@ -621,7 +826,7 @@ class Validation:
                 else:
                     raise Exception("Got multiple compatible FullSim samples for FastSim sample %s %s" % (fast.name(), fast.pileup()))
             if correspondingFull is None:
-                print "WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup())
+                print("WARNING: Did not find compatible FullSim sample for FastSim sample %s %s, omitting FastSim vs. FullSim comparison" % (fast.name(), fast.pileup()))
                 continue
 
             # If we reach here, the harvestedFile must exist
@@ -704,10 +909,10 @@ class Validation:
         if refValFile is None:
             if len(triedRefValFiles) == 1:
                 if plotting.verbose:
-                    print "Reference file %s not found" % triedRefValFiles[0]
+                    print("Reference file %s not found" % triedRefValFiles[0])
             else:
                 if plotting.verbose:
-                    print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
+                    print("None of the possible reference files %s not found" % ",".join(triedRefValFiles))
 
         return (refValFile, refSelection)
 
@@ -736,27 +941,30 @@ class Validation:
         tmp.extend([newSelection, sample.name()])
         newsubdir = os.path.join(*tmp)
         newdir = os.path.join(self._newBaseDir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
+        valnameFullPath = os.path.join(newdir, valname)
 
         # Copy the relevant histograms to a new validation root file
         # TODO: treat the case where dqmSubFolder is empty
-        newValFile = _copySubDir(harvestedFile, valname, plotterFolder.getPossibleDQMFolders(), dqmSubFolder.subfolder if dqmSubFolder is not None else None)
+        newValFile = _copySubDir(harvestedFile, valnameFullPath, plotterFolder.getPossibleDQMFolders(), dqmSubFolder.subfolder if dqmSubFolder is not None else None)
         fileList = []
 
         # Do the plots
         if plotting.verbose:
-            print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
+            print("Comparing ref and new {sim} {sample} {translatedFolder}".format(
             sim="FullSim" if not sample.fastsim() else "FastSim",
-            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [refValFile, newValFile]
         legendLabels = [
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection) if self._refRelease is not None else "dummy",
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=sample.pileupEnabled())
-        fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
+        fileList.extend(plotterFolder.draw(directory=newdir, **self._plotterDrawArgs))
         # Copy val file only if there were plots
         if len(fileList) > 0:
-            fileList.append(valname)
+            fileList.append(valnameFullPath)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -771,17 +979,13 @@ class Validation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots and %s to %s" % (valname, newdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print("Created plots and %s in %s" % (valname, newdir))
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
@@ -802,30 +1006,32 @@ class Validation:
         fulldir = os.path.join(self._newBaseDir, fullSelection, fullSample.name())
         newsubdir = os.path.join("fastfull", self._newRelease, fastSelection, fastSample.name())
         newdir = os.path.join(self._newBaseDir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=fastSample.name())
         fastValFilePath = os.path.join(fastdir, valname)
         if not os.path.exists(fastValFilePath) and plotting.verbose:
-            print "FastSim file %s not found" % fastValFilePath
+            print("FastSim file %s not found" % fastValFilePath)
         fullValFilePath = os.path.join(fulldir, valname)
         if not os.path.exists(fullValFilePath) and plotting.verbose:
-            print "FullSim file %s not found" % fullValFilePath
+            print("FullSim file %s not found" % fullValFilePath)
 
         fastValFile = ROOT.TFile.Open(fastValFilePath)
         fullValFile = ROOT.TFile.Open(fullValFilePath)
 
         # Do plots
         if plotting.verbose:
-            print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
-            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            print("Comparing FullSim and FastSim {sample} {translatedFolder}".format(
+            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [fullValFile, fastValFile]
         legendLabels = [
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=fastSample.pileupEnabled(), requireAllHistograms=True)
-        fileList = plotterFolder.draw(**self._plotterDrawArgs)
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -839,17 +1045,13 @@ class Validation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots to %s" % (newdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print("Created plots in %s" % (newdir))
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
     def _doPlotsPileup(self, pu140Sample, pu200Sample, plotterFolder, dqmSubFolder, htmlReport):
         """Do the real plotting work for two pileup scenarios for a given algorithm, quality flag, and sample."""
@@ -867,18 +1069,20 @@ class Validation:
         pu200dir = os.path.join(self._newBaseDir, pu200Selection, pu200Sample.name())
         newsubdir = os.path.join("pileup", self._newRelease, pu200Selection, pu200Sample.name())
         newdir = os.path.join(self._newBaseDir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=pu140Sample.name())
         pu140ValFilePath = os.path.join(pu140dir, valname)
         if not os.path.exists(pu140ValFilePath):
             if plotting.verbose:
-                print "PU140 file %s not found" % pu140ValFilePath
+                print("PU140 file %s not found" % pu140ValFilePath)
             return []
         pu200ValFilePath = os.path.join(pu200dir, valname)
         if not os.path.exists(pu200ValFilePath):
             if plotting.verbose:
-                print "PU200 file %s not found" % pu200ValFilePath
+                print("PU200 file %s not found" % pu200ValFilePath)
             return []
 
         pu140ValFile = ROOT.TFile.Open(pu140ValFilePath)
@@ -886,15 +1090,15 @@ class Validation:
 
         # Do plots
         if plotting.verbose:
-            print "Comparing PU140 and PU200 {sample} {translatedFolder}".format(
-            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+            print("Comparing PU140 and PU200 {sample} {translatedFolder}".format(
+            sample=pu200Sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else ""))
         rootFiles = [pu140ValFile, pu200ValFile]
         legendLabels = [
             "%s, %s %s" % (pu140Sample.name(), _stripRelease(self._newRelease), pu140Selection),
             "%s, %s %s" % (pu200Sample.name(), _stripRelease(self._newRelease), pu200Selection),
         ]
         plotterFolder.create(rootFiles, legendLabels, dqmSubFolder, isPileupSample=pu140Sample.pileupEnabled(), requireAllHistograms=True)
-        fileList = plotterFolder.draw(**self._plotterDrawArgs)
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         # For tables we just try them all, and see which ones succeed
         for tableCreator in plotterFolder.getTableCreators():
@@ -908,17 +1112,13 @@ class Validation:
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
         # Move plots to new directory
-        print "Moving plots to %s" % (newdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print("Created plots in %s" % (newdir))
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)
 
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
@@ -1020,6 +1220,9 @@ class SimpleSample:
     def doConversion(self):
         return True
 
+    def doBHadron(self):
+        return True
+
 class SimpleValidation:
     def __init__(self, samples, newdir):
         self._samples = samples
@@ -1048,7 +1251,7 @@ class SimpleValidation:
                 if os.path.exists(f):
                     self._openFiles.append(ROOT.TFile.Open(f))
                 else:
-                    print "File %s not found (from sample %s), ignoring it" % (f, sample.name())
+                    print("File %s not found (from sample %s), ignoring it" % (f, sample.name()))
                     self._openFiles.append(None)
 
             for plotter in plotters:
@@ -1070,26 +1273,24 @@ class SimpleValidation:
 
     def _doPlots(self, plotterFolder, dqmSubFolder):
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        fileList = plotterFolder.draw(**self._plotterDrawArgs)
+        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newdir = os.path.join(self._newdir, newsubdir)
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
+        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
         for tableCreator in plotterFolder.getTableCreators():
             self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
 
         if len(fileList) == 0:
             return fileList
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
-            print "Plotter produced multiple files with names", ", ".join(dups)
-            print "Typically this is a naming problem in the plotter configuration"
+            print("Plotter produced multiple files with names", ", ".join(dups))
+            print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        print "Moving plots to %s" % newdir
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-        for f in fileList:
-            shutil.move(f, os.path.join(newdir, f))
-        return map(lambda n: os.path.join(newsubdir, n), fileList)
+        print("Created plots in %s" % newdir)
+        return map(lambda n: n.replace(newdir, newsubdir), fileList)

@@ -35,7 +35,8 @@ namespace DDI { class Material; }
     // code for additional compounds belonging to the mixture ...
     \endcode
     
-    Note the usage of CLHEP/SystemOfUnits to specify the units of the quantities
+    Note the usage DDUnits replacing CLHEP/SystemOfUnits
+    to specify the units of the quantities
     making up a material.
 */
 class DDMaterial : public DDBase<DDName,DDI::Material*>

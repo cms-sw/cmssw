@@ -9,6 +9,7 @@
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/util/XMLUni.hpp>
+
 #include <iostream>
 
 class DDCompactView;
@@ -27,9 +28,10 @@ DDLParser::DDLParser( DDCompactView& cpv )
   
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
-  
-  expHandler_  = new DDLSAX2ExpressionHandler(cpv);
-  fileHandler_ = new DDLSAX2FileHandler(cpv);
+
+  elementRegistry_ = new DDLElementRegistry();
+  expHandler_  = new DDLSAX2ExpressionHandler(cpv, *elementRegistry_);
+  fileHandler_ = new DDLSAX2FileHandler(cpv, *elementRegistry_);
   errHandler_  = new DDLSAX2Handler();
   SAX2Parser_->setErrorHandler(errHandler_); 
   SAX2Parser_->setContentHandler(fileHandler_); 
@@ -42,6 +44,7 @@ DDLParser::~DDLParser( void )
   delete expHandler_;
   delete fileHandler_;
   delete errHandler_;
+  delete elementRegistry_;
   cms::concurrency::xercesTerminate();
 }
 
@@ -116,7 +119,7 @@ DDLParser::parseOneFile( const std::string& fullname )
 
     LogDebug ("DDLParser") << "ParseOneFile() Parsing: " << fileNames_[fIndex].second << std::endl;
     parseFile( fIndex );
-
+    expHandler_->createDDConstants();
     // PASS 2:
 
     SAX2Parser_->setContentHandler(fileHandler_);
@@ -135,9 +138,11 @@ DDLParser::parseOneFile( const std::string& fullname )
 void
 DDLParser::parse( const std::vector<unsigned char>& ablob, unsigned int bsize )
 {
-  char* dummy(0);
+  char* dummy(nullptr);
   MemBufInputSource  mbis( &*ablob.begin(), bsize, dummy );
   SAX2Parser_->parse(mbis);
+  expHandler_->createDDConstants();
+  
 }
 
 int
@@ -158,14 +163,14 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   { 
     std::string ts = urlList[fileIndex];
     std::string tf = fileList[fileIndex];
-    if ( ts.size() > 0 ) {
+    if ( !ts.empty() ) {
       if ( ts[ts.size() - 1] == '/') {
-	fullFileName.push_back( ts + tf );
+	fullFileName.emplace_back( ts + tf );
       } else {
-	fullFileName.push_back( ts + "/" + tf );
+	fullFileName.emplace_back( ts + "/" + tf );
       }
     } else {
-      fullFileName.push_back( tf );
+      fullFileName.emplace_back( tf );
     }
   }
 
@@ -199,6 +204,7 @@ DDLParser::parse( const DDLDocumentProvider& dp )
       parseFile(i);
     }
   }
+  expHandler_->createDDConstants();
 
   // PASS 2:
 

@@ -21,12 +21,19 @@ namespace ecaldqm {
 
   private:
     void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
     void setParams(edm::ParameterSet const&) override;
+
+    std::vector<int> bxBinEdges_;
+    double bxBin_;
 
     float chi2ThresholdEB_;
     float chi2ThresholdEE_;
     float energyThresholdEB_;
     float energyThresholdEE_;
+    float energyThresholdEEFwd_;
+    float timingVsBXThreshold_;
+    float timeErrorThreshold_;
 
     MESet* meTimeMapByLS;
   };

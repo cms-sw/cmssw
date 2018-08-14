@@ -98,7 +98,7 @@ namespace edm {
                                     processContext);
         ParentContext parentContext(&globalContext);
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        Run run(iRP, moduleDescription_, &moduleCallingContext_);
+        Run run(iRP, moduleDescription_, &moduleCallingContext_, false);
         beginRun(run,iES);
   }
 
@@ -111,7 +111,7 @@ namespace edm {
                                     processContext);
         ParentContext parentContext(&globalContext);
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        Run run(iRP, moduleDescription_, &moduleCallingContext_);
+        Run run(iRP, moduleDescription_, &moduleCallingContext_,true);
         endRun(run,iES);
   }
   void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
@@ -123,7 +123,7 @@ namespace edm {
                                 processContext);
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
+    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_, false);
     beginLuminosityBlock(luminosityBlock,iES);
   }
   void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
@@ -135,7 +135,7 @@ namespace edm {
                                 processContext);
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
+    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_, true);
     endLuminosityBlock(luminosityBlock,iES);
   }
 

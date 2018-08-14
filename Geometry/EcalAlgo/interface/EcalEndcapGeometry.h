@@ -49,12 +49,12 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 
       static std::string dbString() { return "PEcalEndcapRcd" ; }
 
-      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+      unsigned int numberOfShapes() const override { return k_NumberOfShapes ; }
+      unsigned int numberOfParametersPerShape() const override { return k_NumberOfParametersPerShape ; }
 
       EcalEndcapGeometry() ;
   
-      virtual ~EcalEndcapGeometry();
+      ~EcalEndcapGeometry() override;
 
       int getNumberOfModules()          const { return _nnmods ; }
 
@@ -64,14 +64,15 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 
       void setNumberOfCrystalPerModule( const int nncrys ) { _nncrys=nncrys ; }
 
-      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const ;
+      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const;
+
       // Get closest cell, etc...
-      virtual DetId getClosestCell( const GlobalPoint& r ) const ;
+      DetId getClosestCell( const GlobalPoint& r ) const override ;
 
-      virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-							  double             dR ) const ;
+      CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+							  double             dR ) const override ;
 
-      virtual void initializeParms() ;
+      void initializeParms() override ;
 
       CCGFloat avgAbsZFrontFaceCenter() const ; // average over both endcaps. Positive!
 
@@ -92,16 +93,18 @@ class EcalEndcapGeometry final: public CaloSubdetectorGeometry
 				unsigned int    i   ,
 				Pt3D&           ref   ) ;
 
-      virtual void newCell( const GlobalPoint& f1 ,
+      void newCell( const GlobalPoint& f1 ,
 			    const GlobalPoint& f2 ,
 			    const GlobalPoint& f3 ,
 			    const CCGFloat*    parm ,
-			    const DetId&       detId   ) ;
+			    const DetId&       detId   ) override ;
+
+      bool present( const DetId& id ) const override;
 
    protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
-
+      // Modify the RawPtr class
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
    private:
 
       static int myPhi( int i ) { i+=720; return ( 1 + (i-1)%360 ) ; }

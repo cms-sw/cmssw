@@ -2,43 +2,49 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 
-class FastTimeTopologyTester : public edm::EDAnalyzer {
+class FastTimeTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+
 public:
   explicit FastTimeTopologyTester(const edm::ParameterSet& );
-  ~FastTimeTopologyTester();
-
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  void doTest(const FastTimeTopology& topology);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void doTest(const FastTimeTopology& topology);
+
   // ----------member data ---------------------------
 };
 
 FastTimeTopologyTester::FastTimeTopologyTester(const edm::ParameterSet& ) {}
 
+void FastTimeTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-FastTimeTopologyTester::~FastTimeTopologyTester() {}
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
-void FastTimeTopologyTester::analyze(const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void FastTimeTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup ) {
 
   edm::ESHandle<FastTimeTopology> topo;
   iSetup.get<IdealGeometryRecord>().get("FastTimeBarrel",topo);
@@ -60,20 +66,20 @@ void FastTimeTopologyTester::doTest(const FastTimeTopology& topology) {
 	  std::vector<DetId> idN = topology.north(id);
 	  std::vector<DetId> idS = topology.south(id);
 	  std::cout << "          " << idE.size() << " sets along East:";
-	  for (unsigned int i=0; i<idE.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idE[i]());
+	  for (auto & i : idE) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	  std::cout << "          " << idW.size() << " sets along West:";
-	  for (unsigned int i=0; i<idW.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idW[i]());
+	  for (auto & i : idW) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	  std::cout << "          " << idN.size() << " sets along North:";
-	  for (unsigned int i=0; i<idN.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idN[i]());
+	  for (auto & i : idN) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	  std::cout << "          " << idS.size() << " sets along South:";
-	  for (unsigned int i=0; i<idS.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idS[i]());
+	  for (auto & i : idS) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	}
 	phi += 10;

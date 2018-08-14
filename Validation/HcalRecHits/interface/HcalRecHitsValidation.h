@@ -56,10 +56,10 @@
 class HcalRecHitsValidation : public DQMEDAnalyzer {
  public:
   HcalRecHitsValidation(edm::ParameterSet const& conf);
-  ~HcalRecHitsValidation();
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
+  ~HcalRecHitsValidation() override;
+  void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   
@@ -67,6 +67,8 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   double dR(double eta1, double phi1, double eta2, double phi2);
   double phi12(double phi1, double en1, double phi2, double en2);
   double dPhiWsign(double phi1,double phi2);  
+
+  std::string topFolderName_;
 
   std::string outputFile_;
   std::string hcalselector_;
@@ -139,6 +141,12 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   MonitorElement* meEnergyHcalVsEcalHB;
   MonitorElement* meEnergyHcalVsEcalHE;
   
+  // Chi2 
+  MonitorElement* meRecHitsM2Chi2HB;  
+  MonitorElement* meRecHitsM2Chi2HE;
+
+  MonitorElement* meLog10Chi2profileHB;
+  MonitorElement* meLog10Chi2profileHE;
 
   edm::ESHandle<CaloGeometry> geometry ;
 
@@ -155,6 +163,7 @@ class HcalRecHitsValidation : public DQMEDAnalyzer {
   std::vector<double>   cz;
   std::vector<uint32_t> cstwd;
   std::vector<uint32_t> cauxstwd;
+  std::vector<double>   cchi2;
 
   // counter
   int nevtot;

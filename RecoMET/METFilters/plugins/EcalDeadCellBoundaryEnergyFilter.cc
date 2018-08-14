@@ -30,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -57,15 +57,15 @@
 #include "RecoMET/METFilters/interface/EcalBoundaryInfoCalculator.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 
-class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
+class EcalDeadCellBoundaryEnergyFilter: public edm::global::EDFilter<> {
    public:
       explicit EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet&);
-      ~EcalDeadCellBoundaryEnergyFilter();
+      ~EcalDeadCellBoundaryEnergyFilter() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      void beginJob() override;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      void endJob() override;
 
       // ----------member data ---------------------------
       const int kMAX;
@@ -80,16 +80,6 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       const bool skimDead_;
 
       const double cutBoundEnergyGapEE, cutBoundEnergyGapEB, cutBoundEnergyDeadCellsEB, cutBoundEnergyDeadCellsEE;
-
-      int i_EBDead, i_EEDead, i_EBGap, i_EEGap;
-      float * enNeighboursGap_EB;
-      float * enNeighboursGap_EE;
-
-      std::vector<BoundaryInformation> v_enNeighboursGap_EB;
-      std::vector<BoundaryInformation> v_enNeighboursGap_EE;
-
-      std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
-      std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
 
       EcalBoundaryInfoCalculator<EBDetId> ebBoundaryCalc;
       EcalBoundaryInfoCalculator<EEDetId> eeBoundaryCalc;
@@ -138,25 +128,14 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
 
    maxBoundaryEnergy_ = cutBoundEnergyDeadCellsEB;
 
-   i_EBDead = 0;
-   i_EEDead = 0;
-   i_EBGap = 0;
-   i_EEGap = 0;
+   if (skimGap_ && debug_ ) edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "Skim Gap!";
+   if (skimDead_ && debug_ ) edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "Skim Dead!";
 
-   v_enNeighboursGap_EB.clear();
-   v_enNeighboursGap_EE.clear();
-   v_enNeighboursGap_EB.reserve(50);
-   v_enNeighboursGap_EE.reserve(50);
-
-   v_boundaryInfoDeadCells_EB.reserve(50);
-   v_boundaryInfoDeadCells_EE.reserve(50);
-   v_boundaryInfoDeadCells_EB.clear();
-   v_boundaryInfoDeadCells_EE.clear();
-
-   if (skimGap_ && debug_ ) std::cout << "Skim Gap!" << std::endl;
-   if (skimDead_ && debug_ ) std::cout << "Skim Dead!" << std::endl;
-
-   if( debug_ ) std::cout << "Constructor EcalAnomalousEvent" << std::endl;
+   if( debug_ ) {
+      edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "Constructor EcalAnomalousEvent";
+      ebBoundaryCalc.setDebugMode();
+      eeBoundaryCalc.setDebugMode();
+   }
 
    produces<bool>();
 
@@ -164,20 +143,23 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
 }
 
 EcalDeadCellBoundaryEnergyFilter::~EcalDeadCellBoundaryEnergyFilter() {
-   //std::cout << "destructor Filter" << std::endl;
 }
 
 // ------------ method called on each new Event  ------------
-bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool EcalDeadCellBoundaryEnergyFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
    using namespace edm;
 
    //int eventno = (int) iEvent.eventAuxiliary().event();
 
-   v_enNeighboursGap_EB.clear();
-   v_enNeighboursGap_EE.clear();
+   std::vector<BoundaryInformation> v_enNeighboursGap_EB;
+   std::vector<BoundaryInformation> v_enNeighboursGap_EE;
+   v_enNeighboursGap_EB.reserve(50);
+   v_enNeighboursGap_EE.reserve(50);
 
-   v_boundaryInfoDeadCells_EB.clear();
-   v_boundaryInfoDeadCells_EE.clear();
+   std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
+   std::vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
+   v_boundaryInfoDeadCells_EB.reserve(50);
+   v_boundaryInfoDeadCells_EE.reserve(50);
 
    // Get the Ecal RecHits
    Handle<EcalRecHitCollection> EBRecHits;
@@ -197,10 +179,10 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 //   int DeadChannelsCounterEB = 0;
 //   int DeadChannelsCounterEE = 0;
 
-   i_EBDead = 0;
-   i_EEDead = 0;
-   i_EBGap = 0;
-   i_EEGap = 0;
+   int i_EBDead = 0;
+   int i_EEDead = 0;
+   int i_EBGap = 0;
+   int i_EEGap = 0;
 
    std::vector<DetId> sameFlagDetIds;
 
@@ -209,7 +191,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
    if (!limitFilterToEE_) {
 
       if (debug_)
-         std::cout << "process EB" << std::endl;
+         edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "process EB";
 
       for (EcalRecHitCollection::const_iterator hit = EBRecHits->begin(); hit != EBRecHits->end(); ++hit) {
 
@@ -230,7 +212,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
             int channelAllowed = limitDeadCellToChannelStatusEB_[cs];
 
             for (std::vector<int>::iterator sit = deadNeighbourStati.begin(); sit != deadNeighbourStati.end(); ++sit) {
-               //std::cout << "Neighbouring dead channel with status: " << *sit << std::endl;
                if (channelAllowed == *sit || (channelAllowed < 0 && std::abs(channelAllowed) <= *sit)) {
                   passChannelLimitation = true;
                   break;
@@ -244,11 +225,9 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
          }
 
          // RecHit is at EB boundary and should be processed
-         if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && ebBoundaryCalc.checkRecHitHasInvalidNeighbour(
+         if (!detIdAlreadyChecked && deadNeighbourStati.empty() && ebBoundaryCalc.checkRecHitHasInvalidNeighbour(
                *hit, ecalStatus)) {
 
-            if (debug_)
-               ebBoundaryCalc.setDebugMode();
             BoundaryInformation gapinfo = ebBoundaryCalc.gapRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EBRecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -264,17 +243,15 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
                v_enNeighboursGap_EB.push_back(gapinfo);
 
                if (debug_)
-                  std::cout << "EB: gap cluster energy: " << gapinfo.boundaryEnergy << " deadCells: "
-                        << gapinfo.detIds.size() << std::endl;
+                  edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "EB: gap cluster energy: " << gapinfo.boundaryEnergy << " deadCells: "
+                        << gapinfo.detIds.size();
             }
          }
 
          // RecHit is member of boundary and should be processed
-         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEB_.size() == 0
-               && deadNeighbourStati.size() > 0))) {
+         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEB_.empty()
+               && !deadNeighbourStati.empty()))) {
 
-            if (debug_)
-               ebBoundaryCalc.setDebugMode();
             BoundaryInformation boundinfo = ebBoundaryCalc.boundaryRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EBRecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -290,8 +267,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
                v_boundaryInfoDeadCells_EB.push_back(boundinfo);
 
                if (debug_)
-                  std::cout << "EB: boundary Energy dead RecHit: " << boundinfo.boundaryEnergy << " ET: "
-                        << boundinfo.boundaryET << " deadCells: " << boundinfo.detIds.size() << std::endl;
+                  edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "EB: boundary Energy dead RecHit: " << boundinfo.boundaryEnergy << " ET: "
+                        << boundinfo.boundaryET << " deadCells: " << boundinfo.detIds.size();
             }
 
          }
@@ -304,7 +281,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
    if (!limitFilterToEB_) {
 
       if (debug_)
-         std::cout << "process EE" << std::endl;
+         edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "process EE";
 
       for (EcalRecHitCollection::const_iterator hit = EERecHits->begin(); hit != EERecHits->end(); ++hit) {
 
@@ -325,7 +302,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
             int channelAllowed = limitDeadCellToChannelStatusEE_[cs];
 
             for (std::vector<int>::iterator sit = deadNeighbourStati.begin(); sit != deadNeighbourStati.end(); ++sit) {
-               //std::cout << "Neighbouring dead channel with status: " << *sit << std::endl;
                if (channelAllowed == *sit || (channelAllowed < 0 && std::abs(channelAllowed) <= *sit)) {
                   passChannelLimitation = true;
                   break;
@@ -340,14 +316,12 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
          // RecHit is at EE boundary and should be processed
          const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(currDetId);
-         const CaloCellGeometry* cellGeom = subGeom->getGeometry(currDetId);
+         auto cellGeom = subGeom->getGeometry(currDetId);
          double eta = cellGeom->getPosition().eta();
 
-         if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && eeBoundaryCalc.checkRecHitHasInvalidNeighbour(
+         if (!detIdAlreadyChecked && deadNeighbourStati.empty() && eeBoundaryCalc.checkRecHitHasInvalidNeighbour(
                *hit, ecalStatus) && std::abs(eta) < 1.6) {
 
-            if (debug_)
-               eeBoundaryCalc.setDebugMode();
             BoundaryInformation gapinfo = eeBoundaryCalc.gapRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EERecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -363,17 +337,15 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
                v_enNeighboursGap_EE.push_back(gapinfo);
 
                if (debug_)
-                  std::cout << "EE: gap cluster energy: " << gapinfo.boundaryEnergy << " deadCells: "
-                        << gapinfo.detIds.size() << std::endl;
+                  edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "EE: gap cluster energy: " << gapinfo.boundaryEnergy << " deadCells: "
+                        << gapinfo.detIds.size();
             }
          }
 
          // RecHit is member of boundary and should be processed
-         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEE_.size() == 0
-               && deadNeighbourStati.size() > 0))) {
+         if (!detIdAlreadyChecked && (passChannelLimitation || (limitDeadCellToChannelStatusEE_.empty()
+               && !deadNeighbourStati.empty()))) {
 
-            if (debug_)
-               eeBoundaryCalc.setDebugMode();
             BoundaryInformation boundinfo = eeBoundaryCalc.boundaryRecHits(
                   (const edm::Handle<EcalRecHitCollection>&) EERecHits, (const EcalRecHit *) &(*hit), theCaloTopology,
                   ecalStatus, geometry);
@@ -389,12 +361,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
                v_boundaryInfoDeadCells_EE.push_back(boundinfo);
 
                if (debug_)
-                  std::cout << "EE: boundary Energy dead RecHit: " << boundinfo.boundaryEnergy << " ET: "
-                        << boundinfo.boundaryET << " deadCells: " << boundinfo.detIds.size() << std::endl;
-
-               //               for (std::vector<DetId>::iterator it = boundinfo.detIds.begin(); it != boundinfo.detIds.end(); it++) {
-               //                  std::cout << (EEDetId) * it << std::endl;
-               //               }
+                  edm::LogInfo("EcalDeadCellBoundaryEnergyFilter") << "EE: boundary Energy dead RecHit: " << boundinfo.boundaryEnergy << " ET: "
+                        << boundinfo.boundaryET << " deadCells: " << boundinfo.detIds.size();
 
             }
 

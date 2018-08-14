@@ -1,3 +1,11 @@
+from __future__ import print_function
+# As of 1 Feb 2017:
+# This configuration appears to be already broken. It
+# fails to even run only under python.
+# For this reason, it was not converted to use Tasks.
+# If it is ever fixed, it will also need to be migrated
+# to use Tasks to run unscheduled modules.
+
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## switch to uncheduled mode
@@ -45,7 +53,7 @@ from TopQuarkAnalysis.TopPairBSM.filters_cff import applyFilters
 
 ######### TO DO : TURN ON FILTERS ###########
 #applyFilters(process)
-print 'CAVEAT : Filters are not yet implemented'
+print('CAVEAT : Filters are not yet implemented')
 
 ######### TO DO : TURN ON TRIGGERS! #########
 

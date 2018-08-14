@@ -5,8 +5,7 @@ import sys
 ## Define the process
 process = cms.Process("Analyzer")
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
-    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(True)
 )
 
 ## Set up command line options
@@ -58,6 +57,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
+process.task = cms.Task()
+
 ## Set input particle collections to be used by the tools
 genParticleCollection = ''
 genJetCollection = ''
@@ -67,6 +68,7 @@ if options.runOnAOD:
     ## producing a subset of genParticles to be used for jet clustering in AOD
     from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
     process.genParticlesForJetsCustom = genParticlesForJetsNoNu.clone()
+    process.task.add(process.genParticlesForJetsCustom)
     ## Produce own jets (re-clustering in miniAOD needed at present to avoid crash)
     from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
     process.ak4GenJetsCustom = ak4GenJets.clone(
@@ -74,6 +76,7 @@ if options.runOnAOD:
         rParam = cms.double(0.4),
         jetAlgorithm = cms.string("AntiKt")
     )
+    process.task.add(process.ak4GenJetsCustom)
 else:
     genParticleCollection = 'prunedGenParticles'
     genJetCollection = 'slimmedGenJets'
@@ -88,6 +91,7 @@ from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsA
 process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(
     particles = genParticleCollection
 )
+process.task.add(process.selectedHadronsAndPartons)
 
 ## Input particle collection for matching to gen jets (partons + leptons) 
 # MUST use use proper input jet collection: the jets to which hadrons should be associated
@@ -97,7 +101,7 @@ from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInf
 process.genJetFlavourInfos = ak4JetFlavourInfos.clone(
     jets = genJetCollection,
 )
-
+process.task.add(process.genJetFlavourInfos)
 
 ## Plugin for analysing B hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
@@ -106,6 +110,7 @@ process.matchGenBHadron = matchGenBHadron.clone(
     genParticles = genParticleCollection,
     jetFlavourInfos = "genJetFlavourInfos"
 )
+process.task.add(process.matchGenBHadron)
 
 ## Plugin for analysing C hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
@@ -114,6 +119,7 @@ process.matchGenCHadron = matchGenCHadron.clone(
     genParticles = genParticleCollection,
     jetFlavourInfos = "genJetFlavourInfos"
 )
+process.task.add(process.matchGenCHadron)
 
 ## Producer for ttbar categorisation ID
 # MUST use same genJetCollection as used for tools above
@@ -123,6 +129,7 @@ process.categorizeGenTtbar = categorizeGenTtbar.clone(
     genJetAbsEtaMax = 2.4,
     genJets = genJetCollection,
 )
+process.task.add(process.categorizeGenTtbar)
 
 ## Configure test analyzer
 process.testGenTtbarCategories = cms.EDAnalyzer("TestGenTtbarCategories",
@@ -136,6 +143,6 @@ process.TFileService = cms.Service("TFileService",
 
 ## Path
 process.p1 = cms.Path(
-    process.testGenTtbarCategories
+    process.testGenTtbarCategories,
+    process.task
 )
-

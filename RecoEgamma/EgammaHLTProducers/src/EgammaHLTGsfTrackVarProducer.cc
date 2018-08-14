@@ -1,4 +1,4 @@
-/** \class EgammaHLTElectronDetaDphiProducer
+/** \class EgammaHLTGsfTrackVarProducer
  *
  *  \author Roberto Covarelli (CERN)
  * 
@@ -36,7 +36,10 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
   inputCollectionTag2_     (consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("inputCollection"))),
   beamSpotTag_             (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"))),
   upperTrackNrToRemoveCut_ (config.getParameter<int>("upperTrackNrToRemoveCut")),
-  lowerTrackNrToRemoveCut_ (config.getParameter<int>("lowerTrackNrToRemoveCut")) {
+  lowerTrackNrToRemoveCut_ (config.getParameter<int>("lowerTrackNrToRemoveCut")),
+  useDefaultValuesForBarrel_  (config.getParameter<bool>("useDefaultValuesForBarrel")),
+  useDefaultValuesForEndcap_  (config.getParameter<bool>("useDefaultValuesForEndcap"))
+{
  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >( "Deta" ).setBranchAlias( "deta" );
@@ -59,6 +62,9 @@ void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>(("beamSpotProducer"), edm::InputTag("hltOnlineBeamSpot"));
   desc.add<int>(("upperTrackNrToRemoveCut"), 9999); 
   desc.add<int>(("lowerTrackNrToRemoveCut"), -1);
+  desc.add<bool>(("useDefaultValuesForBarrel"),false);
+  desc.add<bool>(("useDefaultValuesForEndcap"),false);
+  
   descriptions.add("hltEgammaHLTGsfTrackVarProducer", desc);
 }
 void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -97,7 +103,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
    
     const reco::SuperClusterRef scRef = recoEcalCandRef->superCluster();
-   
+    bool isBarrel = std::abs(recoEcalCandRef->eta())<1.479;
     //the idea is that we can take the tracks from properly associated electrons or just take all gsf tracks with that sc as a seed
     std::vector<const reco::GsfTrack*> gsfTracks;
     if(electronHandle.isValid()){
@@ -119,7 +125,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
       
     }
 
-    int validHitsValue = 9999999;
+    int validHitsValue = 0;
     float chi2Value = 9999999.;
     float missingHitsValue = 9999999;
     float dEtaInValue=999999;
@@ -128,20 +134,21 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     float oneOverESuperMinusOneOverPValue=999999;
     float oneOverESeedMinusOneOverPValue=999999;
     
-    if(static_cast<int>(gsfTracks.size())>=upperTrackNrToRemoveCut_){
+    const int nrTracks = gsfTracks.size();
+    const bool rmCutsDueToNrTracks = nrTracks <= lowerTrackNrToRemoveCut_ ||
+                                     nrTracks >= upperTrackNrToRemoveCut_;
+    //to use the default values, we require at least one track...
+    const bool useDefaultValues = isBarrel ? useDefaultValuesForBarrel_ && nrTracks>=1 : useDefaultValuesForEndcap_ && nrTracks>=1;
+
+    if(rmCutsDueToNrTracks || useDefaultValues){
       dEtaInValue=0;
       dEtaSeedInValue=0;
       dPhiInValue=0;
       missingHitsValue = 0;
-      validHitsValue = 0;
+      validHitsValue = 100;
       chi2Value = 0;
-    }else if(static_cast<int>(gsfTracks.size())<=lowerTrackNrToRemoveCut_){
-      dEtaInValue=0;
-      dEtaSeedInValue=0;
-      dPhiInValue=0;
-      missingHitsValue = 0;
-      validHitsValue = 0;
-      chi2Value = 0;
+      oneOverESuperMinusOneOverPValue = 0;
+      oneOverESeedMinusOneOverPValue = 0;
     }else{
       for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
       
@@ -158,8 +165,8 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
 	}
 
 
-	if (gsfTracks[trkNr]->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) 
-	  missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+	if (gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) 
+	  missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 	
 	if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue)
 	  validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
@@ -217,7 +224,7 @@ EgammaHLTGsfTrackVarProducer::TrackExtrapolator::TrackExtrapolator(const EgammaH
  
 {
   if(rhs.mtsTransform_) mtsTransform_ = new MultiTrajectoryStateTransform(*rhs.mtsTransform_);
-  else mtsTransform_ =0;
+  else mtsTransform_ =nullptr;
     
 }  
 
@@ -232,7 +239,7 @@ EgammaHLTGsfTrackVarProducer::TrackExtrapolator* EgammaHLTGsfTrackVarProducer::T
     
     delete mtsTransform_;
     if(rhs.mtsTransform_) mtsTransform_ = new MultiTrajectoryStateTransform(*rhs.mtsTransform_);
-    else mtsTransform_ =0;
+    else mtsTransform_ =nullptr;
   }
   return this;
 }

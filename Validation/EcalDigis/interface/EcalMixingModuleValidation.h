@@ -82,7 +82,7 @@ public:
 EcalMixingModuleValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalMixingModuleValidation();
+~EcalMixingModuleValidation() override;
 
 void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
@@ -151,8 +151,9 @@ private:
  const EcalSimParameterMap * theParameterMap;
  //const CaloVShape * theEcalShape;
  ESShape * theESShape;
- const EBShape *theEBShape;
- const EEShape *theEEShape;
+ bool useDBShape;
+ EBShape *theEBShape;
+ EEShape *theEEShape;
 
 
  //CaloHitResponse * theEcalResponse;

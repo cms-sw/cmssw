@@ -42,28 +42,31 @@
 //
 
 class CaloTPGTranscoderULUTs : public edm::ESProducer {
-public:
-  CaloTPGTranscoderULUTs(const edm::ParameterSet&);
-  ~CaloTPGTranscoderULUTs();
-  
-  typedef std::unique_ptr<CaloTPGTranscoder> ReturnType;
-  
-  ReturnType produce(const CaloTPGRecord&);
+   public:
+      CaloTPGTranscoderULUTs(const edm::ParameterSet&);
+      ~CaloTPGTranscoderULUTs() override;
 
-private:
-  // ----------member data ---------------------------
-  edm::FileInPath hfilename1_;
-  edm::FileInPath hfilename2_;
-  bool read_Ascii_Compression;
-  bool read_Ascii_RCT;
-  std::vector<int> ietal;
-  std::vector<int> ietah;
-  std::vector<int> ZS;
-  std::vector<int> LUTfactor;
-  double nominal_gain;
-  double RCTLSB;
-  int NCTScaleShift;
-  int RCTScaleShift;  
+      typedef std::unique_ptr<CaloTPGTranscoder> ReturnType;
+
+      ReturnType produce(const CaloTPGRecord&);
+
+   private:
+      // ----------member data ---------------------------
+      const edm::FileInPath hfilename1_;
+      const edm::FileInPath hfilename2_;
+      const bool read_Ascii_Compression;
+      const bool read_Ascii_RCT;
+      const std::vector<int> ietal;
+      const std::vector<int> ietah;
+      const std::vector<int> ZS;
+      const std::vector<int> LUTfactor;
+      const bool linearLUTs_;
+      const double nominal_gain;
+      const double RCTLSB;
+      const int NCTScaleShift;
+      const int RCTScaleShift;
+      const double lsbQIE8;
+      const double lsbQIE11;
 };
 
 //
@@ -78,29 +81,23 @@ private:
 // constructors and destructor
 //
 CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig) :
-  hfilename1_(iConfig.getParameter<edm::FileInPath>("hcalLUT1")),
-  hfilename2_(iConfig.getParameter<edm::FileInPath>("hcalLUT2"))
+   hfilename1_(iConfig.getParameter<edm::FileInPath>("hcalLUT1")),
+   hfilename2_(iConfig.getParameter<edm::FileInPath>("hcalLUT2")),
+   read_Ascii_Compression(iConfig.getParameter<bool>("read_Ascii_Compression_LUTs")),
+   read_Ascii_RCT(iConfig.getParameter<bool>("read_Ascii_RCT_LUTs")),
+   ietal(iConfig.getParameter<std::vector<int>>("ietaLowerBound")),
+   ietah(iConfig.getParameter<std::vector<int>>("ietaUpperBound")),
+   ZS(iConfig.getParameter<std::vector<int>>("ZS")),
+   LUTfactor(iConfig.getParameter<std::vector<int>>("LUTfactor")),
+   linearLUTs_(iConfig.getParameter<bool>("linearLUTs")),
+   nominal_gain(iConfig.getParameter<double>("nominal_gain")),
+   RCTLSB(iConfig.getParameter<double>("RCTLSB")),
+   NCTScaleShift(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HF").getParameter<int>("NCTShift")),
+   RCTScaleShift(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HF").getParameter<int>("RCTShift")),
+   lsbQIE8(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE").getParameter<double>("LSBQIE8")),
+   lsbQIE11(iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE").getParameter<double>("LSBQIE11"))
 {
-   //the following line is needed to tell the framework what
-   // data is being produced
    setWhatProduced(this);
-
-   //now do what ever other initialization is needed
-   read_Ascii_Compression = false;
-   read_Ascii_RCT = false;
-   read_Ascii_Compression=iConfig.getParameter<bool>("read_Ascii_Compression_LUTs");
-   read_Ascii_RCT=iConfig.getParameter<bool>("read_Ascii_RCT_LUTs");
-
-   ietal = iConfig.getParameter< std::vector<int> >("ietaLowerBound");
-   ietah = iConfig.getParameter< std::vector<int> >("ietaUpperBound");
-   ZS = iConfig.getParameter< std::vector<int> >("ZS");
-   LUTfactor = iConfig.getParameter< std::vector<int> >("LUTfactor");
-   nominal_gain = iConfig.getParameter<double>("nominal_gain");
-   RCTLSB = iConfig.getParameter<double>("RCTLSB");
-
-   edm::ParameterSet hfSS=iConfig.getParameter<edm::ParameterSet>("HFTPScaleShift");
-   NCTScaleShift = hfSS.getParameter<int>("NCT");
-   RCTScaleShift = hfSS.getParameter<int>("RCT");
 }
 
 
@@ -162,7 +159,7 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    fullLut.setTopo(htopo.product());
 
    std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
-   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift);
+   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift, lsbQIE8, lsbQIE11, linearLUTs_);
    return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
 }
 

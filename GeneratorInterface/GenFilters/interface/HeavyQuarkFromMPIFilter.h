@@ -28,9 +28,9 @@
 class HeavyQuarkFromMPIFilter : public edm::EDFilter {
  public:
   explicit HeavyQuarkFromMPIFilter(const edm::ParameterSet&);
-  ~HeavyQuarkFromMPIFilter();
+  ~HeavyQuarkFromMPIFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   HeavyQuarkFromMPIFilterAlgo *HeavyQuarkFromMPIFilterAlgo_;

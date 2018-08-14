@@ -14,8 +14,8 @@ typedef std::unary_function<const GeometricDet*, double> uFcn;
 
 class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 public:
-  virtual void build(DDFilteredView& , GeometricDet*, std::string);
-  virtual ~CmsTrackerLevelBuilder(){}
+  void build(DDFilteredView& , GeometricDet*, std::string) override;
+  ~CmsTrackerLevelBuilder() override{}
   
   
   struct subDetByType{
@@ -74,16 +74,16 @@ public:
       float phi = 0.;
       bool sum = true;
       
-      for(unsigned int i=0;i<comp.size();i++){
-	if(fabs(comp[i]->phi())>pi/2.) { 
+      for(auto i : comp){
+	if(fabs(i->phi())>pi/2.) { 
 	  sum = false;
 	  break;
 	}
       }
       
       if(sum){
-	for(unsigned int i=0;i<comp.size();i++){
-	  phi+= comp[i]->phi();
+	for(auto i : comp){
+	  phi+= i->phi();
 	}
 	
 	double temp = phi/float(comp.size()) < 0. ? 
@@ -92,9 +92,9 @@ public:
 	return temp;
 	
       }else{
-	for(unsigned int i=0;i<comp.size();i++){
-	  double phi1 = comp[i]->phi() >= 0 ? comp[i]->phi(): 
-	    comp[i]->phi()+2*pi; 
+	for(auto i : comp){
+	  double phi1 = i->phi() >= 0 ? i->phi(): 
+	    i->phi()+2*pi; 
 	  phi+= phi1;
 	}
 	
@@ -117,16 +117,16 @@ public:
       float phi = 0.;
       bool sum = true;
       
-      for(unsigned int i=0;i<comp.size();i++){
-	if(fabs(comp[i]->phi())>pi/2.) {
+      for(auto & i : comp){
+	if(fabs(i->phi())>pi/2.) {
 	  sum = false;
 	  break;
 	}
       }
       
       if(sum){
-	for(unsigned int i=0;i<comp.size();i++){
-	  phi+= comp[i]->phi();
+	for(auto & i : comp){
+	  phi+= i->phi();
 	}
 	
 	double temp = phi/float(comp.size()) < 0. ? 
@@ -135,9 +135,9 @@ public:
 	return temp;
 	
       }else{
-	for(unsigned int i=0;i<comp.size();i++){
-	  double phi1 = comp[i]->phi() >= 0 ? comp[i]->phi(): 
-	    comp[i]->translation().phi()+2*pi; 
+	for(auto & i : comp){
+	  double phi1 = i->phi() >= 0 ? i->phi(): 
+	    i->translation().phi()+2*pi; 
 	  phi+= phi1;
 	}
 	

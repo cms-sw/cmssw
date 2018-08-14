@@ -24,7 +24,7 @@ public:
     RPCUnpackingModule(const edm::ParameterSet& pset);
     
     ///Destructor
-    virtual ~RPCUnpackingModule();
+    ~RPCUnpackingModule() override;
  
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

@@ -64,7 +64,7 @@ MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params,
 	reader.reset(new std::ifstream(fileName.c_str()));
 
 	produces<LHEEventProduct>();
-	produces<LHERunInfoProduct, edm::InRun>();
+	produces<LHERunInfoProduct, edm::Transition::BeginRun>();
 }
 
 MCatNLOSource::~MCatNLOSource()

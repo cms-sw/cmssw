@@ -1,6 +1,9 @@
 #ifndef CategoryCriteria_h
 #define CategoryCriteria_h
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 

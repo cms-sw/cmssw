@@ -1,59 +1,70 @@
 #ifndef HGCalCommonData_DDHGCalEEAlgo_h
 #define HGCalCommonData_DDHGCalEEAlgo_h
 
-#include <map>
+#include <cmath>
+#include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 class DDHGCalEEAlgo : public DDAlgorithm {
  
 public:
   //Constructor and Destructor
   DDHGCalEEAlgo(); //const std::string & name);
-  virtual ~DDHGCalEEAlgo();
+  ~DDHGCalEEAlgo() override;
   
-  struct HGCalEEPar {
-    double yh1, bl1, tl1, yh2, bl2, tl2, alp, theta, phi, xpos, ypos, zpos;
-    HGCalEEPar(double yh1v=0, double bl1v=0, double tl1v=0, double yh2v=0, 
-	       double bl2v=0, double tl2v=0, double alpv=0, double thv=0,
-	       double fiv=0, double x=0, double y=0, double z=0) :
-    yh1(yh1v), bl1(bl1v), tl1(tl1v), yh2(yh2v), bl2(bl2v), tl2(tl2v),
-      alp(alpv), theta(thv), phi(fiv), xpos(x), ypos(y), zpos(z) {}
-  }; 
   void initialize(const DDNumericArguments & nArgs,
-		  const DDVectorArguments & vArgs,
-		  const DDMapArguments & mArgs,
-		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+                  const DDVectorArguments & vArgs,
+                  const DDMapArguments & mArgs,
+                  const DDStringArguments & sArgs,
+                  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& cpv) override;
 
 protected:
 
-  void constructLayers (DDLogicalPart, DDCompactView& cpv);
-  HGCalEEPar parameterLayer(double rinF, double routF, double rinB,
-			    double routB, double zi, double zo);
-  double     rMax(double z);
+  void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
+  void          positionSensitive(const DDLogicalPart& glog, double rin, 
+				  double rout, double zpos, int layertype, 
+				  DDCompactView& cpv);
 
 private:
 
-  std::vector<std::string> materials;     //Materials
-  std::vector<std::string> names;         //Names
-  std::string              rotstr;        //Rotation matrix to place in mother
-  std::vector<int>         layerType;     //Type of the layer
-  std::vector<int>         heightType;    //Height to be evaluated from itself
-  std::vector<int>         copyNumber;    //Copy number offsets for a section
-  std::vector<double>      thick;         //Thickness of the material
-  std::vector<double>      thickBlock;    //Thickness of a block of materials
-  double                   zMinBlock;     //Starting z-value of the block
-  int                      sectors;       //Sectors   
-  double                   slopeB;        //Slope at the lower R
-  std::vector<double>      slopeT;        //Slopes at the larger R
-  std::vector<double>      zFront;        //Starting Z values for the slopes
-  std::vector<double>      rMaxFront;     //Corresponding rMax's
-  std::string              idName;        //Name of the "parent" volume.  
-  std::string              idNameSpace;   //Namespace of this and ALL sub-parts
+  std::unique_ptr<HGCalWaferType> waferType_;
+
+  std::vector<std::string> wafers_;       //Wafers
+  std::vector<std::string> materials_;    //Materials
+  std::vector<std::string> names_;        //Names
+  std::vector<double>      thick_;        //Thickness of the material
+  std::vector<int>         copyNumber_;   //Initial copy numbers
+  std::vector<int>         layers_;       //Number of layers in a section
+  std::vector<double>      layerThick_;   //Thickness of each section
+  std::vector<int>         layerType_;    //Type of the layer
+  std::vector<int>         layerSense_;   //Content of a layer (sensitive?)
+  int                      firstLayer_;   //Copy # of the first sensitive layer
+  double                   zMinBlock_;    //Starting z-value of the block
+  std::vector<double>      rad100to200_;  //Parameters for 120-200mum trans.
+  std::vector<double>      rad200to300_;  //Parameters for 200-300mum trans.
+  double                   zMinRadPar_;   //Minimum z for radius parametriz.
+  int                      choiceType_;   //Type of parametrization to be used
+  int                      nCutRadPar_;   //Cut off threshold for corners
+  double                   fracAreaMin_;  //Minimum fractional conatined area 
+  double                   waferSize_;    //Width of the wafer
+  double                   waferSepar_;   //Sensor separation
+  int                      sectors_;      //Sectors   
+  std::vector<double>      slopeB_;       //Slope at the lower R
+  std::vector<double>      zFrontB_;      //Starting Z values for the slopes
+  std::vector<double>      rMinFront_;    //Corresponding rMin's
+  std::vector<double>      slopeT_;       //Slopes at the larger R
+  std::vector<double>      zFrontT_;      //Starting Z values for the slopes
+  std::vector<double>      rMaxFront_;    //Corresponding rMax's
+  std::string              nameSpace_;    //Namespace of this and ALL sub-parts
+  std::unordered_set<int>  copies_;       //List of copy #'s
 };
 
 #endif

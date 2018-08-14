@@ -47,7 +47,7 @@ public:
   DTChamberEfficiencyClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTChamberEfficiencyClient();
+  ~DTChamberEfficiencyClient() override;
 
 protected:
 

@@ -78,7 +78,7 @@ void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max, in
   int sector  = id.sector();
 
   const DTLayer  *layer = muonGeom_->layer(DTLayerId(id,1,1));
-  DTTopology topo = layer->specificTopology();
+  const DTTopology& topo = layer->specificTopology();
   double range = topo.channels()*topo.cellWidth();
   min = -range*.5;
   max =  range*.5;
@@ -97,7 +97,7 @@ void DTTrigGeomUtils::phiRange(const DTChamberId& id, float& min, float& max, in
 void DTTrigGeomUtils::thetaRange(const DTChamberId& id, float& min, float& max, int& nbins, float step){
 
   const DTLayer  *layer = muonGeom_->layer(DTLayerId(id,2,1));
-  DTTopology topo = layer->specificTopology();
+  const DTTopology& topo = layer->specificTopology();
   double range = topo.channels()*topo.cellWidth();
   min = -range*.5;
   max =  range*.5;

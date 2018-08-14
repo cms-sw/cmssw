@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 from optparse import OptionParser
@@ -31,7 +32,7 @@ The two preset mode generate either module-order (link) or input-tag-order (tag)
 
 def verbose(msg):
   if options.verbose:
-    print msg
+    print(msg)
 
 presets = {
   'tag':{'endpath':False,'source':False,'legend':False},

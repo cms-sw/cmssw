@@ -50,6 +50,7 @@
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
@@ -63,6 +64,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 
 namespace CondFormats_EcalObjects {
   struct dictionary {
@@ -114,7 +116,7 @@ namespace CondFormats_EcalObjects {
 
     EcalContainer<EEDetId,float> ec_eeDetId_float;
     EcalContainer<EBDetId,float> ec_ebDetId_float;
-    EcalCondObjectContainer<float> floatCondObjectContainer; //typedefs: EcalFloatCondObjectContainer, EcalLinearCorrections, EcalIntercalibConstants, EcalIntercalibConstantsMC, EcalIntercalibErrors, EcalLaserAPDPNRatiosRef, EcalLaserAlphas, EcalTimeCalibConstants, EcalTimeCalibErrors
+    EcalCondObjectContainer<float> floatCondObjectContainer; //typedefs: EcalFloatCondObjectContainer, EcalLinearCorrections, EcalIntercalibConstants, EcalIntercalibConstantsMC, EcalIntercalibErrors, EcalLaserAPDPNRatiosRef, EcalLaserAlphas, EcalTimeCalibConstants, EcalTimeCalibErrors, EcalPFRecHitThresholds
     
     EcalLaserAPDPNRatios laser_map;
     std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_pair_map;
@@ -197,10 +199,6 @@ namespace CondFormats_EcalObjects {
     EcalTPGTowerStatus spike;
     
     EcalSRSettings ecalSRSettings;
-    //    std::vector<std::vector<short> > ecalSRSettings_srpMasksFromConfig;
-    //    std::vector<std::vector<float> > ecalSRSettings_dccNormalizedWeights_0;
-    //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
-    //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     
     EcalTimeBiasCorrections timeBiasCorrections;
 
@@ -221,5 +219,6 @@ namespace CondFormats_EcalObjects {
     EcalContainer<EBDetId,EcalPulseSymmCovariance> ec_ebDetId_ecalPulseSymmCovariance;
     EcalCondObjectContainer<EcalPulseSymmCovariance> ecalSPCmap; //typedef EcalPulseSymmCovariance
 
+    EcalSimPulseShape ecal_sim_pulse_shapes;
   };
 }

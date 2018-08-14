@@ -43,11 +43,11 @@ class MonitorElement;
 class SiStripBadModuleFedErrESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBadModuleFedErrESSource(const edm::ParameterSet&);
-  ~SiStripBadModuleFedErrESSource();
+  ~SiStripBadModuleFedErrESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripBadStrip> ReturnType;
+  typedef std::unique_ptr<SiStripBadStrip> ReturnType;
   ReturnType produce( const SiStripBadModuleFedErrRcd& );
 
 private:
@@ -125,7 +125,7 @@ SiStripBadModuleFedErrESSource::produce(const SiStripBadModuleFedErrRcd& iRecord
   edm::ESHandle<SiStripFedCabling> cabling;
   iRecord.getRecord<SiStripFedCablingRcd>().get(cabling);
 
-  std::shared_ptr<SiStripQuality> quality{new SiStripQuality};
+  auto quality = std::make_unique<SiStripQuality>();
 
   DQMStore* dqmStore = edm::Service<DQMStore>().operator->();
   if ( m_readFlag ) { // open requested file

@@ -59,14 +59,14 @@ namespace pat {
       /// constructor from a Ptr to a reco photon
       Photon(const edm::Ptr<reco::Photon> & aPhotonRef);
       /// destructor
-      virtual ~Photon();
+      ~Photon() override;
 
       /// required reimplementation of the Candidate's clone method
-      virtual Photon * clone() const { return new Photon(*this); }
+      Photon * clone() const override { return new Photon(*this); }
 
       // ---- methods for content embedding ----
       /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
-      reco::SuperClusterRef superCluster() const;
+      reco::SuperClusterRef superCluster() const override;
       /// direct access to the seed cluster
       reco::CaloClusterPtr seed() const; 
 
@@ -123,12 +123,6 @@ namespace pat {
       /// Returns the calorimeter isolation combined from ecal 
       /// and hcal 
       float caloIso()  const { return ecalIso()+hcalIso(); }
-
-      /// get and set PFCluster isolation
-      float ecalPFClusterIso() const { return ecalPFClusIso_;}
-      float hcalPFClusterIso() const { return hcalPFClusIso_;}
-      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_=ecalPFClus;}
-      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_=hcalPFClus;}
 
       /// PARTICLE FLOW ISOLATION
       /// Returns the isolation calculated with all the PFCandidates
@@ -213,7 +207,7 @@ namespace pat {
           {
               if (it->first == key) return & it->second;
           }
-          return 0;
+          return nullptr;
       } 
       /// Return the tracker IsoDeposit
       const IsoDeposit * trackIsoDeposit() const { return isoDeposit(pat::TrackIso); }
@@ -330,9 +324,9 @@ namespace pat {
       }
  
       /// get the number of non-null PFCandidates
-      size_t numberOfSourceCandidatePtrs() const { return associatedPackedFCandidateIndices_.size(); }
+      size_t numberOfSourceCandidatePtrs() const override { return associatedPackedFCandidateIndices_.size(); }
       /// get the source candidate pointer with index i
-      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
       friend class PATPhotonSlimmer;
 
@@ -401,9 +395,6 @@ namespace pat {
       float cryPhi_;
       float iEta_;
       float iPhi_;
-
-      float ecalPFClusIso_;
-      float hcalPFClusIso_;
 
       //PUPPI isolations
       float puppiChargedHadronIso_;

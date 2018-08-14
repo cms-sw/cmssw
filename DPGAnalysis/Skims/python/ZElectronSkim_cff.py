@@ -1,13 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-
 # run on MIONAOD
 RUN_ON_MINIAOD = False
-#print "ZEE SKIM. RUN ON MINIAOD = ",RUN_ON_MINIAOD
+
 
 # cuts
 ELECTRON_CUT=("pt > 10 && abs(eta)<2.5")
-DIELECTRON_CUT=("mass > 40 && mass < 140 && daughter(0).pt>20 && daughter(1).pt()>10")
-
 
 # single lepton selectors
 if RUN_ON_MINIAOD:
@@ -21,28 +18,27 @@ else:
                                     cut = cms.string(ELECTRON_CUT)
                                     )
 
-# electron ID (sync with the AlCaReco: https://raw.githubusercontent.com/cms-sw/cmssw/CMSSW_7_5_X/Calibration/EcalAlCaRecoProducers/python/WZElectronSkims_cff.py)
-identifiedElectrons = goodZeeElectrons.clone(cut = cms.string(goodZeeElectrons.cut.value() +
-                                                              " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=2)"
-                                                              " && ((isEB"
-                                                              " && ( ((pfIsolationVariables().sumChargedHadronPt + max(0.0,pfIsolationVariables().sumNeutralHadronEt + pfIsolationVariables().sumPhotonEt - 0.5 * pfIsolationVariables().sumPUPt))/p4.pt)<0.164369)"
-                                                              " && (full5x5_sigmaIetaIeta<0.011100)"
-                                                              " && ( - 0.252044<deltaPhiSuperClusterTrackAtVtx< 0.252044 )"
-                                                       " && ( -0.016315<deltaEtaSuperClusterTrackAtVtx<0.016315 )"
-                                                              " && (hadronicOverEm<0.345843)"
-                                                              ")"
-                                                              " || (isEE"
-                                                              " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=3)"
-                                                              " && ( ((pfIsolationVariables().sumChargedHadronPt + max(0.0,pfIsolationVariables().sumNeutralHadronEt + pfIsolationVariables().sumPhotonEt - 0.5 * pfIsolationVariables().sumPUPt))/p4.pt)<0.212604 )"
-                                                              " && (full5x5_sigmaIetaIeta<0.033987)"
-                                                              " && ( -0.245263<deltaPhiSuperClusterTrackAtVtx<0.245263 )"
-                                                              " && ( -0.010671<deltaEtaSuperClusterTrackAtVtx<0.010671 )"
-                                                              " && (hadronicOverEm<0.134691) "
-                                                              "))"
-                                                              )
-                                             )
+eleIDWP = cms.PSet( #first for barrel, second for endcap. All values from https://indico.cern.ch/event/699197/contributions/2900013/attachments/1604361/2544765/Zee.pdf
+    full5x5_sigmaIEtaIEtaCut       = cms.vdouble(0.0128 ,0.0445 )  , # full5x5_sigmaIEtaIEtaCut
+    dEtaInSeedCut                  = cms.vdouble(0.00523,0.00984)  , # dEtaInSeedCut
+    dPhiInCut                      = cms.vdouble(0.159  ,0.157  )  , # dPhiInCut
+    hOverECut                      = cms.vdouble(0.247  ,0.0982  )  , # hOverECut
+    relCombIsolationWithEACut      = cms.vdouble(0.168  ,0.185  )  , # relCombIsolationWithEALowPtCut
+    EInverseMinusPInverseCut       = cms.vdouble(0.193  ,0.0962   )  ,                
+    missingHitsCut                 = cms.vint32(2       ,3      )    # missingHitsCut
+) 
 
-# dilepton selectors
+
+identifiedElectrons = cms.EDFilter("ZElectronsSelectorAndSkim",
+                                   src    = cms.InputTag("goodZeeElectrons"),
+                                   eleID = eleIDWP, 
+                                   absEtaMin=cms.vdouble( 0.0000, 1.0000, 1.4790, 2.0000, 2.2000, 2.3000, 2.4000),
+                                   absEtaMax=cms.vdouble( 1.0000,  1.4790, 2.0000,  2.2000, 2.3000, 2.4000, 5.0000),
+                                   effectiveAreaValues=cms.vdouble( 0.1703, 0.1715, 0.1213, 0.1230, 0.1635, 0.1937, 0.2393),
+                                   rho = cms.InputTag("fixedGridRhoFastjetCentralCalo") #from https://github.com/cms-sw/cmssw/blob/09c3fce6626f70fd04223e7dacebf0b485f73f54/RecoEgamma/ElectronIdentification/python/Identification/cutBasedElectronID_tools.py#L564
+                         )
+DIELECTRON_CUT=("mass > 40  && daughter(0).pt>20 && daughter(1).pt()>10")
+
 diZeeElectrons = cms.EDProducer("CandViewShallowCloneCombiner",
                                 decay       = cms.string("identifiedElectrons identifiedElectrons"),
                                 checkCharge = cms.bool(False),
@@ -54,5 +50,6 @@ diZeeElectronsFilter = cms.EDFilter("CandViewCountFilter",
                                     minNumber = cms.uint32(1)
                                     )
 
+
 #sequences
-zdiElectronSequence = cms.Sequence( goodZeeElectrons * identifiedElectrons * diZeeElectrons * diZeeElectronsFilter )
+zdiElectronSequence = cms.Sequence(goodZeeElectrons*identifiedElectrons*diZeeElectrons* diZeeElectronsFilter )

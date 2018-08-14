@@ -21,7 +21,7 @@ using namespace edm;
 // initialize static data members
 ////////////////////////////////////////////////////////////////////////////////
 
-PlaybackRawDataProvider* PlaybackRawDataProvider::instance_=0;
+PlaybackRawDataProvider* PlaybackRawDataProvider::instance_=nullptr;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,9 @@ PlaybackRawDataProvider* PlaybackRawDataProvider::instance_=0;
 //______________________________________________________________________________
 PlaybackRawDataProvider::PlaybackRawDataProvider(const ParameterSet& iConfig)
   : queueSize_(0)
-  , eventQueue_(0)
-  , runNumber_(0)
-  , evtNumber_(0)
+  , eventQueue_(nullptr)
+  , runNumber_(nullptr)
+  , evtNumber_(nullptr)
   , count_(0)
   , writeIndex_(0)
   , readIndex_(0)
@@ -48,7 +48,7 @@ PlaybackRawDataProvider::PlaybackRawDataProvider(const ParameterSet& iConfig)
   runNumber_ =new unsigned int[queueSize_];
   evtNumber_ =new unsigned int[queueSize_];
   eventQueue_=new FEDRawDataCollection*[queueSize_];
-  for (unsigned int i=0;i<queueSize_;i++) eventQueue_[i]=0;
+  for (unsigned int i=0;i<queueSize_;i++) eventQueue_[i]=nullptr;
   edm::LogInfo("PbImpl") << "Created Concrete RawData Provider 0x"<< hex << (unsigned long) this << dec << endl;
   instance_=this;
 }
@@ -57,15 +57,15 @@ PlaybackRawDataProvider::PlaybackRawDataProvider(const ParameterSet& iConfig)
 //______________________________________________________________________________
 PlaybackRawDataProvider::~PlaybackRawDataProvider()
 {
-  if (0!=runNumber_) delete [] runNumber_;
-  if (0!=evtNumber_) delete [] evtNumber_;
-  if (0!=eventQueue_) {
+  if (nullptr!=runNumber_) delete [] runNumber_;
+  if (nullptr!=evtNumber_) delete [] evtNumber_;
+  if (nullptr!=eventQueue_) {
     for (unsigned int i=0;i<queueSize_;i++)
-      if (0!=eventQueue_[i]) delete eventQueue_[i];
+      if (nullptr!=eventQueue_[i]) delete eventQueue_[i];
     delete [] eventQueue_;
   }
   edm::LogInfo("PbImpl") << "Destroyed Concrete RawData Provider 0x"<< hex << (unsigned long) this << dec << endl;
-  instance_=0;
+  instance_=nullptr;
 
   destroying_=true;
   postReadSem();
@@ -102,7 +102,7 @@ void PlaybackRawDataProvider::analyze(const Event& iEvent,
   
   
   // copy the raw data collection into rawData_, retrievable via getFEDRawData()
-  assert(0==eventQueue_[writeIndex_]);
+  assert(nullptr==eventQueue_[writeIndex_]);
   eventQueue_[writeIndex_]=new FEDRawDataCollection();
   for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++) {
     unsigned int fedSize=pRawData->FEDData(i).size();
@@ -145,13 +145,13 @@ void PlaybackRawDataProvider::respondToCloseInputFile(edm::FileBlock const& fb)
 //______________________________________________________________________________
 FEDRawDataCollection* PlaybackRawDataProvider::getFEDRawData()
 {
-  FEDRawDataCollection* result = 0;
+  FEDRawDataCollection* result = nullptr;
   waitReadSem();
   //do not read data if destructor is called
-  if (destroying_) return 0;
+  if (destroying_) return nullptr;
   lock();
   result = eventQueue_[readIndex_];
-  eventQueue_[readIndex_]=0;
+  eventQueue_[readIndex_]=nullptr;
   readIndex_=(readIndex_+1)%queueSize_;
   unlock();
   
@@ -165,16 +165,16 @@ FEDRawDataCollection* PlaybackRawDataProvider::getFEDRawData(unsigned int& runNu
 							     unsigned int& evtNumber)
 {
 
-  FEDRawDataCollection* result = 0;
+  FEDRawDataCollection* result = nullptr;
   waitReadSem();
   //do not read data if destructor is called
-  if (destroying_) return 0;
+  if (destroying_) return nullptr;
   lock();
   runNumber=runNumber_[readIndex_];
   evtNumber=evtNumber_[readIndex_];
   result=eventQueue_[readIndex_];
   //  assert(0!=result);
-  eventQueue_[readIndex_]=0;
+  eventQueue_[readIndex_]=nullptr;
   readIndex_=(readIndex_+1)%queueSize_;
 
   unlock();

@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -54,7 +55,7 @@ public:
     }
   }
   
-  virtual ~TrackingRegionsFromBeamSpotAndL2Tau() {}
+  ~TrackingRegionsFromBeamSpotAndL2Tau() override {}
     
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -80,7 +81,7 @@ public:
     descriptions.add("trackingRegionsFromBeamSpotAndL2Tau", descRegion);
   }
 
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
     std::vector<std::unique_ptr<TrackingRegion> > result;
 

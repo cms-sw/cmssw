@@ -34,7 +34,7 @@ class HcalDbRecord;
 class HcalDbProducer : public edm::ESProducer {
  public:
   HcalDbProducer( const edm::ParameterSet& );
-  ~HcalDbProducer();
+  ~HcalDbProducer() override;
   
   std::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
 
@@ -43,6 +43,8 @@ class HcalDbProducer : public edm::ESProducer {
   // callbacks
   void pedestalsCallback (const HcalPedestalsRcd& fRecord);
   void pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
+  void effectivePedestalsCallback (const HcalPedestalsRcd& fRecord);
+  void effectivePedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
   void gainsCallback (const HcalGainsRcd& fRecord);
   void gainWidthsCallback (const HcalGainWidthsRcd& fRecord);
   void QIEDataCallback (const HcalQIEDataRcd& fRecord);
@@ -62,6 +64,7 @@ class HcalDbProducer : public edm::ESProducer {
   void TPChannelParametersCallback (const HcalTPChannelParametersRcd& fRecord);
   void TPParametersCallback (const HcalTPParametersRcd& fRecord);
   void MCParamsCallback (const HcalMCParamsRcd& fRecord);
+  void RecoParamsCallback (const HcalRecoParamsRcd& fRecord);
 
 private:
       // ----------member data ---------------------------
@@ -71,6 +74,8 @@ private:
 
   std::unique_ptr<HcalPedestals> mPedestals;
   std::unique_ptr<HcalPedestalWidths> mPedestalWidths;
+  std::unique_ptr<HcalPedestals> mEffectivePedestals;
+  std::unique_ptr<HcalPedestalWidths> mEffectivePedestalWidths;
   std::unique_ptr<HcalGains> mGains;
   std::unique_ptr<HcalGainWidths> mGainWidths;
   std::unique_ptr<HcalQIEData> mQIEData;
@@ -87,5 +92,6 @@ private:
   std::unique_ptr<HcalTPChannelParameters> mTPChannelParameters;
   std::unique_ptr<HcalTPParameters> mTPParameters;
   std::unique_ptr<HcalMCParams> mMCParams;
+  std::unique_ptr<HcalRecoParams> mRecoParams;
 
 };

@@ -34,7 +34,7 @@ class HcalDDDSimConstantsESModule : public edm::ESProducer {
 
 public:
   HcalDDDSimConstantsESModule(const edm::ParameterSet&);
-  ~HcalDDDSimConstantsESModule();
+  ~HcalDDDSimConstantsESModule() override;
 
   typedef std::shared_ptr<HcalDDDSimConstants> ReturnType;
 
@@ -48,9 +48,9 @@ private:
   HcalDDDSimConstants* hcalDDDConst_;
 };
 
-HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
+HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(nullptr) {
 #ifdef EDM_ML_DEBUG
-  std::cout <<"constructing HcalDDDSimConstantsESModule" << std::endl;
+  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDSimConstantsESModule";
 #endif
   setWhatProduced(this, dependsOn(&HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants));
 }
@@ -66,9 +66,9 @@ void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 HcalDDDSimConstantsESModule::ReturnType
 HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
 #ifdef EDM_ML_DEBUG
-  std::cout << "in HcalDDDSimConstantsESModule::produce" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDSimConstantsESModule::produce";
 #endif
-  if (hcalDDDConst_ == 0) {
+  if (hcalDDDConst_ == nullptr) {
     edm::LogError("HCalGeom") << "HcalDDDSimConstantsESModule::produceHcalDDDSimConstants has NOT been initialized!";
     throw cms::Exception("DDException") << "HcalDDDSimConstantsESModule::Cannot produce HcalDDDSimConstnats";
   }
@@ -81,14 +81,12 @@ void HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants(const HcalParame
   edm::ESHandle<HcalParameters> parHandle;
   igr.get(label_, parHandle);
 #ifdef EDM_ML_DEBUG
-  std::cout << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants" << std::endl;
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants";
 #endif
-  if ( hcalDDDConst_ != 0 ) {
-    delete hcalDDDConst_;
-  }
   const HcalParameters* hpar = &(*parHandle);
 #ifdef EDM_ML_DEBUG
-  std::cout << "about to make my new hcalDDDConst_ with " << hpar << std::endl;
+  edm::LogVerbatim("HcalGeom") << "about to make my new hcalDDDConst_ with " 
+			       << hpar;
 #endif
   hcalDDDConst_ = new HcalDDDSimConstants(hpar);
 }

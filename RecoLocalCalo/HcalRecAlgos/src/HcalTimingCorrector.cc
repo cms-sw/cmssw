@@ -1,4 +1,4 @@
-#include "../interface/HcalTimingCorrector.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 // Using defined flags instead of hardcoding bits 2 and 3

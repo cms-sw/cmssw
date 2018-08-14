@@ -22,14 +22,14 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   PedestalsAnalysis();
 
-  virtual ~PedestalsAnalysis() {;}
+  ~PedestalsAnalysis() override {;}
 
   friend class PedestalsAlgorithm;
 
   // ---------- public interface ----------
 
   /** Identifies if analysis is valid or not. */
-  bool isValid() const;
+  bool isValid() const override;
   
   // Pedestal, noise and raw noise (128-strip vector per APV)
   inline const VVFloat& peds() const;
@@ -59,13 +59,13 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   // ---------- misc ----------
   
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t apv_number = 0 );
+  void print( std::stringstream&, uint32_t apv_number = 0 ) override;
   
   /** Overrides base method. */
-  void summary( std::stringstream& ) const;
+  void summary( std::stringstream& ) const override;
   
   /** Resets analysis member data. */
-  void reset();
+  void reset() override;
   
   // ---------- private member data ----------
 

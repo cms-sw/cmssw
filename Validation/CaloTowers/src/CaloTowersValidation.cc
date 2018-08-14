@@ -32,7 +32,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf)
   imc = 1;
   if(mc_ == "no") imc = 0;
   
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
@@ -59,40 +59,37 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 	//in the EndJob for norms and such so I am leaving them alone for now
 	//-------------------------------------------------------------------------------------------
 	sprintf  (histo, "Ntowers_per_event_vs_ieta" );
-	Ntowers_vs_ieta = ibooker.book1D(histo, histo, 82, -41., 41.);
+	Ntowers_vs_ieta = ibooker.book1D(histo, histo, 83, -41.5, 41.5);
 
 	sprintf  (histo, "CaloTowersTask_map_Nentries" );
-	mapEnergy_N = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+	mapEnergy_N = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 	//-------------------------------------------------------------------------------------------
 
 	//These the single pion scan histos
 	//-------------------------------------------------------------------------------------------
-	//The first three are not used
-	if (useAllHistos_){
-		sprintf  (histo, "emean_vs_ieta_E" );
-		emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-		sprintf  (histo, "emean_vs_ieta_H" );
-		emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-		sprintf  (histo, "emean_vs_ieta_EH" );
-		emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-	}
+	sprintf  (histo, "emean_vs_ieta_E" );
+	emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
+	sprintf  (histo, "emean_vs_ieta_H" );
+	emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
+	sprintf  (histo, "emean_vs_ieta_EH" );
+	emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	//These are drawn
 	sprintf  (histo, "emean_vs_ieta_E1" );
-	emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+	emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	sprintf  (histo, "emean_vs_ieta_H1" );
-	emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+	emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	sprintf  (histo, "emean_vs_ieta_EH1" );
-	emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+	emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	//-------------------------------------------------------------------------------------------
 
 	//Map energy histos are not drawn
 	if (useAllHistos_){
 		sprintf  (histo, "CaloTowersTask_map_energy_E" );
-		mapEnergy_E = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+		mapEnergy_E = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 		sprintf  (histo, "CaloTowersTask_map_energy_H");
-		mapEnergy_H = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+		mapEnergy_H = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 		sprintf  (histo, "CaloTowersTask_map_energy_EH" );
-		mapEnergy_EH = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+		mapEnergy_EH = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 	}
 
 	//All ECAL cell histos are used
@@ -112,10 +109,10 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 
 	//Occupancy vs. ieta is drawn, occupancy map is needed to draw it 
 	sprintf  (histo, "CaloTowersTask_map_occupancy" );
-	occupancy_map = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+	occupancy_map = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 
 	sprintf  (histo, "CaloTowersTask_occupancy_vs_ieta" );
-	occupancy_vs_ieta = ibooker.book1D(histo, histo, 82, -41, 41);
+	occupancy_vs_ieta = ibooker.book1D(histo, histo, 83, -41.5, 41.5);
 
 	if( isub == 1 || isub == 0) {
 		//All cell histos are used
@@ -210,11 +207,11 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 			meTotEnergy_HB = ibooker.book1D(histo, histo,400, 0., 2000.) ;
 
 			sprintf  (histo, "CaloTowersTask_map_energy_HB" );
-			mapEnergy_HB = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergy_HB = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 			sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HB");
-			mapEnergyHcal_HB = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergyHcal_HB = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 			sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HB" );
-			mapEnergyEcal_HB = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergyEcal_HB = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 
 			sprintf  (histo, "CaloTowersTask_phi_MET_HB" ) ;
 			phiMET_HB = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
@@ -302,11 +299,11 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 			meTotEnergy_HE = ibooker.book1D(histo, histo,400, 0., 2000.) ;
 
 			sprintf  (histo, "CaloTowersTask_map_energy_HE" );
-			mapEnergy_HE = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergy_HE = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 			sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HE");
-			mapEnergyHcal_HE = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergyHcal_HE = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 			sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HE" );
-			mapEnergyEcal_HE = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergyEcal_HE = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 
 			sprintf  (histo, "CaloTowersTask_phi_MET_HE" ) ;
 			phiMET_HE = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
@@ -388,11 +385,11 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 			meTotEnergy_HF = ibooker.book1D(histo, histo, 400, 0., 2000.) ;
 
 			sprintf  (histo, "CaloTowersTask_map_energy_HF" );
-			mapEnergy_HF = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergy_HF = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 			sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HF");
-			mapEnergyHcal_HF = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergyHcal_HF = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 			sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HF" );
-			mapEnergyEcal_HF = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+			mapEnergyEcal_HF = ibooker.book2D(histo, histo, 83, -41.5, 41.5, 72, 0., 72.);
 
 			sprintf  (histo, "CaloTowersTask_phi_MET_HF" ) ;
 			phiMET_HF = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
@@ -512,7 +509,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 		// cell properties    
 		CaloTowerDetId idT = cal->id();
 		int ieta = idT.ieta();
-		if(ieta > 0) ieta -= 1;
 		int iphi = idT.iphi();
 
 		// ecal:  0 EcalBarrel  1 EcalEndcap
@@ -548,14 +544,14 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
 			if( r < partR ){
 				Econe += eE; 
-				Hcone += eH; 
+				Hcone += eH;
 
 				// closest to MC
 				if(r < Rmin) { 
 					if( fabs(eta_MC) < 3.0 && (ieta > 29 || ieta < -29)) {;}
 					else {    
 						Rmin = r;
-						ieta_MC = ieta; 
+						ieta_MC = ieta;
 						iphi_MC = iphi; 
 						Ee1     = eE;
 						Eh1     = eH;
@@ -722,19 +718,17 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
 	} // end of Towers cycle 
 
-	//These are the six single pion histos; only the second set is used
-	if (useAllHistos_){
-		emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
-		emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
-		emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
-	}
+	//These are the six single pion histos
+	emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
+	emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
+	emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
 	emean_vs_ieta_E1  -> Fill(double(ieta_MC), Ee1); 
 	emean_vs_ieta_H1  -> Fill(double(ieta_MC), Eh1); 
 	emean_vs_ieta_EH1 -> Fill(double(ieta_MC), Ee1+Eh1); 
 
 	//Map histos are not used except the last one in EndJob
 	if (useAllHistos_){
-		mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1); 
+		mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1);
 		mapEnergy_H -> Fill(double(ieta_MC), double(iphi_MC), Eh1); 
 		mapEnergy_EH -> Fill(double(ieta_MC), double(iphi_MC), Ee1+Eh1);
 	} 

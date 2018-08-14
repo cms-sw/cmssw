@@ -9,12 +9,12 @@ class SimplePlan1RechitCombiner : public AbsPlan1RechitCombiner
 public:
     SimplePlan1RechitCombiner();
 
-    inline virtual ~SimplePlan1RechitCombiner() {}
+    inline ~SimplePlan1RechitCombiner() override {}
 
-    virtual void setTopo(const HcalTopology* topo) override;
-    virtual void clear() override;
-    virtual void add(const HBHERecHit& rh) override;
-    virtual void combine(HBHERecHitCollection* toFill) override;
+    void setTopo(const HcalTopology* topo) override;
+    void clear() override;
+    void add(const HBHERecHit& rh) override;
+    void combine(HBHERecHitCollection* toFill) override;
 
 protected:
     // Map the original detector id into the id of the composite rechit

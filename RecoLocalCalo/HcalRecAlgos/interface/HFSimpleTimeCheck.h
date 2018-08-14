@@ -56,13 +56,14 @@ public:
                       const float energyWeights[2*HFAnodeStatus::N_POSSIBLE_STATES-1][2],
                       unsigned soiPhase, float timeShift,
                       float triseIfNoTDC, float tfallIfNoTDC,
+                      float minChargeForUndershoot, float minChargeForOvershoot,
                       bool rejectAllFailures = true);
 
-    inline virtual ~HFSimpleTimeCheck() {}
+    inline ~HFSimpleTimeCheck() override {}
 
-    inline virtual bool isConfigurable() const override {return false;}
+    inline bool isConfigurable() const override {return false;}
 
-    virtual HFRecHit reconstruct(const HFPreRecHit& prehit,
+    HFRecHit reconstruct(const HFPreRecHit& prehit,
                                  const HcalCalibrations& calibs,
                                  const bool flaggedBadInDB[2],
                                  bool expectSingleAnodePMT) override;
@@ -71,6 +72,8 @@ public:
     inline float timeShift() const {return timeShift_;}
     inline float triseIfNoTDC() const {return triseIfNoTDC_;}
     inline float tfallIfNoTDC() const {return tfallIfNoTDC_;}
+    inline float minChargeForUndershoot() const {return minChargeForUndershoot_;}
+    inline float minChargeForOvershoot() const {return minChargeForOvershoot_;}
     inline bool rejectingAllFailures() const {return rejectAllFailures_;}
 
 protected:
@@ -87,6 +90,8 @@ private:
     float timeShift_;
     float triseIfNoTDC_;
     float tfallIfNoTDC_;
+    float minChargeForUndershoot_;
+    float minChargeForOvershoot_;
     bool rejectAllFailures_;
 };
 

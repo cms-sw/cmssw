@@ -47,10 +47,10 @@ public:
     typedef DataType data_type;
 
     explicit BoostIODBWriter(const edm::ParameterSet&);
-    inline virtual ~BoostIODBWriter() {}
+    inline ~BoostIODBWriter() override {}
 
 private:
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     std::string inputFile_;
     std::string record_;

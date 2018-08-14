@@ -21,9 +21,19 @@ static const bool useL1EventSetup( true );
 static const bool useL1GtTriggerMenuLite( false );
 
 
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC):
+  GenericTriggerEventFlag(config,iC,false)
+{
+  if ( config.exists( "andOrL1" ) ) {
+    if (stage2_){
+      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC));
+    }
+  }
+}
+
 /// To be called from the ED module's c'tor
-GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
-  : watchDB_( 0 )
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, bool stage1Valid )
+  : watchDB_() 
   , hltConfigInit_( false )
   , andOr_( false )
   , dbLabel_( "" )
@@ -114,19 +124,14 @@ GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & conf
     if ( ! onDcs_ && ! onGt_ && ! onL1_ && ! onHlt_ ) on_ = false;
     else {
       if ( config.exists( "dbLabel" ) ) dbLabel_ = config.getParameter< std::string >( "dbLabel" );
-      watchDB_ = new edm::ESWatcher< AlCaRecoTriggerBitsRcd >;
+      watchDB_ = std::make_unique<edm::ESWatcher< AlCaRecoTriggerBitsRcd > >();
     }
   }
-
-}
-
-
-/// To be called from d'tors by 'delete'
-GenericTriggerEventFlag::~GenericTriggerEventFlag()
-{
-
-  if ( on_ ) delete watchDB_;
-
+  //check to see we arent trying to setup legacy / stage-1 from a constructor call 
+  //that does not support it
+  if ( config.exists( "andOrL1" ) && stage2_ == false ){ //stage-1 setup
+    if( stage1Valid==false ) throw cms::Exception("ConfigError") <<" Error when constructing GenericTriggerEventFlag, legacy/stage-1 is requested but the constructor called is stage2 only";
+  }
 }
 
 
@@ -135,15 +140,15 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
 {
 
   if ( watchDB_->check( setup ) ) {
-    if ( onGt_ && gtDBKey_.size() > 0 ) {
+    if ( onGt_ && !gtDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( gtDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) gtLogicalExpressions_ = exprs;
     }
-    if ( onL1_ && l1DBKey_.size() > 0 ) {
+    if ( onL1_ && !l1DBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressionsCache_ = exprs;
     }
-    if ( onHlt_ && hltDBKey_.size() > 0 ) {
+    if ( onHlt_ && !hltDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressionsCache_ = exprs;
     }
@@ -155,7 +160,7 @@ void GenericTriggerEventFlag::initRun( const edm::Run & run, const edm::EventSet
 
   hltConfigInit_ = false;
   if ( onHlt_ ) {
-    if ( hltInputTag_.process().size() == 0 ) {
+    if ( hltInputTag_.process().empty() ) {
       if ( verbose_ > 0 ) edm::LogError( "GenericTriggerEventFlag" ) << "HLT TriggerResults InputTag \"" << hltInputTag_.encode() << "\" specifies no process";
     } else {
       bool hltChanged( false );
@@ -261,7 +266,7 @@ bool GenericTriggerEventFlag::acceptDcs( const edm::Event & event )
     if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" not in event ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
-  if ( ( *dcsStatus ).size() == 0 ) {
+  if ( ( *dcsStatus ).empty() ) {
     if ( verbose_ > 1 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode() << "\" empty ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
   }
@@ -646,7 +651,7 @@ bool GenericTriggerEventFlag::negate( std::string & word ) const
 /// Reads and returns logical expressions from DB
 std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std::string & key, const edm::EventSetup & setup )
 {  
-  if ( key.size() == 0 ) return std::vector< std::string >( 1, emptyKeyError_ );
+  if ( key.empty() ) return std::vector< std::string >( 1, emptyKeyError_ );
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
   std::vector< edm::eventsetup::DataKey > labels;
   setup.get< AlCaRecoTriggerBitsRcd >().fillRegisteredDataKeys( labels );

@@ -1,118 +1,107 @@
-/***************************************************************************
-                          testShapes.cpp  -  description
-                             -------------------
-    Author               : Michael Case
-    email                : case@physics.ucdavis.edu
-
-    Last Updated         : May 29, 2007
- ***************************************************************************/
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
+std::ostream&
+operator<<(std::ostream& os, const DDSolidShape s)
+{
+  return os << "\tDDSolidShape index: " << static_cast<int>(s) << ", name: " << DDSolidShapesName::name(s);
+}
+
 int main(int /*argc*/, char **/*argv[]*/)
 {
   std::cout  << "" << std::endl;
   std::vector<std::string> ddShapeTypeNames;
-  ddShapeTypeNames.push_back("dd_not_init");
-  ddShapeTypeNames.push_back("ddbox"); 
-  ddShapeTypeNames.push_back("ddtubs"); 
-  ddShapeTypeNames.push_back("ddtrap"); 
-  ddShapeTypeNames.push_back("ddcons");
-  ddShapeTypeNames.push_back("ddpolycone_rz"); 
-  ddShapeTypeNames.push_back("ddpolyhedra_rz");
-  ddShapeTypeNames.push_back("ddpolycone_rrz"); 
-  ddShapeTypeNames.push_back("ddpolyhedra_rrz");
-  ddShapeTypeNames.push_back("ddtorus");
-  ddShapeTypeNames.push_back("ddunion"); 
-  ddShapeTypeNames.push_back("ddsubtraction"); 
-  ddShapeTypeNames.push_back("ddintersection");
-  ddShapeTypeNames.push_back("ddreflected");
-  ddShapeTypeNames.push_back("ddshapeless");
-  ddShapeTypeNames.push_back("ddpseudotrap");
-  ddShapeTypeNames.push_back("ddtrunctubs");
-  ddShapeTypeNames.push_back("ddsphere");
-  ddShapeTypeNames.push_back("ddorb");
-  ddShapeTypeNames.push_back("ddellipticaltube");
-  ddShapeTypeNames.push_back("ddellipsoid");
-  ddShapeTypeNames.push_back("ddparallelepiped");
-  ddShapeTypeNames.push_back("ddcuttubs");
+  ddShapeTypeNames.emplace_back("dd_not_init");
+  ddShapeTypeNames.emplace_back("ddbox"); 
+  ddShapeTypeNames.emplace_back("ddtubs"); 
+  ddShapeTypeNames.emplace_back("ddtrap"); 
+  ddShapeTypeNames.emplace_back("ddcons");
+  ddShapeTypeNames.emplace_back("ddpolycone_rz"); 
+  ddShapeTypeNames.emplace_back("ddpolyhedra_rz");
+  ddShapeTypeNames.emplace_back("ddpolycone_rrz"); 
+  ddShapeTypeNames.emplace_back("ddpolyhedra_rrz");
+  ddShapeTypeNames.emplace_back("ddtorus");
+  ddShapeTypeNames.emplace_back("ddunion"); 
+  ddShapeTypeNames.emplace_back("ddsubtraction"); 
+  ddShapeTypeNames.emplace_back("ddintersection");
+  ddShapeTypeNames.emplace_back("ddshapeless");
+  ddShapeTypeNames.emplace_back("ddpseudotrap");
+  ddShapeTypeNames.emplace_back("ddtrunctubs");
+  ddShapeTypeNames.emplace_back("ddsphere");
+  ddShapeTypeNames.emplace_back("ddellipticaltube");
+  ddShapeTypeNames.emplace_back("ddcuttubs");
+  ddShapeTypeNames.emplace_back("ddextrudedpolygon");
 
   DDSolidShapesName ssn;
-  DDSolidShape ish(dd_not_init);
-  for ( ; ish <= ddcuttubs; ish=DDSolidShape(ish+1) ) {
-    switch (ish) {
+  DDSolidShape ish(DDSolidShape::dd_not_init);
+  int index = static_cast<int>(ish);
+  std::cout << std::left << std::setfill(' ');
+  for(  ; ish <= DDSolidShape::ddextrudedpolygon; index = static_cast<int>(ish)+1, ish = DDSolidShape(index)) {
+    switch( index ) {
     case 0:
-      std::cout << ddShapeTypeNames[0] << " " << ssn.name(ish) << " " <<  dd_not_init;
+      std::cout	<< index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(1) << " " <<  DDSolidShape::dd_not_init;
       break;
     case 1:
-      std::cout << ddShapeTypeNames[1] << " " << ssn.name(ish) << " " << ddbox;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(9) << "\t" << DDSolidShape::ddbox;
       break;
     case 2:
-      std::cout << ddShapeTypeNames[2] << " " << ssn.name(ish) << " " << ddtubs;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" << DDSolidShape::ddtubs;
       break;
     case 3:
-      std::cout << ddShapeTypeNames[3] << " " << ssn.name(ish) << " " <<  ddtrap;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddtrap;
       break;
     case 4:
-      std::cout << ddShapeTypeNames[4] << " " << ssn.name(ish) << " " <<  ddcons;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddcons;
       break;
     case 5:
-      std::cout << ddShapeTypeNames[5] << " " << ssn.name(ish) << " " <<  ddpolycone_rz;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddpolycone_rz;
       break;
     case 6:
-      std::cout << ddShapeTypeNames[6] << " " << ssn.name(ish) << " " <<  ddpolyhedra_rz;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddpolyhedra_rz;
       break;
     case 7:
-      std::cout << ddShapeTypeNames[7] << " " << ssn.name(ish) << " " <<  ddpolycone_rrz;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddpolycone_rrz;
       break;
     case 8:
-      std::cout << ddShapeTypeNames[8] << " " << ssn.name(ish) << " " <<  ddpolyhedra_rrz;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddpolyhedra_rrz;
       break;
     case 9:
-      std::cout << ddShapeTypeNames[9] << " " << ssn.name(ish) << " " <<  ddtorus;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(9) << "\t" <<  DDSolidShape::ddtorus;
       break;
     case 10:
-      std::cout << ddShapeTypeNames[10] << " " << ssn.name(ish) << " " <<  ddunion;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddunion;
       break;
     case 11:
-      std::cout << ddShapeTypeNames[11] << " " << ssn.name(ish) << " " <<  ddsubtraction;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(1) << " " <<  DDSolidShape::ddsubtraction;
       break;
     case 12:
-      std::cout << ddShapeTypeNames[12] << " " << ssn.name(ish) << " " <<  ddintersection;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(1) << " " <<  DDSolidShape::ddintersection;
       break;
     case 13:
-      std::cout << ddShapeTypeNames[13] << " " << ssn.name(ish) << " " <<  ddreflected;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddshapeless;
       break;
     case 14:
-      std::cout << ddShapeTypeNames[14] << " " << ssn.name(ish) << " " <<  ddshapeless;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddpseudotrap;
       break;
     case 15:
-      std::cout << ddShapeTypeNames[15] << " " << ssn.name(ish) << " " <<  ddpseudotrap;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(1) << " " <<  DDSolidShape::ddtrunctubs;
       break;
     case 16:
-      std::cout << ddShapeTypeNames[16] << " " << ssn.name(ish) << " " <<  ddtrunctubs;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddsphere;
       break;
     case 17:
-      std::cout << ddShapeTypeNames[17] << " " << ssn.name(ish) << " " <<  ddsphere;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddellipticaltube;
       break;
     case 18:
-      std::cout << ddShapeTypeNames[18] << " " << ssn.name(ish) << " " <<  ddorb;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(9) << "\t" << ssn.name(ish) << std::setw(9) << "\t" <<  DDSolidShape::ddcuttubs;
       break;
     case 19:
-      std::cout << ddShapeTypeNames[19] << " " << ssn.name(ish) << " " <<  ddellipticaltube;
-      break;
-    case 20:
-      std::cout << ddShapeTypeNames[20] << " " << ssn.name(ish) << " " <<  ddellipsoid;
-      break;
-    case 21:
-      std::cout << ddShapeTypeNames[21] << " " << ssn.name(ish) << " " <<  ddparallelepiped;
-      break;
-    case 22:
-      std::cout << ddShapeTypeNames[22] << " " << ssn.name(ish) << " " <<  ddcuttubs;
+      std::cout << index << ":" << std::setw(4) << "\t" << ddShapeTypeNames[index] << std::setw(1) << "\t" << ssn.name(ish) << std::setw(3) << "\t" <<  DDSolidShape::ddextrudedpolygon;
       break;
     default:
       std::cout << "ERROR! No such shape!";

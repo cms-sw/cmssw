@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import Validation.RecoTau.ValidationUtils as Utils
 import copy
@@ -8,6 +9,7 @@ import os
 
 
 """
+import six
 
    RecoTauValidation_cfi.py
 
@@ -111,7 +113,8 @@ GenericTriggerSelectionParameters = cms.PSet(
    verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
 )
 
-proc.templateAnalyzer = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+proc.templateAnalyzer = DQMEDAnalyzer(
    "TauTagValidation",
    StandardMatchingParameters,
    GenericTriggerSelection = GenericTriggerSelectionParameters,
@@ -220,7 +223,8 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-proc.efficiencies = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+proc.efficiencies = DQMEDHarvester(
    "TauDQMHistEffProducer",
    plots = plotPset    
    )
@@ -252,7 +256,7 @@ PLOTTING
 
 """
 
-loadTau = cms.EDAnalyzer("TauDQMFileLoader",
+loadTau = DQMEDAnalyzer("TauDQMFileLoader",
   test = cms.PSet(
     #inputFileNames = cms.vstring('/afs/cern.ch/user/f/friis/scratch0/MyValidationArea/310pre6NewTags/src/Validation/RecoTau/test/CMSSW_3_1_0_pre6_ZTT_0505Fixes.root'),
     inputFileNames = cms.vstring('/opt/sbg/cms/ui4_data1/dbodin/CMSSW_3_5_1/src/TauID/QCD_recoFiles/TauVal_CMSSW_3_6_0_QCD.root'),
@@ -393,7 +397,7 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of HPS Efficiencies
 #
 ##################################################
-## plotHPSEfficiencies = cms.EDAnalyzer("TauDQMHistPlotter",
+## plotHPSEfficiencies = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                      standardDrawingStuff,
 ##                                      standardCompareTestAndReference,
 ##                                      drawJobs = Utils.SpawnDrawJobs(RunHPSValidation, plotPset),
@@ -409,7 +413,7 @@ standardCompareTestAndReference = cms.PSet(
 #   The plotting of all the Shrinking cone leading pion efficiencies
 #
 ##################################################
-## plotPFTauHighEfficiencyEfficienciesLeadingPion = cms.EDAnalyzer("TauDQMHistPlotter",
+## plotPFTauHighEfficiencyEfficienciesLeadingPion = DQMEDAnalyzer("TauDQMHistPlotter",
 ##                                                                 standardDrawingStuff,
 ##                                                                 standardCompareTestAndReference,
 ##                                                                 drawJobs = Utils.SpawnDrawJobs(PFTausHighEfficiencyLeadingPionBothProngs, plotPset),
@@ -470,8 +474,8 @@ def ConvertDrawJobToLegacyCompare(input):
    if not hasattr(input, "drawJobs"):
       return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in myDrawJobs.iteritems():
-      print drawJobData
+   for drawJobName, drawJobData in six.iteritems(myDrawJobs):
+      print(drawJobData)
       if not drawJobData.plots.pythonTypeName() == "cms.PSet":
          continue
       pSetToInsert = cms.PSet(
@@ -502,9 +506,9 @@ def MakeLabeler(TestLabel, ReferenceLabel):
          if module.processes.hasParameter(['test', 'legendEntry']) and module.processes.hasParameter([ 'reference', 'legendEntry']):
             module.processes.test.legendEntry = TestLabel
             module.processes.reference.legendEntry = ReferenceLabel
-            print "Set test label to %s and reference label to %s for plot producer %s" % (TestLabel, ReferenceLabel, module.label())
+            print("Set test label to %s and reference label to %s for plot producer %s" % (TestLabel, ReferenceLabel, module.label()))
          else:
-            print "ERROR in RecoTauValidation_cfi::MakeLabeler - trying to set test/reference label but %s does not have processes.(test/reference).legendEntry parameters!" % module.label()
+            print("ERROR in RecoTauValidation_cfi::MakeLabeler - trying to set test/reference label but %s does not have processes.(test/reference).legendEntry parameters!" % module.label())
    return labeler
 
 def SetYmodulesToLog(matchingNames = []):
@@ -512,7 +516,7 @@ def SetYmodulesToLog(matchingNames = []):
    def yLogger(module):
       ''' set a module to use log scaling in the yAxis'''
       if hasattr(module, 'drawJobs'):
-         print "EK DEBUG"
+         print("EK DEBUG")
          drawJobParamGetter = lambda subName : getattr(module.drawJobs, subName)
          #for subModule in [getattr(module.drawJobs, subModuleName) for subModuleName in dir(module.drawJobs)]:
          attrNames = dir(module.drawJobs)
@@ -521,7 +525,7 @@ def SetYmodulesToLog(matchingNames = []):
             if len(matchingNames) == 0:
                matchedNames = ['take','everything','and','dont','bother']
             if hasattr(subModule, "yAxis") and len(matchedNames):
-               print "Setting drawJob: ", subModuleName, " to log scale."
+               print("Setting drawJob: ", subModuleName, " to log scale.")
                subModule.yAxis = cms.string('fakeRate') #'fakeRate' configuration specifies the log scaling
          if len(matchingNames) == 0: 
             module.yAxes.efficiency.maxY_log = 40
@@ -538,7 +542,7 @@ def SetBaseDirectory(Directory):
          newPath = os.path.join(newPath, oldPath)
          if not os.path.exists(newPath):
             os.makedirs(newPath)
-         print newPath
+         print(newPath)
          module.outputFilePath = cms.string("%s" % newPath)
    return BaseDirectorizer
 
@@ -549,7 +553,7 @@ def RemoveComparisonPlotCommands(module):
       for drawJob in drawJobs:
          if drawJob != "TauIdEffStepByStep":
             module.drawJobs.__delattr__(drawJob)
-            print "Removing comparison plot", drawJob
+            print("Removing comparison plot", drawJob)
 
 def SetPlotDirectory(myPlottingSequence, directory):
    myFunctor = ApplyFunctionToSequence(SetBaseDirectory(directory))

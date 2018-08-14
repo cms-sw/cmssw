@@ -18,8 +18,8 @@ class AbstractConfReconstructor : public VertexReconstructor
      */
     virtual void configure ( const edm::ParameterSet & ) = 0;
     virtual edm::ParameterSet defaults() const = 0;
-    virtual ~AbstractConfReconstructor() {};
-    AbstractConfReconstructor * clone() const = 0;
+    ~AbstractConfReconstructor() override {};
+    AbstractConfReconstructor * clone() const override = 0;
 };
 
 #endif

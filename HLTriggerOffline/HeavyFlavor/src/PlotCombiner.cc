@@ -19,7 +19,7 @@ using namespace std;
 class PlotCombiner : public DQMEDHarvester{
   public:
     PlotCombiner(const edm::ParameterSet& pset);
-    virtual ~PlotCombiner();
+    ~PlotCombiner() override;
   private:
   void makePlot(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);
 
@@ -55,14 +55,14 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
   for(size_t i=0; i<inputMEnames.size(); i++){
     string MEname = myDQMrootFolder+"/"+inputMEnames[i];
     MonitorElement *ME = igetter_.get(MEname);
-    if(ME==0){
+    if(ME==nullptr){
       LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find ME: "<<MEname<<endl;
       continue;
     }
     histos.push_back( ME->getTH1() );
     labels.push_back( inputLabels[i] );
   }
-  if(histos.size()==0){
+  if(histos.empty()){
     return;
   }
   //figure out the output directory name

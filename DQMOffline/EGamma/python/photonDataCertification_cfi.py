@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
 ################# Photon Certification #########################
-photonDataCertification = cms.EDAnalyzer("PhotonDataCertification",
+photonDataCertification = DQMEDHarvester("PhotonDataCertification",
                               verbose = cms.bool(False)
                                          )

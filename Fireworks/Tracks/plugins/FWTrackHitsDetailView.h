@@ -4,12 +4,13 @@
 // Class  :     FWTrackHitsDetailView
 
 #include "Rtypes.h"
-
+#include "TVector3.h"
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 class TGLEmbeddedViewer;
 class FWIntValueListener;
+class TGSlider;
 namespace reco {
    class Track;
 }
@@ -19,13 +20,13 @@ class FWTrackHitsDetailView: public FWDetailViewGL<reco::Track>,
 {
 public:
    FWTrackHitsDetailView();
-   virtual ~FWTrackHitsDetailView();
+   ~FWTrackHitsDetailView() override;
 
    void pickCameraCenter();
    void transparencyChanged(int);
    void rnrLabels();
 
-   virtual void setBackgroundColor(Color_t);
+   void setBackgroundColor(Color_t) override;
 
 protected:
    TEveElementList*    m_modules;
@@ -35,13 +36,13 @@ protected:
    FWIntValueListener* m_sliderListener;
   
 private:
-   FWTrackHitsDetailView(const FWTrackHitsDetailView&); // stop default
-   const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&); // stop default
+   FWTrackHitsDetailView(const FWTrackHitsDetailView&) = delete; // stop default
+   const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&) = delete; // stop default
 
    using FWDetailView<reco::Track>::build;
-   void build (const FWModelId &id, const reco::Track*);
+   void build (const FWModelId &id, const reco::Track*) override;
    using FWDetailView<reco::Track>::setTextInfo;
-   void setTextInfo (const FWModelId &id, const reco::Track*); 
+   void setTextInfo (const FWModelId &id, const reco::Track*) override; 
    void makeLegend( void );
 
    void

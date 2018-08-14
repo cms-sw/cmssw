@@ -84,9 +84,9 @@ pat::helper::VertexingHelper::associate(const reco::Candidate &c) const {
 
 reco::TrackBaseRef pat::helper::VertexingHelper::getTrack_(const reco::Candidate &c) const  {
     const reco::RecoCandidate   *rc  = dynamic_cast<const reco::RecoCandidate *>(&c);
-    if (rc  != 0)  { return rc->bestTrackRef(); }
+    if (rc  != nullptr)  { return rc->bestTrackRef(); }
     const reco::PFCandidate *pfc = dynamic_cast<const reco::PFCandidate *>(&c);
-    if (pfc != 0) { return reco::TrackBaseRef(pfc->trackRef()); }
+    if (pfc != nullptr) { return reco::TrackBaseRef(pfc->trackRef()); }
 
     return reco::TrackBaseRef();
 }

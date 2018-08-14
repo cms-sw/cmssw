@@ -1,5 +1,5 @@
-#ifndef L1Trigger_GlobalAlgBlk_h
-#define L1Trigger_GlobalAlgBlk_h
+#ifndef DataFormats_L1TGlobal_GlobalAlgBlk_h
+#define DataFormats_L1TGlobal_GlobalAlgBlk_h
 
 /**
 * \class GlobalAlgBlk
@@ -24,6 +24,7 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 //#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 // forward declarations
 
@@ -31,13 +32,15 @@
 class GlobalAlgBlk;
 typedef BXVector<GlobalAlgBlk> GlobalAlgBlkBxCollection;
 
+typedef l1t::ObjectRef<GlobalAlgBlk> GlobalAlgBlkRef;
+typedef l1t::ObjectRefBxCollection<GlobalAlgBlk> GlobalAlgBlkRefBxCollection;
+typedef l1t::ObjectRefPair<GlobalAlgBlk> GlobalAlgBlkRefPair;
+typedef l1t::ObjectRefPairBxCollection<GlobalAlgBlk> GlobalAlgBlkRefPairBxCollection;
+
 // class interface
 
 class GlobalAlgBlk
 {
-
-    
-
 public:
     /// constructors
     GlobalAlgBlk(); // empty constructor, all members set to zero;
@@ -47,9 +50,8 @@ public:
     /// destructor
     virtual ~GlobalAlgBlk();
 
-
 public:
-    const static unsigned int maxPhysicsTriggers = 512;
+    static constexpr unsigned int maxPhysicsTriggers = 512;
 
     /// set simple members
     void setL1MenuUUID(int uuid)      { m_orbitNr       = uuid; }
@@ -95,9 +97,12 @@ public:
     /// reset the content of a GlobalAlgBlk
     void reset();
 
+    // compare the content of this GlobalAlgBlk with another one
+    virtual bool operator==(const GlobalAlgBlk& rhs) const;
+    virtual inline bool operator!=(const GlobalAlgBlk& rhs) const { return !(operator==(rhs)); };
+
     /// pretty print the content of a GlobalAlgBlk
     void print(std::ostream& myCout) const;
-
 
 private:
 
@@ -120,13 +125,9 @@ private:
     //Prescale Column
     int m_preScColumn;
 
-   
     std::vector<bool> m_algoDecisionInitial;
     std::vector<bool> m_algoDecisionPreScaled;   // -> Interm
     std::vector<bool> m_algoDecisionFinal;
-
-
-
 };
 
-#endif /*L1Trigger_GlobalAlgBlk_h*/
+#endif /*DataFormats_L1TGlobal_GlobalAlgBlk_h*/

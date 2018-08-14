@@ -40,7 +40,7 @@
 using namespace edm;
 using namespace std;
 
-DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : trigGeomUtils(0) {
+DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: Constructor" << endl;
 
@@ -69,7 +69,11 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
   if (processTM) processTags.push_back("TM");
-  if (processDDU) processTags.push_back("DDU");
+  if (processDDU) {processTags.push_back("DDU");
+		  ddu_Token_   = consumes<DTLocalTriggerCollection>(
+      parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU"));
+  	}
+  if (!processTM && !processDDU) LogError ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: Error, no trigger source (DDU or Twinmux) has been selected!!" <<endl;
 
 }
 
@@ -112,11 +116,6 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
   }
 }
 
-void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") <<"[DTTriggerEfficiencyTask]: Begin of LS transition"<<endl;
-
-}
 
 void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
@@ -131,7 +130,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
   e.getByToken(tm_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
-
+  //empty from dttfDigis, needs emulator working?
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
   vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
   for(; iph !=iphe ; ++iph) {
@@ -148,6 +147,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
   }
 
   //Getting Best DDU Stuff
+  if (processDDU){
   Handle<DTLocalTriggerCollection> trigsDDU;
   e.getByToken(ddu_Token_, trigsDDU);
   DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
@@ -167,6 +167,7 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     }
 
   }
+  }//processDDU
 
   //Getting Best Segments
   vector<const DTRecSegment4D*> best4DSegments;
@@ -237,10 +238,11 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
       vector<string>::const_iterator tagIt  = processTags.begin();
       vector<string>::const_iterator tagEnd = processTags.end();
       for (; tagIt!=tagEnd; ++tagIt) {
-        int qual   = (*tagIt) == "TM" ?
+	int qual = (*tagIt) == "TM" ?
           phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1 :
           phBestDDU.find(dtChId) != phBestDDU.end() ? phBestDDU[dtChId]->quality() : -1;
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector,station);
+
         if ( qual>=0 && qual<7 ) {
           innerWhME.find((*tagIt) + "_TrigEffNum")->second->Fill(scsector,station);
           if ( qual>=4 ) {

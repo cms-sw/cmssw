@@ -26,7 +26,7 @@ void AlignmentMonitorGeneric::book()
   auto alignableObjectId =
     AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
 
-  const std::vector<Alignable*>& alignables = pStore()->alignables();
+  const auto& alignables = pStore()->alignables();
 
   unsigned int nAlignable = alignables.size();
   unsigned int nResidName = residNames.size();
@@ -37,7 +37,7 @@ void AlignmentMonitorGeneric::book()
 
     Hist1Ds& hists = m_resHists[ali];
 
-    hists.resize(nResidName, 0);
+    hists.resize(nResidName, nullptr);
 
     align::ID id = ali->id();
     align::StructureType type = ali->alignableObjectId();
@@ -59,7 +59,7 @@ void AlignmentMonitorGeneric::book()
     }
   }
 
-  m_trkHists.resize(6, 0);
+  m_trkHists.resize(6, nullptr);
   
   m_trkHists[0] = book1D("/iterN/", "pt"  , "track p_{t} (GeV)" , nBin_,   0.0,100.0);
   m_trkHists[1] = book1D("/iterN/", "eta" , "track #eta"        , nBin_, - 3.0,  3.0);

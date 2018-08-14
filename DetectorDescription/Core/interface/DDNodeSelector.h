@@ -3,6 +3,9 @@
 
 #include <string>
 
+class DDCompactView;
+class DDGeoHistory;
+
 /** given a part selection std::string, a node selector calculates all expanded nodes in the geometry tree */
 class DDNodeSelector
 {

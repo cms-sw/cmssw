@@ -2,9 +2,11 @@
 
 
 ### Various set of customise functions needed for embedding
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Utilities import cleanUnscheduled
 
+import six
 
 ################################ Customizer for skimming ###########################
 ### There are four different parts.
@@ -66,7 +68,7 @@ to_bemanipulate.append(module_manipulate(module_name = 'rpcRecHits', manipulator
 
 
 def modify_outputModules(process, keep_drop_list = [], module_veto_list = [] ):
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
+	outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
 	for outputModule in outputModulesList:
 		if outputModule in module_veto_list:
 			continue
@@ -109,7 +111,7 @@ def customiseSelecting(process,reselect=False):
 	process.selecting = cms.Path(process.makePatMuonsZmumuSelection)
 	process.schedule.insert(-1, process.selecting)
 
-	outputModulesList = [key for key,value in process.outputModules.iteritems()]
+	outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
 	for outputModule in outputModulesList:
 		outputModule = getattr(process, outputModule)
 		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("selecting"))
@@ -185,6 +187,8 @@ def keepSimulated():
 	ret_vstring.append("keep *_standAloneMuons_*_SIMembedding")
 	ret_vstring.append("keep *_glbTrackQual_*_SIMembedding")
 	ret_vstring.append("keep *_generator_*_SIMembedding")
+	ret_vstring.append("keep *_addPileupInfo_*_SIMembedding")
+	ret_vstring.append("keep *_slimmedAddPileupInfo_*_*")
 	return ret_vstring
 
 
@@ -204,7 +208,7 @@ def customiseLHE(process, changeProcessname=True,reselect=False):
 	process.schedule.insert(0,process.lheproduction)
 	
 	
-        process = customisoptions(process)
+	process = customisoptions(process)
 	return modify_outputModules(process,[keepSelected(dataTier),keepCleaned(), keepLHE()],["MINIAODoutput"])
 
 
@@ -220,7 +224,7 @@ def customiseGenerator(process, changeProcessname=True,reselect=False):
 	
 	process.load('TauAnalysis.MCEmbeddingTools.EmbeddingVertexCorrector_cfi')
 	process.VtxSmeared = process.VtxCorrectedToInput.clone()
-	print "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
+	print("Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector.")
 
 	# Remove BeamSpot Production, use the one from selected data instead.
 	process.reconstruction.remove(process.offlineBeamSpot)
@@ -253,9 +257,66 @@ def customiseGenerator_Reselect(process):
 def keepMerged(dataTier="SELECT"):
 	ret_vstring = cms.untracked.vstring()
 	ret_vstring.append("drop *_*_*_"+dataTier)
+	ret_vstring.append("keep *_prunedGenParticles_*_MERGE")
 	ret_vstring.append("keep *_generator_*_SIMembedding")
 	return ret_vstring
 
+
+def customiseKeepPrunedGenParticles(process,reselect=False):
+	if reselect:
+		dataTier="RESELECT"
+	else:
+		dataTier="SELECT"
+	
+	process.load('PhysicsTools.PatAlgos.slimming.genParticles_cff')
+	process.merge_step += process.prunedGenParticlesWithStatusOne
+	process.load('PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi')
+	process.merge_step += process.prunedGenParticles
+	process.load('PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi')
+	process.merge_step += process.packedGenParticles
+	
+	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi')
+	process.merge_step += process.muonMatch
+	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi')
+	process.merge_step += process.electronMatch
+	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.photonMatch_cfi')
+	process.merge_step += process.photonMatch
+	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi')
+	process.merge_step += process.tauMatch
+	process.load('PhysicsTools.JetMCAlgos.TauGenJets_cfi')
+	process.merge_step += process.tauGenJets
+	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff')
+	process.merge_step += process.patJetPartons
+	process.load('PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi')
+	process.merge_step += process.patJetPartonMatch
+	
+	process.muonMatch.matched = "prunedGenParticles"
+	process.electronMatch.matched = "prunedGenParticles"
+	process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+	process.photonMatch.matched = "prunedGenParticles"
+	process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+	process.tauMatch.matched = "prunedGenParticles"
+	process.tauGenJets.GenParticles = "prunedGenParticles"
+	##Boosted taus
+	#process.tauMatchBoosted.matched = "prunedGenParticles"
+	#process.tauGenJetsBoosted.GenParticles = "prunedGenParticles"
+	process.patJetPartons.particles = "prunedGenParticles"
+	process.patJetPartonMatch.matched = "prunedGenParticles"
+	process.patJetPartonMatch.mcStatus = [ 3, 23 ]
+	process.patJetGenJetMatch.matched = "slimmedGenJets"
+	process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
+	process.patMuons.embedGenMatch = False
+	process.patElectrons.embedGenMatch = False
+	process.patPhotons.embedGenMatch = False
+	process.patTaus.embedGenMatch = False
+	process.patTausBoosted.embedGenMatch = False
+	process.patJets.embedGenPartonMatch = False
+	#also jet flavour must be switched
+	process.patJetFlavourAssociation.rParam = 0.4
+	
+	process.schedule.insert(0,process.merge_step)
+	process = customisoptions(process)  
+	return modify_outputModules(process, [keepMerged(dataTier)])
 
 
 def customiseMerging(process, changeProcessname=True,reselect=False):
@@ -284,7 +345,7 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 		if "MERGE" in akt_manimod.steps:
 	#if akt_manimod.module_name != 'particleFlowTmp':
 	#  continue
-			print akt_manimod.module_name
+			print(akt_manimod.module_name)
 			mergCollections_in = cms.VInputTag()
 			for instance in akt_manimod.instance:
 				mergCollections_in.append(cms.InputTag(akt_manimod.merge_prefix+akt_manimod.module_name,instance,"SIMembedding"))
@@ -296,6 +357,7 @@ def customiseMerging(process, changeProcessname=True,reselect=False):
 			process.merge_step +=getattr(process, akt_manimod.module_name)
 
 
+	process.merge_step += process.doAlldEdXEstimators
 	process.merge_step += process.vertexreco
 	process.unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag("offlineBeamSpot","",dataTier)
 	process.ak4CaloJetsForTrk.srcPVs = cms.InputTag("firstStepPrimaryVertices","",dataTier)
@@ -370,9 +432,15 @@ def customiseLHEandCleaning_Reselect(process):
 ################################ additionla Customizer ###########################
 
 def customisoptions(process):
-	if not hasattr(process, "options"): 
-	  process.options = cms.untracked.PSet()
-	process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')	
+	if not hasattr(process, "options"):
+		process.options = cms.untracked.PSet()
+	process.options.emptyRunLumiMode = cms.untracked.string('doNotHandleEmptyRunsAndLumis')
+	if not hasattr(process, "bunchSpacingProducer"):
+		process.bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
+	process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(25)
+	process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
+	process.options.numberOfThreads = cms.untracked.uint32(1)
+	process.options.numberOfStreams = cms.untracked.uint32(0)
 	return process
 
 ############################### MC specific Customizer ###########################
@@ -382,43 +450,47 @@ def customiseFilterZToMuMu(process):
 	process.ZToMuMuFilter = cms.Path(process.dYToMuMuGenFilter)
 	process.schedule.insert(-1,process.ZToMuMuFilter)
 	return process
-      
-      
-      
+
+def customiseFilterTTbartoMuMu(process):
+	process.load("TauAnalysis.MCEmbeddingTools.TTbartoMuMuGenFilter_cfi")
+	process.MCFilter = cms.Path(process.TTbartoMuMuGenFilter)
+	return customiseMCFilter(process)
+
+def customiseMCFilter(process):
+	process.schedule.insert(-1,process.MCFilter)
+	outputModulesList = [key for key,value in six.iteritems(process.outputModules)]
+	for outputModule in outputModulesList:
+		outputModule = getattr(process, outputModule)
+		outputModule.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("MCFilter"))
+	return process
+
 def fix_input_tags(process, formodules = ["generalTracks","cscSegments","dt4DSegments","rpcRecHits"]):
-  def change_tags_process(test_input):
-    if isinstance(test_input, cms.InputTag):
-      if test_input.getModuleLabel() in formodules:
-	test_input.setProcessName(process._Process__name)
+	def change_tags_process(test_input):
+		if isinstance(test_input, cms.InputTag):
+			if test_input.getModuleLabel() in formodules:
+				test_input.setProcessName(process._Process__name)
 
-  def search_for_tags(pset):
-    if isinstance(pset, dict):
-      for key in pset:
-	if isinstance(pset[key], cms.VInputTag):
-	  for akt_inputTag in pset[key]:
-	    change_tags_process(akt_inputTag)
-	elif isinstance(pset[key], cms.PSet):
-	  search_for_tags(pset[key].__dict__)
-	elif isinstance(pset[key], cms.VPSet):
-	  for akt_pset in pset[key]:
-	    search_for_tags(akt_pset.__dict__)
-	else:
-	  change_tags_process(pset[key])
-    else:
-      print "must be python dict not a ",type(pset)
-    
-  for module in process.producers_():
-    search_for_tags(getattr(process, module).__dict__)
-  for module in process.filters_():
-    search_for_tags(getattr(process, module).__dict__)
-  for module in process.analyzers_():
-    search_for_tags(getattr(process, module).__dict__)
+	def search_for_tags(pset):
+		if isinstance(pset, dict):
+			for key in pset:
+				if isinstance(pset[key], cms.VInputTag):
+					for akt_inputTag in pset[key]:
+						change_tags_process(akt_inputTag)
+				elif isinstance(pset[key], cms.PSet):
+					search_for_tags(pset[key].__dict__)
+				elif isinstance(pset[key], cms.VPSet):
+					for akt_pset in pset[key]:
+						search_for_tags(akt_pset.__dict__)
+				else:
+					change_tags_process(pset[key])
+		else:
+			print("must be python dict not a ",type(pset))
+			
+	for module in process.producers_():
+		search_for_tags(getattr(process, module).__dict__)
+	for module in process.filters_():
+		search_for_tags(getattr(process, module).__dict__)
+	for module in process.analyzers_():
+		search_for_tags(getattr(process, module).__dict__)
 
-  return process
-      
-      
-      
-      
-      
-      
-      
+	return process

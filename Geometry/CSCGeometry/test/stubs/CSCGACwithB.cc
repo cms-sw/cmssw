@@ -2,7 +2,7 @@
 // at centre of each CSC (Nikolai Terentiev needed the values for CSC gain studies.)
 // Tim Cox 11.03.2011 - drop ME1/A 
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,7 +22,7 @@ class CSCGACwithB : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGACwithB( const edm::ParameterSet& );
-  ~CSCGACwithB();
+  ~CSCGACwithB() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -82,9 +82,7 @@ void
      "  phi(0)" << std::endl;
    std::cout << dashedLine_ << std::endl;
 
-   for( auto it = vc.begin(); it != vc.end(); ++it ){
-
-      const CSCChamber* chamber = *it;
+   for(auto chamber : vc){
 
       if( chamber ){
         ++jcount;

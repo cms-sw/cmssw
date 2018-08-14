@@ -1,6 +1,7 @@
 #include "DataFormats/Scouting/interface/ScoutingCaloJet.h"
 #include "DataFormats/Scouting/interface/ScoutingPFJet.h"
 #include "DataFormats/Scouting/interface/ScoutingParticle.h"
+#include "DataFormats/Scouting/interface/ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/ScoutingVertex.h"
 #include "DataFormats/Scouting/interface/ScoutingElectron.h"
 #include "DataFormats/Scouting/interface/ScoutingMuon.h"
@@ -18,5 +19,6 @@ namespace DataFormats_Scouting {
     edm::Wrapper<ScoutingElectronCollection> sc5;
     edm::Wrapper<ScoutingMuonCollection> sc6;
     edm::Wrapper<ScoutingPhotonCollection> sc7;
+    edm::Wrapper<ScoutingTrackCollection> sc8;
   };
 }

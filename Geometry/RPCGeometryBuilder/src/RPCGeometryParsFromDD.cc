@@ -33,18 +33,10 @@ void RPCGeometryParsFromDD::build(const DDCompactView* cview,
 {
   const std::string attribute = "ReadOutName";
   const std::string value     = "MuonRPCHits";
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonRPC's
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, // name & value of a variable
-                     DDCompOp::matches,
-                     DDLogOp::AND,
-                     true, // compare strings otherwise doubles
-                     true // use merged-specifics or simple-specifics
-                     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
 
   this->buildGeometry(fview, muonConstants, rgeo);
 }
@@ -67,8 +59,8 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
 
     std::vector<const DDsvalues_type* > specs(fview.specifics());
     int nStrips=0;
-    for (auto is=specs.begin();is!=specs.end(); is++){
-      if (DDfetch( *is, numbOfStrips)){
+    for (auto & spec : specs){
+      if (DDfetch( spec, numbOfStrips)){
         nStrips=int(numbOfStrips.doubles()[0]);
       }
     }
@@ -78,9 +70,9 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
 
     const std::string name=fview.logicalPart().name().name();
     const std::vector<std::string> strpars = {name};
-    DDTranslation tran = fview.translation();
+    const DDTranslation& tran = fview.translation();
 
-    DDRotationMatrix rota = fview.rotation();//.Inverse();
+    const DDRotationMatrix& rota = fview.rotation();//.Inverse();
     DD3Vector x, y, z;
     rota.GetComponents(x,y,z);
     std::vector<double> pars;

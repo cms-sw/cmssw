@@ -27,25 +27,28 @@ class RecHitTask : public hcaldqm::DQTask
 {
 	public:
 		RecHitTask(edm::ParameterSet const&);
-		virtual ~RecHitTask() {}
+		~RecHitTask() override {}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag		_tagHBHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
-		edm::EDGetTokenT<HBHERecHitCollection> _tokHBHE;
-		edm::EDGetTokenT<HORecHitCollection>	 _tokHO;
+		edm::InputTag		_tagPreHF;
+		bool _hfPreRecHitsAvailable;
+		edm::EDGetTokenT<HBHERecHitCollection>	_tokHBHE;
+		edm::EDGetTokenT<HORecHitCollection>	_tokHO;
 		edm::EDGetTokenT<HFRecHitCollection>	_tokHF;
+		edm::EDGetTokenT<HFPreRecHitCollection>	_tokPreHF;
 
 		double _cutE_HBHE, _cutE_HO, _cutE_HF;
 		double _thresh_unihf;
@@ -64,7 +67,6 @@ class RecHitTask : public hcaldqm::DQTask
 		};
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		//	Filters
@@ -72,6 +74,7 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDsVME;
 		hcaldqm::filter::HashFilter _filter_FEDsuTCA;
+		hcaldqm::filter::HashFilter _filter_HF;
 
 		//	Energy. Just filling. No Summary Generation
 		hcaldqm::Container1D _cEnergy_Subdet;
@@ -93,6 +96,7 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf2D _cTimingCut_ElectronicsuTCA;
 		hcaldqm::ContainerProf2D _cTimingCut_depth;
 		hcaldqm::ContainerProf1D _cTimingCutvsLS_FED;
+		hcaldqm::ContainerProf1D _cTimingCutvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cTimingCutvsieta_Subdet;	//	online only
 		hcaldqm::ContainerProf1D _cTimingCutvsiphi_SubdetPM; //	online only
 		hcaldqm::ContainerProf1D _cTimingCutvsBX_SubdetPM;	// online only
@@ -119,6 +123,11 @@ class RecHitTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cOccupancyCutvsBX_Subdet;	// online only!
 		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF, _xUni;
+
+		// QIE10 dual anode histograms
+		hcaldqm::Container2D _cDAAsymmetryVsCharge_SubdetPM;
+		hcaldqm::ContainerProf2D _cDAAsymmetryMean_cut_depth;
+		hcaldqm::Container1D _cDAAsymmetry_cut_SubdetPM;
 
 		//	tracks the unknown ids
 		MonitorElement *meUnknownIds1LS;

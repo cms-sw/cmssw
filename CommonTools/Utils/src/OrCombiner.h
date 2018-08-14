@@ -18,7 +18,7 @@ namespace reco {
     struct OrCombiner : public SelectorBase {
       OrCombiner( SelectorPtr lhs, SelectorPtr rhs ) :
 	lhs_( lhs ), rhs_( rhs ) {}
-      virtual bool operator()( const edm::ObjectWithDict& o ) const {
+      bool operator()( const edm::ObjectWithDict& o ) const override {
 	return (*lhs_)( o ) || (*rhs_)( o );
       }
     private:

@@ -22,7 +22,7 @@ def setup(process, binary_files, tree_files, run_start_geometry):
     # --------------------------------------------------------------------------
     from CondCore.CondDB.CondDB_cfi import CondDB
     process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-        CondDB,
+        CondDB.clone(connect = "sqlite_file:alignments_MP.db"),
         timetype = cms.untracked.string("runnumber"),
         toPut = cms.VPSet(
             cms.PSet(
@@ -48,7 +48,6 @@ def setup(process, binary_files, tree_files, run_start_geometry):
                 tag = cms.string("SiStripBackPlaneCorrection"))
         )
     )
-    process.PoolDBOutputService.connect = "sqlite_file:alignments_MP.db"
 
 
     # Reconfigure parts of the algorithm configuration
@@ -57,7 +56,15 @@ def setup(process, binary_files, tree_files, run_start_geometry):
     process.AlignmentProducer.algoConfig.mergeTreeFiles   = tree_files
 
 
-    # Set a new source and path.
+    # align calibrations to general settings
+    # --------------------------------------------------------------------------
+    for calib in process.AlignmentProducer.calibrations:
+        calib.saveToDB       = process.AlignmentProducer.saveToDB
+        calib.treeFile       = process.AlignmentProducer.algoConfig.treeFile
+        calib.mergeTreeFiles = process.AlignmentProducer.algoConfig.mergeTreeFiles
+
+
+    # Configure the empty source to include all needed runs
     # --------------------------------------------------------------------------
     iovs = mps_tools.make_unique_runranges(process.AlignmentProducer)
     number_of_events = iovs[-1] - iovs[0] + 1
@@ -68,5 +75,7 @@ def setup(process, binary_files, tree_files, run_start_geometry):
         "EmptySource",
         firstRun = cms.untracked.uint32(run_start_geometry),
         numberEventsInRun = cms.untracked.uint32(1))
-    process.dump = cms.EDAnalyzer("EventContentAnalyzer")
-    process.p = cms.Path(process.dump)
+
+    # Define the executed path
+    # --------------------------------------------------------------------------
+    process.p = cms.Path(process.AlignmentProducer)

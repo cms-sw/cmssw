@@ -30,14 +30,16 @@ namespace pat {
   public:
     
     explicit PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig );
-    ~PATTriggerObjectStandAloneUnpacker() {};
+    ~PATTriggerObjectStandAloneUnpacker() override {};
     
   private:
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
     
     const edm::EDGetTokenT< TriggerObjectStandAloneCollection > patTriggerObjectsStandAloneToken_;
     const edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
+    bool unpackFilterLabels_;
+    const edm::EDGetTokenT< std::vector<std::string> > filterLabelsToken_;
     
   };
   
@@ -50,6 +52,7 @@ using namespace pat;
 PATTriggerObjectStandAloneUnpacker::PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig )
 : patTriggerObjectsStandAloneToken_( consumes< TriggerObjectStandAloneCollection >( iConfig.getParameter< edm::InputTag >( "patTriggerObjectsStandAlone" ) ) )
 , triggerResultsToken_( consumes< edm::TriggerResults >( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ) )
+, unpackFilterLabels_( iConfig.getParameter< bool >("unpackFilterLabels") )
 {
   produces< TriggerObjectStandAloneCollection >();
 }
@@ -67,6 +70,7 @@ void PATTriggerObjectStandAloneUnpacker::produce( edm::StreamID, edm::Event & iE
     TriggerObjectStandAlone patTriggerObjectStandAloneUnpacked( patTriggerObjectsStandAlone->at( iTrigObj ) );
     const edm::TriggerNames & names = iEvent.triggerNames( *triggerResults );
     patTriggerObjectStandAloneUnpacked.unpackPathNames( names );
+    if (unpackFilterLabels_) patTriggerObjectStandAloneUnpacked.unpackFilterLabels(iEvent,*triggerResults );
     patTriggerObjectsStandAloneUnpacked->push_back( patTriggerObjectStandAloneUnpacked );
   }
 

@@ -241,7 +241,7 @@ TopDecaySubset::checkShowerModel(const std::vector<const reco::GenParticle*>& to
     }
   }
   // if neither Herwig nor Pythia like
-  if(tops.size()==0)
+  if(tops.empty())
     edm::LogInfo("decayChain")
       << " Failed to find top quarks in decay chain. Will assume that this a \n"
       << " non-top sample and produce an empty decaySubset.\n";
@@ -319,7 +319,7 @@ TopDecaySubset::checkWBosons(std::vector<const reco::GenParticle*>& tops) const
     else
       it++;
   }
-  if(tops.size()==0 && nTops!=0)
+  if(tops.empty() && nTops!=0)
     throw edm::Exception(edm::errors::LogicError,
 			 " Did not find a W boson with appropriate status for any of the top   \n"
 			 " quarks in this event. This means that the hadronization of the W    \n"
@@ -646,7 +646,7 @@ TopDecaySubset::addRadiation(int& idx, const reco::GenParticle::const_iterator p
       daughters.push_back( ++idx ); //push index of daughter
     }
   }
-  if(daughters.size()) {
+  if(!daughters.empty()) {
     refs_[ idxBuffer ] = daughters;
   }
 }
@@ -670,7 +670,7 @@ void TopDecaySubset::addRadiation(int& idx, const reco::GenParticle* part,
 			daughters.push_back(++idx); //push index of daughter
 		}
 	}
-	if (daughters.size()) {
+	if (!daughters.empty()) {
 		refs_[idxBuffer] = daughters;
 	}
 }
@@ -691,7 +691,7 @@ TopDecaySubset::addDaughters(int& idx, const reco::GenParticle::const_iterator p
 	addDaughters(idx,daughter,target);
       }
   }
-  if(daughters.size()) {
+  if(!daughters.empty()) {
     refs_[ idxBuffer ] = daughters;
   }
 }
@@ -719,7 +719,7 @@ TopDecaySubset::fillReferences(const reco::GenParticleRefProd& ref, reco::GenPar
       for(std::vector<int>::const_iterator daughter = daughters->second.begin();
 	  daughter!=daughters->second.end(); ++daughter){
 	reco::GenParticle* part = dynamic_cast<reco::GenParticle* > (&(*p));
-	if(part == 0){
+	if(part == nullptr){
 	 throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
 	}
 	part->addDaughter( reco::GenParticleRef(ref, *daughter) );

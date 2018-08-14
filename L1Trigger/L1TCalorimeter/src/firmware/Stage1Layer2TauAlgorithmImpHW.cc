@@ -22,15 +22,12 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpHW::Stage1Layer2TauAlgorithmImpHW(CaloParamsHelper* params) : params_(params)
+Stage1Layer2TauAlgorithmImpHW::Stage1Layer2TauAlgorithmImpHW(CaloParamsHelper const* params) : params_(params),
+    isoTauLut{ make_unique<Stage1TauIsolationLUT>(params_)}
 {
 
-  isoTauLut = new Stage1TauIsolationLUT(params_);
 }
 
-Stage1Layer2TauAlgorithmImpHW::~Stage1Layer2TauAlgorithmImpHW(){
-  delete isoTauLut;
-};
 
 
 
@@ -48,28 +45,28 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   int isoTauEtaMin = params_->isoTauEtaMin();
   int isoTauEtaMax = params_->isoTauEtaMax();
 
-  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::CaloRegion> subRegions;
 
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, params_);
+  RegionCorrection(regions, &subRegions, params_);
 
 
 
   // ----- need to cluster jets in order to compute jet isolation ----
-  std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  TwelveByTwelveFinder(0, subRegions, unCorrJets);
+  std::vector<l1t::Jet> unCorrJets;
+  TwelveByTwelveFinder(0, &subRegions, &unCorrJets);
 
-  std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *preSortTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *sortedTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *preGtIsoTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *preSortIsoTaus = new std::vector<l1t::Tau>();
-  std::vector<l1t::Tau> *sortedIsoTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> preGtTaus;
+  std::vector<l1t::Tau> preSortTaus;
+  std::vector<l1t::Tau> sortedTaus;
+  std::vector<l1t::Tau> preGtIsoTaus;
+  std::vector<l1t::Tau> preSortIsoTaus;
+  std::vector<l1t::Tau> sortedIsoTaus;
 
-  for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
-      region != subRegions->end(); region++) {
+  for(CaloRegionBxCollection::const_iterator region = subRegions.begin();
+      region != subRegions.end(); region++) {
     if(region->hwEta() < 4 || region->hwEta() > 17)
       continue;
 
@@ -89,8 +86,8 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
     int highestNeighborTauVeto=-1;
 
     //Find neighbor with highest Et
-    for(CaloRegionBxCollection::const_iterator neighbor = subRegions->begin();
-	neighbor != subRegions->end(); neighbor++) {
+    for(CaloRegionBxCollection::const_iterator neighbor = subRegions.begin();
+	neighbor != subRegions.end(); neighbor++) {
 
       int neighborPhi = neighbor->hwPhi();
       int neighborEta = neighbor->hwEta();
@@ -127,7 +124,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
       // compute relative jet isolation
       if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
 	if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
-	  int jetEt=AssociatedJetPt(region->hwEta(), region->hwPhi(),unCorrJets);
+	  int jetEt=AssociatedJetPt(region->hwEta(), region->hwPhi(),&unCorrJets);
 	  if (jetEt>0){
 	    unsigned int MAX_LUT_ADDRESS = params_->tauIsolationLUT()->maxSize()-1;
 	    // unsigned int lutAddress = isoLutIndex(tauEt,jetEt);
@@ -147,35 +144,26 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
       l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
 
-      preGtTaus->push_back(theTau);
+      preGtTaus.push_back(theTau);
       if(isoFlag)
-	preGtIsoTaus->push_back(theTau);
+	preGtIsoTaus.push_back(theTau);
     }
   }
 
   // TauToGtPtScales(params_, preGtTaus, preRankTaus);
   // TauToGtPtScales(params_, preGtIsoTaus, preRankIsoTaus);
-  calibrateAndRankTaus(params_,preGtTaus,preSortTaus);
-  calibrateAndRankTaus(params_,preGtIsoTaus, preSortIsoTaus);
+  calibrateAndRankTaus(params_,&preGtTaus,&preSortTaus);
+  calibrateAndRankTaus(params_,&preGtIsoTaus, &preSortIsoTaus);
 
-  SortTaus(preSortTaus, sortedTaus);
-  SortTaus(preSortIsoTaus, sortedIsoTaus);
+  SortTaus(&preSortTaus, &sortedTaus);
+  SortTaus(&preSortIsoTaus, &sortedIsoTaus);
 
-  TauToGtEtaScales(params_, sortedTaus, taus);
-  TauToGtEtaScales(params_, sortedIsoTaus, isoTaus);
+  TauToGtEtaScales(params_, &sortedTaus, taus);
+  TauToGtEtaScales(params_, &sortedIsoTaus, isoTaus);
 
   // set all filler taus to have isolation bit set
   for(std::vector<l1t::Tau>::iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
     iTau->setHwIso(1);
-
-  delete subRegions;
-  delete unCorrJets;
-  delete preGtTaus;
-  delete preSortTaus;
-  delete sortedTaus;
-  delete preGtIsoTaus;
-  delete preSortIsoTaus;
-  delete sortedIsoTaus;
 }
 
 

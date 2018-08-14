@@ -20,13 +20,12 @@ class Phase2TrackerMonitorDigi : public DQMEDAnalyzer{
 public:
   
   explicit Phase2TrackerMonitorDigi(const edm::ParameterSet&);
-  ~Phase2TrackerMonitorDigi();
+  ~Phase2TrackerMonitorDigi() override;
   void bookHistograms(DQMStore::IBooker & ibooker,
 		      edm::Run const &  iRun ,
-		      edm::EventSetup const &  iSetup );
-  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup); 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& iSetup);
+		      edm::EventSetup const &  iSetup ) override;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override; 
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   
   
   struct DigiMEs{

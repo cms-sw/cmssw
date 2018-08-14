@@ -1,17 +1,17 @@
 #include "DetectorDescription/Parser/src/DDLTubs.h"
-
-#include <map>
-#include <utility>
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 
+#include <map>
+#include <utility>
+
 class DDCompactView;
+
+using namespace dd::operators;
 
 DDLTubs::DDLTubs( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
@@ -44,8 +44,8 @@ DDLTubs::processElement( const std::string& name, const std::string& nmspace, DD
 					   ev.eval(nmspace, atts.find("dz")->second),
 					   ev.eval(nmspace, atts.find("rMin")->second),
 					   ev.eval(nmspace, atts.find("rMax")->second),
-					   0,
-					   360*deg );
+					   0_deg,
+					   360_deg );
   }
   else if (name == "TruncTubs")
   {      

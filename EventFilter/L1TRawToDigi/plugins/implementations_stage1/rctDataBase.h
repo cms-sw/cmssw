@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace l1t{
   class rctDataBase {

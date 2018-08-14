@@ -31,8 +31,8 @@ PseudoTopProducer::PseudoTopProducer(const edm::ParameterSet& pset):
 {
   const double leptonConeSize = pset.getParameter<double>("leptonConeSize");
   const double jetConeSize = pset.getParameter<double>("jetConeSize");
-  fjLepDef_ = std::shared_ptr<JetDef>(new JetDef(fastjet::antikt_algorithm, leptonConeSize));
-  fjJetDef_ = std::shared_ptr<JetDef>(new JetDef(fastjet::antikt_algorithm, jetConeSize));
+  fjLepDef_ = std::make_shared<JetDef>(fastjet::antikt_algorithm, leptonConeSize);
+  fjJetDef_ = std::make_shared<JetDef>(fastjet::antikt_algorithm, jetConeSize);
 
   genVertex_ = reco::Particle::Point(0,0,0);
 
@@ -313,7 +313,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       pseudoTop->push_back(l2);
       pseudoTop->push_back(n2);
     }
-    else if ( leptons->size() >= 1 and neutrinos->size() >= 1 and ljetIdxs.size() >= 2 ) {
+    else if ( !leptons->empty() and !neutrinos->empty() and ljetIdxs.size() >= 2 ) {
       // Then continue to the semi-leptonic channel
       const auto& lepton = leptons->at(0);
       if ( lepton.pt() < minLeptonPtSemilepton_ or std::abs(lepton.eta()) > maxLeptonEtaSemilepton_ ) break;

@@ -46,10 +46,10 @@ namespace edm {
 class HerwigMaxPtPartonFilter : public edm::EDFilter {
    public:
       explicit HerwigMaxPtPartonFilter(const edm::ParameterSet&);
-      ~HerwigMaxPtPartonFilter();
+      ~HerwigMaxPtPartonFilter() override;
 
 
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   private:
       // ----------member data ---------------------------
       

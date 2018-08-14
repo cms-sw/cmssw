@@ -35,10 +35,10 @@ namespace lumi{
     const static unsigned int COMMITLSINTERVAL=150; //commit interval in LS, totalrow=nsl*192
     const static unsigned int COMMITLSTRGINTERVAL=550; //commit interval in LS of schema2
     explicit TRGScalers2DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int runnumber) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~TRGScalers2DB();													  
+    unsigned long long retrieveData( unsigned int runnumber) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~TRGScalers2DB() override;													  
 
     //per run information
     typedef std::vector<std::string> TriggerNameResult_Algo;
@@ -731,7 +731,7 @@ namespace lumi{
     unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
                       
     trglscount=0;    
-    coral::IBulkOperation* trgInserter=0; 
+    coral::IBulkOperation* trgInserter=nullptr; 
     unsigned int comittedls=0;
     for(deadIt=deadtimesBeg;deadIt!=deadtimesEnd;++deadIt,++trglscount ){
       unsigned int cmslscount=trglscount+1;
@@ -784,13 +784,13 @@ namespace lumi{
       ++comittedls;
       if(comittedls==commitintv){
 	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	delete trgInserter; trgInserter=0;
+	delete trgInserter; trgInserter=nullptr;
 	lumisession->transaction().commit();
 	comittedls=0;
 	std::cout<<"\t committed "<<std::endl; 
       }else if( trglscount==( totalcmsls-1) ){
 	std::cout<<"\t committing at the end"<<std::endl; 
-	delete trgInserter; trgInserter=0;
+	delete trgInserter; trgInserter=nullptr;
 	lumisession->transaction().commit();
 	std::cout<<"\t done"<<std::endl; 
       }
@@ -881,7 +881,7 @@ namespace lumi{
  
     unsigned int trglscount=0;   
     // trglscount=0;
-    coral::IBulkOperation* lstrgInserter=0; 
+    coral::IBulkOperation* lstrgInserter=nullptr; 
     unsigned int comittedls=0;
     for(deadIt=deadtimesBeg;deadIt!=deadtimesEnd;++deadIt,++trglscount ){
       unsigned int cmslscount=trglscount+1;
@@ -926,13 +926,13 @@ namespace lumi{
       ++comittedls;
       if(comittedls==commitintv){
 	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	delete lstrgInserter; lstrgInserter=0;
+	delete lstrgInserter; lstrgInserter=nullptr;
 	lumisession->transaction().commit();
 	comittedls=0;
 	std::cout<<"\t committed "<<std::endl; 
       }else if( trglscount==( totalcmsls-1) ){
 	std::cout<<"\t committing at the end"<<std::endl; 
-	delete lstrgInserter; lstrgInserter=0;
+	delete lstrgInserter; lstrgInserter=nullptr;
 	lumisession->transaction().commit();
 	std::cout<<"\t done"<<std::endl; 
       }

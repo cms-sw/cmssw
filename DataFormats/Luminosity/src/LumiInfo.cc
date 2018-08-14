@@ -1,10 +1,11 @@
 #include "DataFormats/Luminosity/interface/LumiInfo.h"
 
+#include <vector>
 #include <iomanip>
 #include <ostream>
 #include <iostream>
 
-float LumiInfo::instLuminosity() const {
+float LumiInfo::instLuminosityBXSum() const {
   float totLum = 0;
   for (std::vector<float>::const_iterator it = instLumiByBX_.begin();
        it != instLumiByBX_.end(); ++it) {
@@ -14,7 +15,11 @@ float LumiInfo::instLuminosity() const {
 }
 
 float LumiInfo::integLuminosity() const {
-  return instLuminosity()*lumiSectionLength();
+  return getTotalInstLumi()*lumiSectionLength();
+}
+
+void LumiInfo::setTotalInstToBXSum() {
+  setTotalInstLumi(instLuminosityBXSum());
 }
 
 float LumiInfo::recordedLuminosity() const {
@@ -31,20 +36,20 @@ bool LumiInfo::isProductEqual(LumiInfo const& next) const {
 	  instLumiByBX_ == next.instLumiByBX_);
 }
 
-void LumiInfo::fillInstLumi(const std::vector<float>& instLumiByBX) {
+void LumiInfo::setInstLumiAllBX(std::vector<float>& instLumiByBX) {
   instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
 }
 
-void LumiInfo::fill(const std::vector<float>& instLumiByBX) {
-  fillInstLumi(instLumiByBX);
+void LumiInfo::setErrorLumiAllBX(std::vector<float>& errLumiByBX){
+  instLumiStatErrByBX_.assign(errLumiByBX.begin(),errLumiByBX.end());
 }
 
 std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo) {
   s << "\nDumping LumiInfo\n\n";
-  s << "  instLuminosity = " << lumiInfo.instLuminosity() << "\n";
+  s << "  getTotalInstLumi = " << lumiInfo.getTotalInstLumi() << "\n";
   s << "  integLuminosity = " << lumiInfo.integLuminosity() << "\n";
   s << "  recordedLuminosity = " << lumiInfo.recordedLuminosity() << "\n";
-  s << "  deadtimeFraction = " << lumiInfo.deadFraction() << "\n";
+  s << "  deadtimeFraction = " << lumiInfo.getDeadFraction() << "\n";
   s << "  instLumiByBX = ";
   const std::vector<float>& lumiBX = lumiInfo.getInstLumiAllBX();
   for (unsigned int i=0; i<10 && i<lumiBX.size(); ++i) {

@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace sistrip {
+  constexpr uint16_t BITS_PER_BYTE = 8;
 
   //
   // Class definitions
@@ -25,8 +26,8 @@ namespace sistrip {
       //construct from buffer
       //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
       FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
-      virtual ~FEDBuffer();
-      virtual void print(std::ostream& os) const;
+      ~FEDBuffer() override;
+      void print(std::ostream& os) const override;
       const FEDFEHeader* feHeader() const;
       //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
       bool feGood(const uint8_t internalFEUnitNum) const;
@@ -36,11 +37,13 @@ namespace sistrip {
       //The FE length from the full debug header is used in full debug mode.
       bool fePresent(uint8_t internalFEUnitNum) const;
       //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
+      using sistrip::FEDBufferBase::channelGood;
       virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck=true) const;
       void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy;}
 
       //functions to check buffer. All return true if there is no problem.
       //minimum checks to do before using buffer
+      using sistrip::FEDBufferBase::doChecks;
       virtual bool doChecks(bool doCRC=true) const;
   
       //additional checks to check for corrupt buffers
@@ -68,7 +71,7 @@ namespace sistrip {
       bool checkFEPayloadsPresent() const;
   
       //print a summary of all checks
-      virtual std::string checkSummary() const;
+      std::string checkSummary() const override;
     private:
       uint8_t nFEUnitsPresent() const;
       void findChannels();
@@ -156,7 +159,6 @@ namespace sistrip {
       const uint8_t* data_;
       uint16_t oldWordOffset_;
       uint16_t currentWordOffset_;
-      uint16_t currentBitOffset_;
       uint16_t currentLocalBitOffset_;
       uint16_t bitOffsetIncrement_;
       uint8_t currentStrip_;
@@ -205,9 +207,9 @@ namespace sistrip {
   //FEDBSChannelUnpacker
 
   inline FEDBSChannelUnpacker::FEDBSChannelUnpacker()
-    : data_(NULL),
+    : data_(nullptr),
       oldWordOffset_(0), currentWordOffset_(0),
-      currentBitOffset_(0), currentLocalBitOffset_(0),
+      currentLocalBitOffset_(0),
       bitOffsetIncrement_(10),
       currentStrip_(0),
       channelPayloadOffset_(0), channelPayloadLength_(0),
@@ -217,13 +219,15 @@ namespace sistrip {
   inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement, bool useZS)
     : data_(payload),
       oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
-      currentBitOffset_(0), currentLocalBitOffset_(0),
+      currentLocalBitOffset_(0),
       bitOffsetIncrement_(offsetIncrement),
+      currentStrip_(0),
       channelPayloadOffset_(channelPayloadOffset),
       channelPayloadLength_(channelPayloadLength),
       useZS_(useZS), valuesLeftInCluster_(0)
     {
       if (bitOffsetIncrement_>16) throwBadWordLength(bitOffsetIncrement_); // more than 2 words... still to be implemented
+      if (useZS_ && channelPayloadLength_) readNewClusterInfo();
     }
 
   inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, uint16_t num_bits)
@@ -258,27 +262,33 @@ namespace sistrip {
 
   inline uint16_t FEDBSChannelUnpacker::adc() const
     {
-      uint16_t bits_missing = (bitOffsetIncrement_-8)+currentLocalBitOffset_;
+      uint16_t bits_missing = (bitOffsetIncrement_-BITS_PER_BYTE)+currentLocalBitOffset_;
       uint16_t adc = (data_[currentWordOffset_^7]<<bits_missing);
       if (currentWordOffset_>oldWordOffset_) {
-        adc += ( (data_[(currentWordOffset_+1)^7]>>(8-bits_missing)) );
+        adc += ( (data_[(currentWordOffset_+1)^7]>>(BITS_PER_BYTE-bits_missing)) );
       }
       return (adc&((1<<bitOffsetIncrement_)-1));
     }
 
   inline bool FEDBSChannelUnpacker::hasData() const
     {
-      return (currentWordOffset_<channelPayloadOffset_+channelPayloadLength_);
+      const uint16_t nextChanWordOffset = channelPayloadOffset_+channelPayloadLength_;
+      if ( currentWordOffset_ + 1 < nextChanWordOffset ) {
+        return true; // fast case: 2 bytes always fit an ADC (even if offset)
+      } else { // close to end
+        const uint16_t plusOneBitOffset = currentLocalBitOffset_+bitOffsetIncrement_;
+        const uint16_t plusOneWordOffset = currentWordOffset_ + plusOneBitOffset/BITS_PER_BYTE;
+        return ( plusOneBitOffset % BITS_PER_BYTE ) ? ( plusOneWordOffset < nextChanWordOffset ) : ( plusOneWordOffset <= nextChanWordOffset );
+      }
     }
 
   inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator ++ ()
     {
       oldWordOffset_ = currentWordOffset_;
-      currentBitOffset_ += bitOffsetIncrement_;
       currentLocalBitOffset_ += bitOffsetIncrement_;
-      while (currentLocalBitOffset_>=8) {
+      while (currentLocalBitOffset_>=BITS_PER_BYTE) {
         currentWordOffset_++;
-        currentLocalBitOffset_ -= 8;
+        currentLocalBitOffset_ -= BITS_PER_BYTE;
       }
       if (useZS_) {
 	if (valuesLeftInCluster_) { currentStrip_++; valuesLeftInCluster_--; }
@@ -300,6 +310,10 @@ namespace sistrip {
 
   inline void FEDBSChannelUnpacker::readNewClusterInfo()
     {
+      if ( currentLocalBitOffset_ ) {
+        ++currentWordOffset_;
+        currentLocalBitOffset_ = 0;
+      }
       currentStrip_ = data_[(currentWordOffset_++)^7];
       valuesLeftInCluster_ = data_[(currentWordOffset_++)^7]-1;
     }
@@ -347,7 +361,7 @@ namespace sistrip {
   //FEDZSChannelUnpacker
   
   inline FEDZSChannelUnpacker::FEDZSChannelUnpacker()
-    : data_(NULL),
+    : data_(nullptr),
       offsetIncrement_(1),
       valuesLeftInCluster_(0),
       channelPayloadOffset_(0),

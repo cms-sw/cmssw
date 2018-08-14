@@ -1,13 +1,16 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 import os
 
 process = cms.Process("Analyzer")
+
+process.task = cms.Task()
+
 ## enabling unscheduled mode for modules
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
-    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(True)
 )
 options = VarParsing.VarParsing ('standard')
 options.register('runOnPythia8', True, 
@@ -29,9 +32,9 @@ if( hasattr(sys, "argv") ):
                 setattr(options,val[0], val[1])
 
 if options.runOnPythia8:
-    print 'Running on Pythia8'
+    print('Running on Pythia8')
 else:
-    print 'Running on Pythia6'
+    print('Running on Pythia6')
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -63,6 +66,7 @@ process.maxEvents = cms.untracked.PSet(
 genParticleCollection = 'genParticles'
 
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 process.initSubset.src = genParticleCollection
 process.decaySubset.src = genParticleCollection
 process.decaySubset.fillMode = "kME" # Status3, use kStable for Status2
@@ -85,4 +89,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(output_file),
     outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_Analyzer')
 )
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out, process.task)

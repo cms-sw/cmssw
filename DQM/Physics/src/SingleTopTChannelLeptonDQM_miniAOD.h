@@ -3,14 +3,13 @@
 
 #include <string>
 #include <vector>
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -20,7 +19,12 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+
+
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 
 namespace SingleTopTChannelLepton_miniAOD {
@@ -37,9 +41,9 @@ class MonitorEnsemble {
  public:
   /// default contructor
   MonitorEnsemble(const char* label, const edm::ParameterSet& cfg,
-                  const edm::VParameterSet& vcfg, edm::ConsumesCollector&& iC);
+                  edm::ConsumesCollector&& iC);
   /// default destructor
-  ~MonitorEnsemble() {}
+  ~MonitorEnsemble() {};
 
   /// book histograms in subdirectory _directory_
   void book(DQMStore::IBooker & ibooker);
@@ -93,88 +97,66 @@ class MonitorEnsemble {
   std::string label_;
   /// considers a vector of METs
   std::vector<edm::EDGetTokenT<edm::View<pat::MET> > > mets_;
-  //    std::vector<edm::InputTag> mets_;
   /// input sources for monitoring
   edm::EDGetTokenT<edm::View<pat::Jet> > jets_;
   edm::EDGetTokenT<edm::View<pat::Muon> > muons_;
-  edm::EDGetTokenT<edm::View<pat::Electron> > elecs_gsf_;
-  edm::EDGetTokenT<edm::View<pat::Muon> > elecs_;
+  edm::EDGetTokenT<edm::View<pat::Electron> > elecs_;
   edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
-
-  //    edm::InputTag elecs_, elecs_gsf_, muons_, muons_reco_, jets_, pvs_;
-
   /// trigger table
-  //    edm::InputTag triggerTable_;
   edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
-
   /// trigger paths for monitoring, expected
   /// to be of form signalPath:MonitorPath
   std::vector<std::string> triggerPaths_;
 
+  edm::InputTag rhoTag;
+
   /// electronId label
-  //    edm::InputTag electronId_;
   edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
-
-
+ 
   double eidCutValue_;
   /// extra isolation criterion on electron
-  std::string elecIso_;
+  std::unique_ptr<StringCutObjectSelector<pat::Electron> > elecIso_;
   /// extra selection on electrons
-  std::string elecSelect_;
+  std::unique_ptr<StringCutObjectSelector<pat::Electron> > elecSelect_;
 
   /// extra selection on primary vertices; meant to investigate the pile-up
   /// effect
   std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
 
   /// extra isolation criterion on muon
-  std::string muonIso_;
+  std::unique_ptr<StringCutObjectSelector<pat::Muon> > muonIso_;
+
   /// extra selection on muons
-  std::string muonSelect_;
+  std::unique_ptr<StringCutObjectSelector<pat::Muon> > muonSelect_;
 
   /// jetCorrector
   std::string jetCorrector_;
   /// jetID as an extra selection type
   edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
-
   /// extra jetID selection on calo jets
   std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
-
   /// extra selection on jets (here given as std::string as it depends
   /// on the the jet type, which selections are valid and which not)
   std::string jetSelect_;
+  std::unique_ptr<StringCutObjectSelector<pat::Jet> > jetSelect;
   /// include btag information or not
   /// to be determined from the cfg
   bool includeBTag_;
   /// btag discriminator labels
-  //    edm::InputTag btagEff_, btagPur_, btagVtx_, btagCombVtx_;
   edm::EDGetTokenT<reco::JetTagCollection> btagEff_, btagPur_, btagVtx_,
-      btagCombVtx_;
-
+      btagCSV_;
   /// btag working points
-  double btagEffWP_, btagPurWP_, btagVtxWP_, btagCombVtxWP_;
+  double btagEffWP_, btagPurWP_, btagVtxWP_, btagCSVWP_;
   /// mass window upper and lower edge
   double lowerEdge_, upperEdge_;
 
   /// number of logged interesting events
   int logged_;
-  /// storage manager
+
   /// histogram container
   std::map<std::string, MonitorElement*> hists_;
   edm::EDConsumerBase tmpConsumerBase;
-
   std::string directory_;
-
-  std::unique_ptr<StringCutObjectSelector<pat::Muon, true> > muonSelect;
-  std::unique_ptr<StringCutObjectSelector<pat::Muon, true> > muonIso;
-  
-  std::unique_ptr<StringCutObjectSelector<reco::CaloJet> > jetSelectCalo;
-  std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelectPF;
-  std::unique_ptr<StringCutObjectSelector<pat::Jet> > jetSelectJet;
-  
-  std::unique_ptr<StringCutObjectSelector<pat::Electron, true> > elecSelect;
-  std::unique_ptr<StringCutObjectSelector<pat::Electron, true> > elecIso;
-
-
 };
 
 inline void MonitorEnsemble::triggerBinLabels(
@@ -224,7 +206,6 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
-
 class SingleTopTChannelLeptonDQM_miniAOD : public DQMEDAnalyzer {
  public:
   /// default constructor
@@ -255,12 +236,8 @@ class SingleTopTChannelLeptonDQM_miniAOD : public DQMEDAnalyzer {
  private:
   /// trigger table
   edm::EDGetTokenT<edm::TriggerResults> triggerTable__;
-
   /// trigger paths
   std::vector<std::string> triggerPaths_;
-  /// primary vertex
-  edm::InputTag vertex_;
-  edm::EDGetTokenT<reco::Vertex> vertex__;
   /// string cut selector
   std::unique_ptr<StringCutObjectSelector<reco::Vertex> > vertexSelect_;
 
@@ -270,23 +247,31 @@ class SingleTopTChannelLeptonDQM_miniAOD : public DQMEDAnalyzer {
   /// string cut selector
   std::unique_ptr<StringCutObjectSelector<reco::BeamSpot> > beamspotSelect_;
 
-
+  /// needed to guarantee the selection order as defined by the order of
+  /// ParameterSets in the _selection_ vector as defined in the config
   std::vector<std::string> selectionOrder_;
-
-  std::map<
-      std::string,
-      std::pair<edm::ParameterSet,
-                std::unique_ptr<SingleTopTChannelLepton_miniAOD::MonitorEnsemble> > >
+  /// this is the heart component of the plugin; std::string keeps a label
+  /// the selection step for later identification, edm::ParameterSet keeps
+  /// the configuration of the selection for the SelectionStep class,
+  /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to
+  /// be filled _after_ each selection step
+  std::map<std::string,
+           std::pair<edm::ParameterSet, std::unique_ptr<SingleTopTChannelLepton_miniAOD::MonitorEnsemble> > >
       selection_;
+  std::unique_ptr<SelectionStep<pat::Muon> > MuonStep;
+  std::unique_ptr<SelectionStep<pat::Electron> > ElectronStep;
+  std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
+  std::unique_ptr<SelectionStep<pat::MET> > METStep;
+  std::vector<std::unique_ptr<SelectionStep<pat::Jet> > > JetSteps;
 
-  std::unique_ptr<SelectionStep<pat::Muon> > muonStep_;
-  std::unique_ptr<SelectionStep<pat::Electron> > electronStep_;
-  std::unique_ptr<SelectionStep<reco::Vertex> > pvStep_;
 
-  std::vector<std::unique_ptr<SelectionStep<pat::Jet> > > jetSteps_;
-
-  std::unique_ptr<SelectionStep<pat::MET> > metStep_;
-  std::vector<edm::ParameterSet> sel;
+  std::vector<edm::ParameterSet> sel_;
+  edm::ParameterSet setup_;
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

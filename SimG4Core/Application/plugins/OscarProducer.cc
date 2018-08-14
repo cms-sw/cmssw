@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarProducer.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -121,7 +121,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   produces<edm::PCaloHitContainer>("ChamberHits"); 
   produces<edm::PCaloHitContainer>("FibreHits"); 
   produces<edm::PCaloHitContainer>("WedgeHits"); 
-    
+  produces<edm::PCaloHitContainer>("HFNoseHits");
+
   //register any products 
   m_producers = m_runManager->producers();
 
@@ -161,56 +162,8 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
   std::vector<SensitiveCaloDetector*>& sCalo =
     m_runManager->sensCaloDetectors();
 
-  try {
-
-    m_runManager->produce(e, es);
-
-    std::unique_ptr<edm::SimTrackContainer>
-      p1(new edm::SimTrackContainer);
-    std::unique_ptr<edm::SimVertexContainer>
-      p2(new edm::SimVertexContainer);
-    G4SimEvent * evt = m_runManager->simEvent();
-    evt->load(*p1);
-    evt->load(*p2);   
-
-    e.put(std::move(p1));
-    e.put(std::move(p2));
-
-    for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin(); 
-	 it != sTk.end(); ++it) {
-
-      std::vector<std::string> v = (*it)->getNames();
-      for (std::vector<std::string>::iterator in = v.begin(); 
-	   in!= v.end(); ++in) {
-
-	std::unique_ptr<edm::PSimHitContainer>
-	  product(new edm::PSimHitContainer);
-	(*it)->fillHits(*product,*in);
-	e.put(std::move(product),*in);
-      }
-    }
-    for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin(); 
-	 it != sCalo.end(); ++it) {
-
-      std::vector<std::string>  v = (*it)->getNames();
-
-      for (std::vector<std::string>::iterator in = v.begin(); 
-	   in!= v.end(); in++) {
-
-	std::unique_ptr<edm::PCaloHitContainer>
-	  product(new edm::PCaloHitContainer);
-	(*it)->fillHits(*product,*in);
-	e.put(std::move(product),*in);
-      }
-    }
-
-    for(Producers::iterator itProd = m_producers.begin();
-	itProd != m_producers.end(); ++itProd) {
-
-      (*itProd)->produce(e,es);
-    }
-
-  } catch ( const SimG4Exception& simg4ex ) {
+  try { m_runManager->produce(e, es); }
+  catch ( const SimG4Exception& simg4ex ) {
        
     edm::LogInfo("SimG4CoreApplication") << "SimG4Exception caght! " 
 					 << simg4ex.what();
@@ -220,6 +173,45 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       << "SimG4CoreApplication exception in generation of event "
       << e.id() << " in stream " << e.streamID() << " \n"
       << simg4ex.what();
+  }
+
+  std::unique_ptr<edm::SimTrackContainer>
+    p1(new edm::SimTrackContainer);
+  std::unique_ptr<edm::SimVertexContainer>
+    p2(new edm::SimVertexContainer);
+  G4SimEvent * evt = m_runManager->simEvent();
+  evt->load(*p1);
+  evt->load(*p2);   
+
+  e.put(std::move(p1));
+  e.put(std::move(p2));
+  
+  for (auto & tracker : sTk) {
+
+    const std::vector<std::string>& v = tracker->getNames();
+    for (auto & name : v) {
+
+      std::unique_ptr<edm::PSimHitContainer>
+	product(new edm::PSimHitContainer);
+      tracker->fillHits(*product,name);
+      e.put(std::move(product),name);
+    }
+  }
+  for (auto & calo : sCalo) {
+
+    const std::vector<std::string>& v = calo->getNames();
+
+    for (auto & name : v) {
+
+      std::unique_ptr<edm::PCaloHitContainer>
+	product(new edm::PCaloHitContainer);
+      calo->fillHits(*product,name);
+      e.put(std::move(product),name);
+    }
+  }
+
+  for(auto & prod :  m_producers) {
+    prod.get()->produce(e,es);
   }
 }
 

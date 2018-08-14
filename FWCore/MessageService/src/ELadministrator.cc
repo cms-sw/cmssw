@@ -109,7 +109,7 @@ void ELadministrator::log(edm::ErrorObj & msg) {
     std::cerr << "\nERROR LOGGED WITHOUT DESTINATION!\n";
     std::cerr << "Attaching destination \"cerr\" to ELadministrator by default\n"
     << std::endl;
-    attach(ELoutput(std::cerr));
+    attach(std::make_shared<ELoutput>(std::cerr));
   }
   for (auto& sink : sinks_)
     if ( sink->log( msg )  )
@@ -124,22 +124,12 @@ void ELadministrator::log(edm::ErrorObj & msg) {
 // ELadministrator functionality:
 // ----------------------------------------------------------------------
 
-ELdestControl ELadministrator::attach( const ELdestination & sink )  {
+std::shared_ptr<ELdestination> ELadministrator::attach( std::shared_ptr<ELdestination> sink )  {
 
-  std::shared_ptr<ELdestination> dest(sink.clone());
-  sinks_.push_back( dest );
-  return ELdestControl( dest );
-
+  sinks_.push_back( sink );
+  return sink;
+  
 }  // attach()
-
-ELdestControl ELadministrator::attach(  const ELdestination & sink,
-                                        const ELstring & name )     {
-  std::shared_ptr<ELdestination> dest(sink.clone());
-  attachedDestinations_[name] = dest;
-  sinks_.push_back( dest );
-  return ELdestControl( dest );
-} // attach()
-
 
 ELseverityLevel  ELadministrator::checkSeverity()  {
 

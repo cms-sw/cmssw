@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ROOT
 from array import array
 from collections import OrderedDict
@@ -8,6 +9,7 @@ import pickle
 from math import sqrt, copysign, sin, cos, pi
 
 from Validation.RecoTrack.plotting.ntuple import *
+import six
 
 ##### GLOBAL VARIABLES #####
 
@@ -121,7 +123,7 @@ def FindFakes(event):
     for track in event.tracks():
 	if track.nMatchedTrackingParticles() == 0:
 	    fakes.append(track)
-    print "Event: " + str(event.entry()+1) + " Number of fake tracks: " + str(len(fakes))
+    print("Event: " + str(event.entry()+1) + " Number of fake tracks: " + str(len(fakes)))
     return fakes
 
 def FindTrues(event):
@@ -130,7 +132,7 @@ def FindTrues(event):
     for track in event.tracks():
 	if track.nMatchedTrackingParticles() >= 0:
 	    trues.append(track)
-    print "Event: " + str(event.entry()+1) + " Number of true tracks: " + str(len(trues))
+    print("Event: " + str(event.entry()+1) + " Number of true tracks: " + str(len(trues)))
     return trues
 
 def Distance(x1,x2):
@@ -148,7 +150,7 @@ def FindUntrackedParticles(event):
     for particle in event.trackingParticles():
 	if (particle.isValid() and particle.nMatchedTracks() == 0 and MTFEfficiencySelector(particle)):
 	    untracked.append(particle)
-    print "Number of untracked particles: " + str(len(untracked))
+    print("Number of untracked particles: " + str(len(untracked)))
     return untracked
 
 def MTFEfficiencySelector(particle):
@@ -180,10 +182,10 @@ def EfficiencyRate(ntuple, N):
 		if(particle.nMatchedTracks() == 0): untracked += 1
 		else: tracked += 1 
 	i += 1
-    print "In " + str(N) + " events there are:"
-    print "Tracked particles:   " + str(tracked)
-    print "Untracked particles: " + str(untracked)
-    print "Efficiency rate:     " + str(float(tracked)/(tracked+untracked))
+    print("In " + str(N) + " events there are:")
+    print("Tracked particles:   " + str(tracked))
+    print("Untracked particles: " + str(untracked))
+    print("Efficiency rate:     " + str(float(tracked)/(tracked+untracked)))
 
 def SharedHitFrac(track, particle, frac = 0):
     '''
@@ -472,14 +474,14 @@ def MatchPixelHits(fake, particle, real_criterion = ["consecutive", 3]):
 	'''
 
 	if start_tolerance == 0: # The end of the particle was reached
-	    print "Match is not a real match :\\"
+	    print("Match is not a real match :\\")
 	if len(hit_candidates)<3 or not start_flag:
-	    print "No hit candidates from a match"
-	    print [hit.index() for hit in fake.hits() if hit.isValidHit()]
-	    print particle_hit_indexes
-	    print [hit.index() for hit in hit_candidates]
-	    print start_tolerance
-	    print start_flag
+	    print("No hit candidates from a match")
+	    print([hit.index() for hit in fake.hits() if hit.isValidHit()])
+	    print(particle_hit_indexes)
+	    print([hit.index() for hit in hit_candidates])
+	    print(start_tolerance)
+	    print(start_flag)
 	    return -1, -1
 	return nPix, nPixLayers
 
@@ -572,45 +574,45 @@ def StopReason(track):
 
 def PrintTrackInfo(track, fake = None, frac = 0, fake_info = None):
     ''' Prints info on the track. Called from PlotFakes method in graphics.py.  '''
-    if type(track) == Track:
+    if isinstance(track, Track):
 	if track.nMatchedTrackingParticles() == 0: # FAKE
-	    print str(track.index()) + ": FAKE \nSTOP REASON: " + StopReason(track)
-	    print "Has " + str(track.nValid()) + " valid hits"
+	    print(str(track.index()) + ": FAKE \nSTOP REASON: " + StopReason(track))
+	    print("Has " + str(track.nValid()) + " valid hits")
 	    if fake_info:
 		fake_info.Print()
 	else: # RECONSTRUCTED
 	    reco_str = str(track.index()) + ": RECOVERED "
 	    for info in track.matchedTrackingParticleInfos():
 		reco_str += str(info.trackingParticle().index()) + " " + str(info.shareFrac()) + "\nSTOP REASON: " + StopReason(track) # sharefrac()[0] old version
-	    print reco_str
+	    print(reco_str)
     else: # REAL
-	print str(track.index()) + ": REAL"
-	if track.nMatchedTracks() == 0: print "NOT RECOVERED"
-	elif track.nMatchedTracks() == 1: print "RECOVERED"
-	else: print "RECOVERED " + str(track.nMatchedTracks()) + " TIMES"
+	print(str(track.index()) + ": REAL")
+	if track.nMatchedTracks() == 0: print("NOT RECOVERED")
+	elif track.nMatchedTracks() == 1: print("RECOVERED")
+	else: print("RECOVERED " + str(track.nMatchedTracks()) + " TIMES")
 	decaycount = 0
 	for decay in track.decayVertices(): decaycount += 1
-	if decaycount: print "DECAYED " + str(decaycount) + " TIMES"
+	if decaycount: print("DECAYED " + str(decaycount) + " TIMES")
     
     if fake: # tell the shared hit fraction compared to fake
 	if frac:
 	    num, div, npar = SharedHitFrac(fake, track, 1)
-	    print "Fake share fraction: " + str(num) + " / " + str(div) + ", track has " + str(npar) + " hits"
+	    print("Fake share fraction: " + str(num) + " / " + str(div) + ", track has " + str(npar) + " hits")
 	else: 
 	    dec = SharedHitFrac(fake, track, 0)
-	    print "Fake shares " + str(dec) + " fraction of hits with track"
-	print "Shared hits from beginning: " + str(SharedHitsFromBeginning(track, fake, 10))
+	    print("Fake shares " + str(dec) + " fraction of hits with track")
+	print("Shared hits from beginning: " + str(SharedHitsFromBeginning(track, fake, 10)))
 
-    if type(track) is TrackingParticle:
-	print "Parameters:"
-	print "px  : " + str(track.px()) + "  py  : " + str(track.py()) + "  pz  : " + str(track.pz())
-	print "pt  : " + str(track.pca_pt()) + "  eta : " + str(track.pca_eta()) + "  phi : " + str(track.pca_phi())
-	print "dxy : " + str(track.pca_dxy()) + "  dz  : " + str(track.pca_dz()) + "  q   : " + str(track.q()) + "\n"
+    if isinstance(track, TrackingParticle):
+	print("Parameters:")
+	print("px  : " + str(track.px()) + "  py  : " + str(track.py()) + "  pz  : " + str(track.pz()))
+	print("pt  : " + str(track.pca_pt()) + "  eta : " + str(track.pca_eta()) + "  phi : " + str(track.pca_phi()))
+	print("dxy : " + str(track.pca_dxy()) + "  dz  : " + str(track.pca_dz()) + "  q   : " + str(track.q()) + "\n")
     else:
-	print "Parameters:"
-	print "px  : " + str(track.px()) + "  py  : " + str(track.py()) + "  pz  : " + str(track.pz())
-	print "pt  : " + str(track.pt()) + "  eta : " + str(track.eta()) + "  phi : " + str(track.phi())
-	print "dxy : " + str(track.dxy()) + "  dz  : " + str(track.dz()) + "  q   : " + str(track.q()) + "\n"
+	print("Parameters:")
+	print("px  : " + str(track.px()) + "  py  : " + str(track.py()) + "  pz  : " + str(track.pz()))
+	print("pt  : " + str(track.pt()) + "  eta : " + str(track.eta()) + "  phi : " + str(track.phi()))
+	print("dxy : " + str(track.dxy()) + "  dz  : " + str(track.dz()) + "  q   : " + str(track.q()) + "\n")
 
 
 ##### CLASSIFICATION #####
@@ -695,8 +697,8 @@ class FakeInfo(object):
 
     def Print(self):
 	''' Prints fake track classification info with matched particle infos. '''
-        print "CLASS: " + str(self.fake_class) + " WITH " + str(self.nMatches) + " MATCHES"
-	print "Has " + str(self.nIncludedDecayParticles) + " included decay particles, with links: " + str(self.decayLinks)
+        print("CLASS: " + str(self.fake_class) + " WITH " + str(self.nMatches) + " MATCHES")
+	print("Has " + str(self.nIncludedDecayParticles) + " included decay particles, with links: " + str(self.decayLinks))
 	for match in self.matches: match.Print()
 
 class MatchInfo(object):
@@ -760,9 +762,9 @@ class MatchInfo(object):
 
     def Print(self):
 	''' Prints match info. '''
-        print "Match " + str(self.index) + ": nReconstructed " + str(self.nReconstructed) +\
+        print("Match " + str(self.index) + ": nReconstructed " + str(self.nReconstructed) +\
 	 ", daughters: " + str(self.daughterIndexes) +\
-	  ", tracking failed in " + self.last_str + ", to " + self.particle_end_str + ", wrong hit in " + self.fake_end_str
+	  ", tracking failed in " + self.last_str + ", to " + self.particle_end_str + ", wrong hit in " + self.fake_end_str)
 
 ##### STORAGE CLASSES #####
 
@@ -1063,7 +1065,7 @@ def Calculate_IndludedDecayHitFractions(ntuple_file, nEvents = 100):
 	for fake in fakes:
 	    info = FakeInfo(fake)
 	    if info.fake_class == 21:
-		if len(info.decayLinks) >= 2: print "Double or more decays!!!11"
+		if len(info.decayLinks) >= 2: print("Double or more decays!!!11")
 		for link in info.decayLinks:
 		    par_ind = link[0]
 		    dau_ind = link[1]
@@ -1158,21 +1160,21 @@ def Save_Normalisation_Coefficients(ntuple_file):
     '''
     norm_c = copy(layer_data_tmp)
 
-    print sum([val for ind, val in norm_c.iteritems()])
+    print(sum([val for ind, val in six.iteritems(norm_c)]))
     for event in ntuple_file:
-	print event.entry()+1
+	print(event.entry()+1)
 	for particle in event.trackingParticles():
 	    for hit in particle.hits():
 		if hit.isValidHit():
 		    norm_c[layer_names_rev[hit.layerStr()]] += 1
-    norm_sum = sum([val for ind, val in norm_c.iteritems()])
-    print norm_sum
-    print norm_c
-    for i, c in norm_c.iteritems():
+    norm_sum = sum([val for ind, val in six.iteritems(norm_c)])
+    print(norm_sum)
+    print(norm_c)
+    for i, c in six.iteritems(norm_c):
 	norm_c[i] = 1.0*c/norm_sum
     #normalisation = [1.0*c/norm_sum for c in norm_c]
-    print "normalisation_coefficients.dmp"
-    print norm_c
+    print("normalisation_coefficients.dmp")
+    print(norm_c)
     
     norm_file = open("normalisation_coefficients.dmp",'w')
     pickle.dump(norm_c, norm_file)
@@ -1278,8 +1280,8 @@ def Analyse_EOT_Error(end_list, bpix3_mask = False, detId_mask = "all", pt_mask 
 		    error.append(Distance(end.fake_end, end.particle_end))
 		elif detId_mask == "all":
 		    error.append(Distance(end.fake_end, end.particle_end))
-		if error and error[-1] == 0.0: print "Error is 0.0?!"
-		if error and error[-1] > 10: print str(end.fake_end_detId) + " and " + str(end.particle_end_detId) + ": " + str(error[-1]) + " z: " + str(end.fake_end[2]) + " " + str(end.particle_end[2])
+		if error and error[-1] == 0.0: print("Error is 0.0?!")
+		if error and error[-1] > 10: print(str(end.fake_end_detId) + " and " + str(end.particle_end_detId) + ": " + str(error[-1]) + " z: " + str(end.fake_end[2]) + " " + str(end.particle_end[2]))
 	    elif not bpix3_mask:
 		if detId_mask == "same" and end.fake_end_detId == end.particle_end_detId:
 		    error.append(Distance(end.fake_end[0:2], end.particle_end[0:2]))
@@ -1288,7 +1290,7 @@ def Analyse_EOT_Error(end_list, bpix3_mask = False, detId_mask = "all", pt_mask 
 		elif detId_mask == "all":
 		    error.append(Distance(end.fake_end, end.particle_end))
 
-    print sum(error)/len(error)
+    print(sum(error)/len(error))
     return error
 
 def EndOfTrackingDetectorInfo(end_list, end_mask = [0], BPix3mask = False):
@@ -1303,8 +1305,8 @@ def EndOfTrackingDetectorInfo(end_list, end_mask = [0], BPix3mask = False):
 		data.append(1)
 	    else:
 		data.append(0)
-    print "Same detector id between fake end and particle end: " + str(sum(data))
-    print "Different detector id: " + str(len(data)-sum(data))
+    print("Same detector id between fake end and particle end: " + str(sum(data)))
+    print("Different detector id: " + str(len(data)-sum(data)))
 
 def Analyse_EOT_ParticleDoubleHit(end_list, layer = "BPix3", end_mask = [0,4]):
     '''
@@ -1320,7 +1322,7 @@ def Analyse_EOT_ParticleDoubleHit(end_list, layer = "BPix3", end_mask = [0,4]):
 		#print end.end_class
 	    all_particles += 1
     
-    print "In layer " + layer + " there are " + str(doubles) + " end of trackings out of " + str(all_particles) + " (" + str(100.0*doubles/all_particles) + ") which have a double hit in the EOT layer"
+    print("In layer " + layer + " there are " + str(doubles) + " end of trackings out of " + str(all_particles) + " (" + str(100.0*doubles/all_particles) + ") which have a double hit in the EOT layer")
 
 def TrackPt(ntuple_file, nEvents = 100):
     '''
@@ -1331,7 +1333,7 @@ def TrackPt(ntuple_file, nEvents = 100):
     
     i = 0
     for event in ntuple_file:	
-	print "Event: " + str(i)
+	print("Event: " + str(i))
 	for track in event.tracks():
 	    if track.nMatchedTrackingParticles() == 0:
 		fake_pts.append(track.pt())

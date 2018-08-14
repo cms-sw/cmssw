@@ -13,7 +13,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 class AlignableSurface;
 class Alignments;
@@ -32,9 +33,9 @@ public:
 								   );
 	
 	/// Read ideal tracker geometry from DB
-	virtual void beginJob();
+	void beginJob() override;
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
 	
 private:
 	

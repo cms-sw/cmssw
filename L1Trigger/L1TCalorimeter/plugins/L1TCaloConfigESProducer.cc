@@ -37,7 +37,7 @@ using namespace l1t;
 class L1TCaloConfigESProducer : public edm::ESProducer {
 public:
   L1TCaloConfigESProducer(const edm::ParameterSet&);
-  ~L1TCaloConfigESProducer();
+  ~L1TCaloConfigESProducer() override;
 
   typedef std::shared_ptr<CaloConfig> ReturnType;
 

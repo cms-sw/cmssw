@@ -57,15 +57,10 @@ reco::VertexRecoToSimCollection VertexAssociatorByPositionAndTracks::associateRe
   LogDebug("VertexAssociation") << "VertexAssociatorByPositionAndTracks::associateRecoToSim(): associating "
                                 << recoVertices.size() << " reco::Vertices to" << simVertices.size() << " TrackingVertices";
 
-  for(size_t iReco=0; iReco != recoVertices.size(); ++iReco) {
-    const reco::Vertex& recoVertex = recoVertices[iReco];
-
-    // skip fake vertices
-    if(std::abs(recoVertex.z()) > maxRecoZ_ || recoVertex.isFake() || !recoVertex.isValid() || recoVertex.ndof() < 0.)
-      continue;
-
-    LogTrace("VertexAssociation") << " reco::Vertex at Z " << recoVertex.z();
-
+  // filter sim PVs
+  std::vector<size_t> simPVindices;
+  simPVindices.reserve(recoVertices.size());
+  {
     int current_event = -1;
     for(size_t iSim=0; iSim != simVertices.size(); ++iSim) {
       const TrackingVertex& simVertex = simVertices[iSim];
@@ -75,11 +70,22 @@ reco::VertexRecoToSimCollection VertexAssociatorByPositionAndTracks::associateRe
       if(simVertex.eventId().bunchCrossing() != 0) continue;
       if(simVertex.eventId().event() != current_event) {
         current_event = simVertex.eventId().event();
+        simPVindices.push_back(iSim);
       }
-      else {
-        continue;
-      }
+    }
+  }
 
+  for(size_t iReco=0; iReco != recoVertices.size(); ++iReco) {
+    const reco::Vertex& recoVertex = recoVertices[iReco];
+
+    // skip fake vertices
+    if(std::abs(recoVertex.z()) > maxRecoZ_ || recoVertex.isFake() || !recoVertex.isValid() || recoVertex.ndof() < 0.)
+      continue;
+
+    LogTrace("VertexAssociation") << " reco::Vertex at Z " << recoVertex.z();
+
+    for(const size_t iSim: simPVindices) {
+      const TrackingVertex& simVertex = simVertices[iSim];
       LogTrace("VertexAssociation") << "  Considering TrackingVertex at Z " << simVertex.position().z();
 
       //  recoVertex.t() == 0.  is a special value

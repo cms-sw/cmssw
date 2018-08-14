@@ -23,9 +23,9 @@ class HLTDeDxFilter : public HLTFilter {
 
    public:
       explicit HLTDeDxFilter(const edm::ParameterSet&);
-      ~HLTDeDxFilter();
+      ~HLTDeDxFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       bool saveTags_;              // whether to save this tag

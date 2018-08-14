@@ -22,7 +22,7 @@ class TotemRPDQMHarvester: public DQMEDHarvester
 {
   public:
     TotemRPDQMHarvester(const edm::ParameterSet& ps);
-    virtual ~TotemRPDQMHarvester();
+    ~TotemRPDQMHarvester() override;
   
   protected:
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}
@@ -70,7 +70,7 @@ void TotemRPDQMHarvester::MakeHitNumberRatios(unsigned int id, DQMStore::IBooker
   const string hit_ratio_name = "hit ratio in hot spot";
   MonitorElement *hit_ratio = igetter.get(path + "/" + hit_ratio_name);
 
-  if (hit_ratio == NULL)
+  if (hit_ratio == nullptr)
   {
     ibooker.setCurrentFolder(path);
     string title;
@@ -123,7 +123,7 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
   const string efficiency_name = "efficiency";
   MonitorElement *efficiency = igetter.get(path + "/" + efficiency_name);
 
-  if (efficiency == NULL)
+  if (efficiency == nullptr)
   {
     string title;
     detId.planeName(title, TotemRPDetId::nFull);
@@ -140,7 +140,7 @@ void TotemRPDQMHarvester::MakePlaneEfficiencyHistograms(unsigned int id, DQMStor
   const string rp_efficiency_name = "plane efficiency";
   MonitorElement *rp_efficiency = igetter.get(path + "/" + rp_efficiency_name);
   
-  if (rp_efficiency == NULL)
+  if (rp_efficiency == nullptr)
   {
     string title;
     rpId.rpName(title, TotemRPDetId::nFull);
@@ -190,6 +190,17 @@ void TotemRPDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMS
       // loop over RPs
       for (unsigned int rp = 0; rp < 6; ++rp)
       {
+        if (st == 2)
+        {
+          // unit 220-nr is not equipped
+          if (rp <= 2)
+            continue;
+
+          // RP 220-fr-hr contains pixels
+          if (rp == 3)
+            continue;
+        }
+
         TotemRPDetId rpId(arm, st, rp);
 
         MakeHitNumberRatios(rpId, ibooker, igetter);

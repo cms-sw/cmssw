@@ -14,6 +14,7 @@
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
+ *   modification: G.Karathanasis UoAthens
  */
 //
 //--------------------------------------------------
@@ -36,13 +37,15 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhi.h"
 
 class L1MuBMTFConfig;
 class L1MuBMSecProcMap;
@@ -51,8 +54,10 @@ class L1MuBMSectorProcessor;
 class L1MuBMEtaProcessor;
 class L1MuBMWedgeSorter;
 class L1MuBMMuonSorter;
-class BMTrackCand;
 class L1MuRegionalCand;
+class L1MuDTTrack;
+class L1MuDTTrackSegPhi;
+class L1MuDTTrackSegEta;
 
 //              ---------------------
 //              -- Class Interface --
@@ -111,10 +116,11 @@ class L1MuBMTrackFinder {
     /// return configuration
     static const L1MuBMTFConfig* config() { return m_config; }
 
-//    std::vector<BMTrackCand>& getcache0() { return _cache0; }
-
     l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
     l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
+    L1MuBMTrackCollection&       getcache1() { return _cache1; }
+    L1MuBMTrackSegPhiCollection& getcache2() { return _cache2; }
+    L1MuBMTrackSegEtaCollection& getcache3() { return _cache3; }
 
   private:
 
@@ -125,6 +131,10 @@ class L1MuBMTrackFinder {
 
     l1t::RegionalMuonCandBxCollection _cache0;
     l1t::RegionalMuonCandBxCollection _cache;
+    L1MuBMTrackCollection         _cache1;
+    L1MuBMTrackSegPhiCollection   _cache2;
+    L1MuBMTrackSegEtaCollection   _cache3;
+
     L1MuBMSecProcMap*                m_spmap;        ///< Sector Processors
     std::vector<L1MuBMEtaProcessor*> m_epvec;        ///< Eta Processors
     std::vector<L1MuBMWedgeSorter*>  m_wsvec;        ///< Wedge Sorters
@@ -132,14 +142,6 @@ class L1MuBMTrackFinder {
 
     static L1MuBMTFConfig*           m_config;       ///< Track Finder configuration
 
-    std::map<int,int> eta_map ={
- {-32,  -118}, {-31,  -114},  {-30,  -111},  {-29,  -107},  {-28,  -103},  {-27,   -99},  {-26,   -96},  {-25,   -92}, {-24,   -88},
- {-23,   -84}, {-22,   -81}, {-21,   -77}, {-20,   -73}, {-19,   -69}, {-18,   -66}, {-17,   -62}, {-16,   -58}, {-15,   -54}, {-14,   -51},
- {-13,   -47}, {-12,   -43}, {-11,   -39}, {-10,   -36},  {-9,   -32},  {-8,   -28},  {-7,   -24},  {-6,   -21},  {-5,   -17},  {-4,   -13},
-  {-3,    -9},  {-2,    -6},  {-1,    -2},  {0,     0},  {1,     6},  {2,     9},  {3,    13},  {4,    17},  {5,    21},  {6,    24},
-  {7,    28},  {8,    32},  {9,    36},  {10,    39},  {11,    43},  {12,    47},  {13,    51},  {14,    54},  {15,    58},  {16,    62},
-  {17,    66},  {18,    69},  {19,    73},  {20,    77},  {21,    81},  {22,    84},  {23,    88},  {24,    92},  {25,    96},
-  {26,    99},  {27,   103},  {28,   107},  {29,   111},  {30,   114},  {31,   118}};
 
 
     edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;

@@ -7,6 +7,8 @@
 #include <vector>
 #include<array>
 
+#include<cassert>
+
 /** A RecHit container sorted in phi.
  *  Provides fast access for hits in a given phi window
  *  using binary search.
@@ -22,7 +24,7 @@ public:
   public:
     HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().barePhi()) {}
     HitWithPhi( const Hit & hit,float phi) : theHit(hit), thePhi(phi) {}
-    HitWithPhi( float phi) : theHit(0), thePhi(phi) {}
+    HitWithPhi( float phi) : theHit(nullptr), thePhi(phi) {}
     float phi() const {return thePhi;}
     Hit const & hit() const { return theHit;}
   private:
@@ -85,8 +87,8 @@ public:
 
 public:
   float       phi(int i) const { return theHits[i].phi();}
-  float        gv(int i) const { return isBarrel ? z[i] : gp(i).perp();}  // global v
-  float        rv(int i) const { return isBarrel ? u[i] : v[i];}  // dispaced r
+  float       gv(int i) const { return isBarrel ? z[i] : gp(i).perp();}  // global v
+  float       rv(int i) const { return isBarrel ? u[i] : v[i];}  // dispaced r
   GlobalPoint gp(int i) const { return GlobalPoint(x[i],y[i],z[i]);}
 
 public:
@@ -128,33 +130,41 @@ class HitDoublets {
 public:
   enum layer { inner=0, outer=1};
 
+  using HitLayer = RecHitsSortedInPhi;
   using Hit=RecHitsSortedInPhi::Hit;
-
-
+  using ADoublet = std::pair<int,int>;
+  
   HitDoublets(  RecHitsSortedInPhi const & in,
 		RecHitsSortedInPhi const & out) :
     layers{{&in,&out}}{}
   
   HitDoublets(HitDoublets && rh) : layers(std::move(rh.layers)), indeces(std::move(rh.indeces)){}
-
-  void reserve(std::size_t s) { indeces.reserve(2*s);}
-  std::size_t size() const { return indeces.size()/2;}
+  
+  void reserve(std::size_t s) { indeces.reserve(s);}
+  std::size_t size() const { return indeces.size();}
   bool empty() const { return indeces.empty();}
   void clear() { indeces.clear();}
-  void shrink_to_fit() { indeces.shrink_to_fit();}
+  void shrink_to_fit() {
+    indeces.shrink_to_fit();
+  }
+  
+  void add (int il, int ol) {
+    indeces.emplace_back(il,ol);
+  }
 
-  void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
-
+  int index(int i, layer l) const { return l==inner ? innerHitId(i) : outerHitId(i);}
   DetLayer const * detLayer(layer l) const { return layers[l]->layer; }
-  int innerHitId(int i) const {return indeces[2*i];}
-  int outerHitId(int i) const {return indeces[2*i+1];}
-  Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
-  float       phi(int i, layer l) const { return layers[l]->phi(indeces[2*i+l]);}
-  float       rv(int i, layer l) const { return layers[l]->rv(indeces[2*i+l]);}
-  float       r(int i, layer l) const { float xp = x(i,l); float yp = y(i,l);  return sqrt (xp*xp + yp*yp);}
-  float        z(int i, layer l) const { return layers[l]->z[indeces[2*i+l]];}
-  float        x(int i, layer l) const { return layers[l]->x[indeces[2*i+l]];}
-  float        y(int i, layer l) const { return layers[l]->y[indeces[2*i+l]];}
+  HitLayer const & innerLayer() const { return *layers[inner];}
+  HitLayer const & outerLayer() const { return *layers[outer];}
+  int innerHitId(int i) const {return indeces[i].first;}
+  int outerHitId(int i) const {return indeces[i].second;}
+  Hit const & hit(int i, layer l) const { return layers[l]->theHits[index(i,l)].hit();}
+  float       phi(int i, layer l) const { return layers[l]->phi(index(i,l));}
+  float       rv(int i, layer l) const { return layers[l]->rv(index(i,l));}
+  float       r(int i, layer l) const { float xp = x(i,l); float yp = y(i,l);  return std::sqrt (xp*xp + yp*yp);}
+  float        z(int i, layer l) const { return layers[l]->z[index(i,l)];}
+  float        x(int i, layer l) const { return layers[l]->x[index(i,l)];}
+  float        y(int i, layer l) const { return layers[l]->y[index(i,l)];}
   GlobalPoint gp(int i, layer l) const { return GlobalPoint(x(i,l),y(i,l),z(i,l));}
 
 private:
@@ -162,7 +172,7 @@ private:
   std::array<RecHitsSortedInPhi const *,2> layers;
 
 
-  std::vector<int> indeces;
+  std::vector<ADoublet> indeces; // naturally sorted by outerId
 
 };
 

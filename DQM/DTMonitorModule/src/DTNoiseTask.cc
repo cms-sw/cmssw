@@ -66,16 +66,6 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 
 DTNoiseTask::~DTNoiseTask(){}
 
-/// To reset the MEs
-void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
-				       const edm::EventSetup& context) {
-
-   LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Begin of LS transition"<<endl;
-
-}
-
-
-
 /// Analyze
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
@@ -180,7 +170,7 @@ void DTNoiseTask::bookHistos(DQMStore::IBooker & ibooker,DTChamberId chId) {
   // Get the chamber from the geometry
   int nWires_max = 0;
   const DTChamber* dtchamber = dtGeom->chamber(chId);
-  const vector<const DTSuperLayer*> superlayers = dtchamber->superLayers();
+  const vector<const DTSuperLayer*>& superlayers = dtchamber->superLayers();
 
   // Loop over layers and find the max # of wires
   for(vector<const DTSuperLayer*>::const_iterator sl = superlayers.begin();

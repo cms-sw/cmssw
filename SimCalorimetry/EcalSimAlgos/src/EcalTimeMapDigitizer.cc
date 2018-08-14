@@ -4,7 +4,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 //#include "CLHEP/Random/RandPoissonQ.h"
@@ -26,7 +26,7 @@ const float EcalTimeMapDigitizer::MIN_ENERGY_THRESHOLD=5e-5; //50 KeV threshold 
 
 EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
   m_subDet(myDet),
-  m_geometry(0)
+  m_geometry(nullptr)
 {
 //    edm::Service<edm::RandomNumberGenerator> rng ;
 //    if ( !rng.isAvailable() ) 
@@ -93,8 +93,10 @@ EcalTimeMapDigitizer::add(const std::vector<PCaloHit> & hits, int bunchCrossing)
 	continue;
 
       //Just consider only the hits belonging to the specified time layer
-      if ((*it).depth()!=100+m_timeLayerId) //modified layerId start from 100
-	continue;
+      int depth2 = (((*it).depth() >> PCaloHit::kEcalDepthOffset) & 
+		    PCaloHit::kEcalDepthMask);
+      
+      if (depth2 != m_timeLayerId) continue;
 
       if ((*it).energy()<MIN_ENERGY_THRESHOLD) //apply a minimal cut on the hit energy
 	continue;
@@ -135,7 +137,7 @@ EcalTimeMapDigitizer::findSignal( const DetId& detId )
 void 
 EcalTimeMapDigitizer::setGeometry( const CaloSubdetectorGeometry* geometry )
 {
-   m_geometry = geometry ;
+  m_geometry = geometry ;
 }
 
 
@@ -261,9 +263,9 @@ double
 EcalTimeMapDigitizer::timeOfFlight( const DetId& detId , int layer) const 
 {
   //not using the layer yet
-   const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
-   assert( 0 != cellGeometry ) ;
-   GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+   auto cellGeometry ( m_geometry->getGeometry( detId ) ) ;
+   assert( nullptr != cellGeometry ) ;
+   GlobalPoint layerPos = (cellGeometry)->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
    return layerPos.mag()*cm/c_light ;
 }
 

@@ -13,8 +13,8 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
-#include "DataFormats/PatCandidates/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/libminifloat.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -27,8 +27,15 @@
 #include <iomanip>
 
 namespace {
-  template<typename T> void fillNoFlow(MonitorElement* h, T val){
-    h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
+  template<typename T> void fillNoFlow(MonitorElement* me, T val){
+    auto h = me->getTH1();
+    const auto xaxis = h->GetXaxis();
+    if(val <= xaxis->GetXmin())
+      h->AddBinContent(xaxis->GetFirst());
+    else if(val >= xaxis->GetXmax())
+      h->AddBinContent(xaxis->GetLast());
+    else
+      h->Fill(val);
   }
 
   class HitPatternPrinter {
@@ -38,7 +45,7 @@ namespace {
     void print(std::ostream& os) const {
       const reco::HitPattern &p = track.hitPattern();
 
-      for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); ++i) {
+      for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++i) {
         uint32_t hit = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);
 
         detLayer(os, p, hit);
@@ -57,24 +64,28 @@ namespace {
       if(p.numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0) {
         os << "lost inner ";
 
-        for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); ++i) {
+        for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); ++i) {
           uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
-
+          detLayer(os, p, hit);
           if(p.missingHitFilter(hit)) {
-            detLayer(os, p, hit);
-            os << " ";
+            os << "(miss)";
+          }
+          else if(p.inactiveHitFilter(hit)) {
+            os << "(inact)";
           }
         }
       }
       if(p.numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) > 0) {
         os << "lost outer ";
 
-        for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); ++i) {
+        for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); ++i) {
           uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i);
-
+          detLayer(os, p, hit);
           if(p.missingHitFilter(hit)) {
-            detLayer(os, p, hit);
-            os << " ";
+            os << "(miss)";
+          }
+          else if(p.inactiveHitFilter(hit)) {
+            os << "(inact)";
           }
         }
       }
@@ -423,7 +434,7 @@ namespace {
 class PackedCandidateTrackValidator: public DQMEDAnalyzer{
  public:
   PackedCandidateTrackValidator(const edm::ParameterSet& pset);
-  virtual ~PackedCandidateTrackValidator();
+  ~PackedCandidateTrackValidator() override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup& ) override;
@@ -437,6 +448,7 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
   edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> trackToPackedCandidateToken_;
 
   std::string rootFolder_;
+  bool debug_;
 
   enum {
     sf_AllTracks = 0,
@@ -518,6 +530,7 @@ PackedCandidateTrackValidator::PackedCandidateTrackValidator(const edm::Paramete
   verticesToken_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertices"))),
   trackToPackedCandidateToken_(consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getUntrackedParameter<edm::InputTag>("trackToPackedCandidateAssociation"))),
   rootFolder_(iConfig.getUntrackedParameter<std::string>("rootFolder")),
+  debug_(iConfig.getUntrackedParameter<bool>("debug")),
   h_diffDxyAssocPV(RangeAbs(0.001)),
   h_diffDzAssocPV(RangeAbs(0.001)),
   h_diffCovQoverpQoverp(Range(-1e-6, 0.13), -15, 0),  // despite of ceil in pack, there is rounding in double->float
@@ -539,6 +552,7 @@ void PackedCandidateTrackValidator::fillDescriptions(edm::ConfigurationDescripti
   desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.addUntracked<edm::InputTag>("trackToPackedCandidateAssociation", edm::InputTag("packedPFCandidates"));
   desc.addUntracked<std::string>("rootFolder", "Tracking/PackedCandidate");
+  desc.addUntracked<bool>("debug", false);
 
   descriptions.add("packedCandidateTrackValidator", desc);
 }
@@ -882,7 +896,8 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     }
 
     // Print warning if there are differences outside the expected range
-    if(diffNormalizedChi2 < -1 || diffNormalizedChi2 > 0 || diffCharge != 0 || diffHP != 0
+    if(debug_ && 
+       (diffNormalizedChi2 < -1 || diffNormalizedChi2 > 0 || diffCharge != 0 || diffHP != 0
        || std::abs(diffPhi) > 5e-4
        || diffDxyAssocPV.outsideExpectedRange()
        || diffDzAssocPV.outsideExpectedRange()
@@ -893,6 +908,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
        || diffCovDxyDsz.outsideExpectedRange() || diffCovDszDsz.outsideExpectedRange()
        || diffNumberOfPixelHits != 0 || diffNumberOfHits != 0 || diffLostInnerHits != 0
        || diffHitPatternHasValidHitInFirstPixelBarrel != 0
+        )
        ) {
 
       edm::LogInfo("PackedCandidateTrackValidator") << "Track " << i << " pt " << track.pt() << " eta " << track.eta() << " phi " << track.phi() << " chi2 " << track.chi2() << " ndof " << track.ndof()
@@ -925,7 +941,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
                                                     << " charge " << diffCharge << " " << trackPc.charge() << " " << track.charge()
                                                     << " normalizedChi2 " << diffNormalizedChi2 << " " << trackPc.normalizedChi2() << " " << track.normalizedChi2()
                                                     << "\n "
-                                                    << " numberOfHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
+                                                    << " numberOfAllHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
                                                     << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcNumberOfPixelHits << " " << trackNumberOfPixelHits
                                                     << " numberOfStripHits # " << pcNumberOfStripHits << " " << trackNumberOfStripHits
                                                     << "\n "

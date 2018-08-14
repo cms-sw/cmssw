@@ -75,7 +75,7 @@ void CSCAlignmentCorrections::applyAlignment(AlignableNavigator *alignableNaviga
     // get the alignable (or two alignables if in ME1/1)
     const DetId id(m_id[i]);
     Alignable *alignable = alignableNavigator->alignableFromDetId(id).alignable();
-    Alignable *also = NULL;
+    Alignable *also = nullptr;
     if (combineME11  &&  m_id[i].station() == 1  &&  m_id[i].ring() == 1) {
       CSCDetId alsoid(m_id[i].endcap(), 1, 4, m_id[i].chamber(), 0);
       const DetId alsoid2(alsoid);
@@ -112,7 +112,7 @@ void CSCAlignmentCorrections::applyAlignment(AlignableNavigator *alignableNaviga
     alignable->setAlignmentParameters(parnew);
     alignmentParameterStore->applyParameters(alignable);
     alignable->alignmentParameters()->setValid(true);
-    if (also != NULL) {
+    if (also != nullptr) {
       AlignmentParameters *parnew2 = also->alignmentParameters()->cloneFromSelected(params, cov);
       also->setAlignmentParameters(parnew2);
       alignmentParameterStore->applyParameters(also);

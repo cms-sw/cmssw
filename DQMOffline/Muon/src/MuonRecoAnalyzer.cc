@@ -4,7 +4,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
-
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -22,10 +22,13 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
 
   // Input booleans
   IsminiAOD = parameters.getParameter<bool>("IsminiAOD");
-  
+  doMVA     = parameters.getParameter<bool>("doMVA"); 
   // the services:
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("MuonCollection"));
+  theVertexLabel_   = consumes<reco::VertexCollection>     (pSet.getParameter<InputTag>("inputTagVertex"));
+  theBeamSpotLabel_ = consumes<reco::BeamSpot>             (pSet.getParameter<InputTag>("inputTagBeamSpot"));
+  dcsStatusCollection_ = consumes<DcsStatusCollection>(pSet.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
 
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
@@ -196,6 +199,42 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   ptStaTrack = ibooker.book1D("StaMuon_pt", "pt_{STA}", ptBin, ptMin, pMax);
   ptStaTrack->setAxisTitle("GeV"); 
 
+
+  //monitoring of variables needed by the MVA soft muon
+  
+  ptSoftMuonMVA =                       ibooker.book1D("ptSoftMuonMVA", "pt_{SoftMuon}", 50, 0, 50);
+  deltaRSoftMuonMVA =                   ibooker.book1D("deltaRSoftMuonMVA", "#Delta R", 50, 0, 5);
+  gNchi2SoftMuonMVA =                   ibooker.book1D("gNchi2SoftMuonMVA", "gNchi2", 50, 0, 3);
+  vMuHitsSoftMuonMVA =                  ibooker.book1D("vMuHitsSoftMuonMVA", "vMuHits", 50, 0, 50);
+  mNuStationsSoftMuonMVA =              ibooker.book1D("mNuStationsSoftMuonMVA", "mNuStations", 6, 0, 6);
+  dxyRefSoftMuonMVA =                   ibooker.book1D("dxyRefSoftMuonMVA", "dxyRef", 50, -0.1, 0.1);
+  dzRefSoftMuonMVA =                    ibooker.book1D("dzRefSoftMuonMVA", "dzRef", 50, -0.1, 0.1);
+  LWHSoftMuonMVA =                      ibooker.book1D("LWHSoftMuonMVA", "LWH", 20, 0, 20);
+  valPixHitsSoftMuonMVA =               ibooker.book1D("valPixHitsSoftMuonMVA", "valPixHits", 8, 0, 8);
+  innerChi2SoftMuonMVA =                ibooker.book1D("innerChi2SoftMuonMVA", "innerChi2", 50, 0, 3);
+  outerChi2SoftMuonMVA =                ibooker.book1D("outerChi2SoftMuonMVA", "outerChi2", 50, 0, 4);
+  iValFracSoftMuonMVA =                 ibooker.book1D("iValFracSoftMuonMVA", "iValFrac", 50, 0.5, 1.0);
+  segCompSoftMuonMVA =                  ibooker.book1D("segCompSoftMuonMVA", "segComp", 50, 0, 1.2);
+  chi2LocMomSoftMuonMVA =               ibooker.book1D("chi2LocMomSoftMuonMVA", "chi2LocMom", 50, 0, 40);
+  chi2LocPosSoftMuonMVA =               ibooker.book1D("chi2LocPosSoftMuonMVA", "chi2LocPos", 0, 0, 8);
+  glbTrackTailProbSoftMuonMVA =         ibooker.book1D("glbTrackTailProbSoftMuonMVA", "glbTrackTailProb", 50, 0, 8);
+  NTrkVHitsSoftMuonMVA =                ibooker.book1D("NTrkVHitsSoftMuonMVA", "NTrkVHits", 50, 0, 35);
+  kinkFinderSoftMuonMVA =               ibooker.book1D("kinkFinderSoftMuonMVA", "kinkFinder", 50, 0, 30);
+  vRPChitsSoftMuonMVA =                 ibooker.book1D("vRPChitsSoftMuonMVA", "vRPChits", 50, 0, 50);
+  glbKinkFinderSoftMuonMVA =            ibooker.book1D("glbKinkFinderSoftMuonMVA", "glbKinkFinder", 50, 0, 50);
+  glbKinkFinderLogSoftMuonMVA =         ibooker.book1D("glbKinkFinderLogSoftMuonMVA", "glbKinkFinderLog", 50, 0, 50);
+  staRelChi2SoftMuonMVA =               ibooker.book1D("staRelChi2SoftMuonMVA", "staRelChi2", 50, 0, 2);
+  glbDeltaEtaPhiSoftMuonMVA =           ibooker.book1D("glbDeltaEtaPhiSoftMuonMVA", "glbDeltaEtaPhi", 50, 0, 0.15);
+  trkRelChi2SoftMuonMVA =               ibooker.book1D("trkRelChi2SoftMuonMVA", "trkRelChi2", 50, 0, 1.2);
+  vDThitsSoftMuonMVA =                  ibooker.book1D("vDThitsSoftMuonMVA", "vDThits", 50, 0, 50);
+  vCSChitsSoftMuonMVA =                 ibooker.book1D("vCSChitsSoftMuonMVA", "vCSChits", 50, 0, 50);
+  timeAtIpInOutSoftMuonMVA =            ibooker.book1D("timeAtIpInOutSoftMuonMVA", "timeAtIpInOut", 50, -10.0, 10.0);
+  timeAtIpInOutErrSoftMuonMVA =         ibooker.book1D("timeAtIpInOutErrSoftMuonMVA", "timeAtIpInOutErr", 50, 0, 3.5);
+  getMuonHitsPerStationSoftMuonMVA =    ibooker.book1D("getMuonHitsPerStationSoftMuonMVA", "getMuonHitsPerStation", 6, 0, 6);
+  QprodSoftMuonMVA =                    ibooker.book1D("QprodSoftMuonMVA", "Qprod", 4, -2, 2);
+    
+
+
   // monitoring of the muon charge
   qGlbTrack.push_back(ibooker.book1D(histname+"Glb_q", "q_{GLB}", 5, -2.5, 2.5));
   qGlbTrack.push_back(ibooker.book1D(histname+"Tk_q", "q_{TKfromGLB}", 5, -2.5, 2.5));
@@ -277,6 +316,10 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   phiVsetaGlbTrack.push_back(ibooker.book2D(histname+"Tk_phiVSeta",       "#phi vs #eta (TKfromGLB)",  etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
   phiVsetaGlbTrack.push_back(ibooker.book2D(histname+"Sta_phiVseta",      "#phi vs #eta (STAfromGLB)", etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
   
+  phiVsetaGlbTrack_badlumi.push_back(ibooker.book2D(histname+"Glb_phiVSeta_badlumi",      "#phi vs #eta (GLB)",        etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
+  phiVsetaGlbTrack_badlumi.push_back(ibooker.book2D(histname+"Tk_phiVSeta_badlumi",       "#phi vs #eta (TKfromGLB)",  etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
+  phiVsetaGlbTrack_badlumi.push_back(ibooker.book2D(histname+"Sta_phiVseta_badlumi",      "#phi vs #eta (STAfromGLB)", etaBin/2, etaMin, etaMax, phiBin/2, phiMin, phiMax));
+  
   
   //////////////////////////////////////////////////////////////
   // monitoring of the recHits provenance
@@ -332,6 +375,15 @@ void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par,
   else pull = -99;
   return;
 }
+
+
+
+
+
+
+
+
+
 void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   LogTrace(metname)<<"[MuonRecoAnalyzer] Analyze the mu";
   theService->update(iSetup);
@@ -339,22 +391,119 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // Take the muon container
   edm::Handle<edm::View<reco::Muon> > muons; 
   iEvent.getByToken(theMuonCollectionLabel_,muons);
- 
+
+  Handle<reco::BeamSpot> beamSpot;
+  Handle<reco::VertexCollection> vertex;
+  if(doMVA) {
+     iEvent.getByToken(theBeamSpotLabel_, beamSpot);
+     if(!beamSpot.isValid()) {edm::LogInfo("MuonRecoAnalyzer") << "Error: Can't get the beamspot" << endl; doMVA = false;} 
+     iEvent.getByToken(theVertexLabel_, vertex);
+     if(!vertex.isValid()) {edm::LogInfo("MuonRecoAnalyzer") << "Error: Can't get the vertex collection" << endl; doMVA = false;}
+  }
+
+  //In this part we determine if we want to fill the plots for events where the DCS flag was set to bad
+  edm::Handle<DcsStatusCollection> dcsStatus;
+  bool fillBadLumi = false;
+  if(iEvent.getByToken(dcsStatusCollection_, dcsStatus) && dcsStatus.isValid()) {
+     for (auto const & dcsStatusItr : *dcsStatus) {
+       if (!dcsStatusItr.ready(DcsStatus::CSCp))   fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::CSCm))   fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::DT0))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::DTp))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::DTm))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::EBp))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::EBm))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::EEp))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::EEm))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::ESp))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::ESm))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::HBHEa))  fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::HBHEb))  fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::HBHEc))  fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::HF))     fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::HO))     fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::BPIX))   fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::FPIX))   fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::RPC))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::TIBTID)) fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::TOB))    fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::TECp))   fillBadLumi = true;
+       if (!dcsStatusItr.ready(DcsStatus::TECm))   fillBadLumi = true;
+       //if (!dcsStatusItr.ready(DcsStatus::CASTOR)) fillBadLumi = true;
+    }
+  }
 
   float res=0, pull=0;
   if(!muons.isValid()) return;
 
   for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
-      
+
+
+    //Needed for MVA soft muon
+    
+    reco::TrackRef gTrack = muon->globalTrack();
+    reco::TrackRef iTrack = muon->innerTrack();
+    reco::TrackRef oTrack = muon->outerTrack();
+    if ( iTrack.isNonnull() && oTrack.isNonnull() && gTrack.isNonnull() ) {
+      const reco::HitPattern gHits = gTrack->hitPattern();
+      const reco::HitPattern iHits = iTrack->hitPattern();
+      const reco::MuonQuality muonQuality = muon->combinedQuality();
+      int pvIndex = 0;   
+      math::XYZPoint refPoint;
+      if(doMVA) {
+         pvIndex = getPv(iTrack.index(), &(*vertex)); //HFDumpUtitilies
+         if (pvIndex > -1) {
+	   refPoint = vertex->at(pvIndex).position();
+         } else {
+	   if(beamSpot.isValid()) {
+	     refPoint = beamSpot->position();
+	   } else {
+	     edm::LogInfo("MuonRecoAnalyzer") << "ERROR: No beam sport found!" << endl;
+	   }
+         }
+      }
+      ptSoftMuonMVA->Fill(iTrack->eta());
+      deltaRSoftMuonMVA->Fill(getDeltaR(*iTrack,*oTrack));
+      gNchi2SoftMuonMVA->Fill(gTrack->normalizedChi2());
+      vMuHitsSoftMuonMVA->Fill(gHits.numberOfValidMuonHits());
+      mNuStationsSoftMuonMVA->Fill(muon->numberOfMatchedStations());
+      if(doMVA) {
+         dxyRefSoftMuonMVA->Fill(iTrack->dxy(refPoint));
+         dzRefSoftMuonMVA->Fill(iTrack->dz(refPoint));
+      }
+      LWHSoftMuonMVA->Fill(iHits.trackerLayersWithMeasurement());
+      valPixHitsSoftMuonMVA->Fill(iHits.numberOfValidPixelHits());
+      innerChi2SoftMuonMVA->Fill(iTrack->normalizedChi2());
+      outerChi2SoftMuonMVA->Fill(oTrack->normalizedChi2());
+      iValFracSoftMuonMVA->Fill(iTrack->validFraction());
+      //segCompSoftMuonMVA->Fill(reco::Muon::segmentCompatibility(*muon));
+      chi2LocMomSoftMuonMVA->Fill(muonQuality.chi2LocalMomentum);
+      chi2LocPosSoftMuonMVA->Fill(muonQuality.chi2LocalPosition);
+      glbTrackTailProbSoftMuonMVA->Fill(muonQuality.glbTrackProbability);
+      NTrkVHitsSoftMuonMVA->Fill(iHits.numberOfValidTrackerHits());
+      kinkFinderSoftMuonMVA->Fill(muonQuality.trkKink);
+      vRPChitsSoftMuonMVA->Fill(gHits.numberOfValidMuonRPCHits());
+      glbKinkFinderSoftMuonMVA->Fill(muonQuality.glbKink);
+      glbKinkFinderLogSoftMuonMVA->Fill(TMath::Log(2+muonQuality.glbKink));
+      staRelChi2SoftMuonMVA->Fill(muonQuality.staRelChi2);
+      glbDeltaEtaPhiSoftMuonMVA->Fill(muonQuality.globalDeltaEtaPhi);
+      trkRelChi2SoftMuonMVA->Fill(muonQuality.trkRelChi2);
+      vDThitsSoftMuonMVA->Fill(gHits.numberOfValidMuonDTHits());
+      vCSChitsSoftMuonMVA->Fill(gHits.numberOfValidMuonCSCHits());
+      timeAtIpInOutSoftMuonMVA->Fill(muon->time().timeAtIpInOut);
+      timeAtIpInOutErrSoftMuonMVA->Fill(muon->time().timeAtIpInOutErr);
+      //getMuonHitsPerStationSoftMuonMVA->Fill(gTrack);
+      QprodSoftMuonMVA->Fill((iTrack->charge() * oTrack->charge()));
+    }
+    
     if(muon->isGlobalMuon()) {
       LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is global - filling the histos";
       if(muon->isTrackerMuon() && muon->isStandAloneMuon())
-  	muReco->Fill(1);
+	muReco->Fill(1);
       if(!(muon->isTrackerMuon()) && muon->isStandAloneMuon())
-  	muReco->Fill(2);
+	muReco->Fill(2);
       if(!muon->isStandAloneMuon())
-  	LogTrace(metname)<<"[MuonRecoAnalyzer] ERROR: the mu is global but not standalone!";
-
+	LogTrace(metname)<<"[MuonRecoAnalyzer] ERROR: the mu is global but not standalone!";
       // get the track combinig the information from both the Tracker and the Spectrometer
       reco::TrackRef recoCombinedGlbTrack = muon->combinedMuon();
       
@@ -362,7 +511,6 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       reco::TrackRef recoTkGlbTrack = muon->track();
       // get the track using only the mu spectrometer data
       reco::TrackRef recoStaGlbTrack = muon->standAloneMuon();
-
       etaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta());
       etaGlbTrack[1]->Fill(recoTkGlbTrack->eta());
       etaGlbTrack[2]->Fill(recoStaGlbTrack->eta());
@@ -370,7 +518,13 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phiVsetaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta(), recoCombinedGlbTrack->phi());
       phiVsetaGlbTrack[1]->Fill(recoTkGlbTrack->eta()      , recoTkGlbTrack->phi());
       phiVsetaGlbTrack[2]->Fill(recoStaGlbTrack->eta()     , recoStaGlbTrack->phi());
-      
+     
+      if(fillBadLumi) {
+          phiVsetaGlbTrack_badlumi[0]->Fill(recoCombinedGlbTrack->eta(), recoCombinedGlbTrack->phi());
+          phiVsetaGlbTrack_badlumi[1]->Fill(recoTkGlbTrack->eta()      , recoTkGlbTrack->phi());
+          phiVsetaGlbTrack_badlumi[2]->Fill(recoStaGlbTrack->eta()     , recoStaGlbTrack->phi());
+      }
+ 
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "eta", res, pull);
       etaResolution[0]->Fill(res);
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "eta", res, pull);
@@ -378,30 +532,25 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       GetRes(recoTkGlbTrack, recoStaGlbTrack, "eta", res, pull);
       etaResolution[2]->Fill(res);
       etaPull->Fill(pull);
-
       etaResolution[3]->Fill(recoCombinedGlbTrack->eta(), recoTkGlbTrack->eta()-recoCombinedGlbTrack->eta());
       etaResolution[4]->Fill(recoCombinedGlbTrack->eta(), -recoStaGlbTrack->eta()+recoCombinedGlbTrack->eta());
       etaResolution[5]->Fill(recoCombinedGlbTrack->eta(), recoTkGlbTrack->eta()-recoStaGlbTrack->eta());
- 
-
+      
       thetaGlbTrack[0]->Fill(recoCombinedGlbTrack->theta());
       thetaGlbTrack[1]->Fill(recoTkGlbTrack->theta());
       thetaGlbTrack[2]->Fill(recoStaGlbTrack->theta());
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "theta", res, pull);
       thetaResolution[0]->Fill(res);
-
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "theta", res, pull);
       thetaResolution[1]->Fill(res);
-
+      
       GetRes(recoTkGlbTrack, recoStaGlbTrack, "theta", res, pull);
       thetaResolution[2]->Fill(res);
       thetaPull->Fill(pull);
-
       thetaResolution[3]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoCombinedGlbTrack->theta());
       thetaResolution[4]->Fill(recoCombinedGlbTrack->theta(), -recoStaGlbTrack->theta()+recoCombinedGlbTrack->theta());
       thetaResolution[5]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoStaGlbTrack->theta());
-
-     
+      
       phiGlbTrack[0]->Fill(recoCombinedGlbTrack->phi());
       phiGlbTrack[1]->Fill(recoTkGlbTrack->phi());
       phiGlbTrack[2]->Fill(recoStaGlbTrack->phi());
@@ -415,7 +564,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phiResolution[3]->Fill(recoCombinedGlbTrack->phi(), recoTkGlbTrack->phi()-recoCombinedGlbTrack->phi());
       phiResolution[4]->Fill(recoCombinedGlbTrack->phi(), -recoStaGlbTrack->phi()+recoCombinedGlbTrack->phi());
       phiResolution[5]->Fill(recoCombinedGlbTrack->phi(), recoTkGlbTrack->phi()-recoStaGlbTrack->phi());
-    
+      
       chi2OvDFGlbTrack[0]->Fill(recoCombinedGlbTrack->normalizedChi2());
       chi2OvDFGlbTrack[1]->Fill(recoTkGlbTrack->normalizedChi2());
       chi2OvDFGlbTrack[2]->Fill(recoStaGlbTrack->normalizedChi2());
@@ -427,15 +576,15 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       probchi2GlbTrack[2]->Fill(TMath::Prob(recoStaGlbTrack->chi2(),recoStaGlbTrack->ndof()));
       //    cout << "rellenados histos."<<endl;
       //-------------------------
-
+      
       pGlbTrack[0]->Fill(recoCombinedGlbTrack->p());
       pGlbTrack[1]->Fill(recoTkGlbTrack->p());
       pGlbTrack[2]->Fill(recoStaGlbTrack->p());
-
+      
       ptGlbTrack[0]->Fill(recoCombinedGlbTrack->pt());
       ptGlbTrack[1]->Fill(recoTkGlbTrack->pt());
       ptGlbTrack[2]->Fill(recoStaGlbTrack->pt());
-
+      
       qGlbTrack[0]->Fill(recoCombinedGlbTrack->charge());
       qGlbTrack[1]->Fill(recoTkGlbTrack->charge());
       qGlbTrack[2]->Fill(recoStaGlbTrack->charge());
@@ -447,7 +596,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       else qGlbTrack[3]->Fill(6);
       if(recoCombinedGlbTrack->charge()!=recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()!=recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(7);
       if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()==recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(8);
-    
+      
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "qOverp", res, pull);
       qOverpResolution[0]->Fill(res);
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "qOverp", res, pull);
@@ -455,8 +604,8 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       GetRes(recoTkGlbTrack, recoStaGlbTrack, "qOverp", res, pull);
       qOverpResolution[2]->Fill(res);
       qOverpPull->Fill(pull);
-
-
+      
+      
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "oneOverp", res, pull);
       oneOverpResolution[0]->Fill(res);
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "oneOverp", res, pull);
@@ -464,8 +613,8 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       GetRes(recoTkGlbTrack, recoStaGlbTrack, "oneOverp", res, pull);
       oneOverpResolution[2]->Fill(res);
       oneOverpPull->Fill(pull);
-    
-
+      
+      
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "qOverpt", res, pull);
       qOverptResolution[0]->Fill(res);
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "qOverpt", res, pull);
@@ -473,7 +622,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       GetRes(recoTkGlbTrack, recoStaGlbTrack, "qOverpt", res, pull);
       qOverptResolution[2]->Fill(res);
       qOverptPull->Fill(pull);
-
+      
       GetRes(recoTkGlbTrack, recoCombinedGlbTrack, "oneOverpt", res, pull);
       oneOverptResolution[0]->Fill(res);
       GetRes(recoCombinedGlbTrack, recoStaGlbTrack, "oneOverpt", res, pull);
@@ -481,22 +630,22 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       GetRes(recoTkGlbTrack, recoStaGlbTrack, "oneOverpt", res, pull);
       oneOverptResolution[2]->Fill(res);
       oneOverptPull->Fill(pull);
-
-
+      
+      
       // //--- Test new tunePMuonBestTrack() method from Muon.h
-
+      
       reco::TrackRef recoBestTrack = muon->muonBestTrack();
-
+      
       reco::TrackRef recoTunePBestTrack = muon->tunePMuonBestTrack();
-
+      
       double bestTrackPt =  recoBestTrack->pt();
-
+      
       double tunePBestTrackPt =  recoTunePBestTrack->pt();
-
+      
       double tunePBestTrackRes =  (bestTrackPt - tunePBestTrackPt) / bestTrackPt;
-
+      
       tunePResolution->Fill(tunePBestTrackRes); 
-   
+      
       oneOverptResolution[3]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[4]->Fill(recoCombinedGlbTrack->eta(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[5]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
@@ -506,8 +655,8 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       oneOverptResolution[9]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[10]->Fill(recoCombinedGlbTrack->pt(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
-            
-
+      
+      
       if (!IsminiAOD){ 
 	// valid hits Glb track
 	double rhGlb = recoCombinedGlbTrack->found();
@@ -551,18 +700,18 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	muVStkSytemRotation[1]->Fill(recoCombinedGlbTrack->pt(),recoTkGlbTrack->pt()/recoCombinedGlbTrack->pt());
     }
     
-
-
+    
+    
     if(muon->isTrackerMuon() && !(muon->isGlobalMuon())) {
       LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is tracker only - filling the histos";
       if(muon->isStandAloneMuon())
-    	muReco->Fill(3);
+	muReco->Fill(3);
       if(!(muon->isStandAloneMuon()))
-    	muReco->Fill(4);
-
+	muReco->Fill(4);
+      
       // get the track using only the tracker data
       reco::TrackRef recoTrack = muon->track();
-
+      
       etaTrack->Fill(recoTrack->eta());
       thetaTrack->Fill(recoTrack->theta());
       phiTrack->Fill(recoTrack->phi());
@@ -571,17 +720,17 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       pTrack->Fill(recoTrack->p());
       ptTrack->Fill(recoTrack->pt());
       qTrack->Fill(recoTrack->charge());
-    
+      
     }
-
+    
     if(muon->isStandAloneMuon() && !(muon->isGlobalMuon())) {
       LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is STA only - filling the histos";
       if(!(muon->isTrackerMuon()))
-  	muReco->Fill(5);
-     
+	muReco->Fill(5);
+      
       // get the track using only the mu spectrometer data
       reco::TrackRef recoStaTrack = muon->standAloneMuon();
-
+      
       etaStaTrack->Fill(recoStaTrack->eta());
       thetaStaTrack->Fill(recoStaTrack->theta());
       phiStaTrack->Fill(recoStaTrack->phi());
@@ -590,17 +739,17 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       pStaTrack->Fill(recoStaTrack->p());
       ptStaTrack->Fill(recoStaTrack->pt());
       qStaTrack->Fill(recoStaTrack->charge());
-
+      
     }
     
     if(muon->isCaloMuon() && !(muon->isGlobalMuon()) && !(muon->isTrackerMuon()) && !(muon->isStandAloneMuon()))
       muReco->Fill(6);
-  
+    
     //efficiency plots
-  
+	    
     // get the track using only the mu spectrometer data
     reco::TrackRef recoStaGlbTrack = muon->standAloneMuon();
-  
+	    
     if(muon->isStandAloneMuon()){
       etaEfficiency[0]->Fill(recoStaGlbTrack->eta());
       phiEfficiency[0]->Fill(recoStaGlbTrack->phi());
@@ -610,7 +759,35 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phiEfficiency[1]->Fill(recoStaGlbTrack->phi());
     }
   }
-
-
-
+  
 }
+
+
+//Needed by MVA Soft Muon
+double MuonRecoAnalyzer::getDeltaR(reco::Track track1,reco::Track track2) {
+  
+  double dphi = acos(cos(track1.phi() - track2.phi()));
+  double deta = track1.eta() - track2.eta();
+  return sqrt(dphi*dphi + deta*deta);
+  
+}
+
+
+// ----------------------------------------------------------------------
+int MuonRecoAnalyzer::getPv(int tidx, const reco::VertexCollection *vc) {
+  if (vc) {
+    for (unsigned int i = 0; i < vc->size(); ++i) {
+      reco::Vertex::trackRef_iterator v1TrackIter;
+      reco::Vertex::trackRef_iterator v1TrackBegin = vc->at(i).tracks_begin();
+      reco::Vertex::trackRef_iterator v1TrackEnd   = vc->at(i).tracks_end();
+      for (v1TrackIter = v1TrackBegin; v1TrackIter != v1TrackEnd; v1TrackIter++) {
+	if (static_cast<unsigned int>(tidx) == v1TrackIter->key()) return i;
+      }
+    }
+  }
+  return -1;
+}
+
+
+
+

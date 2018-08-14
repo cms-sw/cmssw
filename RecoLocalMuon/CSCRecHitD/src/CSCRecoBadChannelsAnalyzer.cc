@@ -39,8 +39,8 @@
         recoConditions_( new CSCRecoConditions( ps ) ) {
     }
 
-    virtual ~CSCRecoBadChannelsAnalyzer() { delete recoConditions_; }
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~CSCRecoBadChannelsAnalyzer() override { delete recoConditions_; }
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     /// did we request reading bad channel info from db?
     bool readBadChannels() const { return readBadChannels_; }

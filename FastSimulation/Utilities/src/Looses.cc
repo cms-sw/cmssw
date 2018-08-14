@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-Looses* Looses::myself = 0;
+Looses* Looses::myself = nullptr;
 
 Looses::Looses() {}
 

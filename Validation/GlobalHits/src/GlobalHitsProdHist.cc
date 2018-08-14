@@ -7,6 +7,7 @@
 
 #include "Validation/GlobalHits/interface/GlobalHitsProdHist.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), 
@@ -606,7 +607,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
 
   // create persistent objects
   for (std::size_t i = 0; i < histName_.size(); ++i) {
-    produces<TH1F, edm::InRun>(histName_[i]).setBranchAlias(histName_[i]);
+    produces<TH1F, edm::Transition::EndRun>(histName_[i]).setBranchAlias(histName_[i]);
   }
 }
 
@@ -1637,8 +1638,7 @@ void GlobalHitsProdHist::fillECal(edm::Event& iEvent,
 	 (subdetector == sdEcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1706,8 +1706,7 @@ void GlobalHitsProdHist::fillECal(edm::Event& iEvent,
 	(subdetector == sdEcalPS)) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1807,19 +1806,19 @@ void GlobalHitsProdHist::fillHCal(edm::Event& iEvent,
 	 (subdetector == sdHcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      const HcalGeometry *theDet = dynamic_cast<const HcalGeometry*>
+	(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
-	  << "Unable to get CaloCellGeometry from HCalContainer for Hit " << i;
+	  << "Unable to get HcalGeometry from HCalContainer for Hit " << i;
 	continue;
       }
 
       ++j;
 
       // get the global position of the cell
-      const GlobalPoint& globalposition = theDet->getPosition();
+      const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 
       if (hCaloHcalE[0]) hCaloHcalE[0]->Fill(itHit->energy());
       if (hCaloHcalE[1]) hCaloHcalE[1]->Fill(itHit->energy());

@@ -32,14 +32,13 @@ _xsection(-1.)
     if (!pset.exists("GenEventInfoCollection")){
       throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the GenEventInfoProduct collection from which the weight has to be taken " ; 
     }
-    _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
-    _useLHEweights          = pset.getParameter<bool>("useLHEweights");
-    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
-    
+ 
     _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
+    _useGENweights          = pset.getParameter<bool>("useGENweights");
+    _GENweightNumber        = pset.getParameter<int>("GENweightNumber");
     _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
     _useLHEweights          = pset.getParameter<bool>("useLHEweights");
-    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
+    _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");
     
   }
 
@@ -59,7 +58,7 @@ _xsection(-1.)
   }
   if (_produceDQM){
     // book stuff needed for DQM
-    dbe = 0;
+    dbe = nullptr;
     dbe = edm::Service<DQMStore>().operator->();
     dbe->setVerbose(50);
   }  
@@ -109,23 +108,28 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
     } 
 
     if ( _useExternalWeight ){
-      if (tmpGenEvtPtr->weights().size() == 0) {
+      if (tmpGenEvtPtr->weights().empty()) {
 	throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
       }
       if (tmpGenEvtPtr->weights().size() > 1) {
 	edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size() << ". Will change only the first one ";  
       }
     
-      if(!_useLHEweights){
+      double weightForRivet = 1.;
+      
+      if(_useGENweights){
 	edm::Handle<GenEventInfoProduct> genEventInfoProduct;
 	iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
-	tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weight();
-      }else{
+	weightForRivet *= genEventInfoProduct->weights().at(_GENweightNumber);
+      }
+      if(_useLHEweights){
 	edm::Handle<LHEEventProduct> lheEventHandle;
 	iEvent.getByToken(_LHECollection,lheEventHandle);
 	const LHEEventProduct::WGT& wgt = lheEventHandle->weights().at(_LHEweightNumber);
-	tmpGenEvtPtr->weights()[0] = wgt.wgt;
+	weightForRivet *= wgt.wgt;
       }
+      
+      tmpGenEvtPtr->weights()[0] = weightForRivet;
     }
     myGenEvent = tmpGenEvtPtr.get();
 
@@ -181,7 +185,7 @@ void RivetAnalyzer::normalizeTree()    {
   //tree.mkdir(tmpdir);
   foreach (const string& analysis, analyses) {
     if (_produceDQM){
-      dbe->setCurrentFolder(("Rivet/"+analysis).c_str());
+      dbe->setCurrentFolder("Rivet/"+analysis);
       //global variables that are always present
       //sumOfWeights
       TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);

@@ -9,10 +9,6 @@
 EDM_REGISTER_PLUGINFACTORY(edm::DigiAccumulatorMixModPluginFactory,"DigiAccumulator");
 
 namespace edm {
-  namespace one {
-    class EDProducerBase;
-  }
-
   DigiAccumulatorMixModFactory::~DigiAccumulatorMixModFactory() {
   }
 
@@ -30,7 +26,7 @@ namespace edm {
   }
 
   std::unique_ptr<DigiAccumulatorMixMod>
-  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, stream::EDProducerBase& mixMod, ConsumesCollector& iC) const {
+  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, ProducerBase& mixMod, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
     std::unique_ptr<DigiAccumulatorMixMod> wm;

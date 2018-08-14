@@ -30,8 +30,10 @@
 
 // forward declarations
 namespace edm {
+
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTaskWithArenaHolder;
 
   namespace stream {
     class EDFilterAdaptorBase;
@@ -48,7 +50,7 @@ namespace edm {
 
 
       EDFilterBase();
-      virtual ~EDFilterBase();
+      ~EDFilterBase() override;
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -71,10 +73,12 @@ namespace edm {
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
 
-      virtual void preForkReleaseResources() {}
-      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
       virtual void registerThinnedAssociations(ProductRegistry const&,
                                                ThinnedAssociationsHelper&) { }
+
+      virtual void doAcquire_(Event const&,
+                              EventSetup const&,
+                              WaitingTaskWithArenaHolder&) = 0;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;
@@ -82,6 +86,7 @@ namespace edm {
       // ---------- member data --------------------------------
 
       std::vector<BranchID> previousParentage_;
+      std::vector<BranchID> gotBranchIDsFromAcquire_;
       ParentageID previousParentageId_;
       ModuleDescription const* moduleDescriptionPtr_;
     };

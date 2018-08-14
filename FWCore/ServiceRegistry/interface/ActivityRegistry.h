@@ -22,6 +22,28 @@ unscheduled execution. The tests are in FWCore/Integration/test:
   run_TestGetBy.sh
   testGetBy1_cfg.py
   testGetBy2_cfg.py
+
+There are four little details you should remember when adding new signals
+to this file that go beyond the obvious cut and paste type of edits.
+  1. The number at the end of the AR_WATCH_USING_METHOD_X macro definition
+  is the number of function arguments. It will not compile if you use the
+  wrong number there.
+  2. Use connect or connect_front depending on whether the callback function
+  should be called for different services in the order the Services were
+  constructed or in reverse order. Begin signals are usually forward and
+  End signals in reverse, but if the service does not depend on other services
+  and vice versa this does not matter.
+  3. The signal needs to be added to either connectGlobals or connectLocals
+  in the ActivityRegistry.cc file, depending on whether a signal is seen
+  by children or parents when there are SubProcesses. For example, source
+  signals are only generated in the top level process and should be seen
+  by all child SubProcesses so they are in connectGlobals. Most signals
+  however belong in connectLocals. It does not really matter in jobs
+  without at least one SubProcess.
+  4. Each signal also needs to be added in copySlotsFrom in
+  ActivityRegistry.cc. Whether it uses copySlotsToFrom or
+  copySlotsToFromReverse depends on the same ordering issue as the connect
+  or connect_front choice in item 2 above.
 */
 //
 // Original Author:  Chris Jones
@@ -30,11 +52,13 @@ unscheduled execution. The tests are in FWCore/Integration/test:
 
 // system include files
 #include <functional>
-#include "FWCore/Utilities/interface/Signal.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"
 
 // user include files
+#include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #define AR_WATCH_USING_METHOD_0(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject)); }
 #define AR_WATCH_USING_METHOD_1(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1)); }
@@ -58,6 +82,11 @@ namespace edm {
    class ProcessContext;
    class ModuleCallingContext;
    class PathsAndConsumesOfModulesBase;
+   namespace eventsetup {
+      struct ComponentDescription;
+      class DataKey;
+      class EventSetupRecordKey;
+   }
    namespace service {
      class SystemBounds;
    }
@@ -98,6 +127,7 @@ namespace edm {
         preallocateSignal_.connect(iSlot);
       }
       AR_WATCH_USING_METHOD_1(watchPreallocate)
+
 
       typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
       ///signal is emitted before all modules have gotten their beginJob called
@@ -160,36 +190,36 @@ namespace edm {
       AR_WATCH_USING_METHOD_1(watchPostSourceEvent)
         
       /// signal is emitted before the source starts creating a Lumi
-      typedef signalslot::Signal<void()> PreSourceLumi;
+      typedef signalslot::Signal<void(LuminosityBlockIndex)> PreSourceLumi;
       PreSourceLumi preSourceLumiSignal_;
       void watchPreSourceLumi(PreSourceLumi::slot_type const& iSlot) {
         preSourceLumiSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSourceLumi)
+      AR_WATCH_USING_METHOD_1(watchPreSourceLumi)
 
       /// signal is emitted after the source starts creating a Lumi
-      typedef signalslot::Signal<void()> PostSourceLumi;
+      typedef signalslot::Signal<void(LuminosityBlockIndex)> PostSourceLumi;
       PostSourceLumi postSourceLumiSignal_;
       void watchPostSourceLumi(PostSourceLumi::slot_type const& iSlot) {
          postSourceLumiSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSourceLumi)
+      AR_WATCH_USING_METHOD_1(watchPostSourceLumi)
         
       /// signal is emitted before the source starts creating a Run
-      typedef signalslot::Signal<void()> PreSourceRun;
+      typedef signalslot::Signal<void(RunIndex)> PreSourceRun;
       PreSourceRun preSourceRunSignal_;
       void watchPreSourceRun(PreSourceRun::slot_type const& iSlot) {
         preSourceRunSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSourceRun)
+      AR_WATCH_USING_METHOD_1(watchPreSourceRun)
 
       /// signal is emitted after the source starts creating a Run
-      typedef signalslot::Signal<void()> PostSourceRun;
+      typedef signalslot::Signal<void(RunIndex)> PostSourceRun;
       PostSourceRun postSourceRunSignal_;
       void watchPostSourceRun(PostSourceRun::slot_type const& iSlot) {
          postSourceRunSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSourceRun)
+      AR_WATCH_USING_METHOD_1(watchPostSourceRun)
         
       /// signal is emitted before the source opens a file
       typedef signalslot::Signal<void(std::string const&, bool)> PreOpenFile;
@@ -700,6 +730,22 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleEvent)
 
+      /// signal is emitted before the module starts the acquire method for the Event
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventAcquire;
+      PreModuleEventAcquire preModuleEventAcquireSignal_;
+      void watchPreModuleEventAcquire(PreModuleEventAcquire::slot_type const& iSlot) {
+         preModuleEventAcquireSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleEventAcquire)
+
+      /// signal is emitted after the module finishes the acquire method for the Event
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleEventAcquire;
+      PostModuleEventAcquire postModuleEventAcquireSignal_;
+      void watchPostModuleEventAcquire(PostModuleEventAcquire::slot_type const& iSlot) {
+         postModuleEventAcquireSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleEventAcquire)
+
       /// signal is emitted after the module starts processing the Event and before a delayed get has started
       typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventDelayedGet;
       PreModuleEventDelayedGet preModuleEventDelayedGetSignal_;
@@ -844,6 +890,34 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleGlobalEndLumi)
 
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteRun;
+      PreModuleWriteRun preModuleWriteRunSignal_;
+      void watchPreModuleWriteRun(PreModuleWriteRun::slot_type const& iSlot) {
+         preModuleWriteRunSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleWriteRun)
+
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleWriteRun;
+      PostModuleWriteRun postModuleWriteRunSignal_;
+      void watchPostModuleWriteRun(PostModuleWriteRun::slot_type const& iSlot) {
+         postModuleWriteRunSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleWriteRun)
+
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteLumi;
+      PreModuleWriteLumi preModuleWriteLumiSignal_;
+      void watchPreModuleWriteLumi(PreModuleWriteLumi::slot_type const& iSlot) {
+         preModuleWriteLumiSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleWriteLumi)
+
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleWriteLumi;
+      PostModuleWriteLumi postModuleWriteLumiSignal_;
+      void watchPostModuleWriteLumi(PostModuleWriteLumi::slot_type const& iSlot) {
+         postModuleWriteLumiSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleWriteLumi)
+
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing the Event
       typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModule;
@@ -953,22 +1027,30 @@ namespace edm {
       // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
 
-      /// signal is emitted before we fork the processes
-      typedef signalslot::Signal<void()> PreForkReleaseResources;
-      PreForkReleaseResources preForkReleaseResourcesSignal_;
-      void watchPreForkReleaseResources(PreForkReleaseResources::slot_type const& iSlot) {
-         preForkReleaseResourcesSignal_.connect_front(iSlot);
+      typedef signalslot::Signal<void(eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)> PreLockEventSetupGet;
+      ///signal is emitted before lock taken in EventSetup DataProxy::get function
+      PreLockEventSetupGet preLockEventSetupGetSignal_;
+      void watchPreLockEventSetupGet(PreLockEventSetupGet::slot_type const& iSlot) {
+         preLockEventSetupGetSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreForkReleaseResources)
-      
-      /// signal is emitted after we forked the processes
-      typedef signalslot::Signal<void(unsigned int, unsigned int)> PostForkReacquireResources;
-      PostForkReacquireResources postForkReacquireResourcesSignal_;
-      void watchPostForkReacquireResources(PostForkReacquireResources::slot_type const& iSlot) {
-         postForkReacquireResourcesSignal_.connect_front(iSlot);
+      AR_WATCH_USING_METHOD_3(watchPreLockEventSetupGet)
+
+      typedef signalslot::Signal<void(eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)> PostLockEventSetupGet;
+      ///signal is emitted after lock taken in EventSetup DataProxy::get function
+      PostLockEventSetupGet postLockEventSetupGetSignal_;
+      void watchPostLockEventSetupGet(PostLockEventSetupGet::slot_type const& iSlot) {
+         postLockEventSetupGetSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_2(watchPostForkReacquireResources)
-      
+      AR_WATCH_USING_METHOD_3(watchPostLockEventSetupGet)
+
+      typedef signalslot::Signal<void(eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)> PostEventSetupGet;
+      ///signal is emitted after getImpl has returned in the EventSetup DataProxy::get function
+      PostEventSetupGet postEventSetupGetSignal_;
+      void watchPostEventSetupGet(PostEventSetupGet::slot_type const& iSlot) {
+         postEventSetupGetSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_3(watchPostEventSetupGet)
+
       // ---------- member functions ---------------------------
       
       ///forwards our signals to slots connected to iOther

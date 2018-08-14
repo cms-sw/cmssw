@@ -75,7 +75,7 @@ namespace {
 		const TransientTrack &track;
 	};
 
-	static inline Vector3 conv(const GlobalVector &vec)
+	inline Vector3 conv(const GlobalVector &vec)
 	{
 		Vector3 result;
 		result[0] = vec.x();
@@ -84,7 +84,7 @@ namespace {
 		return result;
 	}
 
-	static inline double sqr(double arg) { return arg * arg; }
+	inline double sqr(double arg) { return arg * arg; }
 }
 
 struct GhostTrackVertexFinder::FinderInfo {
@@ -94,7 +94,7 @@ struct GhostTrackVertexFinder::FinderInfo {
 		primaryVertex(primaryVertex), pred(ghostTrack.prediction()),
 		prior(ghostTrack.prior()), states(ghostTrack.states()),
 		beamSpot(beamSpot), hasBeamSpot(hasBeamSpot),
-		hasPrimaries(hasPrimaries), field(0) {}
+		hasPrimaries(hasPrimaries), field(nullptr) {}
 
 	const CachingVertex<5>			&primaryVertex;
 	GhostTrackPrediction			pred;
@@ -178,7 +178,7 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 
 	GlobalPoint point = vtxMean(pca1, err1, pca2, err2);
 
-	TransientTrack recTrack = state.track();
+	const TransientTrack& recTrack = state.track();
 
 	RefCountedLinearizedTrackState linState[2] = {
 		linTrackFactory.linearizedTrackState(point, ghostTrack),

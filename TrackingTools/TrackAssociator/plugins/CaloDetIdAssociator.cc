@@ -194,7 +194,7 @@ void CaloDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)
 void CaloDetIdAssociator::check_setup() const
 {
   DetIdAssociator::check_setup();
-  if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
+  if (geometry_==nullptr) throw cms::Exception("CaloGeometry is not set");
 }
    
 GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {
@@ -215,7 +215,7 @@ CaloDetIdAssociator::getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& p
     LogDebug("TrackAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
     return std::pair<const_iterator,const_iterator>(dummy_.end(),dummy_.end());
   }
-  const CaloCellGeometry* cellGeom = subDetGeom->getGeometry(id);
+  auto cellGeom = subDetGeom->getGeometry(id);
   if(! cellGeom) {
     LogDebug("TrackAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
     return std::pair<const_iterator,const_iterator>(dummy_.end(),dummy_.end());

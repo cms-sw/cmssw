@@ -23,23 +23,23 @@ class ITimingDat : public IDataItem {
 
 ITimingDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_timingMean = 0;
   m_timingRMS = 0;
-  m_taskStatus=0;
+  m_taskStatus=false;
 };
 
 
 
- ~ITimingDat(){};
+ ~ITimingDat() override{};
 
 
   // User data methods
-  inline std::string getTable() { return m_table_name;}
+  inline std::string getTable() override { return m_table_name;}
   inline void setTable(std::string x) { m_table_name=x; }
 
   inline void setTimingMean(float mean) { m_timingMean = mean; }
@@ -53,7 +53,7 @@ ITimingDat()
   
 
  private:
-void prepareWrite() noexcept(false)
+void prepareWrite() noexcept(false) override
 {
   this->checkConnection();
 
@@ -64,7 +64,7 @@ void prepareWrite() noexcept(false)
 			"VALUES (:iov_id, :logic_id, "
 			":timing_mean, :timing_rms, :task_status )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ITimingDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ITimingDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -92,7 +92,7 @@ void prepareWrite() noexcept(false)
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ITimingDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ITimingDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -181,7 +181,7 @@ void prepareWrite() noexcept(false)
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ITimingDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ITimingDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -215,12 +215,12 @@ void prepareWrite() noexcept(false)
     std::pair< EcalLogicID, DATT > p;
     DATT dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setTimingMean( rset->getFloat(7) );
       dat.setTimingRMS( rset->getFloat(8) );
@@ -233,7 +233,7 @@ void prepareWrite() noexcept(false)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ITimingDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ITimingDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 

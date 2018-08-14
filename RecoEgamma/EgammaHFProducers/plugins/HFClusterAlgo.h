@@ -58,7 +58,7 @@ class HFClusterAlgo {
   bool isPMTHit(const HFRecHit& hfr);
   bool makeCluster(const HcalDetId& seedid,
 		   const HFRecHitCollection& hf, 
-		   const CaloGeometry& geom,
+		   const CaloGeometry* geom,
 		   reco::HFEMClusterShape& clusShp,
 		   reco::SuperCluster& SClus);
 };

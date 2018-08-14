@@ -4,10 +4,13 @@
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <string>
 
 
@@ -18,8 +21,8 @@ class DummyCondObjPrinter : public edm::EDAnalyzer {
 public:
 
   explicit DummyCondObjPrinter(const edm::ParameterSet& iConfig);
-  ~DummyCondObjPrinter();
-  void analyze(const edm::Event& e, const edm::EventSetup&es);
+  ~DummyCondObjPrinter() override;
+  void analyze(const edm::Event& e, const edm::EventSetup&es) override;
 
 
  private:
@@ -48,9 +51,11 @@ void DummyCondObjPrinter<TObject,TRecord>::analyze(const edm::Event& e, const ed
 
   edm::ESHandle<TObject> esobj;
   es.get<TRecord>().get( esobj );
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<TrackerTopologyRcd>().get(tTopo);
   std::stringstream sSummary, sDebug;
-  esobj->printSummary(sSummary);
-  esobj->printDebug(sDebug);
+  esobj->printSummary(sSummary, tTopo.product());
+  esobj->printDebug(sDebug, tTopo.product());
 
   //  edm::LogInfo("DummyCondObjPrinter") << "\nPrintSummary \n" << sSummary.str()  << std::endl;
   //  edm::LogWarning("DummyCondObjPrinter") << "\nPrintDebug \n" << sDebug.str()  << std::endl;

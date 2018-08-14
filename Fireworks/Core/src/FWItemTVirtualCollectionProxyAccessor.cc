@@ -37,7 +37,7 @@ FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(
    size_t iOffset)
    : m_type(iType),
      m_colProxy(iProxy),
-     m_data(0),
+     m_data(nullptr),
      m_offset(iOffset)
 {
 }
@@ -69,23 +69,23 @@ FWItemTVirtualCollectionProxyAccessor::~FWItemTVirtualCollectionProxyAccessor()
 void
 FWItemTVirtualCollectionProxyAccessor::setData(const edm::ObjectWithDict& product)
 {
-   if (product.address() == 0)
+   if (product.address() == nullptr)
    {
       reset();
       return;
    }
 
    m_data = product.address();
-   assert(0!=m_data);
+   assert(nullptr!=m_data);
    m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
 }
 
 void
 FWItemTVirtualCollectionProxyAccessor::reset()
 {
-   if (0 != m_data)
+   if (nullptr != m_data)
    {
-      m_data=0;
+      m_data=nullptr;
       m_colProxy->PopProxy();
    }
 }
@@ -96,7 +96,7 @@ FWItemTVirtualCollectionProxyAccessor::reset()
 const void*
 FWItemTVirtualCollectionProxyAccessor::modelData(int iIndex) const
 {
-   if ( 0 == m_data) { return m_data; }
+   if ( nullptr == m_data) { return m_data; }
    return m_colProxy->At(iIndex);
 }
 
@@ -109,7 +109,7 @@ FWItemTVirtualCollectionProxyAccessor::data() const
 unsigned int
 FWItemTVirtualCollectionProxyAccessor::size() const
 {
-   if(m_data==0) {
+   if(m_data==nullptr) {
       return 0;
    }
    return m_colProxy->Size();

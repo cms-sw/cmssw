@@ -8,13 +8,19 @@
 #define JetCorrectorParameters_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/JetMETObjects/interface/Utilities.h"
 
 #include <string>
 #include <vector>
+#include <tuple>
 #include <algorithm>
+#include <functional>
 #include <iostream>
+#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class JetCorrectorParametersHelper;
 
 class JetCorrectorParameters 
 {
@@ -48,8 +54,8 @@ class JetCorrectorParameters
         std::vector<std::string> mParVar;
         std::vector<std::string> mBinVar;
     
-    COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
     //---------------- Record class --------------------------------
     //-- Each Record holds the properties of a bin ----------------- 
     class Record 
@@ -60,13 +66,21 @@ class JetCorrectorParameters
         Record(unsigned fNvar, const std::vector<float>& fXMin, const std::vector<float>& fXMax, const std::vector<float>& fParameters) : mNvar(fNvar),mMin(fXMin),mMax(fXMax),mParameters(fParameters) {}
         Record(const std::string& fLine, unsigned fNvar);
         //-------- Member functions ----------
+        unsigned nVar()                     const {return mNvar;                      }
         float xMin(unsigned fVar)           const {return mMin[fVar];                 }
         float xMax(unsigned fVar)           const {return mMax[fVar];                 }
         float xMiddle(unsigned fVar)        const {return 0.5*(xMin(fVar)+xMax(fVar));}
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
-        int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
+        bool operator< (const Record& other) const
+        {
+          if (xMin(0) < other.xMin(0)) return true;
+          if (xMin(0) > other.xMin(0)) return false;
+          if (xMin(1) < other.xMin(1)) return true;
+          if (xMin(1) > other.xMin(1)) return false;
+          return (xMin(2) < other.xMin(2));
+        }
       private:
         //-------- Member variables ----------
         unsigned           mNvar;
@@ -74,36 +88,42 @@ class JetCorrectorParameters
         std::vector<float> mMax;
         std::vector<float> mParameters;
     
-    COND_SERIALIZABLE;
-};
+      COND_SERIALIZABLE;
+    };
      
     //-------- Constructors --------------
     JetCorrectorParameters() { valid_ = false;}
     JetCorrectorParameters(const std::string& fFile, const std::string& fSection = "");
     JetCorrectorParameters(const JetCorrectorParameters::Definitions& fDefinitions,
-			 const std::vector<JetCorrectorParameters::Record>& fRecords) 
-      : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
+                           const std::vector<JetCorrectorParameters::Record>& fRecords) 
+                           : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
     //-------- Member functions ----------
-    const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
-    const Definitions& definitions()                             const {return mDefinitions;   }
-    unsigned size()                                              const {return mRecords.size();}
-    unsigned size(unsigned fVar)                                 const;
-    int binIndex(const std::vector<float>& fX)                   const;
-    int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext) const;
-    std::vector<float> binCenters(unsigned fVar)                 const;
-    void printScreen()                                           const;
-    void printFile(const std::string& fFileName)                 const;
+    const Record& record(unsigned fBin)                                                       const {return mRecords[fBin]; }
+    const Definitions& definitions()                                                          const {return mDefinitions;   }
+    unsigned size()                                                                           const {return mRecords.size();}
+    unsigned size(unsigned fVar)                                                              const;
+    int binIndex(const std::vector<float>& fX)                                                const;
+    int binIndexN(const std::vector<float>& fX)                                               const;
+    int neighbourBin(unsigned fIndex, unsigned fVar, bool fNext)                              const;
+    std::vector<float> binCenters(unsigned fVar)                                              const;
+    void printScreen()                                                                        const;
+    void printFile(const std::string& fFileName)                                              const;
     bool isValid() const { return valid_; }
+    void init();
+
+    static const int                                                           MAX_SIZE_DIMENSIONALITY = 3 COND_TRANSIENT;
 
   private:
     //-------- Member variables ----------
-    JetCorrectorParameters::Definitions         mDefinitions;
-    std::vector<JetCorrectorParameters::Record> mRecords;
-    bool                                        valid_; /// is this a valid set?
+    JetCorrectorParameters::Definitions                                        mDefinitions;
+    std::vector<JetCorrectorParameters::Record>                                mRecords;
+    bool                                                                       valid_; /// is this a valid set?
+
+    std::shared_ptr<JetCorrectorParametersHelper>                              helper                      COND_TRANSIENT; 
 
   COND_SERIALIZABLE;
 };
-
+std::ostream& operator<<(std::ostream& out, const JetCorrectorParameters::Record& fBin);
 
 
 class JetCorrectorParametersCollection {
@@ -114,44 +134,44 @@ class JetCorrectorParametersCollection {
   //       enum value is in order of appearance when people thought of them.
  public:
   enum Level_t { L1Offset=0,
-		 L1JPTOffset=7,
-                 L1FastJet = 10,
-		 L2Relative=1,
-		 L3Absolute=2,
-		 L2L3Residual=8,
-		 L4EMF=3,
-		 L5Flavor=4,
-		 L6UE=5,
-		 L7Parton=6,
-		 Uncertainty=9,
-		 UncertaintyAbsolute=11, 
-		 UncertaintyHighPtExtra=12, 
-		 UncertaintySinglePionECAL=13, 
-		 UncertaintySinglePionHCAL=27, 
-		 UncertaintyFlavor=14, 
-		 UncertaintyTime=15,
-		 UncertaintyRelativeJEREC1=16, 
-		 UncertaintyRelativeJEREC2=17, 
-		 UncertaintyRelativeJERHF=18,
-		 UncertaintyRelativePtEC1=28,
-		 UncertaintyRelativePtEC2=29,
-		 UncertaintyRelativePtHF=30,
-		 UncertaintyRelativeStatEC2=19, 
-		 UncertaintyRelativeStatHF=20, 
-		 UncertaintyRelativeFSR=21,
-		 UncertaintyRelativeSample=31,
-		 UncertaintyPileUpDataMC=22, 
-		 UncertaintyPileUpOOT=23, 
-		 UncertaintyPileUpPtBB=24,
-		 UncertaintyPileUpPtEC=32, 
-		 UncertaintyPileUpPtHF=33, 
-		 UncertaintyPileUpBias=25, 
-		 UncertaintyPileUpJetRate=26,
-		 L1RC=34,
-		 L1Residual=35,
-		 UncertaintyAux3=36,
-		 UncertaintyAux4=37,
-		 N_LEVELS=38
+     L1JPTOffset=7,
+     L1FastJet = 10,
+     L2Relative=1,
+     L3Absolute=2,
+     L2L3Residual=8,
+     L4EMF=3,
+     L5Flavor=4,
+     L6UE=5,
+     L7Parton=6,
+     Uncertainty=9,
+     UncertaintyAbsolute=11, 
+     UncertaintyHighPtExtra=12, 
+     UncertaintySinglePionECAL=13, 
+     UncertaintySinglePionHCAL=27, 
+     UncertaintyFlavor=14, 
+     UncertaintyTime=15,
+     UncertaintyRelativeJEREC1=16, 
+     UncertaintyRelativeJEREC2=17, 
+     UncertaintyRelativeJERHF=18,
+     UncertaintyRelativePtEC1=28,
+     UncertaintyRelativePtEC2=29,
+     UncertaintyRelativePtHF=30,
+     UncertaintyRelativeStatEC2=19, 
+     UncertaintyRelativeStatHF=20, 
+     UncertaintyRelativeFSR=21,
+     UncertaintyRelativeSample=31,
+     UncertaintyPileUpDataMC=22, 
+     UncertaintyPileUpOOT=23, 
+     UncertaintyPileUpPtBB=24,
+     UncertaintyPileUpPtEC=32, 
+     UncertaintyPileUpPtHF=33, 
+     UncertaintyPileUpBias=25, 
+     UncertaintyPileUpJetRate=26,
+     L1RC=34,
+     L1Residual=35,
+     UncertaintyAux3=36,
+     UncertaintyAux4=37,
+     N_LEVELS=38
   };
 
 
@@ -189,8 +209,8 @@ class JetCorrectorParametersCollection {
 
   // Helper method to find all of the sections in a given 
   // parameters file
-  static void getSections( std::string inputFile,
-			   std::vector<std::string> & outputs );
+  static void getSections(std::string inputFile,
+                          std::vector<std::string> & outputs );
 
   // Find the L5 bin for hashing
   static key_type getL5Bin( std::string const & flav );
@@ -214,10 +234,22 @@ class JetCorrectorParametersCollection {
   collection_type                        correctionsL5_;
   collection_type                        correctionsL7_;
 
+  collection_type&                       getCorrections()   {return corrections_;}
+  collection_type&                       getCorrectionsL5() {return correctionsL5_;}
+  collection_type&                       getCorrectionsL7() {return correctionsL7_;}
+
+  friend struct                          JetCorrectorParametersInitializeTransients;
+
  COND_SERIALIZABLE;
 
 };
 
-
+struct JetCorrectorParametersInitializeTransients {
+  void operator()(JetCorrectorParametersCollection& jcpc) {
+    for (auto & ptype : jcpc.getCorrections())   {ptype.second.init();}
+    for (auto & ptype : jcpc.getCorrectionsL5()) {ptype.second.init();}
+    for (auto & ptype : jcpc.getCorrectionsL7()) {ptype.second.init();}
+  }
+};
 
 #endif

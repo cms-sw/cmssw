@@ -75,10 +75,12 @@ class PFDisplacedVertexFinder {
   /// Sets parameters for track extrapolation and hits study
   void setEdmParameters( const MagneticField* magField,
 			 edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle,
-			 edm::ESHandle<TrackerGeometry> tkerGeomHandle){ 
+			 const TrackerTopology* tkerTopo,
+			 const TrackerGeometry* tkerGeom){
     magField_ = magField; 
     globTkGeomHandle_ = globTkGeomHandle;
-    tkerGeomHandle_ = tkerGeomHandle; 
+    tkerTopo_ = tkerTopo;
+    tkerGeom_ = tkerGeom;
   }
 
   void setTracksSelector(const edm::ParameterSet& ps){
@@ -138,9 +140,7 @@ class PFDisplacedVertexFinder {
 
   bool isCloseTo(const reco::PFDisplacedVertexSeed&, const reco::PFDisplacedVertexSeed&) const;
 
-  double getTransvDiff(const GlobalPoint&, const GlobalPoint&) const;
-  double getLongDiff(const GlobalPoint&, const GlobalPoint&) const;
-  double getLongProj(const GlobalPoint&, const GlobalVector&) const;
+  std::pair<float,float> getTransvLongDiff(const GlobalPoint&, const GlobalPoint&) const;
 
   reco::PFDisplacedVertex::VertexTrackType getVertexTrackType(PFTrackHitFullInfo&) const;
 
@@ -158,8 +158,8 @@ class PFDisplacedVertexFinder {
 
   /// Algo parameters for the vertex finder
 
-  double transvSize_;
-  double longSize_;
+  float transvSize_;
+  float longSize_;
   double primaryVertexCut_;
   double tobCut_;
   double tecCut_;
@@ -181,7 +181,8 @@ class PFDisplacedVertexFinder {
   edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle_;
 
   /// doc? 
-  edm::ESHandle<TrackerGeometry> tkerGeomHandle_;
+  const TrackerTopology* tkerTopo_;
+  const TrackerGeometry* tkerGeom_;
 
   /// to be able to extrapolate tracks f
   const MagneticField* magField_;

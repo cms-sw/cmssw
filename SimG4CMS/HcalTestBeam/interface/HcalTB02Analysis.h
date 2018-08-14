@@ -44,18 +44,18 @@ class HcalTB02Analysis : public SimProducer,
 public:
 
   HcalTB02Analysis(const edm::ParameterSet &p);
-  virtual ~HcalTB02Analysis();
+  ~HcalTB02Analysis() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 
-  HcalTB02Analysis(const HcalTB02Analysis&); // stop default
-  const HcalTB02Analysis& operator=(const HcalTB02Analysis&);
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete; // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
  
   // observer methods
-  void update(const BeginOfEvent * evt);
-  void update(const EndOfEvent * evt);
+  void update(const BeginOfEvent * evt) override;
+  void update(const EndOfEvent * evt) override;
 
   void fillEvent(HcalTB02HistoClass&);
   void clear();

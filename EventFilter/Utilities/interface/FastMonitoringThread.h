@@ -120,7 +120,7 @@ namespace evf{
 	else
 	  fm->registerStreamMonitorableUIntVec("Microstate",&threadMicrostateEncoded_,true,&microstateBins_);
 
-        fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
+        fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,nullptr);
 
         //input source state tracking (not stream, but other than first item in vector is set to Ignore state) 
         fm->registerStreamMonitorableUIntVec("Inputstate",&inputState_,true,&inputstateBins_);
@@ -140,13 +140,13 @@ namespace evf{
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
       jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath,defGroup,false));
-      if (fastMicroStateDefPath.size())
+      if (!fastMicroStateDefPath.empty())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath,defGroup,false);
     }
 
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){
       assert(!m_thread);
-      m_thread = boost::shared_ptr<std::thread>(new std::thread(fp,cp));
+      m_thread = std::make_shared<std::thread>(fp,cp);
     }
     void stop(){
       assert(m_thread);
@@ -157,7 +157,7 @@ namespace evf{
   private:
 
     std::atomic<bool> m_stoprequest;
-    boost::shared_ptr<std::thread> m_thread;
+    std::shared_ptr<std::thread> m_thread;
     MonitorData m_data;
     std::mutex monlock_;
 

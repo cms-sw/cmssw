@@ -7,6 +7,7 @@
 #include "PhysicsTools/Utilities/interface/Product.h"
 #include "PhysicsTools/Utilities/interface/Sum.h"
 #include "PhysicsTools/Utilities/interface/Difference.h"
+#include "PhysicsTools/Utilities/interface/Ratio.h"
 
 #include "PhysicsTools/Utilities/interface/Simplify_begin.h"
 

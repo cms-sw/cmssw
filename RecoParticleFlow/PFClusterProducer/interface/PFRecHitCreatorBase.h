@@ -29,22 +29,23 @@ class PFRecHitCreatorBase {
   PFRecHitCreatorBase() {}
   PFRecHitCreatorBase(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC) {
     std::vector<edm::ParameterSet> qTests =   iConfig.getParameter<std::vector<edm::ParameterSet> >("qualityTests");
-    for (unsigned int i=0;i<qTests.size();++i) {
-      std::string name = qTests.at(i).getParameter<std::string>("name");
-      qualityTests_.emplace_back(PFRecHitQTestFactory::get()->create(name,qTests.at(i)));
+    for (auto & qTest : qTests) {
+      std::string name = qTest.getParameter<std::string>("name");
+      qualityTests_.emplace_back(PFRecHitQTestFactory::get()->create(name,qTest));
     }
   }
+  virtual ~PFRecHitCreatorBase() = default;
 
+  virtual void init(const edm::EventSetup &es) { }
 
   virtual void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&,std::unique_ptr<reco::PFRecHitCollection>& ,const edm::Event&,const edm::EventSetup&)=0;
 
  protected:
 
   void beginEvent(const edm::Event& event,const edm::EventSetup& setup) {
-    for (unsigned int i=0;i<qualityTests_.size();++i)
-	qualityTests_[i]->beginEvent(event,setup);
+    for (auto & qualityTest : qualityTests_)
+	qualityTest->beginEvent(event,setup);
   }
-
 
 
   std::vector<std::unique_ptr<PFRecHitQTestBase> > qualityTests_;

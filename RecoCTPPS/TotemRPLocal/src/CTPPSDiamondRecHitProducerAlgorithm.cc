@@ -11,38 +11,51 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& iConfig ) :
-  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) ),
-  t_shift_( iConfig.getParameter<int>( "timeShift" ) )
+  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) )
 {}
 
 void
-CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
+CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
 {
-  for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator vec = input.begin(); vec != input.end(); ++vec )
-  {
-    const CTPPSDiamondDetId detid( vec->detId() );
+  for ( const auto& vec : input ) {
+    const CTPPSDiamondDetId detid( vec.detId() );
 
-    const DetGeomDesc* det = geom->GetDetector( detid );
+    if ( detid.channel() > 20 ) continue; // VFAT-like information, to be ignored
+
+    // retrieve the geometry element associated to this DetID
+    const DetGeomDesc* det = geom->getSensor( detid );
+
     const float x_pos = det->translation().x(),
-                x_width = 2.0 * det->params().at( 0 ), // parameters stand for half the size
-                y_pos = det->translation().y(),
-                y_width = 2.0 * det->params().at( 1 );
+                y_pos = det->translation().y();
+    float z_pos = 0.;
+    if ( det->parents().empty() )
+      edm::LogWarning("CTPPSDiamondRecHitProducerAlgorithm") << "The geometry element for " << detid << " has no parents. Check the geometry hierarchy!";
+    else
+      z_pos = det->parents()[det->parents().size()-1].absTranslation().z(); // retrieve the plane position;
+
+    const float x_width = 2.0 * det->params().at( 0 ), // parameters stand for half the size
+                y_width = 2.0 * det->params().at( 1 ),
+                z_width = 2.0 * det->params().at( 2 );
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
-    for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi )
-    {
-      const int t = digi->getLeadingEdge();
-      if ( t==0 ) { continue; }
+    for ( const auto& digi : vec ) {
+      if ( digi.getLeadingEdge() == 0 && digi.getTrailingEdge() == 0 ) continue;
 
-      const int t0 = ( t-t_shift_ ) % 1024,
-                time_slice = ( t-t_shift_ ) / 1024;
+      const int t = digi.getLeadingEdge();
+      const int t0 = t % 1024;
+      const int time_slice = ( t != 0 ) ? t / 1024 : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
-      rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, // spatial information
+      int tot = 0;
+      if ( t != 0 && digi.getTrailingEdge() != 0 ) tot = ( (int)digi.getTrailingEdge() ) - t;
+
+      rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, z_pos, z_width, // spatial information
                                               ( t0 * ts_to_ns_ ),
-                                              ( digi->getTrailingEdge()-t0 ) * ts_to_ns_,
+                                              ( tot * ts_to_ns_),
+                                              0., // time precision
                                               time_slice,
-                                              digi->getHPTDCErrorFlags() ) );
+                                              digi.getHPTDCErrorFlags(),
+                                              digi.getMultipleHit() ) );
     }
   }
 }

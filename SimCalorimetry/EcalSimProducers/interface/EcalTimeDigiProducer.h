@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <vector>
 
@@ -32,13 +32,13 @@ namespace edm {
 class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-  EcalTimeDigiProducer( const edm::ParameterSet& params , edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector&);
-      virtual ~EcalTimeDigiProducer();
+  EcalTimeDigiProducer( const edm::ParameterSet& params , edm::ProducerBase& mixMod, edm::ConsumesCollector&);
+      ~EcalTimeDigiProducer() override;
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&);
-      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+      void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+      void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
    private:
 

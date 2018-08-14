@@ -1,9 +1,9 @@
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
@@ -17,7 +17,8 @@ DDLBooleanSolid::DDLBooleanSolid( DDLElementRegistry* myreg )
 
 // Clear out rSolids.
 void
-DDLBooleanSolid::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+DDLBooleanSolid::preProcessElement( const std::string& name, const std::string& nmspace,
+				    DDCompactView& cpv )
 {
   myRegistry_->getElement( "rSolid" )->clear();
 }
@@ -32,9 +33,9 @@ DDLBooleanSolid::processElement( const std::string& name, const std::string& nms
   // <UnionSolid name="bs" firstSolid="blah" secondSolid="argh"> <Translation...> <rRotation .../> </UnionSolid
   // AND <UnionSolid> <rSolid...> <rSolid...> <Translation...> <rRotation...> </UnionSolid>
 
-  DDXMLElement* myrSolid = myRegistry_->getElement( "rSolid" ); // get rSolid children
-  DDXMLElement* myTranslation = myRegistry_->getElement( "Translation" ); // get Translation child
-  DDXMLElement* myrRotation  = myRegistry_->getElement( "rRotation" ); // get rRotation child
+  auto myrSolid = myRegistry_->getElement( "rSolid" ); // get rSolid children
+  auto myTranslation = myRegistry_->getElement( "Translation" ); // get Translation child
+  auto myrRotation  = myRegistry_->getElement( "rRotation" ); // get rRotation child
 
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
@@ -133,9 +134,9 @@ DDLBooleanSolid::dumpBooleanSolid( const std::string& name, const std::string& n
   if (atts.find("secondSolid") != atts.end()) s+= " secondSolid=\"" + atts.find("secondSolid")->second + "\"";
   s +=  ">\n";
 
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get rSolid children
-  DDXMLElement* myTranslation = myRegistry_->getElement("Translation"); // get Translation child
-  DDXMLElement* myrRotation  = myRegistry_->getElement("rRotation"); // get rRotation child
+  auto myrSolid = myRegistry_->getElement("rSolid"); // get rSolid children
+  auto myTranslation = myRegistry_->getElement("Translation"); // get Translation child
+  auto myrRotation  = myRegistry_->getElement("rRotation"); // get rRotation child
   if (myrSolid->size() > 0)
   {
     for (size_t i = 0; i < myrSolid->size(); ++i)

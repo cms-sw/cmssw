@@ -1,6 +1,7 @@
 #ifndef L1T_PACKER_STAGE2_MUONPACKER_H
 #define L1T_PACKER_STAGE2_MUONPACKER_H
 
+#include <map>
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
 
 namespace l1t {
@@ -8,7 +9,7 @@ namespace l1t {
       class MuonPacker : public Packer {
          public:
 	    MuonPacker(unsigned b1) : b1_(b1) {}
-            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+            Blocks pack(const edm::Event&, const PackerTokens*) override;
             unsigned b1_;
          private:
             typedef std::map<unsigned int, std::vector<uint32_t>> PayloadMap;

@@ -22,29 +22,29 @@ class GeometryConfiguration: public DDLDocumentProvider {
  public:
   GeometryConfiguration( const edm::ParameterSet & p );
 
-  virtual ~GeometryConfiguration();
+  ~GeometryConfiguration() override;
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const;
+  void dumpFileList(void) const override;
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >  & getFileList(void) const;
+  const std::vector < std::string >  & getFileList(void) const override;
 
   /// Return a list of urls as a vector of strings.
   /**
      The EDM should not allow URLs because of provenance.
      This vector will always be empty.
    **/
-  virtual const std::vector < std::string >  & getURLList(void) const;
+  const std::vector < std::string >  & getURLList(void) const override;
  
   /// Return a flag whether to do xml validation or not.
-  virtual bool doValidation() const;
+  bool doValidation() const override;
 
   /// Return the Schema Location.
-  virtual std::string getSchemaLocation() const;
+  std::string getSchemaLocation() const override;
 
   /// Reads in a configuration file and parses it
-  int readConfig(const std::string& filename);
+  int readConfig(const std::string& filename) override;
 
  protected:
 

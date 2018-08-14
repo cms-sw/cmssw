@@ -5,12 +5,45 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
+
+#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/global/OutputModuleBase.h"
+#include "FWCore/Framework/interface/one/OutputModuleBase.h"
+#include "FWCore/Framework/interface/limited/OutputModuleBase.h"
+
+namespace {
+  template <typename F>
+  void async( edm::OutputModule& iMod, F&& iFunc ) {
+    iMod.sharedResourcesAcquirer().serialQueueChain().push(std::move(iFunc));
+  }
+  
+  template <typename F>
+  void async( edm::one::OutputModuleBase& iMod, F&& iFunc ) {
+    iMod.sharedResourcesAcquirer().serialQueueChain().push(std::move(iFunc));
+  }
+  
+  template <typename F>
+  void async( edm::limited::OutputModuleBase& iMod, F&& iFunc ) {
+    iMod.queue().push(std::move(iFunc));
+  }
+  
+  template <typename F>
+  void async( edm::global::OutputModuleBase&, F iFunc ) {
+    auto t = edm::make_functor_task(tbb::task::allocate_root(), iFunc);
+    tbb::task::spawn(*t);
+  }
+}
 
 namespace edm {
 
@@ -28,44 +61,78 @@ namespace edm {
 
   template<typename T>
   void
-  OutputModuleCommunicatorT<T>::openNewFileIfNeeded() {
-    module().maybeOpenFile();
-  }
-
-  template<typename T>
-  void
   OutputModuleCommunicatorT<T>::openFile(edm::FileBlock const& fb) {
     module().doOpenFile(fb);
   }
 
   template<typename T>
   void
-  OutputModuleCommunicatorT<T>::writeRun(edm::RunPrincipal const& rp, ProcessContext const* processContext) {
+  OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
+                                              edm::RunPrincipal const& rp,
+                                              ProcessContext const* processContext,
+                                              ActivityRegistry* activityRegistry,
+                                              MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+    auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
                                 rp.index(),
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    ParentContext parentContext(&globalContext);
-    ModuleCallingContext mcc(&description());
-    ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-    module().doWriteRun(rp, &mcc);
+    auto t = [&mod = module(), &rp, globalContext, token, desc = &description(), activityRegistry, mergeableRunProductMetadata, iTask]() mutable {
+      std::exception_ptr ex;
+      try {
+        ServiceRegistry::Operate op(token);
+        ParentContext parentContext(&globalContext);
+        ModuleCallingContext mcc(desc);
+        ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        activityRegistry->preModuleWriteRunSignal_(globalContext, mcc);
+        auto sentry( make_sentry(activityRegistry,
+                               [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
+                                 activityRegistry->postModuleWriteRunSignal_(globalContext, mcc);
+                               }));
+        mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
+      } catch(...) {
+        ex = std::current_exception();
+      }
+      iTask.doneWaiting(ex);
+    };
+    async(module(), std::move(t));
   }
 
   template<typename T>
   void
-  OutputModuleCommunicatorT<T>::writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
+  OutputModuleCommunicatorT<T>::writeLumiAsync(WaitingTaskHolder iTask,
+                                               edm::LuminosityBlockPrincipal const& lbp,
+                                               ProcessContext const* processContext,
+                                               ActivityRegistry* activityRegistry) {
+    auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
                                 lbp.id(),
                                 lbp.runPrincipal().index(),
                                 lbp.index(),
                                 lbp.beginTime(),
                                 processContext);
-    ParentContext parentContext(&globalContext);
-    ModuleCallingContext mcc(&description());
-    ModuleContextSentry moduleContextSentry(&mcc, parentContext);
-    module().doWriteLuminosityBlock(lbp, &mcc);
+    auto t=[&mod = module(), &lbp, activityRegistry, token, globalContext,desc = &description(),iTask]() mutable {
+      std::exception_ptr ex;
+      try {
+        ServiceRegistry::Operate op(token);
+
+        ParentContext parentContext(&globalContext);
+        ModuleCallingContext mcc(desc);
+        ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        activityRegistry->preModuleWriteLumiSignal_(globalContext, mcc);
+        auto sentry( make_sentry(activityRegistry,
+                               [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
+                                 activityRegistry->postModuleWriteLumiSignal_(globalContext, mcc);
+                               }));
+        mod.doWriteLuminosityBlock(lbp, &mcc);
+      } catch(...) {
+        ex = std::current_exception();
+      }
+      iTask.doneWaiting(ex);
+    };
+    async(module(), std::move(t));
   }
 
   template<typename T>
@@ -111,15 +178,15 @@ namespace edm {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase * iMod){
       return std::make_unique<OutputModuleCommunicatorT<edm::one::OutputModuleBase>>(iMod);
     }
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::limited::OutputModuleBase * iMod){
+      return std::make_unique<OutputModuleCommunicatorT<edm::limited::OutputModuleBase>>(iMod);
+    }
   }
 }
-
-#include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/interface/global/OutputModuleBase.h"
-#include "FWCore/Framework/interface/one/OutputModuleBase.h"
 
 namespace edm {
   template class OutputModuleCommunicatorT<OutputModule>;
   template class OutputModuleCommunicatorT<one::OutputModuleBase>;
   template class OutputModuleCommunicatorT<global::OutputModuleBase>;
+  template class OutputModuleCommunicatorT<limited::OutputModuleBase>;
 }

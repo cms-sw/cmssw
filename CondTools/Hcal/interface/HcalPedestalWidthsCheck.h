@@ -45,9 +45,9 @@ class HcalPedestalWidthsCheck: public edm::EDAnalyzer
  public:
   HcalPedestalWidthsCheck(edm::ParameterSet const& ps);
 
-  ~HcalPedestalWidthsCheck();
+  ~HcalPedestalWidthsCheck() override;
 
-  void analyze(const edm::Event& ev, const edm::EventSetup& es);
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
  private:
   std::string outfile;

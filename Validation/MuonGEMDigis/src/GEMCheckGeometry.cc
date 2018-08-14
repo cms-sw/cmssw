@@ -34,6 +34,9 @@ void GEMCheckGeometry::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     edm::LogError("MuonGEMGeometry") << "+++ Error : GEM geometry  is unavailable on event loop. +++\n";
     return;
   }
+
+  ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
+  LogDebug("GEMCheckGeometry")<<"ibooker set current folder\n";
   
   for( auto region : GEMGeometry_->regions()) {
         TString title = TString::Format("Geometry's phi distribution on Region %d ; #phi(degree); ;",region->region());

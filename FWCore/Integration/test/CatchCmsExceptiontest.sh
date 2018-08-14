@@ -17,7 +17,7 @@ echo running cmsRun CatchCmsExceptionFromSource_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/CatchCmsExceptionFromSource_cfg.py &> CatchCmsExceptionFromSource.log && \
 die 'Failed because expected exception was not thrown while running cmsRun CatchCmsExceptionFromSource_cfg.py' $? 
 
-grep -q "Calling InputSource::beginRun" CatchCmsExceptionFromSource.log || die 'Failed to find string Calling InputSource::beginRun' $?
+grep -q "Calling Source::beginRun" CatchCmsExceptionFromSource.log || die 'Failed to find string Calling Source::beginRun' $?
 
 # It is intentional that this test throws an exception. The test fails if it does not.
 cmsRun ${LOCAL_TEST_DIR}/testMissingDictionaryChecking_cfg.py &> testMissingDictionaryChecking.log && die 'Failed to get exception running testMissingDictionaryChecking_cfg.py' 1

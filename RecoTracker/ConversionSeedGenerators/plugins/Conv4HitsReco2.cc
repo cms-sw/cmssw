@@ -11,7 +11,7 @@
 //#include "Conv4HitsReco2.h"
 //#include "FWCore/MessegeLogger/interface/MessegeLogger.h"
 #include "Conv4HitsReco2.h"
-#include <time.h>
+#include <ctime>
 
 Conv4HitsReco2::Conv4HitsReco2(math::XYZVector &vPhotVertex, math::XYZVector &h1, math::XYZVector &h2, math::XYZVector &h3, math::XYZVector &h4)
 {
@@ -173,11 +173,11 @@ void Conv4HitsReco2::Reconstruct()
 
 			if ((Y11-D1)>=(Y12-D2)) {  // Moving RIGHT
 				Phi1 = NextPhi;
-				Phi2 = Phi2;
+                                // Phi2 remains the same
 				NextPhi = (Phi1+Phi2)/2.0;
 			}
 			else if ((Y11-D1)<(Y12-D2)) {  // Moving LEFT
-				Phi1 = Phi1;
+				// Phi1 remains the same
 				Phi2 = NextPhi;
 				NextPhi = (Phi1+Phi2)/2.0; 
 			} 

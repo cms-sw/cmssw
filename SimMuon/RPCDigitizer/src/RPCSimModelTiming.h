@@ -17,8 +17,8 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include<cstdlib>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -32,7 +32,7 @@ class RPCSimModelTiming : public RPCSim
 {
  public:
   RPCSimModelTiming(const edm::ParameterSet& config);
-  ~RPCSimModelTiming();
+  ~RPCSimModelTiming() override;
   void simulate(const RPCRoll* roll,
                 const edm::PSimHitContainer& rpcHits,
                  CLHEP::HepRandomEngine*) override;
@@ -53,6 +53,7 @@ class RPCSimModelTiming : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+  bool   eledig;
   
   int N_hits;
   int nbxing;

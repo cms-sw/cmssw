@@ -2,6 +2,7 @@
 //         Created:  Mon, 23 Mar 2015 14:56:15 GMT
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include <zlib.h>
 
@@ -71,7 +72,7 @@ void MillePedeFileExtractor::writeGzipped(const FileBlob& blob,
   // - zlib and gzip compression differ -> get uncompressed blob first
   auto uncompressedBlob = blob.getUncompressedBlob();
   gzFile fp = gzopen(fileName.c_str(), "wb");
-  if (fp == NULL) {
+  if (fp == nullptr) {
     edm::LogError("MillePedeFileActions")
       << "Problem while opening gzipped file '" << fileName << "'.";
   }

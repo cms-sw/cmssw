@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 import optparse
 import os
 import commands
@@ -9,6 +10,7 @@ import pprint
 import commands
 import subprocess
 from XML2Python import xml2obj
+import six
 
 # These aren't all typedefs, but can sometimes make the output more
 # readable
@@ -33,8 +35,8 @@ typedefsDict = \
 equivDict = \
      [
 	 {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
-         {'TrackTriggerAssociation' : ['TTClusterAssociationMap','TTStubAssociationMap', '(TTStub|TTCluster).*edm::refhelper::FindForDetSetVector.*Phase2TrackerDigi.*'
-				       'TTTrackAssociationMap.*Phase2TrackerDigi.*', 'TTTrack< *edm::Ref< *edm::DetSetVector< *Phase2TrackerDigi']},
+         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap).*Phase2TrackerDigi',
+                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
@@ -71,6 +73,7 @@ equivDict = \
          {'VertexReco'            : ['reco::Vertex']},
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
+         {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
      ]
@@ -87,14 +90,14 @@ def searchClassDefXml ():
     classNameRE    = re.compile (r'class\s+name\s*=\s*"([^"]*)"')
     spacesRE       = re.compile (r'\s+')
     stdRE          = re.compile (r'std::')
-    srcClassNameRE = re.compile (r'(\w+)/src/classes_def.xml')
+    srcClassNameRE = re.compile (r'(\w+)/src/classes_def.*[.]xml')
     ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
-    print "Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src')
+    print("Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src'))
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
       if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -follow -print').split ('\n'):
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
         if xml and (not xml in xmlFiles):
           xmlFiles.append(xml)
     if options.showXMLs:
@@ -139,12 +142,12 @@ def searchClassDefXml ():
                 regexList = equivREs[exceptName]
                 xcount = len(regexList)-1
                 if not regexList[xcount][0].search (exceptName):
-                    print '%s not found in' % exceptName,
-                    print regexList[xcount][0]
+                    print('%s not found in' % exceptName, end=' ')
+                    print(regexList[xcount][0])
                     sys.exit()
             else: continue
 	if options.verbose:
-            print "filename", filename
+            print("filename", filename)
         try:
             filepath = os.path.join(os.environ.get('CMSSW_BASE'),'src',filename)
             if not os.path.exists(filepath):
@@ -153,8 +156,8 @@ def searchClassDefXml ():
                               filtering = True,
                               nameChangeDict = ncdict)
         except Exception as detail:
-            print "File %s is malformed XML.  Please fix." % filename
-            print "  ", detail
+            print("File %s is malformed XML.  Please fix." % filename)
+            print("  ", detail)
             continue
         try:
             classList = xmlObj.selection.className
@@ -163,12 +166,12 @@ def searchClassDefXml ():
                 classList = xmlObj.className
             except:
                 # this isn't a real classes_def.xml file.  Skip it
-                print "**** SKIPPING '%s' - Doesn't seem to have proper information." % filename
+                print("**** SKIPPING '%s' - Doesn't seem to have proper information." % filename)
                 continue
         if not classList:
             classList = xmlObj.functionName
             if not classList:
-                print "**** SKIPPING '%s' - Dosen't seem to have proper information(not class/function)." % filename
+                print("**** SKIPPING '%s' - Dosen't seem to have proper information(not class/function)." % filename)
                 continue
         for piece in classList:
             try:
@@ -180,7 +183,7 @@ def searchClassDefXml ():
             className = stdRE.sub    ('', className)
             # print "  ", className
             # Now get rid of any typedefs
-            for typedef, tdList in typedefsDict.iteritems():
+            for typedef, tdList in six.iteritems(typedefsDict):
                 for alias in tdList:
                     className = re.sub (alias, typedef, className)
             classDict.setdefault (className, set()).add (filename)
@@ -205,8 +208,8 @@ def searchClassDefXml ():
                 if simpleRE[0].search (className):
                     foundEquiv = True
                     if options.verbose and simpleRE[1] != className:
-                        print "    Using %s to ignore %s" \
-                              % (simpleRE[1], className)                    
+                        print("    Using %s to ignore %s" \
+                              % (simpleRE[1], className))                    
                     break
             if foundEquiv: continue
             for exRes in explicitREs:
@@ -223,18 +226,17 @@ def searchClassDefXml ():
                     break
         # for piece
         if dupProblems:
-            print '\n%s\n%s\n' % (filename, dupProblems)
+            print('\n%s\n%s\n' % (filename, dupProblems))
     # for filename
     if options.dups:
-        for name, fileSet in sorted( classDict.iteritems() ):
+        for name, fileSet in sorted( six.iteritems(classDict) ):
             if len (fileSet) < 2:
                 continue
-            print name
-            fileList = list (fileSet)
-            fileList.sort()
+            print(name)
+            fileList = sorted (fileSet)
             for filename in fileList:
-                print "  ", filename
-            print
+                print("  ", filename)
+            print()
         # for name, fileSet
     # if not noDups
     #pprint.pprint (classDict)
@@ -258,11 +260,11 @@ def searchDuplicatePlugins ():
       line = line.replace("*","\*")
       cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
       out1 = commands.getoutput (cmd).split('\n')
-      print line
+      print(line)
       for plugin in out1:
         if plugin:
-            print "   **"+plugin+"**"
-      print
+            print("   **"+plugin+"**")
+      print()
 
 if __name__ == "__main__":
     # setup options parser

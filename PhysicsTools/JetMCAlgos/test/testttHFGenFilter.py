@@ -1,18 +1,20 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 import sys
 import os
 
 
 ## Define the process
 process = cms.Process("Filter")
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
-    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(True)
 )
 ## Set up command line options
 options = VarParsing ('analysis')
-options.register('runOnGenOrAODsim', True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "GEN SIM")
+options.register('runOnGenOrAODsim', False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "GEN SIM")
 options.register( "skipEvents", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "Number of events to skip" )
 options.parseArguments()
 
@@ -27,7 +29,7 @@ if not options.inputFiles:
     if options.runOnGenOrAODsim:
         options.inputFiles=['/store/mc/RunIISummer15GS/TTToSemiLeptonic_TuneCUETP8M1_alphaS01273_13TeV-powheg-scaledown-pythia8/GEN-SIM/MCRUN2_71_V1-v2/40000/DE7952A2-6E2F-E611-A803-001E673D1B21.root']
     else:
-        options.inputFiles=['/store/mc/RunIISpring15MiniAODv2/ttbb_4FS_ckm_amcatnlo_madspin_pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/06D46D97-C66D-E511-9ABF-00266CFAE20C.root']
+        options.inputFiles=['/store/mc/RunIIFall17MiniAOD/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/50000/DC5D3109-F2E1-E711-A26E-A0369FC5FC9C.root']
 
 ## Define maximum number of events to loop over
 if options.maxEvents is -1: # maxEvents is set in VarParsing class by default to -1
@@ -59,6 +61,7 @@ from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
 process.genParticlesForJetsNoNu = genParticlesForJetsNoNu.clone(
 	src = genJetInputParticleCollection
 )
+patAlgosToolsTask.add(process.genParticlesForJetsNoNu)
 
 ## Produce own jets (re-clustering in miniAOD needed at present to avoid crash)
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
@@ -67,6 +70,7 @@ process.ak4GenJetsCustom = ak4GenJets.clone(
     rParam = cms.double(0.4),
     jetAlgorithm = cms.string("AntiKt")
 )
+patAlgosToolsTask.add(process.ak4GenJetsCustom)
 
 ## Ghost particle collection used for Hadron-Jet association
 # MUST use proper input particle collection
@@ -74,6 +78,7 @@ from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsA
 process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(
     particles = genParticleCollection,
 )
+patAlgosToolsTask.add(process.selectedHadronsAndPartons)
 #Input particle collection for matching to gen jets (partons + leptons)
 # MUST use use proper input jet collection: the jets to which hadrons should be associated
 # rParam and jetAlgorithm MUST match those used for jets to be associated with hadrons
@@ -82,6 +87,7 @@ from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInf
 process.genJetFlavourInfos = ak4JetFlavourInfos.clone(
     jets = genJetCollection,
 )
+patAlgosToolsTask.add(process.genJetFlavourInfos)
 
 # Plugin for analysing B hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
@@ -103,8 +109,12 @@ process.matchGenBHadron = matchGenBHadron.clone(
 process.load("PhysicsTools/JetMCAlgos/ttHFGenFilter_cfi")
 from PhysicsTools.JetMCAlgos.ttHFGenFilter_cfi import ttHFGenFilter
 process.ttHFGenFilter = ttHFGenFilter.clone(
-    genParticles = genParticleCollection
+    genParticles = genParticleCollection,
+    taggingMode  = cms.bool(True),
 )
+print("If taggingMode is set to true, the filter will write a branch into the tree instead of filtering the events")
+print("taggingMode is set to ", process.ttHFGenFilter.taggingMode)
+
 
 
 ## configuring the testing analyzer that produces output tree
@@ -159,4 +169,4 @@ process.p1 = cms.Path(
     process.ttHFGenFilter
 )
 
-process.endpath = cms.EndPath(process.USER)
+process.endpath = cms.EndPath(process.USER, patAlgosToolsTask)

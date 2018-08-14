@@ -2,4 +2,10 @@
   <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/PythonFramework/test runPythonTests.sh"/>
   <use name="FWCore/Utilities"/>
 </bin>
+<library   file="PythonTestProducer.cc" name="PythonTestProducer">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Framework"/>
+  <use name="boost"/>
+</library>
 

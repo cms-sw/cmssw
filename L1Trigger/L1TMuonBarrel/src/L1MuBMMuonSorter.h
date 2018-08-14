@@ -50,13 +50,13 @@ class L1MuBMMuonSorter : public L1AbstractProcessor {
     L1MuBMMuonSorter(const L1MuBMTrackFinder&);
 
     /// destructor
-    virtual ~L1MuBMMuonSorter();
+    ~L1MuBMMuonSorter() override;
 
     /// run Muon Sorter
-    virtual void run();
+    void run() override;
 
     /// reset Muon Sorter
-    virtual void reset();
+    void reset() override;
 
     /// print results after sorting
     void print() const;

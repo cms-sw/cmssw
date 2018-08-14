@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 MonTestPulseDat::MonTestPulseDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_adcMeanG1 = 0;
   m_adcRMSG1 = 0;
@@ -22,7 +22,7 @@ MonTestPulseDat::MonTestPulseDat()
   m_adcRMSG6 = 0;
   m_adcMeanG12 = 0;
   m_adcRMSG12 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 
@@ -45,7 +45,7 @@ void MonTestPulseDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":adc_mean_g1, :adc_rms_g1, :adc_rms_g6, :adc_rms_g6, :adc_mean_g12, :adc_rms_g12, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonTestPulseDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonTestPulseDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -76,7 +76,7 @@ void MonTestPulseDat::writeDB(const EcalLogicID* ecid, const MonTestPulseDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonTestPulseDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonTestPulseDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -108,12 +108,12 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
     std::pair< EcalLogicID, MonTestPulseDat > p;
     MonTestPulseDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setADCMeanG1( rset->getFloat(7) );
       dat.setADCRMSG1( rset->getFloat(8) );
@@ -127,7 +127,7 @@ void MonTestPulseDat::fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonTestPulseDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonTestPulseDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -246,6 +246,6 @@ void MonTestPulseDat::writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat 
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonTestPulseDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonTestPulseDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

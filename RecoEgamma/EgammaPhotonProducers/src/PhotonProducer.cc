@@ -286,9 +286,9 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const EcalSeverityLevelAlgo * sevLv) {
 
   const CaloGeometry* geometry = theCaloGeom_.product();
-  const CaloSubdetectorGeometry* subDetGeometry =0 ;
+  const CaloSubdetectorGeometry* subDetGeometry =nullptr ;
   const CaloSubdetectorGeometry* geometryES = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  const EcalRecHitCollection* hits = 0 ;
+  const EcalRecHitCollection* hits = nullptr ;
   std::vector<double> preselCutValues;
   float minR9=0;
 
@@ -320,7 +320,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     } else {
       edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster";
     }
-    if(hits == 0) continue;
+    if(hits == nullptr) continue;
 
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
@@ -383,7 +383,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     //// energy determination -- Default to create the candidate. Afterwards corrections are applied
     double photonEnergy=1.;
     math::XYZPoint vtx(0.,0.,0.);
-    if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+    if (!vertexCollection.empty()) vtx = vertexCollection.begin()->position();
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
     //math::XYZVector momentum = direction.unit() * photonEnergy ;

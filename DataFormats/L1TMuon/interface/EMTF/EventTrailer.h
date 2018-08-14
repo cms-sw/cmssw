@@ -17,12 +17,6 @@ namespace l1t {
 	mm(-99), dd(-99), sp_ladr(-99), sp_ersv(-99), sp_padr(-99), lfff(-99), bb(-99), format_errors(0), dataword(-99) 
 	{};
       
-    EventTrailer(int int_crc22, int int_lp, int int_hp, int int_ddcsr_bid, int int_ddcsr_lf, int int_spcsr_scc, int int_l1a, int int_yy, 
-		 int int_mm, int int_dd, int int_sp_ladr, int int_sp_ersv, int int_sp_padr, int int_lfff, int int_bb) :
-      crc22(int_crc22), lp(int_lp), hp(int_hp), ddcsr_bid(int_ddcsr_bid), ddcsr_lf(int_ddcsr_lf), spcsr_scc(int_spcsr_scc), l1a(int_l1a), yy(int_yy), 
-	mm(int_mm), dd(int_dd), sp_ladr(int_sp_ladr), sp_ersv(int_sp_ersv), sp_padr(int_sp_padr), lfff(int_lfff), bb(int_bb), format_errors(0), dataword(-99)
-    	{};
-      
       virtual ~EventTrailer() {};
       
       void set_crc22(int bits)         { crc22 = bits;       }
@@ -43,23 +37,23 @@ namespace l1t {
       void add_format_error()          { format_errors += 1; }
       void set_dataword(uint64_t bits) { dataword = bits;    }
 
-      int      CRC22()         const { return crc22;         }
-      int      LP()            const { return lp;            }
-      int      HP()            const { return hp;            }
-      int      DDCRC_bid()     const { return ddcsr_bid;     }
-      int      DDCRC_lf()      const { return ddcsr_lf;      }
-      int      SPCSR_scc()     const { return spcsr_scc;     }
-      int      L1a()           const { return l1a;           }
-      int      YY()            const { return yy;            }
-      int      MM()            const { return mm;            }
-      int      DD()            const { return dd;            }
-      int      SP_ladr()       const { return sp_ladr;       }
-      int      SP_ersv()       const { return sp_ersv;       }
-      int      SP_padr()       const { return sp_padr;       }
-      int      LFFF()          const { return lfff;          }
-      int      BB()            const { return bb;            }
-      int      Format_Errors() const { return format_errors; }
-      uint64_t Dataword()      const { return dataword;      }      
+      int CRC22()         const { return crc22;         }
+      int LP()            const { return lp;            }
+      int HP()            const { return hp;            }
+      int DDCRC_bid()     const { return ddcsr_bid;     }
+      int DDCRC_lf()      const { return ddcsr_lf;      }
+      int SPCSR_scc()     const { return spcsr_scc;     }
+      int L1a()           const { return l1a;           }
+      int YY()            const { return yy;            }
+      int MM()            const { return mm;            }
+      int DD()            const { return dd;            }
+      int SP_ladr()       const { return sp_ladr;       }
+      int SP_ersv()       const { return sp_ersv;       }
+      int SP_padr()       const { return sp_padr;       }
+      int LFFF()          const { return lfff;          }
+      int BB()            const { return bb;            }
+      int Format_errors() const { return format_errors; }
+      uint64_t Dataword() const { return dataword;      }      
       
     private:
       int crc22;

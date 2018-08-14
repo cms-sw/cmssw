@@ -30,17 +30,17 @@ public:
 
 private:
   /// initialization for each layer
-  virtual void initParameters();
+  void initParameters() override;
 
   // will return wire group, given wire.
-  virtual int readoutElement(int element) const;
+  int readoutElement(int element) const override;
 
-  float calculateAmpResponse(float t) const;
+  float calculateAmpResponse(float t) const override;
  
   virtual float timeOfFlightCalibration(int wireGroup) const;
 
   /// we code strip indices from 1-80, and wire indices start at 100
-  virtual int channelIndex(int channel) const {return channel+100;}
+  int channelIndex(int channel) const override {return channel+100;}
 
   // member data
   // the fractional discriminator returns the time when the signal

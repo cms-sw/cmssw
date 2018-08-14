@@ -2,6 +2,14 @@
 
 function die { echo $1: status $2 ;  exit $2; }
 
+for file in ${CMSSW_BASE}/src/PhysicsTools/PatAlgos/python/tools/*.py
+do
+    bn=`basename $file`
+    if [ "$bn" != "__init__.py" ]; then
+        python "$file" || die "unit tests for $bn failed" $?
+    fi
+done
+
 cmsRun ${LOCAL_TEST_DIR}/patTuple_standard_cfg.py || die 'Failure using patTuple_standard_cfg.py' $?
 
 # FIXME: event content broken in only available data RelVal

@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Calibration/TkAlCaRecoProducers/interface/AlcaBeamSpotManager.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotWrite2Txt.h"
 
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -18,16 +19,16 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   AlcaBeamSpotHarvester(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~AlcaBeamSpotHarvester();
+  ~AlcaBeamSpotHarvester() override;
   
   // Operations
-  virtual void beginJob            (void);
-  virtual void endJob              (void);  
-  virtual void analyze             (const edm::Event&          , const edm::EventSetup&);
-  virtual void beginRun            (const edm::Run&            , const edm::EventSetup&);
-  virtual void endRun              (const edm::Run&            , const edm::EventSetup&);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&);
+  void beginJob            (void) override;
+  void endJob              (void) override;  
+  void analyze             (const edm::Event&          , const edm::EventSetup&) override;
+  void beginRun            (const edm::Run&            , const edm::EventSetup&) override;
+  void endRun              (const edm::Run&            , const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
  protected:
 
@@ -37,6 +38,8 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   std::string 	      outputrecordName_;
   double      	      sigmaZValue_;
   double              sigmaZCut_;
+  bool                dumpTxt_;
+  std::string 	      outTxtFileName_;
   // Member Variables
   AlcaBeamSpotManager theAlcaBeamSpotManager_;
 

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 /**
   \class    OutputFiles OutputFiles.h "DataFormats/FWLite/interface/OutputFiles.h"

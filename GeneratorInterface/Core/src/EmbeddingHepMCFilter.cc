@@ -47,40 +47,46 @@ EmbeddingHepMCFilter::filter(const HepMC::GenEvent* evt)
     //Reset DecayChannel_ and p4VisPair_ at the beginning of each event.
     DecayChannel_.reset();
     std::vector<reco::Candidate::LorentzVector> p4VisPair_;
-    
+
     // Going through the particle list. Mother particles are allways before their children. 
     // One can stop the loop after the second tau is reached and processed.
     for ( HepMC::GenEvent::particle_const_iterator particle = evt->particles_begin(); particle != evt->particles_end(); ++particle )
     {
-	int mom_id = 0; // No particle available with PDG ID 0
-	if ((*particle)->production_vertex() != 0){ // search for the mom via the production_vertex
-	  if ((*particle)->production_vertex()->particles_in_const_begin() != (*particle)->production_vertex()->particles_in_const_end()){ 
-	    mom_id =  (*(*particle)->production_vertex()->particles_in_const_begin())->pdg_id(); // mom was found
-	  }
-	}
-	
-	if (std::abs((*particle)->pdg_id()) == tauonPDGID_  && mom_id == ZPDGID_)
-	{
-          reco::Candidate::LorentzVector p4Vis;
-          decay_and_sump4Vis((*particle), p4Vis); // recursive access to final states.
-          p4VisPair_.push_back(p4Vis);	  
+      int mom_id = 0; // No particle available with PDG ID 0
+      if ((*particle)->production_vertex() != nullptr){ // search for the mom via the production_vertex
+        if ((*particle)->production_vertex()->particles_in_const_begin() != (*particle)->production_vertex()->particles_in_const_end()){
+          mom_id =  (*(*particle)->production_vertex()->particles_in_const_begin())->pdg_id(); // mom was found
         }
-        else if (std::abs((*particle)->pdg_id()) == muonPDGID_  && mom_id == ZPDGID_) // Also handle the option when Z-> mumu
-	{
-          reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector) (*particle)->momentum();
-	  DecayChannel_.fill(TauDecayMode::Muon); // take the muon cuts
-          p4VisPair_.push_back(p4Vis);
-	}
+      }
+
+      if (std::abs((*particle)->pdg_id()) == tauonPDGID_  && mom_id == ZPDGID_) {
+        reco::Candidate::LorentzVector p4Vis;
+        decay_and_sump4Vis((*particle), p4Vis); // recursive access to final states.
+        p4VisPair_.push_back(p4Vis);	  
+      } else if (std::abs((*particle)->pdg_id()) == muonPDGID_  && mom_id == ZPDGID_) {// Also handle the option when Z-> mumu
+        reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector) (*particle)->momentum();
+        DecayChannel_.fill(TauDecayMode::Muon); // take the muon cuts
+        p4VisPair_.push_back(p4Vis);
+      } else if (std::abs((*particle)->pdg_id()) == electronPDGID_  && mom_id == ZPDGID_) {// Also handle the option when Z-> ee
+        reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector) (*particle)->momentum();
+        DecayChannel_.fill(TauDecayMode::Electron); // take the electron cuts
+        p4VisPair_.push_back(p4Vis);
+      }
 
     }
     // Putting DecayChannel_ in default convention:
     // For mixed decay channels use the Electron_Muon, Electron_Hadronic, Muon_Hadronic convention.
     // For symmetric decay channels (e.g. Muon_Muon) use Leading_Trailing convention with respect to Pt.
-    sort_by_convention(p4VisPair_);
-    edm::LogInfo("EmbeddingHepMCFilter") << "Quantities of the visible decay products:"
-    << "\tPt's: " << " 1st " << p4VisPair_[0].Pt() << ", 2nd " << p4VisPair_[1].Pt()
-    << "\tEta's: " << " 1st " << p4VisPair_[0].Eta() << ", 2nd " << p4VisPair_[1].Eta()
-    << " decay channel: " << return_mode(DecayChannel_.first)<< return_mode(DecayChannel_.second);
+    if (p4VisPair_.size() == 2) {
+      sort_by_convention(p4VisPair_);
+      edm::LogInfo("EmbeddingHepMCFilter") << "Quantities of the visible decay products:"
+      << "\tPt's: " << " 1st " << p4VisPair_[0].Pt() << ", 2nd " << p4VisPair_[1].Pt()
+      << "\tEta's: " << " 1st " << p4VisPair_[0].Eta() << ", 2nd " << p4VisPair_[1].Eta()
+      << " decay channel: " << return_mode(DecayChannel_.first)<< return_mode(DecayChannel_.second);
+    }
+    else {
+      edm::LogError("EmbeddingHepMCFilter") << "Size less non equal two";
+    }
     
     return apply_cuts(p4VisPair_);
 }
@@ -155,20 +161,20 @@ EmbeddingHepMCFilter::apply_cuts(std::vector<reco::Candidate::LorentzVector> &p4
 {     
     for (std::vector<CutsContainer>::const_iterator cut = cuts_.begin(); cut != cuts_.end(); ++cut)  
     {
-        if(DecayChannel_.first == cut->decaychannel.first && DecayChannel_.second ==  cut->decaychannel.second){ // First the match to the decay channel
-            edm::LogInfo("EmbeddingHepMCFilter") << "Cut pt1 = " << cut->pt1 << " pt2 = " << cut->pt2
-            << " abs(eta1) = " << cut->eta1 << " abs(eta2) = " << cut->eta2
-            << " decay channel: " << return_mode(cut->decaychannel.first)
-            << return_mode(cut->decaychannel.second);
-            
-	    if((cut->pt1 == -1. || (p4VisPair[0].Pt() > cut->pt1)) &&
-	       (cut->pt2 == -1. || (p4VisPair[1].Pt() > cut->pt2)) &&
-	       (cut->eta1 == -1.|| (std::abs(p4VisPair[0].Eta()) < cut->eta1)) &&
-	       (cut->eta2 == -1.|| (std::abs(p4VisPair[1].Eta()) < cut->eta2))){
-		  edm::LogInfo("EmbeddingHepMCFilter") << "This cut was passed (Stop here and take the event)";
-		  return true;
-	    }
-	}
+      if(DecayChannel_.first == cut->decaychannel.first && DecayChannel_.second ==  cut->decaychannel.second){ // First the match to the decay channel
+        edm::LogInfo("EmbeddingHepMCFilter") << "Cut pt1 = " << cut->pt1 << " pt2 = " << cut->pt2
+          << " abs(eta1) = " << cut->eta1 << " abs(eta2) = " << cut->eta2
+          << " decay channel: " << return_mode(cut->decaychannel.first)
+          << return_mode(cut->decaychannel.second);
+          
+        if((cut->pt1 == -1. || (p4VisPair[0].Pt() > cut->pt1)) &&
+           (cut->pt2 == -1. || (p4VisPair[1].Pt() > cut->pt2)) &&
+           (cut->eta1 == -1.|| (std::abs(p4VisPair[0].Eta()) < cut->eta1)) &&
+           (cut->eta2 == -1.|| (std::abs(p4VisPair[1].Eta()) < cut->eta2))){
+          edm::LogInfo("EmbeddingHepMCFilter") << "This cut was passed (Stop here and take the event)";
+          return true;
+        }
+      }
     }
     return false;
 }

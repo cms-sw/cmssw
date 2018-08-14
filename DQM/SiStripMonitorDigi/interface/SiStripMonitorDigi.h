@@ -20,6 +20,7 @@
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQM/SiStripCommon/interface/APVShotFinder.h"
 #include "DQM/SiStripCommon/interface/APVShot.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -34,18 +35,18 @@ class APVCyclePhaseCollection;
 class SiStripMonitorDigi : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
-  ~SiStripMonitorDigi();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  ~SiStripMonitorDigi() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   std::string topFolderName_;
 
   struct ModMEs{
-	
+
     MonitorElement* NumberOfDigis;
     MonitorElement* NumberOfDigisPerStrip;
     MonitorElement* ADCsHottestStrip;
@@ -53,9 +54,9 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
     MonitorElement* DigiADCs;
     MonitorElement* StripOccupancy;
   };
-      
+
   struct LayerMEs{
-	
+
     MonitorElement* LayerNumberOfDigis;
     MonitorElement* LayerNumberOfDigisTrend;
     MonitorElement* LayerADCsHottestStrip;
@@ -68,7 +69,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
     MonitorElement* LayerStripOccupancyTrend;
     MonitorElement* LayerNumberOfDigisProfile;
     MonitorElement* LayerDigiADCProfile;
- 	
+
   };
 
   struct SubDetMEs{
@@ -83,7 +84,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
     MonitorElement* SubDetNApvShotsTH1;
     MonitorElement* SubDetChargeMedianApvShotsTH1;
     MonitorElement* SubDetNStripsApvShotsTH1;
-    MonitorElement* SubDetNApvShotsProf; 
+    MonitorElement* SubDetNApvShotsProf;
     MonitorElement* SubDetNApvShotsNApvTH1;
   };
 
@@ -92,19 +93,21 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
     MonitorElement* SubDetDigiFailures2D;
   };
 
+  MonitorElement* NumberOfFEDDigis = nullptr;
+
  private:
   void createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es );
   void ResetModuleMEs(uint32_t idet);
-  void bookLayer( DQMStore::IBooker & ibooker ); 
+  void bookLayer( DQMStore::IBooker & ibooker );
   MonitorElement* bookMETrend( DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName);
   MonitorElement* bookME1D( DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName);
   void bookTrendMEs( DQMStore::IBooker & ibooker , const TString& name,int32_t layer,uint32_t id,std::string flag);
   void fillDigiADCsMEs(int value, std::string name);
   void fillTrend(MonitorElement* me ,float value, float timeinorbit);
-  inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
-  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
-  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
+  inline void fillME(MonitorElement* ME,float value1){if (ME!=nullptr)ME->Fill(value1);}
+  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=nullptr)ME->Fill(value1,value2);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=nullptr)ME->Fill(value1,value2,value3);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=nullptr)ME->Fill(value1,value2,value3,value4);}
   bool AllDigis( const edm::EventSetup& es);
 
   void createModuleMEs( DQMStore::IBooker & ibooker , ModMEs& mod_single, uint32_t detid);
@@ -114,11 +117,9 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   int getDigiSourceIndex(uint32_t id);
   void AddApvShotsToSubDet(const std::vector<APVShot> &, std::vector<APVShot> &);
   void FillApvShotsMap(TkHistoMap*, const std::vector<APVShot> &, uint32_t id ,int);
-   
- private:
-  
 
-  DQMStore* dqmStore_;
+ private:
+
   edm::ParameterSet conf_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > digiProducerTokenList;
   std::vector<edm::InputTag> digiProducerList;
@@ -130,7 +131,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
   DigiFailureMEs digiFailureMEs;
-      
+
   TString name;
   SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
@@ -143,14 +144,14 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   //Global MEs to monitor APV Shots properties
   MonitorElement *NApvShotsGlobal, *NApvShotsGlobalProf, *MedianChargeApvShotsGlobal, *NApvApvShotsGlobal, *StripMultiplicityApvShotsGlobal, *ShotsVsTimeApvShotsGlobal;
 
-  TkHistoMap* tkmapdigi, *tkmapNApvshots, *tkmapNstripApvshot, *tkmapMedianChargeApvshots;  
+  std::unique_ptr<TkHistoMap> tkmapdigi, tkmapNApvshots, tkmapNstripApvshot, tkmapMedianChargeApvshots;
 
   int runNb, eventNb;
   int firstEvent;
   int TotalNShots;
 
   bool globalsummaryapvshotson;
-  
+
   bool layerswitchnumdigison;
   bool layerswitchnumdigisapvon;
   bool layerswitchadchotteston;
@@ -184,7 +185,7 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   bool globalswitchapvshotsonprof;
   bool globalswitchchargemedianapvshotson;
   bool globalswitchapvshotsApvon;
-
+  bool globalswitchNDigisFEDID;
 
   //  int xLumiProf;
   bool isStableBeams;
@@ -206,10 +207,12 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   bool shotshistomapon;
   bool shotsstripshistomapon;
   bool shotschargehistomapon;
-  
+
   bool createTrendMEs;
 
-  edm::InputTag historyProducer_;  
+  bool m_trendVs10LS;
+
+  edm::InputTag historyProducer_;
   edm::InputTag apvPhaseProducer_;
 
   edm::EDGetTokenT<EventWithHistory> historyProducerToken_;
@@ -219,4 +222,3 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   SiStripDCSStatus* dcsStatus_;
 };
 #endif
-

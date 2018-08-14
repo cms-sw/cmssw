@@ -1,4 +1,5 @@
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
+#include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
 
 #include "G4Electron.hh"
 #include "G4ProcessManager.hh"
@@ -61,11 +62,13 @@ void ParametrisedPhysics::ConstructProcess() {
   if(gem || ghad) {
     tpdata->theFastSimulationManagerProcess =
       new G4FastSimulationManagerProcess();
-    aParticleIterator->reset();
-    while ((*aParticleIterator)()) {
-      G4ParticleDefinition * particle = aParticleIterator->value();
+
+    G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+    EmParticleList emList;
+    for(const auto& particleName : emList.PartNames()) {
+      G4ParticleDefinition* particle = table->FindParticle(particleName);
       G4ProcessManager * pmanager = particle->GetProcessManager();
-      G4String pname = particle->GetParticleName();
+      const G4String& pname = particle->GetParticleName();
       if(pname == "e-" || pname == "e+") {
 	pmanager->AddDiscreteProcess(tpdata->theFastSimulationManagerProcess);
       }

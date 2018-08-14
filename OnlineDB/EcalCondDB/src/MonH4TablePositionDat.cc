@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 MonH4TablePositionDat::MonH4TablePositionDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_tableX = 0;
   m_tableY = 0;
@@ -38,7 +38,7 @@ void MonH4TablePositionDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonH4TablePositionDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonH4TablePositionDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -65,7 +65,7 @@ void MonH4TablePositionDat::writeDB(const EcalLogicID* ecid, const MonH4TablePos
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonH4TablePositionDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonH4TablePositionDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -97,12 +97,12 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
     std::pair< EcalLogicID, MonH4TablePositionDat > p;
     MonH4TablePositionDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setTableX( rset->getFloat(7) );
       dat.setTableY( rset->getFloat(8) );
@@ -111,7 +111,7 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonH4TablePositionDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonH4TablePositionDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -185,6 +185,6 @@ void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4Table
     delete [] y_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonH4TablePositionDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonH4TablePositionDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

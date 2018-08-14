@@ -2,7 +2,7 @@
 #define RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPEGeometric_H
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +14,7 @@ class Phase2StripCPEGeometric : public ClusterParameterEstimator<Phase2TrackerCl
 
     Phase2StripCPEGeometric() {};
     Phase2StripCPEGeometric(edm::ParameterSet & conf);
-    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const;
+    LocalValues localParameters(const Phase2TrackerCluster1D & cluster, const GeomDetUnit & det) const override;
 
 };
 

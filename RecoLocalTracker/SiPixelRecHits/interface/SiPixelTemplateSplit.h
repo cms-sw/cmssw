@@ -29,11 +29,11 @@
 #ifndef SiPixelTemplateSplit_h
 #define SiPixelTemplateSplit_h 1
 
-#include "SiPixelTemplateDefs.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #else
 #include "SiPixelTemplate.h"
 #include "SiPixelTemplate2D.h"

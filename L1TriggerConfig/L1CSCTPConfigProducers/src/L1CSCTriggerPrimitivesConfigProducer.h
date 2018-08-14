@@ -24,7 +24,7 @@ class CSCDBL1TPParametersRcd;
 class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
  public:
   L1CSCTriggerPrimitivesConfigProducer(const edm::ParameterSet&);
-  ~L1CSCTriggerPrimitivesConfigProducer();
+  ~L1CSCTriggerPrimitivesConfigProducer() override;
 
   //typedef std::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> ReturnType;
 

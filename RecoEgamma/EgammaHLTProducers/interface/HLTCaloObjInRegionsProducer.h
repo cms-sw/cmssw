@@ -7,39 +7,32 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Reco candidates (might not need)
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
-
-// Geometry and topology
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
-
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
-
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
-
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 /**************************************************************
@@ -74,6 +67,7 @@ private:
 class EtaPhiRegionDataBase {
 public:
   EtaPhiRegionDataBase(){}
+  virtual ~EtaPhiRegionDataBase() = default;
   virtual void getEtaPhiRegions(const edm::Event&,std::vector<EtaPhiRegion>&)const=0;
 };
 
@@ -116,7 +110,7 @@ class HLTCaloObjInRegionsProducer : public edm::stream::EDProducer<> {
   
 
   HLTCaloObjInRegionsProducer(const edm::ParameterSet& ps);
-  ~HLTCaloObjInRegionsProducer(){}
+  ~HLTCaloObjInRegionsProducer() override{}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -127,6 +121,7 @@ class HLTCaloObjInRegionsProducer : public edm::stream::EDProducer<> {
   makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 		   const edm::ESHandle<CaloGeometry>& caloGeomHandle,
 		   const std::vector<EtaPhiRegion>& regions);
+  static bool validIDForGeom(const DetId& id);
   std::vector<std::string> outputProductNames_;
   std::vector<edm::InputTag> inputCollTags_;
   std::vector<edm::EDGetTokenT<CaloObjCollType>> inputTokens_;
@@ -145,6 +140,9 @@ HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::HLTCaloObjInRegionsPro
 
   outputProductNames_=para.getParameter<std::vector<std::string>>("outputProductNames");
   inputCollTags_=para.getParameter<std::vector<edm::InputTag>>("inputCollTags");
+  if(outputProductNames_.size()!=inputCollTags_.size()){
+    throw cms::Exception("InvalidConfiguration") <<" error outputProductNames and inputCollTags must be the same size, they are "<<outputProductNames_.size()<<" vs "<<inputCollTags_.size();
+  }
   for (unsigned int collNr=0; collNr<inputCollTags_.size(); collNr++) { 
     inputTokens_.push_back(consumes<CaloObjCollType>(inputCollTags_[collNr]));
     produces<CaloObjCollType> (outputProductNames_[collNr]);
@@ -173,7 +171,6 @@ void HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::fillDescriptions(
   ecalCandPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltEgammaCandidates"));
   etaPhiRegions.push_back(ecalCandPSet);
   
-
   edm::ParameterSetDescription etaPhiRegionDesc;
   etaPhiRegionDesc.add<std::string>("type");
   etaPhiRegionDesc.add<double>("minEt");
@@ -224,16 +221,21 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
   
   auto outputColl = std::make_unique<CaloObjCollType>();
   if(!inputColl->empty()){
-    const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->front().id());
+    const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id());
     if(!regions.empty()){
       for(const CaloObjType& obj : *inputColl){
-	const CaloCellGeometry* objGeom = subDetGeom->getGeometry(obj.id());
+	auto objGeom = subDetGeom->getGeometry(obj.id());
 	if(objGeom==nullptr){
 	  //wondering what to do here
-	  //something is very very wrong
-	  //given HLT should never crash or throw, decided to log an error and 
-	  edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<obj.id()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
+	  //something is very very wrong  
+	  //given HLT should never crash or throw, decided to log an error 
+	  //update: so turns out HCAL can pass through calibration channels in QIE11 so for that module, its an expected behaviour	
+	  //so we check if the ID is valid
+	  if(validIDForGeom(obj.id())) {
+	    edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<DetId(obj.id()).rawId()<<" with initial ID "<<DetId(inputColl->begin()->id()).rawId()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
+	  }
 	  outputColl->push_back(obj);
+	  continue;
 	}
 	float eta = objGeom->getPosition().eta();
 	float phi = objGeom->getPosition().phi();
@@ -251,6 +253,22 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 
 }
 
+//tells us if an ID should have a valid geometry
+//it assumes that all IDs do except those specifically mentioned
+//HCAL for example have laser calibs in the digi collection so 
+//so we have to ensure that HCAL is HB,HE or HO
+template<typename CaloObjType,typename CaloObjCollType>
+bool HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::
+validIDForGeom(const DetId& id)
+{
+  if(id.det()==DetId::Hcal){
+    if(id.subdetId() == HcalSubdetector::HcalEmpty ||
+       id.subdetId() == HcalSubdetector::HcalOther){
+      return false;
+    }
+  }
+  return true;
+}
 
 
 
@@ -298,8 +316,6 @@ void EtaPhiRegionData<CandCollType>::getEtaPhiRegions(const edm::Event& event,st
 }
 
 
-typedef HLTCaloObjInRegionsProducer<HBHEDataFrame> HLTHcalDigisInRegionsProducer;
-DEFINE_FWK_MODULE(HLTHcalDigisInRegionsProducer);
 
 #endif
 

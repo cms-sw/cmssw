@@ -10,9 +10,9 @@ using namespace oracle::occi;
 
 RunLaserRunDat::RunLaserRunDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
   m_laserSeqType = "";
   m_laserSeqCond = "";
 }
@@ -37,7 +37,7 @@ void RunLaserRunDat::prepareWrite()
 			"VALUES (:1, :2, "
 			":3, :4 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunLaserRunDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunLaserRunDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -63,7 +63,7 @@ void RunLaserRunDat::writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunLaserRunDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunLaserRunDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -95,21 +95,21 @@ void RunLaserRunDat::fetchData(map< EcalLogicID, RunLaserRunDat >* fillMap, RunI
     std::pair< EcalLogicID, RunLaserRunDat > p;
     RunLaserRunDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
-      dat.setLaserSequenceType( rset->getString(7));    // maps_to
-      dat.setLaserSequenceCond( rset->getString(8));    // maps_to
+      dat.setLaserSequenceType( getOraString(rset,7));    // maps_to
+      dat.setLaserSequenceCond( getOraString(rset,8));    // maps_to
 
       p.second = dat;
       fillMap->insert(p);
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunLaserRunDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunLaserRunDat::fetchData():  ")+getOraMessage(&e)));
   }
 }

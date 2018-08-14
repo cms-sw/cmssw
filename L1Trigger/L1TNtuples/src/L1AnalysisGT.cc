@@ -1,6 +1,6 @@
-#include "stdint.h"
+#include <cstdint>
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisGT.h"
-#include "stdint.h"
+#include <cstdint>
 
 
 L1Analysis::L1AnalysisGT::L1AnalysisGT()  

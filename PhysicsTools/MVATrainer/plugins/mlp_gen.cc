@@ -1,7 +1,7 @@
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 #include "mlp_gen.h"
 #include "mlp_sigmoide.h"
@@ -113,7 +113,7 @@ L10:
 /* extern "C"Dllexport */void MLP_Out_T(type_pat *rrin)
 {
         int i, il, in, j, ilm1, m, mp1;
-	register dbl a;
+	dbl a;
 
 /* input layer */  
 
@@ -184,9 +184,9 @@ L20:
 /* extern "C"Dllexport */void MLP_Out2(type_pat *rrin)
 {
   	int il, in, m, mp1;
-	register int i;
+	int i;
 	dbl **rrout, **deriv1;
-	register dbl *prrout;
+	dbl *prrout;
 	type_pat *prrin;
 	int nhid = NET.Nneur[1];
 	int nin = NET.Nneur[0];
@@ -352,7 +352,7 @@ L20:
 	}
 	
 /* cas npat impair */	
-	for(ipat=ipat; ipat<npat; ipat++)
+	for(/*'ipat' set above*/; ipat<npat; ipat++)
 		{
 		MLP_MatrixVector(NET.vWeights[1],
 				&(PAT.vRin[ifile][ipat*(nin+1)]),tmp,
@@ -451,7 +451,7 @@ L25:
 	dbl *tmp;
 	
 	tmp = (dbl *) malloc(2 * NET.Nneur[1] * sizeof(dbl)); 
-	if(tmp == 0)	/* not enough memory */
+	if(tmp == nullptr)	/* not enough memory */
 	{
 	printf("not enough memory in MLP_Test\n");				
 	err = 0;
@@ -522,7 +522,7 @@ L25:
 	int il, in1, in, itest2;
 	dbl deriv, deriv1, deriv2, deriv3, deriv4, pond;
 	dbl eta, eps;
-	register dbl a, b, dd, a1, a2, a3, a4;
+	dbl a, b, dd, a1, a2, a3, a4;
 	dbl *pout, *pdelta, *pw1, *pw2, *pw3, *pw4;
 	dbl ***weights;
     
@@ -584,7 +584,7 @@ L1:				NET.Delta[il][in] = a1*deriv1;
 				NET.Delta[il][in+2] = a3*deriv3;
 				NET.Delta[il][in+3] = a4*deriv4;
 				} 
-			for(in=in; in<NET.Nneur[il]; in++) 
+			for(/*'in' set above*/; in<NET.Nneur[il]; in++) 
 				{
 				deriv = NET.Deriv1[il][in]; 
 				itest2 = (NET.Nneur[il+1]==1);
@@ -639,7 +639,7 @@ L2:				NET.Delta[il][in] = a*deriv;
 			        	*pw4 += a4 * *pout;
 					}
 				}
-			for(in=in; in<NET.Nneur[il]; in++)
+			for(/*'in' set above*/; in<NET.Nneur[il]; in++)
 				{ 
 				a1 = NET.Delta[il][in];
 				pout = &(NET.Outn[il-1][0]);
@@ -1126,7 +1126,7 @@ L2:				NET.Delta[il][in] = a*deriv;
 /*	dbl err[NMAX][4]; */
 	dbl deriv;
 	dbl *pout, *pdedw, *pdelta;
-	register dbl a, b;
+	dbl a, b;
 /*	char buf[50];*/
 
 /* output layer */ 
@@ -1422,7 +1422,7 @@ void SetDefaultFuncs()
 	dble factor=0; 
 	dble *Hgamma;
 	dble *tmp;
-	register dble a, b;
+	dble a, b;
 	int i,j;
 	
 	Hgamma = (dble *) malloc(Nweights*sizeof(dble));
@@ -1756,7 +1756,7 @@ int DecreaseSearch(dbl *alpmin, int *Ntest, dbl Err0)
 /* extern "C"Dllexport */
 void MLP_Line(dbl ***w0, dbl alpha)
 {
-	register int il,in,jn;
+	int il,in,jn;
 	
 	for(il=1; il<NET.Nlayer; il++)
 		for(in=0; in<NET.Nneur[il]; in++)
@@ -2242,13 +2242,13 @@ int nout=0;     /* nombre de sorties */
 int npon=0;
 int ntot, ierr;
 //char **ss;
-char **ss=0;
+char **ss=nullptr;
 FILE *LVQpat;
 int nlayer, nneur[NLMAX];
 
 printf("\nLoading file %s\n",filename);
 LVQpat=fopen(filename,"r");
-if(LVQpat == 0) return -1;
+if(LVQpat == nullptr) return -1;
 
 line=0;
 
@@ -2529,11 +2529,11 @@ while(fgets(s,CLEN,LVQpat))
 			nmax = nin;
 			if(nout>nin) nmax=nout;
 			ss = (char**) malloc((nmax+1)*sizeof(char*));
-			if(ss == 0) return -111; 
+			if(ss == nullptr) return -111; 
 			for(i=0;i<=nmax;i++)
 				{
 				ss[i]=(char*) malloc(40*sizeof(char));
-				if(ss[i] == 0) return -111;
+				if(ss[i] == nullptr) return -111;
 				}
 			}
 			
@@ -2591,7 +2591,7 @@ int CountLexemes(char *s)
   if (strtok(tmp," "))
     {
       i=1;
-      while (strtok(NULL," ")) i++;
+      while (strtok(nullptr," ")) i++;
     }
   return i;
 }
@@ -2607,7 +2607,7 @@ void getnLexemes(int n, char *s, char **ss)
     {
       strcpy(ss[0],strtok(tmp," "));
       for (i=1;i<n;i++)
-        strcpy(ss[i],strtok(NULL," "));
+        strcpy(ss[i],strtok(nullptr," "));
     }
 }
 
@@ -2623,7 +2623,7 @@ void getLexemes(char *s,char **ss)
     {
       strcpy(ss[0],strtok(tmp," "));
       for (i=1;i<n;i++)
-        strcpy(ss[i],strtok(NULL," "));
+        strcpy(ss[i],strtok(nullptr," "));
     }
 }
 
@@ -2690,12 +2690,12 @@ int LearnAlloc()
 	if(LearnMemory != 0) LearnFree();
 	LearnMemory = 1;
    	dir = (dbl ***) malloc(NET.Nlayer*sizeof(dbl**));
-	if(dir == 0) return -111;
+	if(dir == nullptr) return -111;
 	
 	for(il=0; il<NET.Nlayer; il++)
 		{
 	        dir[il] = (dbl **) malloc(NET.Nneur[il]*sizeof(dbl*));
-		if(dir[il] == 0) return -111;
+		if(dir[il] == nullptr) return -111;
 		for(in=0; in<NET.Nneur[il]; in++)
 			{
 			if(il==0) 
@@ -2703,13 +2703,13 @@ int LearnAlloc()
 /* TODO: understand implications of hard-coded 101 */ 				
 				dir[0][in] = (dbl *)
 				malloc(101*sizeof(dbl));
-				if(dir[0][in] == 0) return -111;
+				if(dir[0][in] == nullptr) return -111;
 				}
 			else
 				{
 				dir[il][in] = (dbl *) 
 				malloc((NET.Nneur[il-1]+1)*sizeof(dbl));
-				if(dir[il][in] == 0) return -111;
+				if(dir[il][in] == nullptr) return -111;
 			        Nweights += NET.Nneur[il-1]+1;
 				}
 			}
@@ -2722,13 +2722,13 @@ int LearnAlloc()
 		Gamma = (dbl*) malloc(Nweights*sizeof(dbl));
 		delta = (dbl*) malloc(Nweights*sizeof(dbl));
 		BFGSH = (dbl**) malloc(Nweights*sizeof(dbl*));
-		if(Gamma == 0 || delta == 0 || BFGSH == 0)
+		if(Gamma == nullptr || delta == nullptr || BFGSH == nullptr)
 		   return -111;
 		   
 		for(i=0; i<Nweights; i++)
 			{
 			BFGSH[i] = (dbl*) malloc(Nweights*sizeof(dbl));
-			if(BFGSH[i] == 0) return -111;
+			if(BFGSH[i] == nullptr) return -111;
 			}
 		}
 		
@@ -2772,7 +2772,7 @@ int MLP_PrFFun(char *filename)
 	FILE *W;
 
 	W=fopen(filename,"w");
-	if(W==0) return -1;
+	if(W==nullptr) return -1;
 	fprintf(W,"      SUBROUTINE RNNFUN(rin,rout)\n");
 	fprintf(W,"      DIMENSION RIN(%d)\n",NET.Nneur[0]);
 	fprintf(W,"      DIMENSION ROUT(%d)\n",NET.Nneur[NET.Nlayer-1]);
@@ -2881,7 +2881,7 @@ int MLP_PrCFun(char *filename)
 	FILE *W;
 
 	W=fopen(filename,"w");
-	if(W==0) return -1;
+	if(W==nullptr) return -1;
 	
 	fprintf(W,"double sigmoid(double x)\n");
 	fprintf(W,"{\n");
@@ -2975,7 +2975,7 @@ int SaveWeights(char *filename, int iepoch)
 	int ilayer,ineur,i;
 
 	W=fopen(filename,"w");
-	if(W==0) return -1;
+	if(W==nullptr) return -1;
 	
 	fprintf(W,"# network structure ");
 	for(ilayer=0; ilayer<NET.Nlayer; ilayer++)
@@ -3027,7 +3027,7 @@ int LoadWeights(char *filename, int *iepoch)
 	char s[80];
 
 	W=fopen(filename,"r");
-	if(W==0) return -1;
+	if(W==nullptr) return -1;
 	do
 		{
 		fgets(s,80,W);
@@ -3090,8 +3090,8 @@ int LoadWeights(char *filename, int *iepoch)
 	        PAT.Rin = (type_pat***) malloc(2*sizeof(type_pat**));
 	        PAT.Rans = (type_pat***) malloc(2*sizeof(type_pat**));
 		PAT.vRin = (type_pat**) malloc(2*sizeof(type_pat*));
-		if(PAT.Pond == 0 || PAT.Rin == 0
-		   || PAT.Rans == 0 || PAT.vRin == 0) return -111; 
+		if(PAT.Pond == nullptr || PAT.Rin == nullptr
+		   || PAT.Rans == nullptr || PAT.vRin == nullptr) return -111; 
 		} 
 	
 
@@ -3106,18 +3106,18 @@ int LoadWeights(char *filename, int *iepoch)
 	{
 	PatMemory[ifile] = 1;		
         PAT.Pond[ifile] = (type_pat*) malloc(npat*sizeof(type_pat));
-	if(PAT.Pond[ifile] == 0) return -111;
+	if(PAT.Pond[ifile] == nullptr) return -111;
 	for(j=0; j<npat; j++)
            	PAT.Pond[ifile][j] = 1;
 			
 	PAT.Rin[ifile] = (type_pat**) malloc(npat*sizeof(type_pat*));
-	if(PAT.Rin[ifile] == 0) return -111;
+	if(PAT.Rin[ifile] == nullptr) return -111;
 	PAT.Rans[ifile] = (type_pat**) malloc(npat*sizeof(type_pat*));
-	if(PAT.Rans[ifile] == 0) return -111;
+	if(PAT.Rans[ifile] == nullptr) return -111;
 
 	PAT.vRin[ifile] = (type_pat *) malloc(npat*(nin+1)*
 						sizeof(type_pat));
-	if(PAT.vRin[ifile] == 0) return -111;
+	if(PAT.vRin[ifile] == nullptr) return -111;
 						
 	for(j=0; j<npat; j++)
 		{
@@ -3127,14 +3127,14 @@ int LoadWeights(char *filename, int *iepoch)
 	for(j=0; j<npat; j++)
 		{
 		PAT.Rans[ifile][j] = (type_pat*) malloc(nout*sizeof(type_pat));
-		if(PAT.Rans[ifile][j] == 0) return -111;
+		if(PAT.Rans[ifile][j] == nullptr) return -111;
 		}
 	PAT.Npat[ifile] = npat;
 	
 	if(ifile==0)
 		{	
 		ExamplesIndex = (int *) malloc(npat*sizeof(int));
-		if(ExamplesIndex == 0) return -111;
+		if(ExamplesIndex == nullptr) return -111;
 		for(j=0; j<npat; j++) ExamplesIndex[j] = j;
 		}
 	}
@@ -3144,7 +3144,7 @@ int LoadWeights(char *filename, int *iepoch)
 	
 /* event weighting */	
 	tmp = (type_pat *) malloc(ntot*sizeof(type_pat));
-	if(tmp == 0) return -111;
+	if(tmp == nullptr) return -111;
 	
 	for(j=0; j<PAT.Npat[ifile]; j++) 
 		{
@@ -3171,7 +3171,7 @@ int LoadWeights(char *filename, int *iepoch)
 	PAT.Rin[ifile] = tmp2;	*/
 	
 	tmp3 = (type_pat *) malloc(ntot*(nin+1)*sizeof(type_pat));
-	if(tmp3 == 0) return -111;
+	if(tmp3 == nullptr) return -111;
 	
 	for(j=0; j<PAT.Npat[ifile]*(nin+1); j++)
 		{
@@ -3186,7 +3186,7 @@ int LoadWeights(char *filename, int *iepoch)
 		}
 		
 	tmp2 = (type_pat **) malloc(ntot*sizeof(type_pat*));
-	if(tmp2 == 0) return -111;		
+	if(tmp2 == nullptr) return -111;		
 	for(j=0; j<PAT.Npat[ifile]; j++) 
 		{
 		tmp2[j] = PAT.Rans[ifile][j];
@@ -3194,7 +3194,7 @@ int LoadWeights(char *filename, int *iepoch)
 	for(j=PAT.Npat[ifile];j<ntot;j++)
 		{
 		tmp2[j] = (type_pat*) malloc(nout*sizeof(type_pat));
-		if(tmp2[j] == 0) return -111;
+		if(tmp2[j] == nullptr) return -111;
 		}
 	if(PatMemory[ifile]==1) free(PAT.Rans[ifile]);
 	PAT.Rans[ifile] = tmp2;	
@@ -3206,7 +3206,7 @@ int LoadWeights(char *filename, int *iepoch)
 		{
 		free(ExamplesIndex);	
 		ExamplesIndex = (int *) malloc(ntot*sizeof(int));
-		if(ExamplesIndex == 0) return -111;
+		if(ExamplesIndex == nullptr) return -111;
 		for(j=0; j<ntot; j++) ExamplesIndex[j] = j;
 		}
 	}
@@ -3340,8 +3340,8 @@ int MLP_PrintInputStat()
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
 
-	if(mean == 0 || sigma == 0 || minimum == 0
-	   || maximum == 0) return -111;
+	if(mean == nullptr || sigma == nullptr || minimum == nullptr
+	   || maximum == nullptr) return -111;
 
 	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
 			mean,sigma,minimum,maximum);
@@ -3382,17 +3382,17 @@ int MLP_PrintInputStat()
 
 /* allocate memory */
 	mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (mean == 0) return -111;
+        if (mean == nullptr) return -111;
 	sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (sigma == 0) return -111;
+        if (sigma == nullptr) return -111;
 	STAT.mean = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (STAT.mean == 0) return -111;
+        if (STAT.mean == nullptr) return -111;
 	STAT.sigma = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (STAT.sigma == 0) return -111;
+        if (STAT.sigma == nullptr) return -111;
 	minimum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (minimum == 0) return -111;
+        if (minimum == nullptr) return -111;
 	maximum = (dbl *) malloc(NET.Nneur[0]*sizeof(dbl));
-        if (maximum == 0) return -111;
+        if (maximum == nullptr) return -111;
 	
 	MLP_StatInputs(PAT.Npat[0],NET.Nneur[0],PAT.Rin[0],
 			mean,sigma,minimum,maximum);
@@ -3454,16 +3454,16 @@ int AllocNetwork(int Nlayer, int *Neurons)
 	NetMemory = 1;
 	
 	NET.Nneur = (int *) malloc(Nlayer*sizeof(int));
-	if(NET.Nneur == 0) return -111;
+	if(NET.Nneur == nullptr) return -111;
 	
 	NET.T_func = (int **) malloc(Nlayer*sizeof(int *));
 	NET.Deriv1 = (dbl **) malloc(Nlayer*sizeof(dbl *));
 	NET.Inn = (dbl **) malloc(Nlayer*sizeof(dbl *));
 	NET.Outn = (dbl **) malloc(Nlayer*sizeof(dbl *));
 	NET.Delta = (dbl **) malloc(Nlayer*sizeof(dbl *));
-	if(NET.T_func == 0 || NET.Deriv1 == 0
-		|| NET.Inn == 0 || NET.Outn == 0
-		|| NET.Delta == 0) return -111;
+	if(NET.T_func == nullptr || NET.Deriv1 == nullptr
+		|| NET.Inn == nullptr || NET.Outn == nullptr
+		|| NET.Delta == nullptr) return -111;
 	
 	for(i=0; i<Nlayer; i++)
 		{
@@ -3472,9 +3472,9 @@ int AllocNetwork(int Nlayer, int *Neurons)
 		NET.Inn[i] = (dbl *) malloc(Neurons[i]*sizeof(dbl));
 		NET.Outn[i] = (dbl *) malloc(Neurons[i]*sizeof(dbl));
 		NET.Delta[i] = (dbl *) malloc(Neurons[i]*sizeof(dbl));
-		if(NET.T_func[i] == 0 || NET.Deriv1[i] == 0 
-			|| NET.Inn[i] == 0 || NET.Outn[i] == 0
-			|| NET.Delta[i] ==0 ) return -111;
+		if(NET.T_func[i] == nullptr || NET.Deriv1[i] == nullptr 
+			|| NET.Inn[i] == nullptr || NET.Outn[i] == nullptr
+			|| NET.Delta[i] ==nullptr ) return -111;
 		}
 		
 	NET.Weights = (dbl ***) malloc(Nlayer*sizeof(dbl **));
@@ -3482,9 +3482,9 @@ int AllocNetwork(int Nlayer, int *Neurons)
 	LEARN.Odw = (dbl ***) malloc(Nlayer*sizeof(dbl **));
 	LEARN.ODeDw = (dbl ***) malloc(Nlayer*sizeof(dbl **));
 	LEARN.DeDw = (dbl ***) malloc(Nlayer*sizeof(dbl **));
-	if(NET.Weights == 0 || NET.vWeights == 0 
-	  || LEARN.Odw == 0 || LEARN.ODeDw == 0
-	  || LEARN.DeDw == 0)  return -111;
+	if(NET.Weights == nullptr || NET.vWeights == nullptr 
+	  || LEARN.Odw == nullptr || LEARN.ODeDw == nullptr
+	  || LEARN.DeDw == nullptr)  return -111;
 	  
 	for(i=1; i<Nlayer; i++)
 		{
@@ -3495,9 +3495,9 @@ int AllocNetwork(int Nlayer, int *Neurons)
 		LEARN.Odw[i] = (dbl **) malloc(Neurons[i]*sizeof(dbl *));
 		LEARN.ODeDw[i] = (dbl **) malloc(Neurons[i]*sizeof(dbl *));
 		LEARN.DeDw[i] = (dbl **) malloc(Neurons[i]*sizeof(dbl *));
-		if(NET.Weights[i] == 0 || NET.vWeights[i] == 0 
-		  || LEARN.Odw[i] == 0 || LEARN.ODeDw[i] == 0
-		  || LEARN.DeDw[i] == 0)  return -111;
+		if(NET.Weights[i] == nullptr || NET.vWeights[i] == nullptr 
+		  || LEARN.Odw[i] == nullptr || LEARN.ODeDw[i] == nullptr
+		  || LEARN.DeDw[i] == nullptr)  return -111;
 		  
 		for(j=0; j<Neurons[i]; j++)
 			{
@@ -3505,9 +3505,9 @@ int AllocNetwork(int Nlayer, int *Neurons)
 			LEARN.Odw[i][j] = (dbl *) malloc(k*sizeof(dbl));
 			LEARN.ODeDw[i][j] = (dbl *) malloc(k*sizeof(dbl));
 			LEARN.DeDw[i][j] = (dbl *) malloc(k*sizeof(dbl));
-			if(LEARN.Odw[i][j] == 0 
-			  || LEARN.ODeDw[i][j] == 0
-			  || LEARN.DeDw[i][j] == 0)  return -111;
+			if(LEARN.Odw[i][j] == nullptr 
+			  || LEARN.ODeDw[i][j] == nullptr
+			  || LEARN.DeDw[i][j] == nullptr)  return -111;
 			
 			for(l=0; l<k; l++)
 				{
@@ -3601,7 +3601,7 @@ int GetNetStructure(char *s, int *Nlayer, int *Nneur)
 	if (strtok(tmp,","))
     		{
       		i=1;
-      		while (strtok(NULL,",")) i++;
+      		while (strtok(nullptr,",")) i++;
     		}
 	*Nlayer = i;
 	if(i > NLMAX) return -3;
@@ -3611,7 +3611,7 @@ int GetNetStructure(char *s, int *Nlayer, int *Nneur)
     		{
       		sscanf(strtok(tmp,","),"%d",&(Nneur[0]));
       		for (i=1;i<*Nlayer;i++)
-        		sscanf(strtok(NULL,","),"%d",&(Nneur[i]));
+        		sscanf(strtok(nullptr,","),"%d",&(Nneur[i]));
     		}
 
 	return 0;
@@ -3682,7 +3682,7 @@ int MLP_SetNet(int *nl, int *nn)
 void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 {
 	int i,j;
-	register dbl a1, a2, a3, a4, c, d;
+	dbl a1, a2, a3, a4, c, d;
 	dbl *pM1 = M;
 	dbl *pM2 = &(M[m+1]);
 	dbl *pM3 = &(M[2*(m+1)]);
@@ -3708,7 +3708,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 			a3 = a3 + *pM3 * c + *(pM3+1) * d;
 			a4 = a4 + *pM4 * c + *(pM4+1) * d; 
 			}
-		for(j=j; j<m; j++, pM1++, pM2++, pM3++, pM4++)
+		for(/*j set above*/; j<m; j++, pM1++, pM2++, pM3++, pM4++)
 			{
 			c = v[j];
 			a1 = a1 + *pM1 * c;
@@ -3718,7 +3718,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 			}	
 		*pr = a1; *(pr+1) = a2; *(pr+2) = a3; *(pr+3) = a4;
 		}
-	for(i=i; i<n; i++)
+	for(/*i set above*/; i<n; i++)
 		{
 		pM1 = &(M[i*(m+1)]);
 		a1 = *pM1;
@@ -3748,7 +3748,7 @@ void MLP_MatrixVectorBias(dbl *M, dbl *v, dbl *r, int n, int m)
 void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 {
 	int i,j;
-	register dbl a1, a2, a3, a4, c, d;
+	dbl a1, a2, a3, a4, c, d;
 	dbl *pM1 = M;
 	dbl *pM2 = &(M[m]);
 	dbl *pM3 = &(M[2*m]);
@@ -3773,7 +3773,7 @@ void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 			a3 = a3 + *pM3 * c + *(pM3+1) * d;
 			a4 = a4 + *pM4 * c + *(pM4+1) * d; 
 			}
-		for(j=j; j<m; j++, pM1++, pM2++, pM3++, pM4++)
+		for(/*j set above*/; j<m; j++, pM1++, pM2++, pM3++, pM4++)
 			{
 			c = v[j];
 			a1 = a1 + *pM1 * c;
@@ -3783,7 +3783,7 @@ void MLP_MatrixVector(dbl *M, type_pat *v, dbl *r, int n, int m)
 			}	
 		*pr = a1; *(pr+1) = a2; *(pr+2) = a3; *(pr+3) = a4;
 		}
-	for(i=i; i<n; i++)
+	for(/*i set above*/; i<n; i++)
 		{
 		pM1 = &(M[i*m]);
 		a1 = 0;
@@ -3846,7 +3846,7 @@ dbl *pb0,*pb1,*pc0,*pc1;
      }
     *pc0 = s00; *(pc0+1) = s01; *pc1 = s10; *(pc1+1) = s11;
    }
-  for (j=j; j<Nj; j++)
+  for (/*j set above*/; j<Nj; j++)
    {
     pc0 = c+j;
     pc1 = c+j+Nj;

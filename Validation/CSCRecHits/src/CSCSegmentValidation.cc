@@ -79,7 +79,7 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
 
     // do the resolution plots
     const PSimHit * hit = keyHit(detId);
-    if(hit != 0) 
+    if(hit != nullptr) 
     {
       const CSCLayer * layer = findLayer(hit->detUnitId());
       plotResolution(*hit, *segmentItr, layer, chamberType);
@@ -230,7 +230,7 @@ namespace CSCSegmentValidationUtils {
 
 const PSimHit * CSCSegmentValidation::keyHit(int chamberId) const
 {
-  const PSimHit * result = 0;
+  const PSimHit * result = nullptr;
   int layerId = chamberId + 3;
   const edm::PSimHitContainer & layerHits = theSimHitMap->hits(layerId);
 

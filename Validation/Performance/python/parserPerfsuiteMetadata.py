@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 import os, sys
 import time
@@ -150,9 +151,9 @@ class parserPerfsuiteMetadata:
 	def handleParsingError(self, message):
 		if self._DEBUG:
 			raise ValueError(message)
-		print " ======== AND ERROR WHILE PARSING METADATA ===="
-		print message
-		print " =============== end ========================= "
+		print(" ======== AND ERROR WHILE PARSING METADATA ====")
+		print(message)
+		print(" =============== end ========================= ")
 
 	#IgProf_Perf, IgProf_Mem,  Memcheck, Callgrind
 	#TODO: divide the input using separators
@@ -205,7 +206,7 @@ class parserPerfsuiteMetadata:
 				"cpu_model_name": [attr[1].strip() for attr in cpu_attributes if attr[0].strip() == "model name"][0]
 			}
 		except IOError as e:
-			print e
+			print(e)
 
 		
 		
@@ -225,7 +226,7 @@ class parserPerfsuiteMetadata:
 			}
 
 		except IOError as e:
-			print e
+			print(e)
 	
 		cpu_result.update(mem_result)
 		return cpu_result
@@ -342,7 +343,7 @@ class parserPerfsuiteMetadata:
 			info["command_line"] = 	lines[cmd_index]
 		except IndexError as e:
 			if self._DEBUG:
-				print e
+				print(e)
 			info["command_line"] = 	""
 		
 		try:
@@ -351,7 +352,7 @@ class parserPerfsuiteMetadata:
 			info["command_line_parsed"] = self._LINE_SEPARATOR.join(lines[cmd_parsed_start:cmd_parsed_end])
 		except IndexError as e:
 			if self._DEBUG:
-				print e
+				print(e)
 			info["command_line"] = 	""
 
 		return  info
@@ -439,7 +440,7 @@ class parserPerfsuiteMetadata:
 				self.handleParsingError( "Steps were not found corrently: %s for current job: %s" % (str(steps), str(job_lines)))
 				
 				""" quite nasty - just a work around """
-				print "Trying to recover from this error in case of old cmssw"
+				print("Trying to recover from this error in case of old cmssw")
 				
 				""" we assume that steps are between the following sentance and a TimeStamp """
 				steps_start = self.findFirstIndex_ofStartsWith(job_lines, "Steps passed to writeCommands")
@@ -449,7 +450,7 @@ class parserPerfsuiteMetadata:
 				if not self.validateSteps(steps):
 					self.handleParsingError( "EVEN AFTER RECOVERY Steps were not found corrently! : %s for current job: %s" % (str(steps), str(job_lines)))
 				else:
-					print "RECOVERY SEEMS to be successful: %s" % str(steps)
+					print("RECOVERY SEEMS to be successful: %s" % str(steps))
 
 			info["steps"] = self._LINE_SEPARATOR.join(steps) #!!!! STEPS MIGHT CONTAIN COMMA: ","
 
@@ -479,7 +480,7 @@ class parserPerfsuiteMetadata:
 					line_exitcode = self.findLineBefore(line_index, lines, test_condition=lambda l: reExitCode.match(l))
 					exit_code, = reExitCode.match(line_exitcode).groups()
 				except Exception as e:
-					print "Error while getting exit code (Other test): %s" + str(e)
+					print("Error while getting exit code (Other test): %s" + str(e))
 					
 				for key, thread in test.items():
 					for i in range(0, len(thread)):
@@ -550,7 +551,7 @@ class parserPerfsuiteMetadata:
 		reExit_code = re.compile(r"""Individual ([^\s]+) ExitCode (\d+)""")
 
 		if self._DEBUG:
-			print "TimeSize (%d) jobs: %s" % (len(jobs), str(jobs))
+			print("TimeSize (%d) jobs: %s" % (len(jobs), str(jobs)))
 
 		for job_lines in jobs:
 			""" we apply the defined parsing rules to extract the required fields of information into the dictionary (as defined in parsing rules) """
@@ -593,7 +594,7 @@ class parserPerfsuiteMetadata:
 				self.handleParsingError( "Steps were not found corrently: %s for current job: %s" % (str(steps), str(job_lines)))
 				
 				""" quite nasty - just a work around """
-				print "Trying to recover from this error in case of old cmssw"
+				print("Trying to recover from this error in case of old cmssw")
 				
 				""" we assume that steps are between the following sentance and a TimeStamp """
 				steps_start = self.findFirstIndex_ofStartsWith(job_lines, "Steps passed to writeCommands")
@@ -603,7 +604,7 @@ class parserPerfsuiteMetadata:
 				if not self.validateSteps(steps):
 					self.handleParsingError( "EVEN AFTER RECOVERY Steps were not found corrently! : %s for current job: %s" % (str(steps), str(job_lines)))
 				else:
-					print "RECOVERY SEEMS to be successful: %s" % str(steps)
+					print("RECOVERY SEEMS to be successful: %s" % str(steps))
 
 			info["steps"] = self._LINE_SEPARATOR.join(steps) #!!!! STEPS MIGHT CONTAIN COMMA: ","
 			
@@ -647,7 +648,7 @@ class parserPerfsuiteMetadata:
 				csimark.extend(self.readCmsScimarkTest(testName = "cmsScimark_%s" % str(core_number), testType = "NotUsedCore_%s" %str(core_number), core = core_number))
 			except IOError as e:
 				if self._DEBUG:
-					print e
+					print(e)
 		return csimark
 		#print csimark
 
@@ -683,14 +684,14 @@ class parserPerfsuiteMetadata:
 			try:
 				#print "HERE!"
 				url=self.get_tarball_fromlog()
-				print "Extracted castor tarball full path by re-parsing cmsPerfSuite.log: %s"%url
+				print("Extracted castor tarball full path by re-parsing cmsPerfSuite.log: %s"%url)
 				
 			except:
 				if "PERFDB_CASTOR_FILE_URL" in os.environ:
 					url = os.environ["PERFDB_CASTOR_FILE_URL"]
 					
 				else: #FIXME: add the possibility to get it directly from the cmsPerfSuite.log file (make sure it is dumped there before doing the tarball itself...)
-					print "Failed to get the tarball location from environment variable PERFDB_CASTOR_FILE_URL" 
+					print("Failed to get the tarball location from environment variable PERFDB_CASTOR_FILE_URL") 
 					self.handleParsingError( "Castor tarball URL not found. Provide interactively")
 
 			while True:
@@ -698,7 +699,7 @@ class parserPerfsuiteMetadata:
 				if lmdb_castor_url_is_valid(url):
 					info["castor_file_url"] = url
 					break
-				print "Please enter a valid CASTOR url: has to start with /castor/ and should point to the tarball"
+				print("Please enter a valid CASTOR url: has to start with /castor/ and should point to the tarball")
 				if os.isatty(0): url = sys.stdin.readline()
 				else: raise IOError("stdin is closed.")
 
@@ -706,7 +707,7 @@ class parserPerfsuiteMetadata:
 		return info
 	def get_tarball_fromlog(self):
 		'''Return the tarball castor location by parsing the cmsPerfSuite.log file'''
-		print "Getting the url from the cmsPerfSuite.log"
+		print("Getting the url from the cmsPerfSuite.log")
 		log=open("cmsPerfSuite.log","r")
 		castor_dir="UNKNOWN_CASTOR_DIR"
 		tarball="UNKNOWN_TARBALL"
@@ -731,18 +732,18 @@ class parserPerfsuiteMetadata:
 		""" we add info about how successfull was the run, when it finished and final castor url to the file! """
 		result["General"].update(self.parseTheCompletion())
 
-		print "Parsing TimeSize runs..."
+		print("Parsing TimeSize runs...")
 		if len(self.lines_timesize) > 0:
 			try:
 				result["TestResults"].update(self.parseTimeSize())
 			except Exception as e:
-				print "BAD BAD BAD UNHANDLED ERROR in parseTimeSize: " + str(e)
+				print("BAD BAD BAD UNHANDLED ERROR in parseTimeSize: " + str(e))
 
-		print "Parsing Other(IgProf, Memcheck, ...) runs..."
+		print("Parsing Other(IgProf, Memcheck, ...) runs...")
 		try:
 			result["TestResults"].update(self.parseAllOtherTests())
 		except Exception as e:
-			print "BAD BAD BAD UNHANDLED ERROR in parseAllOtherTests: " + str(e)
+			print("BAD BAD BAD UNHANDLED ERROR in parseAllOtherTests: " + str(e))
 
 		#print result["TestResults"]
 

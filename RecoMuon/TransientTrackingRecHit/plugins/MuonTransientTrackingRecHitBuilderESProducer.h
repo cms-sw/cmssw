@@ -25,10 +25,10 @@ public:
   MuonTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~MuonTransientTrackingRecHitBuilderESProducer();
+  ~MuonTransientTrackingRecHitBuilderESProducer() override;
 
   // Operations
-  std::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
+  std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
 
 protected:
 

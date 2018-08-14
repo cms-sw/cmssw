@@ -60,7 +60,7 @@ namespace edm {
     typename SizeType = unsigned int,//the type used here can not change when go from 32bit to 64bit or across platforms
     typename KeyReferenceHelper = typename helper::AssociationKeyReferenceTrait<KeyRef>::type>
   class AssociationVector {
-    BOOST_STATIC_ASSERT((boost::is_convertible<SizeType, typename CVal::size_type>::value));
+    static_assert(std::is_convertible<SizeType, typename CVal::size_type>::value, "Can not convert container size_type to unsigned int.");
     typedef AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> self;
 
   public:
@@ -72,7 +72,7 @@ namespace edm {
     typedef std::vector<value_type> transient_vector_type;
     typedef value_type const& const_reference;
     AssociationVector();
-    AssociationVector(KeyRefProd const& ref, CKey const* = 0);
+    AssociationVector(KeyRefProd const& ref, CKey const* = nullptr);
     AssociationVector(AssociationVector const&);
     ~AssociationVector();
 
@@ -130,8 +130,8 @@ namespace edm {
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::AssociationVector(KeyRefProd const& ref,
 												      CKey const* coll) :
-    data_(coll == 0 ? ref->size() : coll->size()), ref_(ref),
-    transientVector_( new transient_vector_type(coll == 0 ? ref->size() : coll->size())) { }
+    data_(coll == nullptr ? ref->size() : coll->size()), ref_(ref),
+    transientVector_( new transient_vector_type(coll == nullptr ? ref->size() : coll->size())) { }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper>::

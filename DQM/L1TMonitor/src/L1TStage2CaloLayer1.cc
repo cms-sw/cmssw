@@ -8,6 +8,7 @@
 #include "DQM/L1TMonitor/interface/L1TStage2CaloLayer1.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
@@ -27,7 +28,8 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet & ps) :
   hcalTPSourceSentLabel_(ps.getParameter<edm::InputTag>("hcalTPSourceSent").label()),
   fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
   histFolder_(ps.getParameter<std::string>("histFolder")),
-  tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0))
+  tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
+  ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false))
 {
   ecalTPSentRecd_.reserve(28*2*72);
   hcalTPSentRecd_.reserve(41*2*72);
@@ -43,10 +45,41 @@ void L1TStage2CaloLayer1::dqmBeginRun(const edm::Run&, const edm::EventSetup&)
 
 void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetup & es)
 {
+  // Monitorables stored in Layer 1 raw data but
+  // not accessible from existing persistent data formats
+  edm::Handle<FEDRawDataCollection> fedRawDataCollection;
+  event.getByToken(fedRawData_, fedRawDataCollection);
+  bool caloLayer1OutOfRun{true};
+  if (fedRawDataCollection.isValid()) {
+    caloLayer1OutOfRun = false;
+    for(int iFed=1354; iFed<1360; iFed+=2) {
+      const FEDRawData& fedRawData = fedRawDataCollection->FEDData(iFed);
+      if ( fedRawData.size() == 0 ) {
+        caloLayer1OutOfRun = true;
+        continue;  // In case one of 3 layer 1 FEDs not in
+      }
+      const uint64_t *fedRawDataArray = (const uint64_t *) fedRawData.data();
+      UCTDAQRawData daqData(fedRawDataArray);
+      for(uint32_t i = 0; i < daqData.nAMCs(); i++) {
+        UCTAMCRawData amcData(daqData.amcPayload(i));
+        int lPhi = amcData.layer1Phi();
+        if ( daqData.BXID() != amcData.BXID() ) {
+          bxidErrors_->Fill(lPhi);
+        }
+        if ( daqData.L1ID() != amcData.L1ID() ) {
+          l1idErrors_->Fill(lPhi);
+        }
+        // AMC payload header has 16 bit orbit number, AMC13 header is full 32
+        if ( (daqData.orbitNumber() & 0xFFFF) != amcData.orbitNo() ) {
+          orbitErrors_->Fill(lPhi);
+        }
+      }
+    }
+  }
+
+
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPsSent;
   event.getByToken(ecalTPSourceSent_, ecalTPsSent);
-  bool tccFullReadout = ( ecalTPsSent->size() == 28*72*2 );
-  if ( ! tccFullReadout ) updateMismatch(event, 4);
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPsRecd;
   event.getByToken(ecalTPSourceRecd_, ecalTPsRecd);
 
@@ -61,11 +94,10 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
 
   for ( const auto& tpPair : ecalTPSentRecd_ ) {
     auto sentTp = tpPair.first;
-    if ( sentTp.compressedEt() < 0 && !tccFullReadout ) {
-      // This means there was some sort of issue with TCC unpacking for this particular event
-      updateMismatch(event, 4);
-      // But we don't want to compare to a tp set to -1
-      EcalTriggerPrimitiveSample sample(0); 
+    if ( sentTp.compressedEt() < 0 ) {
+      // ECal zero-suppresses digis, and a default-constructed
+      // digi has et=-1 apparently, but we know it should be zero
+      EcalTriggerPrimitiveSample sample(0);
       EcalTriggerPrimitiveDigi tpg(sentTp.id());
       tpg.setSize(1);
       tpg.setSample(0, sample);
@@ -94,7 +126,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       ecalOccSentFgVB_->Fill(ieta, iphi);
     }
 
-    if ( towerMasked ) {
+    if ( towerMasked || caloLayer1OutOfRun ) {
       // Do not compare if we have a mask applied
       continue;
     }
@@ -103,6 +135,8 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       ecalLinkError_->Fill(ieta, iphi);
       ecalLinkErrorByLumi_->Fill(event.id().luminosityBlock());
       nEcalLinkErrors++;
+      // Don't compare anymore, we already know its bad
+      continue;
     }
 
     ecalTPRawEtCorrelation_->Fill(sentTp.compressedEt(), recdTp.compressedEt());
@@ -118,7 +152,9 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
 
     // Now for comparisons
 
-    if ( sentTp.compressedEt() == recdTp.compressedEt() && sentTp.fineGrain() == recdTp.fineGrain() ) {
+    const bool EetAgreement = sentTp.compressedEt() == recdTp.compressedEt();
+    const bool EfbAgreement = sentTp.fineGrain() == recdTp.fineGrain();
+    if ( EetAgreement && EfbAgreement ) {
       // Full match
       if ( sentTp.compressedEt() > tpFillThreshold_ ) {
         ecalOccSentAndRecd_->Fill(ieta, iphi);
@@ -132,12 +168,16 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       ECALmismatchesPerBx_->Fill(event.bunchCrossing());
       nEcalMismatch++;
 
-      if ( sentTp.compressedEt() != recdTp.compressedEt() ) {
+      if ( not EetAgreement ) {
         ecalOccEtDiscrepancy_->Fill(ieta, iphi);
         ecalTPRawEtDiffNoMatch_->Fill(recdTp.compressedEt()-sentTp.compressedEt());
         updateMismatch(event, 0);
+
+        if ( sentTp.compressedEt() == 0 ) ecalOccRecdNotSent_->Fill(ieta, iphi);
+        else if ( recdTp.compressedEt() == 0 ) ecalOccSentNotRecd_->Fill(ieta, iphi);
+        else ecalOccNoMatch_->Fill(ieta, iphi);
       }
-      if ( sentTp.fineGrain() != recdTp.fineGrain() ) {
+      if ( not EfbAgreement ) {
         // occ for fine grain mismatch
         ecalOccFgDiscrepancy_->Fill(ieta, iphi);
         updateMismatch(event, 1);
@@ -196,7 +236,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       hcalOccSentFb2_->Fill(ieta, iphi);
     }
 
-    if ( towerMasked ) {
+    if ( towerMasked || caloLayer1OutOfRun ) {
       // Do not compare if we have a mask applied
       continue;
     }
@@ -205,6 +245,8 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       hcalLinkError_->Fill(ieta, iphi);
       hcalLinkErrorByLumi_->Fill(event.id().luminosityBlock());
       nHcalLinkErrors++;
+      // Don't compare anymore, we already know its bad
+      continue;
     }
 
     if ( recdTp.SOI_compressedEt() > tpFillThreshold_ ) {
@@ -225,7 +267,11 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       hcalTPRawEtCorrelationHBHE_->Fill(sentTp.SOI_compressedEt(), recdTp.SOI_compressedEt());
     }
 
-    if ( sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt() && sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain() ) {
+    const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
+    const bool Hfb1Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain()) || ignoreHFfbs_);
+    // Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
+    const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)) || ignoreHFfbs_);
+    if ( HetAgreement && Hfb1Agreement && Hfb2Agreement ) {
       // Full match
       if ( sentTp.SOI_compressedEt() > tpFillThreshold_ ) {
         hcalOccSentAndRecd_->Fill(ieta, iphi);
@@ -238,7 +284,7 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
       hcalMismatchByLumi_->Fill(event.id().luminosityBlock());
       nHcalMismatch++;
 
-      if ( sentTp.SOI_compressedEt() != recdTp.SOI_compressedEt() ) {
+      if ( not HetAgreement ) {
         if ( abs(ieta) > 29 ) {
           HFmismatchesPerBx_->Fill(event.bunchCrossing());
         } else {
@@ -253,10 +299,14 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
         else if ( recdTp.SOI_compressedEt() == 0 ) hcalOccSentNotRecd_->Fill(ieta, iphi);
         else hcalOccNoMatch_->Fill(ieta, iphi);
       }
-      if ( sentTp.SOI_fineGrain() != recdTp.SOI_fineGrain() ) {
+      if ( not Hfb1Agreement ) {
         // Handle fine grain discrepancies
-        // TODO: HF has two bits to compare, not sure how packed in hcalDigis
         hcalOccFbDiscrepancy_->Fill(ieta, iphi);
+        updateMismatch(event, 3);
+      }
+      if ( not Hfb2Agreement ) {
+        // Handle fine grain discrepancies
+        hcalOccFb2Discrepancy_->Fill(ieta, iphi);
         updateMismatch(event, 3);
       }
     }
@@ -269,34 +319,6 @@ void L1TStage2CaloLayer1::analyze(const edm::Event & event, const edm::EventSetu
   }
   if ( nHcalMismatch > maxEvtMismatchHCALCurrentLumi_ ) {
     maxEvtMismatchHCALCurrentLumi_ = nHcalMismatch;
-  }
-
-
-  // Monitorables stored in Layer 1 raw data but
-  // not accessible from existing persistent data formats
-  edm::Handle<FEDRawDataCollection> fedRawDataCollection;
-  event.getByToken(fedRawData_, fedRawDataCollection);
-  if (fedRawDataCollection.isValid()) {
-    for(int iFed=1354; iFed<1360; iFed+=2) {
-      const FEDRawData& fedRawData = fedRawDataCollection->FEDData(iFed);
-      if ( fedRawData.size() == 0 ) continue;  // In case one of 3 layer 1 FEDs not in
-      const uint64_t *fedRawDataArray = (const uint64_t *) fedRawData.data();
-      UCTDAQRawData daqData(fedRawDataArray);
-      for(uint32_t i = 0; i < daqData.nAMCs(); i++) {
-        UCTAMCRawData amcData(daqData.amcPayload(i));
-        int lPhi = amcData.layer1Phi();
-        if ( daqData.BXID() != amcData.BXID() ) {
-          bxidErrors_->Fill(lPhi);
-        }
-        if ( daqData.L1ID() != amcData.L1ID() ) {
-          l1idErrors_->Fill(lPhi);
-        }
-        // AMC payload header has 16 bit orbit number, AMC13 header is full 32
-        if ( (daqData.orbitNumber() & 0xFFFF) != amcData.orbitNo() ) {
-          orbitErrors_->Fill(lPhi);
-        }
-      }
-    }
   }
 
 }
@@ -391,9 +413,11 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   ecalDiscrepancy_ = bookEcalOccupancy("ecalDiscrepancy", "ECAL Discrepancies between TCC and Layer1 Readout");
   ecalLinkError_   = bookEcalOccupancy("ecalLinkError", "ECAL Link Errors");
   ecalOccupancy_   = bookEcalOccupancy("ecalOccupancy", "ECAL TP Occupancy at Layer1");
+  ecalOccRecdEtWgt_= bookEcalOccupancy("ecalOccRecdEtWgt", "ECal TP ET-weighted Occupancy at Layer1");
   hcalDiscrepancy_ = bookHcalOccupancy("hcalDiscrepancy", "HCAL Discrepancies between uHTR and Layer1 Readout");
   hcalLinkError_   = bookHcalOccupancy("hcalLinkError", "HCAL Link Errors");
   hcalOccupancy_   = bookHcalOccupancy("hcalOccupancy", "HCAL TP Occupancy at Layer1");
+  hcalOccRecdEtWgt_= bookHcalOccupancy("hcalOccRecdEtWgt", "HCal TP ET-weighted Occupancy at Layer1");
 
 
   ibooker.setCurrentFolder(histFolder_+"/ECalDetail");
@@ -401,7 +425,6 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   ecalOccEtDiscrepancy_     = bookEcalOccupancy("ecalOccEtDiscrepancy", "ECal Et Discrepancy Occupancy");
   ecalOccFgDiscrepancy_     = bookEcalOccupancy("ecalOccFgDiscrepancy", "ECal FG Veto Bit Discrepancy Occupancy");
   ecalOccLinkMasked_        = bookEcalOccupancy("ecalOccLinkMasked", "ECal Masked Links");
-  ecalOccRecdEtWgt_         = bookEcalOccupancy("ecalOccRecdEtWgt", "ECal TP ET-weighted Occupancy at Layer1");
   ecalOccRecdFgVB_          = bookEcalOccupancy("ecalOccRecdFgVB", "ECal FineGrain Veto Bit Occupancy at Layer1");
   ecalOccSentAndRecd_       = bookEcalOccupancy("ecalOccSentAndRecd", "ECal TP Occupancy FULL MATCH");
   ecalOccSentFgVB_          = bookEcalOccupancy("ecalOccSentFgVB", "ECal FineGrain Veto Bit Occupancy at TCC");
@@ -413,13 +436,18 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   ecalTPRawEtSentAndRecd_   = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   ecalTPRawEtSent_          = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
 
+  ibooker.setCurrentFolder(histFolder_+"/ECalDetail/TCCDebug");
+  ecalOccSentNotRecd_        = bookHcalOccupancy("ecalOccSentNotRecd", "ECal TP Occupancy sent by TCC, zero at Layer1");
+  ecalOccRecdNotSent_        = bookHcalOccupancy("ecalOccRecdNotSent", "ECal TP Occupancy received by Layer1, zero at TCC");
+  ecalOccNoMatch_            = bookHcalOccupancy("ecalOccNoMatch", "ECal TP Occupancy for TCC and Layer1 nonzero, not matching");
+
 
   ibooker.setCurrentFolder(histFolder_+"/HCalDetail");
 
   hcalOccEtDiscrepancy_      = bookHcalOccupancy("hcalOccEtDiscrepancy", "HCal Et Discrepancy Occupancy");
   hcalOccFbDiscrepancy_      = bookHcalOccupancy("hcalOccFbDiscrepancy", "HCal Feature Bit Discrepancy Occupancy");
+  hcalOccFb2Discrepancy_     = bookHcalOccupancy("hcalOccFb2Discrepancy", "HCal Second Feature Bit Discrepancy Occupancy");
   hcalOccLinkMasked_         = bookHcalOccupancy("hcalOccLinkMasked", "HCal Masked Links");
-  hcalOccRecdEtWgt_          = bookHcalOccupancy("hcalOccRecdEtWgt", "HCal TP ET-weighted Occupancy at Layer1");
   hcalOccRecdFb_             = bookHcalOccupancy("hcalOccRecdFb", "HCal Feature Bit Occupancy at Layer1");
   hcalOccRecdFb2_            = bookHcalOccupancy("hcalOccRecdFb2", "HF Second Feature Bit Occupancy at Layer1");
   hcalOccSentAndRecd_        = bookHcalOccupancy("hcalOccSentAndRecd", "HCal TP Occupancy FULL MATCH");
@@ -441,7 +469,7 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
 
   ibooker.setCurrentFolder(histFolder_+"/MismatchDetail");
 
-  const int nMismatchTypes = 5;
+  const int nMismatchTypes = 4;
   last20Mismatches_ = ibooker.book2D("last20Mismatches", 
                                              "Log of last 20 mismatches (use json tool to copy/paste)",
                                              nMismatchTypes, 0, nMismatchTypes, 20, 0, 20);
@@ -449,7 +477,6 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker &ibooker, const edm::
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(2, "Ecal TP Fine Grain Bit Mismatch");
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(3, "Hcal TP Et Mismatch");
   last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(4, "Hcal TP Feature Bit Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(5, "TCC Unpacker Error");
   for (size_t i=0; i<20; ++i) last20MismatchArray_.at(i) = {"-", 0};
   for (size_t i=1; i<=20; ++i) last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, "-");
 

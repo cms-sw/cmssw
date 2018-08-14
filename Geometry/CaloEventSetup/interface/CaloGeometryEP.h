@@ -41,11 +41,11 @@ class CaloGeometryEP : public edm::ESProducer
 			  edm::es::Label( T::producerTag() ) ) ;
       }
 
-      virtual ~CaloGeometryEP<T>() {}
+      ~CaloGeometryEP<T>() override {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
-	 const Alignments* alignPtr  ( 0 ) ;
-	 const Alignments* globalPtr ( 0 ) ;
+	 const Alignments* alignPtr  ( nullptr ) ;
+	 const Alignments* globalPtr ( nullptr ) ;
 	 if( m_applyAlignment ) // get ptr if necessary
 	 {
 	    edm::ESHandle< Alignments >                                      alignments ;

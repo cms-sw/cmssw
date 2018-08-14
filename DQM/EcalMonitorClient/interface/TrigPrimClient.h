@@ -17,6 +17,7 @@ namespace ecaldqm
 
     int minEntries_;
     float errorFractionThreshold_;
+    float TTF4MaskingAlarmThreshold_;
   };
 
 }

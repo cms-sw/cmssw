@@ -73,7 +73,7 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
  public:
 
   explicit JetTester_HeavyIons (const edm::ParameterSet&);
-  virtual ~JetTester_HeavyIons();
+  ~JetTester_HeavyIons() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override; 
   //virtual void beginJob(); 

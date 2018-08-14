@@ -5,10 +5,15 @@
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
@@ -18,7 +23,7 @@ namespace edm {
   
   ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
-      InputSource(pset, desc),
+      PuttableSourceBase(pset, desc),
       numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
       numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
       presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
@@ -42,6 +47,7 @@ namespace edm {
   ProducerSourceBase::~ProducerSourceBase() noexcept(false) {
   }
 
+  
   std::shared_ptr<RunAuxiliary>
   ProducerSourceBase::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
@@ -63,6 +69,7 @@ namespace edm {
     EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
     eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
     Event e(eventPrincipal, moduleDescription(), nullptr);
+    e.setProducer(this,nullptr);
     produce(e);
     e.commit_(std::vector<ProductResolverIndex>());
     resetEventCached();
@@ -90,25 +97,10 @@ namespace edm {
 
   void
   ProducerSourceBase::beginJob() {
-    // initialize cannot be called from the constructor, because it is a virtual function
+    PuttableSourceBase::beginJob();
+    // Initialize cannot be called from the constructor, because it is a virtual function
     // that needs to be invoked from a derived class if the derived class overrides it.
     initialize(eventID_, presentTime_, timeBetweenEvents_);
-  }
-
-  void
-  ProducerSourceBase::beginRun(Run&) {
-  }
-
-  void
-  ProducerSourceBase::endRun(Run&) {
-  }
-
-  void
-  ProducerSourceBase::beginLuminosityBlock(LuminosityBlock&) {
-  }
-
-  void
-  ProducerSourceBase::endLuminosityBlock(LuminosityBlock&) {
   }
 
   void

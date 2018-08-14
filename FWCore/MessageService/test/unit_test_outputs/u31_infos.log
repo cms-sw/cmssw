@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 1
 T1 error with identifier 11 event 0
 %MSG
@@ -53,7 +53,7 @@ T2 warning with identifier 23 event 0
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 1
 T2 timer error with identifier 23 event 0
 %MSG
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 2
 T1 error with identifier 11 event 1
 %MSG
@@ -108,7 +108,7 @@ T2 warning with identifier 23 event 1
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 2
 T2 timer error with identifier 23 event 1
 %MSG
-Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 at {Timestamp} 
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 3
 T1 error with identifier 11 event 2
 %MSG
@@ -163,7 +163,7 @@ T2 warning with identifier 23 event 2
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 3
 T2 timer error with identifier 23 event 2
 %MSG
-Begin processing the 4th record. Run 1, Event 4, LumiSection 1 at {Timestamp} 
+Begin processing the 4th record. Run 1, Event 4, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 4
 T1 error with identifier 11 event 3
 %MSG
@@ -218,7 +218,7 @@ T2 warning with identifier 23 event 3
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 4
 T2 timer error with identifier 23 event 3
 %MSG
-Begin processing the 5th record. Run 1, Event 5, LumiSection 1 at {Timestamp} 
+Begin processing the 5th record. Run 1, Event 5, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 5
 T1 error with identifier 11 event 4
 %MSG
@@ -273,7 +273,7 @@ T2 warning with identifier 23 event 4
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 5
 T2 timer error with identifier 23 event 4
 %MSG
-Begin processing the 6th record. Run 1, Event 6, LumiSection 1 at {Timestamp} 
+Begin processing the 6th record. Run 1, Event 6, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 6
 T1 error with identifier 11 event 5
 %MSG
@@ -328,7 +328,7 @@ T2 warning with identifier 23 event 5
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 6
 T2 timer error with identifier 23 event 5
 %MSG
-Begin processing the 7th record. Run 1, Event 7, LumiSection 1 at {Timestamp} 
+Begin processing the 7th record. Run 1, Event 7, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 7
 T1 error with identifier 11 event 6
 %MSG
@@ -383,7 +383,7 @@ T2 warning with identifier 23 event 6
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 7
 T2 timer error with identifier 23 event 6
 %MSG
-Begin processing the 8th record. Run 1, Event 8, LumiSection 1 at {Timestamp} 
+Begin processing the 8th record. Run 1, Event 8, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 8
 T1 error with identifier 11 event 7
 %MSG
@@ -438,7 +438,7 @@ T2 warning with identifier 23 event 7
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 8
 T2 timer error with identifier 23 event 7
 %MSG
-Begin processing the 9th record. Run 1, Event 9, LumiSection 1 at {Timestamp} 
+Begin processing the 9th record. Run 1, Event 9, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 9
 T1 error with identifier 11 event 8
 %MSG
@@ -493,7 +493,7 @@ T2 warning with identifier 23 event 8
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 9
 T2 timer error with identifier 23 event 8
 %MSG
-Begin processing the 10th record. Run 1, Event 10, LumiSection 1 at {Timestamp} 
+Begin processing the 10th record. Run 1, Event 10, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 10
 T1 error with identifier 11 event 9
 %MSG
@@ -602,7 +602,7 @@ Category timer   Module UTC_T2:ssm_2b   Severity Error   Count 1
 Category timer   Module UTC_T2:ssm_2c   Severity Error   Count 1
 -------------------------- 
 
-Begin processing the 11th record. Run 1, Event 11, LumiSection 1 at {Timestamp} 
+Begin processing the 11th record. Run 1, Event 11, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 11
 T1 error with identifier 11 event 10
 %MSG
@@ -657,7 +657,7 @@ T2 warning with identifier 23 event 10
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 11
 T2 timer error with identifier 23 event 10
 %MSG
-Begin processing the 12th record. Run 1, Event 12, LumiSection 1 at {Timestamp} 
+Begin processing the 12th record. Run 1, Event 12, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 12
 T1 error with identifier 11 event 11
 %MSG
@@ -712,7 +712,7 @@ T2 warning with identifier 23 event 11
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 12
 T2 timer error with identifier 23 event 11
 %MSG
-Begin processing the 13th record. Run 1, Event 13, LumiSection 1 at {Timestamp} 
+Begin processing the 13th record. Run 1, Event 13, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 13
 T1 error with identifier 11 event 12
 %MSG
@@ -767,7 +767,7 @@ T2 warning with identifier 23 event 12
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 13
 T2 timer error with identifier 23 event 12
 %MSG
-Begin processing the 14th record. Run 1, Event 14, LumiSection 1 at {Timestamp} 
+Begin processing the 14th record. Run 1, Event 14, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 14
 T1 error with identifier 11 event 13
 %MSG
@@ -822,7 +822,7 @@ T2 warning with identifier 23 event 13
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 14
 T2 timer error with identifier 23 event 13
 %MSG
-Begin processing the 15th record. Run 1, Event 15, LumiSection 1 at {Timestamp} 
+Begin processing the 15th record. Run 1, Event 15, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 15
 T1 error with identifier 11 event 14
 %MSG
@@ -877,7 +877,7 @@ T2 warning with identifier 23 event 14
 %MSG-e timer:  UTC_T2:ssm_2c Run: 1 Event: 15
 T2 timer error with identifier 23 event 14
 %MSG
-Begin processing the 16th record. Run 1, Event 16, LumiSection 1 at {Timestamp} 
+Begin processing the 16th record. Run 1, Event 16, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-e cat_A:  UTC_T1:ssm_1a Run: 1 Event: 16
 T1 error with identifier 11 event 15
 %MSG
@@ -1034,3 +1034,5 @@ Severity    # Occurrences   Total Occurrences
 Info                   28                  28
 Warning                96                  96
 Error                 192                 192
+
+dropped waiting message count 0

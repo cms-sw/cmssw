@@ -29,7 +29,7 @@ class EgammaHLTPixelMatchElectronProducers : public edm::global::EDProducer<> {
  public:
 
   explicit EgammaHLTPixelMatchElectronProducers(const edm::ParameterSet& conf);
-  ~EgammaHLTPixelMatchElectronProducers();
+  ~EgammaHLTPixelMatchElectronProducers() override;
 
   void produce(edm::StreamID sid, edm::Event& e, const edm::EventSetup& c) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

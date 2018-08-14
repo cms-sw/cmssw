@@ -27,6 +27,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     //
     // ***********************
     RecoBTag::setTDRStyle();
+    ibook.setCurrentFolder("BDHadronTracks/JetContent");
 
     // b jets
     // absolute average number of tracks
@@ -108,27 +109,27 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     // get all the old histograms
     //
     // ***********************
-
+    
     // b jets
     MonitorElement *nTrk_bjet[6];
     for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        nTrk_bjet[i] = iget.get("nTrk_bjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+        nTrk_bjet[i] = iget.get("BDHadronTracks/JetContent/nTrk_bjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
     }
-    MonitorElement *nTrkAll_bjet = iget.get("nTrkAll_bjet");
-
+    MonitorElement *nTrkAll_bjet = iget.get("BDHadronTracks/JetContent/nTrkAll_bjet");
+    
     // c jets
     MonitorElement *nTrk_cjet[6];
     for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        nTrk_cjet[i] = iget.get("nTrk_cjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+        nTrk_cjet[i] = iget.get("BDHadronTracks/JetContent/nTrk_cjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
     }
-    MonitorElement *nTrkAll_cjet = iget.get("nTrkAll_cjet");
+    MonitorElement *nTrkAll_cjet = iget.get("BDHadronTracks/JetContent/nTrkAll_cjet");
 
     // dusg jets
     MonitorElement *nTrk_dusgjet[6];
     for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        nTrk_dusgjet[i] = iget.get("nTrk_dusgjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+        nTrk_dusgjet[i] = iget.get("BDHadronTracks/JetContent/nTrk_dusgjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
     }
-    MonitorElement *nTrkAll_dusgjet = iget.get("nTrkAll_dusgjet");
+    MonitorElement *nTrkAll_dusgjet = iget.get("BDHadronTracks/JetContent/nTrkAll_dusgjet");
 
 
 
@@ -142,7 +143,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     float mean_bjets[6];
     float std_bjets[6];
     float meanAll_bjets;
-    meanAll_bjets = nTrkAll_bjet->getMean(1);
+    meanAll_bjets = std::max(0.01,nTrkAll_bjet->getMean(1));
     for (unsigned int i = 0; i< BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++){
         mean_bjets[i] = nTrk_bjet[i]->getMean(1); // mean number of tracks per category
         std_bjets[i] = nTrk_bjet[i]->getRMS(1);
@@ -155,7 +156,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     float mean_cjets[6];
     float std_cjets[6];
     float meanAll_cjets;
-    meanAll_cjets = nTrkAll_cjet->getMean(1);
+    meanAll_cjets = std::max(0.01,nTrkAll_cjet->getMean(1));
     for (unsigned int i = 0; i< BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++){
         mean_cjets[i] = nTrk_cjet[i]->getMean(1); // mean number of tracks per category
         std_cjets[i] = nTrk_cjet[i]->getRMS(1);
@@ -169,7 +170,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     float mean_dusgjets[6];
     float std_dusgjets[6];
     float meanAll_dusgjets;
-    meanAll_dusgjets = nTrkAll_dusgjet->getMean(1);
+    meanAll_dusgjets = std::max(0.01,nTrkAll_dusgjet->getMean(1));
     for (unsigned int i = 0; i< BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++){
         mean_dusgjets[i] = nTrk_dusgjet[i]->getMean(1); // mean number of tracks per category
         std_dusgjets[i] = nTrk_dusgjet[i]->getRMS(1);

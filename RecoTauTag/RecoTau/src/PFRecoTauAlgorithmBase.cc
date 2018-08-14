@@ -1,13 +1,13 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauAlgorithmBase.h"
 
 PFRecoTauAlgorithmBase::PFRecoTauAlgorithmBase():
-  TransientTrackBuilder_(0)
+  TransientTrackBuilder_(nullptr)
 {
 }
 
 
 PFRecoTauAlgorithmBase::PFRecoTauAlgorithmBase(const edm::ParameterSet&):
-  TransientTrackBuilder_(0)
+  TransientTrackBuilder_(nullptr)
 
 {
 }

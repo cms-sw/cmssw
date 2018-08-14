@@ -9,6 +9,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTrackerHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetEcalHistos.h"
+#include "Validation/Geometry/interface/MaterialBudgetHGCalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTxt.h"
 #include "Validation/Geometry/interface/TestHistoMgr.h"
 
@@ -37,18 +38,18 @@ class MaterialBudgetAction : public SimWatcher,
 {
  public:
   MaterialBudgetAction(const edm::ParameterSet&);
-  virtual ~MaterialBudgetAction();
+  ~MaterialBudgetAction() override;
   
  private:
   MaterialBudgetAction(const MaterialBudgetAction&); // stop default
   
   const MaterialBudgetAction& operator=(const MaterialBudgetAction&); // stop default
   
-  void update(const BeginOfRun*);
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
-  void update(const EndOfTrack*);
-  void update(const EndOfRun*);
+  void update(const BeginOfRun*) override;
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
+  void update(const EndOfRun*) override;
   
   bool CheckTouchableInSelectedVolumes( const G4VTouchable* touch );
   bool StopAfterProcess( const G4Step* aStep );
@@ -56,11 +57,13 @@ class MaterialBudgetAction : public SimWatcher,
   void save( const G4Step* aStep );
   std::string getSubDetectorName( G4StepPoint* aStepPoint );
   std::string getPartName( G4StepPoint* aStepPoint );
-  MaterialBudgetData* theData;
-  MaterialBudgetTree* theTree;
-  MaterialBudgetFormat* theHistos;
-  MaterialBudgetTxt* theTxt;
-  TestHistoMgr* theHistoMgr;
+
+  std::shared_ptr<MaterialBudgetData> theData;
+  std::shared_ptr<MaterialBudgetTree> theTree;
+  std::shared_ptr<MaterialBudgetFormat> theHistos;
+  std::shared_ptr<MaterialBudgetTxt> theTxt;
+  std::shared_ptr<TestHistoMgr> theHistoMgr;
+
   bool saveToTxt, saveToTree, saveToHistos;
   bool storeDecay;
   double Ekin;

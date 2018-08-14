@@ -12,7 +12,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4String.hh"
+//#include "G4String.hh"
 #include <map>
 
 class EcalBaseNumber;
@@ -21,12 +21,14 @@ class EcalTBH4BeamSD : public CaloSD {
 
 public:    
 
-  EcalTBH4BeamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  EcalTBH4BeamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 		 edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~EcalTBH4BeamSD();
-  virtual double getEnergyDeposit(G4Step*);
-  virtual uint32_t setDetUnitId(G4Step* step);
+  ~EcalTBH4BeamSD() override;
+  uint32_t setDetUnitId(const G4Step* step) override;
   void setNumberingScheme(EcalNumberingScheme* scheme);
+
+ protected:
+  double getEnergyDeposit(const G4Step*) override;
 
 private:    
 

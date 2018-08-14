@@ -48,9 +48,9 @@
   //---------------------------------------------------------------------------
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
-    theSiPixelGainCalibration_(0), 
+    theSiPixelGainCalibration_(nullptr), 
     clusterMode_( conf.getUntrackedParameter<std::string>("ClusterMode","PixelThresholdClusterizer") ),
-    clusterizer_(0),          // the default, in case we fail to make one
+    clusterizer_(nullptr),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
     maxTotalClusters_( conf.getParameter<int32_t>( "maxNumberOfClusters" ) ),
     payloadType_( conf.getParameter<std::string>( "payloadType" ) )
@@ -102,6 +102,10 @@
     // Step A.2: get event setup
     edm::ESHandle<TrackerGeometry> geom;
     es.get<TrackerDigiGeometryRecord>().get( geom );
+
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    tTopo_ = trackerTopologyHandle.product();
 
     // Step B: create the final output collection
     auto output = std::make_unique< SiPixelClusterCollectionNew>();
@@ -185,7 +189,7 @@
       // Produce clusters for this DetUnit and store them in 
       // a DetSet
       edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(output, DSViter->detId());
-      clusterizer_->clusterizeDetUnit(*DSViter, pixDet, badChannels, spc);
+      clusterizer_->clusterizeDetUnit(*DSViter, pixDet, tTopo_, badChannels, spc);
       if ( spc.empty() ) {
         spc.abort();
       } else {

@@ -13,10 +13,10 @@ class DCUCapsuleTempRawDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   DCUCapsuleTempRawDat();
-  ~DCUCapsuleTempRawDat();
+  ~DCUCapsuleTempRawDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DCU_CAPSULE_TEMP_RAW_DAT"; }
+  inline std::string getTable() override { return "DCU_CAPSULE_TEMP_RAW_DAT"; }
 
   inline void setCapsuleTempADC(float adc) { m_capsuleTempADC = adc; }
   inline float getCapsuleTempADC() const { return m_capsuleTempADC; }
@@ -26,7 +26,7 @@ class DCUCapsuleTempRawDat : public IDataItem {
    
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const DCUCapsuleTempRawDat* item, DCUIOV* iov)
     noexcept(false);

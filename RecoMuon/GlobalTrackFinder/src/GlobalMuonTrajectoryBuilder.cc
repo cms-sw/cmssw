@@ -111,7 +111,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogTrace(category) << " Found " << trackerTracks.size() << " matching tracker tracks within region of interest";
 
   if ( trackerTracks.empty() ) {
-    if ( staCandIn.first == 0) delete staCand.first;
+    if ( staCandIn.first == nullptr) delete staCand.first;
 
     return CandidateContainer();
   }
@@ -124,13 +124,13 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   CandidateContainer tkTrajs;
   for (vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
 
-      MuonCandidate* muonCand = new MuonCandidate( 0 ,staCand.second,(*tkt).second, 0);
+      MuonCandidate* muonCand = new MuonCandidate( nullptr ,staCand.second,(*tkt).second, nullptr);
       tkTrajs.push_back(muonCand);
   }
 
   if ( tkTrajs.empty() )  {
     LogTrace(category) << " tkTrajs empty";
-    if ( staCandIn.first == 0) delete staCand.first;
+    if ( staCandIn.first == nullptr) delete staCand.first;
 
     return CandidateContainer();
   }
@@ -139,7 +139,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
   LogTrace(category) << " Found "<< result.size() << " GLBMuons from one STACand";
 
   // free memory
-  if ( staCandIn.first == 0) delete staCand.first;
+  if ( staCandIn.first == nullptr) delete staCand.first;
 
   for( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
@@ -166,7 +166,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     
   for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
     reco::TrackRef tkTrackRef(allTrackerTracks,position);
-    TrackCand tkCand = TrackCand((Trajectory*)(0),tkTrackRef);
+    TrackCand tkCand = TrackCand((Trajectory*)nullptr,tkTrackRef);
     tkTrackCands.push_back(tkCand); 
   }
   

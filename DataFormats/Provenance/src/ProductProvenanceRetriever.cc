@@ -92,12 +92,12 @@ namespace edm {
   }
 
   void
-  ProductProvenanceRetriever::insertIntoSet(ProductProvenance const& entryInfo) const {
+  ProductProvenanceRetriever::insertIntoSet(ProductProvenance entryInfo) const {
     //NOTE:do not read provenance here because we only need the full
     // provenance when someone tries to access it not when doing the insert
     // doing the delay saves 20% of time when doing an analysis job
     //readProvenance();
-    entryInfoSet_.insert(entryInfo);
+    entryInfoSet_.insert(std::move(entryInfo));
   }
  
   void
@@ -129,6 +129,22 @@ namespace edm {
       }
       if(nextRetriever_) {
         return nextRetriever_->branchIDToProvenance(bid);
+      }
+      return nullptr;
+    }
+    return &*it;
+  }
+
+  ProductProvenance const*
+  ProductProvenanceRetriever::branchIDToProvenanceForProducedOnly(BranchID const& bid) const {
+    ProductProvenance ei(bid);
+    auto it = entryInfoSet_.find(ei);
+    if(it == entryInfoSet_.end()) {
+      if (parentProcessRetriever_) {
+        return parentProcessRetriever_->branchIDToProvenanceForProducedOnly(bid);
+      }
+      if(nextRetriever_) {
+        return nextRetriever_->branchIDToProvenanceForProducedOnly(bid);
       }
       return nullptr;
     }

@@ -19,7 +19,7 @@ CSCWireTopology::CSCWireTopology(
 		     const CSCWireGroupPackage& wg,
 		     double yOfFirstWire,
                      float wireAngleInDegrees ) :
-      theWireGrouping( 0 ), theWireGeometry( 0 ),
+      theWireGrouping( nullptr ), theWireGeometry( nullptr ),
       theAlignmentPinToFirstWire( wg.alignmentPinToFirstWire / 10. ) {
 
      // Pass consecutiveGroups and wiresInConsecutiveGroups
@@ -57,9 +57,9 @@ CSCWireTopology::CSCWireTopology(
 CSCWireTopology::CSCWireTopology( const CSCWireTopology& mewt ) :
   theAlignmentPinToFirstWire(mewt.theAlignmentPinToFirstWire) {
   if (mewt.theWireGrouping) theWireGrouping = mewt.theWireGrouping->clone();
-  else theWireGrouping = 0;
+  else theWireGrouping = nullptr;
   if (mewt.theWireGeometry) theWireGeometry = mewt.theWireGeometry->clone();
-  else theWireGeometry = 0;
+  else theWireGeometry = nullptr;
   
 }
 
@@ -69,13 +69,13 @@ CSCWireTopology& CSCWireTopology::operator=( const CSCWireTopology& mewt ) {
     if ( mewt.theWireGrouping ) 
       theWireGrouping = mewt.theWireGrouping->clone();
     else 
-      theWireGrouping = 0;
+      theWireGrouping = nullptr;
     
     delete theWireGeometry;
     if ( mewt.theWireGeometry ) 
       theWireGeometry = mewt.theWireGeometry->clone();
     else 
-      theWireGeometry = 0;
+      theWireGeometry = nullptr;
 
     theAlignmentPinToFirstWire = mewt.theAlignmentPinToFirstWire;
     

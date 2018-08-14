@@ -15,7 +15,7 @@ public:
   RPCRecHitProbabilityClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~ RPCRecHitProbabilityClient();
+  ~ RPCRecHitProbabilityClient() override;
   
   
 protected:

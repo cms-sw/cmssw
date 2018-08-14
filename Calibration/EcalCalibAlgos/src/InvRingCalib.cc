@@ -1,5 +1,5 @@
 #include <memory>
-#include <math.h>
+#include <cmath>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -172,11 +172,11 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
     //gets the geometry from the event setup
     edm::ESHandle<CaloGeometry> geoHandle;
     iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    const CaloGeometry& geometry = *geoHandle;
+    const CaloGeometry* geometry = geoHandle.product();
     edm::LogInfo ("IML") <<"[InvRingCalib] Event Setup read";
     //fills a vector with all the cells
-    m_barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
-    m_endcapCells = geometry.getValidDetIds(DetId::Ecal, EcalEndcap);
+    m_barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+    m_endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
     //Defines the EB regions
     edm::LogInfo ("IML") <<"[InvRingCalib] Defining Barrel Regions";
     EBRegionDef();
@@ -277,20 +277,20 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
   //gets the barrel recHits
   double pSubtract = 0.;
   double pTk = 0.;
-  const EcalRecHitCollection* barrelHitsCollection = 0;
+  const EcalRecHitCollection* barrelHitsCollection = nullptr;
   edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
   iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
-  barrelHitsCollection = barrelRecHitsHandle.product () ;
+  barrelHitsCollection = barrelRecHitsHandle.product() ;
 
  if (!barrelRecHitsHandle.isValid ()) {
      edm::LogError ("IML") << "[EcalEleCalibLooper] barrel rec hits not found" ;
      return  kContinue ;
     }
   //gets the endcap recHits
-  const EcalRecHitCollection* endcapHitsCollection = 0;
+  const EcalRecHitCollection* endcapHitsCollection = nullptr;
   edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
   iEvent.getByLabel (m_endcapAlCa, endcapRecHitsHandle) ;
-  endcapHitsCollection = endcapRecHitsHandle.product () ;
+  endcapHitsCollection = endcapRecHitsHandle.product() ;
 
  if (!endcapRecHitsHandle.isValid ()) {  
      edm::LogError ("IML") << "[EcalEleCalibLooper] endcap rec hits not found" ; 
@@ -458,9 +458,9 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
  edm::ESHandle<CaloGeometry> geoHandle;
  iSetup.get<CaloGeometryRecord>().get(geoHandle);
  //Gets the geometry of the endcap
- const CaloGeometry& geometry = *geoHandle;
- const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-// const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+ const CaloGeometry* geometry = geoHandle.product();
+ const CaloSubdetectorGeometry *endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+// const CaloSubdetectorGeometry *barrelGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
  //for every xtal gets the position Vector and the phi position
  
 // for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin();
@@ -475,7 +475,7 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin();
     endcapIt!=m_endcapCells.end();
     ++endcapIt) {
-     const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt);
+     auto cellGeometry = endcapGeometry->getGeometry(*endcapIt);
      m_cellPos[endcapIt->rawId()] = cellGeometry->getPosition();
      m_cellPhi[endcapIt->rawId()] = cellGeometry->getPosition().phi();
   }

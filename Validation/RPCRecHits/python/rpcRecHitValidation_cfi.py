@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+rpcRecHitV = DQMEDAnalyzer('RPCRecHitValid',
     subDir = cms.string("RPC/RPCRecHitV/SimVsReco"),
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     recHit = cms.InputTag("rpcRecHits"),
@@ -12,6 +13,7 @@ rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
 rpcRecHitValidation_step = cms.Sequence(rpcRecHitV)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    rpcRecHitV.simHit = cms.InputTag("MuonSimHits","MuonRPCHits")
+fastSim.toModify(rpcRecHitV, simHit = "MuonSimHits:MuonRPCHits")
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(rpcRecHitV, simTrack = "mixData:MergedTrackTruth")

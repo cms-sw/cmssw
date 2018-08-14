@@ -1,7 +1,7 @@
 #ifndef RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitWorkerMaxSample_hh
 #define RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitWorkerMaxSample_hh
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitMaxSampleAlgo.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -14,17 +14,17 @@ namespace edm {
 	class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerRunOneDigiBase {
 
  public:
   EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
   EcalUncalibRecHitWorkerMaxSample() {};
-  virtual ~EcalUncalibRecHitWorkerMaxSample() {};
+  ~EcalUncalibRecHitWorkerMaxSample() override {};
   
-  void set(const edm::EventSetup& es);
-  bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
   
-  edm::ParameterSetDescription getAlgoDescription();
+  edm::ParameterSetDescription getAlgoDescription() override;
  private:
   
   EcalUncalibRecHitMaxSampleAlgo<EBDataFrame> ebAlgo_;

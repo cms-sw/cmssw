@@ -21,13 +21,13 @@ Monitoring source for general quantities related to vertex
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class GetLumi;
-class DQMStore;
 
 class VertexMonitor
 {
@@ -40,9 +40,6 @@ class VertexMonitor
 
        virtual void initHisto(DQMStore::IBooker & ibooker);
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       
-       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
        
        // ----------member data ---------------------------
        

@@ -36,18 +36,18 @@ class ProcMLP : public TrainProcessor {
 
 	ProcMLP(const char *name, const AtomicId *id,
 	        MVATrainer *trainer);
-	virtual ~ProcMLP();
+	~ProcMLP() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
-	virtual bool load() override;
-	virtual void cleanup() override;
+	bool load() override;
+	void cleanup() override;
 
     private:
 	void runMLPTrainer();
@@ -72,7 +72,7 @@ class ProcMLP : public TrainProcessor {
 	double			limiter;
 };
 
-static ProcMLP::Registry registry("ProcMLP");
+ProcMLP::Registry registry("ProcMLP");
 
 ProcMLP::ProcMLP(const char *name, const AtomicId *id,
                  MVATrainer *trainer) :
@@ -212,7 +212,7 @@ void ProcMLP::trainBegin()
 					getOutputs().size(), layout));
 			mlp->init(count);
 			row = 0;
-		} catch(cms::Exception e) {
+		} catch(cms::Exception const&) {
 			// MLP probably busy (or layout invalid, aaaack)
 			iteration = ITER_WAIT;
 		}

@@ -17,17 +17,11 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
-  for(int fi=0; fi<9; fi++){
-	fpars[fi] = pars.at(fi);
-  }
-
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, double respCorr) {
+  fTimeSlew_=tsParam;
+  fTimeSlewBias_=bias;
   applyTimeSlew_=iApplyTimeSlew;
-  fTimeSlew=tsParam;
-  fTimeSlewBias=bias;
-  fPedestalSubFxn_=pedSubFxn_;
-  frespCorr=respCorr;
-
+  frespCorr_=respCorr;
 }
 
 constexpr float HcalDeterministicFit::landauFrac[];
@@ -37,22 +31,70 @@ constexpr float HcalDeterministicFit::landauFrac[];
 // normalized to 1 on [0,10000]
 void HcalDeterministicFit::getLandauFrac(float tStart, float tEnd, float &sum) const{
 
-  if (std::abs(tStart-tEnd-tsWidth)<0.1) {
-    sum=0;
+  if (std::abs(tStart-tEnd-tsWidth)<0.1f) {
+    sum=0.f;
     return;
   }
   sum= landauFrac[int(ceil(tStart+tsWidth))];
   return;
 }
 
+constexpr float HcalDeterministicFit::siPM205Frac[];
+void HcalDeterministicFit::get205Frac(float tStart, float tEnd, float &sum) const{
+
+  if (std::abs(tStart-tEnd-tsWidth)<0.1f) {
+    sum=0.f;
+    return;
+  }
+  sum= siPM205Frac[int(ceil(tStart+tsWidth))];
+  return;
+}
+
+constexpr float HcalDeterministicFit::siPM206Frac[];
+void HcalDeterministicFit::get206Frac(float tStart, float tEnd, float &sum) const{
+
+  if (std::abs(tStart-tEnd-tsWidth)<0.1f) {
+    sum=0.f;
+    return;
+  }
+  sum= siPM206Frac[int(ceil(tStart+tsWidth))];
+  return;
+}
+
+
+constexpr float HcalDeterministicFit::siPM207Frac[];
+void HcalDeterministicFit::get207Frac(float tStart, float tEnd, float &sum) const{
+
+  if (std::abs(tStart-tEnd-tsWidth)<0.1f) {
+    sum=0.f;
+    return;
+  }
+  sum= siPM207Frac[int(ceil(tStart+tsWidth))];
+  return;
+}
+
+void HcalDeterministicFit::getFrac(float tStart, float tEnd, float &sum, FType fType) const{ 
+  switch(fType){
+    case shape205:    get205Frac(tStart,tEnd,sum);    break; 
+    case shape206:    get206Frac(tStart,tEnd,sum);    break; 
+    case shape207:    get207Frac(tStart,tEnd,sum);    break; 
+    case shapeLandau: getLandauFrac(tStart,tEnd,sum); break; 
+  }
+}
+
 void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 				       float& reconstructedEnergy,
-				       float& reconstructedTime) const
+				       float& reconstructedTime,
+				       const HcalTimeSlew* hcalTimeSlew_delay) const
 {
+
+
+  unsigned int soi=channelData.soi();
 
   std::vector<double> corrCharge;
   std::vector<double> inputCharge;
   std::vector<double> inputPedestal;
+  std::vector<double> inputNoise;
   double gainCorr = 0;
   double respCorr = 0;
 
@@ -60,90 +102,70 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
 
     double charge = channelData.tsRawCharge(ip);
     double ped = channelData.tsPedestal(ip); 
+    double noise = channelData.tsPedestalWidth(ip);
     double gain = channelData.tsGain(ip);
 
     gainCorr = gain;
     inputCharge.push_back(charge);
     inputPedestal.push_back(ped);
+    inputNoise.push_back(noise);
 
   }
 
-  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, corrCharge);
+  fPedestalSubFxn_.calculate(inputCharge, inputPedestal, inputNoise, corrCharge, soi, channelData.nSamples());
 
-  const HcalDetId& cell = channelData.id();
+  if      (fTimeSlew_==0) respCorr=1.0;
+  else if (fTimeSlew_==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
+  else if (fTimeSlew_==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
+  else if (fTimeSlew_==3) respCorr=frespCorr_;
 
-  double fpar0, fpar1, fpar2;
-  if(std::abs(cell.ieta())<HcalRegion[0]){
-    fpar0 = fpars[0];
-    fpar1 = fpars[1];
-    fpar2 = fpars[2];
-  }else if(std::abs(cell.ieta())==HcalRegion[0]||std::abs(cell.ieta())==HcalRegion[1]){
-    fpar0 = fpars[3];
-    fpar1 = fpars[4];
-    fpar2 = fpars[5];
-  }else{
-    fpar0 = fpars[6];
-    fpar1 = fpars[7];
-    fpar2 = fpars[8];
-  }
-
-  if (fTimeSlew==0)respCorr=1.0;
-  else if (fTimeSlew==1) channelData.hasTimeInfo()?respCorr=rCorrSiPM[0]:respCorr=rCorr[0];
-  else if (fTimeSlew==2) channelData.hasTimeInfo()?respCorr=rCorrSiPM[1]:respCorr=rCorr[1];
-  else if (fTimeSlew==3)respCorr=frespCorr;
-
-  float tsShift3=0;
-  float tsShift4=0;
-  float tsShift5=0;
+  float tsShift3,tsShift4,tsShift5;
+  tsShift3=0.f,tsShift4=0.f,tsShift5=0.f;
 
   if(applyTimeSlew_) {
-
-    tsShift3=HcalTimeSlew::delay(inputCharge[3], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift4=HcalTimeSlew::delay(inputCharge[4], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-    tsShift5=HcalTimeSlew::delay(inputCharge[5], fTimeSlew, fTimeSlewBias, fpar0, fpar1 ,fpar2,!channelData.hasTimeInfo());
-
+    tsShift3=hcalTimeSlew_delay->delay(inputCharge[soi-1], fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
+    tsShift4=hcalTimeSlew_delay->delay(inputCharge[soi],   fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
+    tsShift5=hcalTimeSlew_delay->delay(inputCharge[soi+1], fTimeSlew_, fTimeSlewBias_, !channelData.hasTimeInfo());
   }
 
-  float i3=0;
-  getLandauFrac(-tsShift3,-tsShift3+tsWidth,i3);
-  float n3=0;
-  getLandauFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3);
-  float nn3=0;
-  getLandauFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3);
+  float ch3,ch4,ch5, i3,n3,nn3, i4,n4,i5,n5;
+  ch4=0.f,i3=0.f,n3=0.f,nn3=0.f,i4=0.f,n4=0.f,i5=0.f,n5=0.f;
 
-  float i4=0;
-  getLandauFrac(-tsShift4,-tsShift4+tsWidth,i4);
-  float n4=0;
-  getLandauFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4);
+  FType fType;
+  if(channelData.hasTimeInfo() && channelData.recoShape()==205) fType = shape205;
+  else if(channelData.hasTimeInfo() && channelData.recoShape()==206) fType = shape206;
+  else if(channelData.hasTimeInfo() && channelData.recoShape()==207) fType = shape207;
+  else fType = shapeLandau;
 
-  float i5=0;
-  getLandauFrac(-tsShift5,-tsShift5+tsWidth,i5);
-  float n5=0;
-  getLandauFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5);
+  getFrac(-tsShift3,-tsShift3+tsWidth,i3,fType);
+  getFrac(-tsShift3+tsWidth,-tsShift3+tsWidth*2,n3,fType);
+  getFrac(-tsShift3+tsWidth*2,-tsShift3+tsWidth*3,nn3,fType);
 
-  float ch3=0;
-  float ch4=0;
-  float ch5=0;
+  getFrac(-tsShift4,-tsShift4+tsWidth,i4,fType);
+  getFrac(-tsShift4+tsWidth,-tsShift4+tsWidth*2,n4,fType);
 
+  getFrac(-tsShift5,-tsShift5+tsWidth,i5,fType);
+  getFrac(-tsShift5+tsWidth,-tsShift5+tsWidth*2,n5,fType);
+  
   if (i3 != 0 && i4 != 0 && i5 != 0) {
 
-    ch3=corrCharge[3]/i3;
-    ch4=(i3*corrCharge[4]-n3*corrCharge[3])/(i3*i4);
-    ch5=(n3*n4*corrCharge[3]-i4*nn3*corrCharge[3]-i3*n4*corrCharge[4]+i3*i4*corrCharge[5])/(i3*i4*i5);
+    ch3=corrCharge[soi-1]/i3;
+    ch4=(i3*corrCharge[soi]-n3*corrCharge[soi-1])/(i3*i4);
+    ch5=(n3*n4*corrCharge[soi-1]-i4*nn3*corrCharge[soi-1]-i3*n4*corrCharge[soi]+i3*i4*corrCharge[soi+1])/(i3*i4*i5);
 
     if (ch3<negThresh[0]) {
       ch3=negThresh[0];
-      ch4=corrCharge[4]/i4;
-      ch5=(i4*corrCharge[5]-n4*corrCharge[4])/(i4*i5);
+      ch4=corrCharge[soi]/i4;
+      ch5=(i4*corrCharge[soi+1]-n4*corrCharge[soi])/(i4*i5);
     }
     if (ch5<negThresh[0] && ch4>negThresh[1]) {
-      double ratio = (corrCharge[4]-ch3*i3)/(corrCharge[5]-negThresh[0]*i5);
+      double ratio = (corrCharge[soi]-ch3*i3)/(corrCharge[soi+1]-negThresh[0]*i5);
       if (ratio < 5 && ratio > 0.5) {
         double invG = invGpar[0]+invGpar[1]*std::sqrt(2*std::log(invGpar[2]/ratio));
-        float iG=0;
-	getLandauFrac(-invG,-invG+tsWidth,iG);
+        float iG=0.f;
+	getFrac(-invG,-invG+tsWidth,iG,fType);
 	if (iG != 0 ) {
-	  ch4=(corrCharge[4]-ch3*n3)/(iG);
+	  ch4=(corrCharge[soi]-ch3*n3)/(iG);
 	  tsShift4=invG;
 	}
       }
@@ -151,7 +173,7 @@ void HcalDeterministicFit::phase1Apply(const HBHEChannelInfo& channelData,
   }
 
   if (ch4<1) {
-    ch4=0;
+    ch4=0.f;
   }
 
   reconstructedEnergy=ch4*gainCorr*respCorr;

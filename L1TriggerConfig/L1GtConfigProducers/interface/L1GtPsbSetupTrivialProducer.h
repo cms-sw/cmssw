@@ -40,7 +40,7 @@ public:
     L1GtPsbSetupTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtPsbSetupTrivialProducer();
+    ~L1GtPsbSetupTrivialProducer() override;
 
 
     /// public methods

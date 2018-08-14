@@ -1,6 +1,9 @@
-#include "../interface/TimingTask.h"
+#include "DQM/EcalMonitorTasks/interface/TimingTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
@@ -10,21 +13,30 @@ namespace ecaldqm
 {
   TimingTask::TimingTask() :
     DQWorkerTask(),
+    bxBinEdges_(),
+    bxBin_(0.),
     chi2ThresholdEB_(0.),
     chi2ThresholdEE_(0.),
     energyThresholdEB_(0.),
     energyThresholdEE_(0.),
-    meTimeMapByLS(0)
+    energyThresholdEEFwd_(0.),
+    timingVsBXThreshold_(0.),
+    timeErrorThreshold_(0.),
+    meTimeMapByLS(nullptr)
   {
   }
 
   void
   TimingTask::setParams(edm::ParameterSet const& _params)
   {
+    bxBinEdges_ = onlineMode_? _params.getUntrackedParameter<std::vector<int> >("bxBins"): _params.getUntrackedParameter<std::vector<int> >("bxBinsFine");
     chi2ThresholdEB_   = _params.getUntrackedParameter<double>("chi2ThresholdEB");
     chi2ThresholdEE_   = _params.getUntrackedParameter<double>("chi2ThresholdEE");
     energyThresholdEB_ = _params.getUntrackedParameter<double>("energyThresholdEB");
     energyThresholdEE_ = _params.getUntrackedParameter<double>("energyThresholdEE");
+    energyThresholdEEFwd_ = _params.getUntrackedParameter<double>("energyThresholdEEFwd");
+    timingVsBXThreshold_ = _params.getUntrackedParameter<double>("timingVsBXThreshold");
+    timeErrorThreshold_ = _params.getUntrackedParameter<double>("timeErrorThreshold");
   }
 
   bool
@@ -53,11 +65,20 @@ namespace ecaldqm
       meTimeMapByLS->reset();
   }
 
+  void
+  TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&  _es)
+  {
+    using namespace std;
+    std::vector<int>::iterator pBin = std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing());
+    bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
+  }
+
   void 
   TimingTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection)
   {
     MESet& meTimeAmp(MEs_.at("TimeAmp"));
     MESet& meTimeAmpAll(MEs_.at("TimeAmpAll"));
+    MESet& meTimingVsBX(onlineMode_? MEs_.at("BarrelTimingVsBX"): MEs_.at("BarrelTimingVsBXFineBinned"));
     MESet& meTimeAll(MEs_.at("TimeAll"));
     MESet& meTimeAllMap(MEs_.at("TimeAllMap"));
     MESet& meTimeMap(MEs_.at("TimeMap")); // contains cumulative run stats => not suitable for Trend plots
@@ -65,7 +86,6 @@ namespace ecaldqm
     MESet& meChi2(MEs_.at("Chi2"));
 
     uint32_t mask(~((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime)));
-    float threshold(_collection == kEBRecHit ? energyThresholdEB_ : energyThresholdEE_);
     int signedSubdet;
 
     std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit){
@@ -76,8 +96,16 @@ namespace ecaldqm
                     float time(hit.time());
                     float energy(hit.energy());
 
-                    // Apply cut on chi2 of pulse shape fit
-                    float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
+                    float chi2Threshold, energyThreshold;
+                    if (id.subdetId() == EcalBarrel) {
+                      chi2Threshold = chi2ThresholdEB_;
+                      energyThreshold = energyThresholdEB_;
+                    }
+                    else {
+                      chi2Threshold = chi2ThresholdEE_;
+                      energyThreshold = (isForward(id)) ? energyThresholdEEFwd_ : energyThresholdEE_;
+                    }
+
                     if ( id.subdetId() == EcalBarrel )
                       signedSubdet = EcalBarrel;
                     else {
@@ -87,14 +115,21 @@ namespace ecaldqm
                       else
                         signedSubdet =  EcalEndcap;
                     }
-                    if ( energy > threshold )
-                      meChi2.fill(signedSubdet, hit.chi2());
+
+                    if (energy > energyThreshold) meChi2.fill(signedSubdet, hit.chi2());
+
+                    // Apply cut on chi2 of pulse shape fit
                     if ( hit.chi2() > chi2Threshold ) return;
+
+                    // Apply cut based on timing error of rechit
+                    if (hit.timeError() > timeErrorThreshold_) return;
 
                     meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
 
-                    if(energy > threshold){
+                    if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel) meTimingVsBX.fill(bxBin_, time);
+
+                    if(energy > energyThreshold){
                       meTimeAll.fill(id, time);
                       meTimeMap.fill(id, time);
                       meTimeMapByLS->fill(id, time); 
@@ -117,12 +152,21 @@ namespace ecaldqm
       // Apply reconstruction quality cuts
       if( !uhitItr->checkFlag(EcalUncalibratedRecHit::kGood) ) continue;
       DetId id( uhitItr->id() );
-      float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
+      float chi2Threshold = 0.;
+      float ampThreshold = 0.;
+      if (id.subdetId() == EcalBarrel) {
+        chi2Threshold = chi2ThresholdEB_;
+        ampThreshold = 20.*energyThresholdEB_; // 1 GeV ~ 20 ADC in EB
+      }
+      else {
+        chi2Threshold = chi2ThresholdEE_;
+        ampThreshold = 5.*((isForward(id)) ? energyThresholdEEFwd_ : energyThresholdEE_); // 1 GeV ~ 5 ADC in EE
+      }
+
       if( uhitItr->chi2() > chi2Threshold ) continue;
 
       // Apply amplitude cut based on approx rechit energy
       float amp( uhitItr->amplitude() );
-      float ampThreshold( id.subdetId() == EcalBarrel ? energyThresholdEB_*20. : energyThresholdEE_*5. ); // 1 GeV ~ ( EB:20, EE:5 ) ADC
       if( amp < ampThreshold ) continue;
 
       // Apply jitter timing cut based on approx rechit timing

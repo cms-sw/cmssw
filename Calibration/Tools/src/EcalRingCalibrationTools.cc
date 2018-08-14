@@ -15,6 +15,12 @@ std::atomic<bool> EcalRingCalibrationTools::isInitializedFromGeometry_(false);
 short EcalRingCalibrationTools::endcapRingIndex_[EEDetId::IX_MAX][EEDetId::IY_MAX];
 std::once_flag EcalRingCalibrationTools::once_;
 
+constexpr short EcalRingCalibrationTools::N_RING_TOTAL;
+constexpr short EcalRingCalibrationTools::N_RING_BARREL;
+constexpr short EcalRingCalibrationTools::N_RING_ENDCAP;
+
+constexpr short EcalRingCalibrationTools::N_MODULES_BARREL;
+
 
 short EcalRingCalibrationTools::getRingIndex(DetId id) 
 {
@@ -228,7 +234,7 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
     {
       EEDetId ee(*endcapIt);
       if (ee.zside() == -1) continue; //Just using +side to fill absEta x,y map
-      const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt) ;
+      auto cellGeometry = endcapGeometry->getGeometry(*endcapIt) ;
       int ics=ee.ix() - 1 ;
       int ips=ee.iy() - 1 ;
       cellPosEta[ics][ips] = fabs(cellGeometry->getPosition().eta());

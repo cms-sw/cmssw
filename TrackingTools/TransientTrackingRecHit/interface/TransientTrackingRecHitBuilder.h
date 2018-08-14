@@ -8,7 +8,7 @@ public:
 
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
-
+  virtual ~TransientTrackingRecHitBuilder() = default;
   /// build a tracking rechit from an existing rechit
   virtual RecHitPointer build ( const TrackingRecHit * p)  const = 0 ;
   

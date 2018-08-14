@@ -41,9 +41,9 @@ public:
     explicit L1MuCSCTFParametersTester(const edm::ParameterSet&);
 
     // destructor
-    virtual ~L1MuCSCTFParametersTester();
+    ~L1MuCSCTFParametersTester() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

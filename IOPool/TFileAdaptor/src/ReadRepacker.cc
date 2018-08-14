@@ -1,6 +1,6 @@
 
 #include <cassert>
-#include <string.h>
+#include <cstring>
 
 #include "ReadRepacker.h"
 

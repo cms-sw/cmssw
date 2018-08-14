@@ -48,7 +48,7 @@ void TrackAnalysisAlgorithm::terminate( TList & out ) {
 
 void TrackAnalysisAlgorithm::draw( const TList & out, TCanvas & canvas, const char * k ) {
   TObject * hist = out.FindObject( k );
-  if( 0 != hist ) {
+  if( nullptr != hist ) {
     hist->Draw();
     canvas.SaveAs( ( string( k ) + ".jpg" ).c_str() );
   } else {

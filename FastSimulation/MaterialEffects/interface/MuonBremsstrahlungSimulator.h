@@ -37,7 +37,7 @@ class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator
                               double radLen,double photonEnergyCut,double photonFractECut); 
 
   /// Default destructor
-  ~MuonBremsstrahlungSimulator() {}
+  ~MuonBremsstrahlungSimulator() override {}
 
 
 // Returns the actual Muon brem Energy
@@ -67,7 +67,7 @@ class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator
   unsigned int poisson(double ymu);
 
   /// Generate Bremsstrahlung photons
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
 
   /// Compute Brem photon energy and angles, if any.
   XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*)const;

@@ -19,6 +19,7 @@
 #include <iosfwd>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/src/PedeSteerer.h"
 
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
@@ -37,14 +38,14 @@ class GeometryConstraintConfigData {
                                const std::string& c,
                                const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                const int sd,
-                               const std::vector<Alignable*>& ex,
+                               const align::Alignables& ex,
                                const int instance,
 			       const bool downToLowestLevel
                                );
   const std::vector<double> coefficients_;
   const std::string constraintName_;
   const std::vector<std::pair<Alignable*, std::string> > levelsFilenames_;
-  const std::vector<Alignable*> excludedAlignables_;
+  const align::Alignables excludedAlignables_;
   std::map<std::string, std::ofstream*> mapFileName_;
   std::list<std::pair<Alignable*, std::list<Alignable*> > > HLSsubdets_; //first pointer to HLS object, second list is the list of pointers to the lowest components
   const int sysdeformation_;
@@ -63,7 +64,7 @@ class PedeSteererWeakModeConstraints {
 
   //FIXME: split the code of the method into smaller pieces/submethods
   // Main method that configures everything and calculates also the constraints
-  unsigned int constructConstraints(const std::vector<Alignable*> &alis);
+  unsigned int constructConstraints(const align::Alignables&);
 
   // Returns a references to the container in which the configuration is stored
   std::list<GeometryConstraintConfigData>& getConfigData() { return ConstraintsConfigContainer_; }
@@ -115,7 +116,7 @@ class PedeSteererWeakModeConstraints {
   // Method which creates the associative map between levels and coefficient file names
   const std::vector<std::pair<Alignable*, std::string> > makeLevelsFilenames(
                                                                              std::set<std::string> &steerFilePrefixContainer,
-                                                                             const std::vector<Alignable*> &alis,
+                                                                             const align::Alignables& alis,
                                                                              const std::string &steerFilePrefix
                                                                              ) const;
 

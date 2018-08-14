@@ -10,3 +10,6 @@ do
      python "$file" || die "unit tests for $bn failed" $?
   fi
 done
+
+echo "running test_producer.py"
+python ${LOCAL_TEST_DIR}/test_producer.py || die "test_producer.py failed"

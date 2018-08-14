@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 #include <cstdlib>
 #include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
 #include <memory>

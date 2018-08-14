@@ -91,7 +91,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
    edm::Handle<reco::TrackCollection> theTrackHandle;
    iEvent.getByToken(token_tracks, theTrackHandle);
-   if (!theTrackHandle->size()) return;
+   if (theTrackHandle->empty()) return;
    const reco::TrackCollection* theTrackCollection = theTrackHandle.product();   
 
    edm::Handle<reco::BeamSpot> theBeamSpotHandle;
@@ -154,9 +154,14 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       }
 
       // measure distance between tracks at their closest approach
-      if (!posTransTkPtr->impactPointTSCP().isValid() || !negTransTkPtr->impactPointTSCP().isValid()) continue;
-      FreeTrajectoryState const & posState = posTransTkPtr->impactPointTSCP().theState();
-      FreeTrajectoryState const & negState = negTransTkPtr->impactPointTSCP().theState();
+
+      //these two variables are needed to 'pin' the temporary value returned to the stack
+      // in order to keep posState and negState from pointing to destructed objects
+      auto const& posImpact = posTransTkPtr->impactPointTSCP();
+      auto const& negImpact = negTransTkPtr->impactPointTSCP();
+      if (!posImpact.isValid() || !negImpact.isValid()) continue;
+      FreeTrajectoryState const & posState = posImpact.theState();
+      FreeTrajectoryState const & negState = negImpact.theState();
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
       if (!cApp.status()) continue;
@@ -211,10 +216,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (distMagXY/sigmaDistMagXY < vtxDecaySigXYCut_) continue;
 
       // 3D decay significance
-      SVector3 distVecXYZ(vtxPos.x()-referencePos.x(), vtxPos.y()-referencePos.y(), vtxPos.z()-referencePos.z());
-      double distMagXYZ = ROOT::Math::Mag(distVecXYZ);
-      double sigmaDistMagXYZ = sqrt(ROOT::Math::Similarity(totalCov, distVecXYZ)) / distMagXYZ;
-      if (distMagXYZ/sigmaDistMagXYZ < vtxDecaySigXYZCut_) continue;
+      if (vtxDecaySigXYZCut_ > 0.) {
+         SVector3 distVecXYZ(vtxPos.x()-referencePos.x(), vtxPos.y()-referencePos.y(), vtxPos.z()-referencePos.z());
+         double distMagXYZ = ROOT::Math::Mag(distVecXYZ);
+         double sigmaDistMagXYZ = sqrt(ROOT::Math::Similarity(totalCov, distVecXYZ)) / distMagXYZ;
+         if (distMagXYZ/sigmaDistMagXYZ < vtxDecaySigXYZCut_) continue;
+      }
 
       // make sure the vertex radius is within the inner track hit radius
       if (innerHitPosCut_ > 0. && positiveTrackRef->innerOk()) {
@@ -238,8 +245,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       }
 
       if (useRefTracks_ && theRefTracks.size() > 1) {
-         reco::TransientTrack* thePositiveRefTrack = 0;
-         reco::TransientTrack* theNegativeRefTrack = 0;
+         reco::TransientTrack* thePositiveRefTrack = nullptr;
+         reco::TransientTrack* theNegativeRefTrack = nullptr;
          for (std::vector<reco::TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
             if (iTrack->track().charge() > 0.) {
                thePositiveRefTrack = &*iTrack;
@@ -247,7 +254,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                theNegativeRefTrack = &*iTrack;
             }
          }
-         if (thePositiveRefTrack == 0 || theNegativeRefTrack == 0) continue;
+         if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr) continue;
          trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
          trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
       } else {
@@ -255,7 +262,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
          trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
       }
 
-      if (trajPlus.get() == 0 || trajMins.get() == 0 || !trajPlus->isValid() || !trajMins->isValid()) continue;
+      if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid()) continue;
 
       GlobalVector positiveP(trajPlus->momentum());
       GlobalVector negativeP(trajMins->momentum());
@@ -270,10 +277,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (angleXY < cosThetaXYCut_) continue;
 
       // 3D pointing angle
-      double dz = theVtx.z()-referencePos.z();
-      double pz = totalP.z();
-      double angleXYZ = (dx*px+dy*py+dz*pz)/(sqrt(dx*dx+dy*dy+dz*dz)*sqrt(px*px+py*py+pz*pz));
-      if (angleXYZ < cosThetaXYZCut_) continue;
+      if (cosThetaXYZCut_ > -1.) {
+         double dz = theVtx.z()-referencePos.z();
+         double pz = totalP.z();
+         double angleXYZ = (dx*px+dy*py+dz*pz)/(sqrt(dx*dx+dy*dy+dz*dz)*sqrt(px*px+py*py+pz*pz));
+         if (angleXYZ < cosThetaXYZCut_) continue;
+      }
 
       // calculate total energy of V0 3 ways: assume it's a kShort, a Lambda, or a LambdaBar.
       double piPlusE = sqrt(positiveP.mag2() + piMassSquared);

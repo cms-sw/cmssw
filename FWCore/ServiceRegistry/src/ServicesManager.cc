@@ -92,7 +92,7 @@ namespace edm {
          }
 
          TypeSet tokenTypes;
-         if(0 != iToken.manager_.get()) {
+         if(nullptr != iToken.manager_.get()) {
             for(Type2Service::iterator itType = iToken.manager_->type2Service_.begin(),
                 itTypeEnd = iToken.manager_->type2Service_.end();
                 itType != itTypeEnd;
@@ -239,7 +239,7 @@ namespace edm {
               ++itParam) {
             std::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
 
-            if(0 == base.get()) {
+            if(nullptr == base.get()) {
                throw Exception(errors::Configuration, "Service")
                << "could not find a service named "
                << itParam->getParameter<std::string>("@service_type")
@@ -272,7 +272,7 @@ namespace edm {
          std::string serviceType = iMaker.pset_->getParameter<std::string>("@service_type");
          std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
                                                                    ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
-         ConfigurationDescriptions descriptions(filler->baseType());
+         ConfigurationDescriptions descriptions(filler->baseType(), serviceType);
          filler->fill(descriptions);
          
          try {

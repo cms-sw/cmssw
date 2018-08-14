@@ -25,7 +25,7 @@ using namespace edm;
 // constructors and destructor
 //
 EcalElectronicsMappingBuilder::EcalElectronicsMappingBuilder(const edm::ParameterSet& iConfig) :
-  Mapping_ ( 0 )
+  Mapping_ ( nullptr )
 {
   //the following line is needed to tell the framework what
   // data is being produced

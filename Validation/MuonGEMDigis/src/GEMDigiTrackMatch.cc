@@ -29,6 +29,9 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
   setGeometry(geom);
+    
+  ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
+  LogDebug("GEMDigiTrackMatch")<<"ibooker set current folder\n";
 
   const float PI=TMath::Pi();
 

@@ -45,6 +45,8 @@ class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
+typedef std::array<std::array<std::array<int,13>, 5 > ,6> DTArr3int;
+typedef std::array<std::array<std::array<std::array<int, 3>, 13 >, 5 > ,6> DTArr4int;
 
 class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
 
@@ -56,7 +58,7 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
   DTLocalTriggerSynchTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTLocalTriggerSynchTask();
+  ~DTLocalTriggerSynchTask() override;
 
  protected:
 
@@ -74,18 +76,21 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
 
   std::string & baseDir() { return baseDirectory; }
 
+  const int wheelArrayShift = 3;
+
  private:
 
   int nevents;
 
-  int phCodeBestTM[6][5][13];
-  int phCodeBXTM[6][5][13][3];
-  int phCodeBestDDU[6][5][13];
-  int thCodeBestDDU[6][5][13];
-  int segHitBest[6][5][13];
+  DTArr3int phCodeBestTM;
+  DTArr4int phCodeBXTM;
+  DTArr3int phCodeBestDDU;
+  DTArr3int thCodeBestDDU;
+  DTArr3int segHitBest;
 
   float bxTime;
   bool rangeInBX;
+  bool processDDU;
   int nBXLow;
   int nBXHigh;
   float angleRange;

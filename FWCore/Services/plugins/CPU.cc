@@ -22,7 +22,7 @@
 #include <iostream>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -30,7 +30,7 @@
 
 #ifdef __linux__
 #include <sched.h>
-#include <errno.h>
+#include <cerrno>
 #endif
 
 namespace edm {
@@ -39,11 +39,11 @@ namespace edm {
     class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const&, ActivityRegistry&);
-      ~CPU();
+      ~CPU() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-      virtual bool cpuInfo(std::string &models, double &avgSpeed) override;
+      bool cpuInfo(std::string &models, double &avgSpeed) override;
 
     private:
       const bool reportCPUProperties_;

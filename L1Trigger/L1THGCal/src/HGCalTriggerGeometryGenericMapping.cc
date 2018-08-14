@@ -1,5 +1,6 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 
+
 using namespace HGCalTriggerGeometry;
 
 namespace {
@@ -98,6 +99,14 @@ getOrderedTriggerCellsFromModule( const unsigned module_det_id ) const {
   return trigger_cells; 
 }
 
+HGCalTriggerGeometryBase::geom_set
+HGCalTriggerGeometryGenericMapping::
+getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
+{
+  // empty neighbors
+  return geom_set();
+}
+
 GlobalPoint 
 HGCalTriggerGeometryGenericMapping::
 getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
@@ -110,4 +119,23 @@ getModulePosition(const unsigned module_det_id) const {
   return modules_.find(module_det_id)->second->position();
 }
 
+
+bool 
+HGCalTriggerGeometryGenericMapping::
+validTriggerCell(const unsigned trigger_cell_det_id) const {
+  return (trigger_cells_.find(trigger_cell_det_id)!=trigger_cells_.end());
+}
+
+bool 
+HGCalTriggerGeometryGenericMapping::
+disconnectedModule(const unsigned module_id) const {
+  return false;
+}
+
+
+unsigned 
+HGCalTriggerGeometryGenericMapping::
+triggerLayer(const unsigned id) const {
+  return  HGCalDetId(id).layer();
+}
 

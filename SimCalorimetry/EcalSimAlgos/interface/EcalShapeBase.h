@@ -5,9 +5,21 @@
 //#include<stdexcept>
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
   
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
+#include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
+
+#include <iostream>
+#include <fstream>
 /**
    \class EcalShape
    \brief  shaper for Ecal
+   
+   The constructor has been updated on CMSSW10X (2018) as to expect a bool, 
+   set this to true if DB conditions will be used to retrive the shape array 
+   and sampling time from the DB or false if the Phase I hard coded arrays
+   with 1 ns sampling should be used. -- K. Theofilatos
 */
 class EcalShapeBase : public CaloVShape
 {
@@ -15,28 +27,22 @@ class EcalShapeBase : public CaloVShape
 
       typedef std::vector<double> DVec ;
   
-      EcalShapeBase( bool   aSaveDerivative ) ;
+      EcalShapeBase(bool) ;
 
-      virtual ~EcalShapeBase() ;
+      ~EcalShapeBase() override ;
 
-      double operator() ( double aTime ) const ;
+      double operator() ( double aTime ) const override ;
 
       double         timeOfThr()  const ;
       double         timeOfMax()  const ;
-      virtual double timeToRise() const ;
+      double timeToRise() const override ;
 
-      virtual double threshold()             const = 0 ;
+      double threshold() const;
   
       double derivative ( double time ) const ; // appears to not be used anywhere
 
-      enum { kReadoutTimeInterval = 25 , // in nsec
-	     kNBinsPerNSec        = 10 , // granularity of internal array
-	     k1NSecBins           = kReadoutTimeInterval*kNBinsPerNSec ,
-	     k1NSecBinsTotal      = 2*k1NSecBins ,
-	     kNBinsStored         = k1NSecBinsTotal*kNBinsPerNSec
-      } ;
-
-      static const double qNSecPerBin ;
+      void m_shape_print(const char *fileName);     
+      void setEventSetup(const edm::EventSetup & evtSetup); 
 
    protected:
 
@@ -44,7 +50,8 @@ class EcalShapeBase : public CaloVShape
 
       void buildMe() ;
 
-      virtual void   fillShape( DVec& aVec ) const = 0 ;
+      virtual void   fillShape(float &time_interval, double &m_thresh, EcalShapeBase::DVec& aVec, const edm::EventSetup* es) const = 0 ;
+      bool         m_useDBShape;
 
    private:
 
@@ -52,8 +59,15 @@ class EcalShapeBase : public CaloVShape
       double       m_firstTimeOverThreshold  ;
       unsigned int m_indexOfMax ;
       double       m_timeOfMax  ;
+      double       m_thresh;
+      unsigned int m_kNBinsPerNSec;
       DVec  m_shape ;
-      DVec* m_derivPtr ;
+      DVec  m_deriv ;
+  
+      unsigned int m_arraySize;
+      unsigned int m_denseArraySize;   
+      double m_qNSecPerBin;
+      const edm::EventSetup *m_es;
 };
   
 

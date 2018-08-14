@@ -10,10 +10,8 @@
 class  DetLayerGeometryESProducer: public edm::ESProducer{
  public:
   DetLayerGeometryESProducer(const edm::ParameterSet & p);
-  virtual ~DetLayerGeometryESProducer(); 
-  std::shared_ptr<DetLayerGeometry> produce(const RecoGeometryRecord &);
- private:
-  std::shared_ptr<DetLayerGeometry> geometry_;
+  ~DetLayerGeometryESProducer() override; 
+  std::unique_ptr<DetLayerGeometry> produce(const RecoGeometryRecord &);
 };
 
 

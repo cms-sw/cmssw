@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
@@ -42,7 +43,9 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) : key_(iKey),
+EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) :
+    record_(iKey),
+    key_(iKey),
     validityInterval_(), finder_(), providers_(),
     multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()),
     lastSyncWasBeginOfRun_(true)
@@ -53,10 +56,6 @@ EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iK
 // {
 //    // do actual copying here;
 // }
-
-EventSetupRecordProvider::~EventSetupRecordProvider()
-{
-}
 
 //
 // assignment operators
@@ -109,7 +108,7 @@ void
 EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
    using std::placeholders::_1;
-   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::shared_ptr<DependentRecordIntervalFinder>(new DependentRecordIntervalFinder(key()));
+   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::make_shared<DependentRecordIntervalFinder>(key());
    
    std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
    for_all(iProviders, std::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
@@ -126,7 +125,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
   for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
      
-     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::shared_ptr<IntersectingIOVRecordIntervalFinder>(new IntersectingIOVRecordIntervalFinder(key_));
+     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::make_shared<IntersectingIOVRecordIntervalFinder>(key_);
      intFinder->swapFinders(*multipleFinders_);
      finder_ = intFinder;
   }
@@ -140,7 +139,6 @@ EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<DataProxyProvider> 
    typedef DataProxyProvider::KeyedProxies ProxyList ;
    typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
    
-   EventSetupRecord& rec = record();
    const ProxyList& keyedProxies(iProvider->keyedProxies(this->key())) ;
    ProxyList::const_iterator finishedProxyList(keyedProxies.end()) ;
    for (ProxyList::const_iterator keyedProxy(keyedProxies.begin()) ;
@@ -154,15 +152,14 @@ EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<DataProxyProvider> 
             continue;
          }
       }
-      rec.add((*keyedProxy).first , (*keyedProxy).second.get()) ;
+      record_.add((*keyedProxy).first , (*keyedProxy).second.get()) ;
    }
 }
       
 void 
 EventSetupRecordProvider::addRecordTo(EventSetupProvider& iEventSetupProvider) {
-   EventSetupRecord& rec = record();
-   rec.set(this->validityInterval());
-   iEventSetupProvider.addRecordToEventSetup(rec);
+   record_.set(this->validityInterval());
+   iEventSetupProvider.addRecordToEventSetup(record_);
 }
       
 //
@@ -270,7 +267,7 @@ EventSetupRecordProvider::checkResetTransients()
 std::set<EventSetupRecordKey> 
 EventSetupRecordProvider::dependentRecords() const
 {
-   return std::set<EventSetupRecordKey>();
+  return dependencies(key());
 }
 
 std::set<ComponentDescription> 

@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 
-#include "../interface/CocoaAnalyzer.h"
+#include "Alignment/CocoaApplication/interface/CocoaAnalyzer.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -132,18 +132,10 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
   //  It stores these objects in a private data member, opt
   std::string attribute = "COCOA"; 
   std::string value     = "COCOA";
-  DDValue val(attribute, value, 0.0);
   
 	  // get all parts labelled with COCOA using a SpecPar
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,  // name & value of a variable 
-		     DDCompOp::matches,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fv(*cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fv(*cpv, filter);
   bool doCOCOA = fv.firstChild();
   
   // Loop on parts
@@ -185,8 +177,8 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     DDTranslation transl = (fv.translation());
     DDRotationMatrix rot = (fv.rotation());
     DDExpandedNode parent = fv.geoHistory()[ fv.geoHistory().size()-2 ];
-    DDTranslation parentTransl = parent.absTranslation();
-    DDRotationMatrix parentRot = parent.absRotation();
+    const DDTranslation& parentTransl = parent.absTranslation();
+    const DDRotationMatrix& parentRot = parent.absRotation();
     transl = parentRot.Inverse()*(transl - parentTransl );
     rot = parentRot.Inverse()*rot;
     rot = rot.Inverse(); //DDL uses opposite convention than COCOA
@@ -482,7 +474,7 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
     OpticalAlignInfo oaInfoDB = *it;
     OpticalAlignInfo* oaInfoXML = FindOpticalAlignInfoXML( oaInfoDB );
     std::cerr << "error " << (*it).name_ << std::endl;
-    if( oaInfoXML == 0 ) {
+    if( oaInfoXML == nullptr ) {
       if(ALIUtils::debug >= 2) {
 	std::cerr << "@@@@@ WARNING CocoaAnalyzer::CorrectOptAlignments:  OpticalAlignInfo read from DB is not present in XML "<< *it << std::endl;
       }
@@ -531,7 +523,7 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
 //------------------------------------------------------------------------
 OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( const OpticalAlignInfo& oaInfo )
 {
-  OpticalAlignInfo* oaInfoXML = 0;
+  OpticalAlignInfo* oaInfoXML = nullptr;
   std::vector<OpticalAlignInfo>::iterator it;
   for( it=oaList_.opticalAlignments_.begin();it!=oaList_.opticalAlignments_.end(); ++it ){
     std::string oaName = oaInfo.name_.substr( 1, oaInfo.name_.size()-2 );

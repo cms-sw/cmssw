@@ -1,21 +1,22 @@
 #ifndef DDExpandedView_h
 #define DDExpandedView_h
 
-#include <stddef.h>
+#include <cstddef>
 #include <iosfwd>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDFilteredView;
 class DDLogicalPart;
@@ -42,6 +43,8 @@ class DDExpandedView
   friend class DDFilteredView;
   
 public:
+  using WalkerType = math::GraphWalker<DDLogicalPart, DDPosData* >;
+  
   //! std::vector of sibling numbers
   typedef std::vector<int> nav_type;
   typedef std::pair<int const *, size_t> NavRange;
@@ -119,11 +122,6 @@ public:
   //! clears the scope and sets the ExpandedView to its root-node
   void reset();
   
-/**    NOT IN THE PROTOTYPE
-  \todo void addNodeAction(const DDNodeAction &);
-  
-  \todo bool removeNodeAction(const DDNodeAction &);
-*/
   /* was protected, now public; was named goTo, now goToHistory*/
   bool goToHistory(const DDGeoHistory & sc);
   
@@ -131,8 +129,8 @@ protected:
   bool descend(const DDGeoHistory & sc);
 
 protected:
-  DDCompactView::walker_type * walker_; //!< the tricky walker
-  DDCompactView::walker_type w2_;
+  WalkerType * walker_; //!< the tricky walker
+  WalkerType w2_;
   const DDTranslation trans_;
   const DDRotationMatrix rot_;
   DDGeoHistory history_; //!< std::vector of DDExpandedNode

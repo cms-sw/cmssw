@@ -32,7 +32,7 @@ ________________________________________________________________**/
 AlcaBeamSpotFromDB::AlcaBeamSpotFromDB(const edm::ParameterSet& iConfig)
 {
 
-  produces<reco::BeamSpot, edm::InLumi>("alcaBeamSpot");  
+  produces<reco::BeamSpot, edm::Transition::EndLuminosityBlock>("alcaBeamSpot");  
 }
 
 

@@ -46,10 +46,10 @@ using namespace std;
 class PATHeavyIonProducer : public edm::global::EDProducer<> {
 public:
   explicit PATHeavyIonProducer(const edm::ParameterSet&);
-  ~PATHeavyIonProducer();
+  ~PATHeavyIonProducer() override;
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   // ----------member data ---------------------------
   
   const bool doMC_;

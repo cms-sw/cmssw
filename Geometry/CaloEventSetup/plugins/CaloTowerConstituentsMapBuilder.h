@@ -40,7 +40,7 @@ namespace edm {
 class CaloTowerConstituentsMapBuilder : public edm::ESProducer {
 public:
   CaloTowerConstituentsMapBuilder(const edm::ParameterSet&);
-  ~CaloTowerConstituentsMapBuilder();
+  ~CaloTowerConstituentsMapBuilder() override;
 
   typedef std::unique_ptr<CaloTowerConstituentsMap> ReturnType;
 

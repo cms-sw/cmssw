@@ -50,7 +50,7 @@ ThirdHitPredictionFromCircle::ThirdHitPredictionFromCircle(
 float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
 {
   float phi;
-  if (unlikely(std::abs(curvature) < float(1.0e-5))) {
+  if (UNLIKELY(std::abs(curvature) < float(1.0e-5))) {
     float cos = (center * axis) / radius;
     phi = axis.phi() - clamped_acos(cos);
   } else {
@@ -68,7 +68,7 @@ float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
 
 float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
 {
-  if (unlikely(std::abs(curvature) < float(1.0e-5))) {
+  if (UNLIKELY(std::abs(curvature) < float(1.0e-5))) {
     float sin = (center * axis) / radius;
     return sin / clamped_sqrt(1 - sqr(sin));
   } else {
@@ -119,11 +119,11 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
   constexpr double SMALL = 1.0e-23;
   constexpr double LARGE = 1.0e23;
 
-  if (unlikely(tmp4 - tmp5 < 1.0e-15)) {
+  if (UNLIKELY(tmp4 - tmp5 < 1.0e-15)) {
     u1 = -SMALL;
     u2 = +SMALL;
   } else {
-    if (unlikely(std::abs(tmp2) < 1.0e-15)) {
+    if (UNLIKELY(std::abs(tmp2) < 1.0e-15)) {
       // the denominator is zero
       // this means that one of the tracks will be straight
       // and the other can be computed from the limit of the equation
@@ -134,7 +134,7 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
         std::swap(u1, u2);
     } else {
       double tmp6 = (tmp4 - tmp5) * (tmp4 + tmp5);
-      if (unlikely(tmp6 < 1.0e-15)) {
+      if (UNLIKELY(tmp6 < 1.0e-15)) {
         u1 = -SMALL;
         u2 = +SMALL;
       } else {
@@ -180,7 +180,7 @@ double ThirdHitPredictionFromCircle::curvature(const Vector2D &p2) const
 double ThirdHitPredictionFromCircle::transverseIP(const Vector2D &p2) const
 {
   double invDist = invCenterOnAxis(p2);
-  if (unlikely(std::abs(invDist) < 1.0e-5))
+  if (UNLIKELY(std::abs(invDist) < 1.0e-5))
     return std::abs(p2 * axis);
   else {
     double dist = 1.0 / invDist;
@@ -225,7 +225,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
 {
   constexpr double maxAngle = M_PI;
   double halfAngle = (0.5 * maxAngle) * (z2 - z1) / (z3 - z1);
-  if (unlikely(halfAngle <= 0.0))
+  if (UNLIKELY(halfAngle <= 0.0))
     return 0.0;
 
   return std::sin(halfAngle) / circle->delta;
@@ -234,7 +234,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
 
 ThirdHitPredictionFromCircle::HelixRZ::Scalar
 ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
-  if (unlikely(std::abs(curvature) < 1.0e-5)) {
+  if (UNLIKELY(std::abs(curvature) < 1.0e-5)) {
      Scalar tip = circle->axis * circle->p1;
      Scalar lip = circle->axis.y() * circle->p1.x() -
                   circle->axis.x() * circle->p1.y();
@@ -265,10 +265,10 @@ ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
 
 ThirdHitPredictionFromCircle::HelixRZ::Scalar
 ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
-  if (unlikely(std::abs(dzdu) < 1.0e-5))
+  if (UNLIKELY(std::abs(dzdu) < 1.0e-5))
     return 99999.0;
 
-  if (unlikely(std::abs(curvature) < 1.0e-5)) {
+  if (UNLIKELY(std::abs(curvature) < 1.0e-5)) {
     Scalar tip = circle->axis * circle->p1;
     Scalar lip = circle->axis.y() * circle->p1.x() -
                  circle->axis.x() * circle->p1.y();
@@ -280,7 +280,7 @@ ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
 
   float phi =  curvature * (z - z1) / dzdu;
 
-  if (unlikely(std::abs(phi) > 2. * M_PI)) {
+  if (UNLIKELY(std::abs(phi) > 2. * M_PI)) {
     // with a helix we can get problems here - this is used to get the limits
     // however, if phi gets large, we get into the regions where we loop back
     // to smaller r's.  The question is - do we care about these tracks?

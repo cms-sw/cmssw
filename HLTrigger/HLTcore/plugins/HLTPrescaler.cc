@@ -35,7 +35,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Effi
   , acceptCount_(0)
   , offsetCount_(0)
   , offsetPhase_(iConfig.getParameter<unsigned int>("offset"))
-  , prescaleService_(0)
+  , prescaleService_(nullptr)
   , newLumi_(true)
   , gtDigiTag_ (iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag"))
   , gtDigi1Token_ (consumes<L1GlobalTriggerReadoutRecord>(gtDigiTag_))
@@ -48,10 +48,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Effi
 }
 
 //_____________________________________________________________________________    
-HLTPrescaler::~HLTPrescaler()
-{
-  
-}
+HLTPrescaler::~HLTPrescaler() = default;
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions

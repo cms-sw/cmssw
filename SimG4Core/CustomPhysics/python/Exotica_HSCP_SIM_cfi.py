@@ -1,10 +1,11 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 def customise(process):
     
     FLAVOR = process.generator.hscpFlavor.value()
     MASS_POINT = process.generator.massPoint.value()
-    SLHA_FILE = process.generator.slhaFile.value()
+    SLHA_FILE = process.generator.SLHAFileForPythia8.value()
     PROCESS_FILE = process.generator.processFile.value()
     PARTICLE_FILE = process.generator.particleFile.value()
     USE_REGGE = process.generator.useregge.value()
@@ -37,7 +38,7 @@ def customise(process):
 	elif FLAVOR =="stau":
           process.g4SimHits.Physics.ExoticaPhysicsSS = cms.untracked.bool(False)
         else:
-          print "Wrong flavor %s. Only accepted are gluino, stau, stop." % FLAVOR
+          print("Wrong flavor %s. Only accepted are gluino, stau, stop." % FLAVOR)
         # add custom options
         process.g4SimHits.Physics = cms.PSet(
             process.g4SimHits.Physics, #keep all default value and add others

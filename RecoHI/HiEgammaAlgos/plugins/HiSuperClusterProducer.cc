@@ -141,7 +141,7 @@ void HiSuperClusterProducer::getClusterPtrVector(edm::Event& evt, const edm::EDG
   if (!(bccHandle.isValid()))
     {
       edm::LogError("HiSuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
-      clusterPtrVector_p = 0;
+      clusterPtrVector_p = nullptr;
     }
 
   const reco::BasicClusterCollection *clusterCollection_p = bccHandle.product();

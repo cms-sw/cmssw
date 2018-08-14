@@ -20,9 +20,9 @@ public:
 
   TTUGlobalSignal( std::map< int, TTUInput* >  * );
 
-  virtual ~TTUGlobalSignal( ); ///< Destructor
+  ~TTUGlobalSignal( ) override; ///< Destructor
   
-  void clear() { };
+  void clear() override { };
 
   std::map< int, TTUInput* >  * m_wheelmap;
   

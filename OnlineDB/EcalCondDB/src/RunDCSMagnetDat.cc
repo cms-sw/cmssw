@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include <list>
 #include <string>
 #include <map>
@@ -14,10 +14,10 @@ using namespace oracle::occi;
 
 RunDCSMagnetDat::RunDCSMagnetDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_current = 0;
   m_time=Tm();
@@ -74,7 +74,7 @@ ResultSet *RunDCSMagnetDat::getMagnetRset() {
 
   DateHandler dh(m_env, m_conn);
 
-  ResultSet* rset = NULL;
+  ResultSet* rset = nullptr;
   string query="SELECT c.name, c.logic_id, c.id1, c.id2, c.id3, c.maps_to , v.value_number, v.change_date from "+ getMagnetAccount()+
     ".CMSFWMAGNET_LV v, channelview c where v.dpe_name= 'CURRENT' and  c.name=maps_to and c.name='EB' " ;
   try {
@@ -84,11 +84,11 @@ ResultSet *RunDCSMagnetDat::getMagnetRset() {
     m_readStmt->setSQL(query);
     rset = m_readStmt->executeQuery();
   }
-  catch (SQLException e) {
+  catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSMagnetDat::getBarrelRset():  " + e.getMessage() + " " + query));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::getBarrelRset():  ") + getOraMessage(&e) + " " + query));
 #else
-    throw(std::runtime_error("RunDCSMagnetDat::getBarrelRset():  error code " + std::to_string(e.getErrorCode()) + " " + query));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::getBarrelRset():  error code ") + std::to_string(e.getErrorCode()) + " " + query));
 #endif
   }
   return rset;
@@ -107,12 +107,12 @@ void RunDCSMagnetDat::fillTheMap(ResultSet *rset,
 
   try {
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
     std::cout<<"done the logic id"<<std::endl;
       dat.setMagnetCurrent( rset->getFloat(7) );
@@ -130,9 +130,9 @@ void RunDCSMagnetDat::fillTheMap(ResultSet *rset,
   }
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSMagnetDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  ")+getOraMessage(&e)));
 #else
-    throw(std::runtime_error("RunDCSMagnetDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
   }
 }
@@ -178,9 +178,9 @@ void RunDCSMagnetDat::fetchLastData(map< EcalLogicID, RunDCSMagnetDat >* fillMap
   } 
   catch (SQLException &e) {
 #if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
-    throw(std::runtime_error("RunDCSMagnetDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  ")+getOraMessage(&e)));
 #else
-    throw(std::runtime_error("RunDCSMagnetDat::fetchData():  error code " + std::to_string(e.getErrorCode())));
+    throw(std::runtime_error(std::string("RunDCSMagnetDat::fetchData():  error code ") + std::to_string(e.getErrorCode())));
 #endif
   }
 }

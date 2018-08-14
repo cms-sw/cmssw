@@ -50,12 +50,12 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   killInCaloEfH = false;
 
   // Russian Roulette
-  regionEcal = 0;
-  regionHcal = 0;
-  regionMuonIron = 0;
-  regionPreShower= 0;
-  regionCastor = 0;
-  regionWorld = 0;
+  regionEcal = nullptr;
+  regionHcal = nullptr;
+  regionMuonIron = nullptr;
+  regionPreShower= nullptr;
+  regionCastor = nullptr;
+  regionWorld = nullptr;
 
   gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit")*MeV;
   nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit")*MeV;
@@ -95,61 +95,56 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
       << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
       << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume= "
       << killInCaloEfH;
-
   }
 
   initPointer();
   newTA = new NewTrackAction();
 
-  edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
-				       << " flag for saving decay products in "
-				       << " Tracker: " << savePDandCinTracker
-                                       << " in Calo: " << savePDandCinCalo
-                                       << " in Muon: " << savePDandCinMuon
-                                       << " everywhere: " << savePDandCinAll
-				       << "\n  saveFirstSecondary"
-				       << ": " << saveFirstSecondary
-				       << " Tracking neutrino flag: "
-				       << trackNeutrino 
-				       << " Kill Delta Ray flag: "
-				       << killDeltaRay
-				       << " Kill hadrons/ions flag: "
-				       << killHeavy;
-
+  edm::LogVerbatim("SimG4CoreApplication") 
+    << "StackingAction initiated with" << " flag for saving decay products in "
+    << " Tracker: " << savePDandCinTracker
+    << " in Calo: " << savePDandCinCalo
+    << " in Muon: " << savePDandCinMuon
+    << " everywhere: " << savePDandCinAll << "\n  saveFirstSecondary"
+    << ": " << saveFirstSecondary
+    << " Tracking neutrino flag: " << trackNeutrino 
+    << " Kill Delta Ray flag: " << killDeltaRay
+    << " Kill hadrons/ions flag: " << killHeavy;
 
   if(killHeavy) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction kill protons below " 
-					 << kmaxProton/MeV <<" MeV, neutrons below "
-					 << kmaxNeutron/MeV << " MeV and ions"
-					 << " below " << kmaxIon/MeV << " MeV";
+    edm::LogVerbatim("SimG4CoreApplication") 
+      << "StackingAction kill protons below " 
+      << kmaxProton/MeV <<" MeV, neutrons below "
+      << kmaxNeutron/MeV << " MeV and ions"
+      << " below " << kmaxIon/MeV << " MeV";
   }
   killExtra = killDeltaRay || killHeavy || killInCalo || killInCaloEfH;
 
-  edm::LogInfo("SimG4CoreApplication") << "StackingAction kill tracks with "
+  edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill tracks with "
 				       << "time larger than " << maxTrackTime/ns
 				       << " ns ";
   numberTimes = maxTimeNames.size(); 
   if(0 < numberTimes) {
     for (unsigned int i=0; i<numberTimes; ++i) {
-      edm::LogInfo("SimG4CoreApplication") << "StackingAction MaxTrackTime for "
+      edm::LogVerbatim("SimG4CoreApplication") << "StackingAction MaxTrackTime for "
 					   << maxTimeNames[i] << " is " 
 					   << maxTrackTimes[i] << " ns ";
       maxTrackTimes[i] *= ns;
     }
   }
   if(limitEnergyForVacuum > 0.0) {
-    edm::LogInfo("SimG4CoreApplication") 
+    edm::LogVerbatim("SimG4CoreApplication") 
       << "StackingAction LowDensity regions - kill if E < " 
       << limitEnergyForVacuum/MeV << " MeV";
     printRegions(lowdensRegions,"LowDensity"); 
   }
   if(deadRegions.size() > 0.0) {
-    edm::LogInfo("SimG4CoreApplication") 
+    edm::LogVerbatim("SimG4CoreApplication") 
       << "StackingAction Dead regions - kill all secondaries ";
     printRegions(deadRegions, "Dead"); 
   }
   if(gRRactive) {
-    edm::LogInfo("SimG4CoreApplication") 
+    edm::LogVerbatim("SimG4CoreApplication") 
       << "StackingAction: "
       << "Russian Roulette for gamma Elimit(MeV)= " 
       << gRusRoEnerLim/MeV << "\n"
@@ -161,7 +156,7 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
       << "                World Prob= " << gRusRoWorld;
   }
   if(nRRactive) {
-    edm::LogInfo("SimG4CoreApplication") 
+    edm::LogVerbatim("SimG4CoreApplication") 
       << "StackingAction: "
       << "Russian Roulette for neutron Elimit(MeV)= " 
       << nRusRoEnerLim/MeV << "\n"
@@ -174,15 +169,15 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   }
 
   if(savePDandCinTracker) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction Tracker regions: ";
+    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Tracker regions: ";
     printRegions(trackerRegions,"Tracker"); 
   }
   if(savePDandCinCalo) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction Calo regions: ";
+    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Calo regions: ";
     printRegions(caloRegions, "Calo"); 
   }
   if(savePDandCinMuon) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction Muon regions: ";
+    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Muon regions: ";
     printRegions(muonRegions,"Muon"); 
   }
   worldSolid = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume()->GetSolid();
@@ -252,7 +247,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	    classification = fKill; 
 	  }
 	  if (killInCaloEfH && classification != fKill) {
-	    int pdgMother = std::abs(trackAction->geant4Track()->GetDefinition()->GetPDGEncoding());
+	    int pdgMother = 
+	      std::abs(trackAction->geant4Track()->GetDefinition()->GetPDGEncoding());
 	    if ((pdg == 22 || abspdg == 11) && pdgMother != 11 && pdgMother != 22 && 
 		isThisRegion(reg,caloRegions)) { 
 	      classification = fKill; 
@@ -348,13 +344,14 @@ void StackingAction::PrepareNewEvent() {}
 
 void StackingAction::initPointer() 
 {
-  // Russian roulette
-  const G4RegionStore * rs = G4RegionStore::GetInstance();
-  std::vector<G4Region*>::const_iterator rcite;
-  std::vector<std::string>::const_iterator rd;
+  // prepare region vector
+  unsigned int num = maxTimeNames.size();
+  maxTimeRegions.resize(num, nullptr);
 
-  for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
-    const G4Region* reg = (*rcite);
+  // Russian roulette
+  std::vector<G4Region*> *rs = G4RegionStore::GetInstance();
+
+  for (auto & reg : *rs) {
     G4String rname = reg->GetName(); 
     if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0) && rname == "EcalRegion") {  
       regionEcal = reg; 
@@ -371,19 +368,15 @@ void StackingAction::initPointer()
     if ((gRusRoCastor < 1.0 || nRusRoCastor < 1.0) && rname == "CastorRegion") {  
       regionCastor = reg; 
     }
-    if ((nRusRoWorld < 1.0 || nRusRoWorld < 1.0) && rname == "DefaultRegionForTheWorld") {  
+    if ((gRusRoWorld < 1.0 || nRusRoWorld < 1.0) && rname == "DefaultRegionForTheWorld") {  
       regionWorld = reg; 
     }
 
     // time limits
-    unsigned int num = maxTimeNames.size();
-    maxTimeRegions.resize(num, 0);
-    if (num > 0) {
-      for (unsigned int i=0; i<num; i++) {
-	if (rname == (G4String)(maxTimeNames[i])) {
-	  maxTimeRegions[i] = reg;
-	  break;
-	}
+    for (unsigned int i=0; i<num; ++i) {
+      if (rname == (G4String)(maxTimeNames[i])) {
+	maxTimeRegions[i] = reg;
+	break;
       }
     }
     // 
@@ -408,8 +401,8 @@ void StackingAction::initPointer()
     if(rname == "BeamPipeOutside" || rname == "BeamPipeVacuum") {
       lowdensRegions.push_back(reg);
     }
-    for (rd = deadRegionNames.begin(); rd != deadRegionNames.end(); ++rd) {
-      if(rname == (G4String)(*rd)) {
+    for (auto & dead : deadRegionNames) {
+      if(rname == (G4String)(dead)) {
 	deadRegions.push_back(reg);
       }
     }
@@ -420,9 +413,8 @@ bool StackingAction::isThisRegion(const G4Region* reg,
 				  std::vector<const G4Region*>& regions) const
 {
   bool flag = false;
-  unsigned int nRegions = regions.size();
-  for(unsigned int i=0; i<nRegions; ++i) {
-    if(reg == regions[i]) {
+  for(auto & region : regions) {
+    if(reg == region) {
       flag = true;
       break;
     }
@@ -482,8 +474,8 @@ void StackingAction::printRegions(const std::vector<const G4Region*>& reg,
 				  const std::string& word) const 
 {
   for (unsigned int i=0; i<reg.size(); ++i) {
-    edm::LogInfo("SimG4CoreApplication") << " StackingAction: " << word 
-					 << "Region " << i 
-					 << ". " << reg[i]->GetName();
+    edm::LogVerbatim("SimG4CoreApplication") 
+      << " StackingAction: " << word << "Region " << i 
+      << ". " << reg[i]->GetName();
   }
 }

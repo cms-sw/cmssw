@@ -1,22 +1,27 @@
 #include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
 #include <TMath.h>
+
 GEMPadDigiValidation::GEMPadDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
   InputTagToken_ = consumes<GEMPadDigiCollection>(cfg.getParameter<edm::InputTag>("PadLabel"));
   detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
+    
   const GEMGeometry* GEMGeometry_ = initGeometry(iSetup);
+  if ( GEMGeometry_ == nullptr) return ;
+  LogDebug("GEMPadDigiValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
+  ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
+  LogDebug("GEMPadDigiValidation")<<"ibooker set current folder\n";
 
   if ( GEMGeometry_ == nullptr) return ;
   int npadsGE11 = GEMGeometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   int npadsGE21 = 0;
   int nPads = 0;
 
-  if ( nStation() > 1 ) {
+  if (GEMGeometry_->regions()[0]->stations().size()>1 && !GEMGeometry_->regions()[0]->stations()[1]->superChambers().empty() ) {
     npadsGE21 = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
-
 
   for( auto& region : GEMGeometry_->regions()  ){
     int re = region->region();
@@ -92,7 +97,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
     GEMGeometry_ = &*hGeom;
   }
   catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("GEMPadDigiValidaation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+    edm::LogError("GEMPadDigiValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return;
   }
   edm::Handle<GEMPadDigiCollection> gem_digis;

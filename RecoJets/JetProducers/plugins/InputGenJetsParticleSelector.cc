@@ -236,7 +236,7 @@ bool InputGenJetsParticleSelector::hasPartonChildren(ParticleBitmap &invalid,
     
 //######################################################
 //function NEEDED and called per EVENT by FRAMEWORK:
-void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSetup &evtSetup){
+void InputGenJetsParticleSelector::produce (edm::StreamID, edm::Event &evt, const edm::EventSetup &evtSetup) const{
 
  
   auto selected_ = std::make_unique<reco::CandidatePtrVector>();

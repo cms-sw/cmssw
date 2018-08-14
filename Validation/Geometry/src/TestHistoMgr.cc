@@ -187,7 +187,7 @@ bool TestHistoMgr::addHistoProf2( TProfile2D* sih )
 
 TH1F* TestHistoMgr::getHisto1( int ih )
 {
-  TH1F* his = 0;
+  TH1F* his = nullptr;
 
   mih1::const_iterator ite = theHistos1.find( ih );
   if( ite != theHistos1.end() ) {
@@ -202,7 +202,7 @@ TH1F* TestHistoMgr::getHisto1( int ih )
 
 TH2F* TestHistoMgr::getHisto2( int ih )
 {
-  TH2F* his = 0;
+  TH2F* his = nullptr;
   mih2::const_iterator ite = theHistos2.find( ih );
   if( ite != theHistos2.end() ) {
     his = (*ite).second;
@@ -215,7 +215,7 @@ TH2F* TestHistoMgr::getHisto2( int ih )
 
 TProfile* TestHistoMgr::getHistoProf1( int ih )
 {
-  TProfile* his = 0;
+  TProfile* his = nullptr;
   mihp1::const_iterator ite = theHistoProfs1.find( ih );
   if( ite != theHistoProfs1.end() ) {
    his = (*ite).second;
@@ -231,7 +231,7 @@ TProfile* TestHistoMgr::getHistoProf1( int ih )
 
 TProfile2D* TestHistoMgr::getHistoProf2( int ih )
 {
-  TProfile2D* his = 0;
+  TProfile2D* his = nullptr;
   mihp2::const_iterator ite = theHistoProfs2.find( ih );
   if( ite != theHistoProfs2.end() ) {
    his = (*ite).second;
@@ -246,13 +246,15 @@ TProfile2D* TestHistoMgr::getHistoProf2( int ih )
  
 TH1F* TestHistoMgr::getHisto1FromSecondFile( const char* hnam )
 {
+  TH1F* his = new TH1F();
   if( !theFileRef ){
     std::cerr << "!!!! FATAL ERROR Second file not yet opened " << std::endl;
     std::exception();
+  } else{
+    his = (TH1F*)(*theFileRef).Get(hnam);
   }
 
 
-  TH1F* his = (TH1F*)(*theFileRef).Get(hnam);
   if( !his ) {
     std::cerr << "!!!! FATAL ERROR Histogram does not exist in second file " << hnam << std::endl;
     theFileRef->ls();

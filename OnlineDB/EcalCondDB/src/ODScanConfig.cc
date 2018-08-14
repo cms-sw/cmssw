@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 ODScanConfig::ODScanConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();
@@ -51,7 +51,7 @@ int ODScanConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -67,7 +67,7 @@ void ODScanConfig::setParameters(const std::map<string,string>& my_keys_map){
     
     if(ci->first==  "SCAN_ID") setConfigTag(ci->second);
     if(ci->first==  "TYPE_ID") setTypeId(atoi(ci->second.c_str()) );
-    if(ci->first==  "TYPE" || ci->first== "SCAN_TYPE") setScanType(ci->second.c_str() );
+    if(ci->first==  "TYPE" || ci->first== "SCAN_TYPE") setScanType(ci->second );
     if(ci->first==  "FROM" ||ci->first==  "FROM_VAL" ) setFromVal(atoi(ci->second.c_str() ));
     if(ci->first==  "TO" ||ci->first==  "TO_VAL" ) setToVal(atoi(ci->second.c_str() ));
     if(ci->first==  "STEP") setStep(atoi(ci->second.c_str() ));
@@ -91,7 +91,7 @@ void ODScanConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -116,7 +116,7 @@ void ODScanConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -133,7 +133,7 @@ void ODScanConfig::fetchData(ODScanConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
   }
 
@@ -151,15 +151,15 @@ void ODScanConfig::fetchData(ODScanConfig * result)
 
     // id 1 is the scan_id 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setTypeId(           rset->getInt(3) );
-    result->setScanType(        rset->getString(4) );
+    result->setScanType(        getOraString(rset,4) );
     result->setFromVal(            rset->getInt(5) );
     result->setToVal(              rset->getInt(6) );
     result->setStep(              rset->getInt(7) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -188,7 +188,7 @@ int ODScanConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

@@ -34,7 +34,7 @@
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
-muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
+muIsoExtractorCalo_(nullptr),muIsoExtractorTrack_(nullptr),muIsoExtractorJet_(nullptr)
 {
   
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: Constructor called";
@@ -62,6 +62,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    writeIsoDeposits_        = iConfig.getParameter<bool>("writeIsoDeposits");
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    fillGlobalTrackRefits_   = iConfig.getParameter<bool>("fillGlobalTrackRefits");
+   arbitrateTrackerMuons_   = iConfig.getParameter<bool>("arbitrateTrackerMuons");
    //SK: (maybe temporary) run it only if the global is also run
    fillTrackerKink_         = false;
    if (fillGlobalTrackQuality_)  fillTrackerKink_ =  iConfig.getParameter<bool>("fillTrackerKink");
@@ -72,7 +73,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    arbClean_ = iConfig.getParameter<bool>("runArbitrationCleaner"); // muon mesh
 
    // Load TrackDetectorAssociator parameters
-   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   const edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    edm::ConsumesCollector iC = consumesCollector();
    parameters_.loadParameters( parameters, iC );
 
@@ -83,8 +84,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
-      parameters = iConfig.getParameter<edm::ParameterSet>("MuonCaloCompatibility");
-      muonCaloCompatibility_.configure( parameters );
+      const auto caloParams = iConfig.getParameter<edm::ParameterSet>("MuonCaloCompatibility");
+      muonCaloCompatibility_.configure( caloParams );
    }
 
    if (fillIsolation_){
@@ -586,8 +587,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            } else {
              LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
              const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
-             if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
-             caloMuons->push_back( caloMuon );
+	     if (isGoodCaloMuon(caloMuon)) caloMuons->push_back( caloMuon );
            }
          }
        }
@@ -635,6 +635,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          outputMuons->back().setType( reco::Muon::StandAloneMuon );
        }
      }
+   }
+
+   if (arbitrateTrackerMuons_){
+     fillArbitrationInfo( outputMuons.get() );
+     arbitrateMuons( outputMuons.get(), caloMuons.get() );
    }
 
    LogTrace("MuonIdentification") << "Dress up muons if it's necessary";
@@ -713,7 +718,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
-   if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
+   if ( fillMatching_ ) {
+       fillArbitrationInfo( outputMuons.get(), reco::Muon::TrackerMuon );
+       fillArbitrationInfo( outputMuons.get(), reco::Muon::ME0Muon );
+       fillArbitrationInfo( outputMuons.get(), reco::Muon::GEMMuon );
+   }
    edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(std::move(outputMuons));
 
    auto fillMap = [](auto refH, auto& vec, edm::Event& ev, const std::string& cAl = ""){
@@ -752,6 +761,12 @@ bool MuonIdProducer::isGoodTrackerMuon( const reco::Muon& muon )
   return ( muon.numberOfMatches( reco::Muon::NoArbitration ) >= minNumberOfMatches_ );
 }
 
+bool MuonIdProducer::isGoodCaloMuon( const reco::CaloMuon& caloMuon )
+{
+  if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) return false;
+  return true;
+}
+
 bool MuonIdProducer::isGoodRPCMuon( const reco::Muon& muon )
 {
   if(muon.track()->pt() < minPt_ || muon.track()->p() < minP_) return false;
@@ -782,7 +797,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId";
 
    // perform track - detector association
-   const reco::Track* track = 0;
+   const reco::Track* track = nullptr;
    if      ( aMuon.track().isNonnull() ) track = aMuon.track().get();
    else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
    else throw cms::Exception("FatalError") << "Failed to fill muon id information for a muon with undefined references to tracks";
@@ -968,7 +983,33 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    // fillTime( iEvent, iSetup, aMuon );
 }
 
-void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
+void MuonIdProducer::arbitrateMuons( reco::MuonCollection* muons, reco::CaloMuonCollection* caloMuons )
+{
+  reco::Muon::ArbitrationType arbitration = reco::Muon::SegmentAndTrackArbitration;
+  // arbitrate TrackerMuons
+  // if a muon was exclusively TrackerMuon check if it can be a calo muon
+  for (reco::MuonCollection::iterator muon=muons->begin(); muon!=muons->end();){
+    if (muon->isTrackerMuon()){
+      if (muon->numberOfMatches(arbitration)<minNumberOfMatches_){
+	// TrackerMuon failed arbitration
+	// If not any other base type - erase the element
+	// (PFMuon is not a base type)
+	unsigned int mask = reco::Muon::TrackerMuon|reco::Muon::PFMuon;
+	if ((muon->type() & (~mask))==0){
+	  const reco::CaloMuon& caloMuon = makeCaloMuon(*muon);
+	  if (isGoodCaloMuon(caloMuon)) caloMuons->push_back( caloMuon );
+	  muon = muons->erase(muon);
+	  continue;
+	} else {
+	  muon->setType(muon->type()&(~reco::Muon::TrackerMuon));
+	}
+      } 
+    }
+    muon++;
+  }
+}
+
+void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons, unsigned int muonType )
 {
    //
    // apply segment flags
@@ -984,11 +1025,13 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
      // chamberIter1
      for ( auto& chamber1 : muon1.matches() )
      {
-       if(chamber1.segmentMatches.empty()) continue;
+       // segmentIter1
+       std::vector<reco::MuonSegmentMatch> * segmentMatches1 = getSegmentMatches(chamber1, muonType);
+
+       if(segmentMatches1->empty()) continue;
        chamberPairs.clear();
 
-       // segmentIter1
-       for ( auto& segment1 : chamber1.segmentMatches )
+       for ( auto& segment1 : *segmentMatches1 )
        {
          chamberPairs.push_back(std::make_pair(&chamber1, &segment1));
          if(!segment1.isMask()) // has not yet been arbitrated
@@ -998,18 +1041,19 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
 
            // find identical segments with which to arbitrate
            // tracker muons only
-           if (muon1.isTrackerMuon()) {
+           if (muon1.type() & muonType) {
              // muonIndex2
              for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
              {
                auto& muon2 = pOutputMuons->at(muonIndex2);
                // tracker muons only
-               if ( !muon2.isTrackerMuon() ) continue;
+               if ( !(muon2.type() & muonType) ) continue;
                // chamberIter2
                for ( auto& chamber2 : muon2.matches() )
                {
                  // segmentIter2
-                 for ( auto& segment2 : chamber2.segmentMatches )
+                 std::vector<reco::MuonSegmentMatch> * segmentMatches2 = getSegmentMatches(chamber2, muonType);
+                 for ( auto& segment2 : *segmentMatches2 )
                  {
                    if(segment2.isMask()) continue; // has already been arbitrated
                    if(approxEqual(segment2.x      , segment1.x      ) &&
@@ -1052,7 +1096,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
          }
 
          // setup me1a cleaning for later
-         if( chamber1.id.subdetId() == MuonSubdetId::CSC && arbClean_ &&
+         if( muonType == reco::Muon::TrackerMuon && chamber1.id.subdetId() == MuonSubdetId::CSC && arbClean_ &&
              CSCDetId(chamber1.id).ring() == 4) {
            for ( auto& segment2 : chamber1.segmentMatches ) {
              if( segment1.cscSegmentRef.isNull() || segment2.cscSegmentRef.isNull() ) continue;
@@ -1089,7 +1133,7 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
      // station segment sort
      for( int stationIndex = 1; stationIndex < 5; ++stationIndex ) 
      {
-       for( int detectorIndex = 1; detectorIndex < 4; ++detectorIndex )
+       for( int detectorIndex = 1; detectorIndex <= 5; ++detectorIndex ) // 1-5, as in DataFormats/MuonDetId/interface/MuonSubdetId.h
        {
          stationPairs.clear();
 
@@ -1097,9 +1141,10 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
          for ( auto& chamber : muon1.matches() )
          {
            if(!(chamber.station()==stationIndex && chamber.detector()==detectorIndex)) continue;
-           if(chamber.segmentMatches.empty()) continue;
+           std::vector<reco::MuonSegmentMatch> * segmentMatches = getSegmentMatches(chamber, muonType);
+           if (segmentMatches->empty()) continue;
 
-           for ( auto& segment : chamber.segmentMatches ) {
+           for ( auto& segment : *segmentMatches ) {
              stationPairs.push_back(std::make_pair(&chamber, &segment));
            }
          } // chamberIter
@@ -1136,7 +1181,7 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
 				       reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				       reco::IsoDeposit& jetDep)
 {
-   const reco::Track* track = 0;
+   const reco::Track* track = nullptr;
    if ( aMuon.track().isNonnull() ) track = aMuon.track().get();
    else if ( aMuon.standAloneMuon().isNonnull() ) track = aMuon.standAloneMuon().get();
    else throw cms::Exception("FatalError") << "Failed to compute muon isolation information for a muon with undefined references to tracks";
@@ -1271,6 +1316,8 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;  
   desc.setAllowAnything();
   
+  desc.add<bool>("arbitrateTrackerMuons",false);
+
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel",edm::InputTag("gemSegments"));
   descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel",edm::InputTag("me0Segments"));

@@ -36,7 +36,7 @@
 // Constructors --
 //----------------
 DTHVHandler::DTHVHandler():
-  objectPtr ( 0 ) {
+  objectPtr ( nullptr ) {
 }
 
 
@@ -80,7 +80,7 @@ int DTHVHandler::get( const DTWireId& id,
                          flagA, flagC, flagS );
 */
   flagA = flagC = flagS = 0;
-  if ( objectPtr == 0 ) return 999;
+  if ( objectPtr == nullptr ) return 999;
   int iCell = id.wire();
   int fCell;
   int lCell;

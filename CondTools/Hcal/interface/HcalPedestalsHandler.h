@@ -25,9 +25,9 @@
 class HcalPedestalsHandler : public popcon::PopConSourceHandler<HcalPedestals>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalPedestalsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalPedestalsHandler() override;
   HcalPedestalsHandler(edm::ParameterSet const &);
 
   void initObject(HcalPedestals*);

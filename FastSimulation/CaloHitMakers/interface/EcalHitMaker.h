@@ -38,7 +38,7 @@ class EcalHitMaker: public CaloHitMaker
 	       unsigned showertype,
 	       const RandomEngineAndDistribution* engine);
 
-  ~EcalHitMaker();
+  ~EcalHitMaker() override;
 
   // This is not part of the constructor but it has to be called very early
   void setTrackParameters(const XYZNormal& normal,
@@ -110,16 +110,16 @@ class EcalHitMaker: public CaloHitMaker
 
   bool addHitDepth(double r,double phi,double depth=-1);
    
-  bool addHit(double r,double phi,unsigned layer=0) ;
+  bool addHit(double r,double phi,unsigned layer=0) override ;
 
   unsigned fastInsideCell(const CLHEP::Hep2Vector & point,double & sp,bool debug=false) ;
 
-  inline void setSpotEnergy(double e) { spotEnergy=e;}
+  inline void setSpotEnergy(double e) override { spotEnergy=e;}
   
    /// get the map of the stored hits. Triggers the calculation of the grid if it has
   /// not been done. 
     
-  const std::map<CaloHitID,float>& getHits() ;
+  const std::map<CaloHitID,float>& getHits() override ;
  
   /// To retrieve the track
   const FSimTrack* getFSimTrack() const {return myTrack_;}

@@ -26,7 +26,7 @@ namespace pos{
 			  std::string creator,
 			  std::string date);
 
-    virtual ~PixelTrimOverrideBase();
+    ~PixelTrimOverrideBase() override;
 
     //Build the commands needed to configure ROC
     //Need to use the mask bits also for this

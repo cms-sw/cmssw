@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
     bool print = more && (vm.count("print") > 0 ? true : false);
     bool printBranchDetails = more && (vm.count("printBranchDetails") > 0 ? true : false);
     bool onlyDecodeLFN = decodeLFN && !(uuid || adler32 || allowRecovery || json || events || tree || ls || print || printBranchDetails);
-    std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName().c_str();
+    std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName();
 
     if (events||eventsInLumis) {
       try {
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
       // Ok. Do we have the expected trees?
       for (unsigned int i = 0; i < expectedTrees.size(); ++i) {
         TTree *t = (TTree*) tfile->Get(expectedTrees[i].c_str());
-        if (t == 0) {
+        if (t == nullptr) {
           std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
           std::cout << "Exiting\n";
           return 1;
@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
       // Print out each tree
       if (print) {
         TTree *printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == 0) {
+        if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
 
       if (printBranchDetails) {
         TTree *printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == 0) {
+        if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;

@@ -13,8 +13,8 @@ configured in the user's main() function, and is set running.
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/IEventProcessor.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
@@ -28,9 +28,10 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
-#include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 
-#include "boost/thread/condition.hpp"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <map>
 #include <memory>
@@ -40,36 +41,44 @@ configured in the user's main() function, and is set running.
 #include <exception>
 #include <mutex>
 
-namespace statemachine {
-  class Machine;
-  class Run;
-}
-
 namespace edm {
 
   class ExceptionToActionTable;
   class BranchIDListHelper;
+  class MergeableRunProductMetadata;
   class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
   class SubProcess;
   class WaitingTaskHolder;
-  class WaitingTask;
+  class LuminosityBlockProcessingStatus;
+  class IOVSyncValue;
   
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupsController;
   }
 
-  class EventProcessor : public IEventProcessor {
+  class EventProcessor {
   public:
+
+    // Status codes:
+    //   0     successful completion
+    //   1     exception of unknown type caught
+    //   2     everything else
+    //   3     signal received
+    //   4     input complete
+    //   5     call timed out
+    //   6     input count complete
+    enum StatusCode { epSuccess=0, epException=1, epOther=2, epSignal=3,
+      epInputComplete=4, epTimedOut=5, epCountComplete=6 };
 
     // The input string 'config' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and
     // the specification of services by name only (defaultServices and forcedServices).
     // 'defaultServices' are overridden by 'config'.
-    // 'forcedServices' override the 'config'.
+    // 'forcedServices' the 'config'.
     explicit EventProcessor(std::string const& config,
                             ServiceToken const& token = ServiceToken(),
                             serviceregistry::ServiceLegacy = serviceregistry::kOverlapIsError,
@@ -173,53 +182,65 @@ namespace edm {
     //                     requested by the argument
     //   epSuccess - all other cases
     //
-    virtual StatusCode runToCompletion() override;
+    StatusCode runToCompletion();
 
-    // The following functions are used by the code implementing our
-    // boost statemachine
+    // The following functions are used by the code implementing
+    // transition handling.
 
-    virtual void readFile() override;
-    virtual void closeInputFile(bool cleaningUpAfterException) override;
-    virtual void openOutputFiles() override;
-    virtual void closeOutputFiles() override;
+    InputSource::ItemType nextTransitionType();
+    InputSource::ItemType lastTransitionType() const { if(deferredExceptionPtrIsSet_) {return InputSource::IsStop;}
+                                                          return lastSourceTransition_;}
+    std::pair<edm::ProcessHistoryID, edm::RunNumber_t> nextRunID();
+    edm::LuminosityBlockNumber_t nextLuminosityBlockID();
+    
+    void readFile();
+    void closeInputFile(bool cleaningUpAfterException);
+    void openOutputFiles();
+    void closeOutputFiles();
 
-    virtual void respondToOpenInputFile() override;
-    virtual void respondToCloseInputFile() override;
+    void respondToOpenInputFile();
+    void respondToCloseInputFile();
 
-    virtual void startingNewLoop() override;
-    virtual bool endOfLoop() override;
-    virtual void rewindInput() override;
-    virtual void prepareForNextLoop() override;
-    virtual bool shouldWeCloseOutput() const override;
+    void startingNewLoop();
+    bool endOfLoop();
+    void rewindInput();
+    void prepareForNextLoop();
+    bool shouldWeCloseOutput() const;
 
-    virtual void doErrorStuff() override;
+    void doErrorStuff();
 
-    virtual void beginRun(statemachine::Run const& run) override;
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) override;
+    void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
+    void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
+    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
+    
+    InputSource::ItemType processLumis(std::shared_ptr<void> const& iRunResource);
+    void endUnfinishedLumi();
+    
+    void beginLumiAsync(edm::IOVSyncValue const& iSyncValue,
+                        std::shared_ptr<void> const& iRunResource,
+                        edm::WaitingTaskHolder iHolder);
+    void continueLumiAsync(edm::WaitingTaskHolder iHolder);
+    
+    void globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
+    void streamEndLumiAsync(edm::WaitingTaskHolder iTask,
+                            unsigned int iStreamIndex,
+                            std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus);
+    std::pair<ProcessHistoryID,RunNumber_t> readRun();
+    std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
+    void readLuminosityBlock(LuminosityBlockProcessingStatus&);
+    int readAndMergeLumi(LuminosityBlockProcessingStatus&);
+    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run, MergeableRunProductMetadata const*);
+    void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
+    void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
+    void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
-    virtual void beginLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
-    virtual void endLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi, bool cleaningUpAfterException) override;
+    bool shouldWeStop() const;
 
-    virtual statemachine::Run readRun() override;
-    virtual statemachine::Run readAndMergeRun() override;
-    virtual int readLuminosityBlock() override;
-    virtual int readAndMergeLumi() override;
-    virtual void writeRun(statemachine::Run const& run) override;
-    virtual void deleteRunFromCache(statemachine::Run const& run) override;
-    virtual void writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
-    virtual void deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) override;
+    void setExceptionMessageFiles(std::string& message);
+    void setExceptionMessageRuns(std::string& message);
+    void setExceptionMessageLumis(std::string& message);
 
-    virtual void readAndProcessEvent() override;
-    virtual bool shouldWeStop() const override;
-
-    virtual void setExceptionMessageFiles(std::string& message) override;
-    virtual void setExceptionMessageRuns(std::string& message) override;
-    virtual void setExceptionMessageLumis(std::string& message) override;
-
-    virtual bool alreadyHandlingException() const override;
-
-    //returns 'true' if this was a child and we should continue processing
-    bool forkProcess(std::string const& jobReportFile);
+    bool setDeferredException(std::exception_ptr);
 
   private:
     //------------------------------------------------------------------
@@ -230,19 +251,11 @@ namespace edm {
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
-    void terminateMachine(std::unique_ptr<statemachine::Machine>);
-    std::unique_ptr<statemachine::Machine> createStateMachine();
-
-    void setupSignal();
-
-    void possiblyContinueAfterForkChildFailure();
-    
     bool readNextEventForStream(unsigned int iStreamIndex,
-                                     std::atomic<bool>* finishedProcessingEvents);
+                                LuminosityBlockProcessingStatus& iLumiStatus);
 
-    void handleNextEventForStreamAsync(WaitingTask* iTask,
-                                       unsigned int iStreamIndex,
-                                     std::atomic<bool>* finishedProcessingEvents);
+    void handleNextEventForStreamAsync(WaitingTaskHolder iTask,
+                                       unsigned int iStreamIndex);
 
     
     //read the next event using Stream iStreamIndex
@@ -251,6 +264,9 @@ namespace edm {
     //process the already read event using Stream iStreamIndex
     void processEventAsync(WaitingTaskHolder iHolder,
                            unsigned int iStreamIndex);
+
+    void processEventAsyncImpl(WaitingTaskHolder iHolder,
+                               unsigned int iStreamIndex);
 
     //returns true if an asynchronous stop was requested
     bool checkForAsyncStopRequest(StatusCode&);
@@ -278,13 +294,21 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
+    InputSource::ItemType lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
+    edm::SerialTaskQueue iovQueue_;
     std::unique_ptr<ExceptionToActionTable const>          act_table_;
     std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
+    MergeableRunProductProcesses mergeableRunProductProcesses_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
+    std::vector<edm::SerialTaskQueue> streamQueues_;
+    std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;
+    std::vector<std::shared_ptr<LuminosityBlockProcessingStatus>> streamLumiStatus_;
+    std::atomic<unsigned int> streamLumiActive_{0}; //works as guard for streamLumiStatus
+    
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
@@ -300,26 +324,17 @@ namespace edm {
     PrincipalCache                                principalCache_;
     bool                                          beginJobCalled_;
     bool                                          shouldWeStop_;
-    bool                                          stateMachineWasInErrorState_;
-    std::string                                   fileMode_;
-    std::string                                   emptyRunLumiMode_;
+    bool                                          fileModeNoMerge_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
-    bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
     bool                                          looperBeginJobRun_;
     bool                                          forceESCacheClearOnNewRun_;
-
-    int                                           numberOfForkedChildren_;
-    unsigned int                                  numberOfSequentialEventsPerChild_;
-    bool                                          setCpuAffinity_;
-    bool                                          continueAfterChildFailure_;
     
     PreallocationConfiguration                    preallocations_;
     
     bool                                          asyncStopRequestedWhileProcessingEvents_;
-    InputSource::ItemType                         nextItemTypeFromProcessingEvents_;
     StatusCode                                    asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_=true;
     

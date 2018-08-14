@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -23,8 +24,11 @@
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/streamTransitionAsync.h"
+#include "FWCore/Framework/src/globalTransitionAsync.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -43,6 +47,7 @@ namespace edm {
                          std::shared_ptr<ProductRegistry const> parentProductRegistry,
                          std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
+                         SubProcessParentageHelper const& parentSubProcessParentageHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
@@ -117,11 +122,13 @@ namespace edm {
     auto subProcessVParameterSet = popSubProcessVParameterSet(*processParameterSet_);
     bool hasSubProcesses = subProcessVParameterSet.size() != 0ull;
 
+    // Validates the parameters in the 'options', 'maxEvents', and 'maxLuminosityBlocks'
+    // top level parameter sets. Default values are also set in here if the
+    // parameters were not explicitly set.
+    validateTopLevelParameterSets(processParameterSet_.get());
+
     ScheduleItems items(*parentProductRegistry, *this);
     actReg_ = items.actReg_;
-
-    ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
-    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     //initialize the services
     ServiceToken iToken;
@@ -141,7 +148,7 @@ namespace edm {
     items.initMisc(*processParameterSet_);
 
     // intialize the event setup provider
-    esp_ = esController.makeProvider(*processParameterSet_);
+    esp_ = esController.makeProvider(*processParameterSet_, actReg_.get());
 
     branchIDListHelper_ = items.branchIDListHelper();
     updateBranchIDListHelper(parentBranchIDListHelper->branchIDLists());
@@ -155,6 +162,10 @@ namespace edm {
     // set the items
     act_table_ = std::move(items.act_table_);
     preg_ = items.preg();
+
+    subProcessParentageHelper_ = items.subProcessParentageHelper();
+    subProcessParentageHelper_->update(parentSubProcessParentageHelper, *parentProductRegistry);
+
     //CMS-THREADING this only works since Run/Lumis are synchronous so when principalCache asks for
     // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
     // another thread. We really need to change how this is done in the PrincipalCache.
@@ -176,6 +187,12 @@ namespace edm {
                                                  false /*not primary process*/);
       principalCache_.insert(ep);
     }
+    for(unsigned int index = 0; index < preallocConfig.numberOfLuminosityBlocks(); ++ index) {
+      auto lbpp = std::make_unique<LuminosityBlockPrincipal>(preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+index]),index,false);
+      principalCache_.insert(std::move(lbpp));
+    }
+      
+    inUseLumiPrincipals_.resize(preallocConfig.numberOfLuminosityBlocks());
 
     subProcesses_.reserve(subProcessVParameterSet.size());
     for(auto& subProcessPSet : subProcessVParameterSet) {
@@ -184,6 +201,7 @@ namespace edm {
                                  preg_,
                                  branchIDListHelper(),
                                  *thinnedAssociationsHelper_,
+                                 *subProcessParentageHelper_,
                                  esController,
                                  *items.actReg_,
                                  newToken,
@@ -218,6 +236,7 @@ namespace edm {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
     ServiceRegistry::Operate operate(serviceToken_);
+    schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
     pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
     //NOTE: this may throw
     checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, false);
@@ -360,11 +379,11 @@ namespace edm {
                           *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
                           principal.reader(),
                           deepCopyRetriever);
-    ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
+    ep.setLuminosityBlockPrincipal(inUseLumiPrincipals_[principal.luminosityBlockPrincipal().index()].get());
     propagateProducts(InEvent, principal, ep);
     
     WaitingTaskHolder finalizeEventTask( make_waiting_task(tbb::task::allocate_root(),
-                                                           [this,&ep,iHolder](std::exception_ptr const* iPtr) mutable
+                                                           [&ep,iHolder](std::exception_ptr const* iPtr) mutable
       {
         ep.clearEventPrincipal();
         if(iPtr) {
@@ -394,17 +413,13 @@ namespace edm {
     }
     
     schedule_->processOneEventAsync(std::move(afterProcessTask),
-                                    ep.streamID().value(),ep, esp_->eventSetup());
+                                    ep.streamID().value(),ep, esp_->eventSetup(),serviceToken_);
   }
 
   void
-  SubProcess::doBeginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doBeginRunAsync(WaitingTaskHolder iHolder, RunPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
-    beginRun(principal,ts);
-  }
 
-  void
-  SubProcess::beginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     auto aux = std::make_shared<RunAuxiliary>(principal.aux());
     aux->setProcessHistoryID(principal.processHistoryID());
     auto rpp = std::make_shared<RunPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyRunOffset_+principal.index()]),principal.index(),false);
@@ -412,43 +427,63 @@ namespace edm {
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     rpp->fillRunPrincipal(processHistoryRegistry, principal.reader());
     principalCache_.insert(rpp);
-
+    
     ProcessHistoryID const& parentInputReducedPHID = principal.reducedProcessHistoryID();
     ProcessHistoryID const& inputReducedPHID       = rpp->reducedProcessHistoryID();
-
+    
     parentToChildPhID_.insert(std::make_pair(parentInputReducedPHID,inputReducedPHID));
-
+    
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
-    schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts));
-    for_all(subProcesses_, [&rp, &ts](auto& subProcess){ subProcess.doBeginRun(rp, ts); });
+    beginGlobalTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       rp,
+                                       ts,
+                                       esp_->eventSetup(),
+                                       serviceToken_,
+                                       subProcesses_);
   }
 
+  
   void
-  SubProcess::doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    endRun(principal,ts,cleaningUpAfterException);
-  }
-
-  void
-  SubProcess::endRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+  SubProcess::doEndRunAsync(WaitingTaskHolder iHolder,
+                            RunPrincipal const& principal,
+                            IOVSyncValue const& ts,
+                            bool cleaningUpAfterException) {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
-    rp.setComplete();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-    schedule_->processOneGlobal<Traits>(rp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
-    for_all(subProcesses_, [&rp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doEndRun(rp, ts, cleaningUpAfterException); });
+    endGlobalTransitionAsync<Traits>(std::move(iHolder),
+                                     *schedule_,
+                                     rp,
+                                     ts,
+                                     esp_->eventSetup(),
+                                     serviceToken_,
+                                     subProcesses_,
+                                     cleaningUpAfterException);
   }
 
   void
-  SubProcess::writeRun(ProcessHistoryID const& parentPhID, int runNumber) {
+  SubProcess::writeRunAsync(edm::WaitingTaskHolder task, ProcessHistoryID const& parentPhID, int runNumber,
+                            MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     ServiceRegistry::Operate operate(serviceToken_);
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
-    schedule_->writeRun(principalCache_.runPrincipal(childPhID, runNumber), &processContext_);
-    for_all(subProcesses_, [&childPhID, runNumber](auto& subProcess){ subProcess.writeRun(childPhID, runNumber); });
+    
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,childPhID,runNumber, task, mergeableRunProductMetadata](std::exception_ptr const* iExcept) mutable {
+      if( iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for(auto& s: subProcesses_) {
+          s.writeRunAsync(task, childPhID, runNumber, mergeableRunProductMetadata);
+        }
+      }
+    });
+    schedule_->writeRunAsync(WaitingTaskHolder(subTasks),principalCache_.runPrincipal(childPhID, runNumber),
+                             &processContext_, actReg_.get(), mergeableRunProductMetadata);
   }
 
   void
@@ -461,61 +496,73 @@ namespace edm {
   }
 
   void
-  SubProcess::doBeginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doBeginLuminosityBlockAsync(WaitingTaskHolder iHolder, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
-    beginLuminosityBlock(principal,ts);
-  }
 
-  void
-  SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
-    auto aux = std::make_shared<LuminosityBlockAuxiliary>(principal.aux());
-    aux->setProcessHistoryID(principal.processHistoryID());
-    auto lbpp = std::make_shared<LuminosityBlockPrincipal>(aux, preg_, *processConfiguration_, &(historyAppenders_[historyLumiOffset_+principal.index()]),principal.index(),false);
-    auto & processHistoryRegistry = processHistoryRegistries_[historyLumiOffset_+principal.index()];
+    auto aux = principal.aux();
+    aux.setProcessHistoryID(principal.processHistoryID());
+    auto lbpp = principalCache_.getAvailableLumiPrincipalPtr();
+    lbpp->setAux(aux);
+    auto & processHistoryRegistry = processHistoryRegistries_[historyLumiOffset_+lbpp->index()];
+    inUseLumiPrincipals_[principal.index()] = lbpp;
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     lbpp->fillLuminosityBlockPrincipal(processHistoryRegistry, principal.reader());
     lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
-    principalCache_.insert(lbpp);
-    LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
+    LuminosityBlockPrincipal& lbp = *lbpp;
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
-    schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts));
-    for_all(subProcesses_, [&lbp, &ts](auto& subProcess){ subProcess.doBeginLuminosityBlock(lbp, ts); });
+    beginGlobalTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       lbp,
+                                       ts,
+                                       esp_->eventSetup(),
+                                       serviceToken_,
+                                       subProcesses_);
   }
 
   void
-  SubProcess::doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    endLuminosityBlock(principal,ts,cleaningUpAfterException);
-  }
-
-  void
-  SubProcess::endLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
-    lbp.setComplete();
+  SubProcess::doEndLuminosityBlockAsync(WaitingTaskHolder iHolder,LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    
+    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-    schedule_->processOneGlobal<Traits>(lbp, esp_->eventSetupForInstance(ts), cleaningUpAfterException);
-    for_all(subProcesses_, [&lbp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doEndLuminosityBlock(lbp, ts, cleaningUpAfterException); });
+    endGlobalTransitionAsync<Traits>(std::move(iHolder),
+                                     *schedule_,
+                                     lbp,
+                                     ts,
+                                     esp_->eventSetup(),
+                                     serviceToken_,
+                                     subProcesses_,
+                                     cleaningUpAfterException);
   }
 
+  
   void
-  SubProcess::writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber) {
+  SubProcess::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& principal) {
     ServiceRegistry::Operate operate(serviceToken_);
-    std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
-    assert(it != parentToChildPhID_.end());
-    auto const& childPhID = it->second;
-    schedule_->writeLumi(principalCache_.lumiPrincipal(childPhID, runNumber, lumiNumber), &processContext_);
-    for_all(subProcesses_, [&childPhID, runNumber, lumiNumber](auto& subProcess){ subProcess.writeLumi(childPhID, runNumber, lumiNumber); });
+
+    auto l =inUseLumiPrincipals_[principal.index()];
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,l, task](std::exception_ptr const* iExcept) mutable {
+      if( iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for(auto& s: subProcesses_) {
+          s.writeLumiAsync(task, *l);
+        }
+      }
+    });
+    schedule_->writeLumiAsync(WaitingTaskHolder(subTasks),*l, &processContext_, actReg_.get());
   }
 
   void
-  SubProcess::deleteLumiFromCache(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber) {
-    std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
-    assert(it != parentToChildPhID_.end());
-    auto const& childPhID = it->second;
-    principalCache_.deleteLumi(childPhID, runNumber, lumiNumber);
-    for_all(subProcesses_, [&childPhID, runNumber, lumiNumber](auto& subProcess){ subProcess.deleteLumiFromCache(childPhID, runNumber, lumiNumber); });
+  SubProcess::deleteLumiFromCache(LuminosityBlockPrincipal& principal) {
+    //release from list but stay around till end of routine
+    auto lb = std::move(inUseLumiPrincipals_[principal.index()]);
+    for(auto& s: subProcesses_) {
+      s.deleteLumiFromCache(*lb);
+    }
+    lb->clearPrincipal();
   }
 
   void
@@ -533,47 +580,74 @@ namespace edm {
   }
 
   void
-  SubProcess::doStreamBeginRun(unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    {
-      RunPrincipal& rp = *principalCache_.runPrincipalPtr();
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneStream<Traits>(id,rp, esp_->eventSetupForInstance(ts));
-      for_all(subProcesses_, [id, &rp, &ts](auto& subProcess){ subProcess.doStreamBeginRun(id,rp, ts); });
-    }
+  SubProcess::doStreamBeginRunAsync(WaitingTaskHolder iHolder,
+                                    unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts) {
+    typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
+
+    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+
+    beginStreamTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       id,
+                                       rp,
+                                       ts,
+                                       esp_->eventSetup(),
+                                       serviceToken_,
+                                       subProcesses_);
+    
+  }
+
+  
+  void
+  SubProcess::doStreamEndRunAsync(WaitingTaskHolder iHolder,
+                                  unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    RunPrincipal& rp = *principalCache_.runPrincipalPtr();
+    typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
+    
+    endStreamTransitionAsync<Traits>(std::move(iHolder),
+                                      *schedule_,
+                                       id,
+                                       rp,
+                                       ts,
+                                       esp_->eventSetup(),
+                                       serviceToken_,
+                                       subProcesses_,
+                                     cleaningUpAfterException);
   }
 
   void
-  SubProcess::doStreamEndRun(unsigned int id, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    {
-      RunPrincipal& rp = *principalCache_.runPrincipalPtr();
-      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneStream<Traits>(id,rp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
-      for_all(subProcesses_, [id, &rp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doStreamEndRun(id,rp, ts,cleaningUpAfterException); });
-    }
+  SubProcess::doStreamBeginLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                                unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+    
+    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
+    
+    beginStreamTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       id,
+                                       lbp,
+                                       ts,
+                                       esp_->eventSetup(),
+                                       serviceToken_,
+                                       subProcesses_);
   }
 
+  
+  
   void
-  SubProcess::doStreamBeginLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    {
-      LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
-      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-      schedule_->processOneStream<Traits>(id,lbp, esp_->eventSetupForInstance(ts));
-      for_all(subProcesses_, [id, &lbp, &ts](auto& subProcess){ subProcess.doStreamBeginLuminosityBlock(id,lbp, ts); });
-    }
-  }
-
-  void
-  SubProcess::doStreamEndLuminosityBlock(unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    ServiceRegistry::Operate operate(serviceToken_);
-    {
-      LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
-      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
-      schedule_->processOneStream<Traits>(id,lbp, esp_->eventSetupForInstance(ts),cleaningUpAfterException);
-      for_all(subProcesses_, [id, &lbp, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doStreamEndLuminosityBlock(id,lbp, ts,cleaningUpAfterException); });
-    }
+  SubProcess::doStreamEndLuminosityBlockAsync(WaitingTaskHolder iHolder,
+                                              unsigned int id, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    LuminosityBlockPrincipal& lbp = *inUseLumiPrincipals_[principal.index()];
+    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
+    endStreamTransitionAsync<Traits>(std::move(iHolder),
+                                       *schedule_,
+                                       id,
+                                       lbp,
+                                       ts,
+                                       esp_->eventSetup(),
+                                       serviceToken_,
+                                       subProcesses_,
+                                       cleaningUpAfterException);
   }
 
 

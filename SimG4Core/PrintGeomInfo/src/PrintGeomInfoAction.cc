@@ -48,23 +48,23 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   nchar = name.find("*");
   name.assign(name,0,nchar);
   names = p.getUntrackedParameter<std::vector<std::string> >("Names");
-  std::cout << "PrintGeomInfoAction:: initialised with verbosity levels:"
-	    << " Summary   " << _dumpSummary << " LVTree   " << _dumpLVTree
-	    << " LVList    " << _dumpLVList  << " Material " << _dumpMaterial
-	    << "\n                                                        "
-	    << " LV        " << _dumpLV      << " Solid    " << _dumpSolid 
-	    << " Attribs   " << _dumpAtts
-	    << "\n                                                        "
-	    << " PV        " << _dumpPV      << " Rotation " << _dumpRotation
-	    << " Replica   " << _dumpReplica
-	    << "\n                                                        "
-	    << " Touchable " << _dumpTouch << " for names (0-" << nchar 
-	    << ") = " << name 
-	    << "\n                                                        "
-	    << " Sensitive " << _dumpSense << " for " << names.size()
-	    << " namess";
-  for (unsigned int i=0; i<names.size(); i++) std::cout << " " << names[i];
-  std::cout << std::endl;
+  G4cout << "PrintGeomInfoAction:: initialised with verbosity levels:"
+	 << " Summary   " << _dumpSummary << " LVTree   " << _dumpLVTree
+	 << " LVList    " << _dumpLVList  << " Material " << _dumpMaterial
+	 << "\n                                                        "
+	 << " LV        " << _dumpLV      << " Solid    " << _dumpSolid 
+	 << " Attribs   " << _dumpAtts
+	 << "\n                                                        "
+	 << " PV        " << _dumpPV      << " Rotation " << _dumpRotation
+	 << " Replica   " << _dumpReplica
+	 << "\n                                                        "
+	 << " Touchable " << _dumpTouch << " for names (0-" << nchar 
+	 << ") = " << name 
+	 << "\n                                                        "
+	 << " Sensitive " << _dumpSense << " for " << names.size()
+	 << " namess";
+  for (unsigned int i=0; i<names.size(); i++) G4cout << " " << names[i];
+  G4cout << G4endl;
 }
  
 PrintGeomInfoAction::~PrintGeomInfoAction() {}
@@ -75,18 +75,15 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
     edm::ESTransientHandle<DDCompactView> pDD;
     (*job)()->get<IdealGeometryRecord>().get(pDD);
 
-    std::cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes " 
-	      << "for " << names.size() << " Readout Units" << std::endl;
+    G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes " 
+	   << "for " << names.size() << " Readout Units" << G4endl;
     for (unsigned int i=0; i<names.size(); i++) {
       std::string attribute = "ReadOutName";
       std::string sd        = names[i];
-      DDSpecificsFilter filter;
-      DDValue           ddv(attribute,sd,0);
-      filter.setCriteria(ddv,DDCompOp::equals);
-      DDFilteredView fv(*pDD);
-      std::cout << "PrintGeomInfoAction:: Get Filtered view for " 
-		<< attribute << " = " << sd << std::endl;
-      fv.addFilter(filter);
+      DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
+      DDFilteredView fv(*pDD,filter);
+      G4cout << "PrintGeomInfoAction:: Get Filtered view for " 
+	     << attribute << " = " << sd << G4endl;
       bool dodet = fv.firstChild();
       
       std::string spaces = spacesFromLeafDepth(1);
@@ -98,11 +95,11 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
 	std::vector<int> copy = fv.copyNumbers();
 
 	unsigned int leafDepth = copy.size();
-	std::cout << leafDepth << spaces << "### VOLUME = " << lvname 
-		  << " Copy No";
-	for (int k=leafDepth-1; k>=0; k--) std::cout << " " << copy[k];
-	std::cout << " Centre at " << tran << " (r = " << tran.Rho()
-		  << ", phi = " << tran.phi()/deg << ")" << std::endl;
+	G4cout << leafDepth << spaces << "### VOLUME = " << lvname 
+	       << " Copy No";
+	for (int k=leafDepth-1; k>=0; k--) G4cout << " " << copy[k];
+	G4cout << " Centre at " << tran << " (r = " << tran.Rho()
+	       << ", phi = " << tran.phi()/deg << ")" << G4endl;
 	dodet = fv.next();
       }
     }
@@ -113,53 +110,53 @@ void PrintGeomInfoAction::update(const BeginOfRun * run) {
 
   theTopPV = getTopPV();
   
-  if (_dumpSummary)  dumpSummary(std::cout);
-  if (_dumpLVTree)   dumpG4LVTree(std::cout);
+  if (_dumpSummary)  dumpSummary(G4cout);
+  if (_dumpLVTree)   dumpG4LVTree(G4cout);
     
   //---------- Dump list of objects of each class with detail of parameters
-  if (_dumpMaterial) dumpMaterialList(std::cout);
-  if (_dumpLVList)   dumpG4LVList(std::cout);
+  if (_dumpMaterial) dumpMaterialList(G4cout);
+  if (_dumpLVList)   dumpG4LVList(G4cout);
 
   //---------- Dump LV and PV information
-  if (_dumpLV || _dumpPV || _dumpTouch) dumpHierarchyTreePVLV(std::cout);
+  if (_dumpLV || _dumpPV || _dumpTouch) dumpHierarchyTreePVLV(G4cout);
 }
 
 void PrintGeomInfoAction::dumpSummary(std::ostream & out) {
 
   //---------- Dump number of objects of each class
-  out << " @@@@@@@@@@@@@@@@@@ Dumping G4 geometry objects Summary " << std::endl;
-  if (theTopPV == 0) {
-    out << " No volume created " << std::endl;
+  out << " @@@@@@@@@@@@@@@@@@ Dumping G4 geometry objects Summary " << G4endl;
+  if (theTopPV == nullptr) {
+    out << " No volume created " << G4endl;
     return;
   }
-  out << " @@@ Geometry built inside world volume: " << theTopPV->GetName() << std::endl;
+  out << " @@@ Geometry built inside world volume: " << theTopPV->GetName() << G4endl;
   // Get number of solids (< # LV if several LV share a solid)
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   std::set<G4VSolid *> theSolids;
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
     theSolids.insert((*lvcite)->GetSolid());
-  out << " Number of G4VSolid's: " << theSolids.size() << std::endl;
-  out << " Number of G4LogicalVolume's: " << lvs->size() << std::endl;
+  out << " Number of G4VSolid's: " << theSolids.size() << G4endl;
+  out << " Number of G4LogicalVolume's: " << lvs->size() << G4endl;
   const G4PhysicalVolumeStore * pvs = G4PhysicalVolumeStore::GetInstance();
-  out << " Number of G4VPhysicalVolume's: " << pvs->size() << std::endl;
-  out << " Number of Touchable's: " << countNoTouchables() << std::endl;
+  out << " Number of G4VPhysicalVolume's: " << pvs->size() << G4endl;
+  out << " Number of Touchable's: " << countNoTouchables() << G4endl;
   const G4MaterialTable * matTab = G4Material::GetMaterialTable();
-  out << " Number of G4Material's: " << matTab->size() << std::endl;
+  out << " Number of G4Material's: " << matTab->size() << G4endl;
 }
 
 void PrintGeomInfoAction::dumpG4LVList(std::ostream & out) {
 
-  out << " @@@@@@@@@@@@@@@@ DUMPING G4LogicalVolume's List  " << std::endl;
+  out << " @@@@@@@@@@@@@@@@ DUMPING G4LogicalVolume's List  " << G4endl;
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume*>::const_iterator lvcite;
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
-    out << "LV:" << (*lvcite)->GetName() << "\tMaterial: " << (*lvcite)->GetMaterial()->GetName() << std::endl;
+    out << "LV:" << (*lvcite)->GetName() << "\tMaterial: " << (*lvcite)->GetMaterial()->GetName() << G4endl;
 }
 
 void PrintGeomInfoAction::dumpG4LVTree(std::ostream & out) {
 
-  out << " @@@@@@@@@@@@@@@@ DUMPING G4LogicalVolume's Tree  " << std::endl;
+  out << " @@@@@@@@@@@@@@@@ DUMPING G4LogicalVolume's Tree  " << G4endl;
   G4LogicalVolume * lv = getTopLV(); 
   dumpG4LVLeaf(lv,0,1,out);
 }
@@ -168,17 +165,17 @@ void PrintGeomInfoAction::dumpMaterialList(std::ostream & out) {
 
   out << " @@@@@@@@@@@@@@@@ DUMPING G4Material List ";
   const G4MaterialTable * matTab = G4Material::GetMaterialTable();
-  out << " with " << matTab->size() << " materials " << std::endl;
+  out << " with " << matTab->size() << " materials " << G4endl;
   std::vector<G4Material*>::const_iterator matite;
   for (matite = matTab->begin(); matite != matTab->end(); matite++)
-    out << "Material: " << (*matite) << std::endl;
+    out << "Material: " << (*matite) << G4endl;
 }
 
 void PrintGeomInfoAction::dumpG4LVLeaf(G4LogicalVolume * lv, unsigned int leafDepth, unsigned int count, std::ostream & out) {
 
   for (unsigned int ii=0; ii < leafDepth; ii++) out << "  ";
   out << " LV:(" << leafDepth << ") " << lv->GetName() << " (" << count
-      << ")" << std::endl;
+      << ")" << G4endl;
   //--- If a volume is placed n types as daughter of this LV, it should only be counted once
   std::map<G4LogicalVolume*, unsigned int> lvCount;
   std::map<G4LogicalVolume*, unsigned int>::const_iterator cite;
@@ -261,7 +258,7 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, s
   if (_dumpLV) { 
     out << leafDepth << spaces << "$$$ VOLUME = " << lv->GetName()
 	<< "  Solid: " << lv->GetSolid()->GetName() << "  MATERIAL: "
-	<< lv->GetMaterial()->GetName() << std::endl;
+	<< lv->GetMaterial()->GetName() << G4endl;
     if (_dumpSolid)
       dumpSolid(lv->GetSolid(), leafDepth, out); //----- dump solid
 
@@ -270,45 +267,45 @@ void PrintGeomInfoAction::dumpLV(G4LogicalVolume * lv, unsigned int leafDepth, s
     if (_dumpAtts) {
       //--- Visualisation attributes
       const G4VisAttributes * fVA = lv->GetVisAttributes();
-      if (fVA!=0) {
-	out <<  spaces << "  VISUALISATION ATTRIBUTES: " << std::endl;
-	out <<  spaces << "    IsVisible " << fVA->IsVisible() << std::endl;
-	out <<  spaces << "    IsDaughtersInvisible " << fVA->IsDaughtersInvisible() << std::endl;
-	out <<  spaces << "    Colour " << fVA->GetColour() << std::endl;
-	out <<  spaces << "    LineStyle " << fVA->GetLineStyle() << std::endl;
-	out <<  spaces << "    LineWidth " << fVA->GetLineWidth() << std::endl;
-	out <<  spaces << "    IsForceDrawingStyle " << fVA->IsForceDrawingStyle() << std::endl;
-	out <<  spaces << "    ForcedDrawingStyle " << fVA->GetForcedDrawingStyle() << std::endl;
+      if (fVA!=nullptr) {
+	out <<  spaces << "  VISUALISATION ATTRIBUTES: " << G4endl;
+	out <<  spaces << "    IsVisible " << fVA->IsVisible() << G4endl;
+	out <<  spaces << "    IsDaughtersInvisible " << fVA->IsDaughtersInvisible() << G4endl;
+	out <<  spaces << "    Colour " << fVA->GetColour() << G4endl;
+	out <<  spaces << "    LineStyle " << fVA->GetLineStyle() << G4endl;
+	out <<  spaces << "    LineWidth " << fVA->GetLineWidth() << G4endl;
+	out <<  spaces << "    IsForceDrawingStyle " << fVA->IsForceDrawingStyle() << G4endl;
+	out <<  spaces << "    ForcedDrawingStyle " << fVA->GetForcedDrawingStyle() << G4endl;
       }    
     
       //--- User Limits
       G4UserLimits * fUL = lv->GetUserLimits();
       G4Track dummy;
-      if (fUL!=0) {
-	out <<  spaces << "    MaxAllowedStep " << fUL->GetMaxAllowedStep(dummy) << std::endl;
-	out <<  spaces << "    UserMaxTrackLength " << fUL->GetUserMaxTrackLength(dummy) << std::endl;
-	out <<  spaces << "    UserMaxTime " << fUL->GetUserMaxTime(dummy) << std::endl;
-	out <<  spaces << "    UserMinEkine " << fUL->GetUserMinEkine(dummy) << std::endl;
-	out <<  spaces << "    UserMinRange " << fUL->GetUserMinRange(dummy) << std::endl;
+      if (fUL!=nullptr) {
+	out <<  spaces << "    MaxAllowedStep " << fUL->GetMaxAllowedStep(dummy) << G4endl;
+	out <<  spaces << "    UserMaxTrackLength " << fUL->GetUserMaxTrackLength(dummy) << G4endl;
+	out <<  spaces << "    UserMaxTime " << fUL->GetUserMaxTime(dummy) << G4endl;
+	out <<  spaces << "    UserMinEkine " << fUL->GetUserMinEkine(dummy) << G4endl;
+	out <<  spaces << "    UserMinRange " << fUL->GetUserMinRange(dummy) << G4endl;
       }
     
       //--- other LV info
       if (lv->GetSensitiveDetector()) 
-	out << spaces << "  IS SENSITIVE DETECTOR " << std::endl;
+	out << spaces << "  IS SENSITIVE DETECTOR " << G4endl;
       if (lv->GetFieldManager()) 
-	out << spaces << "  FIELD ON " << std::endl;
+	out << spaces << "  FIELD ON " << G4endl;
 
       // Pointer (possibly NULL) to optimisation info objects.
       out <<  spaces  
 	  << "        Quality for optimisation, average number of voxels to be spent per content " 
-	  << lv->GetSmartless() << std::endl;
+	  << lv->GetSmartless() << G4endl;
 
       // Pointer (possibly NULL) to G4FastSimulationManager object.
       if (lv->GetFastSimulationManager()) 
 	out << spaces << "     Logical Volume is an envelope for a FastSimulationManager " 
-	    << std::endl;
+	    << G4endl;
       out << spaces << "     Weight used in the event biasing technique = " 
-	  << lv->GetBiasWeight() << std::endl;
+	  << lv->GetBiasWeight() << G4endl;
     } 
   }
 }	
@@ -327,29 +324,29 @@ void PrintGeomInfoAction::dumpPV(G4VPhysicalVolume * pv, unsigned int leafDepth,
   }
   if (!pv->IsReplicated()) {
     if (_dumpPV) {
-      if(pv->GetRotation() == 0) out << " with no rotation" << std::endl;
-      else  if(!_dumpRotation)   out << " with rotation" << std::endl; //just rotation name
-      else                       out << " with rotation " << *(pv->GetRotation()) << std::endl;
+      if(pv->GetRotation() == nullptr) out << " with no rotation" << G4endl;
+      else  if(!_dumpRotation)   out << " with rotation" << G4endl; //just rotation name
+      else                       out << " with rotation " << *(pv->GetRotation()) << G4endl;
     }
   } else {
     if (_dumpReplica ) {
-      out << spaces << "    It is replica: " << std::endl;
+      out << spaces << "    It is replica: " << G4endl;
       EAxis axis; 
       int nReplicas; 
       double width; 
       double offset; 
       bool consuming;
       pv->GetReplicationData(axis, nReplicas, width, offset, consuming);
-      out << spaces << "     axis " << axis << std::endl
-	  << spaces << "     nReplicas " << nReplicas << std::endl;
-      if (pv->GetParameterisation() != 0) 
-	out << spaces << "    It is parameterisation " << std::endl;
+      out << spaces << "     axis " << axis << G4endl
+	  << spaces << "     nReplicas " << nReplicas << G4endl;
+      if (pv->GetParameterisation() != nullptr) 
+	out << spaces << "    It is parameterisation " << G4endl;
       else 
-	out << spaces << "     width " << width << std::endl
-	    << spaces << "     offset " << offset << std::endl
-	    << spaces << "     consuming" <<  consuming << std::endl;
-      if (pv->GetParameterisation() != 0) 
-	out << spaces << "    It is parameterisation " << std::endl;
+	out << spaces << "     width " << width << G4endl
+	    << spaces << "     offset " << offset << G4endl
+	    << spaces << "     consuming" <<  consuming << G4endl;
+      if (pv->GetParameterisation() != nullptr) 
+	out << spaces << "    It is parameterisation " << G4endl;
     }
   }
 }
@@ -372,7 +369,7 @@ void PrintGeomInfoAction::dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDep
 	<< " Copy No " << pv->GetCopyNo() << " in " << mother
 	<< " global position of centre " << globalpoint << " (r = " 
 	<<  globalpoint.perp() << ", phi = " <<  globalpoint.phi()/deg
-	<< ")" << std::endl;
+	<< ")" << G4endl;
 
   int NoDaughters = lv->GetNoDaughters();
   while ((NoDaughters--)>0) {
@@ -394,7 +391,7 @@ std::string PrintGeomInfoAction::spacesFromLeafDepth(unsigned int leafDepth) {
 void PrintGeomInfoAction::dumpSolid(G4VSolid * sol, unsigned int leafDepth, std::ostream & out) {
 
   std::string spaces = spacesFromLeafDepth(leafDepth);
-  out << spaces << *(sol) << std::endl;
+  out << spaces << *(sol) << G4endl;
 }
 
 G4VPhysicalVolume * PrintGeomInfoAction::getTopPV() {

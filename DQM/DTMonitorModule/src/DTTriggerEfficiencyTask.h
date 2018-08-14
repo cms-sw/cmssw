@@ -50,7 +50,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   DTTriggerEfficiencyTask(const edm::ParameterSet& ps );
 
   /// Destructor
-  virtual ~DTTriggerEfficiencyTask();
+  ~DTTriggerEfficiencyTask() override;
 
  protected:
 
@@ -75,7 +75,6 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
 
  private:
 

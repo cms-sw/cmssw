@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCUCCSDat::DCUCCSDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_m1_vdd1 = 0;
   m_m2_vdd1 = 0;
@@ -50,8 +50,8 @@ void DCUCCSDat::prepareWrite()
 			":m2_vinj, :m1_vcc, :m2_vcc, :m1_dcutemp, "
 			":m2_dcutemp, :ccstemplow, :ccstemphigh)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCCSDat::prepareWrite():  " + 
-			     e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCCSDat::prepareWrite():  ") + 
+			     getOraMessage(&e)));
   }
 }
 
@@ -93,7 +93,7 @@ void DCUCCSDat::writeDB(const EcalLogicID* ecid, const DCUCCSDat* item,
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCCSDat::writeDB():  " + e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCCSDat::writeDB():  ") + getOraMessage(&e)));
   }
 }
 
@@ -129,12 +129,12 @@ void DCUCCSDat::fetchData(std::map< EcalLogicID, DCUCCSDat >* fillMap,
     std::pair< EcalLogicID, DCUCCSDat > p;
     DCUCCSDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setVDD(rset->getFloat(7), rset->getFloat(9), rset->getFloat(8),
 		  rset->getFloat(10));
@@ -146,7 +146,7 @@ void DCUCCSDat::fetchData(std::map< EcalLogicID, DCUCCSDat >* fillMap,
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCCSDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCCSDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -271,6 +271,6 @@ void DCUCCSDat::writeArrayDB(const std::map< EcalLogicID, DCUCCSDat >* data, DCU
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCUCCSDat::writeArrayDB():  " + e.getMessage()));
+    throw(std::runtime_error(std::string("DCUCCSDat::writeArrayDB():  ") + getOraMessage(&e)));
   }
 }

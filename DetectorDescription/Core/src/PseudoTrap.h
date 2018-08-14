@@ -13,22 +13,22 @@ namespace DDI {
   {
   public:
     PseudoTrap(double x1, double x2, double y1, double y2, double z, double radius, bool minusZ)
-     : Solid(ddpseudotrap)
+     : Solid(DDSolidShape::ddpseudotrap)
      {
-       p_.push_back(x1);
-       p_.push_back(x2);
-       p_.push_back(y1);
-       p_.push_back(y2);
-       p_.push_back(z);
-       p_.push_back(radius);
-       p_.push_back(minusZ);
+       p_.emplace_back(x1);
+       p_.emplace_back(x2);
+       p_.emplace_back(y1);
+       p_.emplace_back(y2);
+       p_.emplace_back(z);
+       p_.emplace_back(radius);
+       p_.emplace_back(minusZ);
      }
     
-    ~PseudoTrap(){ }
+    ~PseudoTrap() override{ }
     
-    double volume() const { return -1; }
+    double volume() const override { return -1; }
     
-    void stream(std::ostream & os) const;
+    void stream(std::ostream & os) const override;
   };
    
 }

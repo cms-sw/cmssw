@@ -141,9 +141,12 @@ namespace cond {
       createTable( m_schema, descr.get() );
     }
     
-    size_t IOV::Table::selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups ){
+    size_t IOV::Table::getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, std::vector<cond::Time_t>& groups ){
       Query< SINCE_GROUP > q( m_schema, true );
       q.addCondition<TAG_NAME>( tag );
+      if( !snapshotTime.is_not_a_date_time() ){
+	q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
+      }
       q.groupBy(SINCE_GROUP::group());
       q.addOrderClause<SINCE_GROUP>();
       for( auto row : q ){
@@ -151,44 +154,17 @@ namespace cond {
       }
       return q.retrievedRows();
     }
-    
-    size_t IOV::Table::selectSnapshotGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, std::vector<cond::Time_t>& groups ){
-      Query< SINCE_GROUP > q( m_schema, true );
-      q.addCondition<TAG_NAME>( tag );
-      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
-      q.groupBy(SINCE_GROUP::group());
-      q.addOrderClause<SINCE_GROUP>();
-      for( auto row : q ){
-	groups.push_back(std::get<0>(row));
-      }
-      return q.retrievedRows();
-    }
-    
-    size_t IOV::Table::selectLatestByGroup( const std::string& tag, cond::Time_t lowerSinceGroup, cond::Time_t upperSinceGroup , 
-					    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+
+    size_t IOV::Table::select( const std::string& tag, cond::Time_t lowerSinceGroup, cond::Time_t upperSinceGroup, 
+			       const boost::posix_time::ptime& snapshotTime, 
+			       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       Query< SINCE, PAYLOAD_HASH > q( m_schema );
       q.addCondition<TAG_NAME>( tag );
       if( lowerSinceGroup > 0 ) q.addCondition<SINCE>( lowerSinceGroup, ">=" );
       if( upperSinceGroup < cond::time::MAX_VAL ) q.addCondition<SINCE>( upperSinceGroup, "<" );
-      q.addOrderClause<SINCE>();
-      q.addOrderClause<INSERTION_TIME>( false );
-      size_t initialSize = iovs.size();
-      for( auto row : q ){
-	// starting from the second iov in the array, skip the rows with older timestamp
-	if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
-	iovs.push_back( row );
+      if( !snapshotTime.is_not_a_date_time() ){
+	q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       }
-      return iovs.size()-initialSize;
-    }
-    
-    size_t IOV::Table::selectSnapshotByGroup( const std::string& tag, cond::Time_t lowerSinceGroup, cond::Time_t upperSinceGroup, 
-					      const boost::posix_time::ptime& snapshotTime, 
-					      std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      if( lowerSinceGroup > 0 ) q.addCondition<SINCE>( lowerSinceGroup, ">=" );
-      if( upperSinceGroup < cond::time::MAX_VAL ) q.addCondition<SINCE>( upperSinceGroup, "<" );
-      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       q.addOrderClause<SINCE>();
       q.addOrderClause<INSERTION_TIME>( false );
       size_t initialSize = iovs.size();
@@ -200,55 +176,12 @@ namespace cond {
       return iovs.size()-initialSize;
     }
     
-    size_t IOV::Table::selectLatest( const std::string& tag, 
-				     std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    bool IOV::Table::getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ){
       Query< SINCE, PAYLOAD_HASH > q( m_schema );
       q.addCondition<TAG_NAME>( tag );
-      q.addOrderClause<SINCE>();
-      q.addOrderClause<INSERTION_TIME>( false );
-      size_t initialSize = iovs.size();
-      for ( auto row : q ) {
-	// starting from the second iov in the array, skip the rows with older timestamp
-	if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
-	iovs.push_back( row );
+      if( !snapshotTime.is_not_a_date_time() ){
+	q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       }
-      return iovs.size()-initialSize;
-    }
-
-    size_t IOV::Table::selectSnapshot( const std::string& tag,
-                                       const boost::posix_time::ptime& snapshotTime,
-                                       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
-      q.addOrderClause<SINCE>();
-      q.addOrderClause<INSERTION_TIME>( false );
-      size_t initialSize = iovs.size();
-      for ( auto row : q ) {
-        // starting from the second iov in the array, skip the rows with older timestamp                                                                            
-        if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
-        iovs.push_back( row );
-      }
-      return iovs.size()-initialSize;
-    }
-
-    bool IOV::Table::getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addOrderClause<SINCE>( false );
-      q.addOrderClause<INSERTION_TIME>( false );
-      for ( auto row : q ) {
-	since = std::get<0>(row);
-	hash = std::get<1>(row);
-	return true;
-      }
-      return false;
-    }
-
-    bool IOV::Table::getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       q.addOrderClause<SINCE>( false );
       q.addOrderClause<INSERTION_TIME>( false );
       for ( auto row : q ) {
@@ -259,25 +192,49 @@ namespace cond {
       return false;
     }
 
-    bool IOV::Table::getSize( const std::string& tag, size_t& size ){
+    bool IOV::Table::getSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ){
       Query< SEQUENCE_SIZE > q( m_schema );
       q.addCondition<TAG_NAME>( tag );
+      if( !snapshotTime.is_not_a_date_time() ){
+	q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
+      }
       for ( auto row : q ) {
 	size = std::get<0>(row);
 	return true;
       }
       return false;
     }
-    
-    bool IOV::Table::getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ){
-      Query< SEQUENCE_SIZE > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
-      for ( auto row : q ) {
-	size = std::get<0>(row);
-	return true;
+
+    bool IOV::Table::getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+			       const boost::posix_time::ptime& snapshotTime, 
+			       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+      Query< MAX_SINCE > q0( m_schema );
+      q0.addCondition<TAG_NAME>( tag );
+      q0.addCondition<SINCE>( begin, "<=");
+      if( !snapshotTime.is_not_a_date_time() ){
+	q0.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
       }
-      return false;
+      cond::Time_t lower_since = 0;
+      for( auto row: q0 ){
+	lower_since = std::get<0>( row );
+      }
+      if ( !lower_since ) return false;
+      Query< SINCE, PAYLOAD_HASH > q1( m_schema );
+      q1.addCondition<TAG_NAME>( tag );
+      q1.addCondition<SINCE>( lower_since, ">=");
+      if( !snapshotTime.is_not_a_date_time() ){
+	q1.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
+      }
+      q1.addCondition<SINCE>( end, "<=");
+      q1.addOrderClause<SINCE>();
+      q1.addOrderClause<INSERTION_TIME>( false );
+      size_t initialSize = iovs.size();
+      for( auto row: q1 ){
+	// starting from the second iov in the array, skip the rows with older timestamp
+	if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
+	iovs.push_back( row );
+      }
+      return iovs.size()-initialSize;
     }
 
     void IOV::Table::insertOne( const std::string& tag, 
@@ -448,7 +405,7 @@ namespace cond {
     IPayloadTable& IOVSchema::payloadTable(){
       return m_payloadTable;
     }
-      
+
   }
 }
 

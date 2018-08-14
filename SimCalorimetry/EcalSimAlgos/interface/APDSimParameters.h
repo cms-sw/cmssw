@@ -1,6 +1,9 @@
 #ifndef EcalSimAlgos_APDSimParameters_h
 #define EcalSimAlgos_APDSimParameters_h
 
+#include <cmath>
+#include <string>
+#include <vector>
 
 class APDSimParameters
 {

@@ -22,7 +22,7 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
 {
  public:
   explicit PFRecoTauDiscriminationByHPSSelection(const edm::ParameterSet&);
-  ~PFRecoTauDiscriminationByHPSSelection();
+  ~PFRecoTauDiscriminationByHPSSelection() override;
   double discriminate(const reco::PFTauRef&) const override;
 
  private:
@@ -31,7 +31,7 @@ class PFRecoTauDiscriminationByHPSSelection : public PFTauDiscriminationProducer
   struct DecayModeCuts 
   {
     DecayModeCuts()
-      : maxMass_(0)
+      : maxMass_(nullptr)
     {}
     ~DecayModeCuts() {} // CV: maxMass object gets deleted by PFRecoTauDiscriminationByHPSSelection destructor
     unsigned nTracksMin_;
@@ -202,7 +202,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   reco::Candidate::LorentzVector stripsP4;
   BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
       tau->signalPiZeroCandidates()){
-    math::XYZTLorentzVector candP4 = cand.p4();
+    const math::XYZTLorentzVector& candP4 = cand.p4();
     stripsP4 += candP4;
   }
 
@@ -210,7 +210,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   if (massWindow.assumeStripMass_ >= 0) {
     BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
         tau->signalPiZeroCandidates()){
-      math::XYZTLorentzVector uncorrected = cand.p4();
+      const math::XYZTLorentzVector& uncorrected = cand.p4();
       math::XYZTLorentzVector corrected = 
         applyMassConstraint(uncorrected, massWindow.assumeStripMass_);
       math::XYZTLorentzVector correction = corrected - uncorrected;
@@ -320,7 +320,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
     const std::vector<reco::PFCandidatePtr>& chargedHadrCands = tau->signalPFChargedHadrCands();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator chargedHadrCand = chargedHadrCands.begin();
 	  chargedHadrCand != chargedHadrCands.end(); ++chargedHadrCand ) {
-      const reco::Track* track = 0;
+      const reco::Track* track = nullptr;
       if ( (*chargedHadrCand)->trackRef().isNonnull() ) track = (*chargedHadrCand)->trackRef().get();
       else if ( (*chargedHadrCand)->gsfTrackRef().isNonnull() ) track = (*chargedHadrCand)->gsfTrackRef().get();
       if ( track ) {

@@ -26,22 +26,22 @@ namespace edmtest {
     noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
-    produces<Thing, edm::InLumi>("beginLumi");
-    produces<Thing, edm::InLumi>("endLumi");
-    produces<Thing, edm::InRun>("beginRun");
-    produces<Thing, edm::InRun>("endRun");
+    produces<Thing, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<Thing, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<Thing, edm::Transition::BeginRun>("beginRun");
+    produces<Thing, edm::Transition::EndRun>("endRun");
 
     produces<ThingWithMerge>("event");
-    produces<ThingWithMerge, edm::InLumi>("beginLumi");
-    produces<ThingWithMerge, edm::InLumi>("endLumi");
-    produces<ThingWithMerge, edm::InRun>("beginRun");
-    produces<ThingWithMerge, edm::InRun>("endRun");
+    produces<ThingWithMerge, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<ThingWithMerge, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingWithMerge, edm::Transition::BeginRun>("beginRun");
+    produces<ThingWithMerge, edm::Transition::EndRun>("endRun");
 
     produces<ThingWithIsEqual>("event");
-    produces<ThingWithIsEqual, edm::InLumi>("beginLumi");
-    produces<ThingWithIsEqual, edm::InLumi>("endLumi");
-    produces<ThingWithIsEqual, edm::InRun>("beginRun");
-    produces<ThingWithIsEqual, edm::InRun>("endRun");
+    produces<ThingWithIsEqual, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<ThingWithIsEqual, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingWithIsEqual, edm::Transition::BeginRun>("beginRun");
+    produces<ThingWithIsEqual, edm::Transition::EndRun>("endRun");
 
     const std::string s_prod("PROD");
     for(auto const& label: labelsToGet_) {

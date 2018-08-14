@@ -61,14 +61,14 @@
 class BoostedDoubleSVProducer : public edm::stream::EDProducer<> {
    public:
       explicit BoostedDoubleSVProducer(const edm::ParameterSet&);
-      ~BoostedDoubleSVProducer();
+      ~BoostedDoubleSVProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
       void calcNsubjettiness(const reco::JetBaseRef & jet, float & tau1, float & tau2, std::vector<fastjet::PseudoJet> & currentAxes) const;
       void setTracksPVBase(const reco::TrackRef & trackRef, const reco::VertexRef & vertexRef, float & PVweight) const;
@@ -407,7 +407,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      std::map<double, size_t> VTXmap;
      for (size_t vtx = 0; vtx < svTagInfo.nVertices(); ++vtx)
      {
-       const reco::VertexCompositePtrCandidate vertex = svTagInfo.secondaryVertex(vtx);
+       const reco::VertexCompositePtrCandidate& vertex = svTagInfo.secondaryVertex(vtx);
        // get the vertex kinematics
        reco::TrackKinematics vertexKinematic(vertex);
 
@@ -437,7 +437,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                }
 
        }
-       else if (currentAxes.size() > 0)
+       else if (!currentAxes.empty())
        {
                tau1Kinematics = tau1Kinematics + vertexKinematic;
                if( tau1_flightDistance2dSig < 0 )
@@ -449,7 +449,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                tau1_nSecondaryVertices += 1.;
        }
 
-       GlobalVector flightDir = svTagInfo.flightDirection(vtx);
+       const GlobalVector& flightDir = svTagInfo.flightDirection(vtx);
        if (reco::deltaR2(flightDir, jetDir)<(maxSVDeltaRToJet_*maxSVDeltaRToJet_))
          VTXmap[svTagInfo.flightDistance(vtx).error()]=vtx;
      }
@@ -459,7 +459,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      math::XYZTLorentzVector allSum = allKinematics.weightedVectorSum() ;
      if ( tau1_nSecondaryVertices > 0. )
      {
-       math::XYZTLorentzVector tau1_vertexSum = tau1Kinematics.weightedVectorSum();
+       const math::XYZTLorentzVector& tau1_vertexSum = tau1Kinematics.weightedVectorSum();
        if ( allSum.E() > 0. ) tau1_vertexEnergyRatio = tau1_vertexSum.E() / allSum.E();
        if ( tau1_vertexEnergyRatio > 50. ) tau1_vertexEnergyRatio = 50.;
 
@@ -468,7 +468,7 @@ BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
      if ( tau2_nSecondaryVertices > 0. )
      {
-       math::XYZTLorentzVector tau2_vertexSum = tau2Kinematics.weightedVectorSum();
+       const math::XYZTLorentzVector& tau2_vertexSum = tau2Kinematics.weightedVectorSum();
        if ( allSum.E() > 0. ) tau2_vertexEnergyRatio = tau2_vertexSum.E() / allSum.E();
        if ( tau2_vertexEnergyRatio > 50. ) tau2_vertexEnergyRatio = 50.;
 

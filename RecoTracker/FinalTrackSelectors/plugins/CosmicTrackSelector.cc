@@ -35,7 +35,7 @@ using namespace reco;
 		     // constructor 
 		     explicit CosmicTrackSelector( const edm::ParameterSet & cfg ) ;
 		     // destructor
-		     virtual ~CosmicTrackSelector() ;
+		     ~CosmicTrackSelector() override ;
 		     
 		   private:
 		     typedef math::XYZPoint Point;

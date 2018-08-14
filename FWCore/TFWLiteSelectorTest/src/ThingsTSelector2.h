@@ -23,15 +23,15 @@ namespace tfwliteselectortest {
   class ThingsTSelector2 : public TFWLiteSelector<ThingsWorker> {
 public :
     ThingsTSelector2() {}
-    void begin(TList*&);
-    void terminate(TList&);
+    void begin(TList*&) override;
+    void terminate(TList&) override;
     
 private:
     
     ThingsTSelector2(ThingsTSelector2 const&);
     ThingsTSelector2 operator=(ThingsTSelector2 const&);
     
-    ClassDef(ThingsTSelector2,2)
+    ClassDefOverride(ThingsTSelector2,2)
   };
 }
 #endif

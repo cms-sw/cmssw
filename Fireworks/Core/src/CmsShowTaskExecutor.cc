@@ -64,7 +64,7 @@ CmsShowTaskExecutor::addTask(const TaskFunctor& iTask)
 void
 CmsShowTaskExecutor::startDoingTasks()
 {
-   if(m_tasks.size()) {
+   if(!m_tasks.empty()) {
       requestNextTask();
    }
 }

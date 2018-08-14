@@ -34,12 +34,12 @@ private:
 	const L1MuTriggerScales *ts;
 
 public:
-	virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-	virtual void endJob(void);
-	virtual void beginJob(){}
+	void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+	void endJob(void) override;
+	void beginJob() override{}
 
 	explicit CSCTFanalyzer(edm::ParameterSet const& pset);
-	virtual ~CSCTFanalyzer(void) {}
+	~CSCTFanalyzer(void) override {}
 };
 
 #endif

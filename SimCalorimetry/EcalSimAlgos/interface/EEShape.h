@@ -6,16 +6,11 @@
 class EEShape : public EcalShapeBase
 {
    public:
-  
-      EEShape() ;
-
-      virtual ~EEShape() ;
-
-      virtual double threshold() const ;
+   EEShape(bool useDB):EcalShapeBase(useDB){if(!useDB)buildMe();} // if useDB = true, then buildMe is executed when setEventSetup and DB conditions are available}
+//   EEShape():EcalShapeBase(false){;}
 
    protected:
-  
-      virtual void fillShape( EcalShapeBase::DVec& aVec ) const ;
+      void fillShape(float &time_interval, double &m_thresh, EcalShapeBase::DVec& aVec, const edm::EventSetup* es) const override ;
 };
   
 

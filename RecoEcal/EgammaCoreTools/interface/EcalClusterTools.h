@@ -35,7 +35,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 //includes for ShowerShape function to work
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <TMatrixT.h>
 #include <TMatrixD.h>
@@ -644,8 +644,9 @@ std::vector<typename EcalClusterToolsT<noZS>::EcalClusterEnergyDeposition> EcalC
                 else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
             }
             DetId id_ = (*posCurrent).first;
-            const CaloCellGeometry *this_cell = geometry->getSubdetectorGeometry(id_)->getGeometry(id_);
-            GlobalPoint cellPos = this_cell->getPosition();
+	    const CaloSubdetectorGeometry* geo = geometry->getSubdetectorGeometry(id_);
+            auto this_cell = geo->getGeometry(id_);
+            const GlobalPoint& cellPos = this_cell->getPosition();
             CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
             // Evaluate the distance from the cluster centroid
             CLHEP::Hep3Vector diff = gblPos - clVect;
@@ -737,7 +738,8 @@ math::XYZVector EcalClusterToolsT<noZS>::meanClusterPosition( const reco::BasicC
     for( const std::pair<DetId,float>& hitAndFrac : hsAndFs ) {
       for( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
 	if( hitAndFrac.first != *it && !noZS) continue;
-	GlobalPoint positionGP = geometry->getSubdetectorGeometry( *it )->getGeometry( *it )->getPosition();
+	const CaloSubdetectorGeometry* geo = geometry->getSubdetectorGeometry(*it);
+	GlobalPoint positionGP = geo->getGeometry( *it )->getPosition();
 	math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
 	meanPosition = meanPosition + recHitEnergy( *it, recHits ) * position * hitAndFrac.second;
       }
@@ -840,7 +842,8 @@ std::vector<float> EcalClusterToolsT<noZS>::covariances(const reco::BasicCluster
 
                 if ( energy <= 0 ) continue;
 
-                GlobalPoint position = geometry->getSubdetectorGeometry(*cursor)->getGeometry(*cursor)->getPosition();
+		const CaloSubdetectorGeometry* geo = geometry->getSubdetectorGeometry(*cursor);
+                GlobalPoint position = geo->getGeometry(*cursor)->getPosition();
 
                 double dPhi = position.phi() - meanPosition.phi();
                 if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
@@ -1320,7 +1323,7 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const std::vector<
  
   unsigned int nCry=0;
   double denominator=0.;
-  bool isBarrel(1);
+  bool isBarrel(true);
 
   // loop over rechits and compute weights:
   for(std::vector<std::pair<const EcalRecHit*, float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){

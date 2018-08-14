@@ -69,11 +69,11 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 	es.get<TrackerDigiGeometryRecord>().get( pDD );
 	edm::LogInfo("SiPixelLorentzAngle (old)") <<" There are "<<pDD->detUnits().size() <<" detectors (old)"<<std::endl;
 	
-	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+	for( const auto& it : pDD->detUnits()) {
     
-	   if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
-		DetId detid=(*it)->geographicalId();
-                const DetId detidc = (*it)->geographicalId();
+	   if( dynamic_cast<PixelGeomDetUnit const*>(it)!=0){
+		DetId detid=it->geographicalId();
+                const DetId detidc = it->geographicalId();
 			
 		// fill bpix values for LA 
 		if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {

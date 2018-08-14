@@ -120,6 +120,34 @@ run2_HE_2017.toModify( hcalSimParameters,
     )
 )
 
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify( hcalSimParameters,
+    hf1 = dict(
+               readoutFrameSize = cms.int32(3), 
+               binOfMaximum     = cms.int32(2)
+              ),
+    hf2 = dict(
+               readoutFrameSize = cms.int32(3), 
+               binOfMaximum     = cms.int32(2)
+              )
+)
+
+from Configuration.Eras.Modifier_run2_HB_2018_cff import run2_HB_2018
+run2_HB_2018.toModify( hcalSimParameters,
+    hb = dict(
+               readoutFrameSize = cms.int32(8), 
+               binOfMaximum     = cms.int32(4)
+              )
+)
+from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
+run2_HE_2018.toModify( hcalSimParameters,
+    he = dict(
+               readoutFrameSize = cms.int32(8), 
+               binOfMaximum     = cms.int32(4)
+              )
+)
+
+
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify( hcalSimParameters,
     hb = dict(

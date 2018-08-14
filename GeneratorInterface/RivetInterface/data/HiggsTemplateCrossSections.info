@@ -1,0 +1,34 @@
+Name: HiggsTemplateCrossSections
+Year: <Insert year of publication>
+Summary: <Insert short HiggsTemplateCrossSections description>
+Experiment: <Insert the experiment name>
+Collider: <Insert the collider name>
+SpiresID: <Insert the Inspire ID>
+Status: UNVALIDATED
+Authors:
+ - Your Name <your@email.address>
+#References:
+# - <Example: Phys.Lett.B639:151-158,2006, Erratum-ibid.B658:285-289,2008>
+# - <Example: doi:10.1016/j.physletb.2006.04.048>
+# - <Example: arXiv:hep-ex/0511054 (plus erratum)>
+RunInfo:
+  <Insert event types (not gen-specific), energy, any kinematic
+  efficiency cut(s) that may be needed; essentially any details needed to set
+  up a generator to reproduce the data.>
+NumEvents: 1000000
+NeedCrossSection: no
+#Beams: <Insert beam pair(s), e.g. [p-, p+] or [[p-, e-], [p-, e+]]>
+#Energies: <Insert list of run energies or beam energy pairs in GeV,
+#           e.g. [1960] or [[8.0, 3.5]] or [630, 1800]. Order pairs to match "Beams">
+#PtCuts: <Insert list of kinematic pT cuts in GeV, e.g. [0, 20]>
+#NeedCrossSection: True
+Description:
+  '<Insert a fairly long description, including what is measured
+  and if possible what it is useful for in terms of MC validation
+  and tuning. Use LaTeX for maths like $\pT > 50\;\GeV$.
+  Use single quotes around the block if required (see http://www.yaml.org)>'
+BibKey: 
+BibTeX: ''
+ToDo:
+ - Implement the analysis, test it, remove this ToDo, and mark as VALIDATED :-)
+

@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 // forward declarations
 
@@ -32,7 +33,20 @@ namespace edm {
    
    namespace one {
       namespace impl {
+         template<bool V>
+         struct OptionalSerialTaskQueueHolder;
          
+         template<>
+         struct OptionalSerialTaskQueueHolder<true> {
+            edm::SerialTaskQueue* queue() { return &queue_;}
+            edm::SerialTaskQueue queue_;
+         };
+
+         template<>
+         struct OptionalSerialTaskQueueHolder<false> {
+            edm::SerialTaskQueue* queue() { return nullptr;}
+         };
+
          template<typename T>
          class SharedResourcesUser : public virtual T {
          public:
@@ -41,7 +55,7 @@ namespace edm {
             SharedResourcesUser(SharedResourcesUser const&) = delete;
             SharedResourcesUser& operator=(SharedResourcesUser const&) = delete;
             
-            virtual ~SharedResourcesUser() {}
+            ~SharedResourcesUser() override {}
             
          protected:
             
@@ -58,11 +72,11 @@ namespace edm {
             RunWatcher() = default;
             RunWatcher(RunWatcher const&) = delete;
             RunWatcher& operator=(RunWatcher const&) = delete;
-            ~RunWatcher() noexcept(false) {};
+            ~RunWatcher() noexcept(false) override {};
             
          private:
-            void doBeginRun_(Run const& rp, EventSetup const& c) override final;
-            void doEndRun_(Run const& rp, EventSetup const& c) override final;
+            void doBeginRun_(Run const& rp, EventSetup const& c) final;
+            void doEndRun_(Run const& rp, EventSetup const& c) final;
 
             
             virtual void beginRun(edm::Run const&, edm::EventSetup const&) = 0;
@@ -75,11 +89,11 @@ namespace edm {
             LuminosityBlockWatcher() = default;
             LuminosityBlockWatcher(LuminosityBlockWatcher const&) = delete;
             LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
-            ~LuminosityBlockWatcher() noexcept(false) {};
+            ~LuminosityBlockWatcher() noexcept(false) override {};
             
          private:
-            void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final;
-            void doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) override final;
+            void doBeginLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) final;
+            void doEndLuminosityBlock_(LuminosityBlock const& rp, EventSetup const& c) final;
 
             virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
             virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
@@ -91,10 +105,10 @@ namespace edm {
             BeginRunProducer() = default;
             BeginRunProducer( BeginRunProducer const&) = delete;
             BeginRunProducer& operator=(BeginRunProducer const&) = delete;
-            ~BeginRunProducer() noexcept(false) {};
+            ~BeginRunProducer() noexcept(false) override {};
             
          private:
-            void doBeginRunProduce_(Run& rp, EventSetup const& c) override final;
+            void doBeginRunProduce_(Run& rp, EventSetup const& c) final;
 
             virtual void beginRunProduce(edm::Run&, edm::EventSetup const&) = 0;
          };
@@ -105,11 +119,11 @@ namespace edm {
             EndRunProducer() = default;
             EndRunProducer( EndRunProducer const&) = delete;
             EndRunProducer& operator=(EndRunProducer const&) = delete;
-            ~EndRunProducer() noexcept(false) {};
+            ~EndRunProducer() noexcept(false) override {};
             
          private:
             
-            void doEndRunProduce_(Run& rp, EventSetup const& c) override final;
+            void doEndRunProduce_(Run& rp, EventSetup const& c) final;
 
             virtual void endRunProduce(edm::Run&, edm::EventSetup const&) = 0;
          };
@@ -120,10 +134,10 @@ namespace edm {
             BeginLuminosityBlockProducer() = default;
             BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
             BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
-            ~BeginLuminosityBlockProducer() noexcept(false) {};
-            
+            ~BeginLuminosityBlockProducer() noexcept(false) override {};
+
          private:
-            void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) override final;
+            void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 
             virtual void beginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
          };
@@ -134,12 +148,31 @@ namespace edm {
             EndLuminosityBlockProducer() = default;
             EndLuminosityBlockProducer( EndLuminosityBlockProducer const&) = delete;
             EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
-            ~EndLuminosityBlockProducer() noexcept(false) {};
+            ~EndLuminosityBlockProducer() noexcept(false) override {};
             
          private:
-            void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) override final;
+            void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 
             virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
+         };
+
+         template <typename T>
+         class Accumulator : public virtual T {
+         public:
+            Accumulator() = default;
+            Accumulator(Accumulator const&) = delete;
+            Accumulator& operator=(Accumulator const&) = delete;
+            ~Accumulator() noexcept(false) override {};
+
+         private:
+
+            bool hasAccumulator() const override { return true; }
+
+            void produce(Event& ev, EventSetup const& es) final {
+               accumulate(ev, es);
+            }
+
+            virtual void accumulate(Event const& ev, EventSetup const& es) = 0;
          };
       }
    }

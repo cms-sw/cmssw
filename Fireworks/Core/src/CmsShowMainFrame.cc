@@ -67,7 +67,7 @@ class FWPack : public TGPack
    friend class CmsShowMainFrame;
 public:
    FWPack(const TGWindow* w) : TGPack(w, 100, 100) {}
-   virtual ~FWPack() {}
+   ~FWPack() override {}
 };
 
 //
@@ -77,12 +77,12 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGMainFrame(p, w, h),
    m_filterEnableBtn(),
    m_filterShowGUIBtn(),
-   m_runEntry(0),
-   m_lumiEntry(0),
-   m_eventEntry(0),
-   m_delaySliderListener(0),
+   m_runEntry(nullptr),
+   m_lumiEntry(nullptr),
+   m_eventEntry(nullptr),
+   m_delaySliderListener(nullptr),
    m_manager(m),
-   m_fworksAbout(0)
+   m_fworksAbout(nullptr)
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
@@ -392,19 +392,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff, 26, entryHeight);
       m_runEntry = new FWNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
-      runInfo->AddFrameWithWeight(rLeft, 0, 0.28);
+      runInfo->AddFrameWithWeight(rLeft, nullptr, 0.28);
 
       TGHorizontalFrame *rMid = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rMid, "Lumi", backgroundColor, 0xffffff, 36, entryHeight);
       m_lumiEntry = new FWNumberEntryField(rMid, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rMid->AddFrame(m_lumiEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
-      runInfo->AddFrameWithWeight(rMid, 0, 0.32);
+      runInfo->AddFrameWithWeight(rMid, nullptr, 0.32);
 
       TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff, 42, entryHeight);
       m_eventEntry = new FWNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
-      runInfo->AddFrameWithWeight(rRight, 0, 0.4);
+      runInfo->AddFrameWithWeight(rRight, nullptr, 0.4);
 
       texts->AddFrame(runInfo, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 0,0,0,4));
    }
@@ -513,10 +513,10 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->SetVertical(kFALSE);
 
    TGCompositeFrame *cf = m_manager->createList(csArea);
-   csArea->AddFrameWithWeight(cf, 0, 20);
+   csArea->AddFrameWithWeight(cf, nullptr, 20);
 
-   TEveCompositeFrameInPack *slot = new TEveCompositeFrameInPack(csArea, 0, csArea);
-   csArea->AddFrameWithWeight(slot, 0, 80);
+   TEveCompositeFrameInPack *slot = new TEveCompositeFrameInPack(csArea, nullptr, csArea);
+   csArea->AddFrameWithWeight(slot, nullptr, 80);
    TEveWindowSlot *ew_slot = TEveWindow::CreateDefaultWindowSlot();
    ew_slot->PopulateEmptyFrame(slot);
    m_manager->createViews(ew_slot);
@@ -605,7 +605,7 @@ CmsShowMainFrame::enableActions(bool enable)
 void
 CmsShowMainFrame::enablePrevious(bool enable)
 {
-   if (m_previousEvent != 0) {
+   if (m_previousEvent != nullptr) {
       if (enable) {
          m_previousEvent->enable();
          m_goToFirst->enable();
@@ -622,7 +622,7 @@ CmsShowMainFrame::enablePrevious(bool enable)
 void
 CmsShowMainFrame::enableNext(bool enable)
 {
-   if (m_nextEvent != 0) {
+   if (m_nextEvent != nullptr) {
       if (enable) {
          m_nextEvent->enable();
          m_goToLast->enable();
@@ -747,9 +747,9 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt,
 class InfoFrame : public TGMainFrame {
 public:
    InfoFrame(const TGWindow* p, UInt_t w, UInt_t h, UInt_t opts) : TGMainFrame(p, w, h, opts) {}
-   virtual ~InfoFrame() {}
+   ~InfoFrame() override {}
    
-   virtual void CloseWindow() override
+   void CloseWindow() override
    {
       UnmapWindow();  
    }
@@ -758,7 +758,7 @@ public:
 void
 CmsShowMainFrame::showFWorksInfo()
 {
-   if (m_fworksAbout == 0)
+   if (m_fworksAbout == nullptr)
    {
       UInt_t ww = 280, hh = 190;
       int number_of_lines = 0;

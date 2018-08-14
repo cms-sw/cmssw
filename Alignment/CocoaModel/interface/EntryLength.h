@@ -22,24 +22,24 @@ public:
     // std::cout << "entrylength" << std::endl;
     theDimType = ED_length;
   };
-  ~EntryLength(){};
+  ~EntryLength() override{};
 
  //----- Return value and sigma dimension factors
-  virtual ALIdouble ValueDimensionFactor() const{
+  ALIdouble ValueDimensionFactor() const override{
     return ALIUtils::LengthValueDimensionFactor(); 
   }
-  virtual ALIdouble SigmaDimensionFactor() const{
+  ALIdouble SigmaDimensionFactor() const override{
     return ALIUtils::LengthSigmaDimensionFactor(); 
   }
-  virtual ALIdouble OutputValueDimensionFactor() const{
+  ALIdouble OutputValueDimensionFactor() const override{
     return ALIUtils::OutputLengthValueDimensionFactor(); 
   }
-  virtual ALIdouble OutputSigmaDimensionFactor() const{
+  ALIdouble OutputSigmaDimensionFactor() const override{
     return ALIUtils::OutputLengthSigmaDimensionFactor(); 
   }
 
   //----- Return starting displacement for derivative
-  virtual ALIdouble startingDisplacement() {
+  ALIdouble startingDisplacement() override {
      return _startingDisplacement;
   }
 

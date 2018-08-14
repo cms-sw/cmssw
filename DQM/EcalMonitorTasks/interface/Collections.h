@@ -1,6 +1,8 @@
 #ifndef EcalDQMonitorTaskCollections_H
 #define EcalDQMonitorTaskCollections_H
 
+#include <string>
+
 namespace ecaldqm {
 
   enum Collections {

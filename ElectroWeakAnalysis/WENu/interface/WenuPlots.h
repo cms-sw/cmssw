@@ -38,13 +38,13 @@
 class WenuPlots : public edm::EDAnalyzer {
    public:
       explicit WenuPlots(const edm::ParameterSet&);
-      ~WenuPlots();
+      ~WenuPlots() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       Bool_t CheckCuts( const pat::Electron * ele);

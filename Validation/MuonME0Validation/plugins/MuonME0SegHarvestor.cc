@@ -105,7 +105,7 @@ void MuonME0SegHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::
 void 
 MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
     
   TString eta_label_den = TString(dbe_path_)+"me0_simsegment_eta";
   TString eta_label_num = TString(dbe_path_)+"me0_matchedsimsegment_eta";

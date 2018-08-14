@@ -52,14 +52,14 @@ template <typename Mu, typename Ele, typename Jet, typename Met>
 class SusyDQM : public DQMEDAnalyzer {
  public:
   explicit SusyDQM(const edm::ParameterSet&);
-  ~SusyDQM();
+  ~SusyDQM() override;
 
  protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
 
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual bool goodSusyElectron(const Ele*);
   virtual bool goodSusyMuon(const Mu*);
 
@@ -172,34 +172,34 @@ SusyDQM<Mu, Ele, Jet, Met>::SusyDQM(const edm::ParameterSet& pset) {
 
   RAL_met_cut_ = pset.getParameter<double>("RAL_met_cut");
 
-  hRAL_N_muons_ = 0;
-  hRAL_pt_muons_ = 0;
-  hRAL_eta_muons_ = 0;
-  hRAL_phi_muons_ = 0;
-  hRAL_Iso_muons_ = 0;
-  hRAL_N_elecs_ = 0;
-  hRAL_pt_elecs_ = 0;
-  hRAL_eta_elecs_ = 0;
-  hRAL_phi_elecs_ = 0;
-  hRAL_Iso_elecs_ = 0;
-  hRAL_Sum_pt_jets_ = 0;
-  hRAL_Met_ = 0;
-  hRAL_dR_emu_ = 0;
-  hRAL_mass_OS_mumu_ = 0;
-  hRAL_mass_OS_ee_ = 0;
-  hRAL_mass_OS_emu_ = 0;
-  hRAL_mass_SS_mumu_ = 0;
-  hRAL_mass_SS_ee_ = 0;
-  hRAL_mass_SS_emu_ = 0;
-  hRAL_Muon_monitor_ = 0;
-  hRAL_Electron_monitor_ = 0;
-  hRAL_OSee_monitor_ = 0;
-  hRAL_OSemu_monitor_ = 0;
-  hRAL_OSmumu_monitor_ = 0;
-  hRAL_SSee_monitor_ = 0;
-  hRAL_SSemu_monitor_ = 0;
-  hRAL_SSmumu_monitor_ = 0;
-  hRAL_TriMuon_monitor_ = 0;
+  hRAL_N_muons_ = nullptr;
+  hRAL_pt_muons_ = nullptr;
+  hRAL_eta_muons_ = nullptr;
+  hRAL_phi_muons_ = nullptr;
+  hRAL_Iso_muons_ = nullptr;
+  hRAL_N_elecs_ = nullptr;
+  hRAL_pt_elecs_ = nullptr;
+  hRAL_eta_elecs_ = nullptr;
+  hRAL_phi_elecs_ = nullptr;
+  hRAL_Iso_elecs_ = nullptr;
+  hRAL_Sum_pt_jets_ = nullptr;
+  hRAL_Met_ = nullptr;
+  hRAL_dR_emu_ = nullptr;
+  hRAL_mass_OS_mumu_ = nullptr;
+  hRAL_mass_OS_ee_ = nullptr;
+  hRAL_mass_OS_emu_ = nullptr;
+  hRAL_mass_SS_mumu_ = nullptr;
+  hRAL_mass_SS_ee_ = nullptr;
+  hRAL_mass_SS_emu_ = nullptr;
+  hRAL_Muon_monitor_ = nullptr;
+  hRAL_Electron_monitor_ = nullptr;
+  hRAL_OSee_monitor_ = nullptr;
+  hRAL_OSemu_monitor_ = nullptr;
+  hRAL_OSmumu_monitor_ = nullptr;
+  hRAL_SSee_monitor_ = nullptr;
+  hRAL_SSemu_monitor_ = nullptr;
+  hRAL_SSmumu_monitor_ = nullptr;
+  hRAL_TriMuon_monitor_ = nullptr;
 }
 
 template <typename Mu, typename Ele, typename Jet, typename Met>

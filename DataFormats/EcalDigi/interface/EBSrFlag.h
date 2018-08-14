@@ -33,7 +33,7 @@ public:
   /** For edm::SortedCollection.
    * @return det id of the trigger tower the flag is assigned to.
    */
-  const EcalTrigTowerDetId& id() const { return ttId_;}
+  const EcalTrigTowerDetId& id() const override { return ttId_;}
   
 private:
   /** trigger tower id

@@ -11,7 +11,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
@@ -54,11 +54,11 @@ void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& 
     
     edm::LogInfo("SiStripDetInfoFileWriter") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
     
-    for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+    for( const auto& it : pDD->detUnits()) {
   
-      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const *>(*it);
+      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const *>(it);
 
-      if(mit!=0){
+      if(mit!=nullptr){
 
 	uint32_t detid=(mit->geographicalId()).rawId();
 	double stripLength = mit->specificTopology().stripLength();

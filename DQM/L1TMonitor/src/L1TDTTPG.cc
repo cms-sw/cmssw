@@ -104,7 +104,7 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
   if(verbose_) cout << "L1TDTTPG: constructor...." << endl;
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
   }
 
@@ -124,10 +124,6 @@ void L1TDTTPG::dqmBeginRun(const edm::Run &r, const edm::EventSetup &c){
 
 }
 
-void L1TDTTPG::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c){
-  //empty
-
-}
 
 void L1TDTTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) 
 {
@@ -417,7 +413,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
       if (DTPhDigiItr->code()>3)
 	dttpgphmapcorr->Fill(xpos,ypos);
 
-      if (bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]==0 ||
+      if (bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]==nullptr ||
 	  bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]->code()<DTPhDigiItr->code())
 	{
 	  bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]=&(*DTPhDigiItr);

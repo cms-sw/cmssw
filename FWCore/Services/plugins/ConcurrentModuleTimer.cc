@@ -21,6 +21,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 
 namespace edm {
@@ -39,7 +40,7 @@ namespace edm {
       std::vector<std::string> m_modulesToExclude;
       std::vector<unsigned int> m_excludedModuleIds;
       std::chrono::high_resolution_clock::time_point m_time;
-      unsigned int m_nTimeSums;
+      unsigned int m_nTimeSums = 0;
       unsigned int m_nModules;
       std::atomic<bool> m_spinLock;
       bool m_startedTiming;

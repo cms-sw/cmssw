@@ -1,6 +1,7 @@
 import itertools
 
 import FWCore.ParameterSet.Config as cms
+import six
 
 def producers_by_type(process, *types):
     "Find all EDProducers in the Process that are instances of the given C++ type."
@@ -22,9 +23,9 @@ def esproducers_by_type(process, *types):
 def insert_modules_before(process, target, *modules):
     "Add the `modules` before the `target` in any Sequence, Paths or EndPath that contains the latter."
     for sequence in itertools.chain(
-        process._Process__sequences.itervalues(),
-        process._Process__paths.itervalues(),
-        process._Process__endpaths.itervalues()
+        six.itervalues(process._Process__sequences),
+        six.itervalues(process._Process__paths),
+        six.itervalues(process._Process__endpaths)
     ):
         try:
             position = sequence.index(target)
@@ -35,6 +36,22 @@ def insert_modules_before(process, target, *modules):
                 sequence.insert(position, module)
 
 
+def insert_modules_after(process, target, *modules):
+    "Add the `modules` after the `target` in any Sequence, Paths or EndPath that contains the latter."
+    for sequence in itertools.chain(
+        six.itervalues(process._Process__sequences),
+        six.itervalues(process._Process__paths),
+        six.itervalues(process._Process__endpaths)
+    ):
+        try:
+            position = sequence.index(target)
+        except ValueError:
+            continue
+        else:
+            for module in reversed(modules):
+                sequence.insert(position+1, module)
+
+
 # logic from Modifier.toModify from FWCore/ParameterSet/python/Config.py
 def replace_with(fromObj, toObj):
     """Replace one object with a different one of the same type.
@@ -43,7 +60,7 @@ def replace_with(fromObj, toObj):
     so all references ot it remain valid.
     """
 
-    if type(toObj) != type(fromObj):
+    if not isinstance(toObj, type(fromObj)):
         raise TypeError('replaceWith requires both arguments to be the same type')
 
     if isinstance(toObj, cms._ModuleSequenceType):

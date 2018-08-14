@@ -7,9 +7,9 @@ class PrimaryTransformer : public G4PrimaryTransformer
 {
 public:
     PrimaryTransformer();
-    virtual ~PrimaryTransformer();
+    ~PrimaryTransformer() override;
 protected: 
-    virtual G4ParticleDefinition * GetDefinition(G4PrimaryParticle * pp);
+    G4ParticleDefinition * GetDefinition(G4PrimaryParticle * pp) override;
 };
 
 #endif 

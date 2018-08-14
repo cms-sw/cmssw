@@ -1,20 +1,19 @@
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
-
-#include <stddef.h>
-#include <algorithm>
-#include <map>
-#include <utility>
-#include <vector>
-
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <map>
+#include <utility>
+#include <vector>
 
 class DDCompactView;
 
@@ -35,11 +34,11 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
   // for each of the above, use the name of the SpecPar, since DDL does not
   // provide a name for a PartSelector.
 
-  DDXMLElement* myParameter      = myRegistry_->getElement("Parameter");
-  DDXMLElement* myNumeric        = myRegistry_->getElement("Numeric");
-  DDXMLElement* myString         = myRegistry_->getElement("String");
-  DDXMLElement* myPartSelector   = myRegistry_->getElement("PartSelector");
-  DDXMLElement* mySpecParSection = myRegistry_->getElement("SpecParSection");
+  auto myParameter      = myRegistry_->getElement("Parameter");
+  auto myNumeric        = myRegistry_->getElement("Numeric");
+  auto myString         = myRegistry_->getElement("String");
+  auto myPartSelector   = myRegistry_->getElement("PartSelector");
+  auto mySpecParSection = myRegistry_->getElement("SpecParSection");
 
   // Because of namespace magic "!" means namespaces should be provided
   // in the names of the XML elements for the DDD.  So if this is
@@ -85,7 +84,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
   //should i keep this? partsels = myPartSelector->getVectorAttribute("path");
   //otherise I have to do this block...
   for (i = 0; i < myPartSelector->size(); ++i)
-    partsels.push_back((myPartSelector->getAttributeSet(i).find("path"))->second);
+    partsels.emplace_back((myPartSelector->getAttributeSet(i).find("path"))->second);
   DDsvalues_type svt;
 
   // boolean flag to indicate whether the std::vector<DDValuePair> has been evaluated 
@@ -152,7 +151,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     }
       
     DDValuePair vp(atts.find("value")->second, tval);
-    vvp.push_back(vp);
+    vvp.emplace_back(vp);
     vvvp[atts.find("name")->second] = make_pair(isEvaluated,vvp);
   }
 
@@ -166,7 +165,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
       vvp = itv->second.second;
 
     DDValuePair vp(atts.find("value")->second, 0.0);
-    vvp.push_back(vp);
+    vvp.emplace_back(vp);
     vvvp[atts.find("name")->second] = make_pair(false,vvp);
   }
   
@@ -180,7 +179,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
       vvp = itv->second.second;
     double tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
     DDValuePair vp(atts.find("value")->second, tval);
-    vvp.push_back(vp);
+    vvp.emplace_back(vp);
     vvvp[atts.find("name")->second] = make_pair(true,vvp);
   }
   
@@ -190,7 +189,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     DDValue val(it->first, it->second.second);
     bool isEvaluated = it->second.first;
     val.setEvalState(isEvaluated);
-    svt.push_back(DDsvalues_Content_type(val,val));      
+    svt.emplace_back(DDsvalues_Content_type(val,val));      
   }
   std::sort(svt.begin(),svt.end());
 

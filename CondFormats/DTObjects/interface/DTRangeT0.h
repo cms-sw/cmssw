@@ -146,8 +146,8 @@ class DTRangeT0 {
 
  private:
 
-  DTRangeT0(DTRangeT0 const&);
-  DTRangeT0& operator=(DTRangeT0 const&);
+  DTRangeT0(DTRangeT0 const&) = delete;
+  DTRangeT0& operator=(DTRangeT0 const&) = delete;
 
   std::string dataVersion;
 

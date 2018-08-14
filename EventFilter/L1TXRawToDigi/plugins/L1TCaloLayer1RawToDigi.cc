@@ -69,14 +69,14 @@ using namespace edm;
 class L1TCaloLayer1RawToDigi : public stream::EDProducer<> {
 public:
   explicit L1TCaloLayer1RawToDigi(const ParameterSet&);
-  ~L1TCaloLayer1RawToDigi();
+  ~L1TCaloLayer1RawToDigi() override;
 
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginStream(StreamID) override;
-  virtual void produce(Event&, const EventSetup&) override;
-  virtual void endStream() override;
+  void beginStream(StreamID) override;
+  void produce(Event&, const EventSetup&) override;
+  void endStream() override;
 
   void makeECalTPGs(uint32_t lPhi, UCTCTP7RawData& ctp7Data, std::unique_ptr<EcalTrigPrimDigiCollection>& ecalTPGs);
 
@@ -168,7 +168,7 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
       const uint64_t *fedRawDataArray = (const uint64_t *) fedRawData.data();
 
       if ( fedRawData.size() == 0 || fedRawDataArray == nullptr ) {
-        LogError("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
+        LogDebug("L1TCaloLayer1RawToDigi") << "Could not load FED data for " << fed << ", putting empty collections!";
         continue;
       }
       

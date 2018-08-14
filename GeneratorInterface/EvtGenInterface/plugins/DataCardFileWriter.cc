@@ -1,12 +1,11 @@
 #include "GeneratorInterface/EvtGenInterface/interface/DataCardFileWriter.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "Utilities/General/interface/FileInPath.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace gen;
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 #ROOTTOOLS
 import math
 import copy
@@ -34,8 +35,7 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
             return dict( zip(objects, [None]*len(objects)) )
     # build all possible combinations
                                                                                                                                                                                             
-    allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if filter(object,match) ]
-    allPairs.sort ()
+    allPairs = sorted([(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if list(filter(object,match)) ])
     #
     # to flag already matched objects
     # FIXME this variable remains appended to the object, I do not like it 
@@ -155,8 +155,7 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
     if len(matchCollection)==0:
             return dict( zip(objects, [None]*len(objects)) )
     # build all possible combinations
-    allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection]
-    allPairs.sort ()
+    allPairs = sorted([(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection])
 
     # to flag already matched objects
     # FIXME this variable remains appended to the object, I do not like it
@@ -190,8 +189,8 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     fargs = map( float, args )
 
-    print 'dR2 = ', deltaR2( *fargs )
-    print 'dR = ', deltaR( *fargs )
+    print('dR2 = ', deltaR2( *fargs ))
+    print('dR = ', deltaR( *fargs ))
     
 
     

@@ -1,10 +1,21 @@
 <use   name="FWCore/Framework"/>
 
-<library   name="AlignmentTrackerAlignmentPlugin" file="*Misalign*.cc">
-  <use   name="Alignment/TrackerAlignment"/>
-  <use   name="CondFormats/Alignment"/>
-  <use   name="CondFormats/GeometryObjects"/>
-  <flags   EDM_PLUGIN="1"/>
+<library name="AlignmentTrackerMisalignmentPlugin" file="*Misalign*.cc" >
+  <use name="Alignment/TrackerAlignment" />
+  <use name="CalibFormats/SiStripObjects" />
+  <use name="CalibTracker/Records" />
+  <use name="CondCore/DBOutputService" />
+  <use name="CondFormats/Alignment" />
+  <use name="CondFormats/AlignmentRecord" />
+  <use name="CondFormats/DataRecord" />
+  <use name="CondFormats/GeometryObjects" />
+  <use name="CondFormats/SiPixelObjects" />
+  <use name="DataFormats/TrackerCommon" />
+  <use name="FWCore/ParameterSet" />
+  <use name="FWCore/ServiceRegistry" />
+  <use name="Geometry/Records" />
+  <use name="Geometry/TrackerGeometryBuilder" />
+  <flags EDM_PLUGIN="1" />
 </library>
 
 <library   name="AlignmentTrackerAlignmentSkimPlugin" file="AlignmentPrescaler.cc,TkAlCaSkimTreeMerger.cc,TkAlCaOverlapTagger.cc">
@@ -67,6 +78,7 @@
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/RecoCandidate"/>
   <use   name="DataFormats/TrackReco"/>
+  <use   name="Geometry/TrackerNumberingBuilder"/>
   <use   name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>

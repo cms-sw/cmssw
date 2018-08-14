@@ -34,7 +34,7 @@ HLTMinDPhiMETFilter::HLTMinDPhiMETFilter(const edm::ParameterSet& iConfig) : HLT
 }
 
 // Destructor
-HLTMinDPhiMETFilter::~HLTMinDPhiMETFilter() {}
+HLTMinDPhiMETFilter::~HLTMinDPhiMETFilter() = default;
 
 // Fill descriptions
 void HLTMinDPhiMETFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -75,7 +75,7 @@ bool HLTMinDPhiMETFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
     double minDPhi = 3.141593;
     int nJets = 0;  // nJets counts all jets in the events, not only those that pass pt, eta requirements
 
-    if (jets->size() > 0 &&
+    if (!jets->empty() &&
         ((usePFMET ? mets->size() : calomets->size()) > 0) ) {
         double metphi = usePFMET ? mets->front().phi() : calomets->front().phi();
         for (reco::JetView::const_iterator j = jets->begin(); j != jets->end(); ++j) {

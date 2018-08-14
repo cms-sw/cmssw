@@ -1,3 +1,4 @@
+from __future__ import print_function
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
 class Printer(Analyzer):
@@ -10,5 +11,5 @@ class Printer(Analyzer):
         if self.firstEvent:
             event.input.Print()
             self.firstEvent = False
-        print "printing event", event.iEv, 'var1', event.input.var1
+        print("printing event", event.iEv, 'var1', event.input.var1)
         

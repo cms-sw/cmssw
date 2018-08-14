@@ -1,4 +1,4 @@
-#include "../interface/CocoaDaqReaderRoot.h"
+#include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 #include "TFile.h" 
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
@@ -21,7 +21,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   theFile = new TFile(m_inFileName.c_str()); 
   if( !theTree ) {
     std::cerr << " CocoaDaqReaderRoot TTree file not found " << m_inFileName << std::endl;
-    std::exception();
+    throw std::exception();
   }
   
   // Read TTree named "CocoaDaq" in memory.  !! SHOULD BE CALLED Alignment_Cocoa
@@ -30,7 +30,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   
   if( !theTree ) {
     std::cerr << " CocoaDaqReaderRoot TTree in file " << m_inFileName << " should be called 'CocoaDaq' " << std::endl;
-    std::exception();
+    throw std::exception();
   }
   TBranch *branch = theTree->GetBranch("Alignment_Cocoa");
 
@@ -73,7 +73,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   nb = theTree->GetEntry(nev);  // read in entire event
  
   if ( ALIUtils::debug >= 3) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
-  if( nb == 0 ) return 0; //end of file reached??
+  if( nb == 0 ) return false; //end of file reached??
 
   // Every n events, dump one to screen
   int n = 1;
@@ -119,7 +119,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   
   BuildMeasurementsFromOptAlign( measList );
   
-  return 1;
+  return true;
   
 }
 

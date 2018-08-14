@@ -6,6 +6,7 @@
 
 
 #include<vector>
+#include "G4ThreeVector.hh"
 
 class AmplitudeSegmentFP420 {
  public:

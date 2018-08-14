@@ -43,7 +43,7 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
     ROOT::Math::SVector<double,C::MAXSAMPLES> frame;
     int gainId0 = 1;
     int iGainSwitch = 0;
-    bool isSaturated = 0;
+    bool isSaturated = false;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId();
       //Handling saturation (treating saturated gainId as maximum gain)
@@ -53,7 +53,7 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
 	  //isSaturated = 1;
 	  // in pileup run May2012 samples 7,8,9,10 have gainid ==0
           // fix it like this: it won't hurt for the future SA20120512
-	  if(iSample==4 || iSample ==5 || iSample==6) isSaturated = 1;
+	  if(iSample==4 || iSample ==5 || iSample==6) isSaturated = true;
 	}
 
       //      if (gainId != gainId0) iGainSwitch = 1;

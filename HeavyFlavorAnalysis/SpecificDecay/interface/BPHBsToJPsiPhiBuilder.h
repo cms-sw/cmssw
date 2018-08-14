@@ -83,8 +83,8 @@ class BPHBsToJPsiPhiBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHBsToJPsiPhiBuilder           ( const BPHBsToJPsiPhiBuilder& x );
-  BPHBsToJPsiPhiBuilder& operator=( const BPHBsToJPsiPhiBuilder& x );
+  BPHBsToJPsiPhiBuilder           ( const BPHBsToJPsiPhiBuilder& x ) = delete;
+  BPHBsToJPsiPhiBuilder& operator=( const BPHBsToJPsiPhiBuilder& x ) = delete;
 
   std::string jPsiName;
   std::string  phiName;

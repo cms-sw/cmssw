@@ -104,7 +104,7 @@ public:
    /**
     * Chamber type (integer 1-10)
     */
-   unsigned short iChamberType() {
+   unsigned short iChamberType() const {
      return iChamberType( station(), ring() );
    }
 

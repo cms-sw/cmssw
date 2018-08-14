@@ -11,6 +11,8 @@
 #include<cassert>
 #include<cstring>
 
+class TrackerTopology;
+
 /**
  * Stores the noise value for all the strips. <br>
  * The values are encoded from a vector<uint16_t> to a vector<unsigned char> <br>
@@ -80,8 +82,8 @@ class SiStripNoises
   void    allNoises (std::vector<float> & noises, const Range& range) const;
   void    setData(float noise_, InputVector& vped);
 
-  void printDebug(std::stringstream& ss) const;
-  void printSummary(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
   std::vector<ratioData> operator / (const SiStripNoises& d) ;
 

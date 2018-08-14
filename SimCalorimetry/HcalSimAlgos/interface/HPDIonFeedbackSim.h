@@ -29,13 +29,13 @@ class HPDIonFeedbackSim: public CaloVPECorrection
   public:
     /// need a shaper in order to set thermal noise
     HPDIonFeedbackSim(const edm::ParameterSet&, const CaloShapes * shapes);
-    ~HPDIonFeedbackSim();
+    ~HPDIonFeedbackSim() override;
     
     //copied from HFSimParameters.h
     void setDbService(const HcalDbService * service) {theDbService = service;}
 
     // in units of fC
-    virtual double correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine*) const;
+    double correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine*) const override;
     double getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV, CLHEP::HepRandomEngine*);
 
     void addThermalNoise(CaloSamples & samples, CLHEP::HepRandomEngine*);

@@ -10,7 +10,11 @@ l1t::Muon::Muon()
     hwIsoSum_(0),
     hwDPhiExtra_(0),
     hwDEtaExtra_(0),
-    hwRank_(0)
+    hwRank_(0),
+    hwEtaAtVtx_(0),
+    hwPhiAtVtx_(0),
+    etaAtVtx_(0.),
+    phiAtVtx_(0.)
 {
 
 }
@@ -29,7 +33,11 @@ l1t::Muon::Muon( const LorentzVector& p4,
     int isoSum,
     int dPhi,
     int dEta,
-    int rank )
+    int rank,
+    int hwEtaAtVtx,
+    int hwPhiAtVtx,
+    double etaAtVtx,
+    double phiAtVtx)
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
@@ -39,7 +47,11 @@ l1t::Muon::Muon( const LorentzVector& p4,
     hwIsoSum_(isoSum),
     hwDPhiExtra_(dPhi),
     hwDEtaExtra_(dEta),
-    hwRank_(rank)
+    hwRank_(rank),
+    hwEtaAtVtx_(hwEtaAtVtx),
+    hwPhiAtVtx_(hwPhiAtVtx),
+    etaAtVtx_(etaAtVtx),
+    phiAtVtx_(phiAtVtx)
 {
   
 }
@@ -58,7 +70,11 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     int isoSum,
     int dPhi,
     int dEta,
-    int rank )
+    int rank,
+    int hwEtaAtVtx,
+    int hwPhiAtVtx,
+    double etaAtVtx,
+    double phiAtVtx)
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
@@ -68,7 +84,11 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     hwIsoSum_(isoSum),
     hwDPhiExtra_(dPhi),
     hwDEtaExtra_(dEta),
-    hwRank_(rank)
+    hwRank_(rank),
+    hwEtaAtVtx_(hwEtaAtVtx),
+    hwPhiAtVtx_(hwPhiAtVtx),
+    etaAtVtx_(etaAtVtx),
+    phiAtVtx_(phiAtVtx)
 {
   
 }
@@ -78,110 +98,13 @@ l1t::Muon::~Muon()
 
 }
 
-void 
-l1t::Muon::setHwCharge(int charge)
+bool l1t::Muon::operator==(const l1t::Muon& rhs) const
 {
-  hwCharge_ = charge;
+  return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate &>(rhs))
+      && hwCharge_ == rhs.hwCharge()
+      && hwChargeValid_ == rhs.hwChargeValid()
+      && tfMuonIndex_ == rhs.tfMuonIndex()
+      && hwEtaAtVtx_ == rhs.hwEtaAtVtx()
+      && hwPhiAtVtx_ == rhs.hwPhiAtVtx();
 }
 
-void 
-l1t::Muon::setHwChargeValid(int valid)
-{
-  hwChargeValid_ = valid;
-}
-
-void 
-l1t::Muon::setHwTag(int tag)
-{
-  hwTag_ = tag;
-}
-
-void 
-l1t::Muon::setTfMuonIndex(int index)
-{
-  tfMuonIndex_ = index;
-}
-
-void 
-l1t::Muon::setHwIsoSum(int isoSum) 
-{
-  hwIsoSum_ = isoSum;
-}
-
-void 
-l1t::Muon::setHwDPhiExtra(int dPhi)
-{
-  hwDPhiExtra_ = dPhi;
-}
-
-void 
-l1t::Muon::setHwDEtaExtra(int dEta) 
-{
-  hwDEtaExtra_ = dEta;
-}
-
-void 
-l1t::Muon::setHwRank(int rank) 
-{
-  hwRank_ = rank;
-}
-
-void
-l1t::Muon::setDebug(bool debug)
-{
-  debug_ = debug;
-}
-
-int 
-l1t::Muon::hwCharge() const
-{
-  return hwCharge_;
-}
-
-int 
-l1t::Muon::hwChargeValid() const
-{
-  return hwChargeValid_;
-}
-
-int 
-l1t::Muon::hwTag() const
-{
-  return hwTag_;
-}
-
-int 
-l1t::Muon::tfMuonIndex() const
-{
-  return tfMuonIndex_;
-}
-
-int 
-l1t::Muon::hwIsoSum() const 
-{
-  return hwIsoSum_;
-}
-
-int 
-l1t::Muon::hwDPhiExtra() const
-{
-  return hwDPhiExtra_;
-}
-
-int 
-l1t::Muon::hwDEtaExtra() const
-{
-  return hwDEtaExtra_;
-}
-
-int 
-l1t::Muon::hwRank() const
-{
-  return hwRank_;
-}
-
-bool
-l1t::Muon::debug() const
-{
-  return debug_;
-}

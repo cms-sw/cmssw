@@ -16,7 +16,7 @@ public:
 
     CylindricalLorentzForce( const RKLocalFieldProvider& field) : theField(field) {}
 
-    virtual Vector operator()( Scalar r, const Vector& state) const;
+    Vector operator()( Scalar r, const Vector& state) const override;
 
 private:
 

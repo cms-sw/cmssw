@@ -21,7 +21,7 @@ class InitialState {
     fDatabase->SetMassRange(0.0, 200.);
     fDatabase->SetWidthRange(0., 10.);
   };
-  virtual ~InitialState() {
+  virtual ~InitialState() noexcept(false) {
     delete fDatabase;
   };
   

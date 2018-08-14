@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
  
@@ -62,10 +63,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEM
 # JSON Filtering
 ###################################################################
 if isMC:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!")
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!")
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -104,7 +105,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
 
 if allFromGT:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment constants and APE
@@ -115,10 +116,10 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process=customiseKinksAndBows(process)
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
      ####################################################################
      # Extra corrections not included in the GT
@@ -129,7 +130,7 @@ else:
           ##### END OF EXTRA CONDITIONS
  
      else:
-          print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!"
+          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
      
 ####################################################################
 # Load and Configure event selection
@@ -210,7 +211,7 @@ process.TFileService = cms.Service("TFileService",
 # Deterministic annealing clustering
 ####################################################################
 if isDA:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"),  
@@ -219,6 +220,7 @@ if isDA:
                                            useTracksFromRecoVtx = cms.bool(False),
                                            isLightNtuple = cms.bool(True),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
@@ -229,15 +231,21 @@ if isDA:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5  
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)     
                                                                          minPt = cms.double(0.0),                                    # better for softish events                        
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                            
-                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA'),
-                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.8),  # moderate annealing speed
-                                                                                                   Tmin = cms.double(4.),            # end of annealing
-                                                                                                   vertexSize = cms.double(0.05),    # ~ resolution / sqrt(Tmin)
+                                           ## MM 04.05.2017 (use settings as in: https://github.com/cms-sw/cmssw/pull/18330)
+                                           TkClusParameters=cms.PSet(algorithm=cms.string('DA_vect'),
+                                                                     TkDAClusParameters = cms.PSet(coolingFactor = cms.double(0.6),  # moderate annealing speed
+                                                                                                   Tmin = cms.double(2.0),           # end of vertex splitting
+                                                                                                   Tpurge = cms.double(2.0),         # cleaning 
+                                                                                                   Tstop = cms.double(0.5),          # end of annealing
+                                                                                                   vertexSize = cms.double(0.006),   # added in quadrature to track-z resolutions
                                                                                                    d0CutOff = cms.double(3.),        # downweight high IP tracks
-                                                                                                   dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
+                                                                                                   dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)   
+                                                                                                   zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
+                                                                                                   uniquetrkweight = cms.double(0.8) # require at least two tracks with this weight at T=Tpurge                                                                    
                                                                                                    )
                                                                      )
                                            )
@@ -246,7 +254,7 @@ if isDA:
 # GAP clustering
 ####################################################################
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!"
+     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
      process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                            TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
                                            VertexCollectionTag = cms.InputTag("VERTEXTYPETEMPLATE"), 
@@ -255,6 +263,7 @@ else:
                                            storeNtuple = cms.bool(False),
                                            useTracksFromRecoVtx = cms.bool(False),
                                            askFirstLayerHit = cms.bool(False),
+                                           forceBeamSpot = cms.untracked.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
                                            runControlNumber = cms.untracked.vuint32(int(runboundary)),
@@ -265,6 +274,7 @@ else:
                                                                          minSiliconLayersWithHits = cms.int32(5),                    # TK hits > 5                   
                                                                          maxD0Significance = cms.double(5.0),                        # fake cut (requiring 1 PXB hit)
                                                                          minPt = cms.double(0.0),                                    # better for softish events     
+                                                                         maxEta = cms.double(5.0),                                   # as per recommendation in PR #18330
                                                                          trackQuality = cms.string("any")
                                                                          ),
                                         
@@ -278,7 +288,8 @@ else:
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
-                     process.offlineBeamSpot*
+                     # in case the common refitting sequence is removed
+                     #process.offlineBeamSpot*
                      process.seqTrackselRefit*
                      # in case the navigation shool is removed
                      #process.MeasurementTrackerEvent*

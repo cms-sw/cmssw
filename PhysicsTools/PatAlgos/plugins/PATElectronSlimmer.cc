@@ -26,10 +26,10 @@ namespace pat {
   class PATElectronSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
-    virtual ~PATElectronSlimmer() { }
+    ~PATElectronSlimmer() override { }
     
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override final;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) final;
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
     
     private:
     const edm::EDGetTokenT<edm::View<pat::Electron> > src_;
@@ -131,7 +131,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
         if (dropCorrections_(electron)) { electron.setCorrections(reco::GsfElectron::Corrections()); }
-        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); electron.setEcalPFClusterIso(0); electron.setHcalPFClusterIso(0); }
+        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); }
         if (dropShapes_(electron)) { electron.setShowerShape(reco::GsfElectron::ShowerShape()); }
         if (dropSaturation_(electron)) { electron.setSaturationInfo(reco::GsfElectron::SaturationInfo()); }
         if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }

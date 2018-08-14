@@ -57,12 +57,12 @@ namespace pat {
       /// constructor for corrected METs (keeping specific informations from src MET)
       MET(const reco::MET & corMET, const MET& srcMET );
       /// destructor
-      virtual ~MET();
+      ~MET() override;
 
       MET& operator=(MET const&);
 
       /// required reimplementation of the Candidate's clone method
-      virtual MET * clone() const { return new MET(*this); }
+      MET * clone() const override { return new MET(*this); }
 
       // ---- methods for generated MET link ----
       /// return the associated GenMET
@@ -75,7 +75,6 @@ namespace pat {
       void setMETSignificance(const double& metSig);
       // get the MET significance
       double metSignificance() const;
-
 
       // ---- methods for uncorrected MET ----
       // Methods not yet defined
@@ -150,21 +149,21 @@ namespace pat {
 
       // ---- members for MET corrections ----
       enum METUncertainty {
-	JetResUp=0, JetResDown=1, JetEnUp=2, JetEnDown=3,
-        MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7,
-	TauEnUp=8, TauEnDown=9, UnclusteredEnUp=10, UnclusteredEnDown=11,
-	PhotonEnUp=12, PhotonEnDown=13, NoShift=14, METUncertaintySize=15,
-	JetResUpSmear=16, JetResDownSmear=17, METFullUncertaintySize=18
+       JetResUp=0, JetResDown=1, JetEnUp=2, JetEnDown=3,
+       MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7,
+       TauEnUp=8, TauEnDown=9, UnclusteredEnUp=10, UnclusteredEnDown=11,
+       PhotonEnUp=12, PhotonEnDown=13, NoShift=14, METUncertaintySize=15,
+       JetResUpSmear=16, JetResDownSmear=17, METFullUncertaintySize=18
       };
       enum METCorrectionLevel {
-        Raw=0, Type1=1, Type01=2, TypeXY=3, Type1XY=4, Type01XY=5,
-	Type1Smear=6, Type01Smear=7, Type1SmearXY=8, 
-	Type01SmearXY=9, RawCalo=10, METCorrectionLevelSize=11
+       Raw=0, Type1=1, Type01=2, TypeXY=3, Type1XY=4, Type01XY=5,
+       Type1Smear=6, Type01Smear=7, Type1SmearXY=8, 
+       Type01SmearXY=9, RawCalo=10, RawChs=11, RawTrk=12, METCorrectionLevelSize=13
       };
       enum METCorrectionType {
-        None=0, T1=1, T0=2, TXY=3, TXYForRaw=4,
-	TXYForT01=5, TXYForT1Smear=6, TXYForT01Smear=7,
-	Smear=8, Calo=9, METCorrectionTypeSize=10
+       None=0, T1=1, T0=2, TXY=3, TXYForRaw=4,
+       TXYForT01=5, TXYForT1Smear=6, TXYForT01Smear=7,
+       Smear=8, Calo=9, Chs=10, Trk=11, METCorrectionTypeSize=12
       };
 
       struct Vector2 { 

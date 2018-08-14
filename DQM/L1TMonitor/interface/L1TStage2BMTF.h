@@ -58,14 +58,13 @@ public:
 // class constructor
 L1TStage2BMTF(const edm::ParameterSet & ps);
 // class destructor
-virtual ~L1TStage2BMTF();
+~L1TStage2BMTF() override;
 
 // member functions
 protected:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
 
 // data members
 private:  
@@ -75,6 +74,7 @@ private:
   //  edm::InputTag bmtfSourceTwinMux1;
   //  edm::InputTag bmtfSourceTwinMux2;
   bool verbose ;
+  bool kalman;
   edm::EDGetToken bmtfToken;
   // edm::EDGetToken bmtfTokenTwinMux1;
   //  edm::EDGetToken bmtfTokenTwinMux2; 
@@ -99,6 +99,9 @@ private:
   MonitorElement* bmtf_hwPt_bx;   
   MonitorElement* bmtf_hwQual_bx; 
 
+
+  MonitorElement* kbmtf_hwDXY;
+  MonitorElement* kbmtf_hwPt2;
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhiB; */

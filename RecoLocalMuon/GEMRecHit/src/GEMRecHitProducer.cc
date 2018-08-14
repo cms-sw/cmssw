@@ -206,7 +206,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
     OwnVector<GEMRecHit> recHits =
       theAlgo->reconstruct(*roll, gemId, range, mask);
     
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(!recHits.empty()) //FIXME: is it really needed?
       recHitCollection->put(gemId, recHits.begin(), recHits.end());
   }
 

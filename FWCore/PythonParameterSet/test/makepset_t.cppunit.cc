@@ -21,6 +21,7 @@
 #include <stdlib.h> // for setenv; <cstdlib> is likely to fail
 #include <string>
 #include <unistd.h>
+#include <boost/filesystem.hpp>
 
 class testmakepset: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testmakepset);
@@ -143,13 +144,13 @@ void testmakepset::usingBlockAux() {
   "    j = cms.int32(3),\n"
   "    u = cms.uint64(1011),\n"
   "    l = cms.int64(101010)\n"
-  ")\n";
+  ")\n"
+  "process.p = cms.Path(process.m1+process.m2)\n";
 
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
   std::shared_ptr<edm::ParameterSet> ps = builder.parameterSet();
-
   CPPUNIT_ASSERT(nullptr != ps.get());
 
   // Make sure this ParameterSet object has the right contents
@@ -232,7 +233,16 @@ void testmakepset::fileinpathAux() {
   std::string tmpout = fullpath.substr(0, fullpath.find("FWCore/PythonParameterSet/test/fip.txt")) + "tmp.py";
 
   edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
-  CPPUNIT_ASSERT(topo.location() != edm::FileInPath::Local);
+  // if the file is local, then just disable this check as then it is expected to fail
+  {
+    std::string const src("/src");
+    std::string local = localBase + src;
+    std::string localFile = local + "/Geometry/TrackerSimData/data/trackersens.xml";
+    if (!boost::filesystem::exists(localFile) )
+      CPPUNIT_ASSERT(topo.location() != edm::FileInPath::Local);
+    else
+      std::cerr << "Disabling test against local path for trackersens.xml as package is checked out in this test" << std::endl;
+  }
   CPPUNIT_ASSERT(topo.relativePath() == "Geometry/TrackerSimData/data/trackersens.xml");
   fullpath = topo.fullPath();
   CPPUNIT_ASSERT(!fullpath.empty());

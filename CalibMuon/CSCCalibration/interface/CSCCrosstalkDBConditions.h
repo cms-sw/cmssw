@@ -20,21 +20,18 @@
 class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCCrosstalkDBConditions(const edm::ParameterSet&);
-  ~CSCCrosstalkDBConditions();
+  ~CSCCrosstalkDBConditions() override;
   
 
   inline static CSCDBCrosstalk * prefillDBCrosstalk();
 
-  typedef const  CSCDBCrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCDBCrosstalk> ReturnType;
   
   ReturnType produceDBCrosstalk(const CSCDBCrosstalkRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-
-
-  CSCDBCrosstalk *cndbCrosstalk ;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
 };
 

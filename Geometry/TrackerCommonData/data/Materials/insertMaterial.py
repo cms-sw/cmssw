@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import xml.dom.minidom
 import math
@@ -102,14 +103,14 @@ def getAttributes(node):
 #(not used but interessting for debug)
 def dokument(domina):
     for node in domina.childNodes:
-        print "NodeName:", node.nodeName,
+        print("NodeName:", node.nodeName, end=' ')
         if node.nodeType == node.ELEMENT_NODE:
-            print "Typ ELEMENT_NODE"
-            print getAttributes(node)
+            print("Typ ELEMENT_NODE")
+            print(getAttributes(node))
         elif node.nodeType == node.TEXT_NODE:
-            print "Typ TEXT_NODE, Content: ", node.nodeValue.strip()
+            print("Typ TEXT_NODE, Content: ", node.nodeValue.strip())
         elif node.nodeType == node.COMMENT_NODE:
-            print "Typ COMMENT_NODE, "
+            print("Typ COMMENT_NODE, ")
         #dokument(node)
 
 #prints all CompositeMaterials beneeth [rootNode]
@@ -117,7 +118,7 @@ def dokument(domina):
 def printMaterials(rootNode):
     matNodes = getNodes(rootNode,"CompositeMaterial")
     for name in matNodes:
-        print "  "+name+" (dens = "+getAttributes(matNodes[name])["density"]+")"
+        print("  "+name+" (dens = "+getAttributes(matNodes[name])["density"]+")")
         for fractionNode in matNodes[name].childNodes:
             if fractionNode.nodeName == "MaterialFraction":
                 fractionString = getAttributes(fractionNode)["fraction"]
@@ -125,7 +126,7 @@ def printMaterials(rootNode):
                     if materialNode.nodeName == "rMaterial":
                         fractionString += "\tof "+getAttributes(materialNode)["name"].split(":")[1]
                         fractionString += "\tfrom "+getAttributes(materialNode)["name"].split(":")[0]
-                print "   |-- "+fractionString
+                print("   |-- "+fractionString)
     
 #returns the Material Section doe of a DDD Material xmlfile
 def getMaterialSection(rootNode):

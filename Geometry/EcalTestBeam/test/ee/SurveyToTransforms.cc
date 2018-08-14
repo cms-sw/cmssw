@@ -27,7 +27,7 @@ using namespace CLHEP;
 class SurveyToTransforms : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   SurveyToTransforms( const edm::ParameterSet& );
-  ~SurveyToTransforms() {}
+  ~SurveyToTransforms() override {}
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

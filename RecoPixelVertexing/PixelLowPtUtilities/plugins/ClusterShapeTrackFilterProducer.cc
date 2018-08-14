@@ -16,12 +16,12 @@
 class ClusterShapeTrackFilterProducer: public edm::global::EDProducer<> {
 public:
   explicit ClusterShapeTrackFilterProducer(const edm::ParameterSet& iConfig);
-  ~ClusterShapeTrackFilterProducer();
+  ~ClusterShapeTrackFilterProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   edm::EDGetTokenT<SiPixelClusterShapeCache> clusterShapeCacheToken_;
   const double ptMin_;

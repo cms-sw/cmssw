@@ -70,11 +70,6 @@ void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e)
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_alphaT::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
-{
-   edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::beginLuminosityBlock" << std::endl;
-}
 
 
 
@@ -158,7 +153,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   // }
 
   //Fill the alphaT and HT histograms
-  if(hltPfJets.size()>0){
+  if(!hltPfJets.empty()){
       double hltPfAlphaT = AlphaT(hltPfJets,true).value();
       h_triggerPfAlphaT->Fill(hltPfAlphaT);
       h_triggerPfHt->Fill(hltPfHt);
@@ -226,10 +221,6 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 }
 
 
-void SUSY_HLT_alphaT::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_alphaT::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

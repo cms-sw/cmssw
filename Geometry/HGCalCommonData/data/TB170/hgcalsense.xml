@@ -8,7 +8,6 @@
     <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
   </SpecPar>
   <SpecPar name="hgcfh">
-    <PartSelector path="//HGCalHESiliconSensitive.*"/> 
     <PartSelector path="//.*HGCalHECell.*"/> 
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsHEfront" eval="false"/>

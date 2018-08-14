@@ -1,5 +1,6 @@
 
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
@@ -9,7 +10,8 @@ using namespace std;
 
 
 MCSingleParticleFilter::MCSingleParticleFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared")))
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //here do whatever other initialization is needed
    vector<int> defpid ;
@@ -35,7 +37,7 @@ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("
      ||  (etaMin.size() > 1 && particleID.size() != etaMin.size()) 
      ||  (etaMax.size() > 1 && particleID.size() != etaMax.size())
      ||  (status.size() > 1 && particleID.size() != status.size()) ) {
-      cout << "WARNING: MCPROCESSFILTER : size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
+	    edm::LogInfo("MCSingleParticleFilter") << "WARNING: size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
     }
 
     // if ptMin size smaller than particleID , fill up further with defaults
@@ -63,7 +65,10 @@ token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("
        status = defstat2;   
     } 
 
-
+    // check if beta is smaller than 1
+    if (std::abs(betaBoost) >= 1 ){
+      edm::LogError("MCSingleParticleFilter") << "Input beta boost is >= 1 !";
+    }
 
 }
 
@@ -78,7 +83,7 @@ MCSingleParticleFilter::~MCSingleParticleFilter()
 
 
 // ------------ method called to skim the data  ------------
-bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MCSingleParticleFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -95,10 +100,15 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
      for (unsigned int i = 0; i < particleID.size(); i++){
        if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
     
-	 if ( (*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
-	      && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
-          accepted = true; 
-	 }  
+	 if ( (*p)->momentum().perp() > ptMin[i]
+	      && ((*p)->status() == status[i] || status[i] == 0)) {
+
+           HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+           if ( mom.eta() > etaMin[i] && mom.eta() < etaMax[i] ) {
+             accepted = true;
+           }
+
+         }
 	 
        } 
      }
@@ -106,7 +116,6 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
    }
    
-   if (accepted){ return true; } else {return false;}
+   return accepted;
    
 }
-

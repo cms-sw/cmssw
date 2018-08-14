@@ -40,9 +40,12 @@
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA6.h"
 
-#include "TFile.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "TH1D.h"
 #include "TH2D.h"
+
 //
 // class declaration
 //
@@ -68,21 +71,11 @@ class rerunMVAIsolationOnMiniAOD : public edm::one::EDAnalyzer<edm::one::SharedR
       virtual void endJob() override;
 
       // ----------member data ---------------------------
-      TFile* outfile;
-
       bool verbosity_;
       bool additionalCollectionsAvailable_;
       TauIdMVAAuxiliaries clusterVariables_;
 
       edm::EDGetTokenT<pat::TauCollection> tauToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVLooseToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationLooseToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationMediumToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaIsolationVVTightToken_;
-      edm::EDGetTokenT<pat::PATTauDiscriminator> mvaEleRawToken_;
       edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
       edm::EDGetTokenT<reco::PFTauDiscriminator> dmfNewToken_;
       edm::EDGetTokenT<reco::PFTauDiscriminator> chargedIsoPtSumToken_;
@@ -157,19 +150,7 @@ rerunMVAIsolationOnMiniAOD::rerunMVAIsolationOnMiniAOD(const edm::ParameterSet& 
 
 {
    //now do what ever initialization is needed
-   usesResource("TFileService");
-
-   outfile = new TFile("outfile_rerunMVAIsolationOnMiniAOD.root","RECREATE");
-
-   tauToken_ = consumes<pat::TauCollection>(edm::InputTag("slimmedTaus","","PAT"));
-   mvaIsolationToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1raw","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationVLooseToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1VLoose","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationLooseToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1Loose","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationMediumToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1Medium","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationTightToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1Tight","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationVTightToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1VTight","","rerunMVAIsolationOnMiniAOD"));
-   mvaIsolationVVTightToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationByIsolationMVArun2v1VVTight","","rerunMVAIsolationOnMiniAOD"));
-   mvaEleRawToken_ = consumes<pat::PATTauDiscriminator>(edm::InputTag("rerunDiscriminationAgainstElectronMVA6","","rerunMVAIsolationOnMiniAOD"));
+   tauToken_ = consumes<pat::TauCollection>(edm::InputTag("newTauIDsEmbedded"));
    pfTauToken_ = consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer","","PAT"));
    dmfNewToken_ = consumes<reco::PFTauDiscriminator>(edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs","","PAT"));
    chargedIsoPtSumToken_ = consumes<reco::PFTauDiscriminator>(edm::InputTag("hpsPFTauChargedIsoPtSum","","PAT"));
@@ -183,63 +164,62 @@ rerunMVAIsolationOnMiniAOD::rerunMVAIsolationOnMiniAOD(const edm::ParameterSet& 
    verbosity_ = iConfig.getParameter<int>("verbosity");
    additionalCollectionsAvailable_ = iConfig.getParameter<bool>("additionalCollectionsAvailable");
 
-   mvaValueAOD = new TH1D("mvaValueAOD",";MVA value;",220,-1.1,1.1);
-   mvaValueMiniAOD = new TH1D("mvaValueMiniAOD",";MVA value;",220,-1.1,1.1);
-   mvaValueDiff = new TH1D("mvaValueDiff",";|AOD - MiniAOD|;",2000,0,2);
+   // book histograms
+   edm::Service<TFileService> fileService;
+   mvaValueAOD = fileService->make<TH1D>("mvaValueAOD",";MVA value;",220,-1.1,1.1);
+   mvaValueMiniAOD = fileService->make<TH1D>("mvaValueMiniAOD",";MVA value;",220,-1.1,1.1);
+   mvaValueDiff = fileService->make<TH1D>("mvaValueDiff",";|AOD - MiniAOD|;",2000,0,2);
 
-   differences = new TH1D("differences","",24,-0.5,23.5);
-   differencesWeighted = new TH1D("differencesWeighted","",24,-0.5,23.5);
+   differences = fileService->make<TH1D>("differences","",24,-0.5,23.5);
+   differencesWeighted = fileService->make<TH1D>("differencesWeighted","",24,-0.5,23.5);
 
-   difference_dxy = new TH1D("difference_dxy",";|AOD - MiniAOD| (dxy);",1000,0,0.0005);
-   difference_dxySig = new TH1D("difference_dxySig",";|AOD - MiniAOD| (dxySig);",1000,0,0.0005);
-   difference_ip3d = new TH1D("difference_ip3d",";|AOD - MiniAOD| (ip3d);",1000,0,0.0005);
-   difference_ip3dSig = new TH1D("difference_ip3dSig",";|AOD - MiniAOD| (ip3dSig);",1000,0,0.0005);
-   difference_flightlengthSig = new TH1D("difference_flightlengthSig",";|AOD - MiniAOD| (flightlengthSig);",1000,0,0.0005);
-   difference_ptWeightedDetaStrip = new TH1D("difference_ptWeightedDetaStrip",";|AOD - MiniAOD| (ptWeightedDetaStrip);",1000,0,0.0005);
-   difference_ptWeightedDphiStrip = new TH1D("difference_ptWeightedDphiStrip",";|AOD - MiniAOD| (ptWeightedDphiStrip);",1000,0,0.0005);
-   difference_ptWeightedDrSignal = new TH1D("difference_ptWeightedDrSignal",";|AOD - MiniAOD| (ptWeightedDrSignal);",1000,0,0.0005);
-   difference_ptWeightedDrIso = new TH1D("difference_ptWeightedDrIso",";|AOD - MiniAOD| (ptWeightedDrIso);",1000,0,0.0005);
+   difference_dxy = fileService->make<TH1D>("difference_dxy",";|AOD - MiniAOD| (dxy);",1000,0,0.0005);
+   difference_dxySig = fileService->make<TH1D>("difference_dxySig",";|AOD - MiniAOD| (dxySig);",1000,0,0.0005);
+   difference_ip3d = fileService->make<TH1D>("difference_ip3d",";|AOD - MiniAOD| (ip3d);",1000,0,0.0005);
+   difference_ip3dSig = fileService->make<TH1D>("difference_ip3dSig",";|AOD - MiniAOD| (ip3dSig);",1000,0,0.0005);
+   difference_flightlengthSig = fileService->make<TH1D>("difference_flightlengthSig",";|AOD - MiniAOD| (flightlengthSig);",1000,0,0.0005);
+   difference_ptWeightedDetaStrip = fileService->make<TH1D>("difference_ptWeightedDetaStrip",";|AOD - MiniAOD| (ptWeightedDetaStrip);",1000,0,0.0005);
+   difference_ptWeightedDphiStrip = fileService->make<TH1D>("difference_ptWeightedDphiStrip",";|AOD - MiniAOD| (ptWeightedDphiStrip);",1000,0,0.0005);
+   difference_ptWeightedDrSignal = fileService->make<TH1D>("difference_ptWeightedDrSignal",";|AOD - MiniAOD| (ptWeightedDrSignal);",1000,0,0.0005);
+   difference_ptWeightedDrIso = fileService->make<TH1D>("difference_ptWeightedDrIso",";|AOD - MiniAOD| (ptWeightedDrIso);",1000,0,0.0005);
 
-   mvaValue = new TH2D("mvaValue",";AOD;MiniAOD",220,-1.1,1.1,220,-1.1,1.1);
-   mvaValue_vLoose = new TH2D("mvaValue_vLoose",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
-   mvaValue_Loose = new TH2D("mvaValue_Loose",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
-   mvaValue_Medium = new TH2D("mvaValue_Medium",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
-   mvaValue_Tight = new TH2D("mvaValue_Tight",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
-   mvaValue_vTight = new TH2D("mvaValue_vTight",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
-   mvaValue_vvTight = new TH2D("mvaValue_vvTight",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
+   mvaValue = fileService->make<TH2D>("mvaValue",";AOD;MiniAOD",220,-1.1,1.1,220,-1.1,1.1);
+   mvaValue_vLoose = fileService->make<TH2D>("mvaValue_vLoose",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
+   mvaValue_Loose = fileService->make<TH2D>("mvaValue_Loose",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
+   mvaValue_Medium = fileService->make<TH2D>("mvaValue_Medium",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
+   mvaValue_Tight = fileService->make<TH2D>("mvaValue_Tight",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
+   mvaValue_vTight = fileService->make<TH2D>("mvaValue_vTight",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
+   mvaValue_vvTight = fileService->make<TH2D>("mvaValue_vvTight",";AOD;MiniAOD",2,-0.5,1.5,2,-0.5,1.5);
 
-   decayMode = new TH2D("decayMode",";decay mode (AOD);decay mode (MiniAOD)",12,-0.5,11.5,12,-0.5,11.5);
-   chargedIsoPtSum = new TH2D("chargedIsoPtSum",";chargedIsoPtSum (AOD);chargedIsoPtSum (MiniAOD)",500,0,50,500,0,50);
-   neutralIsoPtSum = new TH2D("neutralIsoPtSum",";neutralIsoPtSum (AOD);neutralIsoPtSum (MiniAOD)",500,0,50,500,0,50);
-   puCorrPtSum = new TH2D("puCorrPtSum",";puCorrPtSum (AOD);puCorrPtSum (MiniAOD)",500,0,50,500,0,50);
-   photonPtSumOutsideSignalCone = new TH2D("photonPtSumOutsideSignalCone",";photonPtSumOutsideSignalCone (AOD);photonPtSumOutsideSignalCone (MiniAOD)",500,0,50,500,0,50);
-   footprintCorrection = new TH2D("footprintCorrection",";footprintCorrection (AOD);footprintCorrection (MiniAOD)",500,0,50,500,0,50);
+   decayMode = fileService->make<TH2D>("decayMode",";decay mode (AOD);decay mode (MiniAOD)",12,-0.5,11.5,12,-0.5,11.5);
+   chargedIsoPtSum = fileService->make<TH2D>("chargedIsoPtSum",";chargedIsoPtSum (AOD);chargedIsoPtSum (MiniAOD)",500,0,50,500,0,50);
+   neutralIsoPtSum = fileService->make<TH2D>("neutralIsoPtSum",";neutralIsoPtSum (AOD);neutralIsoPtSum (MiniAOD)",500,0,50,500,0,50);
+   puCorrPtSum = fileService->make<TH2D>("puCorrPtSum",";puCorrPtSum (AOD);puCorrPtSum (MiniAOD)",500,0,50,500,0,50);
+   photonPtSumOutsideSignalCone = fileService->make<TH2D>("photonPtSumOutsideSignalCone",";photonPtSumOutsideSignalCone (AOD);photonPtSumOutsideSignalCone (MiniAOD)",500,0,50,500,0,50);
+   footprintCorrection = fileService->make<TH2D>("footprintCorrection",";footprintCorrection (AOD);footprintCorrection (MiniAOD)",500,0,50,500,0,50);
 
-   decayDistMag = new TH2D("decayDistMag",";decayDistMag (AOD);decayDistMag (MiniAOD)",100,0,10,100,0,10);
-   dxy = new TH2D("dxy",";d_{xy} (AOD);d_{xy} (MiniAOD)",100,0,0.1,100,0,0.1);
-   dxySig = new TH2D("dxySig",";d_{xy} significance (AOD);d_{xy} significance (MiniAOD)",10,-0.5,9.5,10,-0.5,9.5);
-   ip3d = new TH2D("ip3d",";ip3d (AOD);ip3d (MiniAOD)",100,0,10,100,0,10);
-   ip3dSig = new TH2D("ip3dSig",";ip3d significance (AOD);ip3d significance (MiniAOD)",10,-0.5,9.5,10,-0.5,9.5);
-   hasSV = new TH2D("hasSV",";has SV (AOD);has SV (MiniAOD)",2,-0.5,1.5,2,-0.5,1.5);
-   flightlengthSig = new TH2D("flightlengthSig",";flightlength significance (AOD);flightlength significance (MiniAOD)",21,-10.5,10.5,21,-10.5,10.5);
-   nPhoton = new TH2D("nPhoton",";nPhoton (AOD);nPhoton (MiniAOD)",20,-0.5,19.5,20,-0.5,19.5);
-   ptWeightedDetaStrip = new TH2D("ptWeightedDetaStrip",";ptWeightedDetaStrip (AOD);ptWeightedDetaStrip (MiniAOD)",50,0,0.5,50,0,0.5);
-   ptWeightedDphiStrip = new TH2D("ptWeightedDphiStrip",";ptWeightedDphiStrip (AOD);ptWeightedDphiStrip (MiniAOD)",50,0,0.5,50,0,0.5);
-   ptWeightedDrSignal = new TH2D("ptWeightedDrSignal",";ptWeightedDrSignal (AOD);ptWeightedDrSignal (MiniAOD)",50,0,0.5,50,0,0.5);
-   ptWeightedDrIsolation = new TH2D("ptWeightedDrIsolation",";ptWeightedDrIsolation (AOD);ptWeightedDrIsolation (MiniAOD)",50,0,0.5,50,0,0.5);
-   leadTrackChi2 = new TH2D("leadTrackChi2",";leadTrackChi2 (AOD);leadTrackChi2 (MiniAOD)",1000,0,100,1000,0,100);
-   eRatio = new TH2D("eRatio",";eRatio (AOD);eRatio (MiniAOD)",200,0,2,200,0,2);
-   mvaValue_antiEMVA6 = new TH2D("mvaValue_antiEMVA6",";AOD;MiniAOD",220,-1.1,1.1,220,-1.1,1.1);
+   decayDistMag = fileService->make<TH2D>("decayDistMag",";decayDistMag (AOD);decayDistMag (MiniAOD)",100,0,10,100,0,10);
+   dxy = fileService->make<TH2D>("dxy",";d_{xy} (AOD);d_{xy} (MiniAOD)",100,0,0.1,100,0,0.1);
+   dxySig = fileService->make<TH2D>("dxySig",";d_{xy} significance (AOD);d_{xy} significance (MiniAOD)",10,-0.5,9.5,10,-0.5,9.5);
+   ip3d = fileService->make<TH2D>("ip3d",";ip3d (AOD);ip3d (MiniAOD)",100,0,10,100,0,10);
+   ip3dSig = fileService->make<TH2D>("ip3dSig",";ip3d significance (AOD);ip3d significance (MiniAOD)",10,-0.5,9.5,10,-0.5,9.5);
+   hasSV = fileService->make<TH2D>("hasSV",";has SV (AOD);has SV (MiniAOD)",2,-0.5,1.5,2,-0.5,1.5);
+   flightlengthSig = fileService->make<TH2D>("flightlengthSig",";flightlength significance (AOD);flightlength significance (MiniAOD)",21,-10.5,10.5,21,-10.5,10.5);
+   nPhoton = fileService->make<TH2D>("nPhoton",";nPhoton (AOD);nPhoton (MiniAOD)",20,-0.5,19.5,20,-0.5,19.5);
+   ptWeightedDetaStrip = fileService->make<TH2D>("ptWeightedDetaStrip",";ptWeightedDetaStrip (AOD);ptWeightedDetaStrip (MiniAOD)",50,0,0.5,50,0,0.5);
+   ptWeightedDphiStrip = fileService->make<TH2D>("ptWeightedDphiStrip",";ptWeightedDphiStrip (AOD);ptWeightedDphiStrip (MiniAOD)",50,0,0.5,50,0,0.5);
+   ptWeightedDrSignal = fileService->make<TH2D>("ptWeightedDrSignal",";ptWeightedDrSignal (AOD);ptWeightedDrSignal (MiniAOD)",50,0,0.5,50,0,0.5);
+   ptWeightedDrIsolation = fileService->make<TH2D>("ptWeightedDrIsolation",";ptWeightedDrIsolation (AOD);ptWeightedDrIsolation (MiniAOD)",50,0,0.5,50,0,0.5);
+   leadTrackChi2 = fileService->make<TH2D>("leadTrackChi2",";leadTrackChi2 (AOD);leadTrackChi2 (MiniAOD)",1000,0,100,1000,0,100);
+   eRatio = fileService->make<TH2D>("eRatio",";eRatio (AOD);eRatio (MiniAOD)",200,0,2,200,0,2);
+   mvaValue_antiEMVA6 = fileService->make<TH2D>("mvaValue_antiEMVA6",";AOD;MiniAOD",220,-1.1,1.1,220,-1.1,1.1);
 }
 
 
 rerunMVAIsolationOnMiniAOD::~rerunMVAIsolationOnMiniAOD()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-	outfile->Close();
+{ 
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -254,53 +234,26 @@ rerunMVAIsolationOnMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSe
 	edm::Handle<pat::TauCollection> taus;
 	iEvent.getByToken(tauToken_,taus);
 
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoRaw;
-	iEvent.getByToken(mvaIsolationToken_,mvaIsoRaw);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoVLoose;
-	iEvent.getByToken(mvaIsolationVLooseToken_,mvaIsoVLoose);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoLoose;
-	iEvent.getByToken(mvaIsolationLooseToken_,mvaIsoLoose);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoMedium;
-	iEvent.getByToken(mvaIsolationMediumToken_,mvaIsoMedium);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoTight;
-	iEvent.getByToken(mvaIsolationTightToken_,mvaIsoTight);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoVTight;
-	iEvent.getByToken(mvaIsolationVTightToken_,mvaIsoVTight);
-
-	edm::Handle<pat::PATTauDiscriminator> mvaIsoVVTight;
-	iEvent.getByToken(mvaIsolationVVTightToken_,mvaIsoVVTight);
-
-        edm::Handle<reco::PFTauDiscriminator> rawElecMVA6;
-	iEvent.getByToken(rawElecMVA6Token_,rawElecMVA6);
-       
-        edm::Handle<pat::PATTauDiscriminator> mvaEleRaw;
-        iEvent.getByToken(mvaEleRawToken_,mvaEleRaw);
-
 	std::vector<pat::TauRef> unmatchedTaus;
 
 	for(unsigned iTau = 0; iTau < taus->size(); iTau++)
 	{
 		pat::TauRef tau(taus,iTau);
 		float valueAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTraw");
-		float valueMiniAOD = (*mvaIsoRaw)[tau];
+		float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
 
 		mvaValueAOD->Fill(valueAOD);
 		mvaValueMiniAOD->Fill(valueMiniAOD);
 
 		mvaValue->Fill(valueAOD,valueMiniAOD);
-		mvaValue_vLoose->Fill(tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVLoose)[tau]);
-		mvaValue_Loose->Fill(tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoLoose)[tau]);
-		mvaValue_Medium->Fill(tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoMedium)[tau]);
-		mvaValue_Tight->Fill(tau->tauID("byTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoTight)[tau]);
-		mvaValue_vTight->Fill(tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVTight)[tau]);
-		mvaValue_vvTight->Fill(tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLT"),(*mvaIsoVVTight)[tau]);
+		mvaValue_vLoose->Fill(tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_Loose->Fill(tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_Medium->Fill(tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_Tight->Fill(tau->tauID("byTightIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byTightIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_vTight->Fill(tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLTNew"));
+		mvaValue_vvTight->Fill(tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLT"),tau->tauID("byVVTightIsolationMVArun2v1DBoldDMwLTNew"));
 		mvaValueDiff->Fill(std::abs(valueAOD - valueMiniAOD));
-                mvaValue_antiEMVA6->Fill((*mvaEleRaw)[tau] , taus->at(iTau).tauID("againstElectronMVA6Raw"));
+                mvaValue_antiEMVA6->Fill(tau->tauID("againstElectronMVA6Raw"), tau->tauID("againstElectronMVA6RawNew"));
 
 		if(valueAOD != valueMiniAOD)
 			unmatchedTaus.push_back(tau);
@@ -534,53 +487,6 @@ rerunMVAIsolationOnMiniAOD::beginJob()
 void 
 rerunMVAIsolationOnMiniAOD::endJob()
 {
-	mvaValueAOD->Write();
-	mvaValueMiniAOD->Write();
-	mvaValueDiff->Write();
-
-	differences->Write();
-	differencesWeighted->Write();
-
-	difference_dxy->Write();
-	difference_dxySig->Write();
-	difference_ip3d->Write();
-	difference_ip3dSig->Write();
-	difference_flightlengthSig->Write();
-	difference_ptWeightedDetaStrip->Write();
-	difference_ptWeightedDphiStrip->Write();
-	difference_ptWeightedDrSignal->Write();
-	difference_ptWeightedDrIso->Write();
-
-	mvaValue->Write();
-	mvaValue_vLoose->Write();
-	mvaValue_Loose->Write();
-	mvaValue_Medium->Write();
-	mvaValue_Tight->Write();
-	mvaValue_vTight->Write();
-	mvaValue_vvTight->Write();
-	mvaValue_antiEMVA6->Write();
-
-	decayMode->Write();
-	chargedIsoPtSum->Write();
-	neutralIsoPtSum->Write();
-	puCorrPtSum->Write();
-	photonPtSumOutsideSignalCone->Write();
-	footprintCorrection->Write();
-
-	decayDistMag->Write();
-	dxy->Write();
-	dxySig->Write();
-	ip3d->Write();
-	ip3dSig->Write();
-	hasSV->Write();
-	flightlengthSig->Write();
-	nPhoton->Write();
-	ptWeightedDetaStrip->Write();
-	ptWeightedDphiStrip->Write();
-	ptWeightedDrSignal->Write();
-	ptWeightedDrIsolation->Write();
-	leadTrackChi2->Write();
-	eRatio->Write();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

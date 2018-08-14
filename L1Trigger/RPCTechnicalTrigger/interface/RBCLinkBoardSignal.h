@@ -18,9 +18,9 @@ public:
 
   RBCLinkBoardSignal( RBCInput * ); 
   
-  virtual ~RBCLinkBoardSignal( ); ///< Destructor
+  ~RBCLinkBoardSignal( ) override; ///< Destructor
   
-  void clear() { };
+  void clear() override { };
 
   RBCInput * m_linkboardin;
   

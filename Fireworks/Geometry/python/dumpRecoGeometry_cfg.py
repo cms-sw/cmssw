@@ -1,37 +1,38 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 
-varType = Enumerate ("Run1 2015 2017 2019 2023D7 2023D10 2023D4 2023D8 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2019 2023D17 2023D19 MaPSA")
 
 def help():
-   print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
-   print "   tag=tagname"
-   print "       indentify geometry condition database tag"
-   print "      ", varType.keys()
-   print ""
-   print "   tgeo=bool"
-   print "       dump in TGeo format to borwse it geomtery viewer"
-   print "       import this will in Fireworks with option --sim-geom-file"
-   print ""
-   print "   tracker=bool"
-   print "       include Tracker subdetectors"
-   print ""
-   print "   muon=bool"
-   print "       include Muon subdetectors"
-   print ""
-   print "   calo=bool"
-   print "       include Calo subdetectors"
-   print ""
-   print "   timing=bool"
-   print "       include Timing subdetectors"
-   print ""
-   print ""
+   print("Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG ")
+   print("   tag=tagname")
+   print("       indentify geometry condition database tag")
+   print("      ", varType.keys())
+   print("")
+   print("   tgeo=bool")
+   print("       dump in TGeo format to borwse it geomtery viewer")
+   print("       import this will in Fireworks with option --sim-geom-file")
+   print("")
+   print("   tracker=bool")
+   print("       include Tracker subdetectors")
+   print("")
+   print("   muon=bool")
+   print("       include Muon subdetectors")
+   print("")
+   print("   calo=bool")
+   print("       include Calo subdetectors")
+   print("")
+   print("   timing=bool")
+   print("       include Timing subdetectors")
+   print("")
+   print("")
    exit(1);
 
 def recoGeoLoad(score):
-    print "Loading configuration for tag ", options.tag ,"...\n"
+    print("Loading configuration for tag ", options.tag ,"...\n")
 
     if score == "Run1":
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -62,29 +63,11 @@ def recoGeoLoad(score):
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
-    elif  score == "2023D7":
+    elif "2023" in score:
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023D7Reco_cff')
-       
-    elif  score == "2023D10":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['phase2_realistic']
-       process.load('Configuration.Geometry.GeometryExtended2023D10Reco_cff')
-       
-    elif  score == "2023D4":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['phase2_realistic']
-       process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-
-    elif  score == "2023D8":
-       process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-       from Configuration.AlCa.autoCond import autoCond
-       process.GlobalTag.globaltag = autoCond['phase2_realistic']
-       process.load('Configuration.Geometry.GeometryExtended2023D8Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended'+score+'Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
@@ -126,7 +109,7 @@ options = VarParsing.VarParsing ()
 defaultOutputFileName="cmsRecoGeom.root"
 
 options.register ('tag',
-                  "2015", # default value
+                  "2017", # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "tag info about geometry database conditions")
@@ -206,7 +189,7 @@ else:
                        outputFileName = cms.untracked.string(options.out)
                               )
 
-print "Dumping geometry in " , options.out, "\n"; 
+print("Dumping geometry in " , options.out, "\n"); 
 process.p = cms.Path(process.dump)
 
 

@@ -100,7 +100,7 @@ int L1MuDTChambPhDigi::code() const {
 }
 
 int L1MuDTChambPhDigi::Ts2Tag() const {
-  return Ts2TagCode;
+  return Ts2TagCode%2;
 }
 
 int L1MuDTChambPhDigi::BxCnt() const {
@@ -109,4 +109,8 @@ int L1MuDTChambPhDigi::BxCnt() const {
 
 int L1MuDTChambPhDigi::RpcBit() const {
   return rpcBit;
+}
+
+int L1MuDTChambPhDigi::UpDownTag()	const{
+  return Ts2TagCode/2 ;
 }

@@ -54,14 +54,14 @@
 class APVCyclePhaseProducerFromL1ABC : public edm::EDProducer {
    public:
       explicit APVCyclePhaseProducerFromL1ABC(const edm::ParameterSet&);
-      ~APVCyclePhaseProducerFromL1ABC();
+      ~APVCyclePhaseProducerFromL1ABC() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -102,7 +102,7 @@ APVCyclePhaseProducerFromL1ABC::APVCyclePhaseProducerFromL1ABC(const edm::Parame
   _orbitoffsetSOR(iConfig.getParameter<int>("StartOfRunOrbitOffset")),
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
   m_rhm(consumesCollector()),
-  _hbx(0),_hdbx(0),_hdorbit(0),_firstgoodrun(110878),
+  _hbx(nullptr),_hdbx(nullptr),_hdorbit(nullptr),_firstgoodrun(110878),
   _offsets(), _curroffset(0), _curroffevent(0)
 {
 
@@ -233,7 +233,7 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 
     if(orbitoffset != _orbitoffsetSOR) phasechange = (orbitoffset*3564)%70;
 
-     if(_offsets.size()==0) {
+     if(_offsets.empty()) {
        _curroffset = absbxoffset;
        _curroffevent = iEvent.id().event();
        _offsets[iEvent.id().event()] = absbxoffset;

@@ -28,9 +28,9 @@ public:
   enum Mode { Sum, SumRelative, Sum2, Sum2Relative, Max, MaxRelative, Count, NearestDR,MeanDR,SumDR };
   CandIsolatorFromDeposits(const edm::ParameterSet&);
 
-  virtual ~CandIsolatorFromDeposits();
+  ~CandIsolatorFromDeposits() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   class SingleDeposit {

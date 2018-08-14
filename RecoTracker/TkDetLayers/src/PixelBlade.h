@@ -18,24 +18,24 @@ class PixelBlade final : public GeometricSearchDet {
   PixelBlade(std::vector<const GeomDet*>& frontDets,
 	     std::vector<const GeomDet*>& backDets  ) __attribute__ ((cold));
 
-  ~PixelBlade() __attribute__ ((cold));
+  ~PixelBlade() override __attribute__ ((cold));
   
   // GeometricSearchDet interface
-  virtual const BoundSurface& surface() const {return *theDiskSector;}
+  const BoundSurface& surface() const override {return *theDiskSector;}
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const  __attribute__ ((cold));
+	      const MeasurementEstimator&) const  override __attribute__ ((cold));
   
-  virtual void 
+  void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			  const Propagator& prop,
 			  const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const __attribute__ ((hot));
+			  std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}

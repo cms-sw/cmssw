@@ -17,6 +17,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <cmath>
 
@@ -35,13 +36,13 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   double s;
   
   // check if already on plane
-  if likely (plane.localZclamped(fts.position()) !=0)  {
+  if LIKELY (plane.localZclamped(fts.position()) !=0)  {
       // propagate
       bool parametersOK = this->propagateParametersOnPlane(fts, plane, x, p, s);
       // check status and deltaPhi limit
       float dphi2 = float(s)*rho;
       dphi2 = dphi2*dphi2*fts.momentum().perp2();
-      if unlikely( !parametersOK || dphi2>theMaxDPhi2*fts.momentum().mag2() )  return TsosWP(TrajectoryStateOnSurface(),0.);
+      if UNLIKELY( !parametersOK || dphi2>theMaxDPhi2*fts.momentum().mag2() )  return TsosWP(TrajectoryStateOnSurface(),0.);
     }
   else {
     LogDebug("AnalyticalPropagator")<<"not going anywhere. Already on surface.\n"
@@ -56,7 +57,7 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   // Compute propagated state and check change in curvature
   //
   GlobalTrajectoryParameters gtp(x,p,fts.charge(),theField);
-  if unlikely(std::abs(gtp.transverseCurvature()-rho)>theMaxDBzRatio*std::abs(rho) ) 
+  if UNLIKELY(std::abs(gtp.transverseCurvature()-rho)>theMaxDBzRatio*std::abs(rho) ) 
     return TsosWP(TrajectoryStateOnSurface(),0.);
   //
   // construct TrajectoryStateOnSurface
@@ -81,12 +82,12 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   // check status and deltaPhi limit
   float dphi2 = s*rho;
   dphi2 = dphi2*dphi2*fts.momentum().perp2();
-  if unlikely( !parametersOK || dphi2>theMaxDPhi2*fts.momentum().mag2() )  return TsosWP(TrajectoryStateOnSurface(),0.);
+  if UNLIKELY( !parametersOK || dphi2>theMaxDPhi2*fts.momentum().mag2() )  return TsosWP(TrajectoryStateOnSurface(),0.);
   //
   // Compute propagated state and check change in curvature
   //
   GlobalTrajectoryParameters gtp(x,p,fts.charge(),theField);
-  if unlikely( std::abs(gtp.transverseCurvature()-rho)>theMaxDBzRatio*std::abs(rho) ) 
+  if UNLIKELY( std::abs(gtp.transverseCurvature()-rho)>theMaxDBzRatio*std::abs(rho) ) 
     return TsosWP(TrajectoryStateOnSurface(),0.);
   //
   // create result TSOS on TangentPlane (local parameters & errors are better defined)
@@ -146,7 +147,7 @@ bool AnalyticalPropagator::propagateParametersOnCylinder(
 {
 
   GlobalPoint const & sp = cylinder.position();
-  if unlikely(sp.x()!=0. || sp.y()!=0.) {
+  if UNLIKELY(sp.x()!=0. || sp.y()!=0.) {
     throw PropagationException("Cannot propagate to an arbitrary cylinder");
   }
   // preset output
@@ -159,7 +160,7 @@ bool AnalyticalPropagator::propagateParametersOnCylinder(
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
   // difference in transversal position at 10m.
   //
-  if unlikely( std::abs(rho)<1.e-10f )
+  if UNLIKELY( std::abs(rho)<1.e-10f )
     return propagateWithLineCrossing(fts.position(),p,cylinder,x,s);
   //
   // Helix case
@@ -173,7 +174,7 @@ bool AnalyticalPropagator::propagateParametersOnCylinder(
   //
   HelixBarrelCylinderCrossing cylinderCrossing(fts.position(),fts.momentum(),rho,
 					       propagationDirection(),cylinder);
-  if unlikely( !cylinderCrossing.hasSolution() )  return false;
+  if UNLIKELY( !cylinderCrossing.hasSolution() )  return false;
   // path length
   s = cylinderCrossing.pathLength();
   // point
@@ -200,7 +201,7 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
   // difference in transversal position at 10m.
   //
-  if unlikely( std::abs(rho)<1.e-10f )
+  if UNLIKELY( std::abs(rho)<1.e-10f )
     return propagateWithLineCrossing(fts.position(),p,plane,x,s);
   //
   // Helix case 
@@ -213,7 +214,7 @@ AnalyticalPropagator::propagateParametersOnPlane(const FreeTrajectoryState& fts,
   //
   HelixPlaneCrossing::PositionType helixPos(x);
   HelixPlaneCrossing::DirectionType helixDir(p);
-  if likely(isOldPropagationType) {
+  if LIKELY(isOldPropagationType) {
       OptimalHelixPlaneCrossing planeCrossing(plane,helixPos,helixDir,rho,propagationDirection());
       return propagateWithHelixCrossing(*planeCrossing,plane,fts.momentum().mag(),x,p,s);
     }
@@ -408,7 +409,7 @@ AnalyticalPropagator::propagateWithHelixCrossing (HelixPlaneCrossing& planeCross
 						  double& s) const {
   // get solution
   std::pair<bool,double> propResult = planeCrossing.pathLength(plane);
-  if unlikely( !propResult.first )  return false;
+  if UNLIKELY( !propResult.first )  return false;
 
   s = propResult.second;
   x = GlobalPoint(planeCrossing.position(s));

@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 MonMemTTConsistencyDat::MonMemTTConsistencyDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_processedEvents = 0;
   m_problematicEvents = 0;
@@ -20,7 +20,7 @@ MonMemTTConsistencyDat::MonMemTTConsistencyDat()
   m_problemsSize = 0;
   m_problemsLV1 = 0;
   m_problemsBunchX = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 
@@ -43,7 +43,7 @@ void MonMemTTConsistencyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonMemTTConsistencyDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonMemTTConsistencyDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -74,7 +74,7 @@ void MonMemTTConsistencyDat::writeDB(const EcalLogicID* ecid, const MonMemTTCons
     m_writeStmt->setInt(9, item->getTaskStatus() );
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonMemTTConsistencyDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonMemTTConsistencyDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -106,12 +106,12 @@ void MonMemTTConsistencyDat::fetchData(std::map< EcalLogicID, MonMemTTConsistenc
     std::pair< EcalLogicID, MonMemTTConsistencyDat > p;
     MonMemTTConsistencyDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setProcessedEvents( rset->getInt(7) );
       dat.setProblematicEvents( rset->getInt(8) );
@@ -125,7 +125,7 @@ void MonMemTTConsistencyDat::fetchData(std::map< EcalLogicID, MonMemTTConsistenc
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonMemTTConsistencyDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonMemTTConsistencyDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -245,6 +245,6 @@ void MonMemTTConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonMemTTC
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonMemTTConsistencyDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonMemTTConsistencyDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

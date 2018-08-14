@@ -86,7 +86,7 @@ EcalTBReadout::findTTlist( const int& crysId,
 	    
 	    LogDebug("EcalDigi") << "Crystal to be readout: sequential id = " << thisEBdetid.ic() << " eta = " << icrysEta << " phi = " << icrysPhi << " from TT = " << thisTTdetId;
 	    
-	    if ( theTTlist_.size() == 0 || ( theTTlist_.size() == 1 && theTTlist_[0] != thisTTdetId )) {
+	    if ( theTTlist_.empty() || ( theTTlist_.size() == 1 && theTTlist_[0] != thisTTdetId )) {
 	       theTTlist_.push_back(thisTTdetId);
 	    }
 	    else {

@@ -64,25 +64,25 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
   Pi0FixedMassWindowCalibration( const edm::ParameterSet& iConfig );
   
   /// Destructor
-  ~Pi0FixedMassWindowCalibration();
+  ~Pi0FixedMassWindowCalibration() override;
 
   /// Dummy implementation (job done in duringLoop)
   virtual void produce(edm::Event&, const edm::EventSetup&) {};
 
   /// Called at beginning of job
-  virtual void beginOfJob();
+  void beginOfJob() override;
 
   /// Called at end of job
-  virtual void endOfJob();
+  void endOfJob() override;
 
   /// Called at beginning of loop
-  virtual void startingNewLoop( unsigned int iLoop );
+  void startingNewLoop( unsigned int iLoop ) override;
 
   /// Called at end of loop
-  virtual Status endOfLoop( const edm::EventSetup&, unsigned int iLoop );
+  Status endOfLoop( const edm::EventSetup&, unsigned int iLoop ) override;
 
   /// Called at each event 
-  virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
+  Status duringLoop( const edm::Event&, const edm::EventSetup& ) override;
 
  private:
 

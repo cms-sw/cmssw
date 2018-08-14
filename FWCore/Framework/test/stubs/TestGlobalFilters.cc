@@ -18,6 +18,8 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -437,6 +439,7 @@ struct Dummy {
     explicit TestBeginRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     const unsigned int trans_; 
@@ -478,6 +481,7 @@ struct Dummy {
     explicit TestEndRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -519,6 +523,7 @@ struct Dummy {
     explicit TestBeginLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -560,6 +565,7 @@ struct Dummy {
     explicit TestEndLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};

@@ -31,7 +31,7 @@
 //#include <iostream>
 #include <sstream>
 
-CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::stream::EDProducer<>(),mapping(0){
+CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::stream::EDProducer<>(),mapping(nullptr){
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
 	// Edges of the time window, which LCTs are put into (unlike tracks, which are always centred around 0):
@@ -136,7 +136,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 					for(unsigned int FPGA=0; FPGA<5; FPGA++)
 						for(unsigned int MPClink=0; MPClink<3; ++MPClink){
 							std::vector<CSCSP_MEblock> lct = sp->record(tbin).LCT(FPGA,MPClink);
-							if( lct.size()==0 ) continue;
+							if( lct.empty() ) continue;
 
 							status.link_status[lct[0].spInput()] |=
 								(1<<lct[0].receiver_status_frame1())|

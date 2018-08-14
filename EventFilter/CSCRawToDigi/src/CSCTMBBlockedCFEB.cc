@@ -8,7 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-CSCTMBBlockedCFEB::CSCTMBBlockedCFEB(unsigned short *buf,int Line6BCB,int Line6ECB)
+CSCTMBBlockedCFEB::CSCTMBBlockedCFEB(const uint16_t *buf,int Line6BCB,int Line6ECB)
 {
 
   size_ = UnpackBlockedCFEB(buf,Line6BCB,Line6ECB);
@@ -16,7 +16,7 @@ CSCTMBBlockedCFEB::CSCTMBBlockedCFEB(unsigned short *buf,int Line6BCB,int Line6E
 } ///CSCTMBMiniScope
 
 
-int CSCTMBBlockedCFEB::UnpackBlockedCFEB(unsigned short *buf,int Line6BCB,int Line6ECB)
+int CSCTMBBlockedCFEB::UnpackBlockedCFEB(const uint16_t *buf,int Line6BCB,int Line6ECB)
 {
 
   if ((Line6ECB-Line6BCB) != 0)
@@ -137,7 +137,7 @@ void CSCTMBBlockedCFEB::print() const
         {
           anyLayer=*layerIt;
           std::cout << " Layer: " << LayerCnt;
-          if (anyLayer.size() !=0)
+          if (!anyLayer.empty())
             {
               for (int i=0; i<(int)anyLayer.size(); i++)
                 {

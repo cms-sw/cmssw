@@ -10,13 +10,13 @@
 class DQMHOAlCaRecoStream : public DQMEDAnalyzer {
    public:
       explicit DQMHOAlCaRecoStream(const edm::ParameterSet&);
-      ~DQMHOAlCaRecoStream();
+      ~DQMHOAlCaRecoStream() override;
 
    private:
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 
   MonitorElement* hMuonMultipl;

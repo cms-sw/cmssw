@@ -30,7 +30,7 @@ using namespace std;
 static const double pe2Charge = 0.333333;    // fC/p.e.
 
 HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig, const CaloShapes * shapes)
-: theDbService(0), theShapes(shapes)
+: theDbService(nullptr), theShapes(shapes)
 {
 }
 
@@ -130,7 +130,7 @@ void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples, CLHEP::HepRandomE
 
 double HPDIonFeedbackSim::fCtoGeV(const DetId & detId) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(detId);
   const HcalGain* gains = theDbService->getGain(hcalGenDetId);
   const HcalGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);

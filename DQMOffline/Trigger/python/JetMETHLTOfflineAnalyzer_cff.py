@@ -9,4 +9,9 @@ jetMETHLTOfflineAnalyzer = cms.Sequence(
     * jetMETHLTOfflineSourceAK4
 #    * ak8PFCHSL1FastjetL2L3ResidualCorrectorChain #not working in all matrix tests, yet
     * jetMETHLTOfflineSourceAK8
+    * jetMETHLTOfflineSourceAK4Fwd
+    * jetMETHLTOfflineSourceAK8Fwd
+)
+
+jmeHLTDQMSourceExtra = cms.Sequence(
 )

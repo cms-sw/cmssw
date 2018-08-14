@@ -1,7 +1,7 @@
 #include "HcalZeroSuppressionAlgo.h"
 
 HcalZeroSuppressionAlgo::HcalZeroSuppressionAlgo(bool mp) : m_markAndPass(mp) {
-   m_dbService=0;
+   m_dbService=nullptr;
 }
 
 

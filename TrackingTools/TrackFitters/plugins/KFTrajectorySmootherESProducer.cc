@@ -24,8 +24,8 @@ namespace {
   class  KFTrajectorySmootherESProducer final : public edm::ESProducer{
   public:
     KFTrajectorySmootherESProducer(const edm::ParameterSet & p);
-    ~KFTrajectorySmootherESProducer(); 
-    std::shared_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
+    ~KFTrajectorySmootherESProducer() override; 
+    std::unique_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
@@ -54,7 +54,7 @@ namespace {
   
   KFTrajectorySmootherESProducer::~KFTrajectorySmootherESProducer() {}
   
-  std::shared_ptr<TrajectorySmoother> 
+  std::unique_ptr<TrajectorySmoother> 
     KFTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
     
     std::string pname = pset_.getParameter<std::string>("Propagator");
@@ -75,7 +75,7 @@ namespace {
     iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
     iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
     
-    return std::make_shared<KFTrajectorySmoother>(prop.product(),
+    return std::make_unique<KFTrajectorySmoother>(prop.product(),
 						  upd.product(),
 						  est.product(),
 						  rescaleFactor,

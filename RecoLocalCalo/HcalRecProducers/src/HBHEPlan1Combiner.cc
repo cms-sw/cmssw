@@ -42,12 +42,12 @@ class HBHEPlan1Combiner : public edm::stream::EDProducer<>
 {
 public:
     explicit HBHEPlan1Combiner(const edm::ParameterSet&);
-    ~HBHEPlan1Combiner();
+    ~HBHEPlan1Combiner() override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // ----------member data ---------------------------
 
@@ -104,7 +104,7 @@ HBHEPlan1Combiner::produce(edm::Event& iEvent, const edm::EventSetup& eventSetup
 
     // Are we using "Plan 1" geometry?
     const bool plan1Mode = ignorePlan1Topology_ ? usePlan1Mode_
-                                                : htopo->withSpecialRBXHBHE();
+                                                : htopo->getMergePositionFlag();
 
     // Find the input rechit collection
     Handle<HBHERecHitCollection> inputRechits;

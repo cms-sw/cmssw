@@ -29,25 +29,25 @@ public:
     thePropDir(propDir) {}
   
   // destructor
-  virtual ~HelixExtrapolatorToLine2Order() {}
+  ~HelixExtrapolatorToLine2Order() override {}
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the closest approach
    *  to the point. The starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength (const GlobalPoint& point) const;
+  std::pair<bool,double> pathLength (const GlobalPoint& point) const override;
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the helix from the starting point to the closest approach
    *  to the line. The starting point is given in the constructor.
    */
-  virtual std::pair<bool,double> pathLength (const Line& line) const;
+  std::pair<bool,double> pathLength (const Line& line) const override;
 
   /// Position at pathlength s from the starting point.
-  virtual PositionType position(double s) const;
+  PositionType position(double s) const override;
 
   /// Direction at pathlength s from the starting point.
-  virtual DirectionType direction(double s) const;
+  DirectionType direction(double s) const override;
 
   /// Position at pathlength s from the starting point in double precision.
   PositionTypeDouble positionInDouble(double s) const;

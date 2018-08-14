@@ -25,9 +25,9 @@
 class HcalPFCorrsHandler : public popcon::PopConSourceHandler<HcalPFCorrs>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~HcalPFCorrsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~HcalPFCorrsHandler() override;
   HcalPFCorrsHandler(edm::ParameterSet const &);
 
   void initObject(HcalPFCorrs*);

@@ -19,14 +19,12 @@ namespace edm {
    std::vector<std::string> defaultCmsRunServices() {
       std::vector<std::string> returnValue = {"MessageLogger",
                                               "InitRootHandlers",
-#ifdef linux
-                                              "EnableFloatingPointExceptions",
-#endif
                                               "UnixSignalService",
                                               "AdaptorConfig",
                                               "SiteLocalConfigService",
                                               "StatisticsSenderService",
-                                              "CondorStatusService"};
+                                              "CondorStatusService",
+                                              "XrdAdaptor::XrdStatisticsService"};
 
       return returnValue;
    }

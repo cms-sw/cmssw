@@ -6,7 +6,7 @@
 
   OutputFile::OutputFile(const std::string& name):
     current_offset_(1), 
-    do_adler_(0),
+    do_adler_(false),
     adlera_(1),
     adlerb_(0),
     ost_(new std::ofstream(name.c_str(), std::ios_base::binary | std::ios_base::out)),
@@ -16,7 +16,7 @@
       throw cms::Exception("OutputFile","OutputFile")
         << "Error Opening Output File: "<<name<<"\n";
     }
-    ost_->rdbuf()->pubsetbuf(0,0);
+    ost_->rdbuf()->pubsetbuf(nullptr,0);
   }
 
   OutputFile::~OutputFile() 
@@ -31,8 +31,8 @@
       current_offset_ += (uint64)(n);
       if (do_adler_)
         cms::Adler32(ptr,n,adlera_,adlerb_);
-      return 0;
+      return false;
     }
-    return 1;
+    return true;
   }
 

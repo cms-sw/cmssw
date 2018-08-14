@@ -19,8 +19,6 @@
 #include <iostream>
 #include <memory>
 
-#include "trackAlgoPriorityOrder.h"
-
 using namespace reco;
 
 namespace {
@@ -29,7 +27,7 @@ class TrackCollectionFilterCloner final : public edm::global::EDProducer<> {
   /// constructor
   explicit TrackCollectionFilterCloner(const edm::ParameterSet& iConfig);
   /// destructor
-  virtual ~TrackCollectionFilterCloner();
+  ~TrackCollectionFilterCloner() override;
   
   /// alias for container of candidate and input tracks
   using CandidateToDuplicate = std::vector<std::pair<int, int>>;

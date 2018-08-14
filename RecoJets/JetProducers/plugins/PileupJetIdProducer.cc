@@ -16,47 +16,49 @@ Implementation:
 //
 //
 
-#include <memory>
 #include "RecoJets/JetProducers/plugins/PileupJetIdProducer.h"
 
+GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig) :
+  runMvas_(iConfig.getParameter<bool>("runMvas")),
+  produceJetIds_(iConfig.getParameter<bool>("produceJetIds")),
+  inputIsCorrected_(iConfig.getParameter<bool>("inputIsCorrected")),
+  applyJec_(iConfig.getParameter<bool>("applyJec")),
+  jec_(iConfig.getParameter<std::string>("jec")),
+  residualsFromTxt_(iConfig.getParameter<bool>("residualsFromTxt")) {
+
+  if (residualsFromTxt_) {
+    residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
+  }
+
+  std::vector<edm::ParameterSet> algos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
+  for (auto const& algoPset : algos) {
+    vAlgoGBRForestsAndConstants_.emplace_back(algoPset, runMvas_);
+  }
+
+  if (!runMvas_) {
+    assert(algos.size() == 1);
+  }
+}
 
 // ------------------------------------------------------------------------------------------
-PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
+PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig, GBRForestsAndConstants const* globalCache)
 {
-	runMvas_ = iConfig.getParameter<bool>("runMvas");
-	produceJetIds_ = iConfig.getParameter<bool>("produceJetIds");
-	jets_ = iConfig.getParameter<edm::InputTag>("jets");
-	vertexes_ = iConfig.getParameter<edm::InputTag>("vertexes");
-	jetids_  = iConfig.getParameter<edm::InputTag>("jetids");
-	inputIsCorrected_ = iConfig.getParameter<bool>("inputIsCorrected");
-	applyJec_ = iConfig.getParameter<bool>("applyJec");
-	jec_ =  iConfig.getParameter<std::string>("jec");
-	rho_ = iConfig.getParameter<edm::InputTag>("rho");
-	residualsFromTxt_ = iConfig.getParameter<bool>("residualsFromTxt");
-	if(residualsFromTxt_) residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
-	std::vector<edm::ParameterSet> algos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
-	
-	jecCor_ = 0;
-
-	if( ! runMvas_ ) assert( algos.size() == 1 );
-	
-	if( produceJetIds_ ) {
+	if ( globalCache->produceJetIds() ) {
 		produces<edm::ValueMap<StoredPileupJetIdentifier> > ("");
 	}
-	for(std::vector<edm::ParameterSet>::iterator it=algos.begin(); it!=algos.end(); ++it) {
-		std::string label = it->getParameter<std::string>("label");
-		algos_.push_back( std::make_pair(label,new PileupJetIdAlgo(*it, runMvas_)) );
-		if( runMvas_ ) {
+	for (auto const& algoGBRForestsAndConstants : globalCache->vAlgoGBRForestsAndConstants()) {
+		std::string const& label = algoGBRForestsAndConstants.label();
+		algos_.emplace_back(label, std::make_unique<PileupJetIdAlgo>(&algoGBRForestsAndConstants));
+		if ( globalCache->runMvas() ) {
 			produces<edm::ValueMap<float> > (label+"Discriminant");
 			produces<edm::ValueMap<int> > (label+"Id");
 		}
 	}
 
-	input_jet_token_ = consumes<edm::View<reco::Jet> >(jets_);
-	input_vertex_token_ = consumes<reco::VertexCollection>(vertexes_);
-        input_vm_pujetid_token_ = consumes<edm::ValueMap<StoredPileupJetIdentifier> >(jetids_);
-        input_rho_token_ = consumes<double>(rho_); 
-
+	input_jet_token_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
+	input_vertex_token_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexes"));
+	input_vm_pujetid_token_ = consumes<edm::ValueMap<StoredPileupJetIdentifier> >(iConfig.getParameter<edm::InputTag>("jetids"));
+	input_rho_token_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
 }
 
 
@@ -64,10 +66,6 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 // ------------------------------------------------------------------------------------------
 PileupJetIdProducer::~PileupJetIdProducer()
 {
-  for(std::vector<std::pair<std::string,PileupJetIdAlgo *> >::iterator 
-	ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
-    delete ialgo->second;
-  }
 }
 
 
@@ -75,6 +73,8 @@ PileupJetIdProducer::~PileupJetIdProducer()
 void
 PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+	GBRForestsAndConstants const* gc = globalCache();
+
 	using namespace edm;
 	using namespace std;
 	using namespace reco;
@@ -85,13 +85,13 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	const View<Jet> & jets = *jetHandle;
 	// vertexes 
 	Handle<VertexCollection> vertexHandle;
-	if(  produceJetIds_ ) {
+	if(  gc->produceJetIds() ) {
 	        iEvent.getByToken(input_vertex_token_, vertexHandle);
 	}
 	const VertexCollection & vertexes = *(vertexHandle.product());
 	// input variables
 	Handle<ValueMap<StoredPileupJetIdentifier> > vmap;
-	if( ! produceJetIds_ ) {
+	if( ! gc->produceJetIds() ) {
 		iEvent.getByToken(input_vm_pujetid_token_, vmap);
 	}
 	// rho
@@ -104,7 +104,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	map<string, vector<int> > idflags;
 
 	VertexCollection::const_iterator vtx;
-	if( produceJetIds_ ) {
+	if( gc->produceJetIds() ) {
 		// require basic quality cuts on the vertexes
 		vtx = vertexes.begin();
 		while( vtx != vertexes.end() && ( vtx->isFake() || vtx->ndof() < 4 ) ) {
@@ -117,26 +117,26 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	bool ispat = true;
 	for ( unsigned int i=0; i<jets.size(); ++i ) {
 		// Pick the first algo to compute the input variables
-		vector<pair<string,PileupJetIdAlgo *> >::iterator algoi = algos_.begin();
-		PileupJetIdAlgo * ialgo = algoi->second;
+		auto algoi = algos_.begin();
+		PileupJetIdAlgo * ialgo = algoi->second.get();
 		
 		const Jet & jet = jets.at(i);
-		const pat::Jet * patjet = 0;
+		const pat::Jet * patjet = nullptr;
 		if(ispat) {
 		    patjet=dynamic_cast<const pat::Jet *>(&jet);
-		    ispat = patjet != 0;
+		    ispat = patjet != nullptr;
 		}
 		
 		// Get jet energy correction
 		float jec = 0.;
-		if( applyJec_ ) {
+		if( gc->applyJec() ) {
 			// If haven't done it get rho from the event
 			if( rho == 0. ) {
 				iEvent.getByToken(input_rho_token_,rhoH);
 				rho = *rhoH;
 			}
 			// jet corrector
-			if( jecCor_ == 0 ) {
+			if( not jecCor_ ) {
 				initJetEnergyCorrector( iSetup, iEvent.isRealData() );
 			}
 			if( ispat ) {
@@ -150,22 +150,22 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			jec = jecCor_->getCorrection();
 		}
 		// If it was requested AND the input is an uncorrected jet apply the JEC
-		bool applyJec = applyJec_ && ( ispat || !inputIsCorrected_ );
-		reco::Jet * corrJet = 0;
+		bool applyJec = gc->applyJec() && ( ispat || !gc->inputIsCorrected() );
+		std::unique_ptr<reco::Jet> corrJet;
 		
 		if( applyJec ) {
 			float scale = jec;
 			if( ispat ) {
-				corrJet = new pat::Jet(patjet->correctedJet(0)) ;
+				corrJet.reset(new pat::Jet(patjet->correctedJet(0))) ;
 			} else {
-			        corrJet = dynamic_cast<reco::Jet *>( jet.clone() );
+				corrJet.reset(dynamic_cast<reco::Jet *>( jet.clone() ));
 			}
 			corrJet->scaleEnergy(scale);
 		}
-		const reco::Jet * theJet = ( applyJec ? corrJet : &jet );
+		const reco::Jet * theJet = ( applyJec ? corrJet.get() : &jet );
 	
 		PileupJetIdentifier puIdentifier;
-		if( produceJetIds_ ) {
+		if( gc->produceJetIds() ) {
 		        // Compute the input variables
 		        puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, rho);
 			ids.push_back( puIdentifier );
@@ -179,45 +179,42 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			puIdentifier = ialgo->computeMva();
 		}
 	
-		if( runMvas_ ) {
+		if( gc->runMvas() ) {
 		        // Compute the MVA and WP
 			mvas[algoi->first].push_back( puIdentifier.mva() );
 			idflags[algoi->first].push_back( puIdentifier.idFlag() );
 			for( ++algoi; algoi!=algos_.end(); ++algoi) {
-				ialgo = algoi->second;
+                                ialgo = algoi->second.get();
 				ialgo->set(puIdentifier);
 				PileupJetIdentifier id = ialgo->computeMva();
 				mvas[algoi->first].push_back( id.mva() );
 				idflags[algoi->first].push_back( id.idFlag() );
 			}
 		}
-		
-		// cleanup
-		if( corrJet ) { delete corrJet; }
 	}
 	
 	// Produce the output value maps
-	if( runMvas_ ) {
-		for(vector<pair<string,PileupJetIdAlgo *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
+	if( gc->runMvas() ) {
+                for( const auto& ialgo : algos_) {
 			// MVA
-			vector<float> & mva = mvas[ialgo->first];
+			vector<float> & mva = mvas[ialgo.first];
 			auto mvaout = std::make_unique<ValueMap<float>>();
 			ValueMap<float>::Filler mvafiller(*mvaout);
 			mvafiller.insert(jetHandle,mva.begin(),mva.end());
 			mvafiller.fill();
-			iEvent.put(std::move(mvaout),ialgo->first+"Discriminant");
+			iEvent.put(std::move(mvaout),ialgo.first+"Discriminant");
 			
 			// WP
-			vector<int> & idflag = idflags[ialgo->first];
+			vector<int> & idflag = idflags[ialgo.first];
 			auto idflagout = std::make_unique<ValueMap<int>>();
 			ValueMap<int>::Filler idflagfiller(*idflagout);
 			idflagfiller.insert(jetHandle,idflag.begin(),idflag.end());
 			idflagfiller.fill();
-			iEvent.put(std::move(idflagout),ialgo->first+"Id");
+			iEvent.put(std::move(idflagout),ialgo.first+"Id");
 		}
 	}
 	// input variables
-	if( produceJetIds_ ) {
+	if( gc->produceJetIds() ) {
 		assert( jetHandle->size() == ids.size() );
 		auto idsout = std::make_unique<ValueMap<StoredPileupJetIdentifier>>();
 		ValueMap<StoredPileupJetIdentifier>::Filler idsfiller(*idsout);
@@ -244,27 +241,29 @@ PileupJetIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 void 
 PileupJetIdProducer::initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData)
 {
+	GBRForestsAndConstants const* gc = globalCache();
+
 	//jet energy correction levels to apply on raw jet
 	std::vector<std::string> jecLevels;
 	jecLevels.push_back("L1FastJet");
 	jecLevels.push_back("L2Relative");
 	jecLevels.push_back("L3Absolute");
-	if(isData && ! residualsFromTxt_ ) jecLevels.push_back("L2L3Residual");
+	if(isData && ! gc->residualsFromTxt() ) jecLevels.push_back("L2L3Residual");
 
 	//check the corrector parameters needed according to the correction levels
 	edm::ESHandle<JetCorrectorParametersCollection> parameters;
-	iSetup.get<JetCorrectionsRecord>().get(jec_,parameters);
+	iSetup.get<JetCorrectionsRecord>().get(gc->jec(),parameters);
 	for(std::vector<std::string>::const_iterator ll = jecLevels.begin(); ll != jecLevels.end(); ++ll)
 	{ 
 		const JetCorrectorParameters& ip = (*parameters)[*ll];
 		jetCorPars_.push_back(ip); 
 	} 
-	if( isData && residualsFromTxt_ ) {
-		jetCorPars_.push_back(JetCorrectorParameters(residualsTxt_.fullPath())); 
+	if( isData && gc->residualsFromTxt() ) {
+		jetCorPars_.push_back(JetCorrectorParameters(gc->residualsTxt().fullPath()));
 	}
 	
 	//instantiate the jet corrector
-	jecCor_ = new FactorizedJetCorrector(jetCorPars_);
+	jecCor_ = std::make_unique<FactorizedJetCorrector>(jetCorPars_);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PileupJetIdProducer);

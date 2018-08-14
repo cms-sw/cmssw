@@ -23,33 +23,37 @@ class TPTask : public hcaldqm::DQTask
 {
 	public:
 		TPTask(edm::ParameterSet const&);
-		virtual ~TPTask() {}
+		~TPTask() override {}
 
-		virtual void bookHistograms(DQMStore::IBooker&,
-			edm::Run const&, edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
-		virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-			edm::EventSetup const&);
+		void bookHistograms(DQMStore::IBooker&,
+			edm::Run const&, edm::EventSetup const&) override;
+		void endLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
+		void beginLuminosityBlock(edm::LuminosityBlock const&,
+			edm::EventSetup const&) override;
 
 	protected:
-		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(hcaldqm::UpdateFreq);
+		void _process(edm::Event const&, edm::EventSetup const&) override;
+		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag		_tagData;
+		edm::InputTag		_tagDataL1Rec;
 		edm::InputTag		_tagEmul;
+		edm::InputTag		_tagEmulNoTDCCut;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
+		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokDataL1Rec;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
+		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmulNoTDCCut;
 
 		//	flag vector
 		std::vector<hcaldqm::flag::Flag> _vflags;
 		enum TPFlag
 		{
 			fEtMsm=0,
-			fFGMsm=1,
-			fDataMsn=2,
-			fEmulMsn=3,
-			fUnknownIds=4,
+			fDataMsn=1,
+			fEmulMsn=2,
+			fUnknownIds=3,
+			fSentRecL1Msm=4,
 			nTPFlag=5
 		};
 
@@ -65,7 +69,6 @@ class TPTask : public hcaldqm::DQTask
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	emap
-		HcalElectronicsMap const* _emap;
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 
 		//	Filters
@@ -135,6 +138,10 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cEtMsmvsBX_TTSubdet;	// online only
 		hcaldqm::ContainerProf1D _cEtMsmRatiovsBX_TTSubdet; // online only
 
+		// Mismatches: data sent vs received
+		hcaldqm::ContainerSingle2D _cEtMsm_uHTR_L1T_depthlike;
+		hcaldqm::ContainerSingle1D _cEtMsm_uHTR_L1T_LS;
+
 		//	Missing Data w.r.t. Emulator
 		hcaldqm::Container2D _cMsnData_ElectronicsVME;
 		hcaldqm::Container2D _cMsnData_ElectronicsuTCA;
@@ -170,7 +177,15 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,
-			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal;
+			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal, _xSentRecL1Msm;
+
+		// Temporary storage for occupancy with and without HF TDC cut
+		hcaldqm::ContainerSingle2D _cOccupancy_HF_depth, _cOccupancyNoTDC_HF_depth;
+		hcaldqm::ContainerSingle1D _cOccupancy_HF_ieta, _cOccupancyNoTDC_HF_ieta;
+
+		// Container storing matched sent-received TPs
+		std::vector<std::pair<HcalTriggerPrimitiveDigi, HcalTriggerPrimitiveDigi> > _vTPDigis_SentRec;
+
 };
 
 #endif

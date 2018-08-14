@@ -12,7 +12,8 @@ selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesW
 selectedPixelVertices = selectedOfflinePrimaryVertices.clone()
 selectedPixelVertices.src = cms.InputTag('pixelVertices')
 
-vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                 use_only_charged_tracks = cms.untracked.bool(True),
                                 do_generic_sim_plots = cms.untracked.bool(True),
                                 verbose = cms.untracked.bool(False),
@@ -24,8 +25,13 @@ vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 vertexRecoCollections = cms.VInputTag("offlinePrimaryVertices",
                                                                       "offlinePrimaryVerticesWithBS",
                                                                       "selectedOfflinePrimaryVertices",
-                                                                      "selectedOfflinePrimaryVerticesWithBS",
-                                ),
+                                                                      "selectedOfflinePrimaryVerticesWithBS"
+                                                                      ),
+)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(vertexAnalysis,
+    trackingParticleCollection = "mixData:MergedTrackTruth",
+    trackingVertexCollection = "mixData:MergedTrackTruth",
 )
 
 vertexAnalysisTrackingOnly = vertexAnalysis.clone(
@@ -36,18 +42,24 @@ vertexAnalysisTrackingOnly = vertexAnalysis.clone(
 )
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly, vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value())
+trackingPhase2PU140.toModify(vertexAnalysisTrackingOnly,
+    vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value() + [
+        "firstStepPrimaryVertices"
+    ]
+)
 
 pixelVertexAnalysisTrackingOnly = vertexAnalysis.clone(
     do_generic_sim_plots = False,
     trackAssociatorMap = "trackingParticlePixelTrackAsssociation",
+    vertexAssociator = "PixelVertexAssociatorByPositionAndTracks",
     vertexRecoCollections = [
         "pixelVertices",
         "selectedPixelVertices"
     ]
+)
+pixelVertexAnalysisPixelTrackingOnly = pixelVertexAnalysisTrackingOnly.clone(
+    do_generic_sim_plots = True,
 )
 
 ##########
@@ -69,17 +81,34 @@ vertexAnalysisSequenceTrackingOnly = cms.Sequence(
     + vertexAnalysisTrackingOnly
 )
 
-from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackingParticleRecoTrackAsssociation
-trackingParticlePixelTrackAsssociation = _trackingParticleRecoTrackAsssociation.clone(
-    label_tr = "pixelTracks"
-)
-
 _vertexAnalysisSequenceTrackingOnly_trackingLowPU = vertexAnalysisSequenceTrackingOnly.copy()
 _vertexAnalysisSequenceTrackingOnly_trackingLowPU += (
-    trackingParticlePixelTrackAsssociation
-    + selectedPixelVertices
+    selectedPixelVertices
     + pixelVertexAnalysisTrackingOnly
 )
 trackingLowPU.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
-trackingPhase1PU70.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
-trackingPhase2PU140.toReplaceWith(vertexAnalysisSequenceTrackingOnly, _vertexAnalysisSequenceTrackingOnly_trackingLowPU)
+
+vertexAnalysisSequencePixelTrackingOnly = cms.Sequence(
+    selectedPixelVertices
+    + pixelVertexAnalysisPixelTrackingOnly
+)
+
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+_vertexRecoCollectionsTiming = cms.VInputTag("offlinePrimaryVertices",
+                                             "offlinePrimaryVerticesWithBS",
+                                             "selectedOfflinePrimaryVertices",
+                                             "selectedOfflinePrimaryVerticesWithBS",
+                                             "offlinePrimaryVertices4D",
+                                             "selectedOfflinePrimaryVertices4D",
+                                             )
+selectedOfflinePrimaryVertices4D = selectedOfflinePrimaryVertices.clone(src = cms.InputTag("offlinePrimaryVertices4D"))
+
+_vertexAnalysisSelectionTiming = vertexAnalysisSelection.copy()
+_vertexAnalysisSelectionTiming += selectedOfflinePrimaryVertices4D
+
+phase2_timing_layer.toModify( vertexAnalysis, 
+                              vertexRecoCollections = _vertexRecoCollectionsTiming
+                              )
+phase2_timing_layer.toReplaceWith( vertexAnalysisSelection,
+                                   _vertexAnalysisSelectionTiming )

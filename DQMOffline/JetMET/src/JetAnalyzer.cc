@@ -152,6 +152,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       pfjetidversion = PFJetIDSelectionFunctor::RUNIISTARTUP;
     }else if(JetIDVersion_== "WINTER16"){
       pfjetidversion = PFJetIDSelectionFunctor::WINTER16;
+    }else if(JetIDVersion_== "WINTER17"){
+      pfjetidversion = PFJetIDSelectionFunctor::WINTER17;
+    }else if(JetIDVersion_== "WINTER17PUPPI"){
+      pfjetidversion = PFJetIDSelectionFunctor::WINTER17PUPPI;
     }else{
       if (verbose_) std::cout<<"no valid PF JetID version given"<<std::endl;
     }
@@ -1823,7 +1827,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBx0 = gtReadoutRecord->technicalTriggerWord();
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxG = gtReadoutRecord->technicalTriggerWord(1);
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxH = gtReadoutRecord->technicalTriggerWord(2);
-    if (m_bitAlgTechTrig_ > -1 && technicalTriggerWordBeforeMaskBx0.size() > 0) {
+    if (m_bitAlgTechTrig_ > -1 && !technicalTriggerWordBeforeMaskBx0.empty()) {
       techTriggerResultBx0 = technicalTriggerWordBeforeMaskBx0.at(m_bitAlgTechTrig_);
       if(techTriggerResultBx0!=0){
 	//techTriggerResultBxE = technicalTriggerWordBeforeMaskBxE.at(m_bitAlgTechTrig_);
@@ -2083,6 +2087,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
     if(isMiniAODJet_ && (*patJets)[ijet].isPFJet()){
+
+      // You can't check the jet ID without the specifics. If they were dropped for space savings,
+      // don't monitor this jet. 
+      if ( !(*patJets)[ijet].hasPFSpecific() )
+	continue;
+	  
       pat::strbitset stringbitset=pfjetIDFunctor.getBitTemplate();
       jetpassid = pfjetIDFunctor((*patJets)[ijet],stringbitset);
       if(jetCleaningFlag_){
@@ -2621,7 +2631,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi")){
 	    mnSubJetsSoftDrop=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop"]; if(mnSubJetsSoftDrop && mnSubJetsSoftDrop->getRootObject()) mnSubJetsSoftDrop->Fill((*patJets)[ijet].subjets("SoftDropPuppi").size());
 	  }
-	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && (*patJets)[ijet].subjets("SoftDropPuppi").size()>0){
+	  if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && !(*patJets)[ijet].subjets("SoftDropPuppi").empty()){
 	    mSubJet1_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt"]; if(mSubJet1_SoftDrop_pt && mSubJet1_SoftDrop_pt->getRootObject()) mSubJet1_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->pt());
 	    mSubJet1_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta"]; if(mSubJet1_SoftDrop_eta && mSubJet1_SoftDrop_eta->getRootObject()) mSubJet1_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->eta());
 	    mSubJet1_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi"]; if(mSubJet1_SoftDrop_phi && mSubJet1_SoftDrop_phi->getRootObject()) mSubJet1_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->phi());
@@ -2642,7 +2652,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi")){
 	      mnSubJetsSoftDrop_boosted=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop_boosted"]; if(mnSubJetsSoftDrop_boosted && mnSubJetsSoftDrop_boosted->getRootObject()) mnSubJetsSoftDrop_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi").size());
 	    }
-	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && (*patJets)[ijet].subjets("SoftDropPuppi").size()>0){
+	    if((*patJets)[ijet].hasSubjets("SoftDropPuppi") && !(*patJets)[ijet].subjets("SoftDropPuppi").empty()){
 	      mSubJet1_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt_boosted"]; if(mSubJet1_SoftDrop_pt_boosted && mSubJet1_SoftDrop_pt_boosted->getRootObject()) mSubJet1_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->pt());
 	      mSubJet1_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta_boosted"]; if(mSubJet1_SoftDrop_eta_boosted && mSubJet1_SoftDrop_eta_boosted->getRootObject()) mSubJet1_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->eta());
 	      mSubJet1_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi_boosted"]; if(mSubJet1_SoftDrop_phi_boosted && mSubJet1_SoftDrop_phi_boosted->getRootObject()) mSubJet1_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDropPuppi")[0]->phi());
@@ -2678,7 +2688,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       mPhiVSEta = map_of_MEs[DirName+"/"+"PhiVSEta"]; if (mPhiVSEta && mPhiVSEta->getRootObject()) mPhiVSEta->Fill(correctedJet.eta(),correctedJet.phi());
       //if(!isJPTJet_){
-      mConstituents = map_of_MEs[DirName+"/"+"Constituents"]; if (mConstituents && mConstituents->getRootObject()) mConstituents->Fill (correctedJet.nConstituents());
+      float nConstituents=correctedJet.nConstituents();
+      if(isMiniAODJet_) {
+        if ((*patJets)[ijet].hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
+           nConstituents = (*patJets)[ijet].userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
+      }
+      mConstituents = map_of_MEs[DirName+"/"+"Constituents"]; if (mConstituents && mConstituents->getRootObject()) mConstituents->Fill (nConstituents);
       //}
       // Fill NPV profiles
       //--------------------------------------------------------------------
@@ -2686,28 +2701,28 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mEta_profile = map_of_MEs[DirName+"/"+"Eta_profile"]; if (mEta_profile && mEta_profile->getRootObject())  mEta_profile         ->Fill(numPV, correctedJet.eta());
       mPhi_profile = map_of_MEs[DirName+"/"+"Phi_profile"]; if (mPhi_profile && mPhi_profile->getRootObject())  mPhi_profile         ->Fill(numPV, correctedJet.phi());
       //if(!isJPTJet_){
-      mConstituents_profile = map_of_MEs[DirName+"/"+"Constituents_profile"]; if (mConstituents_profile && mConstituents_profile->getRootObject())  mConstituents_profile->Fill(numPV, correctedJet.nConstituents());
+      mConstituents_profile = map_of_MEs[DirName+"/"+"Constituents_profile"]; if (mConstituents_profile && mConstituents_profile->getRootObject())  mConstituents_profile->Fill(numPV, nConstituents);
       //}
       if (fabs(correctedJet.eta()) <= 1.3) {
 	mPt_Barrel = map_of_MEs[DirName+"/"+"Pt_Barrel"]; if (mPt_Barrel && mPt_Barrel->getRootObject()) mPt_Barrel->Fill (correctedJet.pt());
 	mPhi_Barrel = map_of_MEs[DirName+"/"+"Phi_Barrel"]; if (mPhi_Barrel && mPhi_Barrel->getRootObject()) mPhi_Barrel->Fill (correctedJet.phi());
 	//if (mE_Barrel)    mE_Barrel->Fill (correctedJet.energy());
 	//if(!isJPTJet_){
-	mConstituents_Barrel = map_of_MEs[DirName+"/"+"Constituents_Barrel"]; if (mConstituents_Barrel && mConstituents_Barrel->getRootObject()) mConstituents_Barrel->Fill(correctedJet.nConstituents());
+	mConstituents_Barrel = map_of_MEs[DirName+"/"+"Constituents_Barrel"]; if (mConstituents_Barrel && mConstituents_Barrel->getRootObject()) mConstituents_Barrel->Fill(nConstituents);
 	//}
       }else if (fabs(correctedJet.eta()) <= 3) {
 	mPt_EndCap = map_of_MEs[DirName+"/"+"Pt_EndCap"]; if (mPt_EndCap && mPt_EndCap->getRootObject()) mPt_EndCap->Fill (correctedJet.pt());
 	mPhi_EndCap = map_of_MEs[DirName+"/"+"Phi_EndCap"]; if (mPhi_EndCap && mPhi_EndCap->getRootObject())  mPhi_EndCap->Fill (correctedJet.phi());
 	//if (mE_EndCap)    mE_EndCap->Fill (correctedJet.energy());
 	//if(!isJPTJet_){
-	mConstituents_EndCap = map_of_MEs[DirName+"/"+"Constituents_EndCap"]; if (mConstituents_EndCap && mConstituents_EndCap->getRootObject())  mConstituents_EndCap->Fill(correctedJet.nConstituents());
+	mConstituents_EndCap = map_of_MEs[DirName+"/"+"Constituents_EndCap"]; if (mConstituents_EndCap && mConstituents_EndCap->getRootObject())  mConstituents_EndCap->Fill(nConstituents);
 	//}
       }else{
 	mPt_Forward = map_of_MEs[DirName+"/"+"Pt_Forward"]; if (mPt_Forward && mPt_Forward->getRootObject()) mPt_Forward->Fill (correctedJet.pt());
 	mPhi_Forward = map_of_MEs[DirName+"/"+"Phi_Forward"]; if (mPhi_Forward && mPhi_Forward->getRootObject()) mPhi_Forward->Fill (correctedJet.phi());
 	//if (mE_Forward)    mE_Forward->Fill (correctedJet.energy());
 	//if(!isJPTJet_){
-	mConstituents_Forward = map_of_MEs[DirName+"/"+"Constituents_Forward"]; if (mConstituents_Forward && mConstituents_Forward->getRootObject())   mConstituents_Forward->Fill(correctedJet.nConstituents());
+	mConstituents_Forward = map_of_MEs[DirName+"/"+"Constituents_Forward"]; if (mConstituents_Forward && mConstituents_Forward->getRootObject())   mConstituents_Forward->Fill(nConstituents);
 	//}
       }
     }// pass ID for corrected jets --> inclusive selection
@@ -2996,11 +3011,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}//fill quark gluon tagged variables
       }//pfjet 	  
       if(isMiniAODJet_){
-	mCHFrac = map_of_MEs[DirName+"/"+"CHFrac"]; if (mCHFrac && mCHFrac->getRootObject())         mCHFrac ->Fill((*patJets)[ind1].chargedHadronEnergyFraction());
-	mNHFrac = map_of_MEs[DirName+"/"+"NHFrac"]; if (mNHFrac && mNHFrac->getRootObject())         mNHFrac ->Fill((*patJets)[ind1].neutralHadronEnergyFraction());
-	mPhFrac = map_of_MEs[DirName+"/"+"PhFrac"]; if (mPhFrac && mPhFrac->getRootObject())         mPhFrac ->Fill((*patJets)[ind1].neutralEmEnergyFraction());
-	mHFEMFrac = map_of_MEs[DirName+"/"+"HFEMFrac"]; if (mHFEMFrac && mHFEMFrac->getRootObject()) mHFEMFrac ->Fill((*patJets)[ind1].HFEMEnergyFraction());
-	mHFHFrac = map_of_MEs[DirName+"/"+"HFHFrac"]; if (mHFHFrac && mHFHFrac->getRootObject())     mHFHFrac ->Fill((*patJets)[ind1].HFHadronEnergyFraction());
+
 	
 	mJetEnergyCorr = map_of_MEs[DirName+"/"+"JetEnergyCorr"]; if(mJetEnergyCorr && mJetEnergyCorr->getRootObject()) mJetEnergyCorr->Fill(1./(*patJets)[ind1].jecFactor("Uncorrected"));
 	mJetEnergyCorrVSEta = map_of_MEs[DirName+"/"+"JetEnergyCorrVSEta"]; if(mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject()) mJetEnergyCorrVSEta->Fill(recoJets[0].eta(),1./(*patJets)[ind1].jecFactor("Uncorrected"));
@@ -3008,45 +3019,55 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	mJetEnergyCorr = map_of_MEs[DirName+"/"+"JetEnergyCorr"]; if(mJetEnergyCorr && mJetEnergyCorr->getRootObject()) mJetEnergyCorr->Fill(1./(*patJets)[ind2].jecFactor("Uncorrected"));
 	mJetEnergyCorrVSEta = map_of_MEs[DirName+"/"+"JetEnergyCorrVSEta"]; if(mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject()) mJetEnergyCorrVSEta->Fill(recoJets[0].eta(),1./(*patJets)[ind2].jecFactor("Uncorrected"));
 	mJetEnergyCorrVSPt = map_of_MEs[DirName+"/"+"JetEnergyCorrVSPt"]; if(mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject()) mJetEnergyCorrVSPt->Fill(recoJets[0].pt(),1./(*patJets)[ind2].jecFactor("Uncorrected"));
-	
-	mChargedMultiplicity = map_of_MEs[DirName+"/"+"ChargedMultiplicity"]; if(mChargedMultiplicity && mChargedMultiplicity->getRootObject()) mChargedMultiplicity->Fill((*patJets)[ind1].chargedMultiplicity());
-	mNeutralMultiplicity = map_of_MEs[DirName+"/"+"NeutralMultiplicity"]; if(mNeutralMultiplicity && mNeutralMultiplicity->getRootObject()) mNeutralMultiplicity->Fill((*patJets)[ind1].neutralMultiplicity());
-	mMuonMultiplicity = map_of_MEs[DirName+"/"+"MuonMultiplicity"]; if(mMuonMultiplicity && mMuonMultiplicity->getRootObject())             mMuonMultiplicity->Fill((*patJets)[ind1].muonMultiplicity());
-	//Filling variables for second jet	
-	mCHFrac = map_of_MEs[DirName+"/"+"CHFrac"]; if (mCHFrac && mCHFrac->getRootObject())         mCHFrac ->Fill((*patJets)[ind2].chargedHadronEnergyFraction());
-	mNHFrac = map_of_MEs[DirName+"/"+"NHFrac"]; if (mNHFrac && mNHFrac->getRootObject())         mNHFrac ->Fill((*patJets)[ind2].neutralHadronEnergyFraction());
-	mPhFrac = map_of_MEs[DirName+"/"+"PhFrac"]; if (mPhFrac && mPhFrac->getRootObject())         mPhFrac ->Fill((*patJets)[ind2].neutralEmEnergyFraction());
-	mHFEMFrac = map_of_MEs[DirName+"/"+"HFEMFrac"]; if (mHFEMFrac && mHFEMFrac->getRootObject()) mHFEMFrac ->Fill((*patJets)[ind2].HFEMEnergyFraction());
-	mHFHFrac = map_of_MEs[DirName+"/"+"HFHFrac"]; if (mHFHFrac && mHFHFrac->getRootObject())     mHFHFrac ->Fill((*patJets)[ind2].HFHadronEnergyFraction());
-	
-	mNeutralFraction = map_of_MEs[DirName+"/"+"NeutralConstituentsFraction"];if (mNeutralFraction && mNeutralFraction->getRootObject()) mNeutralFraction->Fill ((double)(*patJets)[ind1].neutralMultiplicity()/(double)(*patJets)[ind1].nConstituents());
-	
-	mChargedMultiplicity = map_of_MEs[DirName+"/"+"ChargedMultiplicity"]; if(mChargedMultiplicity && mChargedMultiplicity->getRootObject()) mChargedMultiplicity->Fill((*patJets)[ind2].chargedMultiplicity());
-	mNeutralMultiplicity = map_of_MEs[DirName+"/"+"NeutralMultiplicity"]; if(mNeutralMultiplicity && mNeutralMultiplicity->getRootObject()) mNeutralMultiplicity->Fill((*patJets)[ind2].neutralMultiplicity());
-	mMuonMultiplicity = map_of_MEs[DirName+"/"+"MuonMultiplicity"]; if(mMuonMultiplicity && mMuonMultiplicity->getRootObject())             mMuonMultiplicity->Fill((*patJets)[ind2].muonMultiplicity());
-	
-	//now fill PATJet profiles for leading jet
-	mCHFrac_profile = map_of_MEs[DirName+"/"+"CHFrac_profile"]; if (mCHFrac_profile && mCHFrac_profile->getRootObject())         mCHFrac_profile ->Fill(numPV, (*patJets)[ind1].chargedHadronEnergyFraction());
-	mNHFrac_profile = map_of_MEs[DirName+"/"+"NHFrac_profile"]; if (mNHFrac_profile && mNHFrac_profile->getRootObject())         mNHFrac_profile ->Fill(numPV, (*patJets)[ind1].neutralHadronEnergyFraction());
-	mPhFrac_profile = map_of_MEs[DirName+"/"+"PhFrac_profile"]; if (mPhFrac_profile && mPhFrac_profile->getRootObject())         mPhFrac_profile ->Fill(numPV, (*patJets)[ind1].neutralEmEnergyFraction());
-	mHFEMFrac_profile = map_of_MEs[DirName+"/"+"HFEMFrac_profile"]; if (mHFEMFrac_profile && mHFEMFrac_profile->getRootObject()) mHFEMFrac_profile ->Fill(numPV, (*patJets)[ind1].HFEMEnergyFraction());
-	mHFHFrac_profile = map_of_MEs[DirName+"/"+"HFHFrac_profile"]; if (mHFHFrac_profile && mHFHFrac_profile->getRootObject())     mHFHFrac_profile ->Fill(numPV, (*patJets)[ind1].HFHadronEnergyFraction());
-	
-	mNeutralFraction = map_of_MEs[DirName+"/"+"NeutralConstituentsFraction"];if (mNeutralFraction && mNeutralFraction->getRootObject()) mNeutralFraction->Fill ((double)(*patJets)[ind2].neutralMultiplicity()/(double)(*patJets)[ind2].nConstituents());
-	
-	mChargedMultiplicity_profile = map_of_MEs[DirName+"/"+"ChargedMultiplicity_profile"]; if(mChargedMultiplicity_profile && mChargedMultiplicity_profile->getRootObject()) mChargedMultiplicity_profile->Fill(numPV, (*patJets)[ind1].chargedMultiplicity());
-	mNeutralMultiplicity_profile = map_of_MEs[DirName+"/"+"NeutralMultiplicity_profile"]; if(mNeutralMultiplicity_profile && mNeutralMultiplicity_profile->getRootObject()) mNeutralMultiplicity_profile->Fill(numPV, (*patJets)[ind1].neutralMultiplicity());
-	mMuonMultiplicity_profile = map_of_MEs[DirName+"/"+"MuonMultiplicity_profile"]; if(mMuonMultiplicity_profile && mMuonMultiplicity_profile->getRootObject())             mMuonMultiplicity->Fill(numPV, (*patJets)[ind1].muonMultiplicity());
-	//now fill PATJet profiles for second leading jet
-	mCHFrac_profile = map_of_MEs[DirName+"/"+"CHFrac_profile"]; if (mCHFrac_profile && mCHFrac_profile->getRootObject())         mCHFrac_profile ->Fill(numPV, (*patJets)[ind2].chargedHadronEnergyFraction());
-	mNHFrac_profile = map_of_MEs[DirName+"/"+"NHFrac_profile"]; if (mNHFrac_profile && mNHFrac_profile->getRootObject())         mNHFrac_profile ->Fill(numPV, (*patJets)[ind2].neutralHadronEnergyFraction());
-	mPhFrac_profile = map_of_MEs[DirName+"/"+"PhFrac_profile"]; if (mPhFrac_profile && mPhFrac_profile->getRootObject())         mPhFrac_profile ->Fill(numPV, (*patJets)[ind2].neutralEmEnergyFraction());
-	mHFEMFrac_profile = map_of_MEs[DirName+"/"+"HFEMFrac_profile"]; if (mHFEMFrac_profile && mHFEMFrac_profile->getRootObject()) mHFEMFrac_profile ->Fill(numPV, (*patJets)[ind2].HFEMEnergyFraction());
-	mHFHFrac_profile = map_of_MEs[DirName+"/"+"HFHFrac_profile"]; if (mHFHFrac_profile && mHFHFrac_profile->getRootObject())     mHFHFrac_profile ->Fill(numPV, (*patJets)[ind2].HFHadronEnergyFraction());
-	
-	mChargedMultiplicity_profile = map_of_MEs[DirName+"/"+"ChargedMultiplicity_profile"]; if(mChargedMultiplicity_profile && mChargedMultiplicity_profile->getRootObject()) mChargedMultiplicity_profile->Fill(numPV, (*patJets)[ind2].chargedMultiplicity());
-	mNeutralMultiplicity_profile = map_of_MEs[DirName+"/"+"NeutralMultiplicity_profile"]; if(mNeutralMultiplicity_profile && mNeutralMultiplicity_profile->getRootObject()) mNeutralMultiplicity_profile->Fill(numPV, (*patJets)[ind2].neutralMultiplicity());
-	mMuonMultiplicity_profile = map_of_MEs[DirName+"/"+"MuonMultiplicity_profile"]; if(mMuonMultiplicity_profile && mMuonMultiplicity_profile->getRootObject())             mMuonMultiplicity_profile->Fill(numPV, (*patJets)[ind2].muonMultiplicity());
+
+	// In MINIAOD, can drop PFSpecifics just to save space, so check they are available. 
+	if ( (*patJets)[ind1].hasPFSpecific() ) {
+	  mCHFrac = map_of_MEs[DirName+"/"+"CHFrac"]; if (mCHFrac && mCHFrac->getRootObject())         mCHFrac ->Fill((*patJets)[ind1].chargedHadronEnergyFraction());
+	  mNHFrac = map_of_MEs[DirName+"/"+"NHFrac"]; if (mNHFrac && mNHFrac->getRootObject())         mNHFrac ->Fill((*patJets)[ind1].neutralHadronEnergyFraction());
+	  mPhFrac = map_of_MEs[DirName+"/"+"PhFrac"]; if (mPhFrac && mPhFrac->getRootObject())         mPhFrac ->Fill((*patJets)[ind1].neutralEmEnergyFraction());
+	  mHFEMFrac = map_of_MEs[DirName+"/"+"HFEMFrac"]; if (mHFEMFrac && mHFEMFrac->getRootObject()) mHFEMFrac ->Fill((*patJets)[ind1].HFEMEnergyFraction());
+	  mHFHFrac = map_of_MEs[DirName+"/"+"HFHFrac"]; if (mHFHFrac && mHFHFrac->getRootObject())     mHFHFrac ->Fill((*patJets)[ind1].HFHadronEnergyFraction());
+	  mChargedMultiplicity = map_of_MEs[DirName+"/"+"ChargedMultiplicity"]; if(mChargedMultiplicity && mChargedMultiplicity->getRootObject()) mChargedMultiplicity->Fill((*patJets)[ind1].chargedMultiplicity());
+	  mNeutralMultiplicity = map_of_MEs[DirName+"/"+"NeutralMultiplicity"]; if(mNeutralMultiplicity && mNeutralMultiplicity->getRootObject()) mNeutralMultiplicity->Fill((*patJets)[ind1].neutralMultiplicity());
+	  mMuonMultiplicity = map_of_MEs[DirName+"/"+"MuonMultiplicity"]; if(mMuonMultiplicity && mMuonMultiplicity->getRootObject())             mMuonMultiplicity->Fill((*patJets)[ind1].muonMultiplicity());
+	  mNeutralFraction = map_of_MEs[DirName+"/"+"NeutralConstituentsFraction"];if (mNeutralFraction && mNeutralFraction->getRootObject()) mNeutralFraction->Fill ((double)(*patJets)[ind1].neutralMultiplicity()/(double)(*patJets)[ind1].nConstituents());
+	  mCHFrac_profile = map_of_MEs[DirName+"/"+"CHFrac_profile"]; if (mCHFrac_profile && mCHFrac_profile->getRootObject())         mCHFrac_profile ->Fill(numPV, (*patJets)[ind1].chargedHadronEnergyFraction());
+	  mNHFrac_profile = map_of_MEs[DirName+"/"+"NHFrac_profile"]; if (mNHFrac_profile && mNHFrac_profile->getRootObject())         mNHFrac_profile ->Fill(numPV, (*patJets)[ind1].neutralHadronEnergyFraction());
+	  mPhFrac_profile = map_of_MEs[DirName+"/"+"PhFrac_profile"]; if (mPhFrac_profile && mPhFrac_profile->getRootObject())         mPhFrac_profile ->Fill(numPV, (*patJets)[ind1].neutralEmEnergyFraction());
+	  mHFEMFrac_profile = map_of_MEs[DirName+"/"+"HFEMFrac_profile"]; if (mHFEMFrac_profile && mHFEMFrac_profile->getRootObject()) mHFEMFrac_profile ->Fill(numPV, (*patJets)[ind1].HFEMEnergyFraction());
+	  mHFHFrac_profile = map_of_MEs[DirName+"/"+"HFHFrac_profile"]; if (mHFHFrac_profile && mHFHFrac_profile->getRootObject())     mHFHFrac_profile ->Fill(numPV, (*patJets)[ind1].HFHadronEnergyFraction());
+	  mChargedMultiplicity_profile = map_of_MEs[DirName+"/"+"ChargedMultiplicity_profile"]; if(mChargedMultiplicity_profile && mChargedMultiplicity_profile->getRootObject()) mChargedMultiplicity_profile->Fill(numPV, (*patJets)[ind1].chargedMultiplicity());
+	  mNeutralMultiplicity_profile = map_of_MEs[DirName+"/"+"NeutralMultiplicity_profile"]; if(mNeutralMultiplicity_profile && mNeutralMultiplicity_profile->getRootObject()) mNeutralMultiplicity_profile->Fill(numPV, (*patJets)[ind1].neutralMultiplicity());
+	  mMuonMultiplicity_profile = map_of_MEs[DirName+"/"+"MuonMultiplicity_profile"]; if(mMuonMultiplicity_profile && mMuonMultiplicity_profile->getRootObject())             mMuonMultiplicity->Fill(numPV, (*patJets)[ind1].muonMultiplicity());
+
+	}
+
+	// In MINIAOD, can drop PFSpecifics just to save space, so check they are available. 
+	//Filling variables for second jet
+	if ( (*patJets)[ind2].hasPFSpecific() ) {
+	  mCHFrac = map_of_MEs[DirName+"/"+"CHFrac"]; if (mCHFrac && mCHFrac->getRootObject())         mCHFrac ->Fill((*patJets)[ind2].chargedHadronEnergyFraction());
+	  mNHFrac = map_of_MEs[DirName+"/"+"NHFrac"]; if (mNHFrac && mNHFrac->getRootObject())         mNHFrac ->Fill((*patJets)[ind2].neutralHadronEnergyFraction());
+	  mPhFrac = map_of_MEs[DirName+"/"+"PhFrac"]; if (mPhFrac && mPhFrac->getRootObject())         mPhFrac ->Fill((*patJets)[ind2].neutralEmEnergyFraction());
+	  mHFEMFrac = map_of_MEs[DirName+"/"+"HFEMFrac"]; if (mHFEMFrac && mHFEMFrac->getRootObject()) mHFEMFrac ->Fill((*patJets)[ind2].HFEMEnergyFraction());
+	  mHFHFrac = map_of_MEs[DirName+"/"+"HFHFrac"]; if (mHFHFrac && mHFHFrac->getRootObject())     mHFHFrac ->Fill((*patJets)[ind2].HFHadronEnergyFraction());
+
+	  mChargedMultiplicity = map_of_MEs[DirName+"/"+"ChargedMultiplicity"]; if(mChargedMultiplicity && mChargedMultiplicity->getRootObject()) mChargedMultiplicity->Fill((*patJets)[ind2].chargedMultiplicity());
+	  mNeutralMultiplicity = map_of_MEs[DirName+"/"+"NeutralMultiplicity"]; if(mNeutralMultiplicity && mNeutralMultiplicity->getRootObject()) mNeutralMultiplicity->Fill((*patJets)[ind2].neutralMultiplicity());
+	  mMuonMultiplicity = map_of_MEs[DirName+"/"+"MuonMultiplicity"]; if(mMuonMultiplicity && mMuonMultiplicity->getRootObject())             mMuonMultiplicity->Fill((*patJets)[ind2].muonMultiplicity());
+
+	  mNeutralFraction = map_of_MEs[DirName+"/"+"NeutralConstituentsFraction"];if (mNeutralFraction && mNeutralFraction->getRootObject()) mNeutralFraction->Fill ((double)(*patJets)[ind2].neutralMultiplicity()/(double)(*patJets)[ind2].nConstituents());
+
+	  //now fill PATJet profiles for second leading jet
+	  mCHFrac_profile = map_of_MEs[DirName+"/"+"CHFrac_profile"]; if (mCHFrac_profile && mCHFrac_profile->getRootObject())         mCHFrac_profile ->Fill(numPV, (*patJets)[ind2].chargedHadronEnergyFraction());
+	  mNHFrac_profile = map_of_MEs[DirName+"/"+"NHFrac_profile"]; if (mNHFrac_profile && mNHFrac_profile->getRootObject())         mNHFrac_profile ->Fill(numPV, (*patJets)[ind2].neutralHadronEnergyFraction());
+	  mPhFrac_profile = map_of_MEs[DirName+"/"+"PhFrac_profile"]; if (mPhFrac_profile && mPhFrac_profile->getRootObject())         mPhFrac_profile ->Fill(numPV, (*patJets)[ind2].neutralEmEnergyFraction());
+	  mHFEMFrac_profile = map_of_MEs[DirName+"/"+"HFEMFrac_profile"]; if (mHFEMFrac_profile && mHFEMFrac_profile->getRootObject()) mHFEMFrac_profile ->Fill(numPV, (*patJets)[ind2].HFEMEnergyFraction());
+	  mHFHFrac_profile = map_of_MEs[DirName+"/"+"HFHFrac_profile"]; if (mHFHFrac_profile && mHFHFrac_profile->getRootObject())     mHFHFrac_profile ->Fill(numPV, (*patJets)[ind2].HFHadronEnergyFraction());
+	  
+	  mChargedMultiplicity_profile = map_of_MEs[DirName+"/"+"ChargedMultiplicity_profile"]; if(mChargedMultiplicity_profile && mChargedMultiplicity_profile->getRootObject()) mChargedMultiplicity_profile->Fill(numPV, (*patJets)[ind2].chargedMultiplicity());
+	  mNeutralMultiplicity_profile = map_of_MEs[DirName+"/"+"NeutralMultiplicity_profile"]; if(mNeutralMultiplicity_profile && mNeutralMultiplicity_profile->getRootObject()) mNeutralMultiplicity_profile->Fill(numPV, (*patJets)[ind2].neutralMultiplicity());
+	  mMuonMultiplicity_profile = map_of_MEs[DirName+"/"+"MuonMultiplicity_profile"]; if(mMuonMultiplicity_profile && mMuonMultiplicity_profile->getRootObject())             mMuonMultiplicity_profile->Fill(numPV, (*patJets)[ind2].muonMultiplicity());
+	}
       }	  
 
 
@@ -3187,7 +3208,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	edm::Handle<reco::CaloMETCollection> calometcoll;
 	edm::Handle<reco::PFMETCollection> pfmetcoll;
 	//edm::Handle<pat::METCollection> patmetcoll;
-	const MET *met=NULL;
+	const MET *met=nullptr;
 	if(isCaloJet_){
 	  iEvent.getByToken(caloMetToken_, calometcoll);
 	  if(!calometcoll.isValid()) return;

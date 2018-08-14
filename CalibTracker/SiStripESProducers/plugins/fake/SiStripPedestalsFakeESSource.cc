@@ -25,16 +25,15 @@
 class SiStripPedestalsFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripPedestalsFakeESSource(const edm::ParameterSet&);
-  ~SiStripPedestalsFakeESSource();
+  ~SiStripPedestalsFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripPedestals> ReturnType;
+  typedef std::unique_ptr<SiStripPedestals> ReturnType;
   ReturnType produce(const SiStripPedestalsRcd&);
 
 private:
   uint32_t m_pedestalValue;
-  edm::FileInPath m_file;
   uint32_t m_printDebug;
 };
 
@@ -47,7 +46,6 @@ SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterS
   findingRecord<SiStripPedestalsRcd>();
 
   m_pedestalValue = iConfig.getParameter<uint32_t>("PedestalValue");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
 }
 
@@ -64,12 +62,11 @@ SiStripPedestalsFakeESSource::produce(const SiStripPedestalsRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripPedestals> pedestals{new SiStripPedestals};
+  auto pedestals = std::make_unique<SiStripPedestals>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
+  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count{0};
-  for ( const auto& elm : reader.getAllData() ) {
+  for ( const auto& elm : reader->getAllData() ) {
     //Generate Noises for det detid
     SiStripPedestals::InputVector theSiStripVector;
     for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {

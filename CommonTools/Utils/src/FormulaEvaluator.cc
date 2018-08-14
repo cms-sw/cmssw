@@ -17,6 +17,10 @@
 #include <cmath>
 #include "TMath.h"
 
+//#define DEBUG_AST
+#if defined(DEBUG_AST)
+#include <iostream>
+#endif
 // user include files
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 #include "formulaEvaluatorBase.h"
@@ -32,6 +36,19 @@
 using namespace reco;
 
 namespace {
+
+#if defined(DEBUG_AST)
+  void printAST(formula::EvaluatorBase* e) {
+    std::cout <<"printAST"<<std::endl;
+    for(auto const& n: e->abstractSyntaxTree()) {
+      std::cout <<n<<std::endl;
+    }
+  }
+#define DEBUG_STATE(_v_) std::cout <<_v_<<std::endl
+#else
+  inline void printAST(void*) {}
+#define DEBUG_STATE(_v_)
+#endif
   //Formula Parser Code
   struct EvaluatorInfo {
     std::shared_ptr<reco::formula::EvaluatorBase> evaluator;
@@ -46,6 +63,8 @@ namespace {
     virtual bool checkStart(char) const = 0;
 
     virtual EvaluatorInfo createEvaluator(std::string::const_iterator, std::string::const_iterator) const = 0;
+
+    virtual ~ExpressionElementFinderBase() = default;
   };
 
   std::string::const_iterator findMatchingParenthesis(std::string::const_iterator iBegin, std::string::const_iterator iEnd) {
@@ -72,14 +91,14 @@ namespace {
   }
 
   class ConstantFinder : public ExpressionElementFinderBase {
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       if( iSymbol == '-' or iSymbol == '.' or std::isdigit(iSymbol) ) {
         return true;
       }
       return false;
     }
 
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final {
       EvaluatorInfo info;
       try {
         size_t endIndex=0;
@@ -89,7 +108,7 @@ namespace {
         info.nextParseIndex = endIndex;
         info.evaluator = std::make_shared<reco::formula::ConstantEvaluator>(value);
         info.top = info.evaluator;
-      } catch ( std::invalid_argument ) {}
+      } catch ( std::invalid_argument const& ) {}
 
       return info;
 
@@ -98,14 +117,14 @@ namespace {
 
 
   class ParameterFinder : public ExpressionElementFinderBase {
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       if( iSymbol == '[') {
         return true;
       }
       return false;
     }
 
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final {
       EvaluatorInfo info;
       if(iEnd == iBegin) {
         return info;
@@ -128,7 +147,7 @@ namespace {
         info.maxNumParameters = value+1;
         info.evaluator = std::make_shared<reco::formula::ParameterEvaluator>(value);
         info.top = info.evaluator;
-      } catch ( std::invalid_argument ) {}
+      } catch ( std::invalid_argument const& ) {}
       
       return info;
 
@@ -136,14 +155,14 @@ namespace {
   };
   
   class VariableFinder : public ExpressionElementFinderBase {
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       if( iSymbol == 'x' or iSymbol == 'y' or iSymbol == 'z' or iSymbol == 't' ) {
         return true;
       }
       return false;
     }
     
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final {
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final {
       EvaluatorInfo info;
       if(iBegin == iEnd) {
         return info;
@@ -177,11 +196,11 @@ namespace {
     FunctionFinder(ExpressionFinder const* iEF):
       m_expressionFinder(iEF) {};
 
-    virtual bool checkStart(char iSymbol) const override final {
+    bool checkStart(char iSymbol) const final {
       return std::isalpha(iSymbol);
     }
 
-    virtual EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const override final;
+    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin, std::string::const_iterator iEnd) const final;
 
   private:
     ExpressionFinder const* m_expressionFinder;
@@ -256,6 +275,9 @@ namespace {
         //need to account for closing parenthesis
         ++leftEvaluatorInfo.nextParseIndex;
         leftEvaluatorInfo.top->setPrecedenceToParenthesis();
+        DEBUG_STATE("close parenthesis");
+        printAST(leftEvaluatorInfo.top.get());
+        leftEvaluatorInfo.evaluator = leftEvaluatorInfo.top;
       } else {
         //Does not start with a '('
         int maxParseDistance = 0;
@@ -282,6 +304,8 @@ namespace {
           iPreviousBinary->setRightEvaluator(leftEvaluatorInfo.top);
           leftEvaluatorInfo.top = iPreviousBinary;
         }
+        DEBUG_STATE("full expression");
+        printAST(leftEvaluatorInfo.evaluator.get());
         return leftEvaluatorInfo;
       }
 
@@ -295,19 +319,28 @@ namespace {
         fullExpression.evaluator.reset();
       }
 
+      if(fullExpression.evaluator == nullptr) {
+        //we had a parsing problem
+        return fullExpression;
+      }
+
+      printAST(fullExpression.evaluator.get());
       //Now to handle precedence
       auto topNode = fullExpression.top;
       auto binaryEval = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(fullExpression.evaluator.get());
       if (iPreviousBinary) {
         if (iPreviousBinary->precedence() >= fullExpression.evaluator->precedence() ) {
+          DEBUG_STATE("prec >=");
           iPreviousBinary->setRightEvaluator(leftEvaluatorInfo.evaluator);
           binaryEval->setLeftEvaluator(iPreviousBinary);
         } else {
           binaryEval->setLeftEvaluator(leftEvaluatorInfo.evaluator);
           if(iPreviousBinary->precedence()<topNode->precedence() ) {
+            DEBUG_STATE(" swtich topNode");
             topNode = iPreviousBinary;
             iPreviousBinary->setRightEvaluator(fullExpression.top);
           }else {
+            DEBUG_STATE("swapping");
             std::shared_ptr<reco::formula::EvaluatorBase> toSwap = iPreviousBinary;
             auto topBinary = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(topNode.get()); 
             topBinary->swapLeftEvaluator(toSwap);
@@ -317,6 +350,8 @@ namespace {
       } else {
         binaryEval->setLeftEvaluator(leftEvaluatorInfo.top);
       }
+      DEBUG_STATE("finished binary");
+      printAST(binaryEval);
       fullExpression.top = topNode;
       return fullExpression;
     }
@@ -557,20 +592,24 @@ namespace {
     return info;
   }
 
-  static const std::string k_log("log");
-  static const std::string k_log10("log10");
-  static const std::string k_TMath__Log("TMath::Log");
+  const std::string k_log("log");
+  const std::string k_log10("log10");
+  const std::string k_TMath__Log("TMath::Log");
   double const kLog10Inv = 1./std::log(10.);
-  static const std::string k_exp("exp");
-  static const std::string k_pow("pow");
-  static const std::string k_TMath__Power("TMath::Power");
-  static const std::string k_max("max");
-  static const std::string k_min("min");
-  static const std::string k_TMath__Max("TMath::Max");
-  static const std::string k_TMath__Min("TMath::Min");
-  static const std::string k_TMath__Erf("TMath::Erf");
-  static const std::string k_erf("erf");
-  static const std::string k_TMath__Landau("TMath::Landau");
+  const std::string k_exp("exp");
+  const std::string k_pow("pow");
+  const std::string k_TMath__Power("TMath::Power");
+  const std::string k_max("max");
+  const std::string k_min("min");
+  const std::string k_TMath__Max("TMath::Max");
+  const std::string k_TMath__Min("TMath::Min");
+  const std::string k_TMath__Erf("TMath::Erf");
+  const std::string k_erf("erf");
+  const std::string k_TMath__Landau("TMath::Landau");
+  const std::string k_sqrt("sqrt");
+  const std::string k_TMath__Sqrt("TMath::Sqrt");
+  const std::string k_abs("abs");
+  const std::string k_TMath__Abs("TMath::Abs");
 
 
   EvaluatorInfo 
@@ -619,6 +658,30 @@ namespace {
       return info;
     }
 
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_sqrt, [](double iArg)->double { return std::sqrt(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_TMath__Sqrt, [](double iArg)->double { return std::sqrt(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_abs, [](double iArg)->double { return std::abs(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_TMath__Abs, [](double iArg)->double { return std::abs(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
     info = checkForTwoArgsFunction(iBegin, iEnd, m_expressionFinder,
                                    k_pow, [](double iArg1, double iArg2)->double { return std::pow(iArg1,iArg2); } );
     if(info.evaluator.get() != nullptr) {
@@ -658,7 +721,7 @@ namespace {
     return info;
   };
 
-  static ExpressionFinder const s_expressionFinder;
+  ExpressionFinder const s_expressionFinder;
   
 }
 //
@@ -700,4 +763,9 @@ FormulaEvaluator::throwWrongNumberOfVariables(size_t iSize) const {
 void 
 FormulaEvaluator::throwWrongNumberOfParameters(size_t iSize) const {
   throw cms::Exception("WrongNumParameters")<<"FormulaEvaluator expected at least "<<m_nParameters<<" but was passed only "<<iSize;
+}
+
+std::vector<std::string> 
+FormulaEvaluator::abstractSyntaxTree() const {
+  return m_evaluator->abstractSyntaxTree();
 }

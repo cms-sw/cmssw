@@ -7,6 +7,7 @@ in input file it creates a Run X named folder for each run.
 Thanks for Marco Rovere for giving example script/class needed to browse DQM I/O 
 formatted input.
 """
+from __future__ import print_function
 
 import ROOT as R
 import sys
@@ -34,12 +35,12 @@ class DQMIO:
         if os.path.exists(self._filename): #we try to open input file if fail
             self._root_file = R.TFile.Open(self._filename) #-> close script
             if args.debug:
-                print "## DEBUG ##:"
-                print "    Input: %s\n    Output: %s" % (input_filename, 
-                    output_filename)
+                print("## DEBUG ##:")
+                print("    Input: %s\n    Output: %s" % (input_filename, 
+                    output_filename))
 
         else:
-            print "File %s does not exists" % self._filename
+            print("File %s does not exists" % self._filename)
             sys.exit(1)
     
     def print_index(self):
@@ -48,13 +49,13 @@ class DQMIO:
         """
         indices = self._root_file.Get("Indices")
         if args.debug:
-            print "## DEBUG ##:"
-            print "Run,\tLumi,\tType,\t\tFirstIndex,\tLastIndex"
+            print("## DEBUG ##:")
+            print("Run,\tLumi,\tType,\t\tFirstIndex,\tLastIndex")
             for i in xrange(indices.GetEntries()):
                 indices.GetEntry(i)
-                print '{0:4d}\t{1:4d}\t{2:4d}({3:s})\t\t{4:4d}\t{5:4d}'.format(
+                print('{0:4d}\t{1:4d}\t{2:4d}({3:s})\t\t{4:4d}\t{5:4d}'.format(
                     indices.Run, indices.Lumi, indices.Type, 
-                    DQMIO.types[indices.Type], indices.FirstIndex, indices.LastIndex)
+                    DQMIO.types[indices.Type], indices.FirstIndex, indices.LastIndex))
 
         for i in xrange(indices.GetEntries()):
             indices.GetEntry(i)
@@ -63,7 +64,7 @@ class DQMIO:
                     [indices.FirstIndex,indices.LastIndex], str(indices.Run))
 
             else:
-                print "Unknown histogram type. Type numer: %s" % (indices.Type)
+                print("Unknown histogram type. Type numer: %s" % (indices.Type))
         self.f.Close()
 
     def write_to_file(self, hist_type, index_range, run):
@@ -71,8 +72,8 @@ class DQMIO:
         Method looping over entries for specified histogram type and 
         writing to FullName path to output ROOT File
         """
-        print "Working on: %s indexes: %s..%s" % (hist_type ,index_range[0],
-            index_range[1])
+        print("Working on: %s indexes: %s..%s" % (hist_type ,index_range[0],
+            index_range[1]))
         t_tree = self._root_file.Get(hist_type)
         __run_dir = "Run %s" % (run)
         ###we set Branch for the needed type

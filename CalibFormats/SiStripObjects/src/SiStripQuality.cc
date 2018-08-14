@@ -21,14 +21,14 @@
 SiStripQuality::SiStripQuality():
   toCleanUp(false),
   FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
-  SiStripDetCabling_(NULL),
+  SiStripDetCabling_(nullptr),
   printDebug_(false),
   useEmptyRunInfo_(false)
 {
   reader=new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
-SiStripQuality::SiStripQuality(edm::FileInPath& file):toCleanUp(false),FileInPath_(file),SiStripDetCabling_(NULL), printDebug_(false), useEmptyRunInfo_(false)
+SiStripQuality::SiStripQuality(edm::FileInPath& file):toCleanUp(false),FileInPath_(file),SiStripDetCabling_(nullptr), printDebug_(false), useEmptyRunInfo_(false)
 {
   reader=new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
@@ -248,7 +248,7 @@ void SiStripQuality::addInvalidConnectionFromCabling()
     short ngoodConn=0, goodConn=0;
     for(;itconns!=itconnsEnd;++itconns){
       //LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] apvpair " << (*itconns)->apvPairNumber() << " napvpair " << (*itconns)->nApvPairs()<< " detid " << (*itconns)->detId() << std::endl;
-      if( (*itconns == 0) || ((*itconns)->nApvPairs()==sistrip::invalid_) )
+      if( (*itconns == nullptr) || ((*itconns)->nApvPairs()==sistrip::invalid_) )
 	continue;
       ngoodConn++;
       goodConn = goodConn | ( 0x1 << (*itconns)->apvPairNumber() );
@@ -591,7 +591,7 @@ bool SiStripQuality::IsModuleUsable(const uint32_t& detid) const
     if(p->BadModule)
       return false;
 
-  if (SiStripDetCabling_!=NULL)
+  if (SiStripDetCabling_!=nullptr)
     if(!SiStripDetCabling_->IsConnected(detid))
       return false;
 

@@ -152,7 +152,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection * all4DSegments, const edm
       
 	if(debug) std::cout<<"DT  \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
       
-	assert(rollsForThisDT.size()>=1);
+	assert(!rollsForThisDT.empty());
       
 	if(debug) std::cout<<"DT  \t \t Loop over all the rolls asociated to this DT"<<std::endl;
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
@@ -265,8 +265,8 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection * all4DSegments, const edm
 	    if(debug) std::cout<<"MB4 \t \t \t \t The Segment in MB4 is 2D?"<<std::endl;
 	    if(segment->dimension()==2){
 	      if(debug) std::cout<<"MB4 \t \t \t \t yes"<<std::endl;
-	      LocalVector segmentDirectionMB4=segmentDirection;
-	      LocalPoint segmentPositionMB4=segmentPosition;
+	      const LocalVector& segmentDirectionMB4=segmentDirection;
+	      const LocalPoint& segmentPositionMB4=segmentPosition;
 	    
 	      const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();
 	        
@@ -340,7 +340,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection * all4DSegments, const edm
 
 		    if(debug) std::cout<<"MB4 \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
 		    
-		    assert(rollsForThisDT.size()>=1);
+		    assert(!rollsForThisDT.empty());
 		        
 		    if(debug) std::cout<<"MB4  \t \t Loop over all the rolls asociated to this DT"<<std::endl;
 		    for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){

@@ -10,11 +10,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/test/DummyFinder.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <memory>
 #include <string>
 #include <vector>
+
+namespace {
+edm::ActivityRegistry activityRegistry;
+}
 
 class TestEventSetupsController: public CppUnit::TestFixture
 {
@@ -52,9 +57,9 @@ void TestEventSetupsController::constructorTest() {
   pset.addParameter<std::vector<std::string> >("@all_essources", emptyVStrings);
   pset.addParameter<std::vector<std::string> >("@all_esmodules", emptyVStrings);
 
-  esController.makeProvider(pset);
-  esController.makeProvider(pset);
-  esController.makeProvider(pset);
+  esController.makeProvider(pset, &activityRegistry);
+  esController.makeProvider(pset, &activityRegistry);
+  esController.makeProvider(pset, &activityRegistry);
 
   CPPUNIT_ASSERT(esController.providers().size() == 3);
   CPPUNIT_ASSERT(esController.providers()[0]->subProcessIndex() == 0);

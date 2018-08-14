@@ -88,11 +88,11 @@ public:
     const reco::Candidate * m0 = &*dau0->masterClone(), * m1 = &*dau1->masterClone();
     double iso0 = -1, iso1 = -1;
     const pat::Muon * mu0 = dynamic_cast<const pat::Muon *>(m0);
-    if(mu0 != 0) {
+    if(mu0 != nullptr) {
       iso0 = ((*mu0).*(leptonIsolation_))();
     } else {
       const pat::GenericParticle * trk0 = dynamic_cast<const pat::GenericParticle*>(m0);
-      if(trk0 != 0) {
+      if(trk0 != nullptr) {
 	iso0 = ((*trk0).*(trackIsolation_))();
       } else {
 	throw edm::Exception(edm::errors::InvalidReference)
@@ -100,11 +100,11 @@ public:
       }
     }
     const pat::Muon * mu1 = dynamic_cast<const pat::Muon *>(m1);
-    if(mu1 != 0) {
+    if(mu1 != nullptr) {
       iso1 = ((*mu1).*(leptonIsolation_))();
     } else {
       const pat::GenericParticle * trk1 = dynamic_cast<const pat::GenericParticle*>(m1);
-      if(trk1 != 0) {
+      if(trk1 != nullptr) {
 	iso1 = ((*trk1).*(trackIsolation_))();
       } else {
 	throw edm::Exception(edm::errors::InvalidReference)

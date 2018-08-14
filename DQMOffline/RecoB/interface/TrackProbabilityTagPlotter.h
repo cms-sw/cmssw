@@ -9,37 +9,35 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
+class TrackProbabilityTagPlotter: public BaseTagInfoPlotter {
 
 
  public:
 
-  TrackProbabilityTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-			      const edm::ParameterSet& pSet, 
-			      const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook);
+  TrackProbabilityTagPlotter(const std::string & tagName, const EtaPtBin & etaPtBin,
+                  const edm::ParameterSet& pSet, 
+                  const unsigned int& mc, const bool& wf, DQMStore::IBooker & ibook);
 
-  ~TrackProbabilityTagPlotter () ;
+  ~TrackProbabilityTagPlotter() override;
 
-  void analyzeTag (const reco::BaseTagInfo * tagInfo, const double & jec, const int & jetFlavour);
+  void analyzeTag(const reco::BaseTagInfo * tagInfo, double jec, int jetFlavour, float w=1) override;
 
-  void analyzeTag (const reco::BaseTagInfo * tagInfo, const double & jec, const int & jetFlavour, const float & w);
+  void finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_) override;
 
-  virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
+  void epsPlot(const std::string & name) override;
 
-  void epsPlot(const std::string & name);
-
-  void psPlot(const std::string & name);
+  void psPlot(const std::string & name) override;
 
  private:
 
-  int	nBinEffPur_ ;
-  double startEffPur_ ; 
-  double endEffPur_ ; 
-  FlavourHistograms<double> * tkcntHistosSig3D[5];
-  FlavourHistograms<double> * tkcntHistosSig2D[5];
-  EffPurFromHistos * effPurFromHistos[4] ;
+  int nBinEffPur_;
+  double startEffPur_; 
+  double endEffPur_; 
+  std::vector< std::unique_ptr<FlavourHistograms<double>> > tkcntHistosSig3D_;
+  std::vector< std::unique_ptr<FlavourHistograms<double>> > tkcntHistosSig2D_;
+  std::vector< std::unique_ptr<EffPurFromHistos> > effPurFromHistos_;
   unsigned int mcPlots_;  
   bool willFinalize_;
-} ;
+};
 
 #endif

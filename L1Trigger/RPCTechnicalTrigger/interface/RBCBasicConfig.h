@@ -20,11 +20,11 @@ public:
 
   RBCBasicConfig( const RBCBoardSpecs * , RBCId * );
   
-  virtual ~RBCBasicConfig( ); ///< Destructor
+  ~RBCBasicConfig( ) override; ///< Destructor
   
-  bool initialise();
+  bool initialise() override;
 
-  void preprocess( RBCInput & );
+  void preprocess( RBCInput & ) override;
     
 protected:
   

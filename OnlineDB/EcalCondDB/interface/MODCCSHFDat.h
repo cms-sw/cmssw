@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -21,10 +21,10 @@ class MODCCSHFDat : public IDataItem {
   typedef oracle::occi::Clob Clob;
   friend class EcalCondDBInterface;
   MODCCSHFDat();
-  ~MODCCSHFDat();
+  ~MODCCSHFDat() override;
 
   // User data methods
-  inline std::string getTable() { return "OD_CCS_HF_DAT"; }
+  inline std::string getTable() override { return "OD_CCS_HF_DAT"; }
 
   inline void setClob(unsigned char* x) { m_clob = x; }
   inline unsigned char* getClob() const { return m_clob; }
@@ -40,7 +40,7 @@ class MODCCSHFDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODRunIOV* iov )
     noexcept(false);

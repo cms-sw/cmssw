@@ -56,12 +56,12 @@ Implementation:
 class PixelJetPuId : public edm::global::EDProducer <>{
     public:
         PixelJetPuId(const edm::ParameterSet&);
-        virtual ~PixelJetPuId();
+        ~PixelJetPuId() override;
         
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
         
     private:
-        virtual void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
+        void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
         
         // ----------member data ---------------------------
         edm::InputTag m_primaryVertex;
@@ -118,7 +118,7 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 }
 
 
-PixelJetPuId::~PixelJetPuId() {}
+PixelJetPuId::~PixelJetPuId() = default;
 
 
 void
@@ -174,14 +174,14 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
     
     //init JetTagCollection
-    if(generaljets.product()->size()>0)
+    if(!generaljets.product()->empty())
     {
         edm::RefToBase<reco::Jet> jj = edm::RefToBase<reco::Jet>(generaljets,0);
         pOut_jetTagCollection.reset(new reco::JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
     }
      
     //loop on trackIPTagInfos
-    if(primaryVertex->size()>0)
+    if(!primaryVertex->empty())
     {
         const reco::Vertex* pv = &*primaryVertex->begin();
         //loop on jets
@@ -200,7 +200,7 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
                 else 
                 {
                     //loop on tracks
-                    std::vector<reco::Track>::const_iterator itTrack = tracks->begin();
+                    auto itTrack = tracks->begin();
                     for (unsigned int i=0; i<tsize; ++i) {
                         float deltaR2=reco::deltaR2(itJet->eta(),itJet->phi(), teta[i],tphi[i]);
                         if(deltaR2<0.25) {
@@ -234,6 +234,6 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
     iEvent.put(std::move(pOut_jetTagCollection));
 }
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(PixelJetPuId);
 

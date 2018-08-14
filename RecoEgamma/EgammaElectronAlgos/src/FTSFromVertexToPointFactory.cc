@@ -25,7 +25,8 @@ FreeTrajectoryState FTSFromVertexToPointFactory::get( MagneticField const & magF
                                                       float momentum, 
                                                       TrackCharge charge )
 {
-  auto BInTesla = magField.inTesla(xmeas).z();
+  auto magFieldAtPoint = magField.inTesla(xmeas);
+  auto BInTesla = magFieldAtPoint.z();
   GlobalVector xdiff = xmeas - xvert;
   auto mom = momentum*xdiff.unit();
   auto pt = mom.perp();
@@ -48,7 +49,7 @@ FreeTrajectoryState FTSFromVertexToPointFactory::get( MagneticField const & magF
   auto pyNew =  -sa*pxOld + ca*pyOld;
   GlobalVector pNew(pxNew, pyNew, pz);  
 
-  GlobalTrajectoryParameters gp(xmeas, pNew, charge, & magField);
+  GlobalTrajectoryParameters gp(xmeas, pNew, charge, & magField, std::move(magFieldAtPoint));
   
   return FreeTrajectoryState(gp);
 }

@@ -40,7 +40,7 @@ class HotlineDQM: public DQMEDAnalyzer{
 
   public:
   HotlineDQM(const edm::ParameterSet& ps);
-  virtual ~HotlineDQM();
+  ~HotlineDQM() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

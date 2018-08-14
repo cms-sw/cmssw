@@ -1,7 +1,7 @@
 #ifndef CastorDigiProducer_h
 #define CastorDigiProducer_h
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,6 +22,7 @@
 
 namespace edm {
   class StreamID;
+  class ConsumesCollector;
 }
 
 namespace CLHEP {
@@ -34,18 +35,18 @@ class PileUpEventPrincipal;
 class CastorDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
-  virtual ~CastorDigiProducer();
+  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
+  ~CastorDigiProducer() override;
 
-  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+  void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+  void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+  void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
 private:
   
 
-  void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing, CLHEP::HepRandomEngine*);
+  void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);
@@ -56,8 +57,6 @@ private:
   void checkGeometry(const edm::EventSetup& eventSetup);
 
   edm::InputTag theHitsProducerTag;
-
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<CastorDigitizerTraits> CastorDigitizer;
@@ -80,7 +79,7 @@ private:
 
   std::vector<PCaloHit> theCastorHits;
 
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif

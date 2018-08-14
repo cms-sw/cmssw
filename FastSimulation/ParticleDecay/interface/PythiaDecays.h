@@ -30,7 +30,7 @@ class PythiaDecays
  public:
 
   PythiaDecays();
-  ~PythiaDecays(){};
+  ~PythiaDecays();
   const DaughterParticleList & particleDaughters(ParticlePropagator& particle, CLHEP::HepRandomEngine*);
 
  private:

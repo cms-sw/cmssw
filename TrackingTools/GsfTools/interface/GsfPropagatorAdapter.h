@@ -17,42 +17,42 @@ public:
   /// Constructor with explicit propagator
   GsfPropagatorAdapter (const Propagator& Propagator);
 
-  ~GsfPropagatorAdapter() {}
+  ~GsfPropagatorAdapter() override {}
 
   using Propagator::propagate;
   using Propagator::propagateWithPath;
 
 
-  virtual std::pair<TrajectoryStateOnSurface,double>
+  std::pair<TrajectoryStateOnSurface,double>
   propagateWithPath (const TrajectoryStateOnSurface&,
 		     const Plane&) const  override;
 
   /** Propagation to cylinder with path length calculation.
    */
-  virtual std::pair<TrajectoryStateOnSurface,double>
+  std::pair<TrajectoryStateOnSurface,double>
   propagateWithPath (const TrajectoryStateOnSurface&,
 		     const Cylinder&) const  override;
 
   /** Propagation to plane with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
 									const Plane&) const  override;
 
 
   /** Propagation to cylinder with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
 									const Cylinder&) const  override;
 
 public:
 
-  virtual bool setMaxDirectionChange( float phiMax) override {
+  bool setMaxDirectionChange( float phiMax) override {
     return thePropagator->setMaxDirectionChange(phiMax);
   }
 
- virtual void setPropagationDirection (PropagationDirection dir) override;
+ void setPropagationDirection (PropagationDirection dir) override;
 
   /// access to single state propagator
   inline const Propagator& propagator () const
@@ -60,12 +60,12 @@ public:
     return *thePropagator;
   }
 
-  virtual GsfPropagatorAdapter* clone() const override 
+  GsfPropagatorAdapter* clone() const override 
   {
     return new GsfPropagatorAdapter(*thePropagator);
   }
 
-  virtual const MagneticField* magneticField() const override {
+  const MagneticField* magneticField() const override {
     return thePropagator->magneticField();
   }
 

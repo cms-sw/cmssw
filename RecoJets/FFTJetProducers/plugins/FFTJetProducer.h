@@ -103,16 +103,16 @@ public:
     };
 
     explicit FFTJetProducer(const edm::ParameterSet&);
-    virtual ~FFTJetProducer();
+    ~FFTJetProducer() override;
 
     // Parser for the resolution enum
     static Resolution parse_resolution(const std::string& name);
 
 protected:
     // Functions which should be overriden from the base
-    virtual void beginJob() override;
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     // The following functions can be overriden by derived classes 
     // in order to adjust jet reconstruction algorithm behavior.
@@ -194,9 +194,9 @@ private:
         fftjetcms::Real,fftjetcms::VectorLike,fftjetcms::BgData> GridAlg;
 
     // Explicitly disable other ways to construct this object
-    FFTJetProducer();
-    FFTJetProducer(const FFTJetProducer&);
-    FFTJetProducer& operator=(const FFTJetProducer&);
+    FFTJetProducer() = delete;
+    FFTJetProducer(const FFTJetProducer&) = delete;
+    FFTJetProducer& operator=(const FFTJetProducer&) = delete;
 
     // Useful local utilities
     template<class Real>

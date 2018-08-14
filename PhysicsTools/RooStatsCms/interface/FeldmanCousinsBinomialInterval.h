@@ -14,7 +14,7 @@ struct FeldmanCousinsSorter {
 };
 
 class FeldmanCousinsBinomialInterval : public BinomialNoncentralInterval<FeldmanCousinsSorter> {
-  const char* name() const { return "Feldman-Cousins"; }
+  const char* name() const override { return "Feldman-Cousins"; }
 
 #if (defined (STANDALONE) or defined (__CINT__) )
 ClassDef(FeldmanCousinsBinomialInterval,1)

@@ -1,9 +1,5 @@
 /*
  *  See header file for a description of this class.
- *
- *  $Date: 2012/04/10 17:55:08 $
- *  $Revision: 1.1 $
- *  \author Mark Olschewski
  */
 
 #include "DTT0FEBPathCorrection.h"

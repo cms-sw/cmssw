@@ -36,8 +36,8 @@ namespace cms
     {
     public:
       explicit TCMETProducer(const edm::ParameterSet&);
-      virtual ~TCMETProducer() { }
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      ~TCMETProducer() override { }
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
 

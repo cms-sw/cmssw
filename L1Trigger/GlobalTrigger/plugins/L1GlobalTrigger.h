@@ -58,9 +58,9 @@ class L1GlobalTrigger : public edm::stream::EDProducer<>
 public:
 
     explicit L1GlobalTrigger(const edm::ParameterSet&);
-    ~L1GlobalTrigger();
+    ~L1GlobalTrigger() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
     // return pointer to PSB
     inline const L1GlobalTriggerPSB* gtPSB() const

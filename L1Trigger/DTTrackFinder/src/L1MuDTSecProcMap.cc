@@ -70,7 +70,7 @@ L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id ) const {
   SPmap::const_iterator it = m_map.find(id);
   if ( it == m_map.end() ) { 
     //    cerr << "Error: Sector Processor not in the map" << endl;
-    return 0;
+    return nullptr;
   }
   return (*it).second;
 

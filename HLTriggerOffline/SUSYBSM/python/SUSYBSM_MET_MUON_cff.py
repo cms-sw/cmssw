@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_MET120_MUON5 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_MET120_MUON5 = DQMEDAnalyzer('SUSY_HLT_Muon_Hadronic',
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -21,7 +23,7 @@ SUSY_HLT_MET120_MUON5 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 )
 
 
-SUSY_HLT_MET120_MUON5_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToMET120oMUON5oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_Mu5_v"),
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -31,7 +33,7 @@ SUSY_HLT_MET120_MUON5_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     )
 )
 
-SUSY_HLT_MET50_DIMUON3 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
+SUSY_HLT_MET50_DIMUON3 = DQMEDAnalyzer('SUSY_HLT_Muon_Hadronic',
   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
@@ -52,7 +54,7 @@ SUSY_HLT_MET50_DIMUON3 = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 )
 
 
-SUSY_HLT_MET50_DIMUON3_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToMET50oDIMUON3oPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleMu3_PFMET50_v"),
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -66,6 +68,6 @@ SUSY_HLT_MET_MUON = cms.Sequence( SUSY_HLT_MET120_MUON5 +
                                   SUSY_HLT_MET50_DIMUON3
 )
 
-SUSY_HLT_MET_MUON_POSTPROCESSING = cms.Sequence( SUSY_HLT_MET120_MUON5_POSTPROCESSING +
-                                                 SUSY_HLT_MET50_DIMUON3_POSTPROCESSING            
+SUSY_HLT_MET_MUON_POSTPROCESSING = cms.Sequence( SUSYoHLToMET120oMUON5oPOSTPROCESSING +
+                                                 SUSYoHLToMET50oDIMUON3oPOSTPROCESSING            
 )

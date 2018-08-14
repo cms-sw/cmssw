@@ -26,9 +26,9 @@ namespace {
   
   enum reg_int_vars   { k_NIntVars   = 0 };
 
-  static const std::vector<std::string> float_var_names( { } );
+  const std::vector<std::string> float_var_names( { } );
   
-  static const std::vector<std::string> integer_var_names( { } );
+  const std::vector<std::string> integer_var_names( { } );
 
   inline void set_map_val( const reg_float_vars index, const float value,
                            std::unordered_map<std::string,float>& map) {
@@ -62,13 +62,13 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit PhotonRegressionValueMapProducer(const edm::ParameterSet&);
-  ~PhotonRegressionValueMapProducer();
+  ~PhotonRegressionValueMapProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   void writeValueMap(edm::Event &iEvent,
@@ -174,7 +174,7 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
                                                         ebrh, eerh, esrh );
   }
   
-  if( !isAOD && src->size() ) {
+  if( !isAOD && !src->empty() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
       throw cms::Exception("InvalidConfiguration")

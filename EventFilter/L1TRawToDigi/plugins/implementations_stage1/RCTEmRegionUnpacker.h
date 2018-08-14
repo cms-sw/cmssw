@@ -7,7 +7,7 @@ namespace l1t {
   namespace stage1 {
     class RCTEmRegionUnpacker : public Unpacker {
       public:
-        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+        bool unpack(const Block& block, UnpackerCollections *coll) override;
       private:
         unsigned int counter_ = 0;
     };

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Creates beamer out of the histograms, parsed data and a given template.
 ##
@@ -7,9 +5,7 @@
 import logging
 import os
 import string
-
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes import MonitorData, PedeDumpData
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometry import Alignables, Structure
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.classes as mpsv_classes
 
 
 # create class to have delimiter %% which is not used in latex
@@ -48,7 +44,8 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     logger = logging.getLogger("mpsvalidate")
     
     # load template
-    with open(os.path.join(config.mpspath, "beamer_template.tex"), "r") as template:
+    with open(os.path.join(config.mpspath, "templates",
+                           "mpsvalidate_beamer_template.tex")) as template:
         data = template.read()
         template.close()
 
@@ -95,33 +92,34 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     try:
         out.add("\subsection{Alignment Configuration}")
         text = "\\textbf{{PedeSteerer method:}} {{{0}}}\\\\\n".format(
-            additionalData.pedeSteererMethod)
+            additionalData.pede_steerer_method)
         text += "\\textbf{{PedeSteerer options:}}\\\\\n"
-        for line in additionalData.pedeSteererOptions:
+        for line in additionalData.pede_steerer_options:
             text += "{{{0}}}\\\\\n".format(line)
         text += "\\textbf{{PedeSteerer command:}} {0}\\\\\n".format(
-            additionalData.pedeSteererCommand)
+            additionalData.pede_steerer_command)
         out.addSlide("Alignment Configuration", text)
     except Exception as e:
         logger.error("data not found - {0} {1}".format(type(e), e))
     
     # table of input files with number of tracks
-    if (config.showmonitor):
+    if config.showmonitor:
         out.add("\subsection{Datasets with tracks}")
         text = """\\begin{table}[h]
             \centering
             \caption{Datasets with tracks}
-            \\begin{tabular}{cc}
+            \\begin{tabular}{ccc}
             \hline
-            Dataset & Number of used tracks \\\\
+            Dataset & Number of used tracks & Weight \\\\
             \hline \n"""
         try:
-            for monitor in MonitorData.monitors:
-                text += "{0} & {1}\\\\\n".format(monitor.name, monitor.ntracks)
+            for monitor in mpsv_classes.MonitorData.monitors:
+                text += "{0} & {1} & {2}\\\\\n".format(monitor.name, monitor.ntracks,
+                                                       monitor.weight if monitor.weight != None else "--")
         except Exception as e:
             logger.error("data not found - {0} {1}".format(type(e), e))
         if (pedeDump.nrec):
-            text += "Number of records & {0}\\\\\n".format(pedeDump.nrec)
+            text += "\hline\nNumber of records & {0}\\\\\n".format(pedeDump.nrec)
         text += """\hline
                   \end{tabular}\n
                   \end{table}\n"""

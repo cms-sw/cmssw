@@ -1,5 +1,5 @@
 #ifndef Geometry_HcalTowerAlgo_HcalDDDGeometryLoader_H
-#define Geometry_HcalTowerAlgo_HcalDDDGeometryLoader_H 1
+#define Geometry_HcalTowerAlgo_HcalDDDGeometryLoader_H
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -8,6 +8,7 @@
 
 class CaloCellGeometry;
 class HcalDetId;
+class HcalDDDGeometry;
 
 /** \class HcalDDDGeometryLoader
  *
@@ -28,20 +29,20 @@ public:
   ReturnType load(const HcalTopology& topo, DetId::Detector , int );
   /// Load all of HCAL
   ReturnType load(const HcalTopology& topo);
-  
-private:
 
-  HcalDDDGeometryLoader();
+  HcalDDDGeometryLoader() = delete;
+
+ private:
 
   /// helper functions to make all the ids and cells, and put them into the
   /// vectors and mpas passed in.
-  void fill(HcalSubdetector, HcalDDDGeometry*, CaloSubdetectorGeometry*);
+  void fill(HcalSubdetector, HcalDDDGeometry*);
   
   void makeCell( const HcalDetId &, 
 		 const HcalCellType& , double, 
-		 double, CaloSubdetectorGeometry* geom) const;
+		 double, HcalDDDGeometry* geom) const;
   
-  const HcalDDDRecConstants* hcalConstants;
+  const HcalDDDRecConstants* hcalConstants_;
 
   HcalTopology* dummyTopology_;
   bool          isBH_;

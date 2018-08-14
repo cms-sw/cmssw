@@ -19,17 +19,12 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 //
@@ -40,7 +35,6 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
   public:
     SeedClusterRemoverPhase2(const edm::ParameterSet& iConfig) ;
-    ~SeedClusterRemoverPhase2() ;
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   private:
     bool doOuterTracker_, doPixel_;
@@ -49,7 +43,6 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
     typedef edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > Phase2OTMaskContainer;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
     edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters_;
-    edm::EDGetTokenT<reco::ClusterRemovalInfo> oldRemovalInfo_;
     edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
     edm::EDGetTokenT<Phase2OTMaskContainer> oldPh2OTMaskToken_;
     edm::EDGetTokenT<TrajectorySeedCollection> trajectories_;
@@ -59,17 +52,6 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
     inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
 
-    template<typename T> 
-    std::unique_ptr<edmNew::DetSetVector<T> >
-    cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
-                reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
-
-    // Carries in full removal info about a given det from oldRefs
-    void mergeOld(reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices &oldRefs) ;
-
-    bool clusterWasteSolution_;
-    bool filterTracks_;
-    reco::TrackBase::TrackQuality trackQuality_;
     std::vector<bool> collectedOuterTrackers_;
     std::vector<bool> collectedPixels_;
 };
@@ -77,97 +59,23 @@ class SeedClusterRemoverPhase2 : public edm::stream::EDProducer<> {
 
 using namespace std;
 using namespace edm;
-using namespace reco;
 
 SeedClusterRemoverPhase2::SeedClusterRemoverPhase2(const ParameterSet& iConfig):
     doOuterTracker_(iConfig.existsAs<bool>("doOuterTracker") ? iConfig.getParameter<bool>("doOuterTracker") : true),
     doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
-    mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    clusterWasteSolution_(true)
+    mergeOld_(iConfig.exists("oldClusterRemovalInfo"))
 {
-  if (iConfig.exists("clusterLessSolution"))
-    clusterWasteSolution_=!iConfig.getParameter<bool>("clusterLessSolution");
-  if (doPixel_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiPixelCluster> >();
-  if (doOuterTracker_ && clusterWasteSolution_) produces< edmNew::DetSetVector<Phase2TrackerCluster1D> >();
-  if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
-
-  if (!clusterWasteSolution_){
-    produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
-    produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
-  }
-  trackQuality_=reco::TrackBase::undefQuality;
-  filterTracks_=false;
-  if (iConfig.exists("TrackQuality")){
-    filterTracks_=true;
-    trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-  }
-
+  produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
+  produces<edm::ContainerMask<edmNew::DetSetVector<Phase2TrackerCluster1D> > >();
+  
   trajectories_ = consumes<TrajectorySeedCollection>(iConfig.getParameter<InputTag>("trajectories"));
   if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
   if (doOuterTracker_) phase2OTClusters_ = consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(iConfig.getParameter<InputTag>("phase2OTClusters"));
   if (mergeOld_) {
-    oldRemovalInfo_ = consumes<ClusterRemovalInfo>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
     oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
     oldPh2OTMaskToken_ = consumes<Phase2OTMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
   }
 }
-
-
-SeedClusterRemoverPhase2::~SeedClusterRemoverPhase2()
-{
-}
-
-void SeedClusterRemoverPhase2::mergeOld(ClusterRemovalInfo::Indices &refs,
-                                            const ClusterRemovalInfo::Indices &oldRefs) 
-{
-        for (size_t i = 0, n = refs.size(); i < n; ++i) {
-            refs[i] = oldRefs[refs[i]];
-       }
-}
-
- 
-template<typename T> 
-std::unique_ptr<edmNew::DetSetVector<T> >
-SeedClusterRemoverPhase2::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
-			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
-    typedef typename edmNew::DetSetVector<T>             DSV;
-    typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
-    typedef typename edmNew::DetSet<T>                   DS;
-    auto output = std::make_unique<DSV>();
-    output->reserve(oldClusters.size(), oldClusters.dataSize());
-
-    unsigned int countOld=0;
-    unsigned int countNew=0;
-
-    // cluster removal loop
-    const T * firstOffset = & oldClusters.data().front();
-    for (typename DSV::const_iterator itdet = oldClusters.begin(), enddet = oldClusters.end(); itdet != enddet; ++itdet) {
-        DS oldDS = *itdet;
-
-        if (oldDS.empty()) continue; // skip empty detsets
-
-        uint32_t id = oldDS.detId();
-        DSF outds(*output, id);
-
-        for (typename DS::const_iterator it = oldDS.begin(), ed = oldDS.end(); it != ed; ++it) {
-            uint32_t index = ((&*it) - firstOffset);
-	    countOld++;
-            if (isGood[index]) { 
-                outds.push_back(*it);
-		countNew++;
-                refs.push_back(index); 
-                LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1);
-            }
-
-	}
-        if (outds.empty()) outds.abort(); // not write in an empty DSV
-    }
-
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
-    return output;
-}
-
-
 
 
 void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg) {
@@ -196,7 +104,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     pixels[cluster.key()] = false;
     
     assert(collectedPixels_.size() > cluster.key());
-    if(!clusterWasteSolution_) collectedPixels_[cluster.key()]=true;
+    collectedPixels_[cluster.key()]=true;
       
   } else if (hitType == typeid(Phase2TrackerRecHit1D)) {
 
@@ -214,7 +122,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
 
     OTs[cluster.key()] = false;
     assert(collectedOuterTrackers_.size() > cluster.key());
-    if (!clusterWasteSolution_) collectedOuterTrackers_[cluster.key()]=true;
+    collectedOuterTrackers_[cluster.key()]=true;
   
   } else throw cms::Exception("NOT IMPLEMENTED") << "I received a hit that was neither SiPixelRecHit nor Phase2TrackerRecHit1D but " << hitType.name() << " on detid " << detid.rawId() << "\n";
 
@@ -243,38 +151,6 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
     }
     LogDebug("SeedClusterRemoverPhase2") << "Read OT cluster with id " << outerTrackerSourceProdID << std::endl;
 
-    std::unique_ptr<ClusterRemovalInfo> cri;
-    if (clusterWasteSolution_){
-      if (doOuterTracker_ && doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters, phase2OTClusters);
-      else if (doOuterTracker_) cri = std::make_unique<ClusterRemovalInfo>(phase2OTClusters);
-      else if (doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters);
-    }
-
-    Handle<ClusterRemovalInfo> oldRemovalInfo;
-    if (mergeOld_ && clusterWasteSolution_) {
-        iEvent.getByToken(oldRemovalInfo_, oldRemovalInfo); 
-        // Check ProductIDs
-        if ( (oldRemovalInfo->stripNewRefProd().id() == phase2OTClusters.id()) &&
-             (oldRemovalInfo->pixelNewRefProd().id() == pixelClusters.id()) ) {
-
-            cri->getOldClustersFrom(*oldRemovalInfo);
-
-            pixelOldProdID = oldRemovalInfo->pixelRefProd().id();
-            stripOldProdID = oldRemovalInfo->stripRefProd().id();
-
-        } else {
-	    edm::EDConsumerBase::Labels labels;
-	    labelsForToken(oldRemovalInfo_,labels);
-            throw cms::Exception("Inconsistent Data") << "SeedClusterRemoverPhase2: " <<
-                "Input collection product IDs are [pixel: " << pixelClusters.id() << ", strip: " << phase2OTClusters.id() << "] \n" <<
-                "\t but the *old* ClusterRemovalInfo " << labels.productInstance << " refers as 'new product ids' to " <<
-                    "[pixel: " << oldRemovalInfo->pixelNewRefProd().id() << ", strip: " << oldRemovalInfo->stripNewRefProd().id() << "]\n" << 
-                "NOTA BENE: when running SeedClusterRemoverPhase2 with an old ClusterRemovalInfo the hits in the trajectory MUST be already re-keyed.\n";
-        }
-    } else { // then Old == Source
-        pixelOldProdID = pixelSourceProdID;
-        stripOldProdID = outerTrackerSourceProdID;
-    }
 
     if (doOuterTracker_) {
       OTs.resize(phase2OTClusters->dataSize()); fill(OTs.begin(), OTs.end(), true);
@@ -301,11 +177,9 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
     edm::Handle<TrajectorySeedCollection> seeds;
     iEvent.getByToken(trajectories_,seeds);
 
-    TrajectorySeedCollection::const_iterator seed=seeds->begin();
-
-    for (;seed!=seeds->end();++seed){
-      TrajectorySeed::range hits=seed->recHits();
-      TrajectorySeed::const_iterator hit=hits.first;
+    for (auto const & seed : (*seeds) ){
+      auto hits=seed.recHits();
+      auto hit=hits.first;
       for (;hit!=hits.second;++hit){
 	if (!hit->isValid()) continue;
 	process( &(*hit), 0. , tgh.product());
@@ -313,35 +187,15 @@ SeedClusterRemoverPhase2::produce(Event& iEvent, const EventSetup& iSetup)
     }
       
     
-    if (doPixel_ && clusterWasteSolution_) {
-        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
-          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
-        LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID ;
-        cri->setNewPixelClusters(newPixels);
-    }
-    if (doOuterTracker_ && clusterWasteSolution_) {
-        OrphanHandle<edmNew::DetSetVector<Phase2TrackerCluster1D> > newOuterTrackers =
-          iEvent.put(cleanup(*phase2OTClusters, OTs, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
-        LogDebug("SeedClusterRemoverPhase2") << "SeedClusterRemoverPhase2: Wrote strip " << newOuterTrackers.id() << " from " << outerTrackerSourceProdID;
-        cri->setNewPhase2OTClusters(newOuterTrackers);
-    }
-
-    
-    if (clusterWasteSolution_) {
-      iEvent.put(std::move(cri));
-    }
-
     pixels.clear(); OTs.clear(); 
 
-    if (!clusterWasteSolution_){
       
-      LogDebug("SeedClusterRemoverPhase2")<<"total strip to skip: "<<std::count(collectedOuterTrackers_.begin(),collectedOuterTrackers_.end(),true);
-      iEvent.put(std::make_unique<Phase2OTMaskContainer>(edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> >(phase2OTClusters),collectedOuterTrackers_));
+    LogDebug("SeedClusterRemoverPhase2")<<"total strip to skip: "<<std::count(collectedOuterTrackers_.begin(),collectedOuterTrackers_.end(),true);
+    iEvent.put(std::make_unique<Phase2OTMaskContainer>(edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> >(phase2OTClusters),collectedOuterTrackers_));
 
-      LogDebug("SeedClusterRemoverPhase2")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-      iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
+    LogDebug("SeedClusterRemoverPhase2")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
+    iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
       
-    }
     collectedOuterTrackers_.clear();
     collectedPixels_.clear();    
 

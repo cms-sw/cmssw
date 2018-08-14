@@ -12,7 +12,7 @@
 #include <TPaveStats.h>
 #include <TText.h>
 #include <TLegend.h>
-#include <string.h>
+#include <cstring>
 #include <utility>
 #include <vector>
 #include <sstream>
@@ -204,7 +204,7 @@ void    lsbs_cert( string filename )
   sprintf( line, "    GOOD Lumisections (values within limits): %s" , ListOut( ls_good ).c_str() );
   outfile << line << endl;
 
-  if ( ls_bad.size() > 0 )
+  if ( !ls_bad.empty() )
     {
       sprintf( line, "    BAD Lumisections (values outside limits): %s" , ListOut( ls_bad ).c_str() );
       outfile << line << endl;
@@ -212,25 +212,25 @@ void    lsbs_cert( string filename )
       sprintf( line, "      --- histogram name ---                                --- bad lumisection list(*) ---" );
       outfile << line << endl;
       sprintf( line, "      hxLumibased PrimaryVertex-DataBase (mean):            %s" , ListOut( ls_x_bad ).c_str() );
-      if ( ls_x_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_x_bad.empty() ) outfile << line << endl;
       sprintf( line, "      hyLumibased PrimaryVertex-DataBase (mean):            %s" , ListOut( ls_y_bad ).c_str() );
-      if ( ls_y_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_y_bad.empty() ) outfile << line << endl;
       sprintf( line, "      hzLumibased PrimaryVertex-DataBase (mean):            %s" , ListOut( ls_z_bad ).c_str() );
-      if ( ls_z_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_z_bad.empty() ) outfile << line << endl;
             
       sprintf( line, "      hsigmaXLumibased PrimaryVertex-DataBase fit (mean):   %s" , ListOut( ls_dx_bad ).c_str() );
-      if ( ls_dx_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_dx_bad.empty() ) outfile << line << endl;
       sprintf( line, "      hsigmaYLumibased PrimaryVertex-DataBase fit (mean):   %s" , ListOut( ls_dy_bad ).c_str() );
-      if ( ls_dy_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_dy_bad.empty() ) outfile << line << endl;
       sprintf( line, "      hsigmaZLumibased PrimaryVertex-DataBase fit (mean):   %s" , ListOut( ls_dz_bad ).c_str() );
-      if ( ls_dz_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_dz_bad.empty() ) outfile << line << endl;
       
       sprintf( line, "      hsigmaXLumibased PrimaryVertex-DataBase fit (error):  %s" , ListOut( ls_errdx_bad ).c_str() );
-      if ( ls_errdx_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_errdx_bad.empty() ) outfile << line << endl;
       sprintf( line, "      hsigmaYLumibased PrimaryVertex-DataBase fit (error):  %s" , ListOut( ls_errdy_bad ).c_str() );
-      if ( ls_errdy_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_errdy_bad.empty() ) outfile << line << endl;
       sprintf( line, "      hsigmaZLumibased PrimaryVertex-DataBase fit (error):  %s" , ListOut( ls_errdz_bad ).c_str() );
-      if ( ls_errdz_bad.size() > 0 ) outfile << line << endl;
+      if ( !ls_errdz_bad.empty() ) outfile << line << endl;
 
       sprintf( line, "    (*) also bad in the corresponding 'Scalers-Database fit' histograms" );
       outfile << line << endl;
@@ -313,7 +313,7 @@ int nlumis( string filename )
           size_t pos2 = sflag.find_first_of(">");
           string detvalue = tempname.substr(0,pos1);
           string numlumisec = sflag.substr(1,pos2-1);
-          if ( numlumisec.c_str() == (string)"iLumiSection" )
+          if ( numlumisec == (string)"iLumiSection" )
             {
               numlumis = atoi( detvalue.c_str() );
               break;
@@ -355,7 +355,7 @@ int getplot( string filename , string iDir , string strplot , TH1F& plot )
     }
 
   plot = *thisplot;
-  thisplot = NULL;
+  thisplot = nullptr;
   delete thisplot;
   
   return 0;  
@@ -363,7 +363,7 @@ int getplot( string filename , string iDir , string strplot , TH1F& plot )
 
 void Cleaning( vector<int> &LSlist)
 {
-  if ( LSlist.size() == 0 ) return;
+  if ( LSlist.empty() ) return;
 
   //cleaning: keep only 1st and last lumisection in the range
   int refLS = LSlist[0];

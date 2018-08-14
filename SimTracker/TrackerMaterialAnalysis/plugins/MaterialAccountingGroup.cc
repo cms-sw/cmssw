@@ -27,13 +27,11 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_errors(),
   m_tracks( 0 ),
   m_counted( false ),
-  m_file( 0 )
+  m_file( nullptr )
 {
   // retrieve the elements from DDD
-  DDFilteredView fv( geometry );
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", name), DDCompOp::equals);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue("TrackingMaterialGroup", name)};
+  DDFilteredView fv( geometry,filter );
   LogTrace("MaterialAccountingGroup") << "Elements within: " << name << std::endl;
   while (fv.next()) {
     // DD3Vector and DDTranslation are the same type as math::XYZVector
@@ -68,14 +66,14 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_radlen_vs_eta   = new TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta",   600,   -3,   3);
   m_radlen_vs_z     = new TProfile((m_name + "_radlen_vs_z").c_str(),   "Radiation lengths vs. Z",    6000, -300, 300);
   m_radlen_vs_r     = new TProfile((m_name + "_radlen_vs_r").c_str(),   "Radiation lengths vs. R",    1200,    0, 120);
-  m_dedx_spectrum->SetDirectory( 0 );
-  m_radlen_spectrum->SetDirectory( 0 );
-  m_dedx_vs_eta->SetDirectory( 0 );
-  m_dedx_vs_z->SetDirectory( 0 );
-  m_dedx_vs_r->SetDirectory( 0 );
-  m_radlen_vs_eta->SetDirectory( 0 );
-  m_radlen_vs_z->SetDirectory( 0 );
-  m_radlen_vs_r->SetDirectory( 0 );
+  m_dedx_spectrum->SetDirectory( nullptr );
+  m_radlen_spectrum->SetDirectory( nullptr );
+  m_dedx_vs_eta->SetDirectory( nullptr );
+  m_dedx_vs_z->SetDirectory( nullptr );
+  m_dedx_vs_r->SetDirectory( nullptr );
+  m_radlen_vs_eta->SetDirectory( nullptr );
+  m_radlen_vs_z->SetDirectory( nullptr );
+  m_radlen_vs_r->SetDirectory( nullptr );
 }
 
 MaterialAccountingGroup::~MaterialAccountingGroup(void)

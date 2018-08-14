@@ -9,7 +9,7 @@
 
 namespace l1t {
 
-  void calibrateAndRankJets(CaloParamsHelper *params,
+  void calibrateAndRankJets(CaloParamsHelper const *params,
 			    const std::vector<l1t::Jet> * input,
 			    std::vector<l1t::Jet> *output){
 
@@ -33,7 +33,7 @@ namespace l1t {
     }
   }
 
-  void calibrateAndRankTaus(CaloParamsHelper *params,
+  void calibrateAndRankTaus(CaloParamsHelper const *params,
 			    const std::vector<l1t::Tau> * input,
 			    std::vector<l1t::Tau> *output){
 
@@ -54,7 +54,7 @@ namespace l1t {
   }
 
 
-  void JetToGtEtaScales(CaloParamsHelper *params,
+  void JetToGtEtaScales(CaloParamsHelper const *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){
 
@@ -78,7 +78,7 @@ namespace l1t {
     }
   }
 
-  void JetToGtPtScales(CaloParamsHelper *params,
+  void JetToGtPtScales(CaloParamsHelper const *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){
 
@@ -96,7 +96,7 @@ namespace l1t {
   }
 
 
-  void EGammaToGtScales(CaloParamsHelper *params,
+  void EGammaToGtScales(CaloParamsHelper const *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output){
 
@@ -121,7 +121,7 @@ namespace l1t {
     }
   }
 
-  void TauToGtEtaScales(CaloParamsHelper *params,
+  void TauToGtEtaScales(CaloParamsHelper const *params,
 			const std::vector<l1t::Tau> * input,
 			std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
@@ -145,7 +145,7 @@ namespace l1t {
     }
   }
 
-  void TauToGtPtScales(CaloParamsHelper *params,
+  void TauToGtPtScales(CaloParamsHelper const *params,
 		       const std::vector<l1t::Tau> * input,
 		       std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
@@ -162,7 +162,7 @@ namespace l1t {
   }
 
 
-  void EtSumToGtScales(CaloParamsHelper *params,
+  void EtSumToGtScales(CaloParamsHelper const *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output){
     for(std::vector<l1t::EtSum>::const_iterator itEtSum = input->begin();

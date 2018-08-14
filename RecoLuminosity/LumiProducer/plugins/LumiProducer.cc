@@ -122,19 +122,19 @@ public:
 
   explicit LumiProducer(const edm::ParameterSet&);
 
-  ~LumiProducer();
+  ~LumiProducer() override;
   
 private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+  void produce(edm::Event&, const edm::EventSetup&) final;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const &) override final;
+  void beginRun(edm::Run const&, edm::EventSetup const &) final;
 
-  virtual void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
-				    edm::EventSetup const& iSetup) override final;
+  void beginLuminosityBlockProduce(edm::LuminosityBlock & iLBlock,
+				    edm::EventSetup const& iSetup) final;
  
-  virtual void endRun(edm::Run const&, edm::EventSetup const &) override final;
-  virtual void endRunProduce(edm::Run&, edm::EventSetup const &) override final;
+  void endRun(edm::Run const&, edm::EventSetup const &) final;
+  void endRunProduce(edm::Run&, edm::EventSetup const &) final;
 
   bool fillLumi(edm::LuminosityBlock & iLBlock);
   void fillRunCache(const coral::ISchema& schema,unsigned int runnumber);
@@ -246,9 +246,9 @@ LumiProducer::
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummaryRunHeader, edm::InRun>();
-  produces<LumiSummary, edm::InLumi>();
-  produces<LumiDetails, edm::InLumi>();
+  produces<LumiSummaryRunHeader, edm::Transition::EndRun>();
+  produces<LumiSummary, edm::Transition::BeginLuminosityBlock>();
+  produces<LumiDetails, edm::Transition::BeginLuminosityBlock>();
   // set up cache
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
@@ -262,7 +262,7 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_is
       endservlet=connectStr.rfind('/',connectStr.length());
     }
     std::string servlet=connectStr.substr(startservlet,endservlet-startservlet);
-    if( (servlet !="")&& (servlet.find_first_of(":/)[]")==std::string::npos)){
+    if( (!servlet.empty())&& (servlet.find_first_of(":/)[]")==std::string::npos)){
       if(servlet=="cms_conditions_data") servlet="";
       
       std::string siteconfpath=iConfig.getUntrackedParameter<std::string>("siteconfpath","");
@@ -420,7 +420,7 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
     if( !mydbservice.isAvailable() ){
       throw cms::Exception("Non existing service lumi::service::DBService");
     }
-    coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+    auto session=mydbservice->connectReadOnly(m_connectStr);
     try{
       session->transaction().start(true);
       m_cachedlumidataid=getLumiDataId(session->nominalSchema(),runnumber);
@@ -434,10 +434,8 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
       session->transaction().commit();
     }catch(const coral::Exception& er){
       session->transaction().rollback();
-      mydbservice->disconnect(session);
       throw cms::Exception("DatabaseError ")<<er.what();
     }
-    mydbservice->disconnect(session);
   }
   //std::cout<<"end of beginRun "<<runnumber<<std::endl;
 }
@@ -564,7 +562,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
@@ -727,7 +725,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	const void* trgcountblob_StartAddress=trgcountblob.startingAddress();
 	unsigned int* trgcounts=(unsigned int*)::malloc(trgcountblob.size());
 	std::memmove(trgcounts,trgcountblob_StartAddress,trgcountblob.size());
-	for(unsigned int i=0;i<sizeof(trgcounts)/sizeof(unsigned int);++i){
+	for(unsigned int i=0; i < trgcountblob.size()/sizeof(unsigned int); ++i){
 	  L1Data l1tmp;
 	  l1tmp.bitname=m_runcache.TRGBitNames[i];
 	  l1tmp.prescale=prescales[i];
@@ -780,14 +778,14 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	const void* hltacceptblob_StartAddress=hltacceptblob.startingAddress();
 	unsigned int* hltaccepts=(unsigned int*)::malloc(hltacceptblob.size());
 	std::memmove(hltaccepts,hltacceptblob_StartAddress,hltacceptblob.size()); 	
-	unsigned int nhltaccepts = sizeof(hltaccepts)/sizeof(unsigned int);
-        if(nhltaccepts > 0 && m_runcache.HLTPathNames.size() == 0){
+	unsigned int nhltaccepts = hltacceptblob.size()/sizeof(unsigned int);
+        if(nhltaccepts > 0 && m_runcache.HLTPathNames.empty()){
           edm::LogWarning("CorruptOrMissingHLTData")<<"Got "<<nhltaccepts
 <<" hltaccepts, but the run chache is empty. hltdata will  not be written";
             break;
         }
 
-	for(unsigned int i=0;i<sizeof(hltaccepts)/sizeof(unsigned int);++i){
+	for(unsigned int i=0; i < hltacceptblob.size()/sizeof(unsigned int); ++i){
 	  HLTData hlttmp;
 	  hlttmp.pathname=m_runcache.HLTPathNames[i];
 	  hlttmp.prescale=hltprescales[i];
@@ -804,10 +802,8 @@ LumiProducer::fillLSCache(unsigned int luminum){
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum){

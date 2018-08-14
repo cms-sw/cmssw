@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 RunH4TablePositionDat::RunH4TablePositionDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_table_x = 0;
   m_table_y = 0;
@@ -41,7 +41,7 @@ void RunH4TablePositionDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":table_x, :table_y, :number_of_spills, :number_of_events)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunH4TablePositionDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunH4TablePositionDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -69,7 +69,7 @@ void RunH4TablePositionDat::writeDB(const EcalLogicID* ecid, const RunH4TablePos
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunH4TablePositionDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunH4TablePositionDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -101,12 +101,12 @@ void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >*
     std::pair< EcalLogicID, RunH4TablePositionDat > p;
     RunH4TablePositionDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setTableX( rset->getInt(7) );
       dat.setTableY( rset->getInt(8) );
@@ -118,6 +118,6 @@ void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >*
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunH4TablePositionDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunH4TablePositionDat::fetchData():  ")+getOraMessage(&e)));
   }
 }

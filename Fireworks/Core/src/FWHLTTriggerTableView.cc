@@ -25,7 +25,7 @@
 
 FWHLTTriggerTableView::FWHLTTriggerTableView(TEveWindowSlot* iParent)
    : FWTriggerTableView(iParent, FWViewType::kTableHLT),
-     m_event(0)
+     m_event(nullptr)
 {  
 
    m_columns[0].title = "Filter Name";
@@ -42,7 +42,7 @@ void FWHLTTriggerTableView::fillTable(fwlite::Event* event)
       fillAverageAcceptFractions();
    }
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
-   edm::TriggerNames const* triggerNames(0);
+   edm::TriggerNames const* triggerNames(nullptr);
    try{
       hTriggerResults.getByLabel(*event,"TriggerResults","",m_process.value().c_str());
       triggerNames = &event->triggerNames(*hTriggerResults);
@@ -73,7 +73,7 @@ FWHLTTriggerTableView::fillAverageAcceptFractions()
    fwlite::Handle<edm::TriggerResults> hTriggerResults;
    for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event)) {
       hTriggerResults.getByLabel(*m_event,"TriggerResults","","HLT");
-      edm::TriggerNames const* triggerNames(0);
+      edm::TriggerNames const* triggerNames(nullptr);
       try{
          triggerNames = &m_event->triggerNames(*hTriggerResults);
       } catch (cms::Exception&) {

@@ -14,13 +14,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <cassert>
 #include <cfloat>
-#include <inttypes.h>
+#include <cinttypes>
 
 #if __APPLE__
 # define MESSAGE_SIZE_LIMIT (1*1024*1024)
@@ -39,7 +39,7 @@ static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
 //////////////////////////////////////////////////////////////////////
 // Generate log prefix.
 std::ostream &
-DQMNet::logme (void)
+DQMNet::logme ()
 {
   Time now = Time::current();
   return std::cout
@@ -87,18 +87,18 @@ DQMNet::losePeer(const char *reason,
 
   Socket *s = peer->socket;
 
-  for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
+  for (auto i = waiting_.begin(), e = waiting_.end(); i != e; )
     if (i->peer == peer)
       waiting_.erase(i++);
     else
       ++i;
 
   if (ev)
-    ev->source = 0;
+    ev->source = nullptr;
 
   discard(peer->sendq);
   if (peer->automatic)
-    peer->automatic->peer = 0;
+    peer->automatic->peer = nullptr;
 
   sel_.detach (s);
   s->close();
@@ -115,7 +115,7 @@ DQMNet::requestObjectData(Peer *p, const char *name, size_t len)
   while (*msg)
     msg = &(*msg)->next;
   *msg = new Bucket;
-  (*msg)->next = 0;
+  (*msg)->next = nullptr;
 
   uint32_t words[3];
   words[0] = sizeof(words) + len;
@@ -135,7 +135,7 @@ DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, P
   // the other peer vanishes?  The current implementation stands a
   // chance for the waiter to wait indefinitely -- although we do
   // force terminate the wait after a while.
-  requestObjectData(owner, name.size() ? &name[0] : 0, name.size());
+  requestObjectData(owner, !name.empty() ? &name[0] : nullptr, name.size());
   WaitObject wo = { Time::current(), name, info, p };
   waiting_.push_back(wo);
   p->waiting++;
@@ -150,7 +150,7 @@ DQMNet::releaseFromWait(WaitList::iterator i, Object *o)
   while (*msg)
     msg = &(*msg)->next;
   *msg = new Bucket;
-  (*msg)->next = 0;
+  (*msg)->next = nullptr;
 
   releaseFromWait(*msg, *i, o);
 
@@ -163,7 +163,7 @@ DQMNet::releaseFromWait(WaitList::iterator i, Object *o)
 void
 DQMNet::releaseWaiters(const std::string &name, Object *o)
 {
-  for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
+  for (auto i = waiting_.begin(), e = waiting_.end(); i != e; )
     if (i->name == name)
       releaseFromWait(i++, o);
     else
@@ -222,7 +222,7 @@ DQMNet::unpackQualityData(QReports &qr, uint32_t &flags, const char *from)
   qr.reserve(nqv);
   while (*qdata)
   {
-    qr.push_back(DQMNet::QValue());
+    qr.emplace_back();
     DQMNet::QValue &qv = qr.back();
 
     qv.code = atoi(qdata);
@@ -386,7 +386,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 //////////////////////////////////////////////////////////////////////
 // Check if the network layer should stop.
 bool
-DQMNet::shouldStop(void)
+DQMNet::shouldStop()
 {
   return shutdown_;
 }
@@ -531,8 +531,8 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       }
 
       std::string name ((char *) data + 3*sizeof(uint32_t), namelen);
-      Peer *owner = 0;
-      Object *o = findObject(0, name, &owner);
+      Peer *owner = nullptr;
+      Object *o = findObject(nullptr, name, &owner);
       if (o)
       {
 	o->lastreq = Time::current().ns();
@@ -697,7 +697,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       if (o->lastreq
 	  && ! datalen
 	  && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
-	requestObjectData(p, (namelen ? &name[0] : 0), namelen);
+	requestObjectData(p, (namelen ? &name[0] : nullptr), namelen);
 
       // If we have the object data, release from wait.
       if (datalen)
@@ -749,7 +749,7 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       }
 
       // If someone was waiting for this, let them go.
-      releaseWaiters(name, 0);
+      releaseWaiters(name, nullptr);
     }
     return true;
 
@@ -781,7 +781,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
       logme()
 	<< "WARNING: connection to the DQM server at " << p->peeraddr
 	<< " lost (will attempt to reconnect in 15 seconds)\n";
-      losePeer(0, p, ev);
+      losePeer(nullptr, p, ev);
     }
     else
       losePeer("WARNING: lost peer connection ", p, ev);
@@ -821,7 +821,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	Bucket *old = p->sendq;
 	p->sendq = old->next;
 	p->sendpos = 0;
-	old->next = 0;
+	old->next = nullptr;
 	discard(old);
       }
 
@@ -858,7 +858,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
     }
     catch (Error &e)
     {
-      SystemError *next = dynamic_cast<SystemError *>(e.next());
+      auto *next = dynamic_cast<SystemError *>(e.next());
       if (next && next->portable() == SysErr::ErrTryAgain)
 	sz = 1; // Ignore it, and fake no end of data.
       else
@@ -900,7 +900,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	{
 	  // Decode and process this message.
 	  Bucket msg;
-	  msg.next = 0;
+	  msg.next = nullptr;
 	  valid = onMessage(&msg, p, &data[0]+consumed, msglen);
 
 	  // If we created a response, chain it to the write queue.
@@ -911,7 +911,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	      prev = &(*prev)->next;
 
             *prev = new Bucket;
-            (*prev)->next = 0;
+            (*prev)->next = nullptr;
             (*prev)->data.swap(msg.data);
 	  }
 	}
@@ -962,18 +962,18 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   lock();
   Peer *p = createPeer(s);
   std::string localaddr;
-  if (InetSocket *inet = dynamic_cast<InetSocket *>(s))
+  if (auto *inet = dynamic_cast<InetSocket *>(s))
   {
     InetAddress peeraddr = inet->peername();
     InetAddress myaddr = inet->sockname();
     p->peeraddr = StringFormat("%1:%2")
 		  .arg(peeraddr.hostname())
-		  .arg(peeraddr.port());
+		  .arg(peeraddr.port()).value();
     localaddr = StringFormat("%1:%2")
 		.arg(myaddr.hostname())
-		.arg(myaddr.port());
+		.arg(myaddr.port()).value();
   }
-  else if (LocalSocket *local = dynamic_cast<LocalSocket *>(s))
+  else if (auto *local = dynamic_cast<LocalSocket *>(s))
   {
     p->peeraddr = local->peername().path();
     localaddr = local->sockname().path();
@@ -1017,7 +1017,7 @@ DQMNet::onLocalNotify(IOSelectEvent *ev)
   }
   catch (Error &e)
   {
-    SystemError *next = dynamic_cast<SystemError *>(e.next());
+    auto *next = dynamic_cast<SystemError *>(e.next());
     if (next && next->portable() == SysErr::ErrTryAgain)
       ; // Ignore it
     else
@@ -1061,7 +1061,7 @@ DQMNet::updateMask(Peer *p)
     assert (! p->sendq);
     if (debug_)
       logme() << "INFO: connection closed to " << p->peeraddr << std::endl;
-    losePeer(0, p, 0);
+    losePeer(nullptr, p, nullptr);
   }
 }
 
@@ -1070,7 +1070,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
   : debug_ (false),
     appname_ (appname.empty() ? "DQMNet" : appname.c_str()),
     pid_ (getpid()),
-    server_ (0),
+    server_ (nullptr),
     version_ (Time::current()),
     communicate_ ((pthread_t) -1),
     shutdown_ (0),
@@ -1086,13 +1086,13 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
   sel_.attach(wakeup_.source(), IORead, CreateHook(this, &DQMNet::onLocalNotify));
 
   // Initialise the upstream and downstream to empty.
-  upstream_.peer   = downstream_.peer   = 0;
+  upstream_.peer   = downstream_.peer   = nullptr;
   upstream_.next   = downstream_.next   = 0;
   upstream_.port   = downstream_.port   = 0;
   upstream_.update = downstream_.update = false;
 }
 
-DQMNet::~DQMNet(void)
+DQMNet::~DQMNet()
 {
   // FIXME
 }
@@ -1138,7 +1138,7 @@ DQMNet::startLocalServer(int port)
   try
   {
     InetAddress addr("0.0.0.0", port);
-    InetSocket *s = new InetSocket(SOCK_STREAM, 0, addr.family());
+    auto *s = new InetSocket(SOCK_STREAM, 0, addr.family());
     s->bind(addr);
     s->listen(10);
     s->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
@@ -1236,11 +1236,11 @@ DQMNet::listenToCollector(const std::string &host, int port)
 
 /// Stop the network layer and wait it to finish.
 void
-DQMNet::shutdown(void)
+DQMNet::shutdown()
 {
   shutdown_ = 1;
   if (communicate_ != (pthread_t) -1)
-    pthread_join(communicate_, 0);
+    pthread_join(communicate_, nullptr);
 }
 
 /** A thread to communicate with the distributed memory cache peers.
@@ -1252,14 +1252,14 @@ static void *communicate(void *obj)
 {
   sigset_t sigs;
   sigfillset (&sigs);
-  pthread_sigmask (SIG_BLOCK, &sigs, 0);
+  pthread_sigmask (SIG_BLOCK, &sigs, nullptr);
   ((DQMNet *)obj)->run();
-  return 0;
+  return nullptr;
 }
 
 /// Acquire a lock on the DQM net layer.
 void
-DQMNet::lock(void)
+DQMNet::lock()
 {
   if (communicate_ != (pthread_t) -1)
     pthread_mutex_lock(&lock_);
@@ -1267,7 +1267,7 @@ DQMNet::lock(void)
 
 /// Release the lock on the DQM net layer.
 void
-DQMNet::unlock(void)
+DQMNet::unlock()
 {
   if (communicate_ != (pthread_t) -1)
     pthread_mutex_unlock(&lock_);
@@ -1277,7 +1277,7 @@ DQMNet::unlock(void)
 /// exclusive alternative to the run() method, which runs the network
 /// layer in the caller's thread.
 void
-DQMNet::start(void)
+DQMNet::start()
 {
   if (communicate_ != (pthread_t) -1)
   {
@@ -1286,13 +1286,13 @@ DQMNet::start(void)
     return;
   }
 
-  pthread_mutex_init(&lock_, 0);
-  pthread_create (&communicate_, 0, &communicate, this);
+  pthread_mutex_init(&lock_, nullptr);
+  pthread_create (&communicate_, nullptr, &communicate, this);
 }
 
 /** Run the actual I/O processing loop. */
 void
-DQMNet::run(void)
+DQMNet::run()
 {
   Time now;
   Time nextFlush = 0;
@@ -1301,10 +1301,8 @@ DQMNet::run(void)
   // Perform I/O.  Every once in a while flush updates to peers.
   while (! shouldStop())
   {
-    for (int i = 0; i < 2; ++i)
+    for (auto ap : automatic)
     {
-      AutoPeer *ap = automatic[i];
-
       // If we need a server connection and don't have one yet,
       // initiate asynchronous connection creation.  Swallow errors
       // in case the server won't talk to us.
@@ -1313,7 +1311,7 @@ DQMNet::run(void)
 	  && (now = Time::current()) > ap->next)
       {
 	ap->next = now + TimeSpan(0, 0, 0, 15 /* seconds */, 0);
-	InetSocket *s = 0;
+	InetSocket *s = nullptr;
 	try
 	{
           InetAddress addr(ap->host.c_str(), ap->port);
@@ -1325,7 +1323,7 @@ DQMNet::run(void)
 	}
 	catch (Error &e)
 	{
-	  SystemError *sys = dynamic_cast<SystemError *>(e.next());
+	  auto *sys = dynamic_cast<SystemError *>(e.next());
 	  if (! sys || sys->portable() != SysErr::ErrOperationInProgress)
 	  {
 	    // "In progress" just means the connection is in progress.
@@ -1334,7 +1332,7 @@ DQMNet::run(void)
 	    if (s)
 	      s->abort();
 	    delete s;
-	    s = 0;
+	    s = nullptr;
 	  }
 	}
 
@@ -1349,7 +1347,7 @@ DQMNet::run(void)
 	  InetAddress myaddr = ((InetSocket *) s)->sockname();
 	  p->peeraddr = StringFormat("%1:%2")
 			.arg(peeraddr.hostname())
-			.arg(peeraddr.port());
+			.arg(peeraddr.port()).value();
 	  p->mask = IORead|IOWrite|IOUrgent;
 	  p->update = ap->update;
 	  p->automatic = ap;
@@ -1360,7 +1358,7 @@ DQMNet::run(void)
 	    uint32_t words[4] = { 2*sizeof(uint32_t), DQM_MSG_LIST_OBJECTS,
 				  2*sizeof(uint32_t), DQM_MSG_UPDATE_ME };
 	    p->sendq = new Bucket;
-	    p->sendq->next = 0;
+	    p->sendq->next = nullptr;
 	    copydata(p->sendq, words, sizeof(words));
 	  }
 
@@ -1397,9 +1395,9 @@ DQMNet::run(void)
     // Release peers that have been waiting for data for too long.
     Time waitold = now - waitMax_;
     Time waitstale = now - waitStale_;
-    for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
+    for (auto i = waiting_.begin(), e = waiting_.end(); i != e; )
     {
-      Object *o = findObject(0, i->name);
+      Object *o = findObject(nullptr, i->name);
 
       // If we have (stale) object data, wait only up to stale limit.
       // Otherwise if we have no data at all, wait up to the max limit.
@@ -1432,7 +1430,7 @@ DQMNet::run(void)
 // Tell the network cache that there have been local changes that
 // should be advertised to the downstream listeners.
 void
-DQMNet::sendLocalChanges(void)
+DQMNet::sendLocalChanges()
 {
   char byte = 0;
   wakeup_.sink()->write(&byte, 1);
@@ -1466,7 +1464,7 @@ DQMBasicNet::updateLocalObject(Object &o)
     // Somewhat hackish. Sets are supposedly immutable, but we
     // need to change the non-key parts of the object. Erasing
     // and re-inserting would produce too much memory churn.
-    Object &old = const_cast<Object &>(*info.first);
+    auto &old = const_cast<Object &>(*info.first);
     std::swap(old.flags,     o.flags);
     std::swap(old.tag,       o.tag);
     std::swap(old.version,   o.version);

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 ####### 
 
@@ -12,12 +13,12 @@ import os, sys
 try:
     import ROOT
 except:
-    print "\nCannot load PYROOT, make sure you have setup ROOT in the path"
-    print "and pyroot library is also defined in the variable PYTHONPATH, try:\n"
+    print("\nCannot load PYROOT, make sure you have setup ROOT in the path")
+    print("and pyroot library is also defined in the variable PYTHONPATH, try:\n")
     if (os.getenv("PYTHONPATH")):
-        print " setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n"
+        print(" setenv PYTHONPATH ${PYTHONPATH}:$ROOTSYS/lib\n")
     else:
-        print " setenv PYTHONPATH $ROOTSYS/lib\n"
+        print(" setenv PYTHONPATH $ROOTSYS/lib\n")
         sys.exit()
 
 from ROOT import TFile
@@ -367,7 +368,7 @@ def savePlots(title,saveName,listFromats,plot,Histos,keyHisto,listLegend,options
     if plot.legend and options.drawLegend : leg.Draw("same")
     tex = None
     if options.printBanner :
-        print type(options.printBanner)
+        print(type(options.printBanner))
         tex = TLatex(0.55,0.75,options.Banner)
         tex.SetNDC()
         tex.SetTextSize(0.05)

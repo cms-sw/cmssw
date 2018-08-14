@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -20,9 +21,9 @@
 class SiStripPayloadMapTableCreator : public edm::EDAnalyzer {
 public:
   explicit SiStripPayloadMapTableCreator(const edm::ParameterSet& iConfig );
-  virtual ~SiStripPayloadMapTableCreator();
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  ~SiStripPayloadMapTableCreator() override;
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
 private:
   cond::persistency::ConnectionPool m_connectionPool;

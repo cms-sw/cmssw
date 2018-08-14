@@ -18,7 +18,7 @@ class ScaleCorrMETData : public edm::stream::EDProducer<>
 {
 public:
   explicit ScaleCorrMETData(const edm::ParameterSet&);
-  ~ScaleCorrMETData() { }
+  ~ScaleCorrMETData() override { }
 
 private:
 

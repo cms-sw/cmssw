@@ -10,10 +10,10 @@
 class ZeroLinearizationPointFinder : public LinearizationPointFinder
 {
 public:
-  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const;
-  virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const;
+  GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const override;
+  GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const override;
 
-  virtual ZeroLinearizationPointFinder * clone() const
+  ZeroLinearizationPointFinder * clone() const override
   {
     return new ZeroLinearizationPointFinder ( * this );
   };

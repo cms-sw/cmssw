@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import hfTPScaleShift
+from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import tpScales
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
@@ -19,11 +19,12 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     latency = cms.int32(1),
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
     FG_HF_threshold = cms.uint32(17), ## threshold for setting fine grain bit
-    ZS_threshold = cms.uint32(1),  ## threshold for setting fine grain bit
+    ZS_threshold = cms.uint32(1),  ## threshold for setting TP zero suppression
     numberOfSamples = cms.int32(4),
     numberOfPresamples = cms.int32(2),
     numberOfSamplesHF = cms.int32(4),
     numberOfPresamplesHF = cms.int32(2),
+    useTDCInMinBiasBits = cms.bool(False), # TDC information not used in MB fine grain bits
     MinSignalThreshold = cms.uint32(0), # For HF PMT veto
     PMTNoiseThreshold = cms.uint32(0),  # For HF PMT veto
     LSConfig=LSParameter,
@@ -51,9 +52,15 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only
     PeakFinderAlgorithm = cms.int32(2),
 
-    HFTPScaleShift = hfTPScaleShift,
+    tpScales = tpScales,
 )
 
 run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=cms.bool(True))
-run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHF=cms.bool(True))
+run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, 
+                      upgradeHF=cms.bool(True),
+                      numberOfSamplesHF = cms.int32(2),
+                      numberOfPresamplesHF = cms.int32(1)
+)
+run2_HF_2017.toModify(tpScales.HF, NCTShift=cms.int32(2))
 run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
+run3_HB.toModify(tpScales.HBHE, LSBQIE11Overlap=cms.double(1/16.))

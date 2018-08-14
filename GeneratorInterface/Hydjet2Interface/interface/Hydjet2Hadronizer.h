@@ -34,7 +34,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 #include "HYJET_COMMONS.h"
 extern HYIPARCommon HYIPAR;
@@ -69,7 +69,7 @@ namespace gen
   public:
 
     Hydjet2Hadronizer(const edm::ParameterSet&);
-    ~Hydjet2Hadronizer();
+    ~Hydjet2Hadronizer() override;
 
     bool readSettings( int );
     bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
@@ -89,8 +89,8 @@ namespace gen
   
     void SetVolEff(double value) {fVolEff = value;}
     double GetVolEff() {return fVolEff;}
-    virtual bool RunDecays() override {return (fDecay>0 ? kTRUE : kFALSE);}
-    virtual double GetWeakDecayLimit() override {return fWeakDecay;}  
+    bool RunDecays() override {return (fDecay>0 ? kTRUE : kFALSE);}
+    double GetWeakDecayLimit() override {return fWeakDecay;}  
 
     bool IniOfThFreezeoutParameters();
  
@@ -104,14 +104,14 @@ namespace gen
 
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
     void rotateEvtPlane();
     bool	get_particles(HepMC::GenEvent* evt);
     HepMC::GenParticle*	build_hyjet2( int index, int barcode );
     HepMC::GenVertex* build_hyjet2_vertex(int i, int id);
     void	add_heavy_ion_rec(HepMC::GenEvent *evt);
    
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
     static const std::vector<std::string> theSharedResources;
 
     inline double nuclear_radius() const;

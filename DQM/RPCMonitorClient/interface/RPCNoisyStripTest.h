@@ -12,11 +12,11 @@ public:
 
 
   RPCNoisyStripTest(const edm::ParameterSet& ps);
-  virtual ~RPCNoisyStripTest();
- void clientOperation();
- void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
- void beginJob(std::string & );
- void myBooker(DQMStore::IBooker & );
+  ~RPCNoisyStripTest() override;
+ void clientOperation() override;
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &) override;
+ void beginJob(std::string & ) override;
+ void myBooker(DQMStore::IBooker & ) override;
 
 
  protected:

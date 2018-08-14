@@ -75,7 +75,7 @@ class JetMatching {
 	void resetMatchingStatus() { fMatchingStatus = false; }
 	bool isMatchingDone() { return fMatchingStatus; }
 	
-	virtual const std::vector<int>* getPartonList()      { return 0; }
+	virtual const std::vector<int>* getPartonList()      { return nullptr; }
 	virtual double                  getJetEtaMax() const = 0;
 
 /*

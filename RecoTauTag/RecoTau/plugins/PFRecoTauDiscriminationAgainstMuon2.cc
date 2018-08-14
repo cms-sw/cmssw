@@ -64,7 +64,7 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
     maxWarnings_ = 3;
     verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
    }
-  ~PFRecoTauDiscriminationAgainstMuon2() {} 
+  ~PFRecoTauDiscriminationAgainstMuon2() override {} 
 
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
@@ -107,7 +107,7 @@ namespace
   {
     if ( muon.outerTrack().isNonnull() ) {
       const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
-      for (int iHit = 0; iHit < muonHitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); ++iHit) {
+      for (int iHit = 0; iHit < muonHitPattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++iHit) {
           uint32_t hit = muonHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, iHit);
 	if ( hit == 0 ) break;	    
 	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
@@ -256,7 +256,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	edm::LogPrint("PFTauAgainstMuon2") << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->gsfTrackRef()->p() ;
       }
     }
-    const reco::Track* leadTrack = 0;
+    const reco::Track* leadTrack = nullptr;
     if ( pfLeadChargedHadron->trackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->trackRef().get();
     else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
     if ( pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop_*leadTrack->p()) ) passesCaloMuonVeto = false;

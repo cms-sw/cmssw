@@ -65,9 +65,9 @@ namespace fwlite
       void syncTo(const edm::EventID&, const edm::Timestamp&);
 
    private:
-      Record(const Record&); // stop default
+      Record(const Record&) = delete; // stop default
 
-      const Record& operator=(const Record&); // stop default
+      const Record& operator=(const Record&) = delete; // stop default
 
       cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
       void resetCaches();

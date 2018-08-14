@@ -19,7 +19,7 @@ namespace Exhume{
   public:
     
     Event(CrossSection&, CLHEP::HepRandomEngine*);
-    ~Event();
+    ~Event() override;
 
     inline void SetRandomEngine(CLHEP::HepRandomEngine* engine){
       randomEngine = engine;
@@ -76,7 +76,7 @@ namespace Exhume{
   private:
 
     void SelectValues();
-    double WeightFunc(const double&);
+    double WeightFunc(const double&) override;
 
     std::vector<std::pair<double, double> > Var;
 

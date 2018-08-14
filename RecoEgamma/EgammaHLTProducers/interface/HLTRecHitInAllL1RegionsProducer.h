@@ -22,8 +22,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
@@ -52,7 +52,7 @@
 class L1RegionDataBase {
 public:
   virtual ~L1RegionDataBase(){}
-  virtual void getEtaPhiRegions(const edm::Event&,std::vector<EcalEtaPhiRegion>&,const L1CaloGeometry&)const=0;
+  virtual void getEtaPhiRegions(const edm::Event&,std::vector<RectangularEtaPhiRegion>&,const L1CaloGeometry&)const=0;
 };  
 
 template<typename T1> class L1RegionData : public L1RegionDataBase {
@@ -70,7 +70,7 @@ public:
     regionPhiMargin_(para.getParameter<double>("regionPhiMargin")),
     token_(consumesColl.consumes<T1>(para.getParameter<edm::InputTag>("inputColl"))){}
   
-  void getEtaPhiRegions(const edm::Event&,std::vector<EcalEtaPhiRegion>&,const L1CaloGeometry&)const override;
+  void getEtaPhiRegions(const edm::Event&,std::vector<RectangularEtaPhiRegion>&,const L1CaloGeometry&)const override;
   template<typename T2>static typename T2::const_iterator beginIt(const T2& coll){return coll.begin();}
   template<typename T2>static typename T2::const_iterator endIt(const T2& coll){return coll.end();}
   template<typename T2>static typename BXVector<T2>::const_iterator beginIt(const BXVector<T2>& coll){return coll.begin(0);}
@@ -89,7 +89,7 @@ class HLTRecHitInAllL1RegionsProducer : public edm::stream::EDProducer<> {
  public:
 
   HLTRecHitInAllL1RegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRecHitInAllL1RegionsProducer(){}
+  ~HLTRecHitInAllL1RegionsProducer() override{}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -202,7 +202,7 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   setup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
   
-  std::vector<EcalEtaPhiRegion> regions;
+  std::vector<RectangularEtaPhiRegion> regions;
   std::for_each(l1RegionData_.begin(),l1RegionData_.end(),
 		[&event,&regions,l1CaloGeom](const std::unique_ptr<L1RegionDataBase>& input)
 		{input->getEtaPhiRegions(event,regions,*l1CaloGeom);}
@@ -224,9 +224,9 @@ void HLTRecHitInAllL1RegionsProducer<RecHitType>::produce(edm::Event& event, con
       if(!regions.empty()){
       
 	for(const RecHitType& recHit : *recHits){
-	  const CaloCellGeometry & this_cell = *subDetGeom->getGeometry(recHit.id());
+	  auto this_cell = subDetGeom->getGeometry(recHit.id());
 	  for(const auto& region : regions){
-              if (region.inRegion(this_cell.etaPos(),this_cell.phiPos())) {
+              if (region.inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 	      filteredRecHits->push_back(recHit);
 		break;
 	    }
@@ -270,7 +270,7 @@ L1RegionDataBase* HLTRecHitInAllL1RegionsProducer<RecHitType>::createL1RegionDat
 
 
 template<typename L1CollType>
-void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry&)const
+void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,std::vector<RectangularEtaPhiRegion>&regions,const L1CaloGeometry&)const
 {
   edm::Handle<L1CollType> l1Cands;
   event.getByToken(token_,l1Cands);
@@ -283,13 +283,13 @@ void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,std::vec
       double phiLow = l1CandIt->phi() - regionPhiMargin_;
       double phiHigh = l1CandIt->phi() + regionPhiMargin_;
       
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
     }
   }
 }
 
 template<>
-void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
+void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<RectangularEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
 {
   edm::Handle<l1extra::L1JetParticleCollection> l1Cands;
   event.getByToken(token_,l1Cands);
@@ -313,13 +313,13 @@ void L1RegionData<l1extra::L1JetParticleCollection>::getEtaPhiRegions(const edm:
       phiHigh += regionPhiMargin_;
 
       
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
     }
   }
 }
 
 template<>
-void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<EcalEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
+void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::Event& event,std::vector<RectangularEtaPhiRegion>&regions,const L1CaloGeometry& l1CaloGeom)const
 {
   edm::Handle<l1extra::L1EmParticleCollection> l1Cands;
   event.getByToken(token_,l1Cands);
@@ -342,7 +342,7 @@ void L1RegionData<l1extra::L1EmParticleCollection>::getEtaPhiRegions(const edm::
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
       
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
     }
   }
 }

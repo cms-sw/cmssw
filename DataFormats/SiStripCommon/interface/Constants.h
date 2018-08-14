@@ -3,7 +3,7 @@
 #define DataFormats_SiStripCommon_Constants_H
 
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 /** 
     @file Constants.h

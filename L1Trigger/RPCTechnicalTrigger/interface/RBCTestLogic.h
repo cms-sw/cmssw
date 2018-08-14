@@ -24,13 +24,13 @@ public:
   /// Standard constructor
   RBCTestLogic( ); 
 
-  virtual ~RBCTestLogic( ); ///< Destructor
+  ~RBCTestLogic( ) override; ///< Destructor
 
-  void process ( const RBCInput & , std::bitset<2> & );
+  void process ( const RBCInput & , std::bitset<2> & ) override;
 
-  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
+  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & ) override;
 
-  std::bitset<6> * getlayersignal( int _idx ) { return &m_testlayer[_idx];};
+  std::bitset<6> * getlayersignal( int _idx ) override { return &m_testlayer[_idx];};
       
 protected:
   

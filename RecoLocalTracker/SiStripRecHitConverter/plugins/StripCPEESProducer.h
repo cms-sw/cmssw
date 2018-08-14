@@ -16,16 +16,15 @@ class  StripCPEESProducer: public edm::ESProducer {
  public:
 
   StripCPEESProducer(const edm::ParameterSet&);
-  std::shared_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
+  std::unique_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
 
  private:
 
-  enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC, TEMPLATE};
+  enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC, FAKE };
   std::map<std::string,CPE_t> enumMap; 
 
   CPE_t cpeNum;
   edm::ParameterSet parametersPSet;
-  std::shared_ptr<StripClusterParameterEstimator> cpe;
 
 };
 #endif

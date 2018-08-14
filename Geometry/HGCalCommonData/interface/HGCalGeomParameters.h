@@ -13,11 +13,13 @@
  */
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <iostream>
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
 class DDCompactView;    
 class DDFilteredView;
@@ -29,17 +31,20 @@ public:
 
   HGCalGeomParameters();
   ~HGCalGeomParameters();
-  void loadGeometrySquare(const DDFilteredView&, HGCalParameters&,
-			  const std::string&);
   void loadGeometryHexagon(const DDFilteredView&, HGCalParameters&,
 			   const std::string&, const DDCompactView*,
-			   const std::string&, const std::string&);
-  void loadSpecParsSquare(const DDFilteredView&, HGCalParameters&);
+			   const std::string&, const std::string&, 
+			   HGCalGeometryMode::WaferMode);
+  void loadGeometryHexagon8(const DDFilteredView&, HGCalParameters&, int);
   void loadSpecParsHexagon(const DDFilteredView&, HGCalParameters&,
 			   const DDCompactView*, const std::string&, 
 			   const std::string&);
+  void loadSpecParsHexagon8(const DDFilteredView&, HGCalParameters&);
+  void loadSpecParsTrapezoid(const DDFilteredView&, HGCalParameters&);
   void loadWaferHexagon(HGCalParameters& php);
+  void loadWaferHexagon8(HGCalParameters& php);
   void loadCellParsHexagon(const DDCompactView* cpv, HGCalParameters& php);
+  void loadCellTrapezoid(HGCalParameters& php);
 
 private:
 
@@ -54,15 +59,16 @@ private:
     GlobalPoint xyz;
     cellParameters(bool h=false, int w=0, 
 		   GlobalPoint p=GlobalPoint(0,0,0)) : half(h), wafer(w), 
-      xyz(p) {}
+      xyz(std::move(p)) {}
   };
 
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
-				  int&);
+				  const int);
   std::pair<double,double> cellPosition(const std::vector<cellParameters>& wafers,
 					std::vector<cellParameters>::const_iterator& itrf,
 					int wafer, double xx, double yy);
 
+  const double          sqrt3_;
   double                waferSize_;
 };
 

@@ -1817,7 +1817,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
       ALCT_WordsSinceLastHeaderZeroSuppressed =0;
       ALCT_WordsSinceLastHeader = 0;
       ALCT_WordsExpected        = 0;
-      fALCT_Header = 0;
+      fALCT_Header = false;
     }
 
   if(fTMB_Header)

@@ -48,20 +48,20 @@ namespace AlCaHBHEMuons {
 class AlCaHBHEMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaHBHEMuons::Counters> > {
 public:
   explicit AlCaHBHEMuonProducer(edm::ParameterSet const&, const AlCaHBHEMuons::Counters* count);
-  ~AlCaHBHEMuonProducer();
+  ~AlCaHBHEMuonProducer() override;
   
   static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
     return std::make_unique<AlCaHBHEMuons::Counters>();
   }
 
-  virtual void produce(edm::Event &, const edm::EventSetup&) override;
-  virtual void endStream() override;
+  void produce(edm::Event &, const edm::EventSetup&) override;
+  void endStream() override;
   static  void globalEndJob(const AlCaHBHEMuons::Counters* counters);
   
 private:
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   bool         select(const reco::MuonCollection &);
   
   // ----------member data ---------------------------

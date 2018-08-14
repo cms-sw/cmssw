@@ -22,15 +22,15 @@
 
 #include "CondTools/RPC/interface/RPCLBLinkNameParser.h"
 
-RPCDCCLinkMapHandler::RPCDCCLinkMapHandler(edm::ParameterSet const & _config)
-    : id_(_config.getParameter<std::string>("identifier"))
-    , data_tag_(_config.getParameter<std::string>("dataTag"))
-    , since_run_(_config.getParameter<unsigned long long>("sinceRun"))
-    , txt_file_(_config.getUntrackedParameter<std::string>("txtFile", ""))
-    , connect_(_config.getParameter<std::string>("connect"))
+RPCDCCLinkMapHandler::RPCDCCLinkMapHandler(edm::ParameterSet const & config)
+    : id_(config.getParameter<std::string>("identifier"))
+    , data_tag_(config.getParameter<std::string>("dataTag"))
+    , since_run_(config.getParameter<unsigned long long>("sinceRun"))
+    , txt_file_(config.getUntrackedParameter<std::string>("txtFile", ""))
+    , connect_(config.getParameter<std::string>("connect"))
 {
     edm::LogInfo("RPCDCCLinkMapHandler") << "Configuring Input Connection";
-    connection_.setParameters(_config.getParameter<edm::ParameterSet>("DBParameters"));
+    connection_.setParameters(config.getParameter<edm::ParameterSet>("DBParameters"));
     connection_.configure();
 }
 
@@ -40,75 +40,74 @@ RPCDCCLinkMapHandler::~RPCDCCLinkMapHandler()
 void RPCDCCLinkMapHandler::getNewObjects()
 {
     edm::LogInfo("RPCDCCLinkMapHandler") << "getNewObjects";
-    cond::TagInfo const & _tag_info = tagInfo();
-    if (since_run_ < _tag_info.lastInterval.first)
+    cond::TagInfo const & tag_info = tagInfo();
+    if (since_run_ < tag_info.lastInterval.first)
         throw cms::Exception("RPCDCCLinkMapHandler") << "Refuse to create RPCDCCLinkMap for run " << since_run_
-                                                     << ", older than most recent tag" << _tag_info.lastInterval.first;
+                                                     << ", older than most recent tag" << tag_info.lastInterval.first;
 
     edm::LogInfo("RPCDCCLinkMapHandler") << "Opening read-only Input Session";
-    auto _input_session = connection_.createCoralSession(connect_, false); // writeCapable
+    auto input_session = connection_.createCoralSession(connect_, false); // writeCapable
     edm::LogInfo("RPCDCCLinkMapHandler") << "Started Input Transaction";
-    _input_session->transaction().start(true); // readOnly
+    input_session->transaction().start(true); // readOnly
 
-    std::auto_ptr<coral::IQuery> _query(_input_session->schema("CMS_RPC_CONF").newQuery());
-    _query->addToTableList("DCCBOARD");
-    _query->addToTableList("TRIGGERBOARD");
-    _query->addToTableList("BOARDBOARDCONN");
-    _query->addToTableList("BOARD");
+    std::auto_ptr<coral::IQuery> query(input_session->schema("CMS_RPC_CONF").newQuery());
+    query->addToTableList("DCCBOARD");
+    query->addToTableList("TRIGGERBOARD");
+    query->addToTableList("BOARDBOARDCONN");
+    query->addToTableList("BOARD");
 
-    _query->addToOutputList("DCCBOARD.FEDNUMBER", "DCC");
-    _query->addToOutputList("TRIGGERBOARD.DCCINPUTCHANNELNUM", "DCC_INPUT");
-    _query->addToOutputList("BOARDBOARDCONN.COLLECTORBOARDINPUTNUM", "TB_INPUT");
-    _query->addToOutputList("BOARD.NAME", "LB_NAME");
+    query->addToOutputList("DCCBOARD.FEDNUMBER", "DCC");
+    query->addToOutputList("TRIGGERBOARD.DCCINPUTCHANNELNUM", "DCC_INPUT");
+    query->addToOutputList("BOARDBOARDCONN.COLLECTORBOARDINPUTNUM", "TB_INPUT");
+    query->addToOutputList("BOARD.NAME", "LB_NAME");
 
-    coral::AttributeList _query_condition_data;
-    _query->setCondition("TRIGGERBOARD.DCCBOARD_DCCBOARDID=DCCBOARD.DCCBOARDID"
-                         " AND BOARDBOARDCONN.BOARD_COLLECTORBOARDID=TRIGGERBOARD.TRIGGERBOARDID"
-                         " AND BOARD.BOARDID=BOARDBOARDCONN.BOARD_BOARDID"
-                         , _query_condition_data);
+    coral::AttributeList query_condition_data;
+    query->setCondition("TRIGGERBOARD.DCCBOARD_DCCBOARDID=DCCBOARD.DCCBOARDID"
+                        " AND BOARDBOARDCONN.BOARD_COLLECTORBOARDID=TRIGGERBOARD.TRIGGERBOARDID"
+                        " AND BOARD.BOARDID=BOARDBOARDCONN.BOARD_BOARDID"
+                        , query_condition_data);
 
-    int _dcc(0), _dcc_input(0), _tb_input(0);
-    std::string _lb_name("");
+    int dcc(0), dcc_input(0), tb_input(0);
+    std::string lb_name("");
 
-    RPCDCCLinkMap * _dcc_link_map_object = new RPCDCCLinkMap();
-    RPCDCCLinkMap::map_type & _dcc_link_map
-        = _dcc_link_map_object->getMap();
-    RPCLBLink _lb_link;
+    std::unique_ptr<RPCDCCLinkMap> dcc_link_map_object(new RPCDCCLinkMap());
+    RPCDCCLinkMap::map_type & dcc_link_map
+        = dcc_link_map_object->getMap();
+    RPCLBLink lb_link;
 
     edm::LogInfo("RPCDCCLinkMapHandler") << "Execute query";
-    coral::ICursor & _cursor(_query->execute());
-    while (_cursor.next()) {
-        coral::AttributeList const & _row(_cursor.currentRow());
+    coral::ICursor & cursor(query->execute());
+    while (cursor.next()) {
+        coral::AttributeList const & row(cursor.currentRow());
 
         // RPCLBLink
-        _lb_name = _row["LB_NAME"].data<std::string>();
-        RPCLBLinkNameParser::parse(_lb_name, _lb_link);
-        if (_lb_name != _lb_link.getName())
-            edm::LogWarning("RPCDCCLinkMapHandler") << "Mismatch LinkBoard Name: " << _lb_name << " vs " << _lb_link;
-        _lb_link.setLinkBoard().setConnector(); // MLB to link
+        lb_name = row["LB_NAME"].data<std::string>();
+        RPCLBLinkNameParser::parse(lb_name, lb_link);
+        if (lb_name != lb_link.getName())
+            edm::LogWarning("RPCDCCLinkMapHandler") << "Mismatch LinkBoard Name: " << lb_name << " vs " << lb_link;
+        lb_link.setLinkBoard().setConnector(); // MLB to link
 
-        _dcc = _row["DCC"].data<long long>();
-        _dcc_input = _row["DCC_INPUT"].data<long long>();
-        _tb_input = _row["TB_INPUT"].data<long long>();
+        dcc = row["DCC"].data<long long>();
+        dcc_input = row["DCC_INPUT"].data<long long>();
+        tb_input = row["TB_INPUT"].data<long long>();
 
-        _dcc_link_map.insert(std::pair<RPCDCCLink, RPCLBLink>(RPCDCCLink(_dcc, _dcc_input, _tb_input)
-                                                              , _lb_link));
+        dcc_link_map.insert(std::pair<RPCDCCLink, RPCLBLink>(RPCDCCLink(dcc, dcc_input, tb_input)
+                                                             , lb_link));
     }
-    _cursor.close();
+    cursor.close();
 
-    _input_session->transaction().commit();
+    input_session->transaction().commit();
 
     if (!txt_file_.empty()) {
         edm::LogInfo("RPCDCCLinkMapHandler") << "Fill txtFile";
-        std::ofstream _ofstream(txt_file_);
-        for (RPCDCCLinkMap::map_type::const_iterator _link = _dcc_link_map.begin()
-                 ; _link != _dcc_link_map.end() ; ++_link) {
-            _ofstream << _link->first << ": " << _link->second << std::endl;
+        std::ofstream ofstream(txt_file_);
+        for (auto const & link : dcc_link_map) {
+            ofstream << link.first << ": " << link.second << std::endl;
         }
     }
 
     edm::LogInfo("RPCDCCLinkMapHandler") << "Add to transfer list";
-    m_to_transfer.push_back(std::make_pair(_dcc_link_map_object, since_run_));
+    m_to_transfer.push_back(std::make_pair(dcc_link_map_object.release(), since_run_));
 }
 
 std::string RPCDCCLinkMapHandler::id() const

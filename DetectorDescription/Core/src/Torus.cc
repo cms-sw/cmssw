@@ -1,16 +1,15 @@
 #include "DetectorDescription/Core/src/Torus.h"
+#include "DetectorDescription/Core/interface/DDUnits.h"
 
 #include <cmath>
 #include <vector>
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
 using std::sqrt;
-
+using namespace dd;
+using namespace dd::operators;
 
 DDI::Torus::Torus( double pRMin,
 		   double pRMax,
@@ -18,23 +17,23 @@ DDI::Torus::Torus( double pRMin,
 		   double pSPhi,
 		   double pDPhi
 		   )
- : Solid(ddtorus) 
+ : Solid(DDSolidShape::ddtorus) 
 {		 
-  p_.push_back(pRMin); // ......... 0
-  p_.push_back(pRMax); // ......... 1
-  p_.push_back(pRTor); // ......... 2
-  p_.push_back(pSPhi); // ......... 3
-  p_.push_back(pDPhi); // ......... 4
+  p_.emplace_back(pRMin); // ......... 0
+  p_.emplace_back(pRMax); // ......... 1
+  p_.emplace_back(pRTor); // ......... 2
+  p_.emplace_back(pSPhi); // ......... 3
+  p_.emplace_back(pDPhi); // ......... 4
 }
 
 
 void DDI::Torus::stream(std::ostream & os) const
 {
-  os << " rMin=" << p_[0]/cm
-     << " rMax=" << p_[1]/deg
-     << " rTor=" << p_[2]/deg
-     << " sPhi=" << p_[3]/cm
-     << " dPhi=" << p_[4]/cm;
+  os << " rMin=" << CONVERT_TO( p_[0], cm )
+     << " rMax=" << CONVERT_TO( p_[1], deg )
+     << " rTor=" << CONVERT_TO( p_[2], deg )
+     << " sPhi=" << CONVERT_TO( p_[3], cm )
+     << " dPhi=" << CONVERT_TO( p_[4], cm );
 }
 
 double DDI::Torus::volume() const
@@ -45,7 +44,7 @@ double DDI::Torus::volume() const
   
   // From Geant4: { fCubicVolume = fDPhi*pi*fRtor*(fRmax*fRmax-fRmin*fRmin);
   
-  volume = p_[4]*pi*p_[2]*(p_[1]*p_[1]-p_[0]*p_[0]);
+  volume = p_[4]*_pi*p_[2]*(p_[1]*p_[1]-p_[0]*p_[0]);
   
   return volume;
 }

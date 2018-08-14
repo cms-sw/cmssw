@@ -22,6 +22,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -63,10 +64,10 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
     if (usejets_) token_l1jet = iC.consumes<l1extra::L1JetParticleCollection>(regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
   }
 
-  virtual ~HITRegionalPixelSeedGenerator() {}
+  ~HITRegionalPixelSeedGenerator() override {}
   
   
-  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
     {
       std::vector<std::unique_ptr<TrackingRegion> > result;
       float originz =0.;
@@ -85,7 +86,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	  const reco::VertexCollection vertCollection = *(vertices.product());
 	  reco::VertexCollection::const_iterator ci = vertCollection.begin();
 	  
-	  if(vertCollection.size() > 0) 
+	  if(!vertCollection.empty()) 
 	    {
 	      originz = ci->z();
 	    }
@@ -95,7 +96,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	    }
       
 	  GlobalVector globalVector(0,0,1);
-	  if(tracks->size() == 0) return result;
+	  if(tracks->empty()) return result;
 	  
 	  reco::TrackCollection::const_iterator itr = tracks->begin();
 	  for(;itr != tracks->end();itr++)
@@ -129,7 +130,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
           const reco::VertexCollection vertCollection = *(vertices.product());
           reco::VertexCollection::const_iterator ci = vertCollection.begin();
 
-          if(vertCollection.size() > 0) 
+          if(!vertCollection.empty()) 
 	    {
 	      originz = ci->z();
 	    }
@@ -139,7 +140,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	    }
 	  
           GlobalVector globalVector(0,0,1);
-          if(isoPixTrackRefs.size() == 0) return result;
+          if(isoPixTrackRefs.empty()) return result;
 	  
           for(uint32_t p=0; p<isoPixTrackRefs.size(); p++)
             {
@@ -165,7 +166,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
           e.getByToken(token_vertex, vertices);
           const reco::VertexCollection vertCollection = *(vertices.product());
           reco::VertexCollection::const_iterator ci = vertCollection.begin();
-          if(vertCollection.size() > 0) 
+          if(!vertCollection.empty()) 
 	    {
 	      originz = ci->z();
 	    }
@@ -175,7 +176,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	    }
 
 	  GlobalVector globalVector(0,0,1);
-	  if(jets->size() == 0) return result;
+	  if(jets->empty()) return result;
 	  
 	  for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end(); iJet++) 
 	    {
@@ -200,7 +201,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	  e.getByToken(token_vertex,vertices);
 	  const reco::VertexCollection vertCollection = *(vertices.product());
 	  reco::VertexCollection::const_iterator ci = vertCollection.begin();
-	  if(vertCollection.size() > 0) 
+	  if(!vertCollection.empty()) 
 	    {
 	      originz = ci->z();
 	    }

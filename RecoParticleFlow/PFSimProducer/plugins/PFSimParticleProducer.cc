@@ -78,8 +78,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig)
   //retrieving collections for MC Truth Matching
 
   //modif-beg
-  inputTagFamosSimHits_  = iConfig.getUntrackedParameter<InputTag>("famosSimHits");
-  tokenFamosSimHits_  = consumes<edm::PCaloHitContainer>(inputTagFamosSimHits_);
+  inputTagFastSimProducer_  = iConfig.getUntrackedParameter<InputTag>("fastSimProducer");
+  tokenFastSimProducer_  = consumes<edm::PCaloHitContainer>(inputTagFastSimProducer_);
   mctruthMatchingInfo_ = 
     iConfig.getUntrackedParameter<bool>("MCTruthMatchingInfo",false);
   //modif-end
@@ -146,26 +146,23 @@ void PFSimParticleProducer::produce(Event& iEvent,
     //getting the PCAloHit
     edm::Handle<edm::PCaloHitContainer> pcalohits;
     //   bool found_phit 
-    //     = iEvent.getByLabel("famosSimHits","EcalHitsEB",
+    //     = iEvent.getByLabel("fastSimProducer","EcalHitsEB",
     // 			pcalohits);  
     //modif-beg
     bool found_phit 
-      = iEvent.getByToken(tokenFamosSimHits_,pcalohits);
+      = iEvent.getByToken(tokenFastSimProducer_,pcalohits);
     //modif-end
     
     if(!found_phit) {
       ostringstream err;
-      err<<"could not find pcaloHit "<<"famosSimHits:EcalHitsEB";
+      err<<"could not find pcaloHit "<<"fastSimProducer:EcalHitsEB";
       LogError("PFSimParticleProducer")<<err.str()<<endl;
       
       throw cms::Exception( "MissingProduct", err.str());
     }
     else {
       assert( pcalohits.isValid() );
-      
-      //     cout << "PFSimParticleProducer: number of pcalohits="
-      // 	 << pcalohits->size() << endl;
-      
+
       edm::PCaloHitContainer::const_iterator it    
 	= pcalohits.product()->begin();
       edm::PCaloHitContainer::const_iterator itend 
@@ -175,14 +172,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
       for(;it!=itend;++it)
 	{
 	  EBDetId detid(it->id());
-	  
-	  // 	cout << detid << " " << detid.rawId()
-	  // 	     << " " <<  detid.hashedIndex() 
-	  // 	     << " " << it->energy() 
-	  // 	     << " " << it->id() 
-	  // 	     << " trackId=" 
-	  // 	     << it->geantTrackId() 
-	  // 	     << endl;
 	  
 	  if(it->energy() > 0.0) {
 	    std::pair<double, unsigned> phitsimid
@@ -242,20 +231,11 @@ void PFSimParticleProducer::produce(Event& iEvent,
       return;
     }
 
-      
-
-    //     for(unsigned it = 0; it<simTracks->size(); it++ ) {
-    //       cout<<"\t track "<< (*simTracks)[it]<<" "
-    // 	  <<(*simTracks)[it].momentum().vect().perp()<<" "
-    // 	  <<(*simTracks)[it].momentum().e()<<endl;
-    //     }
-
     mySimEvent->fill( *simTracks, *simVertices );
       
     if(verbose_) 
       mySimEvent->print();
 
-    // const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
     for(unsigned i=0; i<mySimEvent->nTracks(); i++) {
     
       const FSimTrack& fst = mySimEvent->track(i);
@@ -266,9 +246,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
 
       //This is finding out the simID corresponding 
       //to the recTrack
-//       cout << "Particle " << i 
-// 	   << " " << fst.genpartIndex() 
-// 	   << " -------------------------------------" << endl;
 
       //GETTING THE TRACK ID
       unsigned         recTrackID = 99999;
@@ -280,14 +257,10 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	for(unsigned lo=0; lo<recTrackSimID.size(); 
 	    lo++) {
 	  if( i == recTrackSimID[lo] ) {
-// 	    cout << "Corresponding Rec Track " 
-// 		 << lo << endl;
+
 	    recTrackID = lo;
 	  }//match track
 	}//loop rectrack
-// 	if( recTrackID == 99999 ) 
-// 	  cout << "Sim Track not reconstructed pT=" <<  
-// 	    fst.momentum().pt() << endl;
 	
 	// get the ecalBarrel rechits for MC truth matching tool
 	edm::Handle<EcalRecHitCollection> rhcHandle;
@@ -302,8 +275,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	}
 	else {
 	  assert( rhcHandle.isValid() );
-// 	  cout << "PFSimParticleProducer: number of rechits="
-// 	       << rhcHandle->size() << endl;
 	  
 	  EBRecHitCollection::const_iterator it_rh    
 	    = rhcHandle.product()->begin();
@@ -315,9 +286,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	      unsigned rhit_hi 
 		= EBDetId(it_rh->id()).hashedIndex();
 	      EBDetId detid(it_rh->id());
-// 	    cout << detid << " " << detid.rawId()
-// 		 << " " <<  detid.hashedIndex() 
-// 		 << " " << it_rh->energy() << endl;
 	    
 	      ITM it_phit    = caloHitsEBID[rhit_hi].begin();
 	      ITM itend_phit = caloHitsEBID[rhit_hi].end();    
@@ -351,13 +319,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	}//getting the rechits
 
       }//mctruthMatchingInfo_ //modif
-
-//       cout << "This particule has " << recHitContrib.size() 
-// 	   << " rechit contribution" << endl;
-//       for( unsigned ih = 0; ih < recHitContrib.size(); ++ih )
-// 	cout << recHitContrib[ih] 
-// 	     << " f=" << recHitContribFrac[ih] << " ";
-//       cout << endl;
 
       reco::PFSimParticle particle(  fst.charge(), 
 				     fst.type(), 
@@ -394,9 +355,6 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	math::XYZPoint          posEnd( endVtx.position().x(), 
 					endVtx.position().y(), 
 					endVtx.position().z() );
-	//       cout<<"end vertex : "
-	// 	  <<endVtx.position().x()<<" "
-	// 	  <<endVtx.position().y()<<endl;
 	
 	math::XYZTLorentzVector momEnd;
 	
@@ -529,18 +487,12 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
 {
 
   if( trackh.isValid() ) {
-//     cout << "Size=" << trackh->size() << endl;
 
     for(unsigned i=0;i<trackh->size(); i++) {
       
       reco::PFRecTrackRef ref( trackh,i );
       const reco::PFRecTrack& PFT   = *ref;
-      const reco::TrackRef trackref = PFT.trackRef();
-
-//       double Pt  = trackref->pt(); 
-//       double DPt = trackref->ptError();
-//       cout << " PFBlockProducer: PFrecTrack->Track Pt= " 
-// 	   << Pt << " DPt = " << DPt << endl;
+      const reco::TrackRef& trackref = PFT.trackRef();
       
       trackingRecHit_iterator rhitbeg 
 	= trackref->recHitsBegin();
@@ -553,11 +505,6 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
 
 	  const FastTrackerRecHit * rechit 
 	    = (const FastTrackerRecHit*) (*it);
-	  
-// 	  cout <<  "rechit" 	       
-// 	       << " corresponding simId " 
-// 	       << rechit->simtrackId() 
-// 	       << endl;
 
 	  for(unsigned int st_index=0;st_index<rechit->nSimTrackIds();++st_index){
 	      recTrackSimID.push_back(rechit->simTrackId(st_index));

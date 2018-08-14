@@ -32,7 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -44,7 +44,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include <math.h>
+#include <cmath>
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
   : trackerHitAssociatorConfig_(ps, consumesCollector())

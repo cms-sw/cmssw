@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import os.path
 import logging
@@ -12,6 +13,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
 import FWCore.ParameterSet.Types as typ
 
+import six
 imported_configs = {}
 file_dict = {}
 
@@ -30,7 +32,7 @@ class ConfigFolder(object):
         return self._parameters
     def _configChildren(self):
         return self._configChildren
-    
+
 class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def __init__(self):
         logging.debug(__name__ + ": __init__")
@@ -41,7 +43,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         self._history=None
         self._cancelOperationsFlag = False
         self._initLists()
-    
+
     def _initLists(self):
         self._allObjects = []
         self._scheduledObjects = []
@@ -56,13 +58,13 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def cancelOperations(self):
         self._cancelOperationsFlag = True
-    
+
     def isReplaceConfig(self):
         return self._isReplaceConfig 
-        
+
     def setIsReplaceConfig(self):
         self._isReplaceConfig = True 
-        
+
     def topLevelObjects(self):
         return self._topLevelObjects 
 
@@ -87,11 +89,11 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if hasattr(sqt,"_SequenceCollection"):
             # since CMSSW_3_11_X
             if isinstance(pth, (sqt._ModuleSequenceType)):
-              if isinstance(pth._seq, (sqt._SequenceCollection)):
-                for o in pth._seq._collection:
-                    self._readRecursive(next_mother, o)
-              else:
-                  self._readRecursive(next_mother, pth._seq)
+                if isinstance(pth._seq, (sqt._SequenceCollection)):
+                    for o in pth._seq._collection:
+                        self._readRecursive(next_mother, o)
+                else:
+                    self._readRecursive(next_mother, pth._seq)
             elif isinstance(pth, sqt._UnarySequenceOperator):
                 self._readRecursive(next_mother, pth._operand)
         else:
@@ -100,10 +102,11 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 o = getattr(pth, i)
                 if isinstance(o, sqt._Sequenceable):
                     self._readRecursive(next_mother, o)
- 
+
     def readConnections(self, objects,toNeighbors=False):
         """ Read connection between objects """
         connections={}
+        checkedObjects = set()
         self._motherRelationsDict={}
         self._daughterRelationsDict={}
         if toNeighbors:
@@ -116,25 +119,31 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         for connection in compareObjectList:
             if self._cancelOperationsFlag:
                 break
-            if not connection in self._connections.keys():
-                for key, value in self.inputTags(connection[1]):
-                    module = str(value).split(":")[0]
-                    if module == self.label(connection[0]):
-                        product = ".".join(str(value).split(":")[1:])
-		        try:
+            try:
+                if (not connection in checkedObjects) and (connection not in self._connections):
+                    checkedObjects.add(connection)
+                    for key, value in self.inputTags(connection[1]):
+                        s = str(value)
+                        index = s.find(':')
+                        if -1 != index:
+                            module = s[:index]
+                        else:
+                            module = s
+                        if module == self.label(connection[0]):
+                            product = ".".join(str(value).split(":")[1:])
                             self._connections[connection]=(product, key)
-		        except TypeError:
-		            return []
-            if connection in self._connections.keys():
-                connections[connection]=self._connections[connection]
-                if not connection[1] in self._motherRelationsDict.keys():
-                    self._motherRelationsDict[connection[1]]=[]
-                self._motherRelationsDict[connection[1]]+=[connection[0]]
-                if not connection[0] in self._daughterRelationsDict.keys():
-                    self._daughterRelationsDict[connection[0]]=[]
-                self._daughterRelationsDict[connection[0]]+=[connection[1]]
+                if connection in self._connections:
+                    connections[connection]=self._connections[connection]
+                    if connection[1] not in self._motherRelationsDict:
+                        self._motherRelationsDict[connection[1]]=[]
+                    self._motherRelationsDict[connection[1]]+=[connection[0]]
+                    if connection[0] not in self._daughterRelationsDict:
+                        self._daughterRelationsDict[connection[0]]=[]
+                    self._daughterRelationsDict[connection[0]]+=[connection[1]]
+            except TypeError:
+                return {}
         return connections
-    
+
     def connections(self):
         return self._connections
 
@@ -164,27 +173,27 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         theFile = open(self._filename)
         self._file = imp.load_module(os.path.splitext(os.path.basename(self._filename))[0].replace(".", "_"), theFile, self._filename, ("py", "r", 1))
         theFile.close()
-        
+
         imported_configs = sys.modules.copy()
         for i in common_imports.iterkeys():
             del imported_configs[i]
-        
+
 # make dictionary that connects every cms-object with the file in which it is defined
-        for j in imported_configs.itervalues():
-          setj = set(dir(j))
-          for entry in setj:
-              if entry[0] != "_" and entry != "cms":
-                source = 1
-                for k in imported_configs.itervalues():
-                    if hasattr(k, entry):
-                      setk = set(dir(k))
-                      if len(setk) < len(setj) and setk < setj:
-                        source = 0
-                if source == 1:
-                    filen = self._filename
-                    if hasattr(j, "__file__"):
-                        filen = j.__file__
-                    file_dict[entry] = filen
+        for j in six.itervalues(imported_configs):
+            setj = set(dir(j))
+            for entry in setj:
+                if entry[0] != "_" and entry != "cms":
+                    source = 1
+                    for k in six.itervalues(imported_configs):
+                        if hasattr(k, entry):
+                            setk = set(dir(k))
+                            if len(setk) < len(setj) and setk < setj:
+                                source = 0
+                    if source == 1:
+                        filen = self._filename
+                        if hasattr(j, "__file__"):
+                            filen = j.__file__
+                        file_dict[entry] = filen
 
 # collect all path/sequences/modules of the input-config in a list
         if self.process():
@@ -206,21 +215,21 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def _scheduleRecursive(self,object):
         if object in self._scheduledObjects:
-	    return
+            return
         if self.isContainer(object):
-	    for obj in reversed(self.children(object)):
-	        self._scheduleRecursive(obj)
+            for obj in reversed(self.children(object)):
+                self._scheduleRecursive(obj)
         else:
             self._scheduledObjects+=[object]
-	    for used in self.motherRelations(object):
-	        self._scheduleRecursive(used)
+            for used in self.motherRelations(object):
+                self._scheduleRecursive(used)
 
     def setProcess(self,process):
         self._file.process=process
         self._initLists()
         parameters = {"name": self.process().process}
         process_folder = ConfigFolder("process", None, parameters)
-            
+
         self._allObjects += [process_folder]
         self._topLevelObjects += [process_folder]
 
@@ -229,11 +238,9 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if self.process().schedule != None:
             folder_list += [("paths", self.process().schedule)]
         else:
-            folder_list += [("paths", self.process().paths.itervalues())]
-        folder_list += [("endpaths", self.process().endpaths.itervalues())]
-	if hasattr(self.process(),"options") and hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
-	    print "Running in Unscheduled mode"
-            folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
+            folder_list += [("paths", six.itervalues(self.process().paths))]
+        folder_list += [("endpaths", six.itervalues(self.process().endpaths))]
+        folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
         folder_list += [("services", self._sort_list(self.process().services.values()))]
         folder_list += [("psets", self._sort_list(self.process().psets.values()))]
         folder_list += [("vpsets", self._sort_list(self.process().vpsets.values()))]
@@ -241,35 +248,35 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         folder_list += [("esproducers", self._sort_list(self.process().es_producers.values()))]
         folder_list += [("esprefers", self._sort_list(self.process().es_prefers.values()))]
         folders={}
-	for foldername, entry in folder_list:
+        for foldername, entry in folder_list:
             folder = ConfigFolder(foldername, process_folder)
             self._allObjects += [folder]
-	    folders[foldername]=folder
+            folders[foldername]=folder
             for path in entry:
                 self._readRecursive(folder, path)
-	if hasattr(self.process(),"options") and hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
-	    print "Creating schedule...",
+        if True:
+            print("Creating schedule...", end=' ')
             self.readConnections(self.allChildren(folders["modules"]))
-	    self._scheduleRecursive(folders["paths"])
-	    self._scheduledObjects.reverse()
-	    names = [l for t,l,p,pr in self.applyCommands(self.outputEventContent(),self.outputCommands())]
-	    for obj in self.allChildren(folders["modules"]):
-	       if str(obj) in names:
-	           self._scheduledObjects+=[obj]
+            self._scheduleRecursive(folders["paths"])
+            self._scheduledObjects.reverse()
+            names = [l for t,l,p,pr in self.applyCommands(self.outputEventContent(),self.outputCommands())]
+            for obj in self.allChildren(folders["modules"]):
+                if str(obj) in names:
+                    self._scheduledObjects+=[obj]
             scheduled_folder = ConfigFolder("scheduled", folders["paths"])
             self._allObjects += [scheduled_folder]
             folders["paths"]._configChildren.remove(scheduled_folder)
             folders["paths"]._configChildren.insert(0,scheduled_folder)
-	    scheduled_folder._configChildren=self._scheduledObjects
-	    print "done"
+            scheduled_folder._configChildren=self._scheduledObjects
+            print("done")
         else:
-	    self._scheduledObjects=self._allObjects
+            self._scheduledObjects=self._allObjects
 
     def process(self):
         if hasattr(self._file, "process"):
             return self._file.process
         return None
-    
+
     def _readHeaderInfo(self):
         theFile = open(self._filename)
         foundHeaderPart1 = False
@@ -315,6 +322,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         text = ""
         if hasattr(object, "label_") and (not hasattr(object,"hasLabel_") or object.hasLabel_()):
             text = str(object.label_())
+            if text:
+                return text
         if text == "":
             if hasattr(object, "_name"):
                 text = str(object._name)
@@ -331,7 +340,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return tuple(object._configChildren)
         else:
             return ()
-        
+
     def isContainer(self, object):
         return isinstance(object, (ConfigFolder, list, cms.Path, cms.EndPath, cms.Sequence)) # cms.SequencePlaceholder assumed to be a module
 
@@ -346,24 +355,24 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 if not o in objects:
                     objects += [o] 
         return objects
-                
+
     def motherRelations(self, object):
         """ Get motherRelations of an object """
         if object in self._motherRelationsDict.keys():
-	    try:
+            try:
                 return self._motherRelationsDict[object]
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         else:
             return []
 
     def daughterRelations(self, object):
         """ Get daughterRelations of an object """
         if object in self._daughterRelationsDict.keys():
-	    try:
+            try:
                 return self._daughterRelationsDict[object]
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         else:
             return []
 
@@ -406,25 +415,25 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         """ Get filename """
         text = os.path.splitext(os.path.basename(self.fullFilename(object)))[0]
         return text
-        
+
     def pypackage(self,object):
-      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/)*\w*)\.py$',self.fullFilename(object))
-      if match_compiled:
-        return match_compiled.group(1).replace('/','.')
-      
-      match_norm = re.match(r'(?:^|.*?/)(\w*)/(\w*)/(?:test|python)/((?:\w*/)*)(\w*)\.py$',self.fullFilename(object))
-      if match_norm:
-        return '%s.%s.%s%s' % (match_norm.group(1),match_norm.group(2),match_norm.group(3).replace('/','.'),match_norm.group(4))
-      return ''
+        match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/)*\w*)\.py$',self.fullFilename(object))
+        if match_compiled:
+            return match_compiled.group(1).replace('/','.')
+
+        match_norm = re.match(r'(?:^|.*?/)(\w*)/(\w*)/(?:test|python)/((?:\w*/)*)(\w*)\.py$',self.fullFilename(object))
+        if match_norm:
+            return '%s.%s.%s%s' % (match_norm.group(1),match_norm.group(2),match_norm.group(3).replace('/','.'),match_norm.group(4))
+        return ''
 
     def pypath(self,object):
-      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/){2})((?:\w*/)*)(\w*\.py)$',self.fullFilename(object))
-      if match_compiled:
-        return '%spython/%s%s' % (match_compiled.group(1),match_compiled.group(2),match_compiled.group(3))
-      match_norm = re.match(r'(?:^|.*?/)(\w*/\w*/(?:test|python)/(?:\w*/)*\w*\.py)$',self.fullFilename(object))
-      if match_norm:
-        return match_norm.group(1)
-      return ''
+        match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/){2})((?:\w*/)*)(\w*\.py)$',self.fullFilename(object))
+        if match_compiled:
+            return '%spython/%s%s' % (match_compiled.group(1),match_compiled.group(2),match_compiled.group(3))
+        match_norm = re.match(r'(?:^|.*?/)(\w*/\w*/(?:test|python)/(?:\w*/)*\w*\.py)$',self.fullFilename(object))
+        if match_norm:
+            return match_norm.group(1)
+        return ''
 
     def package(self, object):
         """ Get Package of an object file """
@@ -452,7 +461,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         """ Add alls inputtags of value to a list """
         if isinstance(value, cms.VInputTag):
             for i in range(len(value)):
-                if type(value[i])==str:
+                if isinstance(value[i], str):
                     self._addInputTag(cms.InputTag(value[i]), this_key+"["+str(i)+"]", this_inputtags)
                 else:
                     self._addInputTag(value[i], this_key+"["+str(i)+"]", this_inputtags)
@@ -478,12 +487,14 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 
     def inputTags(self, object):
         """ Make list of inputtags from parameter dict """
-        if not object in self._inputTagsDict.keys():
-            try:
-                self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
-            except TypeError:
-                return []
-        return self._inputTagsDict[object]
+        try:
+            v = self._inputTagsDict.get(object)
+            if v is None:
+                v = self._readInputTagsRecursive(self.parameters(object))
+                self._inputTagsDict[object]=v
+        except TypeError:
+            v = []
+        return v
 
     def uses(self, object):
         """ Get list of all config objects that are used as input """
@@ -494,12 +505,12 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 product = ".".join(str(value).split(":")[1:])
                 if module not in uses:
                     uses += [module]
-	    try:
+            try:
                 self._usesDict[object]=uses
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         return self._usesDict[object]
-    
+
     def foundIn(self, object):
         """ Make list of all mother sequences """
         if not object in self._foundInDict.keys():
@@ -508,10 +519,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 for daughter in self.children(entry):
                     if self.label(object) == self.label(daughter) and len(self.children(entry)) > 0 and not self.label(entry) in foundin:
                         foundin += [self.label(entry)]
-	    try:
+            try:
                 self._foundInDict[object]=foundin
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         return self._foundInDict[object]
 
     def usedBy(self, object):
@@ -522,10 +533,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 for uses in self.uses(entry):
                     if self.label(object) == uses and not self.label(entry) in usedby:
                         usedby += [self.label(entry)]
-	    try:
+            try:
                 self._usedByDict[object]=usedby
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         return self._usedByDict[object]
 
     def recursePSetProperties(self, name, object, readonly=None):
@@ -553,10 +564,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                     properties += [("MultilineString", name, str(object), partyp, readonly)]
             except Exception:
                 logging.error(__name__ + ": " + exception_traceback())
-        
+
         if isinstance(object, ConfigFolder):
             readonly = True
-        
+
         params = self.parameters(object)[:]
         params.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
         for key, value in params:
@@ -566,7 +577,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             keyname += key
             properties += self.recursePSetProperties(keyname, value, readonly)
         return properties
-        
+
     def properties(self, object):
         """ Make list of all properties """
         #logging.debug(__name__ + ": properties")
@@ -619,7 +630,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             properties += [("Category", "Parameters", "")]
             properties += self.recursePSetProperties("", object)
         return tuple(properties)
-    
+
     def setProperty(self, object, name, value, categoryName):
         """ Sets a property with given name to value.
         """
@@ -669,7 +680,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         content = [("*",self.label(object),"*",self.process().process) for object in self._allObjects\
                  if self.type(object) in ["EDProducer", "EDFilter", "EDAnalyzer"]]
         return content
-    
+
     def inputCommands(self):
         inputModules = [object for object in self._allObjects\
                         if self.type(object) == "Source"]
@@ -695,7 +706,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             for object in content:
                 keep[object] = True
         for o in outputCommands:
-            command, filter = o.split(" ")
+            #skip multiple spaces
+            command, filter = [ x for x in o.split(" ") if x]
             if len(filter.split("_")) > 1:
                 module = filter.split("_")[1]
                 product = filter.split("_")[2]

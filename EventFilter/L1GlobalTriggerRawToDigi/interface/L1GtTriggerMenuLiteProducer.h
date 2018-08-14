@@ -48,7 +48,7 @@ public:
     explicit L1GtTriggerMenuLiteProducer(const edm::ParameterSet&);
 
     /// destructor
-    virtual ~L1GtTriggerMenuLiteProducer();
+    ~L1GtTriggerMenuLiteProducer() override;
 
 private:
 
@@ -56,12 +56,12 @@ private:
     /// and cache them to improve the speed
     void retrieveL1EventSetup(const edm::EventSetup&);
 
-    virtual void beginJob() override final;
-    void beginRunProduce(edm::Run&, const edm::EventSetup&) override final;
+    void beginJob() final;
+    void beginRunProduce(edm::Run&, const edm::EventSetup&) final;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override final;
+    void produce(edm::Event&, const edm::EventSetup&) final;
 
-    virtual void endJob() override;
+    void endJob() override;
 
 private:
     

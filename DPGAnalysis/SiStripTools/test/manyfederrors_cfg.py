@@ -206,9 +206,7 @@ process.seqNoTooManyErrors = cms.Sequence(~process.filterFEDBadModuleAllThr + ~p
                                           ~process.filterFEDBadModuleMidThr + ~process.filterFEDBadModuleLowThr)
 
 
-process.DQMStore=cms.Service("DQMStore")
-process.TkDetMap=cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.load("DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff")
 

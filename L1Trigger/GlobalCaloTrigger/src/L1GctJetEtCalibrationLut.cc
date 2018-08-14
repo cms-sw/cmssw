@@ -22,7 +22,7 @@ L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 void L1GctJetEtCalibrationLut::setFunction(const L1GctJetFinderParams* const lutfn)
 {
   m_lutFunction = lutfn;
-  m_setupOk = (lutfn!=0);
+  m_setupOk = (lutfn!=nullptr);
 }
 
 void L1GctJetEtCalibrationLut::setOutputEtScale(const L1CaloEtScale* const scale) {

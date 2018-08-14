@@ -38,20 +38,20 @@ class BPHParticleNeutralVeto: public BPHRecoSelect {
 
   /** Destructor
    */
-  virtual ~BPHParticleNeutralVeto() {}
+  ~BPHParticleNeutralVeto() override {}
 
   /** Operations
    */
   /// select charged particles
-  virtual bool accept( const reco::Candidate& cand ) const {
+  bool accept( const reco::Candidate& cand ) const override {
     return ( cand.charge() != 0 );
   }
 
  private:
 
   // private copy and assigment constructors
-  BPHParticleNeutralVeto           ( const BPHParticleNeutralVeto& x );
-  BPHParticleNeutralVeto& operator=( const BPHParticleNeutralVeto& x );
+  BPHParticleNeutralVeto           ( const BPHParticleNeutralVeto& x ) = delete;
+  BPHParticleNeutralVeto& operator=( const BPHParticleNeutralVeto& x ) = delete;
 
 };
 

@@ -4,6 +4,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="clhep"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="CommonTools/UtilAlgos"/>

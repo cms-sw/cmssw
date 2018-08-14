@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-triggerEffTest = cms.EDAnalyzer("DTTriggerEfficiencyTest",
+triggerEffTest = DQMEDHarvester("DTTriggerEfficiencyTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment
@@ -15,6 +16,6 @@ triggerEffTest = cms.EDAnalyzer("DTTriggerEfficiencyTest",
     detailedAnalysis = cms.untracked.bool(False)                                  
 )
 
-from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
-run2_25ns_specific.toModify( triggerEffTest,hwSources = cms.untracked.vstring('TM') )
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( triggerEffTest, hwSources = cms.untracked.vstring('TM'))
 

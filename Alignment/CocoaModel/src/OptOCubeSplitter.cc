@@ -61,7 +61,7 @@ void OptOCubeSplitter::fastTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSE CUBE SPLITTER  " << name() << std::endl;
   
   //---------- Get backward plate
-  ALIPlane plate = getPlate(0, 0);
+  ALIPlane plate = getPlate(false, false);
   lightray.intersect( plate );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Intersected with plate"); 
@@ -99,7 +99,7 @@ void OptOCubeSplitter::detailedDeviatesLightRay( LightRay& lightray )
   //---------- Get first plate
   if (ALIUtils::debug >= 3) std::cout << "%%%%% refracting at entering first plate " << std::endl; 
   if (ALIUtils::debug >= 3) std::cout << "%%% getting first plate " << std::endl; 
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
 
   //---------- Refract  
   ALIdouble refra_ind1 = 1.;
@@ -143,7 +143,7 @@ void OptOCubeSplitter::detailedTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE CUBE SPLITTER " << name() << std::endl;
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
 
   //---------- Refract while entering splitter
   ALIdouble refra_ind1 = 1.;
@@ -154,7 +154,7 @@ void OptOCubeSplitter::detailedTraversesLightRay( LightRay& lightray )
   }
 
   //---------- Get backward plate
-  plate = getPlate(0, 1);
+  plate = getPlate(false, true);
   //---------- Refract while exiting splitter
   lightray.refract( plate, refra_ind2, refra_ind1 );
   if (ALIUtils::debug >= 2) {

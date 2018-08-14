@@ -3,8 +3,9 @@
 #ifndef MATACQTBRAWEVENT_H
 #define MATACQTBRAWEVENT_H
 
-#include <inttypes.h>
-
+#include <cinttypes>
+#include <time.h>
+#include <vector>
 #if 0 //replace 1 by 0 to remove XDAQ dependency. In this case it is assumed
       //the machine is little endian.
 #include "i2o/utils/endian.h" //from XDAQ
@@ -119,7 +120,7 @@ public:
    * @throw std::exception if the data cannot be decoded due to data corruption
    * or truncation.
    */
-  MatacqTBRawEvent(const unsigned char* dataBuffer, size_t bufferSize){
+  MatacqTBRawEvent(const unsigned char* dataBuffer, std::size_t bufferSize){
     setRawData(dataBuffer, bufferSize);
   }
   //methods
@@ -240,7 +241,7 @@ private:
    * @param spec specification of the data field to read
    * @return content of data field specified by 'spec'
    */
-  int read32(uint32le_t* pData, field32spec_t spec) const;
+  int read32(const uint32le_t* pData, field32spec_t spec) const;
   
   /** Changes the raw data pointer and updates accordingly this object. 
    * @param buffer new pointer to the data buffer. Must be aligned at least
@@ -249,7 +250,7 @@ private:
    * @throw std::exception if the data cannot be decoded due to data corruption
    * or truncation.
    */
-  void setRawData(const unsigned char* buffer, size_t bufferSize);
+  void setRawData(const unsigned char* buffer, std::size_t bufferSize);
 
   //fields
 private:
@@ -271,7 +272,7 @@ private:
 
   /** Pointer to the standard CMS DAQ header
    */
-  uint32le_t* daqHeader;
+  const uint32le_t* daqHeader;
 
   /** DCC error field content.
    */
@@ -311,7 +312,7 @@ private:
 
   /**Matacq header:
    */
-  matacqHeader_t* matacqHeader;
+  const matacqHeader_t* matacqHeader;
   
   /** MATACQ data format internal version
    */

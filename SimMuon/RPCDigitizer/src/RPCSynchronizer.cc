@@ -4,29 +4,29 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-#include<cstring>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<vector>
-#include<stdlib.h>
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <cmath>
 
 using namespace std;
@@ -43,7 +43,7 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   cosmics = config.getParameter<bool>("cosmics");
   irpc_timing_res = config.getParameter<double>("IRPC_time_resolution");
   irpc_electronics_jitter = config.getParameter<double>("IRPC_electronics_jitter");
-  
+  N_BX = config.getParameter<int>("BX_range");
   //"magic" parameter for cosmics
   cosmicPar=37.62;
 
@@ -72,11 +72,11 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
   
   RPCDetId SimDetId(simhit->detUnitId());
   
-  const RPCRoll* SimRoll = 0;
+  const RPCRoll* SimRoll = nullptr;
   
   for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
     
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       
       auto ch = dynamic_cast<const RPCChamber* >( *it ); 
       
@@ -92,7 +92,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
     }
   }
   
-  if(SimRoll != 0){
+  if(SimRoll != nullptr){
     
     float distanceFromEdge = 0;
     float half_stripL = 0.;
@@ -127,7 +127,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
     double sup_time = 0;
     
     
-    for(int n = -5; n <= 5; ++n){
+    for(int n = -N_BX; n <= N_BX; ++n){
       
       if(cosmics){
 	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;
@@ -167,11 +167,11 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
   
   RPCDetId SimDetId(simhit->detUnitId());
   
-  const RPCRoll* SimRoll = 0;
+  const RPCRoll* SimRoll = nullptr;
   
   for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
     
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
       
       auto ch = dynamic_cast<const RPCChamber* >( *it ); 
       
@@ -187,7 +187,7 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
     }
   }
   
-  if(SimRoll != 0){
+  if(SimRoll != nullptr){
     
     float distanceFromEdge = 0;
     float half_stripL = 0.;
@@ -237,7 +237,7 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
     double sup_time = 0;
     
     
-    for(int n = -5; n <= 5; ++n){
+    for(int n = -N_BX; n <= N_BX; ++n){
       
       if(cosmics){
 	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;

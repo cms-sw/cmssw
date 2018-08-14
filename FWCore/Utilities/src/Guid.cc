@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include "uuid/uuid.h"
 
@@ -26,7 +26,7 @@ namespace edm {
   /// Initialize a new Guid
   void Guid::init()   {
     uuid_t me_;
-    ::uuid_generate_time(me_);
+    ::uuid_generate_random(me_);
     unsigned int*   d1 = reinterpret_cast<unsigned int*>(me_);
     unsigned short* d2 = reinterpret_cast<unsigned short*>(me_+4);
     unsigned short* d3 = reinterpret_cast<unsigned short*>(me_+6);
@@ -55,31 +55,31 @@ namespace edm {
     size_t const sSize = 4;
     size_t const cSize = 2;
     size_t offset = 0;
-    Data1 = strtol(source.substr(offset, iSize).c_str(), 0, 16);
+    Data1 = strtol(source.substr(offset, iSize).c_str(), nullptr, 16);
     offset += iSize;
     assert(dash == source[offset++]); 
-    Data2 = strtol(source.substr(offset, sSize).c_str(), 0, 16);
+    Data2 = strtol(source.substr(offset, sSize).c_str(), nullptr, 16);
     offset += sSize;
     assert(dash == source[offset++]); 
-    Data3 = strtol(source.substr(offset, sSize).c_str(), 0, 16);
+    Data3 = strtol(source.substr(offset, sSize).c_str(), nullptr, 16);
     offset += sSize;
     assert(dash == source[offset++]); 
-    Data4[0] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[0] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
-    Data4[1] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[1] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
     assert(dash == source[offset++]);
-    Data4[2] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[2] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
-    Data4[3] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[3] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
-    Data4[4] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[4] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
-    Data4[5] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[5] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
-    Data4[6] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[6] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
-    Data4[7] = strtol(source.substr(offset, cSize).c_str(), 0, 16);
+    Data4[7] = strtol(source.substr(offset, cSize).c_str(), nullptr, 16);
     offset += cSize;
     assert(source.size() == offset);
     return *this;

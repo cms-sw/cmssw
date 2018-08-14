@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR400_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_RazorHbb_Rsq0p02_MR400_2CSV0p7 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -11,7 +13,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR400_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR450_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_RazorHbb_Rsq0p02_MR450_2CSV0p7 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -22,7 +24,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR450_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR500_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_RazorHbb_Rsq0p02_MR500_2CSV0p7 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -33,7 +35,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR500_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR550_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_RazorHbb_Rsq0p02_MR550_2CSV0p7 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -45,7 +47,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR550_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
 )
 
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -56,7 +58,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -67,7 +69,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_Main_RsqMR300 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_Main_RsqMR300 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -78,7 +80,7 @@ SUSY_HLT_Razor_Main_RsqMR300 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_QuadJet_RsqMR300 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_QuadJet_RsqMR300 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -89,7 +91,7 @@ SUSY_HLT_Razor_QuadJet_RsqMR300 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_DM_Rsq0p36 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_DM_Rsq0p36 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -100,7 +102,7 @@ SUSY_HLT_Razor_DM_Rsq0p36 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_Main_RsqMR270 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_Main_RsqMR270 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -111,7 +113,7 @@ SUSY_HLT_Razor_Main_RsqMR270 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_QuadJet_RsqMR270 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_QuadJet_RsqMR270 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -122,7 +124,7 @@ SUSY_HLT_Razor_QuadJet_RsqMR270 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_DM_Rsq0p30 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_DM_Rsq0p30 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -133,7 +135,7 @@ SUSY_HLT_Razor_DM_Rsq0p30 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_Main_RsqMR260 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_Main_RsqMR260 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -144,7 +146,7 @@ SUSY_HLT_Razor_Main_RsqMR260 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_QuadJet_RsqMR260 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_QuadJet_RsqMR260 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -155,7 +157,7 @@ SUSY_HLT_Razor_QuadJet_RsqMR260 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_Main_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_Main_RsqMR240 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -166,7 +168,7 @@ SUSY_HLT_Razor_Main_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_QuadJet_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_QuadJet_RsqMR240 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -177,7 +179,7 @@ SUSY_HLT_Razor_QuadJet_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_DM_Rsq0p25 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_DM_Rsq0p25 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("pfMet"),
   jetCollection = cms.InputTag("ak4PFJetsCHS"),
@@ -188,7 +190,7 @@ SUSY_HLT_Razor_DM_Rsq0p25 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_Razor_Main_Calo_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_Main_Calo_RsqMR240 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("caloMet"),
   jetCollection = cms.InputTag("ak4CaloJets"),
@@ -199,7 +201,7 @@ SUSY_HLT_Razor_Main_Calo_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('caloHemispheres')
 )
 
-SUSY_HLT_Razor_QuadJet_Calo_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_QuadJet_Calo_RsqMR240 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("caloMet"),
   jetCollection = cms.InputTag("ak4CaloJets"),
@@ -210,7 +212,7 @@ SUSY_HLT_Razor_QuadJet_Calo_RsqMR240 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('caloHemispheres')
 )
 
-SUSY_HLT_Razor_DM_Calo_Rsq0p25 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_Razor_DM_Calo_Rsq0p25 = DQMEDAnalyzer('SUSY_HLT_Razor',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   METCollection = cms.InputTag("caloMet"),
   jetCollection = cms.InputTag("ak4CaloJets"),
@@ -221,7 +223,7 @@ SUSY_HLT_Razor_DM_Calo_Rsq0p25 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('caloHemispheres')
 )
 
-SUSY_HLT_Razor_PostVal_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToRazorPostValPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR300_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p36_v", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR270_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p30_v", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR260_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_v", "HLT/SUSYBSM/HLT_Rsq0p25_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_Calo_v", "HLT/SUSYBSM/HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v", "HLT/SUSYBSM/HLT_Rsq0p25_Calo_v", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_BTagCSV_p063_p20_Mbb60_200_v", "HLT/SUSYBSM/HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoubleBTagCSV_p063_Mbb60_200_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <TMath.h>
 #include <iostream>
 #include <TStyle.h>
@@ -363,7 +363,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
     BeamSpotMapBx bsmap = theBeamFitter->getBeamSpotMap();
     std::map<int,int> npvsmap = theBeamFitter->getNPVsperBX();
     edm::LogInfo("BX|BeamMonitorBx") << "Number of bx = " << bsmap.size() << endl;
-    if (bsmap.size() == 0) return;
+    if (bsmap.empty()) return;
     if (countBx_ < bsmap.size()) {
       countBx_ = bsmap.size();
       BookTables(countBx_,varMap,"");
@@ -388,11 +388,11 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
       firstlumi_ = LSRange.first;
 
     if (resetFitNLumi_ > 0 ) {
-      char tmpTitle1[50];
+      char tmpTitle1[60];
       if ( countGoodFit_ > 1)
-	sprintf(tmpTitle1,"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange.second,") [weighted average]");
+	snprintf(tmpTitle1,sizeof(tmpTitle1),"%s %i %s %i %s"," [cm] (LS: ",firstlumi_," to ",LSRange.second,") [weighted average]");
       else
-	sprintf(tmpTitle1,"%s","Need at least two fits to calculate weighted average");
+	snprintf(tmpTitle1,sizeof(tmpTitle1),"%s","Need at least two fits to calculate weighted average");
       for (std::map<std::string,std::string>::const_iterator varName = varMap.begin();
 	   varName != varMap.end(); ++varName) {
 	TString tmpName = varName->first + "_all";

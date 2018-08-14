@@ -25,9 +25,9 @@ CLHEP::HepRandomEngine* decayRandomEngine = nullptr;
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
   : fIsInitialized(false),
-    fTauolaInterface(0),
-    fEvtGenInterface(0),
-    fPhotosInterface(0)
+    fTauolaInterface(nullptr),
+    fEvtGenInterface(nullptr),
+    fPhotosInterface(nullptr)
 {
   std::vector<std::string> extGenNames =
     pset.getParameter< std::vector<std::string> >("parameterSets");
@@ -92,17 +92,17 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
    
   if ( fEvtGenInterface ) {  
     evt = fEvtGenInterface->decay( evt ); 
-    if ( !evt ) return 0;
+    if ( !evt ) return nullptr;
   }
 
   if ( fTauolaInterface ) {
     evt = fTauolaInterface->decay( evt ); 
-    if ( !evt ) return 0;
+    if ( !evt ) return nullptr;
   }
    
   if ( fPhotosInterface ) {
     evt = fPhotosInterface->apply( evt );
-    if ( !evt ) return 0;
+    if ( !evt ) return nullptr;
   }
          
   return evt;

@@ -100,7 +100,7 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
     const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = 0;
+    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = nullptr;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
         doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
     else if(recHitsLabel_.instance() == "EcalRecHitsEE")
@@ -146,21 +146,21 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                 std::vector<int>::const_iterator vit;
                 if (isBarrel) {
                   // new rechit flag checks
-                  //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+                  //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), recIt->recoFlag());
                   //if (vit != flagsexclEB_.end())
                   //  continue;
-                  if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
-                    if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEB_)) {                
+                  if (!recIt->checkFlag(EcalRecHit::kGood)) {
+                    if (recIt->checkFlags(flagsexclEB_)) {                
                       return;
                     }
                   }
                 } else {
                   // new rechit flag checks
-                  //vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+                  //vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), recIt->recoFlag());
                   //if (vit != flagsexclEE_.end())
                   //  continue;
-                  if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
-                    if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEE_)) {                
+                  if (!recIt->checkFlag(EcalRecHit::kGood)) {
+                    if (recIt->checkFlags(flagsexclEE_)) {                
                       return;
                     }
                   }

@@ -31,24 +31,24 @@ namespace fwlite {
 public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
 
-      virtual edm::WrapperBase const*
+      edm::WrapperBase const*
       getIt(edm::ProductID const& iID) const override {
         return event_->getByProductID(iID);
       }
 
-      virtual edm::WrapperBase const*
+      edm::WrapperBase const*
       getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const override {
         return event_->getThinnedProduct(pid, key);
       }
 
-      virtual void getThinnedProducts(edm::ProductID const& pid,
+      void getThinnedProducts(edm::ProductID const& pid,
                                       std::vector<edm::WrapperBase const*>& foundContainers,
                                       std::vector<unsigned int>& keys) const override {
         event_->getThinnedProducts(pid, foundContainers, keys);
       }
 
 private:
-      virtual unsigned int transitionIndex_() const override {
+      unsigned int transitionIndex_() const override {
         return 0U;
       }
 
@@ -477,6 +477,14 @@ MultiChainEvent::triggerResultsByName(edm::TriggerResults const& triggerResults)
   return edm::TriggerResultsByName(&triggerResults, names);
 }
 
+edm::ParameterSet const*
+MultiChainEvent::parameterSet(edm::ParameterSetID const& psID) const {
+  auto pset = event1_->parameterSet(psID);
+  if(nullptr ==pset) {
+      pset = event2_->parameterSet(psID);
+  }
+  return pset;
+}
 //
 // static member functions
 //

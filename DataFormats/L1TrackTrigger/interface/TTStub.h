@@ -45,12 +45,18 @@ class TTStub
     void   setTriggerDisplacement( int aDisplacement ); /// In HALF-STRIP units!
     double getTriggerOffset() const;         /// In FULL-STRIP units! (hence, not implemented herein)
     void   setTriggerOffset( int anOffset ); /// In HALF-STRIP units!
+    double getRealTriggerOffset() const;         /// In FULL-STRIP units! (hence, not implemented herein)
+    void   setRealTriggerOffset( float anOffset ); /// In HALF-STRIP units!
+
+
 
     /// CBC3-style trigger information
     /// for sake of simplicity, these methods are
     /// slightly out of the getABC(...)/findABC(...) rule
     double getTriggerPosition() const; /// In FULL-STRIP units!
     double getTriggerBend() const;     /// In FULL-STRIP units!
+    double getHardwareBend() const; /// In FULL-STRIP units!
+    void   setHardwareBend( float aBend ); /// In HALF-STRIP units!
 
     /// Information
     std::string print( unsigned int i = 0 ) const;
@@ -62,7 +68,10 @@ class TTStub
     edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > theClusterRef1;
     int theDisplacement;
     int theOffset;
+    float theRealOffset;
+    float theHardwareBend;
 
+    static constexpr float dummyBend = 999999; // Dumy value should be away from potential bends
 }; /// Close class
 
 /*! \brief   Implementation of methods
@@ -78,8 +87,10 @@ TTStub< T >::TTStub()
 {
   /// Set default data members
   theDetId = 0;
-  theDisplacement = 999999;
+  theDisplacement = dummyBend;
   theOffset = 0;
+  theRealOffset = 0;
+  theHardwareBend = dummyBend;
 }
 
 /// Another Constructor
@@ -90,8 +101,10 @@ TTStub< T >::TTStub( DetId aDetId )
   this->setDetId( aDetId );
 
   /// Set default data members
-  theDisplacement = 999999;
+  theDisplacement = dummyBend;
   theOffset = 0;
+  theRealOffset = 0;
+  theHardwareBend = dummyBend;
 }
 
 /// Destructor
@@ -125,6 +138,16 @@ double TTStub< T >::getTriggerOffset() const { return 0.5*theOffset; }
 template< typename T >
 void TTStub< T >::setTriggerOffset( int anOffset ) { theOffset = anOffset; }
 
+template< typename T >
+double TTStub< T >::getRealTriggerOffset() const { return 0.5*theRealOffset; }
+
+template< typename T >
+void TTStub< T >::setRealTriggerOffset( float anOffset ) { theRealOffset = anOffset; }
+
+template< typename T >
+void TTStub< T >::setHardwareBend( float aBend ) { theHardwareBend = aBend; }
+
+
 /// CBC3-style trigger info
 template< typename T >
 double TTStub< T >::getTriggerPosition() const
@@ -135,11 +158,21 @@ double TTStub< T >::getTriggerPosition() const
 template< typename T >
 double TTStub< T >::getTriggerBend() const
 {
-  if ( theDisplacement == 999999 )
+  if ( theDisplacement == dummyBend )
     return theDisplacement;
 
   return 0.5*( theDisplacement - theOffset );
 }
+
+template< typename T >
+double TTStub< T >::getHardwareBend() const
+{
+  if ( theHardwareBend == dummyBend )
+    return this->getTriggerBend(); // If not set make it transparent
+
+  return theHardwareBend;
+}
+
 
 /// Information
 template< typename T >
@@ -156,7 +189,7 @@ std::string TTStub< T >::print( unsigned int i ) const
   padding+='\t';
   output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->getTriggerPosition();
   output << ", bend: " << this->getTriggerBend() << '\n';
-  unsigned int iClu = 0;
+  output << ", hardware bend: " << this->getHardwareBend() << '\n';
   output << padding << "cluster 0: address: " << theClusterRef0.get();
   output << ", cluster size: " << theClusterRef0->getHits().size() << '\n';
   output << padding << "cluster 1: address: " << theClusterRef1.get();

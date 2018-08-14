@@ -19,7 +19,7 @@ class NoiseAlgorithm : public CommissioningAlgorithm {
 
   NoiseAlgorithm( const edm::ParameterSet & pset, NoiseAnalysis* const );
 
-  virtual ~NoiseAlgorithm() {;}
+  ~NoiseAlgorithm() override {;}
 
   inline const Histo& hPeds() const;
 
@@ -30,10 +30,10 @@ class NoiseAlgorithm : public CommissioningAlgorithm {
   NoiseAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
   
   // ---------- private member data ----------
 

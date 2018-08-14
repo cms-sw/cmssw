@@ -39,12 +39,12 @@
 class KineExample : public edm::EDAnalyzer {
 public:
   explicit KineExample(const edm::ParameterSet&);
-  ~KineExample();
+  ~KineExample() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endJob();
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endJob() override;
 
 private:
 

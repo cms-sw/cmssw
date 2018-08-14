@@ -46,7 +46,7 @@ public:
     L1TEventInfoClient(const edm::ParameterSet&);
 
     /// Destructor
-    virtual ~L1TEventInfoClient();
+    ~L1TEventInfoClient() override;
 
 protected:
     

@@ -28,7 +28,7 @@ private:
   bool setPdgId_;
   int pdgId_;
   Fitter fitter_;
-  void produce(edm::Event &, const edm::EventSetup &);
+  void produce(edm::Event &, const edm::EventSetup &) override;
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

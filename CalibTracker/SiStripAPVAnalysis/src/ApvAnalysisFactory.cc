@@ -95,10 +95,10 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses( ApvAnalysis* theAPV,
   // N.B. Don't call this twice for the same APV!
   //-----------------------------------------------------------------
   // cout<<"VirtualApvAnalysisFactory::constructAuxiliaryApvClasses"<<endl;
-  TkPedestalCalculator*   thePedestal =0;
-  TkNoiseCalculator*      theNoise=0;
-  TkApvMask*              theMask=0;
-  TkCommonModeCalculator* theCM=0;
+  TkPedestalCalculator*   thePedestal =nullptr;
+  TkNoiseCalculator*      theNoise=nullptr;
+  TkApvMask*              theMask=nullptr;
+  TkCommonModeCalculator* theCM=nullptr;
 
   TkCommonMode*   theCommonMode = new TkCommonMode();
   TkCommonModeTopology* theTopology = new TkCommonModeTopology(128, theNumCMstripsInGroup_);

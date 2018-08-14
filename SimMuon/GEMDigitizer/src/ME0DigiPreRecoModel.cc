@@ -4,7 +4,7 @@
 void 
 ME0DigiPreRecoModel::fillDigis(int rollDetId, ME0DigiPreRecoCollection& digis)
 {
-  for (auto d: digi_)
+  for (const auto& d: digi_)
   {
     digis.insertDigi(ME0DetId(rollDetId), d);
   }

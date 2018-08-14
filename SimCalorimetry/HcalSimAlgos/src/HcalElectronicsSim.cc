@@ -6,7 +6,7 @@
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "CLHEP/Random/RandFlat.h"
-#include <math.h>
+#include <cmath>
 
 HcalElectronicsSim::HcalElectronicsSim(HcalAmplifier * amplifier, const HcalCoderFactory * coderFactory, bool PreMixing)
   : theAmplifier(amplifier),
@@ -79,18 +79,17 @@ void HcalElectronicsSim::premix<QIE10DataFrame>(CaloSamples & frame, QIE10DataFr
 
 template<>
 void HcalElectronicsSim::premix<QIE11DataFrame>(CaloSamples & frame, QIE11DataFrame & result, double preMixFactor, unsigned preMixBits){
-  uint16_t flag = 0;
   for(int isample = 0; isample !=frame.size(); ++isample) {
     uint16_t theADC = round(preMixFactor*frame[isample]);
+    int tdcErrorBit = 0;
 
     if(theADC > preMixBits) {
       theADC = result[isample].adc();
-	  flag |= 1<<isample; // set error bit as a flag
+      tdcErrorBit = 1; //use TDC bits for error bit
     }
 
-    result.setSample(isample, theADC, result[isample].tdc(), result[isample].soi());
+    result.setSample(isample, theADC, tdcErrorBit, result[isample].soi());
   }
-  result.setFlags(flag);
 }
 
 template<class Digi>

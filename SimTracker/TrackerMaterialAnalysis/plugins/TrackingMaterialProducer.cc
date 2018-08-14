@@ -52,7 +52,7 @@ const G4LogicalVolume* GetVolume(const std::string& name) {
     if ((const std::string&) (*volume)->GetName() == name)
       return (*volume);
   }
-  return 0;
+  return nullptr;
 }
 
 // missing from GEANT4 : G4TouchableHistory::GetTransform( depth )
@@ -73,11 +73,11 @@ std::tuple<const G4VPhysicalVolume*, int> GetSensitiveVolume( const G4VTouchable
   int depth = touchable->GetHistoryDepth();
   for (int level = 0; level < depth; ++level) {      // 0 is self
     const G4VPhysicalVolume* volume = touchable->GetVolume(level);
-    if (volume->GetLogicalVolume()->GetSensitiveDetector() != 0) {
+    if (volume->GetLogicalVolume()->GetSensitiveDetector() != nullptr) {
       return std::make_tuple(volume, level);
     }
   }
-  return std::tuple<const G4VPhysicalVolume*, int>(0, 0);
+  return std::tuple<const G4VPhysicalVolume*, int>(nullptr, 0);
 }
 
 //-------------------------------------------------------------------------
@@ -86,7 +86,7 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
   edm::ParameterSet config = iPSet.getParameter<edm::ParameterSet>("TrackingMaterialProducer");
   m_selectedNames       = config.getParameter< std::vector<std::string> >("SelectedVolumes");
   m_primaryTracks       = config.getParameter<bool>("PrimaryTracksOnly");
-  m_tracks              = 0;
+  m_tracks              = nullptr;
 
   produces< std::vector<MaterialAccountingTrack> >();
   output_file_ = new TFile("radLen_vs_eta_fromProducer.root", "RECREATE");
@@ -187,7 +187,7 @@ void TrackingMaterialProducer::update(const G4Step* step)
   double cosThetaPre  = 0.0;
   double cosThetaPost = 0.0;
   int level = 0;
-  const G4VPhysicalVolume* sensitive = 0;
+  const G4VPhysicalVolume* sensitive = nullptr;
   GlobalPoint position;
   std::tie(sensitive, level) = GetSensitiveVolume(touchable);
   if (sensitive) {
@@ -285,7 +285,7 @@ void TrackingMaterialProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // transfer ownership to the Event
   std::unique_ptr<std::vector<MaterialAccountingTrack> > tracks( m_tracks );
   iEvent.put(std::move(tracks));
-  m_tracks = 0;
+  m_tracks = nullptr;
 }
 
 //-------------------------------------------------------------------------

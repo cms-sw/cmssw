@@ -15,6 +15,15 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -32,12 +41,13 @@
 class CaloTowersAnalyzer : public DQMEDAnalyzer {
  public:
    CaloTowersAnalyzer(edm::ParameterSet const& conf);
-  ~CaloTowersAnalyzer();
+  ~CaloTowersAnalyzer() override;
   
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+  void beginJob() override;
+  void endJob() override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) override;
 
  private:
   double dR(double eta1, double phi1, double eta2, double phi2);
@@ -59,6 +69,15 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
+
+  // Geometry from DB
+  const HcalDDDRecConstants *hcons;
+
+  int iphi_bins_;
+  float iphi_min_, iphi_max_;
+
+  int ieta_bins_;
+  float ieta_min_, ieta_max_;
 
   // ieta scan
   MonitorElement*  emean_vs_ieta_E;
@@ -108,6 +127,9 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meEnergyHcalTower_HB;
   MonitorElement* meTotEnergy_HB;
 
+  MonitorElement* meIphiHcalTower_HBP; 
+  MonitorElement* meIphiHcalTower_HBM; 
+
   MonitorElement* mapEnergy_HB;
   MonitorElement* mapEnergyEcal_HB;
   MonitorElement* mapEnergyHcal_HB;
@@ -143,6 +165,9 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meEnergyHcalTower_HE;
   MonitorElement* meTotEnergy_HE;
 
+  MonitorElement* meIphiHcalTower_HEP; 
+  MonitorElement* meIphiHcalTower_HEM; 
+
   MonitorElement* mapEnergy_HE;
   MonitorElement* mapEnergyEcal_HE;
   MonitorElement* mapEnergyHcal_HE;
@@ -173,6 +198,9 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meEnergyEcalTower_HF;
   MonitorElement* meEnergyHcalTower_HF;
   MonitorElement* meTotEnergy_HF;
+
+  MonitorElement* meIphiCaloTower_HFP; 
+  MonitorElement* meIphiCaloTower_HFM; 
 
   MonitorElement* mapEnergy_HF;
   MonitorElement* mapEnergyEcal_HF;

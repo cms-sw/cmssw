@@ -23,6 +23,10 @@ process.source = cms.Source("PoolSource",
     #, processingMode = cms.untracked.string('RunsAndLumis')
     #, duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
     , noEventSort = cms.untracked.bool(True)
+    , inputCommands = cms.untracked.vstring(
+        'keep *',
+        'drop edmtestThingWithMerge_makeThingToBeDropped1_*_*'
+    )
 )
 
 
@@ -33,10 +37,6 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
     1, 1, 0,
     1, 1, 11,
     1, 1, 12,
-    1, 1, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 1, 0,
     1, 1, 15,
     1, 1, 14,
     1, 1, 15,
@@ -45,10 +45,6 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
     2, 0, 0,
     2, 1, 0,
     2, 1, 5,
-    2, 1, 0,
-    2, 0, 0,
-    2, 0, 0,
-    2, 1, 0,
     2, 1, 3,
     2, 1, 4,
     2, 1, 3,
@@ -62,10 +58,6 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
     1, 0, 0,
     1, 1, 0,
     1, 1, 11,
-    1, 1, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 1, 0,
     1, 1, 20,
     1, 1, 21,
     1, 1, 0,

@@ -3,17 +3,16 @@
 #include <vector>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDQuery.h"
 #include "DetectorDescription/Core/src/tutorial.h"
 #include "DetectorDescription/Core/src/Specific.h"
-#include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Core/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDComparator.h"
 
 /**********

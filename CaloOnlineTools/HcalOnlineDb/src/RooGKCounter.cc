@@ -1,7 +1,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <cstdio>
 using std::cout;
 using std::endl;
@@ -56,7 +56,7 @@ void RooGKCounter::init( void ){
   _message = "processing entry #";
   _newLine = true;
 
-  initTime = time( NULL );
+  initTime = time( nullptr );
   firstTickTime = 1;
   lastTickTime = 1;
   lastPrintTime = 1;
@@ -77,7 +77,7 @@ void RooGKCounter::count( void ){
   if (firstCountEntry){
     if ( printCount ) std::cout << "Counter is on:" << std::endl;
     firstCountEntry = false;
-    firstTickTime = time( NULL );
+    firstTickTime = time( nullptr );
   }
 
   if ( printCount ){
@@ -85,7 +85,7 @@ void RooGKCounter::count( void ){
       double averageTimeSinceFirstTick = 0.0;
       if ( _count > _firstCount )
 	{
-	  averageTimeSinceFirstTick = ( time( NULL ) - firstTickTime ) / (double)( _count - _firstCount );
+	  averageTimeSinceFirstTick = ( time( nullptr ) - firstTickTime ) / (double)( _count - _firstCount );
 	}
       if ( !_newLine )
 	{
@@ -99,11 +99,11 @@ void RooGKCounter::count( void ){
 	  if ( _count > _firstCount ) std::cout << ", average time per count, sec: " << averageTimeSinceFirstTick;
 	  std::cout << std::endl;
 	}
-      lastPrintTime = time( NULL );
+      lastPrintTime = time( nullptr );
     }
   }
   
-  lastTickTime = time( NULL );
+  lastTickTime = time( nullptr );
 }
 
 unsigned long int RooGKCounter::getCount( void ){

@@ -25,9 +25,9 @@ public:
 
   GEMFakeEvent(const edm::ParameterSet& config);
 
-  ~GEMFakeEvent(){}
+  ~GEMFakeEvent() override{}
 
-  void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

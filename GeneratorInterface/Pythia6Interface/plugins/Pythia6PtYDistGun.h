@@ -16,11 +16,11 @@ namespace gen {
   public:
 
     Pythia6PtYDistGun( const edm::ParameterSet& );
-    virtual ~Pythia6PtYDistGun();
+    ~Pythia6PtYDistGun() override;
 
   protected:
 
-    void generateEvent(CLHEP::HepRandomEngine*);
+    void generateEvent(CLHEP::HepRandomEngine*) override;
 
   private:
 

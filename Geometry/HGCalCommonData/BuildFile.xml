@@ -1,5 +1,5 @@
 <use   name="DataFormats/GeometryVector"/>
-<use   name="DetectorDescription/Base"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="DetectorDescription/Core"/>
 <export>
   <lib   name="1"/>

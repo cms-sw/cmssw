@@ -28,7 +28,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
+
 class L1MuBMSectorProcessor;
 
 //              ---------------------

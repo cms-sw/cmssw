@@ -10,9 +10,9 @@ class ApvTimingHistograms : public virtual CommissioningHistograms {
  public:
   
   ApvTimingHistograms( const edm::ParameterSet& pset, DQMStore* );
-  virtual ~ApvTimingHistograms();
+  ~ApvTimingHistograms() override;
   
-  void histoAnalysis( bool debug );
+  void histoAnalysis( bool debug ) override;
   
 };
 

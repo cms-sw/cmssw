@@ -2,12 +2,20 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
+	
 	DigiRunSummary::DigiRunSummary(std::string const& name, 
 		std::string const& taskname, edm::ParameterSet const& ps) :
 		DQClient(name, taskname, ps), _booked(false)
 	{
 		_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf",
 			0.2);
+
+		std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
+		_refDigiSize[HcalBarrel]  = vrefDigiSize[0];
+		_refDigiSize[HcalEndcap]  = vrefDigiSize[1];
+		_refDigiSize[HcalOuter]   = vrefDigiSize[2];
+		_refDigiSize[HcalForward] = vrefDigiSize[3];
 	}
 
 	/* virtual */ void DigiRunSummary::beginRun(edm::Run const& r,
@@ -91,9 +99,9 @@ namespace hcaldqm
 		_xDigiSize.reset(); _xNChs.reset();
 		
 		//	INITIALIZE LUMI BASED HISTOGRAMS
-		Container2D cDigiSize_FED, cOccupancy_depth;
-		cDigiSize_FED.initialize(_taskname, "DigiSize",
-			hashfunctions::fFED,
+		Container2D cDigiSize_Crate, cOccupancy_depth;
+		cDigiSize_Crate.initialize(_taskname, "DigiSize",
+			hashfunctions::fCrate,
 			new quantity::ValueQuantity(quantity::fDigiSize),
 			new quantity::ValueQuantity(quantity::fN),0);
 		cOccupancy_depth.initialize(_taskname, "Occupancy",
@@ -104,12 +112,14 @@ namespace hcaldqm
 
 		//	LOAD LUMI BASED HISTOGRAMS
 		cOccupancy_depth.load(ig, _emap, _subsystem);
-		cDigiSize_FED.load(ig, _emap, _subsystem);
+		cDigiSize_Crate.load(ig, _emap, _subsystem);
 		MonitorElement *meNumEvents = ig.get(_subsystem+
 			"/RunInfo/NumberOfEvents");
 		int numEvents = meNumEvents->getBinContent(1);
 		bool unknownIdsPresent = ig.get(_subsystem+"/"
 			+_taskname+"/UnknownIds")->getBinContent(1)>0;
+		bool ledSignalPresent = ig.get(_subsystem+"/"
+			+_taskname+"/LED/LEDEventCount")->getBinContent(1)>0;
 
 		//	book the Numer of Events - set axis extendable
 		if (!_booked)
@@ -139,10 +149,10 @@ namespace hcaldqm
 				_xNChs.get(eid)+=0;
 			_cOccupancy_depth.fill(did, cOccupancy_depth.getBinContent(did));
 			//	digi size
-			cDigiSize_FED.getMean(eid)!=
-				constants::DIGISIZE[did.subdet()-1]?
+			cDigiSize_Crate.getMean(eid)!=
+				_refDigiSize[did.subdet()]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
-			cDigiSize_FED.getRMS(eid)!=0?
+			cDigiSize_Crate.getRMS(eid)!=0?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 		}
 
@@ -152,53 +162,44 @@ namespace hcaldqm
 		vtmpflags[fDigiSize]=flag::Flag("DigiSize");
 		vtmpflags[fNChsHF]=flag::Flag("NChsHF");
 		vtmpflags[fUnknownIds]=flag::Flag("UnknownIds");
-		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-			it!=_vhashFEDs.end(); ++it)
+		vtmpflags[fLED]=flag::Flag("LEDMisfire");
+		for (std::vector<uint32_t>::const_iterator it=_vhashCrates.begin();
+			it!=_vhashCrates.end(); ++it)
 		{
 			HcalElectronicsId eid(*it);
+			HcalDetId did = HcalDetId(_emap->lookup(eid));
 
 			//	reset all the tmp flags to fNA
 			//	MUST DO IT NOW! AS NCDAQ MIGHT OVERWRITE IT!
 			for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
 				ft!=vtmpflags.end(); ++ft)
 				ft->reset();
-			
-			std::vector<uint32_t>::const_iterator cit=std::find(
-				_vcdaqEids.begin(), _vcdaqEids.end(), *it);
-			if (cit==_vcdaqEids.end())
-			{
-				//  was not @cDAQ, set all the flags for this FED as fNCDAQ
-				for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
-					ft!=vtmpflags.end(); ++ft)
-					ft->_state = flag::fNCDAQ;
 
-				// push all the flags for this FED
-				// IMPORTANT!!!
-				lssum._vflags.push_back(vtmpflags);
-				continue;
-			}
+			if (_xDigiSize.get(eid)>0)
+				vtmpflags[fDigiSize]._state = flag::fBAD;
+			else
+				vtmpflags[fDigiSize]._state = flag::fGOOD;
 
-			if (utilities::isFEDHBHE(eid) || utilities::isFEDHF(eid) ||
-				utilities::isFEDHO(eid))
+			if (did.subdet() == HcalForward)
 			{
-				if (_xDigiSize.get(eid)>0)
-					vtmpflags[fDigiSize]._state = flag::fBAD;
+				if (_xNChs.get(eid)!=_xNChsNominal.get(eid))
+					vtmpflags[fNChsHF]._state = flag::fBAD;
 				else
-					vtmpflags[fDigiSize]._state = flag::fGOOD;
-				if (utilities::isFEDHF(eid))
-				{
-					if (_xNChs.get(eid)!=_xNChsNominal.get(eid))
-						vtmpflags[fNChsHF]._state = flag::fBAD;
-					else
-						vtmpflags[fNChsHF]._state = flag::fGOOD;
-				}
+					vtmpflags[fNChsHF]._state = flag::fGOOD;
+			} else {
+				vtmpflags[fNChsHF]._state = flag::fNA;
 			}
 			if (unknownIdsPresent)
 				vtmpflags[fUnknownIds]._state = flag::fBAD;
 			else
 				vtmpflags[fUnknownIds]._state = flag::fGOOD;
 
-			// push all the flags for this FED
+			if (ledSignalPresent)
+				vtmpflags[fLED]._state = flag::fBAD;
+			else
+				vtmpflags[fLED]._state = flag::fGOOD;
+
+			// push all the flags for this crate
 			lssum._vflags.push_back(vtmpflags);
 		}
 
@@ -224,6 +225,8 @@ namespace hcaldqm
 		vflagsPerRun.resize(nDigiFlag-nLSFlags+1);
 		vflagsPerLS[fDigiSize]=flag::Flag("DigiSize");
 		vflagsPerLS[fNChsHF]=flag::Flag("NChsHF");
+		vflagsPerLS[fUnknownIds]=flag::Flag("UnknownIds");
+		vflagsPerLS[fLED]=flag::Flag("LEDMisfire");
 		vflagsPerRun[fDigiSize]=flag::Flag("DigiSize");
 		vflagsPerRun[fNChsHF]=flag::Flag("NChsHF");
 		vflagsPerRun[fUniHF-nLSFlags+1]=flag::Flag("UniSlotHF");
@@ -231,22 +234,22 @@ namespace hcaldqm
 
 		//	INITIALIZE SUMMARY CONTAINERS
 		ContainerSingle2D cSummaryvsLS;
-		Container2D cSummaryvsLS_FED;
+		Container2D cSummaryvsLS_Crate;
 		cSummaryvsLS.initialize(_name, "SummaryvsLS",
 			new quantity::LumiSection(_maxProcessedLS),
-			new quantity::FEDQuantity(_vFEDs),
+			new quantity::CrateQuantity(_emap),
 			new quantity::ValueQuantity(quantity::fState),0);
-		cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
-			hashfunctions::fFED,
+		cSummaryvsLS.book(ib, _subsystem);
+		cSummaryvsLS_Crate.initialize(_name, "SummaryvsLS",
+			hashfunctions::fCrate,
 			new quantity::LumiSection(_maxProcessedLS),
 			new quantity::FlagQuantity(vflagsPerLS),
 			new quantity::ValueQuantity(quantity::fState),0);
-		cSummaryvsLS_FED.book(ib, _emap, _subsystem);
-		cSummaryvsLS.book(ib, _subsystem);
+		cSummaryvsLS_Crate.book(ib, _emap, _subsystem);
 
 		// INITIALIZE CONTAINERS WE NEED TO LOAD or BOOK
 		Container2D cOccupancyCut_depth;
-		Container2D cDead_depth, cDead_FEDVME, cDead_FEDuTCA;
+		Container2D cDead_depth, cDead_Crate;
 		cOccupancyCut_depth.initialize(_taskname, "OccupancyCut",
 			hashfunctions::fdepth,
 			new quantity::DetectorQuantity(quantity::fieta),
@@ -257,22 +260,16 @@ namespace hcaldqm
 			new quantity::DetectorQuantity(quantity::fieta),
 			new quantity::DetectorQuantity(quantity::fiphi),
 			new quantity::ValueQuantity(quantity::fN),0);
-		cDead_FEDVME.initialize(_name, "Dead",
-			hashfunctions::fFED,
+		cDead_Crate.initialize(_name, "Dead",
+			hashfunctions::fCrate,
 			new quantity::ElectronicsQuantity(quantity::fSpigot),
 			new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-			new quantity::ValueQuantity(quantity::fN),0);
-		cDead_FEDuTCA.initialize(_name, "Dead",
-			hashfunctions::fFED,
-			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-			new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
 			new quantity::ValueQuantity(quantity::fN),0);
 
 		//	LOAD
 		cOccupancyCut_depth.load(ig, _emap, _subsystem);
 		cDead_depth.book(ib, _emap, _subsystem);
-		cDead_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-		cDead_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		cDead_Crate.book(ib, _emap, _subsystem);
 
 		//	ANALYZE RUN BASED QUANTITIES
 		std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
@@ -289,7 +286,7 @@ namespace hcaldqm
 			{
 				_xDead.get(eid)++;
 				cDead_depth.fill(did);
-				eid.isVMEid()?cDead_FEDVME.fill(eid):cDead_FEDuTCA.fill(eid);
+				cDead_Crate.fill(eid);
 			}
 			if (did.subdet()==HcalForward)
 				_xUniHF.get(eid)+=cOccupancyCut_depth.getBinContent(did);
@@ -317,21 +314,20 @@ namespace hcaldqm
 		}
 
 		/*
-		 *	Iterate over each FED
+		 *	Iterate over each crate
 		 *		Iterate over each LS Summary
 		 *			Iterate over all flags
 		 *				set...
 		 */
-		//	iterate over all FEDs
+		//	iterate over all crates
 		std::vector<flag::Flag> sumflags;
-		int ifed=0;
-		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-			it!=_vhashFEDs.end(); ++it)
-		{
+		int icrate=0;
+		for (auto& it_crate : _vhashCrates) {
 			flag::Flag fSumRun("DIGI"); // summary flag for this FED
 			flag::Flag ffDead("Dead");
 			flag::Flag ffUniSlotHF("UniSlotHF");
-			HcalElectronicsId eid(*it);
+			HcalElectronicsId eid(it_crate);
+			HcalDetId did = HcalDetId(_emap->lookup(eid));
 
 			//	ITERATE OVER EACH LS
 			for (std::vector<LSSummary>::const_iterator itls=_vflagsLS.begin();
@@ -340,11 +336,10 @@ namespace hcaldqm
 				int iflag=0;
 				flag::Flag fSumLS("DIGI");
 				for (std::vector<flag::Flag>::const_iterator ft=
-					itls->_vflags[ifed].begin(); ft!=itls->_vflags[ifed].end();
+					itls->_vflags[icrate].begin(); ft!=itls->_vflags[icrate].end();
 					++ft)
 				{
-					cSummaryvsLS_FED.setBinContent(eid, itls->_LS, int(iflag),
-						ft->_state);
+					cSummaryvsLS_Crate.setBinContent(eid, itls->_LS, int(iflag), ft->_state);
 					fSumLS+=(*ft);
 					iflag++;
 				}
@@ -353,21 +348,16 @@ namespace hcaldqm
 			}
 
 			//	EVALUATE RUN BASED FLAGS
-			//	NOTE, THAT IF THE FED IS NOT @cDAQ fSumRun state will be fNCDAQ
-			if (utilities::isFEDHBHE(eid) || utilities::isFEDHF(eid) ||
-				utilities::isFEDHO(eid))
+			if (_xDead.get(eid)>0)
+				ffDead._state = flag::fBAD;
+			else
+				ffDead._state = flag::fGOOD;
+			if (did.subdet() == HcalForward)
 			{
-				if (_xDead.get(eid)>0)
-					ffDead._state = flag::fBAD;
+				if (_xUni.get(eid)>0)
+					ffUniSlotHF._state = flag::fBAD;
 				else
-					ffDead._state = flag::fGOOD;
-				if (utilities::isFEDHF(eid))
-				{
-					if (_xUni.get(eid)>0)
-						ffUniSlotHF._state = flag::fBAD;
-					else
-						ffUniSlotHF._state = flag::fGOOD;
-				}
+					ffUniSlotHF._state = flag::fGOOD;
 			}
 			fSumRun+=ffDead+ffUniSlotHF;
 
@@ -375,7 +365,7 @@ namespace hcaldqm
 			sumflags.push_back(fSumRun);
 
 			//	 increment fed
-			ifed++;
+			icrate++;
 		}
 
 		return sumflags;

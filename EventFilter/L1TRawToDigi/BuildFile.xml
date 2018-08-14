@@ -1,5 +1,11 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/RPCDigi"/>
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="EventFilter/RPCRawToDigi"/>
 <export>
   <lib name="1"/>
 </export>

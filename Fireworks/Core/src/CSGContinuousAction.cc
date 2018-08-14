@@ -31,12 +31,12 @@
 //
 CSGContinuousAction::CSGContinuousAction(CSGActionSupervisor *iSupervisor, const char *iName) :
    CSGAction(iSupervisor,iName),
-   m_upPic(0),
-   m_downPic(0),
-   m_disabledPic(0),
-   m_runningUpPic(0),
-   m_runningDownPic(0),
-   m_button(0),
+   m_upPic(nullptr),
+   m_downPic(nullptr),
+   m_disabledPic(nullptr),
+   m_runningUpPic(nullptr),
+   m_runningDownPic(nullptr),
+   m_button(nullptr),
    m_isRunning(false)
 {
    activated.connect(boost::bind(&CSGContinuousAction::switchMode, this));
@@ -69,15 +69,15 @@ CSGContinuousAction::switchMode()
    if(!m_isRunning) {
       m_isRunning = true;
       CSGAction::globalEnable();
-      if(getToolBar() && m_runningImageFileName.size()) {
+      if(getToolBar() && !m_runningImageFileName.empty()) {
          getToolBar()->ChangeIcon(getToolBarData(),m_runningImageFileName.c_str());
       }
-      if(0!=m_button) {
+      if(nullptr!=m_button) {
          const TGPicture* tUp = m_runningUpPic;
          const TGPicture* tDown = m_runningDownPic;
          m_button->swapIcons(tUp,tDown,m_disabledPic);
       }
-      if(0!=getMenu()) {
+      if(nullptr!=getMenu()) {
          getMenu()->CheckEntry(getMenuEntry());
       }
       started_();
@@ -91,16 +91,16 @@ void
 CSGContinuousAction::stop()
 {
    m_isRunning=false;
-   if(getToolBar() && m_imageFileName.size()) {
+   if(getToolBar() && !m_imageFileName.empty()) {
       getToolBar()->ChangeIcon(getToolBarData(),m_imageFileName.c_str());
    }
-   if(0!=m_button) {
+   if(nullptr!=m_button) {
       const TGPicture* tUp = m_upPic;
       const TGPicture* tDown = m_downPic;
 
       m_button->swapIcons(tUp,tDown,m_disabledPic);
    }
-   if(0!=getMenu()) {
+   if(nullptr!=getMenu()) {
       getMenu()->UnCheckEntry(getMenuEntry());
    }
    

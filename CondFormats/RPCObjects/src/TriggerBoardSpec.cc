@@ -13,7 +13,7 @@ const LinkConnSpec * TriggerBoardSpec::linkConn(int tbInputNumber) const
   for (IT it=theLinks.begin(); it != theLinks.end(); it++) {
     if(tbInputNumber==it->triggerBoardInputNumber()) return &(*it);
   }
-  return 0;
+  return nullptr;
 }
 
 std::vector<const LinkConnSpec* > TriggerBoardSpec::enabledLinkConns() const

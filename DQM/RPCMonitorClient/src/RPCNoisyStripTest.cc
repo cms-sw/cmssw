@@ -122,9 +122,9 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 
     std::stringstream meName;
     
-    MonitorElement *  NOISE=NULL;
-    MonitorElement * DEVD=NULL;
-    MonitorElement * NOISED=NULL;
+    MonitorElement *  NOISE=nullptr;
+    MonitorElement * DEVD=nullptr;
+    MonitorElement * NOISED=nullptr;
 
     if (detId.region()==0) { //BARREL
       NOISE = NOISEWheel[detId.ring()+2];
@@ -161,7 +161,7 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
     
     int noisyStrips=0;
     // calculate mean on YAxis and check diff between bins and mean
-    if (myvector.size()>0) {
+    if (!myvector.empty()) {
       float ymean = entries/myvector.size(); //mean on Yaxis
       for(unsigned int i=0; i<myvector.size(); i++) {
 	float deviation = myvector[i]/ymean;

@@ -21,7 +21,7 @@ cond::CoralServiceFactory::get() {
 coral::Service*
 cond::CoralServiceFactory::create(const std::string& componentname) const {
  coral::Service* sp=CoralServicePluginFactory::get()->create(componentname,componentname);
- if(sp==0) {
+ if(sp==nullptr) {
    throw cond::Exception("CoralServiceFactory")
      << "CoralServiceFactory:\n"
      << "Cannot find coral service: "

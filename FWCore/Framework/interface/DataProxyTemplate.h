@@ -45,19 +45,21 @@ class DataProxyTemplate : public DataProxy
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual const void* getImpl(const EventSetupRecord& iRecord,
-                                  const DataKey& iKey) {
+      const void* getImpl(const EventSetupRecordImpl& iRecord,
+                                  const DataKey& iKey) override {
          assert(iRecord.key() == RecordT::keyForClass());
-         return this->make(static_cast<const RecordT&>(iRecord), iKey);
+         RecordT rec;
+         rec.setImpl(&iRecord);
+         return this->make(rec, iKey);
       }
       
    protected:
       virtual const DataT* make(const RecordT&, const DataKey&) = 0;
       
    private:
-      DataProxyTemplate(const DataProxyTemplate&); // stop default
+      DataProxyTemplate(const DataProxyTemplate&) = delete; // stop default
 
-      const DataProxyTemplate& operator=(const DataProxyTemplate&); // stop default
+      const DataProxyTemplate& operator=(const DataProxyTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
 };

@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTIsolationUnit.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTIsolationUnit.h"
 
 #include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
 #include "DataFormats/L1TMuon/interface/MuonCaloSum.h"
@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-l1t::MicroGMTIsolationUnit::MicroGMTIsolationUnit () : m_initialSums(false)
+l1t::MicroGMTIsolationUnit::MicroGMTIsolationUnit () : m_fwVersion(0), m_initialSums(false)
 {
 }
 
@@ -16,17 +16,17 @@ l1t::MicroGMTIsolationUnit::~MicroGMTIsolationUnit ()
 
 void
 l1t::MicroGMTIsolationUnit::initialise(L1TMuonGlobalParamsHelper* microGMTParamsHelper) {
-  int fwVersion = microGMTParamsHelper->fwVersion();
-  m_BEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->bEtaExtrapolationLUT(), MicroGMTConfiguration::ETA_OUT, fwVersion);
-  m_BPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->bPhiExtrapolationLUT(), MicroGMTConfiguration::PHI_OUT, fwVersion);
-  m_OEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->oEtaExtrapolationLUT(), MicroGMTConfiguration::ETA_OUT, fwVersion);
-  m_OPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->oPhiExtrapolationLUT(), MicroGMTConfiguration::PHI_OUT, fwVersion);
-  m_FEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->fEtaExtrapolationLUT(), MicroGMTConfiguration::ETA_OUT, fwVersion);
-  m_FPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->fPhiExtrapolationLUT(), MicroGMTConfiguration::PHI_OUT, fwVersion);
-  m_IdxSelMemEta = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParamsHelper->idxSelMemEtaLUT(), MicroGMTConfiguration::ETA, fwVersion);
-  m_IdxSelMemPhi = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParamsHelper->idxSelMemPhiLUT(), MicroGMTConfiguration::PHI, fwVersion);
-  m_RelIsoCheckMem = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParamsHelper->relIsoCheckMemLUT(), fwVersion);
-  m_AbsIsoCheckMem = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParamsHelper->absIsoCheckMemLUT(), fwVersion);
+  m_fwVersion = microGMTParamsHelper->fwVersion();
+  m_BEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->bEtaExtrapolationLUT(), MicroGMTConfiguration::ETA_OUT, m_fwVersion);
+  m_BPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->bPhiExtrapolationLUT(), MicroGMTConfiguration::PHI_OUT, m_fwVersion);
+  m_OEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->oEtaExtrapolationLUT(), MicroGMTConfiguration::ETA_OUT, m_fwVersion);
+  m_OPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->oPhiExtrapolationLUT(), MicroGMTConfiguration::PHI_OUT, m_fwVersion);
+  m_FEtaExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->fEtaExtrapolationLUT(), MicroGMTConfiguration::ETA_OUT, m_fwVersion);
+  m_FPhiExtrapolation = l1t::MicroGMTExtrapolationLUTFactory::create(microGMTParamsHelper->fPhiExtrapolationLUT(), MicroGMTConfiguration::PHI_OUT, m_fwVersion);
+  m_IdxSelMemEta = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParamsHelper->idxSelMemEtaLUT(), MicroGMTConfiguration::ETA, m_fwVersion);
+  m_IdxSelMemPhi = l1t::MicroGMTCaloIndexSelectionLUTFactory::create(microGMTParamsHelper->idxSelMemPhiLUT(), MicroGMTConfiguration::PHI, m_fwVersion);
+  m_RelIsoCheckMem = l1t::MicroGMTRelativeIsolationCheckLUTFactory::create(microGMTParamsHelper->relIsoCheckMemLUT(), m_fwVersion);
+  m_AbsIsoCheckMem = l1t::MicroGMTAbsoluteIsolationCheckLUTFactory::create(microGMTParamsHelper->absIsoCheckMemLUT(), m_fwVersion);
 
   m_etaExtrapolationLUTs[tftype::bmtf] = m_BEtaExtrapolation;
   m_phiExtrapolationLUTs[tftype::bmtf] = m_BPhiExtrapolation;
@@ -64,22 +64,39 @@ l1t::MicroGMTIsolationUnit::getCaloIndex(MicroGMTConfiguration::InterMuon& mu) c
 
 void
 l1t::MicroGMTIsolationUnit::extrapolateMuons(MicroGMTConfiguration::InterMuonList& inputmuons) const {
+  int outputShiftPhi = 3;
+  int outputShiftEta = 3;
+  if (m_fwVersion >= 0x4010000) {
+    outputShiftPhi = 2;
+    outputShiftEta = 0;
+  }
+
   for (auto &mu : inputmuons) {
-    // only use 6 LSBs of pt:
-    int ptRed = mu->hwPt() & 0b111111;
-    // here we drop the two LSBs and masking the MSB
-    int etaAbsRed = (std::abs(mu->hwEta()) >> 2) & ((1 << 6) - 1);
+    // get input format
+    std::shared_ptr<MicroGMTExtrapolationLUT> phiExtrapolationLUT = m_phiExtrapolationLUTs.at(mu->trackFinderType());
+    int ptRedInWidth = phiExtrapolationLUT->getPtRedInWidth();
+    int ptMask = (1 << ptRedInWidth) - 1;
+    int etaRedInWidth = phiExtrapolationLUT->getEtaRedInWidth();
+    int redEtaShift = 8 - etaRedInWidth;
+
+    // only use LSBs of pt:
+    int ptRed = mu->hwPt() & ptMask;
+    // here we drop the LSBs and mask the MSB
+    int etaAbsRed = (std::abs(mu->hwEta()) >> redEtaShift) & ((1 << etaRedInWidth) - 1);
 
     int deltaPhi = 0;
     int deltaEta = 0;
 
-    if (mu->hwPt() < 64) { // extrapolation only for "low" pT muons
+    if (mu->hwPt() < (1 << ptRedInWidth)) { // extrapolation only for "low" pT muons
       int sign = 1;
       if (mu->hwSign() == 1) {
         sign = -1;
       }
-      deltaPhi = (m_phiExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << 3) * sign;
-      deltaEta = (m_etaExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << 3);
+      deltaPhi = (phiExtrapolationLUT->lookup(etaAbsRed, ptRed) << outputShiftPhi) * sign;
+      deltaEta = (m_etaExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << outputShiftEta);
+      if (mu->hwEta() > 0) {
+        deltaEta *= -1;
+      }
     }
 
     mu->setExtrapolation(deltaEta, deltaPhi);
@@ -185,7 +202,7 @@ void l1t::MicroGMTIsolationUnit::setTowerSums(const MicroGMTConfiguration::CaloI
 
 void l1t::MicroGMTIsolationUnit::isolatePreSummed(MicroGMTConfiguration::InterMuonList& muons) const
 {
-  for (auto mu : muons) {
+  for (const auto &mu : muons) {
     int caloIndex = getCaloIndex(*mu);
     int energySum = 0;
     if (m_towerEnergies.count(caloIndex) == 1) {

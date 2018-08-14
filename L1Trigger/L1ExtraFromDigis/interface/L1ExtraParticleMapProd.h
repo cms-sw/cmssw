@@ -38,10 +38,10 @@
 class L1ExtraParticleMapProd : public edm::EDProducer {
    public:
       explicit L1ExtraParticleMapProd(const edm::ParameterSet&);
-      ~L1ExtraParticleMapProd();
+      ~L1ExtraParticleMapProd() override;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
 
       // Adds Refs to the objects in handle to the outputRefs vector.

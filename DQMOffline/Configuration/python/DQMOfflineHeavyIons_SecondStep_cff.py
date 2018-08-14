@@ -20,7 +20,7 @@ DQMOfflineHeavyIons_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                                       ecal_dqm_client_offline *
                                                       SiStripOfflineDQMClientHI *
                                                       PixelOfflineDQMClientWithDataCertificationHI *
-													  hcalOfflineHarvesting *
+                                                      hcalOfflineHarvesting *
                                                       dtClients *
                                                       rpcTier0Client *
                                                       cscOfflineCollisionsClients *

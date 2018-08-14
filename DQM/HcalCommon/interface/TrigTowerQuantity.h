@@ -89,21 +89,21 @@ namespace hcaldqm
 				TrigTowerQuantity(TrigTowerQuantityType type, bool isLog=false):
 					Quantity(name_tid[type], isLog), _type(type)
 				{}
-				virtual ~TrigTowerQuantity() {}
-				virtual TrigTowerQuantity* makeCopy()
+				~TrigTowerQuantity() override {}
+				TrigTowerQuantity* makeCopy() override
 				{return new TrigTowerQuantity(_type, _isLog);}
 
-				virtual int getValue(HcalTrigTowerDetId const& tid)
+				int getValue(HcalTrigTowerDetId const& tid) override
 				{return getValue_functions_tid[_type](tid);}
-				virtual uint32_t getBin(HcalTrigTowerDetId const& tid)
+				uint32_t getBin(HcalTrigTowerDetId const& tid) override
 				{return getBin_functions_tid[_type](tid);}
 
-				virtual QuantityType type() {return fTrigTowerQuantity;}
-				virtual int nbins() {return nbins_tid[_type];}
-				virtual double min() {return min_tid[_type];}
-				virtual double max() {return max_tid[_type];}
-				virtual bool isCoordinate() {return true;}
-				virtual std::vector<std::string> getLabels() 
+				QuantityType type() override {return fTrigTowerQuantity;}
+				int nbins() override {return nbins_tid[_type];}
+				double min() override {return min_tid[_type];}
+				double max() override {return max_tid[_type];}
+				bool isCoordinate() override {return true;}
+				std::vector<std::string> getLabels() override 
 				{return getLabels_functions_tid[_type]();}
 
 			protected:

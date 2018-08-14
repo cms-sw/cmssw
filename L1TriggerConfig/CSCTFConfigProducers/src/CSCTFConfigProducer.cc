@@ -1,8 +1,8 @@
 #include <L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFConfigProducer.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include <stdio.h>
-#include <errno.h>
+#include <cstdio>
+#include <cerrno>
 #include <iostream>
 #include <fstream>
 

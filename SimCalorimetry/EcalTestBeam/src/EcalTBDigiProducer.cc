@@ -2,7 +2,7 @@
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -12,7 +12,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
 
-EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
    EcalDigiProducer(params, mixMod, iC)
 {
    std::string const instance("simEcalUnsuppressedDigis");

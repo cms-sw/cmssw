@@ -9,6 +9,8 @@
 
 #include <memory>
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,9 +25,9 @@ class RecHitFilter : public edm::global::EDProducer<> {
 
       RecHitFilter(const edm::ParameterSet& ps);
 
-      ~RecHitFilter();
+      ~RecHitFilter() override;
 
-      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
    private:
 

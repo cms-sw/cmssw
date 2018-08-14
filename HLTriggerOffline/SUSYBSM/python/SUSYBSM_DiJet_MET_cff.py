@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_DiJet_MET = DQMEDAnalyzer('SUSY_HLT_DiJet_MET',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), 
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("caloMet"),
@@ -19,7 +21,7 @@ SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
   OfflineMetCut = cms.untracked.double(250.0),
 )
 
-SUSY_HLT_DiJet_MET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+SUSYoHLToDiJetMEToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

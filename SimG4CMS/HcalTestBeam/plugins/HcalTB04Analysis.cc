@@ -54,8 +54,8 @@
 // constructors and destructor
 //
 
-HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
-								histo(0) {
+HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(nullptr),
+								histo(nullptr) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB04Analysis");
   hcalOnly       = m_Anal.getParameter<bool>("HcalOnly");
@@ -110,11 +110,11 @@ HcalTB04Analysis::~HcalTB04Analysis() {
 			    << " Histo " << histo;
   if (myQie)   {
     delete myQie;
-    myQie  = 0;
+    myQie  = nullptr;
   }
   if (histo)   {
     delete histo;
-    histo  = 0;
+    histo  = nullptr;
   }
 }
 
@@ -195,10 +195,10 @@ void HcalTB04Analysis::update(const BeginOfRun * run) {
   edm::LogInfo("HcalTBSim") <<" =====> Begin of Run = " << irun;
  
   G4SDManager* sd     = G4SDManager::GetSDMpointerIfExist();
-  if (sd != 0) {
+  if (sd != nullptr) {
     std::string  sdname = names[0];
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
-    if (aSD==0) {
+    if (aSD==nullptr) {
       edm::LogWarning("HcalTBSim") << "HcalTB04Analysis::beginOfRun: No SD"
 				   << " with name " << sdname << " in this "
 				   << "Setup";
@@ -215,7 +215,7 @@ void HcalTB04Analysis::update(const BeginOfRun * run) {
     if (!hcalOnly) {
       sdname = names[1];
       aSD = sd->FindSensitiveDetector(sdname);
-      if (aSD==0) {
+      if (aSD==nullptr) {
 	edm::LogWarning("HcalTBSim") << "HcalTB04Analysis::beginOfRun: No SD"
 				     << " with name " << sdname << " in this "
 				     << "Setup";
@@ -247,7 +247,7 @@ void HcalTB04Analysis::update(const BeginOfEvent * evt) {
 
 void HcalTB04Analysis::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
     //Get Step properties
     G4ThreeVector thePreStepPoint  = aStep->GetPreStepPoint()->GetPosition();
     G4ThreeVector thePostStepPoint;
@@ -256,7 +256,7 @@ void HcalTB04Analysis::update(const G4Step * aStep) {
     G4Track*      aTrack   = aStep->GetTrack();
     int           trackID  = aTrack->GetTrackID();
     int           parentID = aTrack->GetParentID();
-    G4ThreeVector position = aTrack->GetPosition();
+    const G4ThreeVector& position = aTrack->GetPosition();
     G4ThreeVector momentum = aTrack->GetMomentum();
     G4String      partType = aTrack->GetDefinition()->GetParticleType();
     G4String      partSubType = aTrack->GetDefinition()->GetParticleSubType();
@@ -334,7 +334,7 @@ void HcalTB04Analysis::update(const G4Step * aStep) {
       // Also watch for tertiary particles coming from 
       // short-lived secondaries from V1
       if (aTrack->GetCurrentStepNumber() == 1) {
-	if (shortLivedSecondaries.size() > 0) {
+	if (!shortLivedSecondaries.empty()) {
 	  int pid = parentID;
 	  std::vector<int>::iterator pos1= shortLivedSecondaries.begin();
 	  std::vector<int>::iterator pos2 = shortLivedSecondaries.end();
@@ -412,7 +412,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
   LogDebug("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName
 			<< " of ID " << idHC << " is obtained at " << theHC;
 
-  if (idHC >= 0 && theHC > 0) {
+  if (idHC >= 0 && theHC != nullptr) {
     hhits.reserve(theHC->entries());
     hhitl.reserve(theHC->entries());
     for (j = 0; j < theHC->entries(); j++) {
@@ -536,7 +536,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
   etot1 = etot2 = 0;
   LogDebug("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName
 			<< " of ID " << idHC << " is obtained at " << theHC;
-  if (idHC >= 0 && theHC > 0) {
+  if (idHC >= 0 && theHC != nullptr) {
     ehits.reserve(theHC->entries());
     for (j = 0; j < theHC->entries(); j++) {
       CaloG4Hit* aHit = (*theHC)[j]; 
@@ -607,7 +607,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
   // Find Primary info:
   nPrimary    = (int)(primaries.size());
   int trackID = 0;
-  G4PrimaryParticle* thePrim=0;
+  G4PrimaryParticle* thePrim=nullptr;
   int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   LogDebug("HcalTBSim") << "HcalTB04Analysis:: Event has " << nvertex 
 			<< " verteices";
@@ -617,7 +617,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
 
   for (int i = 0 ; i<nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-    if (avertex == 0) {
+    if (avertex == nullptr) {
       edm::LogInfo("HcalTBSim") << "HcalTB04Analysis::EndOfEvent ERR: pointer "
 				<< "to vertex = 0 for event " << evNum;
     } else {
@@ -627,11 +627,11 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
       if (npart == 0)
 	edm::LogWarning("HcalTBSim") << "HcalTB04Analysis::End Of Event ERR: "
 				     << "no primary!";
-      if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+      if (thePrim==nullptr) thePrim=avertex->GetPrimary(trackID);
     }
   }
     
-  if (thePrim != 0) {
+  if (thePrim != nullptr) {
     double px = thePrim->GetPx();
     double py = thePrim->GetPy();
     double pz = thePrim->GetPz();

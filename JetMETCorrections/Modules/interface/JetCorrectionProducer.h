@@ -33,8 +33,8 @@ namespace cms
   public:
     typedef std::vector<T> JetCollection;
     explicit JetCorrectionProducer (const edm::ParameterSet& fParameters);
-    virtual ~JetCorrectionProducer () {}
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    ~JetCorrectionProducer () override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
   private:
     edm::EDGetTokenT<JetCollection> mInput;
     std::vector <std::string> mCorrectorNames;
@@ -53,7 +53,7 @@ namespace cms {
   JetCorrectionProducer<T>::JetCorrectionProducer(const edm::ParameterSet& fConfig)
     : mInput(consumes<JetCollection>(fConfig.getParameter <edm::InputTag> ("src")))
     , mCorrectorNames(fConfig.getParameter<std::vector<std::string> >("correctors"))
-    , mCorrectors(mCorrectorNames.size(), 0)
+    , mCorrectors(mCorrectorNames.size(), nullptr)
     , mCacheId (0)
     , mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false))
   {

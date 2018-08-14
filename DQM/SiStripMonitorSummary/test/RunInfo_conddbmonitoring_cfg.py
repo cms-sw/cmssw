@@ -93,6 +93,7 @@ process.source = cms.Source("EmptyIOVSource",
 # the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 process.poolDBESSourceRunInfo = cms.ESSource("PoolDBESSource",
    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -234,9 +235,10 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('')
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             TkMapFileName = cms.untracked.string(''),
+                             dataLabel = cms.untracked.string('')
+                             )
 
 process.e = cms.EndPath(process.stat)

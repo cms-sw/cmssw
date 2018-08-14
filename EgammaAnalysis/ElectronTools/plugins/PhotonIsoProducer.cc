@@ -25,9 +25,9 @@
 class PhotonIsoProducer : public edm::EDFilter {
       public:
          explicit PhotonIsoProducer(const edm::ParameterSet&);
-         ~PhotonIsoProducer();
+         ~PhotonIsoProducer() override;
       private:
-        virtual bool filter(edm::Event&, const edm::EventSetup&);
+        bool filter(edm::Event&, const edm::EventSetup&) override;
 
 // ----------member data ---------------------------
         bool verbose_;

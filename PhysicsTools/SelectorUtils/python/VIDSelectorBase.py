@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 import string
 import random
@@ -69,11 +70,11 @@ class VIDSelectorBase:
             return self.__instance(*args)
         if( len(args) == 2 and isinstance(args[1],DataFormats.FWLite.Events) ):
             return self.__instance(args[0],args[1].object().event())
-        elif( len(args) == 2 and type(args[1]) is int ):
+        elif( len(args) == 2 and isinstance(args[1], int) ):
             temp = self.__ptrMaker(args[0],args[1])
             newargs = [temp] 
             return self.__instance(*newargs)
-        if( len(args) == 3 and type(args[1]) is int and isinstance(args[2], DataFormats.FWLite.Events) ):
+        if( len(args) == 3 and isinstance(args[1], int) and isinstance(args[2], DataFormats.FWLite.Events) ):
             temp = self.__ptrMaker(args[0],args[1])
             newargs = [temp]
             newargs += [args[2].object().event()]
@@ -83,7 +84,7 @@ class VIDSelectorBase:
         
     def initialize(self,pythonpset):
         if( self.__initialized ): 
-            print 'VID Selector is already initialized, doing nothing!'
+            print('VID Selector is already initialized, doing nothing!')
             return
         del process.__instance
         if hasattr(pythonpset,'isPOGApproved'):

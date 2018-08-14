@@ -12,8 +12,3 @@ SeedFromConsecutiveHitsCreator = cms.PSet(
   TTRHBuilder = cms.string('WithTrackAngle'),
   forceKinematicWithRegionDirection = cms.bool(False)
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toModify(SeedFromConsecutiveHitsCreator,
-        magneticField = '',
-        propagator = 'PropagatorWithMaterial'
-)

@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerLutMonitor = cms.EDAnalyzer("DTLocalTriggerLutTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtTriggerLutMonitor = DQMEDAnalyzer('DTLocalTriggerLutTask',
     # labels of DDU/TM data and 4D segments
-    inputTagTM = cms.untracked.InputTag("twinMuxStage2Digis:PhIn"),
+    inputTagTMin = cms.untracked.InputTag("twinMuxStage2Digis:PhIn"),
+    inputTagTMout = cms.untracked.InputTag("twinMuxStage2Digis:PhOut"),
     inputTagSEG = cms.untracked.InputTag("dt4DSegments"),
     # set static booking (all the detector)
     staticBooking = cms.untracked.bool(True),

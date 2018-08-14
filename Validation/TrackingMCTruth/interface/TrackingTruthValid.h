@@ -18,14 +18,13 @@ class TrackingTruthValid  : public  DQMEDAnalyzer {
   //Constructor
   explicit TrackingTruthValid(const edm::ParameterSet& conf) ;
   //Destructor
-  ~TrackingTruthValid(){} ;
+  ~TrackingTruthValid() override{} ;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
 
-  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
-  void beginJob(const edm::ParameterSet& conf);
-  void endJob();
-  
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
+  void endJob() override; 
+
  private:
   bool runStandalone;
   std::string outputFile;

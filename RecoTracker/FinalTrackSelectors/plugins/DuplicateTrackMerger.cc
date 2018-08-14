@@ -24,11 +24,13 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackMerger.h"
 
+#include "CommonTools/Utils/interface/DynArray.h"
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <iostream>
 #include <atomic>
+
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
@@ -39,7 +41,7 @@ namespace {
     /// constructor
     explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);
     /// destructor
-    virtual ~DuplicateTrackMerger();
+    ~DuplicateTrackMerger() override;
     
     using CandidateToDuplicate = std::vector<std::pair<int, int>>;
 	 
@@ -51,7 +53,7 @@ namespace {
       void produce( edm::Event &, const edm::EventSetup &) override;
       
       bool checkForDisjointTracks(const reco::Track *t1, const reco::Track *t2, TSCPBuilderNoMaterial& tscpBuilder) const;
-      bool checkForOverlappingTracks(const reco::Track *t1, const reco::Track *t2, const float cosT) const;
+      bool checkForOverlappingTracks(const reco::Track *t1, const reco::Track *t2, unsigned int nvh1, unsigned int nvh2, double cosT) const;
 
     private:
       /// MVA discriminator
@@ -93,7 +95,7 @@ namespace {
       /// max number of missing layers for the overlap check
       unsigned int overlapCheckMaxMissingLayers_;
       /// min cosT for the overlap check
-      float overlapCheckMinCosT_;
+      double overlapCheckMinCosT_;
 
       const MagneticField *magfield_;
       const TrackerTopology *ttopo_;
@@ -315,13 +317,25 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   };
 #endif
 
-  for(int i = 0; i < (int)tracks.size(); i++){
+  // cache few "heavy to compute quantities
+  int nTracks=0;
+  declareDynArray(const reco::Track *, tracks.size(), selTracks);
+  declareDynArray(unsigned int, tracks.size(), nValidHits);
+  declareDynArray(unsigned int, tracks.size(), oriIndex);
+  for(auto i = 0U; i < tracks.size(); i++){
     const reco::Track *rt1 = &tracks[i];
-
     if(rt1->innerMomentum().perp2() < minpT2_)continue;
-    // if(rt1->innerMomentum().R() < minP_)continue;
-    for(int j = i+1; j < (int)tracks.size();j++){
-      const reco::Track *rt2 = &tracks[j];
+    selTracks[nTracks] = rt1;
+    nValidHits[nTracks] = rt1->numberOfValidHits(); // yes it is extremely heavy!
+    oriIndex[nTracks]=i;
+    ++nTracks;
+  }
+
+
+  for(int i = 0; i <nTracks; i++){
+    const reco::Track *rt1 = selTracks[i];
+    for(int j = i+1; j < nTracks;j++){
+      const reco::Track *rt2 = selTracks[j];
 
 #ifdef EDM_ML_DEBUG
       debug_ = false;
@@ -333,18 +347,18 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 #endif
 
       if(rt1->charge() != rt2->charge())continue;
-      auto cosT = (*rt1).momentum().unit().Dot((*rt2).momentum().unit());
+      auto cosT = (*rt1).momentum().Dot((*rt2).momentum()); // not normalized!
       IfLogTrace(debug_, "DuplicateTrackMerger") << " cosT " << cosT;
       if (cosT<0.) continue;
-      if(rt2->innerMomentum().perp2() < minpT2_)continue;
-      // if(rt2->innerMomentum().R() < minP_)continue;
-      const reco::Track* t1,*t2;
+      cosT /= std::sqrt((*rt1).momentum().Mag2()*(*rt2).momentum().Mag2());
+
+      const reco::Track* t1,*t2; unsigned int nhv1, nhv2;
       if(rt1->outerPosition().perp2() < rt2->outerPosition().perp2()){
-	t1 = rt1;
-	t2 = rt2;
+	t1 = rt1; nhv1 = nValidHits[i];
+	t2 = rt2; nhv2 = nValidHits[j];
       }else{
-	t1 = rt2;
-	t2 = rt1;
+	t1 = rt2; nhv1 = nValidHits[j];
+	t2 = rt1; nhv2 = nValidHits[i];
       }
       auto deltaR3d2 = (t1->outerPosition() - t2->innerPosition()).mag2();
 
@@ -358,15 +372,15 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
         duplType = DuplicateTrackType::Disjoint;
       }
       else {
-        compatible = checkForOverlappingTracks(t1, t2, cosT);
+        compatible = checkForOverlappingTracks(t1, t2, nhv1, nhv2, cosT);
         duplType = DuplicateTrackType::Overlapping;
       }
       if(!compatible) continue;
       
       
-      IfLogTrace(debug_, "DuplicateTrackMerger") << " marking as duplicates";
+      IfLogTrace(debug_, "DuplicateTrackMerger") << " marking as duplicates" << oriIndex[i]<<','<<oriIndex[j];
       out_duplicateCandidates->push_back(merger_.merge(*t1,*t2, duplType));
-      out_candidateMap->emplace_back(i,j);
+      out_candidateMap->emplace_back(oriIndex[i],oriIndex[j]);
 
 #ifdef VI_STAT
       ++stat.nCand;
@@ -389,15 +403,17 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_,false);
     FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_,false);
-    GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,(t1->outerPosition().y()+t2->innerPosition().y())*0.5,(t1->outerPosition().z()+t2->innerPosition().z())*0.5);
+    GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,
+                         (t1->outerPosition().y()+t2->innerPosition().y())*0.5,
+                         (t1->outerPosition().z()+t2->innerPosition().z())*0.5);
     TrajectoryStateClosestToPoint TSCP1 = tscpBuilder(fts1, avgPoint);
     TrajectoryStateClosestToPoint TSCP2 = tscpBuilder(fts2, avgPoint);
     IfLogTrace(debug_, "DuplicateTrackMerger") << " TSCP1.isValid " << TSCP1.isValid() << " TSCP2.isValid " << TSCP2.isValid();
     if(!TSCP1.isValid()) return false;
     if(!TSCP2.isValid()) return false;
 
-    const FreeTrajectoryState ftsn1 = TSCP1.theState();
-    const FreeTrajectoryState ftsn2 = TSCP2.theState();
+    const FreeTrajectoryState& ftsn1 = TSCP1.theState();
+    const FreeTrajectoryState& ftsn2 = TSCP2.theState();
  
     IfLogTrace(debug_, "DuplicateTrackMerger") << " DCA2 " << (ftsn2.position()-ftsn1.position()).mag2();
     if ( (ftsn2.position()-ftsn1.position()).mag2() > maxDCA2_ ) return false;
@@ -412,9 +428,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
     //auto pp = [&](TrajectoryStateClosestToPoint const & ts) { std::cout << ' ' << ts.perigeeParameters().vector()[0] << '/'  << ts.perigeeError().transverseCurvatureError();};
     //if(qoverp1*qoverp2 <0) { std::cout << "charge different " << qoverp1 <<',' << qoverp2; pp(TSCP1); pp(TSCP2); std::cout << std::endl;}
 
-    auto lambda1 =  M_PI/2 - ftsn1.momentum().theta();
-    auto lambda2 =  M_PI/2 - ftsn2.momentum().theta();
-    float tmva_dlambda_ = lambda1-lambda2;
+    // lambda = pi/2 - theta....  so l1-l2 == t2-t1
+    float tmva_dlambda_ = ftsn2.momentum().theta() - ftsn1.momentum().theta();
     IfLogTrace(debug_, "DuplicateTrackMerger") << " dlambda " << tmva_dlambda_;
     if ( std::abs(tmva_dlambda_) > maxDLambda_ ) return false;
 
@@ -463,14 +478,16 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
     return true;
   }
 
-  bool DuplicateTrackMerger::checkForOverlappingTracks(const reco::Track *t1, const reco::Track *t2, float cosT) const {
+  bool DuplicateTrackMerger::checkForOverlappingTracks(const reco::Track *t1, const reco::Track *t2, unsigned int nvh1, unsigned int nvh2, double cosT) const {
     // ensure t1 is the shorter track
-    if(t2->numberOfValidHits() < t1->numberOfValidHits())
+    if(nvh2 < nvh1) {
       std::swap(t1, t2);
+      std::swap(nvh1,nvh2);
+    }
 
-    IfLogTrace(debug_, "DuplicateTrackMerger") << " Checking for overlapping duplicates, cosT " << cosT << " t1 hits " << t1->numberOfValidHits();
+    IfLogTrace(debug_, "DuplicateTrackMerger") << " Checking for overlapping duplicates, cosT " << cosT << " t1 hits " << nvh1;
     if(cosT < overlapCheckMinCosT_) return false;
-    if(t1->numberOfValidHits() > overlapCheckMaxHits_) return false;
+    if(nvh1 > overlapCheckMaxHits_) return false;
 
     // find the hit on the longer track on layer of the first hit of the shorter track
     auto findHitOnT2 = [&](const TrackingRecHit *hit1) {

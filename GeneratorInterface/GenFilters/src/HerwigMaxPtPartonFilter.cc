@@ -38,7 +38,7 @@ If this is true, the event is accepted.
 #include "GeneratorInterface/GenFilters/interface/HerwigMaxPtPartonFilter.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;

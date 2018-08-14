@@ -20,12 +20,12 @@
 class ISRWeightProducer : public edm::EDProducer {
    public:
       explicit ISRWeightProducer(const edm::ParameterSet&);
-      ~ISRWeightProducer();
+      ~ISRWeightProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       std::vector<double> isrBinEdges_;

@@ -1,8 +1,9 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTemplate.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripFakeCPE.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
@@ -23,7 +24,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
   enumMap[std::string("SimpleStripCPE")]=SIMPLE;
   enumMap[std::string("StripCPEfromTrackAngle")]=TRACKANGLE;
   enumMap[std::string("StripCPEgeometric")]=GEOMETRIC;
-  enumMap[std::string("StripCPEfromTemplate")]=TEMPLATE;
+  enumMap[std::string("FakeStripCPE")]=FAKE;
   if(enumMap.find(type)==enumMap.end()) 
     throw cms::Exception("Unknown StripCPE type") << type;
 
@@ -32,7 +33,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
   setWhatProduced(this,name);
 }
 
-std::shared_ptr<StripClusterParameterEstimator> StripCPEESProducer::
+std::unique_ptr<StripClusterParameterEstimator> StripCPEESProducer::
 produce(const TkStripCPERecord & iRecord) 
 { 
   edm::ESHandle<TrackerGeometry> pDD;  iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
@@ -45,23 +46,24 @@ produce(const TkStripCPERecord & iRecord)
   edm::ESHandle<SiStripApvGain> gain;  iRecord.getRecord<SiStripApvGainRcd>().get(gain);
   edm::ESHandle<SiStripBadStrip> bad;  iRecord.getRecord<SiStripBadChannelRcd>().get(bad);
  
+  std::unique_ptr<StripClusterParameterEstimator> cpe;
   
   switch(cpeNum) {
 
   case SIMPLE:     
-    cpe = std::make_shared<StripCPE>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency );
+    cpe = std::make_unique<StripCPE>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency );
     break;
     
   case TRACKANGLE: 
-    cpe = std::make_shared<StripCPEfromTrackAngle>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency );
+    cpe = std::make_unique<StripCPEfromTrackAngle>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency );
     break;
     
   case GEOMETRIC:  
-    cpe = std::make_shared<StripCPEgeometric>(parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
+    cpe = std::make_unique<StripCPEgeometric>(parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
     break;  
 
-  case TEMPLATE: 
-    cpe = std::make_shared<StripCPEfromTemplate>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
+  case FAKE:
+    cpe = std::make_unique<StripFakeCPE>();
     break;
 
   }

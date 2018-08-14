@@ -13,23 +13,29 @@ class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public Ped
                                 DQMStore*,
                                 SiStripConfigDb* const );
 
-    virtual ~PedsFullNoiseHistosUsingDb();
+    ~PedsFullNoiseHistosUsingDb() override;
 
-    virtual void uploadConfigurations();
+    void uploadConfigurations() override;
 
    private:
 
     void update( SiStripConfigDb::FedDescriptionsRange );
 
-    void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+    void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
     // parameters
-    float highThreshold_;
-    float lowThreshold_;
-    bool disableBadStrips_;
-    bool keepStripsDisabled_;
-    bool addBadStrips_;
+    float highThreshold_; // higher threshold for the zero suppression
+    float lowThreshold_;  // lower threshold for the zero suppression
+    bool  disableBadStrips_; // to disable bad strips flagged by the analysis in the upload
+    bool  keepStripsDisabled_; // keep bad strips from previous runs as bad
+    bool  skipEmptyStrips_;  // skip empty strips i.e. don't flag as bad
+    bool  uploadOnlyStripBadChannelBit_;
 
+    // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                
+    bool allowSelectiveUpload_;
+
+    ///////
+    bool uploadPedsFullNoiseDBTable_;
 };
 
 #endif // DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H

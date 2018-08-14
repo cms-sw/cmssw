@@ -37,10 +37,10 @@
 class ConversionSeedFilterCharge : public edm::global::EDProducer<> {
 public:
   explicit ConversionSeedFilterCharge(const edm::ParameterSet&);
-  ~ConversionSeedFilterCharge();
+  ~ConversionSeedFilterCharge() override;
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   edm::EDGetTokenT<TrajectorySeedCollection> inputCollPos;
   edm::EDGetTokenT<TrajectorySeedCollection> inputCollNeg;
   const double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;

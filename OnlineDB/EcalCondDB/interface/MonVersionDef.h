@@ -14,7 +14,7 @@ class MonVersionDef : public IDef {
   friend class EcalCondDBInterface;
   
   MonVersionDef();
-  virtual ~MonVersionDef();
+  ~MonVersionDef() override;
 
   // Methods for user data
   std::string getMonitoringVersion() const;
@@ -23,8 +23,8 @@ class MonVersionDef : public IDef {
   std::string getDescription() const;
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() noexcept(false) override;
+  void setByID(int id) noexcept(false) override;
 
   // Operators
   inline bool operator==(const MonVersionDef &d) const { return m_monVer == d.m_monVer; }

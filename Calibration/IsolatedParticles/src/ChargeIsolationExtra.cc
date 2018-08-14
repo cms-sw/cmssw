@@ -9,9 +9,24 @@
 
 #include<iostream>
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
-  double chargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, CaloNavigator<DetId>& theNavigator, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloSubdetectorGeometry* gEB, const CaloSubdetectorGeometry* gEE, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string theTrackQuality, bool debug) {
+  double chargeIsolation(const edm::Event& iEvent, 
+			 const edm::EventSetup& iSetup, 
+			 CaloNavigator<DetId>& theNavigator,
+			 reco::TrackCollection::const_iterator trkItr,
+			 edm::Handle<reco::TrackCollection> trkCollection, 
+			 const CaloSubdetectorGeometry* gEB, 
+			 const CaloSubdetectorGeometry* gEE, 
+			 TrackDetectorAssociator& associator, 
+			 TrackAssociatorParameters& parameters_, int ieta, 
+			 int iphi, const std::string & theTrackQuality, bool
+#ifdef EDM_ML_DEBUG
+			 debug
+#endif
+			 ) {
   
     double maxNearP = -1.0;
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
@@ -32,13 +47,17 @@ namespace spr{
 	if (info2.isGoodEcal ) {
 	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = gEB->getClosestCell(point2);
+#ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
+#endif
 	    if (!spr::chargeIsolation(anyCell,theNavigator,ieta, iphi)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = gEE->getClosestCell(point2);
+#ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
+#endif
 	    if(!spr::chargeIsolation(anyCell,theNavigator,ieta, iphi)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
@@ -76,14 +95,15 @@ namespace spr{
 
   //===========================================================================================================
 
-  double chargeIsolationEcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
+  double chargeIsolationEcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, const std::string& theTrackQuality, bool debug) {
   
-    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
-    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry *barrelGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
+    const CaloSubdetectorGeometry *endcapGeom = (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
 
     std::vector<DetId> vdets = spr::matrixECALIds(coreDet, ieta, iphi, geo, caloTopology, debug);
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << "chargeIsolation:: eta/phi/dets " << ieta << " " << iphi << " " << vdets.size() << std::endl;
-
+#endif
     double maxNearP = -1.0;
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
@@ -103,13 +123,17 @@ namespace spr{
 	if (info2.isGoodEcal ) {
 	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = barrelGeom->getClosestCell(point2);
+#ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
+#endif
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = endcapGeom->getClosestCell(point2);
+#ifdef EDM_ML_DEBUG
 	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
+#endif
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
@@ -122,21 +146,22 @@ namespace spr{
 
   //===========================================================================================================
 
-  double chargeIsolationHcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
+  double chargeIsolationHcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, const std::string& theTrackQuality, bool debug) {
 
     std::vector<DetId> dets(1,ClosestCell);
 
+#ifdef EDM_ML_DEBUG
     if (debug) std::cout << (HcalDetId) ClosestCell << std::endl;
-
+#endif
     std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
-    std::vector<DetId>::iterator it;  
   
+#ifdef EDM_ML_DEBUG
     if (debug) {
       for (unsigned int i=0; i<vdets.size(); i++) {
 	std::cout << "HcalDetId in " <<2*ieta+1 << "x" << 2*iphi+1 << " " << (HcalDetId) vdets[i] << std::endl;
       }
     }
-
+#endif
     double maxNearP = -1.0;
     reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
   
@@ -151,16 +176,20 @@ namespace spr{
 	TrackDetMatchInfo info2 = associator.associate(iEvent, iSetup, fts2, parameters_);
 	const GlobalPoint point2(info2.trkGlobPosAtHcal.x(),info2.trkGlobPosAtHcal.y(),info2.trkGlobPosAtHcal.z());
 
+#ifdef EDM_ML_DEBUG
 	if (debug) {
 	  std::cout << "Track2 (p,eta,phi) " << pTrack2->p() << " " << pTrack2->eta() << " " << pTrack2->phi() << std::endl;
 	}
-
+#endif
 	if (info2.isGoodHcal ) {
 	  const DetId anyCell = gHB->getClosestCell(point2);
+#ifdef EDM_ML_DEBUG
 	  if (debug) std::cout << "chargeIsolation:: HCAL cell " << (HcalDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
+#endif
 	  if (!spr::chargeIsolation(anyCell,vdets)) {	
 	    if(maxNearP<pTrack2->p())  maxNearP=pTrack2->p();
 	  }
+#ifdef EDM_ML_DEBUG
 	  if (debug){
 	    std::cout << "maxNearP " << maxNearP << " thisCell " 
 		      << (HcalDetId)anyCell << " (" 
@@ -168,6 +197,7 @@ namespace spr{
 		      << info2.trkGlobPosAtHcal.y() <<","
 		      << info2.trkGlobPosAtHcal.z() <<")" << std::endl;
 	  }
+#endif
 	}
       }
     }

@@ -12,11 +12,11 @@
 #include <string>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -25,20 +25,17 @@
 class BeamFitter;
 class PVFitter;
 
-class AlcaBeamMonitor : public edm::EDAnalyzer {
+class AlcaBeamMonitor : public DQMEDAnalyzer {
  public:
   AlcaBeamMonitor( const edm::ParameterSet& );
-  ~AlcaBeamMonitor();
+  ~AlcaBeamMonitor() override;
 
  protected:
 
-  void beginJob 	   (void) override;
-  void beginRun 	   (const edm::Run& iRun,  	       const edm::EventSetup& iSetup) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze  	   (const edm::Event& iEvent, 	       const edm::EventSetup& iSetup) override;
   void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void endLuminosityBlock  (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
-  void endRun		   (const edm::Run& iRun,              const edm::EventSetup& iSetup) override;
-  void endJob		   (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
   
  private:
   //Typedefs
@@ -59,7 +56,6 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
 
   //Service variables
   int         numberOfValuesToSave_;
-  DQMStore*   dbe_;
   BeamFitter* theBeamFitter_;
   PVFitter*   thePVFitter_;
   
@@ -79,9 +75,3 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
 };
 
 #endif
-
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

@@ -21,6 +21,8 @@
 //
 
 // system include files
+#include <vector>
+#include <string>
 
 // user include files
 
@@ -28,6 +30,7 @@
 
 namespace reco {
   namespace formula {
+    std::vector<std::string> shiftAST(std::vector<std::string> child);
     class EvaluatorBase
     {
       
@@ -51,6 +54,7 @@ namespace reco {
       //inputs are considered to be 'arrays' which have already been validated to 
       // be of the appropriate length
       virtual double evaluate(double const* iVariables, double const* iParameters) const = 0;
+      virtual std::vector<std::string> abstractSyntaxTree() const = 0;
 
       unsigned int precedence() const { return m_precedence; }
       void setPrecedenceToParenthesis() { m_precedence = static_cast<unsigned int>(Precedence::kParenthesis); }

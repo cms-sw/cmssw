@@ -33,10 +33,11 @@ namespace edm {
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
+    e.setProducer(this, &previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act,mcc);
     this->produce(e, c);
-    commit_(e, &previousParentage_, &previousParentageId_);
+    commit_(e, &previousParentageId_);
     return true;
   }
 
@@ -55,7 +56,7 @@ namespace edm {
   void
   EDProducer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                          ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc, false);
     r.setConsumer(this);
     Run const& cnstR = r;
     this->beginRun(cnstR, c);
@@ -65,7 +66,7 @@ namespace edm {
   void
   EDProducer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
-    Run r(rp, moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     Run const& cnstR = r;
     this->endRun(cnstR, c);
@@ -75,7 +76,7 @@ namespace edm {
   void
   EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                      ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->beginLuminosityBlock(cnstLb, c);
@@ -85,7 +86,7 @@ namespace edm {
   void
   EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(lbp, moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
@@ -102,16 +103,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void 
-  EDProducer::doPreForkReleaseResources() {
-    preForkReleaseResources();
-  }
-  
-  void 
-  EDProducer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-  
   void
   EDProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;

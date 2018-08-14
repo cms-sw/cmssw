@@ -28,12 +28,12 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
   es.get<HcalElectronicsMapRcd>().get("reference",refEMap);
   const HcalElectronicsMap* myRefEMap = refEMap.product();
 
-  if(dumpupdate.compare("null")!=0){
+  if(dumpupdate!="null"){
     std::ofstream outStream(dumpupdate.c_str());
     std::cout << "--- Dumping QIEs - update ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream, (*myNewQIEs) );
   }
-  if(dumprefs.compare("null")!=0){
+  if(dumprefs!="null"){
     std::ofstream outStream2(dumprefs.c_str());
     std::cout << "--- Dumping QIEs - reference ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream2, (*myRefQIEs) );
@@ -108,7 +108,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	//implement compare qies -- different epsilon for slope and offset?
   //  }
 
-   if(outfile.compare("null")!=0){
+   if(outfile!="null"){
    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
 	DetId mydetid = *it;

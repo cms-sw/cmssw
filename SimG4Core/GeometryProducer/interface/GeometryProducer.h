@@ -31,10 +31,10 @@ public:
     typedef std::vector<std::shared_ptr<SimProducer> > Producers;
 
     explicit GeometryProducer(edm::ParameterSet const & p);
-    virtual ~GeometryProducer() override;
-    virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-    virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
-    virtual void produce(edm::Event & e, const edm::EventSetup & c) override;
+    ~GeometryProducer() override;
+    void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+    void endRun(const edm::Run & r,const edm::EventSetup& c) override;
+    void produce(edm::Event & e, const edm::EventSetup & c) override;
     void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
    
     std::vector<std::shared_ptr<SimProducer> > producers() const
@@ -53,8 +53,8 @@ private:
     SimActivityRegistry m_registry;
     std::vector<std::shared_ptr<SimWatcher> > m_watchers;
     std::vector<std::shared_ptr<SimProducer> > m_producers;
-    std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
-    std::auto_ptr<SimTrackManager> m_trackManager;
+    std::unique_ptr<sim::FieldBuilder> m_fieldBuilder;
+    std::unique_ptr<SimTrackManager> m_trackManager;
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;

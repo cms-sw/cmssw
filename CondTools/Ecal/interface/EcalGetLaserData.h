@@ -24,7 +24,7 @@
 #include <map>
 #include <iostream>
 #include <vector>
-#include <time.h>
+#include <ctime>
 
 namespace edm {
   class ParameterSet;
@@ -36,9 +36,9 @@ class  EcalGetLaserData : public edm::EDAnalyzer {
  public:
  
   explicit  EcalGetLaserData(const edm::ParameterSet& iConfig );
-  ~EcalGetLaserData();
+  ~EcalGetLaserData() override;
   
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
 
  private:
@@ -49,8 +49,8 @@ class  EcalGetLaserData : public edm::EDAnalyzer {
   //unsigned long m_firstRun ;
   //unsigned long m_lastRun ;
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
+  void beginJob() override ;
+  void endJob() override ;
 
 
 };

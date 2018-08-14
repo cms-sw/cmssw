@@ -1,5 +1,5 @@
-#ifndef DTRecHitClients_H
-#define DTRecHitClients_H
+#ifndef Validation_DTRecHits_DTRecHitClients_h
+#define Validation_DTRecHits_DTRecHitClients_h
 
 /** \class DTDataIntegrityTest
  * *
@@ -8,41 +8,30 @@
  *  \author S. Bolognesi - INFN TO
  *   
  */
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-class DQMStore;
-class MonitorElement;
-
-class DTRecHitClients: public edm::EDAnalyzer{
+class DTRecHitClients: public DQMEDHarvester {
 
 public:
-
   /// Constructor
   DTRecHitClients(const edm::ParameterSet& ps);
-
- /// Destructor
-  virtual ~DTRecHitClients();
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c);
+  /// Destructor
+  ~DTRecHitClients() override;
 
 protected:
-
+  /// End Job
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
+  // Switches for analysis at various steps
+  bool doStep1_;
+  bool doStep2_;
+  bool doStep3_;
+  bool local_;
+  bool doall_;
 
-  DQMStore* dbe;
- };
- 
+};
 
-#endif
+#endif // Validation_DTRecHits_DTRecHitClients_h

@@ -219,7 +219,7 @@ void ZdcUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap
 
 		}
 		if ((htr.getFirmwareFlavor()&0xE0)==0x80) { // some kind of TTP data
-			if (colls.ttp!=0) {
+			if (colls.ttp!=nullptr) {
 				HcalTTPUnpacker ttpUnpack;
 				colls.ttp->push_back(HcalTTPDigi());
 				ttpUnpack.unpack(htr,colls.ttp->back());

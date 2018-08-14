@@ -5,8 +5,8 @@
 
 using namespace reco;
 
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
-CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(nullptr),MagneticField_(nullptr),chargedpi_mass_(0.13957018){}  
+CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const edm::ParameterSet& iConfig) : TransientTrackBuilder_(nullptr),MagneticField_(nullptr),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");
   Track_minPt_                        = iConfig.getParameter<double>("Track_minPt");
   IsolationTrack_minPt_               = iConfig.getParameter<double>("IsolationTrack_minPt");
@@ -75,7 +75,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
   if(myleadTk.isNonnull()){
     myCaloTau.setleadTrack(myleadTk);
     double myleadTkDZ=(*myleadTk).dz(myPV.position());
-    if(TransientTrackBuilder_!=0)
+    if(TransientTrackBuilder_!=nullptr)
     { 
       const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
       GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
@@ -88,7 +88,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
       myCaloTau_refInnerPosition_z=(*myleadTk).innerPosition().z(); 
     }
     
-    if(MagneticField_!=0){ 
+    if(MagneticField_!=nullptr){ 
       math::XYZPoint mypropagleadTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myleadTk);
       if(mypropagleadTrackECALSurfContactPoint.R()!=0.){
 	double myleadTrackHCAL3x3hottesthitDEta=0.;
@@ -96,12 +96,12 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
 	double myleadTrackHCAL3x3hitsEtSum=0.;
 	edm::ESHandle<CaloGeometry> myCaloGeometry;
 	iSetup.get<CaloGeometryRecord>().get(myCaloGeometry);
-	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(*myCaloGeometry).getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
+	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=myCaloGeometry->getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 	edm::ESHandle<CaloTowerTopology> caloTowerTopology;
 	iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
-	CaloTowerDetId mypropagleadTrack_closestCaloTowerId((*myCaloSubdetectorGeometry).getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
-														    mypropagleadTrackECALSurfContactPoint.y(),
-														    mypropagleadTrackECALSurfContactPoint.z())));
+	CaloTowerDetId mypropagleadTrack_closestCaloTowerId(myCaloSubdetectorGeometry->getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
+														  mypropagleadTrackECALSurfContactPoint.y(),
+														  mypropagleadTrackECALSurfContactPoint.z())));
 	std::vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry, *caloTowerTopology, mypropagleadTrack_closestCaloTowerId);
 	for(std::vector<CaloTowerPtr>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
 	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
@@ -190,7 +190,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
     
   for(EBRecHitCollection::const_iterator theRecHit = EBRecHits->begin();theRecHit != EBRecHits->end(); theRecHit++){
     theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    auto theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
       std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
@@ -201,7 +201,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
 
 for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit != EERecHits->end(); theRecHit++){
     theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    auto theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
       std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
@@ -211,7 +211,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 }
  for(ESRecHitCollection::const_iterator theRecHit = ESRecHits->begin();theRecHit != ESRecHits->end(); theRecHit++){
   theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
-    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+  auto theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
       std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
@@ -233,7 +233,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
 	  EBDetId EcalID=RecHitDetID;
 	  EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);
-	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
+	  auto theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
 	  std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
@@ -241,7 +241,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 	  EEDetId EcalID = RecHitDetID;
 	  EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
-	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
+	  auto theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
 	  std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
 	  thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
@@ -249,7 +249,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 	  theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
 	  ESDetId EcalID = RecHitDetID;
 	  ESRecHitCollection::const_iterator theRecHit=ESRecHits->find(EcalID);	    
-	  const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
+	  auto theRecHitCell=theCaloSubdetectorGeometry->getGeometry(RecHitDetID);
 	
 	  math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
 	  std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
@@ -309,14 +309,14 @@ std::vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(co
   std::vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
   std::vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);
   std::vector<DetId> northwestDetIds,southwestDetIds;
-  if (westDetIds.size()>0){
+  if (!westDetIds.empty()){
     northwestDetIds=myCaloTowerTopology.north(westDetIds[0]);
     southwestDetIds=myCaloTowerTopology.south(westDetIds[(int)westDetIds.size()-1]);
   }
   std::vector<DetId> southDetIds=myCaloTowerTopology.south(myCaloTowerDetId);
   std::vector<DetId> eastDetIds=myCaloTowerTopology.east(myCaloTowerDetId);
   std::vector<DetId> northeastDetIds,southeastDetIds;
-  if (eastDetIds.size()>0){
+  if (!eastDetIds.empty()){
     northeastDetIds=myCaloTowerTopology.north(eastDetIds[0]);
     southeastDetIds=myCaloTowerTopology.south(eastDetIds[(int)eastDetIds.size()-1]);
   }

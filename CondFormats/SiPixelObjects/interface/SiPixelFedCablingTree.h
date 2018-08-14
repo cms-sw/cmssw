@@ -15,7 +15,7 @@ public:
 
   SiPixelFedCablingTree(const std::string & version="") : theVersion(version) {}
 
-  virtual ~SiPixelFedCablingTree() {}
+  ~SiPixelFedCablingTree() override {}
 
   /// add cabling for one fed
   void addFed(const PixelFEDCabling& f);
@@ -26,18 +26,24 @@ public:
   std::vector<const PixelFEDCabling *> fedList() const;
 
   ///map version
-  virtual std::string version() const { return theVersion; }
+  std::string version() const override { return theVersion; }
 
   std::string print(int depth = 0) const;
 
   void addItem(unsigned int fedId, unsigned int linkId, const sipixelobjects::PixelROC& roc);
 
-  virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const;
+  std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const final;
+  bool pathToDetUnitHasDetUnit(uint32_t rawDetId, unsigned int fedId) const final;
 
-  virtual const sipixelobjects::PixelROC* findItem(const sipixelobjects::CablingPathToDetUnit & path) const;  
+  const sipixelobjects::PixelROC* findItem(const sipixelobjects::CablingPathToDetUnit & path) const final;  
 
   const sipixelobjects::PixelROC* findItemInFed(const sipixelobjects::CablingPathToDetUnit & path, 
 						const PixelFEDCabling * aFed) const;  
+
+
+  std::unordered_map<uint32_t, unsigned int> det2fedMap() const final;
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const final;
+
 
   int checkNumbering() const;
 

@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
         )
                             )
 
-process.load('Validation.HGCalValidation.test.hgcHitValidation_cfi')
+process.load('Validation.HGCalValidation.hgcHitValidation_cfi')
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('RelValTTbarNoPU.root'),

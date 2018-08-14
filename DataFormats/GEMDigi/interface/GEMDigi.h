@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iosfwd>
 
 class GEMDigi{
@@ -30,7 +30,7 @@ public:
 
 private:
   uint16_t strip_;
-  int32_t  bx_; 
+  int16_t  bx_; 
 };
 
 std::ostream & operator<<(std::ostream & o, const GEMDigi& digi);

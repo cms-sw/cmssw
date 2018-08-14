@@ -6,7 +6,7 @@
 // theCurrentCSC starts at -1, since user is expected to next() before he dereferences
 // for the first time
 CSCDDUDataItr::CSCDDUDataItr() :
-  theDDUData(0),
+  theDDUData(nullptr),
   theCurrentCSC(-1),
   theNumberOfCSCs(0),
   theDataIsOwnedByMe(true)
@@ -14,7 +14,7 @@ CSCDDUDataItr::CSCDDUDataItr() :
 
 
 CSCDDUDataItr::CSCDDUDataItr(const char * buf) :
-  theDDUData(0),
+  theDDUData(nullptr),
   theCurrentCSC(-1),
   theNumberOfCSCs(0),
   theDataIsOwnedByMe(true)
@@ -23,7 +23,7 @@ CSCDDUDataItr::CSCDDUDataItr(const char * buf) :
   const CSCDDUHeader * dduHeader
     = reinterpret_cast<const CSCDDUHeader *>(buf);
   if(dduHeader->check()){
-    theDDUData = new CSCDDUEventData((unsigned short *)buf);
+    theDDUData = new CSCDDUEventData((const uint16_t *)buf);
     theNumberOfCSCs = theDDUData->cscData().size();
   } else {
     LogTrace ("CSCDDUDataItr|CSCRawToDigi") << "Failed DDU header check.";
@@ -53,7 +53,7 @@ CSCDDUDataItr::CSCDDUDataItr(const CSCDDUDataItr & i) :
 {
   if(theDataIsOwnedByMe) 
     {
-      if(i.theDDUData != 0) 
+      if(i.theDDUData != nullptr) 
 	{
 	  theDDUData = new CSCDDUEventData(*(i.theDDUData));
 	}
@@ -67,10 +67,10 @@ CSCDDUDataItr::CSCDDUDataItr(const CSCDDUDataItr & i) :
 
 void CSCDDUDataItr::operator=(const CSCDDUDataItr & i) 
 {
-  if(theDataIsOwnedByMe) 
+  if(theDataIsOwnedByMe && theDDUData != i.theDDUData) 
     {
       delete theDDUData;
-      if(i.theDDUData != 0) 
+      if(i.theDDUData != nullptr) 
 	{
 	  theDDUData = new CSCDDUEventData(*(i.theDDUData));
 	}

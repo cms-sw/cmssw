@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 #  reEmul.py  configurable test of L1T re-emulation
 #
@@ -40,13 +41,13 @@ options.skip = 0
 options.parseArguments()
 
 if (options.era == 'stage1'):
-    print "INFO: runnings L1T Stage-1 (2015) Re-Emulation"
+    print("INFO: runnings L1T Stage-1 (2015) Re-Emulation")
     process = cms.Process("L1TReEmulation", eras.Run2_25ns)
 elif (options.era == 'stage2'):
-    print "INFO: runnings L1T Stage-2 (2016) Re-Emulation"    
+    print("INFO: runnings L1T Stage-2 (2016) Re-Emulation")    
     process = cms.Process("L1TReEmulation", eras.Run2_2016)
 else:
-    print "ERROR: unknown era:  ", options.era, "\n"
+    print("ERROR: unknown era:  ", options.era, "\n")
     exit(0)
 
 if (options.output == 'DEFAULT'):
@@ -54,10 +55,10 @@ if (options.output == 'DEFAULT'):
         options.output ='l1t_stage1.root'
     if (eras.stage2L1Trigger.isChosen()):
         options.output ='l1t_stage2.root'
-print "INFO: output:  ", options.output
+print("INFO: output:  ", options.output)
 
-print "INFO: input:  ", options.input
-print "INFO: max:  ", options.max
+print("INFO: input:  ", options.input)
+print("INFO: max:  ", options.max)
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
@@ -230,8 +231,8 @@ if (eras.stage1L1Trigger.isChosen()):
     process.L1TSeq.remove(process.scalersRawToDigi)
     process.L1TSeq.remove(process.tcdsDigis)
 
-print process.L1TSeq
-print process.L1TReEmulateFromRAW
+print(process.L1TSeq)
+print(process.L1TReEmulateFromRAW)
 #processDumpFile = open('config.dump', 'w')
 #print >> processDumpFile, process.dumpPython()
 

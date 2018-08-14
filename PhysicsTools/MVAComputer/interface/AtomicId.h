@@ -30,7 +30,7 @@ namespace PhysicsTools {
  ************************************************************/
 class AtomicId {
     public:
-	inline AtomicId() throw() : string(0) {}
+	inline AtomicId() throw() : string(nullptr) {}
 	inline AtomicId(const AtomicId &orig) throw() : string(orig.string) {}
 	/// constructs an AtomicId from a C string
 	inline AtomicId(const char *arg) throw() : string(lookup(arg)) {}
@@ -48,7 +48,7 @@ class AtomicId {
 
 	/// null value check operator
 	inline operator bool() const throw()
-	{ return string != 0; }
+	{ return string != nullptr; }
 
 	/// implicit cast to a STL string
 	inline operator std::string() const throw()

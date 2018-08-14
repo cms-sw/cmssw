@@ -46,7 +46,7 @@ class MuonNumberingTester : public edm::one::EDAnalyzer<>
 {
 public:
   explicit MuonNumberingTester( const edm::ParameterSet& );
-  ~MuonNumberingTester();
+  ~MuonNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

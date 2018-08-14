@@ -26,7 +26,7 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
 
 TkTransientTrackingRecHitBuilderESProducer::~TkTransientTrackingRecHitBuilderESProducer() {}
 
-std::shared_ptr<TransientTrackingRecHitBuilder> 
+std::unique_ptr<TransientTrackingRecHitBuilder> 
 TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -46,21 +46,21 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   const SiStripRecHitMatcher           * mp ;
     
   if (sname == "Fake") {
-    sp = 0;
+    sp = nullptr;
   }else{
     iRecord.getRecord<TkStripCPERecord>().get( sname, se );     
     sp = se.product();
   }
   
   if (pname == "Fake") {
-    pp = 0;
+    pp = nullptr;
   }else{
     iRecord.getRecord<TkPixelCPERecord>().get( pname, pe );     
     pp = pe.product();
   }
   
   if (mname == "Fake") {
-    mp = 0;
+    mp = nullptr;
   }else{
     iRecord.getRecord<TkStripCPERecord>().get( mname, me );     
     mp = me.product();
@@ -89,12 +89,10 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   if (p2OTname != "") {
     iRecord.getRecord<TkStripCPERecord>().get( p2OTname, p2OTe );
     p2OTp = p2OTe.product();
-    _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
-  } else {
-    _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
-  }
+    return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
+  } 
+  return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
 
-  return _builder;
 }
 
 

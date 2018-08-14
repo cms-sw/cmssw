@@ -7,7 +7,7 @@
 
 #include "Alignment/SurveyAnalysis/interface/SurveyOutput.h"
 
-SurveyOutput::SurveyOutput(const std::vector<Alignable*>& alignables,
+SurveyOutput::SurveyOutput(const align::Alignables& alignables,
 			   const std::string& fileName):
   theAlignables(alignables),
   theFile(fileName.c_str(), "RECREATE")

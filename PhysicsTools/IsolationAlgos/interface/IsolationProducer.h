@@ -37,10 +37,10 @@ template <typename C1, typename C2, typename Alg,
 class IsolationProducer : public edm::EDProducer {
 public:
   IsolationProducer( const edm::ParameterSet & );
-  ~IsolationProducer();
+  ~IsolationProducer() override;
 
 private:
-  void produce( edm::Event&, const edm::EventSetup& );
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   edm::EDGetTokenT<C1> srcToken_;
   edm::EDGetTokenT<C2> elementsToken_;
   Alg alg_;

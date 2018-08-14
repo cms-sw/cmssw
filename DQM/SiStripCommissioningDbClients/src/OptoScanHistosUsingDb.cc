@@ -29,6 +29,13 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
     LogTrace(mlDqmClient_)
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
       << " Skipping db update of gain parameters.";
+
+  allowSelectiveUpload_ = this->pset().existsAs<bool>("doSelectiveUpload")?this->pset().getParameter<bool>("doSelectiveUpload"):false;
+  if (allowSelectiveUpload_)
+    LogTrace(mlDqmClient_)
+      << "[OptoScanHistosUsingDb::" << __func__ << "]"
+      << " Enabling selective upload of gain parameters";
+
 }
 
 // -----------------------------------------------------------------------------
@@ -102,8 +109,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
 			     ichan+1 );
       
       // Iterate through all channels and extract LLD settings 
-      Analyses::const_iterator iter = data().find( fec_key.key() );
-      if ( iter != data().end() ) {
+      Analyses::const_iterator iter = data(allowSelectiveUpload_).find( fec_key.key() );
+      if ( iter != data(allowSelectiveUpload_).end() ) {
 
 	OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( iter->second );
 	if ( !anal ) { 

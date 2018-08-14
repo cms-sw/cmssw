@@ -26,6 +26,16 @@ def L1NtupleCustomReco(process):
     process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")
     process.load("JetMETCorrections.Type1MET.correctedMet_cff")
 
+    # Bad PF Muon filter for MET & HT
+    process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
+    process.BadPFMuonFilter.muons = cms.InputTag("muons")
+    process.BadPFMuonFilter.PFCandidates = cms.InputTag("particleFlow")
+
+    # bad charged candidate filter
+    process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+    process.BadChargedCandidateFilter.muons = cms.InputTag("muons")
+    process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("particleFlow")
+
 
 ####  Custom E/Gamma reco ####
 
@@ -44,10 +54,13 @@ def L1NtupleCustomReco(process):
 
     process.l1CustomReco = cms.Path(
         process.ak4PFCHSL1FastL2L3ResidualCorrectorChain
+        +process.ak4CaloL1FastL2L3ResidualCorrectorChain
         +process.HBHENoiseFilterResultProducer
         +process.correctionTermsPfMetType1Type2
         +process.pfMetT1
         +process.egmGsfElectronIDSequence
+        +process.BadPFMuonFilter
+        +process.BadChargedCandidateFilter
         )
     
     process.schedule.append(process.l1CustomReco)

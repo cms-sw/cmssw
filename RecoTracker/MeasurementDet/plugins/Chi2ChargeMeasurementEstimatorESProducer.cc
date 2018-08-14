@@ -45,7 +45,7 @@ public:
                  const MeasurementEstimator::OpaquePayload  & opay) const override;
 
 
-  virtual Chi2ChargeMeasurementEstimator* clone() const override {
+  Chi2ChargeMeasurementEstimator* clone() const override {
     return new Chi2ChargeMeasurementEstimator(*this);
   }
 private:
@@ -108,11 +108,10 @@ class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
  public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet & p);
-  virtual ~Chi2ChargeMeasurementEstimatorESProducer(); 
-  std::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
+  ~Chi2ChargeMeasurementEstimatorESProducer() override; 
+  std::unique_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
 
  private:
-  std::shared_ptr<Chi2MeasurementEstimatorBase> m_estimator;
   const edm::ParameterSet m_pset;
 };
 
@@ -138,7 +137,7 @@ Chi2ChargeMeasurementEstimatorESProducer::Chi2ChargeMeasurementEstimatorESProduc
 
 Chi2ChargeMeasurementEstimatorESProducer::~Chi2ChargeMeasurementEstimatorESProducer() {}
 
-std::shared_ptr<Chi2MeasurementEstimatorBase> 
+std::unique_ptr<Chi2MeasurementEstimatorBase> 
 Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 
   auto maxChi2 = m_pset.getParameter<double>("MaxChi2");
@@ -151,11 +150,10 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
   auto minGoodStripCharge  =  clusterChargeCut(m_pset);
   auto pTChargeCutThreshold=   m_pset.getParameter<double>("pTChargeCutThreshold");
 
-  m_estimator = std::make_shared<Chi2ChargeMeasurementEstimator>(
+  return std::make_unique<Chi2ChargeMeasurementEstimator>(
                                             minGoodPixelCharge, minGoodStripCharge, pTChargeCutThreshold,
                                             maxChi2,nSigma, maxDis, maxSag, minTol,minpt);
 
-  return m_estimator;
 }
 
 }

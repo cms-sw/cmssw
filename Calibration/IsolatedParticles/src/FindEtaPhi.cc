@@ -1,9 +1,15 @@
 #include "Calibration/IsolatedParticles/interface/FindEtaPhi.h"
 #include <iostream>
 
+//#define EDM_ML_DEBUG
+
 namespace spr{
 
-  spr::EtaPhi getEtaPhi(int ieta, int iphi, bool debug) {
+  spr::EtaPhi getEtaPhi(int ieta, int iphi, bool 
+#ifdef EDM_ML_DEBUG
+			debug
+#endif
+			) {
 
     int ietal = (ieta-1)/2;
     int ietar = ieta - ietal - 1;
@@ -28,6 +34,7 @@ namespace spr{
       etaphi.iphiN[3] = iphir; etaphi.iphiS[1] = iphil;
     }
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "getEtaPhi:: Has " <<  etaphi.ntrys << " possibilites for "
 		<< ieta << "X" << iphi << " matrix" << std::endl;
@@ -37,6 +44,7 @@ namespace spr{
 		  << etaphi.iphiN[itry] <<"|" <<etaphi.iphiS[itry] <<std::endl;
       }
     }
+#endif
     return etaphi;
   }
 }

@@ -14,7 +14,7 @@
 #endif
 #include "Phase2TrackerClusterizerSequentialAlgorithm.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -33,8 +33,8 @@ class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
 
     public:
         explicit Phase2TrackerClusterizer(const edm::ParameterSet& conf);
-        virtual ~Phase2TrackerClusterizer();
-        virtual void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
+        ~Phase2TrackerClusterizer() override;
+        void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
     private:
 #ifdef VERIFY_PH2_TK_CLUS
@@ -87,6 +87,19 @@ class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
             Phase2TrackerClusterizerSequentialAlgorithm	algo;
 	    algo.clusterizeDetUnit(DSViter, clusters);
             if (clusters.empty()) clusters.abort();
+
+#ifdef VERIFY_PH2_TK_CLUS
+            if (!clusters.empty()) {
+            auto cp = clusters[0].column();
+            auto sp = clusters[0].firstStrip();
+            for (auto const & cl : clusters) {
+               if (cl.column()<cp)  std::cout << "column not in order! " << std::endl;
+               if (cl.column()==cp && cl.firstStrip()<sp) std::cout << "strip not in order! " << std::endl;
+               cp = cl.column();
+               sp = cl.firstStrip();
+            }
+            }
+#endif
 
 #ifdef VERIFY_PH2_TK_CLUS
            // Geometry

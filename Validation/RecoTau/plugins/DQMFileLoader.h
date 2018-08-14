@@ -38,10 +38,10 @@ class TauDQMFileLoader : public edm::EDAnalyzer
 
  public:
   explicit TauDQMFileLoader(const edm::ParameterSet&);
-  virtual ~TauDQMFileLoader();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){}
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& c);  
+  ~TauDQMFileLoader() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{}
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;  
 
 private:
   std::map<std::string, cfgEntryFileSet> fileSets_;

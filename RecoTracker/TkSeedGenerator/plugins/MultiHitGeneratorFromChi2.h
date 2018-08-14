@@ -18,6 +18,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
+
 
 #include <utility>
 #include <vector>
@@ -31,7 +33,7 @@ typedef CombinedMultiHitGenerator::LayerCacheType       LayerCacheType;
 public:
   MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg);
 
-  virtual ~MultiHitGeneratorFromChi2();
+  ~MultiHitGeneratorFromChi2() override;
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static const char *fillDescriptionsLabel() { return "multiHitFromChi2"; }
@@ -39,7 +41,7 @@ public:
 
   void initES(const edm::EventSetup& es) override; 
 
-  virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
+  void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
                         const edm::Event & ev, const edm::EventSetup& es,
                         SeedingLayerSetsHits::SeedingLayerSet pairLayers,
                         std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
@@ -97,6 +99,7 @@ private:
   float extraPhiKDBox;
   float dphi;
   const MagneticField* bfield;
+  UniformMagneticField ufield = 0.;
   float nomField;
   double nSigmaRZ, nSigmaPhi, fnSigmaRZ;
   bool chi2VsPtCut;

@@ -32,8 +32,8 @@ public:
 
   void setCheckCrossingSide(bool docheck) {theCheckCrossingSide = docheck;}
 
-
-  virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
+  using NavigableLayer::compatibleLayers;
+  std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
 							    PropagationDirection timeDirection,
 							    int& counter) const  final;
   

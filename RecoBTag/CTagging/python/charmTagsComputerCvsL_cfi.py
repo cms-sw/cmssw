@@ -27,7 +27,13 @@ charmTagsComputerCvsL = cms.ESProducer(
    useCondDB = cms.bool(False),
    gbrForestLabel = cms.string(''),
    useGBRForest = cms.bool(True),
-   useAdaBoost = cms.bool(False)
+   useAdaBoost = cms.bool(False),
+   defaultValueNoTracks = cms.bool(False)
    )
 
 charmTagsComputerCvsL.slComputerCfg.correctVertexMass = False
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(charmTagsComputerCvsL, weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_udsg_PhaseI.xml'))
+phase1Pixel.toModify(charmTagsComputerCvsL, slComputerCfg = dict(correctVertexMass = True))
+phase1Pixel.toModify(charmTagsComputerCvsL, defaultValueNoTracks = cms.bool(True))

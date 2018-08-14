@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -16,10 +16,10 @@ using namespace oracle::occi;
 
 MODCCSHFDat::MODCCSHFDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   //  m_clob = 0;
   m_size=0;
@@ -39,7 +39,7 @@ void MODCCSHFDat::setFile(std::string x) {
   //try {
   std::cout<< "file is "<< m_file<<endl;
   // }catch (Exception &e) {
-  //throw(std::runtime_error("MODCCSHFDat::setFile():  "+e.getMessage()));
+  //throw(std::runtime_error(std::string("MODCCSHFDat::setFile():  ")+getOraMessage(&e)));
   //} 
     // here we must open the file and read the CCS Clob
     std::cout << "Going to read CCS file: " << m_file << endl;
@@ -72,7 +72,7 @@ void MODCCSHFDat::prepareWrite()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODCCSHFDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODCCSHFDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -133,7 +133,7 @@ void MODCCSHFDat::writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODR
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODCCSHFDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODCCSHFDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -165,20 +165,20 @@ void MODCCSHFDat::fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRu
     std::pair< EcalLogicID, MODCCSHFDat > p;
     MODCCSHFDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       // to be corrected 
-      //      dat.setClob( rset->getString(7) );
+      //      dat.setClob( getOraString(rset,7) );
 
       p.second = dat;
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODCCSHFDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODCCSHFDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -249,7 +249,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -320,7 +320,7 @@ void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob
 
 
   }catch (SQLException &e) {
-    throw(std::runtime_error("populateClob():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("populateClob():  ")+getOraMessage(&e)));
   }
 
   cout << "Populating the Clob - Success" << endl;
@@ -349,7 +349,7 @@ unsigned char* MODCCSHFDat::readClob (oracle::occi::Clob &clob, int size)
     return  buffer;
 
   }catch (SQLException &e) {
-    throw(std::runtime_error("readClob():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("readClob():  ")+getOraMessage(&e)));
   }
 
 }

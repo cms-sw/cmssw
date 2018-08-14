@@ -1,5 +1,5 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "SimTracker/SiPhase2Digitizer/plugins/PSPDigitizerAlgorithm.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
@@ -27,10 +27,9 @@ using namespace edm;
 void PSPDigitizerAlgorithm::init(const edm::EventSetup& es) {
   es.get<TrackerDigiGeometryRecord>().get(geom_);
 }
-PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
+PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf):
   Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-				  conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm"),
-				  eng)
+				  conf.getParameter<ParameterSet>("PSPDigitizerAlgorithm"))
 {
   pixelFlag = false;
   LogInfo("PSPDigitizerAlgorithm") << "Algorithm constructed "

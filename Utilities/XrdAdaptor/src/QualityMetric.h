@@ -1,7 +1,7 @@
 #ifndef Utilities_XrdAdaptor_QualityMetric_h
 #define Utilities_XrdAdaptor_QualityMetric_h
 
-#include <time.h>
+#include <ctime>
 
 #include <mutex>
 #include <memory>
@@ -10,6 +10,7 @@
 #include <boost/utility.hpp>
 
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace XrdAdaptor {
 
@@ -66,7 +67,7 @@ private:
     static
     std::unique_ptr<QualityMetricSource> get(timespec now, const std::string &id);
 
-    [[cms::thread_safe]] static QualityMetricFactory m_instance;
+    CMS_THREAD_SAFE static QualityMetricFactory m_instance;
 
     typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
     MetricMap m_sources;

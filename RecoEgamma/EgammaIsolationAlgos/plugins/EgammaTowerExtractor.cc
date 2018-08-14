@@ -8,7 +8,7 @@
 //C++ includes
 #include <vector>
 #include <functional>
-#include <math.h>
+#include <cmath>
 
 //ROOT includes
 #include <Math/VectorUtil.h>

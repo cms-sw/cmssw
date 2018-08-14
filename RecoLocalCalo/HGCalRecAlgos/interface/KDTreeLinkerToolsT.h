@@ -2,6 +2,7 @@
 #define KDTreeLinkerToolsTemplated_h
 
 #include <array>
+#include <vector>
 
 // Box structure used to define 2D field.
 // It's used in KDTree building step to divide the detector
@@ -67,7 +68,7 @@ struct KDTreeNodeT
   
   public:
   KDTreeNodeT()
-    : left(0), right(0)
+    : left(nullptr), right(nullptr)
   {}
   
   void setAttributs(const KDTreeBoxT<DIM>& regionBox,

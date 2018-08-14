@@ -127,11 +127,11 @@ public:
   int sizeY() const { return colSpan() +1;}
   
   
-  inline float charge() const {
-    float qm = 0.0;
+  inline int charge() const {
+    int qm = 0;
     int isize = thePixelADC.size();
     for (int i=0; i<isize; ++i) 
-      qm += float(thePixelADC[i]);
+      qm += thePixelADC[i];
     return qm;
   } // Return total cluster charge.
   

@@ -4,6 +4,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignmentParametersData.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include <map>
@@ -30,7 +31,7 @@ class CompositeAlignmentParameters
 public:
 
   /// vector of alignable components 
-  typedef std::vector<Alignable*> Components;
+  typedef align::Alignables Components;
 
   typedef std::map<AlignableDetOrUnitPtr,Alignable*> AlignableDetToAlignableMap;
   typedef std::map<Alignable*,int> Aliposmap;
@@ -112,14 +113,14 @@ public:
 
 
   /// Extract parameters for subset of alignables
-  AlgebraicVector parameterSubset ( const std::vector<Alignable*>& vec ) const;
+  AlgebraicVector parameterSubset (const align::Alignables&) const;
 
   /// Extract covariance matrix for subset of alignables
-  AlgebraicSymMatrix covarianceSubset( const std::vector<Alignable*>& vec ) const;
+  AlgebraicSymMatrix covarianceSubset(const align::Alignables&) const;
 
   /// Extract covariance matrix elements between two subsets of alignables
-  AlgebraicMatrix covarianceSubset ( const std::vector<Alignable*>& veci,
-                                     const std::vector<Alignable*>& vecj ) const;
+  AlgebraicMatrix covarianceSubset (const align::Alignables&,
+                                    const align::Alignables&) const;
 
 protected:
   DataContainer theData;
@@ -127,13 +128,13 @@ protected:
 private:
 
   /// Extract position and length of parameters for a subset of Alignables.
-  bool extractPositionAndLength( const std::vector<Alignable*>& alignables,
+  bool extractPositionAndLength( const align::Alignables& alignables,
 				 std::vector<int>& posvec,
 				 std::vector<int>& lenvec,
 				 int& length ) const;
 
   /// Return vector of alignables without multiple occurences.
-  std::vector< Alignable* > extractAlignables( const std::vector< Alignable* >& alignables ) const;
+  align::Alignables extractAlignables(const align::Alignables&) const;
 
   /// backward compatibility method to convert vectors from specific AlignableDet
   /// to more general AlignableDetOrUnitPtr

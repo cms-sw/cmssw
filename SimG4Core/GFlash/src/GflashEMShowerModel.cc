@@ -59,10 +59,8 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 
   // This will be changed accordingly when the way 
   // dealing with CaloRegion changes later.
-  G4TouchableHistory* touch = 
-    (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
-  G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
-  if( pCurrentVolume == 0) { return false; }
+  G4VPhysicalVolume* pCurrentVolume = (fastTrack.GetPrimaryTrack()->GetTouchable())->GetVolume();
+  if( pCurrentVolume == nullptr) { return false; }
 
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
   if(lv->GetRegion() != theRegion) { return false; }
@@ -116,7 +114,7 @@ void GflashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
       // Copied from G4SteppingManager.cc
     
       G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-      if( aCurrentVolume == 0 ) continue;
+      if( aCurrentVolume == nullptr ) continue;
 
       G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
       if(lv->GetRegion() != theRegion) continue;
@@ -124,7 +122,7 @@ void GflashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
       theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
       G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
       
-      if( aSensitive == 0 ) continue;
+      if( aSensitive == nullptr ) continue;
 
       theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy());
       aSensitive->Hit(theGflashStep);

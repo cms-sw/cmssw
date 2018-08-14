@@ -14,7 +14,7 @@
 FWGeoTopNodeGLScene::FWGeoTopNodeGLScene(TVirtualPad* pad) :
    TGLScenePad(pad),
    // fNextCompositeID(0),
-   m_eveTopNode(0)
+   m_eveTopNode(nullptr)
 {
    // Constructor.
    // fInternalPIDs = false;
@@ -33,7 +33,7 @@ Bool_t FWGeoTopNodeGLScene::OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D
       return kFALSE;
    }
 
-   UInt_t extraSections = TGLScenePad::AddObject(phyID, buffer, 0);
+   UInt_t extraSections = TGLScenePad::AddObject(phyID, buffer, nullptr);
    if (extraSections != TBuffer3D::kNone) {
       Error("FWGeoTopNodeGLScene::OpenComposite", "expected top level composite to not require extra buffer sections");
    }
@@ -91,7 +91,7 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
       rec.SetLogShape(FindLogical(m_eveTopNode));
 #endif
       rec.SetObject(m_eveTopNode);
-      rec.SetSpecific(0);
+      rec.SetSpecific(nullptr);
       return kTRUE;
    }
    return kFALSE;

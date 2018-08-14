@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -46,9 +46,9 @@ class PFSimParticleProducer : public edm::stream::EDProducer<> {
 
   explicit PFSimParticleProducer(const edm::ParameterSet&);
 
-  ~PFSimParticleProducer();
+  ~PFSimParticleProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::Handle<reco::PFRecTrackCollection> TrackHandle;
   void getSimIDs( const TrackHandle& trackh,
@@ -65,8 +65,8 @@ class PFSimParticleProducer : public edm::stream::EDProducer<> {
   //MC Truth Matching 
   //modif-beg
   bool mctruthMatchingInfo_;
-  edm::InputTag    inputTagFamosSimHits_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>    tokenFamosSimHits_;
+  edm::InputTag    inputTagFastSimProducer_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>    tokenFastSimProducer_;
   //modif-end
 
   edm::InputTag   inputTagRecTracks_;

@@ -41,6 +41,7 @@ pointer to a ProductResolver, when queried.
 namespace edm {
 
   class HistoryAppender;
+  class MergeableRunProductMetadata;
   class ModuleCallingContext;
   class ProcessHistoryRegistry;
   class ProductResolverIndexHelper;
@@ -48,6 +49,7 @@ namespace edm {
   class SharedResourcesAcquirer;
   class InputProductResolver;
   class WaitingTask;
+  class UnscheduledConfigurator;
 
   struct FilledProductPtr {
     bool operator()(propagate_const<std::shared_ptr<ProductResolverBase>> const& iObj) { return bool(iObj);}
@@ -73,7 +75,7 @@ namespace edm {
               HistoryAppender* historyAppender,
               bool isForPrimaryProcess = true);
 
-    virtual ~Principal();
+    ~Principal() override;
 
     bool adjustToNewProductRegistry(ProductRegistry const& reg);
 
@@ -82,7 +84,9 @@ namespace edm {
     void fillPrincipal(ProcessHistoryID const& hist, ProcessHistoryRegistry const& phr, DelayedReader* reader);
 
     void clearPrincipal();
-
+    
+    void setupUnscheduled(UnscheduledConfigurator const&);
+  
     void deleteProduct(BranchID const& id) const;
     
     EDProductGetter const* prodGetter() const {return this;}
@@ -124,6 +128,7 @@ namespace edm {
     void prefetchAsync(WaitingTask* waitTask,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
+                       ServiceToken const& token,
                        ModuleCallingContext const* mcc) const;
 
     void getManyByType(TypeID const& typeID,
@@ -181,17 +186,11 @@ namespace edm {
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
-    void readAllFromSourceAndMergeImmediately();
-    //For end Run/Lumi we need to reset products failed in the begin
-    // transition since they may be put into the Principal at the
-    // end transition
-    void resetFailedFromThisProcess();
+    void readAllFromSourceAndMergeImmediately(MergeableRunProductMetadata const* mergeableRunProductMetadata = nullptr);
     
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
     ConstProductResolverPtr getProductResolverByIndex(ProductResolverIndex const& oid) const;
-
-    bool isComplete() const {return isComplete_();}
 
   protected:
 
@@ -224,9 +223,9 @@ namespace edm {
     void addParentProcessProduct(std::shared_ptr<BranchDescription const> bd);
     
 
-    virtual WrapperBase const* getIt(ProductID const&) const override;
-    virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
-    virtual void getThinnedProducts(ProductID const&,
+    WrapperBase const* getIt(ProductID const&) const override;
+    WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+    void getThinnedProducts(ProductID const&,
                                     std::vector<WrapperBase const*>&,
                                     std::vector<unsigned int>&) const override;
 
@@ -252,13 +251,12 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    virtual bool isComplete_() const {return true;}
-    
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
     
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
 
     ProcessHistoryID processHistoryID_;
+    ProcessHistoryID processHistoryIDBeforeConfig_;
 
     ProcessConfiguration const* processConfiguration_;
 
@@ -285,7 +283,6 @@ namespace edm {
     edm::propagate_const<HistoryAppender*> historyAppender_;
     
     CacheIdentifier_t cacheIdentifier_;
-
   };
 
   template <typename PROD>

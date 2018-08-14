@@ -62,7 +62,7 @@ class TrackGenAssociatorByChi2Impl : public reco::TrackToGenParticleAssociatorBa
 					       const edm::RefVector<reco::GenParticleCollection>&) const override;
 
   /// compare reco to sim the handle of reco::Track and GenParticle collections
-  virtual reco::RecoToGenCollection associateRecoToGen(const edm::Handle<edm::View<reco::Track> >& tCH, 
+  reco::RecoToGenCollection associateRecoToGen(const edm::Handle<edm::View<reco::Track> >& tCH, 
 						       const edm::Handle<reco::GenParticleCollection>& tPCH) const override { 
     edm::RefToBaseVector<reco::Track> tc(tCH);
     for (unsigned int j=0; j<tCH->size();j++)
@@ -76,7 +76,7 @@ class TrackGenAssociatorByChi2Impl : public reco::TrackToGenParticleAssociatorBa
   }
   
   /// compare reco to sim the handle of reco::Track and GenParticle collections
-  virtual reco::GenToRecoCollection associateGenToReco(const edm::Handle<edm::View<reco::Track> >& tCH, 
+  reco::GenToRecoCollection associateGenToReco(const edm::Handle<edm::View<reco::Track> >& tCH, 
 						       const edm::Handle<reco::GenParticleCollection>& tPCH) const override {
     edm::RefToBaseVector<reco::Track> tc(tCH);
     for (unsigned int j=0; j<tCH->size();j++)

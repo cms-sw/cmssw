@@ -11,7 +11,7 @@
 #include "TSystem.h"
 #include "TROOT.h"
 #include "TEnv.h"
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -70,20 +70,20 @@ public:
 #endif
 
 ClassImp(TStorageFactoryFile)
-static StorageAccount::Counter *s_statsCtor = 0;
-static StorageAccount::Counter *s_statsOpen = 0;
-static StorageAccount::Counter *s_statsClose = 0;
-static StorageAccount::Counter *s_statsFlush = 0;
-static StorageAccount::Counter *s_statsStat = 0;
-static StorageAccount::Counter *s_statsSeek = 0;
-static StorageAccount::Counter *s_statsRead = 0;
-static StorageAccount::Counter *s_statsCRead = 0;
-static StorageAccount::Counter *s_statsCPrefetch = 0;
-static StorageAccount::Counter *s_statsARead = 0;
-static StorageAccount::Counter *s_statsXRead = 0;
-static StorageAccount::Counter *s_statsWrite = 0;
-static StorageAccount::Counter *s_statsCWrite = 0;
-static StorageAccount::Counter *s_statsXWrite = 0;
+static StorageAccount::Counter *s_statsCtor = nullptr;
+static StorageAccount::Counter *s_statsOpen = nullptr;
+static StorageAccount::Counter *s_statsClose = nullptr;
+static StorageAccount::Counter *s_statsFlush = nullptr;
+static StorageAccount::Counter *s_statsStat = nullptr;
+static StorageAccount::Counter *s_statsSeek = nullptr;
+static StorageAccount::Counter *s_statsRead = nullptr;
+static StorageAccount::Counter *s_statsCRead = nullptr;
+static StorageAccount::Counter *s_statsCPrefetch = nullptr;
+static StorageAccount::Counter *s_statsARead = nullptr;
+static StorageAccount::Counter *s_statsXRead = nullptr;
+static StorageAccount::Counter *s_statsWrite = nullptr;
+static StorageAccount::Counter *s_statsCWrite = nullptr;
+static StorageAccount::Counter *s_statsXWrite = nullptr;
 
 
 static inline StorageAccount::Counter &
@@ -207,7 +207,7 @@ TStorageFactoryFile::Initialize(const char *path,
     if (statsService.isAvailable()) {
       statsService->setSize(storage_->size());
     }
-  } catch (edm::Exception e) {
+  } catch (edm::Exception const& e) {
     if (e.categoryCode() != edm::errors::NotFound) {
       throw;
     }
@@ -278,9 +278,10 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
                                  ? storageCounter(s_statsCPrefetch, StorageAccount::Operation::readPrefetchToCache)
                                  : storageCounter(s_statsCRead, StorageAccount::Operation::readViaCache));
 
-    Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
+    Int_t st = ReadBufferViaCache(async ? nullptr : buf, len);
 
     if (st == 2) {
+      Error("ReadBuffer","ReadBufferViaCache failed. Asked to read nBytes: %d from offset: %lld with file size: %lld",len, here, GetSize());
       return kTRUE;
     }
 
@@ -304,6 +305,9 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
+  if(n < static_cast<IOSize>(len)) {
+    Error("ReadBuffer", "read from Storage::xread returned %ld. Asked to read n bytes: %d from offset: %lld with file size: %lld",n, len, GetRelOffset(), GetSize());
+  }
   return n ? kFALSE : kTRUE;
 }
 
@@ -345,7 +349,7 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     ;
   }
 
-  IOPosBuffer iov(off, (void *) 0, len ? len : PREFETCH_PROBE_LENGTH);
+  IOPosBuffer iov(off, (void *) nullptr, len ? len : PREFETCH_PROBE_LENGTH);
   if (storage_->prefetch(&iov, 1))
   {
     stats.tick(len);
@@ -410,6 +414,7 @@ TStorageFactoryFile::ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t
     std::vector<IOPosBuffer> &iov = repacker.iov();
     IOSize result = storage_->readv(&iov[0], iov.size());
     if (result != io_buffer_used) {
+      Error("ReadBuffersSync","Storage::readv returned different size result=%ld expected=%ld",result,io_buffer_used);
       return kTRUE;
     }
     xstats.tick(io_buffer_used);
@@ -454,7 +459,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   // optimization itself.
 
   // Read from underlying storage.
-  void* const nobuf = 0;
+  void* const nobuf = nullptr;
   Int_t total = 0;
   std::vector<IOPosBuffer> iov;
   iov.reserve(nbuf);
@@ -473,7 +478,13 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   astats.tick(total);
 
   // If it didn't suceeed, pass down to the base class.
-  return success ? kFALSE : TFile::ReadBuffers(buf, pos, len, nbuf);
+  if(not success) {
+    if(TFile::ReadBuffers(buf, pos, len, nbuf)) {
+      Error("ReadBuffers", "call to TFile::ReadBuffers failed after prefetch already failed.");
+      return kTRUE;
+    }
+  }
+  return kFALSE;
 }
 
 Bool_t

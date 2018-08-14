@@ -51,6 +51,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 
 #include <string>
 
@@ -58,8 +59,8 @@ using namespace reco ;
 
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : //conf_(iConfig),
-   applyHOverECut_(true), hcalHelper_(0),
-   caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
+   applyHOverECut_(true), hcalHelper_(nullptr),
+   caloGeom_(nullptr), caloGeomCacheId_(0), caloTopo_(nullptr), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
@@ -202,7 +203,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
      { theInitialSeedColl = new TrajectorySeedCollection ; }
    }
   else
-   { theInitialSeedColl = 0 ; } // not needed in this case
+   { theInitialSeedColl = nullptr ; } // not needed in this case
 
   ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
@@ -273,9 +274,9 @@ void ElectronSeedProducer::filterClusters
          scle = scl.energy() ;
          int det_group = scl.seed()->hitsAndFractions()[0].first.det() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
-         else if( detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
-         else if( allowHGCal_ && (detector==HcalEndcap || det_group == DetId::Forward) ) {
+         if ( detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
+         else if( !allowHGCal_ && detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_) ) HoeVeto=true;
+         else if( allowHGCal_ && EcalTools::isHGCalDet((DetId::Detector)det_group) ) {
            float had_fraction = hgcClusterTools_->getClusterHadronFraction(*(scl.seed()));
            had1 = had_fraction*scl.seed()->energy();
            had2 = 0.;

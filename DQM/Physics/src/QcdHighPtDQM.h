@@ -23,7 +23,7 @@ class MonitorElement;
 class QcdHighPtDQM : public DQMEDAnalyzer {
  public:
   QcdHighPtDQM(const edm::ParameterSet&);
-  virtual ~QcdHighPtDQM();
+  ~QcdHighPtDQM() override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;

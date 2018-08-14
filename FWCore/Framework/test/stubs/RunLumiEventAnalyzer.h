@@ -27,7 +27,6 @@ namespace edmtest {
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
     virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
     virtual void endJob();
-    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
   private:
 

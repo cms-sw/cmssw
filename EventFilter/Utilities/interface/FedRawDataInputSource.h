@@ -2,7 +2,7 @@
 #define EventFilter_Utilities_FedRawDataInputSource_h
 
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 #include <mutex>
 #include <condition_variable>
 #include <thread>
@@ -20,53 +20,42 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "EventFilter/FEDInterface/interface/FED1024.h"
-
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
 
-class InputFile;
-class InputChunk;
+struct InputFile;
+struct  InputChunk;
 
 namespace evf {
 class FastMonitoringService;
 }
 
-namespace jsoncollector {
-class DataPointDefinition;
-}
-
-
 class FedRawDataInputSource: public edm::RawInputSource {
 
-friend class InputFile;
-friend class InputChunk;
+friend struct InputFile;
+friend struct InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
-  virtual ~FedRawDataInputSource();
+  ~FedRawDataInputSource() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   std::pair<bool,unsigned int> getEventReport(unsigned int lumi, bool erase);
 protected:
-  virtual bool checkNextEvent() override;
-  virtual void read(edm::EventPrincipal& eventPrincipal) override;
+  bool checkNextEvent() override;
+  void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:
-  virtual void preForkReleaseResources() override;
-  virtual void postForkReacquireResources(std::shared_ptr<edm::multicore::MessageReceiverForSource>) override;
-  virtual void rewind_() override;
+  void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
-  void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
   void deleteFile(std::string const&);
-  int grabNextJsonFile(boost::filesystem::path const&);
 
   void readSupervisor();
   void readWorker(unsigned int tid);
@@ -79,7 +68,7 @@ private:
   //monitoring
   void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
 
-  long initFileList(); 
+  long initFileList();
   evf::EvFDaqDirector::FileStatus getFile(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
 
   //variables
@@ -98,10 +87,12 @@ private:
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
+  const bool alwaysStartFromFirstLS_;
   const bool verifyAdler32_;
   const bool verifyChecksum_;
   const bool useL1EventID_;
   std::vector<std::string> fileNames_;
+  bool useFileBroker_;
   //std::vector<std::string> fileNamesSorted_;
 
   const bool fileListMode_;
@@ -126,8 +117,6 @@ private:
   unsigned char *tcds_pointer_;
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
-
-  jsoncollector::DataPointDefinition *dpd_;
 
   /*
    *
@@ -165,7 +154,7 @@ private:
   std::list<std::pair<int,InputFile*>> filesToDelete_;
   std::list<std::pair<int,std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
-  std::vector<int> *streamFileTrackerPtr_ = nullptr;
+  std::vector<int> streamFileTracker_;
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 
@@ -215,7 +204,7 @@ struct InputFile {
   evf::EvFDaqDirector::FileStatus status_;
   unsigned int lumi_;
   std::string fileName_;
-  uint32_t fileSize_;
+  uint64_t fileSize_;
   uint32_t nChunks_;
   int nEvents_;
   unsigned int nProcessed_;
@@ -226,8 +215,8 @@ struct InputFile {
   uint32_t  chunkPosition_ = 0;
   unsigned int currentChunk_ = 0;
 
-  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
-      uint32_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
+  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(),
+      uint64_t fileSize =0, uint32_t nChunks=0, int nEvents=0, FedRawDataInputSource *parent = nullptr):
     parent_(parent),
     status_(status),
     lumi_(lumi),

@@ -50,10 +50,10 @@ class ProcTMVA : public VarProcessor {
 	ProcTMVA(const char *name,
 	         const Calibration::ProcExternal *calib,
 	         const MVAComputer *computer);
-	virtual ~ProcTMVA() {}
+	~ProcTMVA() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
   std::unique_ptr<TMVA::Reader>     reader;
@@ -65,7 +65,7 @@ class ProcTMVA : public VarProcessor {
   TString   methodName_t;
 };
 
-static ProcTMVA::Registry registry("ProcTMVA");
+ProcTMVA::Registry registry("ProcTMVA");
 
 ProcTMVA::ProcTMVA(const char *name,
                    const Calibration::ProcExternal *calib,

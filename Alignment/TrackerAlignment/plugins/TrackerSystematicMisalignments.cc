@@ -22,7 +22,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CLHEP/Random/RandGauss.h"
 
 #include "Alignment/TrackerAlignment/plugins/TrackerSystematicMisalignments.h"
@@ -39,7 +39,7 @@
 // made some variables constant, removed obviously dead code and comments
 
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
-  : theAlignableTracker(0)
+  : theAlignableTracker(nullptr)
 {
 	// use existing geometry
 	m_fromDBGeom = cfg.getUntrackedParameter< bool > ("fromDBGeom");

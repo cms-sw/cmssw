@@ -9,6 +9,7 @@
 class CustomKinFitter : public CandMassKinFitter {
 public:
   CustomKinFitter(double mass) : CandMassKinFitter(mass) { }
+  virtual ~CustomKinFitter() = default;
 private:
   virtual double errEt(double et, double eta) const { return 0.2; }
   virtual double errEta(double et, double eta) const { return 0.2; }

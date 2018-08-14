@@ -11,12 +11,13 @@
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+#include "L1Trigger/L1TMuonOverlap/interface/XMLConfigReader.h"
 
 class L1TMuonOverlapParamsESProducer : public edm::ESProducer {
    public:
   
       L1TMuonOverlapParamsESProducer(const edm::ParameterSet&);
-      ~L1TMuonOverlapParamsESProducer();
+      ~L1TMuonOverlapParamsESProducer() override;
 
       typedef std::shared_ptr<L1TMuonOverlapParams> ReturnType;
 

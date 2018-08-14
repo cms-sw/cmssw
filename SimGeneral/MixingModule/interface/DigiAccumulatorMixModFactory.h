@@ -3,16 +3,13 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 namespace edm {
   class ConsumesCollector;
   class ParameterSet;
-  namespace one {
-    class EDProducerBase;
-  }
 
-  typedef DigiAccumulatorMixMod*(DAFunc)(ParameterSet const&, stream::EDProducerBase&, ConsumesCollector&);
+  typedef DigiAccumulatorMixMod*(DAFunc)(ParameterSet const&, ProducerBase&, ConsumesCollector&);
   typedef edmplugin::PluginFactory<DAFunc> DigiAccumulatorMixModPluginFactory;
 
   class DigiAccumulatorMixModFactory {
@@ -22,7 +19,7 @@ namespace edm {
     static DigiAccumulatorMixModFactory const* get();
 
     std::unique_ptr<DigiAccumulatorMixMod>
-      makeDigiAccumulator(ParameterSet const&, stream::EDProducerBase&, ConsumesCollector&) const;
+      makeDigiAccumulator(ParameterSet const&, ProducerBase&, ConsumesCollector&) const;
 
   private:
     DigiAccumulatorMixModFactory();

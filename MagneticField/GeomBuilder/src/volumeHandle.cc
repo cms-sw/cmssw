@@ -8,7 +8,7 @@
 
 #include "MagneticField/GeomBuilder/src/volumeHandle.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -39,12 +39,12 @@ MagGeoBuilderFromDDD::volumeHandle::~volumeHandle(){
 MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi)
   : name(fv.logicalPart().name().name()),
     copyno(fv.copyno()),
-    magVolume(0),
+    magVolume(nullptr),
     masterSector(1),
     theRN(0.),
     theRMin(0.),
     theRMax(0.),
-    refPlane(0),
+    refPlane(nullptr),
     solid(fv.logicalPart().solid()),
     center_(GlobalPoint(fv.translation().x()/cm,
 			fv.translation().y()/cm,
@@ -69,20 +69,20 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 
   referencePlane(fv);
 
-  if (solid.shape() == ddbox) {
+  if (solid.shape() == DDSolidShape::ddbox) {
     buildBox(fv);
-  } else if (solid.shape() == ddtrap) {
+  } else if (solid.shape() == DDSolidShape::ddtrap) {
     buildTrap(fv);
-  } else if (solid.shape() == ddcons) {
+  } else if (solid.shape() == DDSolidShape::ddcons) {
     buildCons(fv);
-  } else if (solid.shape() == ddtubs) {   
+  } else if (solid.shape() == DDSolidShape::ddtubs) {   
     buildTubs(fv);
-  } else if (solid.shape() == ddpseudotrap) {   
+  } else if (solid.shape() == DDSolidShape::ddpseudotrap) {   
     buildPseudoTrap(fv);
-  } else if (solid.shape() == ddtrunctubs) {   
+  } else if (solid.shape() == DDSolidShape::ddtrunctubs) {   
     buildTruncTubs(fv);
   } else {
-    cout << "volumeHandle ctor: Unexpected solid: " << (int) solid.shape() << endl;
+    cout << "volumeHandle ctor: Unexpected solid: " << DDSolidShapesName::name(solid.shape()) << endl;
   }
 
 
@@ -146,10 +146,10 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     cout << " RMax =  " << theRMax <<endl;
       
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN) 
-      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << (int) shape() << endl;
+      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << DDSolidShapesName::name(shape()) << endl;
 
     cout << "Summary: " << name << " " << copyno
-	 << " Shape= " << (int) shape()
+	 << " Shape= " << DDSolidShapesName::name(shape())
 	 << " trasl " << center()
 	 << " R " << center().perp()
 	 << " phi " << center().phi()
@@ -228,7 +228,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
 
     // See comments above for the conventions for orientation.
     LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z 
-    if (solid.shape() == ddpseudotrap) {
+    if (solid.shape() == DDSolidShape::ddpseudotrap) {
       globalZdir = LocalVector(0.,1.,0.);    
     }
     if (refPlane->toGlobal(globalZdir).z()<0.) {
@@ -328,9 +328,9 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
   const Surface & s2 = *(surfaces[which_side]);
   // Try with a plane.
   const Plane * p1 = dynamic_cast<const Plane*>(&s1);
-  if (p1!=0) {
+  if (p1!=nullptr) {
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
-    if (p2==0) {
+    if (p2==nullptr) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
@@ -354,9 +354,9 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
 
   // Try with a cylinder.  
   const Cylinder * cy1 = dynamic_cast<const Cylinder*>(&s1);
-  if (cy1!=0) {
+  if (cy1!=nullptr) {
     const Cylinder * cy2 = dynamic_cast<const Cylinder*>(&s2);
-    if (cy2==0) {
+    if (cy2==nullptr) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
@@ -370,9 +370,9 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
 
   // Try with a cone.  
   const Cone * co1 = dynamic_cast<const Cone*>(&s1);
-  if (co1!=0) {
+  if (co1!=nullptr) {
     const Cone * co2 = dynamic_cast<const Cone*>(&s2);
-    if (co2==0) {
+    if (co2==nullptr) {
       if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
@@ -405,7 +405,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::setSurface(const Surface & s1, Sides wh
     //FIXME: Just planes for the time being!!!
     const Plane * p1 = dynamic_cast<const Plane*>(&s1);
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
-    if (p1!=0 && p2 !=0) 
+    if (p1!=nullptr && p2 !=nullptr) 
       cout << p1->normalVector() << p1->position() << endl
 	   << p2->normalVector() << p2->position() << endl;
     return false;
@@ -452,7 +452,7 @@ MagGeoBuilderFromDDD::volumeHandle::sides() const{
     if (expand && (i==phiplus || i==phiminus)) continue;
 
     // FIXME: Skip null inner degenerate cylindrical surface
-    if (solid.shape() == ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
+    if (solid.shape() == DDSolidShape::ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
 
     ReferenceCountingPointer<Surface> s = const_cast<Surface*> (surfaces[i].get());
     result.push_back(VolumeSide(s, GlobalFace(i),
@@ -466,7 +466,7 @@ void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterato
     for (handles::const_iterator i = begin; 
 	 i != end; ++i){
       if (uniq) names.push_back((*i)->name);
-      else names.push_back((*i)->name+":"+boost::lexical_cast<string>((*i)->copyno));
+      else names.push_back((*i)->name+":"+std::to_string((*i)->copyno));
     }
      
     sort(names.begin(),names.end());

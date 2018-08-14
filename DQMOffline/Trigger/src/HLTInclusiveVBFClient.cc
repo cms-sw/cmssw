@@ -40,9 +40,7 @@ HLTInclusiveVBFClient::HLTInclusiveVBFClient( const edm::ParameterSet& iConfig )
 }
 
 
-HLTInclusiveVBFClient::~HLTInclusiveVBFClient() {
-
-}
+HLTInclusiveVBFClient::~HLTInclusiveVBFClient() = default;
 
 
 void HLTInclusiveVBFClient::beginJob() {
@@ -55,9 +53,6 @@ void HLTInclusiveVBFClient::beginRun(const edm::Run& r, const edm::EventSetup& c
 }
 
 
-void HLTInclusiveVBFClient::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-
-}
 
 
 void HLTInclusiveVBFClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ) {

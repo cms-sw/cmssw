@@ -131,7 +131,7 @@ void TestProductResolverIndexHelper::testOneEntry() {
     CPPUNIT_ASSERT(indexToModules.size() == 1);
     CPPUNIT_ASSERT(indexToModules.count("labelA") == 1);
     auto const& range = indexToModules.equal_range("labelA");
-    CPPUNIT_ASSERT( range.first->second == indexWithProcess);
+    CPPUNIT_ASSERT( std::get<2>(range.first->second) == indexWithProcess);
   }
   
   {

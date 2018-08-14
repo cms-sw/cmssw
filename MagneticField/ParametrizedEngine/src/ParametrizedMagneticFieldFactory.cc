@@ -6,7 +6,7 @@
 #include <MagneticField/ParametrizedEngine/interface/ParametrizedMagneticFieldFactory.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
+#include "MagneticField/UniformEngine/interface/UniformMagneticField.h"
 #include "OAEParametrizedMagneticField.h"
 #include "ParabolicParametrizedMagneticField.h"
 #include "PolyFit2DParametrizedMagneticField.h"
@@ -42,7 +42,7 @@ ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parame
   }  else {
     throw cms::Exception("InvalidParameter")<<"Invalid parametrization version " << version;
   }
-  return std::auto_ptr<MagneticField>(0); //make compiler happy
+  return std::auto_ptr<MagneticField>(nullptr); //make compiler happy
 }
 
 
@@ -74,5 +74,5 @@ ParametrizedMagneticFieldFactory::get(string version, vector<double> parameters)
   }  else {
     throw cms::Exception("InvalidParameter")<<"Invalid parametrization version " << version;
   }
-  return std::auto_ptr<MagneticField>(0); //make compiler happy
+  return std::auto_ptr<MagneticField>(nullptr); //make compiler happy
 }

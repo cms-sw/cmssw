@@ -20,7 +20,7 @@ namespace reco{
   class CaloTauTagInfo : public BaseTauTagInfo {
   public:
     CaloTauTagInfo(){}
-    virtual ~CaloTauTagInfo(){};
+    ~CaloTauTagInfo() override{};
     virtual CaloTauTagInfo* clone()const;
     
     //the reference to the CaloJet

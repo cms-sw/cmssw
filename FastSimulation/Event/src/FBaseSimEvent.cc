@@ -610,7 +610,7 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
     int partId = p->pdg_id();
     std::string name;
 
-    if ( pdt->particle(ParticleID(partId)) !=0 ) {
+    if ( pdt->particle(ParticleID(partId)) !=nullptr ) {
       name = (pdt->particle(ParticleID(partId)))->name();
     } else {
       name = "none";

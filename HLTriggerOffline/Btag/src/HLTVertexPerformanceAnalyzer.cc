@@ -5,6 +5,7 @@ using namespace reco;
 
 HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
+	mainFolder_                     = iConfig.getParameter<std::string>("mainFolder");
 	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	VertexCollection_           = 	edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "Vertex" ), [this](edm::InputTag const & tag){return mayConsume< reco::VertexCollection>(tag);});
 	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
@@ -81,7 +82,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 	Handle<std::vector<SimVertex> > simVertexCollection;
 	iEvent.getByToken(simVertexCollection_, simVertexCollection);
 	if (!simVertexCollection.isValid()) { edm::LogInfo("NoSimVertex") << "SimVertex collection is invalid"; return;}
-	if (simVertexCollection->size()==0) { edm::LogInfo("NoSimVertex") << "SimVertex collection is empty"; return;}
+	if (simVertexCollection->empty()) { edm::LogInfo("NoSimVertex") << "SimVertex collection is empty"; return;}
 	const SimVertex simPVh = *(simVertexCollection->begin());
 	simPV=simPVh.position().z();
 	
@@ -122,7 +123,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, e
 	using namespace std;
 	std::string dqmFolder;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-		dqmFolder = Form("HLT/BTag/Vertex/%s",hltPathNames_[ind].c_str());
+		dqmFolder = Form("%s/Vertex/%s",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		ibooker.setCurrentFolder(dqmFolder);
 		for (unsigned int coll=0; coll<VertexCollection_.size();coll++) {

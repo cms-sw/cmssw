@@ -12,6 +12,7 @@
 //f.e. which pac, or TB or TC should run given LogCone
 class RPCTriggerConfiguration {
 public:
+  virtual ~RPCTriggerConfiguration() = default;
   ///returns count of Trigger Crates in system.
   virtual int getTCsCnt() = 0;
 

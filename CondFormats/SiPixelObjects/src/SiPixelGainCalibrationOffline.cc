@@ -188,7 +188,7 @@ float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, con
   int maxRow = lengthOfColumnData - (lengthOfColumnData % numberOfRowsToAverageOver_) - 1;
   if (col >= nCols || row > maxRow){
     throw cms::Exception("CorruptedData")
-      << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col;
+      << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
   }  
   return decodeGain(s.datum & 0xFF);
 }

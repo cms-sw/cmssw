@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -121,7 +121,7 @@ void TempTrajectory::check() const {
 
 bool TempTrajectory::lost( const TrackingRecHit& hit)
 {
-  if  likely(hit.isValid()) return false;
+  if  LIKELY(hit.isValid()) return false;
 
   //     // A DetLayer is always inactive in this logic.
   //     // The DetLayer is the Det of an invalid RecHit only if no DetUnit 

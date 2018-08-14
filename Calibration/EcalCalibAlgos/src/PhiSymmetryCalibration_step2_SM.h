@@ -15,12 +15,12 @@ class PhiSymmetryCalibration_step2_SM :  public edm::EDAnalyzer
  public:
 
   PhiSymmetryCalibration_step2_SM(const edm::ParameterSet& iConfig);
-  ~PhiSymmetryCalibration_step2_SM();
+  ~PhiSymmetryCalibration_step2_SM() override;
   
-  void beginJob();
-  void endJob();
+  void beginJob() override;
+  void endJob() override;
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
   void fillHistos();
   void fillConstantsHistos();

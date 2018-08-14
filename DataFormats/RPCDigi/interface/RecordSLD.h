@@ -29,7 +29,7 @@ public:
   // specialize given recort to this type
   RecordSLD(const DataRecord & rec) : DataRecord(rec) {}
 
-  virtual ~RecordSLD() {}
+  ~RecordSLD() override {}
 
   int tbLinkInputNumber() const {
      return (theData >> TB_LINK_INPUT_NUMBER_SHIFT)& TB_LINK_INPUT_NUMBER_MASK;

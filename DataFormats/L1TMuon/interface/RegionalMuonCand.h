@@ -12,6 +12,11 @@ class RegionalMuonCand {
     enum bmtfAddress {
         kWheelSide=0, kWheelNum=1, kStat1=2, kStat2=3, kStat3=4, kStat4=5, kSegSelStat1=6, kSegSelStat2=7, kSegSelStat3=8, kSegSelStat4=9, kNumBmtfSubAddr=10
     };
+    /// Enum to identify the individual parts of the OMTF track address
+    /// Update kNumOmtfSubAddr if you add additional enums
+    enum omtfAddress {
+	kLayers=0, kZero=1, kWeight=2, kNumOmtfSubAddr=3
+    };
     /// Enum to identify the individual parts of the EMTF track address
     /// Update kNumEmtfSubAddr if you add additional enums
     enum emtfAddress {
@@ -22,14 +27,30 @@ class RegionalMuonCand {
     explicit RegionalMuonCand(uint64_t dataword);
 
     RegionalMuonCand() :
-      m_hwPt(0), m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0), m_dataword(0)
+    m_hwPt(0),m_hwPt2(0),m_hwDXY(0),m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0),
+      m_dataword(0)
       {
         setTFIdentifiers(0, bmtf);
       };
 
     RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder) :
-      m_hwPt(pt), m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality),
-      m_dataword(0)
+    m_hwPt(pt),m_hwPt2(0),m_hwDXY(0),m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality),
+	m_dataword(0)
+      {
+        setTFIdentifiers(processor, trackFinder);
+        // set default track addresses
+        if (trackFinder == tftype::bmtf) {
+          m_trackAddress = {{kWheelSide, 0}, {kWheelNum, 0}, {kStat1, 0}, {kStat2, 0}, {kStat3, 0}, {kStat4, 0}, {kSegSelStat1, 0}, {kSegSelStat2, 0}, {kSegSelStat3, 0}, {kSegSelStat4, 0}};
+        } else if (trackFinder == tftype::omtf_pos || trackFinder == tftype::omtf_neg) {
+          m_trackAddress = {{kLayers, 0}, {kZero, 0}, {kWeight, 0}};
+        } else if (trackFinder == tftype::emtf_pos || trackFinder == tftype::emtf_neg) {
+          m_trackAddress = {{kME1Seg, 0}, {kME1Ch, 0}, {kME2Seg, 0}, {kME2Ch, 0}, {kME3Seg, 0}, {kME3Ch, 0}, {kME4Seg, 0}, {kME4Ch, 0}, {kTrkNum, 0}, {kBX, 0}};
+        }
+      };
+
+    RegionalMuonCand(int pt, int phi, int eta, int sign, int signvalid, int quality, int processor, tftype trackFinder, std::map<int, int> trackAddress) :
+    m_hwPt(pt) ,m_hwPt2(0),m_hwDXY(0),m_hwPhi(phi), m_hwEta(eta), m_hwHF(false), m_hwSign(sign), m_hwSignValid(signvalid), m_hwQuality(quality), m_trackAddress(trackAddress),
+	m_dataword(0)
       {
         setTFIdentifiers(processor, trackFinder);
       };
@@ -38,6 +59,10 @@ class RegionalMuonCand {
 
     /// Set compressed pT as transmitted by hardware LSB = 0.5 (9 bits)
     void setHwPt(int bits) { m_hwPt = bits; };
+    /// Set compressed second displaced  pT as transmitted by hardware LSB = 1.0 (8 bits)
+    void setHwPt2(int bits) { m_hwPt2 = bits; };
+    /// Set compressed impact parameter with respect to beamspot (4 bits)
+    void setHwDXY(int bits) { m_hwDXY = bits; };
     /// Set compressed relative phi as transmitted by hardware LSB = 2*pi/576 (8 bits)
     void setHwPhi(int bits) { m_hwPhi = bits; };
     /// Set compressed eta as transmitted by hardware LSB = 0.010875 (9 bits)
@@ -62,6 +87,10 @@ class RegionalMuonCand {
     void setTrackSubAddress(bmtfAddress subAddress, int value) {
         m_trackAddress[subAddress] = value;
     }
+    /// Set a part of the muon candidates track address; specialised for OMTF
+    void setTrackSubAddress(omtfAddress subAddress, int value) {
+        m_trackAddress[subAddress] = value;
+    }
     /// Set a part of the muon candidates track address; specialised for EMTF
     void setTrackSubAddress(emtfAddress subAddress, int value) {
         m_trackAddress[subAddress] = value;
@@ -74,6 +103,10 @@ class RegionalMuonCand {
 
     /// Get compressed pT (returned int * 0.5 = pT (GeV))
     const int hwPt() const { return m_hwPt; };
+    /// Get second compressed pT (returned int * 1.0 = pT (GeV))
+    const int hwPt2() const { return m_hwPt2; };
+    /// Get compressed impact parameter (4 bits)
+    const int hwDXY() const { return m_hwDXY; };
     /// Get compressed local phi (returned int * 2*pi/576 = local phi in rad)
     const int hwPhi() const { return m_hwPhi; };
     /// Get compressed eta (returned int * 0.010875 = eta)
@@ -107,13 +140,22 @@ class RegionalMuonCand {
         return m_trackAddress.at(subAddress);
     }
     /// Get part of track address (identifies track primitives used for reconstruction)
+    int trackSubAddress(omtfAddress subAddress) const {
+        return m_trackAddress.at(subAddress);
+    }
+    /// Get part of track address (identifies track primitives used for reconstruction)
     int trackSubAddress(emtfAddress subAddress) const {
         return m_trackAddress.at(subAddress);
     }
 
+  bool operator==(const RegionalMuonCand& rhs) const;
+  inline bool operator!=(const RegionalMuonCand& rhs) const { return !(operator==(rhs)); };
+
 
   private:
     int m_hwPt;
+    int m_hwPt2;
+    int m_hwDXY;
     int m_hwPhi;
     int m_hwEta;
     bool m_hwHF;

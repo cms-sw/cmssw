@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # taken from hltHiggsValidator_cfi.py in HLTriggerOffline/Higgs/python
-hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltSMPValidator = DQMEDAnalyzer('HLTHiggsValidator',
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),
-    analysis       = cms.vstring("SinglePhoton"),
+    analyses       = cms.vstring("SinglePhoton","SingleEle"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -58,9 +59,9 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # --- Photons
     Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
     Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ("+\
-		    "   abs(eta) < 1.479 && sigmaIetaIeta < 0.010  || "+\
-		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.027 ) && "+\
-		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)" ),
+        "   abs(eta) < 1.479 && sigmaIetaIeta < 0.010  || "+\
+        "   abs(eta) > 1.479 && sigmaIetaIeta < 0.027 ) && "+\
+        " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)" ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 
@@ -80,26 +81,33 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, MET, PFTau (see above)
 
     SinglePhoton = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Photon22_v",
-		    "HLT_Photon30_v",
-		    "HLT_Photon36_v",
-		    "HLT_Photon50_v",
-		    "HLT_Photon75_v",
-		    "HLT_Photon90_v",
-		    "HLT_Photon120_v",
-		    "HLT_Photon165_HE10_v",
-		    "HLT_Photon22_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon30_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon36_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon50_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon75_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon90_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon120_R9Id90_HE10_IsoM_v",
-		    "HLT_Photon165_R9Id90_HE10_IsoM_v",
-		    ),
-	    recPhotonLabel  = cms.string("photons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(1), 
-	    ),
+      hltPathsToCheck = cms.vstring(
+        "HLT_Photon33_v",
+        "HLT_Photon50_v",
+        "HLT_Photon75_v",
+        "HLT_Photon90_v",
+        "HLT_Photon120_v",
+        "HLT_Photon165_HE10_v",
+        "HLT_Photon33_R9Id90_HE10_IsoM_v",
+        "HLT_Photon50_R9Id90_HE10_IsoM_v",
+        "HLT_Photon75_R9Id90_HE10_IsoM_v",
+        "HLT_Photon90_R9Id90_HE10_IsoM_v",
+        "HLT_Photon120_R9Id90_HE10_IsoM_v",
+        "HLT_Photon165_R9Id90_HE10_IsoM_v",
+        ),
+      recPhotonLabel  = cms.string("photons"),
+      # -- Analysis specific cuts
+      minCandidates = cms.uint32(1), 
+      ),
+    SingleEle = cms.PSet( 
+      hltPathsToCheck = cms.vstring(
+        "HLT_Ele35_WPTight_Gsf_v",
+        "HLT_Ele38_WPTight_Gsf_v",
+        "HLT_Ele40_WPTight_Gsf_v",
+        "HLT_Ele35_WPTight_Gsf_L1EGMT_v",
+        ),
+      recElecLabel  = cms.string("gedGsfElectrons"),
+      # -- Analysis specific cuts
+      minCandidates = cms.uint32(1), 
+      ),
 )

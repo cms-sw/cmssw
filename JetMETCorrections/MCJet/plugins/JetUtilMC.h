@@ -2,6 +2,7 @@
 #define JETUTILMC_H
 
 #include <cmath>
+#include <TMath.h>
 namespace {
 class PtGreater {
   public:

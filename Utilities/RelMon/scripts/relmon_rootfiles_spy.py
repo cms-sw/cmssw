@@ -12,6 +12,7 @@
 """
 Just a draft of the real program...It is very ugly still.
 """
+from __future__ import print_function
 
 
 from os.path import basename
@@ -104,12 +105,12 @@ if __name__=="__main__":
   (options, args) = parser.parse_args()
 
   if not(options.development or options.offline or options.online or options.relval):
-    print "Select development or online instance!"
+    print("Select development or online instance!")
     exit(-1)
 
   lenargs=len(args)
   if lenargs>1:
-    print "Please specify only one directory to list!"
+    print("Please specify only one directory to list!")
     exit(-1)
 
   dirtolist=""
@@ -124,21 +125,21 @@ if __name__=="__main__":
   
     
   directory="%s/dqm/%s/data/browse/%s" %(server,mode,dirtolist)
-  print "peeping ",directory  
+  print("peeping ",directory)  
   contents=extract_list(get_page(directory),server,options.show_url)
   
   if len(contents)==0:
-    print "No contents found!"
+    print("No contents found!")
   
   for content in contents:
     if not options.get and search(options.path,content):
-      print content
+      print(content)
     if options.get and options.show_url and len(options.path)>0 and search(options.path,content):
       if not search('pre',options.path) and search('pre',content):
         continue
       bcontent=basename(content)
-      print "Getting %s" %bcontent
+      print("Getting %s" %bcontent)
       wget(content)
-      print "Got %s!!" %bcontent
+      print("Got %s!!" %bcontent)
   
   

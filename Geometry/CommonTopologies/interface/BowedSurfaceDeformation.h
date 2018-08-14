@@ -27,10 +27,10 @@ class BowedSurfaceDeformation : public SurfaceDeformation
   /// between minParameterSize() and maxParameterSize()
   BowedSurfaceDeformation(const std::vector<double> &parameters);
 
-  virtual BowedSurfaceDeformation* clone() const;
+  BowedSurfaceDeformation* clone() const override;
 
   /// specific type, i.e. SurfaceDeformationFactory::kBowedSurface
-  virtual int type() const;
+  int type() const override;
 
   /// correction to add to local position depending on 
   /// - track parameters in local frame (from LocalTrajectoryParameters):
@@ -38,23 +38,27 @@ class BowedSurfaceDeformation : public SurfaceDeformation
   ///   * track angles   as LocalTrackAngles(dxdz, dydz)
   /// - length of surface (local y-coordinate)
   /// - width of surface (local x-coordinate)
-  virtual Local2DVector positionCorrection(const Local2DPoint &localPos,
+  Local2DVector positionCorrection(const Local2DPoint &localPos,
                                            const LocalTrackAngles &localAngles,
-                                           double length, double width) const;
+                                           double length, double width) const override;
 
   /// update information with parameters of 'other',
   /// false in case the type or some parameters do not match and thus
   /// the information cannot be used (then no changes are done),
   /// true if merge was successful
-  virtual bool add(const SurfaceDeformation &other);
+  bool add(const SurfaceDeformation &other) override;
   
   /// parameters, i.e. sagittae as given in the constructor
-  virtual std::vector<double> parameters() const;
+  std::vector<double> parameters() const override;
+
+  // the size
+  static constexpr unsigned int parSize = 3;
+  static constexpr unsigned int parameterSize() { return parSize; }
 
   /// minimum size of vector that is accepted by constructor from vector
-  static unsigned int minParameterSize() { return 3;}
+  static constexpr unsigned int minParameterSize() { return parameterSize(); }
   /// maximum size of vector that is accepted by constructor from vector
-  static unsigned int maxParameterSize() { return 3;}
+  static constexpr unsigned int maxParameterSize() { return parameterSize(); }
 
  private:
   double theSagittaX;

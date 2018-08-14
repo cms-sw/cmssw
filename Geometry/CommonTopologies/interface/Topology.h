@@ -47,6 +47,7 @@ public:
   class LocalTrackAngles : public Vector2D {
   public:
     typedef  Basic2DVector<double> Base;
+    LocalTrackAngles(){}
     LocalTrackAngles(const Base & v) : Base(v) {}
     LocalTrackAngles(double dxdz, double dydz) : Base(dxdz,dydz) {}
     double dxdz() const { return x(); }
@@ -57,6 +58,7 @@ public:
 	needed to handle surface deformations*/
     class LocalTrackPred {
     public:
+    LocalTrackPred() {}
     LocalTrackPred(double x, double y, double dxdz, double dydz) : point_(x,y),angles_(dxdz,dydz){}
       /// Ctr. from local trajectory parameters as AlgebraicVector5 (q/p, dxdz, dydz, x, y)
       /// e.g. from 'LocalTrajectoryParameters::vector()'

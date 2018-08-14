@@ -34,16 +34,16 @@ public:
 
   DTFakeT0ESProducer(const edm::ParameterSet& pset);
 
-  virtual ~DTFakeT0ESProducer();
+  ~DTFakeT0ESProducer() override;
 
-  DTT0* produce(const DTT0Rcd& iRecord);
+  std::unique_ptr<DTT0> produce(const DTT0Rcd& iRecord);
 
 private:
 
   void parseDDD(const DTT0Rcd& iRecord);
 
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
-		      edm::ValidityInterval & oValidity);
+		      edm::ValidityInterval & oValidity) override;
 
   std::map<DTLayerId,std::pair<unsigned int,unsigned int> > theLayerIdWiresMap;
 

@@ -56,8 +56,8 @@ namespace l1t {
   class GtInputDump : public edm::EDAnalyzer {
   public:
     explicit GtInputDump(const edm::ParameterSet&);
-    virtual ~GtInputDump(){};
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+    ~GtInputDump() override{};
+    void analyze(const edm::Event&, const edm::EventSetup&) override;  
     
     EDGetToken egToken;
     EDGetToken muToken;
@@ -142,7 +142,9 @@ namespace l1t {
 		 for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
 	             cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0')<< ")";
 	             cout << "   Pt "  << std::dec << std::setw(3) << mu->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPt()  << ")";
+		     cout << "   EtaAtVtx " << std::dec << std::setw(3) << mu->hwEtaAtVtx() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << (mu->hwEtaAtVtx()&0x1ff) << ")";
 		     cout << "   Eta " << std::dec << std::setw(3) << mu->hwEta() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << (mu->hwEta()&0x1ff) << ")";
+		     cout << "   PhiAtVtx " << std::dec << std::setw(3) << mu->hwPhiAtVtx() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhiAtVtx() << ")";
 		     cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
 		     cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
 		     cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;

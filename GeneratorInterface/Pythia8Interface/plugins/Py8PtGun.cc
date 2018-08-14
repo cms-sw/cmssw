@@ -10,7 +10,7 @@ class Py8PtGun : public Py8GunBase {
    public:
       
       Py8PtGun( edm::ParameterSet const& );
-      ~Py8PtGun() {}
+      ~Py8PtGun() override {}
 	 
       bool generatePartonsAndHadronize() override;
       const char* classname() const override;
@@ -106,6 +106,7 @@ bool Py8PtGun::generatePartonsAndHadronize()
    }
    
    if ( !fMasterGen->next() ) return false;
+   evtGenDecay();
    
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );

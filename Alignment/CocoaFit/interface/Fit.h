@@ -48,12 +48,12 @@ public:
   //deprecated  static void dumpFittedEntries();
 
   //----- Dump all the entries of all the objects 
-  static void dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors = 1, ALIbool printOrig = 1 );
-  static void dumpFittedValuesInAllAncestorFrames( ALIFileOut& fileout, ALIbool printErrors = 1, ALIbool printOrig = 1 );
-  static void dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, double entryvalue, ALIbool printErrors = 1, ALIbool printOrig = 1 );
+  static void dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors = true, ALIbool printOrig = true );
+  static void dumpFittedValuesInAllAncestorFrames( ALIFileOut& fileout, ALIbool printErrors = true, ALIbool printOrig = true );
+  static void dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, double entryvalue, ALIbool printErrors = true, ALIbool printOrig = true );
   static void dumpEntryCorrelations( ALIFileOut& file );
-  static void printCentreInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors = 1, ALIbool printOrig = 1 );
-  static void printRotationAnglesInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors = 1, ALIbool printOrig = 1 );
+  static void printCentreInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors = true, ALIbool printOrig = true );
+  static void printRotationAnglesInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors = true, ALIbool printOrig = true );
 
   //----- Dump matrices used for the fit
   static void dumpMatrices();

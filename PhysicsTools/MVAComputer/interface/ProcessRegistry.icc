@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
 
 namespace PhysicsTools {
@@ -27,7 +28,7 @@ template<class Base_t, class CalibBase_t, class Parent_t>
 tbb::concurrent_unordered_map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>
 	*ProcessRegistry<Base_t, CalibBase_t, Parent_t>::getRegistry()
 {
-	[[cms::thread_safe]] static struct Sentinel {
+	CMS_THREAD_SAFE static struct Sentinel {
 		Sentinel() : instance(new RegistryMap) {}
 		~Sentinel() { delete instance; instance = 0; }
 

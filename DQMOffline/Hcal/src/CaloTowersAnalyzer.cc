@@ -15,7 +15,39 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 }
 
- void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
+void CaloTowersAnalyzer::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es){
+  
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+    es.get<HcalRecNumberingRecord>().get( pHRNDC );
+    hcons = &(*pHRNDC);
+
+    //Get Phi segmentation from geometry, use the max phi number so that all iphi values are included.
+
+    int NphiMax = hcons->getNPhi(0);
+
+    NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
+    NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
+    NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+
+    //Center the iphi bins on the integers
+    iphi_min_ = 0.5;
+    iphi_max_ = NphiMax + 0.5;
+    iphi_bins_ = (int) (iphi_max_ - iphi_min_);
+
+    //Retain classic behavior, all plots have same ieta range.
+
+    int iEtaMax = (hcons->getEtaRange(0).second > hcons->getEtaRange(1).second ? hcons->getEtaRange(0).second : hcons->getEtaRange(1).second);
+    iEtaMax = (iEtaMax > hcons->getEtaRange(2).second ? iEtaMax : hcons->getEtaRange(2).second);
+    iEtaMax = (iEtaMax > hcons->getEtaRange(3).second ? iEtaMax : hcons->getEtaRange(3).second);
+
+    //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
+    ieta_min_ = -iEtaMax - 1.5;
+    ieta_max_ = iEtaMax + 1.5;
+    ieta_bins_ = (int) (ieta_max_ - ieta_min_);
+
+}
+
+void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
 {  
 
   etaMin[0] = 0.;
@@ -30,7 +62,7 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
   if(hcalselector_ == "HE") isub = 2;
   if(hcalselector_ == "HF") isub = 3;
 
-  if ( outputFile_.size() != 0 ) {
+  if ( !outputFile_.empty() ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
@@ -47,10 +79,10 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
   //in the EndJob for norms and such so I am leaving them alone for now
   //-------------------------------------------------------------------------------------------
   sprintf  (histo, "Ntowers_per_event_vs_ieta" );
-  Ntowers_vs_ieta = ibooker.book1D(histo, histo, 82, -41., 41.);
+  Ntowers_vs_ieta = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
   
   sprintf  (histo, "CaloTowersTask_map_Nentries" );
-  mapEnergy_N = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  mapEnergy_N = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
   //-------------------------------------------------------------------------------------------
 
   //These the single pion scan histos
@@ -58,29 +90,29 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
   //The first three are not used
   if (useAllHistos_){
     sprintf  (histo, "emean_vs_ieta_E" );
-    emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+    emean_vs_ieta_E = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
     sprintf  (histo, "emean_vs_ieta_H" );
-    emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+    emean_vs_ieta_H = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
     sprintf  (histo, "emean_vs_ieta_EH" );
-    emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+    emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   }
   //These are drawn
   sprintf  (histo, "emean_vs_ieta_E1" );
-  emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+  emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   sprintf  (histo, "emean_vs_ieta_H1" );
-  emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+  emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   sprintf  (histo, "emean_vs_ieta_EH1" );
-  emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000.);
+  emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   //-------------------------------------------------------------------------------------------
 
   //Map energy histos are not drawn
   if (useAllHistos_){
     sprintf  (histo, "CaloTowersTask_map_energy_E" );
-    mapEnergy_E = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    mapEnergy_E = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
     sprintf  (histo, "CaloTowersTask_map_energy_H");
-    mapEnergy_H = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    mapEnergy_H = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
     sprintf  (histo, "CaloTowersTask_map_energy_EH" );
-    mapEnergy_EH = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    mapEnergy_EH = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
   }
 
   //All ECAL cell histos are used
@@ -100,10 +132,10 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
 
   //Occupancy vs. ieta is drawn, occupancy map is needed to draw it 
   sprintf  (histo, "CaloTowersTask_map_occupancy" );
-  occupancy_map = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  occupancy_map = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
 
   sprintf  (histo, "CaloTowersTask_occupancy_vs_ieta" );
-  occupancy_vs_ieta = ibooker.book1D(histo, histo, 82, -41, 41);
+  occupancy_vs_ieta = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
   
   if( isub == 1 || isub == 0) {
     //All cell histos are used
@@ -180,6 +212,13 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     hadEnergyTiming_profile_High_HB = ibooker.bookProfile(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
     //-------------------------------------------------------------------------------------------
 
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HBP" ) ;
+    meIphiHcalTower_HBP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HBM" ) ;
+    meIphiHcalTower_HBM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+        
+    //-------------------------------------------------------------------------------------------
+
     //Everything else is not drawn
     if (useAllHistos_){
       sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
@@ -198,11 +237,11 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
       meTotEnergy_HB = ibooker.book1D(histo, histo,400, 0., 2000.) ;
       
       sprintf  (histo, "CaloTowersTask_map_energy_HB" );
-      mapEnergy_HB = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergy_HB = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HB");
-      mapEnergyHcal_HB = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyHcal_HB = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HB" );
-      mapEnergyEcal_HB = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyEcal_HB = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       
       sprintf  (histo, "CaloTowersTask_phi_MET_HB" ) ;
       phiMET_HB = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
@@ -272,6 +311,13 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     hadEnergyTiming_profile_HE = ibooker.bookProfile(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
     //-------------------------------------------------------------------------------------------
 
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HEP" ) ;
+    meIphiHcalTower_HEP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HEM" ) ;
+    meIphiHcalTower_HEM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+
+    //-------------------------------------------------------------------------------------------
+
     //Everything else is not drawn
     if (useAllHistos_){
       sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE") ;
@@ -290,11 +336,11 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
       meTotEnergy_HE = ibooker.book1D(histo, histo,400, 0., 2000.) ;
       
       sprintf  (histo, "CaloTowersTask_map_energy_HE" );
-      mapEnergy_HE = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergy_HE = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HE");
-      mapEnergyHcal_HE = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyHcal_HE = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HE" );
-      mapEnergyEcal_HE = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyEcal_HE = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       
       sprintf  (histo, "CaloTowersTask_phi_MET_HE" ) ;
       phiMET_HE = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
@@ -358,6 +404,13 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     hadEnergyTiming_profile_HF = ibooker.bookProfile(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
     //-------------------------------------------------------------------------------------------
 
+    sprintf (histo, "CaloTowersTask_Iphi_tower_HFP" ) ;
+    meIphiCaloTower_HFP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+    sprintf (histo, "CaloTowersTask_Iphi_tower_HFM" ) ;
+    meIphiCaloTower_HFM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+
+    //-------------------------------------------------------------------------------------------
+
     //Everything else is not drawn
     if (useAllHistos_){
       sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF") ;
@@ -376,11 +429,11 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
       meTotEnergy_HF = ibooker.book1D(histo, histo, 400, 0., 2000.) ;
       
       sprintf  (histo, "CaloTowersTask_map_energy_HF" );
-      mapEnergy_HF = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergy_HF = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HF");
-      mapEnergyHcal_HF = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyHcal_HF = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HF" );
-      mapEnergyEcal_HF = ibooker.book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyEcal_HF = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       
       sprintf  (histo, "CaloTowersTask_phi_MET_HF" ) ;
       phiMET_HF = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
@@ -474,7 +527,6 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
     // cell properties    
     CaloTowerDetId idT = cal->id();
     int ieta = idT.ieta();
-    if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
 
     // ecal:  0 EcalBarrel  1 EcalEndcap
@@ -507,8 +559,7 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
     
     //Ntowers is used in EndJob, occupancy_map is used for occupancy vs ieta
     Ntowers_vs_ieta -> Fill(double(ieta),1.);
-    occupancy_map -> Fill(double(ieta),double(iphi));
-    
+    occupancy_map -> Fill(double(ieta),double(iphi)); 
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
@@ -526,13 +577,18 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
       }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
+      if (eH>0.){  // iphi of HCAL component of calotower
+      if (ieta>0) meIphiHcalTower_HBP -> Fill(double(iphi)); 
+      else        meIphiHcalTower_HBM -> Fill(double(iphi)); 
+      }
+
       //  simple sums
       sumEnergyHcal_HB += eH;
       sumEnergyEcal_HB += eE;
       sumEnergyHO_HB   += eHO;
       
       numFiredTowers_HB++;
-      
+
       //Not used
       if (useAllHistos_){
 	meEnergyEcalTower_HB->Fill(eE);
@@ -580,6 +636,11 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
       }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
+      if (eH>0.){  // iphi of HCAL component of calotower
+      if (ieta>0) meIphiHcalTower_HEP -> Fill(double(iphi)); 
+      else        meIphiHcalTower_HEM -> Fill(double(iphi)); 
+      }
+
       //  simple sums
       sumEnergyHcal_HE += eH;
       sumEnergyEcal_HE += eE;
@@ -628,14 +689,17 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
 	mapEnergyEcal_HF -> Fill(double(ieta), double(iphi), eE); 
       }
       //      std::cout << " e_ecal = " << eE << std::endl;
-      
+
+      if (ieta>0) meIphiCaloTower_HFP -> Fill(double(iphi)); 
+      else        meIphiCaloTower_HFM -> Fill(double(iphi)); 
+
       //  simple sums
       sumEnergyHcal_HF += eH;
       sumEnergyEcal_HF += eE;
       sumEnergyHO_HF   += eHO;
       
       numFiredTowers_HF++;
-      
+     
       //Not used
       if (useAllHistos_){
 	meEnergyEcalTower_HF->Fill(eE);

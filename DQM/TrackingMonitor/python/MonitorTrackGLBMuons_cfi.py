@@ -8,7 +8,7 @@ MonitorTrackGLBMuons.FolderName = 'Muons/globalMuons'
 MonitorTrackGLBMuons.doBeamSpotPlots = False
 MonitorTrackGLBMuons.BSFolderName = 'Muons/globalCosmicMuons/BeamSpotParameters'
 MonitorTrackGLBMuons.doSeedParameterHistos = False
-MonitorTrackGLBMuons.doProfilesVsLS = False
+MonitorTrackGLBMuons.doProfilesVsLS = True
 MonitorTrackGLBMuons.doAllPlots = False
 MonitorTrackGLBMuons.doGeneralPropertiesPlots = True
 MonitorTrackGLBMuons.doHitPropertiesPlots = True
@@ -17,6 +17,6 @@ MonitorTrackGLBMuons.doDCAPlots = True
 MonitorTrackGLBMuons.doDCAwrtPVPlots = True
 MonitorTrackGLBMuons.doDCAwrt000Plots = False
 MonitorTrackGLBMuons.doSIPPlots  = True
-MonitorTrackGLBMuons.doEffFromHitPatternVsPU = False
+MonitorTrackGLBMuons.doEffFromHitPatternVsPU = True
 MonitorTrackGLBMuons.doEffFromHitPatternVsBX = False
-
+MonitorTrackGLBMuons.doEffFromHitPatternVsLUMI = cms.bool(True)

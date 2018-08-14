@@ -1,12 +1,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
-#include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
+#include "DataFormats/L1THGCal/interface/HGCFETriggerDigiDefs.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
@@ -15,14 +18,14 @@
 #include <sstream>
 #include <memory>
 
-class HGCalTriggerDigiFEReproducer : public edm::EDProducer 
+class HGCalTriggerDigiFEReproducer : public edm::stream::EDProducer<>
 {  
     public:    
         HGCalTriggerDigiFEReproducer(const edm::ParameterSet&);
-        ~HGCalTriggerDigiFEReproducer() { }
+        ~HGCalTriggerDigiFEReproducer() override { }
 
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-        virtual void produce(edm::Event&, const edm::EventSetup&);
+        void beginRun(const edm::Run&, const edm::EventSetup&) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
         // inputs
@@ -38,7 +41,8 @@ DEFINE_FWK_MODULE(HGCalTriggerDigiFEReproducer);
 
 /*****************************************************************/
 HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterSet& conf):
-    inputdigi_(consumes<l1t::HGCFETriggerDigiCollection>(conf.getParameter<edm::InputTag>("feDigis")))
+    inputdigi_(consumes<l1t::HGCFETriggerDigiCollection>(conf.getParameter<edm::InputTag>("feDigis"))), 
+    backEndProcessor_(new HGCalTriggerBackendProcessor(conf.getParameterSet("BEConfiguration"), consumesCollector())) 
 /*****************************************************************/
 {
     //setup FE codec
@@ -49,8 +53,6 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
     codec_->unSetDataPayload();
 
     produces<l1t::HGCFETriggerDigiCollection>();
-    //setup BE processor
-    backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
     // register backend processor products
     backEndProcessor_->setProduces(*this);
 }
@@ -59,7 +61,7 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
 void HGCalTriggerDigiFEReproducer::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) 
 /*****************************************************************/
 {
-    es.get<IdealGeometryRecord>().get(triggerGeometry_);
+    es.get<CaloGeometryRecord>().get(triggerGeometry_);
     codec_->setGeometry(triggerGeometry_.product());
     backEndProcessor_->setGeometry(triggerGeometry_.product());
 }
@@ -98,7 +100,7 @@ void HGCalTriggerDigiFEReproducer::produce(edm::Event& e, const edm::EventSetup&
     auto fe_digis_coll = *fe_digis_handle;
 
     //now we run the emulation of the back-end processor
-    backEndProcessor_->run(fe_digis_coll, es);
+    backEndProcessor_->run(fe_digis_coll,es,e);
     backEndProcessor_->putInEvent(e);
     backEndProcessor_->reset();  
 }

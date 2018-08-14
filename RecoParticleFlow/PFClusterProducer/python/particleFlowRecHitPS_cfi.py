@@ -23,4 +23,8 @@ particleFlowRecHitPS = cms.EDProducer("PFRecHitProducer",
         )
                                       )
 
-
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(
+    particleFlowRecHitPS.producers[0], 
+    src = "reducedEcalRecHitsES"
+)

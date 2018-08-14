@@ -108,7 +108,7 @@ namespace edm {
 
       struct RunReport {
         RunNumber runNumber;
-        std::set<unsigned int> lumiSections;
+        std::map<unsigned int,unsigned long> lumiSectionsToNEvents;
       };
 
       /**\struct InputFile
@@ -197,7 +197,7 @@ namespace edm {
          * Associate a Lumi Section to all open output files
          *
          */
-        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection);
+        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection, unsigned long nEvents);
 
         /*
          * Associate a Lumi Section to all open input files
@@ -250,7 +250,7 @@ namespace edm {
 
         std::vector<InputFile> inputFiles_;
         tbb::concurrent_vector<InputFile> inputFilesSecSource_;
-        std::vector<OutputFile> outputFiles_;
+        tbb::concurrent_vector<OutputFile> outputFiles_;
         std::map<std::string, long long> readBranches_;
         std::map<std::string, long long> readBranchesSecFile_;
         tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
@@ -267,13 +267,6 @@ namespace edm {
       JobReport(JobReport const&) = delete;
 
       ~JobReport();
-
-      /// New output file for child
-      void childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren);
-
-      void parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren);
-
-      void parentAfterFork(std::string const& jobReportFile);
 
       /// Report that an input file has been opened.
       /// The returned Token should be used for later identification
@@ -341,7 +334,7 @@ namespace edm {
       /// for output files, call only if lumi section is written to
       /// the output file
       ///
-      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId);
+      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId, unsigned long nEvents=0);
 
       ///
       /// API for reporting a Lumi Section to the job report.

@@ -81,3 +81,5 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(ecalDrivenElectronSeedsParameters, SCEtCut = 15.0)

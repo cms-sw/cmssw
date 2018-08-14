@@ -31,6 +31,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 
@@ -44,13 +47,13 @@
 class HSCPValidator : public edm::EDAnalyzer {
    public:
       explicit HSCPValidator(const edm::ParameterSet&);
-      ~HSCPValidator();
+      ~HSCPValidator() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       std::string intToString(int num);
       void makeGenPlots(const edm::Event& iEvent);
       void makeSimTrackPlots(const edm::Event& iEvent);

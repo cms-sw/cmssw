@@ -4,7 +4,5 @@ seedClusterRemoverPhase2 = cms.EDProducer("SeedClusterRemoverPhase2",
                                     trajectories = cms.InputTag("initialStepSeeds"),
                                     phase2OTClusters = cms.InputTag("siPhase2Clusters"),
                                     pixelClusters = cms.InputTag("siPixelClusters"),
-                                    TrackQuality = cms.string('highPurity'), #dummy
-                                    clusterLessSolution = cms.bool(True)
                                     )
 

@@ -28,19 +28,19 @@ class BPHHistoSpecificDecay:
  public:
 
   explicit BPHHistoSpecificDecay( const edm::ParameterSet& ps );
-  virtual ~BPHHistoSpecificDecay();
+  ~BPHHistoSpecificDecay() override;
 
   static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
-  virtual void beginJob();
-  virtual void analyze( const edm::Event& ev, const edm::EventSetup& es );
-  virtual void endJob();
+  void beginJob() override;
+  void analyze( const edm::Event& ev, const edm::EventSetup& es ) override;
+  void endJob() override;
 
   class CandidateSelect {
    public:
     virtual ~CandidateSelect() {}
     virtual bool accept( const pat::CompositeCandidate& cand,
-                         const reco::Vertex* pv = 0 ) const = 0 ;
+                         const reco::Vertex* pv = nullptr ) const = 0 ;
   };
 
  private:

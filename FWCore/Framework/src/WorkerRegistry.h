@@ -43,7 +43,8 @@ namespace edm {
     WorkerRegistry(std::shared_ptr<ActivityRegistry> areg,
                    std::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
-        
+
+    WorkerRegistry(WorkerRegistry&&) = default;
     WorkerRegistry(WorkerRegistry const&) = delete; // Disallow copying and moving
     WorkerRegistry& operator=(WorkerRegistry const&) = delete; // Disallow copying and moving
 

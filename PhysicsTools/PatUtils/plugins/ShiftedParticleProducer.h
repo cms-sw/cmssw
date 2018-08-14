@@ -36,11 +36,11 @@ class ShiftedParticleProducer : public edm::stream::EDProducer<>
  public:
 
   explicit ShiftedParticleProducer(const edm::ParameterSet& cfg);
-  ~ShiftedParticleProducer();
+  ~ShiftedParticleProducer() override;
   
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es);
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
   double getUncShift(const CandidateView::const_iterator& originalParticle);
 

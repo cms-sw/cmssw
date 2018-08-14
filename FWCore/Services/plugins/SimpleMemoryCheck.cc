@@ -104,7 +104,6 @@ namespace edm {
       
       void postEndJob();
       
-      void postFork(unsigned int, unsigned int);
     private:
       ProcInfo fetch();
       smapsInfo fetchSmaps();
@@ -369,7 +368,6 @@ namespace edm {
       std::ostringstream ost;
 
       openFiles();
-      iReg.watchPostForkReacquireResources(this,&SimpleMemoryCheck::postFork);
       
       if(!oncePerEventMode_) { // default, prints on increases
         iReg.watchPreSourceConstruction(this, &SimpleMemoryCheck::preSourceConstruction);
@@ -434,7 +432,7 @@ namespace edm {
 
     SimpleMemoryCheck::~SimpleMemoryCheck() {
 #ifdef LINUX
-      if(0 != smapsFile_) {
+      if(nullptr != smapsFile_) {
         fclose(smapsFile_);
       }
 #endif
@@ -465,7 +463,7 @@ namespace edm {
       if (monitorPssAndPrivate_) {
         std::ostringstream smapsNameOst;
         smapsNameOst <<"/proc/"<<getpid()<<"/smaps";
-        if((smapsFile_ =fopen(smapsNameOst.str().c_str(), "r"))==0) {
+        if((smapsFile_ =fopen(smapsNameOst.str().c_str(), "r"))==nullptr) {
           throw Exception(errors::Configuration) <<"Failed to open smaps file "<<smapsNameOst.str()<<std::endl;
         }
       }
@@ -819,15 +817,6 @@ namespace edm {
           }
         }
       }
-    }
-
-    void SimpleMemoryCheck::postFork(unsigned int, unsigned int) {
-#ifdef LINUX
-      if(0 != smapsFile_) {
-        fclose(smapsFile_);
-      }
-      openFiles();
-#endif      
     }
 
     void SimpleMemoryCheck::update() {

@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTCancelOutUnit.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTCancelOutUnit.h"
 #include "L1Trigger/L1TMuon/interface/GMTInternalMuon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -46,12 +46,12 @@ MicroGMTCancelOutUnit::setCancelOutBits(GMTInternalWedges& wedges, tftype trackF
     maxWedges = 12;
   }
   for (int currentWedge = 0; currentWedge < maxWedges; ++currentWedge) {
-    for (auto mu : wedges.at(currentWedge)) {
+    for (const auto &mu : wedges.at(currentWedge)) {
       coll1.push_back(mu);
     }
     // handle wrap around: max "wedge" has to be compared to first "wedge"
     int neighbourWedge = (currentWedge + 1) % maxWedges;
-    for (auto mu : wedges.at(neighbourWedge)) {
+    for (const auto &mu : wedges.at(neighbourWedge)) {
       coll2.push_back(mu);
     }
     if (mode == cancelmode::coordinate) {
@@ -76,7 +76,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapBarrel(GMTInternalWedges& omtfSect
   coll2.reserve(12);
 
   for (int currentSector = 0; currentSector < 6; ++currentSector) {
-    for (auto omtfMuon : omtfSectors.at(currentSector)) {
+    for (const auto &omtfMuon : omtfSectors.at(currentSector)) {
       coll1.push_back(omtfMuon);
     }
     // BMTF | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 0  |
@@ -85,7 +85,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapBarrel(GMTInternalWedges& omtfSect
     // e.g. OMTF 0 with BMTF 0, 1, 2, 3, OMTF 2 with BMTF 4, 5, 6, 7 etc.
     for (int i = 0; i < 4; ++i) {
       int currentWedge = (currentSector * 2 + i) % 12;
-      for (auto bmtfMuon : bmtfWedges.at(currentWedge)) {
+      for (const auto &bmtfMuon : bmtfWedges.at(currentWedge)) {
         coll2.push_back(bmtfMuon);
       }
     }
@@ -110,7 +110,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
   coll2.reserve(9);
 
   for (int curOmtfSector = 0; curOmtfSector < 6; ++curOmtfSector) {
-    for (auto omtfMuon : omtfSectors.at(curOmtfSector)) {
+    for (const auto &omtfMuon : omtfSectors.at(curOmtfSector)) {
       coll1.push_back(omtfMuon);
     }
     // OMTF |    0    |    1    |    2    |    3    |    4    |    5    |
@@ -120,7 +120,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
     for (int i = 0; i < 3; ++i) {
       // handling the wrap around: adding 5 because 0 has to be compared to 5
       int curEmtfSector = ((curOmtfSector + 5) + i) % 6;
-      for (auto emtfMuon : emtfSectors.at(curEmtfSector)) {
+      for (const auto &emtfMuon : emtfSectors.at(curEmtfSector)) {
         coll2.push_back(emtfMuon);
       }
     }
@@ -137,7 +137,7 @@ MicroGMTCancelOutUnit::setCancelOutBitsOverlapEndcap(GMTInternalWedges& omtfSect
 void
 MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  if (coll1.size() == 0 || coll2.size() == 0) {
+  if (coll1.empty() || coll2.empty()) {
     return;
   }
   tftype coll1TfType = (*coll1.begin())->trackFinderType();
@@ -193,10 +193,10 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
 void
 MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  if (coll1.size() == 0 || coll2.size() == 0) {
+  if (coll1.empty() || coll2.empty()) {
     return;
   }
-  // Address based cancel out is implemented for BMTF only
+  // Address based cancel out for BMTF
   if ((*coll1.begin())->trackFinderType() == tftype::bmtf && (*coll2.begin())->trackFinderType() == tftype::bmtf) {
     for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
       std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
@@ -271,6 +271,60 @@ MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInt
             (*mu_w2)->setHwCancelBit(1);
           } else {
             (*mu_w1)->setHwCancelBit(1);
+          }
+        }
+      }
+    }
+  // Address based cancel out for EMTF
+  } else if (((*coll1.begin())->trackFinderType() == tftype::emtf_pos && (*coll2.begin())->trackFinderType() == tftype::emtf_pos)
+          || ((*coll1.begin())->trackFinderType() == tftype::emtf_neg && (*coll2.begin())->trackFinderType() == tftype::emtf_neg)) {
+    for (auto mu_s1 = coll1.begin(); mu_s1 != coll1.end(); ++mu_s1) {
+      std::map<int, int> trkAddr_s1 = (*mu_s1)->origin().trackAddress();
+      int me1_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME1Ch];
+      int me2_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME2Ch];
+      int me3_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME3Ch];
+      int me4_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME4Ch];
+      if (me1_ch_s1 + me2_ch_s1 + me3_ch_s1 + me4_ch_s1 == 0) {
+        continue;
+      }
+      int me1_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME1Seg];
+      int me2_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME2Seg];
+      int me3_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME3Seg];
+      int me4_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME4Seg];
+      for (auto mu_s2 = coll2.begin(); mu_s2 != coll2.end(); ++mu_s2) {
+        std::map<int, int> trkAddr_s2 = (*mu_s2)->origin().trackAddress();
+        int me1_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME1Ch];
+        int me2_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME2Ch];
+        int me3_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME3Ch];
+        int me4_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME4Ch];
+        if (me1_ch_s2 + me2_ch_s2 + me3_ch_s2 + me4_ch_s2 == 0) {
+          continue;
+        }
+        int me1_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME1Seg];
+        int me2_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME2Seg];
+        int me3_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME3Seg];
+        int me4_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME4Seg];
+
+        int nMatchedStations = 0;
+        if (me1_ch_s2 != 0 && me1_ch_s1 == me1_ch_s2+3 && me1_seg_s1 == me1_seg_s2) {
+          ++nMatchedStations;
+        }
+        if (me2_ch_s2 != 0 && me2_ch_s1 == me2_ch_s2+2 && me2_seg_s1 == me2_seg_s2) {
+          ++nMatchedStations;
+        }
+        if (me3_ch_s2 != 0 && me3_ch_s1 == me3_ch_s2+2 && me3_seg_s1 == me3_seg_s2) {
+          ++nMatchedStations;
+        }
+        if (me4_ch_s2 != 0 && me4_ch_s1 == me4_ch_s2+2 && me4_seg_s1 == me4_seg_s2) {
+          ++nMatchedStations;
+        }
+
+        //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
+        if (nMatchedStations > 0) {
+          if ((*mu_s1)->origin().hwQual() >= (*mu_s2)->origin().hwQual()) {
+            (*mu_s2)->setHwCancelBit(1);
+          } else {
+            (*mu_s1)->setHwCancelBit(1);
           }
         }
       }

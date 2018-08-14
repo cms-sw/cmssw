@@ -12,10 +12,10 @@ class FEConfigFgrEEStripDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigFgrEEStripDat();
-  ~FEConfigFgrEEStripDat();
+  ~FEConfigFgrEEStripDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_FGREEST_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_FGREEST_DAT"; }
 
   inline void setThreshold(unsigned int mean) { m_thresh = mean; }
   inline unsigned int getThreshold() const { return m_thresh; }
@@ -27,7 +27,7 @@ class FEConfigFgrEEStripDat : public IDataItem {
   inline unsigned int getLutFgr() const { return m_lut_fg; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigFgrEEStripDat* item, FEConfigFgrInfo* iconf) noexcept(false);
 

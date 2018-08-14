@@ -23,6 +23,7 @@ for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edmtest {
 namespace stream {
@@ -54,6 +55,8 @@ struct Cache {
     GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const * iGlobal)  {
       trans_ = p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "stream::GlobalIntAnalyzer " << desc.moduleLabel() << std::endl; });
     }
 
     void analyze(edm::Event const&, edm::EventSetup const&) {
@@ -339,6 +342,7 @@ struct Cache {
   class LumiSummaryIntAnalyzer : public edm::stream::EDAnalyzer<edm::LuminosityBlockCache<Cache>,edm::LuminosityBlockSummaryCache<Cache>> {
   public:
     static std::atomic<unsigned int> m_count;
+    static std::atomic<unsigned int> m_lumiSumCalls;
     unsigned int trans_;
     static std::atomic<unsigned int> cvalue_;
     static std::atomic<bool> gbl;
@@ -392,10 +396,12 @@ struct Cache {
    
    
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
+      ++m_lumiSumCalls;
       bls=false;
       els=true;
-      gCache->value += luminosityBlockCache()->value;
-      luminosityBlockCache()->value = 0;
+      //This routine could be called at the same time as another stream is calling analyze so must do the change atomically
+      auto v = luminosityBlockCache()->value.exchange(0);
+      gCache->value += v;
       if ( el ) {
         throw cms::Exception("end out of sequence")
           << "endLuminosityBlock seen before endLuminosityBlockSummary";
@@ -404,6 +410,7 @@ struct Cache {
     
     static void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, LuminosityBlockContext const*, Cache* gCache){
      ++m_count;
+     auto nLumis = m_lumiSumCalls.load();
      gbls=false;
      gels=true;
       if ( !els ) {
@@ -412,7 +419,7 @@ struct Cache {
       }
      if ( gCache->value != cvalue_) {
         throw cms::Exception("cache value")
-          << gCache->value << " but it was supposed to be " << cvalue_;
+          << gCache->value << " but it was supposed to be " << cvalue_<<" endLumiBlockSummary called "<<nLumis;
      }
    }
 
@@ -453,6 +460,7 @@ std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::m_count{0};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::m_lumiSumCalls{0};
 std::atomic<unsigned int> edmtest::stream::GlobalIntAnalyzer::cvalue_{0};
 std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::cvalue_{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::cvalue_{0};

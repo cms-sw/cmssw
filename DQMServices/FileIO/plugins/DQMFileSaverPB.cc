@@ -33,7 +33,7 @@ DQMFileSaverPB::DQMFileSaverPB(const edm::ParameterSet &ps)
   mergeType_ = "";
 }
 
-DQMFileSaverPB::~DQMFileSaverPB() {}
+DQMFileSaverPB::~DQMFileSaverPB() = default;
 
 void DQMFileSaverPB::initRun() const {
   if (!fakeFilterUnitMode_) {
@@ -80,8 +80,7 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     // Save the file in the open directory.
     store->savePB(openHistoFilePathName, "",
       store->mtEnabled() ? fp.run_ : 0,
-      fp.lumi_,
-      true);
+      fp.lumi_);
 
     // Now move the the data and json files into the output directory.
     ::rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
@@ -98,7 +97,7 @@ void DQMFileSaverPB::saveRun(const FileParameters& fp) const {
 }
 
 boost::property_tree::ptree
-DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, const std::string mergeTypeStr, evf::FastMonitoringService *fms)
+DQMFileSaverPB::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string& transferDestinationStr, const std::string& mergeTypeStr, evf::FastMonitoringService *fms)
 {
   namespace bpt = boost::property_tree;
   namespace bfs = boost::filesystem;
@@ -191,7 +190,12 @@ void DQMFileSaverPB::fillDescriptions(
       "Label of the stream.");
 
   DQMFileSaverBase::fillDescription(desc);
-  descriptions.add("saver", desc);
+
+  // Changed to use addDefault instead of add here because previously
+  // DQMFileSaverOnline and DQMFileSaverPB both used the module label
+  // "saver" which caused conflicting cfi filenames to be generated.
+  // add could be used if unique module labels were given.
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

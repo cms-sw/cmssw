@@ -24,6 +24,14 @@ int main(int argc, char *argv[]) {
   filelist= argv[1];
   modulelist= argv[2];
 
+  int stripmin = 999;
+  int stripmax = 999;
+
+  if (argv[3] && argv[4]){
+    stripmin=atoi(argv[3]);
+    stripmax=atoi(argv[4]);
+  }
+
   std::string detid;
   std::string hn;
 
@@ -32,7 +40,7 @@ int main(int argc, char *argv[]) {
 
   std::ifstream inmodules(modulelist);
 
-  while(1){
+  while(true){
     
     inmodules >> detid;
     if (!inmodules.good()) break;
@@ -77,7 +85,7 @@ int main(int argc, char *argv[]) {
     THStack *hs = new THStack("hs","");
 
 
-    while(1){
+    while(true){
 
       filesin >> filename;
       if (!filesin.good()) break;      
@@ -101,12 +109,14 @@ int main(int argc, char *argv[]) {
 	return 0;
       }
 
-      histo->SetDirectory(0);
+      histo->SetDirectory(nullptr);
       histo->SetStats(kFALSE);
 
       if (hn.find("Summary")==std::string::npos) histo->Scale(1/EvtNum);
 
-      double numberPerEvent= histo->Integral();
+      double numberPerEvent;
+      if (stripmin==999 && stripmax==999) numberPerEvent=histo->Integral();
+      else numberPerEvent=histo->Integral(stripmin,stripmax);
 
       
       if (max<=histo->GetBinContent(histo->GetMaximumBin())) max=histo->GetBinContent(histo->GetMaximumBin());
@@ -116,9 +126,6 @@ int main(int argc, char *argv[]) {
       histo->SetMarkerStyle(9);
       histo->SetMarkerColor(k+1);
            
-      
-      
-
       trend->SetBinContent(k+1,numberPerEvent);
       trend->GetXaxis()->SetBinLabel(k+1,runNum.c_str());
 

@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 MonVersionDef::MonVersionDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_monVer = "";
   m_desc = "";
@@ -72,7 +72,7 @@ int MonVersionDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonVersionDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonVersionDef::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -93,15 +93,15 @@ void MonVersionDef::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_monVer = rset->getString(1);
-      m_desc = rset->getString(2);
+      m_monVer = getOraString(rset,1);
+      m_desc = getOraString(rset,2);
     } else {
       throw(std::runtime_error("MonVersionDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("MonVersionDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("MonVersionDef::setByID:  ")+getOraMessage(&e)));
   }
 }
 
@@ -124,6 +124,6 @@ void MonVersionDef::fetchAllDefs( std::vector<MonVersionDef>* fillVec)
       fillVec->push_back( monVersionDef );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonVersionDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonVersionDef::fetchAllDefs:  ")+getOraMessage(&e)));
   }
 }

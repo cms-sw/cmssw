@@ -33,7 +33,7 @@ public:
     theField(field),
     isOldPropagationType(isOld) {}
 
-  ~AnalyticalPropagator() {}
+  ~AnalyticalPropagator() override {}
 
   //
   // use base class methods where necessary:
@@ -62,12 +62,12 @@ public:
   /** limitation of change in transverse direction
    *  (to avoid loops).
    */
-  virtual bool setMaxDirectionChange( float phiMax) override { 
+  bool setMaxDirectionChange( float phiMax) override { 
     theMaxDPhi2 = phiMax*phiMax;
     return true;
   }
   
-  virtual AnalyticalPropagator * clone() const override
+  AnalyticalPropagator * clone() const override
   {
     return new AnalyticalPropagator(*this);
   }
@@ -113,7 +113,7 @@ private:
   bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, const float,
 				  GlobalPoint&, GlobalVector&, double& s) const dso_internal;
 
-  virtual const MagneticField* magneticField() const override {return theField;}
+  const MagneticField* magneticField() const override {return theField;}
 
 private:
   typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;

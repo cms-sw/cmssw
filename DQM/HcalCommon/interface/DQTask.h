@@ -29,17 +29,17 @@ namespace hcaldqm
 
 			//	constructor
 			DQTask(edm::ParameterSet const&);
-			virtual ~DQTask(){}
+			~DQTask() override{}
 
 			//	base inheritance to override from DQMEDAnalyzer
-			virtual void analyze(edm::Event const&, edm::EventSetup const&);
-			virtual void bookHistograms(DQMStore::IBooker &, edm::Run const&,
-				edm::EventSetup const&);
-			virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-			virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&);
-			virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-				edm::EventSetup const&);
+			void analyze(edm::Event const&, edm::EventSetup const&) override;
+			void bookHistograms(DQMStore::IBooker &, edm::Run const&,
+				edm::EventSetup const&) override;
+			void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+			void beginLuminosityBlock(edm::LuminosityBlock const&,
+				edm::EventSetup const&) override;
+			void endLuminosityBlock(edm::LuminosityBlock const&,
+				edm::EventSetup const&) override;
 
 		protected:
 			// protected funcs
@@ -67,6 +67,10 @@ namespace hcaldqm
 			//	Tags and corresponding Tokens
 			edm::InputTag		_tagRaw;
 			edm::EDGetTokenT<FEDRawDataCollection> _tokRaw;
+
+			// Conditions and emap
+			edm::ESHandle<HcalDbService> _dbService;
+			HcalElectronicsMap const* _emap;
 	};
 }
 

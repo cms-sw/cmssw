@@ -3,18 +3,6 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-//#include <iostream>
-//#include <unordered_set>
-//#include <unordered_map>
-
-//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
-
-//#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-//#include "Geometry/CaloTopology/interface/HGCalTopology.h"
-
 /*******
  *
  * class: HGCalTriggerGeometryGenericMapping
@@ -128,39 +116,30 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
   typedef std::unordered_map<unsigned,std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> > trigger_cell_map;
 
   HGCalTriggerGeometryGenericMapping(const edm::ParameterSet& conf);
-  virtual ~HGCalTriggerGeometryGenericMapping() {}
+  ~HGCalTriggerGeometryGenericMapping() override {}
 
   // non-const access to the geometry class
-  //virtual void initialize( const es_info& ) = 0;
-  virtual void reset() override final;
+  void reset() final;
   
-  // const access to the geometry class  
-  // all of the get*From* functions return nullptr if the thing you
-  // ask for doesn't exist
-  //const std::unique_ptr<const HGCalTriggerGeometry::TriggerCell>& getTriggerCellFromCell( const unsigned cell_det_id ) const;
-  //const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromCell( const unsigned cell_det_id ) const;
-  //const std::unique_ptr<const HGCalTriggerGeometry::Module>& getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const;
+  unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const final;
+  unsigned getModuleFromCell( const unsigned cell_det_id ) const final;
+  unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const final;
 
-  //const geom_map& cellsToTriggerCellsMap() const { return cells_to_trigger_cells_; }
-  //const geom_map& triggerCellsToModulesMap() const { return trigger_cells_to_modules_; }
-  
-  //const module_map& modules() const { return modules_; }
-  //const trigger_cell_map& triggerCells() const { return trigger_cells_; }
+  geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const final;
+  geom_set getCellsFromModule( const unsigned cell_det_id ) const final;
+  geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const final;
 
-  virtual unsigned getTriggerCellFromCell( const unsigned cell_det_id ) const override final;
-  virtual unsigned getModuleFromCell( const unsigned cell_det_id ) const override final;
-  virtual unsigned getModuleFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
+  geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const final;
+  geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const final;
 
-  virtual geom_set getCellsFromTriggerCell( const unsigned cell_det_id ) const override final;
-  virtual geom_set getCellsFromModule( const unsigned cell_det_id ) const override final;
-  virtual geom_set getTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+  geom_set getNeighborsFromTriggerCell( const unsigned trigger_cell_det_id ) const final;
 
-  virtual geom_ordered_set getOrderedCellsFromModule( const unsigned cell_det_id ) const override final;
-  virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned trigger_cell_det_id ) const override final;
+  GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const final;
+  GlobalPoint getModulePosition(const unsigned module_det_id) const final;
 
-  virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
-  virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
-
+  bool validTriggerCell( const unsigned trigger_cell_det_id ) const final;
+  bool disconnectedModule(const unsigned module_id) const final;
+  unsigned triggerLayer(const unsigned id) const final;
 
  protected:
   geom_map cells_to_trigger_cells_;

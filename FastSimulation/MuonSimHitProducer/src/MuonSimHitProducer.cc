@@ -79,7 +79,7 @@
 //
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
-  propagatorWithoutMaterial(0)
+  propagatorWithoutMaterial(nullptr)
  {
 
   // Read relevant parameters
@@ -560,7 +560,7 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   //    std::cout << " The FAST tracking option is turned ON" << std::endl;
 
   // Material Effects
-  theMaterialEffects = 0;
+  theMaterialEffects = nullptr;
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
        matEff.getParameter<bool>("MuonBremsstrahlung") ||
@@ -596,7 +596,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
   XYZTLorentzVector position(gPos.x(),gPos.y(),gPos.z(),0.);
   XYZTLorentzVector momentum(gMom.x(),gMom.y(),gMom.z(),en);
   float charge = (float)(tsos.charge());
-  ParticlePropagator theMuon(momentum,position,charge,0);
+  ParticlePropagator theMuon(momentum,position,charge,nullptr);
   theMuon.setID(-(int)charge*13);
 
   // Recompute the energy loss to get the fluctuations

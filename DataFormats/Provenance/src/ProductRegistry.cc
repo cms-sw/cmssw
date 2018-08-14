@@ -85,9 +85,24 @@ namespace edm {
       auto const& previous = *productList_.find(BranchKey(productDesc));
       if(previous.second.produced()) {
         // Duplicate registration in current process
-        throw Exception(errors::LogicError , "Duplicate Product")
-          << "The produced product " << previous.second << " is registered more than once.\n"
-          << "Please remove the redundant 'produces' call(s).\n";
+        throw Exception(errors::LogicError , "Duplicate Product Identifier")
+          << "\nThe Framework requires a unique branch name for each product\n"
+          << "which consists of four parts: a friendly class name, module label,\n"
+          << "product instance name, and process name. A product has been\n"
+          << "registered with a duplicate branch name. The most common way\n"
+          << "to fix this error is to modify the product instance name in\n"
+          << "one of the offending 'produces' function calls. Another fix\n"
+          << "would be to delete one of them if they are for the same product.\n\n"
+          << "    friendly class name = " << previous.second.friendlyClassName() << "\n"
+          << "    module label = " << previous.second.moduleLabel() << "\n"
+          << "    product instance name = " << previous.second.productInstanceName() << "\n"
+          << "    process name = " << previous.second.processName() << "\n\n"
+          << "The following additional information is not used as part of\n"
+          << "the unique branch identifier.\n\n"
+          << "    branch types = " <<  previous.second.branchType() << "  " << productDesc.branchType() << "\n"
+          << "    class name = " << previous.second.fullClassName() << "\n\n"
+          << "Note that if the four parts of the branch name are the same,\n"
+          << "then this error will occur even if the branch types differ!\n\n";
       } else {
         // Duplicate registration in previous process
         throw Exception(errors::Configuration, "Duplicate Process Name.\n")
@@ -297,7 +312,7 @@ namespace edm {
 
       checkForDuplicateProcessName(desc, processName);
 
-      if(desc.produced()) {
+      if(desc.produced() && !desc.transient()) {
         setProductProduced(desc.branchType());
       }
 

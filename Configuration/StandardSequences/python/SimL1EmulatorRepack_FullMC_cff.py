@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK FULL:  Re-Emulate all of L1 and repack into RAW
@@ -5,10 +6,10 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage2L1Trigger.isChosen()):
-    print "L1T WARN:  L1REPACK:FullMC (intended for MC events with RAW eventcontent) only supports Stage 2 eras for now."
-    print "L1T WARN:  Use a legacy version of L1REPACK for now."
+    print("L1T WARN:  L1REPACK:FullMC (intended for MC events with RAW eventcontent) only supports Stage 2 eras for now.")
+    print("L1T WARN:  Use a legacy version of L1REPACK for now.")
 else:
-    print "L1T INFO:  L1REPACK:FullMC  will unpack Calorimetry and Muon L1T inputs, re-emulate L1T (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."
+    print("L1T INFO:  L1REPACK:FullMC  will unpack Calorimetry and Muon L1T inputs, re-emulate L1T (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output.")
 
     # First, Unpack all inputs to L1:
 
@@ -47,6 +48,10 @@ else:
     simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
         cms.InputTag('unpackHcal'),
         cms.InputTag('unpackHcal')
+    )
+    simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+        cms.InputTag('unpackHcal'),     # upgrade HBHE
+        cms.InputTag('unpackHcal')      # upgrade HF
     )
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *

@@ -7,6 +7,7 @@ When used as a script the following options are accepted:
 	-f Show all columns
 	-h show headers
 """
+from __future__ import print_function
 import sys
 import os.path
 import getopt as gop
@@ -16,7 +17,7 @@ import ExtractAppInfoFromXML as appinf
 ################################################################################
 def getAppPID(srv,port):
 	try:
-		print "Connecting to server: "+srv+" and fetching PID for application running on port: "+port
+		print("Connecting to server: "+srv+" and fetching PID for application running on port: "+port)
 		cf=os.popen('ssh '+srv+' ps -eo pid,cmd | grep '+port)
 		l=cf.readline();
 		if l=="":
@@ -36,7 +37,7 @@ def getAppLogFileName(srv,pid):
 		if pid=="App Not Running":
 			return "No active log file"
 		else:
-			print "Connecting to server: "+srv+" and fetching LogFile for application with PID: "+pid
+			print("Connecting to server: "+srv+" and fetching LogFile for application with PID: "+pid)
 			cf=os.popen('ssh '+srv+' ls -l /tmp | grep '+pid)
 			l=cf.readline();
 			if l=="":

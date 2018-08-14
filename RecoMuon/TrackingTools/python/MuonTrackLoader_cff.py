@@ -18,6 +18,10 @@ KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmoother_c
     Updator = cms.string('KFUpdator'),
     Propagator = cms.string('SmartPropagatorAnyRK')
 )
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# FastSim doesn't use Runge Kute for propagation
+fastSim.toModify(KFSmootherForMuonTrackLoader,
+                 Propagator = "SmartPropagatorAny")
 
 KFSmootherForMuonTrackLoaderL3 = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     errorRescaling = cms.double(10.0),
@@ -83,11 +87,6 @@ MuonTrackLoaderForCosmic = cms.PSet(
         TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
-
-# Switch back to GenericCPE until bias in template CPE gets fixed
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-for _loader in [MuonTrackLoaderForSTA, MuonTrackLoaderForGLB, MuonTrackLoaderForL2, MuonTrackLoaderForL3, MuonTrackLoaderForCosmic]:
-    phase1Pixel.toModify(_loader, TrackLoaderParameters = dict(TTRHBuilder = 'WithTrackAngle')) # FIXME
 
 # This customization will be removed once we get the templates for
 # phase2 pixel

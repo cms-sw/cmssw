@@ -222,6 +222,8 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
     params_[0] = (daq2>>8)&0xFF; // latency
     params_[1] = (daq2>>4)&0x0F; // cal_chan
     params_[2] = (daq2>>0)&0x0F; // cal_sel
+    params_[3] = (daq2>>16)&0xFF; // isha
+    params_[4] = (daq2>>24);      // vfs
   } else if ( runType_ == sistrip::OPTO_SCAN ) { 
     params_[0] = (daq2>>8)&0xFF; // opto gain
     params_[1] = (daq2>>0)&0xFF; // opto bias

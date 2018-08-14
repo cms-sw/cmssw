@@ -47,16 +47,13 @@ displacedTracks = DuplicateListMerger.clone(
     candidateComponents = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
     )
 #for displaced global muons
-displacedTracksSequence = cms.Sequence(
-    duplicateDisplacedTrackCandidates*
-    mergedDuplicateDisplacedTracks*
-    duplicateDisplacedTrackClassifier*
+displacedTracksTask = cms.Task(
+    duplicateDisplacedTrackCandidates,
+    mergedDuplicateDisplacedTracks,
+    duplicateDisplacedTrackClassifier,
     displacedTracks
     )
-
-# Switch back to GenericCPE until bias in template CPE gets fixed
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toModify(duplicateDisplacedTrackCandidates, ttrhBuilderName = "WithTrackAngle") # FIXME
+displacedTracksSequence = cms.Sequence(displacedTracksTask)
 
 # This customization will be removed once we get the templates for
 # phase2 pixel

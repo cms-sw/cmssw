@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/RegressionTest/src/DDCheck.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
@@ -13,13 +13,13 @@
 class CompareDDCompactViews : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
-  explicit CompareDDCompactViews( const edm::ParameterSet& iConfig );
-  ~CompareDDCompactViews( void ) {}
+  explicit CompareDDCompactViews( const edm::ParameterSet& );
+  ~CompareDDCompactViews() override {}
   
   void beginJob() override {}
-  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
-  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
-  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+  void beginRun( edm::Run const& , edm::EventSetup const& ) override;
+  void analyze( edm::Event const& , edm::EventSetup const& ) override {}
+  void endRun( edm::Run const& , edm::EventSetup const& ) override {}
   void endJob() override {}
 
 private:

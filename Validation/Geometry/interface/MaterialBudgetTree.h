@@ -14,12 +14,12 @@ class MaterialBudgetTree : public MaterialBudgetFormat
 {
 public:
 
-  MaterialBudgetTree( MaterialBudgetData* data, const std::string& fileName );   
-  virtual ~MaterialBudgetTree(){ hend(); }
+  MaterialBudgetTree( std::shared_ptr<MaterialBudgetData> data, const std::string& fileName );   
+  ~MaterialBudgetTree() override{ hend(); }
 
-  virtual void fillStartTrack();
-  virtual void fillPerStep();
-  virtual void fillEndTrack();
+  void fillStartTrack() override;
+  void fillPerStep() override;
+  void fillEndTrack() override;
   
 private:
   
@@ -68,7 +68,7 @@ private:
   double t_FinalZ[MAXSTEPS];
   // rr
   int    t_VolumeID[MAXSTEPS];
-  char*  t_VolumeName[MAXSTEPS];
+  const char*  t_VolumeName[MAXSTEPS];
   int    t_VolumeCopy[MAXSTEPS];
   float  t_VolumeX[MAXSTEPS];
   float  t_VolumeY[MAXSTEPS];
@@ -83,7 +83,7 @@ private:
   float  t_VolumeZaxis2[MAXSTEPS];
   float  t_VolumeZaxis3[MAXSTEPS];
   int   t_MaterialID[MAXSTEPS];
-  char* t_MaterialName[MAXSTEPS];  
+  const char* t_MaterialName[MAXSTEPS];  
   float t_MaterialX0[MAXSTEPS];  
   float t_MaterialLambda0[MAXSTEPS];  
   float t_MaterialDensity[MAXSTEPS]; // g/cm3  

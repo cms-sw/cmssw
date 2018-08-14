@@ -34,9 +34,9 @@ class HLTPFEnergyFractionsFilter : public HLTFilter {
 
    public:
       explicit HLTPFEnergyFractionsFilter(const edm::ParameterSet&);
-      ~HLTPFEnergyFractionsFilter();
+      ~HLTPFEnergyFractionsFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::EDGetTokenT<reco::PFJetCollection> m_thePFJetToken;

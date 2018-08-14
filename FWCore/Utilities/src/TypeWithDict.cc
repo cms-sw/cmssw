@@ -18,7 +18,6 @@
 #include "TRealData.h"
 #include "TROOT.h"
 
-#include "boost/thread/tss.hpp"
 #include "tbb/concurrent_unordered_map.h"
 
 #include <cassert>
@@ -26,6 +25,7 @@
 #include <cstdlib>
 #include <ostream>
 #include <typeinfo>
+#include <typeindex>
 
 #include <cxxabi.h>
 
@@ -33,10 +33,19 @@
 namespace edm {
 
   namespace {
-    typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> Map;
+    using Map = tbb::concurrent_unordered_map<std::string, TypeWithDict>;
     Map typeMap;
-    typedef tbb::concurrent_unordered_map<std::string, FunctionWithDict> FunctionMap;
+    using FunctionMap = tbb::concurrent_unordered_map<std::string, FunctionWithDict>;
     FunctionMap functionMap;
+
+    struct TypeIndexHash {
+      std::size_t operator()(std::type_index ti) const {
+        return ti.hash_code();
+      }
+    };
+ 
+    using TypeIndexMap = tbb::concurrent_unordered_map<std::type_index, TypeWithDict, TypeIndexHash>;
+    TypeIndexMap typeIndexMap;
   }
    static
    void throwTypeException(std::string const& function, std::string const& typeName) {
@@ -54,6 +63,19 @@ namespace edm {
          << "Also, if this class has any transient members,\n"
          << "you need to specify them in classes_def.xml.";
 
+   }
+
+   TypeWithDict
+   TypeWithDict::byTypeInfo(std::type_info const& ti) {
+     // This is a public static function.
+     auto index = std::type_index(ti);
+     auto const& item = typeIndexMap.find(index);
+     if(item != typeIndexMap.end()) {
+        return item->second;
+     }
+     TypeWithDict theType(ti, 0L);
+     typeIndexMap.insert(std::make_pair(index, theType));
+     return theType;
    }
 
   TypeWithDict
@@ -129,7 +151,7 @@ namespace edm {
       ret.arrayDimensions_ = value_ptr<std::vector<size_t> >(new std::vector<size_t>);
       std::string const dimensions = name.substr(first);
       char const* s = dimensions.c_str();
-      while(1) {
+      while(true) {
         size_t x = 0;
         int count = sscanf(s, "[%lu]", &x);
         assert(count == 1);

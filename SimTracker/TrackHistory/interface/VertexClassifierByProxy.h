@@ -24,7 +24,7 @@ public:
     }
 
     //! Pre-process event information (for accessing reconstraction information).
-    virtual void newEvent(edm::Event const & event, edm::EventSetup const & config)
+    void newEvent(edm::Event const & event, edm::EventSetup const & config) override
     {
         // Get the association part of the proxy to the collection
         event.getByLabel(proxy_, proxyHandler_);
@@ -42,7 +42,7 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex, std::size_t index)
     {
-        const reco::VertexRefVector * vertexes = 0;
+        const reco::VertexRefVector * vertexes = nullptr;
 
         try
         {
@@ -66,7 +66,7 @@ public:
     //! Classify any vertexes in categories.
     VertexClassifierByProxy<Collection> const & evaluate (edm::Ref<Collection> const & vertex)
     {
-        const reco::VertexRefVector * vertexes = 0;
+        const reco::VertexRefVector * vertexes = nullptr;
 
         try
         {

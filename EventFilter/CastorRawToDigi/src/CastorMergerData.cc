@@ -6,16 +6,16 @@
 #else
 #include "CastorMergerData.h"
 #endif
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include <algorithm>
 
-CastorMergerData::CastorMergerData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
+CastorMergerData::CastorMergerData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(nullptr), m_ownData(nullptr) { }
 CastorMergerData::CastorMergerData(const unsigned short* data, int length) {
   adoptData(data,length);
-  m_ownData=0;
+  m_ownData=nullptr;
 }
-CastorMergerData::CastorMergerData(const CastorMergerData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(0) { }
+CastorMergerData::CastorMergerData(const CastorMergerData& hd) : m_formatVersion(hd.m_formatVersion), m_rawLength(hd.m_rawLength), m_rawConst(hd.m_rawConst), m_ownData(nullptr) { }
 
 CastorMergerData::CastorMergerData(int version_to_create) : m_formatVersion(version_to_create) {
   allocate(version_to_create);
@@ -32,7 +32,7 @@ void CastorMergerData::allocate(int version_to_create) {
 }
 
 CastorMergerData& CastorMergerData::operator=(const CastorMergerData& hd) {
-  if (m_ownData==0) {
+  if (m_ownData==nullptr) {
     m_formatVersion=hd.m_formatVersion;
     m_rawLength=hd.m_rawLength;
     m_rawConst=hd.m_rawConst;
@@ -67,7 +67,7 @@ bool CastorMergerData::check() const {
 void CastorMergerData::unpack(
 			 unsigned char* tp_lengths, unsigned short* tp_samples) const {
 
-  if (tp_lengths!=0) memset(tp_lengths,0,1);
+  if (tp_lengths!=nullptr) memset(tp_lengths,0,1);
 
   int tp_words_total,headerLen,trailerLen;
   determineSectionLengths(tp_words_total,headerLen,trailerLen);
@@ -75,7 +75,7 @@ void CastorMergerData::unpack(
   int wordPtr;
   const unsigned short* tpBase=m_rawConst+headerLen;
   // process the trigger primitive words
-  if (tp_lengths!=0) {
+  if (tp_lengths!=nullptr) {
     for (wordPtr=0; wordPtr<tp_words_total; wordPtr++) {
        tp_samples[tp_lengths[0]]=tpBase[wordPtr];
        tp_lengths[0]++;
@@ -106,7 +106,7 @@ void CastorMergerData::pack(
 
   // trigger words
   unsigned short* ptr=m_ownData+headerLen;
-  if (tp_samples!=0 && tp_lengths!=0) {
+  if (tp_samples!=nullptr && tp_lengths!=nullptr) {
       for (isample=0; isample<tp_lengths[0] && isample<12; isample++) {
 	ptr[tp_words_total]=tp_samples[isample];
 	tp_words_total++;

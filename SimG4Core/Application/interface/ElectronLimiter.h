@@ -20,17 +20,17 @@ public:
 
   ElectronLimiter(const edm::ParameterSet & p);
 
-  virtual ~ElectronLimiter();
+  ~ElectronLimiter() override;
 
-  virtual void BuildPhysicsTable(const G4ParticleDefinition&);
+  void BuildPhysicsTable(const G4ParticleDefinition&) override;
 
-  virtual G4double PostStepGetPhysicalInteractionLength(const G4Track& track,
+  G4double PostStepGetPhysicalInteractionLength(const G4Track& track,
 							G4double previousStepSize,
-							G4ForceCondition* condition);
+							G4ForceCondition* condition) override;
 
-  virtual G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&);
+  G4VParticleChange* PostStepDoIt(const G4Track&, const G4Step&) override;
 
-  virtual G4double GetMeanFreePath(const G4Track&, G4double,G4ForceCondition*);
+  G4double GetMeanFreePath(const G4Track&, G4double,G4ForceCondition*) override;
 
   inline void SetRangeCheckFlag(G4bool);
 
@@ -43,7 +43,7 @@ private:
 
   const G4ParticleDefinition* particle;
 
-  G4bool minStepLimit;
+  G4double minStepLimit;
 
   G4bool rangeCheckFlag;
   G4bool fieldCheckFlag;

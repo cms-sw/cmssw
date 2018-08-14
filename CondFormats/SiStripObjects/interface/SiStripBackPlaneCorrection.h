@@ -37,9 +37,9 @@ public:
   float getBackPlaneCorrection (const uint32_t&) const;
 
   /// Prints BackPlaneCorrections for all detIds.
-  void printDebug(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
   /// Prints the mean value of the BackPlaneCorrection divided by subdetector, layer and mono/stereo.
-  void printSummary(std::stringstream& ss) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
 private:
   std::map<unsigned int,float> m_BPC; 

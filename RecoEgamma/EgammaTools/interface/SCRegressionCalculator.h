@@ -39,7 +39,7 @@ class SCRegressionCalculator {
 template<class VarCalc>
 SCRegressionCalculator<VarCalc>::
 SCRegressionCalculator(const edm::ParameterSet& conf) :
-  gbr_record(NULL) {
+  gbr_record(nullptr) {
   var_calc.reset(new VarCalc());
   eb_corr_name = conf.getParameter<std::string>("regressionKeyEB");
   ee_corr_name = conf.getParameter<std::string>("regressionKeyEE");

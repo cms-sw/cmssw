@@ -47,7 +47,7 @@ public:
 
   using Base = GloballyPositioned<float>;
 
-  virtual ~Surface(){}
+  ~Surface() override{}
 
 protected:
   Surface(){}

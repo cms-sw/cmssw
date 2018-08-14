@@ -71,3 +71,7 @@ simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     # 4: forced low interest, 5: forced mid interest, 7: forced high interest
     defaultTtf = cms.int32(4)
 )
+
+# Turn off SR in Ecal for premixing stage1
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(simEcalDigis, UseFullReadout = True)

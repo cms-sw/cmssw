@@ -29,7 +29,7 @@ public:
 
   KalmanVertexTrackUpdator(){}
 
-  virtual ~KalmanVertexTrackUpdator(){}
+  ~KalmanVertexTrackUpdator() override{}
 
   /**
    *   Refit of the track with the vertex constraint.
@@ -40,14 +40,14 @@ public:
    */
 
   RefCountedVertexTrack update(const CachingVertex<N> & vertex,
-                               RefCountedVertexTrack track) const;
+                               RefCountedVertexTrack track) const override;
 
 
   /**
    *  Clone method
    */
 
-  KalmanVertexTrackUpdator<N> * clone() const
+  KalmanVertexTrackUpdator<N> * clone() const override
   {
     return new KalmanVertexTrackUpdator(*this);
   }

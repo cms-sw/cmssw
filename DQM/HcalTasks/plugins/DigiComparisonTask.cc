@@ -26,9 +26,11 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	edm::ESHandle<HcalElectronicsMap> item;
 	es.get<HcalElectronicsMapRcd>().get("full", item);
 	_emap = item.product();
-	std::vector<int> vFEDs = utilities::getFEDList(_emap);
-	std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
-	std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
+	if (_ptype != fOffline) { // hidefed2crate
+		std::vector<int> vFEDs = utilities::getFEDList(_emap);
+		std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
+		std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
+	}
 	std::vector<uint32_t> vhashVME;
 	std::vector<uint32_t> vhashuTCA;
 	vhashVME.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
@@ -67,16 +69,18 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
 		new quantity::ValueQuantity(quantity::fN),0);
-	_cMsm_FEDVME.initialize(_name, "Mismatched",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
-	_cMsm_FEDuTCA.initialize(_name, "Mismatched",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cMsm_FEDVME.initialize(_name, "Mismatched",
+			hashfunctions::fFED,
+			new quantity::ElectronicsQuantity(quantity::fSpigot),
+			new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
+			new quantity::ValueQuantity(quantity::fN),0);
+		_cMsm_FEDuTCA.initialize(_name, "Mismatched",
+			hashfunctions::fFED,
+			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
+			new quantity::ValueQuantity(quantity::fN),0);
+	}
 	_cMsnVME_depth.initialize(_name, "Missing",
 		hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
@@ -87,16 +91,18 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
 		new quantity::ValueQuantity(quantity::fN),0);
-	_cMsn_FEDVME.initialize(_name, "Missing",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
-	_cMsn_FEDuTCA.initialize(_name, "Missing",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cMsn_FEDVME.initialize(_name, "Missing",
+			hashfunctions::fFED,
+			new quantity::ElectronicsQuantity(quantity::fSpigot),
+			new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
+			new quantity::ValueQuantity(quantity::fN),0);
+		_cMsn_FEDuTCA.initialize(_name, "Missing",
+			hashfunctions::fFED,
+			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
+			new quantity::ValueQuantity(quantity::fN),0);
+	}
 
 	//	BOOK
 	char aux[20];
@@ -111,10 +117,12 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	_cMsm_depth.book(ib, _emap, _subsystem);
 	_cMsnVME_depth.book(ib, _emap, _subsystem, std::string("VME"));
 	_cMsnuTCA_depth.book(ib, _emap, _subsystem, std::string("uTCA"));
-	_cMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
-	_cMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
-	_cMsn_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	if (_ptype != fOffline) { // hidefed2crate
+		_cMsm_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cMsn_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
+		_cMsm_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cMsn_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	}
 
 	_ehashmapuTCA.initialize(_emap, hcaldqm::electronicsmap::fD2EHashMap,
 		_filter_VME);
@@ -159,7 +167,9 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		{
 			//	fill the depth plot
 			_cMsnVME_depth.fill(did);
-			_cMsn_FEDVME.fill(eid2);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cMsn_FEDVME.fill(eid2);
+			}
 			for (int i=0; i<it1->size(); i++)
 			{
 				_cADCMsnVME_Subdet.fill(did, it1->sample(i).adc());
@@ -179,8 +189,10 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 					//	fill depth, uTCA and VME as well for which guys
 					//	mismatches happen
 					_cMsm_depth.fill(did);
-					_cMsm_FEDVME.fill(eid2);
-					_cMsm_FEDuTCA.fill(eid1);
+					if (_ptype != fOffline) { // hidefed2crate
+						_cMsm_FEDVME.fill(eid2);
+						_cMsm_FEDuTCA.fill(eid1);
+					}
 				}
 			}
 	}
@@ -195,7 +207,9 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		if (it1==chbhe1->end())
 		{
 			HcalElectronicsId eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(did));
-			_cMsn_FEDuTCA.fill(eid1);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cMsn_FEDuTCA.fill(eid1);
+			}
 			for (int i=0; i<it2->size(); i++)
 			{
 				_cADCMsnuTCA_Subdet.fill(did, it2->sample(i).adc());

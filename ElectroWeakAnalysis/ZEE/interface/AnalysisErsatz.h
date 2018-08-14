@@ -49,7 +49,7 @@
 //PhysicsTools
 //#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "PhysicsTools/CandUtils/interface/CenterOfMassBooster.h"
+#include "CommonTools/CandUtils/interface/CenterOfMassBooster.h"
 #include "Math/GenVector/Boost.h"
 
 //Helper Functions

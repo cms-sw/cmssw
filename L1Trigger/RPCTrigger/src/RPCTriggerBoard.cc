@@ -86,14 +86,14 @@ bool RPCTriggerBoard::runCone(const RPCLogCone& cone)  {
 }
 //---------------------------------------------------------------------------
 L1RpcTBMuonsVec RPCTriggerBoard::runTBGB() { //4 muons or empty vector
-  if(m_PacsMuonsVec.size() == 0)
+  if(m_PacsMuonsVec.empty())
     return L1RpcTBMuonsVec();
 
   L1RpcTBMuonsVec2 gbMuons(RPCConst::m_TOWERS_ON_TB_CNT, L1RpcTBMuonsVec());
   for(unsigned int iMu = 0; iMu < m_PacsMuonsVec.size(); iMu++) {
     int tbTower = m_TriggerConfig->getTowerNumOnTb(m_PacsMuonsVec[iMu].getConeCrdnts());
 
-    if(gbMuons[tbTower].size() == 0)
+    if(gbMuons[tbTower].empty())
       gbMuons[tbTower].assign(RPCConst::m_SEGMENTS_IN_SECTOR_CNT, RPCTBMuon());
 
     gbMuons[tbTower][m_PacsMuonsVec[iMu].getLogSegment()] = m_PacsMuonsVec[iMu];

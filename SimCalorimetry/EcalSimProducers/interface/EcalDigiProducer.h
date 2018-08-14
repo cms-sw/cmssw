@@ -43,9 +43,7 @@ class PileUpEventPrincipal ;
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   template<typename T> class Handle;
@@ -60,15 +58,16 @@ namespace CLHEP {
 class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-      EcalDigiProducer( const edm::ParameterSet& params , edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+      EcalDigiProducer( const edm::ParameterSet& params , edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
       EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
-      virtual ~EcalDigiProducer();
+      ~EcalDigiProducer() override;
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
-      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+      void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+      void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+      void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
 
       void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
       void setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
@@ -80,7 +79,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const { }
 
       typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
-      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing, CLHEP::HepRandomEngine*);
+      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing);
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 
@@ -88,11 +87,10 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
 
-      CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
-
-      const APDShape m_APDShape ;
-      const EBShape  m_EBShape  ;
-      const EEShape  m_EEShape  ;
+      bool useDBShape;
+      APDShape m_APDShape ;
+      EBShape  m_EBShape  ;
+      EEShape  m_EEShape  ;
       ESShape        m_ESShape  ; // no const because gain must be set
 
       const std::string m_EBdigiCollection ;
@@ -150,7 +148,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EBCorrNoise ;
       std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EECorrNoise ;
 
-      std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+      CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif 

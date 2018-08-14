@@ -55,9 +55,7 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
 
 }
 
-HLTRFilter::~HLTRFilter()
-{
-}
+HLTRFilter::~HLTRFilter() = default;
 
 void
 HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -100,7 +98,7 @@ HLTRFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger
    if (not hemispheres.isValid() or not inputMet.isValid())
      return false;
 
-   if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the
+   if(hemispheres->empty()){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the
      return accept_NJ_;   // event is greater than the maximum number of jets
    }
 

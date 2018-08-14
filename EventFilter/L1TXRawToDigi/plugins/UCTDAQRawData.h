@@ -1,21 +1,20 @@
 #ifndef UCTDAQRawData_hh
 #define UCTDAQRawData_hh
 
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-using namespace edm;
 
 class UCTDAQRawData {
 public:
 
   UCTDAQRawData(const uint64_t *d) : myDataPtr(d) {
-    if(d != 0) {
+    if(d != nullptr) {
       if((d[0] & 0x5000000000000000) != 0x5000000000000000) {
-	LogError("UCTDAQRawData") << "CDF Header does not seem to be correct" 
+	edm::LogError("UCTDAQRawData") << "CDF Header does not seem to be correct"
 		  << std::showbase << std::internal 
 		  << std::setfill('0') << std::setw(10)
 		  << std::hex
@@ -49,7 +48,7 @@ public:
     if(amc < nAMCs()) {
       return myDataPtr[2+amc] & 0x000000000000FFFF;
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch board ID for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch board ID for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -57,7 +56,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x00000000000F0000) >> 16);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -65,7 +64,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x000000000FF00000) >> 20);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc block no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc block no for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -73,7 +72,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x00FFFFFF00000000) >> 32);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc size for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch amc size for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return 0xDEADBEEF;
   }
 
@@ -81,7 +80,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0100000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch crcError-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch crcError-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -89,7 +88,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0200000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isValid-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isValid-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -97,7 +96,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0400000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isPresent-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isPresent-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -105,7 +104,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x0800000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isEnabled-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isEnabled-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -113,7 +112,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x1000000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isSegmented-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch isSegmented-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -121,7 +120,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x2000000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch more-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch more-bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -129,7 +128,7 @@ public:
     if(amc < nAMCs()) {
       return ((myDataPtr[2+amc] & 0x4000000000000000) != 0);
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch length error bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch length error bit for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
     return false;
   }
   
@@ -142,8 +141,8 @@ public:
       }
       return (uint32_t *) &myDataPtr[skip];
     }
-    LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch payload location for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
-    return 0x0;
+    edm::LogError("UCTDAQRawData") << "UCTDAQRawData: Failed to fetch payload location for AMC = " << amc << "; Max AMC = " << nAMCs() << std::endl;
+    return nullptr;
   }
 
   const uint64_t *amc13TrailerPtr() {
@@ -182,7 +181,7 @@ public:
     skip++;
     const uint64_t *data = &myDataPtr[skip];
     if((data[0] & 0xF000000000000000) != 0xA000000000000000) {
-      LogError("UCTDAQRawData") << "CDF Trailer seems to be wrong : " 
+      edm::LogError("UCTDAQRawData") << "CDF Trailer seems to be wrong : "
 		<< std::showbase << std::internal 
 		<< std::setfill('0') << std::setw(10)
 		<< std::hex
@@ -194,12 +193,12 @@ public:
 
   bool crcModified() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000000004) == 1);
+    return ((data[0] & 0x0000000000000004) != 0);
   }
 
   bool isLastTrailerWord() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000000008) == 1);
+    return ((data[0] & 0x0000000000000008) != 0);
   }
 
   uint32_t ttsBits() {
@@ -214,12 +213,12 @@ public:
 
   bool isWrongFEDID() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000004000) == 1);
+    return ((data[0] & 0x0000000000004000) != 0);
   }
 
   bool isSLinkErrorDetectedByFRL() {
     const uint64_t *data = cdfTrailerPtr();
-    return ((data[0] & 0x0000000000008000) == 1);
+    return ((data[0] & 0x0000000000008000) != 0);
   }
 
   uint32_t crc16() {
@@ -277,8 +276,8 @@ private:
 
   // No copy constructor and equality operator are needed
   
-  UCTDAQRawData(const UCTDAQRawData&);
-  const UCTDAQRawData& operator=(const UCTDAQRawData& i);
+  UCTDAQRawData(const UCTDAQRawData&) = delete;
+  const UCTDAQRawData& operator=(const UCTDAQRawData& i) = delete;
   
   // RawData data
   

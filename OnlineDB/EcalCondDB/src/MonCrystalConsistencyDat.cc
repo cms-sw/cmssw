@@ -9,17 +9,17 @@ using namespace oracle::occi;
 
 MonCrystalConsistencyDat::MonCrystalConsistencyDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_processedEvents = 0;
   m_problematicEvents = 0;
   m_problemsID = 0;
   m_problemsGainZero = 0;
   m_problemsGainSwitch = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 
@@ -42,7 +42,7 @@ void MonCrystalConsistencyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonCrystalConsistencyDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -72,7 +72,7 @@ void MonCrystalConsistencyDat::writeDB(const EcalLogicID* ecid, const MonCrystal
     m_writeStmt->setInt(8, item->getTaskStatus() );
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonCrystalConsistencyDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -102,12 +102,12 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
     std::pair< EcalLogicID, MonCrystalConsistencyDat > p;
     MonCrystalConsistencyDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setProcessedEvents( rset->getInt(7) );
       dat.setProblematicEvents( rset->getInt(8) );
@@ -121,7 +121,7 @@ void MonCrystalConsistencyDat::fetchData(std::map< EcalLogicID, MonCrystalConsis
     }
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonCrystalConsistencyDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -232,6 +232,6 @@ void MonCrystalConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonCrys
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonCrystalConsistencyDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonCrystalConsistencyDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

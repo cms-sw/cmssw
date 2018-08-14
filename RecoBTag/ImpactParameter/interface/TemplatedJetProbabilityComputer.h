@@ -51,7 +51,7 @@ class TemplatedJetProbabilityComputer : public JetTagComputer
      uses("ipTagInfos");
   }
  
-  float discriminator(const TagInfoHelper & ti) const 
+  float discriminator(const TagInfoHelper & ti) const override 
    {
       const TagInfo & tkip = ti.get<TagInfo>();
       const Container & tracks(tkip.selectedTracks());

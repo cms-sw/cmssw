@@ -15,16 +15,16 @@ class FWMETLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
 public:
    FWMETLegoProxyBuilder( void ) {}
-   virtual ~FWMETLegoProxyBuilder( void ) {}
+   ~FWMETLegoProxyBuilder( void ) override {}
    
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWMETLegoProxyBuilder( const FWMETLegoProxyBuilder& );    // stop default
-   const FWMETLegoProxyBuilder& operator=( const FWMETLegoProxyBuilder& );    // stop default
+   FWMETLegoProxyBuilder( const FWMETLegoProxyBuilder& ) = delete;    // stop default
+   const FWMETLegoProxyBuilder& operator=( const FWMETLegoProxyBuilder& ) = delete;    // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::MET>::build;
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
+   void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) override;
 };
 
 void

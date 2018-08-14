@@ -31,14 +31,15 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMSecProcId.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorReceiver.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMExtrapolationUnit.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMTrackAssembler.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMAssignmentUnit.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrack.h"
+
+#include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 
 using namespace std;
 
@@ -227,7 +228,7 @@ const L1MuBMSectorProcessor* L1MuBMSectorProcessor::neighbour() const {
   // current SP  -3  -2  -1  +1  +2  +3
   // neighbour   -2  -1  +1   0  +1  +2
 
-  if ( wheel == 1) return 0;
+  if ( wheel == 1) return nullptr;
   wheel = (wheel == -1) ? 1 : (wheel/abs(wheel)) * (abs(wheel)-1);
 
   const L1MuBMSecProcId id(wheel,sector);

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("tester")
@@ -6,26 +7,51 @@ process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(276403)) #91
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('db',
+                 'static',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Source DB: prod/prep/static/sqlite"
+)
+options.register('run',
+                 1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Run (IOV)"
+)
+options.parseArguments()
 
-# The line below sets configuration from local file
-#process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
+if options.db == "static" :
+    process.load('L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff')
+else :
+    if   options.db == "prod" :
+        sourceDB = "frontier://FrontierProd/CMS_CONDITIONS"
+    elif options.db == "prep" :
+        sourceDB = "frontier://FrontierPrep/CMS_CONDITIONS"
+    elif "sqlite" in options.db :
+        sourceDB = options.db
+    else :
+        print("Unknown input DB: ", options.db, " should be static/prod/prep/sqlite:...")
+        exit(0)
 
-# Last option is readin local sqlite file
-from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
-process.l1conddb = cms.ESSource("PoolDBESSource",
-       CondDBSetup,
-       connect = cms.string('sqlite:new.db'),
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string(sourceDB)
+    process.l1conddb = cms.ESSource("PoolDBESSource",
+       CondDB,
        toGet   = cms.VPSet(
             cms.PSet(
                  record = cms.string('L1TMuonOverlapParamsRcd'),
                  tag = cms.string("L1TMuonOverlapParams_Stage2v0_hlt")
             )
        )
-)
+    )
 
-process.l1or = cms.EDAnalyzer("L1TOverlapReader", printLayerMap = cms.untracked.bool(True) )
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(options.run))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.p = cms.Path(process.l1or)
+process.l1mor = cms.EDAnalyzer("L1TMuonOverlapParamsViewer", printLayerMap = cms.untracked.bool(True) )
+
+process.p = cms.Path(process.l1mor)
 

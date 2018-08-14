@@ -72,7 +72,7 @@ void TrackTypeMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run const& 
   edm::ParameterSet nTracksHistoPar = parameters_.getParameter<edm::ParameterSet>("nTracksPar");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  iBook.setCurrentFolder(currentFolder.c_str());
+  iBook.setCurrentFolder(currentFolder);
 
   trackEtaHList_.push_back(iBook.book1D("trackEtaIso", "Isolated Track Eta", 
 					TrackEtaHistoPar.getParameter<int32_t>("Xbins"), 
@@ -452,8 +452,6 @@ void TrackTypeMonitor::fillHistograms(const reco::Track& track, int indx) {
   double ndof = track.ndof();
   double chbyndof = (ndof > 0) ? chi2/ndof : 0;
   trackChi2bynDOFHList_.at(indx)->Fill(chbyndof);  
-}
-void TrackTypeMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
 }
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

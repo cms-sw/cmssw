@@ -66,10 +66,10 @@ L1TriggerKeyListDummyProd::ReturnType
 L1TriggerKeyListDummyProd::produce(const L1TriggerKeyListRcd& iRecord)
 {
    using namespace edm::es;
-   std::shared_ptr<L1TriggerKeyList> pL1TriggerKeyList ;
-   pL1TriggerKeyList = std::make_shared< L1TriggerKeyList >() ;
+   std::unique_ptr<L1TriggerKeyList> pL1TriggerKeyList ;
+   pL1TriggerKeyList = std::make_unique< L1TriggerKeyList >() ;
    return pL1TriggerKeyList ;
-//   return std::make_shared< L1TriggerKeyList >() ;
+//   return std::make_unique< L1TriggerKeyList >() ;
 }
 
 //define this as a plug-in

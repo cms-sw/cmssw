@@ -19,7 +19,7 @@
 
 
 DrawPlot::DrawPlot(const unsigned int iterationNumber, const bool summaryFile):
-outpath_(0), file_(0), fileZeroApe_(0), designFile_(0), baselineTreeX_(0), baselineTreeY_(0), delta0_(0),
+outpath_(nullptr), file_(nullptr), fileZeroApe_(nullptr), designFile_(nullptr), baselineTreeX_(nullptr), baselineTreeY_(nullptr), delta0_(nullptr),
 legendEntry_("data (final APE)"), legendEntryZeroApe_("data (APE=0)"), designLegendEntry_("MCideal"),
 legendXmin_(0.41), legendYmin_(0.27), legendXmax_(0.71), legendYmax_(0.42),
 thesisMode_(false)
@@ -63,6 +63,9 @@ thesisMode_(false)
   
   if(!baselineTreeX_)std::cout<<"Baseline tree for x coordinate not found, cannot draw baselines!\n";
   if(!baselineTreeY_)std::cout<<"Baseline tree for y coordinate not found, cannot draw baselines!\n";
+  
+  baselineTreeX_->SetDirectory(nullptr);
+  baselineTreeY_->SetDirectory(nullptr);
   
   delete inpath;
   delete fileName;
@@ -291,27 +294,27 @@ DrawPlot::drawPlot(const TString& pluginName, const TString& histName, const boo
     std::stringstream ss_sectorName, ss_sector;
     ss_sectorName<<"Sector_"<<iSector;
     ss_sector<<*plugin<<ss_sectorName.str()<<"/";
-    TDirectory* dir(0);
+    TDirectory* dir(nullptr);
     //std::cout<<"Sector: "<<ss_sector.str()<<"\n";
     dir = (TDirectory*)designFile_->TDirectory::GetDirectory(ss_sector.str().c_str());
     if(!dir)break;
     
-    TH1* SectorName(0);
+    TH1* SectorName(nullptr);
     designFile_->GetObject((ss_sector.str()+"z_name;1").c_str(), SectorName);
     const TString sectorName(SectorName ? SectorName->GetTitle() : ss_sectorName.str().c_str());
     
     
-    TTree* baselineTree(0);
+    TTree* baselineTree(nullptr);
     if(histName=="h_residualWidthX1"){baselineTree = baselineTreeX_;}
     else if(histName=="h_residualWidthY1"){baselineTree = baselineTreeY_;}
     if(baselineTree){
       std::stringstream ss_branch;
       ss_branch<<"Ape_Sector_"<<iSector;
-      TBranch* branch(0);
+      TBranch* branch(nullptr);
       branch = baselineTree->GetBranch(ss_branch.str().c_str());
       if(branch){
-	double delta0(999.);
-	branch->SetAddress(&delta0);
+  double delta0(999.);
+  branch->SetAddress(&delta0);
         branch->GetEntry(0);
         delta0_ = new double(std::sqrt(delta0));
       }
@@ -361,9 +364,9 @@ void
 DrawPlot::printHist(const TString& fullName, const TString& sectorName, const bool normalise, const bool plotZeroApe){
   if(thesisMode_)gStyle->SetOptStat(0);
   
-  TH1* hist(0);
-  TH1* histZeroApe(0);
-  TH1* designHist(0);
+  TH1* hist(nullptr);
+  TH1* histZeroApe(nullptr);
+  TH1* designHist(nullptr);
   if(file_)file_->GetObject(fullName + ";1", hist);
   if(fileZeroApe_)fileZeroApe_->GetObject(fullName + ";1", histZeroApe);
   designFile_->GetObject(fullName + ";1", designHist);
@@ -420,7 +423,7 @@ DrawPlot::printHist(const TString& fullName, const TString& sectorName, const bo
   if(delta0_){
     const double xLow(designHist->GetXaxis()->GetXmin());
     const double xUp(designHist->GetXaxis()->GetXmax());
-    TLine* baseline(0);
+    TLine* baseline(nullptr);
     baseline = new TLine(xLow,*delta0_,xUp,*delta0_);
     baseline->SetLineStyle(2);
     baseline->SetLineWidth(2);
@@ -432,7 +435,7 @@ DrawPlot::printHist(const TString& fullName, const TString& sectorName, const bo
   canvas->Update();
   
   //TPaveStats* stats =(TPaveStats*) hist->GetListOfFunctions()->At(1);
-  TPaveStats* statsZeroApe(0);
+  TPaveStats* statsZeroApe(nullptr);
   if(histZeroApe)statsZeroApe = (TPaveStats*)histZeroApe->GetListOfFunctions()->FindObject("stats");
   if(statsZeroApe){
     statsZeroApe->SetY1NDC(0.58);
@@ -440,7 +443,7 @@ DrawPlot::printHist(const TString& fullName, const TString& sectorName, const bo
     statsZeroApe->SetLineColor(2);
     statsZeroApe->SetTextColor(2);
   }
-  TPaveStats* stats(0);
+  TPaveStats* stats(nullptr);
   if(hist)stats = (TPaveStats*)hist->GetListOfFunctions()->FindObject("stats");
   if(stats){
     stats->SetY1NDC(0.37);
@@ -451,7 +454,7 @@ DrawPlot::printHist(const TString& fullName, const TString& sectorName, const bo
   canvas->Modified();
   canvas->Update();
   
-  TLegend* legend(0);
+  TLegend* legend(nullptr);
   const LegendEntries& legendEntries = this->adjustLegendEntry(sectorName, hist, histZeroApe, designHist);
   legend = new TLegend(legendXmin_, legendYmin_, legendXmax_, legendYmax_);
   this->adjustLegend(legend);

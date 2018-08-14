@@ -42,7 +42,7 @@
 class CombinedSVComputer {
     public:
 	explicit CombinedSVComputer(const edm::ParameterSet &params);
-
+        virtual ~CombinedSVComputer() = default;
 	virtual reco::TaggingVariableList
 	operator () (const reco::TrackIPTagInfo &ipInfo,
 	             const reco::SecondaryVertexTagInfo &svInfo) const;
@@ -143,7 +143,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 		vars.insert(btau::flightDistance2dSig,flipValue(svInfo.flightDistance(vtx, 2).significance(),true),true);
 		vars.insert(btau::flightDistance3dVal,flipValue(svInfo.flightDistance(vtx, 3).value(),true),true);
 		vars.insert(btau::flightDistance3dSig,flipValue(svInfo.flightDistance(vtx, 3).significance(),true),true);
-		vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
+		vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), vertexFlip ? -jetDir : jetDir),true);
 		vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
 	}
 
@@ -244,7 +244,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
 	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
 	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
-	
+
 	vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
 	vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
 	vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
@@ -266,7 +266,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 double vertexMass = vertexSum.M();
                 if (vtxType == btag::Vertices::RecoVertex &&
                     vertexMassCorrection) {
-                        GlobalVector dir = svInfo.flightDirection(vtx);
+                        const GlobalVector& dir = svInfo.flightDirection(vtx);
                         double vertexPt2 = math::XYZVector(dir.x(), dir.y(), dir.z()).Cross(vertexSum).Mag2() / dir.mag2();
                         vertexMass = std::sqrt(vertexMass * vertexMass + vertexPt2) + std::sqrt(vertexPt2);
                 }
@@ -287,7 +287,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 
 	reco::PFJet const * pfJet = dynamic_cast<reco::PFJet const *>( &* jet ) ;
 	pat::Jet const * patJet = dynamic_cast<pat::Jet const *>( &* jet ) ;
-	if ( pfJet != 0 ) 
+	if ( pfJet != nullptr ) 
 	{
 		vars.insert(btau::chargedHadronEnergyFraction,pfJet->chargedHadronEnergyFraction(), true);
 		vars.insert(btau::neutralHadronEnergyFraction,pfJet->neutralHadronEnergyFraction(), true);
@@ -304,7 +304,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 		vars.insert(btau::totalMultiplicity,pfJet->chargedHadronMultiplicity()+pfJet->neutralHadronMultiplicity()+pfJet->photonMultiplicity()+pfJet->electronMultiplicity()+pfJet->muonMultiplicity(), true);
 
 	}
-	else if( patJet != 0 && patJet->isPFJet() )
+	else if( patJet != nullptr && patJet->isPFJet() )
 	{
 		vars.insert(btau::chargedHadronEnergyFraction,patJet->chargedHadronEnergyFraction(), true);
 		vars.insert(btau::neutralHadronEnergyFraction,patJet->neutralHadronEnergyFraction(), true);

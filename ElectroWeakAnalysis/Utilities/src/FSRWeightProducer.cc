@@ -20,12 +20,12 @@
 class FSRWeightProducer : public edm::EDProducer {
    public:
       explicit FSRWeightProducer(const edm::ParameterSet&);
-      ~FSRWeightProducer();
+      ~FSRWeightProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       double alphaRatio(double) ;
 
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;

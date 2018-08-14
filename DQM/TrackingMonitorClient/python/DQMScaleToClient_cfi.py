@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dqmScaleToClient = cms.EDAnalyzer('DQMScaleToClient',
+dqmScaleToClient = DQMEDHarvester('DQMScaleToClient',
   outputme = cms.PSet(
     folder = cms.string(''),
     name = cms.string(''),

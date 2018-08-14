@@ -36,13 +36,13 @@ class XtalDedxAnalysis : public edm::EDAnalyzer {
 
 public:
   explicit XtalDedxAnalysis(const edm::ParameterSet&);
-  virtual ~XtalDedxAnalysis() {}
+  ~XtalDedxAnalysis() override {}
 
 protected:
 
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   void analyzeHits (std::vector<PCaloHit>&, 
 		    edm::Handle<edm::SimTrackContainer>& , 

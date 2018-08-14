@@ -1,16 +1,21 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBackPlaneCorrectionDQM.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "TCanvas.h"
 
 // -----
 SiStripBackPlaneCorrectionDQM::SiStripBackPlaneCorrectionDQM(const edm::EventSetup & eSetup,
-					       edm::ParameterSet const& hPSet,
-					       edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                                             edm::RunNumber_t iRun,
+                                                             edm::ParameterSet const& hPSet,
+                                                             edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
 
   // Build the Histo_TkMap:
-  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","BP_TkMap",0.);
-
+  if ( HistoMaps_On_ ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map","BP_TkMap",0.);
+  }
 }
 // -----
 
@@ -146,7 +151,6 @@ void SiStripBackPlaneCorrectionDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs
   }
 
   uint32_t selSubDetId_ =  ((selDetId_>>25)&0x7);
-  SiStripSubStructure substructure_;
   
   std::vector<uint32_t> sameLayerDetIds_;
   sameLayerDetIds_.clear();
@@ -167,20 +171,20 @@ void SiStripBackPlaneCorrectionDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs
    
     if(selSubDetId_==3){  //  TIB
       if(tTopo->tibIsInternalString(selDetId_)){
-	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(selDetId_),0,1,tTopo->tibString(selDetId_));
+	SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(selDetId_),0,1,tTopo->tibString(selDetId_));
       }
       if(tTopo->tibIsExternalString(selDetId_)){
-	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(selDetId_),0,2,tTopo->tibString(selDetId_));
+	SiStripSubStructure::getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tibLayer(selDetId_),0,2,tTopo->tibString(selDetId_));
       } 
     }
     else if(selSubDetId_==4){  // TID
-      substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
+      SiStripSubStructure::getTIDDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0);
     }
     else if(selSubDetId_==5){  // TOB
-      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tobLayer(selDetId_),0,tTopo->tobRod(selDetId_));
+      SiStripSubStructure::getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo, tTopo->tobLayer(selDetId_),0,tTopo->tobRod(selDetId_));
     }
     else if(selSubDetId_==6){  // TEC
-      substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+      SiStripSubStructure::getTECDetectors(activeDetIds, sameLayerDetIds_, tTopo, 0,0,0,0,0,0);
     }
  
     // -----

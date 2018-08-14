@@ -34,7 +34,7 @@ namespace l1t {
 		 int qual=0,
 		 int iso=0);
 
-    ~L1Candidate();
+    ~L1Candidate() override;
 
     // methods to set integer values
     // in general, these should not be needed
@@ -50,6 +50,9 @@ namespace l1t {
     int hwPhi() const {return hwPhi_;}
     int hwQual() const {return hwQual_;}
     int hwIso() const {return hwIso_;}
+
+    virtual bool operator==(const l1t::L1Candidate & rhs) const;
+    virtual inline bool operator!=(const l1t::L1Candidate & rhs) const { return !(operator==(rhs)); };
 
   private:
 

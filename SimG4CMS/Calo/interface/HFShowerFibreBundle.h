@@ -21,12 +21,12 @@ class HFShowerFibreBundle {
 
 public:    
 
-  HFShowerFibreBundle(std::string & name, const DDCompactView & cpv, 
+  HFShowerFibreBundle(const std::string & name, const DDCompactView & cpv, 
 		      edm::ParameterSet const & p);
   virtual ~HFShowerFibreBundle();
-  double                getHits(G4Step * aStep, bool type);
+  double                getHits(const G4Step * aStep, bool type);
   double                getRadius();
-  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
+  void                  initRun(const HcalDDDSimConstants*);
 
 private:    
 

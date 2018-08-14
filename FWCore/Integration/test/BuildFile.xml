@@ -17,6 +17,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test transRefTest.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationTableTest">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test testTables.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationProducedSource">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test inputSourceTest.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -45,6 +49,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SeriesOfProcesses.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestParentageWithStreamerIO">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ParentageWithStreamerIO.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationThinningTests">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ThinningTests.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -53,12 +61,24 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestGetBy.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationOutput">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestOutput.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationDropOnInput">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestDropOnInput.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestSubProcess">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SubProcess.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationUnscheduledFailOnOutput">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_unscheduledFailOnOutput.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationGetProductAtEnd">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_getProductAtEnd.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationParentless">
@@ -71,6 +91,10 @@
   </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationRunMerge">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RunMerge.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationRunMerge2">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RunMerge2.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationRefMerge">
@@ -109,8 +133,9 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
-  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc" name="SomeTestModules">
+  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc, WaitingThreadIntProducer.cc, ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc" name="SomeTestModules">
     <flags   EDM_PLUGIN="1"/>
+    <lib   name="FWCoreIntegrationWaitingServer"/>
     <use   name="FWCore/Framework"/>
     <use   name="DataFormats/TestObjects"/>
   </library>
@@ -176,6 +201,16 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
+  <library   file="WaitingServer.cc" name="FWCoreIntegrationWaitingServer">
+    <use   name="FWCore/Concurrency"/>
+  </library>
+  <library   file="WaitingService.cc" name="FWCoreIntegrationWaitingService">
+    <flags   EDM_PLUGIN="1"/>
+    <lib   name="FWCoreIntegrationWaitingServer"/>
+    <use   name="FWCore/Concurrency"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="FWCore/ServiceRegistry"/>
+  </library>
   <library   file="OtherThingAnalyzer.cc,OtherThingRefComparer.cc" name="TestOtherThingAnalyzer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DataFormats/Common"/>
@@ -224,6 +259,11 @@
   <library   file="TestGetterOfProducts.cc" name="TestGetterOfProducts">
     <flags   EDM_PLUGIN="1"/>
     <use   name="DataFormats/TestObjects"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="FWCore/ParameterSet"/>
+  </library>
+  <library   file="TestDescriptionComments.cc" name="TestDescriptionComments">
+    <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
     <use   name="FWCore/ParameterSet"/>
   </library>

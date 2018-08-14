@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 8.25)
+//  SiPixelTemplateReco.cc (Version 10.00)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -40,6 +40,9 @@
 //  V8.11 - Change probQ to upper tail probability always (rather than two-sided tail probability)
 //  V8.20 - Use template cytemp/cxtemp methods to center the data cluster in the right place when the template becomes asymmetric after irradiation
 //  V8.25 - Incorporate VIs speed improvements
+//  V8.26 - Fix centering problem for small signals
+//  V9.00 - Set QProb = Q/Q_avg when calcultion is turned off, use fbin definitions of Qbin
+//  V10.00 - Use new template object to reco Phase 1 FPix hits
 //
 //
 //
@@ -50,11 +53,11 @@
 #ifndef SiPixelTemplateReco_h
 #define SiPixelTemplateReco_h 1
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateDefs.h"
-
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #else
+#include "SiPixelTemplateDefs.h"
 #include "SiPixelTemplate.h"
 #endif
 
@@ -62,37 +65,40 @@
 
 #include <vector>
 
+#ifndef SiPixelTemplateClusMatrix
+#define SiPixelTemplateClusMatrix 1
 
 namespace SiPixelTemplateReco {
-
-     struct ClusMatrix {
-      float & operator()(int x, int y) { return matrix[mcol*x+y];} 
-      float operator()(int x, int y) const { return matrix[mcol*x+y];} 
+   
+   struct ClusMatrix {
+      float & operator()(int x, int y) { return matrix[mcol*x+y];}
+      float operator()(int x, int y) const { return matrix[mcol*x+y];}
       float * matrix;
       bool const * xdouble;
       bool const * ydouble;
       int mrow, mcol;
-     };
+   };
+#endif
+   
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
+                       SiPixelTemplate& templ,
+                       float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix,
+                       std::vector<std::pair<int, int> >& zeropix,
+                       float& probQ, int& nypix, int& nxpix);
+   
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
+                       SiPixelTemplate& templ,
+                       float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
+                       float& probQ);
+		 
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
+                       SiPixelTemplate& templ,
+                       float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
+                       float& probQ);
+   
+   int PixelTempReco1D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
+                       SiPixelTemplate& templ, 
+                       float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
+}
 
-	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster, 
-				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, 
-                                std::vector<std::pair<int, int> >& zeropix,
-				float& probQ);
-
-	int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster,
-				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
-				float& probQ);
-	 
-	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
-						 SiPixelTemplate& templ, 
-						 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
-						 float& probQ);
-	 
-	 int PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster,
-								SiPixelTemplate& templ, 
-								float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
- }
-				
 #endif

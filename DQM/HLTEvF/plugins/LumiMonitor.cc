@@ -1,170 +1,241 @@
-#include "DQM/HLTEvF/plugins/LumiMonitor.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <string>
+#include <vector>
+#include <map>
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+namespace {
+  struct MEbinning {
+    int     nbins;
+    double  xmin;
+    double  xmax;
+  };
+
+  struct Histograms {
+    ConcurrentMonitorElement numberOfPixelClustersVsLS;
+    ConcurrentMonitorElement numberOfPixelClustersVsLumi;
+    ConcurrentMonitorElement lumiVsLS;
+    ConcurrentMonitorElement puVsLS;
+    ConcurrentMonitorElement pixelLumiVsLS;
+    ConcurrentMonitorElement pixelLumiVsLumi;
+  };
+}
+
+//
+// class declaration
+//
+
+class LumiMonitor : public DQMGlobalEDAnalyzer<Histograms>
+{
+public:
+  LumiMonitor( const edm::ParameterSet& );
+  ~LumiMonitor() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
+  static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
+
+private:
+  void bookHistograms(DQMStore::ConcurrentBooker &, edm::Run const&, edm::EventSetup const&, Histograms &) const override;
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
+
+  static MEbinning getHistoPSet  (const edm::ParameterSet& pset);
+  static MEbinning getHistoLSPSet(const edm::ParameterSet& pset);
+
+  std::string folderName_;
+
+  edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
+  MEbinning lumi_binning_;
+  MEbinning pu_binning_;
+  MEbinning ls_binning_;
+
+  bool  doPixelLumi_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+  bool  useBPixLayer1_;
+  int   minNumberOfPixelsPerCluster_;
+  float minPixelClusterCharge_;	
+  MEbinning pixelCluster_binning_;
+  MEbinning pixellumi_binning_;
+
+  edm::EDGetTokenT<LumiSummary> lumiSummaryToken_;
+
+
+  float lumi_factor_per_bx_;
+
+};
 
 
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
 
-LumiMonitor::LumiMonitor( const edm::ParameterSet& iConfig ) : 
-  folderName_             ( iConfig.getParameter<std::string>("FolderName") )
-  , lumiScalersToken_     ( consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scalers") ) ) 
-  , lumi_binning_         ( getHistoPSet  (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lumiPSet"))         )
-  , ls_binning_           ( getHistoLSPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))           )
-  , doPixelLumi_          ( iConfig.getParameter<bool>("doPixelLumi") )
-  , pixelClustersToken_           ( doPixelLumi_ ? consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters") ) : edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> () )
-  , useBPixLayer1_                ( doPixelLumi_ ? iConfig.getParameter<bool>   ("useBPixLayer1") : false            )
-  , minNumberOfPixelsPerCluster_  ( doPixelLumi_ ? iConfig.getParameter<int>    ("minNumberOfPixelsPerCluster") : -1 )
-  , minPixelClusterCharge_        ( doPixelLumi_ ? iConfig.getParameter<double> ("minPixelClusterCharge") : -1.      )
-  , pixelCluster_binning_         ( doPixelLumi_ ? getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("pixelClusterPSet")) : MEbinning {} )
-  , pixellumi_binning_            ( doPixelLumi_ ? getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("pixellumiPSet")) : MEbinning {} )
+LumiMonitor::LumiMonitor(const edm::ParameterSet& config) :
+  folderName_             ( config.getParameter<std::string>("FolderName") )
+  , lumiScalersToken_     ( consumes<LumiScalersCollection>(config.getParameter<edm::InputTag>("scalers") ) )
+  , lumi_binning_         ( getHistoPSet  (config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lumiPSet"))         )
+  , pu_binning_           ( getHistoPSet  (config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("puPSet"))           )
+  , ls_binning_           ( getHistoLSPSet(config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))           )
+  , doPixelLumi_          ( config.getParameter<bool>("doPixelLumi") )
+  , pixelClustersToken_           ( doPixelLumi_ ? consumes<edmNew::DetSetVector<SiPixelCluster>>(config.getParameter<edm::InputTag>("pixelClusters") ) : edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> () )
+  , useBPixLayer1_                ( doPixelLumi_ ? config.getParameter<bool>   ("useBPixLayer1") : false            )
+  , minNumberOfPixelsPerCluster_  ( doPixelLumi_ ? config.getParameter<int>    ("minNumberOfPixelsPerCluster") : -1 )
+  , minPixelClusterCharge_        ( doPixelLumi_ ? config.getParameter<double> ("minPixelClusterCharge") : -1.      )
+  , pixelCluster_binning_         ( doPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("pixelClusterPSet")) : MEbinning {} )
+  , pixellumi_binning_            ( doPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("pixellumiPSet")) : MEbinning {} )
 {
-
-  numberOfPixelClustersVsLS_   = nullptr;
-  numberOfPixelClustersVsLumi_ = nullptr;
-  lumiVsLS_                    = nullptr;
-  pixelLumiVsLS_               = nullptr;
-  pixelLumiVsLumi_             = nullptr;
-
-  if(useBPixLayer1_) 
+  if(useBPixLayer1_) {
     lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::XSEC_PIXEL_CLUSTER  ;
-  else
+  } else {
     lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::rXSEC_PIXEL_CLUSTER  ;
-
+  }
 }
 
-MEbinning LumiMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning LumiMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
-      pset.getParameter<double>("xmin"),
-      pset.getParameter<double>("xmax"),
-      };
+    pset.getParameter<double>("xmin"),
+    pset.getParameter<double>("xmax"),
+  };
 }
 
-MEbinning LumiMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning LumiMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
-      0.,
-      double(pset.getParameter<int32_t>("nbins"))
-      };
+    -0.5,
+    pset.getParameter<int32_t>("nbins") - 0.5
+  };
 }
 
-void LumiMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
-				 edm::Run const        & iRun,
-				 edm::EventSetup const & iSetup) 
-{  
-  
-  std::string histname, histtitle;
+void LumiMonitor::bookHistograms(DQMStore::ConcurrentBooker & booker, edm::Run const& run, edm::EventSetup const& setup, Histograms & histograms) const
+{
+  booker.setCurrentFolder(folderName_);
 
-  std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  if (doPixelLumi_) {
+    histograms.numberOfPixelClustersVsLS = booker.book1D(
+        "numberOfPixelClustersVsLS",
+        "number of pixel clusters vs LS",
+        ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax);
+    histograms.numberOfPixelClustersVsLS.setAxisTitle("LS", 1);
+    histograms.numberOfPixelClustersVsLS.setAxisTitle("number of pixel clusters", 2);
 
-  if ( doPixelLumi_ ) {
-    histname = "numberOfPixelClustersVsLS"; histtitle = "number of pixel clusters vs LS";
-    numberOfPixelClustersVsLS_ = ibooker.book1D(histname, histtitle, 
-						ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax);
-    //    numberOfPixelClustersVsLS_->getTH1()->SetCanExtend(TH1::kAllAxes);
-    numberOfPixelClustersVsLS_->setAxisTitle("LS",1);
-    numberOfPixelClustersVsLS_->setAxisTitle("number of pixel clusters",2);
-    
-    histname = "numberOfPixelClustersVsLumi"; histtitle = "number of pixel clusters vs scal lumi";
-    numberOfPixelClustersVsLumi_ = ibooker.bookProfile(histname, histtitle, 
-						       lumi_binning_.nbins, lumi_binning_.xmin, lumi_binning_.xmax,
-						       pixelCluster_binning_.xmin,pixelCluster_binning_.xmax);
-    numberOfPixelClustersVsLumi_->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]",1);
-    numberOfPixelClustersVsLumi_->setAxisTitle("number of pixel clusters",2);
+    histograms.numberOfPixelClustersVsLumi = booker.bookProfile(
+        "numberOfPixelClustersVsLumi",
+        "number of pixel clusters vs scal lumi",
+        lumi_binning_.nbins, lumi_binning_.xmin, lumi_binning_.xmax,
+        pixelCluster_binning_.xmin, pixelCluster_binning_.xmax);
+    histograms.numberOfPixelClustersVsLumi.setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]", 1);
+    histograms.numberOfPixelClustersVsLumi.setAxisTitle("number of pixel clusters", 2);
 
-    histname = "pixelLumiVsLS"; histtitle = "pixel-lumi vs LS";
-    pixelLumiVsLS_ = ibooker.bookProfile(histname, histtitle, 
-					 ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
-					 pixellumi_binning_.xmin,pixellumi_binning_.xmax);
-    //    pixelLumiVsLS_->getTH1()->SetCanExtend(TH1::kAllAxes);
-    pixelLumiVsLS_->setAxisTitle("LS",1);
-    pixelLumiVsLS_->setAxisTitle("pixel-based inst lumi E30 [Hz cm^{-2}]",2);
-    
-    histname = "pixelLumiVsLumi"; histtitle = "pixel-lumi vs scal lumi";
-    pixelLumiVsLumi_ = ibooker.bookProfile(histname, histtitle, 
-					   lumi_binning_.nbins,lumi_binning_.xmin,lumi_binning_.xmax,
-					   pixellumi_binning_.xmin,lumi_binning_.xmax);
-    pixelLumiVsLumi_->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]",1);
-    pixelLumiVsLumi_->setAxisTitle("pixel-based inst lumi E30 [Hz cm^{-2}]",2);
+    histograms.pixelLumiVsLS = booker.bookProfile(
+        "pixelLumiVsLS",
+        "pixel-lumi vs LS",
+        ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
+        pixellumi_binning_.xmin, pixellumi_binning_.xmax);
+    histograms.pixelLumiVsLS.setAxisTitle("LS", 1);
+    histograms.pixelLumiVsLS.setAxisTitle("pixel-based inst lumi E30 [Hz cm^{-2}]", 2);
+
+    histograms.pixelLumiVsLumi = booker.bookProfile(
+        "pixelLumiVsLumi",
+        "pixel-lumi vs scal lumi",
+        lumi_binning_.nbins, lumi_binning_.xmin, lumi_binning_.xmax,
+        pixellumi_binning_.xmin, lumi_binning_.xmax);
+    histograms.pixelLumiVsLumi.setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]", 1);
+    histograms.pixelLumiVsLumi.setAxisTitle("pixel-based inst lumi E30 [Hz cm^{-2}]", 2);
   }
 
-  histname = "lumiVsLS"; histtitle = "scal lumi vs LS";
-  lumiVsLS_ = ibooker.bookProfile(histname, histtitle, 
-				  ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
-				  lumi_binning_.xmin, lumi_binning_.xmax);
-  //  lumiVsLS_->getTH1()->SetCanExtend(TH1::kAllAxes);
-  lumiVsLS_->setAxisTitle("LS",1);
-  lumiVsLS_->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]",2);
+  histograms.lumiVsLS = booker.bookProfile(
+      "lumiVsLS",
+      "scal lumi vs LS",
+      ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
+      lumi_binning_.xmin, lumi_binning_.xmax);
+  histograms.lumiVsLS.setAxisTitle("LS", 1);
+  histograms.lumiVsLS.setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]", 2);
+
+  histograms.puVsLS = booker.bookProfile(
+      "puVsLS",
+      "scal PU vs LS",
+      ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,
+      pu_binning_.xmin, pu_binning_.xmax);
+  histograms.puVsLS.setAxisTitle("LS", 1);
+  histograms.puVsLS.setAxisTitle("scal PU", 2);
 
 }
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-void LumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
-
-  //  int bx = iEvent.bunchCrossing();
-  int ls = iEvent.id().luminosityBlock();
+void LumiMonitor::dqmAnalyze(edm::Event const& event, edm::EventSetup const& setup, Histograms const& histograms) const
+{
+  int ls = event.id().luminosityBlock();
 
   float scal_lumi = -1.;
+  float scal_pu   = -1.;
   edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiScalersToken_, lumiScalers);
-  if ( lumiScalers.isValid() && lumiScalers->size() ) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+  event.getByToken(lumiScalersToken_, lumiScalers);
+  if (lumiScalers.isValid() and not lumiScalers->empty()) {
+    auto scalit = lumiScalers->begin();
     scal_lumi = scalit->instantLumi();
+    scal_pu   = scalit->pileup();
   } else {
     scal_lumi = -1.;
+    scal_pu   = -1.;
   }
-  lumiVsLS_ -> Fill(ls, scal_lumi);
+  histograms.lumiVsLS.fill(ls, scal_lumi);
+  histograms.puVsLS.fill(ls, scal_pu);
 
-  if ( doPixelLumi_ ) {
+  if (doPixelLumi_) {
     size_t pixel_clusters = 0;
     float  pixel_lumi = -1.;
-    edm::Handle< edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-    iEvent.getByToken(pixelClustersToken_, pixelClusters);
-    if ( pixelClusters.isValid() ) {
-      
-      edm::ESHandle<TrackerTopology> tTopoHandle;
-      iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-      const TrackerTopology* const tTopo = tTopoHandle.product();
-      
+    edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelClusters;
+    event.getByToken(pixelClustersToken_, pixelClusters);
+    if (pixelClusters.isValid()) {
+      auto const& tTopo = edm::get<TrackerTopology, TrackerTopologyRcd>(setup);
+
       // Count the number of clusters with at least a minimum
       // number of pixels per cluster and at least a minimum charge.
       size_t tot = 0;
-      edmNew::DetSetVector<SiPixelCluster>::const_iterator  pixCluDet = pixelClusters->begin();
-      for ( ; pixCluDet!=pixelClusters->end(); ++pixCluDet) {
-	
-	DetId detid = pixCluDet->detId();
-	size_t subdetid = detid.subdetId();
-	if ( subdetid == (int) PixelSubdetector::PixelBarrel ) 
-	  if ( tTopo->layer(detid)==1 ) 
-	    continue;
-	
-	edmNew::DetSet<SiPixelCluster>::const_iterator  pixClu = pixCluDet->begin();    
-	for ( ; pixClu != pixCluDet->end(); ++pixClu ) {
-	  ++tot;
-	  if ( (pixClu->size()   >= minNumberOfPixelsPerCluster_) &&
-	       (pixClu->charge() >= minPixelClusterCharge_      ) ) {
-	    ++pixel_clusters;
-	  }
-	}
+      for (auto pixCluDet = pixelClusters->begin(); pixCluDet != pixelClusters->end(); ++pixCluDet) {
+        
+        DetId detid = pixCluDet->detId();
+        size_t subdetid = detid.subdetId();
+        if (subdetid == (int) PixelSubdetector::PixelBarrel) {
+          if (tTopo.layer(detid)==1) {
+            continue;
+          }
+        }
+        
+        for (auto pixClu = pixCluDet->begin(); pixClu != pixCluDet->end(); ++pixClu) {
+          ++tot;
+          if ((pixClu->size()   >= minNumberOfPixelsPerCluster_) and
+              (pixClu->charge() >= minPixelClusterCharge_      )) {
+            ++pixel_clusters;
+          }
+        }
       }
       pixel_lumi = lumi_factor_per_bx_ * pixel_clusters / GetLumi::CM2_TO_NANOBARN ; // ?!?!
-    } else
+    } else {
       pixel_lumi = -1.;
+    }
 
-    numberOfPixelClustersVsLS_   -> Fill(ls,       pixel_clusters);
-    numberOfPixelClustersVsLumi_ -> Fill(scal_lumi,pixel_clusters);
-    pixelLumiVsLS_               -> Fill(ls,       pixel_lumi);
-    pixelLumiVsLumi_             -> Fill(scal_lumi,pixel_lumi);
+    histograms.numberOfPixelClustersVsLS.fill(ls, pixel_clusters);
+    histograms.numberOfPixelClustersVsLumi.fill(scal_lumi, pixel_clusters);
+    histograms.pixelLumiVsLS.fill(ls, pixel_lumi);
+    histograms.pixelLumiVsLumi.fill(scal_lumi, pixel_lumi);
   }
 
 }
@@ -201,6 +272,10 @@ void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   fillHistoPSetDescription(lumiPSet);
   histoPSet.add<edm::ParameterSetDescription>("lumiPSet", lumiPSet);
 
+  edm::ParameterSetDescription puPSet;
+  fillHistoPSetDescription(puPSet);
+  histoPSet.add<edm::ParameterSetDescription>("puPSet", puPSet);
+
   edm::ParameterSetDescription pixellumiPSet;
   fillHistoPSetDescription(pixellumiPSet);
   histoPSet.add<edm::ParameterSetDescription>("pixellumiPSet", pixellumiPSet);
@@ -209,7 +284,7 @@ void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   fillHistoLSPSetDescription(lsPSet);
   histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
 
-  desc.add<edm::ParameterSetDescription>("histoPSet",histoPSet);
+  desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
 
   descriptions.add("lumiMonitor", desc);
 }

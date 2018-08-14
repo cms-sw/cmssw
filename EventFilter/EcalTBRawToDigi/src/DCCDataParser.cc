@@ -7,7 +7,7 @@
 /* class constructor                            */
 /*----------------------------------------------*/
 DCCTBDataParser::DCCTBDataParser(const std::vector<uint32_t>& parserParameters, bool parseInternalData,bool debug):
-  buffer_(0),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
+  buffer_(nullptr),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
 	
   mapper_ = new DCCTBDataMapper(this);       //build a new data mapper
   resetErrorCounters();                    //restart error counters
@@ -82,23 +82,21 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
     }
     
     bufferSize_ = (dataVector.size() ) * 4 ;      //buffer size in bytes (note:each char is an hex number)
-    if( buffer_ ){ delete [] buffer_; }           //delete current vector if any
-    buffer_ = new uint32_t[dataVector.size()];       //allocate memory for new data buffer
 
-    uint32_t *myData_ = (uint32_t *) buffer_;         
+    uint32_t *myData = new uint32_t[dataVector.size()];       //allocate memory for a new data buffer
     
     //fill buffer data with data from file lines
-    for(uint32_t i = 1; i <= dataVector.size() ; i++, myData_++ ){
-      sscanf((dataVector[i-1]).c_str(),"%x",(unsigned int *)myData_);
+    for(uint32_t i = 1; i <= dataVector.size() ; i++, myData++ ){
+      sscanf((dataVector[i-1]).c_str(),"%x",myData);
       
       //for debug purposes
-      //std::cout << std::endl << "Data position: " << dec << i << " val = " << getHexString(*myData_);
+      //std::cout << std::endl << "Data position: " << dec << i << " val = " << getHexString(*myData);
     }
     
     inputFile.close();                              //close file
     
-    parseBuffer( buffer_,bufferSize_,singleEvent);  //parse data from buffer
-    
+    parseBuffer( myData,bufferSize_,singleEvent);  //parse data from the newly filled myData
+    delete [] myData;
   }
   else{ 
     std::string errorMessage = std::string(" Error::Unable to open file :") + fileName;
@@ -111,7 +109,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
 /* DCCTBDataParser::parseBuffer                               */
 /* parse data from a buffer                                 */
 /*----------------------------------------------------------*/
-void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool singleEvent){
+void DCCTBDataParser::parseBuffer(const uint32_t * buffer, uint32_t bufferSize, bool singleEvent){
 	
   resetErrorCounters();                           //reset error counters
 	
@@ -147,7 +145,7 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
     throw ECALTBParserException(fatalError);
   }
 
-  uint32_t *myPointer =  buffer_;                        
+  const uint32_t *myPointer =  buffer_;                        
   
   //  uint32_t processedBytes(0), wordIndex(0), lastEvIndex(0),eventSize(0), eventLength(0), errorMask(0);
   uint32_t processedBytes(0), wordIndex(0), eventLength(0), errorMask(0);
@@ -189,8 +187,8 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
     }
     
     //build the event pointer with error mask and add it to the events vector
-    std::pair<uint32_t *, uint32_t> eventPointer(myPointer,eventLength);
-    std::pair<uint32_t, std::pair<uint32_t*, uint32_t> > eventPointerWithErrorMask(errorMask,eventPointer);
+    std::pair<const uint32_t *, uint32_t> eventPointer(myPointer,eventLength);
+    std::pair<uint32_t, std::pair<const uint32_t*, uint32_t> > eventPointerWithErrorMask(errorMask,eventPointer);
     events_.push_back(eventPointerWithErrorMask);
     		
     //update processed buffer size 
@@ -215,21 +213,21 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
 /*   bit 3 - EOE Error                         */
 /* and the event length                        */
 /*---------------------------------------------*/
-std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(uint32_t *pointerToEvent, uint32_t bytesToEnd, bool singleEvent){
+std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(const uint32_t *pointerToEvent, uint32_t bytesToEnd, bool singleEvent){
 	
   std::pair<uint32_t,uint32_t> result;    //returns error mask and event length 
   uint32_t errorMask(0);          //error mask to return
 
   //check begin of event (BOE bits field) 
   //(Note: we have to add one to read the 2nd 32 bit word where BOE is written)
-  uint32_t *boePointer = pointerToEvent + 1;
+  const uint32_t *boePointer = pointerToEvent + 1;
   if( (  ((*boePointer)>>BOEBEGIN)& BOEMASK  )  != BOE ) { 
     (errors_["DCC::BOE"])++; errorMask = 1; 
   }
 	
 	
   //get Event Length from buffer (Note: we have to add two to read the 3rd 32 bit word where EVENT LENGTH is written)
-  uint32_t * myPointer = pointerToEvent + 2; 
+  const uint32_t * myPointer = pointerToEvent + 2; 
   uint32_t eventLength = (*myPointer)&EVENTLENGTHMASK;
 
   // std::cout << " Event Length(from decoding) = " << dec << eventLength << "... bytes to end... " << bytesToEnd << ", event numb : " << processedEvent_ << std::endl;
@@ -265,7 +263,7 @@ std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(uint32_t *pointer
 
   //check end of event (EOE bits field) 
   //(Note: event length is multiplied by 2 because its written as 32 bit words and not 64 bit words)
-  uint32_t *endOfEventPointer = pointerToEvent + eventLength*2 -1;
+  const uint32_t *endOfEventPointer = pointerToEvent + eventLength*2 -1;
   if ( (  ((*endOfEventPointer) >> EOEBEGIN & EOEMASK )  != EOEMASK) && !eoeError ){ 
     (errors_["DCC::EOE"])++; 
     errorMask = errorMask | (1<<2); 

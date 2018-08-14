@@ -16,10 +16,10 @@ class ODTTCFConfig : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODTTCFConfig();
-  ~ODTTCFConfig();
+  ~ODTTCFConfig() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_TTCF_CONFIGURATION"; }
+  inline std::string getTable() override { return "ECAL_TTCF_CONFIGURATION"; }
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
 
@@ -40,7 +40,7 @@ class ODTTCFConfig : public IODConfig {
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  noexcept(false) override;
 
   void writeDB()       noexcept(false);
 

@@ -11,7 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 //#include "pgras/PGUtilities/interface/PGHisto.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -35,10 +35,10 @@ class EcalDumpRaw : public edm::stream::EDAnalyzer<>{
   //ctors
 public:
   explicit EcalDumpRaw(const edm::ParameterSet&);
-  ~EcalDumpRaw();
+  ~EcalDumpRaw() override;
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void analyzeEB(const edm::Event&, const edm::EventSetup&) const;
   void analyzeEE(const edm::Event&, const edm::EventSetup&) const;

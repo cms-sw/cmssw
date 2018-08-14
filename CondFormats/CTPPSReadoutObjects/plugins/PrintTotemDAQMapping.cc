@@ -25,11 +25,14 @@
 class PrintTotemDAQMapping : public edm::one::EDAnalyzer<>
 {
   public:
-    PrintTotemDAQMapping(const edm::ParameterSet &ps) {}
-    ~PrintTotemDAQMapping() {}
+    PrintTotemDAQMapping(const edm::ParameterSet &ps);
+    ~PrintTotemDAQMapping() override {}
 
   private:
-    virtual void analyze(const edm::Event &e, const edm::EventSetup &es) override;
+    /// label of the CTPPS sub-system
+    std::string subSystemName;
+
+    void analyze(const edm::Event &e, const edm::EventSetup &es) override;
 };
 
 using namespace std;
@@ -37,15 +40,22 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
+PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps) :
+  subSystemName(ps.getUntrackedParameter<string>("subSystem"))
+{
+}
+
+//----------------------------------------------------------------------------------------------------
+
 void PrintTotemDAQMapping::analyze(const edm::Event&, edm::EventSetup const& es)
 {
   // get mapping
   ESHandle<TotemDAQMapping> mapping;
-  es.get<TotemReadoutRcd>().get(mapping);
+  es.get<TotemReadoutRcd>().get(subSystemName, mapping);
 
   // get analysis mask to mask channels
   ESHandle<TotemAnalysisMask> analysisMask;
-  es.get<TotemReadoutRcd>().get(analysisMask);
+  es.get<TotemReadoutRcd>().get(subSystemName, analysisMask);
 
   // print mapping
   printf("* DAQ mapping\n");

@@ -1,4 +1,4 @@
-#include "../interface/EnergyTask.h"
+#include "DQM/EcalMonitorTasks/interface/EnergyTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -52,13 +52,14 @@ namespace ecaldqm
     MESet& meHit(MEs_.at("Hit"));
     MESet& meHitAll(MEs_.at("HitAll"));
 
-    uint32_t notGood(~(0x1 << EcalRecHit::kGood));
+    uint32_t neitherGoodNorPoorCalib(~(0x1 << EcalRecHit::kGood |
+                                       0x1 << EcalRecHit::kPoorCalib));
     uint32_t neitherGoodNorOOT(~(0x1 << EcalRecHit::kGood |
                                  0x1 << EcalRecHit::kOutOfTime));
 
     for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
 
-      if(isPhysicsRun_ && hitItr->checkFlagMask(notGood)) continue;
+      if(isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorPoorCalib)) continue;
       if(!isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorOOT)) continue;
 
       float energy(hitItr->energy());

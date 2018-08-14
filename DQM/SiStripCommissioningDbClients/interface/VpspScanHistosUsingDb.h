@@ -13,15 +13,18 @@ class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScan
                          DQMStore*,
                          SiStripConfigDb* const );
 
-  virtual ~VpspScanHistosUsingDb();
+  ~VpspScanHistosUsingDb() override;
 
-  virtual void uploadConfigurations();
+  void uploadConfigurations() override;
   
  private:
 
   void update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
+
+  // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                      
+  bool allowSelectiveUpload_;
   
 };
 

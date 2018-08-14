@@ -32,9 +32,9 @@
 class TrajectoryCleanerESProducer : public edm::ESProducer {
    public:
       TrajectoryCleanerESProducer(const edm::ParameterSet&);
-      ~TrajectoryCleanerESProducer();
+      ~TrajectoryCleanerESProducer() override;
 
-  typedef std::shared_ptr<TrajectoryCleaner> ReturnType;
+  typedef std::unique_ptr<TrajectoryCleaner> ReturnType;
 
       ReturnType produce(const  TrackingComponentsRecord&);
    private:

@@ -61,7 +61,7 @@ namespace l1extra {
 	L1GctEtHadCollection >(),
 	int bx = 0 ) ;
 
-      virtual ~L1EtMissParticle() {}
+      ~L1EtMissParticle() override {}
 
       // ---------- const member functions ---------------------
 
@@ -107,7 +107,7 @@ namespace l1extra {
       const L1GctEtHad* gctEtHad() const
 	{ return etHadRef_.get() ; }
 
-      virtual L1EtMissParticle* clone() const
+      L1EtMissParticle* clone() const override
 	{ return new L1EtMissParticle( *this ) ; }
 
       int bx() const

@@ -23,7 +23,7 @@ class L1GTPrescaler : public edm::one::EDFilter<> {
 public:
   L1GTPrescaler(edm::ParameterSet const& config);
 
-  virtual bool filter(edm::Event& event, edm::EventSetup const& setup) override;
+  bool filter(edm::Event& event, edm::EventSetup const& setup) override;
 
   static  void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -56,7 +56,7 @@ bool L1GTPrescaler::filter(edm::Event& event, edm::EventSetup const& setup) {
   for (unsigned int i = 0; i < 128; ++i) {
     if (m_algoPrescales[i] == 0) {
       // mask this trigger: reset the bit
-      algoWord[i] = 0;
+      algoWord[i] = false;
     } else if (algoWord[i]) {
       // prescale this trigger
       ++m_algoCounters[i];
@@ -65,13 +65,13 @@ bool L1GTPrescaler::filter(edm::Event& event, edm::EventSetup const& setup) {
         finalOr = true;
       else
         // the prescale failed, reset the bit
-        algoWord[i] = 0;
+        algoWord[i] = false;
     }
   }
   for (unsigned int i = 0; i < 64; ++i) {
     if (m_techPrescales[i] == 0) {
       // mask this trigger: reset the bit
-      techWord[i] = 0;
+      techWord[i] = false;
     } else if (techWord[i]) {
       ++m_techCounters[i];
       if (std::fmod(m_techCounters[i], m_techPrescales[i]) < 1)
@@ -79,7 +79,7 @@ bool L1GTPrescaler::filter(edm::Event& event, edm::EventSetup const& setup) {
         finalOr = true;
       else
         // the prescale failed, reset the bit
-        techWord[i] = 0;
+        techWord[i] = false;
     }
   }
 

@@ -206,13 +206,9 @@ bool SiStripDetKey::isInvalid( const sistrip::Granularity& gran ) const {
 void SiStripDetKey::initFromValue() {
 
   // partition
-  if ( partition_ >= 1 && //sistrip::PARTITION_MIN &&
-       partition_ <= 4 ) { //sistrip::PARTITION_MAX ) {
-    partition_ = partition_;
-  } else if ( partition_ == 0 ) {
-    partition_ = 0;
-  } else { partition_ = sistrip::invalid_; }
-
+  if(partition_ > 4) {
+    partition_ = sistrip::invalid_;
+  }
 }
 
 // -----------------------------------------------------------------------------

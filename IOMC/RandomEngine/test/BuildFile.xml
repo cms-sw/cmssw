@@ -5,9 +5,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="IOMC/RandomEngine"/>
 <use   name="clhep"/>
-<library   file="TestRandomNumberServiceAnalyzer.cc" name="IOMCRandomEngineTestRandomNumberServiceAnalyzer">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="TestRandomNumberServiceGlobal.cc" name="IOMCRandomEngineTestRandomNumberServiceGlobal">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -36,9 +36,10 @@ using namespace muonisolation;
 MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theConfig(par),
   theDepositNames(std::vector<std::string>(1,std::string())),
-  theExtractor(0)
+  theExtractor(nullptr)
 {
-  LogDebug("RecoMuon|MuonIsolation")<<" MuIsoDepositProducer CTOR";
+  static const std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
+  LogDebug(metname)<<" MuIsoDepositProducer CTOR";
 
   edm::ParameterSet ioPSet = par.getParameter<edm::ParameterSet>("IOPSet");
 
@@ -92,7 +93,7 @@ MuIsoDepositProducer::~MuIsoDepositProducer(){
 
 //! build deposits
 void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
-  std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
+  static const std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
 
   LogDebug(metname)<<" Muon Deposit producing..."
 		   <<" BEGINING OF EVENT " <<"================================";
@@ -102,7 +103,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 
 
   // Take the muon container
-  LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionTag;
+  LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionTag.index();//a more friendly print would use "inputMuonCollection"
   Handle<View<Track> > tracks;
   //! read them as RecoCandidates: need to have track() standAloneMuon() etc in the interface
   Handle<View<RecoCandidate> > muons;//! get rid of this at some point and use the cands

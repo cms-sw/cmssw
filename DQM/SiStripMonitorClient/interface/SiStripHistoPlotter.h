@@ -29,8 +29,8 @@ class SiStripHistoPlotter {
   void createCondDBPlots(DQMStore* dqm_store);
   void setNewCondDBPlot(std::string& path,  std::string& option, 
                   int width, int height);
-  bool plotsToMake() { return  ((plotList_.size() > 0) ? true : false);}
-  bool condDBPlotsToMake(){ return ((condDBPlotList_.size() > 0) ? true : false);}
+  bool plotsToMake() { return  ((!plotList_.empty()) ? true : false);}
+  bool condDBPlotsToMake(){ return ((!condDBPlotList_.empty()) ? true : false);}
 
 
  private:

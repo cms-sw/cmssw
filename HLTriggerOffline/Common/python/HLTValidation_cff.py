@@ -1,4 +1,3 @@
-
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
@@ -15,6 +14,10 @@ from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
+from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
+# HCAL
+from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
+from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -33,10 +36,17 @@ hltassociation = cms.Sequence(
     +egammaSelectors
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
+    +hltMultiTrackValidationMuonTracks
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
-hltvalidation = cms.Sequence(
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
+hltvalidationCommon = cms.Sequence(
+    hcalMonitoringSequence
+)
+hltvalidationWithMC    = cms.Sequence(
     HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
@@ -49,17 +59,34 @@ hltvalidation = cms.Sequence(
     +ExoticaValidationSequence
     +b2gHLTriggerValidation
     +SMPValidationSequence
-    +hltbtagValidationSequence
-    )
+    +hltbtagValidationSequence #too noisy for now
+    +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
+)
+hltvalidationWithData  = cms.Sequence(
+)
+
+hltvalidation = cms.Sequence(
+    hltvalidationCommon *
+    hltvalidationWithMC *
+    hltvalidationWithData
+)
 
 # some hlt collections have no direct fastsim equivalent
 # remove the dependent modules for now
 # probably it would be rather easy to add or fake these collections
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-if fastSim.isChosen():
-    hltassociation.remove(hltMultiTrackValidation)
-    hltassociation.remove(hltMultiPVValidation)
-    hltassociation.remove(hltMultiTrackValidationGsfTracks)
+fastSim.toReplaceWith(hltassociation, hltassociation.copyAndExclude([
+    hltMultiTrackValidation,
+    hltMultiPVValidation,
+    hltMultiTrackValidationGsfTracks,
+    hltMultiTrackValidationMuonTracks,
+]))
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(hltvalidation, hltvalidation.copyAndExclude([HiggsValidationSequence]))
+
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal

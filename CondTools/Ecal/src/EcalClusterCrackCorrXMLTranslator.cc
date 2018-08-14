@@ -65,10 +65,10 @@ EcalClusterCrackCorrXMLTranslator::dumpXML(
     writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
   DOMDocumentType* doctype = 
-    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), 0, 0 );
+    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   const  std::string EcalClusterCrackCorr_tag("EcalClusterCrackCorr");
   DOMDocument *    doc = 
-    impl->createDocument( 0, cms::xerces::uStr(EcalClusterCrackCorr_tag.c_str()).ptr(), doctype );
+    impl->createDocument( nullptr, cms::xerces::uStr(EcalClusterCrackCorr_tag.c_str()).ptr(), doctype );
     
   DOMElement* root = doc->getDocumentElement();
   xuti::writeHeader(root, header);

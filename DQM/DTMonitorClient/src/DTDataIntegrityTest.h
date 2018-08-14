@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
@@ -32,7 +33,7 @@ public:
   DTDataIntegrityTest(const edm::ParameterSet& ps);
 
  /// Destructor
- ~DTDataIntegrityTest();
+ ~DTDataIntegrityTest() override;
 
 protected:
 
@@ -49,8 +50,7 @@ protected:
 
 private:
   int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
-
-private:
+  int getROS(int uROS, int link);
 
   //Number of onUpdates
   int nupdates;
@@ -58,6 +58,8 @@ private:
   // prescale on the # of LS to update the test
   int prescaleFactor;
 
+  // to use in 2018 with uROS
+  bool checkUros;
 
   //Counter between 0 and nTimeBin
   int counter;
@@ -74,6 +76,9 @@ private:
   // Monitor Elements
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;  
   std::map<std::string, std::map<int, std::vector <MonitorElement*> > > dduVectorHistos;
+
+  std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
+  std::map<std::string, std::map<int, std::vector <MonitorElement*> > > fedVectorHistos;
 
   MonitorElement *summaryHisto;
   MonitorElement *summaryTDCHisto;

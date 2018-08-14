@@ -10,16 +10,17 @@ import os, sys, socket, string
 #-------------------------------------
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
+from Configuration.StandardSequences.Eras import eras
 import FWCore.ParameterSet.Config as cms
-process			= cms.Process('HCALDQM')
-subsystem		= 'HcalCalib'
-cmssw			= os.getenv("CMSSW_VERSION").split("_")
-debugstr		= "### HcalDQM::cfg::DEBUG: "
-warnstr			= "### HcalDQM::cfg::WARN: "
-errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= False
-useFileInput	= False
-useMap		= False
+process      = cms.Process('HCALDQM')
+subsystem    = 'HcalCalib'
+cmssw        = os.getenv("CMSSW_VERSION").split("_")
+debugstr     = "### HcalDQM::cfg::DEBUG: "
+warnstr      = "### HcalDQM::cfg::WARN: "
+errorstr     = "### HcalDQM::cfg::ERROR:"
+useOfflineGT = False
+useFileInput = False
+useMap       = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -27,7 +28,7 @@ useMap		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-	process.GlobalTag.globaltag = '74X_dataRun2_HLT_v1'
+	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
@@ -52,13 +53,14 @@ process.source.minEventsPerLumi=100
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
-process.load('Configuration.Geometry.GeometryIdeal_cff')
+#process.load('Configuration.Geometry.GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 process.load("L1Trigger.Configuration.L1DummyConfig_cff")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module Settings
@@ -102,6 +104,7 @@ process.hbhereco = process.hbheprereco.clone()
 process.load("DQM.HcalTasks.PedestalTask")
 process.load('DQM.HcalTasks.RawTask')
 process.load("DQM.HcalTasks.LaserTask")
+process.load("DQM.HcalTasks.LEDTask")
 process.load("DQM.HcalTasks.UMNioTask")
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load("DQM.HcalTasks.HFRaddamTask")
@@ -134,30 +137,50 @@ process.rawTask.calibProcessing = cms.untracked.bool(True)
 process.hbhehpdTask = process.laserTask.clone()
 process.hbhehpdTask.name = cms.untracked.string("HBHEHPDTask")
 process.hbhehpdTask.laserType = cms.untracked.uint32(3)
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000, 1000.)
 
 process.hoTask = process.laserTask.clone()
 process.hoTask.name = cms.untracked.string("HOTask")
 process.hoTask.laserType = cms.untracked.uint32(4)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000, 1000.)
 
 process.hfTask = process.laserTask.clone()
 process.hfTask.name = cms.untracked.string("HFTask")
 process.hfTask.laserType = cms.untracked.uint32(5)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
 
 process.hepmegaTask = process.laserTask.clone()
 process.hepmegaTask.name = cms.untracked.string("HEPMegaTask")
 process.hepmegaTask.laserType = cms.untracked.uint32(7)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
 
 process.hemmegaTask = process.laserTask.clone()
 process.hemmegaTask.name = cms.untracked.string("HEMMegaTask")
 process.hemmegaTask.laserType = cms.untracked.uint32(8)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
 
 process.hbpmegaTask = process.laserTask.clone()
 process.hbpmegaTask.name = cms.untracked.string("HBPMegaTask")
 process.hbpmegaTask.laserType = cms.untracked.uint32(9)
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
 
 process.hbmmegaTask = process.laserTask.clone()
 process.hbmmegaTask.name = cms.untracked.string("HBMMegaTask")
 process.hbmmegaTask.laserType = cms.untracked.uint32(10)
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.)
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.)
 
 process.qie11Task_laser = process.qie11Task.clone()
 process.qie11Task_laser.name = cms.untracked.string("QIE11Task_laser")
@@ -174,6 +197,8 @@ process.qie11Task_pedestal.runkeyName = runTypeName
 process.qie11Task_pedestal.tagQIE11 = cms.untracked.InputTag("hcalDigis")
 process.qie11Task_pedestal.subsystem = cms.untracked.string("HcalCalib")
 process.qie11Task_pedestal.eventType = cms.untracked.int32(1)
+
+process.ledTask.name = cms.untracked.string("LEDTask")
 
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
@@ -192,6 +217,7 @@ process.tasksSequence = cms.Sequence(
 		*process.umnioTask
 		*process.qie11Task_laser
 		*process.qie11Task_pedestal
+		*process.ledTask
 )
 
 process.harvestingSequence = cms.Sequence(

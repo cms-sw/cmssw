@@ -14,6 +14,8 @@ muonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMu
 )
 ### This is also needed for seeding
 from RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi import hitCollectorForOutInMuonSeeds
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(hitCollectorForOutInMuonSeeds, MinPtForHitRecoveryInGluedDet=1e9)
 
 ###### EVENT-SETUP STUFF #######
 ###---------- Trajectory Cleaner, deciding how overlapping track candidates are arbitrated  ----------------
@@ -38,10 +40,6 @@ _muonSeededMeasurementEstimatorForInOutBase = _Chi2MeasurementEstimator.clone(
 muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOutBase.clone(
     MaxSagitta = cms.double(-1.)
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForInOut, _muonSeededMeasurementEstimatorForInOutBase.clone(
-    MaxChi2 = 400
-))
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(muonSeededMeasurementEstimatorForInOut, MaxChi2 = 400.0, MaxSagitta = 2)
 
@@ -50,10 +48,11 @@ _muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED
 )
+from Configuration.Eras.Modifier_tracker_apv_vfp30_2016_cff import tracker_apv_vfp30_2016 as _tracker_apv_vfp30_2016
+_tracker_apv_vfp30_2016.toModify(_muonSeededMeasurementEstimatorForOutInBase, MinPtForHitRecoveryInGluedDet=1e9)
 muonSeededMeasurementEstimatorForOutIn = _muonSeededMeasurementEstimatorForOutInBase.clone(
     MaxSagitta = cms.double(-1.) 
 )
-trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForOutIn, _muonSeededMeasurementEstimatorForOutInBase)
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -150,7 +149,7 @@ muonSeededTracksOutInClassifier.mva.min3DLayers = [1,2,2]
 muonSeededTracksOutInClassifier.mva.maxLostLayers = [4,3,2]
 
 
-# For Phase1PU70
+# For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='muonSeededTracksInOut',
@@ -229,52 +228,62 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
 
 
 
-muonSeededStepCoreInOut = cms.Sequence(
-    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
+muonSeededStepCoreInOutTask = cms.Task(
+    muonSeededSeedsInOut , muonSeededTrackCandidatesInOut , muonSeededTracksInOut
 )
-muonSeededStepCore = cms.Sequence(
-    muonSeededStepCoreInOut +
-    muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
+muonSeededStepCoreInOut = cms.Sequence(muonSeededStepCoreInOutTask)
+
+muonSeededStepCoreOutInTask = cms.Task(
+    muonSeededSeedsOutIn , muonSeededTrackCandidatesOutIn , muonSeededTracksOutIn
 )
+muonSeededStepCoreOutIn = cms.Sequence(muonSeededStepCoreOutInTask)
+
+muonSeededStepCoreTask = cms.Task(
+    muonSeededStepCoreInOutTask ,
+    muonSeededStepCoreOutInTask
+)
+muonSeededStepCore = cms.Sequence(muonSeededStepCoreTask)
 #Phase2 : just muon Seed InOut is used in this moment
-trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
-muonSeededStepExtraInOut = cms.Sequence(
+#trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+muonSeededStepExtraInOutTask = cms.Task(
     muonSeededTracksInOutClassifier
 )
-trackingPhase1PU70.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
+muonSeededStepExtraInOut = cms.Sequence(muonSeededStepExtraInOutTask)
+
+trackingPhase2PU140.toReplaceWith(muonSeededStepExtraInOutTask, cms.Task(
     muonSeededTracksInOutSelector
-))
-trackingPhase2PU140.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
-    muonSeededTracksInOutSelector
-))
-muonSeededStepExtra = cms.Sequence(
-    muonSeededStepExtraInOut +
-    muonSeededTracksOutInClassifier
-)
-trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
-    muonSeededStepExtraInOut +
-    muonSeededTracksOutInSelector
-))
-trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
-    muonSeededStepExtraInOut
 ))
 
-muonSeededStep = cms.Sequence(
-    earlyMuons +
-    muonSeededStepCore +
-    muonSeededStepExtra 
+muonSeededStepExtraTask = cms.Task(
+    muonSeededStepExtraInOutTask ,
+    muonSeededTracksOutInClassifier
 )
-    
+
+muonSeededStepExtra = cms.Sequence(muonSeededStepExtraTask)
+trackingPhase2PU140.toReplaceWith(muonSeededStepExtraTask, cms.Task(
+    muonSeededStepExtraInOutTask ,
+    muonSeededTracksOutInSelector
+))
+
+muonSeededStepTask = cms.Task(
+    earlyMuons,
+    muonSeededStepCoreTask,
+    muonSeededStepExtraTask 
+)
+muonSeededStep = cms.Sequence(muonSeededStepTask) 
+   
     
 ##### MODULES FOR DEBUGGING ###############3
 muonSeededSeedsInOutAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src = cms.InputTag("muonSeededSeedsInOut"))
 muonSeededSeedsOutInAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src = cms.InputTag("muonSeededSeedsOutIn"))
 muonSeededTrackCandidatesInOutAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesInOut"))
 muonSeededTrackCandidatesOutInAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesOutIn"))
-muonSeededStepDebugInOut = cms.Sequence(
-    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+muonSeededStepDebugInOutTask = cms.Task(
+    muonSeededSeedsInOutAsTracks , muonSeededTrackCandidatesInOutAsTracks
 )
-muonSeededStepDebug = cms.Sequence(
-    muonSeededSeedsOutInAsTracks + muonSeededTrackCandidatesOutInAsTracks +
-    muonSeededStepDebugInOut
+muonSeededStepDebugInOut = cms.Sequence(muonSeededStepDebugInOutTask)
+muonSeededStepDebugTask = cms.Task(
+    muonSeededSeedsOutInAsTracks , muonSeededTrackCandidatesOutInAsTracks ,
+    muonSeededStepDebugInOutTask
 )
+muonSeededStepDebug = cms.Sequence(muonSeededStepDebugTask)

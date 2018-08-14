@@ -10,7 +10,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
@@ -135,11 +135,13 @@ struct StripLimits {
 namespace edm { class EventSetup; }
 
 class TrackerGeometry;
+class TrackerTopology;
 class MagneticField;
 class SiPixelLorentzAngle;
 class SiStripLorentzAngle;
 class PixelGeomDetUnit;
 class StripGeomDetUnit;
+class StripTopology;
 
 // Function for testing ClusterShapeHitFilter
 namespace test {
@@ -157,20 +159,30 @@ class ClusterShapeHitFilter
 
   struct PixelData {
     const PixelGeomDetUnit * det;
-    unsigned int part;
+    unsigned short part;
+    unsigned short layer;
     std::pair<float,float> drift;
     std::pair<float,float> cotangent;
 
   };
 
+  struct StripData {
+    const StripGeomDetUnit * det;
+    StripTopology const * topology;
+    float drift;
+    float thickness;
+    int nstrips;
+  };
+
   typedef TrajectoryFilter::Record Record;
-  //  typedef CkfComponentsRecord Record;
 
   ClusterShapeHitFilter(const TrackerGeometry * theTracker_,
+                        const TrackerTopology * theTkTopol_,
                         const MagneticField          * theMagneticField_,
                         const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
                         const SiStripLorentzAngle    * theSiStripLorentzAngle_,
-                        const std::string            * use_PixelShapeFile_);
+                        const std::string            & pixelShapeFile_,
+                        const std::string            & pixelShapeFileL1_);
  
   ~ClusterShapeHitFilter();
 
@@ -221,6 +233,8 @@ class ClusterShapeHitFilter
   bool isCompatible(DetId detId,
                     const SiStripCluster & cluster,
                     const GlobalVector & gdir ) const;
+
+
   bool isCompatible(const SiStripRecHit2D & recHit,
                     const LocalPoint  & lpos,
                     const LocalVector & ldir) const {
@@ -244,7 +258,11 @@ class ClusterShapeHitFilter
 
  private:
   // for testing purposes only
-  ClusterShapeHitFilter(){}
+  ClusterShapeHitFilter(std::string const& f1,std::string const& f2) {
+     loadPixelLimits(f1,pixelLimits);
+     loadPixelLimits(f2,pixelLimitsL1);
+      loadStripLimits();
+  }
 
   const PixelData & getpd(const SiPixelRecHit   & recHit, PixelData const * pd=nullptr) const{
     if (pd) return *pd;
@@ -254,12 +272,16 @@ class ClusterShapeHitFilter
     return (*p).second;
   }
 
-  void loadPixelLimits();
+  const StripData & getsd(DetId id) const {return stripData.find(id)->second;}
+
+  void loadPixelLimits(std::string const & file, PixelLimits *plim);
   void loadStripLimits();
   void fillPixelData();
+  void fillStripData();
+
 
   std::pair<float,float> getCotangent(const PixelGeomDetUnit * pixelDet) const;
-                   float getCotangent(const StripGeomDetUnit * stripDet, const LocalPoint &p = LocalPoint(0,0,0)) const;
+                   float getCotangent(const ClusterShapeHitFilter::StripData& sd, const LocalPoint &p) const;
 
   std::pair<float,float> getDrift(const PixelGeomDetUnit * pixelDet) const;
                    float getDrift(const StripGeomDetUnit * stripDet) const;
@@ -267,16 +289,17 @@ class ClusterShapeHitFilter
   bool isNormalOriented(const GeomDetUnit * geomDet) const;
 
   const TrackerGeometry * theTracker;
+  const TrackerTopology * theTkTopol;
   const MagneticField * theMagneticField;
 
   const SiPixelLorentzAngle * theSiPixelLorentzAngle;
   const SiStripLorentzAngle * theSiStripLorentzAngle;
 
-  const std::string * PixelShapeFile;
-
   std::unordered_map<unsigned int, PixelData> pixelData;
+  std::unordered_map<unsigned int, StripData> stripData;
 
   PixelLimits pixelLimits[PixelKeys::N+1]; // [2][2][2]
+  PixelLimits pixelLimitsL1[PixelKeys::N+1]; // for BPIX1
 
   StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
@@ -289,4 +312,3 @@ class ClusterShapeHitFilter
 };
 
 #endif
-

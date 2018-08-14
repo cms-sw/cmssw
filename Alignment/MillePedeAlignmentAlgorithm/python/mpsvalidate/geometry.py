@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ##########################################################################
 # Classes which provide the geometry information.
 ##
@@ -7,9 +5,11 @@
 import itertools
 import os
 
-from ROOT import TFile, TTree
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch()
 
-from Alignment.MillePedeAlignmentAlgorithm.mpsvalidate import geometrydata
+import Alignment.MillePedeAlignmentAlgorithm.mpsvalidate.geometrydata as mpsv_geometrydata
 
 
 class Alignables:
@@ -22,30 +22,44 @@ class Alignables:
         self.structures = []
         self.config = config
 
-    def get_name_by_objid(self, objid):
-        return geometrydata.data[objid].name
-
     def get_subdetid(self, objid):
-        return geometrydata.data[objid].subdetid
+        return mpsv_geometrydata.data[objid].subdetid
 
     def get_discriminator(self, objid):
-        return geometrydata.data[objid].discriminator
+        return mpsv_geometrydata.data[objid].discriminator
 
     def get_ndiscriminator(self, objid):
-        return geometrydata.data[objid].ndiscriminator
+        subdetid = self.get_subdetid(objid)
+        discriminator = self.get_discriminator(objid)
+        ndiscriminator = {key: [] for key in discriminator}
+        # open TrackerTree.root file
+        treeFile = ROOT.TFile(os.path.join(self.config.jobDataPath,
+                                           ".TrackerTree.root"))
+        tree = treeFile.Get("TrackerTreeGenerator/TrackerTree/TrackerTree")
+
+        for entry in tree:
+            # check if entry is part of the structure
+            if (entry.SubdetId == subdetid):
+                for structure in discriminator:
+                    ndiscriminator[structure].append(getattr(entry, structure))
+        for structure in discriminator:
+            ndiscriminator[structure] = [x for x in ndiscriminator[structure] if x != 0]
+
+        return [len(set(ndiscriminator[structure]))
+                for structure in discriminator]
 
     def create_list(self, MillePedeUser):
         # loop over output TTree
-        for line in MillePedeUser:
+        for entry in MillePedeUser:
             # check which structures were aligned
-            if (line.ObjId != 1 and 999999 not in map(abs, line.Par)):
+            if (entry.ObjId != 1 and 999999 not in map(abs, entry.Par)):
                 # check if structure is not yet in the list
-                if not any(x.name == self.get_name_by_objid(line.ObjId) for x in self.structures):
+                if not any(x.name == str(entry.Name) for x in self.structures):
                     # create new structure object
-                    name = self.get_name_by_objid(line.ObjId)
-                    subdetid = self.get_subdetid(line.ObjId)
-                    discriminator = self.get_discriminator(line.ObjId)
-                    ndiscriminator = self.get_ndiscriminator(line.ObjId)
+                    name = str(entry.Name)
+                    subdetid = self.get_subdetid(entry.ObjId)
+                    discriminator = self.get_discriminator(entry.ObjId)
+                    ndiscriminator = self.get_ndiscriminator(entry.ObjId)
                     # create structure
                     self.structures.append(
                         Structure(name, subdetid, discriminator, ndiscriminator))
@@ -62,9 +76,9 @@ class Alignables:
             # discriminators
             for number in itertools.product(*pranges):
                 # create pattern dict
-                pattern = dict(zip(struct.discriminator, number))
-                # name out of patten
-                name = " ".join("{0} {1}".format(key, value)
+                pattern = dict(zip(map(lambda x: x.lower(), struct.discriminator), number))
+                # name out of pattern
+                name = " ".join("{0} {1}".format(key.lower(), value)
                                 for (key, value) in pattern.items())
                 # get detids of child
                 detids = self.get_detids(struct.subdetid, pattern)
@@ -72,59 +86,30 @@ class Alignables:
                 child = Structure(name, struct.subdetid, detids=detids)
                 struct.children.append(child)
 
+
     def get_detids(self, subdetid, pattern={}):
         # list of all detids in the structure
         detids = []
         # open TrackerTree.root file
-        treeFile = TFile(os.path.join(self.config.mpspath, "TrackerTree.root"))
+        treeFile = ROOT.TFile(os.path.join(self.config.jobDataPath,
+                                           ".TrackerTree.root"))
         tree = treeFile.Get("TrackerTreeGenerator/TrackerTree/TrackerTree")
 
-        for line in tree:
-            # check if line is part of the structure
-            if (line.SubdetId == subdetid):
-
+        for entry in tree:
+            # check if entry is part of the structure
+            if (entry.SubdetId == subdetid):
                 # to create a child also check the pattern
-                if ("half" in pattern):
-                    if (line.Half != pattern["half"]):
-                        continue
+                structure_found = False
+                for structure in ("Half", "Side", "Layer", "Rod", "Ring",
+                                  "Petal", "Blade", "Panel", "OuterInner",
+                                  "Module"):
+                    if structure.lower() in pattern:
+                        if getattr(entry, structure) != pattern[structure.lower()]:
+                            structure_found = True
+                            break
+                if structure_found: continue
 
-                if ("side" in pattern):
-                    if (line.Side != pattern["side"]):
-                        continue
-
-                if ("layer" in pattern):
-                    if (line.Layer != pattern["layer"]):
-                        continue
-
-                if ("rod" in pattern):
-                    if (line.Rod != pattern["rod"]):
-                        continue
-
-                if ("ring" in pattern):
-                    if (line.Ring != pattern["ring"]):
-                        continue
-
-                if ("petal" in pattern):
-                    if (line.Petal != pattern["petal"]):
-                        continue
-
-                if ("blade" in pattern):
-                    if (line.Blade != pattern["blade"]):
-                        continue
-
-                if ("panel" in pattern):
-                    if (line.Panel != pattern["panel"]):
-                        continue
-
-                if ("outerinner" in pattern):
-                    if (line.OuterInner != pattern["outerinner"]):
-                        continue
-
-                if ("module" in pattern):
-                    if (line.Module != pattern["module"]):
-                        continue
-
-                detids.append(line.RawId)
+                detids.append(entry.RawId)
         return detids
 
 

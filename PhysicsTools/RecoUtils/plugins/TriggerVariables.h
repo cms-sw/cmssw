@@ -21,9 +21,9 @@ class L1BitComputer : public VariableComputer {
 
 
   }
-    ~L1BitComputer(){};
+    ~L1BitComputer() override{};
 
-    void compute(const edm::Event & iEvent) const{
+    void compute(const edm::Event & iEvent) const override{
       edm::Handle<L1GlobalTriggerReadoutRecord> l1Handle;
       iEvent.getByToken(src_, l1Handle);
       if (l1Handle.failedToGet()) doesNotCompute();
@@ -69,8 +69,8 @@ class HLTBitComputer : public VariableComputer {
       declare(std::string(static_cast<const char *>(tname)), iC);
     }
   }
-    ~HLTBitComputer(){}
-    void compute(const edm::Event & iEvent) const{
+    ~HLTBitComputer() override{}
+    void compute(const edm::Event & iEvent) const override{
       edm::Handle<edm::TriggerResults> trh;
       iEvent.getByToken(src_,trh);
       if (!trh.isValid()) doesNotCompute();
@@ -95,7 +95,7 @@ class HLTBitVariable : public CachingVariable {
     CachingVariable("HLTBitVariable",arg.n,arg.iConfig,iC),
     src_(iC.consumes<edm::TriggerResults>(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig))),
     bitName_(arg.n){ arg.m[arg.n]=this;}
-    CachingVariable::evalType eval(const edm::Event & iEvent) const{
+    CachingVariable::evalType eval(const edm::Event & iEvent) const override{
       edm::Handle<edm::TriggerResults> hltHandle;
       iEvent.getByToken(src_, hltHandle);
       if (hltHandle.failedToGet()) return std::make_pair(false,0);

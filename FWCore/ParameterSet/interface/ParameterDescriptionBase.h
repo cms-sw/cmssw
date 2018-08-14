@@ -33,15 +33,15 @@ namespace edm {
   class ParameterDescriptionBase : public ParameterDescriptionNode 
   {
   public:
-    virtual ~ParameterDescriptionBase();
+    ~ParameterDescriptionBase() override;
 
     std::string const& label() const { return label_; }
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
     bool hasDefault() const { return hasDefault_; }
 
-    virtual ParameterSetDescription const* parameterSetDescription() const { return 0; }
-    virtual ParameterSetDescription * parameterSetDescription() { return 0; }
+    virtual ParameterSetDescription const* parameterSetDescription() const { return nullptr; }
+    virtual ParameterSetDescription * parameterSetDescription() { return nullptr; }
 
   protected:
     void throwParameterWrongTrackiness() const;
@@ -51,50 +51,52 @@ namespace edm {
     ParameterDescriptionBase(std::string const& iLabel,
                              ParameterTypes iType,
                              bool isTracked,
-                             bool hasDefault
+                             bool hasDefault,
+                             Comment const& iComment
                             );
 
     ParameterDescriptionBase(char const* iLabel,
                              ParameterTypes iType,
                              bool isTracked,
-                             bool hasDefault
+                             bool hasDefault,
+                             Comment const& iComment
                             );
 
   private:
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const;
+    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
+                                    std::set<ParameterTypes> & parameterTypes,
+                                    std::set<ParameterTypes> & wildcardTypes) const override;
 
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const;
+    void validate_(ParameterSet & pset,
+                   std::set<std::string> & validatedLabels,
+                   bool optional) const override;
 
-    virtual void writeCfi_(std::ostream & os,
-                           bool & startWithComma,
-                           int indentation,
-                           bool & wroteSomething) const;
+    void writeCfi_(std::ostream & os,
+                   bool & startWithComma,
+                   int indentation,
+                   bool & wroteSomething) const override;
 
-    virtual bool partiallyExists_(ParameterSet const& pset) const;
+    bool partiallyExists_(ParameterSet const& pset) const override;
 
-    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
+    int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
     virtual void writeCfi_(std::ostream & os, int indentation) const = 0;
 
     virtual void writeDoc_(std::ostream & os, int indentation) const = 0;
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh) const;
+    void print_(std::ostream & os,
+                bool optional,
+                bool writeToCfi,
+                DocFormatHelper & dfh) const override;
 
     virtual void printDefault_(std::ostream & os,
-                                 bool writeToCfi,
-                                 DocFormatHelper & dfh) const;
+                               bool writeToCfi,
+                               DocFormatHelper & dfh) const;
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh) const;
+    void printNestedContent_(std::ostream & os,
+                             bool optional,
+                             DocFormatHelper & dfh) const override;
 
     using ParameterDescriptionNode::exists_;
     virtual bool exists_(ParameterSet const& pset, bool isTracked) const = 0;

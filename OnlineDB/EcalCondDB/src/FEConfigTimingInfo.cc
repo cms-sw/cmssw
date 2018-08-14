@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/FEConfigTimingInfo.h"
@@ -12,10 +12,10 @@ using namespace oracle::occi;
 
 FEConfigTimingInfo::FEConfigTimingInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_version=0;
   m_ID=0;
@@ -51,7 +51,7 @@ int FEConfigTimingInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -75,7 +75,7 @@ void FEConfigTimingInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -111,7 +111,7 @@ void FEConfigTimingInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -127,7 +127,7 @@ void FEConfigTimingInfo::fetchData(FEConfigTimingInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("FEConfigTimingInfo::fetchData(): no Id defined for this FEConfigTimingInfo "));
   }
 
@@ -146,13 +146,13 @@ void FEConfigTimingInfo::fetchData(FEConfigTimingInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     Date dbdate = rset->getDate(4);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -171,13 +171,13 @@ void FEConfigTimingInfo::fetchLastData(FEConfigTimingInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     Date dbdate = rset->getDate(4);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -207,7 +207,7 @@ int FEConfigTimingInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigTimingInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigTimingInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -231,7 +231,7 @@ void FEConfigTimingInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(rset->getString(2));
+       this->setConfigTag(getOraString(rset,2));
        this->setVersion(rset->getInt(3));
        Date dbdate = rset->getDate(4);
        this->setDBTime( dh.dateToTm( dbdate ));
@@ -241,7 +241,7 @@ void FEConfigTimingInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("FEConfigTimingInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("FEConfigTimingInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 

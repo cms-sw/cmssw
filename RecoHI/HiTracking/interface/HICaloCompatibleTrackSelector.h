@@ -33,7 +33,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -51,7 +51,7 @@ namespace reco { namespace modules {
       /// constructor 
       explicit HICaloCompatibleTrackSelector(const edm::ParameterSet& cfg);
       /// destructor
-      virtual ~HICaloCompatibleTrackSelector() ;
+      ~HICaloCompatibleTrackSelector() override ;
       
     private:
       typedef math::XYZPoint Point;
@@ -59,7 +59,7 @@ namespace reco { namespace modules {
       typedef reco::TrackCollection::const_iterator TI;
 
       /// process one event
-      void produce( edm::Event& evt, const edm::EventSetup& es ) ;
+      void produce( edm::Event& evt, const edm::EventSetup& es ) override ;
       
       void matchByDrAllowReuse(const reco::Track & trk, const edm::Handle<CaloTowerCollection> & towers, double & bestdr, double & bestpt);
       

@@ -33,10 +33,10 @@ class L2MuonCandidateProducer : public edm::global::EDProducer<> {
   L2MuonCandidateProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~L2MuonCandidateProducer(); 
+  ~L2MuonCandidateProducer() override; 
   
   /// produce candidates
-  virtual void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup&) const override;
+  void produce(edm::StreamID sid, edm::Event& event, const edm::EventSetup&) const override;
   
  private:
   

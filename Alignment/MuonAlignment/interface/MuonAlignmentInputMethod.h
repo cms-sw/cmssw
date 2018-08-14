@@ -49,9 +49,9 @@ class MuonAlignmentInputMethod {
       std::shared_ptr<CSCGeometry> idealCSCGeometry(const edm::EventSetup &iSetup) const;
 
    private:
-      MuonAlignmentInputMethod(const MuonAlignmentInputMethod&); // stop default
+      MuonAlignmentInputMethod(const MuonAlignmentInputMethod&) = delete; // stop default
 
-      const MuonAlignmentInputMethod& operator=(const MuonAlignmentInputMethod&); // stop default
+      const MuonAlignmentInputMethod& operator=(const MuonAlignmentInputMethod&) = delete; // stop default
 
       // ---------- member data --------------------------------
 };

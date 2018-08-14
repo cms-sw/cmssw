@@ -52,7 +52,7 @@ class SiStripQuality final : public SiStripBadStrip {
   SiStripQuality(edm::FileInPath&);
   SiStripQuality(const SiStripQuality&); //copy constructor
 
-  ~SiStripQuality();
+  ~SiStripQuality() override;
 
   void clear(){
     v_badstrips.clear();

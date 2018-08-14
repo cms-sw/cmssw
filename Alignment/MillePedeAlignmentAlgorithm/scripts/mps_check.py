@@ -11,6 +11,7 @@
 #
 #  It also retirieves number of events from alignment.log and cputime from STDOUT
 
+from __future__ import print_function
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import subprocess
 import re
@@ -19,12 +20,12 @@ import os
 lib = mpslib.jobdatabase()
 lib.read_db()
 
-# create a list of eos ls entries containing files on eos
-# previously 'cmsLs -l $mssDir' -> deprecated command. Removed in January 2016
-# the simple command "eos ls -l" doesn't work. Exact location of application must be specified.
-eos = '/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-command = eos+' ls -l '+lib.mssDir
-eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).split('\n')
+# create a list of eos ls entries containing files on eos binary store
+command = ["ls", "-l", os.path.join(lib.mssDir, "binaries")]
+try:
+    eoslsoutput = subprocess.check_output(command, stderr=subprocess.STDOUT).split('\n')
+except subprocess.CalledProcessError:
+    eoslsoutput = ""
 
 # loop over FETCH jobs
 for i in xrange(len(lib.JOBID)):
@@ -56,6 +57,7 @@ for i in xrange(len(lib.JOBID)):
     insuffPriv = 0
     quotaspace = 0
 
+    kill_reason = None
     pedeLogErrStr = ""
     pedeLogWrnStr = ""
     remark = ""
@@ -110,13 +112,35 @@ for i in xrange(len(lib.JOBID)):
                         cputime = int(round(int(match.group(1))/cpuFactor)) # match.group(1) is the matched digit
 
             # gzip it afterwards:
-            print 'gzip -f '+stdOut
+            print('gzip -f '+stdOut)
             os.system('gzip -f '+stdOut)
         except IOError as e:
             if e.args == (2, "No such file or directory"):
-                print "mps_check.py cannot find", stdOut, "to test"
+                print("mps_check.py cannot find", stdOut, "to test")
             else:
                 raise
+
+        # check HTCondor log file
+        try:
+            log_file = os.path.join("jobData", lib.JOBDIR[i], "HTCJOB")
+            condor_log = subprocess.check_output(["condor_q", lib.JOBID[i],
+                                                  "-userlog", log_file,
+                                                  "-af",
+                                                  "RemoteSysCpu",
+                                                  "JobStatus",
+                                                  "RemoveReason"],
+                                                 stderr = subprocess.STDOUT)
+            condor_log = condor_log.split()
+
+            cputime = int(round(float(condor_log[0])))
+
+            if condor_log[1] == "3": # JobStatus == Removed
+                killed = 1
+                kill_reason = " ".join(condor_log[2:])
+
+        except subprocess.CalledProcessError as e:
+            pass
+
 
         # GF: This file is not produced (anymore...) -> check for existence and read-access added
         eazeLog = 'jobData/'+lib.JOBDIR[i]+'/cmsRun.out'
@@ -179,7 +203,7 @@ for i in xrange(len(lib.JOBID)):
                     if re.search(re.compile('Exception caught in cmsRun',re.M), line):
                         exceptionCaught = 1
                     # AP 07.09.2009 - Check that the job got to a normal end
-                    if re.search(re.compile('AlignmentProducer::endOfJob\(\)',re.M), line):
+                    if re.search(re.compile('AlignmentProducerAsAnalyzer::endJob\(\)',re.M), line):
                         endofjob = 1
                     if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
                         array = line.split()
@@ -196,7 +220,7 @@ for i in xrange(len(lib.JOBID)):
                 os.system('gzip '+eazeLog)
 
         else:   # no access to alignment.log
-            print 'mps_check.py cannot find',eazeLog,'to test'
+            print('mps_check.py cannot find',eazeLog,'to test')
             # AP 07.09.2009 - The following check cannot be done: set to 1 to avoid fake error type
             endofjob = 1
 
@@ -242,7 +266,7 @@ for i in xrange(len(lib.JOBID)):
                             if re.search(re.compile('^\d+\.\d+$',re.M), mem):
                                 usedPedeMem = float(mem)
                             else:
-                                print 'mps_check.py: Found Pede peak memory allocation but extracted number is not a float:',mem
+                                print('mps_check.py: Found Pede peak memory allocation but extracted number is not a float:',mem)
 
                 # check memory usage
                 # no point in asking if lib.pedeMem is defined. Initialized as lib.pedeMem=-1
@@ -254,13 +278,18 @@ for i in xrange(len(lib.JOBID)):
                         msg = ("Warning: {0:.2f} GB of memory for Pede "
                                "requested, but only {1:.1f}% of it has been "
                                "used! Consider to request less memory in order "
-                               "to save resources.").format(lib.pedeMem/1024.0,
-                                                            memoryratio*100)
-                        print msg
+                               "to save resources.")
+                        print(msg.format(lib.pedeMem/1024.0, memoryratio*100))
+                    elif memoryratio > 1 :
+                        msg = ("Warning: {0:.2f} GB of memory for Pede "
+                               "requested, but {1:.1f}% of this has been "
+                               "used! Consider to request more memory to avoid "
+                               "premature removal of the job by the admin.")
+                        print(msg.format(lib.pedeMem/1024.0, memoryratio*100))
                     else:
                         msg = ("Info: Used {0:.1f}% of {1:.2f} GB of memory "
                                "which has been requested for Pede.")
-                        print msg.format(memoryratio*100, lib.pedeMem/1024.0)
+                        print(msg.format(memoryratio*100, lib.pedeMem/1024.0))
 
 
                 # clean up /tmp/pede.dump if needed
@@ -269,7 +298,7 @@ for i in xrange(len(lib.JOBID)):
 
             # pede.dump not found or no read-access
             else:
-                print 'mps_check.py cannot find',eazeLog,'to test'
+                print('mps_check.py cannot find',eazeLog,'to test')
 
             # if there is a millepede.log file, check it as well
             eazeLog = 'jobData/'+lib.JOBDIR[i]+'/millepede.log'
@@ -298,7 +327,7 @@ for i in xrange(len(lib.JOBID)):
                 if logZipped == 'true':
                     os.system('gzip '+eazeLog)
             else:
-                print 'mps_check.py cannot find',eazeLog,'to test'
+                print('mps_check.py cannot find',eazeLog,'to test')
 
 
             # check millepede.end -- added F. Meier 03.03.2015
@@ -326,7 +355,7 @@ for i in xrange(len(lib.JOBID)):
                 if logZipped == 'true':
                     os.system('gzip '+eazeLog)
             else:
-                print 'mps_check.py cannot find',eazeLog,'to test'
+                print('mps_check.py cannot find',eazeLog,'to test')
 
         # end of merge job checks
         # evaluate Errors:
@@ -334,94 +363,95 @@ for i in xrange(len(lib.JOBID)):
 
         okStatus = 'OK'
         if not eofile == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'did not reach end of file'
+            print(lib.JOBDIR[i],lib.JOBID[i],'did not reach end of file')
             okStatus = 'ABEND'
         if quotaspace == 1:
-             print lib.JOBDIR[i],lib.JOBID[i],'had quota space problem'
+             print(lib.JOBDIR[i],lib.JOBID[i],'had quota space problem')
              okStatus = 'FAIL'
              remark = 'eos quota space problem'
         if ioprob == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'had I/O problem'
+            print(lib.JOBDIR[i],lib.JOBID[i],'had I/O problem')
             okStatus = 'FAIL'
         if fw8001 == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'had Framework error 8001 problem'
+            print(lib.JOBDIR[i],lib.JOBID[i],'had Framework error 8001 problem')
             remark = 'fwk error 8001'
             okStatus = 'FAIL'
         if timeout == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'had connection timed out problem'
+            print(lib.JOBDIR[i],lib.JOBID[i],'had connection timed out problem')
             remark = 'connection timed out'
         if cfgerr == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'had config file error'
+            print(lib.JOBDIR[i],lib.JOBID[i],'had config file error')
             remark = 'cfg file error'
             okStatus = 'FAIL'
         if killed == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Job Killed (probably time exceeded)'
+            guess = " (probably time exceeded)" if kill_reason is None else ":"
+            print(lib.JOBDIR[i], lib.JOBID[i], "Job killed" + guess)
+            if kill_reason is not None: print(kill_reason)
             remark = "killed";
             okStatus = "FAIL"
         if timel == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'ran into time limit'
+            print(lib.JOBDIR[i],lib.JOBID[i],'ran into time limit')
             okStatus = 'TIMEL'
         if tooManyTracks == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'too many tracks'
+            print(lib.JOBDIR[i],lib.JOBID[i],'too many tracks')
         if segviol == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'SEGVIOL encountered'
+            print(lib.JOBDIR[i],lib.JOBID[i],'SEGVIOL encountered')
             remark = 'seg viol'
             okStatus = 'FAIL'
         if rfioerr == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'RFIO error encountered'
+            print(lib.JOBDIR[i],lib.JOBID[i],'RFIO error encountered')
             remark = 'rfio error'
             okStatus = 'FAIL'
         if quota == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Request exceeds quota'
+            print(lib.JOBDIR[i],lib.JOBID[i],'Request exceeds quota')
         if exceptionCaught == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Exception caught in cmsrun'
+            print(lib.JOBDIR[i],lib.JOBID[i],'Exception caught in cmsrun')
             remark = 'Exception caught'
             okStatus = 'FAIL'
         if emptyDatErr == 1:
-            print 'milleBinary???.dat file not found or empty'
+            print('milleBinary???.dat file not found or empty')
             remark = 'empty milleBinary'
             if emptyDatOnFarm > 0:
-                print '...but already empty on farm so OK (or check job',i+1,'yourself...)'
+                print('...but already empty on farm so OK (or check job',i+1,'yourself...)')
             else:
                 okStatus = 'FAIL'
         if cmdNotFound == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Command not found'
+            print(lib.JOBDIR[i],lib.JOBID[i],'Command not found')
             remark = 'cmd not found'
             okStatus = 'FAIL'
         if insuffPriv == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Insufficient privileges to rfcp files'
+            print(lib.JOBDIR[i],lib.JOBID[i],'Insufficient privileges to rfcp files')
             remark = 'Could not rfcp files'
             okStatus = 'FAIL'
         if pedeAbend == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Pede did not end normally'
+            print(lib.JOBDIR[i],lib.JOBID[i],'Pede did not end normally')
             remark = 'pede failed'
             okStatus = 'FAIL'
         if pedeLogErr == 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Problems in running Pede:'
-            print pedeLogErrStr
+            print(lib.JOBDIR[i],lib.JOBID[i],'Problems in running Pede:')
+            print(pedeLogErrStr)
             remark = 'pede error'
             okStatus = 'FAIL'
         if pedeLogWrn == 1:
             # AP 07.09.2009 - Reports Pede Warnings (but do _not_ set job status to FAIL)
-            print lib.JOBDIR[i],lib.JOBID[i],'Warnings in running Pede:'
-            print pedeLogWrnStr
+            print(lib.JOBDIR[i],lib.JOBID[i],'Warnings in running Pede:')
+            print(pedeLogWrnStr)
             remark = 'pede warnings'
             okStatus = 'WARN'
         if endofjob != 1:
-            print lib.JOBDIR[i],lib.JOBID[i],'Job not ended'
+            print(lib.JOBDIR[i],lib.JOBID[i],'Job not ended')
             remark = 'job not ended'
             okStatus = 'FAIL'
 
         # print warning line to stdout
         if okStatus != "OK":
-            print lib.JOBDIR[i],lib.JOBID[i],' -------- ',okStatus
+            print(lib.JOBDIR[i],lib.JOBID[i],' -------- ',okStatus)
 
         # update number of events
         lib.JOBNEVT[i] = nEvent
         # udate Jobstatus
         lib.JOBSTATUS[i] = disabled+okStatus
         # update cputime
-        print cputime
         lib.JOBRUNTIME[i] = cputime
         # update remark
         lib.JOBREMARK[i] = remark

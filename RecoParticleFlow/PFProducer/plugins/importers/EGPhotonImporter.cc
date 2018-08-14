@@ -79,7 +79,7 @@ importToBlock( const edm::Event& e,
   //now add the photons
   auto bphoton = photons->cbegin();
   auto ephoton = photons->cend();
-  reco::PFBlockElementSuperCluster* scbe = NULL;
+  reco::PFBlockElementSuperCluster* scbe = nullptr;
   reco::PhotonRef phoref;
   for( auto photon = bphoton; photon != ephoton; ++photon ) {
     if( _selector->passPhotonSelection(*photon) ) {

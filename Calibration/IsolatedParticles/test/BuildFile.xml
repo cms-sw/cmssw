@@ -1,0 +1,16 @@
+<use   name="Calibration/IsolatedParticles"/>
+<use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Services"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/HcalTowerAlgo"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<flags   EDM_PLUGIN="1"/>
+<library   name="CalibrationIsolatedParticlesTest" file="*.cc"> </library>

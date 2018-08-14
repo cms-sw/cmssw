@@ -15,9 +15,9 @@ public:
   CSCWireDigiValidation(const edm::InputTag & inputTag,
                         edm::ConsumesCollector && iC,
                         bool doSim);
-  ~CSCWireDigiValidation();
+  ~CSCWireDigiValidation() override;
   void bookHistograms(DQMStore::IBooker &);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void plotResolution(const PSimHit & hit, const CSCWireDigi & digi,
                       const CSCLayer * layer, int chamberType);
 

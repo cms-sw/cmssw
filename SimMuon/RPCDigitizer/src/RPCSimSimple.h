@@ -20,7 +20,7 @@ class RPCSimSimple : public RPCSim
 {
  public:
   RPCSimSimple(const edm::ParameterSet& config);
-  ~RPCSimSimple();
+  ~RPCSimSimple() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,

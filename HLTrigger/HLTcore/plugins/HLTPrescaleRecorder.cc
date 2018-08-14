@@ -42,8 +42,8 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps) :
   hltInputTag_(ps.getParameter<InputTag>("hltInputTag")),
   hltInputToken_(),
   hltDBTag_(ps.getParameter<string>("hltDBTag")),
-  ps_(0),
-  db_(0),
+  ps_(nullptr),
+  db_(nullptr),
   hltHandle_(),
   hltESHandle_(),
   hlt_()
@@ -77,15 +77,13 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps) :
     LogError("HLTPrescaleRecorder")<<"PoolDBOutputService requested as destination but unavailable!";
   }
 
-  if (run_)   produces<HLTPrescaleTable,edm::InRun>("Run");
-  if (lumi_)  produces<HLTPrescaleTable,edm::InLumi>("Lumi");
-  if (event_) produces<HLTPrescaleTable,edm::InEvent>("Event");
+  if (run_)   produces<HLTPrescaleTable,edm::Transition::EndRun>("Run");
+  if (lumi_)  produces<HLTPrescaleTable,edm::Transition::EndLuminosityBlock>("Lumi");
+  if (event_) produces<HLTPrescaleTable,edm::Transition::Event>("Event");
 
 }
 
-HLTPrescaleRecorder::~HLTPrescaleRecorder()
-{
-}
+HLTPrescaleRecorder::~HLTPrescaleRecorder() = default;
 
 //
 // member functions
@@ -142,7 +140,7 @@ void HLTPrescaleRecorder::beginRun(edm::Run const& iRun, const edm::EventSetup& 
   } else  if (src_==0) {
     /// From PrescaleService
     /// default index updated at lumi block boundaries
-    if (ps_!=0) {
+    if (ps_!=nullptr) {
       hlt_=HLTPrescaleTable(ps_->getLvl1IndexDefault(), ps_->getLvl1Labels(), ps_->getPrescaleTable());
     } else {
       hlt_=HLTPrescaleTable();
@@ -170,7 +168,7 @@ void HLTPrescaleRecorder::beginLuminosityBlock(edm::LuminosityBlock const& iLumi
   if (src_==0) {
     /// From PrescaleService
     /// default index updated at lumi block boundaries
-    if (ps_!=0) {
+    if (ps_!=nullptr) {
       hlt_=HLTPrescaleTable(ps_->getLvl1IndexDefault(), ps_->getLvl1Labels(), ps_->getPrescaleTable());
     } else {
       hlt_=HLTPrescaleTable();
@@ -247,15 +245,15 @@ void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iS
 
   if (condDB_) {
     /// Writing to CondDB (needs PoolDBOutputService)
-    if (db_!=0) {
-      HLTPrescaleTableCond* product (new HLTPrescaleTableCond(hlt_));
+    if (db_!=nullptr) {
+      auto  product (new HLTPrescaleTableCond(hlt_));
       const string rcdName("HLTPrescaleTableRcd");
       if ( db_->isNewTagRequest(rcdName) ) {
 	db_->createNewIOV<HLTPrescaleTableCond>(product,
 	      db_->beginOfTime(),db_->endOfTime(),rcdName);
       } else {
 	::timeval tv;
-	gettimeofday(&tv,0);
+	gettimeofday(&tv,nullptr);
 	edm::Timestamp tstamp((unsigned long long)tv.tv_sec);
 	db_->appendSinceTime<HLTPrescaleTableCond>(product,
 //            db_->currentTime()

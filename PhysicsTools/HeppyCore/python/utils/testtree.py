@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ROOT import TFile
 from PhysicsTools.HeppyCore.statistics.tree import Tree
 
@@ -8,7 +9,7 @@ def create_tree(filename="test_tree.root"):
     for i in range(100):
         tree.fill('var1', i)
         tree.tree.Fill()
-    print 'creating a tree', tree.tree.GetName(),\
+    print('creating a tree', tree.tree.GetName(),\
         tree.tree.GetEntries(), 'entries in',\
-        outfile.GetName()
+        outfile.GetName())
     outfile.Write()

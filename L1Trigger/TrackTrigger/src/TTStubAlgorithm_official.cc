@@ -13,9 +13,11 @@
 /// Matching operations
 template< >
 void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( bool &aConfirmation,
-                                                                       int &aDisplacement, 
-                                                                       int &anOffset, 
-                                                                       const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
+										int &aDisplacement, 
+										int &anOffset, 
+										float &anROffset,
+										float &anHardBend,
+										const TTStub< Ref_Phase2TrackerDigi_ > &aTTStub ) const
 { 
   /// Calculate average coordinates col/row for inner/outer Cluster
   // These are already corrected for being at the center of each pixel
@@ -124,7 +126,98 @@ void TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::PatternHitCorrelation( 
   {
     aConfirmation = true;
     aDisplacement = dispI; /// In HALF-STRIP units!
-    anOffset = offsetI; /// In HALF-STRIP units!
+    anOffset      = offsetI; /// In HALF-STRIP units!
+    anROffset     = static_cast<float>(offsetD); /// In HALF-STRIP units!
+    anHardBend    = this->degradeBend(isPS, window, (aDisplacement - anOffset)); // In strips units
   } /// End of stub is accepted
 
 }
+
+
+//--- Does the actual work of degrading the bend. (based on I.Tomalin's code)
+template< >   
+ float TTStubAlgorithm_official< Ref_Phase2TrackerDigi_ >::degradeBend(bool psModule, int window, int bend) const {
+
+  // Number of bits used to encoded bend output by FE electronics.
+  const unsigned int bitsPS_ = 3;
+  const unsigned int bits2S_ = 4;
+
+  // Number of degraded bend values should correspond to 3 bits (PS modules) or 4 bits (2S modules),
+  // so measuring everything in half-strip units, max integer "window" size that can be encoded without
+  // compression given by 2*window+1 <= pow(2,B), where B is number of bits.
+  // Hence no compression required if window cut is abs(b) <= 3 (PS) or 7 (2S). Must introduce one merge for
+  // each 1 unit increase in "window" beyond this.
+
+  // Bend is measured with granularity of 0.5 strips.
+  // Convert it to integer measured in half-strip units for this calculation!
+
+  float degradedB;
+  unsigned int numBends = 2*window + 1;
+  unsigned int numAllowed = (psModule)  ?  pow(2, bitsPS_)  :  pow(2, bits2S_);
+
+  // Existance of bend = 0 means can only use an odd number of groups.
+  numAllowed -= 1; // NumAllowed can be only based on 3 or 4 bits encoded bends, so 7 or 15 possible values
+  if (numBends <= numAllowed) 
+  { 
+    // Can output uncompressed bend info. (So if window is lower or equal than 1.5 in PS, and 3.5 in 2S
+    degradedB = static_cast<double>(bend);
+  } 
+  else // all other cases, need to compress
+  {
+    unsigned int inSmallGroup   = numBends/numAllowed;
+    unsigned int numLargeGroups = numBends%numAllowed;
+    unsigned int inLargeGroup   = inSmallGroup + 1;
+    unsigned int numSmallGroups = numAllowed - numLargeGroups;
+
+    std::vector<unsigned int> groups;
+
+    // At the end we have
+    //
+    // numBends=inSmallGroup*numSmallGroups+inLargeGroup*numLargeGroups
+    // and
+    // numAllowed= numSmallGroups+numLargeGroups;
+    //
+    // Then you alternate large-small-large-small....large. In the middle, you
+    // put either large or small, depending if group size is odd or not
+
+
+    for (unsigned int i = 0; i < numLargeGroups/2; i++) groups.push_back(inLargeGroup);
+    for (unsigned int i = 0; i < numSmallGroups/2; i++) groups.push_back(inSmallGroup);
+
+    // Only one of numLargeGroups & numSmallGroups can be odd, since numAllowed is odd.
+    // And whichever one is odd is associated to a group with an odd number of elements since numBends is odd,
+    if (numLargeGroups%2 == 1 && inLargeGroup%2 == 1) 
+    {
+      groups.push_back(inLargeGroup);
+    } else if (numSmallGroups%2 == 1 && inSmallGroup%2 == 1) {
+      groups.push_back(inSmallGroup);
+    } else {
+      throw cms::Exception("DegradeBend: logic error with odd numbers");
+    }
+
+    for (unsigned int i = 0; i < numSmallGroups/2; i++) groups.push_back(inSmallGroup);
+    for (unsigned int i = 0; i < numLargeGroups/2; i++) groups.push_back(inLargeGroup);	  
+
+    degradedB = 999;
+    int iUp = -static_cast<int>(window) - 1; // Start with the minimal possible bend -1
+    int iDown;
+
+    for (unsigned int& inGroup: groups) 
+    {
+      iUp   += inGroup;
+      iDown = iUp - inGroup + 1;
+      if (bend <= iUp && bend >= iDown) 
+      {
+	degradedB = 0.5*(iUp + iDown); 
+      }
+    }
+    if (degradedB == 999) throw cms::Exception("DegradeStubResolution: error in the group creation, method has been called with wrong inputs");
+  }
+
+  // This is degraded bend in full strip units (neglecting bend sign).
+  return static_cast<float>(degradedB)/2.;
+      
+  
+}
+
+//--- Check for mistakes.

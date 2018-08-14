@@ -13,12 +13,12 @@ template <class T>
 class TrivialWeightEstimator : public WeightEstimator<T>
 {
 public:
-    double weight ( const std::vector < const T * > & ) const
+    double weight ( const std::vector < const T * > & ) const override
     {
         return 1.0;
     }
 
-    TrivialWeightEstimator * clone () const
+    TrivialWeightEstimator * clone () const override
     {
         return new TrivialWeightEstimator<T> ( *this );
     };

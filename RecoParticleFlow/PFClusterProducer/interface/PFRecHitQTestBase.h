@@ -31,13 +31,14 @@
 
 class PFRecHitQTestBase {
  public:
-  PFRecHitQTestBase() {}
+  PFRecHitQTestBase() = default;
   PFRecHitQTestBase(const edm::ParameterSet& iConfig) {}
+  virtual ~PFRecHitQTestBase() = default;
 
   virtual void beginEvent(const edm::Event&,const edm::EventSetup&)=0;
 
 
-  virtual bool test( reco::PFRecHit& ,const EcalRecHit&,bool&)=0;
+  virtual bool test( reco::PFRecHit& ,const EcalRecHit&,bool&,bool)=0;
   virtual bool test( reco::PFRecHit& ,const HBHERecHit&,bool&)=0;
   virtual bool test( reco::PFRecHit& ,const HFRecHit&,bool&)=0;
   virtual bool test( reco::PFRecHit& ,const HORecHit&,bool&)=0;

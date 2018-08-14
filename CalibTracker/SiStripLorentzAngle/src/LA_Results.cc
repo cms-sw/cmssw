@@ -37,8 +37,8 @@ result(Method m, const std::string name, const Book& book) {
       p.ndof = (unsigned) (f->GetParameter(3));
       p.entries = 
 	(m&PROB1)         ? (unsigned) book[base+"_w1"]->GetEntries() : 
-	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,0)]->GetEntries() : 
-	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,0)]->GetEntries() : 0 ;
+	(m&(AVGV2|RMSV2)) ? (unsigned) book[base+method(AVGV2,false)]->GetEntries() : 
+	(m&(AVGV3|RMSV3)) ? (unsigned) book[base+method(AVGV3,false)]->GetEntries() : 0 ;
       break;
     }
     default: break;
@@ -146,7 +146,7 @@ offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
     
     return std::make_pair( std::make_pair(fit->GetParameter(0), fit->GetParError(0)),
 			   std::make_pair(fit->GetParameter(1), fit->GetParError(1)) );
-  } catch(edm::Exception e) { 
+  } catch(edm::Exception const& e) {
     std::cerr << "Fitting Line Failed " << std::endl << e << std::endl;
     return std::make_pair( std::make_pair(0,0), std::make_pair(0,0));
   }

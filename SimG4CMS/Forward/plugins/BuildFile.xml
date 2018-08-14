@@ -8,6 +8,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
+<use   name="SimDataFormats/CaloTest"/>
 <use   name="SimDataFormats/Forward"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/Framework"/>

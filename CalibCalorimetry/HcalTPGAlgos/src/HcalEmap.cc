@@ -12,7 +12,7 @@
 //         Created:  Tue Oct 14 14:30:20 CDT 2009
 //
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>

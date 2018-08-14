@@ -26,7 +26,7 @@ namespace reco {
     struct SingleComponent {
       static T get( const Candidate & c ) {
 	const C * dc = dynamic_cast<const C *>( & c );
-	if ( dc == 0 ) return T();
+	if ( dc == nullptr ) return T();
 	return (dc->*F)();
       }
     };

@@ -19,6 +19,7 @@ offlinePrimaryVerticesGAP = cms.EDProducer("PrimaryVertexProducer",
                     minPixelLayersWithHits = cms.int32(2),   # >= 2
                     maxD0Significance = cms.double(100.0),     # keep most primary tracks
                     minPt = cms.double(0.0),                 # better for softish events
+                    maxEta = cms.double(5.0),
                     trackQuality = cms.string("any")
                 ),
        # clustering
@@ -30,6 +31,7 @@ offlinePrimaryVerticesGAP = cms.EDProducer("PrimaryVertexProducer",
        ),
        vertexCollections = cms.VPSet(
               [cms.PSet(label=cms.string(""),
+                        chi2cutoff = cms.double(3.0),
                         algorithm = cms.string('AdaptiveVertexFitter'),
                         minNdof=cms.double(0.0),
                         useBeamConstraint = cms.bool(False),
@@ -61,6 +63,7 @@ offlinePrimaryVerticesDA100um = cms.EDProducer("PrimaryVertexProducer",
         minSiliconLayersWithHits = cms.int32(5),
         maxD0Significance = cms.double(5.0),
         minPt = cms.double(0.0),
+        maxEta = cms.double(5.0),
         trackQuality = cms.string("any")
     ),
 
@@ -68,15 +71,16 @@ offlinePrimaryVerticesDA100um = cms.EDProducer("PrimaryVertexProducer",
         algorithm   = cms.string("DA"),
         TkDAClusParameters = cms.PSet(
             coolingFactor = cms.double(0.6),  #  moderate annealing speed
-            Tmin = cms.double(4.),            #  end of annealing
+            Tmin = cms.double(4.0),            #  end of annealing
             vertexSize = cms.double(0.01),    #  
             d0CutOff = cms.double(3.),        # downweight high IP tracks
-            dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
+            dzCutOff = cms.double(4.),         # outlier rejection after freeze-out (T<Tmin)
         )
     ),
 
     vertexCollections = cms.VPSet(
      [cms.PSet(label=cms.string(""),
+               chi2cutoff = cms.double(3.0),
                algorithm=cms.string("AdaptiveVertexFitter"),
                minNdof=cms.double(0.0),
                useBeamConstraint = cms.bool(False),

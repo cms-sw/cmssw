@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import re
 import sys
@@ -15,7 +16,9 @@ import argparse
 import functools
 import subprocess
 import multiprocessing
+import FWCore.PythonUtilities.LumiList as LumiList
 import Utilities.General.cmssw_das_client as cmssw_das_client
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 
 
 ################################################################################
@@ -46,42 +49,59 @@ class FileListCreator(object):
         - `args`: command line arguments
         """
 
+        self._first_dataset_ini = True
         self._parser = self._define_parser()
         self._args = self._parser.parse_args(argv)
 
-        if not check_proxy():
+        if not mps_tools.check_proxy():
             print_msg(
                 "Please create proxy via 'voms-proxy-init -voms cms -rfc'.")
             sys.exit(1)
 
         self._dataset_regex = re.compile(r"^/([^/]+)/([^/]+)/([^/]+)$")
         self._validate_input()
+
+        if self._args.test_mode:
+            import Configuration.PyReleaseValidation.relval_steps as rvs
+            import Configuration.PyReleaseValidation.relval_production as rvp
+            self._args.datasets = [rvs.steps[rvp.workflows[1000][1][0]]["INPUT"].dataSet]
+            self._validate_input() # ensure that this change is valid
+
         self._datasets = sorted([dataset
                                  for pattern in self._args.datasets
                                  for dataset in get_datasets(pattern)])
+        if len(self._datasets) == 0:
+            print_msg("Found no dataset matching the pattern(s):")
+            for d in self._args.datasets: print_msg("\t"+d)
+            sys.exit(1)
 
         self._formatted_dataset = merge_strings(
             [re.sub(self._dataset_regex, r"\1_\2_\3", dataset)
              for dataset in self._datasets])
-        self._cache = _DasCache(self._formatted_dataset)
+        self._output_dir = os.path.join(self._args.output_dir,
+                                        self._formatted_dataset)
+        self._output_dir = os.path.abspath(self._output_dir)
+        self._cache = _DasCache(self._output_dir)
         self._prepare_iov_datastructures()
         self._prepare_run_datastructures()
 
         try:
-            os.makedirs(self._formatted_dataset)
+            os.makedirs(self._output_dir)
         except OSError as e:
             if e.args == (17, "File exists"):
-                if self._args.use_cache:
-                    self._cache.load()
-                    files = glob.glob(os.path.join(self._formatted_dataset, "*"))
-                    for f in files: os.remove(f)
+                if self._args.force:
+                    pass        # do nothing, just clear the existing output
+                elif self._args.use_cache:
+                    self._cache.load() # load cache before clearing the output
                 else:
                     print_msg("Directory '{}' already exists from previous runs"
                               " of the script. Use '--use-cache' if you want to"
-                              " use the cached DAS-query results. Otherwise, "
-                              "remove it, please."
-                              .format(self._formatted_dataset))
+                              " use the cached DAS-query results Or use "
+                              "'--force' to remove it."
+                              .format(self._output_dir))
                     sys.exit(1)
+                files = glob.glob(os.path.join(self._output_dir, "*"))
+                for f in files: os.remove(f)
             else:
                 raise
 
@@ -155,6 +175,23 @@ class FileListCreator(object):
         parser.add_argument("--use-cache", dest = "use_cache",
                             action = "store_true", default = False,
                             help = "use DAS-query results of previous run")
+        parser.add_argument("-o", "--output-dir", dest = "output_dir",
+                            metavar = "PATH", default = os.getcwd(),
+                            help = "output base directory (default: %(default)s)")
+        parser.add_argument("--create-ini", dest = "create_ini",
+                            action = "store_true", default = False,
+                            help = ("create dataset ini file based on the "
+                                    "created file lists"))
+        parser.add_argument("--rereco", action = "store_true", default = False,
+                            help = ("create JSON files to model IOV-wise "
+                                    "splitting of datasets because rereco "
+                                    "datasets are not ordered by run"))
+        parser.add_argument("--force", action = "store_true", default = False,
+                            help = ("remove output directory from previous "
+                                    "runs, if existing"))
+        parser.add_argument("--test-mode", dest = "test_mode",
+                            action = "store_true", default = False,
+                            help = argparse.SUPPRESS) # hidden option
         return parser
 
 
@@ -279,13 +316,14 @@ class FileListCreator(object):
             print_msg("Using cached information.")
             (self._events_in_dataset,
              self._files,
-             self._file_info) = self._cache.get()
+             self._file_info,
+             self._max_run) = self._cache.get()
             if self._args.random: random.shuffle(self._files)
             return
 
         # workaround to deal with KeyboardInterrupts in the worker processes:
         # - ignore interrupt signals in workers (see initializer)
-        # - use a timeout of size sys.maxint to avoid a bug in multiprocessing
+        # - use a timeout of size sys.maxsize to avoid a bug in multiprocessing
         number_of_processes = multiprocessing.cpu_count() - 1
         number_of_processes = (number_of_processes
                                if number_of_processes > 0
@@ -298,21 +336,27 @@ class FileListCreator(object):
         for d in self._datasets: print_msg("\t"+d)
         print_msg("This may take a while...")
 
-        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxint)
+        result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxsize)
         self._events_in_dataset = sum(result)
+
+        result = pool.map_async(get_max_run, self._datasets).get(sys.maxsize)
+        self._max_run = max(result)
 
         get_file_info = functools.partial(_get_properties,
                                           properties = ["name", "nevents"],
                                           filters = ["nevents > 0"],
                                           entity = "dataset",
                                           sub_entity = "file")
-        result = pool.map_async(get_file_info, self._datasets).get(sys.maxint)
+        result = pool.map_async(get_file_info, self._datasets).get(sys.maxsize)
         self._file_info = {}
         for item in result: self._file_info.update(dict(item))
         self._files = sorted(self._file_info.keys())
+        if self._args.test_mode:
+            self._files = self._files[-200:] # take only last chunk of files
 
         # write information to cache
-        self._cache.set(self._events_in_dataset, self._files, self._file_info)
+        self._cache.set(self._events_in_dataset, self._files, self._file_info,
+                        self._max_run)
         self._cache.dump()
         if self._args.random: random.shuffle(self._files)
 
@@ -325,6 +369,16 @@ class FileListCreator(object):
         self._files_validation = []
         self._events_for_alignment = 0
         self._events_for_validation = 0
+
+        # for rereco datasets the runs are spread over all files,
+        # i.e. file-based splitting makes no sense
+        if self._args.rereco:
+            self._files_alignment = self._files
+            self._files_validation = self._files
+            self._events_for_alignment = self._events_in_dataset
+            self._events_for_validation = self._events_in_dataset
+            return
+
         max_range = (0
                      if self._args.events <= 0
                      else int(math.ceil(len(self._files)*self._args.fraction)))
@@ -390,48 +444,171 @@ class FileListCreator(object):
     def _print_eventcounts(self):
         """Print the event counts per file list and per IOV."""
 
-        log = os.path.join(self._formatted_dataset,
-                           FileListCreator._event_count_log)
+        log = os.path.join(self._output_dir, FileListCreator._event_count_log)
 
         print_msg("Using {0:d} events for alignment ({1:.2f}%)."
                   .format(self._events_for_alignment,
                           100.0*
                           self._events_for_alignment/self._events_in_dataset),
                   log_file = log)
-        for iov in sorted(self._iov_info_alignment):
-            print_msg("Events for alignment in IOV since {0:d}: {1:d}"
-                      .format(iov, self._iov_info_alignment[iov]["events"]),
-                      log_file = log)
+        if not self._args.rereco:
+            for iov in sorted(self._iov_info_alignment):
+                print_msg("Events for alignment in IOV since {0:d}: {1:d}"
+                          .format(iov, self._iov_info_alignment[iov]["events"]),
+                          log_file = log)
 
         print_msg("Using {0:d} events for validation ({1:.2f}%)."
                   .format(self._events_for_validation,
                           100.0*
                           self._events_for_validation/self._events_in_dataset),
                   log_file = log)
-        for iov in sorted(self._iov_info_validation):
-            msg = "Events for validation in IOV since {0:d}: {1:d}".format(
-                iov, self._iov_info_validation[iov]["events"])
-            if (self._iov_info_validation[iov]["events"]
-                < self._args.minimum_events_validation):
-                msg += " (not enough events -> no dataset file will be created)"
-            print_msg(msg, log_file = log)
+        if not self._args.rereco:
+            for iov in sorted(self._iov_info_validation):
+                msg = "Events for validation in IOV since {0:d}: {1:d}".format(
+                    iov, self._iov_info_validation[iov]["events"])
+                if (self._iov_info_validation[iov]["events"]
+                    < self._args.minimum_events_validation):
+                    msg += " (not enough events -> no dataset file will be created)"
+                print_msg(msg, log_file = log)
 
-        for run in sorted(self._run_info):
-            msg = "Events for validation in run {0:d}: {1:d}".format(
-                run, self._run_info[run]["events"])
-            if (self._run_info[run]["events"]
-                < self._args.minimum_events_validation):
-                msg += " (not enough events -> no dataset file will be created)"
-            print_msg(msg, log_file = log)
+            for run in sorted(self._run_info):
+                msg = "Events for validation in run {0:d}: {1:d}".format(
+                    run, self._run_info[run]["events"])
+                if (self._run_info[run]["events"]
+                    < self._args.minimum_events_validation):
+                    msg += " (not enough events -> no dataset file will be created)"
+                print_msg(msg, log_file = log)
 
-        unused_events = (self._events_in_dataset
-                         - self._events_for_validation
-                         - self._events_for_alignment)
-        if unused_events > 0 != self._events_in_dataset:
-            print_msg("Unused events: {0:d} ({1:.2f}%)"
-                      .format(unused_events,
-                              100.0*unused_events/self._events_in_dataset),
-                      log_file = log)
+            unused_events = (self._events_in_dataset
+                             - self._events_for_validation
+                             - self._events_for_alignment)
+            if unused_events > 0 != self._events_in_dataset:
+                print_msg("Unused events: {0:d} ({1:.2f}%)"
+                          .format(unused_events,
+                                  100.0*unused_events/self._events_in_dataset),
+                          log_file = log)
+
+
+    def _create_dataset_ini_section(self, name, collection, json_file = None):
+        """Write dataset ini snippet.
+
+        Arguments:
+        - `name`: name of the dataset section
+        - `collection`: track collection of this dataset
+        - `json_file`: JSON file to be used for this dataset (optional)
+        """
+
+        if json_file:
+            splitted = name.split("_since")
+            file_list = "_since".join(splitted[:-1]
+                                      if len(splitted) > 1
+                                      else splitted)
+        else:
+            file_list = name
+        output = "[dataset:{}]\n".format(name)
+        output += "collection = {}\n".format(collection)
+        output += "inputFileList = ${{datasetdir}}/{}.txt\n".format(file_list)
+        output += "json = ${{datasetdir}}/{}\n".format(json_file) if json_file else ""
+
+        if collection in ("ALCARECOTkAlCosmicsCTF0T",
+                          "ALCARECOTkAlCosmicsInCollisions"):
+            if self._first_dataset_ini:
+                print_msg("\tDetermined cosmics dataset, i.e. please replace "
+                          "'DUMMY_DECO_MODE_FLAG' and 'DUMMY_ZERO_TESLA_FLAG' "
+                          "with the correct values.")
+                self._first_dataset_ini = False
+            output += "cosmicsDecoMode  = DUMMY_DECO_MODE_FLAG\n"
+            output += "cosmicsZeroTesla = DUMMY_ZERO_TESLA_FLAG\n"
+        output += "\n"
+
+        return output
+
+
+    def _create_json_file(self, name, first, last = None):
+        """
+        Create JSON file with `name` covering runs from `first` to `last`.  If a
+        global JSON is provided, the resulting file is the intersection of the
+        file created here and the global one.
+        Returns the name of the created JSON file.
+
+        Arguments:
+        - `name`: name of the creted JSON file
+        - `first`: first run covered by the JSON file
+        - `last`: last run covered by the JSON file
+
+        """
+
+        if last is None: last = self._max_run
+        name += "_JSON.txt"
+        print_msg("Creating JSON file: "+name)
+
+        json_file = LumiList.LumiList(runs = xrange(first, last+1))
+        if self._args.json:
+            global_json = LumiList.LumiList(filename = self._args.json)
+            json_file = json_file & global_json
+        json_file.writeJSON(os.path.join(self._output_dir, name))
+
+        return name
+
+
+    def _get_track_collection(self, edm_file):
+        """Extract track collection from given `edm_file`.
+
+        Arguments:
+        - `edm_file`: CMSSW dataset file
+        """
+
+        # use global redirector to allow also files not yet at your site:
+        cmd = ["edmDumpEventContent", r"root://cms-xrd-global.cern.ch/"+edm_file]
+        try:
+            event_content = subprocess.check_output(cmd).split("\n")
+        except subprocess.CalledProcessError as e:
+            splitted = edm_file.split("/")
+            try:
+                alcareco = splitted[splitted.index("ALCARECO")+1].split("-")[0]
+                alcareco = alcareco.replace("TkAlCosmics0T", "TkAlCosmicsCTF0T")
+                alcareco = "ALCARECO" + alcareco
+                print_msg("\tDetermined track collection as '{}'.".format(alcareco))
+                return alcareco
+            except ValueError:
+                if "RECO" in splitted:
+                    print_msg("\tDetermined track collection as 'generalTracks'.")
+                    return "generalTracks"
+                else:
+                    print_msg("\tCould not determine track collection "
+                              "automatically.")
+                    print_msg("\tPlease replace 'DUMMY_TRACK_COLLECTION' with "
+                              "the correct value.")
+                    return "DUMMY_TRACK_COLLECTION"
+
+        track_collections = []
+        for line in event_content:
+            splitted = line.split()
+            if len(splitted) > 0 and splitted[0] == r"vector<reco::Track>":
+                track_collections.append(splitted[1].strip().strip('"'))
+        if len(track_collections) == 0:
+            print_msg("No track collection found in file '{}'.".format(edm_file))
+            sys.exit(1)
+        elif len(track_collections) == 1:
+            print_msg("\tDetermined track collection as "
+                      "'{}'.".format(track_collections[0]))
+            return track_collections[0]
+        else:
+            alcareco_tracks = [x for x in track_collections if x.startswith("ALCARECO")]
+            if len(alcareco_tracks) == 0 and "generalTracks" in track_collections:
+                print_msg("\tDetermined track collection as 'generalTracks'.")
+                return "generalTracks"
+            elif len(alcareco_tracks) == 1:
+                print_msg("\tDetermined track collection as "
+                          "'{}'.".format(alcareco_tracks[0]))
+                return alcareco_tracks[0]
+            print_msg("\tCould not unambiguously determine track collection in "
+                      "file '{}':".format(edm_file))
+            print_msg("\tPlease replace 'DUMMY_TRACK_COLLECTION' with "
+                      "the correct value from the following list.")
+            for collection in track_collections:
+                print_msg("\t - "+collection)
+            return "DUMMY_TRACK_COLLECTION"
 
 
     def _write_file_lists(self):
@@ -446,21 +623,73 @@ class FileListCreator(object):
             "_".join(["Validation", self._formatted_dataset]),
             self._files_validation)
 
-        for iov in sorted(self._iovs):
-            iov_str = "since{0:d}".format(iov)
-            self._create_dataset_txt(
-                "_".join([self._formatted_dataset, iov_str]),
-                self._iov_info_alignment[iov]["files"])
-            self._create_dataset_cff(
-                "_".join(["Alignment", self._formatted_dataset, iov_str]),
-                self._iov_info_validation[iov]["files"])
 
-            if (self._iov_info_validation[iov]["events"]
-                < self._args.minimum_events_validation):
-                continue
-            self._create_dataset_cff(
-                "_".join(["Validation", self._formatted_dataset, iov_str]),
-                self._iov_info_validation[iov]["files"])
+        if self._args.create_ini:
+            dataset_ini_general = "[general]\n"
+            dataset_ini_general += "datasetdir = {}\n".format(self._output_dir)
+            dataset_ini_general += ("json = {}\n\n".format(self._args.json)
+                                    if self._args.json
+                                    else "\n")
+
+            ini_path = self._formatted_dataset + ".ini"
+            print_msg("Creating dataset ini file: " + ini_path)
+            ini_path = os.path.join(self._output_dir, ini_path)
+
+            collection = self._get_track_collection(self._files[0])
+
+            with open(ini_path, "w") as f:
+                f.write(dataset_ini_general)
+                f.write(self._create_dataset_ini_section(
+                    self._formatted_dataset, collection))
+
+            iov_wise_ini = dataset_ini_general
+
+        for i,iov in enumerate(sorted(self._iovs)):
+            iov_str = "since{0:d}".format(iov)
+            iov_str = "_".join([self._formatted_dataset, iov_str])
+
+            if self._args.rereco:
+                if i == len(self._iovs) - 1:
+                    last = None
+                else:
+                    last = sorted(self._iovs)[i+1] - 1
+                local_json = self._create_json_file(iov_str, iov, last)
+            else:
+                local_json = None
+
+            if self._args.create_ini:
+                iov_wise_ini += self._create_dataset_ini_section(iov_str,
+                                                                 collection,
+                                                                 local_json)
+
+            if self._args.rereco:
+                self._create_dataset_cff(
+                    "_".join(["Alignment", iov_str]),
+                    self._files_alignment, local_json)
+                self._create_dataset_cff(
+                    "_".join(["Validation", iov_str]),
+                    self._files_validation, local_json)
+            else:
+                self._create_dataset_txt(iov_str,
+                                         self._iov_info_alignment[iov]["files"])
+                self._create_dataset_cff(
+                    "_".join(["Alignment", iov_str]),
+                    self._iov_info_alignment[iov]["files"])
+
+                if (self._iov_info_validation[iov]["events"]
+                    < self._args.minimum_events_validation):
+                    continue
+                self._create_dataset_cff(
+                    "_".join(["Validation", iov_str]),
+                    self._iov_info_validation[iov]["files"])
+
+        if self._args.create_ini and iov_wise_ini != dataset_ini_general:
+            ini_path = self._formatted_dataset + "_IOVs.ini"
+            print_msg("Creating dataset ini file: " + ini_path)
+            ini_path = os.path.join(self._output_dir, ini_path)
+            with open(ini_path, "w") as f: f.write(iov_wise_ini)
+
+        if self._args.rereco: return
 
         for run in sorted(self._run_info):
             if (self._run_info[run]["events"]
@@ -469,7 +698,6 @@ class FileListCreator(object):
             self._create_dataset_cff(
                 "_".join(["Validation", self._formatted_dataset, str(run)]),
                 self._run_info[run]["files"])
-
 
 
     def _create_dataset_txt(self, name, file_list):
@@ -481,19 +709,24 @@ class FileListCreator(object):
         """
 
         name += ".txt"
-        print_msg("Creating datset file list: "+name)
-        with open(os.path.join(self._formatted_dataset, name), "w") as f:
+        print_msg("Creating dataset file list: "+name)
+        with open(os.path.join(self._output_dir, name), "w") as f:
             f.write("\n".join(file_list))
 
 
-    def _create_dataset_cff(self, name, file_list):
+    def _create_dataset_cff(self, name, file_list, json_file = None):
         """
         Create configuration fragment to define a dataset.
 
         Arguments:
         - `name`: name of the configuration fragment
         - `file_list`: list of files to write to `name`
+        - `json_file`: JSON file to be used for this dataset (optional)
         """
+
+        if json_file is None: json_file = self._args.json # might still be None
+        if json_file is not None:
+            json_file = os.path.join(self._output_dir, json_file)
 
         name = "_".join(["Dataset",name, "cff.py"])
         print_msg("Creating dataset configuration fragment: "+name)
@@ -509,15 +742,14 @@ class FileListCreator(object):
                         "lumiSecs = cms.untracked.VLuminosityBlockRange()\n"
                         "goodLumiSecs = LumiList.LumiList(filename = "
                         "'{0:s}').getCMSSWString().split(',')"
-                        .format(self._args.json)
-                        if self._args.json else ""),
+                        .format(json_file)
+                        if json_file else ""),
             lumi_arg = ("lumisToProcess = lumiSecs,\n                    "
-                        if self._args.json else ""),
-            lumi_extend = ("lumiSecs.extend(goodLumiSecs)"
-                           if self._args.json else ""),
+                        if json_file else ""),
+            lumi_extend = "lumiSecs.extend(goodLumiSecs)" if json_file else "",
             files = file_list_str)
 
-        with open(os.path.join(self._formatted_dataset, name), "w") as f:
+        with open(os.path.join(self._output_dir, name), "w") as f:
             f.write(fragment)
 
 
@@ -554,20 +786,23 @@ class _DasCache(object):
         self._events_in_dataset = 0
         self._files = []
         self._file_info = []
+        self._max_run = None
 
 
-    def set(self, total_events, file_list, file_info):
+    def set(self, total_events, file_list, file_info, max_run):
         """Set the content of the cache.
 
         Arguments:
         - `total_events`: total number of events in dataset
         - `file_list`: list of files in dataset
         - `file_info`: dictionary with numbers of events per file
+        - `max_run`: highest run number contained in the dataset
         """
 
         self._events_in_dataset = total_events
         self._files = file_list
         self._file_info = file_info
+        self._max_run = max_run
         self._empty = False
 
 
@@ -579,7 +814,7 @@ class _DasCache(object):
                      dictionary with numbers of events per file)
         """
 
-        return self._events_in_dataset, self._files, self._file_info
+        return self._events_in_dataset, self._files, self._file_info, self._max_run
 
 
     def load(self):
@@ -644,7 +879,7 @@ def das_client(query, check_key = None):
                 break
 
             result_count = 0
-            for d in find_key(das_data["data"], check_key):
+            for d in find_key(das_data["data"], [check_key]):
                 result_count += len(d)
             if result_count == 0:
                 das_data["status"] = "error"
@@ -657,24 +892,35 @@ def das_client(query, check_key = None):
     if das_data["status"] == "error":
         print_msg("DAS query '{}' failed 5 times. "
                   "The last time for the the following reason:".format(query))
-        print das_data["reason"]
+        print(das_data["reason"])
         sys.exit(1)
     return das_data["data"]
 
 
-def find_key(collection, key):
+def find_key(collection, key_chain):
     """Searches for `key` in `collection` and returns first corresponding value.
 
     Arguments:
     - `collection`: list of dictionaries
-    - `key`: key to be searched for
+    - `key_chain`: chain of keys to be searched for
     """
 
-    for item in collection:
-        if key in item:
-            return item[key]
-    print collection
-    raise KeyError(key)
+    result = None
+    for i,key in enumerate(key_chain):
+        for item in collection:
+            if key in item:
+                if i == len(key_chain) - 1:
+                    result = item[key]
+                else:
+                    try:
+                        result = find_key(item[key], key_chain[i+1:])
+                    except LookupError:
+                        pass    # continue with next `item` in `collection`
+            else:
+                pass            # continue with next `item` in `collection`
+
+    if result is not None: return result
+    raise LookupError(key_chain, collection) # put
 
 
 def print_msg(text, line_break = True, log_file = None):
@@ -686,9 +932,9 @@ def print_msg(text, line_break = True, log_file = None):
 
     msg = "  >>> " + str(text)
     if line_break:
-        print msg
+        print(msg)
     else:
-        print msg,
+        print(msg, end=' ')
         sys.stdout.flush()
     if log_file:
         with open(log_file, "a") as f: f.write(msg+"\n")
@@ -698,7 +944,7 @@ def print_msg(text, line_break = True, log_file = None):
 def guess_run(file_name):
     """
     Try to guess the run number from `file_name`. If run could not be
-    determined, 'sys.maxint' is returned.
+    determined, 'sys.maxsize' is returned.
 
     Arguments:
     - `file_name`: name of the considered file
@@ -709,6 +955,18 @@ def guess_run(file_name):
         return sys.maxsize
 
 
+def get_max_run(dataset_name):
+    """Retrieve the maximum run number in `dataset_name`.
+
+    Arguments:
+    - `dataset_name`: name of the dataset
+    """
+
+    data = das_client("run dataset={0:s} system=dbs3".format(dataset_name))
+    runs = [f["run"][0]["run_number"] for f in data]
+    return max(runs)
+
+
 def get_files(dataset_name):
     """Retrieve list of files in `dataset_name`.
 
@@ -716,10 +974,10 @@ def get_files(dataset_name):
     - `dataset_name`: name of the dataset
     """
 
-    data = das_client(("file dataset={0:s} system=dbs3 | "+
+    data = das_client(("file dataset={0:s} system=dbs3 detail=True | "+
                        "grep file.name, file.nevents > 0").format(dataset_name),
                       "file")
-    return [find_key(f["file"], "name") for f in data]
+    return [find_key(f["file"], ["name"]) for f in data]
 
 
 def get_datasets(dataset_pattern):
@@ -729,9 +987,9 @@ def get_datasets(dataset_pattern):
     - `dataset_pattern`: pattern of dataset names
     """
 
-    data = das_client("dataset dataset={0:s} system=dbs3 | grep dataset.name"
-                      .format(dataset_pattern), "dataset")
-    return [find_key(f["dataset"], "name") for f in data]
+    data = das_client("dataset dataset={0:s} system=dbs3 detail=True"
+                      "| grep dataset.name".format(dataset_pattern), "dataset")
+    return sorted(set([find_key(f["dataset"], ["name"]) for f in data]))
 
 
 def get_events_per_dataset(dataset_name):
@@ -762,12 +1020,13 @@ def _get_events(entity, name):
     - `name`: name of entity
     """
 
-    data = das_client("{0:s}={1:s} system=dbs3 | grep {0:s}.nevents"
+    data = das_client("{0:s}={1:s} system=dbs3 detail=True | grep {0:s}.nevents"
                       .format(entity, name), entity)
-    return int(find_key(find_key(data, entity), "nevents"))
+    return int(find_key(data, [entity, "nevents"]))
 
 
-def _get_properties(name, entity, properties, filters, sub_entity = None):
+def _get_properties(name, entity, properties, filters = None, sub_entity = None,
+                    aggregators = None):
     """Retrieve `properties` from `entity` called `name`.
 
     Arguments:
@@ -777,18 +1036,21 @@ def _get_properties(name, entity, properties, filters, sub_entity = None):
     - `filters`: list of filters on properties
     - `sub_entity`: type of entity from which to extract the properties;
                     defaults to `entity`
+    - `aggregators`: additional aggregators/filters to amend to query
     """
 
     if sub_entity is None: sub_entity = entity
+    if filters is None:    filters    = []
     props = ["{0:s}.{1:s}".format(sub_entity,prop.split()[0])
              for prop in properties]
     conditions = ["{0:s}.{1:s}".format(sub_entity, filt)
                   for filt in filters]
+    add_ons = "" if aggregators is None else " | "+" | ".join(aggregators)
 
-    data = das_client("{0:s} {1:s}={2:s} system=dbs3 | grep {3:s}"
+    data = das_client("{0:s} {1:s}={2:s} system=dbs3 detail=True | grep {3:s}{4:s}"
                       .format(sub_entity, entity, name,
-                              ", ".join(props+conditions)), sub_entity)
-    return [[find_key(f[sub_entity], prop) for prop in properties] for f in data]
+                              ", ".join(props+conditions), add_ons), sub_entity)
+    return [[find_key(f[sub_entity], [prop]) for prop in properties] for f in data]
 
 
 def get_chunks(long_list, chunk_size):
@@ -805,18 +1067,6 @@ def get_chunks(long_list, chunk_size):
         yield long_list[i:i+chunk_size]
 
 
-def check_proxy():
-    """Check if GRID proxy has been initialized."""
-
-    try:
-        with open(os.devnull, "w") as dump:
-            subprocess.check_call(["voms-proxy-info", "--exists"],
-                                  stdout = dump, stderr = dump)
-    except subprocess.CalledProcessError:
-        return False
-    return True
-
-
 def merge_strings(strings):
     """Merge strings in `strings` into a common string.
 
@@ -824,7 +1074,7 @@ def merge_strings(strings):
     - `strings`: list of strings
     """
 
-    if type(strings) == str:
+    if isinstance(strings, str):
         return strings
     elif len(strings) == 0:
         return ""

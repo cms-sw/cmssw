@@ -56,13 +56,13 @@
 class APVShotsFilter : public edm::EDFilter {
    public:
       explicit APVShotsFilter(const edm::ParameterSet&);
-      ~APVShotsFilter();
+      ~APVShotsFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   void updateDetCabling( const edm::EventSetup& setup );
       // ----------member data ---------------------------
@@ -101,7 +101,7 @@ APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
   , _nevents(0)
   , _useCabling     (iConfig.getUntrackedParameter<bool>("useCabling",true))
   , _cacheIdDet(0)
-  , _detCabling(0)
+  , _detCabling(nullptr)
 
 {
    //now do what ever initialization is needed
@@ -121,7 +121,7 @@ APVShotsFilter::~APVShotsFilter()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  if ( _detCabling ) _detCabling = 0;
+  if ( _detCabling ) _detCabling = nullptr;
 
 }
 

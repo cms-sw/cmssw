@@ -9,7 +9,6 @@ CSCNoiseMatrixDBConditions::CSCNoiseMatrixDBConditions(const edm::ParameterSet& 
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbMatrix = prefillDBNoiseMatrix();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCNoiseMatrixDBConditions::produceDBNoiseMatrix);
   findingRecord<CSCDBNoiseMatrixRcd>();
@@ -22,7 +21,6 @@ CSCNoiseMatrixDBConditions::~CSCNoiseMatrixDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbMatrix;
 }
 
 
@@ -35,8 +33,7 @@ CSCNoiseMatrixDBConditions::ReturnType
 CSCNoiseMatrixDBConditions::produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBNoiseMatrix* mydata=new CSCDBNoiseMatrix( *cndbMatrix );
-  return mydata;
+  return CSCNoiseMatrixDBConditions::ReturnType( prefillDBNoiseMatrix());
   
 }
 

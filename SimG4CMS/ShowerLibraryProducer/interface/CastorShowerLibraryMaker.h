@@ -91,7 +91,7 @@ class CastorShowerLibraryMaker : public SimWatcher,
 public:
 
   CastorShowerLibraryMaker(const edm::ParameterSet &p);
-  virtual ~CastorShowerLibraryMaker();
+  ~CastorShowerLibraryMaker() override;
 
 private:
   typedef int ebin;
@@ -113,12 +113,12 @@ private:
   }; 
 
   // observer classes
-  void update(const BeginOfJob * run);
-  void update(const BeginOfRun * run);
-  void update(const EndOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const EndOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfJob * run) override;
+  void update(const BeginOfRun * run) override;
+  void update(const EndOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const EndOfEvent * evt) override;
+  void update(const G4Step * step) override;
 
 private:
 

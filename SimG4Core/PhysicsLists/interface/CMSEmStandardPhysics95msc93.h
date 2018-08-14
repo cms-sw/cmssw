@@ -8,12 +8,12 @@
 
 class CMSEmStandardPhysics95msc93 : public G4VPhysicsConstructor {
 
-public:
-  CMSEmStandardPhysics95msc93(const G4String& name, G4int ver, std::string reg);
-  virtual ~CMSEmStandardPhysics95msc93();
+public: 
+  CMSEmStandardPhysics95msc93(const G4String& name, G4int ver, const std::string& reg);
+  ~CMSEmStandardPhysics95msc93() override;
 
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  void ConstructParticle() override;
+  void ConstructProcess() override;
 
 private:
   G4int               verbose;

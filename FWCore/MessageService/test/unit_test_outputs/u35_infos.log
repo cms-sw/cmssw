@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-w cat_A:  UnitTestClient_W:sendSomeMessages Run: 1 Event: 1
 LogWarning was used to send this message
 %MSG
@@ -8,7 +8,7 @@ LogInfo was used to send this message
 %MSG-w cat_C:  UnitTestClient_W:sendSomeMessages Run: 1 Event: 1
 LogWarningThatSuppressesLikeLogInfo was used to send this message
 %MSG
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 on stream 0 at {Timestamp} 
 %MSG-w cat_A:  UnitTestClient_W:sendSomeMessages Run: 1 Event: 2
 LogWarning was used to send this message
 %MSG

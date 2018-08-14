@@ -1,11 +1,14 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "DataFormats/PatCandidates/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 using namespace logintpack;
+
+CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;
+std::once_flag pat::PackedCandidate::covariance_load_flag;
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
     packedPt_  =  MiniFloatConverter::float32to16(p4_.load()->Pt());
@@ -33,34 +36,8 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
     packedDz_   = pvRef.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(std::round(dz_/40.f*std::numeric_limits<int16_t>::max()));
     packedDPhi_ =  int16_t(std::round(dphi_/3.2f*std::numeric_limits<int16_t>::max()));
-    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
-    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
-    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
-//    packedCovarianceDxyDxy_ = pack8log(dxydxy_,-15,-1); // MiniFloatConverter::float32to16(dxydxy_*10000.);
-//    packedCovarianceDxyDz_ = pack8log(dxydz_,-20,-1); //MiniFloatConverter::float32to16(dxydz_*10000.);
-//  packedCovarianceDzDz_ = pack8log(dzdz_,-13,-1); //MiniFloatConverter::float32to16(dzdz_*10000.);
-
-    packedCovarianceDptDpt_ = pack8logCeil(dptdpt_,-15,0);
-    packedCovarianceDetaDeta_ = pack8logCeil(detadeta_,-20,-5);
-    packedCovarianceDphiDphi_ = pack8logCeil(dphidphi_,-15,0);
-    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
-
-  /*packedCovarianceDptDpt_ = pack8logCeil(dptdpt_,-15,5,32);
-    packedCovarianceDetaDeta_ = pack8logCeil(detadeta_,-20,0,32);
-    packedCovarianceDphiDphi_ = pack8logCeil(dphidphi_,-15,5,32);
-    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
-
-*/
-/*  packedCovarianceDphiDxy_ =  MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ =  MiniFloatConverter::float32to16(dlambdadz_*10000.);
-    packedCovarianceDetaDeta_ =  MiniFloatConverter::float32to16(detadeta_*10000.);
-    packedCovarianceDphiDphi_ =  MiniFloatConverter::float32to16(dphidphi_*10000.);
-    packedCovarianceDptDpt_ =  MiniFloatConverter::float32to16(dptdpt_*10000.);
-*/
-//    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
-//    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
+    packedDEta_ =  MiniFloatConverter::float32to16(deta_);
+    packedDTrkPt_ = MiniFloatConverter::float32to16(dtrkpt_);
  
     if (unpackAfterwards) {
       delete vertex_.exchange(nullptr);
@@ -90,9 +67,55 @@ void pat::PackedCandidate::unpack() const {
       p4c.release();
     }
 }
+
+void pat::PackedCandidate::packCovariance(const reco::TrackBase::CovarianceMatrix &m, bool unpackAfterwards){
+    packedCovariance_.dptdpt = packCovarianceElement(m,0,0);
+    packedCovariance_.detadeta = packCovarianceElement(m,1,1);
+    packedCovariance_.dphidphi = packCovarianceElement(m,2,2); 
+    packedCovariance_.dxydxy =packCovarianceElement(m,3,3);
+    packedCovariance_.dzdz = packCovarianceElement(m,4,4);
+    packedCovariance_.dxydz = packCovarianceElement(m,3,4);
+    packedCovariance_.dlambdadz = packCovarianceElement(m,1,4);
+    packedCovariance_.dphidxy = packCovarianceElement(m,2,3);
+   //unpack afterwards
+   if(unpackAfterwards) unpackCovariance();
+}
+
+void pat::PackedCandidate::unpackCovariance() const {
+    const CovarianceParameterization & p=covarianceParameterization();
+    if(p.isValid()) 
+    {
+      auto m = std::make_unique<reco::TrackBase::CovarianceMatrix>() ;
+      for(int i=0;i<5;i++)
+        for(int j=0;j<5;j++){
+          (*m)(i,j)=0;
+      }
+      unpackCovarianceElement(*m,packedCovariance_.dptdpt,0,0);
+      unpackCovarianceElement(*m,packedCovariance_.detadeta,1,1);
+      unpackCovarianceElement(*m,packedCovariance_.dphidphi,2,2);
+      unpackCovarianceElement(*m,packedCovariance_.dxydxy,3,3);
+      unpackCovarianceElement(*m,packedCovariance_.dzdz,4,4);
+      unpackCovarianceElement(*m,packedCovariance_.dxydz,3,4);
+      unpackCovarianceElement(*m,packedCovariance_.dlambdadz,1,4);
+      unpackCovarianceElement(*m,packedCovariance_.dphidxy,2,3);
+      reco::TrackBase::CovarianceMatrix* expected = nullptr;
+      if( m_.compare_exchange_strong(expected,m.get()) ) {
+         m.release();
+      }
+
+    } else {
+     throw edm::Exception(edm::errors::UnimplementedFeature)
+     << "You do not have a valid track parameters file loaded. "
+     << "Please check that the release version is compatible with your input data"
+     <<"or avoid accessing track parameter uncertainties. ";
+    }
+}
+
 void pat::PackedCandidate::unpackVtx() const {
     reco::VertexRef pvRef = vertexRef();
     dphi_ = int16_t(packedDPhi_)*3.2f/std::numeric_limits<int16_t>::max(),
+    deta_ = MiniFloatConverter::float16to32(packedDEta_);
+    dtrkpt_ = MiniFloatConverter::float16to32(packedDTrkPt_);
     dxy_ = MiniFloatConverter::float16to32(packedDxy_)/100.;
     dz_   = pvRef.isNonnull() ? MiniFloatConverter::float16to32(packedDz_)/100. : int16_t(packedDz_)*40.f/std::numeric_limits<int16_t>::max();
     Point pv = pvRef.isNonnull() ? pvRef->position() : Point();
@@ -100,34 +123,10 @@ void pat::PackedCandidate::unpackVtx() const {
     auto vertex = std::make_unique<Point>(pv.X() - dxy_ * s,
                     pv.Y() + dxy_ * c,
                     pv.Z() + dz_ ); // for our choice of using the PCA to the PV, by definition the remaining term -(dx*cos(phi) + dy*sin(phi))*(pz/pt) is zero
-//  dxydxy_ = unpack8log(packedCovarianceDxyDxy_,-15,-1);
-//  dxydz_ = unpack8log(packedCovarianceDxyDz_,-20,-1);
-//  dzdz_ = unpack8log(packedCovarianceDzDz_,-13,-1);
-  dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
-    dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
-    dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,0);
-    detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,-5);
-    dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,0);
-/*
-  dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
-    dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
-    dptdpt_ = unpack8log(packedCovarianceDptDpt_,-15,5,32);
-    detadeta_ = unpack8log(packedCovarianceDetaDeta_,-20,0,32);
-    dphidphi_ = unpack8log(packedCovarianceDphiDphi_,-15,5,32);
-*/
 
-/* dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
- dlambdadz_ = MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
- dptdpt_ = MiniFloatConverter::float16to32(packedCovarianceDptDpt_)/10000.;
- detadeta_ = MiniFloatConverter::float16to32(packedCovarianceDetaDeta_)/10000.;
- dphidphi_ = MiniFloatConverter::float16to32(packedCovarianceDphiDphi_)/10000.;
-*/
-  dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
-    dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
-    dzdz_ =MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
-/*  dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
-    dlambdadz_ =MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
-*/
+     
+
+ 
     Point* expected = nullptr;
     if( vertex_.compare_exchange_strong(expected,vertex.get()) ) {
       vertex.release();
@@ -139,6 +138,7 @@ pat::PackedCandidate::~PackedCandidate() {
   delete p4c_.load();
   delete vertex_.load();
   delete track_.load();
+  delete m_.load();
 }
 
 
@@ -150,44 +150,38 @@ float pat::PackedCandidate::dxy(const Point &p) const {
 float pat::PackedCandidate::dz(const Point &p) const {
     maybeUnpackBoth();
     const float phi = float(p4_.load()->Phi())+dphi_;
-    return (vertex_.load()->Z()-p.Z())  - ((vertex_.load()->X()-p.X()) * std::cos(phi) + (vertex_.load()->Y()-p.Y()) * std::sin(phi)) * p4_.load()->Pz()/p4_.load()->Pt();
+    const float pzpt = deta_ ? std::sinh(etaAtVtx()) : p4_.load()->Pz()/p4_.load()->Pt();
+    return (vertex_.load()->Z()-p.Z())  - ((vertex_.load()->X()-p.X()) * std::cos(phi) + (vertex_.load()->Y()-p.Y()) * std::sin(phi)) * pzpt;
 }
 
 void pat::PackedCandidate::unpackTrk() const {
     maybeUnpackBoth();
-    reco::TrackBase::CovarianceMatrix m;
-//    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
-//    m(1,1)=6e-6; //TODO: tune 
-//    m(2,2)=1.5e-5/pt()/pt(); //TODO: tune
-    m(0,0)=dptdpt_/pt()/pt(); //TODO: tune
-    m(1,1)=detadeta_; //TODO: tune 
-    m(2,2)=dphidphi_/pt()/pt(); //TODO: tune
-    m(2,3)=dphidxy_;
-    m(3,2)=dphidxy_;
-    m(4,1)=dlambdadz_;
-    m(1,4)=dlambdadz_;
-    m(3,3)=dxydxy_;
-    m(3,4)=dxydz_;
-    m(4,3)=dxydz_;
-    m(4,4)=dzdz_;
-    math::RhoEtaPhiVector p3(p4_.load()->pt(),p4_.load()->eta(),phiAtVtx());
+    math::RhoEtaPhiVector p3(ptTrk(),etaAtVtx(),phiAtVtx());
+    maybeUnpackCovariance();
     int numberOfStripLayers = stripLayersWithMeasurement(), numberOfPixelLayers = pixelLayersWithMeasurement();
     int numberOfPixelHits = this->numberOfPixelHits();
     int numberOfHits = this->numberOfHits();
 
     int ndof = numberOfHits+numberOfPixelHits-5;
-    reco::HitPattern hp, hpExpIn;
-    int i=0;
     LostInnerHits innerLost = lostInnerHits();
     
-    auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
-    
+    auto track = std::make_unique<reco::Track>(normalizedChi2_*ndof,ndof,*vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),*(m_.load()),reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
+    int i=0;
+    if ( firstHit_ == 0) { //Backward compatible 
+	   if(innerLost == validHitInFirstPixelBarrelLayer){
+	      track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 		
+	      i=1;
+	   } 
+    } else {
+	   track->appendHitPattern(firstHit_,TrackingRecHit::valid);
+    }
+
+    if(firstHit_!=0 && reco::HitPattern::pixelHitFilter(firstHit_)) i=1;
+
     // add hits to match the number of laters and validHitInFirstPixelBarrelLayer
     if(innerLost == validHitInFirstPixelBarrelLayer){
-        // first we add one hit on the first barrel layer
-        track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 
         // then to encode the number of layers, we add more hits on distinct layers (B2, B3, B4, F1, ...)
-        for(i++; i<numberOfPixelLayers; i++) {
+        for(; i<numberOfPixelLayers; i++) {
             if (i <= 3) { 
                 track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+1, 0, TrackingRecHit::valid); 
             } else {    
@@ -196,33 +190,53 @@ void pat::PackedCandidate::unpackTrk() const {
         }
     } else {
         // to encode the information on the layers, we add one valid hits per layer but skipping PXB1
+    	int iOffset=0;	
+        if(firstHit_!=0 && reco::HitPattern::pixelHitFilter(firstHit_)) {
+         iOffset=reco::HitPattern::getLayer(firstHit_);
+         if(reco::HitPattern::getSubStructure(firstHit_)==PixelSubdetector::PixelEndcap) iOffset+=3;
+	} else {iOffset=1; }
         for(;i<numberOfPixelLayers; i++) {
-            if (i <= 2 ) { 
-                track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+2, 0, TrackingRecHit::valid); 
-            } else {    
-                track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i-3, 0, TrackingRecHit::valid); 
-            }
+            if (i+iOffset <= 2 ) { track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i+iOffset+1, 0, TrackingRecHit::valid);   }
+	    else {track->appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i+iOffset-3+1, 0, TrackingRecHit::valid);  }
+
         }
     }
     // add extra hits (overlaps, etc), all on the first layer with a hit - to avoid increasing the layer count
     for(;i<numberOfPixelHits; i++) { 
-       track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, (innerLost == validHitInFirstPixelBarrelLayer ? 1 : 2), 0, TrackingRecHit::valid); 
+       if(firstHit_ !=0 && reco::HitPattern::pixelHitFilter(firstHit_)) { 
+          track->appendTrackerHitPattern(reco::HitPattern::getSubStructure(firstHit_), reco::HitPattern::getLayer(firstHit_), 0, TrackingRecHit::valid); 
+	} else {
+          track->appendTrackerHitPattern(PixelSubdetector::PixelBarrel, (innerLost == validHitInFirstPixelBarrelLayer ? 1 : 2), 0, TrackingRecHit::valid); 
+	}
     }
     // now start adding strip layers, putting one hit on each layer so that the hitPattern.stripLayersWithMeasurement works.
     // we don't know what the layers where, so we just start with TIB (4 layers), then TOB (6 layers), then TEC (9)
     // and then TID(3), so that we can get a number of valid strip layers up to 4+6+9+3
-    for(int sl = 0; sl < numberOfStripLayers; ++sl, ++i) {
+    if(firstHit_!=0 && reco::HitPattern::stripHitFilter(firstHit_)) i+=1;
+    int slOffset=0;	
+    if(firstHit_!=0 && reco::HitPattern::stripHitFilter(firstHit_)) { 
+         slOffset=reco::HitPattern::getLayer(firstHit_)-1;
+         if(reco::HitPattern::getSubStructure(firstHit_)==StripSubdetector::TID) slOffset+=4;
+         if(reco::HitPattern::getSubStructure(firstHit_)==StripSubdetector::TOB) slOffset+=7;
+         if(reco::HitPattern::getSubStructure(firstHit_)==StripSubdetector::TEC) slOffset+=13;
+    }
+    for(int sl=slOffset; sl < numberOfStripLayers+slOffset; ++sl, ++i) {
         if      (sl < 4)    track->appendTrackerHitPattern(StripSubdetector::TIB,   sl   +1, 1, TrackingRecHit::valid);
-        else if (sl < 4+6)  track->appendTrackerHitPattern(StripSubdetector::TOB, (sl- 4)+1, 1, TrackingRecHit::valid);
-        else if (sl < 10+9) track->appendTrackerHitPattern(StripSubdetector::TEC, (sl-10)+1, 1, TrackingRecHit::valid);
-        else if (sl < 19+3) track->appendTrackerHitPattern(StripSubdetector::TID, (sl-13)+1, 1, TrackingRecHit::valid);
+        else if (sl < 4+3)  track->appendTrackerHitPattern(StripSubdetector::TID, (sl- 4)+1, 1, TrackingRecHit::valid);
+        else if (sl < 7+6) track->appendTrackerHitPattern(StripSubdetector::TOB, (sl-7)+1, 1, TrackingRecHit::valid);
+        else if (sl < 13+9) track->appendTrackerHitPattern(StripSubdetector::TEC, (sl-13)+1, 1, TrackingRecHit::valid);
         else break; // wtf?
     }
     // finally we account for extra strip hits beyond the one-per-layer added above. we put them all on TIB1,
     // to avoid incrementing the number of layersWithMeasurement.
     for(;i<numberOfHits;i++) {
-          track->appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
+	  if(reco::HitPattern::stripHitFilter(firstHit_)) { 
+              track->appendTrackerHitPattern(reco::HitPattern::getSubStructure(firstHit_),  reco::HitPattern::getLayer(firstHit_), 1, TrackingRecHit::valid);
+	  } else {
+              track->appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
+	  }
     }
+
 
     switch (innerLost) {
         case validHitInFirstPixelBarrelLayer:
@@ -244,6 +258,7 @@ void pat::PackedCandidate::unpackTrk() const {
     if( track_.compare_exchange_strong(expected,track.get()) ) {
       track.release();
     }
+
 
 }
 
@@ -284,11 +299,11 @@ bool pat::PackedCandidate::overlap( const reco::Candidate & o ) const {
 }
 
 const reco::Candidate * pat::PackedCandidate::daughter( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedCandidate::mother( size_type ) const {
-  return 0;
+  return nullptr;
 }
 
 const reco::Candidate * pat::PackedCandidate::daughter(const std::string&) const {
@@ -306,7 +321,7 @@ reco::Candidate * pat::PackedCandidate::daughter(const std::string&) {
 
 
 reco::Candidate * pat::PackedCandidate::daughter( size_type ) {
-  return 0;
+  return nullptr;
 }
 
 double pat::PackedCandidate::vertexChi2() const {
@@ -339,14 +354,91 @@ bool pat::PackedCandidate::massConstraint() const {return false;}
 // puppiweight
 void pat::PackedCandidate::setPuppiWeight(float p, float p_nolep) {
   // Set both weights at once to avoid misconfigured weights if called in the wrong order
-  packedPuppiweight_ = pack8logClosed((p-0.5)*2,-2,0,64);
-  packedPuppiweightNoLepDiff_ = pack8logClosed((p_nolep-0.5)*2,-2,0,64) - packedPuppiweight_;
+  packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*p;
+  packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(p_nolep-p);
 }
 
-float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packedPuppiweight_,-2,0,64)/2. + 0.5;}
+float pat::PackedCandidate::puppiWeight() const { return 1.f*packedPuppiweight_/std::numeric_limits<uint8_t>::max();}
 
-float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(packedPuppiweightNoLepDiff_+packedPuppiweight_,-2,0,64)/2. + 0.5;}
+float pat::PackedCandidate::puppiWeightNoLep() const { return 1.f*packedPuppiweightNoLepDiff_/std::numeric_limits<int8_t>::max() + 1.f*packedPuppiweight_/std::numeric_limits<uint8_t>::max();}
+
+void pat::PackedCandidate::setRawCaloFraction(float p) {
+  if(100*p>std::numeric_limits<uint8_t>::max())
+    rawCaloFraction_ = std::numeric_limits<uint8_t>::max(); // Set to overflow value
+  else
+    rawCaloFraction_ = 100*p;
+}
 
 void pat::PackedCandidate::setHcalFraction(float p) {
   hcalFraction_ = 100*p;
 }
+
+void pat::PackedCandidate::setIsIsolatedChargedHadron(bool p) {
+  isIsolatedChargedHadron_ = p;
+}
+
+void pat::PackedCandidate::setDTimeAssociatedPV(float aTime, float aTimeError) {
+    if (aTime == 0 && aTimeError == 0) {
+        packedTime_ = 0; packedTimeError_ = 0;
+    } else if (aTimeError == 0) {
+        packedTimeError_ = 0;
+        packedTime_ = packTimeNoError(aTime);
+    } else {
+        packedTimeError_ = packTimeError(aTimeError);
+        aTimeError = unpackTimeError(packedTimeError_); // for reproducibility
+        packedTime_ = packTimeWithError(aTime, aTimeError);
+    }
+}
+
+/// static to allow unit testing
+uint8_t pat::PackedCandidate::packTimeError(float timeError) {
+    if (timeError <= 0) return 0;
+    // log-scale packing.
+    // for MIN_TIMEERROR = 0.002, EXPO_TIMEERROR = 5:
+    //      minimum value 0.002 = 2ps (packed as 1)
+    //      maximum value 0.5 ns      (packed as 255)
+    //      constant *relative* precision of about 2%
+    return std::max<uint8_t>( std::min(std::round(std::ldexp(std::log2(timeError/MIN_TIMEERROR), +EXPO_TIMEERROR)), 255.f), 1);
+}
+float pat::PackedCandidate::unpackTimeError(uint8_t timeError) {
+    return timeError > 0 ? MIN_TIMEERROR * std::exp2(std::ldexp(float(timeError),-EXPO_TIMEERROR)) : -1.0f;
+}
+float pat::PackedCandidate::unpackTimeNoError(int16_t time) {
+    if (time == 0) return 0.f;
+    return (time > 0 ? MIN_TIME_NOERROR : -MIN_TIME_NOERROR) * std::exp2(std::ldexp(float(std::abs(time)),-EXPO_TIME_NOERROR));
+}
+int16_t pat::PackedCandidate::packTimeNoError(float time) {
+    // encoding in log scale to store times in a large range with few bits.
+    // for MIN_TIME_NOERROR = 0.0002 and EXPO_TIME_NOERROR = 6:
+    //    smallest non-zero time = 0.2 ps (encoded as +/-1)
+    //    one BX, +/- 12.5 ns, is fully covered with 11 bits (+/- 1023)
+    //    12 bits cover by far any plausible value (+/-2047 corresponds to about +/- 0.8 ms!)
+    //    constant *relative* ~1% precision
+    if (std::abs(time) < MIN_TIME_NOERROR) return 0; // prevent underflows
+    float fpacked = std::ldexp(std::log2(std::abs(time/MIN_TIME_NOERROR)),+EXPO_TIME_NOERROR);
+    return (time > 0 ? +1 : -1)*std::min(std::round(fpacked), 2047.f);
+}
+float pat::PackedCandidate::unpackTimeWithError(int16_t time, uint8_t timeError) {
+    if (time % 2 == 0) {
+        // no overflow: drop rightmost bit and unpack in units of timeError
+        return std::ldexp(unpackTimeError(timeError), EXPO_TIME_WITHERROR) * float(time/2);
+    } else {
+        // overflow: drop rightmost bit, unpack using the noError encoding
+        return pat::PackedCandidate::unpackTimeNoError(time/2);
+    }
+}
+int16_t pat::PackedCandidate::packTimeWithError(float   time, float   timeError) {
+    // Encode in units of timeError * 2^EXPO_TIME_WITHERROR (~1.6% if EXPO_TIME_WITHERROR = -6)
+    // the largest value that can be stored in 14 bits + sign bit + overflow bit is about 260 sigmas
+    // values larger than that will be stored using the no-timeError packing (with less precision).
+    // overflows of these kinds should happen only for particles that are late arriving, out-of-time,
+    // or mis-reconstructed, as timeError is O(20ps) and the beam spot witdth is O(200ps)
+    float fpacked = std::round(time/std::ldexp(timeError, EXPO_TIME_WITHERROR));
+    if (std::abs(fpacked) < 16383.f) { // 16383 = (2^14 - 1) = largest absolute value for a signed 15 bit integer
+        return int16_t(fpacked) * 2; // make it even, and fit in a signed 16 bit int
+    } else {
+        int16_t packed = packTimeNoError(time); // encode
+        return packed * 2 + (time > 0 ? +1 : -1); // make it odd, to signal that there was an overlow
+    }
+}
+

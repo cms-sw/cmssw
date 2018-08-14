@@ -45,18 +45,18 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
   DTCombinatorialPatternReco4D(const edm::ParameterSet& pset) ;
   
   /// Destructor
-  virtual ~DTCombinatorialPatternReco4D();
+  ~DTCombinatorialPatternReco4D() override;
     
   /// Operations  
-  virtual edm::OwnVector<DTRecSegment4D> reconstruct();
+  edm::OwnVector<DTRecSegment4D> reconstruct() override;
     
-  virtual std::string algoName() const { return theAlgoName; }
+  std::string algoName() const override { return theAlgoName; }
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits);
-  virtual void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments);
-  virtual void setChamber(const DTChamberId &chId);
-  virtual bool wants2DSegments(){return !allDTRecHits;}
+  void setES(const edm::EventSetup& setup) override;
+  void setDTRecHit1DContainer(edm::Handle<DTRecHitCollection> all1DHits) override;
+  void setDTRecSegment2DContainer(edm::Handle<DTRecSegment2DCollection> all2DSegments) override;
+  void setChamber(const DTChamberId &chId) override;
+  bool wants2DSegments() override{return !allDTRecHits;}
 
  protected:
 

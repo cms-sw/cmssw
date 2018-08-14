@@ -17,10 +17,6 @@ _convClustersBase = _trackClusterRemover.clone(
 convClusters = _convClustersBase.clone(
   trackClassifier       = cms.InputTag('tobTecStep',"QualityMasks"),
 )
-from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
-trackingPhase1PU70.toReplaceWith(convClusters, _convClustersBase.clone(
-  overrideTrkQuals      = "tobTecStepSelector:tobTecStep",
-))
 
 #Phase2 : configuring the phase2 track Cluster Remover
 from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
@@ -37,92 +33,95 @@ trackingPhase2PU140.toReplaceWith(convClusters, _phase2trackClusterRemover.clone
     )
 )
 
-convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
-                                layerList = cms.vstring('BPix1+BPix2', 
+_convLayerPairsStripOnlyLayers = ['TIB1+TID1_pos', 
+                                 'TIB1+TID1_neg', 
+                                 'TIB1+TID2_pos', 
+                                 'TIB1+TID2_neg',
+                                 'TIB1+TIB2',
+                                 'TIB1+MTIB3',
+                                 
+                                 'TIB2+TID1_pos', 
+                                 'TIB2+TID1_neg', 
+                                 'TIB2+TID2_pos', 
+                                 'TIB2+TID2_neg', 
+                                 'TIB2+MTIB3',
+                                 'TIB2+MTIB4',
+                                 
+                                 'MTIB3+MTIB4',
+                                 'MTIB3+TOB1',
+                                 'MTIB3+TID1_pos',
+                                 'MTIB3+TID1_neg',
+                                 
+                                 'MTIB4+TOB1',
+                                 'MTIB4+TOB2',
+                                 
+                                 'TOB1+TOB2',
+                                 'TOB1+MTOB3',
+                                 'TOB1+TEC1_pos',
+                                 'TOB1+TEC1_neg',
 
-                                                        'BPix2+BPix3', 
-                                                        'BPix2+FPix1_pos', 
-                                                        'BPix2+FPix1_neg', 
-                                                        'BPix2+FPix2_pos', 
-                                                        'BPix2+FPix2_neg', 
-
-                                                        'FPix1_pos+FPix2_pos', 
-                                                        'FPix1_neg+FPix2_neg',
-
-                                                        'BPix3+TIB1', 
-                                                        'BPix3+TIB2',
+                                 'TOB2+MTOB3',
+                                 'TOB2+MTOB4',
+                                 'TOB2+TEC1_pos',
+                                 'TOB2+TEC1_neg',
+                                 
+                                 #NB: re-introduce these combinations when large displaced
+                                 #    tracks, reconstructed only in TOB will be available
+                                 #    For instance think at the OutIn Ecal Seeded tracks
+                                 #'MTOB3+MTOB4',
+                                 #'MTOB3+MTOB5',
+                                 #'MTOB3+TEC1_pos',
+                                 #'MTOB3+TEC1_neg',
+                                 #
+                                 #'MTOB4+MTOB5',
+                                 #'MTOB4+MTOB6',
+                                 #
+                                 #'MTOB5+MTOB6',
+                                 
+                                 'TID1_pos+TID2_pos', 
+                                 'TID2_pos+TID3_pos', 
+                                 'TID3_pos+TEC1_pos', 
+                                 
+                                 'TID1_neg+TID2_neg', 
+                                 'TID2_neg+TID3_neg', 
+                                 'TID3_neg+TEC1_neg', 
+                                 
+                                 'TEC1_pos+TEC2_pos', 
+                                 'TEC2_pos+TEC3_pos', 
+                                 'TEC3_pos+TEC4_pos',
+                                 'TEC4_pos+TEC5_pos',
+                                 'TEC5_pos+TEC6_pos',
+                                 'TEC6_pos+TEC7_pos',
+                                 'TEC7_pos+TEC8_pos',
+                                 
+                                 'TEC1_neg+TEC2_neg', 
+                                 'TEC2_neg+TEC3_neg', 
+                                 'TEC3_neg+TEC4_neg',
+                                 'TEC4_neg+TEC5_neg',
+                                 'TEC5_neg+TEC6_neg',
+                                 'TEC6_neg+TEC7_neg',
+                                 'TEC7_neg+TEC8_neg']
+                    
+_convLayerPairsLayerList = _convLayerPairsStripOnlyLayers
+_convLayerPairsLayerList =['BPix1+BPix2', 
+                           
+                           'BPix2+BPix3', 
+                           'BPix2+FPix1_pos', 
+                           'BPix2+FPix1_neg', 
+                           'BPix2+FPix2_pos', 
+                           'BPix2+FPix2_neg', 
+                           
+                           'FPix1_pos+FPix2_pos', 
+                           'FPix1_neg+FPix2_neg',
+                                
+                           'BPix3+TIB1', 
+                           'BPix3+TIB2']
+_convLayerPairsLayerList.extend(_convLayerPairsStripOnlyLayers)
                                                         
-                                                        'TIB1+TID1_pos', 
-                                                        'TIB1+TID1_neg', 
-                                                        'TIB1+TID2_pos', 
-                                                        'TIB1+TID2_neg',
-                                                        'TIB1+TIB2',
-                                                        'TIB1+TIB3',
-
-                                                        'TIB2+TID1_pos', 
-                                                        'TIB2+TID1_neg', 
-                                                        'TIB2+TID2_pos', 
-                                                        'TIB2+TID2_neg', 
-                                                        'TIB2+TIB3',
-                                                        'TIB2+TIB4', 
-
-                                                        'TIB3+TIB4', 
-                                                        'TIB3+TOB1', 
-                                                        'TIB3+TID1_pos', 
-                                                        'TIB3+TID1_neg', 
-
-                                                        'TIB4+TOB1',
-                                                        'TIB4+TOB2',
-
-                                                        'TOB1+TOB2', 
-                                                        'TOB1+TOB3', 
-                                                        'TOB1+TEC1_pos', 
-                                                        'TOB1+TEC1_neg', 
-
-                                                        'TOB2+TOB3',  
-                                                        'TOB2+TOB4',
-                                                        'TOB2+TEC1_pos', 
-                                                        'TOB2+TEC1_neg', 
-
-                                                        #NB: re-introduce these combinations when large displaced
-                                                        #    tracks, reconstructed only in TOB will be available
-                                                        #    For instance think at the OutIn Ecal Seeded tracks
-                                                        #'TOB3+TOB4', 
-                                                        #'TOB3+TOB5',
-                                                        #'TOB3+TEC1_pos', 
-                                                        #'TOB3+TEC1_neg', 
-                                                        #
-                                                        #'TOB4+TOB5',
-                                                        #'TOB4+TOB6',
-                                                        #
-                                                        #'TOB5+TOB6',
-
-                                                        'TID1_pos+TID2_pos', 
-                                                        'TID2_pos+TID3_pos', 
-                                                        'TID3_pos+TEC1_pos', 
-
-                                                        'TID1_neg+TID2_neg', 
-                                                        'TID2_neg+TID3_neg', 
-                                                        'TID3_neg+TEC1_neg', 
-
-                                                        'TEC1_pos+TEC2_pos', 
-                                                        'TEC2_pos+TEC3_pos', 
-                                                        'TEC3_pos+TEC4_pos',
-                                                        'TEC4_pos+TEC5_pos',
-                                                        'TEC5_pos+TEC6_pos',
-                                                        'TEC6_pos+TEC7_pos',
-                                                        'TEC7_pos+TEC8_pos',
-
-                                                        'TEC1_neg+TEC2_neg', 
-                                                        'TEC2_neg+TEC3_neg', 
-                                                        'TEC3_neg+TEC4_neg',
-                                                        'TEC4_neg+TEC5_neg',
-                                                        'TEC5_neg+TEC6_neg',
-                                                        'TEC6_neg+TEC7_neg',
-                                                        'TEC7_neg+TEC8_neg'
-                                                        #other combinations could be added
-                                                        ),
-
+    
+             
+convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
+                                layerList = cms.vstring(_convLayerPairsLayerList),
                                 BPix = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
                                     HitProducer = cms.string('siPixelRecHits'),
@@ -133,45 +132,17 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     HitProducer = cms.string('siPixelRecHits'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB1 = cms.PSet(
+                                TIB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB2 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TIB3 = cms.PSet(
+                                MTIB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TIB4 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TID1 = cms.PSet(
-                                    useSimpleRphiHitsCleaner = cms.bool(False),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    maxRing = cms.int32(2),
-                                    minRing = cms.int32(1),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TID2 = cms.PSet(
-                                    useSimpleRphiHitsCleaner = cms.bool(False),
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    maxRing = cms.int32(2),
-                                    minRing = cms.int32(1),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TID3 = cms.PSet(
+                                TID = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
@@ -191,140 +162,50 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB1 = cms.PSet(
+                                TOB = cms.PSet(
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB2 = cms.PSet(
-                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TOB3 = cms.PSet(
+                                MTOB = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
-                                TOB4 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TOB5 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    ),
-                                TOB6 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'), clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                    skipClusters = cms.InputTag('convClusters'),
-                                    )
                                 )
-trackingPhase1PU70.toModify(convLayerPairs,
-    layerList = [
-        'BPix1+BPix2',
 
-        'BPix2+BPix3',
-        'BPix2+FPix1_pos',
-        'BPix2+FPix1_neg',
-        'BPix2+FPix2_pos',
-        'BPix2+FPix2_neg',
+#this was done by Sam Harper (Aug 2017) and is a best guess (and I do guess wrong sometimes)
+#in general I kept all the old layer pairs and added sensible phaseI combinations
+#most pairs are adjacent layers (with some small exceptions) so I stuck to that
+_convLayerPairsLayerListPhaseI = ['BPix1+BPix2', 
+                                  
+                                  'BPix2+BPix3', 
+                                  'BPix3+BPix4',#added for PhaseI
+                                  
+                                  'BPix2+FPix1_pos', 
+                                  'BPix2+FPix1_neg', 
+                                  'BPix2+FPix2_pos', 
+                                  'BPix2+FPix2_neg',                                        
+                                  'BPix3+FPix1_pos', #added for phaseI 
+                                  'BPix3+FPix1_neg', #added for phaseI 
+                                  
+                                  'FPix1_pos+FPix2_pos', 
+                                  'FPix1_neg+FPix2_neg',
+                                  
+                                  'FPix2_pos+FPix3_pos', #added for phaseI 
+                                  'FPix2_neg+FPix3_neg',#added for phaseI 
+                                  
+                                  'BPix3+TIB1', 
+                                  #'BPix3+TIB2' #removed for phaseI
+                                  'BPix4+TIB1', #added for phase I
+                                  'BPix4+TIB2', #added for phase I
+                                  ] 
+_convLayerPairsLayerListPhaseI.extend(_convLayerPairsStripOnlyLayers)
 
-        'FPix1_pos+FPix2_pos',
-        'FPix1_neg+FPix2_neg',
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(convLayerPairs, layerList = cms.vstring(_convLayerPairsLayerListPhaseI))
 
-        'BPix3+TIB1',
-        'BPix3+TIB2',
 
-        'TIB1+TID1_pos',
-        'TIB1+TID1_neg',
-        'TIB1+TID2_pos',
-        'TIB1+TID2_neg',
-        'TIB1+TIB2',
-        'TIB1+TIB3',
-
-        'TIB2+TID1_pos',
-        'TIB2+TID1_neg',
-        'TIB2+TID2_pos',
-        'TIB2+TID2_neg',
-        'TIB2+TIB3',
-        'TIB2+TIB4',
-
-        'TIB3+TIB4',
-        'TIB3+TOB1',
-        'TIB3+TID1_pos',
-        'TIB3+TID1_neg',
-
-        'TIB4+TOB1',
-        'TIB4+TOB2',
-
-        'TOB1+TOB2',
-        'TOB1+TOB3',
-        'TOB1+TEC1_pos',
-        'TOB1+TEC1_neg',
-
-        'TOB2+TOB3',
-        'TOB2+TOB4',
-        'TOB2+TEC1_pos',
-        'TOB2+TEC1_neg',
-
-        #NB: re-introduce these combinations when large displaced
-        #    tracks, reconstructed only in TOB will be available
-        #    For instance think at the OutIn Ecal Seeded tracks
-        #'TOB3+TOB4',
-        #'TOB3+TOB5',
-        #'TOB3+TEC1_pos',
-        #'TOB3+TEC1_neg',
-        #
-        #'TOB4+TOB5',
-        #'TOB4+TOB6',
-        #
-        #'TOB5+TOB6',
-
-        'TID1_pos+TID2_pos',
-        'TID2_pos+TID3_pos',
-        'TID3_pos+TEC1_pos',
-
-        'TID1_neg+TID2_neg',
-        'TID2_neg+TID3_neg',
-        'TID3_neg+TEC1_neg',
-
-        'TEC1_pos+TEC2_pos',
-        'TEC2_pos+TEC3_pos',
-        'TEC3_pos+TEC4_pos',
-        'TEC4_pos+TEC5_pos',
-        'TEC5_pos+TEC6_pos',
-        'TEC6_pos+TEC7_pos',
-        'TEC7_pos+TEC8_pos',
-
-        'TEC1_neg+TEC2_neg',
-        'TEC2_neg+TEC3_neg',
-        'TEC3_neg+TEC4_neg',
-        'TEC4_neg+TEC5_neg',
-        'TEC5_neg+TEC6_neg',
-        'TEC6_neg+TEC7_neg',
-        'TEC7_neg+TEC8_neg'
-        #other combinations could be added
-    ],
-    BPix = dict(TTRHBuilder = "TTRHBuilderWithoutAngle4PixelPairs"),
-    FPix = dict(TTRHBuilder = "TTRHBuilderWithoutAngle4PixelPairs"),
-    TIB1 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TIB2 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TIB3 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TIB4 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TID1 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TID2 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TID3 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TEC  = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TOB1 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TOB2 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TOB3 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TOB4 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TOB5 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-    TOB6 = dict(clusterChargeCut = dict(refToPSet_ = "SiStripClusterChargeCutNone")),
-)
 trackingPhase2PU140.toReplaceWith(convLayerPairs, cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2',
                                                         'BPix2+BPix3',
@@ -368,9 +249,8 @@ photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrim
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag   = "pixelVertices")
-trackingPhase1PU70.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
-trackingPhase2PU140.toModify(photonConvTrajSeedFromSingleLeg, primaryVerticesTag = "pixelVertices")
 
+    
 # TRACKER DATA CONTROL
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -403,9 +283,6 @@ _convCkfTrajectoryBuilderBase = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuild
 convCkfTrajectoryBuilder = _convCkfTrajectoryBuilderBase.clone(
     estimator = cms.string('convStepChi2Est')
     )
-trackingPhase1PU70.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
-    maxCand = 2,
-))
 trackingPhase2PU140.toReplaceWith(convCkfTrajectoryBuilder, _convCkfTrajectoryBuilderBase.clone(
     maxCand = 2,
 ))
@@ -490,14 +367,15 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
         ) #end of vpset
     ) #end of clone
 
-ConvStep = cms.Sequence( convClusters 
-                         + convLayerPairs
-                         + photonConvTrajSeedFromSingleLeg 
-                         + convTrackCandidates
-                         + convStepTracks
-                         + convStepSelector
+ConvStepTask = cms.Task( convClusters 
+                         , convLayerPairs
+                         , photonConvTrajSeedFromSingleLeg 
+                         , convTrackCandidates
+                         , convStepTracks
+                         , convStepSelector
                          #+ Conv2Step #full quad-seeding sequence
                          )
+ConvStep = cms.Sequence( ConvStepTask ) 
 
 
 ### Quad-seeding sequence disabled (#+ Conv2Step)

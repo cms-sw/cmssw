@@ -14,7 +14,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -24,21 +24,21 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalPacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class HcalDigiToRaw : public edm::EDProducer
+class HcalDigiToRaw : public edm::global::EDProducer<>
 {
 public:
   explicit HcalDigiToRaw(const edm::ParameterSet& ps);
-  virtual ~HcalDigiToRaw();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~HcalDigiToRaw() override;
+  void produce(edm::StreamID id, edm::Event& e, const edm::EventSetup& c) const override;
 private:
   HcalPacker packer_;
-  edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;
-  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
-  edm::EDGetTokenT<HODigiCollection> tok_ho_;
-  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
-  edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
-  edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
-  edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_htp_;
+  const edm::InputTag hbheTag_, hoTag_, hfTag_, zdcTag_, calibTag_, trigTag_;
+  const edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  const edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  const edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  const edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
+  const edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
+  const edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_htp_;
 };
 
 #endif

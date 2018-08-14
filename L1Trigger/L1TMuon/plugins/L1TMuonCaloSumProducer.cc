@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,22 +45,20 @@
 //
 using namespace l1t;
 
-class L1TMuonCaloSumProducer : public edm::EDProducer {
+class L1TMuonCaloSumProducer : public edm::stream::EDProducer<> {
    public:
       explicit L1TMuonCaloSumProducer(const edm::ParameterSet&);
-      ~L1TMuonCaloSumProducer();
+      ~L1TMuonCaloSumProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override ;
-      virtual void endJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override ;
 
-      virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-      virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+      void endRun(const edm::Run&, edm::EventSetup const&) override ;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
 
       edm::EDGetTokenT <CaloTowerBxCollection> m_caloTowerToken;
       edm::InputTag m_caloLabel;
@@ -106,8 +104,8 @@ void
 L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  std::unique_ptr<MuonCaloSumBxCollection> towerSums (new MuonCaloSumBxCollection());
-  std::unique_ptr<MuonCaloSumBxCollection> tower2x2s (new MuonCaloSumBxCollection());
+  std::unique_ptr<MuonCaloSumBxCollection> towerSums (std::make_unique<MuonCaloSumBxCollection>());
+  std::unique_ptr<MuonCaloSumBxCollection> tower2x2s (std::make_unique<MuonCaloSumBxCollection>());
 
   edm::Handle<CaloTowerBxCollection> caloTowers;
 
@@ -115,7 +113,14 @@ L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     int detamax = 4;
     int dphimax = 4;
 
-    for (int bx = caloTowers->getFirstBX(); bx <= caloTowers->getLastBX(); ++bx) {
+    const int iFirstBx = caloTowers->getFirstBX();
+    const int iLastBx = caloTowers->getLastBX();
+
+    // set BX range for sums
+    towerSums->setBXRange(iFirstBx, iLastBx);
+    tower2x2s->setBXRange(iFirstBx, iLastBx);
+
+    for (int bx = iFirstBx; bx <= iLastBx; ++bx) {
       std::map<int, MuonCaloSum> sums;
       std::map<int, MuonCaloSum> regs;
 
@@ -194,17 +199,6 @@ L1TMuonCaloSumProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.put(std::move(towerSums), "TriggerTowerSums");
   iEvent.put(std::move(tower2x2s), "TriggerTower2x2s");
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TMuonCaloSumProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TMuonCaloSumProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------

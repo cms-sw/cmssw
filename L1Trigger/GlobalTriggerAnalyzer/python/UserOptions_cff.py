@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # configuration file fragment containing user choices
 # for release to run, sample and data type to use in
@@ -97,10 +98,10 @@ if (useRelValSample == True) and (useLocalFiles == False) :
     
     #            
 
-    print "   Release:   ", sampleFromRelease
-    print "   Dataset:   ", dataset
-    print "   Data type: ", dataType
-    print 
+    print("   Release:   ", sampleFromRelease)
+    print("   Dataset:   ", dataset)
+    print("   Data type: ", dataType)
+    print() 
 
     useDAS = True
     
@@ -139,7 +140,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         # print datasetName
         
         if datasetName == '' :
-            print "\n   No dataset found."
+            print("\n   No dataset found.")
             errorUserOptions = True 
 
         if not errorUserOptions :
@@ -150,12 +151,12 @@ if (useRelValSample == True) and (useLocalFiles == False) :
             filePaths = data.readlines()
 
             
-            print '\n   das_client using the query'
-            print '      ', myQuery
-            print '   retrieved the following files\n'
+            print('\n   das_client using the query')
+            print('      ', myQuery)
+            print('   retrieved the following files\n')
         
             for line in filePaths :
-                print '      ', line
+                print('      ', line)
            
             readFiles.extend(filePaths);
         
@@ -329,7 +330,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 
                 
     else :
-        print 'Error: sample identifier ', sampleIdentifier, ' not defined.\n'
+        print('Error: sample identifier ', sampleIdentifier, ' not defined.\n')
         errorUserOptions = True 
         runNumber = '0'
         dataset = 'None'
@@ -341,9 +342,9 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     # end of data samples 
     #            
 
-    print "   Run number: ", runNumber
-    print "   Dataset: ", dataset
-    print "   Data type: ", dataType
+    print("   Run number: ", runNumber)
+    print("   Dataset: ", dataset)
+    print("   Data type: ", dataType)
 
     if useDAS :
         import das_client
@@ -356,12 +357,12 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
         filePaths = data.readlines()
             
        
-        print '\n   das_client using the query'
-        print '      ', myQuery
-        print '   retrieved the following files\n'
+        print('\n   das_client using the query')
+        print('      ', myQuery)
+        print('   retrieved the following files\n')
         
         for line in filePaths :
-            print '      ', line
+            print('      ', line)
            
         readFiles.extend(filePaths);
         
@@ -385,7 +386,7 @@ else :
         secFiles.extend([
             ])
 
-    print 'Local file(s)', readFiles
+    print('Local file(s)', readFiles)
 
 if overrideGlobalTag == True :
     globalTag = myGlobalTag
@@ -396,6 +397,6 @@ if globalTag.count('auto') :
 else :
     useGlobalTag = globalTag   
     
-print "\n   Using global tag ", useGlobalTag, "\n"
+print("\n   Using global tag ", useGlobalTag, "\n")
     
         

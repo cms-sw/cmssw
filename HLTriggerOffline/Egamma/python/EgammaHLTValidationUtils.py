@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys, os, re
 
@@ -173,7 +174,8 @@ class EgammaDQMModuleMaker:
         #--------------------
         # initialize the analyzer we put together here
         #--------------------
-        self.__result = cms.EDAnalyzer("EmDQM",
+        from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+        self.__result = DQMEDAnalyzer('EmDQM',
                                      triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
                                      genEtaAcc = cms.double(2.5),
                                      genEtAcc = cms.double(2.0),
@@ -551,7 +553,7 @@ if __name__ == "__main__":
 
     # print "# ----------------------------------------------------------------------"
 
-    print moduleMaker.getResult().dumpPython()
+    print(moduleMaker.getResult().dumpPython())
 
 #----------------------------------------------------------------------
 

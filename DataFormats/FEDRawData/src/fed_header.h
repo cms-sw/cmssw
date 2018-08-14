@@ -1,16 +1,7 @@
-/* NOTE: this file temporarily stolen from the XDAQ project
- * 
- * fed_header.h  
- *
- * $Header: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_header.h,v 1.1 2005/09/30 08:13:36 namapane Exp $
- *
- * This file contains the struct definition of the FED-header.
- * The FED-header is inserted by the FED at the top of a data fragment
- */
+#ifndef DataFormats_FEDRawData_fed_header_h
+#define DataFormats_FEDRawData_fed_header_h
 
-
-#ifndef _FED_HEADER_H
-#define _FED_HEADER_H
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,36 +20,49 @@ extern "C" {
  */
 
 typedef struct fedh_struct {
-  unsigned int sourceid ;   
-  unsigned int eventid;
+  uint32_t sourceid;
+  uint32_t eventid;
 } fedh_t ;
 
+#define FED_SLINK_START_MARKER       0x5
 
-#define FED_HCTRLID_MASK  0xF0000000
-#define FED_EVTY_MASK     0x0F000000
-#define FED_LVL1_MASK     0x00FFFFFF
+#define FED_HCTRLID_WIDTH            0x0000000f
+#define FED_HCTRLID_SHIFT            28
+#define FED_HCTRLID_MASK             ( FED_HCTRLID_WIDTH << FED_HCTRLID_SHIFT )
+#define FED_HCTRLID_EXTRACT(a)       ( ( (a) >> FED_HCTRLID_SHIFT ) & FED_HCTRLID_WIDTH )
 
-#define FED_BXID_MASK     0xFFF00000
-#define FED_SOID_MASK     0x000FFF00
-#define FED_VERSION_MASK  0x000000F0
-#define FED_MORE_HEADERS  0x00000008
+#define FED_EVTY_WIDTH               0x0000000f
+#define FED_EVTY_SHIFT               24
+#define FED_EVTY_MASK                ( FED_EVTY_WIDTH << FED_EVTY_SHIFT )
+#define FED_EVTY_EXTRACT(a)          ( ( (a) >> FED_EVTY_SHIFT ) & FED_EVTY_WIDTH )
 
+#define FED_LVL1_WIDTH               0x00ffffff
+#define FED_LVL1_SHIFT               0
+#define FED_LVL1_MASK                ( FED_LVL1_WIDTH << FED_LVL1_SHIFT )
+#define FED_LVL1_EXTRACT(a)          ( ( (a) >> FED_LVL1_SHIFT ) & FED_LVL1_WIDTH )
 
-#define FED_HCTRLID       0x50000000
+#define FED_BXID_WIDTH               0x00000fff
+#define FED_BXID_SHIFT               20
+#define FED_BXID_MASK                ( FED_BXID_WIDTH << FED_BXID_SHIFT )
+#define FED_BXID_EXTRACT(a)          ( ( (a) >> FED_BXID_SHIFT ) & FED_BXID_WIDTH )
 
+#define FED_SOID_WIDTH               0x00000fff
+#define FED_SOID_SHIFT               8
+#define FED_SOID_MASK                ( FED_SOID_WIDTH << FED_SOID_SHIFT )
+#define FED_SOID_EXTRACT(a)          ( ( (a) >> FED_SOID_SHIFT ) & FED_SOID_WIDTH )
 
-#define FED_HCTRLID_SHIFT 28
-#define FED_EVTY_SHIFT    24
-#define FED_LVL1_SHIFT    0
+#define FED_VERSION_WIDTH            0x0000000f
+#define FED_VERSION_SHIFT            4
+#define FED_VERSION_MASK             ( FED_VERSION_WIDTH << FED_VERSION_SHIFT )
+#define FED_VERSION_EXTRACT(a)       ( ( (a) >> FED_VERSION_SHIFT ) & FED_VERSION_WIDTH )
 
-#define FED_BXID_SHIFT    20
-#define FED_SOID_SHIFT    8
-#define FED_VERSION_SHIFT 4
+#define FED_MORE_HEADERS_WIDTH       0x00000001
+#define FED_MORE_HEADERS_SHIFT       3
+#define FED_MORE_HEADERS_MASK        ( FED_MORE_HEADERS_WIDTH << FED_MORE_HEADERS_SHIFT )
+#define FED_MORE_HEADERS_EXTRACT(a)  ( ( (a) >> FED_MORE_HEADERS_SHIFT ) & FED_MORE_HEADERS_WIDTH )
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _FED_HEADER_H */
-
-
+#endif // DataFormats_FEDRawData_fed_header_h

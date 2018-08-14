@@ -18,7 +18,13 @@ There is also an ntuple-version of MultiTrackValidator, called
 `cmsDriver.py`-generated workflow containing `VALIDATION` sequence by
 including
 `--customise Validation/RecoTrack/customiseTrackingNtuple.customiseTrackingNtuple`
-argument to the `cmsDriver.py`. The customise function disables all
+argument to the `cmsDriver.py`, or adding the following near the end
+of an existing job configuration file
+```
+from Validation.RecoTrack.customiseTrackingNtuple import customiseTrackingNtuple
+process = customiseTrackingNtuple(process)
+```
+The customise function disables all
 output modules and replaces the validation sequence with a sequence
 producing the ntuple in `trackingNtuple.root` file. If ran without
 RECO, it needs both RECO and DIGI files as an input.
@@ -26,7 +32,8 @@ RECO, it needs both RECO and DIGI files as an input.
 For the ntuple content, take a look on the
 [TrackingNtuple](plugins/TrackingNtuple.cc) code itself, and an
 example PyROOT script for analysis,
-[`trackingNtupleExample.py`](test/trackingNtupleExample.py). The
+[`trackingNtupleExample.py`](test/trackingNtupleExample.py) (see also
+further below for more applications and example scripts). The
 script uses a simple support library
 [`ntuple.py`](python/plotting/ntuple.py), but its use is not
 mandatory, i.e. you can use the ntuple also "directly". The main
@@ -36,6 +43,7 @@ links between the objects:
 * track <-> seed
 * track <-> hit
 * seed <-> hit
+* seed <-> TrackingParticle
 * glued strip hits -> mono and stereo strip hits
 * vertex <-> track
 * hit <-> SimHit
@@ -61,6 +69,44 @@ more information see
 [SWGuideMixingModule](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMixingModule#playback_option).
 If the "playback mode" is not enabled, an exception will be thrown in
 the C++ code for a missing SimHit.
+
+### Using tracks from a single iteration as an input
+
+The ntuple can be used to study the tracks produced by a single
+iteration (without going throught generalTracks) as well. Below is an
+example (for highPtTripletStep) what modifications need to be done in
+the job configuration file (after the `customiseTrackingNtuple()` call)
+```
+process.trackingNtuple.tracks = "highPtTripletStepTracks"
+
+# following are needed only if _includeSeeds is True
+process.trackingNtuple.seedTracks = ["seedTrackshighPtTripletStepSeeds"]
+process.trackingNtuple.trackCandidates = ["highPtTripletStepTrackCandidates"]
+
+# following is needed only if _includeMVA is True
+# it also shows how to add MVA output of multiple classifiers
+process.trackingNtuple.trackMVAs = ["highPtTripletStepClassifier1",
+                                    "highPtTripletStepClassifier2"]
+
+# Especially for iteration-specific MVA studies, it is important to
+# use firstStepPrimaryVertices instead of offlinePrimaryVertices as
+# that is the collection used in the MVA input variable calculations
+process.trackingNtuple.vertices = "firstStepPrimaryVertices"
+```
+
+### Applications
+
+Use `--help` to check out the parameters.
+
+* [`diffTrackingNtuple.py`](scripts/diffTrackingNtuple.py) Prints unified-style diff of tracks (all or individual) in all or individual events of two files. The files must have the same TrackingParticles and hits, tracks and track-TP matching can be different. The tracks between the files are primarily associated via the matched TrackingParticles, and secondarily via hits the track share. The final list of tracks is sorted in eta in ascending order.
+* [`printTrackingNtuple.py`](scripts/printTrackingNtuple.py) Prints information on individual tracks/seeds/hits/TrackingParticles in individual events
+
+### Example scripts
+
+* [`trackingNtupleExample.py`](test/trackingNtupleExample.py) examples of various links
+* [`analyseDuplicateFake.py`](test/analyseDuplicateFake.py) examples of printouts
+* [`analyseMVA.py`](test/analyseMVA.py) simple analysis for debugging track MVA selection
+* [`fakeAnalysis/main.py`](test/fakeAnalysis/main.py) complete analysis code for fake tracks
 
 
 ### Caveats

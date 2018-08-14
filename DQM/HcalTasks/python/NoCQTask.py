@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-nocqTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+nocqTask = DQMEDAnalyzer(
 	"NoCQTask",
 	
 	#	standard parameters

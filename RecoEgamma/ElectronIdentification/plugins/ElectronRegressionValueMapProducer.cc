@@ -16,8 +16,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
-#include "TVector2.h"
-
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -27,9 +25,9 @@ namespace {
   
   enum reg_int_vars   { k_NIntVars   = 0 };
 
-  static const std::vector<std::string> float_var_names( { } );
+  const std::vector<std::string> float_var_names( { } );
   
-  static const std::vector<std::string> integer_var_names( { } );  
+  const std::vector<std::string> integer_var_names( { } );  
   
   inline void set_map_val( const reg_float_vars index, const float value,
                            std::unordered_map<std::string,float>& map) {
@@ -64,13 +62,13 @@ class ElectronRegressionValueMapProducer : public edm::stream::EDProducer<> {
   public:
   
   explicit ElectronRegressionValueMapProducer(const edm::ParameterSet&);
-  ~ElectronRegressionValueMapProducer();
+  ~ElectronRegressionValueMapProducer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   void writeValueMap(edm::Event &iEvent,

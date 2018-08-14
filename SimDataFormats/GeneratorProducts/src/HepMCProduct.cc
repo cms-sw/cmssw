@@ -36,7 +36,7 @@ void HepMCProduct::addHepMCData( HepMC::GenEvent  *evt){
   
 }
 
-void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift )
+void HepMCProduct::applyVtxGen( HepMC::FourVector const& vtxShift )
 {
 	//std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
 	//fTimeOffset = 0;
@@ -47,10 +47,10 @@ void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift )
                                           vt!=evt_->vertices_end(); ++vt )
    {
             
-      double x = (*vt)->position().x() + vtxShift->x() ;
-      double y = (*vt)->position().y() + vtxShift->y() ;
-      double z = (*vt)->position().z() + vtxShift->z() ;
-      double t = (*vt)->position().t() + vtxShift->t() ;
+      double x = (*vt)->position().x() + vtxShift.x() ;
+      double y = (*vt)->position().y() + vtxShift.y() ;
+      double z = (*vt)->position().z() + vtxShift.z() ;
+      double t = (*vt)->position().t() + vtxShift.t() ;
       //std::cout << " vertex (x,y,z)= " << x <<" " << y << " " << z << std::endl;
       (*vt)->set_position( HepMC::FourVector(x,y,z,t) ) ;      
    }
@@ -61,13 +61,13 @@ void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift )
 
 } 
 
-void HepMCProduct::boostToLab( TMatrixD* lorentz, std::string type ) {
+void HepMCProduct::boostToLab( TMatrixD const* lorentz, std::string const& type ) {
 
 	//std::cout << "from boostToLab:" << std::endl;
 	
   
   
-	if ( lorentz == 0 ) {
+	if ( lorentz == nullptr ) {
 
 		//std::cout << " lorentz = 0 " << std::endl;
 		return;
@@ -171,3 +171,13 @@ HepMCProduct::operator=(HepMCProduct const& other) {
   swap(temp);
   return *this;
 } 
+
+// move, needed explicitly as we have raw pointer...
+HepMCProduct::HepMCProduct(HepMCProduct&& other):
+  evt_(nullptr) {
+  swap(other);
+}
+HepMCProduct& HepMCProduct::operator=(HepMCProduct&& other) {
+  swap(other);
+  return *this;
+}

@@ -11,7 +11,7 @@ ElectronEnergyCalibratorRun2::ElectronEnergyCalibratorRun2(EpCombinationTool &co
 							   ) :
   epCombinationTool_(&combinator),
   isMC_(isMC), synchronization_(synchronization),
-  rng_(0),
+  rng_(nullptr),
   _correctionRetriever(correctionFile) // here is opening the files and reading the corrections
 {
   if(isMC_) {

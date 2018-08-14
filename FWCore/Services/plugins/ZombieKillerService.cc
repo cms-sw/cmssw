@@ -78,11 +78,11 @@ m_numberChecksWhenNotAlive(0)
   iRegistry.watchPostBeginJob([this](){ startThread(); } );
   iRegistry.watchPostEndJob([this]() {stopThread(); } );
   
-  iRegistry.watchPreSourceRun([this](){notAZombieYet();});
-  iRegistry.watchPostSourceRun([this](){notAZombieYet();});
+  iRegistry.watchPreSourceRun([this](RunIndex){notAZombieYet();});
+  iRegistry.watchPostSourceRun([this](RunIndex){notAZombieYet();});
   
-  iRegistry.watchPreSourceLumi([this](){notAZombieYet();});
-  iRegistry.watchPostSourceLumi([this](){notAZombieYet();});
+  iRegistry.watchPreSourceLumi([this](LuminosityBlockIndex){notAZombieYet();});
+  iRegistry.watchPostSourceLumi([this](LuminosityBlockIndex){notAZombieYet();});
 
   iRegistry.watchPreSourceEvent([this](StreamID){notAZombieYet();});
   iRegistry.watchPostSourceEvent([this](StreamID){notAZombieYet();});

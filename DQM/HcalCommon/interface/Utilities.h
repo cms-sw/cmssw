@@ -14,9 +14,51 @@
 
 namespace hcaldqm
 {
-	using namespace constants;
 	namespace utilities
 	{
+		/*
+		 * adc2fC lookup from conditions
+		 * fC values are stored in CaloSamples tool
+		 */
+		template<class Digi>
+		CaloSamples loadADC2fCDB(const edm::ESHandle<HcalDbService>& conditions, const HcalDetId did, const Digi& digi) {
+			CaloSamples calo_samples;
+			const HcalQIECoder* channelCoder = conditions->getHcalCoder(did);
+			const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+			HcalCoderDb coder(*channelCoder, *shape);
+			coder.adc2fC(digi, calo_samples);
+			return calo_samples;
+		}
+
+		// Get pedestal-subtracted charge
+		template<class Digi> 
+		double adc2fCDBMinusPedestal(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int n) {
+			HcalCalibrations calibrations = conditions->getHcalCalibrations(did);
+			int capid = digi[n].capid();
+			return calo_samples[n] - calibrations.pedestal(capid);
+		}
+
+		template<class Digi>
+		double aveTSDB(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int i_start, unsigned int i_end) {
+			double sumQ = 0;
+			double sumQT = 0;
+			for (unsigned int i = i_start; i <= i_end; ++i) {
+				double q = adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
+				sumQ += q;
+				sumQT += (i+1)*q;
+			}
+			return (sumQ > 0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE);
+		}
+
+		template<class Digi>
+		double sumQDB(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int i_start, unsigned int i_end) {
+			double sumQ = 0;
+			for (unsigned int i = i_start; i <= i_end; ++i) {
+				sumQ += adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
+			}
+			return sumQ;
+		}
+
 		/*
 		 *	Some useful functions for QIE10/11 Data Frames
 		 */
@@ -32,7 +74,7 @@ namespace hcaldqm
 				sumQT += (ii+1)*q;
 			}
 
-			return sumQ>0 ? sumQT/sumQ-1 : GARBAGE_VALUE;
+			return sumQ>0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE;
 		}
 
 		template<typename FRAME>
@@ -72,7 +114,7 @@ namespace hcaldqm
 				sumQT +=(ii+1)*(digi.sample(ii).nominal_fC()-ped);
 			}
 			
-			return sumQ>0 ? sumQT/sumQ-1 : GARBAGE_VALUE;
+			return sumQ>0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE;
 		}
 
 		template<typename DIGI>
@@ -125,6 +167,10 @@ namespace hcaldqm
 		int getTPSubDet(HcalTrigTowerDetId const&);
 		int getTPSubDetPM(HcalTrigTowerDetId const&);
 
+		// Get a list of all crates
+		std::vector<int> getCrateList(HcalElectronicsMap const* emap);
+		std::map<int, uint32_t> getCrateHashMap(HcalElectronicsMap const* emap);
+
 		//	returns a list of FEDs sorted.
 		std::vector<int> getFEDList(HcalElectronicsMap const*);
 		std::vector<int> getFEDVMEList(HcalElectronicsMap const*);
@@ -146,7 +192,9 @@ namespace hcaldqm
 		/*
 		 *	Orbit Gap Related
 		 */	
-		std::string ogtype2string(OrbitGapType type);
+		std::string ogtype2string(constants::OrbitGapType type);
+
+		int getRBX(uint32_t iphi);
 	}
 }
 

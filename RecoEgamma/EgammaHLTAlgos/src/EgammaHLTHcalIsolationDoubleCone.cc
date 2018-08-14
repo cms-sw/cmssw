@@ -21,7 +21,7 @@
 
 
 
-float EgammaHLTHcalIsolationDoubleCone::isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry){
+float EgammaHLTHcalIsolationDoubleCone::isolPtSum(const reco::RecoCandidate* recocandidate, const HBHERecHitCollection* hbhe, const HFRecHitCollection* hf, const CaloGeometry* geometry) const {
 
   float hcalIsol=0.;
 

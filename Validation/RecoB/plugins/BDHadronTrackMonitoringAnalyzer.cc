@@ -45,6 +45,7 @@ BDHadronTrackMonitoringAnalyzer::BDHadronTrackMonitoringAnalyzer(const edm::Para
 
 void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker & ibook, edm::Run const & run, edm::EventSetup const & es)
 {
+  ibook.setCurrentFolder("BDHadronTracks/JetContent");
   //
   // Book all histograms.
   //
@@ -59,6 +60,7 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker & ibook, 
 
   // Loop over different Track History Categories
   for (unsigned int i = 0; i < TrkHistCat.size(); i++){
+    ibook.setCurrentFolder("BDHadronTracks/JetContent");
     // b jets
     nTrk_bjet[i] = ibook.book1D("nTrk_bjet_"+TrkHistCat[i],"Number of selected tracks in b jets ("+TrkHistCat[i]+");number of selected tracks ("+TrkHistCat[i]+");jets",16,-0.5,15.5);
  
@@ -68,7 +70,7 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker & ibook, 
     // dusg jets
     nTrk_dusgjet[i] = ibook.book1D("nTrk_dusgjet_"+TrkHistCat[i],"Number of selected tracks in dusg jets ("+TrkHistCat[i]+");number of selected tracks ("+TrkHistCat[i]+");jets",16,-0.5,15.5);
  
-
+    ibook.setCurrentFolder("BDHadronTracks/TrackInfo");
     // track properties for all flavours combined
     TrkPt_alljets[i] = ibook.book1D("TrkPt_"+TrkHistCat[i],"Track pT ("+TrkHistCat[i]+");track p_{T} ("+TrkHistCat[i]+");tracks",30,0,100);
     TrkEta_alljets[i] = ibook.book1D("TrkEta_"+TrkHistCat[i],"Track #eta ("+TrkHistCat[i]+");track #eta ("+TrkHistCat[i]+");tracks",30,-2.5,2.5);
@@ -78,6 +80,8 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker & ibook, 
     TrkHitAll_alljets[i] = ibook.book1D("TrkHitAll_"+TrkHistCat[i],"Number of tracker hits ("+TrkHistCat[i]+");track number of all hits ("+TrkHistCat[i]+");tracks",31,-0.5,30.5);
     TrkHitStrip_alljets[i] = ibook.book1D("TrkHitStrip_"+TrkHistCat[i],"Number of strip hits ("+TrkHistCat[i]+");track number of strip hits ("+TrkHistCat[i]+");tracks",31,-0.5,30.5);
     TrkHitPixel_alljets[i] = ibook.book1D("TrkHitPixel_"+TrkHistCat[i],"Number of pixel hits ("+TrkHistCat[i]+");track number of pixel hits ("+TrkHistCat[i]+");tracks",9,-0.5,8.5);
+    
+    ibook.setCurrentFolder("BDHadronTracks/TrackTruthInfo");
     if (i < 5){ // Fakes (i == 5) have no truth by definition!
         TrkTruthPt_alljets[i] = ibook.book1D("TrkTruthPt_"+TrkHistCat[i],"Track pT ("+TrkHistCat[i]+" Truth);track p_{T} ("+TrkHistCat[i]+" Truth);tracks",30,0,100);
         TrkTruthEta_alljets[i] = ibook.book1D("TrkTruthEta_"+TrkHistCat[i],"Track #eta ("+TrkHistCat[i]+" Truth);track #eta ("+TrkHistCat[i]+" Truth);tracks",30,-2.5,2.5);
@@ -130,7 +134,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
   edm::Handle<reco::VertexCollection> primaryVertex ;
   iEvent.getByToken(PrimaryVertexColl_,primaryVertex);
 
-  bool pvFound = (primaryVertex->size() != 0);
+  bool pvFound = (!primaryVertex->empty());
   if ( pvFound ) {
     pv = &(*primaryVertex->begin());
   }
@@ -150,8 +154,8 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
 
     unsigned int flav = abs(jet->hadronFlavour());
 
-
-    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_.c_str());
+    //std::cout << "patJet collection has pfImpactParameterTagInfo?: " << jet->hasTagInfo("pfImpactParameter") << std::endl;
+    const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_);
     const std::vector<edm::Ptr<reco::Candidate> > & selectedTracks( trackIpTagInfo->selectedTracks() );
 
 
@@ -221,7 +225,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
             TrkTruthEta = tpr->eta();
             TrkTruthPhi = tpr->phi();
         
-            TrackingParticle::Point vertex_pv = pv->position();
+            const TrackingParticle::Point& vertex_pv = pv->position();
             TrackingParticle::Point vertex_tpr = tpr->vertex();
             TrackingParticle::Vector momentum_tpr = tpr->momentum();
             TrkTruthDxy = (-(vertex_tpr.x()-vertex_pv.x())*momentum_tpr.y()+(vertex_tpr.y()-vertex_pv.y())*momentum_tpr.x())/tpr->pt();

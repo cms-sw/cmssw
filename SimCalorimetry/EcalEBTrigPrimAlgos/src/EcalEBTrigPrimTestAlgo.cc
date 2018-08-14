@@ -101,81 +101,6 @@ EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo()
   delete fenixTcpFormat_;
 }
 
-/*
-void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, EcalRecHitCollection const * rh,
-				 EcalEBTrigPrimDigiCollection & result,
-				 EcalEBTrigPrimDigiCollection & resultTcp)
-{
-
-
-
-  //std::cout << "  EcalEBTrigPrimTestAlgo: Testing that the algorythm is well plugged " << std::endl;
-  //std::cout << "  EcalEBTrigPrimTestAlgo: recHit size " << rh->size() << std::endl;
-
-  edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
-  setup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
-  const CaloSubdetectorGeometry *theBarrelGeometry;
-  theBarrelGeometry = &(*theBarrelGeometry_handle);
-
-  
-  EcalEBTriggerPrimitiveDigi tp;
-  std::vector<EcalTriggerPrimitiveSample> tpSam[10];
-
-
-  uint16_t fEt;
-  double EtSat=128.;
-
-  for (unsigned int i=0;i<rh->size();i++) {
-    const EBDetId & myid1=(*rh)[i].id();
-    if ( (*rh)[i].energy() < 0.2 ) continue;
-    tp=  EcalEBTriggerPrimitiveDigi(  myid1);   
-    tp.setSize(nSamples_);
-    int nSam=0;
-
-    for (int iSample=0; iSample<nSamples_; iSample++) {
-      if (debug_)  std::cout << " DetId " << myid1 << "Subdetector " << myid1.subdet() << " ieta " << myid1.ieta() << " iphi " << myid1.iphi() << std::endl;
-      
-      float theta =  theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
-      //uint16_t et=((*rh)[i].energy())*sin(theta);
-      double et=((*rh)[i].energy())*sin(theta);
-
-      double lsb10bits = 0. ;
-      int tpgADC10b = 0.;
-      lsb10bits = EtSat/1024. ;
-      if (lsb10bits>0) 
-	tpgADC10b = int(et/lsb10bits+0.5) ;
-      
-      if (debug_) std::cout << " Et in GeV " << et << " tpgADC10b " << tpgADC10b << std::endl;
-      fEt=et;
-
-     
-      // if (fEt >0xfff)
-      // 	fEt=0xfff;
-      //fEt >>=2;
-      //if (fEt>0x3ff) fEt=0x3ff;
-     
-      //std::cout << " Et after formatting " << fEt << std::endl;
-      EcalTriggerPrimitiveSample mysam(fEt);
-      tp.setSample(nSam, mysam );
-      nSam++;
-      if (debug_) std::cout << "in TestAlgo" <<" tp size "<<tp.size() << std::endl;
-    }
- 
-    
-
-    if (!tcpFormat_)
-      result.push_back(tp);
-    else 
-      resultTcp.push_back(tp);
-
-   
-    if (debug_) std::cout << " result size " << result.size() << std::endl;
-
-  }
-
-}
-*/
-
 
 void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup, 
 				 EBDigiCollection const * digi,
@@ -296,16 +221,15 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	  // call final tcp formatter
 	  this->getFormatter()->setParameters( thisTower.rawId(),ecaltpgLutGroup_,ecaltpgLut_,ecaltpgBadTT_,ecaltpgSpike_);
 	  this->getFormatter()->process(format_out_,tcpformat_out_);
-
 	  // loop over the time samples and fill the TP
 	  int nSam=0;
 	  for (int iSample=firstSample;iSample<=lastSample;++iSample) {
 	    etInADC= tcpformat_out_[iSample];
 	    if (debug_) std::cout << " format_out " << tcpformat_out_[iSample] <<  " etInADC " << etInADC << std::endl;
-	    //	    EcalTriggerPrimitiveSample mysam(etInADC);
-	    //tp.setSample(nSam, mysam );
 
-	    tp.setSample(nSam,  EcalTriggerPrimitiveSample(etInADC, false, 0)  );
+	    bool isASpike=false; // no spikes for now 
+            int timing=0;   //  set to 0  value for now
+	    tp.setSample(nSam,  EcalEBTriggerPrimitiveSample(etInADC,isASpike,timing)  );
 
 	    nSam++;
 	    if (debug_) std::cout << "in TestAlgo" <<" tp size "<<tp.size() << std::endl;
@@ -368,7 +292,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 
     for (int iSample=0; iSample<myFrame.size(); iSample++) {
       etInADC= myFrame.sample(iSample).adc();
-      EcalTriggerPrimitiveSample mysam(etInADC);
+      EcalEBTriggerPrimitiveSample mysam(etInADC);
       tp.setSample(nSam, mysam );
       nSam++;
       if (debug_) std::cout << "in TestAlgo" <<" tp size "<<tp.size() << std::endl;

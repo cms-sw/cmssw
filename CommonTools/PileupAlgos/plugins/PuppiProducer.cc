@@ -13,18 +13,12 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/Common/interface/Association.h"
 //Main File
-#include "fastjet/PseudoJet.hh"
 #include "CommonTools/PileupAlgos/plugins/PuppiProducer.h"
-
+#include "CommonTools/PileupAlgos/interface/PuppiCandidate.h"
 
 
 // ------------------------------------------------------------------------------------------
@@ -33,6 +27,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
   fUseDZ     = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut     = iConfig.getParameter<double>("DeltaZCut");
+  fPtMax     = iConfig.getParameter<double>("PtMaxNeutrals");
   fUseExistingWeights     = iConfig.getParameter<bool>("useExistingWeights");
   fUseWeightsNoLep        = iConfig.getParameter<bool>("useWeightsNoLep");
   fClonePackedCands       = iConfig.getParameter<bool>("clonePackedCands");
@@ -97,13 +92,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     pReco.m   = itPF->mass();
     pReco.rapidity = itPF->rapidity();
     pReco.charge = itPF->charge(); 
-    const reco::Vertex *closestVtx = 0;
+    const reco::Vertex *closestVtx = nullptr;
     double pDZ    = -9999; 
     double pD0    = -9999; 
     int    pVtxId = -9999; 
     bool lFirst = true;
     const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
-    if(lPack == 0 ) {
+    if(lPack == nullptr ) {
 
       const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
       double curdz = 9999;
@@ -134,10 +129,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       int tmpFromPV = 0;  
       // mocking the miniAOD definitions
-      if (closestVtx != 0 && std::abs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
-      if (closestVtx != 0 && std::abs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
-      if (closestVtx == 0 && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
-      if (closestVtx == 0 && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
+      if (closestVtx != nullptr && std::abs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
+      if (closestVtx != nullptr && std::abs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
+      if (closestVtx == nullptr && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
+      if (closestVtx == nullptr && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
       pReco.id = 0; 
@@ -183,7 +178,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   fPuppiContainer->setNPV( npv );
 
   std::vector<double> lWeights;
-  std::vector<fastjet::PseudoJet> lCandidates;
+  std::vector<PuppiCandidate> lCandidates;
   if (!fUseExistingWeights){
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
@@ -195,7 +190,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {  
       const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
       float curpupweight = -1.;
-      if(lPack == 0 ) { 
+      if(lPack == nullptr ) { 
         // throw error
         throw edm::Exception(edm::errors::LogicError,"PuppiProducer: cannot get weights since inputs are not PackedCandidates");
       }
@@ -204,7 +199,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         else{ curpupweight = lPack->puppiWeight();  }
       }
       lWeights.push_back(curpupweight);
-      fastjet::PseudoJet curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
+      PuppiCandidate curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
       curjet.set_user_index(lPackCtr);
       lCandidates.push_back(curjet);
       lPackCtr++;
@@ -251,11 +246,20 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int val = i0 - i0begin;
 
     // Find the Puppi particle matched to the input collection using the "user_index" of the object. 
-    auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
+    auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( PuppiCandidate const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+      if(fClonePackedCands && (!fUseExistingWeights)) {
+        if(fPuppiForLeptons)
+          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[puppiMatched-lCandidates.begin()]);
+        else
+          pCand->setPuppiWeight(lWeights[puppiMatched-lCandidates.begin()],pCand->puppiWeightNoLep());
+      }
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
+      if(fClonePackedCands && (!fUseExistingWeights)) {
+        pCand->setPuppiWeight(0,0);
+      }
     }
     puppiP4s.push_back( pVec );
 

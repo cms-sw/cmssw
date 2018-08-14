@@ -51,7 +51,7 @@ namespace {
     const FEDRawData& rawData = rawColl.FEDData(fedId);
     
     // Check on FEDRawData pointer
-    if unlikely( !rawData.data() ) {
+    if UNLIKELY( !rawData.data() ) {
 	if (edm::isDebugEnabled()) {
 	  edm::LogWarning(sistrip::mlRawToCluster_)
 	    << "[ClustersFromRawProducer::" 
@@ -64,7 +64,7 @@ namespace {
       }	
     
     // Check on FEDRawData size
-    if unlikely( !rawData.size() ) {
+    if UNLIKELY( !rawData.size() ) {
 	if (edm::isDebugEnabled()) {
 	  edm::LogWarning(sistrip::mlRawToCluster_)
 	    << "[ClustersFromRawProducer::" 
@@ -78,7 +78,7 @@ namespace {
     // construct FEDBuffer
     try {
       buffer.reset(new sistrip::FEDBuffer(rawData.data(),rawData.size()));
-      if unlikely(!buffer->doChecks(false)) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
+      if UNLIKELY(!buffer->doChecks(false)) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
     }
     catch (const cms::Exception& e) { 
       if (edm::isDebugEnabled()) {
@@ -118,7 +118,7 @@ namespace {
       }
     
     
-    ~ClusterFiller() { printStat();}
+    ~ClusterFiller() override { printStat();}
     
     void fill(StripClusterizerAlgorithm::output_t::TSFastFiller & record) override;
     
@@ -201,12 +201,12 @@ class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
       }
   
 
-  void beginRun( const edm::Run&, const edm::EventSetup& es) {
+  void beginRun( const edm::Run&, const edm::EventSetup& es) override {
     initialize(es);
   }
   
   
-  void produce(edm::Event& ev, const edm::EventSetup& es) {
+  void produce(edm::Event& ev, const edm::EventSetup& es) override {
     
     initialize(es);
     
@@ -311,12 +311,12 @@ try { // edmNew::CapacityExaustedException
 
   // Loop over apv-pairs of det
   for (auto const conn : clusterizer.currentConnection(det)) {
-    if unlikely(!conn) continue;
+    if UNLIKELY(!conn) continue;
     
     const uint16_t fedId = conn->fedId();
     
     // If fed id is null or connection is invalid continue
-    if unlikely( !fedId || !conn->isConnected() ) { continue; }    
+    if UNLIKELY( !fedId || !conn->isConnected() ) { continue; }    
     
 
     // If Fed hasnt already been initialised, extract data and initialise
@@ -333,7 +333,7 @@ try { // edmNew::CapacityExaustedException
     // check channel
     const uint8_t fedCh = conn->fedCh();
     
-    if unlikely(!buffer->channelGood(fedCh,doAPVEmulatorCheck)) {
+    if UNLIKELY(!buffer->channelGood(fedCh,doAPVEmulatorCheck)) {
 	if (edm::isDebugEnabled()) {
 	  std::ostringstream ss;
 	  ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
@@ -349,7 +349,7 @@ try { // edmNew::CapacityExaustedException
     const sistrip::FEDReadoutMode mode = buffer->readoutMode();
     
     
-    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8) { 
+    if LIKELY(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8) { 
 	
 	try {
 	  // create unpacker
@@ -363,7 +363,7 @@ try { // edmNew::CapacityExaustedException
 	    unpacker++;
             }
 	  */
-	} catch (edmNew::CapacityExaustedException) {
+	} catch (edmNew::CapacityExaustedException const&) {
           throw;
         } catch (const cms::Exception& e) {
 	  if (edm::isDebugEnabled()) {
@@ -388,7 +388,7 @@ try { // edmNew::CapacityExaustedException
 	    unpacker++;
 	    }
 	  */
-	} catch (edmNew::CapacityExaustedException) {
+	} catch (edmNew::CapacityExaustedException const&) {
            throw;
         }catch (const cms::Exception& e) {
 	  if (edm::isDebugEnabled()) {
@@ -474,7 +474,7 @@ try { // edmNew::CapacityExaustedException
   COUT << "filled " << record.size() << std::endl;
   for ( auto const & cl : record ) COUT << cl.firstStrip() << ','<<  cl.amplitudes().size() << std::endl;
   incClus(record.size());
-} catch (edmNew::CapacityExaustedException) {
+} catch (edmNew::CapacityExaustedException const&) {
   edm::LogError(sistrip::mlRawToCluster_) << "too many Sistrip Clusters to fit space allocated for OnDemand";
 }  
 

@@ -51,10 +51,19 @@ pushd ${LOCAL_TMP_DIR}
   edmPluginHelp -p ProducerWithPSetDesc &> testProducerWithPsetDesc_doc.txt || die "edmPluginHelp -p ProducerWithPSetDesc" $?
   diff ${LOCAL_TMP_DIR}/testProducerWithPsetDesc_doc.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testProducerWithPsetDesc_doc.txt || die "comparing testProducerWithPsetDesc_doc.txt" $?
 
+# Print human readable from the ParameterSetDescription, test comments in ParameterDescription constructor arguments
+  echo edmPluginHelp -p TestDescriptionComments ------------------------------
+  edmPluginHelp -p TestDescriptionComments &> testDescriptionComments_doc.txt || die "edmPluginHelp -p TestDescriptionComments" $?
+  diff ${LOCAL_TMP_DIR}/testDescriptionComments_doc.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testDescriptionComments_doc.txt || die "comparing testDescriptionComments_doc.txt" $?
+
 # Print human readable from the ParameterSetDescription, brief format
   echo edmPluginHelp -p ProducerWithPSetDesc -b ---------------------------
   edmPluginHelp -p ProducerWithPSetDesc -b &> testProducerWithPsetDesc_briefdoc.txt || die "edmPluginHelp -p ProducerWithPSetDesc -b" $?
   diff ${LOCAL_TMP_DIR}/testProducerWithPsetDesc_briefdoc.txt ${LOCAL_TEST_DIR}/unit_test_outputs/testProducerWithPsetDesc_briefdoc.txt || die "comparing testProducerWithPsetDesc_briefdoc.txt" $?
+
+  echo edmPluginHelp -t options -b ---------------------------
+  edmPluginHelp -t options -b &> testEdmPluginHelpOptions.txt || die "edmPluginHelp -t options -b" $?
+  grep "numberOfThreads[[:blank:]]\+untracked uint32[[:blank:]]\+1" testEdmPluginHelpOptions.txt || die "testing edmPluginHelp -t options -b" $?
 
 # Test for errors and success when importing a restricted file in various ways
   echo cmsRun importRestrictions1.py ------------------------------------------------------------

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 
 ///
 /// \class L1GctJetCounts

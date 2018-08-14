@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/ODTowersToByPassInfo.h"
@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 ODTowersToByPassInfo::ODTowersToByPassInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
    m_ID=0;
    m_version=0;
@@ -50,7 +50,7 @@ int ODTowersToByPassInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTowersToByPassInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -74,7 +74,7 @@ void ODTowersToByPassInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTowersToByPassInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -110,7 +110,7 @@ void ODTowersToByPassInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTowersToByPassInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -132,7 +132,7 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODTowersToByPassInfo::fetchData(): no Id defined for this ODTowersToByPassInfo "));
   }
 
@@ -143,7 +143,7 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  rec_id = :1 ");
       m_readStmt->setInt(1, result->getId());
-    } else if (result->getConfigTag()!="") {
+    } else if (!result->getConfigTag().empty()) {
 
       if(result->getVersion() !=0){
 	m_readStmt->setSQL("SELECT * FROM " + getTable() +
@@ -172,11 +172,11 @@ void ODTowersToByPassInfo::fetchData(ODTowersToByPassInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTowersToByPassInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -206,7 +206,7 @@ int ODTowersToByPassInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTowersToByPassInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTowersToByPassInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

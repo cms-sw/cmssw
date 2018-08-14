@@ -24,7 +24,7 @@ class SiPixelConfigParser : public DQMParserBase {
   SiPixelConfigParser();
   
   // Destructor
-  ~SiPixelConfigParser();
+  ~SiPixelConfigParser() override;
 
   // get List of MEs for TrackerMap
   bool getMENamesForTrackerMap(std::string& tkmap_name,std::vector<std::string>& me_names);

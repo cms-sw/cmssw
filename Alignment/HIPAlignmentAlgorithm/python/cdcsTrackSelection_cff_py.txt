@@ -1,0 +1,25 @@
+import Alignment.CommonAlignment.tools.trackselectionRefitting as TrackRefitterSequencer
+
+
+useCosTrSpl = optpy.useTrkSplittingInCosmics
+
+useAPVdeco=False
+if hasattr(optpy,"APVmode"):
+   useAPVdeco = ("deco" in optpy.APVmode)
+
+isZeroTesla = False
+if hasattr(optpy,"Bfield"):
+   isZeroTesla = ("0t" in optpy.Bfield or "zerotesla" in optpy.Bfield)
+
+process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
+   process,
+   strtrackcollname,
+   TTRHBuilder = strTTRHBuilder,
+   usePixelQualityFlag = None, # Keep default behavior ("WithAngleAndTemplate" -> True, "WithTrackAngle" -> False)
+   openMassWindow = False,
+   cosmicsDecoMode = useAPVdeco,
+   cosmicsZeroTesla = isZeroTesla,
+   momentumConstraint = None, # Should be a momentum constraint object
+   cosmicTrackSplitting = useCosTrSpl,
+   use_d0cut = True
+   )

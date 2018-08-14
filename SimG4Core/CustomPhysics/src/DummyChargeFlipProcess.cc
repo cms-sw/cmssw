@@ -65,14 +65,14 @@ G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
   //G4ParticleDefinition* aParticleDef = aParticle->GetDefinition();
 
   G4double   ParentEnergy  = aParticle->GetTotalEnergy();
-  G4ThreeVector ParentDirection(aParticle->GetMomentumDirection());
+  const G4ThreeVector& ParentDirection(aParticle->GetMomentumDirection());
 
   G4double energyDeposit = 0.0;
   G4double finalGlobalTime = aTrack.GetGlobalTime();
 
   G4int numberOfSecondaries = 1;
   pc->SetNumberOfSecondaries(numberOfSecondaries);
-  const G4TouchableHandle thand = aTrack.GetTouchableHandle();
+  const G4TouchableHandle& thand = aTrack.GetTouchableHandle();
 
   // get current position of the track
   aTrack.GetPosition();

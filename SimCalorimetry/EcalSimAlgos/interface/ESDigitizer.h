@@ -21,9 +21,9 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 		   ElectronicsSim*  electronicsSim ,
 		   bool             addNoise         ) ;
 
-      virtual ~ESDigitizer() ;
+      ~ESDigitizer() override ;
 
-      virtual void run( ESDigiCollection& output, CLHEP::HepRandomEngine* ) override;
+      void run( ESDigiCollection& output, CLHEP::HepRandomEngine* ) override;
 
       void setDetIds( const std::vector<DetId>& detIds ) ;
 

@@ -30,6 +30,7 @@
    Fermilab 2010
    
 """
+from __future__ import print_function
 
 
 import sys,os
@@ -59,8 +60,8 @@ def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEA
     dbError = commands.getstatusoutput( listIOVCommand )
     if dbError[0] != 0 :
         if dbError[1].find("metadata entry \"" + tagName + "\" does not exist") != -1:
-            print "Creating a new tag because I got the following error contacting the DB"
-            print dbError[1]
+            print("Creating a new tag because I got the following error contacting the DB")
+            print(dbError[1])
             return 1
             #return 133928
         else:
@@ -105,7 +106,7 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
         if lastRun != -1:
             queryCommand = queryCommand + " and run > " + str(lastRun)
         queryCommand += "\""
-        print " >> " + queryCommand
+        print(" >> " + queryCommand)
         output = []
         for i in range(0,3):
 	    output = commands.getstatusoutput( queryCommand )
@@ -166,7 +167,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1):
             #dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
             break
         except:
-            print "Something wrong in accessing runregistry, retrying in 2s....", tries, "/", maxAttempts
+            print("Something wrong in accessing runregistry, retrying in 2s....", tries, "/", maxAttempts)
             tries += 1
             time.sleep(2)
         if tries==maxAttempts:
@@ -192,7 +193,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1):
             dcs_data = server.DataExporter.export('RUNLUMISECTION', 'GLOBAL', 'json'    , sel_dcstable)
             break
         except:
-            print "I was able to get the list of runs and now I am trying to access the detector status, retrying in 2s....", tries, "/", maxAttempts
+            print("I was able to get the list of runs and now I am trying to access the detector status, retrying in 2s....", tries, "/", maxAttempts)
             tries += 1
             time.sleep(2)
         if tries==maxAttempts:
@@ -208,7 +209,7 @@ def getListOfRunsAndLumiFromRR(firstRun=-1):
         if element in jsonList:
             selected_dcs[long(element)]=jsonList[element]
         else:
-            print "WARNING: Run " + element + " is a collision10 run with 0 lumis in Run Registry!" 
+            print("WARNING: Run " + element + " is a collision10 run with 0 lumis in Run Registry!") 
             selected_dcs[long(element)]= [[]] 
     #print selected_dcs        
     return selected_dcs
@@ -273,7 +274,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                     if not run in runsAndLumisProcessed:
                         runsAndLumisProcessed[run] = []
                     if begLumi in runsAndLumisProcessed[run]:
-                        print "Lumi " + str(begLumi) + " in event " + str(run) + " already exist. This MUST not happen but right now I will ignore this lumi!"
+                        print("Lumi " + str(begLumi) + " in event " + str(run) + " already exist. This MUST not happen but right now I will ignore this lumi!")
                     else:    
                         runsAndLumisProcessed[run].append(begLumi)
         if not run in runsAndFiles:
@@ -281,8 +282,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         runsAndFiles[run].append(fileName)    
         file.close()
 
-    rrKeys = listOfRunsAndLumiFromRR.keys()
-    rrKeys.sort()
+    rrKeys = sorted(listOfRunsAndLumiFromRR.keys())
     dbsKeys = listOfRunsAndLumiFromDBS.keys()
     dbsKeys.sort()
     #I remove the last entry from DBS since I am not sure it is an already closed run!
@@ -309,24 +309,24 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             if not run in dbsKeys and run != lastUnclosedRun:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
-            print "Working on run " + str(run)
+            print("Working on run " + str(run))
             nFiles = 0
             for data in dataSet.split(','):
                 nFiles = getNumberOfFilesToProcessForRun(data,run)
                 if nFiles != 0:
                     break
             if len(runsAndFiles[run]) < nFiles:
-                print "I haven't processed all files yet : " + str(len(runsAndFiles[run])) + " out of " + str(nFiles) + " for run: " + str(run) 
+                print("I haven't processed all files yet : " + str(len(runsAndFiles[run])) + " out of " + str(nFiles) + " for run: " + str(run)) 
                 if nFiles - len(runsAndFiles[run]) <= missingFilesTolerance:
                     timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run)) # resetting this timeout
                     timeoutType = timeoutManager("DBS_MISMATCH_Run"+str(run),missingLumisTimeout)
                     if timeoutType == 1:
-                        print "WARNING: I previously set a timeout that expired...I'll continue with the script even if I didn't process all the lumis!"
+                        print("WARNING: I previously set a timeout that expired...I'll continue with the script even if I didn't process all the lumis!")
                     else:
                         if timeoutType == -1:
-                            print "WARNING: Setting the DBS_MISMATCH_Run" + str(run) + " timeout because I haven't processed all files!"
+                            print("WARNING: Setting the DBS_MISMATCH_Run" + str(run) + " timeout because I haven't processed all files!")
                         else:
-                            print "WARNING: Timeout DBS_MISMATCH_Run" + str(run) + " is in progress."
+                            print("WARNING: Timeout DBS_MISMATCH_Run" + str(run) + " is in progress.")
                         return filesToProcess
                 else:
                     timeoutType = timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run),missingLumisTimeout)
@@ -337,15 +337,15 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                         #exit(error)
                     else:
                         if timeoutType == -1:
-                            print "WARNING: Setting the DBS_VERY_BIG_MISMATCH_Run" + str(run) + " timeout because I haven't processed all files!"
+                            print("WARNING: Setting the DBS_VERY_BIG_MISMATCH_Run" + str(run) + " timeout because I haven't processed all files!")
                         else:
-                            print "WARNING: Timeout DBS_VERY_BIG_MISMATCH_Run" + str(run) + " is in progress."
+                            print("WARNING: Timeout DBS_VERY_BIG_MISMATCH_Run" + str(run) + " is in progress.")
                         return filesToProcess
                     
             else:
                 timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run))
                 timeoutManager("DBS_MISMATCH_Run"+str(run))
-                print "I have processed " + str(len(runsAndFiles[run])) + " out of " + str(nFiles) + " files that are in DBS. So I should have all the lumis!" 
+                print("I have processed " + str(len(runsAndFiles[run])) + " out of " + str(nFiles) + " files that are in DBS. So I should have all the lumis!") 
             errors          = []
             badProcessed    = []
             badDBSProcessed = []
@@ -362,7 +362,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             #print badDBS
             #exit("ciao")
             if len(badDBS) != 0:
-                print "This is weird because I processed more lumis than the ones that are in DBS!"
+                print("This is weird because I processed more lumis than the ones that are in DBS!")
             if len(badDBSProcessed) != 0 and run in rrKeys:
                 lastError = len(errors)
                 #print RRList            
@@ -376,29 +376,29 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 #print badRunRegistry
                     
                 if len(badRRProcessed) != 0:    
-                    print "I have not processed some of the lumis that are in the run registry for run: " + str(run)
+                    print("I have not processed some of the lumis that are in the run registry for run: " + str(run))
                     for lumi in badDBSProcessed:
                         if lumi in badRRProcessed:
                             badProcessed.append(lumi)
                     lenA = len(badProcessed)
                     lenB = len(RRList)
                     if 100.*lenA/lenB <= dbsTolerancePercent:
-                        print "WARNING: I didn't process " + str(100.*lenA/lenB) + "% of the lumis but I am within the " + str(dbsTolerancePercent) + "% set in the configuration. Which corrispond to " + str(lenA) + " out of " + str(lenB) + " lumis"
+                        print("WARNING: I didn't process " + str(100.*lenA/lenB) + "% of the lumis but I am within the " + str(dbsTolerancePercent) + "% set in the configuration. Which corrispond to " + str(lenA) + " out of " + str(lenB) + " lumis")
                         #print errors
                         badProcessed = []
                     elif lenA <= dbsTolerance:
-                        print "WARNING: I didn't process " + str(lenA) + " lumis but I am within the " + str(dbsTolerance) + " lumis set in the configuration. Which corrispond to " + str(lenA) + " out of " + str(lenB) + " lumis"
+                        print("WARNING: I didn't process " + str(lenA) + " lumis but I am within the " + str(dbsTolerance) + " lumis set in the configuration. Which corrispond to " + str(lenA) + " out of " + str(lenB) + " lumis")
                         #print errors
                         badProcessed = []
                     else:    
                         error = "ERROR: For run " + str(run) + " I didn't process " + str(100.*lenA/lenB) + "% of the lumis and I am not within the " + str(dbsTolerancePercent) + "% set in the configuration. The number of lumis that I didn't process (" + str(lenA) + " out of " + str(lenB) + ") is greater also than the " + str(dbsTolerance) + " lumis that I can tolerate. I can't process runs >= " + str(run) + " but I'll process the runs before!"
                         sendEmail(mailList,error)
-                        print error
+                        print(error)
                         return filesToProcess
                         #exit(errors)
                     #return filesToProcess
                 elif len(errors) != 0:
-                    print "The number of lumi sections processed didn't match the one in DBS but they cover all the ones in the Run Registry, so it is ok!"
+                    print("The number of lumi sections processed didn't match the one in DBS but they cover all the ones in the Run Registry, so it is ok!")
                     #print errors
 
             #If I get here it means that I passed or the DBS or the RR test            
@@ -407,16 +407,16 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                     filesToProcess.append(file)
             else:
                 #print errors
-                print "This should never happen because if I have errors I return or exit! Run: " + str(run)
+                print("This should never happen because if I have errors I return or exit! Run: " + str(run))
         else:
             error = "Run " + str(run) + " is in the run registry but it has not been processed yet!"
-            print error
+            print(error)
             timeoutType = timeoutManager("MISSING_RUNREGRUN_Run"+str(run),missingLumisTimeout)
             if timeoutType == 1:
                 if len(RRList) <= rrTolerance:
                     error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(RRList)) + " <= " + str(rrTolerance) + " lumis. So I will continue and ignore it... "
                     #print listOfRunsAndLumiFromRR[run]
-                    print error
+                    print(error)
                     #sendEmail(mailList,error)
                 else:
                     error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(RRList)) + " > " + str(rrTolerance) + " lumis. I can't continue but I'll process the runs before this one"
@@ -425,9 +425,9 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                     #exit(error)
             else:
                 if timeoutType == -1:
-                    print "WARNING: Setting the MISSING_RUNREGRUN_Run" + str(run) + " timeout because I haven't processed a run!"
+                    print("WARNING: Setting the MISSING_RUNREGRUN_Run" + str(run) + " timeout because I haven't processed a run!")
                 else:
-                    print "WARNING: Timeout MISSING_RUNREGRUN_Run" + str(run) + " is in progress."
+                    print("WARNING: Timeout MISSING_RUNREGRUN_Run" + str(run) + " is in progress.")
                 return filesToProcess
                     
     return filesToProcess
@@ -482,9 +482,9 @@ def removeUncompleteRuns(newRunList,dataSet):
     for run in processedRuns.keys():   
         nFiles = getNumberOfFilesToProcessForRun(dataSet,run)
         if processedRuns[run] < nFiles:
-            print "I haven't processed all files yet : " + str(processedRuns[run]) + " out of " + str(nFiles) + " for run: " + str(run)
+            print("I haven't processed all files yet : " + str(processedRuns[run]) + " out of " + str(nFiles) + " for run: " + str(run))
         else:
-            print "All files have been processed for run: " + str(run) + " (" + str(processedRuns[run]) + " out of " + str(nFiles) + ")"
+            print("All files have been processed for run: " + str(run) + " (" + str(processedRuns[run]) + " out of " + str(nFiles) + ")")
             
 ########################################################################
 def aselectFilesToProcess(listOfFilesToProcess,newRunList):
@@ -511,12 +511,11 @@ def aselectFilesToProcess(listOfFilesToProcess,newRunList):
     lastClosedRun = getLastClosedRun(listOfFilesToProcess)
 #    print "LastClosedRun:-" + str(lastClosedRun) + "-"
 
-    processedRunsKeys = processedRuns.keys()
-    processedRunsKeys.sort()
+    processedRunsKeys = sorted(processedRuns.keys())
 
     for run in processedRunsKeys:
         if run <= lastClosedRun :
-            print "For run " + str(run) + " I have processed " + str(processedRuns[run]) + " files and in DBS there are " + str(runsToProcess[run]) + " files!"
+            print("For run " + str(run) + " I have processed " + str(processedRuns[run]) + " files and in DBS there are " + str(runsToProcess[run]) + " files!")
             if not run in runsToProcess:
                 exit("ERROR: I have a result file for run " + str(run) + " but it doesn't exist in DBS. Impossible but it happened!")
             lumiList = getDBSLumiListForRun(run)
@@ -537,7 +536,7 @@ def main():
     if option.lock:
         setLockName('.' + option.lock)
         if checkLock():
-            print "There is already a megascript runnning...exiting"
+            print("There is already a megascript runnning...exiting")
             return
         else:
             lock()
@@ -553,7 +552,7 @@ def main():
         cfgFile = option.cfg
     configurationFile = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/scripts/" + cfgFile
     configuration     = ConfigParser.ConfigParser()
-    print 'Reading configuration from ', configurationFile
+    print('Reading configuration from ', configurationFile)
     configuration.read(configurationFile)
 
     sourceDir             = configuration.get('Common','SOURCE_DIR')
@@ -592,7 +591,7 @@ def main():
         os.system("rm -f "+ workingDir + "*") 
 
 
-    print "Getting last IOV for tag: " + databaseTag
+    print("Getting last IOV for tag: " + databaseTag)
     lastUploadedIOV = 1
     if destDB == "oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT": 
         lastUploadedIOV = getLastUploadedIOV(databaseTag)
@@ -605,13 +604,13 @@ def main():
         lastUploadedIOV = unpackLumiid(lastUploadedIOV)["run"]
 
     ######### Get list of files processed after the last IOV  
-    print "Getting list of files processed after IOV " + str(lastUploadedIOV)
+    print("Getting list of files processed after IOV " + str(lastUploadedIOV))
     newProcessedRunList      = getNewRunList(sourceDir,lastUploadedIOV)
     if len(newProcessedRunList) == 0:
         exit("There are no new runs after " + str(lastUploadedIOV))
 
     ######### Copy files to archive directory
-    print "Copying files to archive directory"
+    print("Copying files to archive directory")
     copiedFiles = []
     for i in range(3):
         copiedFiles = cp(sourceDir,archiveDir,newProcessedRunList)    
@@ -625,14 +624,14 @@ def main():
 
     ######### Get from DBS the list of files after last IOV    
     #listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
-    print "Getting list of files from DBS"
+    print("Getting list of files from DBS")
     listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV)
     if len(listOfRunsAndLumiFromDBS) == 0:
        exit("There are no files in DBS to process") 
-    print "Getting list of files from RR"
+    print("Getting list of files from RR")
     listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(lastUploadedIOV) 
     if(not listOfRunsAndLumiFromRR):
-        print "Looks like I can't get anything from the run registry so I'll get the data from the json file " + jsonFileName
+        print("Looks like I can't get anything from the run registry so I'll get the data from the json file " + jsonFileName)
         listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromFile(lastUploadedIOV,jsonFileName) 
     ######### Get list of files to process for DB
     #selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
@@ -640,14 +639,14 @@ def main():
     #print copiedFiles
     #print completeProcessedRuns
     #exit("complete")
-    print "Getting list of files to process"
+    print("Getting list of files to process")
     selectedFilesToProcess = selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,copiedFiles,archiveDir,dataSet,mailList,dbsTolerance,dbsTolerancePercent,rrTolerance,missingFilesTolerance,missingLumisTimeout)
     if len(selectedFilesToProcess) == 0:
        exit("There are no files to process")
         
     #print selectedFilesToProcess
     ######### Copy files to working directory
-    print "Copying files from archive to working directory"
+    print("Copying files from archive to working directory")
     copiedFiles = []
     for i in range(3):
         copiedFiles = cp(archiveDir,workingDir,selectedFilesToProcess)    
@@ -660,7 +659,7 @@ def main():
         sendEmail(mailList,error)
         exit(error)
 
-    print "Sorting and cleaning beamlist"
+    print("Sorting and cleaning beamlist")
     beamSpotObjList = []
     for fileName in copiedFiles:
         readBeamSpotFile(workingDir+fileName,beamSpotObjList,fileIOVBase)
@@ -737,7 +736,7 @@ def main():
         
     #### CREATE payload for merged output
 
-    print " create MERGED payload card for dropbox ..."
+    print(" create MERGED payload card for dropbox ...")
 
     dfile = open(metadata_file,'w')
 
@@ -750,7 +749,7 @@ def main():
 
     ###################################################
     # WARNING tagType forced to offline
-    print "WARNING TAG TYPE forced to be just offline"
+    print("WARNING TAG TYPE forced to be just offline")
     tagType = "offline"
     checkType = tagType
     if tagType == "express":
@@ -763,11 +762,11 @@ def main():
                                                                                                 
 
     if option.upload:
-        print " scp files to offline Drop Box"
+        print(" scp files to offline Drop Box")
         dropbox = "/DropBox"
         if option.Test:
             dropbox = "/DropBox_test"
-        print "UPLOADING TO TEST DB"
+        print("UPLOADING TO TEST DB")
         uploadSqliteFile(workingDir, final_sqlite_file_name, dropbox)
                    
     archive_sqlite_file_name = "Payloads_" + iovSinceFirst + "_" + iovTillLast + "_" + final_sqlite_file_name
@@ -778,8 +777,8 @@ def main():
     commands.getstatusoutput('mv ' + metadata_file + ' ' + archiveDir + 'payloads/' + archive_sqlite_file_name + '.txt')
     commands.getstatusoutput('cp ' + workingDir + payloadFileName + ' ' + archiveDir + 'payloads/' + archive_results_file_name)
   
-    print archiveDir + "payloads/" + archive_sqlite_file_name + '.db'
-    print archiveDir + "payloads/" + archive_sqlite_file_name + '.txt'
+    print(archiveDir + "payloads/" + archive_sqlite_file_name + '.db')
+    print(archiveDir + "payloads/" + archive_sqlite_file_name + '.txt')
 
     rmLock()
     

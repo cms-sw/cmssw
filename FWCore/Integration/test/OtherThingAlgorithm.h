@@ -18,7 +18,7 @@ namespace edmtest {
     void run(edm::Handle<ThingCollection> const& iThingHandle,
              OtherThingCollection& otherThingCollection,
              bool useRefs = true,
-             bool refsAreTransient = false);
+             bool refsAreTransient = false) const;
   
   private:
     int    theDebugLevel;

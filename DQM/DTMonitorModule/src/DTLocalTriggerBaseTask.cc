@@ -61,7 +61,7 @@ private:
 
 
 DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
-  nEvents(0), nLumis(0), theTrigGeomUtils(0) {
+  nEvents(0), nLumis(0), theTrigGeomUtils(nullptr) {
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
     << "[DTLocalTriggerBaseTask]: Constructor"<<endl;
@@ -87,6 +87,7 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
 
   if (processTM) theTypes.push_back("TM");
   if (processDDU) theTypes.push_back("DDU");
+	
 
   if (tpMode) {
     topFolder("TM") = "DT/11-LocalTriggerTP-TM/";
@@ -283,6 +284,12 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
       chamberHistos[dtCh.rawId()][histoTag] = ibooker.book2D(histoTag+chTag,
 	          "1st/2nd trig flag vs quality",7,-0.5,6.5,2,-0.5,1.5);
       setQLabels(chamberHistos[rawId][histoTag],1);
+
+      histoTag = (*typeIt) + "_FlagUpDownvsQual" + labelInOut;
+      chamberHistos[dtCh.rawId()][histoTag] = ibooker.book2D(histoTag+chTag,
+                  "Up/Down trig flag vs quality",7,-0.5,6.5,2,-0.5,1.5);
+      setQLabels(chamberHistos[rawId][histoTag],1);
+
     }
 
     if (*typeIt=="TM") {
@@ -342,13 +349,9 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
 
   if (processTM && processDDU) {
     // Book TM/DDU Comparison Plots
-    for (int InOut=0; InOut<2;InOut++){
-    if(InOut==0)   
+    // NOt needed In and Out comparison, only IN in DDU....
     ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
 		       + sector.str() + "/Station" + station.str() + "/LocalTriggerPhiIn");
-    else if(InOut==1)
-    ibooker.setCurrentFolder(topFolder("DDU") + "Wheel" + wheel.str() + "/Sector"
-                       + sector.str() + "/Station" + station.str() + "/LocalTriggerPhiOut");
 
 
     string histoTag = "COM_QualDDUvsQualTM";
@@ -361,7 +364,6 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker & ibooker, const DTCha
     trendHistos[rawId] = new DTTimeEvolutionHisto(ibooker,histoTag+chTag,
 						  "Fraction of DDU-TM matches w.r.t. proc evts",
 						  nTimeBins,nLSTimeBin,true,0);
-  } //InOut loop
   }
 
 }
@@ -401,6 +403,8 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     int qual  = iph->code();
     int is1st = iph->Ts2Tag() ? 1 : 0;
     int bx    = iph->bxNum() - is1st;
+    int updown = iph->UpDownTag();
+
     if (qual <0 || qual>6) continue; // Check that quality is in a valid range
 
     DTChamberId dtChId(wh,st,sec);
@@ -420,6 +424,7 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     } else {
       innerME["TM_BXvsQual_In"]->Fill(qual,bx);         // SM BX vs Qual Phi view (1st tracks)
       innerME["TM_Flag1stvsQual_In"]->Fill(qual,is1st); // SM Qual 1st/2nd track flag Phi view
+      innerME["TM_FlagUpDownvsQual_In"]->Fill(qual,updown); // SM Qual Up/Down track flag Phi view
       if (!is1st) innerME["TM_QualvsPhirad_In"]->Fill(pos,qual);  // SM Qual vs radial angle Phi view ONLY for 1st tracks
       if (detailedAnalysis) {
 	innerME["TM_QualvsPhibend_In"]->Fill(dir,qual); // SM Qual vs bending Phi view
@@ -439,7 +444,7 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     int qual  = iph->code();
     int is1st = iph->Ts2Tag() ? 1 : 0;
     int bx    = iph->bxNum() - is1st;
-
+    int updown = iph->UpDownTag();
     if (qual <0 || qual>6) continue; // Check that quality is in a valid range
 
     DTChamberId dtChId(wh,st,sec);
@@ -459,6 +464,8 @@ void DTLocalTriggerBaseTask::runTMAnalysis( std::vector<L1MuDTChambPhDigi> const
     } else {
       innerME["TM_BXvsQual_Out"]->Fill(qual,bx);         // SM BX vs Qual Phi view (1st tracks)
       innerME["TM_Flag1stvsQual_Out"]->Fill(qual,is1st); // SM Qual 1st/2nd track flag Phi view
+      innerME["TM_FlagUpDownvsQual_Out"]->Fill(qual,updown); // SM Qual Up/Down track flag Phi view
+
       if (!is1st) innerME["TM_QualvsPhirad_Out"]->Fill(pos,qual);  // SM Qual vs radial angle Phi view ONLY for 1st tracks
       if (detailedAnalysis) {
         innerME["TM_QualvsPhibend_Out"]->Fill(dir,qual); // SM Qual vs bending Phi view
@@ -607,7 +614,7 @@ void DTLocalTriggerBaseTask::setQLabels(MonitorElement* me, short int iaxis){
   TH1* histo = me->getTH1();
   if (!histo) return;
 
-  TAxis* axis=0;
+  TAxis* axis=nullptr;
   if (iaxis==1) {
     axis=histo->GetXaxis();
   }
@@ -629,7 +636,7 @@ void DTLocalTriggerBaseTask::setQLabelsTheta(MonitorElement* me, short int iaxis
   TH1* histo = me->getTH1();
   if (!histo) return;
 
-  TAxis* axis=0;
+  TAxis* axis=nullptr;
   if (iaxis==1) {
     axis=histo->GetXaxis();
   }

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #A script to test threading concepts/implementations
+from __future__ import print_function
 import threading,time,sys
 #The following used from past bad experience with multithreading in Python
 def _cleanup():
@@ -31,7 +32,7 @@ class Test:
         self.kwargs=kwargs
         #Initializing some list to keep timestamps for a silly test
         self.Times=[]
-        print "Initializing Test() instance, value of Name is %s and valud of Cpu is %s"%(self.Name,self.Cpu)
+        print("Initializing Test() instance, value of Name is %s and valud of Cpu is %s"%(self.Name,self.Cpu))
 
     #Silly functions to get back the Name and Cpu arguments originally passed to the Test object
     def getName(self):
@@ -41,24 +42,24 @@ class Test:
         return self.Cpu
     #The actual test function
     def runTest(self):
-        print "I am thread Test and I was invoked with arguments Name %s, Cpu %s and optional keyword arguments %s"%(self.Name,self.Cpu,self.kwargs)
+        print("I am thread Test and I was invoked with arguments Name %s, Cpu %s and optional keyword arguments %s"%(self.Name,self.Cpu,self.kwargs))
         self.time=0
         while self.time<10:
             self.Times.append(time.ctime())
             time.sleep(1)
             self.time+=1
-        print self.Times
+        print(self.Times)
         if self.kwargs:
-            print "Testing keyword arguments handling with function invocation"
+            print("Testing keyword arguments handling with function invocation")
             test(**(self.kwargs))
         return
     
 #Test function for arguments fun
 ahi="AHI!"
 def test(cpu='N/A',perfsuitedir=ahi,IgProfEvents='N/A',IgProfCandles='N/A',cmsdriverOptions='N/A',stepOptions='N/A',string="IgProf",profilers='N/A',bypasshlt='N/A',userInputFile='N/A'):
-    print cpu
-    print perfsuitedir
-    print userInputFile
+    print(cpu)
+    print(perfsuitedir)
+    print(userInputFile)
     #print "Value of Available is: %s"%Available
 
 #Playing with classes for variable scope tests:
@@ -67,7 +68,7 @@ class Pippo:
         self.a=0
         self.b=1
     def test1(self,d):
-        print d
+        print(d)
     def test2(self):
         self.e=self.Pluto(self)
         self.e.testscope()
@@ -90,31 +91,31 @@ def main():
     #Now let's set up an infinite loop that will go through the TestToDo list, submit a thread per cpu available from the Available list
     #using pop.
     activeThreads={}
-    while 1:
+    while True:
         #If there are cores available and tests to run:
-        print "Main while loop:"
-        print Available
-        print TestToDo
+        print("Main while loop:")
+        print(Available)
+        print(TestToDo)
         #Logic based on checking for TestToDo first:
         if TestToDo:
-            print "Still folllowing %s tests to do:"%len(TestToDo)
-            print TestToDo
+            print("Still folllowing %s tests to do:"%len(TestToDo))
+            print(TestToDo)
             #Test available cores:
             if Available:
-                print "Hey there is at least one core available!"
-                print Available
+                print("Hey there is at least one core available!")
+                print(Available)
                 cpu=Available.pop()
-                print "Let's use core %s"%cpu
+                print("Let's use core %s"%cpu)
                 threadArgument=TestToDo.pop()
-                print "Let's submit job %s on core %s"%(threadArgument,cpu)
-                print "Instantiating thread"
-                print "Testing the keyword arguments with:"
+                print("Let's submit job %s on core %s"%(threadArgument,cpu))
+                print("Instantiating thread")
+                print("Testing the keyword arguments with:")
                 kwargs={'cpu':3,'perfsuitedir':"work",'userInputFile':'TTBAR_GEN,FASTSIM.root'}
-                print kwargs
+                print(kwargs)
                 threadToDo=TestThread(threadArgument,cpu,**kwargs)
-                print "Starting thread %s"%threadToDo
+                print("Starting thread %s"%threadToDo)
                 threadToDo.start()
-                print "Appending thread %s to the list of active threads"%threadToDo
+                print("Appending thread %s to the list of active threads"%threadToDo)
                 activeThreads[cpu]=threadToDo
             #If there is no available core, pass, there will be some checking of activeThreads, a little sleep and then another check.
             else:
@@ -124,18 +125,18 @@ def main():
             if activeThreads[cpu].isAlive():
                 pass
             elif cpu not in Available:
-                print "About to append cpu %s to Available list"%cpu
+                print("About to append cpu %s to Available list"%cpu)
                 Available.append(cpu)
         if set(Available)==set(['0','1','2','3']) and not TestToDo:
             break
         else:
-            print "Sleeping and checking again..."
+            print("Sleeping and checking again...")
             time.sleep(1)
             
     #Check we broke out of the infinite loop!
-    print "WHEW! We're done... all TestToDo are done..."
-    print Available
-    print TestToDo
+    print("WHEW! We're done... all TestToDo are done...")
+    print(Available)
+    print(TestToDo)
 
     #Next: check scenarios
     #1-many more TestToDo than Available cores

@@ -1,3 +1,7 @@
+
+#include "Pythia8/UserHooks.h"
+#include "Pythia8/Event.h"
+
 class ResonanceDecayFilterHook : public Pythia8::UserHooks {
 
 public:  
@@ -22,7 +26,8 @@ private:
   bool allNuAsEquivalent_;
   bool udscAsEquivalent_;
   bool udscbAsEquivalent_;
-  std::vector<int> mothers_;
+  bool wzAsEquivalent_;
+  std::set<int> mothers_;
   std::vector<int> daughters_;
   
   std::map<int,int> requestedDaughters_;

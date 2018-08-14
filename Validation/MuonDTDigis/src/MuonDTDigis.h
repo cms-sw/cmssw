@@ -54,7 +54,7 @@ class MuonDTDigis : public DQMEDAnalyzer{
   explicit MuonDTDigis(const edm::ParameterSet& pset);
 
   // Destructor
-  virtual ~MuonDTDigis();
+  ~MuonDTDigis() override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -97,15 +97,14 @@ class MuonDTDigis : public DQMEDAnalyzer{
   std::vector<MonitorElement*> meDigiTimeBox_SL_;
   MonitorElement* meDigiHisto_;
 
-  TH1F *hMuonDigis;
   //  TH1F *DigiTimeBox;
   //  TFile *file_more_plots;
 
-  hDigis *hDigis_global;
-  hDigis *hDigis_W0;
-  hDigis *hDigis_W1;
-  hDigis *hDigis_W2;
-  hHits *hAllHits;
+  std::unique_ptr<hDigis> hDigis_global;
+  std::unique_ptr<hDigis> hDigis_W0;
+  std::unique_ptr<hDigis> hDigis_W1;
+  std::unique_ptr<hDigis> hDigis_W2;
+  std::unique_ptr<hHits> hAllHits;
 
 };
 

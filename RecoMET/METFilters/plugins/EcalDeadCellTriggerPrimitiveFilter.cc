@@ -22,12 +22,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 
@@ -66,21 +67,16 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-#include "TFile.h"
-#include "TTree.h"
-
 using namespace std;
 
-class EcalDeadCellTriggerPrimitiveFilter : public edm::EDFilter {
+class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<> {
 public:
   explicit EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet&);
-  ~EcalDeadCellTriggerPrimitiveFilter();
+  ~EcalDeadCellTriggerPrimitiveFilter() override;
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
@@ -136,24 +132,8 @@ private:
 // Return value:  + : positive zside  - : negative zside
   int setEvtTPstatus(const double &tpCntCut, const int &chnStatus);
 
-  int evtProcessedCnt, totFilteredCnt;
-
-  const bool makeProfileRoot_;
-  const std::string profileRootName_;
-
   const bool useTTsum_; //If set to true, the filter will compare the sum of the 5x5 tower to the provided energy threshold
   const bool usekTPSaturated_; //If set to true, the filter will check the kTPSaturated flag
-
-  TFile *profFile;
-  TTree *profTree;
-
-  std::vector<int> *cutFlowFlagTmpPtr;
-  std::vector<std::string> *cutFlowStrTmpPtr;
-
-  void loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  edm::RunNumber_t run;
-  edm::EventNumber_t event;
-  edm::LuminosityBlockNumber_t ls;
 
   bool getEventInfoForFilterOnce_;
 
@@ -196,8 +176,6 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   , etValToBeFlagged_ (iConfig.getParameter<double>("etValToBeFlagged") )
   , tpDigiCollection_ (iConfig.getParameter<edm::InputTag>("tpDigiCollection") )
   , tpDigiCollectionToken_(consumes<EcalTrigPrimDigiCollection>(tpDigiCollection_))
-  , makeProfileRoot_ (iConfig.getUntrackedParameter<bool>("makeProfileRoot") )
-  , profileRootName_ (iConfig.getUntrackedParameter<std::string>("profileRootName") )
   , useTTsum_ (iConfig.getParameter<bool>("useTTsum") )
   , usekTPSaturated_ (iConfig.getParameter<bool>("usekTPSaturated") )
 {
@@ -205,31 +183,10 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
   hastpDigiCollection_ = 0; hasReducedRecHits_ = 0;
   useTPmethod_ = true; useHITmethod_ = false;
 
-  if( makeProfileRoot_ ){
-
-     profFile = new TFile(profileRootName_.c_str(), "RECREATE");
-     profTree = new TTree("filter", "filter profile");
-     profTree->Branch("run", &run, "run/I");
-     profTree->Branch("event", &event, "event/I");
-     profTree->Branch("lumi", &ls, "lumi/I");
-     profTree->Branch("cutFlowFlag", &cutFlowFlagTmpPtr);
-     profTree->Branch("cutFlowStr", &cutFlowStrTmpPtr);
-
-  }
-
   produces<bool>();
 }
 
 EcalDeadCellTriggerPrimitiveFilter::~EcalDeadCellTriggerPrimitiveFilter() {
-
-  if( makeProfileRoot_ ){
-     profFile->cd();
-     profTree->Write();
-     delete profTree;
-     profFile->Close();
-     delete profFile;
-  }
-
 }
 
 void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
@@ -239,14 +196,14 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
   const unsigned int nProvenance = provenances.size();
   for (unsigned int ip = 0; ip < nProvenance; ip++) {
     const edm::StableProvenance& provenance = *( provenances[ip] );
-    if( provenance.moduleLabel().data() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
-    if( provenance.moduleLabel().data() == ebReducedRecHitCollection_.label() || provenance.moduleLabel().data() == eeReducedRecHitCollection_.label() ){
+    if( provenance.moduleLabel() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
+    if( provenance.moduleLabel() == ebReducedRecHitCollection_.label() || provenance.moduleLabel() == eeReducedRecHitCollection_.label() ){
        hasReducedRecHits_++;
     }
     if( hastpDigiCollection_ && hasReducedRecHits_>=2 ){ break; }
   }
 
-  if( debug_ ) std::cout<<"\nhastpDigiCollection_ : "<<hastpDigiCollection_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_<<std::endl;
+  if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nhastpDigiCollection_ : "<<hastpDigiCollection_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_;
 
   const edm::ProcessHistory& history = iEvent.processHistory();
   const unsigned int nHist = history.size();
@@ -257,7 +214,7 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
   int majorV = TString(split->At(1)->GetName()).Atoi();
   int minorV = TString(split->At(2)->GetName()).Atoi();
 
-  if( debug_ ) std::cout<<"processName : "<<history[nHist-2].processName().data()<<"  releaseVersion : "<<releaseVersion_<<std::endl;
+  if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"processName : "<<history[nHist-2].processName().data()<<"  releaseVersion : "<<releaseVersion_;
 
 // If TP is available, always use TP.
 // In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
@@ -266,8 +223,8 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
 // If they really can provide them, they must be experts to modify this code to suit their own purpose :-)
   if( !hastpDigiCollection_ && !hasReducedRecHits_ ){ useTPmethod_ = false; useHITmethod_ = false;
      if( debug_ ){
-        std::cout<<"\nWARNING ... Cannot find either tpDigiCollection_ or reducedRecHitCollecion_ ?!"<<std::endl;
-        std::cout<<"  Will NOT DO ANY FILTERING !"<<std::endl;
+        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nWARNING ... Cannot find either tpDigiCollection_ or reducedRecHitCollecion_ ?!";
+        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"  Will NOT DO ANY FILTERING !";
      }
   }
   else if( hastpDigiCollection_ ){ useTPmethod_ = true; useHITmethod_ = false; }
@@ -275,24 +232,16 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
   else if( majorV >=5 || (majorV==4 && minorV >=2) ){ useTPmethod_ = false; useHITmethod_ = true; }
   else{ useTPmethod_ = false; useHITmethod_ = false;
      if( debug_ ){
-        std::cout<<"\nWARNING ... TP filter can ONLY be used in AOD after 42X"<<std::endl;
-        std::cout<<"  Will NOT DO ANY FILTERING !"<<std::endl;
+        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"\nWARNING ... TP filter can ONLY be used in AOD after 42X";
+        edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"  Will NOT DO ANY FILTERING !";
      }
   }
 
-  if( debug_ ) std::cout<<"useTPmethod_ : "<<useTPmethod_<<"  useHITmethod_ : "<<useHITmethod_<<std::endl;
+  if( debug_ ) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"useTPmethod_ : "<<useTPmethod_<<"  useHITmethod_ : "<<useHITmethod_;
 
   getEventInfoForFilterOnce_ = true;
 
 }
-
-
-void EcalDeadCellTriggerPrimitiveFilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-   run = iEvent.id().run();
-   event = iEvent.id().event();
-   ls = iEvent.luminosityBlock();
-}
-
 
 void EcalDeadCellTriggerPrimitiveFilter::loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
@@ -314,7 +263,7 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEcalRecHits(edm::Event& iEvent, con
 
 void EcalDeadCellTriggerPrimitiveFilter::envSet(const edm::EventSetup& iSetup) {
 
-  if (debug_ && verbose_ >=2) std::cout << "***envSet***" << std::endl;
+  if (debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter") << "***envSet***";
 
   ecalScale_.setEventSetup( iSetup );
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
@@ -330,13 +279,11 @@ void EcalDeadCellTriggerPrimitiveFilter::envSet(const edm::EventSetup& iSetup) {
 // ------------ method called on each new Event  ------------
 bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  std::vector<int> cutFlowFlagTmpVec; std::vector<std::string> cutFlowStrTmpVec;
-
-  loadEventInfo(iEvent, iSetup);
+  edm::RunNumber_t run = iEvent.id().run();
+  edm::EventNumber_t event = iEvent.id().event();
+  edm::LuminosityBlockNumber_t ls = iEvent.luminosityBlock();
 
   if( !getEventInfoForFilterOnce_ ){ loadEventInfoForFilter(iEvent); }
-
-  evtProcessedCnt++;
 
   bool pass = true;
 
@@ -352,17 +299,7 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
      evtTagged = setEvtRecHitstatus(etValToBeFlagged_, 13, 13);
   }
 
-  if( evtTagged ){ pass = false; totFilteredCnt++; }
-
-  if( makeProfileRoot_ ){
-
-     cutFlowFlagTmpVec.push_back(evtTagged); cutFlowStrTmpVec.push_back("TP");
-
-     cutFlowFlagTmpPtr = &cutFlowFlagTmpVec;
-     cutFlowStrTmpPtr = &cutFlowStrTmpVec;
-
-     profTree->Fill();
-  }
+  if( evtTagged ){ pass = false; }
 
   if(debug_ && verbose_ >=2){
      int evtstatusABS = abs(evtTagged);
@@ -375,29 +312,19 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
   else return pass;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void EcalDeadCellTriggerPrimitiveFilter::beginJob() {
-  evtProcessedCnt = 0;
-  totFilteredCnt = 0;
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void EcalDeadCellTriggerPrimitiveFilter::endJob() {
-}
-
 // ------------ method called once each run just before starting event loop  ------------
-void EcalDeadCellTriggerPrimitiveFilter::beginRun(const edm::Run &run, const edm::EventSetup& iSetup) {
+void EcalDeadCellTriggerPrimitiveFilter::beginRun(const edm::Run &iRun, const edm::EventSetup& iSetup) {
 // Channel status might change for each run (data)
 // Event setup
   envSet(iSetup);
   getChannelStatusMaps();
-  if( debug_ && verbose_ >=2) std::cout<< "EcalAllDeadChannelsValMap.size() : "<<EcalAllDeadChannelsValMap.size()<<"  EcalAllDeadChannelsBitMap.size() : "<<EcalAllDeadChannelsBitMap.size()<<std::endl;
+  if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<< "EcalAllDeadChannelsValMap.size() : "<<EcalAllDeadChannelsValMap.size()<<"  EcalAllDeadChannelsBitMap.size() : "<<EcalAllDeadChannelsBitMap.size();
   return ;
 }
 
 int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCut, const int &chnStatus, const int &towerTest){
 
-  if( debug_ && verbose_ >=2) std::cout<<"***begin setEvtTPstatusRecHits***"<<std::endl;
+  if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***begin setEvtTPstatusRecHits***";
 
   accuTTetMap.clear(); accuTTchnMap.clear(); TTzsideMap.clear();
   accuSCetMap.clear(); accuSCchnMap.clear(); SCzsideMap.clear();
@@ -458,7 +385,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
            if( towerTest <0 && bit2Itor->second.back() >= abs(towerTest) ) continue;
            towerTestCnt ++;
         }
-        if( towerTestCnt !=0 && debug_ && verbose_ >=2) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
+        if( towerTestCnt !=0 && debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest;
 
         std::vector<DetId>::iterator avoidItor; avoidItor = find( avoidDuplicateVec.begin(), avoidDuplicateVec.end(), det);
         if( avoidItor == avoidDuplicateVec.end() ){
@@ -523,7 +450,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
            if( towerTest <0 && bit2Itor->second.back() >= abs(towerTest) ) continue;
            towerTestCnt ++;
         }
-        if( towerTestCnt !=0 && debug_ && verbose_ >=2) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
+        if( towerTestCnt !=0 && debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest;
 // ^^^^=                  END                 =^^^^
 
         EcalScDetId sc( (det.ix()-1)/5+1, (det.iy()-1)/5+1, det.zside() );
@@ -559,12 +486,12 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      double ttetVal = ttetItor->second;
 
      std::map<EcalTrigTowerDetId, int>::iterator ttchnItor = accuTTchnMap.find(ttDetId);
-     if( ttchnItor == accuTTchnMap.end() ){ cout<<"\nERROR  cannot find ttDetId : "<<ttDetId<<" in accuTTchnMap?!"<<endl<<endl; }
+     if( ttchnItor == accuTTchnMap.end() ){ edm::LogError("EcalDeadCellTriggerPrimitiveFilter")<<"\nERROR  cannot find ttDetId : "<<ttDetId<<" in accuTTchnMap?!"; }
 
      std::map<EcalTrigTowerDetId, int>::iterator ttzsideItor = TTzsideMap.find(ttDetId);
-     if( ttzsideItor == TTzsideMap.end() ){ cout<<"\nERROR  cannot find ttDetId : "<<ttDetId<<" in TTzsideMap?!"<<endl<<endl; }
+     if( ttzsideItor == TTzsideMap.end() ){ edm::LogError("EcalDeadCellTriggerPrimitiveFilter")<<"\nERROR  cannot find ttDetId : "<<ttDetId<<" in TTzsideMap?!"; }
 
-     if( ttchnItor->second != 25 && debug_ && verbose_ >=2) cout<<"WARNING ... ttchnCnt : "<<ttchnItor->second<<"  NOT equal  25!"<<endl;
+     if( ttchnItor->second != 25 && debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"WARNING ... ttchnCnt : "<<ttchnItor->second<<"  NOT equal  25!";
 
      if( ttetVal >= tpValCut ){ isPassCut = 1; isPassCut *= ttzsideItor->second; }
 
@@ -579,27 +506,27 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
      double scetVal = scetItor->second;
 
      std::map<EcalScDetId, int>::iterator scchnItor = accuSCchnMap.find(scDetId);
-     if( scchnItor == accuSCchnMap.end() ){ cout<<"\nERROR  cannot find scDetId : "<<scDetId<<" in accuSCchnMap?!"<<endl<<endl; }
+     if( scchnItor == accuSCchnMap.end() ){ edm::LogError("EcalDeadCellTriggerPrimitiveFilter")<<"\nERROR  cannot find scDetId : "<<scDetId<<" in accuSCchnMap?!"; }
 
      std::map<EcalScDetId, int>::iterator sczsideItor = SCzsideMap.find(scDetId);
-     if( sczsideItor == SCzsideMap.end() ){ cout<<"\nERROR  cannot find scDetId : "<<scDetId<<" in SCzsideMap?!"<<endl<<endl; }
+     if( sczsideItor == SCzsideMap.end() ){ edm::LogError("EcalDeadCellTriggerPrimitiveFilter")<<"\nERROR  cannot find scDetId : "<<scDetId<<" in SCzsideMap?!"; }
 
-     if( scchnItor->second != 25 && debug_ && verbose_ >=2) cout<<"WARNING ... scchnCnt : "<<scchnItor->second<<"  NOT equal  25!"<<endl;
+     if( scchnItor->second != 25 && debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"WARNING ... scchnCnt : "<<scchnItor->second<<"  NOT equal  25!";
 
      if( scetVal >= tpValCut ){ isPassCut = 1; isPassCut *= sczsideItor->second; }
 
   }
 
-  if( debug_ && verbose_ >=2) std::cout<<"***end setEvtTPstatusRecHits***"<<std::endl;
+  if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***end setEvtTPstatusRecHits***";
 
   return isPassCut;
 
 }
 
 
-int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, const int &chnStatus){
+int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, const int &chnStatus) {
 
-  if( debug_ && verbose_ >=2) std::cout<<"***begin setEvtTPstatus***"<<std::endl;
+  if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***begin setEvtTPstatus***";
 
   int isPassCut =0;
 
@@ -624,7 +551,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, c
         EcalTrigTowerDetId ttDetId = ttItor->second;
         int ttzside = ttDetId.zside();
 
-        const EcalTrigPrimDigiCollection * tpDigis = 0;
+        const EcalTrigPrimDigiCollection * tpDigis = nullptr;
         tpDigis = pTPDigis.product();
         EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
         if( tp != tpDigis->end() ){
@@ -634,7 +561,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(const double &tpValCut, c
      }
   } // loop over EB + EE
 
-  if( debug_ && verbose_ >=2) std::cout<<"***end setEvtTPstatus***"<<std::endl;
+  if( debug_ && verbose_ >=2) edm::LogInfo("EcalDeadCellTriggerPrimitiveFilter")<<"***end setEvtTPstatus***";
 
   return isPassCut;
 }
@@ -654,8 +581,8 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps(){
 // refer https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalChannelStatus
         int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-        const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-        const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+	const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry (detid);
+        auto cellGeom = subGeom->getGeometry (detid);
         double eta = cellGeom->getPosition ().eta ();
         double phi = cellGeom->getPosition ().phi ();
         double theta = cellGeom->getPosition().theta();
@@ -682,8 +609,8 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps(){
                EcalChannelStatus::const_iterator chit = ecalStatus->find( detid );
                int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
-               const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
-               const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
+               const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry (detid);
+               auto  cellGeom = subGeom->getGeometry (detid);
                double eta = cellGeom->getPosition ().eta () ;
                double phi = cellGeom->getPosition ().phi () ;
                double theta = cellGeom->getPosition().theta();

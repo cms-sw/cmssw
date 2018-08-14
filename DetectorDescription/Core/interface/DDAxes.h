@@ -1,7 +1,7 @@
 #ifndef DDAxes_h
 #define DDAxes_h
 
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.h"
 
 #include <string>
 #include <map>

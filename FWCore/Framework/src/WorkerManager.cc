@@ -101,7 +101,7 @@ namespace edm {
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
-    if(allWorkers_.size()>0) {
+    if(!allWorkers_.empty()) {
       auto const& processName = allWorkers_[0]->description().processName();
       auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
@@ -146,7 +146,7 @@ namespace edm {
   }
 
   void
-  WorkerManager::setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es) {
+  WorkerManager::setupOnDemandSystem(Principal& ep, EventSetup const& es) {
     this->resetAll();
     unscheduled_.setEventSetup(es);
     if(&ep != lastSetupEventPrincipal_) {

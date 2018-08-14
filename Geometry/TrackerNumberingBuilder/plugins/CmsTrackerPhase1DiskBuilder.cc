@@ -34,13 +34,13 @@ CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDe
   double theRmax = theRmin;
   for(vector<const GeometricDet*>::const_iterator it=begin;
       it!=end;it++){
-    if((**it).phi() >= 0) theCompsPosNeg.push_back(*it);
+    if((**it).phi() >= 0) theCompsPosNeg.emplace_back(*it);
     theRmin = std::min( theRmin, (**it).rho());
     theRmax = std::max( theRmax, (**it).rho());
   }
   for(vector<const GeometricDet*>::const_iterator it=begin;
       it!=end;it++){
-    if((**it).phi() < 0) theCompsPosNeg.push_back(*it);
+    if((**it).phi() < 0) theCompsPosNeg.emplace_back(*it);
   }
 
   // now put inner disk panels first
@@ -54,14 +54,14 @@ CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDe
   for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
     if((**it).rho() <= radius_split) {
-      theCompsInnerOuter.push_back(*it);
+      theCompsInnerOuter.emplace_back(*it);
       num_inner++;
     }
   }
 
   for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
-    if((**it).rho() > radius_split) theCompsInnerOuter.push_back(*it);
+    if((**it).rho() > radius_split) theCompsInnerOuter.emplace_back(*it);
   }
   //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
   // now shift outer by one
@@ -116,14 +116,14 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   {
     if( fabs( comp[2*j]->translation().z()) > fabs( comp[ 2*j +1 ]->translation().z()))
     {
-      zmaxpanels.push_back( det->component(2*j) );
-      zminpanels.push_back( det->component(2*j+1) );
+      zmaxpanels.emplace_back( det->component(2*j) );
+      zminpanels.emplace_back( det->component(2*j+1) );
 
     }
     else if( fabs( comp[2*j]->translation().z()) < fabs( comp[ 2*j +1 ]->translation().z()))
     {
-      zmaxpanels.push_back( det->component(2*j+1) );
-      zminpanels.push_back( det->component(2*j) );
+      zmaxpanels.emplace_back( det->component(2*j+1) );
+      zminpanels.emplace_back( det->component(2*j) );
     }
     else
     {

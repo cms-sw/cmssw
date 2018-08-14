@@ -9,11 +9,11 @@ class TrackerTopology;
 
 class SSDigitizerAlgorithm :public Phase2TrackerDigitizerAlgorithm {
  public:
-  SSDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
-  ~SSDigitizerAlgorithm();
+  SSDigitizerAlgorithm(const edm::ParameterSet& conf);
+  ~SSDigitizerAlgorithm() override;
 
   // initialization that cannot be done in the constructor
-  void init(const edm::EventSetup& es);
+  void init(const edm::EventSetup& es) override;
   
   //run the algorithm to digitize a single det
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
@@ -21,6 +21,6 @@ class SSDigitizerAlgorithm :public Phase2TrackerDigitizerAlgorithm {
                          const size_t inputBeginGlobalIndex,
 			 const unsigned int tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
-                         const GlobalVector& bfield);
+                         const GlobalVector& bfield) override;
 };
 #endif

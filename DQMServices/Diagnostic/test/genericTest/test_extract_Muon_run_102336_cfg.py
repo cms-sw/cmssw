@@ -54,53 +54,53 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           logconnect = cms.untracked.string("sqlite_file:log.db") 
                                           )
 
-########################
-# POPCON Application
-########################
+#########################################
+# HistoricDQMService POPCON Application #
+#########################################
 process.genericDQMHistoryPopCon = cms.EDAnalyzer("GenericDQMHistoryPopCon",
-                                                 record = cms.string("HDQMSummary"),
-                                                 loggingOn = cms.untracked.bool(True),
-                                                 SinceAppendMode = cms.bool(True),
-                                                 Source = cms.PSet(since = cms.untracked.uint32(102336),
-                                                                   debug = cms.untracked.bool(False))
-                                                 ) 
+        # popcon::PopConAnalyzer
+        record = cms.string("HDQMSummary"),
+        loggingOn = cms.untracked.bool(True),
+        SinceAppendMode = cms.bool(True),
+        # GenericDQMHistoryPopCon
+        Source = cms.PSet(
+                ## PopCon source handler
+                since = cms.untracked.uint32(102336),
+                RunNb = cms.uint32(102336),
+                iovSequence = cms.untracked.bool(False),
+                debug = cms.untracked.bool(False),
+                ## DQMStoreReader
+                accessDQMFile = cms.bool(True),
+                FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/PromptReco/102/336/DQM_V0001_R000102336__Cosmics__Commissioning09-PromptReco-v4__RECO.root"),
+                ## DQMHistoryHelper
+                #
+                ## base DQM history service
+                ME_DIR = cms.untracked.string("Run 102336/Muons/Run summary/MuonRecoAnalyzer"),
+                histoList = cms.VPSet(
+                        # quantities are 'stat', 'landau', 'gauss'
+                        # where
+                        #'stat' includes entries, mean, rms
+                        #'landau' includes
+                        #'gauss' includes gaussMean, gaussSigma
 
-
-########################
-# HistoricDQMService
-########################
-
-process.GenericHistoryDQMService = cms.Service("GenericHistoryDQMService",
-                                               DetectorId = cms.uint32(1),
-                                               RunNb = cms.uint32(102336),
-                                               accessDQMFile = cms.bool(True),
-                                               FILE_NAME = cms.untracked.string("/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/PromptReco/102/336/DQM_V0001_R000102336__Cosmics__Commissioning09-PromptReco-v4__RECO.root"),
-                                               ME_DIR = cms.untracked.string("Run 102336/Muons/Run summary/MuonRecoAnalyzer"),
-                                               histoList = cms.VPSet(
-    
-    # quantities are 'stat', 'landau', 'gauss'
-    # where 
-    #'stat' includes entries, mean, rms
-    #'landau' includes
-    #'gauss' includes gaussMean, gaussSigma
-    
-
-    # CKFTk
-    
-    cms.PSet( keyName = cms.untracked.string("StaMuon_p"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
-    cms.PSet( keyName = cms.untracked.string("StaMuon_pt"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
-    cms.PSet( keyName = cms.untracked.string("StaMuon_q"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
-    cms.PSet( keyName = cms.untracked.string("StaMuon_eta"), quantitiesToExtract = cms.untracked.vstring("stat")),
-    cms.PSet( keyName = cms.untracked.string("StaMuon_theta"), quantitiesToExtract = cms.untracked.vstring("stat")),
-     cms.PSet( keyName = cms.untracked.string("StaMuon_phi"), quantitiesToExtract = cms.untracked.vstring("stat"))
-#     cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_p"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
-#     cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_pt"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
-#     cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_q"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
-#     cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_eta"), quantitiesToExtract = cms.untracked.vstring("stat")),
-#     cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_theta"), quantitiesToExtract = cms.untracked.vstring("stat")),
-#     cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_phi"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        # CKFTk
+                        cms.PSet( keyName = cms.untracked.string("StaMuon_p"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
+                        cms.PSet( keyName = cms.untracked.string("StaMuon_pt"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
+                        cms.PSet( keyName = cms.untracked.string("StaMuon_q"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
+                        cms.PSet( keyName = cms.untracked.string("StaMuon_eta"), quantitiesToExtract = cms.untracked.vstring("stat")),
+                        cms.PSet( keyName = cms.untracked.string("StaMuon_theta"), quantitiesToExtract = cms.untracked.vstring("stat")),
+                        cms.PSet( keyName = cms.untracked.string("StaMuon_phi"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                        #cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_p"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
+                        #cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_pt"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
+                        #cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_q"), quantitiesToExtract = cms.untracked.vstring("stat","user")),
+                        #cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_eta"), quantitiesToExtract = cms.untracked.vstring("stat")),
+                        #cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_theta"), quantitiesToExtract = cms.untracked.vstring("stat")),
+                        #cms.PSet( keyName = cms.untracked.string("GlbMuon_Glb_phi"), quantitiesToExtract = cms.untracked.vstring("stat"))
+                    ),
+                ## specific for GenericDQMHistory
+                DetectorId = cms.uint32(1),
+            )
     )
-                                               )
 
 # Schedule
 

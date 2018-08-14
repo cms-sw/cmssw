@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT, array, os, re, random
 from math import *
 import time
@@ -323,7 +324,7 @@ def phiedges2c():
   #print lines
   res = ', '.join(lines)
   ff = open("phiedges_export.h",mode="w")
-  print>>ff,'double phiedges[14][37] = {' + res + '};'
+  print('double phiedges[14][37] = {' + res + '};', file=ff)
   ff.close()
 
 class SawTeethFunction:
@@ -345,9 +346,9 @@ class SawTeethFunction:
       return par[i*2] + par[i*2+1]*(x - self.ed[i])
     return 0
   def pp(self):
-    print self.name, self.n
-    print self.edges
-    print self.ed
+    print(self.name, self.n)
+    print(self.edges)
+    print(self.ed)
 
 
 def stationIndex(name):
@@ -401,8 +402,7 @@ def philines(name, window, abscissa):
             philine_tlines[-1].Draw()
     if "st" in name: # DT labels
         philine_labels = []
-        edges = edges[:]
-        edges.sort()
+        edges = sorted(edges[:])
         if "st4" in name:
             labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
         else: 
@@ -417,8 +417,7 @@ def philines(name, window, abscissa):
         philine_labels[-1].Draw()
     if "CSC" in name: # DT labels
         philine_labels = []
-        edges = edges[:]
-        edges.sort()
+        edges = sorted(edges[:])
         labels = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10", "11", "12", "13", "14", "15", "16", "17", "18",
                   "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36"]
         #else: 
@@ -598,7 +597,7 @@ def DBdiff(database1, database2, reports1, reports2,
                     delta = db1.phiy - db2.phiy
                     if reportdiff: 
                       delta -= r1.deltaphiy.value
-                      if abs(delta)>0.02/1000: print r1.postal_address, 1000*delta, "=", 1000*db1.phiy - 1000*db2.phiy, "-", 1000*r1.deltaphiy.value, "... ",1000*db1.phiy , 1000*db2.phiy
+                      if abs(delta)>0.02/1000: print(r1.postal_address, 1000*delta, "=", 1000*db1.phiy - 1000*db2.phiy, "-", 1000*r1.deltaphiy.value, "... ",1000*db1.phiy , 1000*db2.phiy)
                     if normalized:
                         fill = delta/sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)
                     else:
@@ -1147,7 +1146,7 @@ def doTestsForMapPlots(cells):
     if c[0:2]=="MB": scope = "DT"
     if c[0:2]=="ME": scope = "CSC"
     if scope == "zzz":
-      print "strange cell ID: ", c
+      print("strange cell ID: ", c)
       return None
     
     if c in MAP_RESULTS_FITSIN:
@@ -1187,7 +1186,7 @@ def saveTestResultsMap(run_name):
 
 
 def loadTestResultsMap(run_name):
-  print "tmp_test_results_map__%s.pkl" % run_name, os.access("tmp_test_results_map__%s.pkl" % run_name,os.F_OK)
+  print("tmp_test_results_map__%s.pkl" % run_name, os.access("tmp_test_results_map__%s.pkl" % run_name,os.F_OK))
   if not os.access("tmp_test_results_map__%s.pkl" % run_name,os.F_OK): return None
   global MAP_RESULTS_FITSIN, MAP_RESULTS_SAWTOOTH
   ff = open("tmp_test_results_map__%s.pkl" % run_name, "rb")
@@ -1206,7 +1205,7 @@ def writeDQMReport(fname_dqm, run_name):
   lts = "%04d-%02d-%02d %02d:%02d:%02d %s" % (lt[0], lt[1], lt[2], lt[3], lt[4], lt[5], time.tzname[1])
   dqm_report = {"run":run_name, "genDate": lts, "report":tests}
   ff = open(fname_dqm,mode="w")
-  print >>ff, "var DQM_REPORT = "
+  print("var DQM_REPORT = ", file=ff)
   json.dump(dqm_report,ff)
   #print >>ff, "];"
   ff.close()
@@ -1224,9 +1223,9 @@ def doTests(reports, pic_ids, fname_base, fname_dqm, run_name):
     cscs = [id for id in pic_ids if 'ME' in id]
   mulist = ['Run: '+run_name,['ALL',['MU']],['DT',dts],['CSC',cscs]]
   ff = open(fname_base,mode="w")
-  print >>ff, "var MU_LIST = ["
+  print("var MU_LIST = [", file=ff)
   json.dump(mulist,ff)
-  print >>ff, "];"
+  print("];", file=ff)
   ff.close()
   
   doTestsForReport(dts,reports)
@@ -1435,7 +1434,7 @@ def createPeaksProfile(the2d, rebin=1):
       else:
         hpeaks.SetBinContent(i/rebin+1, 0.)
         hpeaks.SetBinError(i/rebin+1, 0.)
-  if len(bad_fit_bins): print "createPeaksProfile bad fit bins: ", bad_fit_bins
+  if len(bad_fit_bins): print("createPeaksProfile bad fit bins: ", bad_fit_bins)
   return hpeaks
 
 
@@ -1460,7 +1459,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=10., abscissa=None, title
     if fitsine or fitsawteeth:
         id = mapNameToId(name)
         if not id:
-            print "bad id for ", name
+            print("bad id for ", name)
             raise Exception
     
     hdir = "AlignmentMonitorMuonSystemMap1D/iter1/"
@@ -2046,8 +2045,8 @@ def clearDDT():
 def printDeltaTs():
     n = 0
     for t in ddt:
-        if n==0 or n==7 or n==15: print "%d calls" % t
-        else: print "%d : %0.3f ms" % (n,t*1000.0)
+        if n==0 or n==7 or n==15: print("%d calls" % t)
+        else: print("%d : %0.3f ms" % (n,t*1000.0))
         n += 1
 
 def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
@@ -2070,7 +2069,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
     if not found: raise Exception("Not a valid name")
     if r.status == "FAIL":
         #raise Exception, "Fit failed"
-        print "Fit failed"
+        print("Fit failed")
         c1.Clear()
         return
     
@@ -2117,7 +2116,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
           chamber_alphax_fit2 = tfile.Get(pdirNeg+"_alpha_fit")
 
     if not chamber_x:
-        print "Can't find neither "+pdirPos+"_x  nor "+pdirPos+"_residual"
+        print("Can't find neither "+pdirPos+"_x  nor "+pdirPos+"_residual")
         return
 
     t3 = time.time()
@@ -2291,7 +2290,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
 
     if r.status == "FAIL":
         #raise Exception, "Fit failed"
-        print "Fit failed"
+        print("Fit failed")
         c1.Clear()
         return
 
@@ -2397,7 +2396,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_dxdz_trackdydz_fit2 = tfile.Get(pdirNeg+"_resslope_trackdydz_fitline")
 
     if not chamber_x_trackx:
-        print "Can't find neither "+pdirPos+"_residual  nor "+pdirPos+"_residual_trackx"
+        print("Can't find neither "+pdirPos+"_residual  nor "+pdirPos+"_residual_trackx")
         return
 
     chamber_x_trackx = chamber_x_trackx.Clone()
@@ -2671,7 +2670,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         if not suppressblue: chamber_x_trackx_fit2.Draw("samel")
         chamber_x_trackx_fit.Draw("samel")
         #label99 = ROOT.TPaveLabel(0, 0.8, 1, 1, getname(r),"NDC")
-        print getname(r)
+        print(getname(r))
         #label99 = ROOT.TPaveLabel(0, 0.8, 1, 1, "aaa","NDC")
         label9.Draw()
         #pads[2].Modified()
@@ -3564,7 +3563,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
   if geometry0 is not None  and  geometryX is not None  and  geometryY is not None: 
     mode = "xmls"
   if mode is None:
-    print "Either couple of reports or three geometries have to be given as input. Exiting..."
+    print("Either couple of reports or three geometries have to be given as input. Exiting...")
     return
 
   # setup ranges with the maximum [-window,window] that later will be optimized to [-wnd_adaptive,wnd_adaptive]
@@ -3606,11 +3605,11 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
       if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
         r2 = getReportByPostalAddress(r1.postal_address, reportsY)
         if r2 is None: 
-          print "bad r2 in ",r1.postal_address
+          print("bad r2 in ",r1.postal_address)
           continue
       
         if r1.status != "PASS" or r2.status != "PASS":
-          print "bad status", r1.postal_address, r1.status, r2.status
+          print("bad status", r1.postal_address, r1.status, r2.status)
           continue
       postal_addresses.append(r1.postal_address)
   # otherwise, use chamber addresses from xmls
@@ -3742,7 +3741,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
     
     cov = pcas[i].GetCovarianceMatrix()
     r = cov(0,1)/sqrt(cov(1,1)*cov(0,0))
-    print "r, RMSx, RMSy =", r, g.GetRMS(1), g.GetRMS(2)
+    print("r, RMSx, RMSy =", r, g.GetRMS(1), g.GetRMS(2))
     texrms = ROOT.TLatex(0.17,0.87, "RMS x,y = %.02g, %.02g" % (g.GetRMS(1),g.GetRMS(2)))
     texr = ROOT.TLatex(0.17,0.80, "r = %.02g" % r)
     for t in texr, texrms:

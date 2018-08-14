@@ -1,11 +1,12 @@
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 electronMcSignalHistosCfg = cms.PSet(
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcSignalPostValidator = cms.EDAnalyzer("ElectronMcSignalPostValidator",
+electronMcSignalPostValidator = DQMEDHarvester("ElectronMcSignalPostValidator",
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtJobEnd"),

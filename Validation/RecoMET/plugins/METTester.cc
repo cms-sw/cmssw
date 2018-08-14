@@ -53,77 +53,77 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   }
 
   //Events variables
-  mNvertex               = 0;
+  mNvertex               = nullptr;
 
   //Common variables
-  mMEx                         = 0;
-  mMEy                         = 0;
-  mMETSig                      = 0;
-  mMET                         = 0;
-  mMETFine                     = 0;
-  mMET_Nvtx                    = 0;
-  mMETPhi                      = 0;
-  mSumET                       = 0;
-  mMETDifference_GenMETTrue    = 0;
-  mMETDeltaPhi_GenMETTrue      = 0;
-  mMETDifference_GenMETCalo    = 0;
-  mMETDeltaPhi_GenMETCalo      = 0;
+  mMEx                         = nullptr;
+  mMEy                         = nullptr;
+  mMETSig                      = nullptr;
+  mMET                         = nullptr;
+  mMETFine                     = nullptr;
+  mMET_Nvtx                    = nullptr;
+  mMETPhi                      = nullptr;
+  mSumET                       = nullptr;
+  mMETDifference_GenMETTrue    = nullptr;
+  mMETDeltaPhi_GenMETTrue      = nullptr;
+  mMETDifference_GenMETCalo    = nullptr;
+  mMETDeltaPhi_GenMETCalo      = nullptr;
   
   // MET Uncertainities: Only for MiniAOD
-  mMETUnc_JetResUp  =  0;
-  mMETUnc_JetResDown  =  0;
-  mMETUnc_JetEnUp  =  0;
-  mMETUnc_JetEnDown  =  0;
-  mMETUnc_MuonEnUp  =  0;
-  mMETUnc_MuonEnDown  =  0;
-  mMETUnc_ElectronEnUp  =  0;
-  mMETUnc_ElectronEnDown  =  0;
-  mMETUnc_TauEnUp  =  0;
-  mMETUnc_TauEnDown  =  0;
-  mMETUnc_UnclusteredEnUp  =  0;
-  mMETUnc_UnclusteredEnDown  =  0;
-  mMETUnc_PhotonEnUp  =  0;
-  mMETUnc_PhotonEnDown  =  0;
+  mMETUnc_JetResUp  =  nullptr;
+  mMETUnc_JetResDown  =  nullptr;
+  mMETUnc_JetEnUp  =  nullptr;
+  mMETUnc_JetEnDown  =  nullptr;
+  mMETUnc_MuonEnUp  =  nullptr;
+  mMETUnc_MuonEnDown  =  nullptr;
+  mMETUnc_ElectronEnUp  =  nullptr;
+  mMETUnc_ElectronEnDown  =  nullptr;
+  mMETUnc_TauEnUp  =  nullptr;
+  mMETUnc_TauEnDown  =  nullptr;
+  mMETUnc_UnclusteredEnUp  =  nullptr;
+  mMETUnc_UnclusteredEnDown  =  nullptr;
+  mMETUnc_PhotonEnUp  =  nullptr;
+  mMETUnc_PhotonEnDown  =  nullptr;
   
 
   //CaloMET variables
-  mCaloMaxEtInEmTowers             = 0;
-  mCaloMaxEtInHadTowers            = 0;
-  mCaloEtFractionHadronic          = 0;
-  mCaloEmEtFraction                = 0;
-  mCaloHadEtInHB                   = 0;
-  mCaloHadEtInHO                   = 0;
-  mCaloHadEtInHE                   = 0;
-  mCaloHadEtInHF                   = 0;
-  mCaloEmEtInHF                    = 0;
-  mCaloSETInpHF                    = 0;
-  mCaloSETInmHF                    = 0;
-  mCaloEmEtInEE                    = 0;
-  mCaloEmEtInEB                    = 0;
+  mCaloMaxEtInEmTowers             = nullptr;
+  mCaloMaxEtInHadTowers            = nullptr;
+  mCaloEtFractionHadronic          = nullptr;
+  mCaloEmEtFraction                = nullptr;
+  mCaloHadEtInHB                   = nullptr;
+  mCaloHadEtInHO                   = nullptr;
+  mCaloHadEtInHE                   = nullptr;
+  mCaloHadEtInHF                   = nullptr;
+  mCaloEmEtInHF                    = nullptr;
+  mCaloSETInpHF                    = nullptr;
+  mCaloSETInmHF                    = nullptr;
+  mCaloEmEtInEE                    = nullptr;
+  mCaloEmEtInEB                    = nullptr;
 
 
   //GenMET variables
-  mNeutralEMEtFraction=0;
-  mNeutralHadEtFraction=0;
-  mChargedEMEtFraction=0;
-  mChargedHadEtFraction=0;
-  mMuonEtFraction=0; 
-  mInvisibleEtFraction=0;
+  mNeutralEMEtFraction=nullptr;
+  mNeutralHadEtFraction=nullptr;
+  mChargedEMEtFraction=nullptr;
+  mChargedHadEtFraction=nullptr;
+  mMuonEtFraction=nullptr; 
+  mInvisibleEtFraction=nullptr;
   
   //MET variables
   
   //PFMET variables
-  mMETDifference_GenMETTrue_MET0to20=0;
-  mMETDifference_GenMETTrue_MET20to40=0;
-  mMETDifference_GenMETTrue_MET40to60=0;
-  mMETDifference_GenMETTrue_MET60to80=0;
-  mMETDifference_GenMETTrue_MET80to100=0;
-  mMETDifference_GenMETTrue_MET100to150=0;
-  mMETDifference_GenMETTrue_MET150to200=0;
-  mMETDifference_GenMETTrue_MET200to300=0;
-  mMETDifference_GenMETTrue_MET300to400=0;
-  mMETDifference_GenMETTrue_MET400to500=0;
-  mMETDifference_GenMETTrue_MET500=0;
+  mMETDifference_GenMETTrue_MET0to20=nullptr;
+  mMETDifference_GenMETTrue_MET20to40=nullptr;
+  mMETDifference_GenMETTrue_MET40to60=nullptr;
+  mMETDifference_GenMETTrue_MET60to80=nullptr;
+  mMETDifference_GenMETTrue_MET80to100=nullptr;
+  mMETDifference_GenMETTrue_MET100to150=nullptr;
+  mMETDifference_GenMETTrue_MET150to200=nullptr;
+  mMETDifference_GenMETTrue_MET200to300=nullptr;
+  mMETDifference_GenMETTrue_MET300to400=nullptr;
+  mMETDifference_GenMETTrue_MET400to500=nullptr;
+  mMETDifference_GenMETTrue_MET500=nullptr;
   
  
 } 
@@ -278,7 +278,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
     
   // Get Generated MET for Resolution plots
-  const reco::GenMET *genMetTrue=NULL;
+  const reco::GenMET *genMetTrue=nullptr;
   bool isvalidgenmet=false;
 
   if(!isMiniAODMET){

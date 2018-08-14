@@ -35,7 +35,7 @@ namespace HLTOfflineDQMTopSingleLepton {
   static const double DRMIN = 0.05;
 
   MonitorSingleLepton::MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) : 
-    label_(label), elecIso_(0), elecSelect_(0), pvSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
+    label_(label), elecIso_(nullptr), elecSelect_(nullptr), pvSelect_(nullptr), muonIso_(nullptr), muonSelect_(nullptr), jetIDSelect_(nullptr), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
   {
     // sources have to be given; this PSet is not optional
     edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
@@ -57,12 +57,12 @@ namespace HLTOfflineDQMTopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( elecExtras.existsAs<std::string>("select") ){
-        elecSelect_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("select"));
+        elecSelect_= std::make_unique<StringCutObjectSelector<reco::GsfElectron>>(elecExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( elecExtras.existsAs<std::string>("isolation") ){
-        elecIso_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("isolation"));
+        elecIso_= std::make_unique<StringCutObjectSelector<reco::GsfElectron>>(elecExtras.getParameter<std::string>("isolation"));
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
@@ -78,7 +78,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( pvExtras.existsAs<std::string>("select") ){
-        pvSelect_= new StringCutObjectSelector<reco::Vertex>(pvExtras.getParameter<std::string>("select"));
+        pvSelect_= std::make_unique<StringCutObjectSelector<reco::Vertex>>(pvExtras.getParameter<std::string>("select"));
       }
     }
     // muonExtras are optional; they may be omitted or empty
@@ -87,12 +87,12 @@ namespace HLTOfflineDQMTopSingleLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( muonExtras.existsAs<std::string>("select") ){
-        muonSelect_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("select"));
+        muonSelect_= std::make_unique<StringCutObjectSelector<reco::Muon>>(muonExtras.getParameter<std::string>("select"));
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( muonExtras.existsAs<std::string>("isolation") ){
-        muonIso_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("isolation"));
+        muonIso_= std::make_unique<StringCutObjectSelector<reco::Muon>>(muonExtras.getParameter<std::string>("isolation"));
       }
     }
 
@@ -109,7 +109,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       if(jetExtras.existsAs<edm::ParameterSet>("jetID")){
         edm::ParameterSet jetID=jetExtras.getParameter<edm::ParameterSet>("jetID");
         jetIDLabel_ = iC.consumes< reco::JetIDValueMap >(jetID.getParameter<edm::InputTag>("label"));
-        jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
+        jetIDSelect_= std::make_unique<StringCutObjectSelector<reco::JetID>>(jetID.getParameter<std::string>("select"));
       }
       // select is optional; in case it's not found no
       // selection will be applied (only implemented for 
@@ -237,7 +237,7 @@ namespace HLTOfflineDQMTopSingleLepton {
     }
 
   void 
-    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths)
+    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths)
     {
       // fetch trigger event if configured such 
       edm::Handle<edm::TriggerResults> triggerTable;
@@ -348,7 +348,7 @@ namespace HLTOfflineDQMTopSingleLepton {
         if( !event.getByToken(btagVtx_, btagVtx) ) return;
       }
       // load jet corrector if configured such
-      const JetCorrector* corrector=0;
+      const JetCorrector* corrector=nullptr;
       if(!jetCorrector_.empty()){
         // check whether a jet corrector is in the event setup or not
         if(setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>() )){
@@ -443,7 +443,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       // fill monitoring histograms for met
       reco::MET mET;
-      for(std::vector< edm::EDGetTokenT< edm::View<reco::MET> > >::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
+      for(auto met_=mets_.begin(); met_!=mets_.end(); ++met_){
         edm::Handle<edm::View<reco::MET> > met;
         if( !event.getByToken(*met_, met) ) continue;
         if(met->begin()!=met->end()){
@@ -471,9 +471,9 @@ namespace HLTOfflineDQMTopSingleLepton {
           // log runnumber, lumi block, event number & some
           // more pysics infomation for interesting events
           // We're doing a static_cast here to denote the explicity of the cast
-          double runID = static_cast<double>(event.eventAuxiliary().run());
-          double luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
-          double eventID = static_cast<double>(event.eventAuxiliary().event());
+          auto runID = static_cast<double>(event.eventAuxiliary().run());
+          auto luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
+          auto eventID = static_cast<double>(event.eventAuxiliary().event());
           fill("eventLogger_", 0.5, logged_+0.5, runID); 
           fill("eventLogger_", 1.5, logged_+0.5, luminosityBlockID); 
           fill("eventLogger_", 2.5, logged_+0.5, eventID); 
@@ -529,8 +529,8 @@ namespace HLTOfflineDQMTopSingleLepton {
           // consider only path from triggerPaths
           string name = triggerNames.triggerNames()[i];
           bool isInteresting = false;
-          for (unsigned int j=0; j<triggerPaths.size(); j++) {
-            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
+          for (auto const & triggerPath : triggerPaths) {
+            if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase)) isInteresting = true; 
           }
           if (!isInteresting) continue;
           // dump infos on the considered trigger path 
@@ -739,7 +739,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 
 ///===========================================================================================================
 
-TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg): vertexSelect_(0), beamspotSelect_(0)
+TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg): vertexSelect_(nullptr), beamspotSelect_(nullptr)
 {
   // configure preselection
   edm::ParameterSet presel=cfg.getParameter<edm::ParameterSet>("preselection");
@@ -751,19 +751,19 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
   if( presel.existsAs<edm::ParameterSet>("vertex" ) ){
     edm::ParameterSet vertex=presel.getParameter<edm::ParameterSet>("vertex");
     vertex_= consumes< std::vector<reco::Vertex> >(vertex.getParameter<edm::InputTag>("src"));
-    vertexSelect_= new StringCutObjectSelector<reco::Vertex>(vertex.getParameter<std::string>("select"));
+    vertexSelect_= std::make_unique<StringCutObjectSelector<reco::Vertex>>(vertex.getParameter<std::string>("select"));
   }
   if( presel.existsAs<edm::ParameterSet>("beamspot" ) ){
     edm::ParameterSet beamspot=presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_= consumes< reco::BeamSpot >(beamspot.getParameter<edm::InputTag>("src"));
-    beamspotSelect_= new StringCutObjectSelector<reco::BeamSpot>(beamspot.getParameter<std::string>("select"));
+    beamspotSelect_= std::make_unique<StringCutObjectSelector<reco::BeamSpot>>(beamspot.getParameter<std::string>("select"));
   }
 
   // configure the selection
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
-  for(unsigned int i=0; i<sel.size(); ++i){
-    selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new HLTOfflineDQMTopSingleLepton::MonitorSingleLepton(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
+  for(auto & i : sel){
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(i, std::make_unique<HLTOfflineDQMTopSingleLepton::MonitorSingleLepton>(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
   }
 
   for (const std::string& s: selectionOrder_) {
@@ -773,22 +773,22 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
       continue;
 
     if (type == "muons"){
-      selectmap_[type] = new SelectionStepHLT<reco::Muon>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::Muon>>(selection_[key].first, consumesCollector());
     }
     if (type == "elecs"){
-      selectmap_[type] = new SelectionStepHLT<reco::GsfElectron>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::GsfElectron>>(selection_[key].first, consumesCollector());
     }
     if (type == "jets"){
-      selectmap_[type] = new SelectionStepHLT<reco::Jet>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::Jet>>(selection_[key].first, consumesCollector());
     }
     if (type == "jets/pf"){
-      selectmap_[type] = new SelectionStepHLT<reco::PFJet>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::PFJet>>(selection_[key].first, consumesCollector());
     }
     if (type == "jets/calo"){
-      selectmap_[type] = new SelectionStepHLT<reco::CaloJet>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::CaloJet>>(selection_[key].first, consumesCollector());
     }
     if (type == "met"){
-      selectmap_[type] = new SelectionStepHLT<reco::MET>(selection_[key].first, consumesCollector());
+      selectmap_[type] = std::make_unique<SelectionStepHLT<reco::MET>>(selection_[key].first, consumesCollector());
     }
   }
 }
@@ -828,7 +828,7 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
     if(!(*beamspotSelect_)(*beamspot)) return;
   }
   // apply selection steps
-  for(std::vector<std::string>::const_iterator selIt=selectionOrder_.begin(); selIt!=selectionOrder_.end(); ++selIt){
+  for(auto selIt=selectionOrder_.begin(); selIt!=selectionOrder_.end(); ++selIt){
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if(selection_.find(key)!=selection_.end()){
 
@@ -843,7 +843,7 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
 
       bool passSel = true;
 
-      for(std::vector<std::string>::const_iterator selIt2=selectionOrder_.begin(); selIt2<=selIt; ++selIt2){
+      for(auto selIt2=selectionOrder_.begin(); selIt2<=selIt; ++selIt2){
         std::string key2 = selectionStep(*selIt2), type2 = objectType(*selIt2);
         if(selection_.find(key2)==selection_.end()) continue;
 

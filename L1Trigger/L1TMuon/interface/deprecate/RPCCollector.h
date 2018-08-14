@@ -17,10 +17,10 @@ namespace L1TMuon {
   class RPCCollector: public SubsystemCollector {
   public:
     RPCCollector(const edm::ParameterSet&);
-    ~RPCCollector() {}
+    ~RPCCollector() override {}
 
-    virtual void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
-				   std::vector<TriggerPrimitive>&) const;
+    void extractPrimitives(const edm::Event&, const edm::EventSetup&, 
+				   std::vector<TriggerPrimitive>&) const override;
   private:    
   };
 }

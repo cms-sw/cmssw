@@ -142,7 +142,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  int mishits = electron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double hcalIso = electron->dr04HcalTowerSumEt();
@@ -156,7 +156,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
   if (version_ != "V01" or version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByToken(verticesCollection_, vtxH);
-    if (vtxH->size() != 0) {
+    if (!vtxH->empty()) {
       reco::VertexRef vtx(vtxH, 0);
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
     } else
@@ -472,7 +472,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
 
   double ip = 0;
-  int mishits = electron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  int mishits = electron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double ecalIsoPed = (electron->isEB())?std::max(0.,ecalIso-1.):ecalIso;
@@ -492,7 +492,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
     e.getByToken(verticesCollection_, pBeamSpot);
     if (pBeamSpot.isValid()) {
       const reco::BeamSpot *bspot = pBeamSpot.product();
-      const math::XYZPoint bspotPosition = bspot->position();
+      const math::XYZPoint& bspotPosition = bspot->position();
       ip = fabs(electron->gsfTrack()->dxy(bspotPosition));
     } else
       ip = fabs(electron->gsfTrack()->dxy());
@@ -509,7 +509,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
   if (version_ == "V05") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByToken(verticesCollection_, vtxH);
-    if (vtxH->size() != 0) {
+    if (!vtxH->empty()) {
       reco::VertexRef vtx(vtxH, 0);
       ip = fabs(electron->gsfTrack()->dxy(math::XYZPoint(vtx->x(),vtx->y(),vtx->z())));
     } else

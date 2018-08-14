@@ -8,11 +8,15 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -52,16 +56,16 @@
 // class declaration
 //
 namespace cms{
-  class Analyzer_minbias : public edm::EDAnalyzer {
+  class Analyzer_minbias : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
   public:
     explicit Analyzer_minbias(const edm::ParameterSet&);
-    ~Analyzer_minbias();
+    ~Analyzer_minbias() override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void beginJob() ;
-    virtual void endJob() ;
-    virtual void beginRun( const edm::Run& r, const edm::EventSetup& iSetup);
-    virtual void endRun( const edm::Run& r, const edm::EventSetup& iSetup);
+    void beginJob() override;
+    void analyze(edm::Event const&, edm::EventSetup const&) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
+    void endJob() override;
 
   private:
     // ----------member data ---------------------------
@@ -72,6 +76,7 @@ namespace cms{
     edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
      
     // names of modules, producing object collections
+    edm::Service<TFileService> fs;   
   
     TFile*      hOutputFile ;
     TTree*      myTree;

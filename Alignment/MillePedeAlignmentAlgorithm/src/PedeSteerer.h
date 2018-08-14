@@ -21,6 +21,7 @@
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class Alignable;
@@ -57,7 +58,7 @@ class PedeSteerer
   /// If reference alignables have been configured, shift everything such that mean
   /// position and orientation of dets in these alignables are zero.
   void correctToReferenceSystem();
-  bool isCorrectToRefSystem(const std::vector<Alignable*> &coordDefiners) const;
+  bool isCorrectToRefSystem(const align::Alignables& coordDefiners) const;
 
 
   double cmsToPedeFactor(unsigned int parNum) const;
@@ -71,15 +72,15 @@ class PedeSteerer
 
   /// Checks whether SelectionUserVariables that might be attached to alis' AlignmentParameters
   /// (these must exist) are all known.
-  bool checkParameterChoices(const std::vector<Alignable*> &alis) const;
+  bool checkParameterChoices(const align::Alignables&) const;
   /// Store Alignables that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate removal from hierarchy, i.e. make it 'top level'.
-  unsigned int buildNoHierarchyCollection(const std::vector<Alignable*> &alis);
+  unsigned int buildNoHierarchyCollection(const align::Alignables&);
   /// Checks whether 'alignables' have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate fixation of a parameter, a steering 'file'
   /// is created accordingly.
   /// Returns number of parameters fixed at 0 and at 'nominal truth'.
-  std::pair<unsigned int, unsigned int> fixParameters(const std::vector<Alignable*> &alignables,
+  std::pair<unsigned int, unsigned int> fixParameters(const align::Alignables&,
 						      const std::string &file);
   /// If 'selector' means fixing, create corresponding steering file line in file pointed to
   /// by 'filePtr'. If 'filePtr == 0' create file with name 'fileName'
@@ -90,22 +91,22 @@ class PedeSteerer
   /// Return 'alignables' that have SelectionUserVariables attached to their AlignmentParameters
   /// (these must exist) that indicate a definition of a coordinate system.
   /// Throws if ill defined reference objects.
-  std::vector<Alignable*> selectCoordinateAlis(const std::vector<Alignable*> &alignables) const;
+  align::Alignables selectCoordinateAlis(const align::Alignables&) const;
   /// Create steering file with constraints defining coordinate system via hierarchy constraints
   /// between 'aliMaster' and 'alis'; 'aliMaster' must not have parameters: would not make sense!
-  void defineCoordinates(const std::vector<Alignable*> &alis, Alignable *aliMaster,
+  void defineCoordinates(const align::Alignables&, Alignable *aliMaster,
 			 const std::string &fileName);
 
-  unsigned int hierarchyConstraints(const std::vector<Alignable*> &alis, const std::string &file);
-  void hierarchyConstraint(const Alignable *ali, const std::vector<Alignable*> &components,
+  unsigned int hierarchyConstraints(const align::Alignables&, const std::string &file);
+  void hierarchyConstraint(const Alignable *ali, const align::Alignables& components,
 			   std::ofstream &file) const;
 
   /// interprete content of presigma VPSet 'cffPresi' and call presigmasFile
   unsigned int presigmas(const std::vector<edm::ParameterSet> &cffPresi,
-			 const std::string &fileName, const std::vector<Alignable*> &alis,
+			 const std::string &fileName, const align::Alignables&,
 			 AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras);
   /// look for active 'alis' in map of presigma values and create steering file 
-  unsigned int presigmasFile(const std::string &fileName, const std::vector<Alignable*> &alis,
+  unsigned int presigmasFile(const std::string &fileName, const align::Alignables&,
 			     const AlignablePresigmasMap &aliPresisMap); 
   /// full name with directory and 'idenitfier'
   std::string fileName(const std::string &addendum) const;
@@ -130,7 +131,7 @@ class PedeSteerer
 
   std::set<const Alignable*> myNoHieraCollection; /// Alignables deselected for hierarchy constr.
   Alignable *theCoordMaster;                      /// master coordinates, must (?) be global frame
-  std::vector<Alignable*> theCoordDefiners;      /// Alignables selected to define coordinates
+  align::Alignables theCoordDefiners;             /// Alignables selected to define coordinates
 };
 
 #endif

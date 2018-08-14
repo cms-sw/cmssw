@@ -67,6 +67,12 @@ namespace edm {
       struct AbilityToImplementor<edm::EndLuminosityBlockProducer> {
         typedef edm::one::impl::EndLuminosityBlockProducer<edm::one::EDProducerBase> Type;
       };
+
+      template<>
+      struct AbilityToImplementor<edm::Accumulator> {
+        typedef edm::one::impl::Accumulator<edm::one::EDProducerBase> Type;
+      };
+
     }
   }
 }

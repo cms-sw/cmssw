@@ -1,10 +1,11 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 #function to switch to an external weight producer for an analyzer in the validation chain
 def useExternalWeight(process, analyzerName, vWeightProducerTags):
   analyzer = getattr(process,analyzerName)
   if analyzer != None:
-    print "Changing weight in "+analyzerName
+    print("Changing weight in "+analyzerName)
     analyzer.UseWeightFromHepMC = cms.bool(False)
     analyzer.genEventInfos = vWeightProducerTags
     setattr(process, analyzerName, analyzer)
@@ -27,7 +28,7 @@ def useExternalWeightForValidation(process, vWeightProducerTags):
 def switchGenSource(process, analyzerName, source):
   analyzer = getattr(process,analyzerName)
   if analyzer != None:
-    print "Changing inputSource in "+analyzerName
+    print("Changing inputSource in "+analyzerName)
     analyzer.hepmcCollection = source
     setattr(process, analyzerName, analyzer)
 

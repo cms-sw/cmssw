@@ -2,15 +2,16 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -20,26 +21,33 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-class HcalTopologyTester : public edm::EDAnalyzer {
+class HcalTopologyTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+
 public:
   explicit HcalTopologyTester(const edm::ParameterSet& );
-  ~HcalTopologyTester();
 
-  
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  void doTest(const HcalTopology& topology);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+  void doTest(const HcalTopology& topology);
+
   // ----------member data ---------------------------
 };
 
 HcalTopologyTester::HcalTopologyTester(const edm::ParameterSet& ) {}
 
+void HcalTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
-HcalTopologyTester::~HcalTopologyTester() {}
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 
-void HcalTopologyTester::analyze(const edm::Event& , 
-				 const edm::EventSetup& iSetup ) {
+void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup ) {
 
 
   edm::ESTransientHandle<DDCompactView> pDD;
@@ -57,6 +65,8 @@ void HcalTopologyTester::analyze(const edm::Event& ,
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
 
   // First test on movements along eta/phi directions
+  std::cout << "\nTest on movements along eta/phi directions" << std::endl
+	    << "==========================================" << std::endl;
   for (int idet=0; idet<4; idet++) {
     HcalSubdetector subdet = HcalBarrel;
     if (idet == 1)      subdet = HcalOuter;
@@ -74,24 +84,24 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 	    std::vector<DetId> idU = topology.up(id);
 	    std::cout << "Neighbours for : Tower " << id << std::endl;
 	    std::cout << "          " << idE.size() << " sets along East:";
-	    for (unsigned int i=0; i<idE.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idE[i]());
+	    for (auto & i : idE) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idW.size() << " sets along West:";
-	    for (unsigned int i=0; i<idW.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idW[i]());
+	    for (auto & i : idW) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idN.size() << " sets along North:";
-	    for (unsigned int i=0; i<idN.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idN[i]());
+	    for (auto & i : idN) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idS.size() << " sets along South:";
-	    for (unsigned int i=0; i<idS.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idS[i]());
+	    for (auto & i : idS) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	    std::cout << "          " << idU.size() << " sets up in depth:";
-	    for (unsigned int i=0; i<idU.size(); ++i) 
-	      std::cout << " " << (HcalDetId)(idU[i]());
+	    for (auto & i : idU) 
+	      std::cout << " " << (HcalDetId)(i());
 	    std::cout << std::endl;
 	  }
 	}
@@ -100,7 +110,8 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
   }
 
   // Check on Dense Index
-
+  std::cout << "\nCheck on Dense Index" << std::endl
+	    << "=====================" << std::endl;
   int maxDepthHB = topology.maxDepthHB();
   int maxDepthHE = topology.maxDepthHE();
   for (int det = 1; det <= HcalForward; det++) {
@@ -120,6 +131,26 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 			<< " o/p " << HcalDetId(id) << " **** ERROR *****" 
 			<< std::endl;
 	  }
+	}
+      }
+    }
+  }
+
+  // Check list of depths
+  std::cout << "\nCheck list of Depths" << std::endl
+	    << "====================" << std::endl;
+  for (int eta=topology.lastHERing()-2; eta<=topology.lastHERing(); ++eta) {
+    for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+      for (int depth = 1; depth <=  maxDepthHE; depth++) {
+	HcalDetId cell (HcalEndcap, eta, phi, depth);
+	if (topology.valid(cell)) {
+	  std::vector<int> depths = topology.mergedDepthList29(cell);
+	  std::cout << cell << " is with merge depth flag " 
+		    << topology.mergedDepth29(cell) << " having " << depths.size()
+		    << " merged depths:";
+	  for (unsigned int k=0; k<depths.size(); ++k) 
+	    std::cout << " [" << k << "]:" << depths[k];
+	  std::cout << std::endl;
 	}
       }
     }

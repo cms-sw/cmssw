@@ -24,10 +24,7 @@ JetMETHLTOfflineClient::JetMETHLTOfflineClient(const edm::ParameterSet& iConfig)
  
 }
 
-JetMETHLTOfflineClient::~JetMETHLTOfflineClient()
-{ 
-  
-}
+JetMETHLTOfflineClient::~JetMETHLTOfflineClient() = default;
 
 void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 {
@@ -40,12 +37,12 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 
   // Look at all folders, go to the subfolder which includes the string "Eff"
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
-  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
+  for(auto & fullPathHLTFolder : fullPathHLTFolders) {
     
     // Move on only if the folder name contains "Eff" Or "Trigger Summary"
-    if (debug_) std::cout << fullPathHLTFolders[i] << std::endl;
-    if ((fullPathHLTFolders[i].find("Eff")!=std::string::npos)) {
-      ibooker.setCurrentFolder(fullPathHLTFolders[i]);
+    if (debug_) std::cout << fullPathHLTFolder << std::endl;
+    if ((fullPathHLTFolder.find("Eff")!=std::string::npos)) {
+      ibooker.setCurrentFolder(fullPathHLTFolder);
     } 
     else {
       continue;
@@ -53,13 +50,13 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 
     // Look at all subfolders, go to the subfolder which includes the string "Eff"
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
-    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
+    for(auto & fullSubPathHLTFolder : fullSubPathHLTFolders) {
 
-      if (debug_) std::cout << fullSubPathHLTFolders[j] << std::endl;      
-      ibooker.setCurrentFolder(fullSubPathHLTFolders[j]);
+      if (debug_) std::cout << fullSubPathHLTFolder << std::endl;      
+      ibooker.setCurrentFolder(fullSubPathHLTFolder);
       
       // Look at all MonitorElements in this folder
-      hltMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+      hltMEs = igetter.getContents(fullSubPathHLTFolder);
       LogDebug("JetMETHLTOfflineClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << std::endl;
       
       for(unsigned int k=0;k<hltMEs.size();k++) {
@@ -82,7 +79,7 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 		
 		std::string title = "Eff_"+hltMEs[k]->getTitle();
                 
-		TH2F *teff = (TH2F*) tNumerator->Clone(title.c_str());
+		auto *teff = (TH2F*) tNumerator->Clone(title.c_str());
 		teff->Divide(tNumerator,tDenominator,1,1);
 		ibooker.book2D("ME_Eff_"+name,teff);
 		delete teff;
@@ -93,7 +90,7 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 		
 		std::string title = "Eff_"+hltMEs[k]->getTitle();
 		
-		TH1F *teff = (TH1F*) tNumerator->Clone(title.c_str());
+		auto *teff = (TH1F*) tNumerator->Clone(title.c_str());
 		teff->Divide(tNumerator,tDenominator,1,1);
 		ibooker.book1D("ME_Eff_"+name,teff);
 		delete teff;

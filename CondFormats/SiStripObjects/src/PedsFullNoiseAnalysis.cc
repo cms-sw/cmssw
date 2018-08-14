@@ -8,6 +8,7 @@
 
 using namespace sistrip;
 
+
 // ----------------------------------------------------------------------------
 // 
 PedsFullNoiseAnalysis::PedsFullNoiseAnalysis( const uint32_t& key ) 
@@ -15,14 +16,33 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis( const uint32_t& key )
     peds_(2,VFloat(128,sistrip::invalid_)), 
     noise_(2,VFloat(128,sistrip::invalid_)), 
     raw_(2,VFloat(128,sistrip::invalid_)),
-    ksProb_(2,VFloat(0,sistrip::invalid_)),
-    chi2Prob_(2,VFloat(0,sistrip::invalid_)),
-    noiseGaus_(2,VFloat(0,sistrip::invalid_)),
-    noiseBin84_(2,VFloat(0,sistrip::invalid_)),
-    noiseRMS_(2,VFloat(0,sistrip::invalid_)),
-    noiseSignif_(2,VFloat(0,sistrip::invalid_)),
-    dead_(2,VInt(0,sistrip::invalid_)), 
-    noisy_(2,VInt(0,sistrip::invalid_)),
+    adProbab_(2,VFloat(128,sistrip::invalid_)),
+    ksProbab_(2,VFloat(128,sistrip::invalid_)),
+    jbProbab_(2,VFloat(128,sistrip::invalid_)),
+    chi2Probab_(2,VFloat(128,sistrip::invalid_)),
+    residualRMS_(2,VFloat(128,sistrip::invalid_)),
+    residualSigmaGaus_(2,VFloat(128,sistrip::invalid_)),
+    noiseSignificance_(2,VFloat(128,sistrip::invalid_)),
+    residualMean_(2,VFloat(128,sistrip::invalid_)),
+    residualSkewness_(2,VFloat(128,sistrip::invalid_)),
+    residualKurtosis_(2,VFloat(128,sistrip::invalid_)),
+    residualIntegralNsigma_(2,VFloat(128,sistrip::invalid_)),
+    residualIntegral_(2,VFloat(128,sistrip::invalid_)),
+    badStripBit_(2,VInt(128,sistrip::invalid_)),
+    deadStripBit_(2,VInt(128,sistrip::invalid_)),
+    deadStrip_(2,VInt(0,sistrip::invalid_)),
+    badStrip_(2,VInt(0,sistrip::invalid_)),
+    shiftedStrip_(2,VInt(0,sistrip::invalid_)),
+    lowNoiseStrip_(2,VInt(0,sistrip::invalid_)),
+    largeNoiseStrip_(2,VInt(0,sistrip::invalid_)),
+    largeNoiseSignificance_(2,VInt(0,sistrip::invalid_)),
+    badFitStatus_(2,VInt(0,sistrip::invalid_)),
+    badADProbab_(2,VInt(0,sistrip::invalid_)),
+    badKSProbab_(2,VInt(0,sistrip::invalid_)),
+    badJBProbab_(2,VInt(0,sistrip::invalid_)),
+    badChi2Probab_(2,VInt(0,sistrip::invalid_)),
+    badTailStrip_(2,VInt(0,sistrip::invalid_)),
+    badDoublePeakStrip_(2,VInt(0,sistrip::invalid_)),
     pedsMean_(2,sistrip::invalid_), 
     pedsSpread_(2,sistrip::invalid_), 
     noiseMean_(2,sistrip::invalid_), 
@@ -37,14 +57,33 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis( const uint32_t& key )
     rawMin_(2,sistrip::invalid_),
     legacy_(false)
 {
-  dead_[0].reserve(128); dead_[1].reserve(128); 
-  noisy_[0].reserve(128); noisy_[1].reserve(128);
-  ksProb_[0].reserve(128); ksProb_[1].reserve(128);
-  chi2Prob_[0].reserve(128); chi2Prob_[1].reserve(128);
-  noiseGaus_[0].reserve(128); noiseGaus_[1].reserve(128);
-  noiseBin84_[0].reserve(128); noiseBin84_[1].reserve(128);
-  noiseRMS_[0].reserve(128); noiseRMS_[1].reserve(128);
-  noiseSignif_[0].reserve(128); noiseSignif_[1].reserve(128);
+  // for flag bits one reserve at max 128 positions since will be filled with strip id only if the strip is bad
+  for(auto iapv : deadStrip_)
+    iapv.reserve(128);
+  for(auto iapv : badStrip_)
+    iapv.reserve(128);
+  for(auto iapv : shiftedStrip_)
+    iapv.reserve(128);
+  for(auto iapv : lowNoiseStrip_)
+    iapv.reserve(128);
+  for(auto iapv : largeNoiseStrip_)
+    iapv.reserve(128);
+  for(auto iapv : largeNoiseSignificance_)
+    iapv.reserve(128);
+  for(auto iapv : badFitStatus_)
+    iapv.reserve(128);
+  for(auto iapv : badADProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badKSProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badJBProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badChi2Probab_)
+    iapv.reserve(128);
+  for(auto iapv : badTailStrip_)
+    iapv.reserve(128);
+  for(auto iapv : badDoublePeakStrip_)
+    iapv.reserve(128);  
 }
 
 // ----------------------------------------------------------------------------
@@ -54,14 +93,33 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis()
     peds_(2,VFloat(128,sistrip::invalid_)), 
     noise_(2,VFloat(128,sistrip::invalid_)), 
     raw_(2,VFloat(128,sistrip::invalid_)),
-    ksProb_(2,VFloat(0,sistrip::invalid_)),
-    chi2Prob_(2,VFloat(0,sistrip::invalid_)),
-    noiseGaus_(2,VFloat(0,sistrip::invalid_)),
-    noiseBin84_(2,VFloat(0,sistrip::invalid_)),
-    noiseRMS_(2,VFloat(0,sistrip::invalid_)),
-    noiseSignif_(2,VFloat(0,sistrip::invalid_)),
-    dead_(2,VInt(0,sistrip::invalid_)), 
-    noisy_(2,VInt(0,sistrip::invalid_)),
+    adProbab_(2,VFloat(128,sistrip::invalid_)),
+    ksProbab_(2,VFloat(128,sistrip::invalid_)),
+    jbProbab_(2,VFloat(128,sistrip::invalid_)),
+    chi2Probab_(2,VFloat(128,sistrip::invalid_)),
+    residualRMS_(2,VFloat(128,sistrip::invalid_)),
+    residualSigmaGaus_(2,VFloat(128,sistrip::invalid_)),
+    noiseSignificance_(2,VFloat(128,sistrip::invalid_)),
+    residualMean_(2,VFloat(128,sistrip::invalid_)),
+    residualSkewness_(2,VFloat(128,sistrip::invalid_)),
+    residualKurtosis_(2,VFloat(128,sistrip::invalid_)),
+    residualIntegralNsigma_(2,VFloat(128,sistrip::invalid_)),
+    residualIntegral_(2,VFloat(128,sistrip::invalid_)),
+    badStripBit_(2,VInt(128,sistrip::invalid_)),
+    deadStripBit_(2,VInt(128,sistrip::invalid_)),
+    deadStrip_(2,VInt(0,sistrip::invalid_)),
+    badStrip_(2,VInt(0,sistrip::invalid_)),
+    shiftedStrip_(2,VInt(0,sistrip::invalid_)),
+    lowNoiseStrip_(2,VInt(0,sistrip::invalid_)),
+    largeNoiseStrip_(2,VInt(0,sistrip::invalid_)),
+    largeNoiseSignificance_(2,VInt(0,sistrip::invalid_)),
+    badFitStatus_(2,VInt(0,sistrip::invalid_)),
+    badADProbab_(2,VInt(0,sistrip::invalid_)),
+    badKSProbab_(2,VInt(0,sistrip::invalid_)),
+    badJBProbab_(2,VInt(0,sistrip::invalid_)),
+    badChi2Probab_(2,VInt(0,sistrip::invalid_)),
+    badTailStrip_(2,VInt(0,sistrip::invalid_)),
+    badDoublePeakStrip_(2,VInt(128,sistrip::invalid_)),
     pedsMean_(2,sistrip::invalid_), 
     pedsSpread_(2,sistrip::invalid_), 
     noiseMean_(2,sistrip::invalid_), 
@@ -76,30 +134,99 @@ PedsFullNoiseAnalysis::PedsFullNoiseAnalysis()
     rawMin_(2,sistrip::invalid_),
     legacy_(false)
 {
-  dead_[0].reserve(128); dead_[1].reserve(128); 
-  noisy_[0].reserve(128); noisy_[1].reserve(128);
-  ksProb_[0].reserve(128); ksProb_[1].reserve(128);
-  chi2Prob_[0].reserve(128); chi2Prob_[1].reserve(128);
-  noiseGaus_[0].reserve(128); noiseGaus_[1].reserve(128);
-  noiseBin84_[0].reserve(128); noiseBin84_[1].reserve(128);
-  noiseRMS_[0].reserve(128); noiseRMS_[1].reserve(128);
-  noiseSignif_[0].reserve(128); noiseSignif_[1].reserve(128);
+  // for flag bits one reserve at max 128 positions since will be filled with strip id only if the strip is bad
+  for(auto iapv : deadStrip_)
+    iapv.reserve(128);
+  for(auto iapv : badStrip_)
+    iapv.reserve(128);
+  for(auto iapv : shiftedStrip_)
+    iapv.reserve(128);
+  for(auto iapv : lowNoiseStrip_)
+    iapv.reserve(128);
+  for(auto iapv : largeNoiseStrip_)
+    iapv.reserve(128);
+  for(auto iapv : largeNoiseSignificance_)
+    iapv.reserve(128);
+  for(auto iapv : badFitStatus_)
+    iapv.reserve(128);
+  for(auto iapv : badADProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badKSProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badJBProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badChi2Probab_)
+    iapv.reserve(128);
+  for(auto iapv : badTailStrip_)
+    iapv.reserve(128);
+  for(auto iapv : badDoublePeakStrip_)
+    iapv.reserve(128);  
 }
 
 // ----------------------------------------------------------------------------
 // 
 void PedsFullNoiseAnalysis::reset() {
-  peds_        = VVFloat(2,VFloat(128,sistrip::invalid_)); 
-  noise_       = VVFloat(2,VFloat(128,sistrip::invalid_)); 
-  raw_         = VVFloat(2,VFloat(128,sistrip::invalid_));
-  ksProb_      = VVFloat(2,VFloat(0,sistrip::invalid_));
-  chi2Prob_    = VVFloat(2,VFloat(0,sistrip::invalid_));
-  noiseGaus_   = VVFloat(2,VFloat(0,sistrip::invalid_));
-  noiseBin84_	= VVFloat(2,VFloat(0,sistrip::invalid_));
-  noiseRMS_		= VVFloat(2,VFloat(0,sistrip::invalid_));
-  noiseSignif_ = VVFloat(2,VFloat(0,sistrip::invalid_));
-  dead_        = VVInt(2,VInt(0,sistrip::invalid_)); 
-  noisy_       = VVInt(2,VInt(0,sistrip::invalid_));
+
+  peds_     = VVFloat(2,VFloat(128,sistrip::invalid_));
+  noise_    = VVFloat(2,VFloat(128,sistrip::invalid_));
+  raw_      = VVFloat(2,VFloat(128,sistrip::invalid_));
+  adProbab_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  ksProbab_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  jbProbab_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  chi2Probab_  = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualRMS_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualSigmaGaus_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  noiseSignificance_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualMean_     = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualSkewness_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualKurtosis_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualIntegralNsigma_ = VVFloat(2,VFloat(128,sistrip::invalid_));
+  residualIntegral_       = VVFloat(2,VFloat(128,sistrip::invalid_));
+
+  deadStrip_     = VVInt(2,VInt(0,sistrip::invalid_)); 
+  badStrip_      = VVInt(2,VInt(0,sistrip::invalid_)); 
+  badStripBit_   = VVInt(2,VInt(128,sistrip::invalid_)); 
+  deadStripBit_  = VVInt(2,VInt(128,sistrip::invalid_)); 
+  shiftedStrip_  = VVInt(2,VInt(0,sistrip::invalid_)); 
+  lowNoiseStrip_ = VVInt(2,VInt(0,sistrip::invalid_));  
+  largeNoiseStrip_ = VVInt(2,VInt(0,sistrip::invalid_));
+  largeNoiseSignificance_ = VVInt(2,VInt(0,sistrip::invalid_));
+  badFitStatus_ = VVInt(2,VInt(0,sistrip::invalid_));
+  badADProbab_  = VVInt(2,VInt(0,sistrip::invalid_));
+  badKSProbab_  = VVInt(2,VInt(0,sistrip::invalid_));
+  badJBProbab_  = VVInt(2,VInt(0,sistrip::invalid_));
+  badChi2Probab_ = VVInt(2,VInt(0,sistrip::invalid_));
+  badTailStrip_ = VVInt(2,VInt(0,sistrip::invalid_));
+  badDoublePeakStrip_ = VVInt(2,VInt(0,sistrip::invalid_));
+        
+  // for flag bits one reserve at max 128 positions since will be filled with strip id only if the strip is bad
+  for(auto iapv : deadStrip_)
+    iapv.reserve(128);
+  for(auto iapv : badStrip_)
+    iapv.reserve(128);
+  for(auto iapv : shiftedStrip_)
+    iapv.reserve(128);
+  for(auto iapv : lowNoiseStrip_)
+    iapv.reserve(128);
+  for(auto iapv : largeNoiseStrip_)
+    iapv.reserve(128);
+  for(auto iapv : largeNoiseSignificance_)
+    iapv.reserve(128);
+  for(auto iapv : badFitStatus_)
+    iapv.reserve(128);
+  for(auto iapv : badADProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badKSProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badJBProbab_)
+    iapv.reserve(128);
+  for(auto iapv : badChi2Probab_)
+    iapv.reserve(128);
+  for(auto iapv : badTailStrip_)
+    iapv.reserve(128);
+  for(auto iapv : badDoublePeakStrip_)
+    iapv.reserve(128);  
+
   pedsMean_    = VFloat(2,sistrip::invalid_); 
   pedsSpread_  = VFloat(2,sistrip::invalid_); 
   noiseMean_   = VFloat(2,sistrip::invalid_); 
@@ -112,14 +239,7 @@ void PedsFullNoiseAnalysis::reset() {
   noiseMin_    = VFloat(2,sistrip::invalid_);
   rawMax_      = VFloat(2,sistrip::invalid_);
   rawMin_      = VFloat(2,sistrip::invalid_);
-  dead_[0].reserve(128);   dead_[1].reserve(128); 
-  noisy_[0].reserve(128);  noisy_[1].reserve(128);
-  ksProb_[0].reserve(128);  ksProb_[1].reserve(128);
-  chi2Prob_[0].reserve(128);   chi2Prob_[1].reserve(128);
-  noiseGaus_[0].reserve(128);  noiseGaus_[1].reserve(128);
-  noiseBin84_[0].reserve(128);  noiseBin84_[1].reserve(128);
-  noiseRMS_[0].reserve(128);  noiseRMS_[1].reserve(128);
-  noiseSignif_[0].reserve(128);  noiseSignif_[1].reserve(128);
+
   legacy_ = false;
 }
 
@@ -151,8 +271,6 @@ bool PedsFullNoiseAnalysis::isValid() const {
 	   rawMin_[0] < sistrip::maximum_ &&
 	   rawMin_[1] < sistrip::maximum_ &&
 	   getErrorCodes().empty() );
-  //noiseMean_[0] <= rawMean_[0] && //@@ temp
-  //noiseMean_[1] <= rawMean_[1] ); //@@ temp
 } 
 
 // ----------------------------------------------------------------------------
@@ -236,9 +354,10 @@ void PedsFullNoiseAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
   if ( iapv == 1 || iapv == 2 ) { iapv--; }
   else { iapv = 0; }
   
-  if ( peds_[iapv].size() < 128 ||
+  if ( peds_[iapv].size()  < 128 ||
        noise_[iapv].size() < 128 ||
-       raw_[iapv].size() < 128 ) { 
+       raw_[iapv].size()   < 128 ) { 
+
     edm::LogWarning(mlCommissioning_)
       << "[" << myName() << "::" << __func__ << "]"
       << " Unexpected number of pedestal/noise values: " 
@@ -271,14 +390,15 @@ void PedsFullNoiseAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
      << std::setw(6) << raw_[iapv][31] << ", " 
      << std::setw(6) << raw_[iapv][63] << ", " 
      << std::setw(6) << raw_[iapv][127] << std::endl
-     << " Dead strips (<5s)       [strip] : (" << dead_[iapv].size() << " in total) ";
-  for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 
-    ss << dead_[iapv][ii] << " "; }
+     << " Dead strips (<5s)       [strip] : (" << deadStrip_[iapv].size() << " in total) ";
+  
+  for ( uint16_t ii = 0; ii < deadStrip_[iapv].size(); ii++ ) { 
+    ss << deadStrip_[iapv][ii] << " "; }
   
   ss << std::endl;
-  ss << " Noisy strips (>5s)      [strip] : (" << noisy_[iapv].size() << " in total) ";
-  for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { 
-    ss << noisy_[iapv][ii] << " "; 
+  ss << " Bad strips (>5s)      [strip] : (" << badStrip_[iapv].size() << " in total) ";
+  for ( uint16_t ii = 0; ii < badStrip_[iapv].size(); ii++ ) { 
+    ss << badStrip_[iapv][ii] << " "; 
   } 
   ss << std::endl;
   ss << " Mean peds +/- spread      [ADC] : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl 

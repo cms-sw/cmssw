@@ -31,7 +31,7 @@ class FWSimpleProxyBuilder : public FWProxyBuilderBase {
 
 public:
    FWSimpleProxyBuilder(const std::type_info& iType);
-   virtual ~FWSimpleProxyBuilder();
+   ~FWSimpleProxyBuilder() override;
 
    // ---------- const member functions ---------------------
 
@@ -43,26 +43,26 @@ public:
 
 protected:
    using FWProxyBuilderBase::build;
-   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    using FWProxyBuilderBase::buildViewType;
-   virtual void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType, const FWViewContext*);
+   void buildViewType(const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType, const FWViewContext*) override;
 
    //called once for each item in collection, the void* points to the
    // object properly offset in memory
    virtual void build(const void*, unsigned int iIndex, TEveElement& iItemHolder, const FWViewContext*) = 0;
    virtual void buildViewType(const void*, unsigned int iIndex, TEveElement& iItemHolder, FWViewType::EType, const FWViewContext*) = 0;
 
-   virtual void clean();
+   void clean() override;
    FWSimpleProxyHelper m_helper;
 
 private:
-   FWSimpleProxyBuilder(const FWSimpleProxyBuilder&); // stop default
+   FWSimpleProxyBuilder(const FWSimpleProxyBuilder&) = delete; // stop default
 
-   const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&); // stop default
+   const FWSimpleProxyBuilder& operator=(const FWSimpleProxyBuilder&) = delete; // stop default
 
    virtual void itemChangedImp(const FWEventItem*);
    
-   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*);
+   bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
 
  
    // ---------- member data --------------------------------

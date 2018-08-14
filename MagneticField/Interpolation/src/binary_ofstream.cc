@@ -5,12 +5,12 @@
 
 struct binary_ofstream_error {};
 
-binary_ofstream::binary_ofstream( const char* name) : file_(0)
+binary_ofstream::binary_ofstream( const char* name) : file_(nullptr)
 {
     init (name);
 }
 
-binary_ofstream::binary_ofstream( const std::string& name) : file_(0)
+binary_ofstream::binary_ofstream( const std::string& name) : file_(nullptr)
 {
     init (name.c_str());
 }
@@ -18,7 +18,7 @@ binary_ofstream::binary_ofstream( const std::string& name) : file_(0)
 void binary_ofstream::init( const char* name)
 {
     file_ = fopen( name, "wb");
-    if (file_ == 0) {
+    if (file_ == nullptr) {
 	std::cout << "file " << name << " cannot be opened for writing"
 		  << std::endl;
 	throw binary_ofstream_error();
@@ -31,8 +31,8 @@ binary_ofstream::~binary_ofstream()
 }
 void binary_ofstream::close()
 {
-    if (file_ != 0) fclose( file_);
-    file_ = 0;
+    if (file_ != nullptr) fclose( file_);
+    file_ = nullptr;
 }
 
 binary_ofstream& binary_ofstream::operator<<( char n) {

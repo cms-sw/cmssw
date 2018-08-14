@@ -5,6 +5,7 @@ globalTag = {
   'Fake2': 'auto:run2_mc_Fake2',
   'FULL' : 'auto:run2_mc_FULL',
   'GRun' : 'auto:run2_mc_GRun',       # used as default
+  '2018v32' : 'auto:run2_mc_2018v32',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
@@ -109,7 +110,6 @@ class HLTProcessOptions(object):
     self.name       = 'HLTX'      # (*) if set, override the process name
     self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon', 'PRef' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
-    self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag
     self.l1         = None        # (*) if set, override the L1 menu
     self.l1Xml      = None        # (*) if set, override the L1 menu Xml
@@ -133,13 +133,13 @@ class HLTProcessOptions(object):
 
   # convert HLT and L1 menus to a dedicated object representation on the fly
   def __setattr__(self, name, value):
-    if name is 'menu' and type(value) is not ConnectionHLTMenu:
+    if name is 'menu' and not isinstance(value, ConnectionHLTMenu):
       # format 'menu' as needed
       object.__setattr__(self, name, ConnectionHLTMenu(value))
-    elif name is 'l1' and type(value) is not ConnectionL1TMenu:
+    elif name is 'l1' and not isinstance(value, ConnectionL1TMenu):
       # format '--l1' as needed
       object.__setattr__(self, name, ConnectionL1TMenu(value))
-    elif name is 'l1Xml' and type(value) is not ConnectionL1TMenuXml:
+    elif name is 'l1Xml' and not isinstance(value, ConnectionL1TMenuXml):
       # format '--l1Xml' as needed
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
     elif name is 'open' and value:

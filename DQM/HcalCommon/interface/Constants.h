@@ -27,21 +27,72 @@ namespace hcaldqm
 		//	use conversion functions in Utilities.h
 		//	For fast look up
 		//	This is for uTCA Crates/FEDs only - no other way...
+		std::map<unsigned int, unsigned int> const crate2fed_map = {
+			{24, 1100},
+			{20, 1102},
+			{21, 1104},
+			{25, 1106},
+			{31, 1108},
+			{35, 1110},
+			{37, 1112},
+			{34, 1114},
+			{30, 1116},
+			{22, 1118},
+			{29, 1120},
+			{32, 1122},
+			{38, 1134},
+			{3, 724},
+			{7, 726},
+			{6, 728},
+			{13, 730},
+		};
+
+		std::map<unsigned int, unsigned int> const fed2crate_map = {
+			{724, 3},
+			{725, 3},
+			{726, 7},
+			{727, 7},
+			{728, 6},
+			{729, 6},
+			{730, 13},
+			{731, 13},
+			{1100, 24},
+			{1101, 24},
+			{1102, 20},
+			{1103, 20},
+			{1104, 21},
+			{1105, 21},
+			{1106, 25},
+			{1107, 25},
+			{1108, 31},
+			{1109, 31},
+			{1110, 35},
+			{1111, 35},
+			{1112, 37},
+			{1113, 37},
+			{1114, 34},
+			{1115, 34},
+			{1116, 30},
+			{1117, 30},
+			{1118, 22},
+			{1119, 22},
+			{1120, 29},
+			{1121, 29},
+			{1122, 32},
+			{1123, 32},
+			{1134, 38},
+			{1135, 38},	
+		};
+
+		std::vector<unsigned int> const fedList = {724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1134,1135};
+		std::vector<unsigned int> const fedListuTCA = {1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123,1134,1135};
+		std::vector<unsigned int> const fedListVME = {724,725,726,727,728,729,730,731};
+		std::vector<unsigned int> const crateList = {3,6,7,13,20,21,22,24,25,29,30,31,32,34,35,37,38};
+		std::vector<unsigned int> const crateListuTCA = {20,21,22,24,25,29,30,31,32,34,35,37,38};
+		std::vector<unsigned int> const crateListVME = {3,6,7,13};
+		std::vector<unsigned int> const crateListHF = {22,29,32};
+
 		int const FED_uTCA_MAX_REAL = 50;
-		uint16_t const FED2CRATE[FED_uTCA_MAX_REAL] = {
-			24, 0, 20, 0, 21, 0, 25, 0, 31, 0,
-			35, 0, 37, 0, 34, 0, 30, 0, 22,22,
-			29,29, 32,32, 0, 0, 0, 0, 0, 0,
-			0, 0, 36, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
-		uint16_t const CRATE2FED[50] = {
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			1102, 1104, 1118, 0, 1100, 1106, 0, 0, 0, 1120,
-			1116, 1108, 1122, 0, 1114, 1110, 1132, 1112, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
 
 		//	FEDs use the first 50 uTCA FED numbers only everywhere
 		int const FED_VME_MIN = FEDNumbering::MINHCALFEDID;
@@ -90,15 +141,15 @@ namespace hcaldqm
 		int const FIBER_VME_MIN = 1;
 		int const FIBER_VME_MAX = 8;
 		int const FIBER_VME_NUM = FIBER_VME_MAX-FIBER_VME_MIN+1;
-		int const FIBER_uTCA_MIN1 = 2;
-		int const FIBER_uTCA_MAX1 = 9;
-		int const FIBER_uTCA_MIN2 = 14;
-		int const FIBER_uTCA_MAX2 = 21;
+		int const FIBER_uTCA_MIN1 = 0;
+		int const FIBER_uTCA_MAX1 = 11;
+		int const FIBER_uTCA_MIN2 = 12;
+		int const FIBER_uTCA_MAX2 = 23;
 		int const FIBER_uTCA_NUM = FIBER_uTCA_MAX1-FIBER_uTCA_MIN1+1 + 
 			FIBER_uTCA_MAX2-FIBER_uTCA_MIN2+1;
 
 		int const FIBERCH_MIN = 0;
-		int const FIBERCH_MAX = 2;
+		int const FIBERCH_MAX = 5;
 		int const FIBERCH_NUM = FIBERCH_MAX-FIBERCH_MIN+1;
 
 		//	TP SLBs, Fibers
@@ -129,7 +180,6 @@ namespace hcaldqm
 		int const HF = 4;
 		int const SUBDET_NUM = 4;
 		int const TPSUBDET_NUM = 2;
-		int const DIGISIZE[SUBDET_NUM] = {10, 10, 10, 4};
 		std::string const SUBDET_NAME[SUBDET_NUM]={"HB", "HE", "HO", "HF"};
 		std::string const SUBDETPM_NAME[2*SUBDET_NUM] = { "HBM", "HBP",
 			"HEM", "HEP", "HOM", "HOP", "HFM", "HFP"};
@@ -271,26 +321,28 @@ namespace hcaldqm
 		 *	Orbit Gap Operations enum
 		 */
 		uint8_t const EVENTTYPE_PEDESTAL = 1;
-		uint8_t const EVENTTYPE_LASER = 14;
+		uint8_t const EVENTTYPE_LASER    = 14;
+		uint8_t const EVENTTYPE_LED      = 15;
 		enum OrbitGapType
 		{
-			tUnkown = -1,
 			tNull = 0,
 			tPedestal = 1,
-			tHFRaddam = 2,
-			tHBHEHPD = 3,
-			tHO = 4,
-			tHF = 5,
-			tZDC = 6,
-			tHEPMega = 7,
-			tHEMMega = 8,
-			tHBPMega = 9,
-			tHBMMega = 10,
-			tSomething = 11,
-			tCRF = 12,
-			tCalib = 13,
-			tSafe = 14,
-			nOrbitGapType = 15
+			tLED = 2,
+			tHFRaddam = 3,
+			tHBHEHPD = 4,
+			tHO = 5,
+			tHF = 6,
+			tZDC = 7,
+			tHEPMega = 8,
+			tHEMMega = 9,
+			tHBPMega = 10,
+			tHBMMega = 11,
+			tSomething = 12,
+			tCRF = 13,
+			tCalib = 14,
+			tSafe = 15,
+			tUnknown = 16,
+			nOrbitGapType = 17
 		};
 	}
 }

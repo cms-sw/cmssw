@@ -145,6 +145,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
     if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
     
     reco::PhotonCore newCandidate(scRef);
+    newCandidate.setParentSuperCluster(scRef);
     if ( validConversions_) {    
 
       if ( risolveAmbiguity_ ) {
@@ -156,7 +157,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
 
 	for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-          if ( !cpRef->caloCluster().size()) continue; 
+          if ( cpRef->caloCluster().empty()) continue; 
 	  if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue; 
 	  if ( !cpRef->isConverted() ) continue;  
 	  newCandidate.addConversion(cpRef);     

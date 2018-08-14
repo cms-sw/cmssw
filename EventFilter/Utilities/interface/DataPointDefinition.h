@@ -25,16 +25,16 @@ public:
   //DataPointDefinition(std::string const& prefix) : namePrefix_(prefix) {}
   //DataPointDefinition(const std::vector<std::string>& names, const std::vector<std::string>& operations);
 
-  virtual ~DataPointDefinition() {}
+  ~DataPointDefinition() override {}
 
   /**
    * JSON serialization procedure for this class
    */
-  virtual void serialize(Json::Value& root) const;
+  void serialize(Json::Value& root) const override;
   /**
    * JSON deserialization procedure for this class
    */
-  virtual void deserialize(Json::Value& root);
+  void deserialize(Json::Value& root) override;
   /**
    * Returns true if the legend_ has elements
    */

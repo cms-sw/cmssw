@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalFEDMonitor = cms.EDAnalyzer("EcalFEDMonitor",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ecalFEDMonitor = DQMEDAnalyzer("EcalFEDMonitor",
     folderName = cms.untracked.string("FEDIntegrity"),
     FEDRawDataCollection = cms.InputTag("rawDataCollector"),
     EBDetIdCollection1 = cms.InputTag("ecalDigis", "EcalIntegrityGainErrors"),

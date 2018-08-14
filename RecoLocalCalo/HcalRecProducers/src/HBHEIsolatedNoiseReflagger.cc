@@ -142,7 +142,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   organizer.getDiHits(dihits, LooseDiHitEne_<TightDiHitEne_ ? LooseDiHitEne_ : TightDiHitEne_);
   organizer.getMonoHits(monohits, LooseMonoHitEne_<TightMonoHitEne_ ? LooseMonoHitEne_ : TightMonoHitEne_);
 
-  if(debug_ && (rbxs.size()>0 || hpds.size()>0 || dihits.size()>0 || monohits.size()>0)) {
+  if(debug_ && (!rbxs.empty() || !hpds.empty() || !dihits.empty() || !monohits.empty())) {
     edm::LogInfo("HBHEIsolatedNoiseReflagger") << "RBXs:" << std::endl;
     DumpHBHEHitMap(rbxs);
     edm::LogInfo("HBHEIsolatedNoiseReflagger") << "\nHPDs:" << std::endl;

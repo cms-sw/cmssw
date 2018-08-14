@@ -31,10 +31,10 @@ namespace muonisolation {
 				const std::vector<double> & weights, const std::vector<double> & thresh	);
 
 
-    virtual ~IsolatorByNominalEfficiency();
+    ~IsolatorByNominalEfficiency() override;
 
     //! Compute the deposit within the cone and return the isolation result
-    virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const;
+    Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const override;
 
     Cuts cuts(float nominalEfficiency) const;
 
@@ -61,7 +61,7 @@ namespace muonisolation {
 
     std::string findPath(const std::string& fileName);
 
-    virtual ResultType resultType() const { return ISOL_FLOAT_TYPE;}
+    ResultType resultType() const override { return ISOL_FLOAT_TYPE;}
 
   private:
     mapNomEff_Cone coneForEfficiency;

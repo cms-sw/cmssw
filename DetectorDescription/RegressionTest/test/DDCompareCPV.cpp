@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     }
     
     std::cout << "FILE 1: " << configfile << std::endl;
-    if ( fp.getFileList().size() == 0 ) {
+    if ( fp.getFileList().empty() ) {
       std::cout << "FILE 1: configuration file has no DDD xml files in it!" << std::endl;
       exit(1);
     }
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     FIPConfiguration fp2(cpv2);
     fp2.readConfig(configfile2, fullPath);
     std::cout << "FILE 2: " << configfile2 << std::endl;
-    if ( fp2.getFileList().size() == 0 ) {
+    if ( fp2.getFileList().empty() ) {
       std::cout << "FILE 2: configuration file has no DDD xml files in it!" << std::endl;
       exit(1);
     }

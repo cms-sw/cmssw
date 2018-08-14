@@ -13,10 +13,10 @@ class ODWeightsDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODWeightsDat();
-  ~ODWeightsDat();
+  ~ODWeightsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "DCC_WEIGHTS_DAT"; }
+  inline std::string getTable() override { return "DCC_WEIGHTS_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -54,7 +54,7 @@ class ODWeightsDat : public IODConfig {
  private:
   void clear();
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const ODWeightsDat* item, ODFEWeightsInfo* iov )
     noexcept(false);

@@ -18,12 +18,12 @@ public:
     L1TGMTClient(const edm::ParameterSet&);
 
     /// Destructor
-    virtual ~L1TGMTClient();
+    ~L1TGMTClient() override;
 
 protected:
 
-    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
-    virtual void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) override;
+    void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
+    void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) override;
 
 private:
 

@@ -32,14 +32,14 @@ class HcalSimHitStudy: public DQMEDAnalyzer {
 public:
 
   HcalSimHitStudy(const edm::ParameterSet& ps);
-  ~HcalSimHitStudy();
+  ~HcalSimHitStudy() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & , edm::EventSetup const & );
+  void bookHistograms(DQMStore::IBooker &, edm::Run const & , edm::EventSetup const & ) override;
 
 protected:
 
   //void endJob   ();
-  void analyze  (const edm::Event& e, const edm::EventSetup& c);
+  void analyze  (const edm::Event& e, const edm::EventSetup& c) override;
 
   void analyzeHits  (std::vector<PCaloHit> &);
 
@@ -48,6 +48,7 @@ private:
   const HcalDDDRecConstants               *hcons;
   int                                      maxDepthHB_, maxDepthHE_;
   int                                      maxDepthHO_, maxDepthHF_;
+  int                                      maxDepth_;
 
   int iphi_bins;
   float iphi_min, iphi_max;
@@ -61,13 +62,14 @@ private:
   float ieta_min_HF, ieta_max_HF;
 
   std::string    g4Label, hcalHits, outFile_;
-  bool           verbose_, checkHit_, testNumber_;
+  bool           verbose_, checkHit_, testNumber_, hep17_;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
 
   MonitorElement *meAllNHit_, *meBadDetHit_, *meBadSubHit_, *meBadIdHit_;
   MonitorElement *meHBNHit_, *meHENHit_, *meHONHit_, *meHFNHit_;
-  MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_;
+  MonitorElement *meDetectHit_, *meSubdetHit_, *meDepthHit_, *meEtaHit_, *meEtaPhiHit_;
+  std::vector<MonitorElement*> meEtaPhiHitDepth_;
   MonitorElement *mePhiHit_, *mePhiHitb_, *meEnergyHit_, *meTimeHit_, *meTimeWHit_;
   MonitorElement *meHBDepHit_, *meHEDepHit_, *meHODepHit_, *meHFDepHit_, *meHFDepHitw_;
   MonitorElement *meHBEtaHit_, *meHEEtaHit_, *meHOEtaHit_, *meHFEtaHit_;
@@ -80,6 +82,8 @@ private:
   MonitorElement *meHBEneHit2_, *meHEEneHit2_, *meHOEneHit2_, *meHFEneHit2_;
   MonitorElement *meHBL10Ene_, *meHEL10Ene_, *meHOL10Ene_, *meHFL10Ene_;
   MonitorElement *meHBL10EneP_, *meHEL10EneP_, *meHOL10EneP_, *meHFL10EneP_;
+  MonitorElement *meHEP17EneHit_, *meHEP17EneHit2_;
+
 
 };
 

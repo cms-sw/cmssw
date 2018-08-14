@@ -1,4 +1,4 @@
-#include "../interface/EcalCondDBReader.h"
+#include "DQM/EcalMonitorDbModule/interface/EcalCondDBReader.h"
 
 #include "DQM/EcalCommon/interface/MESetUtils.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -8,9 +8,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
-  db_(0),
+  db_(nullptr),
   monIOV_(),
-  worker_(0),
+  worker_(nullptr),
   formula_(_ps.getUntrackedParameter<std::string>("formula")),
   meSet_(ecaldqm::createMESet(_ps.getUntrackedParameterSet("plot"))),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity"))
@@ -56,7 +56,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
   std::string userName(_ps.getUntrackedParameter<std::string>("userName"));
   std::string password(_ps.getUntrackedParameter<std::string>("password"));
 
-  std::auto_ptr<EcalCondDBInterface> db(0);
+  std::auto_ptr<EcalCondDBInterface> db(nullptr);
 
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Establishing DB connection";
 
@@ -64,7 +64,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
     db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   }
   catch(std::runtime_error& re){
-    if(hostName != ""){
+    if(!hostName.empty()){
       try{
         db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       }

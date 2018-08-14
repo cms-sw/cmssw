@@ -31,7 +31,7 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
@@ -44,7 +44,7 @@
 class HITrackClusterRemover : public edm::stream::EDProducer<> {
     public:
         HITrackClusterRemover(const edm::ParameterSet& iConfig) ;
-        ~HITrackClusterRemover() ;
+        ~HITrackClusterRemover() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
@@ -161,6 +161,9 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
   if (doStrip_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiStripCluster> >();
   if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
 
+  assert(!clusterWasteSolution_);
+
+
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
     if (doPixel_) {
@@ -267,7 +270,7 @@ HITrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
 
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 
@@ -461,7 +464,7 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       iEvent.getByToken(tracks_,tracks);
 
       std::vector<Handle<edm::ValueMap<int> > > quals;
-      if ( overrideTrkQuals_.size() > 0) {
+      if ( !overrideTrkQuals_.empty()) {
 	quals.resize(1);
 	iEvent.getByToken(overrideTrkQuals_[0],quals[0]);
       }
@@ -469,7 +472,7 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       for (const auto & track: *tracks) {
 	if (filterTracks_) {
 	  bool goodTk = true;
-	  if ( quals.size()!=0) {
+	  if ( !quals.empty()) {
 	    int qual=(*(quals[0])). get(it++);
 	    if ( qual < 0 ) {goodTk=false;}
 	    //note that this does not work for some trackquals (goodIterative  or undefQuality)
@@ -518,12 +521,12 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     if (doPixel_ && clusterWasteSolution_) {
         OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
-          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
+          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : nullptr));
 //DBG// std::cout << "HITrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
     if (doStrip_ && clusterWasteSolution_) {
-        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
+        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : nullptr));
 //DBG// std::cout << "HITrackClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
         cri->setNewStripClusters(newStrips);
     }

@@ -13,10 +13,10 @@ class MonPedestalOffsetsDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonPedestalOffsetsDat();
-  ~MonPedestalOffsetsDat();
+  ~MonPedestalOffsetsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_PEDESTAL_OFFSETS_DAT"; }
+  inline std::string getTable() override { return "MON_PEDESTAL_OFFSETS_DAT"; }
 
   inline void setDACG1(int dac) { m_dacG1 = dac; }
   inline int getDACG1() const { return m_dacG1; }
@@ -32,7 +32,7 @@ class MonPedestalOffsetsDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonPedestalOffsetsDat* item, MonRunIOV* iov )
     noexcept(false);

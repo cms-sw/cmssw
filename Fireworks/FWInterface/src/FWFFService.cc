@@ -48,7 +48,7 @@ namespace
    public:
 
       CmsEveMagField() : TEveMagField(), fField(-3.8), fFieldMag(3.8) {}
-      virtual ~CmsEveMagField() {}
+      ~CmsEveMagField() override {}
 
       // set current
       void SetFieldByCurrent(Float_t avg_current)
@@ -58,12 +58,12 @@ namespace
       }
 
       // get field values
-      virtual Float_t GetMaxFieldMag() const override
+      Float_t GetMaxFieldMag() const override
       {
          return fFieldMag;
       }
 
-      virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
+      TEveVector GetField(Float_t x, Float_t y, Float_t z) const override
       {
          static const Float_t barrelFac = 1.2 / 3.8;
          static const Float_t endcapFac = 2.0 / 3.8;
@@ -251,7 +251,7 @@ FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    //        this is not possible at the moment.
    if (m_firstTime == true)
    {
-      if (m_context->getGeom() == 0)
+      if (m_context->getGeom() == nullptr)
       {
          guiManager()->updateStatus("Loading geometry...");
          edm::ESTransientHandle<FWRecoGeometry> geoh;

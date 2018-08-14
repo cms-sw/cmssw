@@ -1,0 +1,5 @@
+from SimTracker.TrackHistory.trackingParticleBHadronRefSelectorDefault_cfi import trackingParticleBHadronRefSelectorDefault as _trackingParticleBHadronRefSelectorDefault
+trackingParticleBHadronRefSelector = _trackingParticleBHadronRefSelectorDefault.clone()
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(trackingParticleBHadronRefSelector, src = "mixData:MergedTrackTruth")

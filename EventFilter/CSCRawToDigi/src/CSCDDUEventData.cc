@@ -29,7 +29,7 @@ CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header)
 }
 
   
-CSCDDUEventData::CSCDDUEventData(uint16_t *buf, CSCDCCExaminer* examiner) 
+CSCDDUEventData::CSCDDUEventData(const uint16_t *buf, CSCDCCExaminer* examiner) 
 {
   unpack_data(buf, examiner);
 }
@@ -157,11 +157,11 @@ void CSCDDUEventData::decodeStatus(int code) const
     }
 }
 
-void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner) 
+void CSCDDUEventData::unpack_data(const uint16_t *buf, CSCDCCExaminer* examiner) 
 {
   // just to calculate length
-  uint16_t * inputBuf = buf;
-  uint16_t * inputBuf0 = buf; /// To pack trailer 0 
+  const uint16_t * inputBuf = buf;
+  const uint16_t * inputBuf0 = buf; /// To pack trailer 0 
   theData.clear();
   if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "CSCDDUEventData::unpack_data() is called";
   if (debug) 
@@ -174,7 +174,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
     }
   //std::cout << "DDU Size: " << std::dec << theDDUHeader.sizeInWords() << std::endl;
 
-  memcpy(&theDDUHeader, buf, theDDUHeader.sizeInWords()*2);
+  theDDUHeader.setFromBuffer(buf);
   
   if (debug) {
     LogTrace ("CSCDDUEventData|CSCRawToDigi") << "size of ddu header in words = " << theDDUHeader.sizeInWords();
@@ -206,7 +206,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
   theData.clear();
   theData.reserve(theDDUHeader.ncsc());
 
-  if (examiner!= NULL) { // Use selective unpacking mode
+  if (examiner!= nullptr) { // Use selective unpacking mode
 
     if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << "selective unpacking starting";
 
@@ -215,7 +215,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
 	
     std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> > ddus = examiner->DMB_block();
     std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> >::iterator ddu_itr = ddus.find(dduID);
-    uint16_t* dduBlock = (uint16_t*)((examiner->DDU_block())[dduID]);
+    const uint16_t* dduBlock = (const uint16_t*)((examiner->DDU_block())[dduID]);
     uint32_t dduBufSize = (examiner->DDU_size())[dduID];
 		
     if (ddu_itr != ddus.end() && dduBufSize!=0 && dduBlock==inputBuf) {
@@ -227,7 +227,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
 
         if(cscid != -1)
         {
-	  uint16_t* pos = (uint16_t*)csc_itr->second;
+	  const uint16_t* pos = (const uint16_t*)csc_itr->second;
 	
 	
           ExaminerStatusType errors = examiner->errorsForChamber(cscid);
@@ -248,7 +248,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
 	}
       // std::cout << std::dec << theDDUTrailer.sizeInWords() << std::endl;
       // decode ddu tail
-      memcpy(&theDDUTrailer, inputBuf+dduBufSize, theDDUTrailer.sizeInWords()*2);
+      theDDUTrailer.setFromBuffer(inputBuf+dduBufSize);
       // memcpy(&theDDUTrailer, dduBlock+(dduBufSize-theDDUTrailer.sizeInWords())*2, theDDUTrailer.sizeInWords()*2);
       if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << theDDUTrailer.check();
       errorstat=theDDUTrailer.errorstat();
@@ -300,7 +300,7 @@ void CSCDDUEventData::unpack_data(uint16_t *buf, CSCDCCExaminer* examiner)
     }
 
     // decode ddu tail
-    memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
+    theDDUTrailer.setFromBuffer(buf);
     if (debug) LogTrace ("CSCDDUEventData|CSCRawToDigi") << theDDUTrailer.check();
     errorstat=theDDUTrailer.errorstat();
     if ((errorstat&errMask) != 0)  

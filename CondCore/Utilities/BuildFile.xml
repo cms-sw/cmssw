@@ -31,6 +31,8 @@
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/BTauObjects"/>
 <use   name="CondFormats/MFObjects"/>
+<use   name="CondFormats/PCLConfig"/>
+<use   name="CondFormats/CTPPSReadoutObjects"/>
 <export>
   <lib   name="1"/>
 </export>

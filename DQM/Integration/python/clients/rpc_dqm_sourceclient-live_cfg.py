@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
@@ -113,7 +114,7 @@ process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
     process.rpcunpacker.InputLabel = cms.InputTag("rawDataRepacker")

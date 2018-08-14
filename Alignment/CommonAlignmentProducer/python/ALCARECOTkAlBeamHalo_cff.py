@@ -1,11 +1,12 @@
 # AlCaReco for track based alignment using min. bias events
 import FWCore.ParameterSet.Config as cms
 
-#  module ALCARECOTkAlBeamHaloHLT = hltHighLevel from "HLTrigger/HLTfilters/data/hltHighLevel.cfi"
-#  replace ALCARECOTkAlBeamHaloHLT.andOr = true # choose logical OR between Triggerbits
-# which is the BeamHalo HLT Tag?
-#  replace ALCARECOTkAlBeamHaloHLT.HLTPaths = {""}
-#  replace ALCARECOTkAlBeamHaloHLT.throw = false
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOTkAlBeamHaloHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+    eventSetupPathsKey = 'TkAlBeamHalo',
+    throw = False # tolerate triggers not available
+    )
 
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"

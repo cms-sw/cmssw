@@ -94,7 +94,7 @@ int DTDDUFileReader::fillRawData(Event& e,
       word = dmaUnpack(dataTag,nread);
       if ( nread<=0 ) {
 	cout<<"[DTDDUFileReader]: ERROR! no more words and failed to get the trailer"<<endl;
-	delete data; data=0;
+	delete data; data=nullptr;
 	return false;
       }
     }
@@ -104,7 +104,7 @@ int DTDDUFileReader::fillRawData(Event& e,
       dataTag = false;
       if ( nread<=0 ) {
 	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
-	delete data; data=0;
+	delete data; data=nullptr;
 	return false;
       }
     }
@@ -135,7 +135,7 @@ int DTDDUFileReader::fillRawData(Event& e,
   
   //     FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   //     cout<<"EventSize: pushed back "<<eventData.size()
-  // 	<<";  From trailer "<<candidate.lenght()<<endl;
+  // 	<<";  From trailer "<<candidate.fragmentLength()<<endl;
   
   // next event reading will start with meaningless trailer+header from DTLocalDAQ
   // those will be skipped automatically when seeking for the DDU header
@@ -170,7 +170,7 @@ int DTDDUFileReader::fillRawData(Event& e,
 
 void DTDDUFileReader::produce(Event&e, EventSetup const&es){
    edm::Handle<FEDRawDataCollection> rawdata;
-   FEDRawDataCollection *fedcoll = 0;
+   FEDRawDataCollection *fedcoll = nullptr;
    fillRawData(e,fedcoll);
    std::unique_ptr<FEDRawDataCollection> bare_product(fedcoll);
    e.put(std::move(bare_product));
@@ -228,14 +228,14 @@ bool DTDDUFileReader::isHeader(uint64_t word, bool dataTag) {
 }
 
 
-bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag, int wordCount) {
+bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag, unsigned int wordCount) {
 
   bool it_is = false;
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   if ( candidate.check() ) {
     //  if ( candidate.check() && !dataTag) {
-    //cout<<"[DTDDUFileReader] "<<wordCount<<" - "<<candidate.lenght()<<endl;
-    if ( wordCount == candidate.lenght())
+    //cout<<"[DTDDUFileReader] "<<wordCount<<" - "<<candidate.fragmentLength()<<endl;
+    if ( wordCount == candidate.fragmentLength())
       it_is = true;
   }
  

@@ -12,7 +12,8 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 
@@ -28,7 +29,7 @@ class FastLineRecognition
 
     ~FastLineRecognition();
 
-    void resetGeometry(const TotemRPGeometry *_g)
+    void resetGeometry(const CTPPSGeometry *_g)
     {
       geometry = _g;
       geometryMap.clear();
@@ -51,7 +52,7 @@ class FastLineRecognition
     double threshold;
 
     /// pointer to the geometry
-    const TotemRPGeometry* geometry;
+    const CTPPSGeometry* geometry;
 
     struct GeomData
     {
@@ -73,7 +74,7 @@ class FastLineRecognition
       double z;                 ///< z position with respect to z0
       double w;                 ///< weight
       bool usable;              ///< whether the point can still be used
-      Point(unsigned int _d=0, const TotemRPRecHit* _hit=NULL, double _h=0., double _z=0., double _w=0.) :
+      Point(unsigned int _d=0, const TotemRPRecHit* _hit=nullptr, double _h=0., double _z=0., double _w=0.) :
         detId(_d), hit(_hit), h(_h), z(_z), w(_w), usable(true) {}
     };
     

@@ -1,40 +1,51 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-# TODO: add era switch here for Phase1
-process = cms.Process("PIXELDQMLIVE")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("PIXELDQMLIVE", eras.Run2_2018)
+
+live=True  #set to false for lxplus offline testing
+offlineTesting=not live
+
+TAG ="PixelPhase1" 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siPixelDigis', 
-                                         #'siPixelClusters', 
+    debugModules = cms.untracked.vstring('siPixelDigis',
+                                         'siStripClusters', 
                                          'SiPixelRawDataErrorSource', 
-                                         'SiPixelDigiSource', 
-                                         'sipixelEDAClient'),
+                                         'SiPixelDigiSource'),
     cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
     destinations = cms.untracked.vstring('cout')
 )
 
-QTestfile = 'DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'
 #----------------------------
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-#process.load("DQM.Integration.config.inputsource_cfi")
+
+if (live):
+    process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.config.fileinputsource_cfi")
+elif(offlineTesting):
+    process.load("DQM.Integration.config.fileinputsource_cfi")
 
-##
-#----------------------------
+#-----------------------------
 # DQM Environment
 #-----------------------------
+
 process.load("DQMServices.Components.DQMEnvironment_cfi")
+
+process.load("DQM.Integration.config.environment_cfi")
 
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder    = "PixelPhase1"
-process.dqmSaver.tag = "PixelPhase1"
+
+process.dqmEnv.subSystemFolder = TAG
+process.dqmSaver.tag = TAG
+
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 if (process.runType.getRunType() == process.runType.hi_run):
@@ -42,93 +53,81 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_cosmic.root'
-    process.source.SelectEvents = cms.untracked.vstring('HLT*SingleMu*')
 
 #-----------------------------
 # Magnetic Field
 #-----------------------------
-# 3.8T field
+
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
+
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------------------
 # GLOBALTAG
 #-------------------------------------------------
 # Condition for P5 cluster
-#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+
+if (live):
+    process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+
 # Condition for lxplus: change and possibly customise the GT
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+elif(offlineTesting):
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------
 #  Reconstruction Modules
 #-----------------------
+
 # Real data raw to digi
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
+process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi")
+
+process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
+
+# PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.IncludeErrors = True
 
-# Local Reconstruction
-process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
-
-#----------------------------------
-# High Pileup Configuration Changes
-#----------------------------------
-#if (process.runType.getRunType() == process.runType.hpu_run):
-#    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_*Cosmic*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*','HLT_HcalNZS*'))
-
-
 process.siPixelDigis.InputLabel   = cms.InputTag("rawDataCollector")
+process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
+
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
-if (process.runType.getRunType() == process.runType.hi_run):
-    QTestfile = 'DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest_heavyions.xml'
-    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
-#    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('HLT_HI*'))
+#
+#if (process.runType.getRunType() == process.runType.hi_run):    
+#    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
+#    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
+#    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
 
-#--------------------------
-# Pixel DQM Source and Client
-#--------------------------
-# Phase0
-#process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
-#process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
+## Collision Reconstruction
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
-#process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataCollector")
-#process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataCollector")
-#process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataCollector")
+## Cosmic Track Reconstruction
+if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+    process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+    process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+    process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
+else:
+    process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-#if (process.runType.getRunType() == process.runType.hi_run):
-#        process.sipixelEDAClientP5.inputSource = cms.untracked.string("rawDataRepacker")
-#        process.sipixelDaqInfo.daqSource   = cms.untracked.string("rawDataRepacker")
-#        process.SiPixelRawDataErrorSource.inputSource  = cms.untracked.string("rawDataRepacker")
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
-#process.SiPixelDigiSource.layOn = True
-#process.SiPixelDigiSource.diskOn = True
-
-# Phase1
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 
 process.PerModule.enabled=True
-process.PerReadout.enabled=False
-process.OverlayCurvesForTiming.enabled=False
-
-process.qTester = cms.EDAnalyzer("QualityTester",
-    qtList = cms.untracked.FileInPath(QTestfile),
-    prescaleFactor = cms.untracked.int32(1),
-    getQualityTestsFromFile = cms.untracked.bool(True),
-    verboseQT = cms.untracked.bool(False),
-    qtestOnEndLumi = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
-)
+process.PerReadout.enabled=True
+process.OverlayCurvesForTiming.enabled=True
+process.IsOffline.enabled=False
 
 #--------------------------
 # Service
@@ -138,35 +137,98 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 #--------------------------
 # Filters
 #--------------------------
+
 # HLT Filter
 # 0=random, 1=physics, 2=calibration, 3=technical
 process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32(1)
 )
 
+process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*')
+process.hltHighLevel.andOr = cms.bool(True)
+process.hltHighLevel.throw =  cms.bool(False)
+
 #--------------------------
 # Scheduling
 #--------------------------
-process.DQMmodules = cms.Sequence(process.dqmEnv*process.qTester*process.dqmSaver)
 
-if (process.runType.getRunType() == process.runType.hi_run):
-    process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
-    process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)
 
-else:
-    process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
+process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
-process.p = cms.Path(
-  process.Reco
- *process.DQMmodules
-# *process.SiPixelRawDataErrorSource
-# *process.SiPixelDigiSource
-# *process.SiPixelClusterSource
-# *process.PixelP5DQMClientWithDataCertification
- *process.siPixelPhase1OnlineDQM_source
- *process.siPixelPhase1OnlineDQM_harvesting
-)
+### COSMIC RUN SETTING
+if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+        
+    # Reco for cosmic data
+    process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
+    process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
+    process.combinatorialcosmicseedfinderP5.MaxNumberOfCosmicClusters = 450
+
     
+
+    process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5*process.siPixelClusterShapeCache)
+    
+    process.p = cms.Path(
+                         ##### TRIGGER SELECTION #####
+                         process.hltHighLevel*
+                         process.scalersRawToDigi*
+                         process.APVPhases*
+                         process.consecutiveHEs*
+                         process.hltTriggerTypeFilter*
+                         process.RecoForDQM_LocalReco*
+                         process.DQMmodules*
+                         process.RecoForDQM_TrkReco_cosmic*
+                         process.siPixelPhase1OnlineDQM_source_cosmics*
+                         process.siPixelPhase1OnlineDQM_harvesting
+                         )
+   
+### pp COLLISION SETTING
+
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1):
+    # Reco for pp collisions
+    process.load('RecoTracker.IterativeTracking.InitialStepPreSplitting_cff')
+    process.InitialStepPreSplittingTask.remove(process.initialStepTrackRefsForJetsPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.caloTowerForTrkPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.ak4CaloJetsForTrkPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.jetsForCoreTrackingPreSplitting)
+    process.InitialStepPreSplittingTask.remove(process.siPixelClusters)
+    process.InitialStepPreSplittingTask.remove(process.siPixelRecHits)
+    process.InitialStepPreSplittingTask.remove(process.MeasurementTrackerEvent)
+    process.InitialStepPreSplittingTask.remove(process.siPixelClusterShapeCache)
+
+    # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff 
+    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+
+    from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
+    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
+    process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
+
+    if (process.runType.getRunType() == process.runType.hi_run):
+        process.SiPixelClusterSource.src = cms.InputTag("siPixelClustersPreSplitting")
+        process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
+
+    else:
+        process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+                          
+
+    process.p = cms.Path(
+      process.hltHighLevel #trigger selection
+     *process.scalersRawToDigi
+     *process.APVPhases
+     *process.consecutiveHEs
+     *process.Reco
+     *process.siPixelClusters
+     *process.DQMmodules
+     *process.RecoForDQM_TrkReco
+     *process.siPixelPhase1OnlineDQM_source_pprun
+     *process.siPixelPhase1OnlineDQM_harvesting
+    )
+
+### FIXME: to add the HI Track Reconstruction    
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
@@ -175,4 +237,4 @@ process = customise(process)
 # Heavy Ion Specific Fed Raw Data Collection Label
 #--------------------------------------------------
 
-print "Running with run type = ", process.runType.getRunType()
+print("Running with run type = ", process.runType.getRunType())

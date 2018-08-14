@@ -19,7 +19,7 @@ MagneticFieldMapESProducer::MagneticFieldMapESProducer(const edm::ParameterSet &
 
 MagneticFieldMapESProducer::~MagneticFieldMapESProducer() {}
 
-std::shared_ptr<MagneticFieldMap>
+std::unique_ptr<MagneticFieldMap>
 MagneticFieldMapESProducer::produce(const MagneticFieldMapRecord & iRecord){ 
 
   edm::ESHandle<TrackerInteractionGeometry> theInteractionGeometry;
@@ -28,9 +28,7 @@ MagneticFieldMapESProducer::produce(const MagneticFieldMapRecord & iRecord){
   iRecord.getRecord<TrackerInteractionGeometryRecord>().get(_label, theInteractionGeometry );
   iRecord.getRecord<IdealMagneticFieldRecord>().get(theMagneticField );
 
-  _map = std::make_shared<MagneticFieldMap>(&(*theMagneticField),&(*theInteractionGeometry));
-
-  return _map;
+  return  std::make_unique<MagneticFieldMap>(&(*theMagneticField),&(*theInteractionGeometry));
 
 }
 

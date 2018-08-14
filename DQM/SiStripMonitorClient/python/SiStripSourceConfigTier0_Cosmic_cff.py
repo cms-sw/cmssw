@@ -44,7 +44,7 @@ from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.Mod_On = False
 SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
 SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True 
-SiStripMonitorCluster.TrendVsLS = True
+SiStripMonitorCluster.TrendVs10LS = False
 SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=False
 SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=False
 SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=False
@@ -97,13 +97,13 @@ MonitorTrackResiduals_ckf.Mod_On                   = False
 #MonitorTrackResiduals_rs.Mod_On                    = False
 
 # DQM Services
-dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoSiStrip = DQMEDAnalyzer('DQMEventInfo',
      subSystemFolder = cms.untracked.string('SiStrip')
 )
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
-SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripCommon.TkDetMap_cff import *
 
 # Event History Producer
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *

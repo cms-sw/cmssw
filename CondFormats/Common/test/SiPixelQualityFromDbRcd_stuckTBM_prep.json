@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelQuality_byPCL_stuckTBM_prep_v1": {}
+    }, 
+    "inputTag": "SiPixelQualityFromDbRcd_stuckTBM", 
+    "since": null, 
+    "userText": "Tier0 PCL Upload for SiPixelQuality stuck (prep)"
+}

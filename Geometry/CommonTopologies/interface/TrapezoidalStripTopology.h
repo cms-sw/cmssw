@@ -34,39 +34,39 @@ public:
   TrapezoidalStripTopology(int nstrip, float pitch, float detheight,float r0, int yAx);
 
   using StripTopology::localPosition;
-  virtual LocalPoint localPosition(float strip) const;
+  LocalPoint localPosition(float strip) const override;
 
-  virtual LocalPoint localPosition(const MeasurementPoint&) const;
+  LocalPoint localPosition(const MeasurementPoint&) const override;
   
   using StripTopology::localError;
-  virtual LocalError 
-  localError(float strip, float stripErr2) const;
+  LocalError 
+  localError(float strip, float stripErr2) const override;
   
-  virtual LocalError 
-  localError(const MeasurementPoint&, const MeasurementError&) const;
+  LocalError 
+  localError(const MeasurementPoint&, const MeasurementError&) const override;
   
-  virtual float strip(const LocalPoint&) const;
+  float strip(const LocalPoint&) const override;
 
-  virtual MeasurementPoint measurementPosition(const LocalPoint&) const;
+  MeasurementPoint measurementPosition(const LocalPoint&) const override;
     
-  virtual MeasurementError 
-  measurementError(const LocalPoint&, const LocalError&) const;
+  MeasurementError 
+  measurementError(const LocalPoint&, const LocalError&) const override;
 
-  virtual int channel(const LocalPoint&) const;
+  int channel(const LocalPoint&) const override;
 
   /** Pitch in the middle of the DetUnit */
-  virtual float pitch() const; 
+  float pitch() const override; 
 
-  virtual float localPitch(const LocalPoint&) const;
+  float localPitch(const LocalPoint&) const override;
   
   /** angle between strip and symmetry axis */
-  virtual float stripAngle(float strip) const;
+  float stripAngle(float strip) const override;
 
-  virtual int nstrips() const; 
+  int nstrips() const override; 
 
   /// det heigth (strip length in the middle)
-  virtual float stripLength() const {return theDetHeight;}
-  virtual float localStripLength(const LocalPoint& aLP) const;
+  float stripLength() const override {return theDetHeight;}
+  float localStripLength(const LocalPoint& aLP) const override;
   
   /** radius of circle passing through the middle of the det
    *    with center at the crossing of the two sides.

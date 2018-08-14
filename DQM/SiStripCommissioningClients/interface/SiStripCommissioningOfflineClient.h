@@ -31,17 +31,17 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
  public:
   
   SiStripCommissioningOfflineClient( const edm::ParameterSet& );
-  virtual ~SiStripCommissioningOfflineClient();
+  ~SiStripCommissioningOfflineClient() override;
   
-  virtual void beginRun( const edm::Run&, const edm::EventSetup& );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void endJob();
+  void beginRun( const edm::Run&, const edm::EventSetup& ) override;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override;
   
  protected:
 
   virtual void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
   virtual void uploadToConfigDb() {;}
-  virtual void setInputFiles( std::vector<std::string>&, const std::string, uint32_t, bool );
+  virtual void setInputFiles( std::vector<std::string>&, const std::string, const std::string, uint32_t, bool );
   
  protected:
 
@@ -80,6 +80,9 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   
   /** Run number. */
   uint32_t runNumber_;
+
+  /** Partition Name */
+  std::string partitionName_ ;
 
   /** */
   typedef std::vector<TH1*> Histos;

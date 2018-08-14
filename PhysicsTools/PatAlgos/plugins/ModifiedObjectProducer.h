@@ -31,13 +31,13 @@ namespace pat {
       //declare products
       produces<Collection>();
     }
-    ~ModifiedObjectProducer() {}
+    ~ModifiedObjectProducer() override {}
 
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& evs) override final {
+    void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& evs) final {
       modifier_->setEventContent(evs);
     }
     
-    virtual void produce(edm::Event& evt,const edm::EventSetup& evs) override final {
+    void produce(edm::Event& evt,const edm::EventSetup& evs) final {
       edm::Handle<edm::View<T> > input;
       auto output = std::make_unique<Collection>();
 

@@ -27,6 +27,7 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "boost/cstdint.hpp"
+#include <memory>
 #include <vector>
 #include <string>
 #include <typeinfo>
@@ -43,7 +44,7 @@ class SiStripLatency;
 class TrackerTopology;
 
 class SiStripCondObjBuilderFromDb {
-  
+
  public:
 
    // Typedefs
@@ -55,16 +56,31 @@ class SiStripCondObjBuilderFromDb {
   typedef std::vector<pair_detcon>::iterator i_trackercon;
   typedef std::vector<pair_apvpairconn>::iterator i_apvpairconn;
 
- 
+  class SkipDeviceDescription {
+    /* Class to hold the addresses of the devices to be skipped from gain update.
+     * 0 stands for all devices at this level.
+     * sistrip::invalid means this coordinate is not used. */
+  public:
+    SkipDeviceDescription();
+    SkipDeviceDescription(const edm::ParameterSet& pset);
+    bool isConsistent(const FedChannelConnection &fc) const;
+    std::string dump() const;
+
+  private:
+    SiStripFecKey fec_;
+    SiStripFedKey fed_;
+    uint32_t detid_;
+  };
+
   SiStripCondObjBuilderFromDb();
   SiStripCondObjBuilderFromDb(const edm::ParameterSet&,
 			      const edm::ActivityRegistry&);
   virtual ~SiStripCondObjBuilderFromDb();
-  
+
   TrackerTopology * buildTrackerTopology();
 
   /** Returns database connection parameters. */
-  inline const SiStripDbParams& dbParams() const {return db_->dbParams();} 
+  inline const SiStripDbParams& dbParams() const {return db_->dbParams();}
 
   /** Builds pedestals using FED descriptions and cabling info
       retrieved from configuration database. */
@@ -74,48 +90,54 @@ class SiStripCondObjBuilderFromDb {
   void buildAnalysisRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
   void buildFECRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
   void buildFEDRelatedObjects( SiStripConfigDb* const db, const trackercon& tc);
-  				
+
 
   bool checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label);
   std::string getConfigString(const std::type_info& typeInfo);
 
   SiStripFedCabling*  getFedCabling() {checkUpdate(); return fed_cabling_;}
-  SiStripPedestals *  getPedestals()  {checkUpdate(); return pedestals_;}  
-  SiStripNoises    *  getNoises()     {checkUpdate(); return noises_;}  
-  SiStripThreshold *  getThreshold()  {checkUpdate(); return threshold_;}  
-  SiStripQuality   *  getQuality()    {checkUpdate(); return quality_;}  
-  SiStripApvGain* getApvGain() { checkUpdate(); return gain_; }  
+  SiStripPedestals *  getPedestals()  {checkUpdate(); return pedestals_;}
+  SiStripNoises    *  getNoises()     {checkUpdate(); return noises_;}
+  SiStripThreshold *  getThreshold()  {checkUpdate(); return threshold_;}
+  SiStripQuality   *  getQuality()    {checkUpdate(); return quality_;}
+  SiStripApvGain* getApvGain() { checkUpdate(); return gain_; }
   SiStripLatency* getApvLatency() { checkUpdate(); return latency_; }
 
   void getValue(SiStripFedCabling* & val){ val = getFedCabling();}
-  void getValue(SiStripPedestals * & val){ val = getPedestals(); }  
-  void getValue(SiStripNoises    * & val){ val = getNoises();    }  
-  void getValue(SiStripThreshold * & val){ val = getThreshold(); }  
-  void getValue(SiStripQuality   * & val){ val = getQuality();   }  
-  void getValue(SiStripBadStrip  * & val){ val = new SiStripBadStrip(* (const SiStripBadStrip*) getQuality());   }  
-  void getValue( SiStripApvGain*& val ){ val = getApvGain(); }  
-  void getValue( SiStripLatency*& val ){ val = getApvLatency(); }  
+  void getValue(SiStripPedestals * & val){ val = getPedestals(); }
+  void getValue(SiStripNoises    * & val){ val = getNoises();    }
+  void getValue(SiStripThreshold * & val){ val = getThreshold(); }
+  void getValue(SiStripQuality   * & val){ val = getQuality();   }
+  void getValue(SiStripBadStrip  * & val){ val = new SiStripBadStrip(* (const SiStripBadStrip*) getQuality());   }
+  void getValue( SiStripApvGain*& val ){ val = getApvGain(); }
+  void getValue( SiStripLatency*& val ){ val = getApvLatency(); }
 
+  void setLastIovGain(std::shared_ptr<SiStripApvGain> gain) { gain_last_ = gain; }
 
  protected:
-  
+
   void checkUpdate();
-  
+
   /** Access to the configuration DB interface class. */
   // Build and retrieve SiStripConfigDb object using service
   edm::Service<SiStripConfigDb> db_;
-  
+
   /** Container for DB connection parameters. */
   SiStripDbParams dbParams_;
   SiStripFedCabling  *fed_cabling_;
-  SiStripPedestals   *pedestals_;  
-  SiStripNoises      *noises_;  
-  SiStripThreshold   *threshold_;  
-  SiStripQuality     *quality_;  
+  SiStripPedestals   *pedestals_;
+  SiStripNoises      *noises_;
+  SiStripThreshold   *threshold_;
+  SiStripQuality     *quality_;
   SiStripApvGain     *gain_;
   SiStripLatency* latency_;
 
- 
+  std::shared_ptr<SiStripApvGain> gain_last_; // last gain object in DB
+  std::vector<SkipDeviceDescription> skippedDevices; // devices to be skipped for gain update
+  std::vector<uint32_t> skippedDetIds;
+  std::vector<SkipDeviceDescription> whitelistedDevices; // devices whitelist for gain update: will NOT be skipped, even if in the 'skip list'
+  std::vector<uint32_t> whitelistedDetIds;
+
   //methods used by BuildStripRelatedObjects
   bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
   bool setValuesApvTiming(SiStripConfigDb* const db, FedChannelConnection &ipair);
@@ -126,19 +148,22 @@ class SiStripCondObjBuilderFromDb {
   vector<uint32_t> retrieveActiveDetIds(const SiStripDetCabling& det_cabling);
   vector<const FedChannelConnection *> buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id );
   uint16_t retrieveNumberAPVPairs(uint32_t det_id);
- 
+
   //set and store data
   void setDefaultValuesCabling(uint16_t apvPair);
-  void setDefaultValuesApvTiming();
+  void setDefaultValuesApvTiming(uint32_t detid, uint32_t apvPair);
   void setDefaultValuesApvLatency(SiStripLatency & latency_, const FedChannelConnection& ipair, uint32_t detid, uint16_t apvnr);
   void storePedestals(uint32_t det_id);
   void storeNoise(uint32_t det_id);
   void storeThreshold(uint32_t det_id);
   void storeQuality(uint32_t det_id);
   void storeTiming(uint32_t det_id);
-  
-  
+
+
   // cfi input parameters
+  edm::VParameterSet m_skippedDevices;   // VPset of devices to be skipped in tickmark update
+  edm::VParameterSet m_whitelistedDevices;  // VPset of whitelisted devices: will NOT be skipped in tickmark update (even if in the 'skip list')
+  float m_tickmarkThreshold;             // threshold to accept the tickmark measurement
   float m_gaincalibrationfactor;
   float m_defaultpedestalvalue;
   float m_defaultnoisevalue;
@@ -159,7 +184,7 @@ class SiStripCondObjBuilderFromDb {
   SiStripThreshold::InputVector inputThreshold;
   SiStripQuality::InputVector inputQuality;
   SiStripApvGain::InputVector inputApvGain;
-  
+
 
   // Tracker Cabling objects
   pair_apvpairconn p_apvpcon;

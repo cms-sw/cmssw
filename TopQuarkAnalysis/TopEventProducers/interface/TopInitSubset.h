@@ -15,9 +15,9 @@ class TopInitSubset : public edm::EDProducer {
  public:
 
   explicit TopInitSubset(const edm::ParameterSet&);
-  ~TopInitSubset();
+  ~TopInitSubset() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
 
  private:

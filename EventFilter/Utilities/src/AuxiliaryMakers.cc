@@ -6,30 +6,29 @@
 namespace evf{
   namespace evtn{
 
-      edm::EventAuxiliary makeEventAuxiliary(TCDSRecord *record,
+	edm::EventAuxiliary makeEventAuxiliary(const tcds::Raw_v1* tcds,
 					     unsigned int runNumber,
-                                             unsigned int lumiSection,
-					     std::string const &processGUID,
-                                             bool verifyLumiSection){
+					     unsigned int lumiSection,
+					     const edm::EventAuxiliary::ExperimentType& eventType,
+					     const std::string& processGUID,
+					     bool verifyLumiSection){
 	edm::EventID eventId(runNumber, // check that runnumber from record is consistent
-			     //record->getHeader().getData().header.lumiSection,//+1
                              lumiSection,
-			     record->getHeader().getData().header.eventNumber);
+			     tcds->header.eventNumber);
 
-	uint64_t gpsh = record->getBST().getBST().gpstimehigh;
-	uint32_t gpsl = record->getBST().getBST().gpstimelow;
-        edm::TimeValue_t time = static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl);
+        edm::TimeValue_t time = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
         if (time == 0) {
           timeval stv;
-          gettimeofday(&stv,0);
+          gettimeofday(&stv,nullptr);
           time = stv.tv_sec;
           time = (time << 32) + stv.tv_usec;
         }
-	uint64_t orbitnr = (((uint64_t)record->getHeader().getData().header.orbitHigh) << 16) + record->getHeader().getData().header.orbitLow;
-        uint32_t recordLumiSection = record->getHeader().getData().header.lumiSection;
 
-        if (verifyLumiSection && recordLumiSection != lumiSection) 
-          edm::LogWarning("AuxiliaryMakers") << "Lumisection mismatch, external : "<<lumiSection << ", record : " << recordLumiSection; 
+        const uint64_t orbitnr = ((uint64_t)tcds->header.orbitHigh << 16) | tcds->header.orbitLow;
+        const uint32_t recordLumiSection = tcds->header.lumiSection;
+
+        if (verifyLumiSection && recordLumiSection != lumiSection)
+          edm::LogWarning("AuxiliaryMakers") << "Lumisection mismatch, external : " << lumiSection << ", record : " << recordLumiSection;
         if ((orbitnr >> 18) + 1 != recordLumiSection)
           edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;
 
@@ -37,9 +36,9 @@ namespace evf{
 				   processGUID,
 				   edm::Timestamp(time),
 				   true,
-                                   (edm::EventAuxiliary::ExperimentType)(FED_EVTY_EXTRACT(record->getFEDHeader().getData().header.eventid)),
-				   (int)record->getHeader().getData().header.bcid,
-				   edm::EventAuxiliary::invalidStoreNumber,
+                                   eventType,
+				   (int)tcds->header.bxid,
+				   ((uint32_t)(tcds->bst.lhcFillHigh)<<16)|tcds->bst.lhcFillLow,
 				   (int)(orbitnr&0x7fffffffU));//framework supports only 32-bit signed
       }
   }

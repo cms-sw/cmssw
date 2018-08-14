@@ -3,30 +3,78 @@
     <version ClassVersion="10" checksum="3197268020"/>
   </class>
   <class name="std::vector<l1t::HGCFETriggerDigi>"/>
-  <class name="l1t::HGCFETriggerDigiCollection"/>  
-  <class name="edm::Wrapper<l1t::HGCFETriggerDigiCollection>"/> 
-  
+  <class name="l1t::HGCFETriggerDigiCollection"/>
+  <class name="edm::Wrapper<l1t::HGCFETriggerDigiCollection>"/>
+
   <class name="l1t::HGCFETriggerDigiRef"/>
   <class name="l1t::HGCFETriggerDigiRefVector"/>
   <class name="edm::Wrapper<l1t::HGCFETriggerDigiRefVector>"/>
-  
+
   <class name="l1t::HGCFETriggerDigiPtr"/>
   <class name="l1t::HGCFETriggerDigiPtrVector"/>
-  <class name="edm::Wrapper<l1t::HGCFETriggerDigiPtrVector>"/>  
+  <class name="edm::Wrapper<l1t::HGCFETriggerDigiPtrVector>"/>
 
   <class name="l1t::HGCalTower" />
   <class name="std::vector<l1t::HGCalTower>" />
+  <class name="std::unordered_map<int,l1t::HGCalTower>" />
   <class name="l1t::HGCalTowerBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTowerBxCollection>"/>
 
-  <class name="l1t::HGCalCluster" />
+
+  <class name="l1t::HGCalTowerMap" />
+  <class name="l1t::HGCalTowerID" />
+  <class name="std::vector<l1t::HGCalTowerMap>" />
+  <class name="l1t::HGCalTowerMapBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalTowerMapBxCollection>"/>
+
+  <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
+  <class name="l1t::HGCalCluster" ClassVersion="14">
+  <version ClassVersion="14" checksum="3289642235"/>
+  <version ClassVersion="13" checksum="3397489079"/>
+  <version ClassVersion="12" checksum="623703096"/>
+  <version ClassVersion="11" checksum="354623225"/>
+  <version ClassVersion="10" checksum="607544984"/>
+  </class>
   <class name="std::vector<l1t::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 
-  <class name="l1t::HGCalTriggerCell" />
+  <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
+  <class name="l1t::HGCalMulticluster" ClassVersion="14">
+  <version ClassVersion="14" checksum="2315302819"/>
+  <version ClassVersion="13" checksum="816077951"/>
+  <version ClassVersion="12" checksum="4221677522"/>
+  <version ClassVersion="11" checksum="1508179045"/>
+  <version ClassVersion="10" checksum="1878482802"/>
+  </class>
+  <class name="std::vector<l1t::HGCalMulticluster>" />
+  <class name="l1t::HGCalMulticlusterBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalMulticlusterBxCollection>"/>
+
+  <class name="l1t::HGCalTriggerCell" ClassVersion="10">
+    <version ClassVersion="10" checksum="1275348814"/>
+  </class>
   <class name="std::vector<l1t::HGCalTriggerCell>" />
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
+
+  <class name="std::vector<edm::Ptr<l1t::HGCalTriggerCell>>" />
+  <class name="std::vector<edm::Ptr<l1t::HGCalCluster>>" />
+  <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>" />
+  <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>" />
+  <class name="std::unordered_map<uint32_t, double>" />
+  <class name="unordered_map<unsigned short,l1t::HGCalTower>" />
+  <class name="edm::PtrVector<l1t::HGCalTowerMap>" />
+  <class name="edm::Ptr<l1t::HGCalTriggerCell>" />
+  <class name="edm::Ptr<l1t::HGCalCluster>" />
+  <class name="edm::Ptr<l1t::HGCalTowerMap>" />
+  <class name="edm::Wrapper<edm::Ptr<l1t::HGCalTriggerCell>>"/>
+  <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalTriggerCell>>"/>
+  <class name="edm::Wrapper<edm::Ptr<l1t::HGCalCluster>>"/>
+  <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalCluster>>"/>
+  <class name="edm::Wrapper<edm::Ptr<l1t::HGCalTowerMap>>"/>
+  <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalTowerMap>>"/>
+
+  <class name="l1t::ClusterShapes"/>
 
 </lcgdict>

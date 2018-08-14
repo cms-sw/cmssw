@@ -45,7 +45,7 @@ public:
     L1GtHfRingEtSumsCondition(const L1GtHfRingEtSumsCondition&);
 
     // destructor
-    virtual ~L1GtHfRingEtSumsCondition();
+    ~L1GtHfRingEtSumsCondition() override;
 
     // assign operator
     L1GtHfRingEtSumsCondition& operator=(const L1GtHfRingEtSumsCondition&);
@@ -53,10 +53,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-     const bool evaluateCondition() const;
+     const bool evaluateCondition() const override;
 
     /// print condition
-     void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const override;
 
 public:
 

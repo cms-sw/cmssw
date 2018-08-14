@@ -17,46 +17,46 @@ private:
 
 public:
 
-  virtual ~TRecHit5DParamConstraint() {}
+  ~TRecHit5DParamConstraint() override {}
 
-  virtual int dimension() const { return 5; }
+  int dimension() const override { return 5; }
 
-  virtual AlgebraicMatrix projectionMatrix() const {
+  AlgebraicMatrix projectionMatrix() const override {
     AlgebraicMatrix projectionMatrix( 5, 5, 1 );
     return projectionMatrix;
   }
 
-  virtual AlgebraicVector parameters() const { return asHepVector( tsos_.localParameters().vector() ); }
+  AlgebraicVector parameters() const override { return asHepVector( tsos_.localParameters().vector() ); }
 
-  virtual AlgebraicSymMatrix parametersError() const { return asHepMatrix( tsos_.localError().matrix() ); }
+  AlgebraicSymMatrix parametersError() const override { return asHepMatrix( tsos_.localError().matrix() ); }
 
-  virtual LocalPoint localPosition() const { return tsos_.localPosition(); }
+  LocalPoint localPosition() const override { return tsos_.localPosition(); }
 
-  virtual LocalError localPositionError() const { return tsos_.localError().positionError(); }
+  LocalError localPositionError() const override { return tsos_.localError().positionError(); }
 
   virtual int charge() const { return tsos_.charge(); }
 
-  virtual bool canImproveWithTrack() const { return false; }
+  bool canImproveWithTrack() const override { return false; }
 
-  virtual const TrackingRecHit* hit() const { return 0; }
-  virtual TrackingRecHit * cloneHit() const { return 0;}
+  const TrackingRecHit* hit() const override { return nullptr; }
+  TrackingRecHit * cloneHit() const override { return nullptr;}
   
-  virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
-  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
-  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
+  std::vector<const TrackingRecHit*> recHits() const override { return std::vector<const TrackingRecHit*>(); }
+  std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>(); }
+  bool sharesInput( const TrackingRecHit*, SharedInputType) const override { return false;}
 
 
-  virtual const GeomDetUnit* detUnit() const { return 0; }
+  const GeomDetUnit* detUnit() const override { return nullptr; }
 
-  virtual const GeomDet* det() const { return 0; }
+  virtual const GeomDet* det() const { return nullptr; }
 
-  virtual const Surface* surface() const { return &tsos_.surface(); }
+  const Surface* surface() const override { return &tsos_.surface(); }
 
-  virtual GlobalPoint globalPosition() const { return  surface()->toGlobal(localPosition());}
-  virtual GlobalError globalPositionError() const { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  virtual float errorGlobalR() const { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  virtual float errorGlobalZ() const { return std::sqrt(globalPositionError().czz()); }
-  virtual float errorGlobalRPhi() const { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  GlobalPoint globalPosition() const override { return  surface()->toGlobal(localPosition());}
+  GlobalError globalPositionError() const override { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const override { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const override { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const override { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
 
   virtual TransientTrackingRecHit::RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
@@ -72,7 +72,7 @@ private:
 
   const TrajectoryStateOnSurface tsos_;
   
-  virtual TRecHit5DParamConstraint* clone() const {
+  TRecHit5DParamConstraint* clone() const override {
     return new TRecHit5DParamConstraint( this->trajectoryState() );
   }
 

@@ -23,7 +23,7 @@ namespace magneticfield {
   {
   public:
     AutoMagneticFieldESProducer(const edm::ParameterSet&);
-    ~AutoMagneticFieldESProducer();
+    ~AutoMagneticFieldESProducer() override;
     
     std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord&);
     edm::ParameterSet pset;

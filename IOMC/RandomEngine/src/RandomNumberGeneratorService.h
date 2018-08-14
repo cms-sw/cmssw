@@ -54,16 +54,16 @@ namespace edm {
     public:
 
       RandomNumberGeneratorService(ParameterSet const& pset, ActivityRegistry& activityRegistry);
-      virtual ~RandomNumberGeneratorService();
+      ~RandomNumberGeneratorService() override;
 
       /// Use the next 2 functions to get the random number engine.
       /// These are the only functions most modules should call.
 
       /// Use this engine in event methods
-      virtual CLHEP::HepRandomEngine& getEngine(StreamID const& streamID) override;
+      CLHEP::HepRandomEngine& getEngine(StreamID const& streamID) override;
 
       /// Use this engine in the global begin luminosity block method
-      virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) override;
+      CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) override;
 
       // This returns the seed from the configuration. In the unusual case where an
       // an engine type takes multiple seeds to initialize a sequence, this function
@@ -76,16 +76,15 @@ namespace edm {
       // Because it is dangerous and could be misused, this function might be deleted
       // someday if we ever find time to delete all uses of it in CMSSW. There are of
       // order 10 last time I checked ...
-      virtual std::uint32_t mySeed() const override;
+      std::uint32_t mySeed() const override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
       void preModuleConstruction(ModuleDescription const& description);
       void preallocate(SystemBounds const&);
-      void postForkReacquireResources(unsigned childIndex, unsigned kMaxChildren);
 
-      virtual void preBeginLumi(LuminosityBlock const& lumi) override;
-      virtual void postEventRead(Event const& event) override;
+      void preBeginLumi(LuminosityBlock const& lumi) override;
+      void postEventRead(Event const& event) override;
 
       /// These next 12 functions are only used to check that random numbers are not
       /// being generated in these methods when enable checking is configured on.
@@ -108,13 +107,13 @@ namespace edm {
       void postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext const& mcc);
 
       /// These two are used by the RandomEngineStateProducer
-      virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const override;
-      virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const override;
+      std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const override;
+      std::vector<RandomEngineState> const& getEventCache(StreamID const&) const override;
 
-      virtual void consumes(ConsumesCollector&& iC) const override;
+      void consumes(ConsumesCollector&& iC) const override;
 
       /// For debugging
-      virtual void print(std::ostream& os) const override;
+      void print(std::ostream& os) const override;
 
     private:
 
@@ -265,10 +264,6 @@ namespace edm {
       // numbers are generated in a module during stream
       // beginStream, beginRun, endLuminosityBlock, or endRun.
       bool enableChecking_;
-
-      // In a multiprocess job this will have the index of the child process
-      // incremented by one as each child is forked
-      unsigned childIndex_;
 
       std::uint32_t eventSeedOffset_;
 

@@ -13,7 +13,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
-#include "HERecalibration.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HBHERecalibration.h"
+#include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
@@ -53,18 +54,22 @@ class HcalHardcodeCalibrations : public edm::ESProducer, public edm::EventSetupR
 
 public:
   HcalHardcodeCalibrations (const edm::ParameterSet& );
-  ~HcalHardcodeCalibrations ();
+  ~HcalHardcodeCalibrations () override;
 
   void produce () {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   
 protected:
-  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) ;
+			      edm::ValidityInterval&) override ;
 
+  std::unique_ptr<HcalPedestals> producePedestals_ (const HcalPedestalsRcd& rcd, bool eff);
+  std::unique_ptr<HcalPedestalWidths> producePedestalWidths_ (const HcalPedestalWidthsRcd& rcd, bool eff);
   std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
+  std::unique_ptr<HcalPedestals> produceEffectivePedestals (const HcalPedestalsRcd& rcd);
+  std::unique_ptr<HcalPedestalWidths> produceEffectivePedestalWidths (const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::unique_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
   std::unique_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
@@ -102,11 +107,14 @@ protected:
 private:
   HcalDbHardcode dbHardcode;
   double iLumi;
-  HERecalibration* he_recalibration;  
-  HFRecalibration* hf_recalibration;  
+  std::unique_ptr<HBHERecalibration> hb_recalibration;
+  std::unique_ptr<HBHERecalibration> he_recalibration;
+  std::unique_ptr<HFRecalibration> hf_recalibration;  
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;
   bool setHBdsegm;
   bool useLayer0Weight;
+  bool useIeta18depth1;
+  bool testHEPlan1;
 };
 

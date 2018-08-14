@@ -11,9 +11,9 @@ namespace popcon {
   class DQMReferenceHistogramRootFileSourceHandler : public popcon::PopConSourceHandler<FileBlob> {
    public:
     DQMReferenceHistogramRootFileSourceHandler(const edm::ParameterSet & pset);
-    ~DQMReferenceHistogramRootFileSourceHandler();
-    void getNewObjects();
-    std::string id() const;
+    ~DQMReferenceHistogramRootFileSourceHandler() override;
+    void getNewObjects() override;
+    std::string id() const override;
    private:
     std::string m_name;
     std::string m_file;

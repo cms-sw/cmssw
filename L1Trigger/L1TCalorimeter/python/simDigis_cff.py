@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import sys
 
 #
 # Legacy Trigger:
@@ -6,7 +7,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
-    print "L1TCalorimeter Sequence configured for Run1 (Legacy) trigger. "
 # -  RCT (Regional Calorimeter Trigger) emulator
     import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
     simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
@@ -22,7 +22,6 @@ if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 # Stage-1 Trigger
 #
 if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    print "L1TCalorimeter Sequence configured for Stage-1 (2015) trigger. "    
 #
 # -  RCT (Regional Calorimeter Trigger) emulator
 #
@@ -37,18 +36,29 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
     from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
     from L1Trigger.L1TCalorimeter.simCaloStage1FinalDigis_cfi import *
     from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+    from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
     SimL1TCalorimeter = cms.Sequence(simRctDigis + simRctUpgradeFormatDigis + simCaloStage1Digis + simCaloStage1FinalDigis + simCaloStage1LegacyFormatDigis)
 #
 # Stage-2 Trigger
 #
 if stage2L1Trigger.isChosen():
-    print "L1TCalorimeter Sequence configured for Stage-2 (2016) trigger. "
     # select one of the following two options:
     # - layer1 from L1Trigger/L1TCalorimeter package
     #from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
     # - layer1 from L1Trigger/L1TCaloLayer1 package
     from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import simCaloStage2Layer1Digis
     from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+    l1conddb = cms.ESSource("PoolDBESSource",
+       CondDB,
+       toGet   = cms.VPSet(
+            cms.PSet(
+                 record = cms.string('L1TCaloParamsO2ORcd'),
+                 tag = cms.string("L1TCaloParams_static_CMSSW_9_2_10_2017_v1_8_2_updateHFSF_v6MET")
+            )
+       )
+    )
     SimL1TCalorimeter = cms.Sequence( simCaloStage2Layer1Digis + simCaloStage2Digis )
 
     

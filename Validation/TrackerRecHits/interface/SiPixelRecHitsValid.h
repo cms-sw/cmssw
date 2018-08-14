@@ -32,13 +32,13 @@ class SiPixelRecHitsValid : public DQMEDAnalyzer {
 	SiPixelRecHitsValid(const edm::ParameterSet& conf);
 
 	//Destructor
-	~SiPixelRecHitsValid();
+	~SiPixelRecHitsValid() override;
 
    protected:
 
-	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-	void beginJob();
-	void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
+	void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+	void beginJob() override;
+	void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
 
    private:
 	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	

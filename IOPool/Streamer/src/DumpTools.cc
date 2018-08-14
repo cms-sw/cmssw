@@ -100,7 +100,7 @@ void dumpInitVerbose(const InitMsgView* view)
                (char*)view->descData(), kFALSE);
   std::unique_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
-  if (sd.get() == 0) {
+  if (sd.get() == nullptr) {
     std::cout << "Unable to determine the product registry - "
               << "Registry deserialization error." << std::endl;
   }

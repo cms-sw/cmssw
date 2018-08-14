@@ -7,7 +7,6 @@ CSCFakeDBCrosstalk::CSCFakeDBCrosstalk(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbCrosstalk = std::shared_ptr<CSCDBCrosstalk> ( prefillDBCrosstalk() );
   setWhatProduced(this,&CSCFakeDBCrosstalk::produceDBCrosstalk);
   findingRecord<CSCDBCrosstalkRcd>();
 }
@@ -22,7 +21,7 @@ CSCFakeDBCrosstalk::~CSCFakeDBCrosstalk()
 CSCFakeDBCrosstalk::Pointer
 CSCFakeDBCrosstalk::produceDBCrosstalk(const CSCDBCrosstalkRcd& iRecord)
 {
-  return cndbCrosstalk;
+  return CSCFakeDBCrosstalk::Pointer( prefillDBCrosstalk());
 }
 
  void CSCFakeDBCrosstalk::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

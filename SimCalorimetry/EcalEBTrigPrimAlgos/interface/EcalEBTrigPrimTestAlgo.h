@@ -1,9 +1,9 @@
 #ifndef EcalEBTrigPrimTestAlgo_h
 #define EcalEBTrigPrimTestAlgo_h
 /** \class EcalEBTrigPrimTestAlgo
+\author N. Marinelli - Univ. of Notre Dame
  * forPhase II 
- * As of now we do not know yet how the electronics would look like
- * so for now we build some machinery to produce TPs which are taken from the RecHits
+ * While the new digitization is not yet implemented, we use the old Digis to make TP per crystal
  *
  ************************************************************/
 #include <sys/time.h>
@@ -20,6 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -38,7 +39,7 @@
 
 class EcalTrigTowerDetId;
 class ETPCoherenceTest;
-class EcalTriggerPrimitiveSample;
+class EcalEBTriggerPrimitiveSample;
 class CaloSubdetectorGeometry;
 class EBDataFrame;
 
@@ -128,8 +129,8 @@ class EcalEBTrigPrimTestAlgo
   std::vector<std::vector<std::pair<int,std::vector<EBDataFrame> > > > towerMapEB_;
   std::vector<std::vector<std::pair<int,std::vector<EEDataFrame> > > > towerMapEE_;
   std::vector<std::pair<int,EcalTrigTowerDetId> > hitTowers_;
-  std::vector<EcalTriggerPrimitiveSample> towtp_;
-  std::vector<EcalTriggerPrimitiveSample> towtp2_;
+  std::vector<EcalEBTriggerPrimitiveSample> towtp_;
+  std::vector<EcalEBTriggerPrimitiveSample> towtp2_;
 
   enum {nbMaxStrips_=5};
   enum {nbMaxXtals_=5};

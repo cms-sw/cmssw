@@ -12,6 +12,8 @@
 #include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 using namespace lat;
 
@@ -43,323 +45,88 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
       << "===============================\n";
   }
 
-  // get dqm info
-  dbe = edm::Service<DQMStore>().operator->();
-
   std::string sName;
 
   // create persistent objects
 
   sName = fName + "Run";
-  produces<MEtoEDM<TH1F>, edm::InRun>(sName);
-  produces<MEtoEDM<TH1S>, edm::InRun>(sName);
-  produces<MEtoEDM<TH1D>, edm::InRun>(sName);
-  produces<MEtoEDM<TH2F>, edm::InRun>(sName);
-  produces<MEtoEDM<TH2S>, edm::InRun>(sName);
-  produces<MEtoEDM<TH2D>, edm::InRun>(sName);
-  produces<MEtoEDM<TH3F>, edm::InRun>(sName);
-  produces<MEtoEDM<TProfile>, edm::InRun>(sName);
-  produces<MEtoEDM<TProfile2D>, edm::InRun>(sName);
-  produces<MEtoEDM<double>, edm::InRun>(sName);
-  produces<MEtoEDM<long long>, edm::InRun>(sName);
-  produces<MEtoEDM<TString>, edm::InRun>(sName);
+  produces<MEtoEDM<TH1F>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH1S>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH1D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2F>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2S>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH3F>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TProfile>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TProfile2D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<double>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<long long>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TString>, edm::Transition::EndRun>(sName);
 
   sName = fName + "Lumi";
-  produces<MEtoEDM<TH1F>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH1S>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH1D>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH2F>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH2S>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH2D>, edm::InLumi>(sName);
-  produces<MEtoEDM<TH3F>, edm::InLumi>(sName);
-  produces<MEtoEDM<TProfile>, edm::InLumi>(sName);
-  produces<MEtoEDM<TProfile2D>, edm::InLumi>(sName);
-  produces<MEtoEDM<double>, edm::InLumi>(sName);
-  produces<MEtoEDM<long long>, edm::InLumi>(sName);
-  produces<MEtoEDM<TString>, edm::InLumi>(sName);
+  produces<MEtoEDM<TH1F>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH1S>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH1D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2F>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2S>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH3F>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TProfile>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TProfile2D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<double>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<long long>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TString>, edm::Transition::EndLuminosityBlock>(sName);
 
-  iCount.clear();
+  consumesMany<DQMToken, edm::InLumi>();
+  consumesMany<DQMToken, edm::InRun>();
+  usesResource("DQMStore");
 
-  assert(sizeof(int64_t) == sizeof(long long));
+  static_assert(sizeof(int64_t) == sizeof(long long),"type int64_t is not the same length as long long");
 
 }
 
-MEtoEDMConverter::~MEtoEDMConverter()
-{
-}
+MEtoEDMConverter::~MEtoEDMConverter() = default;
 
 void
 MEtoEDMConverter::beginJob()
 {
   // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
+  DQMStore *dbe = edm::Service<DQMStore>().operator->();
   enableMultiThread_ = dbe->enableMultiThread_;
 }
 
 void
-MEtoEDMConverter::endJob(void)
-{
-  std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
-
-  if (verbosity > 0) {
-
-    // keep track just of package names
-    std::map<std::string,int> packages;
-
-    // count various objects we have
-    unsigned nTH1F = 0;
-    unsigned nTH1S = 0;
-    unsigned nTH1D = 0;
-    unsigned nTH2F = 0;
-    unsigned nTH2S = 0;
-    unsigned nTH2D = 0;
-    unsigned nTH3F = 0;
-    unsigned nTProfile = 0;
-    unsigned nTProfile2D = 0;
-    unsigned nDouble = 0;
-    unsigned nInt64 = 0;
-    unsigned nString = 0;
-
-    if (verbosity > 1) std::cout << std::endl << "Summary :" << std::endl;
-
-    // get contents out of DQM
-    std::vector<MonitorElement *>::iterator mmi, mme;
-    std::vector<MonitorElement *> items(dbe->getAllContents(""));
-
-    for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
-
-      // keep track of leading directory (i.e. package)
-      StringList dir = StringOps::split((*mmi)->getPathname(),"/");
-      ++packages[dir[0]];
-
-      // check type
-      if (verbosity > 1) std::cout << "MEobject:" << std::endl;
-      MonitorElement *me = *mmi;
-      TObject *tobj = me->getRootObject();
-      switch (me->kind())
-      {
-      case MonitorElement::DQM_KIND_INT:
-        ++nInt64;
-        if (verbosity > 1)
-	  std::cout << "   scalar: " << tobj->GetName() << ": Int64\n";
-        break;
-
-      case MonitorElement::DQM_KIND_REAL:
-        ++nDouble;
-        if (verbosity > 1)
-	  std::cout << "   scalar: " << tobj->GetName() << ": Double\n";
-        break;
-
-      case MonitorElement::DQM_KIND_STRING:
-        ++nString;
-        if (verbosity > 1)
-	  std::cout << "   scalar: " << tobj->GetName() << ": String\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH1F:
-        ++nTH1F;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH1F\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH1S:
-       ++nTH1S;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH1S\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH1D:
-       ++nTH1D;
-         if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH1D\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH2F:
-        ++nTH2F;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH2F\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH2S:
-        ++nTH2S;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH2S\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH2D:
-        ++nTH2D;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH2D\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TH3F:
-        ++nTH3F;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TH3F\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TPROFILE:
-        ++nTProfile;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TProfile\n";
-        break;
-
-      case MonitorElement::DQM_KIND_TPROFILE2D:
-        ++nTProfile2D;
-        if (verbosity > 1)
-	  std::cout << "   normal: " << tobj->GetName() << ": TProfile2D\n";
-        break;
-
-      default:
-        edm::LogError(MsgLoggerCat)
-	  << "ERROR: The DQM object '" << me->getFullname()
-	  << "' is neither a ROOT object nor a recognised "
-	  << "simple object.\n";
-        continue;
-      }
-    } // end loop through monitor elements
-
-    // list unique packages
-    std::cout << "Packages accessing DQM:" << std::endl;
-    std::map<std::string,int>::iterator pkgIter;
-    for (pkgIter = packages.begin(); pkgIter != packages.end(); ++pkgIter)
-      std::cout << "  " << pkgIter->first << ": " << pkgIter->second
-		<< std::endl;
-
-    std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
-    std::cout << "We have " << nTH1S << " TH1S objects" << std::endl;
-    std::cout << "We have " << nTH1D << " TH1D objects" << std::endl;
-    std::cout << "We have " << nTH2F << " TH2F objects" << std::endl;
-    std::cout << "We have " << nTH2S << " TH2S objects" << std::endl;
-    std::cout << "We have " << nTH2D << " TH2D objects" << std::endl;
-    std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
-    std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
-    std::cout << "We have " << nTProfile2D << " TProfile2D objects" << std::endl;
-    std::cout << "We have " << nDouble << " Double objects" << std::endl;
-    std::cout << "We have " << nInt64 << " Int64 objects" << std::endl;
-    std::cout << "We have " << nString << " String objects" << std::endl;
-
-    if (verbosity > 1) std::cout << std::endl;
-
-  }
-
-  if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat)
-      << "Terminating having processed " << iCount.size() << " runs.";
-
-}
+MEtoEDMConverter::endJob() {}
 
 void
-MEtoEDMConverter::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "MEtoEDMConverter_beginRun";
+MEtoEDMConverter::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {}
 
-  // No need to do any reset in the MultiThread DQM, since we will
-  // index each and every MonitorElement by Run and Lumi.
-
-  if (enableMultiThread_)
-    return;
-
-  int nrun = iRun.run();
-
-  // keep track of number of runs processed
-  ++iCount[nrun];
-
-  if (verbosity > 0) {  // keep track of number of runs processed
-    edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
-  } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || iCount.size() == 1) {
-      edm::LogInfo(MsgLoggerCat)
-	<< "Processing run " << nrun << " (" << iCount.size() << " runs total)";
-    }
-  }
-
-  // clear contents of monitor elements
-  std::vector<MonitorElement *>::iterator mmi, mme;
-  std::vector<MonitorElement *> items(dbe->getAllContents(path));
-
-  for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
-
-    MonitorElement *me = *mmi;
-
-    switch (me->kind())
-    {
-    case MonitorElement::DQM_KIND_INT:
-      break;
-
-    case MonitorElement::DQM_KIND_REAL:
-      break;
-
-    case MonitorElement::DQM_KIND_STRING:
-      break;
-
-    case MonitorElement::DQM_KIND_TH1F:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TH1S:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TH1D:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TH2F:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TH2S:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TH2D:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TH3F:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TPROFILE:
-      me->Reset();
-      break;
-
-    case MonitorElement::DQM_KIND_TPROFILE2D:
-      me->Reset();
-      break;
-
-    default:
-      edm::LogError(MsgLoggerCat)
-	<< "ERROR: The DQM object '" << me->getFullname()
-	<< "' is neither a ROOT object nor a recognised "
-	<< "simple object.\n";
-      continue;
-    }
-
-  } // end loop through monitor elements
-}
 void
-MEtoEDMConverter::endRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
-{
-}
+MEtoEDMConverter::endRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {}
 
 void
 MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  dbe->scaleElements();
-  putData(iRun, false, iRun.run(), 0);
+  DQMStore * store = edm::Service<DQMStore>().operator->();
+  store->meBookerGetter([&](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+    store->scaleElements();
+    putData(g, iRun, false, iRun.run(), 0);
+  });
 }
 
 void
 MEtoEDMConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
-  putData(iLumi, true, iLumi.run(), iLumi.id().luminosityBlock());
+  DQMStore * store = edm::Service<DQMStore>().operator->();
+  store->meBookerGetter([&](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+    putData(g, iLumi, true, iLumi.run(), iLumi.id().luminosityBlock());
+  });
 }
 
 template <class T>
 void
-MEtoEDMConverter::putData(T& iPutTo,
+MEtoEDMConverter::putData(DQMStore::IGetter &iGetter,
+                          T& iPutTo,
                           bool iLumiOnly,
                           uint32_t run,
                           uint32_t lumi)
@@ -371,9 +138,10 @@ MEtoEDMConverter::putData(T& iPutTo,
 
   // extract ME information into vectors
   std::vector<MonitorElement *>::iterator mmi, mme;
-  std::vector<MonitorElement *> items(dbe->getAllContents(path,
-                                                          enableMultiThread_ ? run : 0,
-                                                          enableMultiThread_ ? lumi : 0));
+  std::vector<MonitorElement *> items(iGetter.getAllContents(path,
+                                                             enableMultiThread_ ? run : 0,
+                                                             enableMultiThread_ ? lumi : 0));
+
 
   unsigned int n1F=0;
   unsigned int n1S=0;
@@ -389,7 +157,6 @@ MEtoEDMConverter::putData(T& iPutTo,
   unsigned int nString=0;
 
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
-
     MonitorElement *me = *mmi;
 
     // store only flagged ME at endLumi transition, and Run-based
@@ -539,10 +306,10 @@ MEtoEDMConverter::putData(T& iPutTo,
 
     if (!iLumiOnly) {
       // remove ME after copy to EDM is done.
-      if (deleteAfterCopy)
-        dbe->removeElement(me->getPathname(),me->getName());
+      if (deleteAfterCopy) {
+        iGetter.removeElement(me->getPathname(), me->getName());
+      }
     }
-
   } // end loop through monitor elements
 
   std::string sName;

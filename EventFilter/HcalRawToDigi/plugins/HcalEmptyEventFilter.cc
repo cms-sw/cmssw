@@ -45,10 +45,10 @@ Implementation:
 class HcalEmptyEventFilter : public edm::EDFilter {
 public:
   explicit HcalEmptyEventFilter(const edm::ParameterSet&);
-  virtual ~HcalEmptyEventFilter();
+  ~HcalEmptyEventFilter() override;
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
 

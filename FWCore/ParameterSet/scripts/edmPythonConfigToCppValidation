@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from FWCore.ParameterSet.Modules import _Module
+from FWCore.ParameterSet.Modules import _TypedParameterizable
 from FWCore.ParameterSet.Mixins import _ValidatingParameterListBase
 import FWCore.ParameterSet.Config as cms
 
@@ -243,7 +243,7 @@ for item in config.iterkeys():
     if item.startswith('_'):
         continue
     
-    if isinstance(config[item], _Module):
+    if isinstance(config[item], _TypedParameterizable):
         modules[item] = config[item]
 
 if not modules:

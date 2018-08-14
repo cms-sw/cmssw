@@ -8,7 +8,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
 
@@ -47,17 +48,51 @@ class HcalTextCalibrations : public edm::ESProducer,
 {
 public:
   HcalTextCalibrations (const edm::ParameterSet& );
-  ~HcalTextCalibrations ();
+  ~HcalTextCalibrations () override;
 
   void produce () {};
+
+  template<class T>
+  class CheckGetObject {
+    public:
+      CheckGetObject(const HcalTopology* topo) {}
+      std::unique_ptr<T> operator()(std::istream& inStream){
+        auto result = makeResult();
+        if(!HcalDbASCIIIO::getObject(inStream, &*result)) result.reset(nullptr);
+        return result;
+      }
+      virtual ~CheckGetObject() = default ;
+    protected:
+      virtual std::unique_ptr<T> makeResult(){ return std::make_unique<T>(); }
+  };
+  template<class T>
+  class CheckGetObjectTopo : public CheckGetObject<T> {
+    public:
+      CheckGetObjectTopo(const HcalTopology* topo) : CheckGetObject<T>(topo), topo_(topo) {}
+      ~CheckGetObjectTopo() override = default;
+    protected:
+      std::unique_ptr<T> makeResult() override { return std::make_unique<T>(topo_); }
+    private:
+      const HcalTopology* topo_;
+  };
+  template<class T>
+  class CheckCreateObject {
+    public:
+      CheckCreateObject(const HcalTopology* topo) {}
+      std::unique_ptr<T> operator()(std::istream& inStream){
+        return HcalDbASCIIIO::createObject<T>(inStream);
+      }
+  };
   
 protected:
-  virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) ;
+			      edm::ValidityInterval&) override ;
 
   std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
+  std::unique_ptr<HcalPedestals> produceEffectivePedestals (const HcalPedestalsRcd& rcd);
+  std::unique_ptr<HcalPedestalWidths> produceEffectivePedestalWidths (const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
   std::unique_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
   std::unique_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
@@ -93,4 +128,5 @@ protected:
 private:
   std::map <std::string, std::string> mInputs;
 };
+
 

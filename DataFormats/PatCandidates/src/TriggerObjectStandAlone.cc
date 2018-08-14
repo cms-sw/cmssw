@@ -1,12 +1,15 @@
-//
-//
-
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-
+#include <tbb/concurrent_unordered_map.h>
 #include <boost/algorithm/string.hpp>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Math/interface/libminifloat.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 using namespace pat;
 
@@ -25,6 +28,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone() :
   TriggerObject()
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -36,6 +40,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const TriggerObject & trigObj 
   TriggerObject( trigObj )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -47,6 +52,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const trigger::TriggerObject &
   TriggerObject( trigObj )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -58,6 +64,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::LeafCandidate & le
   TriggerObject( leafCand )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -69,6 +76,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::Particle::LorentzV
   TriggerObject( vec, id )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -77,6 +85,7 @@ TriggerObjectStandAlone::TriggerObjectStandAlone( const reco::Particle::PolarLor
   TriggerObject( vec, id )
 {
   filterLabels_.clear();
+  filterLabelIndices_.clear();
   pathNames_.clear();
   pathLastFilterAccepted_.clear();
   pathL3FilterAccepted_.clear();
@@ -185,6 +194,8 @@ std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool path
 // Checks, if a certain HLT filter label or L1 condition name is assigned
 bool TriggerObjectStandAlone::hasFilterOrCondition( const std::string & name ) const
 {
+  checkIfFiltersAreUnpacked();
+
   // Move to wild-card parser, if needed
   if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, filterLabels_ );
   // Return, if filter label is assigned
@@ -260,6 +271,13 @@ bool TriggerObjectStandAlone::checkIfPathsAreUnpacked(bool throwIfPacked) const 
    if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger path names. Before accessing path names you must call unpackPathNames with an edm::TriggerNames object. You can get the latter from the edm::Event or fwlite::Event and the TriggerResults\n");
    return unpacked;
 }
+bool TriggerObjectStandAlone::checkIfFiltersAreUnpacked(bool throwIfPacked) const {
+   bool unpacked = filterLabelIndices_.empty();
+   if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger filter labels. Before accessing path names you must call unpackFilterLabels with an edm::EventBase object. Both the edm::Event or fwlite::Event are derived from edm::EventBase and can be passed\n");
+   return unpacked;
+}
+
+
 
 void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) {
     if (!pathIndices_.empty()) {
@@ -305,4 +323,119 @@ void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) {
     pathIndices_.clear();
     pathNames_.swap(paths);
 }
+
+void TriggerObjectStandAlone::packFilterLabels(const std::vector<std::string> &names)  {
+    if (!filterLabelIndices_.empty()) {
+        throw cms::Exception("RuntimeError", "Error, trying to pack filter labels for an already packed TriggerObjectStandAlone");
+    }
+    std::vector<std::string> unmatched;
+    std::vector<uint16_t> indices;
+    indices.reserve(filterLabels_.size());
+   
+    auto nStart = names.begin(), nEnd = names.end();
+    for (unsigned int i = 0, n = filterLabels_.size(); i < n; ++i) {
+        auto match = std::lower_bound(nStart, nEnd, filterLabels_[i]);
+        if (match != nEnd && *match == filterLabels_[i]) {
+            indices.push_back(match - nStart);
+        } else {
+            static std::atomic<int> _warn(0);
+            if(++_warn < 5) edm::LogWarning("TriggerObjectStandAlone::packFilterLabels()") << "Warning: can't resolve '" << filterLabels_[i] << "' to a label index. idx: " << i <<std::endl;
+            unmatched.push_back(std::move(filterLabels_[i]));
+        }
+    }
+    std::sort(indices.begin(), indices.end()); // try reduce enthropy
+    filterLabelIndices_.swap(indices);
+    filterLabels_.swap(unmatched);
+}
+
+void TriggerObjectStandAlone::unpackNamesAndLabels(const edm::EventBase & event,const edm::TriggerResults &res)
+{
+ unpackPathNames(event.triggerNames(res));
+ unpackFilterLabels(event,res);
+
+}
+
+void TriggerObjectStandAlone::unpackFilterLabels(const edm::EventBase & event,const edm::TriggerResults &res)  {
+  unpackFilterLabels(*allLabels(psetId_,event,res));
+}
+
+void TriggerObjectStandAlone::unpackFilterLabels(const std::vector<std::string> &labels)  {
+    if (filterLabelIndices_.empty()) return;
+
+    std::vector<std::string> mylabels(filterLabels_);
+    for (unsigned int i = 0, n = filterLabelIndices_.size(), m = labels.size(); i < n; ++i) {
+        if (filterLabelIndices_[i] >= m) throw cms::Exception("RuntimeError", "Error, filter label index out of bounds");
+        mylabels.push_back(labels[filterLabelIndices_[i]]);
+    }
+    filterLabelIndices_.clear();
+    filterLabels_.swap(mylabels);
+}
+void TriggerObjectStandAlone::packFilterLabels(const edm::EventBase &event,const edm::TriggerResults &res)  {
+   packFilterLabels(*allLabels(psetId_,event,res));
+}
+
+
+void TriggerObjectStandAlone::packP4() {
+    setP4(reco::Particle::PolarLorentzVector(
+                MiniFloatConverter::reduceMantissaToNbitsRounding<14>(pt()),
+                MiniFloatConverter::reduceMantissaToNbitsRounding<11>(eta()),
+                MiniFloatConverter::reduceMantissaToNbits<11>(phi()),
+                MiniFloatConverter::reduceMantissaToNbitsRounding<8>(mass()) ));
+}
+
+namespace {
+ struct key_hash {
+          std::size_t operator()(edm::ParameterSetID const& iKey) const{
+             return iKey.smallHash();
+          }
+       };
+  typedef tbb::concurrent_unordered_map<edm::ParameterSetID, std::vector<std::string>, key_hash> AllLabelsMap;
+  CMS_THREAD_SAFE AllLabelsMap allLabelsMap;
+}
+
+std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::ParameterSetID const& psetid, const edm::EventBase &event,const edm::TriggerResults &res) const {
+
+      // If TriggerNames was already created and cached here in the map,
+      // then look it up and return that one
+      AllLabelsMap::const_iterator iter =
+         allLabelsMap.find(psetid);
+      if (iter != allLabelsMap.end()) {
+         return &iter->second;
+      }
+
+      const auto&   triggerNames= event.triggerNames(res); 
+      edm::ParameterSet const* pset=nullptr;
+      //getting the ParameterSet from the event ensures that the registry is filled
+      if (nullptr!=(pset=event.parameterSet(psetid ))) {
+   	using namespace std;
+	using namespace edm;
+   	using namespace trigger;
+
+
+ 	const unsigned int n(triggerNames.size());
+	std::set<std::string> saveTags;
+   	for (unsigned int i=0;i!=n; ++i) {
+     	    if (pset->existsAs<vector<string> >(triggerNames.triggerName(i),true)) {
+       		auto modules = pset->getParameter<vector<string> >(triggerNames.triggerName(i));
+		for(size_t m=0; m < modules.size(); m++){
+		    auto module=modules[m];
+		    auto moduleStrip=module.front()!='-' ? module : module.substr(1);
+ 
+		    if (pset->exists(moduleStrip)) {
+			const auto& modulePSet= pset->getParameterSet(moduleStrip);
+			if (modulePSet.existsAs<bool>("saveTags",true) and 
+			    modulePSet.getParameter<bool>("saveTags") ) {
+			    saveTags.insert(moduleStrip);
+			}
+		    }	
+		}
+     	    }
+   	}
+   	std::vector<std::string> allModules(saveTags.begin(),saveTags.end());
+         std::pair<AllLabelsMap::iterator, bool> ret =
+               allLabelsMap.insert(std::pair<edm::ParameterSetID, std::vector<std::string> >(psetid, allModules));
+         return &(ret.first->second);
+      }
+      return nullptr;
+   }
 

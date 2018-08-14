@@ -18,11 +18,12 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edmtest {
 namespace global {
@@ -57,7 +58,9 @@ struct Dummy {
     explicit StreamIntProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
     {
-    produces<unsigned int>();
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "global::StreamIntProducer " << desc.moduleLabel() << std::endl; });
+      produces<unsigned int>();
     }
 
     const unsigned int trans_; 
@@ -415,6 +418,7 @@ struct Dummy {
     explicit TestBeginRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     const unsigned int trans_; 
@@ -455,6 +459,7 @@ struct Dummy {
     explicit TestEndRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_;
     mutable std::atomic<unsigned int> m_count{0};
@@ -494,6 +499,7 @@ struct Dummy {
     explicit TestBeginLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -533,6 +539,7 @@ struct Dummy {
     explicit TestEndLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -568,6 +575,28 @@ struct Dummy {
     }
   };
 
+  class TestAccumulator : public edm::global::EDProducer<edm::Accumulator> {
+  public:
+
+    explicit TestAccumulator(edm::ParameterSet const& p) :
+      m_expectedCount(p.getParameter<unsigned int>("expectedCount")) {
+    }
+
+    void accumulate(edm::StreamID iID, edm::Event const&, edm::EventSetup const&) const override {
+      ++m_count;
+    }
+
+    ~TestAccumulator() {
+      if (m_count.load() != m_expectedCount) {
+        throw cms::Exception("TestCount")
+          << "TestAccumulator counter was "
+          << m_count << " but it was supposed to be " << m_expectedCount;
+      }
+    }
+
+    mutable std::atomic<unsigned int> m_count{0};
+    const unsigned int m_expectedCount;
+  };
 }
 }
 
@@ -580,4 +609,5 @@ DEFINE_FWK_MODULE(edmtest::global::TestBeginRunProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestEndRunProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestBeginLumiBlockProducer);
 DEFINE_FWK_MODULE(edmtest::global::TestEndLumiBlockProducer);
+DEFINE_FWK_MODULE(edmtest::global::TestAccumulator);
 

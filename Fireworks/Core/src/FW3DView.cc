@@ -38,7 +38,7 @@
 //
 FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    FW3DViewBase(slot, typeId),
-   m_calo(0)
+   m_calo(nullptr)
 {
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);  
 }

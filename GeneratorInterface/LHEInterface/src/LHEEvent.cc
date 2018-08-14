@@ -124,7 +124,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
-	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
+	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : nullptr),
 	comments(comments), counted(false), readAttemptCounter(0),
 	npLO_(-99), npNLO_(-99)
 {
@@ -133,7 +133,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
-	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	pdf(product.pdf() ? new PDF(*product.pdf()) : nullptr),
 	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0),
@@ -144,13 +144,6 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 
 LHEEvent::~LHEEvent()
 {
-}
-
-template<typename T>
-static inline void pop(std::vector<T> &vec, unsigned int index)
-{
-	unsigned int size = vec.size() - 1;
-	std::memmove(&vec[index], &vec[index + 1], (size - index) * sizeof(T));
 }
 
 void LHEEvent::removeParticle(HEPEUP &hepeup, int index)
@@ -165,15 +158,15 @@ void LHEEvent::removeParticle(HEPEUP &hepeup, int index)
 
 	std::pair<int, int> mo = hepeup.MOTHUP[index];
 
-	pop(hepeup.IDUP, index);
-	pop(hepeup.ISTUP, index);
-	pop(hepeup.MOTHUP, index);
-	pop(hepeup.ICOLUP, index);
-	pop(hepeup.PUP, index);
-	pop(hepeup.VTIMUP, index);
-	pop(hepeup.SPINUP, index);
+	hepeup.IDUP.erase(hepeup.IDUP.begin() + index);
+	hepeup.ISTUP.erase(hepeup.ISTUP.begin() + index);
+	hepeup.MOTHUP.erase(hepeup.MOTHUP.begin() + index);
+	hepeup.ICOLUP.erase(hepeup.ICOLUP.begin() + index);
+	hepeup.PUP.erase(hepeup.PUP.begin() + index);
+	hepeup.VTIMUP.erase(hepeup.VTIMUP.begin() + index);
+	hepeup.SPINUP.erase(hepeup.SPINUP.begin() + index);
+
 	hepeup.NUP--;
-	hepeup.resize();
 
 	index++;
 	for(int i = 0; i < hepeup.NUP; i++) {
@@ -449,7 +442,7 @@ const HepMC::GenVertex *LHEEvent::findSignalVertex(
 				const HepMC::GenEvent *event, bool status3)
 {
 	double largestMass2 = -9.0e-30;
-	const HepMC::GenVertex *vertex = 0;
+	const HepMC::GenVertex *vertex = nullptr;
 	for(HepMC::GenEvent::vertex_const_iterator iter = event->vertices_begin();
 	    iter != event->vertices_end(); ++iter) {
 		if ((*iter)->particles_in_size() < 2)

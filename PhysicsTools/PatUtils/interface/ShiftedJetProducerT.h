@@ -45,8 +45,8 @@ template <typename T, typename Textractor>
       src_(cfg.getParameter<edm::InputTag>("src")),
       srcToken_(consumes<JetCollection>(src_)),
       jetCorrPayloadName_(""),
-      jetCorrParameters_(0),
-      jecUncertainty_(0),
+      jetCorrParameters_(nullptr),
+      jecUncertainty_(nullptr),
       jecUncertaintyValue_(-1.)
   {
     if ( cfg.exists("jecUncertaintyValue") ) {
@@ -57,7 +57,7 @@ template <typename T, typename Textractor>
 	jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
 	if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
 	  << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-	jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
+	jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
 	jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
       } else {
 	jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
@@ -83,7 +83,7 @@ template <typename T, typename Textractor>
 
     produces<JetCollection>();
   }
-  ~ShiftedJetProducerT()
+  ~ShiftedJetProducerT() override
   {
     delete jetCorrParameters_;
     delete jecUncertainty_;
@@ -91,7 +91,7 @@ template <typename T, typename Textractor>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     if ( verbosity_ ) {
       std::cout << "<ShiftedJetProducerT::produce>:" << std::endl;

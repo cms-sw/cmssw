@@ -232,7 +232,7 @@ hltHITCkfTrackCandidatesHE = cms.EDProducer("CkfTrackCandidateMaker",
                                             doSeedingRegionRebuilding = cms.bool( False ),
                                             maxNSeeds = cms.uint32( 100000 ),
                                             NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" )
+                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
                                             )
 hltHITCtfWithMaterialTracksHE = cms.EDProducer("TrackProducer",
                                                src = cms.InputTag( "hltHITCkfTrackCandidatesHE" ),
@@ -391,7 +391,7 @@ hltHITCkfTrackCandidatesHB = cms.EDProducer("CkfTrackCandidateMaker",
                                             doSeedingRegionRebuilding = cms.bool( False ),
                                             maxNSeeds = cms.uint32( 100000 ),
                                             NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" )
+                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
                                             )
 
 hltHITCtfWithMaterialTracksHB = cms.EDProducer("TrackProducer",

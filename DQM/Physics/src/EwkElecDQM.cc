@@ -19,10 +19,6 @@
 // also need Fwd.h file ???
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-//#include "DataFormats/JetReco/interface/CaloJet.h"
-//#include "DataFormats/METReco/interface/CaloMET.h"
-//#include "DataFormats/METReco/interface/CaloMETCollection.h"
-//#include "DataFormats/METReco/interface/CaloMETFwd.h"
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
@@ -45,9 +41,9 @@ EwkElecDQM::EwkElecDQM(const ParameterSet& cfg)
                                                        edm::InputTag("met"))),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag>(
           "JetTag", edm::InputTag("sisCone5CaloJets"))),
-      trigTag_(consumes<edm::TriggerResults>(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "TrigTag", edm::InputTag("TriggerResults::HLT")))),
+//      trigTag_(consumes<edm::TriggerResults>(
+  //        cfg.getUntrackedParameter<edm::InputTag>(
+     //         "TrigTag", edm::InputTag("TriggerResults::HLT")))),
       elecTag_(consumes<edm::View<reco::GsfElectron> >(
           cfg.getUntrackedParameter<edm::InputTag>(
               "ElecTag", edm::InputTag("gsfElectrons")))),
@@ -215,9 +211,9 @@ void EwkElecDQM::bookHistograms(DQMStore::IBooker & ibooker,
   trkisoendcap_after_ = ibooker.book1D("TRKISOENDCAP_LASTCUT",
       "Absolute electron track isolation variable (endcap) [GeV]", 50, 0., 50.);
 
-  trig_before_ = ibooker.book1D("TRIG_BEFORECUTS", "Trigger response", 2, -0.5,
-      1.5);  // elecTrig_ is now a vector of strings!
-  trig_after_ = ibooker.book1D("TRIG_LASTCUT", "Trigger response", 2, -0.5, 1.5);
+ // trig_before_ = ibooker.book1D("TRIG_BEFORECUTS", "Trigger response", 2, -0.5,
+     /// 1.5);  // elecTrig_ is now a vector of strings!
+//  trig_after_ = ibooker.book1D("TRIG_LASTCUT", "Trigger response", 2, -0.5, 1.5);
 
   invmass_before_ = ibooker.book1D("INVMASS_BEFORECUTS",
       "Di-electron invariant mass [GeV]", 100, 0., 200.);
@@ -444,15 +440,15 @@ void EwkElecDQM::analyze(const Event& ev, const EventSetup& iSet) {
   npvs_before_->Fill(npvCount);
 
   // Trigger
-  Handle<TriggerResults> triggerResults;
-  if (!ev.getByToken(trigTag_, triggerResults)) {
+ // Handle<TriggerResults> triggerResults;
+ // if (!ev.getByToken(trigTag_, triggerResults)) {
     // LogWarning("") << ">>> TRIGGER collection does not exist !!!";
     return;
-  }
-  const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
-  bool trigger_fired = false;
+ // }
+ // const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
+ // bool trigger_fired = false;
 
-  HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
+ // HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
 
   /* very old code
   for (unsigned int i=0; i<triggerResults->size(); i++) {
@@ -514,35 +510,35 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     return;
   }
 
-  for (unsigned int i = 0;
-       (i < triggerResults->size()) && (trigger_fired == false); i++) {
+ // for (unsigned int i = 0;
+   //    (i < triggerResults->size()) && (trigger_fired == false); i++) {
     // skip trigger, if it did not fire
-    if (!triggerResults->accept(i)) continue;
+  //  if (!triggerResults->accept(i)) continue;
 
     // skip trigger, if it is not on our list
-    bool found = false;
-    const std::string trigName = trigNames.triggerName(i);
-    for (unsigned int index = 0; index < elecTrig_.size() && found == false;
-         index++) {
-      if (trigName.find(elecTrig_.at(index)) == 0) found = true;
-    }
-    if (!found) continue;
+   // bool found = false;
+   // const std::string trigName = trigNames.triggerName(i);
+   // for (unsigned int index = 0; index < elecTrig_.size() && found == false;
+     //    index++) {
+     // if (trigName.find(elecTrig_.at(index)) == 0) found = true;
+   // }
+   // if (!found) continue;
 
     // skip trigger, if it is prescaled
-    if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1) continue;
+   // if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1) continue;
 
     // std::cout << "found unprescaled trigger that fired: " << trigName <<
     // "\n";
-    trigger_fired = true;
-  }
+   // trigger_fired = true;
+ // }
 
-  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( ";
+/*  LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( ";
   for (unsigned int k = 0; k < elecTrig_.size(); k++) {
     LogTrace("") << elecTrig_.at(k) << " ";
   }
   LogTrace("") << ")";
   trig_before_->Fill(trigger_fired);
-
+*/
   // Jet collection
   Handle<View<Jet> > jetCollection;
   if (!ev.getByToken(jetToken_, jetCollection)) {
@@ -624,7 +620,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
   nall++;
 
   // Histograms per event should be done only once, so keep track of them
-  bool hlt_hist_done = false;
+  //bool hlt_hist_done = false;
   // bool minv_hist_done = false;
   bool met_hist_done = false;
   //       bool nz1_hist_done = false;
@@ -633,7 +629,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
   // Central selection criteria
   // const int NFLAGS = 13; // number of individual selection criteria
-  const int NFLAGS = 11;  // number of individual selection criteria
+  const int NFLAGS = 10;  // number of individual selection criteria
   // 0: pt cut           | rec
   // 1: eta cut          | rec
   // 2: sieie            | eid
@@ -801,7 +797,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
     }
 
     // HLT
-    if (trigger_fired) electron_sel[7] = true;
+   // if (trigger_fired) electron_sel[7] = true;
 
     //             // MET/MT cuts
     double w_et = met_et + pt;
@@ -813,9 +809,9 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
     LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et
                  << ", " << w_px << ", " << w_py << " [GeV]";
-    if (massT > mtMin_ && massT < mtMax_) electron_sel[8] = true;
+    if (massT > mtMin_ && massT < mtMax_) electron_sel[7] = true;
     mt_before_->Fill(massT);
-    if (met_et > metMin_ && met_et < metMax_) electron_sel[9] = true;
+    if (met_et > metMin_ && met_et < metMax_) electron_sel[8] = true;
 
     //             // Acoplanarity cuts
     //             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -828,7 +824,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
 
     //             // Remaining flags (from global event information)
     //             if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true;
-    if (njets <= nJetMax_) electron_sel[10] = true;
+    if (njets <= nJetMax_) electron_sel[9] = true;
 
     // Collect necessary flags "per electron"
     int flags_passed = 0;
@@ -934,16 +930,16 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
       // 		  {
       // 		    iso_after_->Fill(isovar);
       // 		  }
-      if (!electron_sel[7] || flags_passed == NFLAGS) {
+    /*  if (!electron_sel[7] || flags_passed == NFLAGS) {
         if (!hlt_hist_done) {
           trig_after_->Fill(trigger_fired);
         }
-      }
-      hlt_hist_done = true;
-      if (!electron_sel[8] || flags_passed == NFLAGS) {
+      }*/
+      //hlt_hist_done = true;
+      if (!electron_sel[7] || flags_passed == NFLAGS) {
         mt_after_->Fill(massT);
       }
-      if (!electron_sel[9] || flags_passed == NFLAGS) {
+      if (!electron_sel[8] || flags_passed == NFLAGS) {
         if (!met_hist_done) {
           met_after_->Fill(met_et);
         }
@@ -959,7 +955,7 @@ hltConfigProvider.prescaleValue(ps, trigName) ;
       //                         if (!nz2_hist_done)
       // nz2_after_->Fill(nmuonsForZ2);
       //                         nz2_hist_done = true;
-      if (!electron_sel[10] || flags_passed == NFLAGS) {
+      if (!electron_sel[9] || flags_passed == NFLAGS) {
         if (!njets_hist_done) {
           njets_after_->Fill(njets);
           if (jet_et > 10)  // don't want low energy "jets"

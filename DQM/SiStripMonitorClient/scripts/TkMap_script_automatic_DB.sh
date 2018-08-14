@@ -31,8 +31,8 @@ do
 
     if [ $Run_numb -gt 284500 ]; then
 
-        DataLocalDir='Data2016'
-        DataOfflineDir='PARun2016'
+        DataLocalDir='Data2017'
+        DataOfflineDir='Run2017'
     else
 
 
@@ -126,7 +126,7 @@ do
     if [[ ${runStatus} == 0 ]] 
 	then 
 	echo ${Run_numb} >> ${curdir}/runsNotComplete_tmp.txt
-        if [ ${FORCE} == 0] 
+        if [ ${FORCE} == 0 ] 
 	then 
 	    continue; 
 	fi
@@ -170,6 +170,7 @@ do
 
 
     cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter.py .
+    cp ${WORKINGDIR}/DQM/SiStripMonitorClient/scripts/DeadROCCounter_Phase1.py .
 
 # Determine the GlobalTag name used to process the data and the DQM
 
@@ -279,8 +280,15 @@ do
     scp *.root cctrack@vocms061:/data/users/event_display/TkCommissioner_runs/${DataLocalDir}/${dest}
     rm *.root
 
-    echo "countig dead pixel ROCs" 
-    ./DeadROCCounter.py ${file_path}/$dqmFileName
+    echo "counting dead pixel ROCs" 
+    echo "DataLocalDir = ${DataLocalDir}"
+    if [[ $DataLocalDir == "Data2016" || $DataLocalDir == "Data2015" || $DataLocalDir == "Data2013" || $DataLocalDir == "Data2016" ]]; then 
+       ./DeadROCCounter.py ${file_path}/$dqmFileName
+    else 
+       ./DeadROCCounter_Phase1.py ${file_path}/$dqmFileName
+    fi
+    rm -f DeadROCCounter.py
+    rm -f DeadROCCounter_Phase1.py
 
 #    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset #2> /dev/null
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/

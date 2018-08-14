@@ -27,6 +27,7 @@
 #include "TProfile.h"
 
 // user include files
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
@@ -74,11 +75,11 @@ namespace {
   public:
     TreeHelper(TTree* iTree, std::string* iFullNameBufferPtr ):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr){ setup();}
-     virtual void doFill(MonitorElement* iElement) {
+     void doFill(MonitorElement* iElement) override {
        *m_fullNameBufferPtr = iElement->getFullname();
        m_flagBuffer = iElement->getTag();
        m_bufferPtr = dynamic_cast<T*>(iElement->getRootObject());
-       assert(0!=m_bufferPtr);
+       assert(nullptr!=m_bufferPtr);
        //std::cout <<"#entries: "<<m_bufferPtr->GetEntries()<<std::endl;
        m_tree->Fill();
      }
@@ -89,7 +90,7 @@ namespace {
       m_tree->Branch(kFullNameBranch,&m_fullNameBufferPtr);
       m_tree->Branch(kFlagBranch,&m_flagBuffer);
 
-      m_bufferPtr = 0;
+      m_bufferPtr = nullptr;
       m_tree->Branch(kValueBranch,&m_bufferPtr,128*1024,0);
     }
     TTree* m_tree;
@@ -104,7 +105,7 @@ namespace {
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr)
      {setup();}
 
-    virtual void doFill(MonitorElement* iElement) {
+    void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getIntValue();
@@ -128,7 +129,7 @@ namespace {
     FloatTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr)
      {setup();}
-   virtual void doFill(MonitorElement* iElement) {
+   void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getFloatValue();
@@ -152,7 +153,7 @@ namespace {
     StringTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
      m_tree(iTree), m_flagBuffer(0),m_fullNameBufferPtr(iFullNameBufferPtr), m_bufferPtr(&m_buffer)
      {setup();}
-   virtual void doFill(MonitorElement* iElement) {
+   void doFill(MonitorElement* iElement) override {
      *m_fullNameBufferPtr = iElement->getFullname();
      m_flagBuffer = iElement->getTag();
      m_buffer = iElement->getStringValue();
@@ -181,18 +182,17 @@ namespace edm {
 class DQMRootOutputModule : public edm::one::OutputModule<> {
 public:
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
-  virtual void beginJob() override;
-  virtual ~DQMRootOutputModule();
+  void beginJob() override;
+  ~DQMRootOutputModule() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventForOutput const& e) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
-  virtual void writeRun(edm::RunForOutput const&) override;
-  virtual bool isFileOpen() const override;
-  virtual void openFile(edm::FileBlock const&) override;
-  virtual void reallyCloseFile() override;
-  virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren) override;
+  void write(edm::EventForOutput const& e) override;
+  void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  void writeRun(edm::RunForOutput const&) override;
+  bool isFileOpen() const override;
+  void openFile(edm::FileBlock const&) override;
+  void reallyCloseFile() override;
 
   void startEndFile();
   void finishEndFile();
@@ -257,7 +257,7 @@ makeHelper(unsigned int iTypeIndex,
     return new TreeHelper<TProfile2D>(iTree,iFullNameBufferPtr);
   }
   assert(false);
-  return 0;
+  return nullptr;
 }
 
 //
@@ -272,13 +272,13 @@ edm::one::OutputModuleBase::OutputModuleBase(pset),
 edm::one::OutputModule<>(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
 m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
-m_file(0),
+m_file(nullptr),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
 m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
 m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
-m_indicesTree(0)
+m_indicesTree(nullptr)
 {
 }
 
@@ -380,27 +380,6 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
 
 
 void
-DQMRootOutputModule::postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren) {
-  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
-  unsigned int digits = 0;
-  while (numberOfChildren != 0) {
-    ++digits;
-    numberOfChildren /= 10;
-  }
-  // protect against zero numberOfChildren
-  if (digits == 0) {
-    digits = 3;
-  }
-
-  char buffer[digits + 2];
-  snprintf(buffer, digits + 2, "_%0*d", digits, childIndex);
-
-  boost::filesystem::path filename(m_fileName);
-  m_fileName = (filename.parent_path() / (filename.stem().string() + buffer + filename.extension().string())).string();
-}
-
-
-void
 DQMRootOutputModule::write(edm::EventForOutput const&){
 }
 
@@ -431,7 +410,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& i
     }
   }
 
-  edm::ProcessHistoryID id = iLumi.processHistoryID();
+  const edm::ProcessHistoryID& id = iLumi.processHistoryID();
   std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
   if(itFind == m_seenHistories.end()) {
     m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
@@ -492,7 +471,7 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun){
     }
   }
 
-  edm::ProcessHistoryID id = iRun.processHistoryID();
+  const edm::ProcessHistoryID& id = iRun.processHistoryID();
   std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
   if(itFind == m_seenHistories.end()) {
     m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
@@ -551,7 +530,7 @@ void DQMRootOutputModule::startEndFile() {
       it !=itEnd;
       ++it) {
     const edm::ProcessHistory* history = m_processHistoryRegistry.getMapped(*it);
-    assert(0!=history);
+    assert(nullptr!=history);
     index = 0;
     for(edm::ProcessHistory::collection_type::const_iterator itPC = history->begin(), itPCEnd = history->end();
         itPC != itPCEnd;
@@ -571,7 +550,7 @@ void DQMRootOutputModule::startEndFile() {
   parameterSetsTree->Branch(kParameterSetBranch,&blob);
 
   edm::pset::Registry* psr = edm::pset::Registry::instance();
-  assert(0!=psr);
+  assert(nullptr!=psr);
   for(edm::pset::Registry::const_iterator it = psr->begin(), itEnd = psr->end();
   it != itEnd;
   ++it) {
@@ -607,7 +586,8 @@ DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     ->setComment("Only write the run with this run number. 0 means write all runs.");
   desc.addOptionalUntracked<int>("splitLevel", 99)
     ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
-  edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+  const std::vector<std::string> keep = {"drop *", "keep DQMToken_*_*_*"};
+  edm::OutputModule::fillDescription(desc, keep);
 
   edm::ParameterSetDescription dataSet;
   dataSet.setAllowAnything();

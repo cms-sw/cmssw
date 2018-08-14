@@ -216,7 +216,7 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 	if (result.size() == initial_size){
 		LogTrace("MultiRecHitCollector") << "no valid measuremnt or no valid TSOS in none of the groups";
 		//measgroup has been already checked for size != 0
-		if (measgroup.back().measurements().size() != 0){	
+		if (!measgroup.back().measurements().empty()){	
 			result.push_back(measgroup.back().measurements().back());
 		} 
 	}

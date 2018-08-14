@@ -9,6 +9,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
@@ -51,10 +52,10 @@ void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 
 
   // DT Barrel
-  std::vector<Alignable*> dtBarrel = theAlignableMuon->DTBarrel();
+  const auto& dtBarrel = theAlignableMuon->DTBarrel();
   this->decodeMovements_( theScenario, dtBarrel, "DTBarrel" );
   // CSC Endcap
-  std::vector<Alignable*> cscEndcaps = theAlignableMuon->CSCEndcaps();
+  const auto& cscEndcaps = theAlignableMuon->CSCEndcaps();
   this->decodeMovements_( theScenario, cscEndcaps, "CSCEndcap" );
 
   this->moveDTSectors(theScenario);
@@ -109,7 +110,7 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
 //_____________________________________________________________________________________________________
 void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
 {
-  std::vector<Alignable *> DTchambers = theAlignableMuon->DTChambers();
+  const auto& DTchambers = theAlignableMuon->DTChambers();
   //Take parameters
   align::Scalars param = this->extractParameters(pSet, "DTSectors");
   double scale_ = param[0]; double scaleError_ = param[1];
@@ -127,10 +128,11 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
   errorRotation.push_back(errorphix); errorRotation.push_back(errorphiy); errorRotation.push_back(errorphiz);
  
   int index[5][4][14];
+  std::fill_n(index[0][0], 5*4*14, -1); // initialize to -1
   int counter = 0;
   //Create and index for the chambers in the Alignable vector
-  for(std::vector<Alignable *>::iterator iter = DTchambers.begin(); iter != DTchambers.end(); ++iter) {
-    DTChamberId myId((*iter)->geomDetId().rawId());
+  for(const auto& iter: DTchambers) {
+    DTChamberId myId(iter->geomDetId().rawId());
     index[myId.wheel()+2][myId.station()-1][myId.sector()-1] = counter;
     counter++;
   }
@@ -171,7 +173,7 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
 //______________________________________________________________________________________________________
 void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
 {
-  std::vector<Alignable *> CSCchambers = theAlignableMuon->CSCChambers();
+  const auto& CSCchambers = theAlignableMuon->CSCChambers();
   //Take Parameters
   align::Scalars param = this->extractParameters(pSet, "CSCSectors");
   double scale_ = param[0]; double scaleError_ = param[1];
@@ -190,10 +192,12 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
   
   int index[2][4][4][36];
   int sector_index[2][4][4][36];
+  std::fill_n(index[0][0][0],        2*4*4*36, -1); // initialize to -1
+  std::fill_n(sector_index[0][0][0], 2*4*4*36, -1); // initialize to -1
   int counter = 0;
   //Create an index for the chambers in the alignable vector
-  for(std::vector<Alignable *>::iterator iter = CSCchambers.begin(); iter != CSCchambers.end(); ++iter) {
-    CSCDetId myId((*iter)->geomDetId().rawId());
+  for(const auto& iter: CSCchambers) {
+    CSCDetId myId(iter->geomDetId().rawId());
     index[myId.endcap()-1][myId.station()-1][myId.ring()-1][myId.chamber()-1] = counter;
     sector_index[myId.endcap()-1][myId.station()-1][myId.ring()-1][myId.chamber()-1] = CSCTriggerNumbering::sectorFromTriggerLabels(CSCTriggerNumbering::triggerSectorFromLabels(myId),CSCTriggerNumbering::triggerSubSectorFromLabels(myId) , myId.station());
     counter++;
@@ -255,8 +259,8 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
 //______________________________________________________________________________________________________
 void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet)
 {
-  std::vector<Alignable *> DTbarrel = theAlignableMuon->DTBarrel();	
-  std::vector<Alignable *> CSCendcaps = theAlignableMuon->CSCEndcaps();  
+  const auto& DTbarrel = theAlignableMuon->DTBarrel();	
+  const auto& CSCendcaps = theAlignableMuon->CSCEndcaps();  
   //Take Parameters
   align::Scalars param = this->extractParameters(pSet, "Muon");
   double scale_ = param[0]; double scaleError_ = param[1];
@@ -284,17 +288,17 @@ void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet)
     disp.push_back(dx); disp.push_back(dy); disp.push_back(dz);
     rotation.push_back(phix); rotation.push_back(phiy); rotation.push_back(phiz);
   }
-  for(std::vector<Alignable *>::iterator iter = DTbarrel.begin(); iter != DTbarrel.end(); ++iter) {
-    theMuonModifier.moveAlignable( *iter, false, true, disp[0], disp[1], disp[2] );
-    theMuonModifier.rotateAlignable( *iter, false, true, rotation[0],  rotation[1], rotation[2] );
-    theMuonModifier.addAlignmentPositionError( *iter, errorx, errory, errorz );
-    theMuonModifier.addAlignmentPositionErrorFromRotation( *iter,  errorphix, errorphiy, errorphiz ); 
+  for(const auto& iter: DTbarrel) {
+    theMuonModifier.moveAlignable(iter, false, true, disp[0], disp[1], disp[2]);
+    theMuonModifier.rotateAlignable(iter, false, true, rotation[0],  rotation[1], rotation[2]);
+    theMuonModifier.addAlignmentPositionError(iter, errorx, errory, errorz);
+    theMuonModifier.addAlignmentPositionErrorFromRotation(iter,  errorphix, errorphiy, errorphiz); 
   }
-  for(std::vector<Alignable *>::iterator iter = CSCendcaps.begin(); iter != CSCendcaps.end(); ++iter) {
-    theMuonModifier.moveAlignable( *iter, false, true, disp[0], disp[1], disp[2] );
-    theMuonModifier.rotateAlignable( *iter, false, true, rotation[0],  rotation[1], rotation[2] );
-    theMuonModifier.addAlignmentPositionError( *iter, errorx, errory, errorz );
-    theMuonModifier.addAlignmentPositionErrorFromRotation( *iter,  errorphix, errorphiy, errorphiz ); 
+  for(const auto& iter: CSCendcaps) {
+    theMuonModifier.moveAlignable(iter, false, true, disp[0], disp[1], disp[2]);
+    theMuonModifier.rotateAlignable(iter, false, true, rotation[0],  rotation[1], rotation[2]);
+    theMuonModifier.addAlignmentPositionError(iter, errorx, errory, errorz);
+    theMuonModifier.addAlignmentPositionErrorFromRotation(iter,  errorphix, errorphiy, errorphiz); 
   }
 }
 

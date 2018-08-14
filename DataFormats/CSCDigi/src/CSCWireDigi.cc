@@ -7,7 +7,7 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 
   /// Constructors
 

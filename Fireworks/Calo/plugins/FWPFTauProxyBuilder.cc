@@ -32,24 +32,24 @@ class FWPFTauProxyBuilder : public FWTauProxyBuilderBase
 {
 public:
    FWPFTauProxyBuilder() {}
-   virtual ~FWPFTauProxyBuilder() {}
+   ~FWPFTauProxyBuilder() override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPFTauProxyBuilder( const FWPFTauProxyBuilder& );    // stop default
-   const FWPFTauProxyBuilder& operator=( const FWPFTauProxyBuilder& );    // stop default
+   FWPFTauProxyBuilder( const FWPFTauProxyBuilder& ) = delete;    // stop default
+   const FWPFTauProxyBuilder& operator=( const FWPFTauProxyBuilder& ) = delete;    // stop default
 
    using FWTauProxyBuilderBase::buildViewType;
-   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type , const FWViewContext*);
+   void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type , const FWViewContext*) override;
 };
 
 void
 FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc)
 {
-   reco::PFTauCollection const * pfTaus = 0;
+   reco::PFTauCollection const * pfTaus = nullptr;
    iItem->get( pfTaus );
-   if( pfTaus == 0 ) return;
+   if( pfTaus == nullptr ) return;
 
    for( reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it)
    { 
@@ -88,7 +88,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
          catch (std::exception&  e)
          { 
             fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
-            buildBaseTau(*it, 0, comp, viewType, vc);         
+            buildBaseTau(*it, nullptr, comp, viewType, vc);         
          }
       }
       setupAddElement( comp, product );

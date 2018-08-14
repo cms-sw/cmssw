@@ -245,8 +245,8 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   // invoke algorithm 
 
-  const EBDigiCollection *ebdc=NULL;
-  const EEDigiCollection *eedc=NULL;
+  const EBDigiCollection *ebdc=nullptr;
+  const EEDigiCollection *eedc=nullptr;
   if (barrel) {
     ebdc=ebDigis.product();
     algo_->run(iSetup,ebdc,*pOut,*pOutTcp);

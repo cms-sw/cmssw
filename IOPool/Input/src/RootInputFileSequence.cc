@@ -274,7 +274,7 @@ namespace edm {
           std::ostringstream out;
           out << "Input file " << fileName() << " could not be opened.\n";
           out << "Fallback Input file " << fallbackFileName() << " also could not be opened.";
-          if (originalInfo.size()) {
+          if (!originalInfo.empty()) {
             out << std::endl << "Original exception info is above; fallback exception info is below.";
             ex.addAdditionalInfo(out.str());
             for (auto const & s : originalInfo) {

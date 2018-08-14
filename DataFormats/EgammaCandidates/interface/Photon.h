@@ -41,10 +41,10 @@ namespace reco {
 	    const Point & vtx = Point( 0, 0, 0 ) );
 
     /// destructor
-    virtual ~Photon();
+    ~Photon() override;
 
     /// returns a clone of the candidate
-    virtual Photon * clone() const;
+    Photon * clone() const override;
 
     /// returns a reference to the core photon object
     reco::PhotonCoreRef photonCore() const { return photonCore_;}
@@ -57,7 +57,7 @@ namespace reco {
     bool isPFlowPhoton() const {return this->photonCore()->isPFlowPhoton();}
     bool isStandardPhoton() const {return this->photonCore()->isStandardPhoton();}
     /// Ref to SuperCluster
-    reco::SuperClusterRef superCluster() const;
+    reco::SuperClusterRef superCluster() const override;
     /// Ref to PFlow SuperCluster
     reco::SuperClusterRef parentSuperCluster() const {return this->photonCore()->parentSuperCluster();}
     /// vector of references to  Conversion's
@@ -69,20 +69,20 @@ namespace reco {
     /// vector of references to  one leg Conversion's
     reco::ConversionRefVector conversionsOneLeg() const {return this->photonCore()->conversionsOneLeg() ;} 
     /// Bool flagging photons with a vector of refereces to conversions with size >0
-    bool hasConversionTracks() const { if (this->photonCore()->conversions().size() > 0 || this->photonCore()->conversionsOneLeg().size() > 0)  return true; else return false;}
+    bool hasConversionTracks() const { if (!this->photonCore()->conversions().empty() || !this->photonCore()->conversionsOneLeg().empty())  return true; else return false;}
     /// reference to electron Pixel seed 
     reco::ElectronSeedRefVector electronPixelSeeds() const {return this->photonCore()->electronPixelSeeds();}
     /// Bool flagging photons having a non-zero size vector of Ref to electornPixel seeds
-    bool hasPixelSeed() const { if ((this->photonCore()->electronPixelSeeds()).size() > 0 ) return true; else return false; }
+    bool hasPixelSeed() const { if (!(this->photonCore()->electronPixelSeeds()).empty() ) return true; else return false; }
     int conversionTrackProvenance(const edm::RefToBase<reco::Track>& convTrack) const;
 
  
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPointF caloPosition() const {return caloPosition_;}
     /// set primary event vertex used to define photon direction
-    void setVertex(const Point & vertex);
+    void setVertex(const Point & vertex) override;
     /// Implement Candidate method for particle species
-    bool isPhoton() const { return true ; }
+    bool isPhoton() const override { return true ; }
  
 
     //=======================================================
@@ -463,7 +463,8 @@ namespace reco {
       float sumNeutralHadronEtHighThreshold;  //!< sum pt of neutral hadrons with a higher threshold
       float sumPhotonEtHighThreshold;  //!< sum pt of PF photons with a higher threshold
       float sumPUPt;  //!< sum pt of charged Particles not from PV  (for Pu corrections)
-
+      float sumEcalClusterEt; //sum pt of ecal clusters, vetoing clusters part of photon
+      float sumHcalClusterEt; //sum pt of hcal clusters, vetoing clusters part of photon
       PflowIsolationVariables():
 	
 	chargedHadronIso(0),
@@ -474,7 +475,9 @@ namespace reco {
 	sumChargedParticlePt(0),
       	sumNeutralHadronEtHighThreshold(0),
 	sumPhotonEtHighThreshold(0),
-	sumPUPt(0)	   
+	sumPUPt(0),
+	sumEcalClusterEt(0),
+	sumHcalClusterEt(0)
       {}
       
       
@@ -488,7 +491,11 @@ namespace reco {
     float sumChargedParticlePt() const {return pfIsolation_.sumChargedParticlePt;}
     float sumNeutralHadronEtHighThreshold() const {return pfIsolation_.sumNeutralHadronEtHighThreshold;}
     float sumPhotonEtHighThreshold() const {return pfIsolation_.sumPhotonEtHighThreshold;}
-    float sumPUPt() const {return pfIsolation_.sumPUPt;}
+    float sumPUPt() const {return pfIsolation_.sumPUPt;} 
+    
+    //backwards compat functions for pat::Photon
+    float ecalPFClusterIso() const { return pfIsolation_.sumEcalClusterEt; };
+    float hcalPFClusterIso() const { return pfIsolation_.sumHcalClusterEt; };
 
     /// Get Particle Flow Isolation variables block
     const PflowIsolationVariables& getPflowIsolationVariables() const { return pfIsolation_; }
@@ -521,7 +528,7 @@ namespace reco {
     
   private:
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     /// position of seed BasicCluster for shower depth of unconverted photon
     math::XYZPointF caloPosition_;
     /// reference to the PhotonCore

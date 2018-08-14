@@ -83,62 +83,59 @@ namespace cond {
   };
 
   // functions ( specilized for specific types ) for adding data in AttributeList buffers
-  namespace {
-    template<typename T> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const T& param, bool init=true ){
-      if(init) data.extend<T>( attributeName );
-      data[ attributeName ].data<T>() = param;
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
-      if(init) data.extend<coral::Blob>( attributeName );
-      data[ attributeName ].bind( param.get() );
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const boost::posix_time::ptime& param, bool init ){
-      if(init) data.extend<coral::TimeStamp>( attributeName );
-      data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
-      if(init) data.extend<std::string>( attributeName );
-      data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
-    }
-
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
-      if(init) data.extend<std::string>( attributeName );
-      data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
-    }
-
-    // function for adding into an AttributeList buffer data for a specified column. Performs type checking.
-    template<typename Column, typename P> void f_add_column_data( coral::AttributeList& data, const P& param, bool init=true ){
-      static_assert_is_same_decayed<typename Column::type,P>();
-      f_add_attribute( data, Column::name, param, init );
-    }
-
-    // function for adding into an AttributeList buffer data for a specified condition. Performs type checking.
-    template<typename Column, typename P> void f_add_condition_data( coral::AttributeList& data, std::string& whereClause, const P& value, const std::string condition = "="){
-      static_assert_is_same_decayed<typename Column::type,P>();
-      std::stringstream varId;
-      unsigned int id = data.size();
-      varId << Column::name <<"_"<<id;
-      if( !whereClause.empty() ) whereClause += " AND ";
-      whereClause += Column::fullyQualifiedName() + " " + condition + " :" + varId.str() + " ";
-      f_add_attribute( data, varId.str(), value );
-    }
-
-    // function for appending conditions to a where clause
-    template<typename C1, typename C2> void f_add_condition( std::string& whereClause, const std::string condition = "="){
-      if( !whereClause.empty() ) whereClause += " AND ";
-      whereClause += C1::fullyQualifiedName() + " " + condition + " " + C2::fullyQualifiedName() + " ";
-    }
-
+  template<typename T> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const T& param, bool init=true ){
+    if(init) data.extend<T>( attributeName );
+    data[ attributeName ].data<T>() = param;
   }
 
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
+    if(init) data.extend<coral::Blob>( attributeName );
+    data[ attributeName ].bind( param.get() );
+  }
+
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const boost::posix_time::ptime& param, bool init ){
+    if(init) data.extend<coral::TimeStamp>( attributeName );
+    data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
+  }
+
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
+    if(init) data.extend<std::string>( attributeName );
+    data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
+  }
+
+  template<> inline void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
+    if(init) data.extend<std::string>( attributeName );
+    data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
+  }
+  
+  // function for adding into an AttributeList buffer data for a specified column. Performs type checking.
+  template<typename Column, typename P> inline void f_add_column_data( coral::AttributeList& data, const P& param, bool init=true ){
+    static_assert_is_same_decayed<typename Column::type,P>();
+    f_add_attribute( data, Column::name, param, init );
+  }
+  
+  // function for adding into an AttributeList buffer data for a specified condition. Performs type checking.
+  template<typename Column, typename P> inline void f_add_condition_data( coral::AttributeList& data, std::string& whereClause, const P& value, const std::string condition = "="){
+    static_assert_is_same_decayed<typename Column::type,P>();
+    std::stringstream varId;
+    unsigned int id = data.size();
+    varId << Column::name <<"_"<<id;
+    if( !whereClause.empty() ) whereClause += " AND ";
+    whereClause += Column::fullyQualifiedName() + " " + condition + " :" + varId.str() + " ";
+    f_add_attribute( data, varId.str(), value );
+  }
+  
+  // function for appending conditions to a where clause
+  template<typename C1, typename C2> inline void f_add_condition( std::string& whereClause, const std::string condition = "="){
+    if( !whereClause.empty() ) whereClause += " AND ";
+    whereClause += C1::fullyQualifiedName() + " " + condition + " " + C2::fullyQualifiedName() + " ";
+  }
+  
   // buffer for data to be inserted into a table
   // maybe better only leave the template set methods ( no class template )
   template<typename... Columns> class RowBuffer {
   private:
-
+    
     template<typename Params, int n, typename T1, typename... Ts>    
     void _set(const Params & params, bool init=true) {
       f_add_column_data<T1>( m_data, std::get<n>( params ), init );
@@ -407,11 +404,12 @@ namespace cond {
     ~Query(){
     }
 
-    template<typename Col> void addTable(){
+    template<typename Col> Query& addTable(){
       if( m_tables.find( Col::tableName() )==m_tables.end() ){
 	m_coralQuery->addToTableList( Col::tableName() );
 	m_tables.insert( Col::tableName() );
       }
+      return *this;
     }
 
     template<int n>
@@ -424,29 +422,34 @@ namespace cond {
       _Query<n+1, Args...>();
     }
 
-    template<typename C, typename T> void addCondition( const T& value, const std::string condition = "="){
+    template<typename C, typename T> Query& addCondition( const T& value, const std::string condition = "="){
       addTable<C>();
       f_add_condition_data<C>( m_whereData, m_whereClause, value, condition );       
+      return *this;
     }
   
-    template<typename C1, typename C2> void addCondition( const std::string condition = "="){
+    template<typename C1, typename C2> Query& addCondition( const std::string condition = "="){
       addTable<C1>();
       addTable<C2>();
-      f_add_condition<C1,C2>( m_whereClause, condition );      
+      f_add_condition<C1,C2>( m_whereClause, condition ); 
+      return *this;     
     }
 
-    template<typename C> void addOrderClause( bool ascending=true ){
+    template<typename C> Query& addOrderClause( bool ascending=true ){
       std::string orderClause( C::fullyQualifiedName() );
       if(!ascending) orderClause += " DESC";
       m_coralQuery->addToOrderList( orderClause );
+      return *this;
     }
 
-    void groupBy( const std::string& expression ){
+    Query& groupBy( const std::string& expression ){
       m_coralQuery->groupBy( expression );
+      return *this;
     }
 
-    void setForUpdate(){
+    Query& setForUpdate(){
       m_coralQuery->setForUpdate();
+      return *this;
     }
 
     bool next(){
@@ -591,7 +594,7 @@ namespace cond {
     }
 
     void flush(){
-      m_coralInserter->flush();
+      if( m_coralInserter.get() ) m_coralInserter->flush();
     }
   private:
     // fixme

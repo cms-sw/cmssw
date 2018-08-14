@@ -41,9 +41,9 @@ template<class T>
 class FakeTrackProducer : public edm::stream::EDProducer<> {
     public:
       explicit FakeTrackProducer(const edm::ParameterSet & iConfig);
-      virtual ~FakeTrackProducer() { }
+      ~FakeTrackProducer() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     private:
       /// Labels for input collections
       edm::EDGetTokenT<std::vector<T>> src_;
@@ -99,7 +99,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         //if (!selector_(mu)) continue;
         const PTrajectoryStateOnDet & pstate = getState(mu);
         const GeomDet *det = theGeometry->idToDet(DetId(pstate.detId()));
-        if (det == 0) { std::cerr << "ERROR:  bogus detid " << pstate.detId() << std::endl; continue; }
+        if (det == nullptr) { std::cerr << "ERROR:  bogus detid " << pstate.detId() << std::endl; continue; }
         TrajectoryStateOnSurface state = trajectoryStateTransform::transientState(pstate, & det->surface(), &*theMagField);
         GlobalPoint  gx = state.globalPosition();
         GlobalVector gp = state.globalMomentum();
@@ -114,7 +114,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         const TrackingRecHit *hit1 = &*(hits.second-1);
         const GeomDet *det0 = theGeometry->idToDet(hit0->geographicalId());
         const GeomDet *det1 = theGeometry->idToDet(hit1->geographicalId());
-        if (det0 == 0 || det1 == 0) { std::cerr << "ERROR:  bogus detids at beginning or end of range" << std::endl; continue; }
+        if (det0 == nullptr || det1 == nullptr) { std::cerr << "ERROR:  bogus detids at beginning or end of range" << std::endl; continue; }
         GlobalPoint gx0 = det0->toGlobal(hit0->localPosition());
         GlobalPoint gx1 = det1->toGlobal(hit1->localPosition());
         reco::Track::Point x0(gx0.x(), gx0.y(), gx0.z());

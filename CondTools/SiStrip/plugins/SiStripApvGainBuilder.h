@@ -20,9 +20,9 @@ class SiStripApvGainBuilder : public edm::EDAnalyzer {
 
   explicit SiStripApvGainBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripApvGainBuilder(){};
+  ~SiStripApvGainBuilder() override{};
 
-  virtual void analyze(const edm::Event& , const edm::EventSetup& );
+  void analyze(const edm::Event& , const edm::EventSetup& ) override;
 
  private:
   edm::FileInPath fp_;

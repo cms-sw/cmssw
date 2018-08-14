@@ -33,7 +33,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
   // match the photon hybrid supercluster with those with Algo==0 (island)
   double delta1=1000.;
   double deltacur=1000.;
-  const reco::SuperCluster *matchedsupercluster=0;
+  const reco::SuperCluster *matchedsupercluster=nullptr;
   bool MATCHEDSC = false;
 
   Direction candDir(position.eta(), position.phi());
@@ -55,7 +55,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
     }
   }
 
-  const reco::BasicCluster *cluster= 0;
+  const reco::BasicCluster *cluster= nullptr;
 
   //loop over basic clusters
   for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollectionH->begin(); cItr != basicClusterCollectionH->end(); ++cItr){

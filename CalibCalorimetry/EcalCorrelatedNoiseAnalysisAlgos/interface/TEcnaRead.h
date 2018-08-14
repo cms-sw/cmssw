@@ -1,8 +1,8 @@
 #ifndef   CL_TEcnaRead_H
 #define   CL_TEcnaRead_H
 
-#include <time.h>
-#include <math.h>
+#include <ctime>
+#include <cmath>
 
 #include "TSystem.h"
 #include "TObject.h"
@@ -432,7 +432,7 @@ class TEcnaRead: public TObject {
   TEcnaRead&  operator=(const TEcnaRead&);  //  overloading of the operator=
 
   //................. destructor
-  virtual ~TEcnaRead();
+  ~TEcnaRead() override;
   
   //========================================================================
   //
@@ -568,7 +568,7 @@ class TEcnaRead: public TObject {
                             // concerning initialisations
   void  PrintAllComments(); // Set flags to authorize printing of all the comments
 
-ClassDef(TEcnaRead,1) // Calculation of correlated noises from data
+ClassDefOverride(TEcnaRead,1) // Calculation of correlated noises from data
 };  
 
 #endif    //  CL_TEcnaRead_H

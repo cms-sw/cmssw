@@ -9,12 +9,12 @@
 class MaterialBudgetTxt : public MaterialBudgetFormat
 {
  public:
-  MaterialBudgetTxt( MaterialBudgetData* data, const std::string& fileName );   
-  virtual ~MaterialBudgetTxt();
+  MaterialBudgetTxt(std::shared_ptr< MaterialBudgetData> data, const std::string& fileName );   
+  ~MaterialBudgetTxt() override;
 
-  virtual void fillStartTrack();
-  virtual void fillPerStep();
-  virtual void fillEndTrack();
+  void fillStartTrack() override;
+  void fillPerStep() override;
+  void fillEndTrack() override;
 
  private:
   std::ofstream* theFile;

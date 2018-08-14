@@ -10,7 +10,7 @@
  */
 
 
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
@@ -33,17 +33,6 @@ class AlignableDTBarrel : public AlignableComposite
  public:
 
   AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWheels );
-
-  ~AlignableDTBarrel();
-  
-  virtual std::vector<Alignable*> components() const 
-  {
-
-        std::vector<Alignable*> result;
-        result.insert( result.end(), theDTWheels.begin(), theDTWheels.end() );
-        return result;
-
-  }
   
   // gets the global position as the average over all positions of the layers
   PositionType computePosition() ;
@@ -58,14 +47,14 @@ class AlignableDTBarrel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 
   /// Recursive printout of the muon Barrel structure
-  void dump( void ) const;
+  void dump( void ) const override;
 
 
   // Get alignments sorted by DetId
-  Alignments* alignments() const;
+  Alignments* alignments() const override;
 
   // Get alignment errors sorted by DetId
-  AlignmentErrorsExtended* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const override;
 
 
 

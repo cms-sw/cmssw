@@ -6,6 +6,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -41,7 +42,7 @@ void CaloGeometryHelper::initialize(double bField)
   buildCrystalArray();
   buildNeighbourArray();
   bfield_ = bField;
-  preshowerPresent_=(getEcalPreshowerGeometry()!=0);
+  preshowerPresent_=(getEcalPreshowerGeometry()!=nullptr);
     
   if(preshowerPresent_)
     {
@@ -98,10 +99,10 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
     }
   else
     {
-      result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      result=static_cast<const HcalGeometry*>(HcalGeometry_)->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()),true);
       HcalDetId myDetId(result);
 
-      // special patch for HF
+      // special patch for HF (this is already a part of HcalGeometry)
       if ( myDetId.subdetId() == HcalForward ) {
 	int mylayer;
 	if ( fabs(point.Z()) > 1132. ) {
@@ -111,12 +112,12 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	}
 	HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
 	result = myDetId2;
-	return result;
+//      return result;
       }
 
-
+      // Special patch to correct the HCAL geometry (does not work)
+      /*
       if(result.subdetId()!=HcalEndcap) return result;
-      // Special patch to correct the HCAL geometry
       if(myDetId.depth()==3) return result;
 
       int ieta=myDetId.ietaAbs();
@@ -140,13 +141,14 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
           HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
 	  if(second!=HcalDetId()) result=second;
 	}
+      */
 #ifdef DEBUGGCC
       if(result.null()) 
 	{
 	  return result;
 	}
       GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
-      GlobalPoint cc=HcalGeometry_->getGeometry(result)->getPosition();
+      GlobalPoint cc=HcalGeometry_->getPosition(result);
       float deltaeta2 = ip.eta()-cc.eta();
       deltaeta2 *= deltaeta2;
       float deltaphi2 = acos(cos(ip.phi()-cc.phi()));
@@ -352,7 +354,7 @@ bool CaloGeometryHelper::simplemove(DetId& cell, const CaloDirection& dir) const
   else if(cell.subdetId()==EcalEndcap)
     neighbours= EcalEndcapTopology_->getNeighbours(cell,dir);
   
-  if(neighbours.size()>0 && !neighbours[0].null())
+  if ((!neighbours.empty()) && (!neighbours[0].null()))
     {
       cell = neighbours[0];
       return true;
@@ -459,11 +461,10 @@ void CaloGeometryHelper::buildCrystalArray()
   //std::cout << " Building the array of crystals (barrel) " ;
   const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
-  const CaloCellGeometry * geom=0;
   for(unsigned ic=0; ic<size; ++ic) 
     {
       unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
-      geom = EcalBarrelGeometry_->getGeometry(vec[ic]);
+      auto geom = EcalBarrelGeometry_->getGeometry(vec[ic]);
       BaseCrystal xtal(vec[ic]);
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       barrelCrystals_[hashedindex]=xtal;
@@ -483,7 +484,7 @@ void CaloGeometryHelper::buildCrystalArray()
   for(unsigned ic=0; ic<size; ++ic) 
     {
       unsigned hashedindex=EEDetId(vece[ic]).hashedIndex();
-      geom = EcalEndcapGeometry_->getGeometry(vece[ic]);
+      auto geom = EcalEndcapGeometry_->getGeometry(vece[ic]);
       BaseCrystal xtal(vece[ic]);
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       endcapCrystals_[hashedindex]=xtal;

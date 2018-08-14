@@ -1,3 +1,4 @@
+from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.coreTools import *
 
@@ -25,7 +26,7 @@ options.register ( "TrigNames",
                    VarParsing.VarParsing.varType.string,          # string, int, or float
                    "HLT names")
 options.parseArguments()
-print options.TrigNames
+print(options.TrigNames)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -41,11 +42,11 @@ process.source = cms.Source("PoolSource",
     )
                             )
 
-process.StudyHLT.Verbosity = 0
-process.StudyHLT.Triggers  = options.TrigNames
+process.studyHLT.verbosity = 0
+process.studyHLT.triggers  = options.TrigNames
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('StudyHLT.root')
                                    )
 
-process.p = cms.Path(process.StudyHLT)
+process.p = cms.Path(process.studyHLT)

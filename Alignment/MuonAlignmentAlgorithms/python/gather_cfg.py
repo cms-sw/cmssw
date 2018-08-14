@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +9,7 @@ except:
     try:
         import simplejson as json
     except:
-        print "Please use lxplus or set an environment (for example crab) with json lib available"
+        print("Please use lxplus or set an environment (for example crab) with json lib available")
         sys.exit(1)
 
 inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
@@ -84,11 +85,9 @@ json_file = os.getenv("ALIGNMENT_JSON")
 if json_file is not None and json_file != '':
   jsonfile=file(json_file, 'r')
   jsondict = json.load(jsonfile)
-  runs = jsondict.keys()
-  runs.sort()
+  runs = sorted(jsondict.keys())
   for run in runs:
-    blocks = jsondict[run]
-    blocks.sort()
+    blocks = sorted(jsondict[run])
     prevblock = [-2,-2]
     for lsrange in blocks:
       if lsrange[0] == prevblock[1]+1:

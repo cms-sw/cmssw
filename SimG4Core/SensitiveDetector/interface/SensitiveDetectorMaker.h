@@ -1,18 +1,10 @@
-#ifndef SensitiveDetector_SensitiveDetectorMaker_h
-#define SensitiveDetector_SensitiveDetectorMaker_h
+#ifndef SimG4Core_SensitiveDetector_SensitiveDetectorMaker_h
+#define SimG4Core_SensitiveDetector_SensitiveDetectorMaker_h
 // -*- C++ -*-
 //
 // Package:     SensitiveDetector
 // Class  :     SensitiveDetectorMaker
 // 
-/**\class SensitiveDetectorMaker SensitiveDetectorMaker.h SimG4Core/SensitiveDetector/interface/SensitiveDetectorMaker.h
-
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
-*/
 //
 // Original Author:  
 //         Created:  Mon Nov 14 11:56:05 EST 2005
@@ -30,41 +22,30 @@
 template<class T>
 class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
 {
+public:
+  SensitiveDetectorMaker(){}
 
-   public:
-     SensitiveDetectorMaker(){}
-     //virtual ~SensitiveDetectorMaker();
+  // ---------- const member functions ---------------------
+  void make(const std::string& iname,
+	    const DDCompactView& cpv,
+	    const SensitiveDetectorCatalog& clg,
+	    const edm::ParameterSet& p,
+	    const SimTrackManager* man,
+	    SimActivityRegistry& reg,
+	    std::auto_ptr<SensitiveTkDetector>& oTK,
+	    std::auto_ptr<SensitiveCaloDetector>& oCalo) const override
+  {
+    std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, man));
+    SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
-      // ---------- const member functions ---------------------
-      virtual void make(const std::string& iname,
-			const DDCompactView& cpv,
-			const SensitiveDetectorCatalog& clg,
-			const edm::ParameterSet& p,
-			const SimTrackManager* m,
-			SimActivityRegistry& reg,
-			std::auto_ptr<SensitiveTkDetector>& oTK,
-			std::auto_ptr<SensitiveCaloDetector>& oCalo) const
-      {
-	std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, m));
-	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
+    convertTo(returnValue.get(), oTK, oCalo);
+    //ownership was passed in the previous function
+    returnValue.release();
+  }
 
-	this->convertTo(returnValue.get(), oTK,oCalo);
-	//ownership was passed in the previous function
-	returnValue.release();
-      }
-
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
-
-   private:
-      SensitiveDetectorMaker(const SensitiveDetectorMaker&); // stop default
-
-      const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&); // stop default
-
-      // ---------- member data --------------------------------
-
+private:
+  SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete;
+  const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete;
 };
-
 
 #endif

@@ -15,4 +15,10 @@ SiPixelLorentzAngleCalibration = cms.PSet(
     
     # Configuration of the granularity for the Lorentz angle calibration
     LorentzAngleModuleGroups = cms.PSet(),
+
+    # depending on the TTRHBuilder one has to use different
+    # 'SiPixelLorentzAngleRcd' flavors, e.g. when using template hit
+    # reconstruction one has to use "fromAlignment" and for the generic version
+    # one directly uses the unlabelled version, i.e. ""
+    lorentzAngleLabel = cms.string("fromAlignment"),
     )

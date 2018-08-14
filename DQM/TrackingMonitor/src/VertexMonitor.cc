@@ -21,29 +21,29 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputT
     , primaryVertexInputTag_         ( primaryVertexInputTag )
     , selectedPrimaryVertexInputTag_ ( selectedPrimaryVertexInputTag )
     , label_                         ( pvLabel )
-    , NumberOfPVtx(NULL)
-    , NumberOfPVtxVsBXlumi(NULL)
-    , NumberOfPVtxVsGoodPVtx(NULL)
-    , NumberOfGoodPVtx(NULL)
-    , NumberOfGoodPVtxVsBXlumi(NULL)
-    , FractionOfGoodPVtx(NULL)
-    , FractionOfGoodPVtxVsBXlumi(NULL)
-    , FractionOfGoodPVtxVsGoodPVtx(NULL)
-    , FractionOfGoodPVtxVsPVtx(NULL)
-    , NumberOfBADndofPVtx(NULL)
-    , NumberOfBADndofPVtxVsBXlumi(NULL)
-    , NumberOfBADndofPVtxVsGoodPVtx(NULL)
-    , GoodPVtxSumPt(NULL)
-    , GoodPVtxSumPtVsBXlumi(NULL)
-    , GoodPVtxSumPtVsGoodPVtx(NULL)
-    , GoodPVtxNumberOfTracks(NULL)
-    , GoodPVtxNumberOfTracksVsBXlumi(NULL)
-    , GoodPVtxNumberOfTracksVsGoodPVtx(NULL)
-    , GoodPVtxNumberOfTracksVsGoodPVtxNdof(NULL)
-    , GoodPVtxChi2oNDFVsGoodPVtx(NULL)
-    , GoodPVtxChi2oNDFVsBXlumi(NULL)
-    , GoodPVtxChi2ProbVsGoodPVtx(NULL)
-    , GoodPVtxChi2ProbVsBXlumi(NULL)
+    , NumberOfPVtx(nullptr)
+    , NumberOfPVtxVsBXlumi(nullptr)
+    , NumberOfPVtxVsGoodPVtx(nullptr)
+    , NumberOfGoodPVtx(nullptr)
+    , NumberOfGoodPVtxVsBXlumi(nullptr)
+    , FractionOfGoodPVtx(nullptr)
+    , FractionOfGoodPVtxVsBXlumi(nullptr)
+    , FractionOfGoodPVtxVsGoodPVtx(nullptr)
+    , FractionOfGoodPVtxVsPVtx(nullptr)
+    , NumberOfBADndofPVtx(nullptr)
+    , NumberOfBADndofPVtxVsBXlumi(nullptr)
+    , NumberOfBADndofPVtxVsGoodPVtx(nullptr)
+    , GoodPVtxSumPt(nullptr)
+    , GoodPVtxSumPtVsBXlumi(nullptr)
+    , GoodPVtxSumPtVsGoodPVtx(nullptr)
+    , GoodPVtxNumberOfTracks(nullptr)
+    , GoodPVtxNumberOfTracksVsBXlumi(nullptr)
+    , GoodPVtxNumberOfTracksVsGoodPVtx(nullptr)
+    , GoodPVtxNumberOfTracksVsGoodPVtxNdof(nullptr)
+    , GoodPVtxChi2oNDFVsGoodPVtx(nullptr)
+    , GoodPVtxChi2oNDFVsBXlumi(nullptr)
+    , GoodPVtxChi2ProbVsGoodPVtx(nullptr)
+    , GoodPVtxChi2ProbVsBXlumi(nullptr)
     , doAllPlots_       ( conf_.getParameter<bool>("doAllPlots")        )
     , doPlotsVsBXlumi_  ( conf_.getParameter<bool>("doPlotsVsBXlumi")   )
     , doPlotsVsGoodPVtx_( conf_.getParameter<bool>("doPlotsVsGoodPVtx") )
@@ -137,7 +137,7 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     FractionOfGoodPVtxVsPVtx      -> Fill( totalNumPV,     fracGoodPV        );
   }
 
-  if ( selpvHandle->size() ) {
+  if ( !selpvHandle->empty() ) {
     double sumpt    = 0;
     size_t ntracks  = 0;
     double chi2ndf  = 0.; 
@@ -361,18 +361,6 @@ VertexMonitor::initHisto(DQMStore::IBooker & ibooker)
     }
 }
  
-
-void 
-VertexMonitor::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-VertexMonitor::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 VertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

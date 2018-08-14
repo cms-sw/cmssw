@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 MonOccupancyDat::MonOccupancyDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_eventsOverLowThreshold = 0;
   m_eventsOverHighThreshold = 0;
@@ -39,7 +39,7 @@ void MonOccupancyDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonOccupancyDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonOccupancyDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -67,7 +67,7 @@ void MonOccupancyDat::writeDB(const EcalLogicID* ecid, const MonOccupancyDat* it
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonOccupancyDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonOccupancyDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -99,12 +99,12 @@ void MonOccupancyDat::fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillMa
     std::pair< EcalLogicID, MonOccupancyDat > p;
     MonOccupancyDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setEventsOverLowThreshold( rset->getInt(7) );
       dat.setEventsOverHighThreshold( rset->getInt(8) );
@@ -114,7 +114,7 @@ void MonOccupancyDat::fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillMa
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonOccupancyDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonOccupancyDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -199,6 +199,6 @@ void MonOccupancyDat::writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat 
     
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonOccupancyDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonOccupancyDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

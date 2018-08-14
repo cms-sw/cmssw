@@ -4,11 +4,17 @@
 #include <memory>
 #include <array>
 
+#include "boost/array.hpp"
 #include "boost/serialization/access.hpp"
 #include "boost/serialization/version.hpp"
 #include "boost/serialization/shared_ptr.hpp"
 #include "boost/serialization/vector.hpp"
+#include "boost/version.hpp"
+#if BOOST_VERSION < 106400
 #include "boost/serialization/array.hpp"
+#else
+#include "boost/serialization/boost_array.hpp"
+#endif
 
 //
 // This collection manages arrays of pointers and references.

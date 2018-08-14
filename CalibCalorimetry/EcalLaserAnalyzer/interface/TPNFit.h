@@ -26,7 +26,7 @@ class TPNFit: public TObject
   TPNFit();
 
   // Destructor: Does nothing
-  virtual ~TPNFit();
+  ~TPNFit() override;
 
   // Initialize 
   void init(int,int,int);
@@ -35,7 +35,7 @@ class TPNFit: public TObject
   double getAmpl() {return ampl;}
   double getTimax() {return timeatmax;}
 
-  ClassDef(TPNFit,0)
+  ClassDefOverride(TPNFit,0)
 };
 
 #endif

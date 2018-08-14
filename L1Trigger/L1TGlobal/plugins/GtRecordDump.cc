@@ -67,9 +67,9 @@ namespace l1t {
   class GtRecordDump : public edm::EDAnalyzer {
   public:
     explicit GtRecordDump(const edm::ParameterSet&);
-    virtual ~GtRecordDump(){};
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);  
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    ~GtRecordDump() override{};
+    void analyze(const edm::Event&, const edm::EventSetup&) override;  
+    void endRun(edm::Run const&, edm::EventSetup const&) override;
 
     InputTag   uGtAlgInputTag;
     InputTag   uGtExtInputTag;
@@ -77,11 +77,11 @@ namespace l1t {
     EDGetToken muToken;
     EDGetToken tauToken;
     EDGetToken jetToken;
-    EDGetToken etsumToken; 
+    EDGetToken etsumToken;
     EDGetToken uGtAlgToken;
     EDGetToken uGtExtToken;
-    EDGetToken uGtObjectMapToken;    
-    
+    EDGetToken uGtObjectMapToken;
+
     void dumpTestVectors(int bx, std::ofstream& myCout,
                          Handle<BXVector<l1t::Muon>> muons,
 			 Handle<BXVector<l1t::EGamma>> egammas,
@@ -90,7 +90,7 @@ namespace l1t {
 			 Handle<BXVector<l1t::EtSum>> etsums,
 			 Handle<BXVector<GlobalAlgBlk>> uGtAlg,
 			 Handle<BXVector<GlobalExtBlk>> uGtExt );
-				          
+
     cms_uint64_t formatMuon(std::vector<l1t::Muon>::const_iterator mu);
     unsigned int formatEG(std::vector<l1t::EGamma>::const_iterator eg);
     unsigned int formatTau(std::vector<l1t::Tau>::const_iterator tau);
@@ -100,24 +100,24 @@ namespace l1t {
     unsigned int formatTowerCounts(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatHMB(std::vector<l1t::EtSum>::const_iterator etSum);
     std::map<std::string, std::vector<int> > m_algoSummary;
-    
-    
+
+
     unsigned int m_absBx;
     int m_bxOffset;
-  
+
     std::ofstream m_testVectorFile;
-    
+
     bool m_dumpTestVectors;
     bool m_dumpGTRecord;
-    bool m_dumpObjectMap;    
+    bool m_dumpObjectMap;
     bool m_dumpTriggerResults;
     int m_minBx;
     int m_maxBx;
     int m_minBxVectors;
     int m_maxBxVectors;
-    
+
     L1TGlobalUtil* m_gtUtil;
-    
+
     private:
     int m_tvVersion;
   };
@@ -137,18 +137,18 @@ namespace l1t {
 
 
       m_minBx           = iConfig.getParameter<int>("minBx");
-      m_maxBx           = iConfig.getParameter<int>("maxBx");     
+      m_maxBx           = iConfig.getParameter<int>("maxBx");
       m_dumpGTRecord    = iConfig.getParameter<bool>("dumpGTRecord");
       m_dumpObjectMap   = iConfig.getParameter<bool>("dumpGTObjectMap");
       m_dumpTriggerResults = iConfig.getParameter<bool>("dumpTrigResults");
 
       m_minBxVectors    = iConfig.getParameter<int>("minBxVec");
-      m_maxBxVectors    = iConfig.getParameter<int>("maxBxVec"); 
-      m_dumpTestVectors = iConfig.getParameter<bool>("dumpVectors");        
+      m_maxBxVectors    = iConfig.getParameter<int>("maxBxVec");
+      m_dumpTestVectors = iConfig.getParameter<bool>("dumpVectors");
       std::string fileName = iConfig.getParameter<std::string>("tvFileName");
       if(m_dumpTestVectors) m_testVectorFile.open(fileName.c_str());
       m_tvVersion       = iConfig.getParameter<int>("tvVersion");
-      
+
       m_bxOffset = iConfig.getParameter<int>("bxOffset");
 
       m_absBx = 0;
@@ -162,71 +162,70 @@ namespace l1t {
 
 
   }
-  
+
   // loop over events
   void GtRecordDump::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
-    
+
  //inputs
   Handle<BXVector<l1t::EGamma>> egammas;
   iEvent.getByToken(egToken,egammas);
 
   Handle<BXVector<l1t::Muon>> muons;
   iEvent.getByToken(muToken,muons);
- 
+
    Handle<BXVector<l1t::Tau>> taus;
    iEvent.getByToken(tauToken,taus);
 
   Handle<BXVector<l1t::Jet>> jets;
   iEvent.getByToken(jetToken,jets);
- 
+
   Handle<BXVector<l1t::EtSum>> etsums;
-  iEvent.getByToken(etsumToken,etsums); 
+  iEvent.getByToken(etsumToken,etsums);
 
   Handle<BXVector<GlobalAlgBlk>> uGtAlg;
-  iEvent.getByToken(uGtAlgToken,uGtAlg);   
+  iEvent.getByToken(uGtAlgToken,uGtAlg);
 
   Handle<BXVector<GlobalExtBlk>> uGtExt;
-  iEvent.getByToken(uGtExtToken,uGtExt);   
-  
+  iEvent.getByToken(uGtExtToken,uGtExt);
+
   Handle<GlobalObjectMapRecord> gtObjectMapRecord;
   iEvent.getByToken(uGtObjectMapToken, gtObjectMapRecord);
- 
 
-  
-    
+
+
+
      //Fill the L1 result maps
      m_gtUtil->retrieveL1(iEvent,evSetup,uGtAlgToken);
 
      LogDebug("GtRecordDump") << "retrieved L1 data " << endl;
-     
+
      // grab the map for the final decisions
      const std::vector<std::pair<std::string, bool> > initialDecisions = m_gtUtil->decisionsInitial();
      const std::vector<std::pair<std::string, bool> > intermDecisions = m_gtUtil->decisionsInterm();
      const std::vector<std::pair<std::string, bool> > finalDecisions = m_gtUtil->decisionsFinal();
      const std::vector<std::pair<std::string, int> >  prescales = m_gtUtil->prescales();
-     const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
-     const std::vector<std::pair<std::string, bool> > vetoMasks = m_gtUtil->vetoMasks();
+     const std::vector<std::pair<std::string, std::vector<int> > > masks = m_gtUtil->masks();
 
      LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
 
      // Dump the results
      if(m_dumpTriggerResults) {
-       cout << "    Bit                  Algorithm Name                                      Init    aBXM  Final   PS Factor     Masked    Veto " << endl;
-       cout << "================================================================================================================================" << endl;
+       cout << "    Bit                  Algorithm Name                                      Init    aBXM  Final   PS Factor     Num Bx Masked    " << endl;
+       cout << "===============================================================================================================================" << endl;
      }
      for(unsigned int i=0; i<initialDecisions.size(); i++) {
-       
+
        // get the name and trigger result
        std::string name = (initialDecisions.at(i)).first;
        bool resultInit = (initialDecisions.at(i)).second;
-       
-       //  put together our map of algorithms and counts across events      
+
+       //  put together our map of algorithms and counts across events
        if(m_algoSummary.count(name)==0) {
          std::vector<int> tst;
 	 tst.resize(3);
 	 m_algoSummary[name]=tst;
-       }    	        
+       }
        if (resultInit) (m_algoSummary.find(name)->second).at(0) += 1;
 
        // get prescaled and final results (need some error checking here)
@@ -234,61 +233,60 @@ namespace l1t {
        if (resultInterm) (m_algoSummary.find(name)->second).at(1) += 1;
        bool resultFin = (finalDecisions.at(i)).second;
        if (resultFin) (m_algoSummary.find(name)->second).at(2) += 1;
-       
+
        // get the prescale and mask (needs some error checking here)
        int prescale = (prescales.at(i)).second;
-       bool mask    = (masks.at(i)).second;
-       bool veto    = (vetoMasks.at(i)).second;
-       
-       if(m_dumpTriggerResults && name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(60) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultInterm << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
+       std::vector<int> mask    = (masks.at(i)).second;
+
+       if(m_dumpTriggerResults && name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(60) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultInterm << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask.size() << endl;
      }
      bool finOR = m_gtUtil->getFinalOR();
      if(m_dumpTriggerResults) {
        cout << "                                                                                    FinalOR = " << finOR <<endl;
        cout << "================================================================================================================================" << endl;
      }
-  
+
      if(m_dumpObjectMap) {
-     
+
 	if (!gtObjectMapRecord.isValid()) {
             edm::LogWarning("GtRecordDump") << " Warning: GlobalObjectMapRecord requested in configuration, but not found in the event." << std::endl;
         } else {
-	   
+
 	     const std::vector<GlobalObjectMap>& objMaps = gtObjectMapRecord->gtObjectMap();
 	     for (size_t imap =0; imap < objMaps.size(); imap++) {
 
                GlobalObjectMap oMap = objMaps.at(imap);
-	       
+
                int bit = oMap.algoBitNumber();   //  same as bit from L1T Menu
                int mapDecision = oMap.algoGtlResult();
-	       
+
 	       // Check Object Map Result Agrees with GlobalAlgBlk result
 	       if(mapDecision != (finalDecisions.at(bit)).second) {
 	          std::cout << "WARNING: GlobalAlgBlk and ObjectMap Disagree on result for bit " << bit << " Alg: " << oMap.algoName() << std::endl;
-	       }	  
-	       
-	       
+	       }
+
+
 	       // dump only if we have a positive trigger
 	       if(mapDecision != 0) {
 
-                   // Header info                
+                   // Header info
 	           std::cout << " -------------------------------------------------------------------------------------------- \n" <<
-		   " Bit " << setw(3) << bit << " Decision " << setw(2) << mapDecision << " Alg Name " << setw(40) << oMap.algoName()  << std::endl;   
+		   " Bit " << setw(3) << bit << " Decision " << setw(2) << mapDecision << " Alg Name " << setw(40) << oMap.algoName()  << std::endl;
 
                    // Combination
 		   const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = oMap.operandTokenVector();
-		   const std::vector<ObjectTypeInCond>&  condObjTypeVec = oMap.objectTypeVector();
+		   const std::vector<L1TObjectTypeInCond>&  condObjTypeVec = oMap.objectTypeVector();
 //		   const std::vector<CombinationsInCond>& condCombinations = oMapcombinationVector();
-		   
+
 		   for(size_t iCond=0; iCond<opTokenVecObjMap.size(); iCond++) {
-		       
+
 		       std::cout << "       " << iCond <<") Condition Token: " << opTokenVecObjMap.at(iCond).tokenName << "  Types: ";
 		       std::vector<l1t::GlobalObject> condObjType = condObjTypeVec[iCond];
 		       for(size_t iCondType=0; iCondType<condObjType.size(); iCondType++) {
 		           std::cout << condObjType.at(iCondType) << "  ";
 		       }
 		       std::cout << std::endl;
-		       
+
 		       const CombinationsInCond* condComb = oMap.getCombinationsInCond(iCond);
 		       std::cout << "            Combinations in Condition [" << condComb->size() <<"] : ";
         	       for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
@@ -301,13 +299,13 @@ namespace l1t {
 
         		     // loop over types for the object in a combination.  This object might have more then one type (i.e. mu-eg)
         		     //
-			     
+
 //        		     for (size_t iType =0; iType < condObjType.size(); iType++) {
 
                 	       // get object type and push indices on the list
                 	       //
                 	       //const l1t::GlobalObject objTypeVal = condObjType.at(iType);
-                               
+
 			       std::cout << (*itObject);
                                //std::cout <<objTypeVal << "@" << (*itObject);
 			       if(iType<condObjType.size()-1) std::cout << ",";
@@ -317,23 +315,23 @@ namespace l1t {
 
 //		             } // end loop over objs in combination
                                iType++;
-			     
+
 			  } //end loop over objects for a condition
 			  std::cout << ")  ";
 		       }
-		       std::cout << std::endl; 	     
-                   } 
-	       } //end if alg fired	     
+		       std::cout << std::endl;
+                   }
+	       } //end if alg fired
 	   } //end loop over maps
         } //end if valid record
      } //end if dump maps
 
-  
+
   if(m_dumpGTRecord) {
-   
+
        cout << " -----------------------------------------------------  " << endl;
        cout << " *********** Run " << std::dec << iEvent.id().run()  <<" Event " << iEvent.id().event()  << " **************  " << endl;
-       cout << " ----------------------------------------------------- " << endl; 
+       cout << " ----------------------------------------------------- " << endl;
 
     //Loop over BX
        for(int i =m_minBx; i <= m_maxBx; ++i) {
@@ -354,13 +352,13 @@ namespace l1t {
 		    cout << "   Qual "<< std::dec << std::setw(1) << eg->hwQual() ;
 		    cout << endl;
 		    nObj++;
-		} 
+		}
 	    } else {
 		cout << "No EG stored for this bx " << i << endl;
 	    }
 	  } else {
 	    cout << "No EG Data in this event " << endl;
-	  }  
+	  }
 
 	  //Loop over Muons
 	  nObj =0;
@@ -370,7 +368,9 @@ namespace l1t {
 		 for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
 	             cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0')<< ")";
 	             cout << "   Pt "  << std::dec << std::setw(3) << mu->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPt()  << ")";
+		     cout << "   EtaAtVtx " << std::dec << std::setw(3) << mu->hwEtaAtVtx() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << (mu->hwEtaAtVtx()&0x1ff) << ")";
 		     cout << "   Eta " << std::dec << std::setw(3) << mu->hwEta() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << (mu->hwEta()&0x1ff) << ")";
+		     cout << "   PhiAtVtx " << std::dec << std::setw(3) << mu->hwPhiAtVtx() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhiAtVtx() << ")";
 		     cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
 		     cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
 		     cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;
@@ -383,7 +383,7 @@ namespace l1t {
 	     }
 	  } else {
 	    cout << "No Muon Data in this event " << endl;
-	  }  
+	  }
 
 	  //Loop over Taus
 	  nObj =0;
@@ -399,13 +399,13 @@ namespace l1t {
 		     cout << "   Qual "<< std::dec << std::setw(1) << tau->hwQual() ;
 		     cout << endl;
 		     nObj++;
-		 } 
+		 }
 	     } else {
 		cout << "No Taus stored for this bx " << i << endl;
-	     }       
+	     }
 	  } else {
 	    cout << "No Tau Data in this event " << endl;
-	  }  
+	  }
 
 	  //Loop over Jets
 	  nObj =0;
@@ -426,12 +426,12 @@ namespace l1t {
 	    }
 	  } else {
 	    cout << "No jet Data in this event " << endl;
-	  }  
-	    
+	  }
+
                        //Dump Content
 	  cout << " ------ EtSums ----------" << endl;
 	  if(etsums.isValid()) {
-	    if(i>=etsums->getFirstBX() && i<=etsums->getLastBX()) {	  
+	    if(i>=etsums->getFirstBX() && i<=etsums->getLastBX()) {
 	       for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
 	            switch ( etsum->getType() ) {
 		       case l1t::EtSum::EtSumType::kMissingEt:
@@ -439,16 +439,16 @@ namespace l1t {
 			 break;
 		       case l1t::EtSum::EtSumType::kMissingEtHF:
 			 cout << " ETMHF:";
-			 break;			  
+			 break;
 		       case l1t::EtSum::EtSumType::kMissingHt:
 			 cout << " HTM:  ";
-			 break; 		     
+			 break;
 		       case l1t::EtSum::EtSumType::kTotalEt:
 			 cout << " ETT:  ";
-			 break; 		  
+			 break;
 		       case l1t::EtSum::EtSumType::kTotalEtEm:
 			 cout << " ETTem:";
-			 break; 					    
+			 break;
 		       case l1t::EtSum::EtSumType::kTotalHt:
 			 cout << " HTT:  ";
 			 break;
@@ -457,61 +457,61 @@ namespace l1t {
 			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFP0:
 			 cout << " HFP0: ";
-			 break; 			 		     
+			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFM0:
 			 cout << " HFM0: ";
-			 break; 
+			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFP1:
 			 cout << " HFP1: ";
-			 break; 
+			 break;
 		       case l1t::EtSum::EtSumType::kMinBiasHFM1:
 			 cout << " HFM1: ";
-			 break; 
+			 break;
 		       default:
 		         cout << " Unknown: ";
 		         break;
 		    }
 	            cout << " Et "  << std::dec << std::setw(3) << etsum->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << etsum->hwPt()  << ")";
-		    if(etsum->getType() == l1t::EtSum::EtSumType::kMissingEt || 
-		       etsum->getType() == l1t::EtSum::EtSumType::kMissingHt || 
+		    if(etsum->getType() == l1t::EtSum::EtSumType::kMissingEt ||
+		       etsum->getType() == l1t::EtSum::EtSumType::kMissingHt ||
 		       etsum->getType() == l1t::EtSum::EtSumType::kMissingEtHF)
 		       cout << " Phi " << std::dec << std::setw(3) << etsum->hwPhi() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << etsum->hwPhi() << ")";
 		    cout << endl;
-	       } 
+	       }
 	    } else {
 		cout << "No EtSums stored for this bx " << i << endl;
 	    }
 	 } else {
 	    cout << "No EtSum Data in this event " << endl;
-	 }  
-	               
+	 }
+
       // Dump the output record
  	  cout << " ------ uGtExt ----------" << endl;
 	  if(uGtExt.isValid()) {
-	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
+	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) {
 		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
         	     extBlk->print(std::cout);
-		} 
+		}
 	     } else {
 		 cout << "No Ext Conditions stored for this bx " << i << endl;
-	     }       
+	     }
 	  } else {
-	    cout << "No uGtExt Data in this event " << endl; 
-	  }         
+	    cout << "No uGtExt Data in this event " << endl;
+	  }
 
      // Dump the output record
  	  cout << " ------ uGtAlg ----------" << endl;
 	  if(uGtAlg.isValid()) {
-	    if(i>=uGtAlg->getFirstBX() && i<=uGtAlg->getLastBX()) {	  
+	    if(i>=uGtAlg->getFirstBX() && i<=uGtAlg->getLastBX()) {
 	       for(std::vector<GlobalAlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
         	    algBlk->print(std::cout);
-	       } 
+	       }
 	    } else {
 		cout << "No Alg Decisions stored for this bx " << i << endl;
 	    }
 	  } else {
-	    cout << "No uGtAlg Data in this event " << endl; 
-	  }         
+	    cout << "No uGtAlg Data in this event " << endl;
+	  }
 
 
 
@@ -520,8 +520,8 @@ namespace l1t {
        } //loop over Bx
        cout << std::dec <<endl;
     } //if dumpGtRecord
-    
-    // Dump Test Vectors for this bx       
+
+    // Dump Test Vectors for this bx
     if(m_dumpTestVectors) {
        for(int i=m_minBxVectors; i<=m_maxBxVectors; i++) {
 //         if(  (i>=egammas->getFirstBX() && i<=egammas->getLastBX())&&
@@ -530,41 +530,41 @@ namespace l1t {
 //	      (i>=jets->getFirstBX()    && i<=jets->getLastBX())   &&
 //	      (i>=etsums->getFirstBX()  && i<=etsums->getLastBX()) &&
 //	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) &&
-//	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) ) {	    
+//	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) ) {
                   dumpTestVectors(i, m_testVectorFile, muons, egammas, taus, jets, etsums, uGtAlg, uGtExt);
 //	 } else {
 //	      edm::LogWarning("GtRecordDump") << "WARNING: Not enough information to dump test vectors for this bx=" << i << endl;
-//	 } 	  
+//	 }
        }
-    }   
-    
-    
-    
+    }
+
+
+
   }
 
 // ------------ method called when ending the processing of a run  ------------
 
-void 
+void
 GtRecordDump::endRun(edm::Run const&, edm::EventSetup const&)
 {
     // Dump the results
      cout << "=========================== Global Trigger Summary Report  ==================================" << endl;
      cout << "                       Algorithm Name                              Init     aBXM     Final   " << endl;
      cout << "=============================================================================================" << endl;
-     for (std::map<std::string, std::vector<int> >::const_iterator itAlgo = m_algoSummary.begin(); itAlgo != m_algoSummary.end(); itAlgo++) {       
-      
+     for (std::map<std::string, std::vector<int> >::const_iterator itAlgo = m_algoSummary.begin(); itAlgo != m_algoSummary.end(); itAlgo++) {
+
         std::string name = itAlgo->first;
 	int initCnt = (itAlgo->second).at(0);
 	int initPre = (itAlgo->second).at(1);
 	int initFnl = (itAlgo->second).at(2);
-	if(name != "NULL") cout << std::dec << setfill(' ') <<  setw(60) << name.c_str() << setw(10) << initCnt << setw(10) << initPre << setw(10) << initFnl << endl; 
+	if(name != "NULL") cout << std::dec << setfill(' ') <<  setw(60) << name.c_str() << setw(10) << initCnt << setw(10) << initPre << setw(10) << initFnl << endl;
      }
-     cout << "===========================================================================================================" << endl;   
+     cout << "===========================================================================================================" << endl;
 }
 
 
 
-void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile, 
+void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
                                       Handle<BXVector<l1t::Muon>> muons,
 				      Handle<BXVector<l1t::EGamma>> egammas,
 				      Handle<BXVector<l1t::Tau>> taus,
@@ -576,7 +576,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 
 
    const int empty = 0;
-      
+
 // Dump Bx (4 digits)
    myOutFile << std::dec << std::setw(4) << std::setfill('0') << m_absBx;
 
@@ -588,9 +588,9 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	if(nDumped<8) {
            myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << packedWd;
            nDumped++;
-	}	 
+	}
      }
-   }   
+   }
    for(int i=nDumped; i<8; i++) {
       myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << empty;
    }
@@ -604,7 +604,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
           myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
           nDumped++;
 	}
-     }    
+     }
    }
    for(int i=nDumped; i<12; i++) {
       myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
@@ -622,28 +622,28 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
            myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
           nDumped++;
 	}
-     }    
+     }
    }
    for(int i=nDumped; i<maxTau; i++) {
       myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
    }
-   
+
 // Dump 12 Jets (8 digits + space)
    nDumped = 0;
    if(jets.isValid()) {
      for(std::vector<l1t::Jet>::const_iterator jet = jets->begin(bx); jet != jets->end(bx); ++jet) {
 	unsigned int packedWd = formatJet(jet);
-	if(nDumped<12) {	
-          myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;      
+	if(nDumped<12) {
+          myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
           nDumped++;
 	}
-     }    
+     }
    }
    for(int i=nDumped; i<12; i++) {
       myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
    }
 
-// Dump Et Sums (Order ETT, ETTem, HT, ETM, ETMHF, HTM) 
+// Dump Et Sums (Order ETT, ETTem, HT, ETM, ETMHF, HTM)
    unsigned int ETTpackWd   = 0;
    unsigned int ETTempackWd = 0;
    unsigned int HTTpackWd   = 0;
@@ -665,16 +665,16 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     break;
 	   case l1t::EtSum::EtSumType::kMissingEtHF:
 	     ETMHFpackWd = formatMissET(etsum);
-	     break;	      
+	     break;
 	   case l1t::EtSum::EtSumType::kMissingHt:
 	     HTMpackWd = formatMissET(etsum);
-	     break; 		     
+	     break;
 	   case l1t::EtSum::EtSumType::kTotalEt:
 	     ETTpackWd = formatTotalET(etsum);
 	     break;
 	   case l1t::EtSum::EtSumType::kTotalEtEm:
 	     ETTempackWd = formatTotalET(etsum);
-	     break;	      		     
+	     break;
 	   case l1t::EtSum::EtSumType::kTotalHt:
 	     HTTpackWd = formatTotalET(etsum);
 	     break;
@@ -686,13 +686,13 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     break;
 	   case l1t::EtSum::EtSumType::kMinBiasHFM0:
 	     HFM0packWd = formatHMB(etsum);
-	     break;	   
+	     break;
 	   case l1t::EtSum::EtSumType::kMinBiasHFP1:
 	     HFP1packWd = formatHMB(etsum);
-	     break;	   
+	     break;
 	   case l1t::EtSum::EtSumType::kMinBiasHFM1:
 	     HFM1packWd = formatHMB(etsum);
-	     break; 			     	     	     
+	     break;
            default:
 	     break;
 	} //end switch statement
@@ -704,7 +704,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    HTTpackWd |= HFM0packWd;
    ETMpackWd |= HFP1packWd;
    HTMpackWd |= HFM1packWd;
-   
+
    // ETTem goes into ETT word bits 12 - 23
    if(m_tvVersion>1) ETTpackWd |= ( ETTempackWd << 12);
 
@@ -726,7 +726,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    if(m_tvVersion>1) {
       for(int i=0; i<6; i++) myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
    }
-   
+
 // External Condition (64 digits + space)
     int digit = 0;
     myOutFile << " ";
@@ -736,14 +736,14 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
              if(extBlk->getExternalDecision(i)) digit |= (1 << (i%4));
         	if((i%4) == 0){
                      myOutFile << std::hex << std::setw(1) << digit;
-	             digit = 0; 
-        	}  
+	             digit = 0;
+        	}
             } //end loop over external bits
        } //loop over objects
     } else {
        myOutFile << std::hex << std::setw(64) << std::setfill('0') << empty;
     }
-   
+
 // Algorithm Dump (128 digits + space)
     digit = 0;
     myOutFile << " ";
@@ -753,37 +753,39 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
             if(algBlk->getAlgoDecisionFinal(i)) digit |= (1 << (i%4));
                if((i%4) == 0){
                     myOutFile << std::hex << std::setw(1) << digit;
-	            digit = 0; 
-               }  
-           } //end loop over algorithm bits       
+	            digit = 0;
+               }
+           } //end loop over algorithm bits
 
-  // Final OR (1 digit + space) 
-           unsigned int finalOr = (algBlk->getFinalOR() & 0x1);    
+  // Final OR (1 digit + space)
+           unsigned int finalOr = (algBlk->getFinalOR() & 0x1);
            myOutFile << " " << std::hex << std::setw(1) << std::setfill('0') << finalOr;
       }
     } else {
        myOutFile << std::hex << std::setw(128) << std::setfill('0') << empty;
     }
-   
+
     myOutFile << endl;
-    
-    m_absBx++; 
-    
+
+    m_absBx++;
+
 }
 
 cms_uint64_t GtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator mu){
 
   cms_uint64_t packedVal = 0;
 
-// Pack Bits                        
-  packedVal |= ((cms_uint64_t)(mu->hwPhi()            & 0x3ff) <<0);	// & 0x3ff) <<18);
-  packedVal |= ((cms_uint64_t)(mu->hwEta()            & 0x1ff) <<23);	// & 0x1ff) <<9);
+// Pack Bits
+  packedVal |= ((cms_uint64_t)(mu->hwPhi()            & 0x3ff) <<43);
+  packedVal |= ((cms_uint64_t)(mu->hwPhiAtVtx()       & 0x3ff) <<0);	// & 0x3ff) <<18);
+  packedVal |= ((cms_uint64_t)(mu->hwEta()            & 0x1ff) <<53);
+  packedVal |= ((cms_uint64_t)(mu->hwEtaAtVtx()       & 0x1ff) <<23);	// & 0x1ff) <<9);
   packedVal |= ((cms_uint64_t)(mu->hwPt()             & 0x1ff) <<10);	// & 0x1ff) <<0);
   packedVal |= ((cms_uint64_t)(mu->hwChargeValid()    & 0x1)   <<35);  // & 0x1)   <<28);
   packedVal |= ((cms_uint64_t)(mu->hwCharge()         & 0x1)   <<34);  // & 0x1)   <<29);
   packedVal |= ((cms_uint64_t)(mu->hwQual() 	      & 0xf)   <<19);  // & 0xf)   <<30);
-  packedVal |= ((cms_uint64_t)(mu->hwIso()  	      & 0x3)   <<32);  // & 0x3)   <<34); 
-  
+  packedVal |= ((cms_uint64_t)(mu->hwIso()  	      & 0x3)   <<32);  // & 0x3)   <<34);
+
   return packedVal;
 }
 
@@ -791,27 +793,27 @@ unsigned int GtRecordDump::formatEG(std::vector<l1t::EGamma>::const_iterator eg)
 
   unsigned int packedVal = 0;
 
-// Pack Bits  
+// Pack Bits
   packedVal |= ((eg->hwPhi()   & 0xff)   <<17);
   packedVal |= ((eg->hwEta()   & 0xff)   <<9);
   packedVal |= ((eg->hwPt()    & 0x1ff)  <<0);
   packedVal |= ((eg->hwIso()   & 0x3)    <<25);
   packedVal |= ((eg->hwQual()  & 0x31)   <<27);
-  
+
   return packedVal;
 }
 
 unsigned int GtRecordDump::formatTau(std::vector<l1t::Tau>::const_iterator tau){
 
   unsigned int packedVal = 0;
-  
-// Pack Bits  
+
+// Pack Bits
   packedVal |= ((tau->hwPhi()   & 0xff)   <<17);
   packedVal |= ((tau->hwEta()   & 0xff)   <<9);
   packedVal |= ((tau->hwPt()    & 0x1ff)  <<0);
   packedVal |= ((tau->hwIso()   & 0x3)    <<25);
-  packedVal |= ((tau->hwQual()  & 0x31)   <<27);  
-  
+  packedVal |= ((tau->hwQual()  & 0x31)   <<27);
+
   return packedVal;
 }
 
@@ -819,12 +821,12 @@ unsigned int GtRecordDump::formatJet(std::vector<l1t::Jet>::const_iterator jet){
 
   unsigned int packedVal = 0;
 
-// Pack Bits  
+// Pack Bits
   packedVal |= ((jet->hwPhi()    & 0xff)    <<19);
   packedVal |= ((jet->hwEta()    & 0xff)    <<11);
   packedVal |= ((jet->hwPt()     & 0x7ff)   <<0);
   packedVal |= ((jet->hwQual()   & 0x1)     <<27);
-    
+
   return packedVal;
 }
 
@@ -834,8 +836,8 @@ unsigned int GtRecordDump::formatMissET(std::vector<l1t::EtSum>::const_iterator 
 
 // Pack Bits
   packedVal |= ((etSum->hwPhi()    & 0xff)    <<12);
-  packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
-  
+  packedVal |= ((etSum->hwPt()     & 0xfff)   <<0);
+
   return packedVal;
 }
 
@@ -844,8 +846,8 @@ unsigned int GtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_iterator
   unsigned int packedVal = 0;
 
 // Pack Bits
-  packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
-  
+  packedVal |= ((etSum->hwPt()     & 0xfff)   <<0);
+
   return packedVal;
 }
 
@@ -854,7 +856,7 @@ unsigned int GtRecordDump::formatTowerCounts(std::vector<l1t::EtSum>::const_iter
   unsigned int packedVal = 0;
   //unsigned int shift = 12;
 
-// Pack Bits
+  // Pack Bits
   //packedVal |= ((etSum->hwPt()     & 0xfff)   << shift);
 
   //towercount takes 13 bits
@@ -867,10 +869,10 @@ unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etS
 
   unsigned int packedVal = 0;
   unsigned int shift = 28;
-  
+
 // Pack Bits
-  packedVal |= ((etSum->hwPt()     & 0xf)   << shift); 
-  
+  packedVal |= ((etSum->hwPt()     & 0xf)   << shift);
+
   return packedVal;
 }
 
@@ -879,4 +881,3 @@ unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etS
 
 
 DEFINE_FWK_MODULE(l1t::GtRecordDump);
-

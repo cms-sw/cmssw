@@ -166,403 +166,403 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
 
   // so to please coverity...
-  h1_mcNum = 0 ;
-  h1_eleNum = 0 ;
-  h1_gamNum = 0 ;
+  h1_mcNum = nullptr ;
+  h1_eleNum = nullptr ;
+  h1_gamNum = nullptr ;
 
-  h1_recEleNum = 0 ;
-  h1_recCoreNum = 0 ;
-  h1_recTrackNum = 0 ;
-  h1_recSeedNum = 0 ;
-  h1_recOfflineVertices = 0 ;
+  h1_recEleNum = nullptr ;
+  h1_recCoreNum = nullptr ;
+  h1_recTrackNum = nullptr ;
+  h1_recSeedNum = nullptr ;
+  h1_recOfflineVertices = nullptr ;
 
-  h1_mc_Eta = 0 ;
-  h1_mc_AbsEta = 0 ;
-  h1_mc_P = 0 ;
-  h1_mc_Pt = 0 ;
-  h1_mc_Phi = 0 ;
-  h1_mc_Z = 0 ;
-  h2_mc_PtEta = 0 ;
+  h1_mc_Eta = nullptr ;
+  h1_mc_AbsEta = nullptr ;
+  h1_mc_P = nullptr ;
+  h1_mc_Pt = nullptr ;
+  h1_mc_Phi = nullptr ;
+  h1_mc_Z = nullptr ;
+  h2_mc_PtEta = nullptr ;
 
-  h1_mc_Eta_matched = 0 ;
-  h1_mc_AbsEta_matched = 0 ;
-  h1_mc_Pt_matched = 0 ;
-  h1_mc_Phi_matched = 0 ;
-  h1_mc_Z_matched = 0 ;
-  h2_mc_PtEta_matched = 0 ;
+  h1_mc_Eta_matched = nullptr ;
+  h1_mc_AbsEta_matched = nullptr ;
+  h1_mc_Pt_matched = nullptr ;
+  h1_mc_Phi_matched = nullptr ;
+  h1_mc_Z_matched = nullptr ;
+  h2_mc_PtEta_matched = nullptr ;
 
-  h1_mc_Eta_matched_qmisid = 0 ;
-  h1_mc_AbsEta_matched_qmisid = 0 ;
-  h1_mc_Pt_matched_qmisid = 0 ;
-  h1_mc_Phi_matched_qmisid = 0 ;
-  h1_mc_Z_matched_qmisid = 0 ;
+  h1_mc_Eta_matched_qmisid = nullptr ;
+  h1_mc_AbsEta_matched_qmisid = nullptr ;
+  h1_mc_Pt_matched_qmisid = nullptr ;
+  h1_mc_Phi_matched_qmisid = nullptr ;
+  h1_mc_Z_matched_qmisid = nullptr ;
 
-  h1_ele_EoverP_all = 0 ;
-  h1_ele_EoverP_all_barrel = 0 ;
-  h1_ele_EoverP_all_endcaps = 0 ;
-  h1_ele_EseedOP_all = 0 ;
-  h1_ele_EseedOP_all_barrel = 0 ;
-  h1_ele_EseedOP_all_endcaps = 0 ;
-  h1_ele_EoPout_all = 0 ;
-  h1_ele_EoPout_all_barrel = 0 ;
-  h1_ele_EoPout_all_endcaps = 0 ;
-  h1_ele_EeleOPout_all = 0 ;
-  h1_ele_EeleOPout_all_barrel = 0 ;
-  h1_ele_EeleOPout_all_endcaps = 0 ;
-  h1_ele_dEtaSc_propVtx_all = 0 ;
-  h1_ele_dEtaSc_propVtx_all_barrel = 0 ;
-  h1_ele_dEtaSc_propVtx_all_endcaps = 0 ;
-  h1_ele_dPhiSc_propVtx_all = 0 ;
-  h1_ele_dPhiSc_propVtx_all_barrel = 0 ;
-  h1_ele_dPhiSc_propVtx_all_endcaps = 0 ;
-  h1_ele_dEtaCl_propOut_all = 0 ;
-  h1_ele_dEtaCl_propOut_all_barrel = 0 ;
-  h1_ele_dEtaCl_propOut_all_endcaps = 0 ;
-  h1_ele_dPhiCl_propOut_all = 0 ;
-  h1_ele_dPhiCl_propOut_all_barrel = 0 ;
-  h1_ele_dPhiCl_propOut_all_endcaps = 0 ;
-  h1_ele_TIP_all = 0 ;
-  h1_ele_TIP_all_barrel = 0 ;
-  h1_ele_TIP_all_endcaps = 0 ;
-  h1_ele_HoE_all = 0 ;
-  h1_ele_HoE_all_barrel = 0 ;
-  h1_ele_HoE_all_endcaps = 0 ;
-  h1_ele_vertexEta_all = 0 ;
-  h1_ele_vertexPt_all = 0 ;
-  h1_ele_Et_all = 0 ;
-  h1_ele_mee_all = 0 ;
-  h1_ele_mee_os = 0 ;
-  h1_ele_mee_os_ebeb = 0 ;
-  h1_ele_mee_os_ebee = 0 ;
-  h1_ele_mee_os_eeee = 0 ;
-  h1_ele_mee_os_gg = 0 ;
-  h1_ele_mee_os_gb = 0 ;
-  h1_ele_mee_os_bb = 0 ;
+  h1_ele_EoverP_all = nullptr ;
+  h1_ele_EoverP_all_barrel = nullptr ;
+  h1_ele_EoverP_all_endcaps = nullptr ;
+  h1_ele_EseedOP_all = nullptr ;
+  h1_ele_EseedOP_all_barrel = nullptr ;
+  h1_ele_EseedOP_all_endcaps = nullptr ;
+  h1_ele_EoPout_all = nullptr ;
+  h1_ele_EoPout_all_barrel = nullptr ;
+  h1_ele_EoPout_all_endcaps = nullptr ;
+  h1_ele_EeleOPout_all = nullptr ;
+  h1_ele_EeleOPout_all_barrel = nullptr ;
+  h1_ele_EeleOPout_all_endcaps = nullptr ;
+  h1_ele_dEtaSc_propVtx_all = nullptr ;
+  h1_ele_dEtaSc_propVtx_all_barrel = nullptr ;
+  h1_ele_dEtaSc_propVtx_all_endcaps = nullptr ;
+  h1_ele_dPhiSc_propVtx_all = nullptr ;
+  h1_ele_dPhiSc_propVtx_all_barrel = nullptr ;
+  h1_ele_dPhiSc_propVtx_all_endcaps = nullptr ;
+  h1_ele_dEtaCl_propOut_all = nullptr ;
+  h1_ele_dEtaCl_propOut_all_barrel = nullptr ;
+  h1_ele_dEtaCl_propOut_all_endcaps = nullptr ;
+  h1_ele_dPhiCl_propOut_all = nullptr ;
+  h1_ele_dPhiCl_propOut_all_barrel = nullptr ;
+  h1_ele_dPhiCl_propOut_all_endcaps = nullptr ;
+  h1_ele_TIP_all = nullptr ;
+  h1_ele_TIP_all_barrel = nullptr ;
+  h1_ele_TIP_all_endcaps = nullptr ;
+  h1_ele_HoE_all = nullptr ;
+  h1_ele_HoE_all_barrel = nullptr ;
+  h1_ele_HoE_all_endcaps = nullptr ;
+  h1_ele_vertexEta_all = nullptr ;
+  h1_ele_vertexPt_all = nullptr ;
+  h1_ele_Et_all = nullptr ;
+  h1_ele_mee_all = nullptr ;
+  h1_ele_mee_os = nullptr ;
+  h1_ele_mee_os_ebeb = nullptr ;
+  h1_ele_mee_os_ebee = nullptr ;
+  h1_ele_mee_os_eeee = nullptr ;
+  h1_ele_mee_os_gg = nullptr ;
+  h1_ele_mee_os_gb = nullptr ;
+  h1_ele_mee_os_bb = nullptr ;
 
-  h2_ele_E2mnE1vsMee_all = 0 ;
-  h2_ele_E2mnE1vsMee_egeg_all = 0 ;
+  h2_ele_E2mnE1vsMee_all = nullptr ;
+  h2_ele_E2mnE1vsMee_egeg_all = nullptr ;
 
-  h1_ele_charge = 0 ;
-  h2_ele_chargeVsEta = 0 ;
-  h2_ele_chargeVsPhi = 0 ;
-  h2_ele_chargeVsPt = 0 ;
-  h1_ele_vertexP = 0 ;
-  h1_ele_vertexPt = 0 ;
-  h1_ele_vertexPt_nocut = 0 ;
-  h1_ele_Et = 0 ;
-  h2_ele_vertexPtVsEta = 0 ;
-  h2_ele_vertexPtVsPhi = 0 ;
-  h1_ele_vertexPt_5100 = 0 ;
-  h1_ele_vertexEta = 0 ;
-  h2_ele_vertexEtaVsPhi = 0 ;
-  h1_ele_vertexAbsEta = 0 ;
-  h1_ele_vertexPhi = 0 ;
-  h1_ele_vertexX = 0 ;
-  h1_ele_vertexY = 0 ;
-  h1_ele_vertexZ = 0 ;
-  h1_ele_vertexTIP = 0 ;
-  h2_ele_vertexTIPVsEta = 0 ;
-  h2_ele_vertexTIPVsPhi = 0 ;
-  h2_ele_vertexTIPVsPt = 0 ;
+  h1_ele_charge = nullptr ;
+  h2_ele_chargeVsEta = nullptr ;
+  h2_ele_chargeVsPhi = nullptr ;
+  h2_ele_chargeVsPt = nullptr ;
+  h1_ele_vertexP = nullptr ;
+  h1_ele_vertexPt = nullptr ;
+  h1_ele_vertexPt_nocut = nullptr ;
+  h1_ele_Et = nullptr ;
+  h2_ele_vertexPtVsEta = nullptr ;
+  h2_ele_vertexPtVsPhi = nullptr ;
+  h1_ele_vertexPt_5100 = nullptr ;
+  h1_ele_vertexEta = nullptr ;
+  h2_ele_vertexEtaVsPhi = nullptr ;
+  h1_ele_vertexAbsEta = nullptr ;
+  h1_ele_vertexPhi = nullptr ;
+  h1_ele_vertexX = nullptr ;
+  h1_ele_vertexY = nullptr ;
+  h1_ele_vertexZ = nullptr ;
+  h1_ele_vertexTIP = nullptr ;
+  h2_ele_vertexTIPVsEta = nullptr ;
+  h2_ele_vertexTIPVsPhi = nullptr ;
+  h2_ele_vertexTIPVsPt = nullptr ;
 
-  h1_scl_En = 0 ;
-  h1_scl_EoEtrue_barrel = 0 ;
-  h1_scl_EoEtrue_endcaps = 0 ;
-  h1_scl_EoEtrue_barrel_etagap = 0 ;
-  h1_scl_EoEtrue_barrel_phigap = 0 ;
-  h1_scl_EoEtrue_ebeegap = 0 ;
-  h1_scl_EoEtrue_endcaps_deegap = 0 ;
-  h1_scl_EoEtrue_endcaps_ringgap = 0 ;
-  h1_scl_EoEtrue_barrel_new = 0 ;
-  h1_scl_EoEtrue_endcaps_new = 0 ;
-  h1_scl_EoEtrue_barrel_new_etagap = 0 ;
-  h1_scl_EoEtrue_barrel_new_phigap = 0 ;
-  h1_scl_EoEtrue_ebeegap_new = 0 ;
-  h1_scl_EoEtrue_endcaps_new_deegap = 0 ;
-  h2_scl_EoEtrueVsrecOfflineVertices = 0 ; // new 2015.15.05
-  h2_scl_EoEtrueVsrecOfflineVertices_barrel = 0 ; // new 2015.15.05
-  h2_scl_EoEtrueVsrecOfflineVertices_endcaps = 0 ; // new 2015.15.05
-  h1_scl_EoEtrue_endcaps_new_ringgap = 0 ;
-  h1_scl_Et = 0 ;
-  h2_scl_EtVsEta = 0 ;
-  h2_scl_EtVsPhi = 0 ;
-  h2_scl_EtaVsPhi = 0 ;
-  h1_scl_Eta = 0 ;
-  h1_scl_Phi = 0 ;
+  h1_scl_En = nullptr ;
+  h1_scl_EoEtrue_barrel = nullptr ;
+  h1_scl_EoEtrue_endcaps = nullptr ;
+  h1_scl_EoEtrue_barrel_etagap = nullptr ;
+  h1_scl_EoEtrue_barrel_phigap = nullptr ;
+  h1_scl_EoEtrue_ebeegap = nullptr ;
+  h1_scl_EoEtrue_endcaps_deegap = nullptr ;
+  h1_scl_EoEtrue_endcaps_ringgap = nullptr ;
+  h1_scl_EoEtrue_barrel_new = nullptr ;
+  h1_scl_EoEtrue_endcaps_new = nullptr ;
+  h1_scl_EoEtrue_barrel_new_etagap = nullptr ;
+  h1_scl_EoEtrue_barrel_new_phigap = nullptr ;
+  h1_scl_EoEtrue_ebeegap_new = nullptr ;
+  h1_scl_EoEtrue_endcaps_new_deegap = nullptr ;
+  h2_scl_EoEtrueVsrecOfflineVertices = nullptr ; // new 2015.15.05
+  h2_scl_EoEtrueVsrecOfflineVertices_barrel = nullptr ; // new 2015.15.05
+  h2_scl_EoEtrueVsrecOfflineVertices_endcaps = nullptr ; // new 2015.15.05
+  h1_scl_EoEtrue_endcaps_new_ringgap = nullptr ;
+  h1_scl_Et = nullptr ;
+  h2_scl_EtVsEta = nullptr ;
+  h2_scl_EtVsPhi = nullptr ;
+  h2_scl_EtaVsPhi = nullptr ;
+  h1_scl_Eta = nullptr ;
+  h1_scl_Phi = nullptr ;
 //  h1_scl_ESFrac = 0 ;
-  h1_scl_ESFrac_endcaps = 0 ;
+  h1_scl_ESFrac_endcaps = nullptr ;
 
-  h2_scl_EoEtruePfVsEg  = 0 ;
+  h2_scl_EoEtruePfVsEg  = nullptr ;
 
-  h1_scl_SigEtaEta = 0 ;
-  h1_scl_SigEtaEta_barrel = 0 ;
-  h1_scl_SigEtaEta_endcaps = 0 ;
-  h1_scl_SigIEtaIEta = 0 ;
-  h1_scl_SigIEtaIEta_barrel = 0 ;
-  h1_scl_SigIEtaIEta_endcaps = 0 ;
-  h1_scl_SigIEtaIEta_mAOD = 0 ;
-  h1_scl_SigIEtaIEta_mAOD_barrel = 0 ;
-  h1_scl_SigIEtaIEta_mAOD_endcaps = 0 ;
-  h1_scl_full5x5_sigmaIetaIeta = 0 ;
-  h1_scl_full5x5_sigmaIetaIeta_barrel = 0 ;
-  h1_scl_full5x5_sigmaIetaIeta_endcaps = 0 ;
-  h1_scl_E1x5 = 0 ;
-  h1_scl_E1x5_barrel = 0 ;
-  h1_scl_E1x5_endcaps = 0 ;
-  h1_scl_E2x5max = 0 ;
-  h1_scl_E2x5max_barrel = 0 ;
-  h1_scl_E2x5max_endcaps = 0 ;
-  h1_scl_E5x5 = 0 ;
-  h1_scl_E5x5_barrel = 0 ;
-  h1_scl_E5x5_endcaps = 0 ;
-  h1_scl_bcl_EtotoEtrue = 0 ;
-  h1_scl_bcl_EtotoEtrue_barrel = 0 ;
-  h1_scl_bcl_EtotoEtrue_endcaps = 0 ;
+  h1_scl_SigEtaEta = nullptr ;
+  h1_scl_SigEtaEta_barrel = nullptr ;
+  h1_scl_SigEtaEta_endcaps = nullptr ;
+  h1_scl_SigIEtaIEta = nullptr ;
+  h1_scl_SigIEtaIEta_barrel = nullptr ;
+  h1_scl_SigIEtaIEta_endcaps = nullptr ;
+  h1_scl_SigIEtaIEta_mAOD = nullptr ;
+  h1_scl_SigIEtaIEta_mAOD_barrel = nullptr ;
+  h1_scl_SigIEtaIEta_mAOD_endcaps = nullptr ;
+  h1_scl_full5x5_sigmaIetaIeta = nullptr ;
+  h1_scl_full5x5_sigmaIetaIeta_barrel = nullptr ;
+  h1_scl_full5x5_sigmaIetaIeta_endcaps = nullptr ;
+  h1_scl_E1x5 = nullptr ;
+  h1_scl_E1x5_barrel = nullptr ;
+  h1_scl_E1x5_endcaps = nullptr ;
+  h1_scl_E2x5max = nullptr ;
+  h1_scl_E2x5max_barrel = nullptr ;
+  h1_scl_E2x5max_endcaps = nullptr ;
+  h1_scl_E5x5 = nullptr ;
+  h1_scl_E5x5_barrel = nullptr ;
+  h1_scl_E5x5_endcaps = nullptr ;
+  h1_scl_bcl_EtotoEtrue = nullptr ;
+  h1_scl_bcl_EtotoEtrue_barrel = nullptr ;
+  h1_scl_bcl_EtotoEtrue_endcaps = nullptr ;
 
-  h1_ele_ambiguousTracks = 0 ;
-  h2_ele_ambiguousTracksVsEta = 0 ;
-  h2_ele_ambiguousTracksVsPhi = 0 ;
-  h2_ele_ambiguousTracksVsPt = 0 ;
-  h1_ele_foundHits = 0 ;
-  h1_ele_foundHits_barrel = 0 ;
-  h1_ele_foundHits_endcaps = 0 ;
-  h2_ele_foundHitsVsEta = 0 ;
-  h2_ele_foundHitsVsEta_mAOD = 0 ;
-  h2_ele_foundHitsVsPhi = 0 ;
-  h2_ele_foundHitsVsPt = 0 ;
-  h1_ele_lostHits = 0 ;
-  h1_ele_lostHits_barrel = 0 ;
-  h1_ele_lostHits_endcaps = 0 ;
-  h2_ele_lostHitsVsEta = 0 ;
-  h2_ele_lostHitsVsPhi = 0 ;
-  h2_ele_lostHitsVsPt = 0 ;
-  h1_ele_chi2 = 0 ;
-  h1_ele_chi2_barrel = 0 ;
-  h1_ele_chi2_endcaps = 0 ;
-  h2_ele_chi2VsEta = 0 ;
-  h2_ele_chi2VsPhi = 0 ;
-  h2_ele_chi2VsPt = 0 ;
+  h1_ele_ambiguousTracks = nullptr ;
+  h2_ele_ambiguousTracksVsEta = nullptr ;
+  h2_ele_ambiguousTracksVsPhi = nullptr ;
+  h2_ele_ambiguousTracksVsPt = nullptr ;
+  h1_ele_foundHits = nullptr ;
+  h1_ele_foundHits_barrel = nullptr ;
+  h1_ele_foundHits_endcaps = nullptr ;
+  h2_ele_foundHitsVsEta = nullptr ;
+  h2_ele_foundHitsVsEta_mAOD = nullptr ;
+  h2_ele_foundHitsVsPhi = nullptr ;
+  h2_ele_foundHitsVsPt = nullptr ;
+  h1_ele_lostHits = nullptr ;
+  h1_ele_lostHits_barrel = nullptr ;
+  h1_ele_lostHits_endcaps = nullptr ;
+  h2_ele_lostHitsVsEta = nullptr ;
+  h2_ele_lostHitsVsPhi = nullptr ;
+  h2_ele_lostHitsVsPt = nullptr ;
+  h1_ele_chi2 = nullptr ;
+  h1_ele_chi2_barrel = nullptr ;
+  h1_ele_chi2_endcaps = nullptr ;
+  h2_ele_chi2VsEta = nullptr ;
+  h2_ele_chi2VsPhi = nullptr ;
+  h2_ele_chi2VsPt = nullptr ;
 
-  h1_ele_PoPtrue = 0 ;
-  h1_ele_PoPtrue_barrel = 0 ;
-  h1_ele_PoPtrue_endcaps = 0 ;
+  h1_ele_PoPtrue = nullptr ;
+  h1_ele_PoPtrue_barrel = nullptr ;
+  h1_ele_PoPtrue_endcaps = nullptr ;
 
-  h2_ele_PoPtrueVsEta = 0 ;
-  h2_ele_PoPtrueVsPhi = 0 ;
-  h2_ele_PoPtrueVsPt = 0 ;
-  h2_ele_sigmaIetaIetaVsPt = 0 ;
+  h2_ele_PoPtrueVsEta = nullptr ;
+  h2_ele_PoPtrueVsPhi = nullptr ;
+  h2_ele_PoPtrueVsPt = nullptr ;
+  h2_ele_sigmaIetaIetaVsPt = nullptr ;
 
-  h1_ele_PoPtrue_golden_barrel = 0 ;
-  h1_ele_PoPtrue_golden_endcaps = 0 ;
-  h1_ele_PoPtrue_showering_barrel = 0 ;
-  h1_ele_PoPtrue_showering_endcaps = 0 ;
-  h1_ele_PtoPttrue = 0 ;
-  h1_ele_PtoPttrue_barrel = 0 ;
-  h1_ele_PtoPttrue_endcaps = 0 ;
-  h1_ele_ChargeMnChargeTrue = 0 ;
-  h1_ele_EtaMnEtaTrue = 0 ;
-  h1_ele_EtaMnEtaTrue_barrel = 0 ;
-  h1_ele_EtaMnEtaTrue_endcaps = 0 ;
-  h2_ele_EtaMnEtaTrueVsEta = 0 ;
-  h2_ele_EtaMnEtaTrueVsPhi = 0 ;
-  h2_ele_EtaMnEtaTrueVsPt = 0 ;
-  h1_ele_PhiMnPhiTrue = 0 ;
-  h1_ele_PhiMnPhiTrue_barrel = 0 ;
-  h1_ele_PhiMnPhiTrue_endcaps = 0 ;
-  h1_ele_PhiMnPhiTrue2 = 0 ;
-  h2_ele_PhiMnPhiTrueVsEta = 0 ;
-  h2_ele_PhiMnPhiTrueVsPhi = 0 ;
-  h2_ele_PhiMnPhiTrueVsPt = 0 ;
-  h1_ele_PinMnPout = 0 ;
-  h1_ele_PinMnPout_mode = 0 ;
-  h2_ele_PinMnPoutVsEta_mode = 0 ;
-  h2_ele_PinMnPoutVsPhi_mode = 0 ;
-  h2_ele_PinMnPoutVsPt_mode = 0 ;
-  h2_ele_PinMnPoutVsE_mode = 0 ;
-  h2_ele_PinMnPoutVsChi2_mode = 0 ;
+  h1_ele_PoPtrue_golden_barrel = nullptr ;
+  h1_ele_PoPtrue_golden_endcaps = nullptr ;
+  h1_ele_PoPtrue_showering_barrel = nullptr ;
+  h1_ele_PoPtrue_showering_endcaps = nullptr ;
+  h1_ele_PtoPttrue = nullptr ;
+  h1_ele_PtoPttrue_barrel = nullptr ;
+  h1_ele_PtoPttrue_endcaps = nullptr ;
+  h1_ele_ChargeMnChargeTrue = nullptr ;
+  h1_ele_EtaMnEtaTrue = nullptr ;
+  h1_ele_EtaMnEtaTrue_barrel = nullptr ;
+  h1_ele_EtaMnEtaTrue_endcaps = nullptr ;
+  h2_ele_EtaMnEtaTrueVsEta = nullptr ;
+  h2_ele_EtaMnEtaTrueVsPhi = nullptr ;
+  h2_ele_EtaMnEtaTrueVsPt = nullptr ;
+  h1_ele_PhiMnPhiTrue = nullptr ;
+  h1_ele_PhiMnPhiTrue_barrel = nullptr ;
+  h1_ele_PhiMnPhiTrue_endcaps = nullptr ;
+  h1_ele_PhiMnPhiTrue2 = nullptr ;
+  h2_ele_PhiMnPhiTrueVsEta = nullptr ;
+  h2_ele_PhiMnPhiTrueVsPhi = nullptr ;
+  h2_ele_PhiMnPhiTrueVsPt = nullptr ;
+  h1_ele_PinMnPout = nullptr ;
+  h1_ele_PinMnPout_mode = nullptr ;
+  h2_ele_PinMnPoutVsEta_mode = nullptr ;
+  h2_ele_PinMnPoutVsPhi_mode = nullptr ;
+  h2_ele_PinMnPoutVsPt_mode = nullptr ;
+  h2_ele_PinMnPoutVsE_mode = nullptr ;
+  h2_ele_PinMnPoutVsChi2_mode = nullptr ;
 
-  h1_ele_outerP = 0 ;
-  h1_ele_outerP_mode = 0 ;
-  h2_ele_outerPVsEta_mode = 0 ;
-  h1_ele_outerPt = 0 ;
-  h1_ele_outerPt_mode = 0 ;
-  h2_ele_outerPtVsEta_mode = 0 ;
-  h2_ele_outerPtVsPhi_mode = 0 ;
-  h2_ele_outerPtVsPt_mode = 0 ;
-  h1_ele_EoP = 0 ;
-  h1_ele_EoP_barrel = 0 ;
-  h1_ele_EoP_endcaps = 0 ;
-  h2_ele_EoPVsEta = 0 ;
-  h2_ele_EoPVsPhi = 0 ;
-  h2_ele_EoPVsE = 0 ;
-  h1_ele_EseedOP = 0 ;
-  h1_ele_EseedOP_barrel = 0 ;
-  h1_ele_EseedOP_endcaps = 0 ;
-  h2_ele_EseedOPVsEta = 0 ;
-  h2_ele_EseedOPVsPhi = 0 ;
-  h2_ele_EseedOPVsE = 0 ;
-  h1_ele_EoPout = 0 ;
-  h1_ele_EoPout_barrel = 0 ;
-  h1_ele_EoPout_endcaps = 0 ;
-  h2_ele_EoPoutVsEta = 0 ;
-  h2_ele_EoPoutVsPhi = 0 ;
-  h2_ele_EoPoutVsE = 0 ;
-  h1_ele_EeleOPout = 0 ;
-  h1_ele_EeleOPout_barrel = 0 ;
-  h1_ele_EeleOPout_endcaps = 0 ;
-  h2_ele_EeleOPoutVsEta = 0 ;
-  h2_ele_EeleOPoutVsPhi = 0 ;
-  h2_ele_EeleOPoutVsE = 0 ;
+  h1_ele_outerP = nullptr ;
+  h1_ele_outerP_mode = nullptr ;
+  h2_ele_outerPVsEta_mode = nullptr ;
+  h1_ele_outerPt = nullptr ;
+  h1_ele_outerPt_mode = nullptr ;
+  h2_ele_outerPtVsEta_mode = nullptr ;
+  h2_ele_outerPtVsPhi_mode = nullptr ;
+  h2_ele_outerPtVsPt_mode = nullptr ;
+  h1_ele_EoP = nullptr ;
+  h1_ele_EoP_barrel = nullptr ;
+  h1_ele_EoP_endcaps = nullptr ;
+  h2_ele_EoPVsEta = nullptr ;
+  h2_ele_EoPVsPhi = nullptr ;
+  h2_ele_EoPVsE = nullptr ;
+  h1_ele_EseedOP = nullptr ;
+  h1_ele_EseedOP_barrel = nullptr ;
+  h1_ele_EseedOP_endcaps = nullptr ;
+  h2_ele_EseedOPVsEta = nullptr ;
+  h2_ele_EseedOPVsPhi = nullptr ;
+  h2_ele_EseedOPVsE = nullptr ;
+  h1_ele_EoPout = nullptr ;
+  h1_ele_EoPout_barrel = nullptr ;
+  h1_ele_EoPout_endcaps = nullptr ;
+  h2_ele_EoPoutVsEta = nullptr ;
+  h2_ele_EoPoutVsPhi = nullptr ;
+  h2_ele_EoPoutVsE = nullptr ;
+  h1_ele_EeleOPout = nullptr ;
+  h1_ele_EeleOPout_barrel = nullptr ;
+  h1_ele_EeleOPout_endcaps = nullptr ;
+  h2_ele_EeleOPoutVsEta = nullptr ;
+  h2_ele_EeleOPoutVsPhi = nullptr ;
+  h2_ele_EeleOPoutVsE = nullptr ;
 
-  h1_ele_dEtaSc_propVtx = 0 ;
-  h1_ele_dEtaSc_propVtx_barrel = 0 ;
-  h1_ele_dEtaSc_propVtx_endcaps = 0 ;
-  h1_ele_dEtaSc_propVtx_mAOD = 0 ;
-  h1_ele_dEtaSc_propVtx_mAOD_barrel = 0 ;
-  h1_ele_dEtaSc_propVtx_mAOD_endcaps = 0 ;
-  h2_ele_dEtaScVsEta_propVtx = 0 ;
-  h2_ele_dEtaScVsPhi_propVtx = 0 ;
-  h2_ele_dEtaScVsPt_propVtx = 0 ;
-  h1_ele_dPhiSc_propVtx = 0 ;
-  h1_ele_dPhiSc_propVtx_barrel = 0 ;
-  h1_ele_dPhiSc_propVtx_endcaps = 0 ;
-  h2_ele_dPhiScVsEta_propVtx = 0 ;
-  h2_ele_dPhiScVsPhi_propVtx = 0 ;
-  h2_ele_dPhiScVsPt_propVtx = 0 ;
-  h1_ele_dEtaCl_propOut = 0 ;
-  h1_ele_dEtaCl_propOut_barrel = 0 ;
-  h1_ele_dEtaCl_propOut_endcaps = 0 ;
-  h2_ele_dEtaClVsEta_propOut = 0 ;
-  h2_ele_dEtaClVsPhi_propOut = 0 ;
-  h2_ele_dEtaClVsPt_propOut = 0 ;
-  h1_ele_dPhiCl_propOut = 0 ;
-  h1_ele_dPhiCl_propOut_barrel = 0 ;
-  h1_ele_dPhiCl_propOut_endcaps = 0 ;
-  h1_ele_dPhiCl_propOut_mAOD = 0 ;
-  h1_ele_dPhiCl_propOut_mAOD_barrel = 0 ;
-  h1_ele_dPhiCl_propOut_mAOD_endcaps = 0 ;
-  h2_ele_dPhiClVsEta_propOut = 0 ;
-  h2_ele_dPhiClVsPhi_propOut = 0 ;
-  h2_ele_dPhiClVsPt_propOut = 0 ;
-  h1_ele_dEtaEleCl_propOut = 0 ;
-  h1_ele_dEtaEleCl_propOut_barrel = 0 ;
-  h1_ele_dEtaEleCl_propOut_endcaps = 0 ;
-  h2_ele_dEtaEleClVsEta_propOut = 0 ;
-  h2_ele_dEtaEleClVsPhi_propOut = 0 ;
-  h2_ele_dEtaEleClVsPt_propOut = 0 ;
-  h1_ele_dPhiEleCl_propOut = 0 ;
-  h1_ele_dPhiEleCl_propOut_barrel = 0 ;
-  h1_ele_dPhiEleCl_propOut_endcaps = 0 ;
-  h2_ele_dPhiEleClVsEta_propOut = 0 ;
-  h2_ele_dPhiEleClVsPhi_propOut = 0 ;
-  h2_ele_dPhiEleClVsPt_propOut = 0 ;
+  h1_ele_dEtaSc_propVtx = nullptr ;
+  h1_ele_dEtaSc_propVtx_barrel = nullptr ;
+  h1_ele_dEtaSc_propVtx_endcaps = nullptr ;
+  h1_ele_dEtaSc_propVtx_mAOD = nullptr ;
+  h1_ele_dEtaSc_propVtx_mAOD_barrel = nullptr ;
+  h1_ele_dEtaSc_propVtx_mAOD_endcaps = nullptr ;
+  h2_ele_dEtaScVsEta_propVtx = nullptr ;
+  h2_ele_dEtaScVsPhi_propVtx = nullptr ;
+  h2_ele_dEtaScVsPt_propVtx = nullptr ;
+  h1_ele_dPhiSc_propVtx = nullptr ;
+  h1_ele_dPhiSc_propVtx_barrel = nullptr ;
+  h1_ele_dPhiSc_propVtx_endcaps = nullptr ;
+  h2_ele_dPhiScVsEta_propVtx = nullptr ;
+  h2_ele_dPhiScVsPhi_propVtx = nullptr ;
+  h2_ele_dPhiScVsPt_propVtx = nullptr ;
+  h1_ele_dEtaCl_propOut = nullptr ;
+  h1_ele_dEtaCl_propOut_barrel = nullptr ;
+  h1_ele_dEtaCl_propOut_endcaps = nullptr ;
+  h2_ele_dEtaClVsEta_propOut = nullptr ;
+  h2_ele_dEtaClVsPhi_propOut = nullptr ;
+  h2_ele_dEtaClVsPt_propOut = nullptr ;
+  h1_ele_dPhiCl_propOut = nullptr ;
+  h1_ele_dPhiCl_propOut_barrel = nullptr ;
+  h1_ele_dPhiCl_propOut_endcaps = nullptr ;
+  h1_ele_dPhiCl_propOut_mAOD = nullptr ;
+  h1_ele_dPhiCl_propOut_mAOD_barrel = nullptr ;
+  h1_ele_dPhiCl_propOut_mAOD_endcaps = nullptr ;
+  h2_ele_dPhiClVsEta_propOut = nullptr ;
+  h2_ele_dPhiClVsPhi_propOut = nullptr ;
+  h2_ele_dPhiClVsPt_propOut = nullptr ;
+  h1_ele_dEtaEleCl_propOut = nullptr ;
+  h1_ele_dEtaEleCl_propOut_barrel = nullptr ;
+  h1_ele_dEtaEleCl_propOut_endcaps = nullptr ;
+  h2_ele_dEtaEleClVsEta_propOut = nullptr ;
+  h2_ele_dEtaEleClVsPhi_propOut = nullptr ;
+  h2_ele_dEtaEleClVsPt_propOut = nullptr ;
+  h1_ele_dPhiEleCl_propOut = nullptr ;
+  h1_ele_dPhiEleCl_propOut_barrel = nullptr ;
+  h1_ele_dPhiEleCl_propOut_endcaps = nullptr ;
+  h2_ele_dPhiEleClVsEta_propOut = nullptr ;
+  h2_ele_dPhiEleClVsPhi_propOut = nullptr ;
+  h2_ele_dPhiEleClVsPt_propOut = nullptr ;
 
-  h1_ele_seed_subdet2 = 0 ;
-  h1_ele_seed_mask = 0 ;
-  h1_ele_seed_mask_bpix = 0 ;
-  h1_ele_seed_mask_fpix = 0 ;
-  h1_ele_seed_mask_tec = 0 ;
-  h1_ele_seed_dphi2 = 0 ;
-  h2_ele_seed_dphi2VsEta = 0 ;
-  h2_ele_seed_dphi2VsPt = 0 ;
-  h1_ele_seed_dphi2pos = 0 ;
-  h2_ele_seed_dphi2posVsEta = 0 ;
-  h2_ele_seed_dphi2posVsPt = 0 ;
-  h1_ele_seed_drz2 = 0 ;
-  h2_ele_seed_drz2VsEta = 0 ;
-  h2_ele_seed_drz2VsPt = 0 ;
-  h1_ele_seed_drz2pos = 0 ;
-  h2_ele_seed_drz2posVsEta = 0 ;
-  h2_ele_seed_drz2posVsPt = 0 ;
+  h1_ele_seed_subdet2 = nullptr ;
+  h1_ele_seed_mask = nullptr ;
+  h1_ele_seed_mask_bpix = nullptr ;
+  h1_ele_seed_mask_fpix = nullptr ;
+  h1_ele_seed_mask_tec = nullptr ;
+  h1_ele_seed_dphi2 = nullptr ;
+  h2_ele_seed_dphi2VsEta = nullptr ;
+  h2_ele_seed_dphi2VsPt = nullptr ;
+  h1_ele_seed_dphi2pos = nullptr ;
+  h2_ele_seed_dphi2posVsEta = nullptr ;
+  h2_ele_seed_dphi2posVsPt = nullptr ;
+  h1_ele_seed_drz2 = nullptr ;
+  h2_ele_seed_drz2VsEta = nullptr ;
+  h2_ele_seed_drz2VsPt = nullptr ;
+  h1_ele_seed_drz2pos = nullptr ;
+  h2_ele_seed_drz2posVsEta = nullptr ;
+  h2_ele_seed_drz2posVsPt = nullptr ;
 
-  h1_ele_classes = 0 ;
-  h1_ele_eta = 0 ;
-  h1_ele_eta_golden = 0 ;
-  h1_ele_eta_bbrem = 0 ;
-  h1_ele_eta_shower = 0 ;
+  h1_ele_classes = nullptr ;
+  h1_ele_eta = nullptr ;
+  h1_ele_eta_golden = nullptr ;
+  h1_ele_eta_bbrem = nullptr ;
+  h1_ele_eta_shower = nullptr ;
 
-  h1_ele_HoE = 0 ;
-  h1_ele_HoE_barrel = 0 ;
-  h1_ele_HoE_endcaps = 0 ;
-  h1_ele_HoE_fiducial = 0 ;
-  h2_ele_HoEVsEta = 0 ;
-  h2_ele_HoEVsPhi = 0 ;
-  h2_ele_HoEVsE = 0 ;
-  h1_ele_HoE_mAOD = 0 ;
-  h1_ele_HoE_mAOD_barrel = 0 ;
-  h1_ele_HoE_mAOD_endcaps = 0 ;
+  h1_ele_HoE = nullptr ;
+  h1_ele_HoE_barrel = nullptr ;
+  h1_ele_HoE_endcaps = nullptr ;
+  h1_ele_HoE_fiducial = nullptr ;
+  h2_ele_HoEVsEta = nullptr ;
+  h2_ele_HoEVsPhi = nullptr ;
+  h2_ele_HoEVsE = nullptr ;
+  h1_ele_HoE_mAOD = nullptr ;
+  h1_ele_HoE_mAOD_barrel = nullptr ;
+  h1_ele_HoE_mAOD_endcaps = nullptr ;
 
-  h1_ele_fbrem = 0 ;
-  h1_ele_fbrem_barrel = 0 ;
-  h1_ele_fbrem_endcaps = 0 ;
-  p1_ele_fbremVsEta_mode = 0 ;
-  p1_ele_fbremVsEta_mean = 0 ;
-  h1_ele_fbrem_mAOD = 0 ;
-  h1_ele_fbrem_mAOD_barrel = 0 ;
-  h1_ele_fbrem_mAOD_endcaps = 0 ;
-  h1_ele_superclusterfbrem = 0 ;
+  h1_ele_fbrem = nullptr ;
+  h1_ele_fbrem_barrel = nullptr ;
+  h1_ele_fbrem_endcaps = nullptr ;
+  p1_ele_fbremVsEta_mode = nullptr ;
+  p1_ele_fbremVsEta_mean = nullptr ;
+  h1_ele_fbrem_mAOD = nullptr ;
+  h1_ele_fbrem_mAOD_barrel = nullptr ;
+  h1_ele_fbrem_mAOD_endcaps = nullptr ;
+  h1_ele_superclusterfbrem = nullptr ;
 
-  h1_ele_superclusterfbrem_barrel = 0 ;
-  h1_ele_superclusterfbrem_endcaps = 0 ;
-  h2_ele_PinVsPoutGolden_mode = 0 ;
-  h2_ele_PinVsPoutShowering_mode = 0 ;
-  h2_ele_PinVsPoutGolden_mean = 0 ;
-  h2_ele_PinVsPoutShowering_mean = 0 ;
-  h2_ele_PtinVsPtoutGolden_mode = 0 ;
-  h2_ele_PtinVsPtoutShowering_mode = 0 ;
-  h2_ele_PtinVsPtoutGolden_mean = 0 ;
-  h2_ele_PtinVsPtoutShowering_mean = 0 ;
-  h1_scl_EoEtrueGolden_barrel = 0 ;
-  h1_scl_EoEtrueGolden_endcaps = 0 ;
-  h1_scl_EoEtrueShowering_barrel = 0 ;
-  h1_scl_EoEtrueShowering_endcaps = 0 ;
+  h1_ele_superclusterfbrem_barrel = nullptr ;
+  h1_ele_superclusterfbrem_endcaps = nullptr ;
+  h2_ele_PinVsPoutGolden_mode = nullptr ;
+  h2_ele_PinVsPoutShowering_mode = nullptr ;
+  h2_ele_PinVsPoutGolden_mean = nullptr ;
+  h2_ele_PinVsPoutShowering_mean = nullptr ;
+  h2_ele_PtinVsPtoutGolden_mode = nullptr ;
+  h2_ele_PtinVsPtoutShowering_mode = nullptr ;
+  h2_ele_PtinVsPtoutGolden_mean = nullptr ;
+  h2_ele_PtinVsPtoutShowering_mean = nullptr ;
+  h1_scl_EoEtrueGolden_barrel = nullptr ;
+  h1_scl_EoEtrueGolden_endcaps = nullptr ;
+  h1_scl_EoEtrueShowering_barrel = nullptr ;
+  h1_scl_EoEtrueShowering_endcaps = nullptr ;
 
-  h1_ele_mva = 0 ;
-  h1_ele_mva_isolated = 0;
-  h1_ele_provenance = 0 ;
+  h1_ele_mva = nullptr ;
+  h1_ele_mva_isolated = nullptr;
+  h1_ele_provenance = nullptr ;
 
   // isolation
-  h1_ele_tkSumPt_dr03 = 0 ;
-  h1_ele_tkSumPt_dr03_barrel = 0 ;
-  h1_ele_tkSumPt_dr03_endcaps = 0 ;
-  h1_ele_ecalRecHitSumEt_dr03 = 0 ;
-  h1_ele_ecalRecHitSumEt_dr03_barrel = 0 ;
-  h1_ele_ecalRecHitSumEt_dr03_endcaps = 0 ;
-  h1_ele_hcalTowerSumEt_dr03_depth1 = 0 ;
-  h1_ele_hcalTowerSumEt_dr03_depth1_barrel = 0 ;
-  h1_ele_hcalTowerSumEt_dr03_depth1_endcaps = 0 ;
-  h1_ele_hcalTowerSumEt_dr03_depth2 = 0 ;
-  h1_ele_tkSumPt_dr04 = 0 ;
-  h1_ele_tkSumPt_dr04_barrel = 0 ;
-  h1_ele_tkSumPt_dr04_endcaps = 0 ;
-  h1_ele_ecalRecHitSumEt_dr04 = 0 ;
-  h1_ele_ecalRecHitSumEt_dr04_barrel = 0 ;
-  h1_ele_ecalRecHitSumEt_dr04_endcaps = 0 ;
-  h1_ele_hcalTowerSumEt_dr04_depth1 = 0 ;
-  h1_ele_hcalTowerSumEt_dr04_depth1_barrel = 0 ;
-  h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = 0 ;
-  h1_ele_hcalTowerSumEt_dr04_depth2 = 0 ;
+  h1_ele_tkSumPt_dr03 = nullptr ;
+  h1_ele_tkSumPt_dr03_barrel = nullptr ;
+  h1_ele_tkSumPt_dr03_endcaps = nullptr ;
+  h1_ele_ecalRecHitSumEt_dr03 = nullptr ;
+  h1_ele_ecalRecHitSumEt_dr03_barrel = nullptr ;
+  h1_ele_ecalRecHitSumEt_dr03_endcaps = nullptr ;
+  h1_ele_hcalTowerSumEt_dr03_depth1 = nullptr ;
+  h1_ele_hcalTowerSumEt_dr03_depth1_barrel = nullptr ;
+  h1_ele_hcalTowerSumEt_dr03_depth1_endcaps = nullptr ;
+  h1_ele_hcalTowerSumEt_dr03_depth2 = nullptr ;
+  h1_ele_tkSumPt_dr04 = nullptr ;
+  h1_ele_tkSumPt_dr04_barrel = nullptr ;
+  h1_ele_tkSumPt_dr04_endcaps = nullptr ;
+  h1_ele_ecalRecHitSumEt_dr04 = nullptr ;
+  h1_ele_ecalRecHitSumEt_dr04_barrel = nullptr ;
+  h1_ele_ecalRecHitSumEt_dr04_endcaps = nullptr ;
+  h1_ele_hcalTowerSumEt_dr04_depth1 = nullptr ;
+  h1_ele_hcalTowerSumEt_dr04_depth1_barrel = nullptr ;
+  h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = nullptr ;
+  h1_ele_hcalTowerSumEt_dr04_depth2 = nullptr ;
 
   // conversions
-  h1_ele_convFlags = 0 ;
-  h1_ele_convFlags_all = 0 ;
-  h1_ele_convDist = 0 ;
-  h1_ele_convDist_all = 0 ;
-  h1_ele_convDcot = 0 ;
-  h1_ele_convDcot_all = 0 ;
-  h1_ele_convRadius = 0 ;
-  h1_ele_convRadius_all = 0 ;
+  h1_ele_convFlags = nullptr ;
+  h1_ele_convFlags_all = nullptr ;
+  h1_ele_convDist = nullptr ;
+  h1_ele_convDist_all = nullptr ;
+  h1_ele_convDcot = nullptr ;
+  h1_ele_convDcot_all = nullptr ;
+  h1_ele_convRadius = nullptr ;
+  h1_ele_convRadius_all = nullptr ;
   
   // PF
-  h1_ele_chargedHadronRelativeIso_mAOD = 0 ;
-  h1_ele_chargedHadronRelativeIso_mAOD_barrel = 0 ;
-  h1_ele_chargedHadronRelativeIso_mAOD_endcaps = 0 ;
-  h1_ele_neutralHadronRelativeIso_mAOD = 0 ;
-  h1_ele_neutralHadronRelativeIso_mAOD_barrel = 0 ;
-  h1_ele_neutralHadronRelativeIso_mAOD_endcaps = 0 ;
-  h1_ele_photonRelativeIso_mAOD = 0 ;
-  h1_ele_photonRelativeIso_mAOD_barrel = 0 ;
-  h1_ele_photonRelativeIso_mAOD_endcaps = 0 ;
+  h1_ele_chargedHadronRelativeIso_mAOD = nullptr ;
+  h1_ele_chargedHadronRelativeIso_mAOD_barrel = nullptr ;
+  h1_ele_chargedHadronRelativeIso_mAOD_endcaps = nullptr ;
+  h1_ele_neutralHadronRelativeIso_mAOD = nullptr ;
+  h1_ele_neutralHadronRelativeIso_mAOD_barrel = nullptr ;
+  h1_ele_neutralHadronRelativeIso_mAOD_endcaps = nullptr ;
+  h1_ele_photonRelativeIso_mAOD = nullptr ;
+  h1_ele_photonRelativeIso_mAOD_barrel = nullptr ;
+  h1_ele_photonRelativeIso_mAOD_endcaps = nullptr ;
 
  }
 
@@ -662,7 +662,7 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   // matched electrons
   setBookPrefix("h_mc") ;
   h1_mc_Eta_matched = bookH1withSumw2(iBooker, "Eta_matched","Efficiency vs gen eta",eta_nbin,eta_min,eta_max);
-  h1_mc_AbsEta_matched = bookH1withSumw2(iBooker, "AbsEta_matched","Efficiency vs gen |eta|",eta_nbin/2,0.,2.5);
+  h1_mc_AbsEta_matched = bookH1withSumw2(iBooker, "AbsEta_matched","Efficiency vs gen |eta|",eta_nbin/2,0.,eta_max);
   h1_mc_Pt_matched = bookH1(iBooker, "Pt_matched","Efficiency vs gen transverse momentum",pteff_nbin,5.,pt_max);
   h1_mc_Phi_matched = bookH1withSumw2(iBooker, "Phi_matched","Efficiency vs gen phi",phi_nbin,phi_min,phi_max);
   h1_mc_Z_matched = bookH1withSumw2(iBooker, "Z_matched","Efficiency vs gen vertex z",xyz_nbin,-25,25);
@@ -994,9 +994,9 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_ele_fbrem_mAOD = bookH1withSumw2(iBooker, "fbrem_mAOD","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
   h1_ele_fbrem_mAOD_barrel = bookH1withSumw2(iBooker, "fbrem_mAOD_barrel","ele brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
   h1_ele_fbrem_mAOD_endcaps = bookH1withSumw2(iBooker, "fbrem_mAOD_endcaps", "ele brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","supercluster brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","supercluster brem fraction for barrel, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
-  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "supercluster brem franction for endcaps, mode of GSF components", 100, 0.,1.,"P_{in} - P_{out} / P_{in}");
+  h1_ele_superclusterfbrem = bookH1withSumw2(iBooker, "superclusterfbrem","supercluster brem fraction",100,0.,1.,"1 - E_{ele} / E_{SC}");
+  h1_ele_superclusterfbrem_barrel = bookH1withSumw2(iBooker, "superclusterfbrem_barrel","supercluster brem fraction for barrel", 100, 0.,1.,"1 - E_{ele} / E_{SC}");
+  h1_ele_superclusterfbrem_endcaps = bookH1withSumw2(iBooker, "superclusterfbrem_endcaps", "supercluster brem franction for endcaps", 100, 0.,1.,"1 - E_{ele} / E_{SC}");
   p1_ele_fbremVsEta_mode  = bookP1(iBooker, "fbremvsEtamode","mean ele brem fraction vs eta, mode of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
   p1_ele_fbremVsEta_mean  = bookP1(iBooker, "fbremvsEtamean","mean ele brem fraction vs eta, mean of GSF components",eta2D_nbin,eta_min,eta_max,0.,1.,"#eta","<P_{in} - P_{out} / P_{in}>");
   h1_ele_chargeInfo = bookH1withSumw2(iBooker, "chargeInfo","chargeInfo",5,-2.,3.);
@@ -1209,24 +1209,57 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   for
    ( mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ )
    {
+/*                // DEBUG LINES - KEEP IT !
+    std::cout << "\nevt ID = " << iEvent.id() ; 
+    std::cout << ",  mcIter position : " << mcIter - genParticles->begin() << std::endl ; 
+    std::cout << "pdgID : " << mcIter->pdgId() << ", Pt : " << mcIter->pt() << ", eta : " << mcIter->eta() << ", phi : " << mcIter->phi() << std::endl; 
+                // DEBUG LINES - KEEP IT !  */ 
+
     // select requested matching gen particle
     matchingID=false;
-    for ( unsigned int i=0 ; i<matchingIDs_.size() ; i++ )
-     {
-      if ( mcIter->pdgId() == matchingIDs_[i] )
-       { matchingID=true ; }
+    for ( unsigned int i=0 ; i<matchingIDs_.size() ; i++ ) {
+
+        if ( mcIter->pdgId() == matchingIDs_[i] )
+           { matchingID=true ; 
+/*                // DEBUG LINES - KEEP IT !
+			std::cout << "\nMatching mis-reco : matchingIDs_.size() = " << matchingIDs_.size() << ", evt ID = " << iEvent.id() ; 
+            std::cout << ", mcIter pdgID : " << mcIter->pdgId() << ", matchingID : " << matchingID << std::endl ; 
+                // DEBUG LINES - KEEP IT !  */ 
+       }
      }
-    if (matchingID)
-     {
+    if (matchingID) {
       // select requested mother matching gen particle
       // always include single particle with no mother
       const Candidate * mother = mcIter->mother() ;
       matchingMotherID = false ;
       for ( unsigned int i=0 ; i<matchingMotherIDs_.size() ; i++ )
        {
-        if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) )
-         { matchingMotherID = true ; }
-       }
+/*                // DEBUG LINES - KEEP IT !
+                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
+                if (mother != 0) { 
+			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+                }
+                else { 
+                    std::cout << std::endl; 
+                } 
+                // DEBUG LINES - KEEP IT !  */ 
+                
+        if ( mother == nullptr ) {
+            matchingMotherID = true ; 
+        }
+        else if ( mother->pdgId() == matchingMotherIDs_[i] ) { 
+            if ( mother->numberOfDaughters() <= 2 ) {
+                matchingMotherID = true ;
+/*                // DEBUG LINES - KEEP IT !
+			    std::cout << "Matching mis-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; // debug lines
+                std::cout << "evt ID = " << iEvent.id() ;                                                                                                                 // debug lines
+                std::cout << " - nb of Daughters : " << mother->numberOfDaughters() << " - pdgId() : " << mother->pdgId() << std::endl;                                   // debug lines
+                // DEBUG LINES - KEEP IT !  */ 
+            }
+        } // end of mother if test
+
+         }
       if (matchingMotherID)
        {
         if ( mcIter->pt()>maxPt_ || std::abs(mcIter->eta())>maxAbsEta_ )
@@ -1249,7 +1282,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
           double dphi = gsfIter->phi()-mcIter->phi() ;
           if (std::abs(dphi)>CLHEP::pi)
            { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-//          double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2)) ;
           double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi ;
           if ( deltaR2 < deltaR2_ )
            {
@@ -1272,15 +1304,14 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
          } // loop over rec ele to look for the best one
 
         // analysis when the mc track is found
-        if (okGsfFound)
-         {
+        if (okGsfFound) {
           // generated distributions for matched electrons
           h1_mc_Pt_matched_qmisid->Fill( mcIter->pt() ) ;
           h1_mc_Phi_matched_qmisid->Fill( mcIter->phi() ) ;
           h1_mc_AbsEta_matched_qmisid->Fill( std::abs(mcIter->eta()) ) ;
           h1_mc_Eta_matched_qmisid->Fill( mcIter->eta() ) ;
           h1_mc_Z_matched_qmisid->Fill( mcIter->vz() ) ;
-         }
+        }
        }
      }
    }
@@ -1313,8 +1344,18 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     matchingMotherID = false ;
     for ( unsigned int i=0 ; i<matchingMotherIDs_.size() ; i++ )
      {
-      if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) )
-       { matchingMotherID = true ; }
+      if ( (mother == nullptr) || ((mother != nullptr) &&  mother->pdgId() == matchingMotherIDs_[i]) )
+       { matchingMotherID = true ; 
+/*                // DEBUG LINES - KEEP IT !
+			std::cout << "Matching mc-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; 
+            if (mother != 0) {
+                std::cout << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+            }
+            else {
+                std::cout << std::endl ; 
+            }
+                // DEBUG LINES - KEEP IT !  */ 
+        }
      }
     if (!matchingMotherID) continue ;
 
@@ -1350,7 +1391,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
       double dphi = gsfIter->phi()-mcIter->phi() ;
       if (std::abs(dphi)>CLHEP::pi)
        { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-//      double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
       double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi;
       if ( deltaR2 < deltaR2_ )
        {
@@ -1364,6 +1404,8 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
             bestGsfElectron=*gsfIter;
             bestGsfElectronRef=reco::GsfElectronRef(gsfElectrons,iElectron);
             okGsfFound = true;
+            
+            //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl; // debug lines
            }
          }
        }

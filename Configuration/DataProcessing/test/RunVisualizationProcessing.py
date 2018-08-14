@@ -6,6 +6,7 @@ Test wrapper to generate an express processing config and actually push
 it into cmsRun for testing with a few input files etc from the command line
 
 """
+from __future__ import print_function
 
 import sys
 import getopt
@@ -51,25 +52,25 @@ class RunVisualizationProcessing:
             msg += str(ex)
             raise RuntimeError(msg)
 
-        print "Retrieved Scenario: %s" % self.scenario
-        print "Using Global Tag: %s" % self.globalTag
+        print("Retrieved Scenario: %s" % self.scenario)
+        print("Using Global Tag: %s" % self.globalTag)
 
         dataTiers = []
         if self.writeRaw:
             dataTiers.append("RAW")
-            print "Configuring to Write out Raw..."
+            print("Configuring to Write out Raw...")
         if self.writeReco:
             dataTiers.append("RECO")
-            print "Configuring to Write out Reco..."
+            print("Configuring to Write out Reco...")
         if self.writeFevt:
             dataTiers.append("FEVT")
-            print "Configuring to Write out Fevt..."
+            print("Configuring to Write out Fevt...")
         if self.writeAlca:
             dataTiers.append("ALCARECO")
-            print "Configuring to Write out Alca..."
+            print("Configuring to Write out Alca...")
         if self.writeDqm:
             dataTiers.append("DQM")
-            print "Configuring to Write out Dqm..."
+            print("Configuring to Write out Dqm...")
 
 
 
@@ -95,7 +96,7 @@ class RunVisualizationProcessing:
             process = scenario.visualizationProcessing(self.globalTag, **kwds)
 
         except NotImplementedError as ex:
-            print "This scenario does not support Visualization Processing:\n"
+            print("This scenario does not support Visualization Processing:\n")
             return
         except Exception as ex:
             msg = "Error creating Visualization Processing config:\n"
@@ -128,7 +129,7 @@ class RunVisualizationProcessing:
             pklFile.close()
 
         cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
-        print "Now do:\n%s" % cmsRun
+        print("Now do:\n%s" % cmsRun)
 
 
 
@@ -155,8 +156,8 @@ python RunVisualizationProcessing.py --scenario cosmics --global-tag GLOBALTAG::
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:
-        print usage
-        print str(ex)
+        print(usage)
+        print(str(ex))
         sys.exit(1)
 
 

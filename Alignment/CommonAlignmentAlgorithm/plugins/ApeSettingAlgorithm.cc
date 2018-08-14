@@ -64,18 +64,18 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   ApeSettingAlgorithm(const edm::ParameterSet &cfg);
 
   /// Destructor
-  virtual ~ApeSettingAlgorithm();
+  ~ApeSettingAlgorithm() override;
 
   /// Call at beginning of job
-  virtual void initialize(const edm::EventSetup &setup, 
+  void initialize(const edm::EventSetup &setup, 
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
 			  AlignmentParameterStore *store) override;
 
   /// Call at end of job
-  virtual void terminate(const edm::EventSetup& iSetup) override;
+  void terminate(const edm::EventSetup& iSetup) override;
 
   /// Run the algorithm
-  virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
+  void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
  private:
   edm::ParameterSet         theConfig;
@@ -96,7 +96,7 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 //____________________________________________________
 ApeSettingAlgorithm::ApeSettingAlgorithm(const edm::ParameterSet &cfg) :
   AlignmentAlgorithmBase(cfg), theConfig(cfg),
-  theAlignableNavigator(0)
+  theAlignableNavigator(nullptr)
 {
   edm::LogInfo("Alignment") << "@SUB=ApeSettingAlgorithm" << "Start.";
   saveApeToAscii_ = theConfig.getUntrackedParameter<bool>("saveApeToASCII");
@@ -145,7 +145,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	 {  DetId id(apeId);
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
 	 if (alidet)
-	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
+	   { if ((alidet->components().empty()) || setComposites_) //the problem with glued dets...
 	     { GlobalErrorExtended globErr;
 	     if (readLocalNotGlobal_)
 	       { AlgebraicSymMatrix33 as; 
@@ -200,7 +200,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
     for (int i=0; i < theSize; ++i)
       { int id=	aliErr->m_alignError[i].rawId();
       AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(DetId(id))); //NULL if none
-      if (alidet && ((alidet->components().size()<1) || saveComposites_))
+      if (alidet && ((alidet->components().empty()) || saveComposites_))
 	{ apeSaveFile<<id;
 	CLHEP::HepSymMatrix sm = aliErr->m_alignError[i].matrix();
 	if (saveLocalNotGlobal_)
@@ -223,7 +223,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
     }
   // clean up at end:  // FIXME: should we delete here or in destructor?
   delete theAlignableNavigator;
-  theAlignableNavigator = 0;
+  theAlignableNavigator = nullptr;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------

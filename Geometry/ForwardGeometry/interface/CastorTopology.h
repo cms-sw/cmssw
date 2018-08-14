@@ -37,12 +37,12 @@ public:
   virtual std::vector<DetId> incModule(const DetId& id) const;
 
   //** I have to put this here since they inherit from CaloSubdetectorTopology
-  virtual std::vector<DetId> east(const DetId& id) const;
-  virtual std::vector<DetId> west(const DetId& id) const; 
-  virtual std::vector<DetId> north(const DetId& id) const;
-  virtual std::vector<DetId> south(const DetId& id) const;
-  virtual std::vector<DetId> up(const DetId& id) const;
-  virtual std::vector<DetId> down(const DetId& id) const;
+  std::vector<DetId> east(const DetId& id) const override;
+  std::vector<DetId> west(const DetId& id) const override; 
+  std::vector<DetId> north(const DetId& id) const override;
+  std::vector<DetId> south(const DetId& id) const override;
+  std::vector<DetId> up(const DetId& id) const override;
+  std::vector<DetId> down(const DetId& id) const override;
   
   // how many channels (deph) for a given section
   using CaloSubdetectorTopology::ncells;

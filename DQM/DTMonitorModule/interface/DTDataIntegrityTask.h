@@ -13,7 +13,6 @@
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -23,7 +22,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/DTDigi/interface/DTControlData.h"
-
+#include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -36,18 +35,23 @@
 
 class DTROS25Data;
 class DTDDUData;
+//to remove
+class DTuROSROSData;
+class DTuROSFEDData;
 class DTTimeEvolutionHisto;
 
-class DTDataIntegrityTask: public thread_unsafe::DQMEDAnalyzer {
+class DTDataIntegrityTask: public DQMEDAnalyzer {
 
 public:
 
   DTDataIntegrityTask( const edm::ParameterSet& ps);
 
-  virtual ~DTDataIntegrityTask();
+  ~DTDataIntegrityTask() override;
 
   void TimeHistos(DQMStore::IBooker &, std::string histoType);
 
+  void processuROS(DTuROSROSData & data, int fed, int uRos);
+  void processFED(DTuROSFEDData  & data, int fed);
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
@@ -73,7 +77,10 @@ private:
 
   void bookHistos(DQMStore::IBooker &, const int fedMin, const int fedMax);
   void bookHistos(DQMStore::IBooker &, std::string folder, DTROChainCoding code);
+  void bookHistos(DQMStore::IBooker &, std::string folder, const int fed);
   void bookHistosROS25(DQMStore::IBooker &, DTROChainCoding code);
+  void bookHistosuROS(DQMStore::IBooker &,const int fed, const int uRos);
+  void bookHistosROS(DQMStore::IBooker &,const int wheel, const int ros);
 
   void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
   void channelsInROS(int cerosMask, std::vector<int>& channels);
@@ -85,10 +92,16 @@ private:
 
   edm::ParameterSet parameters;
 
+  //conversions
+  int theDDU(int crate, int slot, int link, bool tenDDU);
+  int theROS(int slot, int link);
+  
   //If you want info VS time histos
   bool doTimeHisto;
   // Plot quantities about SC
   bool getSCInfo;
+  // Check FEDs from uROS, otherwise standard ROS
+  bool checkUros;
 
   int nevents;
 
@@ -97,13 +110,19 @@ private:
   // Monitor Elements
   MonitorElement* nEventMonitor;
   // <histoType, <index , histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > fedHistos;
   // <histoType, histo> >
-  std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > summaryHistos;
   // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
+  // <key , histo> >
+  std::map<unsigned int, MonitorElement*> urosHistos;
   // <histoType, <tdcID, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > robHistos;
+
+  //enum histoTypes for reduced map of MEs urosHistos
+  // key = stringEnum*1000 + (fed-minFED)#*100 + (uROS-minuROS)#
+  enum histoTypes {uROSEventLength=0, uROSError=1, TDCError=4, TTSValues=7}; 
 
   // standard ME for monitoring of FED integrity
   MonitorElement* hFEDEntry;
@@ -115,20 +134,27 @@ private:
   MonitorElement* hTTSSummary;
 
   //time histos for DDU/ROS
-  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > dduTimeHistos;
+  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > fedTimeHistos;
   std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
+  // <key, histo> >
+  std::map<unsigned int, DTTimeEvolutionHisto*> urosTimeHistos;
+  //key =  (fed-minFED)#*100 + (uROS-minuROS)#
 
   int nEventsLS;
 
-  int neventsDDU;
-  int neventsROS25;
+  int neventsFED;
+  int neventsuROS;
+
   float trigger_counter;
   std::string outputFile;
   double rob_max[25];
+  double link_max[72];
 
   int FEDIDmin;
-  int FEDIDMax;
+  int FEDIDmax;
 
+  // Number of ROS/uROS per FED
+  const int NuROS = 12;
 
   //Event counter for the graphs VS time
   int myPrevEv;
@@ -154,6 +180,9 @@ private:
   edm::EDGetTokenT<DTDDUCollection> dduToken;
 
   edm::EDGetTokenT<DTROS25Collection> ros25Token;
+
+  edm::EDGetTokenT<DTuROSFEDDataCollection> fedToken;  
+
  
 };
 

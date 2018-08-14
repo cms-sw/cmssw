@@ -199,8 +199,7 @@ def psetGsfEleFull5x5SigmaIEtaIEtaWithSatCut(wpEB, wpEE):
         maxSigmaIEtaIEtaEE = cms.double( wpEE.full5x5SigmaIEtaIEtaCut ),
         maxNrSatCrysIn5x5EB =cms.int32( 0 ),
         maxNrSatCrysIn5x5EE =cms.int32( 0 ),
-        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
-        needsAdditionalProducts = cms.bool(True),
+        needsAdditionalProducts = cms.bool(False), 
         
         isIgnored = cms.bool(False)
         )
@@ -229,8 +228,7 @@ def psetGsfEleFull5x5E2x5OverE5x5WithSatCut(wpEB, wpEE):
         minE2x5OverE5x5EE = cms.double( wpEE.minE2x5OverE5x5Cut ),
         maxNrSatCrysIn5x5EB =cms.int32( 0 ),
         maxNrSatCrysIn5x5EE =cms.int32( 0 ),
-        nrSatCrysValueMap = cms.InputTag("heepIDVarValueMaps","eleNrSaturateIn5x5"),
-        needsAdditionalProducts = cms.bool(True),
+        needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
 # Configure the cut of E/H
@@ -511,10 +509,15 @@ def configureHEEPElectronID_V61(wpEB, wpEE):
         )
     return parameterSet
 
-def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD):
+def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
+
+    newTask = cms.Task()
+    seq.associate(newTask)
+    if task is not None:
+        task.add(newTask)
+
     process.load("RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi")
-    
-    seq.insert(insertIndex,process.heepIDVarValueMaps)
+    newTask.add(process.heepIDVarValueMaps)
 
     if useMiniAOD==False:
         process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -530,7 +533,7 @@ def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD):
         from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import lostTracks
         process.lostTracksForTkIso = lostTracks.clone()
         process.lostTracksForTkIso.packedPFCandidates =cms.InputTag("packedCandsForTkIso")
-        seq.insert(insertIndex,process.primaryVertexAssociation)
-        seq.insert(insertIndex+1,process.offlineSlimmedPrimaryVertices)
-        seq.insert(insertIndex+2,process.packedCandsForTkIso)
-        seq.insert(insertIndex+3,process.lostTracksForTkIso)
+        newTask.add(process.primaryVertexAssociation,
+                    process.offlineSlimmedPrimaryVertices,
+                    process.packedCandsForTkIso,
+                    process.lostTracksForTkIso)

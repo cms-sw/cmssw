@@ -1,4 +1,5 @@
 #include "DetectorDescription/Core/src/Solid.h"
+
 #include <ostream>
 
 void DDI::Solid::stream(std::ostream & os) const

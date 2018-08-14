@@ -20,7 +20,10 @@ private:
     using ValueType = RecHitsSortedInPhi;
     using KeyType = int;
     SimpleCache(unsigned int initSize) : theContainer(initSize){}
-    SimpleCache(SimpleCache&& rh): theContainer(std::move(rh.theContainer)) {}
+    SimpleCache(const SimpleCache&) = delete;
+    SimpleCache& operator=(const SimpleCache&) = delete;
+    SimpleCache(SimpleCache&&) = default;
+    SimpleCache& operator=(SimpleCache&&) = default;
     ~SimpleCache() { clear(); }
     void resize(int size) { theContainer.resize(size); }
     const ValueType*  get(KeyType key) const { return theContainer[key].get();}
@@ -45,20 +48,27 @@ private:
     }
   private:
     std::vector<mayown_ptr<ValueType> > theContainer;
-  private:
-    SimpleCache(const SimpleCache &) { }
   };
 
 private:
   typedef SimpleCache Cache;
 public:
   LayerHitMapCache(unsigned int initSize=50) : theCache(initSize) { }
-  LayerHitMapCache(LayerHitMapCache&& rh): theCache(std::move(rh.theCache)) {}
+  LayerHitMapCache(LayerHitMapCache&&) = default;
+  LayerHitMapCache& operator=(LayerHitMapCache&&) = default;
+  
 
   void clear() { theCache.clear(); }
 
   void extend(const LayerHitMapCache& other) {
     theCache.extend(other.theCache);
+  }
+
+  // Mainly for FastSim, overrides old hits if exists
+  RecHitsSortedInPhi *add(const SeedingLayerSetsHits::SeedingLayer& layer, std::unique_ptr<RecHitsSortedInPhi> hits) {
+    RecHitsSortedInPhi *ptr = hits.get();
+    theCache.add(layer.index(), hits.release());
+    return ptr;
   }
   
   const RecHitsSortedInPhi &
@@ -68,9 +78,8 @@ public:
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      auto tmp=new RecHitsSortedInPhi (region.hits(iSetup,layer), region.origin(), layer.detLayer());
+      auto tmp = add(layer, std::make_unique<RecHitsSortedInPhi>(region.hits(iSetup,layer), region.origin(), layer.detLayer()));
       tmp->theOrigin = region.origin();
-      theCache.add( key, tmp);
       lhm = tmp;
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer.detLayer();
     }

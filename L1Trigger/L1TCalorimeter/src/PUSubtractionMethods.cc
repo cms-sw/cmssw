@@ -18,7 +18,7 @@ namespace l1t {
   /// --------------- For heavy ion -------------------------------------
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
 			     std::vector<l1t::CaloRegion> *subRegions,
-			     CaloParamsHelper *params)
+			     CaloParamsHelper const *params)
   {
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
@@ -76,7 +76,7 @@ namespace l1t {
 
   void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
 			std::vector<l1t::CaloRegion> *subRegions,
-			CaloParamsHelper *params)
+			CaloParamsHelper const *params)
   {
 
     std::string regionPUSType = params->regionPUSType();

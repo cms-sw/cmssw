@@ -13,9 +13,9 @@ class FWEventAnnotation : public TGLAnnotation
 {
 public:
    FWEventAnnotation(TGLViewerBase *view);
-   virtual ~FWEventAnnotation();
+   ~FWEventAnnotation() override;
 
-   virtual void   Render(TGLRnrCtx& rnrCtx);
+   void   Render(TGLRnrCtx& rnrCtx) override;
 
    //configuration management interface
    virtual void addTo(FWConfiguration&) const;
@@ -25,8 +25,8 @@ public:
    void setEvent();
   
 private:
-   FWEventAnnotation(const FWEventAnnotation&); // stop default
-   const FWEventAnnotation& operator=(const FWEventAnnotation&); // stop default
+   FWEventAnnotation(const FWEventAnnotation&) = delete; // stop default
+   const FWEventAnnotation& operator=(const FWEventAnnotation&) = delete; // stop default
 
    void updateOverlayText();
 

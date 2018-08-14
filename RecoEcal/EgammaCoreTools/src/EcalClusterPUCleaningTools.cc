@@ -54,7 +54,7 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi, con
   //std::cout << "\nEcalClusterPUCleaningTools::CleanedSuperCluster called, this will give you back a cleaned supercluster" << std::endl;
 
   // seed basic cluster of initial SC: this will remain in the cleaned SC, by construction
-  reco::CaloClusterPtr seed = scluster.seed();
+  const reco::CaloClusterPtr& seed = scluster.seed();
 
   float seedBCEnergy      = (scluster.seed())->energy(); // this should be replaced by the 5x5 around the seed; a good approx of how E_seed is defined 
   float eSeed             = 0.35;                        // standard eSeed in EB ; see CMS IN-2010/008
@@ -104,7 +104,7 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi, con
   
 
   // construct cluster shape to compute ieta and iphi covariances of the SC 
-  const CaloSubdetectorGeometry *geometry_p=0;
+  const CaloSubdetectorGeometry *geometry_p=nullptr;
   if (seed->seed().det() == DetId::Ecal && seed->seed().subdetId() == EcalBarrel){
     geometry_p = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
     SuperClusterShapeAlgo  SCShape(   ebRecHits_ , geometry_p); 

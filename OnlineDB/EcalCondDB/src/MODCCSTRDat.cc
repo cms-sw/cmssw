@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 MODCCSTRDat::MODCCSTRDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_word = 0;
 }
@@ -38,7 +38,7 @@ void MODCCSTRDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":ccs_word)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODCCSTRDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODCCSTRDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
@@ -63,7 +63,7 @@ void MODCCSTRDat::writeDB(const EcalLogicID* ecid, const MODCCSTRDat* item, MODR
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODCCSTRDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODCCSTRDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
@@ -95,12 +95,12 @@ void MODCCSTRDat::fetchData(std::map< EcalLogicID, MODCCSTRDat >* fillMap, MODRu
     std::pair< EcalLogicID, MODCCSTRDat > p;
     MODCCSTRDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setWord( rset->getInt(7) );
 
@@ -108,7 +108,7 @@ void MODCCSTRDat::fetchData(std::map< EcalLogicID, MODCCSTRDat >* fillMap, MODRu
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MODCCSTRDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MODCCSTRDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -176,6 +176,6 @@ void MODCCSTRDat::writeArrayDB(const std::map< EcalLogicID, MODCCSTRDat >* data,
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

@@ -2,7 +2,7 @@
 #define SimG4CMS_ShowerLibraryProducer_HFChamberSD_h
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,26 +20,24 @@ class HFChamberSD : public SensitiveCaloDetector {
 
 public:
 
-  HFChamberSD(std::string, const DDCompactView&, const SensitiveDetectorCatalog&,
-	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~HFChamberSD();
+  explicit HFChamberSD(const std::string&, const DDCompactView&, 
+		       const SensitiveDetectorCatalog&,
+		       const edm::ParameterSet&, const SimTrackManager*);
+  ~HFChamberSD() override;
 
-  virtual void     Initialize(G4HCofThisEvent*HCE);
-  virtual G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist);
-  virtual void     EndOfEvent(G4HCofThisEvent* HCE);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent*HCE) override;
+  G4bool   ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist) override;
+  void     EndOfEvent(G4HCofThisEvent* HCE) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
 
-protected:
-
-  virtual void     clearHits();
-  virtual uint32_t setDetUnitId(G4Step*);
-  virtual void     fillHits(edm::PCaloHitContainer&, std::string);
+  void     clearHits() override;
+  uint32_t setDetUnitId(const G4Step*) override;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 private:
 
-  std::string               theName;
   const SimTrackManager*    m_trackManager;
 
   G4int                     theHCID;

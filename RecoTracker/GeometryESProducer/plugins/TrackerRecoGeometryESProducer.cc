@@ -31,7 +31,7 @@ TrackerRecoGeometryESProducer::TrackerRecoGeometryESProducer(const edm::Paramete
 
 TrackerRecoGeometryESProducer::~TrackerRecoGeometryESProducer() {}
 
-std::shared_ptr<GeometricSearchTracker> 
+std::unique_ptr<GeometricSearchTracker> 
 TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord){ 
 
 
@@ -43,8 +43,7 @@ TrackerRecoGeometryESProducer::produce(const TrackerRecoGeometryRecord & iRecord
   const TrackerTopology *tTopo=tTopoHand.product();
 
   GeometricSearchTrackerBuilder builder;
-  _tracker  = std::shared_ptr<GeometricSearchTracker>(builder.build( tG->trackerDet(), &(*tG), tTopo ));
-  return _tracker;
+  return std::unique_ptr<GeometricSearchTracker>(builder.build( tG->trackerDet(), &(*tG), tTopo ));
 }
 
 

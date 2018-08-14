@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# geometry
-from Geometry.VeryForwardGeometry.geometryRP_cfi import *
-
 # clusterization
 from RecoCTPPS.TotemRPLocal.totemRPClusterProducer_cfi import *
 
@@ -15,14 +12,9 @@ from RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi import *
 # local track fitting
 from RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi import *
 
-# lite local-track collection from all RPs
-from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi import *
-
 totemRPLocalReconstruction = cms.Sequence(
     totemRPClusterProducer *
     totemRPRecHitProducer *
     totemRPUVPatternFinder *
-    totemRPLocalTrackFitter *
-
-    ctppsLocalTrackLiteProducer
+    totemRPLocalTrackFitter
 )

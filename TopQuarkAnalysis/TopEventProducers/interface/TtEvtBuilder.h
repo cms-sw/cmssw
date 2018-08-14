@@ -9,6 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 
 /**
    \class   TtEvtBuilder TtEvtBuilder.h "TopQuarkAnalysis/TopEventProducers/interface/TtEvtBuilder.h"
@@ -34,13 +37,13 @@ class TtEvtBuilder : public edm::EDProducer {
   /// default constructor
   explicit TtEvtBuilder(const edm::ParameterSet&);
   /// default destructor
-  ~TtEvtBuilder(){};
+  ~TtEvtBuilder() override{};
 
  private:
 
   /// produce function (this one is not even accessible for
   /// derived classes)
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   /// fill data members that are decay-channel specific
   virtual void fillSpecific(C&, const edm::Event&);
 
@@ -155,7 +158,7 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // set genEvent (if available)
   edm::Handle<TtGenEvent> genEvt;
-  if ( genEvt_.label().size() > 0 )
+  if ( !genEvt_.label().empty() )
     if( evt.getByToken(genEvtToken_, genEvt) )
       ttEvent.setGenEvent(genEvt);
 

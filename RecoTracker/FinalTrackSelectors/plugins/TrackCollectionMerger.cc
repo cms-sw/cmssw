@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -14,10 +16,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/trackAlgoPriorityOrder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "RecoTracker/FinalTrackSelectors/interface/TrackAlgoPriorityOrder.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include<vector>
 #include<memory>
@@ -27,12 +30,14 @@ namespace {
    public:
     explicit TrackCollectionMerger(const edm::ParameterSet& conf) :
       collectionCloner(*this, conf, true),
+      priorityName_(conf.getParameter<std::string>("trackAlgoPriorityOrder")),
       m_foundHitBonus(conf.getParameter<double>("foundHitBonus")),
       m_lostHitPenalty(conf.getParameter<double>("lostHitPenalty")),
       m_shareFrac(conf.getParameter<double>("shareFrac")),
       m_minShareHits(conf.getParameter<unsigned int>("minShareHits")),
       m_minQuality(reco::TrackBase::qualityByName(conf.getParameter<std::string>("minQuality"))),
-      m_allowFirstHitShare(conf.getParameter<bool>("allowFirstHitShare"))
+      m_allowFirstHitShare(conf.getParameter<bool>("allowFirstHitShare")),
+      m_enableMerging(conf.getParameter<bool>("enableMerging"))
 {
       for (auto const & it : conf.getParameter<std::vector<edm::InputTag> >("trackProducers") )
 	srcColls.emplace_back(it,consumesCollector());
@@ -53,11 +58,13 @@ namespace {
       edm::ParameterSetDescription desc;
       desc.add<std::vector<edm::InputTag> >("trackProducers",std::vector<edm::InputTag>());
       desc.add<std::vector<std::string> >("inputClassifiers",std::vector<std::string>());
+      desc.add<std::string>("trackAlgoPriorityOrder", "trackAlgoPriorityOrder");
       desc.add<double>("shareFrac",.19);
       desc.add<double>("foundHitBonus",10.);
       desc.add<double>("lostHitPenalty",5.);
       desc.add<unsigned int>("minShareHits",2);
       desc.add<bool>("allowFirstHitShare",true);
+      desc.add<bool>("enableMerging",true);
       desc.add<std::string>("minQuality","loose");
       TrackCollectionCloner::fill(desc);
       descriptions.add("TrackCollectionMerger", desc);
@@ -77,16 +84,18 @@ namespace {
     
     std::vector<edm::EDGetTokenT<MVACollection>> srcMVAs;
     std::vector<edm::EDGetTokenT<QualityMaskCollection>> srcQuals;
-
 	
+    std::string priorityName_;
+
     float m_foundHitBonus;
     float m_lostHitPenalty;
     float m_shareFrac;
     unsigned int m_minShareHits;
     reco::TrackBase::TrackQuality m_minQuality;
     bool  m_allowFirstHitShare;
+    bool  m_enableMerging;
     
-    virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
     
 
     bool areDuplicate(IHitV const& rh1, IHitV const& rh2) const;
@@ -101,9 +110,13 @@ namespace {
 
 namespace {
   
-  void  TrackCollectionMerger::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const {
+  void  TrackCollectionMerger::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
 
     TrackCollectionCloner::Producer producer(evt, collectionCloner);
+
+    edm::ESHandle<TrackAlgoPriorityOrder> priorityH;
+    es.get<CkfComponentsRecord>().get(priorityName_, priorityH);
+    auto const & trackAlgoPriorityOrder = *priorityH;
 
     // load collections
     auto collsSize = srcColls.size();
@@ -116,7 +129,8 @@ namespace {
 
 
     unsigned char qualMask = ~0;
-    if (m_minQuality!=reco::TrackBase::undefQuality) qualMask = 1<<m_minQuality; 
+    const bool acceptAll = m_minQuality==reco::TrackBase::undefQuality;
+    if (!acceptAll) qualMask = 1<<m_minQuality;
     
     
     // load tracks
@@ -134,7 +148,7 @@ namespace {
       edm::Handle<QualityMaskCollection> hqual;
       evt.getByToken(srcQuals[i], hqual);
       for (auto j=0U; j<size; ++j) {
-	if (! (qualMask&(* hqual)[j]) ) continue;
+	if (! (acceptAll || (qualMask&(* hqual)[j]) ) ) continue;
 	mvas[k]=(*hmva)[j];
 	quals[k] = (*hqual)[j];
 	tkInds[k]=j;
@@ -155,7 +169,8 @@ namespace {
 
     auto merger = [&]()->void {
     
-      // load hits and score
+      // load momentum, hits and score
+      declareDynArray(reco::TrackBase::Vector,ntotTk,mom);
       declareDynArray(float,ntotTk,score);
       declareDynArray(IHitV, ntotTk, rh1);
       
@@ -167,7 +182,7 @@ namespace {
 	  algo[k] = track.algo();
 	  oriAlgo[k] = track.originalAlgo();
 	  algoMask[k] = track.algoMask();
-
+          mom[k]= track.isLooper() ? reco::TrackBase::Vector() : track.momentum();
 	  auto validHits=track.numberOfValidHits();
 	  auto validPixelHits=track.hitPattern().numberOfValidPixelHits();
 	  auto lostHits=track.numberOfLostHits();
@@ -179,8 +194,7 @@ namespace {
 	  for (auto it = track.recHitsBegin();  it != track.recHitsEnd(); ++it) {
 	    auto const & hit = *(*it);
 	    auto id = hit.rawId() ;
-	    if(hit.geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
-	    if likely(hit.isValid()) { rhv.emplace_back(id,&hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
+	    if LIKELY(hit.isValid()) { rhv.emplace_back(id,&hit); std::push_heap(rhv.begin(),rhv.end(),compById); }
 	  }
 	  std::sort_heap(rhv.begin(),rhv.end(),compById);
 	  
@@ -193,7 +207,7 @@ namespace {
       auto seti = [&](unsigned int ii, unsigned int jj) {
 	selected[jj]=false;
 	selected[ii]=true;
-	if (trackAlgoPriorityOrder[oriAlgo[jj]] < trackAlgoPriorityOrder[oriAlgo[ii]]) oriAlgo[ii] = oriAlgo[jj];
+	if (trackAlgoPriorityOrder.priority(oriAlgo[jj]) < trackAlgoPriorityOrder.priority(oriAlgo[ii])) oriAlgo[ii] = oriAlgo[jj];
 	algoMask[ii] |= algoMask[jj];
 	quals[ii] |= (1<<reco::TrackBase::confirmed);
 	algoMask[jj] = algoMask[ii];  // in case we keep discarded
@@ -212,10 +226,11 @@ namespace {
 	  for (auto t2=iStart2; t2 <ntotTk; ++t2) {
 	    if (!selected[t1]) break;
 	    if (!selected[t2]) continue;
+            if (mom[t1].Dot(mom[t2])<0) continue; // do not bother if in opposite hemespheres...
 	    if (!areDuplicate(rh1[t1],rh1[t2])) continue;
 	    auto score2 = score[t2];
-	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
 
+	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
 	    if ( score1 - score2 > almostSame ) {
 	      seti(t1,t2);
 	    } else if ( score2 - score1 > almostSame ) {
@@ -224,7 +239,7 @@ namespace {
 	      constexpr unsigned int qmask =  (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity);
 	      if ( (quals[t1]&qmask) == (quals[t2]&qmask) ) {
 		// take first
-		if (trackAlgoPriorityOrder[algo[t1]] <= trackAlgoPriorityOrder[algo[t2]]) {
+		if (trackAlgoPriorityOrder.priority(algo[t1]) <= trackAlgoPriorityOrder.priority(algo[t2])) {
                   seti(t1,t2);    
 		} else {
                   seti(t2,t1);    
@@ -241,7 +256,8 @@ namespace {
     }; // end merger;
 
 
-    if (collsSize>1) merger();
+    const bool doMerging = m_enableMerging && collsSize>1;
+    if (doMerging) merger();
     
     // products
     auto pmvas = std::make_unique<MVACollection>();
@@ -270,15 +286,19 @@ namespace {
       assert(tid.size()==nsel-isel);
       auto k=0U;
       for (;isel<nsel;++isel) {
-	auto & otk = (*producer.selTracks_)[isel];
-	otk.setQualityMask((*pquals)[isel]);
-	otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
-	otk.setAlgoMask(algoMask[tid[k++]]);
+        auto & otk = (*producer.selTracks_)[isel];
+        otk.setQualityMask((*pquals)[isel]);       // needed also without merging
+        if(doMerging) {
+          otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
+          otk.setAlgoMask(algoMask[tid[k++]]);
+        }
       }
-      assert(tid.size()==k);
+      if(doMerging) assert(tid.size()==k);
     }
 
     assert(producer.selTracks_->size()==pmvas->size());
+
+    // std::cout << "TrackCollectionMerger: sel tracks " << producer.selTracks_->size() << std::endl;
 
     evt.put(std::move(pmvas),"MVAValues");
     evt.put(std::move(pquals),"QualityMasks");
@@ -292,48 +312,31 @@ namespace {
     auto nh1=rh1.size();
     auto nh2=rh2.size();
 
-
-    auto share = // use_sharesInput_ ?
+    auto share =
       [](const TrackingRecHit*  it,const TrackingRecHit*  jt)->bool { return it->sharesInput(jt,TrackingRecHit::some); };
-    //:
-    // [](const TrackingRecHit*  it,const TrackingRecHit*  jt)->bool {
-    //   float delta = std::abs ( it->localPosition().x()-jt->localPosition().x() );
-    //  return (it->geographicalId()==jt->geographicalId())&&(delta<epsilon_);
-    //	  };
-
 
     //loop over rechits
     int noverlap=0;
     int firstoverlap=0;
     // check first hit  (should use REAL first hit?)
-    if unlikely(m_allowFirstHitShare && rh1[0].first==rh2[0].first ) {
-	if (share( rh1[0].second, rh2[0].second)) firstoverlap=1;
-      }
+    if (m_allowFirstHitShare && rh1[0].first==rh2[0].first ) {
+       if (share( rh1[0].second, rh2[0].second)) firstoverlap=1;
+    }
 
     // exploit sorting
     unsigned int jh=0;
     unsigned int ih=0;
     while (ih!=nh1 && jh!=nh2) {
-      // break if not enough to go...
-      // if ( nprecut-noverlap+firstoverlap > int(nh1-ih)) break;
-      // if ( nprecut-noverlap+firstoverlap > int(nh2-jh)) break;
       auto const id1 = rh1[ih].first;
       auto const id2 = rh2[jh].first;
       if (id1<id2) ++ih;
       else if (id2<id1) ++jh;
       else {
-	// in case of split-hit do full conbinatorics
-	auto li=ih; while( (++li)!=nh1 && id1 == rh1[li].first);
-	auto lj=jh; while( (++lj)!=nh2 && id2 == rh2[lj].first);
-	for (auto ii=ih; ii!=li; ++ii)
-	  for (auto jj=jh; jj!=lj; ++jj) {
-	    if (share( rh1[ii].second, rh2[jj].second)) noverlap++;
-	  }
-	jh=lj; ih=li;
-      } // equal ids
-      
+	if (share( rh1[ih].second, rh2[jh].second)) noverlap++;
+	++jh; ++ih;
+      } // equal ids      
     } //loop over ih & jh
-    
+
     return  noverlap >= int(m_minShareHits)     &&
             (noverlap-firstoverlap) > (std::min(nh1,nh2)-firstoverlap)*m_shareFrac;
 

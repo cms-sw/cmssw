@@ -34,11 +34,11 @@
 class SiStripLorentzAngleFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripLorentzAngleFakeESSource(const edm::ParameterSet&);
-  ~SiStripLorentzAngleFakeESSource();
+  ~SiStripLorentzAngleFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity );
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripLorentzAngle> ReturnType;
+  typedef std::unique_ptr<SiStripLorentzAngle> ReturnType;
   ReturnType produce(const SiStripLorentzAngleRcd&);
 
 private:
@@ -60,8 +60,6 @@ private:
   double m_TOBmeanPerCentError;
   double m_TIBmeanStdDev;
   double m_TOBmeanStdDev;
-
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -149,8 +147,6 @@ SiStripLorentzAngleFakeESSource::SiStripLorentzAngleFakeESSource(const edm::Para
   m_TOBmeanPerCentError = std::accumulate(m_TOB_PerCent_Errs.begin(), m_TOB_PerCent_Errs.end(), 0.)/double(m_TOB_PerCent_Errs.size());
   m_TIBmeanStdDev = (m_TIBmeanPerCentError/100)*m_TIBmeanValueMin;
   m_TOBmeanStdDev = (m_TOBmeanPerCentError/100)*m_TOBmeanValueMin;
-
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripLorentzAngleFakeESSource::~SiStripLorentzAngleFakeESSource() {}
@@ -169,11 +165,10 @@ SiStripLorentzAngleFakeESSource::produce(const SiStripLorentzAngleRcd& iRecord)
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::shared_ptr<SiStripLorentzAngle> lorentzAngle{new SiStripLorentzAngle};
+  auto lorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
-  for ( const auto& detId : reader.getAllDetIds() ) {
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  for ( const auto& detId : reader->getAllDetIds() ) {
     const DetId detectorId = DetId(detId);
     const int subDet = detectorId.subdetId();
 

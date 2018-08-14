@@ -1,0 +1,75 @@
+
+/*!
+
+\page FastSimulation_SimplifiedGeometryPropagator Package FastSimulation/SimplifiedGeometryPropagator
+
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+The goal is to prepare fastsim for the upgrade of the pixel detector. A new, configurable interface for the geometry of the fastsim tracker was developed. To this end, it was necessary to also write a new algorithm for the propagation of the particles inside the tracker.
+The package is created inside it's own namespace so none of the standard fastsim code is affected. This allows for easy comparison/validation of the new geometry/particle propagation.
+
+The geometry of the detector used to be hard-coded but can now be specified in a single python file (FastSimulation/Geometry/python/TrackerMaterial_cfi.py)
+
+Motivation for a new algorithm (particle propagation inside the tracker)
+- almost impossible to adjust the old algorithm to the new, configurable geometry (hard-coded links have to be omitted)
+- old algorithm is flawed
+- the new algorithm allows to put material and instruments on any plane perpendicular to z, or on any cylinder with the z-axis as axis
+- while the old algorithm, with the requirement of nested layers, forbids the introduction of long narrow cylinders, required for a decent simulation of material in front of HF
+
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- BarrelSimplifiedGeometry
+- CMSDummyDeexcitation
+- Constants
+- Decayer
+- ForwardSimplifiedGeometry
+- Geometry
+- HelixTrajectory
+- InteractionModel
+- InteractionModelFactory
+- LayerNavigator
+- Particle
+- ParticleFilter
+- ParticleManager
+- SimplifiedGeometry
+- SimplifiedGeometryFactory
+- StraightTrajectory
+- Trajectory
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+- Bremsstrahlung
+- DummyHitProducer
+- EnergyLoss
+- FastSimProducer
+- MultipleScattering
+- MuonBremsstrahlung
+- NuclearInteraction
+- NuclearInteractionFTF
+- PairProduction
+- TrackerSimHitProducer
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: Simon Kurz
+*/
+

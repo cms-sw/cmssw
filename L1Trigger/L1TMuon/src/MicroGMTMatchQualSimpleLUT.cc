@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTMatchQualLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTMatchQualLUT.h"
 #include "TMath.h"
 
 l1t::MicroGMTMatchQualSimpleLUT::MicroGMTMatchQualSimpleLUT (const std::string& fname, const double maxDR, const double fEta, const double fPhi, cancel_t cancelType) : MicroGMTMatchQualLUT()

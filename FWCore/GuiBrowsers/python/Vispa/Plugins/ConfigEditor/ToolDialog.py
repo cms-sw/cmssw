@@ -69,7 +69,7 @@ class ToolDialog(QDialog):
         # Show test tool
         #from FWCore.GuiBrowsers.editorTools import ChangeSource
         #self._toolsDict["ChangeSource"]=ChangeSource
-        if len(self._toolsDict.keys())==0 and self._toolsDir==standardToolsDir:
+        if len(self._toolsDict)==0 and self._toolsDir==standardToolsDir:
             logging.error(__name__ + ": Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
             QCoreApplication.instance().errorMessage("Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
             return

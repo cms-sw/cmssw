@@ -26,18 +26,20 @@
 
 #include <sstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 
 using namespace edm;
 using namespace std;
 
-DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trigGeomUtils(0) {
+DTLocalTriggerLutTask::DTLocalTriggerLutTask(const edm::ParameterSet& ps) : trigGeomUtils(nullptr) {
 
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Constructor"<<endl;
 
-  tm_Token_   = consumes<L1MuDTChambPhContainer>(
-      ps.getUntrackedParameter<InputTag>("inputTagTM"));
+  tm_TokenIn_   = consumes<L1MuDTChambPhContainer>(
+      ps.getUntrackedParameter<InputTag>("inputTagTMin"));
+  tm_TokenOut_   = consumes<L1MuDTChambPhContainer>(
+      ps.getUntrackedParameter<InputTag>("inputTagTMout"));
   seg_Token_   = consumes<DTRecSegment4DCollection>(
       ps.getUntrackedParameter<InputTag>("inputTagSEG"));
 
@@ -92,12 +94,22 @@ void DTLocalTriggerLutTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId 
   string chTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
   std::map<std::string, MonitorElement*> &chambMap = chHistos[chId.rawId()];
 
-  string hName = "TM_PhiResidual";
+  string hName = "TM_PhiResidualIn";
 
-  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local position - Segment local position (correlated triggers)",nPhiBins,-rangePhi,rangePhi);
-  hName = "TM_PhibResidual";
+  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local position In - Segment local position (correlated triggers)",nPhiBins,-rangePhi,rangePhi);
 
-  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local direction - Segment local direction (correlated triggers)",nPhibBins,-rangePhiB,rangePhiB);
+  hName = "TM_PhiResidualOut";
+
+  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local position Out - Segment local position (correlated triggers)",nPhiBins,-rangePhi,rangePhi);
+
+  hName = "TM_PhibResidualIn";
+
+  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local direction In - Segment local direction (correlated triggers)",nPhibBins,-rangePhiB,rangePhiB);
+
+  hName = "TM_PhibResidualOut";
+
+  chambMap[hName] = ibooker.book1D(hName+chTag,"Trigger local direction Out - Segment local direction (correlated triggers)",nPhibBins,-rangePhiB,rangePhiB);
+
 
   if (detailedAnalysis) {
 
@@ -162,10 +174,15 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
 
   nEvents++;
 
-  edm::Handle<L1MuDTChambPhContainer> trigHandle;
-  e.getByToken(tm_Token_, trigHandle);
-  vector<L1MuDTChambPhDigi> const* trigs = trigHandle->getContainer();
-  searchDccBest(trigs);
+  edm::Handle<L1MuDTChambPhContainer> trigHandleIn;
+  e.getByToken(tm_TokenIn_, trigHandleIn);
+  edm::Handle<L1MuDTChambPhContainer> trigHandleOut;
+  e.getByToken(tm_TokenOut_, trigHandleOut);
+
+  vector<L1MuDTChambPhDigi> const* trigsIn = trigHandleIn->getContainer();
+  searchTMBestIn(trigsIn);
+  vector<L1MuDTChambPhDigi> const* trigsOut = trigHandleOut->getContainer();
+  searchTMBestOut(trigsOut);
 
   Handle<DTRecSegment4DCollection> segments4D;
   e.getByToken(seg_Token_, segments4D);
@@ -180,7 +197,7 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
     DTRecSegment4DCollection::const_iterator trackIt  = rangeInCh.first;
     DTRecSegment4DCollection::const_iterator trackEnd = rangeInCh.second;
 
-    const DTRecSegment4D* tmpBest = 0;
+    const DTRecSegment4D* tmpBest = nullptr;
     int tmpdof = 0;
     int dof = 0;
 
@@ -217,21 +234,21 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
       trigGeomUtils->computeSCCoordinates((*bestTrackIt),scsector,trackPosPhi,trackDirPhi,trackPosEta,trackDirEta);
 
       map<string, MonitorElement*> &chMap = chHistos[chId.rawId()];
-
-      if (trigQualBest[wheel+3][station][scsector] > 3 &&  // residuals only for correlate triggers
-	  trigQualBest[wheel+3][station][scsector] < 7 &&
+      // In part
+      if (trigQualBestIn[wheel+3][station][scsector] > 3 &&  // residuals only for correlate triggers
+	  trigQualBestIn[wheel+3][station][scsector] < 7 &&
 	  nHitsPhi>=7 ) {
 
-	float trigPos = trigGeomUtils->trigPos(trigBest[wheel+3][station][scsector]);
-	float trigDir = trigGeomUtils->trigDir(trigBest[wheel+3][station][scsector]);
+	float trigPos = trigGeomUtils->trigPos(trigBestIn[wheel+3][station][scsector]);
+	float trigDir = trigGeomUtils->trigDir(trigBestIn[wheel+3][station][scsector]);
 	trigGeomUtils->trigToSeg(station,trigPos,trackDirPhi);
 
 	double deltaPos = trigPos-trackPosPhi;
 	deltaPos = overUnderIn ? max(min(deltaPos,rangePhi-0.01),-rangePhi+0.01) : deltaPos;
 	double deltaDir = trigDir-trackDirPhi;
 	deltaDir = overUnderIn ? max(min(deltaDir,rangePhiB-0.01),-rangePhiB+0.01) : deltaDir;
-	chMap.find("TM_PhiResidual")->second->Fill(deltaPos);
-	chMap.find("TM_PhibResidual")->second->Fill(deltaDir);
+	chMap.find("TM_PhiResidualIn")->second->Fill(deltaPos);
+	chMap.find("TM_PhibResidualIn")->second->Fill(deltaDir);
 
 	if (detailedAnalysis){
 	  chMap.find("TM_PhitkvsPhitrig")->second->Fill(trigPos,trackPosPhi);
@@ -240,11 +257,29 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
 	  chMap.find("TM_PhiResidualvsTkPos")->second->Fill(trackPosPhi,trigPos-trackPosPhi);
 	}
       }
+
+      // Out part
+      if (trigQualBestOut[wheel+3][station][scsector] > 3 &&  // residuals only for correlate triggers
+          trigQualBestOut[wheel+3][station][scsector] < 7 &&
+          nHitsPhi>=7 ) {
+
+        float trigPos = trigGeomUtils->trigPos(trigBestOut[wheel+3][station][scsector]);
+        float trigDir = trigGeomUtils->trigDir(trigBestOut[wheel+3][station][scsector]);
+        trigGeomUtils->trigToSeg(station,trigPos,trackDirPhi);
+
+        double deltaPos = trigPos-trackPosPhi;
+        deltaPos = overUnderIn ? max(min(deltaPos,rangePhi-0.01),-rangePhi+0.01) : deltaPos;
+        double deltaDir = trigDir-trackDirPhi;
+        deltaDir = overUnderIn ? max(min(deltaDir,rangePhiB-0.01),-rangePhiB+0.01) : deltaDir;
+        chMap.find("TM_PhiResidualOut")->second->Fill(deltaPos);
+        chMap.find("TM_PhibResidualOut")->second->Fill(deltaDir);
+     }
+
     }
   }
 }
 
-void DTLocalTriggerLutTask::searchDccBest( std::vector<L1MuDTChambPhDigi> const* trigs ) {
+void DTLocalTriggerLutTask::searchTMBestIn( std::vector<L1MuDTChambPhDigi> const* trigs) {
 
   string histoType ;
   string histoTag ;
@@ -254,7 +289,7 @@ void DTLocalTriggerLutTask::searchDccBest( std::vector<L1MuDTChambPhDigi> const*
   for (int st=0;st<=4;++st)
     for (int wh=0;wh<=5;++wh)
       for (int sec=0;sec<=12;++sec)
-	trigQualBest[wh][st][sec] = -1;
+	trigQualBestIn[wh][st][sec] = -1;
 
   vector<L1MuDTChambPhDigi>::const_iterator trigIt  = trigs->begin();
   vector<L1MuDTChambPhDigi>::const_iterator trigEnd = trigs->end();
@@ -265,12 +300,44 @@ void DTLocalTriggerLutTask::searchDccBest( std::vector<L1MuDTChambPhDigi> const*
     int st   = trigIt->stNum();
     int qual = trigIt->code();
 
-    if(qual>trigQualBest[wh+3][st][sec] && qual<7) {
-      trigQualBest[wh+3][st][sec]=qual;
-      trigBest[wh+3][st][sec] = &(*trigIt);
+    if(qual>trigQualBestIn[wh+wheelArrayShift][st][sec] && qual<7) {
+      trigQualBestIn[wh+wheelArrayShift][st][sec]=qual;
+      trigBestIn[wh+wheelArrayShift][st][sec] = &(*trigIt);
     }
 
   }
+
+}
+
+
+void DTLocalTriggerLutTask::searchTMBestOut( std::vector<L1MuDTChambPhDigi> const* trigs) {
+
+  string histoType ;
+  string histoTag ;
+
+// define best quality trigger segment
+//   // start from 1 and zero is kept empty
+  for (int st=0;st<=4;++st)
+    for (int wh=0;wh<=5;++wh)
+      for (int sec=0;sec<=12;++sec)
+        trigQualBestOut[wh][st][sec] = -1;
+
+  vector<L1MuDTChambPhDigi>::const_iterator trigIt  = trigs->begin();
+  vector<L1MuDTChambPhDigi>::const_iterator trigEnd = trigs->end();
+  for(; trigIt!=trigEnd; ++trigIt) {
+
+    int wh   = trigIt->whNum();
+    int sec  = trigIt->scNum() + 1; // DTTF -> DT sector range transform
+    int st   = trigIt->stNum();
+    int qual = trigIt->code();
+
+    if(qual>trigQualBestOut[wh+wheelArrayShift][st][sec] && qual<7) {
+      trigQualBestOut[wh+wheelArrayShift][st][sec]=qual;
+      trigBestOut[wh+wheelArrayShift][st][sec] = &(*trigIt);
+    }
+
+  }
+
 }
 
 // Local Variables:

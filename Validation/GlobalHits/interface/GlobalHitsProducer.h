@@ -22,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // tracker info
@@ -63,7 +63,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -80,10 +80,10 @@ class GlobalHitsProducer : public edm::EDProducer
   typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsProducer(const edm::ParameterSet&);
-  virtual ~GlobalHitsProducer();
-  virtual void beginJob( void ) override;
-  virtual void endJob() override;  
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~GlobalHitsProducer() override;
+  void beginJob( void ) override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

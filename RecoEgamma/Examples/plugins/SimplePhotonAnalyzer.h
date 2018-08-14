@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,15 +35,15 @@
 class TFile;
 
 
-class SimplePhotonAnalyzer : public edm::EDAnalyzer {
+class SimplePhotonAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit SimplePhotonAnalyzer( const edm::ParameterSet& );
-      ~SimplePhotonAnalyzer();
+      ~SimplePhotonAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob();
-      virtual void endJob();
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
+      void beginJob() override;
+      void endJob() override;
  private:
 
       float  etaTransformation( float a, float b);

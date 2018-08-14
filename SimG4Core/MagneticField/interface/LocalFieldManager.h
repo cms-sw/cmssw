@@ -10,11 +10,11 @@ namespace sim {
       public:
          // ctor & dtor
 	 LocalFieldManager() : G4FieldManager() {}
-	 virtual ~LocalFieldManager() {}
+	 ~LocalFieldManager() override {}
          LocalFieldManager(G4Field* commonField,
                            G4FieldManager* priFM,
 			   G4FieldManager* altFM);
-         virtual void ConfigureForTrack(const G4Track* trk);
+         void ConfigureForTrack(const G4Track* trk) override;
 	 void SetVerbosity(bool flag) { fVerbosity=flag; return; }
       protected:
          //

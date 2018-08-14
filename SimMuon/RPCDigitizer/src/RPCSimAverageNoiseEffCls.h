@@ -15,8 +15,8 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include<cstdlib>
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
 class RPCGeometry;
@@ -30,7 +30,7 @@ class RPCSimAverageNoiseEffCls : public RPCSim
 {
  public:
   RPCSimAverageNoiseEffCls(const edm::ParameterSet& config);
-  ~RPCSimAverageNoiseEffCls();
+  ~RPCSimAverageNoiseEffCls() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,
@@ -55,7 +55,8 @@ class RPCSimAverageNoiseEffCls : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
-  
+  bool eledig;
+
   int N_hits;
   int nbxing;
   double rate;

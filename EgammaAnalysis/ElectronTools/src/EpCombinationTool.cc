@@ -2,7 +2,7 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include <TFile.h>
 #include <TSystem.h>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -10,7 +10,7 @@ using namespace std;
 
 /*****************************************************************/
 EpCombinationTool::EpCombinationTool():
-    m_forest(NULL), m_ownForest(false)
+    m_forest(nullptr), m_ownForest(false)
 /*****************************************************************/
 {
 }

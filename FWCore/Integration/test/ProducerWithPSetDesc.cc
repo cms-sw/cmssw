@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/getFixedSizeArray.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
@@ -46,6 +47,12 @@ namespace edmtest {
     vint = ps.getParameter<std::vector<int> >("vint3");
     assert(vint[0] == 2147483647);
     assert(vint[1] == -2147483647);
+    std::array<int, 2> testArray = edm::getFixedSizeArray<int, 2>(ps, std::string("vint3"));
+    assert(testArray[0] == 2147483647);
+    assert(testArray[1] == -2147483647);
+    std::array<int, 2> testArray1 = edm::getFixedSizeArray<int, 2>(ps, "vint3");
+    assert(testArray1[0] == 2147483647);
+    assert(testArray1[1] == -2147483647);
     vint = ps.getParameter<std::vector<int> >("vint4");
     assert(vint[0] == 2147483647);
     assert(vint[1] == -2147483647);
@@ -1034,6 +1041,12 @@ namespace edmtest {
     edm::ParameterSetDescription iDesc2;
     iDesc2.add<int>("p_int", 2);
     descriptions.addDefault(iDesc2);
+
+    // ------------------------------------------
+
+    edm::ParameterSetDescription iDesc3;
+    iDesc3.add<int>("p_int", 3);
+    descriptions.addWithDefaultLabel(iDesc3);
   }
 }
 using edmtest::ProducerWithPSetDesc;

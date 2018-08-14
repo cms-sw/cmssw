@@ -9,16 +9,58 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          comEnergy = cms.double(13000.0),
                          maxEventsToPrint = cms.untracked.int32(0),
                          ExternalDecays = cms.PSet(
-        EvtGen130 = cms.untracked.PSet(
-            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
-            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
-            user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_Kstarmumu_Kspi.dec'),
-            list_forced_decays = cms.vstring('MyB+','MyB-'),
-            operates_on_particles = cms.vint32()
-            ),
-        parameterSets = cms.vstring('EvtGen130')
+                         EvtGen130 = cms.untracked.PSet(
+                            #uses latest evt and decay tables from evtgen 1.6
+                            decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2014_NOLONGLIFE.DEC'),
+                            particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt_2014.pdl'),
+                            convertPythiaCodes = cms.untracked.bool(False),
+                            #user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_Kstarmumu_Kspi.dec'),
+                            #content was dump in the embed string below. This should test this feature.
+                            list_forced_decays = cms.vstring('MyB+','MyB-'),
+                            operates_on_particles = cms.vint32(),
+                            user_decay_embedded= cms.vstring(
+"""
+# This is the decay file for the decay B+ -> MU+ MU- K*+(-> Ks pi+)
+#
+# Descriptor: [B+ -> mu+ mu- {,gamma} {,gamma} (K*+ -> Ks pi+)]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Yes
+# By:     K. Ulmer
+# Date:   2-26-08
+#
+Alias      MyB+        B+
+Alias      MyB-        B-
+ChargeConj MyB+        MyB-
+Alias      MyK*+       K*+
+Alias      MyK*-       K*-
+ChargeConj MyK*+       MyK*-
+Alias      MyK_S0      K_S0
+ChargeConj MyK_S0      MyK_S0
+#
+Decay MyB+
+  1.000        MyK*+     mu+     mu-      BTOSLLBALL;
+Enddecay
+CDecay MyB-
+#
+Decay MyK*+
+  1.000        MyK_S0    pi+              VSS;
+Enddecay
+CDecay MyK*-
+#
+Decay MyK_S0
+  1.000        pi+       pi-              PHSP;
+Enddecay
+End
+"""
+                          ),
+                ),
+                parameterSets = cms.vstring('EvtGen130')
         ),
-                         PythiaParameters = cms.PSet(
+        PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(

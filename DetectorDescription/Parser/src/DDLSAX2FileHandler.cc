@@ -10,21 +10,20 @@ class DDCompactView;
 
 // XERCES_CPP_NAMESPACE_USE 
 
-DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
-  : cpv_(cpv)
+DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv, DDLElementRegistry& reg )
+  : cpv_(cpv), registry_{reg}
 {
   init();
 }
 
 void
-DDLSAX2FileHandler::init( void )
+DDLSAX2FileHandler::init()
 {
-  createDDConstants();
-  namesMap_.push_back("*** root ***");
-  names_.push_back(namesMap_.size() - 1);
+  namesMap_.emplace_back("*** root ***");
+  names_.emplace_back(namesMap_.size() - 1);
 }
 
-DDLSAX2FileHandler::~DDLSAX2FileHandler( void )
+DDLSAX2FileHandler::~DDLSAX2FileHandler()
 {}
 
 void
@@ -37,24 +36,24 @@ DDLSAX2FileHandler::startElement( const XMLCh* const uri,
   size_t i = 0;
   for (; i < namesMap_.size(); ++i) {
     if ( myElementName == namesMap_.at(i) ) {
-      names_.push_back(i);
+      names_.emplace_back(i);
       break;
     }
   }
   if (i >= namesMap_.size()) {
-    namesMap_.push_back(myElementName);
-    names_.push_back(namesMap_.size() - 1);
+    namesMap_.emplace_back(myElementName);
+    names_.emplace_back(namesMap_.size() - 1);
   }
 
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  auto myElement = registry_.getElement(myElementName);
 
   unsigned int numAtts = attrs.getLength();
   std::vector<std::string> attrNames, attrValues;
 
   for (unsigned int i = 0; i < numAtts; ++i)
   {
-    attrNames.push_back(std::string(cStr(attrs.getLocalName(i)).ptr()));
-    attrValues.push_back(std::string(cStr(attrs.getValue(i)).ptr()));
+    attrNames.emplace_back(std::string(cStr(attrs.getLocalName(i)).ptr()));
+    attrValues.emplace_back(std::string(cStr(attrs.getValue(i)).ptr()));
   }
   
   myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace_, cpv_);
@@ -70,7 +69,7 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
   std::string ts(cStr(qname).ptr());
   const std::string&  myElementName = self();
 
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  auto myElement = registry_.getElement(myElementName);
 
   std::string nmspace = nmspace_;
   // The need for processElement to have the nmspace so that it can 
@@ -98,7 +97,7 @@ void
 DDLSAX2FileHandler::characters( const XMLCh* const chars,
 				const XMLSize_t length )
 {
-  DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(self());
+  auto myElement = registry_.getElement(self());
   std::string inString = "";
   for (XMLSize_t i = 0; i < length; ++i)
   {
@@ -119,7 +118,7 @@ DDLSAX2FileHandler::comment( const XMLCh* const chars,
 void
 DDLSAX2FileHandler::createDDConstants( void ) const
 {
-  DDConstant::createConstantsFromEvaluator();
+  DDConstant::createConstantsFromEvaluator(registry_.evaluator());
 }
 
 const std::string&

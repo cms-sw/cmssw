@@ -5,11 +5,12 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
-#include "EventFilter/FEDInterface/interface/fed_header.h"
-#include "EventFilter/FEDInterface/interface/fed_trailer.h"
-#include "EventFilter/FEDInterface/interface/FED1024.h"
+#include "DataFormats/TCDS/interface/TCDSRaw.h"
+
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
@@ -99,48 +100,44 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
   rawData_ = std::make_unique<FEDRawDataCollection>();
 
   uint32_t eventSize = frdEventMsg->eventSize();
-  char* event = (char*)frdEventMsg->payload();
+  unsigned char* event = (unsigned char*)frdEventMsg->payload();
   bool foundTCDSFED=false;
   bool foundGTPFED=false;
 
 
   while (eventSize > 0) {
-    assert(eventSize>=sizeof(fedt_t));
-    eventSize -= sizeof(fedt_t);
-    const fedt_t* fedTrailer = (fedt_t*) (event + eventSize);
-    const uint32_t fedSize = FED_EVSZ_EXTRACT(fedTrailer->eventsize) << 3; //trailer length counts in 8 bytes
-    assert(eventSize>=fedSize - sizeof(fedt_t));
-    eventSize -= (fedSize - sizeof(fedt_t));
-    const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
-    const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
+    assert(eventSize>=FEDTrailer::length);
+    eventSize -= FEDTrailer::length;
+    const FEDTrailer fedTrailer(event + eventSize);
+    const uint32_t fedSize = fedTrailer.fragmentLength() << 3; //trailer length counts in 8 bytes
+    assert(eventSize>=fedSize - FEDHeader::length);
+    eventSize -= (fedSize - FEDHeader::length);
+    const FEDHeader fedHeader(event + eventSize);
+    const uint16_t fedId = fedHeader.sourceID();
     if (fedId>FEDNumbering::MAXFEDID)
     {
       throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
     }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
       foundTCDSFED=true;
-      evf::evtn::TCDSRecord record((unsigned char *)(event + eventSize ));
-      id = edm::EventID(frdEventMsg->run(),record.getHeader().getData().header.lumiSection,
-			record.getHeader().getData().header.eventNumber);
-      eType = ((edm::EventAuxiliary::ExperimentType)FED_EVTY_EXTRACT(fedHeader->eventid));
-      //evf::evtn::evm_board_setformat(fedSize);
-      uint64_t gpsh = record.getBST().getBST().gpstimehigh;
-      uint32_t gpsl = record.getBST().getBST().gpstimelow;
-      theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
+      tcds::Raw_v1 const* tcds = reinterpret_cast<tcds::Raw_v1 const*>(event + eventSize + FEDHeader::length);
+      id = edm::EventID(frdEventMsg->run(),tcds->header.lumiSection,tcds->header.eventNumber);
+      eType = static_cast<edm::EventAuxiliary::ExperimentType>(fedHeader.triggerType());
+      theTime = static_cast<edm::TimeValue_t>(((uint64_t)tcds->bst.gpstimehigh << 32) | tcds->bst.gpstimelow);
     }
 
     if (fedId == FEDNumbering::MINTriggerGTPFEDID && !foundTCDSFED) {
       foundGTPFED=true;
-      const bool GTPEvmBoardSense=evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize);
+      const bool GTPEvmBoardSense=evf::evtn::evm_board_sense(event + eventSize,fedSize);
       if (!useL1EventID_) {
         if (GTPEvmBoardSense)
-          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get((unsigned char*) fedHeader,true));
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get(event + eventSize,true));
         else
-          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get((unsigned char*) fedHeader,false));
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get(event + eventSize,false));
       }
       //evf::evtn::evm_board_setformat(fedSize);
-      const uint64_t gpsl = evf::evtn::getgpslow((unsigned char*) fedHeader);
-      const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
+      const uint64_t gpsl = evf::evtn::getgpslow(event + eventSize);
+      const uint64_t gpsh = evf::evtn::getgpshigh(event + eventSize);
       theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
     }
 
@@ -148,8 +145,8 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
     //take event ID from GTPE FED
     if (fedId == FEDNumbering::MINTriggerEGTPFEDID && !foundGTPFED && !foundTCDSFED && !useL1EventID_) {
-      if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
-        id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::gtpe_get((unsigned char*) fedHeader));
+      if (evf::evtn::gtpe_board_sense(event + eventSize)) {
+        id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::gtpe_get(event + eventSize));
       }
     }
     FEDRawData& fedData = rawData_->FEDData(fedId);

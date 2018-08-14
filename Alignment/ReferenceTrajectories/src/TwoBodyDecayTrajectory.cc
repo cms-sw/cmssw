@@ -101,8 +101,8 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
 
   if (materialEffects_ >= localGBL) {
     // GBL trajectory inputs
-    // convert to TMatrix
-    TMatrixD tbdToLocal1(nLocal, nTbd);
+    // convert to Eigen::MatrixXd
+    Eigen::MatrixXd tbdToLocal1{nLocal, nTbd};
     for (unsigned int row = 0; row < nLocal; ++row) {
       for (unsigned int col = 0; col < nTbd; ++col) {
         tbdToLocal1(row,col) = deriv.first[row][col];
@@ -111,8 +111,8 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
     // add first body
     theGblInput.push_back(std::make_pair(trajectory1.gblInput().front().first, 
                                          trajectory1.gblInput().front().second*tbdToLocal1));
-    // convert to TMatrix
-    TMatrixD tbdToLocal2(nLocal, nTbd);
+    // convert to Eigen::MatrixXd
+    Eigen::MatrixXd tbdToLocal2{nLocal, nTbd};
     for (unsigned int row = 0; row < nLocal; ++row) {
       for (unsigned int col = 0; col < nTbd; ++col) {
         tbdToLocal2(row,col) = deriv.second[row][col];
@@ -122,11 +122,12 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
     theGblInput.push_back(std::make_pair(trajectory2.gblInput().front().first, 
                                          trajectory2.gblInput().front().second*tbdToLocal2));
     // add virtual mass measurement
-    theGblExtDerivatives.ResizeTo(1,nTbd);
+    theGblExtDerivatives.resize(1,nTbd);
+    theGblExtDerivatives.setZero();
     theGblExtDerivatives(0,TwoBodyDecayParameters::mass) = 1.0;
-    theGblExtMeasurements.ResizeTo(1);
+    theGblExtMeasurements.resize(1);
     theGblExtMeasurements(0) = state.primaryMass() - state.decayParameters()[TwoBodyDecayParameters::mass];
-    theGblExtPrecisions.ResizeTo(1);
+    theGblExtPrecisions.resize(1);
     theGblExtPrecisions(0) = 1.0 / (state.primaryWidth() * state.primaryWidth());
     // nominal field
     theNomField = trajectory1.nominalField();

@@ -4,34 +4,36 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 
 namespace edmtest {
-  class OtherThingProducer : public edm::EDProducer {
+  class OtherThingProducer : public edm::global::EDProducer<> {
   public:
     explicit OtherThingProducer(edm::ParameterSet const& ps);
     
-    virtual ~OtherThingProducer();
+    ~OtherThingProducer() override;
     
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
     OtherThingAlgorithm alg_;
     edm::EDGetToken thingToken_;
+    edm::EDPutToken putToken_;
     bool useRefs_;
     bool refsAreTransient_;
   };
 
   
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), refsAreTransient_(false) {
-    produces<OtherThingCollection>("testUserTag");
+    putToken_ = produces<OtherThingCollection>("testUserTag");
     useRefs_ = pset.getUntrackedParameter<bool>("useRefs");
     if(useRefs_) {
       thingToken_=consumes<ThingCollection>(pset.getParameter<edm::InputTag>("thingTag"));
@@ -43,7 +45,7 @@ namespace edmtest {
   OtherThingProducer::~OtherThingProducer() {}  
 
   // Functions that gets called by framework every event
-  void OtherThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void OtherThingProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -62,7 +64,7 @@ namespace edmtest {
     alg_.run(parentHandle, *result, useRefs_, refsAreTransient_);
 
     // Step E: Put outputs into event
-    e.put(std::move(result), std::string("testUserTag"));
+    e.put(putToken_,std::move(result));
   }
   
   void OtherThingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

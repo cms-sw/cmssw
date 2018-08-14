@@ -25,10 +25,10 @@ public:
 	 *  * The particle name whose properties will be used in the propagation. Without the charge, i.e. "mu", "pi", ...
 	 *  * The propagation direction. It may be: alongMomentum, oppositeToMomentum
 	 */
-	Geant4ePropagator(const MagneticField* field = 0, std::string particleName =
+	Geant4ePropagator(const MagneticField* field = nullptr, std::string particleName =
 			"mu", PropagationDirection dir = alongMomentum);
 
-	virtual ~Geant4ePropagator() override;
+	~Geant4ePropagator() override;
 
 	/** Propagate from a free state (e.g. position and momentum in
 	 *  in global cartesian coordinates) to a surface.
@@ -57,23 +57,23 @@ public:
 	 *  All of these method calls are internally mapped to
 	 */
 
-	virtual std::pair<TrajectoryStateOnSurface, double>
+	std::pair<TrajectoryStateOnSurface, double>
 	propagateWithPath(const FreeTrajectoryState&, const Plane&) const override;
 
-	virtual std::pair<TrajectoryStateOnSurface, double>
+	std::pair<TrajectoryStateOnSurface, double>
 	propagateWithPath(const FreeTrajectoryState&, const Cylinder&) const override;
 
-	virtual std::pair<TrajectoryStateOnSurface, double>
+	std::pair<TrajectoryStateOnSurface, double>
 	propagateWithPath(const TrajectoryStateOnSurface&, const Plane&) const override;
 
-	virtual std::pair<TrajectoryStateOnSurface, double>
+	std::pair<TrajectoryStateOnSurface, double>
 	propagateWithPath(const TrajectoryStateOnSurface&, const Cylinder&) const override;
 
-	virtual Geant4ePropagator* clone() const override {
+	Geant4ePropagator* clone() const override {
 		return new Geant4ePropagator(*this);
 	}
 
-	virtual const MagneticField* magneticField() const override {
+	const MagneticField* magneticField() const override {
 		return theField;
 	}
 

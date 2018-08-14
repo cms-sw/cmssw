@@ -53,7 +53,7 @@ subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis
     }
 
     // caluate offset for all good strips (first iteration)
-    if (subset.size() != 0)
+    if (!subset.empty())
       offset = pairMedian(subset);
 
     // for second, third... iterations, remove strips over threshold
@@ -68,7 +68,7 @@ subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis
         else
           ++si;
       }
-      if ( subset.size() == 0 ) break;
+      if ( subset.empty() ) break;
       offset = pairMedian(subset);
     }        
 

@@ -6,7 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <chrono>
 
 using namespace XrdAdaptor;
@@ -16,6 +16,8 @@ using namespace XrdAdaptor;
 
 #define XRD_CL_MAX_CHUNK 512*1024
 #define XRD_CL_MAX_SIZE 1024
+
+#define XRD_CL_MAX_READ_SIZE (8*1024*1024)
 
 XrdFile::XrdFile (void)
   :  m_offset (0),
@@ -93,7 +95,7 @@ XrdFile::open (const char *name,
                int perms /* = 066 */)
 {
   // Actual open
-  if ((name == 0) || (*name == 0)) {
+  if ((name == nullptr) || (*name == 0)) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "Cannot open a file without a name";
     ex.addContext("Calling XrdFile::open()");
@@ -150,7 +152,7 @@ XrdFile::open (const char *name,
   // Stat the file so we can keep track of the offset better.
   auto file = getActiveFile();
   XrdCl::XRootDStatus status;
-  XrdCl::StatInfo *statInfo = NULL;
+  XrdCl::StatInfo *statInfo = nullptr;
   if (! (status = file->Stat(false, statInfo)).IsOK()) {
     edm::Exception ex(edm::errors::FileOpenError);
     ex << "XrdCl::File::Stat(name='" << name
@@ -248,8 +250,57 @@ XrdFile::read (void *into, IOSize n, IOOffset pos)
     addConnection(ex);
     throw ex;
   }
+  if (n == 0) {
+    return 0;
+  }
 
-  uint32_t bytesRead = m_requestmanager->handle(into, n, pos).get();
+  // In some cases, the IO layers above us (particularly, if lazy-download is
+  // enabled) will emit very large reads.  We break this up into multiple
+  // reads in order to avoid hitting timeouts.
+  std::future<IOSize> prev_future, cur_future;
+  IOSize bytesRead = 0, prev_future_expected = 0, cur_future_expected = 0;
+  bool readReturnedShort = false;
+
+  // Check the status of a read operation; updates bytesRead and
+  // readReturnedShort.
+  auto check_read = [&](std::future<IOSize> &future, IOSize expected) {
+    if (!future.valid()) {
+      return;
+    }
+    IOSize result = future.get();
+    if (readReturnedShort && (result != 0)) {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "XrdFile::read(name='" << m_name << "', n=" << n
+         << ") remote server returned non-zero length read after EOF.";
+      ex.addContext("Calling XrdFile::read()");
+      addConnection(ex);
+      throw ex;
+    } else if (result != expected) {
+        readReturnedShort = true;
+    }
+    bytesRead += result;
+  };
+
+  while (n) {
+    IOSize chunk = std::min(n, static_cast<IOSize>(XRD_CL_MAX_READ_SIZE));
+
+    // Save prior read state; issue new read.
+    prev_future = std::move(cur_future);
+    prev_future_expected = cur_future_expected;
+    cur_future = m_requestmanager->handle(into, chunk, pos);
+    cur_future_expected = chunk;
+
+    // Wait for the prior read; update bytesRead.
+    check_read(prev_future, prev_future_expected);
+
+    // Update counters.
+    into = static_cast<char*>(into) + chunk;
+    n -= chunk;
+    pos += chunk;
+  }
+
+  // Wait for the last read to finish.
+  check_read(cur_future, cur_future_expected);
 
   return bytesRead;
 }
@@ -277,10 +328,10 @@ IOSize
 XrdFile::readv (IOPosBuffer *into, IOSize n)
 {
   // A trivial vector read - unlikely, considering ROOT data format.
-  if (unlikely(n == 0)) {
+  if (UNLIKELY(n == 0)) {
     return 0;
   }
-  if (unlikely(n == 1)) {
+  if (UNLIKELY(n == 1)) {
     return read(into[0].data(), into[0].size(), into[0].offset());
   }
 
@@ -424,7 +475,7 @@ IOSize
 XrdFile::write (const void *from, IOSize n)
 {
   if (n > 0x7fffffff) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::write()");
@@ -435,7 +486,7 @@ XrdFile::write (const void *from, IOSize n)
 
   XrdCl::XRootDStatus s = file->Write(m_offset, n, from);
   if (!s.IsOK()) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") failed with error '" << s.ToStr()
        << "' (errno=" << s.errNo << ", code=" << s.code << ")";
@@ -455,7 +506,7 @@ IOSize
 XrdFile::write (const void *from, IOSize n, IOOffset pos)
 {
   if (n > 0x7fffffff) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") too many bytes, limit is 0x7fffffff";
     ex.addContext("Calling XrdFile::write()");
@@ -466,7 +517,7 @@ XrdFile::write (const void *from, IOSize n, IOOffset pos)
 
   XrdCl::XRootDStatus s = file->Write(pos, n, from);
   if (!s.IsOK()) {
-    cms::Exception ex("FileWriteError");
+    edm::Exception ex(edm::errors::FileWriteError);
     ex << "XrdFile::write(name='" << m_name << "', n=" << n
        << ") failed with error '" << s.ToStr()
        << "' (errno=" << s.errNo << ", code=" << s.code << ")";

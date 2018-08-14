@@ -37,11 +37,11 @@
 class HiggsValidation : public DQMEDAnalyzer {
  public:
   explicit HiggsValidation(const edm::ParameterSet&);
-  virtual ~HiggsValidation();
+  ~HiggsValidation() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-  virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
   
  private:
   WeightManager wmanager_;

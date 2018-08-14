@@ -34,11 +34,11 @@ class HGCalTriggerCellBestChoiceCodecImpl
         std::vector<bool> encode(const data_type&, const HGCalTriggerGeometryBase&) const ;
         data_type         decode(const std::vector<bool>&, const uint32_t, const HGCalTriggerGeometryBase&) const;  
 
-        void linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
-                std::vector<std::pair<HGCalDetId, uint32_t > >&);
+        void linearize(const std::vector<HGCalDataFrame>&,
+                std::vector<std::pair<DetId, uint32_t > >&);
 
         void triggerCellSums(const HGCalTriggerGeometryBase& ,
-                const std::vector<std::pair<HGCalDetId, uint32_t > >&,
+                const std::vector<std::pair<DetId, uint32_t > >&,
                 data_type&);
         void bestChoiceSelect(data_type&);
 
@@ -47,6 +47,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         size_t   nData() const {return nData_;}
         size_t   dataLength() const {return dataLength_;}
         double   linLSB() const {return linLSB_;}
+        uint32_t linnBits() const {return linnBits_;}
         double   adcsaturation() const {return adcsaturation_;}
         uint32_t adcnBits() const {return adcnBits_;}
         double   tdcsaturation() const {return tdcsaturation_;}
@@ -54,6 +55,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         double   tdcOnsetfC() const {return tdcOnsetfC_;}
         uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
         uint32_t triggerCellSaturationBits() const {return triggerCellSaturationBits_;}
+        std::vector<double> ThicknessCorrections() const {return thickness_corrections_;}
 
 
     private:
@@ -61,6 +63,8 @@ class HGCalTriggerCellBestChoiceCodecImpl
         size_t   dataLength_;
         size_t   nCellsInModule_;
         double   linLSB_;
+        uint32_t linnBits_;
+        uint32_t linMax_;
         double   adcsaturation_;
         uint32_t adcnBits_;
         double   tdcsaturation_ ;
@@ -70,6 +74,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         double   tdcLSB_;
         uint32_t triggerCellTruncationBits_;
         uint32_t triggerCellSaturationBits_;
+        std::vector<double> thickness_corrections_;
 
 };
 

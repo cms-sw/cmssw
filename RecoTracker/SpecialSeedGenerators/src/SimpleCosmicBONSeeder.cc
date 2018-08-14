@@ -173,8 +173,6 @@ struct HigherInnerHit {
 };
 
 bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup& es) {
-    using namespace ctfseeding;
-
     hitTriplets.clear();
     hitTriplets.reserve(0);
     edm::Handle<SeedingLayerSetsHits> hlayers;
@@ -446,7 +444,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
     typedef TrajectoryStateOnSurface TSOS;
     
     for (size_t it=0;it<hitTriplets.size();it++){
-      OrderedHitTriplet &trip = const_cast<OrderedHitTriplet &>(hitTriplets[it]);
+      OrderedHitTriplet &trip = hitTriplets.at(it);
       
       GlobalPoint inner = tracker->idToDet((*(trip.inner())).geographicalId())->surface().
 	toGlobal((*(trip.inner())).localPosition());
@@ -464,8 +462,6 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
 	std::swap(inner,outer);
 	trip = OrderedHitTriplet(trip.outer(),trip.middle(),trip.inner());
 
-//            std::swap(const_cast<ctfseeding::SeedingHit &>(trip.inner()), 
-//                      const_cast<ctfseeding::SeedingHit &>(trip.outer()) );
             if (seedVerbosity_ > 1) {
                 std::cout << "The seed was going away from CMS! swapped in <-> out" << std::endl;
                 std::cout << "Processing swapped triplet " << it << ": " << inner << " + " << middle << " + " << outer << std::endl;
@@ -490,7 +486,7 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
             continue;
         }
 
-        const Propagator * propagator = 0;  
+        const Propagator * propagator = nullptr;  
         if((outer.y()-inner.y())>0){
             if (seedVerbosity_ > 1)
                 std::cout << "Processing triplet " << it << ":  downgoing." << std::endl; 

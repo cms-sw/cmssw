@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys,os,tempfile,shutil,subprocess,glob
 import argparse
 
@@ -31,8 +32,8 @@ if __name__ == "__main__":
     os.chdir(_tempdir)
 
     # compile cmsDriver command
-    cmsDriverCommand = "cmsDriver.py harvest --scenario pp --filetype DQM --conditions auto:run2_mc --mc -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM -n -1 --filein {0}".format(filelist)
-    print "# running cmsDriver" + "\n" + cmsDriverCommand
+    cmsDriverCommand = "cmsDriver.py harvest --scenario pp --filetype DQM --conditions auto:run2_mc --mc -s HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM+postProcessorHLTtrackingSequence -n -1 --filein {0}".format(filelist)
+    print("# running cmsDriver" + "\n" + cmsDriverCommand)
     
     # run it
     subprocess.call(cmsDriverCommand.split(" "))
@@ -40,8 +41,8 @@ if __name__ == "__main__":
     # find the output and move it to the specified output file path
     ofiles = glob.glob("DQM*.root")
     if len(ofiles) != 1:
-        print "ERROR: expecting exactly one output file matching DQM*.root"
-        print "  ls of current directory({0}):".format(_tempdir)
+        print("ERROR: expecting exactly one output file matching DQM*.root")
+        print("  ls of current directory({0}):".format(_tempdir))
         os.system("ls -lt")
         sys.exit()
     shutil.move(ofiles[0],outputFile)

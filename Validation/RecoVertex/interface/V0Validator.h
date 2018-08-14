@@ -57,7 +57,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -81,7 +80,7 @@
 class V0Validator : public DQMEDAnalyzer {
  public:
   explicit V0Validator(const edm::ParameterSet &);
-  ~V0Validator();
+  ~V0Validator() override;
   enum V0Type { KSHORT, LAMBDA };
   struct V0Couple {
     reco::TrackRef one;
@@ -103,7 +102,7 @@ class V0Validator : public DQMEDAnalyzer {
   };
 
  private:
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
   void doFakeRates(const reco::VertexCompositeCandidateCollection &collection,

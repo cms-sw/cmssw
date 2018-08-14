@@ -11,7 +11,10 @@
 //
 // Original Author:  Christophe Delaere
 //         Created:  Thu Nov  5 17:02:15 CEST 2006
-//
+// Revision Author:  Georg Auzinger
+//         Created:  Thu Nov  5 17:02:15 CEST 2006
+//         Updated:  Fri Jun  2 16:00:00 CEST 2017
+
 //
 
 #ifndef SiStripPulseShape_h_
@@ -24,6 +27,19 @@ double fdeconv(double *x, double *par);
 double fpeak_convoluted(double *x, double *par);
 
 double fdeconv_convoluted(double *x, double *par);
+
+double pulse_raw(double x, double y, double z, double t);
+
+double pulse_x0(double y, double z, double t);
+
+double pulse_yz(double x, double z, double t);
+
+double pulse_x0_yz(double z, double t);
+
+double pulse(double x, double y, double z, double t);
+
+double get_compensation(double x);
+
 
 class SiStripPulseShape
 {
@@ -40,15 +56,15 @@ class SiStripPulseShape
       switch(mode_) {
        case peak:
         {
-	  return fpeak_convoluted(&time,parameters);
+	  return fpeak(&time,parameters);
 	}
        case deconvolution:
         {
-	  return fdeconv_convoluted(&time,parameters);
+	  return fdeconv(&time,parameters);
 	}
       }
     }
-
+    
   private:
     mode mode_;
 };

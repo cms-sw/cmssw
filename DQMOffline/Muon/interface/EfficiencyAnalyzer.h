@@ -40,7 +40,7 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   EfficiencyAnalyzer(const edm::ParameterSet& pset);
   
   /* Destructor */ 
-  virtual ~EfficiencyAnalyzer() ;
+  ~EfficiencyAnalyzer() override ;
 
   /* Operations */ 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
@@ -74,6 +74,9 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   std::string ID_;
 
   MonitorElement* h_passProbes_ID_pt;
+  MonitorElement* h_passProbes_ID_inner_pt;
+  MonitorElement* h_passProbes_ID_inner_eta;
+  MonitorElement* h_passProbes_ID_inner_phi;
   MonitorElement* h_passProbes_ID_EB_pt;
   MonitorElement* h_passProbes_ID_EE_pt;
   MonitorElement* h_passProbes_ID_eta;
@@ -103,6 +106,9 @@ class EfficiencyAnalyzer : public DQMEDAnalyzer {
   MonitorElement* h_allProbes_hp_eta;
   MonitorElement* h_allProbes_phi;
   MonitorElement* h_allProbes_ID_pt;
+  MonitorElement* h_allProbes_inner_pt;
+  MonitorElement* h_allProbes_inner_eta;
+  MonitorElement* h_allProbes_inner_phi;
   MonitorElement* h_allProbes_EB_ID_pt;
   MonitorElement* h_allProbes_EE_ID_pt;
   MonitorElement* h_allProbes_ID_nVtx;
