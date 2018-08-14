@@ -112,7 +112,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     computeNippleParameters(1.);   // Z Plus endcap
     computeNippleParameters(-1.);  // Z Minus endcap
   }
-  if (childName == "") return;
+  if (childName.empty()) return;
   
   // -- Signed versions of blade angle and z-shift :
   
@@ -127,7 +127,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
   // -- Get translation and rotation from "blade frame" to "child frame", if any :
   
   CLHEP::HepRotation childRotMatrix = CLHEP::HepRotation();
-  if (childRotationName != "") {
+  if (!childRotationName.empty()) {
     DDRotation childRotation = DDRotation(DDName(DDSplit(childRotationName).first, DDSplit(childRotationName).second));
     // due to conversion to ROOT::Math::Rotation3D -- Michael Case
     DD3Vector x, y, z;
