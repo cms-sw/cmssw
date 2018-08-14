@@ -19,6 +19,7 @@ from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -153,9 +154,34 @@ def nanoAOD_addDeepBTagFor80X(process):
     patAlgosToolsTask .add(process.patJetCorrFactors)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
+def nanoAOD_addDeepFlavourTagFor94X2016(process):
+    print("Updating process to run DeepCSV btag on 94X re-miniAOD of legacy 80X datasets")
+    updateJetCollection(
+               process,
+               jetSource = cms.InputTag('slimmedJets'),
+               jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
+               btagDiscriminators = ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb'], ## to add discriminators
+               btagPrefix = ''
+           )
+    process.load("Configuration.StandardSequences.MagneticField_cff")
+    process.looseJetId.src="selectedUpdatedPatJets"
+    process.tightJetId.src="selectedUpdatedPatJets"
+    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
+    process.bJetVars.src="selectedUpdatedPatJets"
+    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
+    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
+    process.pfDeepFlavourJetTags.graph_path = 'RecoBTag/Combined/data/DeepFlavourV03_10X_training/constant_graph.pb'
+    process.pfDeepFlavourJetTags.lp_names = ["cpf_input_batchnorm/keras_learning_phase"]
+    patAlgosToolsTask = getPatAlgosToolsTask(process)
+    patAlgosToolsTask .add(process.updatedPatJets)
+    patAlgosToolsTask .add(process.patJetCorrFactors)
+    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
+    return process
+
 
 def nanoAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
+    run2_nanoAOD_94X2016.toModify(process, nanoAOD_addDeepFlavourTagFor94X2016)
     return process
 
 
