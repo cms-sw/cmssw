@@ -47,5 +47,6 @@ DQMHarvestL1TMuon = cms.Sequence(
     * l1tTauEmuEfficiency
     #* l1tTauEmuDiff
     * l1tMuonDQMEfficiency
+    * l1tMuonDQMEmuEfficiency
 )
 

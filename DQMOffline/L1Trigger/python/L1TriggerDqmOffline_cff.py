@@ -358,7 +358,8 @@ Stage2l1tEgEmulatorOffline = cms.Sequence(
 # sequence to run only for modules requiring a muon dataset
 Stage2l1tMuonEmulatorOffline = cms.Sequence(
                                 l1tEtSumJetOfflineDQMEmu +
-                                l1tTauOfflineDQMEmu
+                                l1tTauOfflineDQMEmu +
+                                l1tMuonDQMOfflineEmu
                                 )
 
 ##############################################################################
