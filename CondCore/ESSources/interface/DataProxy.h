@@ -56,7 +56,7 @@ class DataProxy : public edm::eventsetup::DataProxy{
   // ---------- member data --------------------------------
 
   std::shared_ptr<cond::persistency::PayloadProxy<DataT>>  m_data;
-  Initializer m_initializer;
+  Initializer const  m_initializer;
 };
 
 namespace cond {

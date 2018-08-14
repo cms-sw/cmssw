@@ -50,7 +50,7 @@ namespace cond {
 
 
 namespace {
-  struct InitEfficiency {void operator()(condex::Efficiency& e){ e.initialize();}};
+  struct InitEfficiency {void operator()(condex::Efficiency& e) const { e.initialize();}};
 }
 
 REGISTER_PLUGIN(PedestalsRcd,Pedestals);

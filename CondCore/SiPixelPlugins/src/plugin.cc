@@ -44,8 +44,8 @@
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 
 namespace {
- struct InitRocs {void operator()(SiPixelFedCablingMap& m){ m.initializeRocs();}};
- template<typename G> struct InitGains {void operator()(G& g){ g.initialize();}}; 
+ struct InitRocs {void operator()(SiPixelFedCablingMap& m) const { m.initializeRocs();}};
+ template<typename G> struct InitGains {void operator()(G& g) const { g.initialize();}}; 
 }
 
 

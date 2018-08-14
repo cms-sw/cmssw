@@ -245,7 +245,7 @@ class JetCorrectorParametersCollection {
 };
 
 struct JetCorrectorParametersInitializeTransients {
-  void operator()(JetCorrectorParametersCollection& jcpc) {
+  void operator() (JetCorrectorParametersCollection& jcpc) const {
     for (auto & ptype : jcpc.getCorrections())   {ptype.second.init();}
     for (auto & ptype : jcpc.getCorrectionsL5()) {ptype.second.init();}
     for (auto & ptype : jcpc.getCorrectionsL7()) {ptype.second.init();}

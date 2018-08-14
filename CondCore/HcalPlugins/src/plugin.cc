@@ -43,16 +43,16 @@ namespace cond {
 }
 
 namespace {
-  struct InitHcalElectronicsMap {void operator()(HcalElectronicsMap& e){ e.initialize();}};
+  struct InitHcalElectronicsMap {void operator()(HcalElectronicsMap& e) const { e.initialize();}};
 }
 namespace {
-  struct InitHcalDcsMap {void operator()(HcalDcsMap& e){ e.initialize();}};
+  struct InitHcalDcsMap {void operator()(HcalDcsMap& e) const { e.initialize();}};
 }
 namespace {
-  struct InitHcalFrontEndMap {void operator()(HcalFrontEndMap& e){ e.initialize();}};
+  struct InitHcalFrontEndMap {void operator()(HcalFrontEndMap& e) const { e.initialize();}};
 }
 namespace {
-  struct InitHcalSiPMCharacteristics {void operator()(HcalSiPMCharacteristics& e){ e.initialize();}};
+  struct InitHcalSiPMCharacteristics {void operator()(HcalSiPMCharacteristics& e) const { e.initialize();}};
 }
 
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);

@@ -3,7 +3,7 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 namespace {
-  struct L1GtTriggerMenuInitializer { void operator()(L1GtTriggerMenu & _) { _.buildGtConditionMap(); } };
+  struct L1GtTriggerMenuInitializer { void operator()(L1GtTriggerMenu & _) const { _.buildGtConditionMap(); } };
 }
 REGISTER_PLUGIN_INIT(L1GtTriggerMenuRcd, L1GtTriggerMenu, L1GtTriggerMenuInitializer);
 

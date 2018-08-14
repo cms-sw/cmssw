@@ -65,43 +65,43 @@ namespace cond {
 
 
 namespace {
-  struct InitDTCCBConfig {void operator()(DTCCBConfig& e){ e.initialize();}};
+  struct InitDTCCBConfig {void operator()(DTCCBConfig& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTDeadFlag {void operator()(DTDeadFlag& e){ e.initialize();}};
+  struct InitDTDeadFlag {void operator()(DTDeadFlag& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTHVStatus {void operator()(DTHVStatus& e){ e.initialize();}};
+  struct InitDTHVStatus {void operator()(DTHVStatus& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTLVStatus {void operator()(DTLVStatus& e){ e.initialize();}};
+  struct InitDTLVStatus {void operator()(DTLVStatus& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTMtime {void operator()(DTMtime& e){ e.initialize();}};
+  struct InitDTMtime {void operator()(DTMtime& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTPerformance {void operator()(DTPerformance& e){ e.initialize();}};
+  struct InitDTPerformance {void operator()(DTPerformance& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTRangeT0 {void operator()(DTRangeT0& e){ e.initialize();}};
+  struct InitDTRangeT0 {void operator()(DTRangeT0& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTStatusFlag {void operator()(DTStatusFlag& e){ e.initialize();}};
+  struct InitDTStatusFlag {void operator()(DTStatusFlag& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTTPGParameters {void operator()(DTTPGParameters& e){ e.initialize();}};
+  struct InitDTTPGParameters {void operator()(DTTPGParameters& e) const { e.initialize();}};
 }
 
 namespace {
-  struct InitDTTtrig {void operator()(DTTtrig& e){ e.initialize();}};
+  struct InitDTTtrig {void operator()(DTTtrig& e) const { e.initialize();}};
 }
 
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);

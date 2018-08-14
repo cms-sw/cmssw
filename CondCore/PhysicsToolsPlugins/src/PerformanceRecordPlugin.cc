@@ -28,7 +28,7 @@ namespace cond {
 }
 
 namespace {
-  struct InitPerformancePayload {void operator()(PerformancePayload& e){ e.initialize();}};
+  struct InitPerformancePayload {void operator()(PerformancePayload& e) const { e.initialize();}};
 }
 
 REGISTER_PLUGIN_INIT(PerformancePayloadRecord, PerformancePayload, InitPerformancePayload);
