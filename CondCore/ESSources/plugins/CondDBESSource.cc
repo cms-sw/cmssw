@@ -246,7 +246,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       tagSnapshotTime = boost::posix_time::ptime();
 
     auto& proxy =proxyWrappers[ipb++];
-    proxy->lateInit(nsess, tag, tagSnapshotTime, tagInfo.second.recordLabel(), connStr);
+    proxy->lateInit(nsess, std::move(tag), tagSnapshotTime, tagInfo.second.recordLabel(), std::move(connStr));
     //  instert in the map
     m_proxies.emplace(tagInfo.second.recordName(), std::move(proxy));
   }

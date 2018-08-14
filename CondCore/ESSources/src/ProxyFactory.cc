@@ -22,8 +22,8 @@ cond::DataProxyWrapperBase::DataProxyWrapperBase(std::string const & il) : m_lab
 
 cond::DataProxyWrapperBase::~DataProxyWrapperBase(){}
 
-void cond::DataProxyWrapperBase::addInfo(std::string const & il, std::string const & cs, std::string const & tag) { 
-  m_label=il; m_connString = cs; m_tag=tag;
+void cond::DataProxyWrapperBase::addInfo(std::string const il, std::string cs, std::string tag) { 
+  m_label=std::move(il); m_connString = std::move(cs); m_tag=std::move(tag);
 }
 
 EDM_REGISTER_PLUGINFACTORY(cond::ProxyFactory, cond::pluginCategory());

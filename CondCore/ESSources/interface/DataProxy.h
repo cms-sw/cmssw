@@ -79,11 +79,11 @@ namespace cond {
     DataProxyWrapperBase();
     explicit DataProxyWrapperBase(std::string const & il);
     // late initialize (to allow to load ALL library first)
-    virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
-			  std::string const & il, std::string const & cs)=0;
-
-    void addInfo(std::string const & il, std::string const & cs, std::string const & tag);
-    
+    void lateInit(cond::persistency::Session& session, std::string tag, const boost::posix_time::ptime& snapshotTime,
+                  std::string il, std::string  cs) {
+      lateInitImpl(session, tag, snapshotTime);
+      addInfo(std::move(il), std::move(cs), std::move(tag));
+    }
 
     virtual ~DataProxyWrapperBase();
     std::string const & label() const { return m_label;}
@@ -92,6 +92,8 @@ namespace cond {
     std::string const & tag() const { return m_tag;}
 
   private:
+    virtual void lateInitImpl(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime) =0;
+    void addInfo(std::string il, std::string cs, std::string tag);
     std::string m_label;
     std::string m_connString;
     std::string m_tag;
@@ -126,21 +128,19 @@ public:
     // when the plugin is dynamically loaded
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
   }
-
-  // late initialize (to allow to load ALL library first)
-  void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
-			std::string const & il, std::string const & cs) override {
-    m_proxy =std::make_unique<PayProxy>(m_source.empty() ?  (const char *)nullptr : m_source.c_str() );
-    m_proxy->setUp( session );
-    m_proxy->loadTag( tag, snapshotTime );
-    addInfo(il, cs, tag);
-  }
     
   edm::eventsetup::TypeTag type() const override { return m_type;}
   ProxyP proxy() const override { return m_proxy.get();}
   edmProxyP makeEdmProxy() const override { return std::make_shared<DataProxy>(*m_proxy);}
  
 private:
+  // late initialize (to allow to load ALL library first)
+  void lateInitImpl(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime) override {
+    m_proxy =std::make_unique<PayProxy>(m_source.empty() ?  (const char *)nullptr : m_source.c_str() );
+    m_proxy->setUp( session );
+    m_proxy->loadTag( tag, snapshotTime );
+  }
+
   std::string m_source;
   edm::eventsetup::TypeTag m_type;
   std::unique_ptr<PayProxy>  m_proxy;
